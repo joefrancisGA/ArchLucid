@@ -1,6 +1,6 @@
 > **Scope:** Owner security self-assessment — procurement pack excerpt (no customer names).
 
-> **Spine doc:** [`START_HERE.md`](../../docs/START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Owner-conducted security assessment — procurement excerpt
 

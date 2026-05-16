@@ -1,6 +1,6 @@
 > **Scope:** Penetration test summary — procurement interim statement (no third-party test results claimed).
 
-> **Spine doc:** [`START_HERE.md`](../../docs/START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Penetration test summary — interim statement
 

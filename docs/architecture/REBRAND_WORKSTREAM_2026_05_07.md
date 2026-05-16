@@ -17,7 +17,7 @@ CI guard: [`scripts/ci/assert_brand_category_seam.py`](../../scripts/ci/assert_b
 |----|----------|--------|
 | **PR-1** | `brand-category.ts`, `WelcomeMarketingPage`, `BRAND_SYSTEM.md`, brand-category tests/e2e, `(marketing)/why/page.tsx` metadata comments | **Done** |
 | **PR-2** | [`POSITIONING.md`](../go-to-market/POSITIONING.md), [`PRODUCT_DATASHEET.md`](../go-to-market/PRODUCT_DATASHEET.md), [`DEMO_QUICKSTART.md`](../go-to-market/DEMO_QUICKSTART.md), [`EXECUTIVE_ONE_EMAIL_KIT.md`](../go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md) | **Done** |
-| **PR-3** | [`EXECUTIVE_SPONSOR_BRIEF.md`](../EXECUTIVE_SPONSOR_BRIEF.md), [`COMPETITIVE_LANDSCAPE.md`](../go-to-market/COMPETITIVE_LANDSCAPE.md) | **Done** |
+| **PR-3** | [`EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md), [`COMPETITIVE_LANDSCAPE.md`](../go-to-market/COMPETITIVE_LANDSCAPE.md) | **Done** |
 | **PR-4** | Per-vertical `templates/briefs/**/brief.md` | **N/A** (no legacy category literals present) |
 | **PR-5** | `docs/trust-center.md`, `docs/library/PRODUCT_PACKAGING.md`, `dist/procurement-pack/*` | **N/A** (no legacy literals found in tracked procurement/trust snippets) |
 | **PR-6** | Operator shell beyond marketing app routes | **N/A** (category flows via seam only; no stray literals under `src/app`) |

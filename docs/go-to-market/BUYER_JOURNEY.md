@@ -29,7 +29,7 @@ ArchLucid is an **AI-assisted architecture workflow** with three product layers:
 
 | Stage | Buyer touchpoints | Proof artifacts |
 |-------|-------------------|-----------------|
-| **Discovery** | Executive sponsor brief, pilot ROI companion, demo script | [EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md), [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md) |
+| **Discovery** | Executive sponsor brief, pilot ROI companion, demo script | [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md), [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md) |
 | **Pilot (30/60/90)** | Operator UI + CLI, API keys or Entra JWT, SQL / Container Apps deploy | Golden manifests, `Runs.OtelTraceId`, export records, audit events |
 | **Expand** | Governance approvals, integration events, Service Bus consumers | `GovernanceApprovalRequests`, AsyncAPI catalog, [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) |
 
@@ -58,4 +58,4 @@ Fail-closed API auth (`ArchLucidAuth`), **scope policies** (`ReadAuthority` / `E
 | **Traceable review package** | **100%** of pilot runs have **Otel + manifest + findings** for sponsor demo | `Runs.OtelTraceId`, `GoldenManifests`, `FindingsSnapshots` ([../DATA_MODEL.md](../library/DATA_MODEL.md)) |
 | **Governance-ready evidence (if Enterprise layer)** | At least **one** approval or policy outcome **exportable** for audit | `GovernanceApprovalRequests`, `AuditEvents` / operator audit UI |
 
-Canonical **buyer pitch** remains in [../EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md) — this document aligns **field motion** to **persisted artifacts**, not a second narrative.
+Canonical **buyer pitch** remains in [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) — this document aligns **field motion** to **persisted artifacts**, not a second narrative.

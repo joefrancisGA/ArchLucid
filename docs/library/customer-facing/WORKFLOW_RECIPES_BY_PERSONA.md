@@ -59,14 +59,14 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`NAV
 
 **Steps**
 
-1. **Read trust posture** — Hosted narrative: [trust-center.md](../../trust-center.md) · UI: `/trust` (download control mirrors API; workspace variant `/workspace/security-trust` per [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md)).
+1. **Read trust posture** — Hosted narrative: [trust-center.md](../../go-to-market/trust-center.md) · UI: `/trust` (download control mirrors API; workspace variant `/workspace/security-trust` per [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md)).
 2. **Download evidence pack** — API (anonymous): `GET /v1/marketing/trust-center/evidence-pack.zip` · Index / fast lane: [go-to-market/PROCUREMENT_PACK_INDEX.md](../../go-to-market/PROCUREMENT_PACK_INDEX.md), [go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md](../../go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md).
 3. **Run-level proof (after commit)** — API: `GET /v1/pilots/runs/{runId}/first-value-report`, `GET /v1/pilots/runs/{runId}/pilot-run-deltas` · UI: exports on run detail.
 4. **Operational bundle (internal)** — UI: `/admin/support` · API: `POST /v1/admin/support-bundle` · CLI: `archlucid support-bundle` — use only with explicit disclosure rules ([OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md)).
 
 **Expected outputs:** ZIP + Markdown/JSON run exports suitable for RFP appendices; internal support ZIP only when policy allows.
 
-**Failure hints:** Empty or missing run exports → run not committed or wrong `runId`; `429` on public endpoints → backoff; do not mistake **self-assessment / SoW templates** in the ZIP for finished CPA reports ([trust-center.md](../../trust-center.md)).
+**Failure hints:** Empty or missing run exports → run not committed or wrong `runId`; `429` on public endpoints → backoff; do not mistake **self-assessment / SoW templates** in the ZIP for finished CPA reports ([trust-center.md](../../go-to-market/trust-center.md)).
 
 **Reference:** [SECURITY.md](../SECURITY.md), [API_CONTRACTS.md](../API_CONTRACTS.md).
 

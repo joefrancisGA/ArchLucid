@@ -73,7 +73,7 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
         {
             // Last-in wins over appsettings / user secrets: keep integration tests off real OpenAI and
             // avoid circuit-breaker 503s; relax rate limits so parallel runs do not exhaust shared windows.
-            config.AddInMemoryCollection(new Dictionary<string, string?>
+            Dictionary<string, string?> settings = new()
             {
                 ["ArchLucid:StorageProvider"] = "InMemory",
                 ["ConnectionStrings:ArchLucid"] = SqlConnectionString,
@@ -95,7 +95,10 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
                 ["Billing:Provider"] = "Noop",
                 ["ASPNETCORE_URLS"] = "http://127.0.0.1:0",
                 ["ArchLucidAuth:AllowTestActorHeaders"] = "true"
-            });
+            };
+
+            ApiTestWebHostLogging.AddQuietDefaultLogLevel(settings);
+            config.AddInMemoryCollection(settings);
         });
     }
 

@@ -1,8 +1,8 @@
 > **Scope:** ArchLucid Trust Center - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../../docs/START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
-**Buyer posture table (single index):** [`docs/trust-center.md`](../trust-center.md) — same evidence links; rendered in-product at **`/trust`**.
+**Buyer posture table (single index):** [`docs/go-to-market/trust-center.md`](trust-center.md) — same evidence links; rendered in-product at **`/trust`**.
 
 # ArchLucid Trust Center
 

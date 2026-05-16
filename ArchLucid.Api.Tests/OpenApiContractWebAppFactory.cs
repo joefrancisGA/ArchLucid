@@ -28,32 +28,34 @@ public class OpenApiContractWebAppFactory : WebApplicationFactory<Program>
 
         builder.ConfigureAppConfiguration((_, config) =>
         {
-            config.AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["ArchLucid:StorageProvider"] = "InMemory",
-                    ["ConnectionStrings:ArchLucid"] = InMemoryStartupSqlConnectionStringSentinel.Value,
-                    ["DataConsistency:InitialDelaySeconds"] = "0",
-                    ["HostLeaderElection:Enabled"] = "false",
-                    ["IntegrationEvents:QueueOrTopicName"] = "",
-                    ["IntegrationEvents:ServiceBusConnectionString"] = "",
-                    ["IntegrationEvents:ServiceBusFullyQualifiedNamespace"] = "",
-                    ["IntegrationEvents:ServiceBusManagedIdentityClientId"] = "",
-                    ["AgentExecution:Mode"] = "Simulator",
-                    ["AzureOpenAI:Endpoint"] = "",
-                    ["AzureOpenAI:ApiKey"] = "",
-                    ["AzureOpenAI:DeploymentName"] = "",
-                    ["AzureOpenAI:EmbeddingDeploymentName"] = "",
-                    ["RateLimiting:FixedWindow:PermitLimit"] = "100000",
-                    ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
-                    ["RateLimiting:Expensive:PermitLimit"] = "100000",
-                    ["RateLimiting:Expensive:WindowMinutes"] = "1",
-                    ["RateLimiting:Replay:Light:PermitLimit"] = "100000",
-                    ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
-                    ["RateLimiting:Registration:PermitLimit"] = "100000",
-                    ["RateLimiting:Registration:WindowMinutes"] = "1",
-                    ["Billing:Provider"] = "Noop"
-                });
+            Dictionary<string, string?> settings = new()
+            {
+                ["ArchLucid:StorageProvider"] = "InMemory",
+                ["ConnectionStrings:ArchLucid"] = InMemoryStartupSqlConnectionStringSentinel.Value,
+                ["DataConsistency:InitialDelaySeconds"] = "0",
+                ["HostLeaderElection:Enabled"] = "false",
+                ["IntegrationEvents:QueueOrTopicName"] = "",
+                ["IntegrationEvents:ServiceBusConnectionString"] = "",
+                ["IntegrationEvents:ServiceBusFullyQualifiedNamespace"] = "",
+                ["IntegrationEvents:ServiceBusManagedIdentityClientId"] = "",
+                ["AgentExecution:Mode"] = "Simulator",
+                ["AzureOpenAI:Endpoint"] = "",
+                ["AzureOpenAI:ApiKey"] = "",
+                ["AzureOpenAI:DeploymentName"] = "",
+                ["AzureOpenAI:EmbeddingDeploymentName"] = "",
+                ["RateLimiting:FixedWindow:PermitLimit"] = "100000",
+                ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
+                ["RateLimiting:Expensive:PermitLimit"] = "100000",
+                ["RateLimiting:Expensive:WindowMinutes"] = "1",
+                ["RateLimiting:Replay:Light:PermitLimit"] = "100000",
+                ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
+                ["RateLimiting:Registration:PermitLimit"] = "100000",
+                ["RateLimiting:Registration:WindowMinutes"] = "1",
+                ["Billing:Provider"] = "Noop"
+            };
+
+            ApiTestWebHostLogging.AddQuietDefaultLogLevel(settings);
+            config.AddInMemoryCollection(settings);
         });
     }
 }

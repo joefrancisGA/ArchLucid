@@ -1,6 +1,6 @@
 > **Scope:** ArchLucid — Subprocessors - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../../docs/START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # ArchLucid — Subprocessors

@@ -9,7 +9,7 @@
 
 **Status:** Future-state commercialization guidance. This document does **not** implement licensing, billing, entitlement, or pricing enforcement. It explains **how boundary hardening should happen in sequence** so the product gains commercial discipline without damaging the Core Pilot wedge.
 
-**Related:** [FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGING_ENFORCEMENT.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) · [archlucid-ui/README.md](../../archlucid-ui/README.md#role-aware-shaping-first-wave) (Stage 1 UI shipped)
+**Related:** [FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGING_ENFORCEMENT.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) · [archlucid-ui/README.md](../../archlucid-ui/README.md#role-aware-shaping-first-wave) (Stage 1 UI shipped)
 
 ---
 

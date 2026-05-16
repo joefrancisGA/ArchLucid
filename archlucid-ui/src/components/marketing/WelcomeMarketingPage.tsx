@@ -3,8 +3,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { Button } from "@/components/ui/button";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
+import { WalkthroughRequestCta } from "@/components/marketing/WalkthroughRequestCta";
+import { Button } from "@/components/ui/button";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
 import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
 
@@ -84,7 +85,7 @@ const PILLARS: readonly WelcomePillar[] = [
     ],
   },
 ];
-/** Public marketing landing: hero, pillars, pricing cards from `/pricing.json`, primary CTA to the quick demo (`/see-it`). */
+/** Public marketing landing: hero (primary walkthrough CTA), pillars, pricing cards from `/pricing.json`. */
 export function WelcomeMarketingPage() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
@@ -105,7 +106,8 @@ export function WelcomeMarketingPage() {
           {HERO_PITCH}
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Button asChild variant="primary" size="lg">
+          <WalkthroughRequestCta className="min-h-11 px-8 text-base font-semibold shadow-sm" />
+          <Button asChild variant="outline" size="lg">
             <Link href="/see-it">See it in 30 seconds</Link>
           </Button>
           <Button asChild variant="outline" size="lg">

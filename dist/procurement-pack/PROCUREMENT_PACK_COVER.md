@@ -1,6 +1,6 @@
 > **Scope:** Procurement pack cover letter — **owner-completed scaffold only** (no deal-specific names in repo).
 
-> **Spine doc:** [`START_HERE.md`](../../docs/START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Procurement pack — cover letter (scaffold)
 

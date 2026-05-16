@@ -27,7 +27,7 @@ Portability at the **application** layer (containers, standard protocols) remain
 
 ## Compliance
 
-- [EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md) and [go-to-market/POSITIONING.md](../go-to-market/POSITIONING.md) reference platform assumptions consistent with this ADR.
+- [EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) and [go-to-market/POSITIONING.md](../go-to-market/POSITIONING.md) reference platform assumptions consistent with this ADR.
 - Terraform guardrails remain: no legacy `archiforge` tokens in `.tf` under `infra/` (contributor `rg` / review — dedicated CI grep retired).
 
 ## Related

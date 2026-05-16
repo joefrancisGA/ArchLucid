@@ -36,38 +36,40 @@ internal sealed class RateLimitProbeWebAppFactory : WebApplicationFactory<Progra
 
         builder.ConfigureAppConfiguration((_, config) =>
         {
-            config.AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["ArchLucid:StorageProvider"] = "InMemory",
-                    ["ConnectionStrings:ArchLucid"] = InMemoryStartupSqlConnectionStringSentinel.Value,
-                    ["DataConsistency:InitialDelaySeconds"] = "0",
-                    ["HostLeaderElection:Enabled"] = "false",
-                    ["IntegrationEvents:QueueOrTopicName"] = "",
-                    ["IntegrationEvents:ServiceBusConnectionString"] = "",
-                    ["IntegrationEvents:ServiceBusFullyQualifiedNamespace"] = "",
-                    ["IntegrationEvents:ServiceBusManagedIdentityClientId"] = "",
-                    ["AgentExecution:Mode"] = "Simulator",
-                    ["AzureOpenAI:Endpoint"] = "",
-                    ["AzureOpenAI:ApiKey"] = "",
-                    ["AzureOpenAI:DeploymentName"] = "",
-                    ["AzureOpenAI:EmbeddingDeploymentName"] = "",
-                    ["RateLimiting:FixedWindow:PermitLimit"] = "1",
-                    ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
-                    ["RateLimiting:FixedWindow:QueueLimit"] = "0",
-                    ["RateLimiting:RoleMultipliers:Anonymous"] = "1",
-                    ["RateLimiting:RoleMultipliers:Reader"] = "1",
-                    ["RateLimiting:RoleMultipliers:Operator"] = "1",
-                    ["RateLimiting:RoleMultipliers:Admin"] = "1",
-                    ["RateLimiting:Expensive:PermitLimit"] = "100000",
-                    ["RateLimiting:Expensive:WindowMinutes"] = "1",
-                    ["RateLimiting:Replay:Light:PermitLimit"] = "100000",
-                    ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
-                    ["RateLimiting:Registration:PermitLimit"] = "100000",
-                    ["RateLimiting:Registration:WindowMinutes"] = "1",
-                    ["Billing:Provider"] = "Noop",
-                    ["ASPNETCORE_URLS"] = "http://127.0.0.1:0"
-                });
+            Dictionary<string, string?> settings = new()
+            {
+                ["ArchLucid:StorageProvider"] = "InMemory",
+                ["ConnectionStrings:ArchLucid"] = InMemoryStartupSqlConnectionStringSentinel.Value,
+                ["DataConsistency:InitialDelaySeconds"] = "0",
+                ["HostLeaderElection:Enabled"] = "false",
+                ["IntegrationEvents:QueueOrTopicName"] = "",
+                ["IntegrationEvents:ServiceBusConnectionString"] = "",
+                ["IntegrationEvents:ServiceBusFullyQualifiedNamespace"] = "",
+                ["IntegrationEvents:ServiceBusManagedIdentityClientId"] = "",
+                ["AgentExecution:Mode"] = "Simulator",
+                ["AzureOpenAI:Endpoint"] = "",
+                ["AzureOpenAI:ApiKey"] = "",
+                ["AzureOpenAI:DeploymentName"] = "",
+                ["AzureOpenAI:EmbeddingDeploymentName"] = "",
+                ["RateLimiting:FixedWindow:PermitLimit"] = "1",
+                ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
+                ["RateLimiting:FixedWindow:QueueLimit"] = "0",
+                ["RateLimiting:RoleMultipliers:Anonymous"] = "1",
+                ["RateLimiting:RoleMultipliers:Reader"] = "1",
+                ["RateLimiting:RoleMultipliers:Operator"] = "1",
+                ["RateLimiting:RoleMultipliers:Admin"] = "1",
+                ["RateLimiting:Expensive:PermitLimit"] = "100000",
+                ["RateLimiting:Expensive:WindowMinutes"] = "1",
+                ["RateLimiting:Replay:Light:PermitLimit"] = "100000",
+                ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
+                ["RateLimiting:Registration:PermitLimit"] = "100000",
+                ["RateLimiting:Registration:WindowMinutes"] = "1",
+                ["Billing:Provider"] = "Noop",
+                ["ASPNETCORE_URLS"] = "http://127.0.0.1:0"
+            };
+
+            ApiTestWebHostLogging.AddQuietDefaultLogLevel(settings);
+            config.AddInMemoryCollection(settings);
         });
     }
 }

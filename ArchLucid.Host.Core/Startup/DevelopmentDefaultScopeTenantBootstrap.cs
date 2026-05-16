@@ -47,24 +47,46 @@ public static class DevelopmentDefaultScopeTenantBootstrap
         if (workspacesTableExists == 0)
             return;
 
+        bool tenantWorkspacesSupportsDemoFlag =
+            connection.QuerySingle<int>(
+                @"SELECT CASE WHEN COL_LENGTH(N'dbo.TenantWorkspaces', N'IsDemoWorkspace') IS NULL THEN 0 ELSE 1 END;") != 0;
+
         int workspaceCount = connection.QuerySingle<int>(
             "SELECT COUNT(1) FROM dbo.TenantWorkspaces WHERE Id = @WorkspaceId;",
             new { WorkspaceId = ScopeIds.DefaultWorkspace, });
 
         if (workspaceCount == 0)
         {
-            _ = connection.Execute(
-                """
-                INSERT INTO dbo.TenantWorkspaces (Id, TenantId, Name, DefaultProjectId)
-                VALUES (@WorkspaceId, @TenantId, @WorkspaceName, @DefaultProjectId);
-                """,
-                new
-                {
-                    WorkspaceId = ScopeIds.DefaultWorkspace,
-                    TenantId = ScopeIds.DefaultTenant,
-                    WorkspaceName = "Development default workspace",
-                    DefaultProjectId = ScopeIds.DefaultProject,
-                });
+
+            if (tenantWorkspacesSupportsDemoFlag)
+
+                _ = connection.Execute(
+                    """
+                    INSERT INTO dbo.TenantWorkspaces (Id, TenantId, Name, DefaultProjectId, IsDemoWorkspace)
+                    VALUES (@WorkspaceId, @TenantId, @WorkspaceName, @DefaultProjectId, 0);
+                    """,
+                    new
+                    {
+                        WorkspaceId = ScopeIds.DefaultWorkspace,
+                        TenantId = ScopeIds.DefaultTenant,
+                        WorkspaceName = "Development default workspace",
+                        DefaultProjectId = ScopeIds.DefaultProject,
+                    });
+
+            else
+
+                _ = connection.Execute(
+                    """
+                    INSERT INTO dbo.TenantWorkspaces (Id, TenantId, Name, DefaultProjectId)
+                    VALUES (@WorkspaceId, @TenantId, @WorkspaceName, @DefaultProjectId);
+                    """,
+                    new
+                    {
+                        WorkspaceId = ScopeIds.DefaultWorkspace,
+                        TenantId = ScopeIds.DefaultTenant,
+                        WorkspaceName = "Development default workspace",
+                        DefaultProjectId = ScopeIds.DefaultProject,
+                    });
         }
 
         int projectsTableExists = connection.QuerySingle<int>(
@@ -89,6 +111,46 @@ public static class DevelopmentDefaultScopeTenantBootstrap
                         TenantId = ScopeIds.DefaultTenant,
                         WorkspaceId = ScopeIds.DefaultWorkspace,
                     });
+            }
+
+            if (tenantWorkspacesSupportsDemoFlag)
+            {
+                Guid productTourWorkspaceId = DemoTourWorkspaceIds.WorkspaceRowId(ScopeIds.DefaultTenant);
+                Guid productTourProjectId = DemoTourWorkspaceIds.ProjectScopeRowId(ScopeIds.DefaultTenant);
+                int tourWorkspaceMissing =
+                    connection.QuerySingle<int>(
+                        "SELECT COUNT(1) FROM dbo.TenantWorkspaces WHERE Id = @TourWorkspaceId;",
+                        new { TourWorkspaceId = productTourWorkspaceId, });
+
+                if (tourWorkspaceMissing == 0)
+                {
+
+                    _ = connection.Execute(
+                        """
+                        INSERT INTO dbo.TenantWorkspaces (Id, TenantId, Name, DefaultProjectId, IsDemoWorkspace)
+                        VALUES (@TourWorkspaceId, @TenantId, @TourWorkspaceName, @TourProjectId, 1);
+                        """,
+                        new
+                        {
+                            TourWorkspaceId = productTourWorkspaceId,
+                            TenantId = ScopeIds.DefaultTenant,
+                            TourWorkspaceName = "Product Tour — Architecture Review",
+                            TourProjectId = productTourProjectId,
+                        });
+
+                    _ = connection.Execute(
+                        """
+                        INSERT INTO dbo.Projects (Id, TenantId, WorkspaceId, Name, CreatedUtc, IsDeleted)
+                        VALUES (@TourProjectId, @TenantId, @TourWorkspaceId, @TourProjectSlug, SYSUTCDATETIME(), 0);
+                        """,
+                        new
+                        {
+                            TourProjectId = productTourProjectId,
+                            TenantId = ScopeIds.DefaultTenant,
+                            TourWorkspaceId = productTourWorkspaceId,
+                            TourProjectSlug = "product-tour-architecture-context",
+                        });
+                }
             }
         }
 

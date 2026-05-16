@@ -23,7 +23,7 @@ Factories and remarks: **`CommercialTenantTierFilter`**, **`PackagingTierProblem
 
 For a **controller inventory** by tier, see **[COMMERCIAL_ENFORCEMENT_DEBT.md](COMMERCIAL_ENFORCEMENT_DEBT.md)**.
 
-**Trust and packaging context:** assurance posture and commercial boundaries are summarized for buyers in **[Trust Center](../trust-center.md)**. How packaging intent relates to the product (without duplicating price tables) is in **[PRICING_PHILOSOPHY.md](../go-to-market/PRICING_PHILOSOPHY.md)** and **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)**.
+**Trust and packaging context:** assurance posture and commercial boundaries are summarized for buyers in **[Trust Center](../go-to-market/trust-center.md)**. How packaging intent relates to the product (without duplicating price tables) is in **[PRICING_PHILOSOPHY.md](../go-to-market/PRICING_PHILOSOPHY.md)** and **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)**.
 
 ---
 

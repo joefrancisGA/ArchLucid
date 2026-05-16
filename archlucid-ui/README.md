@@ -141,7 +141,7 @@ This is a boundary-hardening step for clarity and operational accountability. It
 
 | Document | What it covers |
 |----------|---------------|
-| [Executive sponsor brief](../docs/EXECUTIVE_SPONSOR_BRIEF.md) | **Canonical buyer narrative:** what ArchLucid does, what a pilot proves, and why expansion matters. |
+| [Executive sponsor brief](../docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) | **Canonical buyer narrative:** what ArchLucid does, what a pilot proves, and why expansion matters. |
 | [Pilot ROI model](../docs/library/PILOT_ROI_MODEL.md) | **Measurement companion:** how to judge pilot success using scorecards and practical V1 measures without turning the ROI model into a second buyer story. |
 | [Operator decision guide](../docs/library/OPERATOR_DECISION_GUIDE.md) | **Which layer to use next:** stay narrow unless a real question requires expansion. |
 | [Commercial boundary hardening sequence](../docs/library/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) | **What should harden first:** UI shaping → role-native boundaries → selective future commercialization. |
@@ -178,6 +178,7 @@ Edit `.env.local`:
 Optional:
 
 - **`NEXT_PUBLIC_ARCHLUCID_API_BASE_URL`** — Public fallback (documentation / tooling; browser calls use `/api/proxy`).
+- **`NEXT_PUBLIC_WALKTHROUGH_BOOKING_URL`** — Public marketing **`/welcome`** hero: **Request walkthrough** opens this URL in a new tab with current-page UTM / click-id params appended. When unset, the CTA falls back to **mailto** with subject **ArchLucid Architecture Review — Walkthrough Request** (optional **`NEXT_PUBLIC_WALKTHROUGH_MAILTO_FALLBACK`** for the address).
 
 **In-app documentation links:** **`NEXT_PUBLIC_DOCS_BASE_URL`** — Base URL prepended to repo-relative paths (for example `docs/library/GLOSSARY.md`) for the Help panel’s **Open documentation** links, glossary **Learn more** targets, and related contextual help. The repo default is the public GitHub **`main`** blob root (`https://github.com/joefrancisGA/ArchLucid/blob/main`), set explicitly in **`.env.example`**, **`.env.development`**, and the **full-stack** `docker-compose.yml` / **`docker-compose.demo.yml`** UI service so links work without extra setup. Override this when docs live on an internal portal or a fork. Implementation: **`src/lib/help-topics.ts`** (`getDocHref`) and **`src/lib/docs-public-base.ts`** (fallback when the variable is unset in other environments).
 

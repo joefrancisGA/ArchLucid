@@ -1,6 +1,6 @@
 > **Scope:** API contracts (notable behaviors) - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../../docs/START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # API contracts (notable behaviors)
@@ -83,6 +83,7 @@ Runbook: **`docs/runbooks/AZURE_EXTRACTOR_INGEST.md`**.
 | Direction | Entry point | Notes |
 |-----------|-------------|-------|
 | Outbound | **`POST /v1/integrations/itsm/outbound/issues`** | Requires **ExecuteAuthority**; providers **`Jira`** \| **`ServiceNow`**. Persists correlation for inbound callbacks. |
+| Operators | **`GET /v1/integrations/itsm/health`** | Requires **ReadAuthority**; **Standard** commercial tier. Lightweight read-only vendor pings (**Jira** `GET …/rest/api/3/myself`, **ServiceNow** `GET …/api/now/table/incident?sysparm_limit=1`) using host credentials plus **`dbo.TenantItsmOutboundSettings`** for the scoped tenant when evaluating Jira project readiness. **`200`** `{ "status": "healthy" \| "not_configured" \| "unhealthy", … }`; **`503`** when upstream fails for any locally configured vendor (body still carries per-vendor summaries). |
 | Inbound | **`POST /v1/integrations/webhooks/jira`**, **`POST /v1/integrations/webhooks/servicenow`** | Shared-secret headers per **`Integrations:ItsmInbound`**; anonymous route with connector secrets (no JWT). Payload shapes and headers are defined in **`GET /openapi/v1.json`**. |
 
 ## Explain (`/v1/explain`)
@@ -128,6 +129,7 @@ Sponsor- and pilot-facing read models. All routes require **ReadAuthority** and 
 |--------|------|----------|-------|
 | `GET` | **`/v1/pilots/runs/{runId}/first-value-report`** | **`text/markdown`** | One-page Markdown summary (run metadata, findings counts, decision trace excerpt, synthetic baseline fields where metrics are not yet populated). **404** when the run id is unknown. |
 | `GET` | **`/v1/pilots/runs/{runId}/pilot-run-deltas`** | **`PilotRunDeltasResponse` (JSON)** | Proof-of-ROI numbers aligned with the first-value report (`timeToCommittedManifestTotalSeconds`, findings-by-severity, audit row count, **LLM call count** (workload / transparency signal, not invoice truth), `isDemoTenant`, optional evidence-chain pointers). **404** when the run id is unknown. |
+| `GET` | **`/v1/pilots/runs/recent-deltas`** | **`RecentPilotRunDeltasResponse` (JSON)** | Aggregated proof-of-ROI rows for the **most recent committed runs** in scope (newest first). Query **`count`** (optional, default **5**, clamped **[1, 25]**). Each item may include **`llmCallCount`** / **`llmCallCountResolved`**; response includes **`medianLlmCallCount`** over attested rows. **ReadAuthority**. |
 | `POST` | **`/v1/pilots/runs/{runId}/first-value-report.pdf`** | **`application/pdf`** | One-shot **sponsor-shareable PDF projection** of the same first-value-report Markdown body — same auth (`ReadAuthority`), same content (single source of truth), no Standard-tier gate. Backs the post-commit "Email this run to your sponsor" CTA on the operator-shell `/runs/[runId]` page. **404** when the run id is unknown. |
 
 CLI: `archlucid first-value-report <runId> [--save]` · `archlucid reference-evidence --run <runId> [--out <dir>] [--include-demo]` (see **`docs/CLI_USAGE.md`**). UI banner is `EmailRunToSponsorBanner` in `archlucid-ui/src/components/`; the operator-shell page renders it whenever the run has a golden manifest.
@@ -174,6 +176,7 @@ See also **`docs/CONTROLLER_AREA_MAP.md`**. Existing **`POST /v1/admin/runs/arch
 | `GET` | `/v1/admin/config-summary` | **AdminAuthority** | Catalog presence + optional **`includeEffectiveValues`** (masked secrets). |
 | `GET` | `/v1/admin/configuration/summary` | **AdminAuthority** | Alias of **`config-summary`**. |
 | `GET` | `/v1/admin/config-lint` | **AdminAuthority** | **`AdminConfigLintResponse`**: **`hostingEnvironmentName`**, **`ok`**, **`blockingFindings`**, optional **`advisoryFindings`** (omit advisory noise with **`includeAdvisory=false`**). Mirrors **`archlucid config lint`** / **`ProductionLikeHostingMisconfigurationAdvisor`**; never returns secrets. |
+| `GET` | `/v1/admin/auth/oidc-diagnostics` | **AdminAuthority** | **`AdminOidcDiagnosticsResponse`**: configured **`authMode`**, **`configuredAuthority`**, **`configuredAudience`**, **`usesLocalJwtSigningKey`**, optional local issuer/audience when PEM signing is enabled; when **`JwtBearer`** uses OIDC metadata, attempts **`GET {authority}/.well-known/openid-configuration`** (10s HTTP timeout) and surfaces **`issuerFromDiscovery`**, **`authorizationEndpoint`**, **`tokenEndpoint`**, **`jwksUri`**, **`userinfoEndpoint`**, plus **`discoverySucceeded`** / **`discoveryError`**. No secrets. |
 
 ## Correlation ID
 
@@ -185,7 +188,7 @@ See also **`docs/CONTROLLER_AREA_MAP.md`**. Existing **`POST /v1/admin/runs/arch
 ## Problem details (`application/problem+json`) — extensions
 
 - **`extensions.errorCode`**: stable uppercase code for clients and automation.
-- **`extensions.supportHint`** (56R): optional, concise **next step** for operators; complements **`detail`**. No stack traces or secrets — use logs with **`X-Correlation-ID`** / **`correlationId`** in the body / **`RunId`** for deep diagnosis. See **`docs/runbooks/TROUBLESHOOTING.md`**.
+- **`extensions.supportHint`** (56R): optional, concise **next step** for operators; complements **`detail`**. No stack traces or secrets — use logs with **`X-Correlation-ID`** / **`correlationId`** in the body / **`RunId`** for deep diagnosis. See **`docs/TROUBLESHOOTING.md`**.
 
 ## Trial exhausted or over quota (**402 Payment Required**)
 
@@ -324,6 +327,7 @@ Governance is packaged as **versioned, assignable** bundles. Pack **content** is
 | `GET` | `/v1/policy-packs/{policyPackId}/versions` | List versions for a pack. |
 | `GET` | `/v1/policy-packs/effective` | Resolved **enabled** assignments → pack metadata + **ContentJson** per entry. |
 | `GET` | `/v1/policy-packs/effective-content` | **Merged** document: union of IDs (distinct), **advisoryDefaults** / **metadata** last-wins per key. |
+| `GET` | `/v1/policy-packs/{policyPackId}/explain` | Returns **`text/markdown`**: plain-English summary of the pack’s **current** version **`ContentJson`** (LLM-assisted; **advisory only**). **ReadAuthority**; **`expensive`** rate limit. **404** when the pack is out of scope, or when the current version has no content. |
 | `POST` | `/v1/policy-packs/simulate` | Typed façade over **`POST /v1/governance/policy-packs/dry-run`**: body **`runId`** + **`content`** (**`PolicyPackContentDocument`**) plus optional gate overrides. **ReadAuthority**; **`governancePolicyPackDryRun`** rate limit. **404** when the run is missing in scope. |
 
 **Validation:** Create / publish / assign bodies are validated with **FluentValidation**. Invalid JSON in `initialContentJson` or `contentJson`, unknown `packType`, or empty `version` returns **400** with problem details (same style as other validated endpoints).

@@ -137,8 +137,8 @@ function Invoke-DotnetTest {
 
     $dotnetArgs = @(
         'test', $Project,
-        '--verbosity', 'normal',
-        '--logger', 'console;verbosity=detailed'
+        '--verbosity', 'minimal',
+        '--logger', 'console;verbosity=normal'
     )
 
     if ($Filter) {

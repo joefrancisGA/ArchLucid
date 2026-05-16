@@ -1,6 +1,6 @@
 > **Scope:** Accessibility — operator UI patterns (supplement) - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../../docs/START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Accessibility — operator UI patterns (supplement)

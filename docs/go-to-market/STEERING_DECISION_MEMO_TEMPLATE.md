@@ -57,7 +57,7 @@ Copy into your wiki; **remove** rows you do not need.
 
 ## Commercial / procurement notes (optional)
 
-- Trust index: [`docs/trust-center.md`](../trust-center.md)
+- Trust index: [`trust-center.md`](trust-center.md)
 - Fast lane: [`docs/go-to-market/DECISION_FAST_LANE.md`](DECISION_FAST_LANE.md)
 
 ---

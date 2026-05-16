@@ -11,7 +11,7 @@
 
 **Grounding rule:** Every claim maps to a shipped V1 capability. See [V1_SCOPE.md](../library/V1_SCOPE.md) and [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) for evidence.
 
-**Relationship to the sponsor brief:** [EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md) is the **dominant outward-facing buyer narrative**. This page supports **short explanations and proof-backed pillars** for conversations and datasheets; it must **not contradict** the brief. If wording here drifts broader than the brief, **tighten here** or promote a deliberate product change into the brief first, then realign.
+**Relationship to the sponsor brief:** [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) is the **dominant outward-facing buyer narrative**. This page supports **short explanations and proof-backed pillars** for conversations and datasheets; it must **not contradict** the brief. If wording here drifts broader than the brief, **tighten here** or promote a deliberate product change into the brief first, then realign.
 
 **Platform:** First-party and reference deployments are **Azure-native**; see [ADR 0020](../architecture/adrs/0020-azure-primary-platform-permanent.md).
 
@@ -27,7 +27,7 @@
 
 ## 2. Three value pillars
 
-*The core value pillars (AI-native architecture analysis, Auditable decision trail, Enterprise governance) have been consolidated into the [Executive Sponsor Brief](../EXECUTIVE_SPONSOR_BRIEF.md#3-core-value-pillars). Use the brief as the single source of truth for value claims.*
+*The core value pillars (AI-native architecture analysis, Auditable decision trail, Enterprise governance) have been consolidated into the [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md#3-core-value-pillars). Use the brief as the single source of truth for value claims.*
 
 **Live deep link in the staging funnel:**
 
@@ -39,7 +39,7 @@ The unauthenticated proof route **`/demo/explain`** (operator shell) renders the
 
 ### Pillar 3: Enterprise governance
 
-*See the [Executive Sponsor Brief](../EXECUTIVE_SPONSOR_BRIEF.md#3-core-value-pillars) for details on Enterprise governance.*
+*See the [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md#3-core-value-pillars) for details on Enterprise governance.*
 
 **Proof points:**
 - Pre-commit governance gate with configurable severity thresholds and warning-only mode
@@ -53,7 +53,7 @@ The unauthenticated proof route **`/demo/explain`** (operator shell) renders the
 
 ## 3. Elevator pitches
 
-*The elevator pitches have been consolidated into the [Executive Sponsor Brief](../EXECUTIVE_SPONSOR_BRIEF.md#4-elevator-pitches). Use the brief as the single source of truth for narrative.*
+*The elevator pitches have been consolidated into the [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md#4-elevator-pitches). Use the brief as the single source of truth for narrative.*
 
 ---
 

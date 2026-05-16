@@ -11,7 +11,7 @@
 ## What to consolidate
 
 1. **Single navigation spine:** Treat [docs/ARCHITECTURE_INDEX.md](../ARCHITECTURE_INDEX.md) as the doc graph root; [docs/START_HERE.md](../START_HERE.md) stays a short persona router only.
-2. **Buyer narrative:** One outward story — [EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md); positioning pages link in, not restate ([go-to-market/POSITIONING.md](../go-to-market/POSITIONING.md)).
+2. **Buyer narrative:** One outward story — [EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md); positioning pages link in, not restate ([go-to-market/POSITIONING.md](../go-to-market/POSITIONING.md)).
 3. **Platform clarity:** Azure-first operations are explicit ([ADR 0020](../architecture/adrs/0020-azure-primary-platform-permanent.md)); Terraform and runbooks stay aligned with IaC in `infra/`.
 
 ## What not to do

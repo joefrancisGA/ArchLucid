@@ -9,7 +9,7 @@
 
 **Status:** Practical V1 usage guidance. This document explains **when to stay on the Core Pilot path, when to expand into Operate (analysis workloads), and when Operate (governance and trust) are worth using**.
 
-**Canonical buyer narrative:** [EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md). **Measurement companion:** [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md). This document is usage guidance, not a second buyer narrative and not a second ROI brief.
+**Canonical buyer narrative:** [EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md). **Measurement companion:** [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md). This document is usage guidance, not a second buyer narrative and not a second ROI brief.
 
 **Canonical maps:** [ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md) · [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)
 

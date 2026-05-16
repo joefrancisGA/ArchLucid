@@ -42,7 +42,7 @@ Honest qualification avoids downstream distrust.
 - **Real-time infrastructure monitoring:** ArchLucid is **not** a replacement for metrics, APM, or live incident radar; it produces **architecture proof and governance artifacts**, not sub-second operational telemetry.
 - **System-of-record CMDB:** ArchLucid does **not** try to be the enterprise CMDB; it may **reference** external IDs (for example in ITSM flows per [V1_SCOPE.md](../library/V1_SCOPE.md) ITSM connector scope) but **inventory completeness** and CMDB governance live in tools built for that role.
 - **Non-Azure-hard-blockers:** Organizations that **cannot** accept **Azure-aligned** hosting or identity for evaluation should resolve that **before** a pilot; see [NOT_A_FIT.md](NOT_A_FIT.md) and [FIRST_AZURE_DEPLOYMENT.md](../library/FIRST_AZURE_DEPLOYMENT.md).
-- **Fully automated compliance sign-off:** The product produces **evidence and structured outputs**; **human accountability** for approval remains (see [EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md)).
+- **Fully automated compliance sign-off:** The product produces **evidence and structured outputs**; **human accountability** for approval remains (see [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)).
 
 ---
 

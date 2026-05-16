@@ -10,6 +10,6 @@
 | **Developer** about to commit code | **[`docs/START_HERE.md`](../START_HERE.md)** — then **[`docs/engineering/INSTALL_ORDER.md`](../engineering/INSTALL_ORDER.md)** |
 | **SRE / Platform** owner | **[`docs/START_HERE.md`](../START_HERE.md)** — then **[`docs/engineering/INSTALL_ORDER.md`](../engineering/INSTALL_ORDER.md)** |
 | **Security / GRC** reviewer | **[`docs/START_HERE.md`](../START_HERE.md)** — then **[`docs/go-to-market/trust-center.md`](../go-to-market/trust-center.md)** (trust posture table) · **[`docs/ARCHITECTURE_ON_ONE_PAGE.md`](../ARCHITECTURE_ON_ONE_PAGE.md)** |
-| **Executive sponsor / buyer** | **[`docs/START_HERE.md`](../START_HERE.md)** — then **[`docs/CORE_PILOT.md`](../CORE_PILOT.md)** — canonical outward narrative remains **`docs/EXECUTIVE_SPONSOR_BRIEF.md`** (open in repo; not a spine table link). |
+| **Executive sponsor / buyer** | **[`docs/START_HERE.md`](../START_HERE.md)** — then **[`docs/CORE_PILOT.md`](../CORE_PILOT.md)** — canonical outward narrative remains **`docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`** (open in repo; not a spine table link). |
 
 **Hub:** **[`docs/START_HERE.md`](../START_HERE.md)**.

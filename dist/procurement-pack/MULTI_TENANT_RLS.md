@@ -1,6 +1,6 @@
 > **Scope:** Multi-tenant row-level security (SQL) — design sketch - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../../docs/START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Multi-tenant row-level security (SQL) — design sketch

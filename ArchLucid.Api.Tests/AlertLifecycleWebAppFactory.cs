@@ -31,10 +31,14 @@ public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
 
         builder.ConfigureAppConfiguration((_, config) =>
         {
-            config.AddInMemoryCollection(new Dictionary<string, string?>
+            Dictionary<string, string?> settings = new()
             {
-                ["ArchLucid:StorageProvider"] = "InMemory", ["ConnectionStrings:ArchLucid"] = _connectionString
-            });
+                ["ArchLucid:StorageProvider"] = "InMemory",
+                ["ConnectionStrings:ArchLucid"] = _connectionString
+            };
+
+            ApiTestWebHostLogging.AddQuietDefaultLogLevel(settings);
+            config.AddInMemoryCollection(settings);
         });
     }
 

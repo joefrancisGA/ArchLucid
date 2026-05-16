@@ -1,5 +1,4 @@
-/** Query keys copied from the pricing page onto `/signup` for attribution continuity. */
-const forwardedKeys = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "fbclid"] as const;
+import { MARKETING_ATTRIBUTION_QUERY_KEYS } from "@/lib/marketing/attribution-query-keys";
 
 /**
  * Builds `/signup?…` from marketing page search params, defaulting `utm_source` when absent so analytics stay coherent.
@@ -7,7 +6,7 @@ const forwardedKeys = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "
 export function buildPricingSignupHref(searchParams: Record<string, string | string[] | undefined>): string {
   const params = new URLSearchParams();
 
-  for (const key of forwardedKeys) {
+  for (const key of MARKETING_ATTRIBUTION_QUERY_KEYS) {
     const raw = searchParams[key];
 
     if (typeof raw === "string" && raw.trim() !== "") params.set(key, raw.trim());

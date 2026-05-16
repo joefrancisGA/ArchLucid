@@ -64,7 +64,7 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
 
         builder.ConfigureAppConfiguration((_, config) =>
         {
-            config.AddInMemoryCollection(new Dictionary<string, string?>
+            Dictionary<string, string?> settings = new()
             {
                 ["ArchLucid:StorageProvider"] = "Sql",
                 ["ConnectionStrings:ArchLucid"] = SqlConnectionString,
@@ -93,7 +93,10 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
                 ["DataConsistency:InitialDelaySeconds"] = "0",
                 // Http-only URL list disables HTTPS redirection middleware for in-memory TestServer (avoids redirect handler + long POST interaction quirks in CI).
                 ["ASPNETCORE_URLS"] = "http://127.0.0.1:0"
-            });
+            };
+
+            ApiTestWebHostLogging.AddQuietDefaultLogLevel(settings);
+            config.AddInMemoryCollection(settings);
         });
     }
 

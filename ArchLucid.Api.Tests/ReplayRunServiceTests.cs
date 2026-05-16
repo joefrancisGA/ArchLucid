@@ -132,9 +132,11 @@ public sealed class ReplayRunServiceTests
                 It.IsAny<CancellationToken>(),
                 It.IsAny<IDbConnection?>(),
                 It.IsAny<IDbTransaction?>(),
-                It.IsAny<IReadOnlyList<Finding>?>()))
+                It.IsAny<IReadOnlyList<Finding>?>(),
+                It.IsAny<AuthorityCommittedChainSeedCustomization?>()))
             .ReturnsAsync((ScopeContext _, Guid _, string _, GoldenManifest _, AuthorityChainKeying k, DateTime _,
-                    bool _, CancellationToken _, IDbConnection? _, IDbTransaction? _, IReadOnlyList<Finding>? _) =>
+                    bool _, CancellationToken _, IDbConnection? _, IDbTransaction? _, IReadOnlyList<Finding>? _,
+                    AuthorityCommittedChainSeedCustomization? _) =>
                 new AuthorityManifestPersistResult(
                     k.ContextSnapshotId,
                     k.GraphSnapshotId,

@@ -1,6 +1,6 @@
 > **Scope:** Integration events and webhook interoperability - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../../docs/START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Integration events and webhook interoperability

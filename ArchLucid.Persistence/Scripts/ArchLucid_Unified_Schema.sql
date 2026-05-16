@@ -5295,3 +5295,13 @@ BEGIN
         CONSTRAINT FK_RunTelemetry_Runs FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId) ON DELETE CASCADE
     );
 END;
+
+GO
+
+IF OBJECT_ID(N'dbo.TenantWorkspaces', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.TenantWorkspaces', N'IsDemoWorkspace') IS NULL
+BEGIN
+    ALTER TABLE dbo.TenantWorkspaces ADD IsDemoWorkspace BIT NOT NULL CONSTRAINT DF_TenantWorkspaces_IsDemoWorkspace DEFAULT (0);
+END;
+
+GO

@@ -2,7 +2,7 @@
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
-> **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never run Docker, SQL, .NET, Node, or any local CLI.** They sign up at **`archlucid.net`** and use the in-product operator UI. This document is the **contributor / internal-engineer** first-run path — it is **not** the customer first-run path. If you arrived here as a buyer or evaluator, start at **[`EXECUTIVE_SPONSOR_BRIEF.md`](../EXECUTIVE_SPONSOR_BRIEF.md)** then **[`ARCHITECTURE_ON_ONE_PAGE.md`](../ARCHITECTURE_ON_ONE_PAGE.md)**, and request a guided trial. See **[`START_HERE.md`](../START_HERE.md)** "Audience split" and **[`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](../archive/quality/2026-04-21-assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md)** §0.1.
+> **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never run Docker, SQL, .NET, Node, or any local CLI.** They sign up at **`archlucid.net`** and use the in-product operator UI. This document is the **contributor / internal-engineer** first-run path — it is **not** the customer first-run path. If you arrived here as a buyer or evaluator, start at **[`EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)** then **[`ARCHITECTURE_ON_ONE_PAGE.md`](../ARCHITECTURE_ON_ONE_PAGE.md)**, and request a guided trial. See **[`START_HERE.md`](../START_HERE.md)** "Audience split" and **[`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](../archive/quality/2026-04-21-assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md)** §0.1.
 
 # First 30 minutes — ArchLucid (contributor / internal engineer)
 
@@ -178,7 +178,7 @@ This is the **Core Pilot** path. **Operate (analysis workloads)** (compare runs,
 | **Developer** about to commit code | [docs/onboarding/day-one-developer.md](../onboarding/day-one-developer.md) |
 | **SRE / platform** owner | [docs/onboarding/day-one-sre.md](../onboarding/day-one-sre.md) |
 | **Security / GRC** reviewer | [docs/onboarding/day-one-security.md](../onboarding/day-one-security.md) |
-| **Executive sponsor / buyer** | [docs/EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md) |
+| **Executive sponsor / buyer** | [docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) |
 
 ---
 

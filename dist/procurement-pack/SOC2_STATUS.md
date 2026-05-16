@@ -1,6 +1,6 @@
 > **Scope:** SOC 2 attestation — procurement-facing status (deferred).
 
-> **Spine doc:** [`START_HERE.md`](../../docs/START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # SOC 2 status (procurement statement)
 

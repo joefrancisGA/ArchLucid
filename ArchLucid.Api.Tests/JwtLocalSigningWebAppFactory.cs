@@ -47,31 +47,33 @@ public sealed class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program
 
         builder.ConfigureAppConfiguration((_, config) =>
         {
-            config.AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["ArchLucid:StorageProvider"] = "InMemory",
-                    ["ConnectionStrings:ArchLucid"] = InMemoryStartupSqlConnectionStringSentinel.Value,
-                    ["AgentExecution:Mode"] = "Simulator",
-                    ["AzureOpenAI:Endpoint"] = "",
-                    ["AzureOpenAI:ApiKey"] = "",
-                    ["AzureOpenAI:DeploymentName"] = "",
-                    ["AzureOpenAI:EmbeddingDeploymentName"] = "",
-                    ["RateLimiting:FixedWindow:PermitLimit"] = "100000",
-                    ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
-                    ["RateLimiting:Expensive:PermitLimit"] = "100000",
-                    ["RateLimiting:Expensive:WindowMinutes"] = "1",
-                    ["RateLimiting:Replay:Light:PermitLimit"] = "100000",
-                    ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
-                    ["ArchLucidAuth:Mode"] = "JwtBearer",
-                    ["ArchLucidAuth:Authority"] = "",
-                    ["ArchLucidAuth:Audience"] = "",
-                    ["ArchLucidAuth:JwtSigningPublicKeyPemPath"] = _publicPemPath,
-                    ["ArchLucidAuth:JwtLocalIssuer"] = "https://test.archlucid.local",
-                    ["ArchLucidAuth:JwtLocalAudience"] = "api://archlucid-jwt-local-test",
-                    ["Authentication:ApiKey:DevelopmentBypassAll"] = "false",
-                    ["Billing:Provider"] = "Noop"
-                });
+            Dictionary<string, string?> settings = new()
+            {
+                ["ArchLucid:StorageProvider"] = "InMemory",
+                ["ConnectionStrings:ArchLucid"] = InMemoryStartupSqlConnectionStringSentinel.Value,
+                ["AgentExecution:Mode"] = "Simulator",
+                ["AzureOpenAI:Endpoint"] = "",
+                ["AzureOpenAI:ApiKey"] = "",
+                ["AzureOpenAI:DeploymentName"] = "",
+                ["AzureOpenAI:EmbeddingDeploymentName"] = "",
+                ["RateLimiting:FixedWindow:PermitLimit"] = "100000",
+                ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
+                ["RateLimiting:Expensive:PermitLimit"] = "100000",
+                ["RateLimiting:Expensive:WindowMinutes"] = "1",
+                ["RateLimiting:Replay:Light:PermitLimit"] = "100000",
+                ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
+                ["ArchLucidAuth:Mode"] = "JwtBearer",
+                ["ArchLucidAuth:Authority"] = "",
+                ["ArchLucidAuth:Audience"] = "",
+                ["ArchLucidAuth:JwtSigningPublicKeyPemPath"] = _publicPemPath,
+                ["ArchLucidAuth:JwtLocalIssuer"] = "https://test.archlucid.local",
+                ["ArchLucidAuth:JwtLocalAudience"] = "api://archlucid-jwt-local-test",
+                ["Authentication:ApiKey:DevelopmentBypassAll"] = "false",
+                ["Billing:Provider"] = "Noop"
+            };
+
+            ApiTestWebHostLogging.AddQuietDefaultLogLevel(settings);
+            config.AddInMemoryCollection(settings);
         });
     }
 

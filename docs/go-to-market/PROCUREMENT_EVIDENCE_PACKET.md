@@ -27,7 +27,7 @@ The V1 proof is not "autonomous architecture." The V1 proof is narrower and more
 
 | Buyer question | V1 evidence to review |
 |---|---|
-| What does the product do? | [Executive Sponsor Brief](../EXECUTIVE_SPONSOR_BRIEF.md) |
+| What does the product do? | [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md) |
 | What is the first pilot path? | [Core Pilot path](../CORE_PILOT.md) |
 | What is the architecture at a glance? | [Architecture on one page](../ARCHITECTURE_ON_ONE_PAGE.md) |
 | What is in V1 and what is out of scope? | [V1 Scope](../library/V1_SCOPE.md) and [V1 Deferred](../library/V1_DEFERRED.md) |
@@ -43,7 +43,7 @@ A reviewer should be able to answer these questions from the linked packet befor
 
 | Area | What to verify | Primary evidence |
 |---|---|---|
-| Product purpose | The product creates reviewable architecture packages, not legal attestations or autonomous infrastructure changes. | [Executive Sponsor Brief](../EXECUTIVE_SPONSOR_BRIEF.md) |
+| Product purpose | The product creates reviewable architecture packages, not legal attestations or autonomous infrastructure changes. | [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md) |
 | Pilot success | The pilot has measurable success criteria, not just a demo narrative. | [Pilot Success Scorecard](PILOT_SUCCESS_SCORECARD.md), [ROI Model](ROI_MODEL.md) |
 | Architecture | The platform boundary, data stores, UI/API/worker shape, and external dependencies are documented. | [Architecture on one page](../ARCHITECTURE_ON_ONE_PAGE.md) |
 | Security posture | Authentication, tenant isolation, data handling, trust-center material, and known assurance status are documented. | [Trust Center](trust-center.md), [Security Overview](../library/SECURITY.md), [Tenant Isolation](TENANT_ISOLATION.md) |
@@ -60,7 +60,7 @@ A reviewer should be able to answer these questions from the linked packet befor
 
 Start with:
 
-- [Executive Sponsor Brief](../EXECUTIVE_SPONSOR_BRIEF.md)
+- [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md)
 - [Core Pilot path](../CORE_PILOT.md)
 - [Pilot Success Scorecard](PILOT_SUCCESS_SCORECARD.md)
 - [ROI Model](ROI_MODEL.md)
@@ -139,7 +139,7 @@ These items are intentionally **not** claimed as completed V1 procurement eviden
 
 For a sales-led V1 pilot, the buyer-facing packet should include:
 
-1. [Executive Sponsor Brief](../EXECUTIVE_SPONSOR_BRIEF.md)
+1. [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md)
 2. [Architecture on one page](../ARCHITECTURE_ON_ONE_PAGE.md)
 3. [Core Pilot path](../CORE_PILOT.md)
 4. [Pilot Success Scorecard](PILOT_SUCCESS_SCORECARD.md)
@@ -173,7 +173,7 @@ Use this answer when a buyer asks for a procurement-ready summary:
 
 ## 8. Maintenance rules
 
-- Keep this file aligned with [Executive Sponsor Brief](../EXECUTIVE_SPONSOR_BRIEF.md); do not create a second buyer story.
+- Keep this file aligned with [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md); do not create a second buyer story.
 - Keep assurance and deferral language aligned with [V1 Scope](../library/V1_SCOPE.md), [V1 Deferred](../library/V1_DEFERRED.md), and [Trust Center](trust-center.md).
 - Do not add new certifications, attestations, external customer claims, or legal promises here.
 - If a linked source changes status, update this packet in the same PR or cite why no packet update is required.

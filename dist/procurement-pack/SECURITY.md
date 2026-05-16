@@ -1,6 +1,6 @@
 > **Scope:** Security overview (ArchLucid) - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../../docs/START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Security overview (ArchLucid)
@@ -34,7 +34,13 @@ Merge-blocking **Schemathesis light** runs on every PR after full .NET regressio
 
 **Optional JWT bearer-only production (regulated SaaS):** set **`ArchLucidAuth:RequireJwtBearerInProduction=true`**. When **`ASPNETCORE_ENVIRONMENT=Production`**, **`ArchLucidConfigurationRules`** then requires **`ArchLucidAuth:Mode=JwtBearer`** (API keys are rejected at startup). Default is **`false`** so pilots may keep **`ApiKey`** in production until they cut over to **OIDC / JWT bearer** (**Entra** or another issuer — **[V1_SCOPE.md](V1_SCOPE.md) §2.12**).
 
-**OIDC issuers beyond Entra (V1 GA):** **`JwtBearer`** accepts tokens from **configurable OIDC authorities** when **`ArchLucidAuth:Authority`** targets a standards-compliant issuer (discovery + JWKS). Claim mapping into **`ArchLucidRoles`** is operator-owned — capture buyer IdP shapes in procurement questionnaires (**[PROCUREMENT_FAQ.md](../go-to-market/PROCUREMENT_FAQ.md)**).
+**OIDC issuers beyond Entra (V1 GA):** **`JwtBearer`** accepts tokens from **configurable OIDC authorities** when **`ArchLucidAuth:Authority`** targets a standards-compliant issuer (discovery + JWKS). Claim mapping into **`ArchLucidRoles`** is operator-owned — capture buyer IdP shapes in procurement questionnaires (**[PROCUREMENT_FAQ.md](../go-to-market/PROCUREMENT_FAQ.md)**). Operator checklist: **[GENERIC_OIDC_SETUP.md](../runbooks/GENERIC_OIDC_SETUP.md)**.
+
+**Native SAML 2.0 SP (V1 GA — owner 2026-05-15):** Workforce SSO via SAML **Service Provider** flows ships alongside **`JwtBearer`** OIDC (**[V1_SCOPE.md](V1_SCOPE.md) §2.12**). Operators enable it with **`ArchLucidAuth:Saml2:Enabled=true`** and bind **`ArchLucidAuth:Saml2`** (**SP issuer**, **IdP metadata** URL, optional **signing certificate** for outbound AuthnRequests, and inbound claim mapping — see **[CONFIGURATION_REFERENCE.md](CONFIGURATION_REFERENCE.md)**).
+
+- **Coexistence with API auth:** **`ArchLucidAuth:Mode`** still selects the primary scheme for **`DefaultAuthenticateScheme`** / **`DefaultChallengeScheme`** / **`DefaultForbidScheme`** (**JwtBearer**, **ApiKey**, or **DevelopmentBypass**). SAML uses the cookie handler’s **`DefaultSignInScheme`** / **`DefaultSignOutScheme`** so browser SSO can complete without replacing API bearer defaults.
+- **RBAC and isolation:** SAML assertions are normalized onto the same **`ArchLucidRoles`** / permission claim path as JWT (**`ArchLucidSamlInboundClaimsNormalizer`** + **`ArchLucidRoleClaimsTransformation`**); tenant/workspace/project **`Guid`** claims remain operator-mapped via claim types in **`ArchLucidAuth:Saml2`**.
+- **Durable audit (sign-in outcomes):** Successful SAML cookie issuance appends **`Saml2ServiceProviderSignInSucceeded`** to **`dbo.AuditEvents`**; ITfoxtec **SAML protocol** faults on **`/Auth`** paths append **`Saml2ServiceProviderSignInFailed`** (best-effort in the global exception path — failures there must never mask the underlying error).
 
 ## DevelopmentBypass production guard
 

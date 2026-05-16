@@ -100,6 +100,7 @@ public sealed class DemoSeedService(
             true, cancellationToken);
         await EnsureGovernanceAsync(demo, cancellationToken);
         await EnsureExportRecordAsync(demo, cancellationToken);
+        await EnsureNorthwindProductTourWorkspaceSeedAsync(scope, cancellationToken);
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Demo seed completed (Contoso Retail Modernization). Runs: {Baseline}, {Hardened}.", demo.RunBaseline, demo.RunHardened);
     }
@@ -888,6 +889,230 @@ public sealed class DemoSeedService(
         row.TenantId = scope.TenantId;
         row.WorkspaceId = scope.WorkspaceId;
         row.ProjectId = scope.ProjectId;
+    }
+
+    private async Task EnsureNorthwindProductTourWorkspaceSeedAsync(ScopeContext contosoBaselineScope, CancellationToken cancellationToken)
+    {
+        if (contosoBaselineScope.TenantId != ScopeIds.DefaultTenant)
+
+            return;
+
+        Guid ws = DemoTourWorkspaceIds.WorkspaceRowId(contosoBaselineScope.TenantId);
+        Guid scopeProjectId = DemoTourWorkspaceIds.ProjectScopeRowId(contosoBaselineScope.TenantId);
+        ScopeContext workspaceScope =
+            new() { TenantId = contosoBaselineScope.TenantId, WorkspaceId = ws, ProjectId = scopeProjectId };
+
+        using (AmbientScopeContext.Push(workspaceScope))
+
+            await EnsureNorthwindProductTourCommittedScenarioAsync(workspaceScope, cancellationToken);
+    }
+
+    private async Task EnsureNorthwindProductTourCommittedScenarioAsync(ScopeContext scope, CancellationToken cancellationToken)
+    {
+        Guid runGuid = DemoTourWorkspaceIds.AuthorityRunId(scope.TenantId);
+        if (await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken) is not null)
+
+            return;
+
+        string requestId = DemoTourWorkspaceIds.ArchitectureRequestId(scope.TenantId);
+        await EnsureArchitectureRequestNorthwindTourAsync(requestId, cancellationToken);
+        DateTime utc = ProductTourWorkspaceSeed.SnapshotUtc;
+        string legacyRunId = runGuid.ToString("N");
+        string demoSuffix = ProductTourDemoSuffix(scope.TenantId);
+        string taskId = $"task-product-tour-topo-{demoSuffix}";
+        string resultId = $"result-product-tour-topo-{demoSuffix}";
+        RunRecord row = new()
+        {
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            RunId = runGuid,
+            ProjectId = "Contoso Cloud Platform",
+            Description = "Northwind Architects — Workspace A Product Tour (synthetic Contoso Cloud Platform review).",
+            CreatedUtc = utc,
+            ArchitectureRequestId = requestId,
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+        };
+
+        await _runRepository.SaveAsync(row, cancellationToken);
+        AgentTask task = new()
+        {
+            TaskId = taskId,
+            RunId = legacyRunId,
+            AgentType = AgentType.Topology,
+            Objective = "Demonstrate authoritative capture→evidence→findings→decisions spine for evaluator tour.",
+            Status = AgentTaskStatus.Completed,
+            CreatedUtc = utc,
+            CompletedUtc = utc,
+            EvidenceBundleRef = null,
+            AllowedTools = [],
+            AllowedSources = [],
+        };
+
+        await _taskRepository.CreateManyAsync([task], cancellationToken);
+        AgentResult result = new()
+        {
+            ResultId = resultId,
+            TaskId = taskId,
+            RunId = legacyRunId,
+            AgentType = AgentType.Topology,
+            Claims =
+            [
+                "Synthetic APIM + ACA + Cosmos + KV topology aligned to seeded evidence attachments.",
+                "Northwind engagement shell reviews Contoso modernization boundaries without invoking customer payloads.",
+            ],
+            EvidenceRefs = ["northwind-tour-overview"],
+            Confidence = 0.9,
+            Findings = [],
+            ProposedChanges = null,
+            CreatedUtc = utc,
+        };
+
+        await _resultRepository.CreateAsync(result, cancellationToken);
+        GoldenManifest manifest = ProductTourWorkspaceSeed.BuildManifest(legacyRunId);
+        IReadOnlyList<Finding> findings = ProductTourWorkspaceSeed.BuildFindings(runGuid);
+        AuthorityChainKeying chainIds = new(AuthorityDemoChainIds.Manifest(runGuid), AuthorityDemoChainIds.ContextSnapshot(runGuid),
+            AuthorityDemoChainIds.GraphSnapshot(runGuid), AuthorityDemoChainIds.FindingsSnapshot(runGuid), AuthorityDemoChainIds.DecisionTrace(runGuid));
+
+        AuthorityCommittedChainSeedCustomization customization = ProductTourWorkspaceSeed.BuildCustomization(runGuid,
+            AuthorityDemoChainIds.GraphSnapshot(runGuid), AuthorityDemoChainIds.ContextSnapshot(runGuid), utc);
+
+        AuthorityManifestPersistResult persisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, runGuid, "Contoso Cloud Platform",
+            manifest, chainIds, utc, richFindingsAndGraph: false, cancellationToken, connection: null, transaction: null, committedFindingsOverride: findings,
+            seedCustomization: customization);
+
+        await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, _scopeContextProvider, _actorContext, logger, runGuid,
+            "Contoso Cloud Platform", persisted, "product-tour-demo-seed", richFindingsAndGraph: false, cancellationToken);
+
+        RunRecord? committed = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (committed is not null)
+        {
+            committed.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
+            committed.CurrentManifestVersion = ProductTourWorkspaceSeed.ManifestVersionLiteral;
+            committed.CompletedUtc = utc;
+            committed.ContextSnapshotId = persisted.ContextSnapshotId;
+            committed.GraphSnapshotId = persisted.GraphSnapshotId;
+            committed.FindingsSnapshotId = persisted.FindingsSnapshotId;
+            committed.GoldenManifestId = persisted.GoldenManifestId;
+            committed.DecisionTraceId = persisted.DecisionTraceId;
+            await _runRepository.UpdateAsync(committed, cancellationToken);
+        }
+
+        Guid bundleId = DemoTourWorkspaceIds.ArtifactBundleId(runGuid);
+        ArtifactBundle bundle = new()
+        {
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            BundleId = bundleId,
+            RunId = runGuid,
+            ManifestId = persisted.GoldenManifestId,
+            CreatedUtc = utc,
+            Status = ArtifactBundleStatus.Available,
+            Artifacts =
+            [
+                new SynthesizedArtifact
+                {
+                    ArtifactId = DemoTourWorkspaceIds.TourReportArtifactId(runGuid),
+                    RunId = runGuid,
+                    ManifestId = persisted.GoldenManifestId,
+                    CreatedUtc = utc,
+                    ArtifactType = ArtifactType.ArchitectureNarrative,
+                    Name = "northwind-architecture-review-tour-sample.md",
+                    Format = "text/markdown",
+                    Content =
+                        "# Architecture review tour — synthetic export scaffold\n\n"
+                        + "**Reviewer firm:** Northwind Architects (fabricated)\\n\\n"
+                        + "**Subject system:** Contoso Cloud Platform (synthetic modernization narrative)\\n\\n"
+                        + "Demonstrates how evaluators finalize a workspace and initiate export without mutating seeded authority rows.",
+                    ContentHash = "sha256:product-tour-export-seed-v1",
+                    Metadata = new Dictionary<string, string> { ["workspace"] = "product-tour" },
+                    ContributingDecisionIds = [],
+                },
+            ],
+            Trace = new SynthesisTrace(),
+        };
+
+        await _artifactBundleRepository.SaveAsync(bundle, cancellationToken);
+        RunRecord? withBundle = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (withBundle is not null)
+        {
+            withBundle.ArtifactBundleId = bundleId;
+            await _runRepository.UpdateAsync(withBundle, cancellationToken);
+        }
+
+        await EnsureNorthwindTourExportStubAsync(runGuid, scope.TenantId, cancellationToken);
+
+        if (logger.IsEnabled(LogLevel.Information))
+            logger.LogInformation("Northwind Product Tour Workspace A seeded ({RunId}).", runGuid);
+    }
+
+    private async Task EnsureArchitectureRequestNorthwindTourAsync(string requestId, CancellationToken cancellationToken)
+    {
+        if (await requestRepository.GetByIdAsync(requestId, cancellationToken) is not null)
+
+            return;
+
+        ArchitectureRequest architectureRequest = new()
+        {
+            RequestId = requestId,
+            Description =
+                "Northwind Architects (consultant) conducts a fabricated architecture review engagement for "
+                + "the Contoso Cloud Platform modernization backlog — onboarding Product Tour storyline only.",
+            SystemName = "Contoso Cloud Platform",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+            Constraints =
+            [
+                "Maintain evaluation-mode synthetic content only — no linkage to buyer production subscriptions",
+                "Expose Pack A/B rule identifiers for evaluator education",
+                "Evidence attachments are illustrative PDF/JSON placeholders",
+            ],
+        };
+
+        await requestRepository.CreateAsync(architectureRequest, cancellationToken);
+    }
+
+    private async Task EnsureNorthwindTourExportStubAsync(Guid runGuid, Guid tenantId, CancellationToken cancellationToken)
+    {
+        string exportId = DemoTourWorkspaceIds.ExportRecordId(tenantId).ToString("N");
+
+        if (await runExportRecordRepository.GetByIdAsync(exportId, cancellationToken) is not null)
+
+            return;
+
+        RunExportRecord record = new()
+        {
+            ExportRecordId = exportId,
+            RunId = runGuid.ToString("N"),
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "northwind-architecture-review-tour-sample.md",
+            TemplateProfile = "trial",
+            TemplateProfileDisplayName = "Buyer-safe tour export",
+            WasAutoSelected = false,
+            ResolutionReason = "Demonstrates evaluator export workflow without invoking paid synthesis.",
+            ManifestVersion = ProductTourWorkspaceSeed.ManifestVersionLiteral,
+            Notes =
+                "Seeded Workspace A artifact — regenerate after tour refresh milestones. dbo.TenantWorkspaces.IsDemoWorkspace=1 excludes fixture from SKU math once billing gates honour the flag.",
+            IncludedManifest = true,
+            IncludedSummary = true,
+            CreatedUtc = ProductTourWorkspaceSeed.SnapshotUtc,
+        };
+
+        await runExportRecordRepository.CreateAsync(record, cancellationToken);
+    }
+
+    private static string ProductTourDemoSuffix(Guid tenantId)
+    {
+        if (tenantId == ScopeIds.DefaultTenant)
+            return "canonical";
+
+        string t = tenantId.ToString("N");
+
+        return t.Length >= 12 ? t[..12] : t;
     }
 
     /// <summary>

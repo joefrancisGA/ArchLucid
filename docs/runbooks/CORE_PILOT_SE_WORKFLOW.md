@@ -34,7 +34,7 @@
 
 ## 4. Definition of “done” for SE handoff
 
-Minimum: **one** committed manifest on **customer-appropriate** inputs (not demo numbers in external decks). Sponsor artifact: first-value report / PDF path in [`docs/EXECUTIVE_SPONSOR_BRIEF.md`](../EXECUTIVE_SPONSOR_BRIEF.md).
+Minimum: **one** committed manifest on **customer-appropriate** inputs (not demo numbers in external decks). Sponsor artifact: first-value report / PDF path in [`docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md).
 
 ---
 

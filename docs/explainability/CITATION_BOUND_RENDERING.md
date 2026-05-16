@@ -17,7 +17,7 @@ Tie **aggregate** run explanations to **persisted artifacts** operators can insp
 ## Constraints
 
 - **Read-only** authority: explanations require **`ReadAuthority`** (same as today).
-- **Not** a substitute for causal proof — see [../EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md) §10.
+- **Not** a substitute for causal proof — see [../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) §10.
 
 ## Architecture overview
 

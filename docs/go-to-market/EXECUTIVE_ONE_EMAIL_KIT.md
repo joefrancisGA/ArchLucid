@@ -49,11 +49,11 @@ Use this as a procurement checklist (adjust tone for your process):
 3. **Pilot ROI measurement companion** — how to judge pilot success with **today’s** product: **[PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md)**.
 4. **Proof-of-value snapshot playbook** — how to assemble timing, load-test summaries, ROI deltas, and explainability signals into one evidence narrative: **[PROOF_OF_VALUE_SNAPSHOT.md](../library/PROOF_OF_VALUE_SNAPSHOT.md)**.
 
-**Canonical sponsor story of record** (if they need narrative before metrics): **[EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md)**.
+**Canonical sponsor story of record** (if they need narrative before metrics): **[EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)**.
 
 ---
 
 ## Related
 
-- **[EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md)** — dominant outward buyer narrative
+- **[EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)** — dominant outward buyer narrative
 - **[INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md)** — technical integration surface (separate from this email)

@@ -9,9 +9,9 @@
 
 **Status:** Practical V1 pilot-evaluation guidance. This document explains **how to measure pilot success using capabilities ArchLucid supports today**. It is not a pricing model and it is not a guaranteed ROI calculator.
 
-**Narrative of record for sponsors:** **[EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md)**. This ROI model is the measurement companion; keep headline buyer claims in the brief.
+**Narrative of record for sponsors:** **[EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)**. This ROI model is the measurement companion; keep headline buyer claims in the brief.
 
-**Related:** [README.md](../../README.md) · [CORE_PILOT.md](../CORE_PILOT.md) · [PMF_VALIDATION_TRACKER.md](../go-to-market/PMF_VALIDATION_TRACKER.md) · [PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md](../go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md) · [REAL_LLM_RUN_EVIDENCE_TEMPLATE.md](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) (§3 *Code seams*, *Four UI shaping surfaces*, *Contributor drift guard* when a measured capability crosses UI layers or Enterprise mutation affordances — shell metrics are **shaped**, **API** responses remain **authoritative**; Vitest **`archlucid-ui/src/lib/authority-seam-regression.test.ts`** for cross-module seam locks; **`archlucid-ui/src/lib/authority-execute-floor-regression.test.ts`** for the **Execute** nav vs mutation floor; **`archlucid-ui/src/lib/authority-shaped-ui-regression.test.ts`** for catalog **`ExecuteAuthority`** nav rows vs rank; **`archlucid-ui/src/app/(operator)/authority-shaped-layout-regression.test.tsx`** for read-tier Enterprise page layout) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) · [EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md) · [V1_SCOPE.md](V1_SCOPE.md) · [PILOT_GUIDE.md](PILOT_GUIDE.md)
+**Related:** [README.md](../../README.md) · [CORE_PILOT.md](../CORE_PILOT.md) · [PMF_VALIDATION_TRACKER.md](../go-to-market/PMF_VALIDATION_TRACKER.md) · [PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md](../go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md) · [REAL_LLM_RUN_EVIDENCE_TEMPLATE.md](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) (§3 *Code seams*, *Four UI shaping surfaces*, *Contributor drift guard* when a measured capability crosses UI layers or Enterprise mutation affordances — shell metrics are **shaped**, **API** responses remain **authoritative**; Vitest **`archlucid-ui/src/lib/authority-seam-regression.test.ts`** for cross-module seam locks; **`archlucid-ui/src/lib/authority-execute-floor-regression.test.ts`** for the **Execute** nav vs mutation floor; **`archlucid-ui/src/lib/authority-shaped-ui-regression.test.ts`** for catalog **`ExecuteAuthority`** nav rows vs rank; **`archlucid-ui/src/app/(operator)/authority-shaped-layout-regression.test.tsx`** for read-tier Enterprise page layout) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) · [EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) · [V1_SCOPE.md](V1_SCOPE.md) · [PILOT_GUIDE.md](PILOT_GUIDE.md)
 
 ---
 
@@ -28,7 +28,7 @@ For most pilots, the goal is **not** to prove enterprise-wide transformation. Th
 - improve traceability and governance evidence,
 - and shorten the path to architecture discussion or approval.
 
-For the **canonical buyer narrative** for this value story, see **[EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md)**.
+For the **canonical buyer narrative** for this value story, see **[EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)**.
 
 ---
 
