@@ -13,8 +13,9 @@ export type MarketingHeroCtaAnalyticsProps = {
 export type CtaWalkthroughClickAnalyticsProps = MarketingHeroCtaAnalyticsProps;
 
 function recordMarketingHeroCtaClarityEvent(
-  eventName: "cta_walkthrough_click" | "cta_self_demo_click",
+  eventName: "cta_walkthrough_click" | "cta_self_demo_click" | "cta_early_access_submit",
   properties: MarketingHeroCtaAnalyticsProps,
+  emailDomainForAnalytics?: string,
 ): void {
   if (typeof window === "undefined") return;
 
@@ -33,6 +34,9 @@ function recordMarketingHeroCtaClarityEvent(
   if (properties.utm_campaign !== undefined && properties.utm_campaign !== "")
     clarity("set", "cta_utm_campaign", properties.utm_campaign);
 
+  if (emailDomainForAnalytics !== undefined && emailDomainForAnalytics !== "")
+    clarity("set", "cta_email_domain", emailDomainForAnalytics);
+
   clarity("event", eventName);
 }
 
@@ -44,7 +48,20 @@ export function recordMarketingCtaWalkthroughClick(properties: MarketingHeroCtaA
   recordMarketingHeroCtaClarityEvent("cta_walkthrough_click", properties);
 }
 
-/** Clarity event for hero **Try the self-demo** (Workspace A). */
-export function recordMarketingCtaSelfDemoClick(properties: MarketingHeroCtaAnalyticsProps): void {
-  recordMarketingHeroCtaClarityEvent("cta_self_demo_click", properties);
+/** Clarity event after successful **Join early access** form POST (not on click). */
+export function recordMarketingCtaEarlyAccessSubmit(
+  properties: MarketingHeroCtaAnalyticsProps & { readonly email_domain?: string },
+): void {
+  const emailDomain: string | undefined = properties.email_domain;
+
+  recordMarketingHeroCtaClarityEvent(
+    "cta_early_access_submit",
+    {
+      source: properties.source,
+      utm_source: properties.utm_source,
+      utm_medium: properties.utm_medium,
+      utm_campaign: properties.utm_campaign,
+    },
+    emailDomain,
+  );
 }

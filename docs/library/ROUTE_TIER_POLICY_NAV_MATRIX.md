@@ -126,6 +126,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Integrations/TeamsIncomingWebhookConnectionsController.cs` | `/v1/integrations/teams` | standard | Authorize | /integrations/teams |  |
 | `Integrations/WebhookConnectionsController.cs` | `/v1/integrations/webhooks` | standard | ExecuteAuthority |  |  |
 | `Marketing/EnterpriseComparisonMarketingController.cs` | `/v1/marketing` | none | AllowAnonymous |  | marketing_public_api |
+| `Marketing/MarketingEarlyAccessRequestController.cs` | `/v1/marketing/early-access` | none | AllowAnonymous |  | marketing_public_api |
 | `Marketing/MarketingPricingQuoteRequestController.cs` | `/v1/marketing/pricing` | none | AllowAnonymous |  | marketing_public_api |
 | `Marketing/MarketingShowcaseController.cs` | `/v1/marketing/showcase` | none | AllowAnonymous |  | marketing_public_api |
 | `Marketing/SponsorBriefMarketingController.cs` | `/v1/marketing` | none | AllowAnonymous |  | marketing_public_api |

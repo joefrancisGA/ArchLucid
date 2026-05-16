@@ -1,7 +1,7 @@
 namespace ArchLucid.Core.Scoping;
 
-/// <summary>Published anchors for evaluator CTAs tied to Workspace A seeded under <see cref="ScopeIds.DefaultTenant"/>.</summary>
-/// <remarks>Sha256-derived from <c>ArchLucid.Demo.ProductTour.*</c> + DefaultTenant GUID <c>N</c> format — parity tests guard drift.</remarks>
+/// <summary>Published anchors for evaluator demo workspaces seeded under <see cref="ScopeIds.DefaultTenant"/>.</summary>
+/// <remarks>Sha256-derived strings + DefaultTenant GUID <c>N</c> format — parity tests guard drift.</remarks>
 public static class DemoWorkspaceStableIds
 {
     /// <summary>Tenant workspace backing the self-demo tour (marketing + Dev bootstrap).</summary>

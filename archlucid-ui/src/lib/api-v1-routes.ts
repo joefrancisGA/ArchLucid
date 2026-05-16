@@ -3,6 +3,8 @@
  * Keeps UI aligned with `ArchLucid.Api.Routing.ApiV1Routes` in tests.
  */
 export const ApiV1Routes = {
+  /** Anonymous early-access / waitlist (`POST` from `/welcome` hero). */
+  marketingEarlyAccess: "v1/marketing/early-access",
   policyPacks: "v1/policy-packs",
   governanceResolution: "v1/governance-resolution",
   governance: "v1/governance",
