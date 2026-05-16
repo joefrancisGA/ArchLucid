@@ -1,8 +1,10 @@
 "use client";
 
+import { Info } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -29,9 +31,34 @@ export function SampleFirstReviewPackageCard() {
     >
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
-          <h2 id="sample-first-review-heading" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
-            {buyerPolished === true ? SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE : "Start with a completed architecture review package"}
-          </h2>
+          <div className="flex flex-wrap items-center gap-2">
+            <h2
+              id="sample-first-review-heading"
+              className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50"
+            >
+              {buyerPolished === true ? SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE : "Start with a completed architecture review package"}
+            </h2>
+
+            {buyerPolished === true ? (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-900"
+                      aria-label="About this sample review package"
+                    >
+                      <Info className="h-4 w-4" aria-hidden />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs text-left">
+                    Illustrative sample review — use it to understand output shape and workflow, not as customer ROI
+                    evidence.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : null}
+          </div>
 
           <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
             {buyerPolished === true ? (
