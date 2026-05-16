@@ -42,6 +42,10 @@ public sealed class DefaultPolicyPackSeederTests
         scopePacks.Should().OnlyContain(p => p.PackType == PolicyPackType.PlatformDefault);
         scopePacks.Should().Contain(p => p.Name == DefaultPolicyPackCatalog.AiGovernanceDisplayName);
         scopePacks.Should().Contain(p => p.Name == DefaultPolicyPackCatalog.SecurityBaselineDisplayName);
+
+        IReadOnlyList<PolicyPackAssignment> assigns =
+            await assignments.ListByScopeAsync(tenantId, workspaceId, projectId, CancellationToken.None);
+        assigns.Should().HaveCount(2);
     }
 
     [Fact]

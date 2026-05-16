@@ -39,6 +39,9 @@
     <None Include="..\ArchLucid.Decisioning\Compliance\RulePacks\default-compliance.rules.json" Link="Compliance\RulePacks\default-compliance.rules.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\ArchLucid.Decisioning\Compliance\RulePacks\ga-starter-compliance.rules.json" Link="Compliance\RulePacks\ga-starter-compliance.rules.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\schemas\*.json" LinkBase="schemas" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\templates\policy-packs\financial-services\compliance-rules.json" Link="Templates\PolicyPacks\financial-services\compliance-rules.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

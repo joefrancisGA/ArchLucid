@@ -40,7 +40,7 @@ public sealed class PolicyPacksAppServiceTests
         Mock<IAuditService> audit = new();
         audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        PolicyPacksAppService sut = new(management.Object, Mock.Of<IPolicyPackVersionRepository>(), audit.Object);
+        PolicyPacksAppService sut = new(management.Object, Mock.Of<IPolicyPackRepository>(), Mock.Of<IPolicyPackVersionRepository>(), audit.Object);
 
         PolicyPack result = await sut.CreatePackAsync(tenantId, workspaceId, projectId, "n", "d",
             PolicyPackType.BuiltIn, "{}", CancellationToken.None);
@@ -65,7 +65,7 @@ public sealed class PolicyPacksAppServiceTests
         Mock<IPolicyPackManagementService> management = new(MockBehavior.Strict);
         Mock<IAuditService> audit = new(MockBehavior.Strict);
 
-        PolicyPacksAppService sut = new(management.Object, versions.Object, audit.Object);
+        PolicyPacksAppService sut = new(management.Object, Mock.Of<IPolicyPackRepository>(), versions.Object, audit.Object);
 
         PolicyPackAssignment? result = await sut.TryAssignAsync(
             Guid.NewGuid(),
@@ -98,7 +98,7 @@ public sealed class PolicyPacksAppServiceTests
         Mock<IAuditService> audit = new();
         audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        PolicyPacksAppService sut = new(management.Object, Mock.Of<IPolicyPackVersionRepository>(), audit.Object);
+        PolicyPacksAppService sut = new(management.Object, Mock.Of<IPolicyPackRepository>(), Mock.Of<IPolicyPackVersionRepository>(), audit.Object);
 
         bool ok = await sut.TryArchiveAssignmentAsync(tenantId, assignmentId, CancellationToken.None);
 
@@ -108,5 +108,28 @@ public sealed class PolicyPacksAppServiceTests
                 It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.PolicyPackAssignmentArchived),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task PublishVersionAsync_WhenPackIsPlatformDefault_ThrowsBeforeManagement()
+    {
+        Guid packId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(p => p.GetByIdAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPack { PolicyPackId = packId, PackType = PolicyPackType.PlatformDefault, Name = "Seeded", });
+
+        Mock<IPolicyPackManagementService> management = new(MockBehavior.Strict);
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+
+        PolicyPacksAppService sut = new(management.Object, packs.Object, Mock.Of<IPolicyPackVersionRepository>(), audit.Object);
+
+        Func<Task> act = async () => await sut.PublishVersionAsync(packId, "1.0.0", "{}", CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*Platform-default*");
+        management.Verify(
+            x => x.PublishVersionAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }
