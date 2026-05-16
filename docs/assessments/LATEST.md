@@ -12,7 +12,6 @@
 - **Third-party penetration test (external vendor):** **`V2`** per **`docs/library/V1_DEFERRED.md` §6c. **`(A)` V1 planning / execution** omits recurring **budget / vendor pen-test prompts** (**owner 2026-05-15**, **P8**). Treat absent published assessor summary as **`(B)` procurement realism** only — improvement **#18** remains **`V2`** backlog metadata, not a **V1** standing question.
 - **ServiceNow bi-directional status sync:** **`V1` GA** per **`docs/library/V1_SCOPE.md` §2.13** — unchanged. **P10** (**2026-05-15**): **no** ServiceNow developer instance **yet**; owner will unblock **#22** via **cost-free** **ServiceNow Developer Program** / personal developer-style instance (**paid** sandbox **not** a **`V1` GA** prerequisite). Until provisioned, engineering is **queued only** — explicit scope demotion requires **`V1_SCOPE.md`** / **`PENDING_QUESTIONS.md`** amendment **if** a **free** path never materializes.
 - **Durable Task Framework (DTF):** SQL storage hosts bind the authority pipeline to the Durable Task port (`DtfAuthorityRunOrchestrator`); `ArchLucid.Application` still has no compile-time dependency on `Microsoft.DurableTask.*`. InMemory / simulator paths remain on the legacy adapter until separately migrated. The ACA Jobs row in `V1_DEFERRED.md` §6f remains out of V1 scope. **Azure Container Apps Jobs** stay **`V2`** situational backlog (**improvement #25**) — **not** promoted into **`V1`**.
-- **Terraform Phase 7.5 (`state mv`):** **DEFERRED to V1.1** — **`infra/**/*.tf`** resource address alignment and `terraform state mv` operations are explicitly deferred. The repository continues to use `archiforge` addresses in V1.
 - **Operator UI vocabulary vs marketing workflow (V1):** Buyer-facing labels in **`archlucid-ui`** align with the evidence-backed governance narrative (e.g. **Capture system**, **Evidence**, **Review**, **Findings**, **Decisions**, **Report**) mapped from existing flows (**run**, **manifest**, **commit**, **authority** remain internal/API). **REST routes, OpenAPI operation IDs, CLI commands, and audit event names are unchanged** unless separately versioned. **Usability** headline (**77**) reflects glossary alignment (**Q1** / **#27**) plus bounded bulk capture (**Q4** / **#30**).
 
 - **Buyer-grade architecture review export:** A **default DOCX/PDF export profile** matching the landing-page report narrative (executive summary, system overview, evidence reviewed, architecture decisions, key risks, policy findings, AI-assisted analysis with human-review framing, traceability appendix, recommended next actions) is a **V1 GA gate** per owner Q2 (**Marketing alignment — owner Q&A** row 2). **Consultant whitelabel** on cover/metadata is **also GA** per row **5** — same pipeline (**#28**). Landing demos and downloadable sample reports assume both ship with GA.
@@ -35,7 +34,7 @@
 
 **Enterprise Picture:** The system supports robust tenant isolation (database-per-tenant), workforce SSO via **OIDC / Entra ID** and **native SAML 2.0 SP**, and private connectivity. First-party ITSM connectors (Jira, ServiceNow) and Slack/Confluence integrations are strong enterprise features.
 
-**Engineering Picture:** The engineering foundation is strong, utilizing SQL persistence, DbUp migrations, and a well-architected agent orchestration pipeline. SQL storage hosts bind the authority pipeline to the Durable Task port (`DtfAuthorityRunOrchestrator`); deeper DTF-native scheduling and full multiset parity remain incremental work. The system includes idempotent orphan **`archiforge_*`** RLS predicate drops (**DbUp 165**), **`FirstTenantFunnelEvents`** SQL purge when per-tenant emission is **off**, **`ui-e2e-live`** negative-path coverage, optional **Redis-backed** graph projection **`IDistributedCache`**, and a hosted-trial **V1→V1.1** orientation memo. Residual risks include **immutable** migration/history spellings, catalogs still on legacy **RLS** identifiers until **`108`** replay coordination, and single-process projection defaults without Redis.
+**Engineering Picture:** The engineering foundation is strong, utilizing SQL persistence, DbUp migrations, and a well-architected agent orchestration pipeline. SQL storage hosts bind the authority pipeline to the Durable Task port (`DtfAuthorityRunOrchestrator`); deeper DTF-native scheduling and full multiset parity remain incremental work. The system includes **`FirstTenantFunnelEvents`** SQL purge when per-tenant emission is **off**, **`ui-e2e-live`** negative-path coverage, optional **Redis-backed** graph projection **`IDistributedCache`**, and a hosted-trial **V1→V1.1** orientation memo. Residual risks include single-process projection defaults without Redis.
 
 ---
 
@@ -45,9 +44,9 @@
 - **Score:** 80
 - **Weight:** 6
 - **Weighted deficiency signal:** 120
-- **Justification:** Tier 1 Azure extraction remains frictionless. **Phase 7.6–7.7** + waived **7.8** (**improvement #2**) **closed 2026-04-19** — see **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**. **Owner decision (Q7):** landing **hybrid CTA** routes serious buyers to **walkthrough** while offering **self-demo** before calendar load (**#32**). Some **immutable** DbUp history and RLS lineage still carries legacy spellings — procurement-facing docs should say so honestly (**not** unreleased rename backlog). Operator shell labels are aligned with marketing vocabulary.
+- **Justification:** Tier 1 Azure extraction remains frictionless. **Owner decision (Q7):** landing **hybrid CTA** routes serious buyers to **walkthrough** while offering **self-demo** before calendar load (**#32**). Operator shell labels are aligned with marketing vocabulary.
 - **Tradeoffs:** Demo workspaces create **fixture-maintenance tax** — feature churn can break GA smoke.
-- **Improvement recommendations:** **Improvement #2** (**7.6–7.8**) **closed 2026-04-19** per archived checklist — no schedule action. Provide explicit documentation for generic OIDC setup (`improvement #24`).
+- **Improvement recommendations:** Provide explicit documentation for generic OIDC setup (`improvement #24`).
 
 ### 2. AI/Agent Readiness
 - **Score:** 82
@@ -61,8 +60,8 @@
 - **Score:** 84
 - **Weight:** 8
 - **Weighted deficiency signal:** 128
-- **Justification:** The execution model is solid, incorporating the **`ManifestSuperseded`** durable path per **`docs/library/AUDIT_COVERAGE_MATRIX.md`**. The system clears **unreferenced** legacy **`archiforge_*`** security predicates (**DbUp 165**); residual catalogs still named **`ArchiforgeTenantScope`** remain operator **`108`** coordination — honesty / isolation posture unchanged versus immutable journal facts.
-- **Tradeoffs:** Read-path **`FindingsListAccessed`** stays intentionally unaudited until a stable bulk-list contract exists; RLS rename migrations remain coordination-heavy.
+- **Justification:** The execution model is solid, incorporating the **`ManifestSuperseded`** durable path per **`docs/library/AUDIT_COVERAGE_MATRIX.md`**.
+- **Tradeoffs:** Read-path **`FindingsListAccessed`** stays intentionally unaudited until a stable bulk-list contract exists; RLS migrations remain coordination-heavy.
 - **Improvement recommendations:** Retain **`AUDIT_COVERAGE_MATRIX.md`** discipline for future mutation surfaces. Track honest **`108`** replay notes where catalogs lag (**migration header**).
 
 ### 4. Proof-of-ROI Readiness
@@ -167,7 +166,6 @@
 
 1. Absence of cross-tenant analytics, limiting Proof-of-ROI for enterprise buyers.
 2. Playwright E2E still relies heavily on mocked **`/api/proxy`** paths — **live** **`ui-e2e-live`** negative API checks (**improvement #8**, **`live-api-negative-paths.spec.ts`**) shrink blind spots but do **not** replace broad golden-path coverage.
-3. **Residual** legacy **RLS** catalog/history identifiers (**improvement #4** dropped orphan predicates only; **`108`** coordination remains where **`ArchiforgeTenantScope`** persists).
 4. Manual nature of some cost estimations in the Azure extractor.
 5. **Demo workspace fixture drift:** With **two GA-gated workspaces** (**Marketing alignment Q6** / **#31**), UX, export, policy-pack, or graph changes can silently break evaluator smoke — CI/release discipline must pin fixtures or owners risk shipping broken demos.
 6. **Agent orchestration concurrency limits:** The `AuthorityRunOrchestrator` lacks rate limiting and concurrency controls, posing a reliability risk where a single tenant could exhaust worker pool resources during bursty workloads.
@@ -191,18 +189,17 @@
 
 ## Top 6 Enterprise Adoption Blockers
 
-1. **Immutable SQL / identity lineage strings** (historic migration bodies, session-context keys, allowlisted CI/doc carve-outs) plus honest disclosure obligations for procurement — **Terraform Phase 7.5 / improvement #1** complete for committed **`infra/**/*.tf`** **2026-05-15**; **Phase 7.6–7.7 / improvement #2** closed **2026-04-19** (**`docs/ARCHLUCID_RENAME_CHECKLIST.md`**); **`terraform state mv`** only when remote state lists **`archiforge`** (**`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**).
-2. **Lack of automated tenant data deletion:** Absence of a verifiable GDPR/CCPA "right to be forgotten" mechanism causes friction in enterprise procurement and legal reviews.
-3. **Noisy neighbor risks in orchestration:** The lack of rate limiting and concurrency controls for the `AuthorityRunOrchestrator` raises reliability concerns for enterprise buyers evaluating multi-tenant SaaS.
-4. **IdP configuration documentation gaps:** Missing explicit documentation for `ArchLucidAuth:Authority` configuration causes friction during enterprise SSO onboarding and security reviews.
-5. **Lack of custom rule authoring UI:** Evaluators cannot easily author and test custom governance rules without writing raw code, slowing down enterprise adoption.
-6. **Absence of compliance attestations:** The lack of a CPA-issued SOC 2 report and third-party penetration test (deferred to V2) will cause friction during procurement and security reviews.
+1. **Lack of automated tenant data deletion:** Absence of a verifiable GDPR/CCPA "right to be forgotten" mechanism causes friction in enterprise procurement and legal reviews.
+2. **Noisy neighbor risks in orchestration:** The lack of rate limiting and concurrency controls for the `AuthorityRunOrchestrator` raises reliability concerns for enterprise buyers evaluating multi-tenant SaaS.
+3. **IdP configuration documentation gaps:** Missing explicit documentation for `ArchLucidAuth:Authority` configuration causes friction during enterprise SSO onboarding and security reviews.
+4. **Lack of custom rule authoring UI:** Evaluators cannot easily author and test custom governance rules without writing raw code, slowing down enterprise adoption.
+5. **Absence of compliance attestations:** The lack of a CPA-issued SOC 2 report and third-party penetration test (deferred to V2) will cause friction during procurement and security reviews.
+6. **Lack of data residency options:** European and highly regulated buyers often require explicit guarantees that their data resides in a specific geographic region, which is currently not configurable per tenant.
 
 ---
 
 ## Top 6 Engineering Risks
 
-1. **Residual legacy RLS identifiers:** Immutable history and catalogs still contain legacy `archiforge_*` identifiers; while orphan predicates were dropped, isolation posture requires ongoing coordination with migration `108` where catalogs lag.
 2. **Durable Task Framework (DTF) parity gaps:** While SQL production DI is wired to DTF, full multiset parity, release-smoke validation, and deeper engine-native scheduling remain engineering obligations before the legacy orchestrator can be safely removed.
 3. **E2E test mock reliance:** Despite the addition of negative live-API paths, the majority of the Playwright E2E suite still relies heavily on mocked `/api/proxy` responses, leaving integration blind spots until `ui-e2e-live` expands further.
 4. **Agent orchestration concurrency limits:** The `AuthorityRunOrchestrator` lacks rate limiting and concurrency controls, posing a reliability risk where a single tenant could exhaust worker pool resources during bursty workloads.
@@ -490,7 +487,6 @@ Sequential decisions so marketing ↔ technical V1 stay aligned. **Status: Q1–
   - **Backup / rollback authority:** Portal identity holds **Azure RBAC Owner** on **both** subscriptions — **same principal** should **download remote state backups** immediately before each `state mv`, run **`terraform plan`**, and **authorize abort / state restore** if the plan shows unexpected **destroy/replace**. Delegate to a named infra deputy in writing if Owner is not executing moves personally.
   - **Roots:** Canonical catalog **`docs/library/DEPLOYMENT_TERRAFORM.md`**. Enumerate only stacks already applied with **`backend.tf`**. **`terraform state list | rg archiforge`** determines brownfield **`state mv`** need (**archive procedures:** **`docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`**). Starter audit depth (**when brownfield applies**) historically emphasized **`infra/terraform`**, **`infra/terraform-monitoring`**, **`infra/terraform-container-apps`**, **`infra/terraform-sql-failover`** — extend to other roots **when applied** in that subscription (**matrix:** **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**).
   - **Matrix:** Subscription × root rehearsal template appended **2026-05-15** (operators fill **Y/N** cells — satisfies former **P1** follow-up).
-- **P2 — Phase 7.6–7.8 GitHub repo rename + Entra apps — answered:** **Owner 2026-05-15:** **Yes** — IT/security approval to execute the **GitHub repository rename** and **Entra ID app registration alignment** is **on file**. **Engineering closure:** **Phase 7.6–7.7** **completed 2026-04-19**; **Phase 7.8** optional local folder rename **waived** — receipts **`docs/archive/root-superseded-2026-05-01/ARCHLUCID_RENAME_CHECKLIST.md`**; living pointer **`docs/ARCHLUCID_RENAME_CHECKLIST.md`** (**improvement #2**). Optional evidence link (ticket/email) for auditors if your org requires it.
 - **P3 — In-Slack interactive approvals — answered:** **Owner 2026-05-15 (agent recommendation accepted):** **Not** V1 GA / **not** current sprint. **Target: early V1.1** (~first **30 days** post-GA). **MVP scope:** single **approve finding / decision** flow; **audit parity** with UI; **signing-secret** + identity/RBAC binding. **Marketing:** no “approve from Slack” claims at GA. **Mockups:** none provided — engineer from operator approval UX or add wireframes in V1.1 slice. Details also in improvement **#6**.
 - **P4 — Stripe live keys + Marketplace publication — answered:** **Owner 2026-05-15:** **Defer** execution **until finance confirms** Partner Center readiness (seller verification, tax profile, payout/banking). **Next step:** Finance “go” → run improvement **#7** against billing/runbook checklists (e.g. **`docs/library/DEPLOYMENT_TERRAFORM.md`** and any Partner Center / Stripe cutover notes the team maintains).
 - **P5 — Hosted-trial `V1`→`V1.1` migration guide — answered:** **Owner 2026-05-15:** Artifact is **out of V1 GA checklist-blocking scope** and **in V1.1 documentation scope** (`docs/library/V1_DEFERRED.md` §6i). **`(A)` V1 readiness is unchanged** by treating this as orientation-only at GA. **`docs/library/HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md`** provides baseline rollup prose; refresh when **`V1.1`** deltas enumerate (commerce **P4**, MCP, Slack **P3**, packs, etc.).
