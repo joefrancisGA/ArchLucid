@@ -130,7 +130,7 @@ You are working in the ArchLucid repo.
 **Goal:** After global coverage gates exist, publish a **maintainer-facing map** of the lowest-covered **hotspot files** (above floor but risky), and tighten **FsCheck** tests with explicit **size** / iteration caps so `Suite=Core` stays fast.
 
 **Prerequisites (verify):**
-- `scripts/ci/assert_merged_line_coverage_min.py`, `docs/CODE_COVERAGE.md`.
+- `scripts/ci/assert_merged_line_coverage_min.py`, `docs/COVERAGE_GAP_ANALYSIS.md`.
 - Existing FsCheck tests and `Directory.Packages.props` package versions.
 
 **What to do:**
@@ -143,7 +143,7 @@ You are working in the ArchLucid repo.
 - No `ConfigureAwait(false)` in tests.
 - Do not lower coverage floors in this prompt; only clarify or raise with justification.
 
-**Done when:** Hotspot doc exists and is linked from `CODE_COVERAGE.md` or `TEST_STRUCTURE.md`; FsCheck runtime stable in local `dotnet test` sample.
+**Done when:** Hotspot doc exists and is linked from `COVERAGE_GAP_ANALYSIS.md` or `TEST_STRUCTURE.md`; FsCheck runtime stable in local `dotnet test` sample.
 ```
 
 ---

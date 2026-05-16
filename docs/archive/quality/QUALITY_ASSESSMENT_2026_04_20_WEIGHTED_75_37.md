@@ -111,7 +111,7 @@ What suppresses the score:
 - Schemathesis **stateful** is **scheduled-only**, not merge-blocking — drift between OpenAPI and behaviour can slip through PR.
 - `ArchLucid.Api.Client` exists (and is republished), but I see no PR-time **client-replay** suite that runs golden requests through the typed client against the API container. Schemathesis covers shape; replay would cover *intent*.
 - The 100-script migration history with two files numbered `096_*` (`096_CheckJson_CorePayloadColumns.sql` and `096_RlsTenantIdOnlyTables.sql`) is a correctness-of-DDL hazard if DbUp ordering is not strictly lexical.
-- `ContractTest_Coverage_Gap_Analysis.md` and `COVERAGE_GAP_ANALYSIS_RECENT.md` both exist — i.e. the team itself knows there are uncovered seams.
+- `ContractTest_Coverage_Gap_Analysis.md` and `COVERAGE_GAP_ANALYSIS.md` both exist — i.e. the team itself knows there are uncovered seams.
 
 **Tradeoffs.** Stateful Schemathesis is expensive (minutes), so making it merge-blocking trades CI latency for correctness — but on weight 8 the trade is worth it.
 

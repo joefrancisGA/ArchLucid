@@ -4,7 +4,7 @@
 Default raised from 30 → 31 to include ``docs/CONTRIBUTOR_ON_ONE_PAGE.md`` at repo root next to
 ``READ_THIS_FIRST.md`` without moving depth content; see ``docs/CHANGELOG.md``. Raised 31 → 32 for
 ``docs/NAVIGATOR.md`` (single-page task → doc map; buyer-spine quick lookup from ``READ_THIS_FIRST``).
-``COVERAGE_GAP_ANALYSIS_RECENT.md`` lives under ``docs/library/`` (merged into ``docs/COVERAGE_GAP_ANALYSIS.md``)
+``COVERAGE_GAP_ANALYSIS_RECENT.md`` was merged into ``docs/COVERAGE_GAP_ANALYSIS.md`` and deleted.
 so the root count stays at or below this cap without raising it again."""
 
 from __future__ import annotations

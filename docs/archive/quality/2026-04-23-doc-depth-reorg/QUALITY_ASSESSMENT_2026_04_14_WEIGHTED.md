@@ -538,7 +538,7 @@ Regenerate docs/COVERAGE_GAP_ANALYSIS.md from a merged Cobertura file (do not ha
 the tables). Preferred path:
 
 1. From repo root, run a full Release test pass with Coverlet and merge to one Cobertura
-   (see "How to refresh" inside docs/COVERAGE_GAP_ANALYSIS.md and docs/CODE_COVERAGE.md).
+   (see "How to refresh" inside docs/COVERAGE_GAP_ANALYSIS.md).
 2. Place the merged Cobertura at coverage-gap-1a/merged/Cobertura.xml (or adjust
    scripts/ci/coverage_gap_analysis.py to accept a CLI path if you use a different folder,
    then run the script once and commit only the doc + any script argv support).

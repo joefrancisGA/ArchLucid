@@ -110,12 +110,12 @@ Each area carries the same six-section structure: **Score · Weighted Score · J
 
 **Justification.** Strong, evidence-backed correctness posture: schema-validated typed findings, replay **verify** mode that returns 422 + Problem+JSON when regenerated output drifts, NetArchTest constraints in `ArchLucid.Architecture.Tests`, OpenAPI contract snapshot tests, Schemathesis + ZAP in CI, an explicit `ConfirmationDialog` for destructive actions, mutation testing with Stryker against four core assemblies, and ~700 test files driving the merge gate at **≥79 % merged line / ≥63 % merged branch / ≥63 % per-package**.
 
-**The drag.** `docs/CODE_COVERAGE.md` itself states `ArchLucid.Api` is "**~60 % per-package line**" — i.e. **below the strict-profile floor**. Until that lifts, the gate is aspirational on `Api`. Marketplace `ChangePlan` / `ChangeQuantity` are still no-op responses (correctness via "we don't pretend to mutate" is fine, but it leaves a gap in the integration contract). RLS is "covered tables" — not "all scoped tables", and `MULTI_TENANT_RLS.md` § 7 explicitly calls correctness drift a residual risk.
+**The drag.** `docs/COVERAGE_GAP_ANALYSIS.md` itself states `ArchLucid.Api` is "**~60 % per-package line**" — i.e. **below the strict-profile floor**. Until that lifts, the gate is aspirational on `Api`. Marketplace `ChangePlan` / `ChangeQuantity` are still no-op responses (correctness via "we don't pretend to mutate" is fine, but it leaves a gap in the integration contract). RLS is "covered tables" — not "all scoped tables", and `MULTI_TENANT_RLS.md` § 7 explicitly calls correctness drift a residual risk.
 
 **Trade-offs.** Driving `ArchLucid.Api` coverage to 79 % typically requires controller- and middleware-level tests that overlap with integration tests; the marginal correctness gain after ~75 % flattens. Hardening Marketplace flag-flip to GA needs operator validation and rollback discipline.
 
 **Improvement recommendations.**
-- Lift `ArchLucid.Api` per-package line to **≥ 79 %** with controller + middleware unit tests covering pagination cursors, range result, scope debug, auth debug, demo seed, metering admin (the same surfaces already trickled in late-session per `CODE_COVERAGE.md`).
+- Lift `ArchLucid.Api` per-package line to **≥ 79 %** with controller + middleware unit tests covering pagination cursors, range result, scope debug, auth debug, demo seed, metering admin (the same surfaces already trickled in late-session per `COVERAGE_GAP_ANALYSIS.md`).
 - Remove the `Billing:AzureMarketplace:GaEnabled=false` short-circuit by validating `planId → tier` substring map and seat counts in a sandbox tenant, then default the flag to `true` with an explicit rollback runbook.
 - Expand RLS coverage from "covered tables" to **all `dbo.*` tables that hold tenant-scoped data**; convert `RLS_RISK_ACCEPTANCE.md` from a template into a populated, dated register.
 

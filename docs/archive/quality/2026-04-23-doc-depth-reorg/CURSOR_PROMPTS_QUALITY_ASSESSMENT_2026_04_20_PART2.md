@@ -17,7 +17,7 @@ Each prompt is **self-contained**, names the canonical files / seams a contribut
 
 > Numbered "Prompt 3" in this file because Prompts 1 and 2 ship in the companion document. This is **Improvement 4** in the assessment.
 
-**Quality lift:** Correctness (80 → ~86) by closing the documented `ArchLucid.Api` per-package coverage shortfall (CI floor is **≥ 79 % line / ≥ 63 % branch / ≥ 63 % per-package**, and `docs/CODE_COVERAGE.md` calls out `ArchLucid.Api` at "**~60 %**"); Testability (85 → ~89) by extending Stryker mutation testing to `ArchLucid.Api`; Marketability (78 → ~80) by removing the `Billing:AzureMarketplace:GaEnabled=false` `AcknowledgedNoOp` short-circuit on `ChangePlan` / `ChangeQuantity` so the transactability story is real, not aspirational.
+**Quality lift:** Correctness (80 → ~86) by closing the documented `ArchLucid.Api` per-package coverage shortfall (CI floor is **≥ 79 % line / ≥ 63 % branch / ≥ 63 % per-package**, and `docs/COVERAGE_GAP_ANALYSIS.md` calls out `ArchLucid.Api` at "**~60 %**"); Testability (85 → ~89) by extending Stryker mutation testing to `ArchLucid.Api`; Marketability (78 → ~80) by removing the `Billing:AzureMarketplace:GaEnabled=false` `AcknowledgedNoOp` short-circuit on `ChangePlan` / `ChangeQuantity` so the transactability story is real, not aspirational.
 
 ### Paste this into Cursor Agent
 
@@ -32,7 +32,7 @@ Each prompt is **self-contained**, names the canonical files / seams a contribut
 > **Steps (do them yourself; do not delegate to subagents):**
 >
 > 1. **Read first:**
->    - **`docs/CODE_COVERAGE.md`** (strict profile, current per-package shortfall on `ArchLucid.Api`, late-session controller/middleware test list).
+>    - **`docs/COVERAGE_GAP_ANALYSIS.md`** (strict profile, current per-package shortfall on `ArchLucid.Api`, late-session controller/middleware test list).
 >    - **`docs/coverage-exclusions.md`** (allowed exclusion categories — Stryker / coverage exclusions are bounded; do not invent a new category).
 >    - **`scripts/ci/assert_merged_line_coverage_min.py`** (the script that enforces the floor).
 >    - **`scripts/ci/refresh_stryker_baselines.py`** and **`scripts/ci/assert_stryker_score_vs_baseline.py`** (Stryker baseline mechanics).
@@ -40,14 +40,14 @@ Each prompt is **self-contained**, names the canonical files / seams a contribut
 >    - **`docs/BILLING.md`** §§ component breakdown, security model, operational considerations.
 >    - **`docs/AZURE_MARKETPLACE_SAAS_OFFER.md`** (the GA-flag table — webhook actions today vs after flip).
 >    - **`ArchLucid.Api/appsettings.json`** and any `appsettings.*.sample.json` Marketplace fragments.
->    - **`ArchLucid.Api/Controllers/`** + **`ArchLucid.Api/Startup/`** + **`ArchLucid.Api/Middleware/`** to identify the lowest-hanging untested surfaces (the assessment and `CODE_COVERAGE.md` already point at: `JobsController`, `DocsController.ReplayRecipes`, `ScopeDebugController`, `AuthDebugController`, `DemoController`, `MeteringAdminController`, `ApiPaging.TryParseUtcTicksIdCursor`, `RetrievalController.Search`, `TenantTrialController.GetTrialStatusAsync`, `FileWithRangeResult`, `ApiRequestMeteringMiddleware`, `TrialSeatReservationMiddleware`).
+>    - **`ArchLucid.Api/Controllers/`** + **`ArchLucid.Api/Startup/`** + **`ArchLucid.Api/Middleware/`** to identify the lowest-hanging untested surfaces (the assessment and `COVERAGE_GAP_ANALYSIS.md` already point at: `JobsController`, `DocsController.ReplayRecipes`, `ScopeDebugController`, `AuthDebugController`, `DemoController`, `MeteringAdminController`, `ApiPaging.TryParseUtcTicksIdCursor`, `RetrievalController.Search`, `TenantTrialController.GetTrialStatusAsync`, `FileWithRangeResult`, `ApiRequestMeteringMiddleware`, `TrialSeatReservationMiddleware`).
 >
 > 2. **Identify the coverage gap quantitatively** before writing tests. From a clean Release build of tests:
 >    ```
 >    dotnet test ArchLucid.sln -c Release --settings coverage.runsettings --collect:"XPlat Code Coverage" --results-directory ./coverage-raw
 >    python scripts/ci/coverage_cobertura.py ./coverage-raw
 >    ```
->    Read the merged Cobertura report (or `_cov_merge`/`coverage-raw` folder already present) and write a one-paragraph note to `docs/CODE_COVERAGE.md` listing the **specific `ArchLucid.Api` namespaces** below 79 % so reviewers can audit your test selection.
+>    Read the merged Cobertura report (or `_cov_merge`/`coverage-raw` folder already present) and write a one-paragraph note to `docs/COVERAGE_GAP_ANALYSIS.md` listing the **specific `ArchLucid.Api` namespaces** below 79 % so reviewers can audit your test selection.
 >
 > 3. **Add unit tests for `ArchLucid.Api`** in **`ArchLucid.Api.Tests/Unit/`** (one test class per controller/middleware, one file per class — house rule). Cover at minimum:
 >    - **Controllers:** `JobsController` (success + 400 + 404 + RBAC), `DocsController.ReplayRecipes` (404 vs 200), `ScopeDebugController.GetScope` (with and without scope context), `AuthDebugController.Me` (DevelopmentBypass + ApiKey + JwtBearer paths via `WebApplicationFactory` overrides), `DemoController.SeedAsync` (gated by `Demo:Enabled` + `Demo:SeedOnStartup`), `MeteringAdminController.GetTenantSummaryAsync`, `RetrievalController.Search` (TopK clamp + validation), `TenantTrialController.GetTrialStatusAsync` (not-found / none / active), every branch of `FileWithRangeResult.ExecuteResultAsync` (empty / full / range / out-of-range).
@@ -84,7 +84,7 @@ Each prompt is **self-contained**, names the canonical files / seams a contribut
 >    The script must exit **0** with **no `--skip-package-line-gate`**.
 >
 > 7. **Docs.** Update:
->    - **`docs/CODE_COVERAGE.md`** — replace the "**~60 %** per-package line on `ArchLucid.Api`" line with the new measured number, and remove the "expect `dotnet-full-regression` to fail until tests lift those numbers" sentence (or rewrite it accurately).
+>    - **`docs/COVERAGE_GAP_ANALYSIS.md`** — replace the "**~60 %** per-package line on `ArchLucid.Api`" line with the new measured number, and remove the "expect `dotnet-full-regression` to fail until tests lift those numbers" sentence (or rewrite it accurately).
 >    - **`docs/CHANGELOG.md`** — single `## Unreleased` bullet covering coverage lift, Stryker config, and Marketplace GA flip with rollback runbook link.
 >    - **`docs/MUTATION_TESTING_STRYKER.md`** — list the new config and ratchet target.
 >
@@ -98,7 +98,7 @@ Each prompt is **self-contained**, names the canonical files / seams a contribut
 > - `stryker-config.api.json` exists; running it locally produces an html report; the new advisory CI step uploads the report as an artifact.
 > - `Billing:AzureMarketplace:GaEnabled=true` is the shipped default in `ArchLucid.Api/appsettings.json`; `AzureMarketplaceBillingProvider` no longer returns `AcknowledgedNoOp` on `ChangePlan` / `ChangeQuantity`; integration tests prove a row is mutated and an event published exactly once on duplicate delivery.
 > - `docs/runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md` exists, is linked from `docs/AZURE_MARKETPLACE_SAAS_OFFER.md` and from the `ARCHITECTURE_INDEX.md` runbooks section.
-> - `docs/CODE_COVERAGE.md`, `docs/MUTATION_TESTING_STRYKER.md`, and `docs/CHANGELOG.md` are updated in the same PR; the `audit-core-const-count` style anchor in `docs/AUDIT_COVERAGE_MATRIX.md` is **not** edited (no audit constant change).
+> - `docs/COVERAGE_GAP_ANALYSIS.md`, `docs/MUTATION_TESTING_STRYKER.md`, and `docs/CHANGELOG.md` are updated in the same PR; the `audit-core-const-count` style anchor in `docs/AUDIT_COVERAGE_MATRIX.md` is **not** edited (no audit constant change).
 > - `dotnet build ArchLucid.sln`, `dotnet test ArchLucid.sln` (Core + Integration + SQL), and `cd archlucid-ui && npm test && npm run build` all succeed.
 
 ---

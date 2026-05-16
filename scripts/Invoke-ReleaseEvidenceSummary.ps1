@@ -47,7 +47,7 @@ if ($code -eq 0) { Add-Row "Health sample tests" "Passed" "exit 0" $code }
 else { Add-Row "Health sample tests" "Failed" "exit $code" $code }
 
 Add-Row "Merge-blocking full regression (SQL)" "Not captured" "Confirm in CI — `dotnet-full-regression` job" $null
-Add-Row "Merged Cobertura coverage gates" "Not captured" "See docs/library/CODE_COVERAGE.md + CI artifacts" $null
+Add-Row "Merged Cobertura coverage gates" "Not captured" "See docs/COVERAGE_GAP_ANALYSIS.md + CI artifacts" $null
 Add-Row "Playwright live UI smoke" "Skipped" "Optional — needs SQL-backed API (LIVE_E2E_HAPPY_PATH.md)" $null
 
 Write-Host "[Procurement pack index (buyer materials readiness)]" -ForegroundColor Yellow

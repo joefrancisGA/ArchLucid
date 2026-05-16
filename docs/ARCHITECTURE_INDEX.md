@@ -86,7 +86,7 @@
 - **Explainability trace coverage + faithfulness heuristic** – trace completeness ratio, aggregate explanation token overlap vs finding traces  
   - `docs/EXPLAINABILITY_TRACE_COVERAGE.md`
 - **Code coverage (merged line gate, scripts)**  
-  - `docs/CODE_COVERAGE.md`
+  - `docs/COVERAGE_GAP_ANALYSIS.md`
 - **Mutation testing (Stryker) + safe ratchet to higher floors**  
   - `docs/MUTATION_TESTING_STRYKER.md`, `docs/STRYKER_RATchet_TARGET_72.md`
 - **System STRIDE threat summary (product boundary)**  

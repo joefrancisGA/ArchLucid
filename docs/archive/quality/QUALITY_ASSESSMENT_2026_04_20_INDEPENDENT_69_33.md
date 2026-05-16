@@ -117,7 +117,7 @@ Items are sorted by **`gap × weight = (100 − score) × weight`** so the bigge
 
 ## 8. Correctness — 75 / 100 (weight 4, gap·w = 100)
 
-**Justification.** 840 test files across 23 test assemblies, FsCheck property tests, NetArchTest, Stryker mutation testing (`stryker-pr.yml`), Schemathesis OpenAPI conformance, ZAP, k6 smoke, Simmy chaos, agent prompt-regression baseline, golden agent fixtures, **GreenfieldSqlBoot** integration tests, live API E2E (`live-api-*.spec.ts`). Coverage gates: 79% line / 63% branch merged, with per-package floors. **But:** the `CODE_COVERAGE.md` snapshot is openly **72.95% line / 58.71% branch** and 15 tests fail on a clean local environment — exactly the gap a typical first-pilot CI will see. Prompt regression baseline only covers **Topology** today; Cost/Compliance/Critic floors are 0.0.
+**Justification.** 840 test files across 23 test assemblies, FsCheck property tests, NetArchTest, Stryker mutation testing (`stryker-pr.yml`), Schemathesis OpenAPI conformance, ZAP, k6 smoke, Simmy chaos, agent prompt-regression baseline, golden agent fixtures, **GreenfieldSqlBoot** integration tests, live API E2E (`live-api-*.spec.ts`). Coverage gates: 79% line / 63% branch merged, with per-package floors. **But:** the `COVERAGE_GAP_ANALYSIS.md` snapshot is openly **72.95% line / 58.71% branch** and 15 tests fail on a clean local environment — exactly the gap a typical first-pilot CI will see. Prompt regression baseline only covers **Topology** today; Cost/Compliance/Critic floors are 0.0.
 
 **Tradeoffs.** A high coverage gate is real engineering culture; broken local tests sap the same culture.
 
@@ -315,7 +315,7 @@ Items are sorted by **`gap × weight = (100 − score) × weight`** so the bigge
 3. **Two parallel run pipelines (Coordinator vs Authority)** — Architectural Integrity gap; ADR 0021 is *Proposed*, not executed. Owner has approved breaking the Coordinator surface in `v1`.
 4. **Adoption surface is huge** — 15+ Terraform roots, dozens of config keys, 7-step wizard, "four UI shaping surfaces". First-time operators bounce.
 5. **Layer model is sales messaging, not enforced entitlement** — UI shaping ≠ pricing tier. A Team-tier JWT with the right role can hit Enterprise Controls. Owner approved 402 enforcement.
-6. **Local CI is not green** — `CODE_COVERAGE.md` openly notes 15 failing tests and coverage 6 points below the strict gate.
+6. **Local CI is not green** — `COVERAGE_GAP_ANALYSIS.md` openly notes 15 failing tests and coverage 6 points below the strict gate.
 7. **No in-product business-value scorecard** — the ROI model is a doc template, not a sponsor-ready PDF generated from real run data.
 8. **No deep IDE/PR/Confluence embedding** — architects review where they work; the operator UI asks them to leave.
 9. **Cognitive load of docs and code is high** — README 347 lines; `PRODUCT_PACKAGING.md` has paragraphs over 1,000 words; new contributors will struggle.

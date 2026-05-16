@@ -17,7 +17,7 @@ $covFiles = @(
   Get-ChildItem -Path .\coverage-gap-1a -Recurse -Filter coverage.cobertura.xml -File -ErrorAction SilentlyContinue
 )
 if ($covFiles.Count -lt 1) {
-  throw "No coverage.cobertura.xml under .\coverage-gap-1a (dotnet test exit $testExitCode). Fix tests or SQL (see docs/library/CODE_COVERAGE.md); for a clean persistence catalog try DROP DATABASE ArchLucidPersistenceTests on your test instance, then re-run."
+  throw "No coverage.cobertura.xml under .\coverage-gap-1a (dotnet test exit $testExitCode). Fix tests or SQL (see docs/COVERAGE_GAP_ANALYSIS.md); for a clean persistence catalog try DROP DATABASE ArchLucidPersistenceTests on your test instance, then re-run."
 }
 
 if ($testExitCode -ne 0) {

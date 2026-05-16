@@ -150,14 +150,14 @@ You are working in the ArchLucid repo.
 **Goal:** Tighten test quality signals by (1) **raising or hardening** coverage gates so weak assemblies cannot hide behind the merged average, and (2) adding **property-based** tests (FsCheck or FsCheck.Xunit for C#) for pure domain functions where random input finds edge cases faster than example-only tests.
 
 **Context (read first):**
-- `docs/CODE_COVERAGE.md` — merged line ≥79%, branch ≥63%, per-package line ≥63% via `scripts/ci/assert_merged_line_coverage_min.py`.
+- `docs/COVERAGE_GAP_ANALYSIS.md` — merged line ≥79%, branch ≥63%, per-package line ≥63% via `scripts/ci/assert_merged_line_coverage_min.py`.
 - `.github/workflows/ci.yml` — invocation of `assert_merged_line_coverage_min.py` with `--min-package-line-pct` (verify current values).
 - `docs/TEST_STRUCTURE.md`, `docs/TEST_EXECUTION_MODEL.md`.
 - Strong pure-logic targets: `ArchLucid.Decisioning` (governance resolution, manifest merge invariants), `ArchLucid.Application` hashing/idempotency helpers — pick **one** bounded area first.
 
 **What to do:**
 
-1. **Coverage:** Run a local merged Cobertura report (`docs/CODE_COVERAGE.md` commands), identify the **lowest** product packages above the floor. Either raise `--min-package-line-pct` by 2–5 points with tests to support it, or add a **second-tier** advisory threshold already partially implemented via `warn_below_package_line_pct` — document the policy in `CODE_COVERAGE.md`.
+1. **Coverage:** Run a local merged Cobertura report (`docs/COVERAGE_GAP_ANALYSIS.md` commands), identify the **lowest** product packages above the floor. Either raise `--min-package-line-pct` by 2–5 points with tests to support it, or add a **second-tier** advisory threshold already partially implemented via `warn_below_package_line_pct` — document the policy in `COVERAGE_GAP_ANALYSIS.md`.
 2. **Property tests:** Add `FsCheck` (or agreed package from `Directory.Packages.props`) to the **one** test project you touch. Write 2–4 properties with shrinking enabled, each < ~30 lines of logic, covering invariants (e.g. idempotent merge, commutative ordering where applicable, never throws on valid random inputs within model constraints).
 3. **CI:** Ensure new tests run in `Suite=Core` or default regression as appropriate; keep runtime reasonable (< few seconds).
 4. **Docs:** Add a short “Property-based tests” subsection to `docs/TEST_STRUCTURE.md`.

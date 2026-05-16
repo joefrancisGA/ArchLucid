@@ -35,7 +35,7 @@ dotnet test ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj -c Release
 dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release --filter "Category!=SqlIntegration"
 ```
 
-Full strict coverage and SQL-backed suites need **`ARCHLUCID_SQL_TEST`** — see **[CODE_COVERAGE.md](CODE_COVERAGE.md)**.
+Full strict coverage and SQL-backed suites need **`ARCHLUCID_SQL_TEST`** — see **[COVERAGE_GAP_ANALYSIS.md](COVERAGE_GAP_ANALYSIS.md)**.
 
 ## 5. Optional SQL-backed tests
 

@@ -23,7 +23,7 @@ This file records what was implemented from the seven-improvement prompt set ver
 
 ## 3. ArchLucid.Api coverage ≥ 79%
 
-**Not executed in this batch:** Strict-profile uplift remains an open workstream (`docs/CODE_COVERAGE.md`).
+**Not executed in this batch:** Strict-profile uplift remains an open workstream (`docs/COVERAGE_GAP_ANALYSIS.md`).
 
 **Follow-up:** Targeted controller tests in `ArchLucid.Api.Tests` until merged Cobertura meets the gate.
 
