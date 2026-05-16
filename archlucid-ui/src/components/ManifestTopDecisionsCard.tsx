@@ -118,7 +118,7 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
   const remainder = SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES.slice(3);
 
   return (
-    <Card>
+    <Card id="manifest-key-decisions">
       <CardHeader>
         <CardTitle className="text-base font-semibold">{buyer ? "Key decisions" : "Top decisions"}</CardTitle>
         <CardDescription>

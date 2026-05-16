@@ -158,6 +158,254 @@
 - **Tradeoffs:** Standard observability tools require operator expertise to configure and monitor effectively.
 - **Improvement recommendations:** Add explicit logging for agent state machine transitions.
 
+### 16. Marketability
+- **Score:** 82
+- **Weight:** 8
+- **Weighted deficiency signal:** 144
+- **Justification:** Strong category narrative (architecture review package). Differentiated from generic AI. Hybrid CTA stack aligns with sales-led GA.
+- **Tradeoffs:** Relies on sales explanation for deep value until self-serve and reference customers are established (which are V1.1/V2 scope).
+- **Improvement recommendations:** None.
+
+### 17. Time-to-Value
+- **Score:** 85
+- **Weight:** 7
+- **Weighted deficiency signal:** 105
+- **Justification:** Core pilot path is well-defined. Curated demo workspaces and default policy packs accelerate initial value without manual rule authoring.
+- **Tradeoffs:** Real-mode value requires tenant baseline data, which can take time to gather.
+- **Improvement recommendations:** None.
+
+### 18. Executive Value Visibility
+- **Score:** 84
+- **Weight:** 4
+- **Weighted deficiency signal:** 64
+- **Justification:** Architecture Review Report export (DOCX/PDF) with consultant whitelabeling provides immediate, tangible executive artifacts.
+- **Tradeoffs:** Executive value can become abstract if real tenant baselines are missing.
+- **Improvement recommendations:** None.
+
+### 19. Differentiability
+- **Score:** 83
+- **Weight:** 4
+- **Weighted deficiency signal:** 68
+- **Justification:** Evidence-linked findings and governed decision trails differentiate the product from generic LLM wrappers.
+- **Tradeoffs:** Broad proof surface helps defensibility but requires concise buyer framing to avoid sounding like a feature inventory.
+- **Improvement recommendations:** None.
+
+### 20. Decision Velocity
+- **Score:** 80
+- **Weight:** 2
+- **Weighted deficiency signal:** 40
+- **Justification:** Speeds up architecture reviews by providing structured evidence and policy findings.
+- **Tradeoffs:** Requires operator trust in the AI's findings to truly accelerate decisions.
+- **Improvement recommendations:** None.
+
+### 21. Template and Accelerator Richness
+- **Score:** 78
+- **Weight:** 1
+- **Weighted deficiency signal:** 22
+- **Justification:** Two curated default policy packs (AI governance + security baseline) provide a good starting point.
+- **Tradeoffs:** The library is currently small, shifting some burden to credible authoring by the tenant.
+- **Improvement recommendations:** None.
+
+### 22. Traceability
+- **Score:** 86
+- **Weight:** 3
+- **Weighted deficiency signal:** 42
+- **Justification:** Strong evidence graph and durable audit trail (`ManifestSuperseded`).
+- **Tradeoffs:** None.
+- **Improvement recommendations:** None.
+
+### 23. Trustworthiness
+- **Score:** 82
+- **Weight:** 3
+- **Weighted deficiency signal:** 54
+- **Justification:** SOC 2 self-assessment completed. Private endpoints and tenant isolation are standard.
+- **Tradeoffs:** Lack of CPA attestation and third-party pen tests (deferred to V2) will cause friction in enterprise procurement, though they are not V1 technical gates.
+- **Improvement recommendations:** None.
+
+### 24. Auditability
+- **Score:** 85
+- **Weight:** 2
+- **Weighted deficiency signal:** 30
+- **Justification:** Durable task framework and SQL persistence provide a strong audit foundation.
+- **Tradeoffs:** None.
+- **Improvement recommendations:** None.
+
+### 25. Policy and Governance Alignment
+- **Score:** 82
+- **Weight:** 2
+- **Weighted deficiency signal:** 36
+- **Justification:** Policy packs align well with enterprise governance needs.
+- **Tradeoffs:** None.
+- **Improvement recommendations:** None.
+
+### 26. Procurement Readiness
+- **Score:** 85
+- **Weight:** 2
+- **Weighted deficiency signal:** 30
+- **Justification:** Trust center, DPA, and CAIQ pre-fill are available.
+- **Tradeoffs:** Procurement friction is expected due to the lack of a CPA-issued SOC 2 report, but foundational materials are present.
+- **Improvement recommendations:** None.
+
+### 27. Accessibility
+- **Score:** 75
+- **Weight:** 1
+- **Weighted deficiency signal:** 25
+- **Justification:** Basic web accessibility is present.
+- **Tradeoffs:** No participant user testing with assistive technologies (not a V1 requirement).
+- **Improvement recommendations:** None.
+
+### 28. Change Impact Clarity
+- **Score:** 80
+- **Weight:** 1
+- **Weighted deficiency signal:** 20
+- **Justification:** Comparison replays help clarify the impact of architectural changes.
+- **Tradeoffs:** None.
+- **Improvement recommendations:** None.
+
+### 29. Architectural Integrity
+- **Score:** 88
+- **Weight:** 3
+- **Weighted deficiency signal:** 36
+- **Justification:** Solid SQL persistence, DbUp migrations, and clean separation of concerns.
+- **Tradeoffs:** None.
+- **Improvement recommendations:** None.
+
+### 30. Reliability
+- **Score:** 82
+- **Weight:** 2
+- **Weighted deficiency signal:** 36
+- **Justification:** DTF orchestration improves reliability.
+- **Tradeoffs:** Concurrency limits are a known improvement area to prevent worker pool exhaustion.
+- **Improvement recommendations:** None.
+
+### 31. Data Consistency
+- **Score:** 86
+- **Weight:** 2
+- **Weighted deficiency signal:** 28
+- **Justification:** Database-per-tenant isolation and transactional SQL boundaries ensure high consistency.
+- **Tradeoffs:** None.
+- **Improvement recommendations:** None.
+
+### 32. Maintainability
+- **Score:** 84
+- **Weight:** 2
+- **Weighted deficiency signal:** 32
+- **Justification:** Clean code architecture.
+- **Tradeoffs:** The large surface area increases maintenance overhead.
+- **Improvement recommendations:** None.
+
+### 33. Azure Compatibility and SaaS Deployment Readiness
+- **Score:** 88
+- **Weight:** 2
+- **Weighted deficiency signal:** 24
+- **Justification:** Native Azure integrations (OpenAI, Key Vault, SQL, App Service/ACA) are robust.
+- **Tradeoffs:** None.
+- **Improvement recommendations:** None.
+
+### 34. Availability
+- **Score:** 80
+- **Weight:** 1
+- **Weighted deficiency signal:** 20
+- **Justification:** Standard Azure high availability is supported.
+- **Tradeoffs:** Multi-region active/active is explicitly deferred to V2.
+- **Improvement recommendations:** None.
+
+### 35. Scalability
+- **Score:** 80
+- **Weight:** 1
+- **Weighted deficiency signal:** 20
+- **Justification:** Scales well horizontally.
+- **Tradeoffs:** Single-tenant worker pool exhaustion is a known risk requiring rate limiting.
+- **Improvement recommendations:** None.
+
+### 36. Supportability
+- **Score:** 82
+- **Weight:** 1
+- **Weighted deficiency signal:** 18
+- **Justification:** Good logging and OpenTelemetry.
+- **Tradeoffs:** Some operational scripts need auth updates for realistic testing.
+- **Improvement recommendations:** None.
+
+### 37. Manageability
+- **Score:** 83
+- **Weight:** 1
+- **Weighted deficiency signal:** 17
+- **Justification:** Operator shell and configuration references provide good manageability.
+- **Tradeoffs:** None.
+- **Improvement recommendations:** None.
+
+### 38. Deployability
+- **Score:** 85
+- **Weight:** 1
+- **Weighted deficiency signal:** 15
+- **Justification:** Automated CI/CD and DbUp migrations streamline deployment.
+- **Tradeoffs:** None.
+- **Improvement recommendations:** None.
+
+### 39. Testability
+- **Score:** 84
+- **Weight:** 1
+- **Weighted deficiency signal:** 16
+- **Justification:** Strong unit/integration tests and `ui-e2e-live` negative paths.
+- **Tradeoffs:** Playwright still relies heavily on mocks for the golden path.
+- **Improvement recommendations:** None.
+
+### 40. Modularity
+- **Score:** 86
+- **Weight:** 1
+- **Weighted deficiency signal:** 14
+- **Justification:** Highly modular architecture with clear project boundaries.
+- **Tradeoffs:** None.
+- **Improvement recommendations:** None.
+
+### 41. Extensibility
+- **Score:** 82
+- **Weight:** 1
+- **Weighted deficiency signal:** 18
+- **Justification:** Architecture supports new policy packs and ITSM connectors.
+- **Tradeoffs:** Public extension SDK is out of scope for V1.
+- **Improvement recommendations:** None.
+
+### 42. Evolvability
+- **Score:** 83
+- **Weight:** 1
+- **Weighted deficiency signal:** 17
+- **Justification:** System is designed to evolve, with DTF paving the way for more complex workflows.
+- **Tradeoffs:** None.
+- **Improvement recommendations:** None.
+
+### 43. Documentation
+- **Score:** 85
+- **Weight:** 1
+- **Weighted deficiency signal:** 15
+- **Justification:** Comprehensive docs (API contracts, configuration, trust center).
+- **Tradeoffs:** None.
+- **Improvement recommendations:** None.
+
+### 44. Azure Ecosystem Fit
+- **Score:** 90
+- **Weight:** 1
+- **Weighted deficiency signal:** 10
+- **Justification:** Deep integration with Azure services (Entra ID, Azure OpenAI, Azure SQL).
+- **Tradeoffs:** None.
+- **Improvement recommendations:** None.
+
+### 45. Cognitive Load
+- **Score:** 76
+- **Weight:** 1
+- **Weighted deficiency signal:** 24
+- **Justification:** Marketing-aligned vocabulary helps, but the product surface is large for a first-pilot motion.
+- **Tradeoffs:** Breadth is valuable for expansion but increases first-session confusion.
+- **Improvement recommendations:** None.
+
+### 46. Cost-Effectiveness
+- **Score:** 82
+- **Weight:** 1
+- **Weighted deficiency signal:** 18
+- **Justification:** Azure cost extractor provides visibility.
+- **Tradeoffs:** Some manual estimation remains.
+- **Improvement recommendations:** None.
+
 ---
 
 ## Top 10 Most Important Weaknesses

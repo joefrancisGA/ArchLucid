@@ -161,7 +161,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
             <CardTitle className="text-base font-semibold">Related findings</CardTitle>
             <CardDescription>
               {buyerPolishedLayout
-                ? "Open items tied to this package also appear on the originating review."
+                ? "Monitored-risk items for this package also appear on the originating review."
                 : "Warnings or unresolved issues on this manifest correspond to surfaced findings on the originating review."}
             </CardDescription>
           </CardHeader>
@@ -226,13 +226,13 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <Button variant={buyerPolishedLayout ? "primary" : "outline"} size="sm" asChild>
-              <a href={getBundleDownloadUrl(manifestId)}>
-                {buyerPolishedLayout ? "Download evidence package (ZIP)" : "Download bundle (ZIP)"}
-              </a>
-            </Button>
-          </div>
+          {!buyerPolishedLayout ? (
+            <div>
+              <Button variant="outline" size="sm" asChild>
+                <a href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</a>
+              </Button>
+            </div>
+          ) : null}
 
           {model.artifactsFailure && (
             <>

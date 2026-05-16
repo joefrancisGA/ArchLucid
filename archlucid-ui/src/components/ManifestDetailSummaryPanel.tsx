@@ -195,7 +195,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
   );
 
   const relatedFinding =
-    isCuratedDemo ? (
+    isCuratedDemo && !(buyerPolishedLayout ?? false) ? (
       <section
         aria-labelledby="manifest-related-finding-heading"
         className="rounded-lg border border-teal-200/80 bg-teal-50/50 p-4 dark:border-teal-900/50 dark:bg-teal-950/30"
@@ -232,7 +232,10 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
             <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Decisions recorded</p>
               <p className="m-0 mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-50">{summary.decisionCount}</p>
-              <Link className="m-0 mt-2 inline-block text-xs font-medium text-teal-800 underline dark:text-teal-300" href="#manifest-buyer-recorded-details">
+              <Link
+                className="m-0 mt-2 inline-block text-xs font-medium text-teal-800 underline dark:text-teal-300"
+                href={buyerPolishedLayout ? "#manifest-key-decisions" : "#manifest-buyer-recorded-details"}
+              >
                 View decision list
               </Link>
             </div>
@@ -268,7 +271,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
           </div>
         ) : null}
         <div id="manifest-buyer-recorded-details" className="space-y-3">
-          {decisionsBlock}
+          {!(buyerPolishedLayout ?? false) || !isCuratedDemo ? decisionsBlock : null}
           {warningsBlock}
         </div>
       </section>
