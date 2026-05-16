@@ -4,7 +4,7 @@
 # Optional **CONTAINER_APP_WORKER_NAME**: same image as API (`archlucid-api:<tag>`); Terraform sets `dotnet ArchLucid.Worker.dll` as the container command.
 #
 # Trigger: `workflow_run` on workflow named **CI** (see `.github/workflows/ci.yml` `name: CI`).
-# Only runs when CI `conclusion` is success, event was **push**, head branch is main or master,
+# Only runs when CI `conclusion` is success, event was **push** or **workflow_dispatch**, head branch is main or master,
 # and `head_repository` is this repo (not a fork PR whose source branch happens to be named main).
 # This avoids deploying when only a PR branch passed CI, or when merge bypassed checks.
 # Checkout uses `workflow_run.head_sha` so the images match the commit that CI validated.
@@ -35,7 +35,7 @@ jobs:
     if: |
       vars.AUTO_DEPLOY_STAGING_MERGE == 'true' &&
       github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push' &&
+      (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch') &&
       (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'master') &&
       github.event.workflow_run.head_repository.full_name == github.repository
     name: Deploy staging (merge)

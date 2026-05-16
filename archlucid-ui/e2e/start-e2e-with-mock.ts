@@ -72,7 +72,7 @@ function syncStandaloneRuntimeAssets(projectRoot: string): string {
   fs.mkdirSync(gtmDest, { recursive: true });
   const monorepoDocs = path.join(projectRoot, "..", "docs");
   const privacySrc = path.join(monorepoDocs, "go-to-market", "PRIVACY_POLICY.md");
-  const trustSrc = path.join(monorepoDocs, "trust-center.md");
+  const trustSrc = path.join(monorepoDocs, "security", "trust-center.md");
   if (fs.existsSync(privacySrc)) {
     fs.copyFileSync(privacySrc, path.join(gtmDest, "PRIVACY_POLICY.md"));
   }

@@ -27,11 +27,10 @@
 # NuGet cache on setup-dotnet, PR sticky coverage comment.
 name: CI
 
+# Runs only when started from Actions → CI → "Run workflow" (pick branch/ref). This keeps workflow definitions
+# versioned in git without spending runners on every push/PR. Update branch protection / merge policy accordingly:
+# required checks will not appear until you run CI for that commit.
 on:
-  push:
-    branches: [main, master]
-  pull_request:
-    branches: [main, master]
   workflow_dispatch:
     inputs:
       run_extended_live_a11y_matrix:
@@ -656,6 +655,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Fetch default branch for diff guards (manual CI)
+        if: github.event_name == 'workflow_dispatch'
+        run: git fetch origin "${{ github.event.repository.default_branch }}" --no-tags
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v5.2.0
         with:
@@ -709,6 +712,13 @@ jobs:
           ARCHLUCID_GIT_DIFF_RANGE: ${{ github.event.before }}...${{ github.event.after }}
         run: python3 scripts/ci/assert_forward_migration_touches_archlucid_sql.py
 
+      - name: Guard — forward DbUp migrations must touch ArchLucid.sql (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
+          ARCHLUCID_GIT_DIFF_RANGE: origin/${{ github.event.repository.default_branch }}...HEAD
+        run: python3 scripts/ci/assert_forward_migration_touches_archlucid_sql.py
+
       - name: forward migration / ArchLucid.sql co-touch guard unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_forward_migration_touches_archlucid_sql.py"
 
@@ -724,6 +734,13 @@ jobs:
         env:
           ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
           ARCHLUCID_GIT_DIFF_RANGE: ${{ github.event.before }}...${{ github.event.after }}
+        run: python3 scripts/ci/assert_rls_residual_risk_classifications.py
+
+      - name: Guard — RLS residual-risk table classifications (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
+          ARCHLUCID_GIT_DIFF_RANGE: origin/${{ github.event.repository.default_branch }}...HEAD
         run: python3 scripts/ci/assert_rls_residual_risk_classifications.py
 
       - name: RLS residual-risk classification guard unit tests
@@ -1627,7 +1644,10 @@ jobs:
           if-no-files-found: warn
 
       - name: Coverage line badge SVG (main push; shields.io) + publish to gh-pages branch
-        if: success() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name == 'push'
+        if: >-
+          success()
+          && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+          && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
           set -euo pipefail
           COV_OUT="${{ runner.temp }}/coverage-report-full"
@@ -1639,14 +1659,20 @@ jobs:
             "${BADGE_DIR}/coverage.svg"
 
       - uses: actions/upload-artifact@v6
-        if: success() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name == 'push'
+        if: >-
+          success()
+          && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+          && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         with:
           name: coverage-line-badge-svg
           path: ${{ runner.temp }}/coverage-badge-publish/badges/coverage.svg
           if-no-files-found: error
 
       - name: Deploy coverage badge — gh-pages badges path
-        if: success() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name == 'push'
+        if: >-
+          success()
+          && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+          && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -1767,7 +1793,9 @@ jobs:
   publish-api-client-nuget:
     name: "NuGet: pack & push API client (main/master)"
     needs: dotnet-coverage-merge
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    if: >-
+      github.event_name == 'workflow_dispatch'
+      && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -1924,7 +1952,8 @@ jobs:
       - name: Decide whether to write BuildKit GHA cache
         id: gha_cache_write
         run: |
-          if [ "${{ github.event_name }}" = "push" ] && { [ "${{ github.ref }}" = "refs/heads/main" ] || [ "${{ github.ref }}" = "refs/heads/master" ]; }; then
+          if { [ "${{ github.event_name }}" = "push" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; } \
+            && { [ "${{ github.ref }}" = "refs/heads/main" ] || [ "${{ github.ref }}" = "refs/heads/master" ]; }; then
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           else
             echo "enabled=false" >> "$GITHUB_OUTPUT"

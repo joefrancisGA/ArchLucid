@@ -59,6 +59,8 @@ public static class ProblemErrorCodes
 
     public const string GraphResolutionFailed = "GRAPH_RESOLUTION_FAILED";
 
+    public const string EvidenceBulkUploadLimitExceeded = "EVIDENCE_BULK_UPLOAD_LIMIT_EXCEEDED";
+
     public const string UpstreamIntegrationFailed = "UPSTREAM_INTEGRATION_FAILED";
 
     public const string QualityGateRejected = "QUALITY_GATE_REJECTED";
@@ -145,6 +147,9 @@ public static class ProblemErrorCodes
 
         if (problemTypeUri == ProblemTypes.CostLimitExceeded)
             return CostLimitExceeded;
+
+        if (problemTypeUri == ProblemTypes.EvidenceBulkUploadLimitExceeded)
+            return EvidenceBulkUploadLimitExceeded;
 
         if (problemTypeUri == ProblemTypes.GraphResolutionFailed)
             return GraphResolutionFailed;

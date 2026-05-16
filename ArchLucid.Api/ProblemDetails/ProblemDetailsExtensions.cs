@@ -287,6 +287,34 @@ public static class ProblemDetailsExtensions
     }
 
     /// <summary>
+    ///     Returns 400 Bad Request when bulk evidence upload exceeds the configured file count limit.
+    /// </summary>
+    public static IActionResult EvidenceBulkUploadLimitProblem(
+        this ControllerBase controller,
+        int maxAllowed,
+        int attempted)
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+        {
+            Type = ProblemTypes.EvidenceBulkUploadLimitExceeded,
+            Title = "Bad Request",
+            Status = StatusCodes.Status400BadRequest,
+            Detail = $"Upload exceeds the maximum allowed file count of {maxAllowed}.",
+            Instance = controller.Request.Path,
+            Extensions =
+            {
+                ["maxAllowed"] = maxAllowed,
+                ["attempted"] = attempted
+            }
+        };
+
+        ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
+        ProblemSupportHints.AttachForProblemType(problem);
+        ProblemCorrelation.Attach(problem, controller.HttpContext);
+        return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
+    }
+
+    /// <summary>
     ///     Converts common InvalidOperationException variants to consistent ProblemDetails.
     /// </summary>
     public static IActionResult InvalidOperationProblem(

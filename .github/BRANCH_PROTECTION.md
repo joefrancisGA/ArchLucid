@@ -34,7 +34,7 @@ Use **exact** names as they appear on a completed run (Settings shows autocomple
 | `Containers: Docker build smoke` |
 | `CodeQL (csharp)` |
 | `CodeQL (javascript)` |
-| `PR: coverage comment` — safe to require: passes on push (no-op); posts a sticky comment on same-repo PRs only |
+| `PR: coverage comment` — safe to require: passes outside pull requests (no-op sticky comment); posts only on same-repo PRs |
 
 **Note:** Matrix Terraform jobs publish **one check per matrix value**; include each leg you care about.
 
@@ -42,12 +42,14 @@ Use **exact** names as they appear on a completed run (Settings shows autocomple
 
 Create a ruleset targeting your default branch, enable **Require status checks**, and add the same check names. Rulesets can target multiple branches in one place.
 
+**Manual CI:** If `.github/workflows/ci.yml` is configured for **`workflow_dispatch` only**, required checks do not run automatically on commits — run **Actions → CI → Run workflow** (pick branch/ref) and merge after checks attach to that run.
+
 ## Automatic staging deploy (supplements branch protection)
 
 The workflow **CD staging on merge** (`.github/workflows/cd-staging-on-merge.yml`) runs only after the **CI** workflow completes successfully (`workflow_run` with `conclusion == success`). It further requires:
 
 - `AUTO_DEPLOY_STAGING_MERGE` repository variable set to `true`
-- The triggering CI run was a **push** to `main` or `master` (not a PR-only green build)
+- The triggering CI run was a **push** or **workflow_dispatch** to `main` or `master` (not a PR-only green build)
 - The CI run’s `head_repository` matches this repository (excludes fork PRs whose branch is named `main`)
 - Checkout uses the same commit as CI (`workflow_run.head_sha`)
 

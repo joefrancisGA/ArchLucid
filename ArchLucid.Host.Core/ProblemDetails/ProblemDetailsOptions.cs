@@ -38,6 +38,9 @@ public static class ProblemTypes
     /// <summary>Operation rejected due to business rules or invalid state (non-export failures).</summary>
     public const string BusinessRuleViolation = Base + "#business-rule-violation";
 
+    /// <summary>Bulk evidence upload file count exceeds the configured limit.</summary>
+    public const string EvidenceBulkUploadLimitExceeded = Base + "#evidence-bulk-upload-limit-exceeded";
+
     /// <summary>Comparison replay verification did not pass (semantic mismatch).</summary>
     public const string ComparisonVerificationFailed = Base + "#comparison-verification-failed";
 

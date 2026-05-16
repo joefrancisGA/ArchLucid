@@ -69,5 +69,5 @@ Read-only tier-1 uses **ReadAuthority** endpoints where applicable; **`support-b
 
 ## Related
 
-- [../TROUBLESHOOTING.md](../TROUBLESHOOTING.md)
+- [../runbooks/TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md)
 - [../PILOT_GUIDE.md](../library/PILOT_GUIDE.md) (what to attach when reporting issues)

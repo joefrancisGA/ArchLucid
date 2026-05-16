@@ -185,7 +185,7 @@ See also **`docs/CONTROLLER_AREA_MAP.md`**. Existing **`POST /v1/admin/runs/arch
 ## Problem details (`application/problem+json`) — extensions
 
 - **`extensions.errorCode`**: stable uppercase code for clients and automation.
-- **`extensions.supportHint`** (56R): optional, concise **next step** for operators; complements **`detail`**. No stack traces or secrets — use logs with **`X-Correlation-ID`** / **`correlationId`** in the body / **`RunId`** for deep diagnosis. See **`docs/TROUBLESHOOTING.md`**.
+- **`extensions.supportHint`** (56R): optional, concise **next step** for operators; complements **`detail`**. No stack traces or secrets — use logs with **`X-Correlation-ID`** / **`correlationId`** in the body / **`RunId`** for deep diagnosis. See **`docs/runbooks/TROUBLESHOOTING.md`**.
 
 ## Trial exhausted or over quota (**402 Payment Required**)
 

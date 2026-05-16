@@ -12,7 +12,7 @@ This file is the outward **sponsor story of record**: why a pilot matters, what 
 
 ## Related
 
-- **[READ_THIS_FIRST.md](READ_THIS_FIRST.md)** — forced decision-tree entry (buyer vs contributor vs security vs architecture)
+- **[READ_THIS_FIRST.md](archive/READ_THIS_FIRST.md)** — forced decision-tree entry (buyer vs contributor vs security vs architecture)
 - **[README.md](../README.md)** — repo entry and deeper operator material
 - **[go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md](go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md)** — one-email sponsor/procurement copy (subject, ~120-word summary, four-artifact checklist)
 - **[PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md)** — pilot measurement companion
@@ -47,7 +47,7 @@ At a practical level, ArchLucid is an AI-assisted architecture workflow system t
 
 In many organizations, architecture work slows down because teams must manually assemble review packages, explain design reasoning, reconcile revisions, and prepare governance evidence.
 
-**Security and procurement reviewers** should start from the consolidated Trust Center index — **[`docs/trust-center.md`](trust-center.md)** (public marketing route **`/trust`**) — which links the same self-assessment, questionnaire, and deferral evidence the repository ships to CI.
+**Security and procurement reviewers** should start from the consolidated Trust Center index — **[`docs/security/trust-center.md`](security/trust-center.md)** (public marketing route **`/trust`**) — which links the same self-assessment, questionnaire, and deferral evidence the repository ships to CI.
 
 That creates four common problems:
 
