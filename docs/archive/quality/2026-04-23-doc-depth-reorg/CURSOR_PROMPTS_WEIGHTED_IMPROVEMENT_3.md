@@ -62,8 +62,8 @@ Reduce doc sprawl and make the weighted assessment canonical:
    - **`docs/QUALITY_ASSESSMENT_2026_04_14.md`**
 3. Replace each former path with a **short stub** (5–15 lines) that links to the matching archive file and to **`QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md`**.
 4. Update references in:
-   - **`docs/QUALITY_IMPROVEMENT_PROMPTS.md`**
-   - **`docs/QUALITY_IMPROVEMENT_PROMPTS_2026_04_14.md`**
+   - **`docs/archive/quality/quality-improvement-prompts-2026-05-16/QUALITY_IMPROVEMENT_PROMPTS.md`** (and library stub)
+   - **`docs/archive/quality/quality-improvement-prompts-2026-05-16/QUALITY_IMPROVEMENT_PROMPTS_2026_04_14.md`** (and library stub)
    - **`docs/LIVE_E2E_AUTH_PARITY.md`**
    - **`docs/CURSOR_PROMPTS_SIX_QUALITY_IMPROVEMENTS.md`**
    - **`docs/ARCHLUCID_RENAME_CHECKLIST.md`** (session log row if your process uses it)

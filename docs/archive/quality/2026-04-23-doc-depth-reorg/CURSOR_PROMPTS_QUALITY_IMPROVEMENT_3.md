@@ -9,7 +9,7 @@
 
 > **Not the weighted-assessment “Improvement 3”:** for rename / single solution / archived quality reports, use **[CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md](archive/quality/2026-04-23-doc-depth-reorg/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md)**.
 
-Standalone prompts derived from **`docs/QUALITY_IMPROVEMENT_PROMPTS_2026_04_14.md` § Prompt 3** and the **current** repo layout. Use them **one at a time** in a Cursor Agent session unless you explicitly want parallel work on disjoint files.
+Standalone prompts derived from **[`QUALITY_IMPROVEMENT_PROMPTS_2026_04_14.md`](../quality-improvement-prompts-2026-05-16/QUALITY_IMPROVEMENT_PROMPTS_2026_04_14.md) § Prompt 3** and the **current** repo layout. Use them **one at a time** in a Cursor Agent session unless you explicitly want parallel work on disjoint files.
 
 ---
 
@@ -177,6 +177,6 @@ Constraints:
 
 ## Related documents
 
-- **`docs/QUALITY_IMPROVEMENT_PROMPTS_2026_04_14.md`** — original monolithic Prompt 3 spec  
+- **[`QUALITY_IMPROVEMENT_PROMPTS_2026_04_14.md`](../quality-improvement-prompts-2026-05-16/QUALITY_IMPROVEMENT_PROMPTS_2026_04_14.md)** — original monolithic Prompt 3 spec  
 - **`docs/LOAD_TEST_BASELINE.md`** — architecture, baseline table, CI smoke narrative  
 - **`docs/TEST_STRUCTURE.md`** — tier table for k6 jobs  

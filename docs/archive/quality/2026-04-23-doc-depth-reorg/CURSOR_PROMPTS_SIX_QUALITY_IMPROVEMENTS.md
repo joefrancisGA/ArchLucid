@@ -12,8 +12,8 @@
 **Related docs:**
 
 - `docs/QUALITY_ASSESSMENT.md` / `docs/QUALITY_ASSESSMENT_2026_04.md` — stubs pointing at `docs/archive/`; canonical weighted assessment: `docs/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md`.
-- `docs/QUALITY_IMPROVEMENT_PROMPTS.md` — older prompts (some items since implemented).
-- `docs/QUALITY_IMPROVEMENT_PROMPTS_2026_04_14.md` — overlapping themes (live E2E expansion, forensics, audit, etc.). **Use this file** when you want the *six* improvements below; use the 2026-04-14 file for the alternate prompt set.
+- `docs/archive/quality/quality-improvement-prompts-2026-05-16/QUALITY_IMPROVEMENT_PROMPTS.md` — older prompts (archived; some items since implemented).
+- `docs/archive/quality/quality-improvement-prompts-2026-05-16/QUALITY_IMPROVEMENT_PROMPTS_2026_04_14.md` — overlapping themes (live E2E expansion, forensics, audit, etc.). **Use this file** when you want the *six* improvements below; use the 2026-04-14 file for the alternate prompt set. Library stubs under `docs/library/` redirect here.
 
 **How to use:** Paste **one** fenced block into a new Agent chat. Keep the build green; follow `.cursor/rules/ArchLucid-Rename.mdc` and **never edit historical SQL migrations 001–028** — only `ArchLucid.sql` + **new** migrations if schema changes are required.
 
