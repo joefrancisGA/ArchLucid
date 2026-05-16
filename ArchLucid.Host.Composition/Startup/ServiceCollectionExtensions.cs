@@ -119,6 +119,8 @@ public static partial class ServiceCollectionExtensions
             static client => client.Timeout = TimeSpan.FromSeconds(ItsmOutboundIntegrationHealthLimits.NetworkTimeoutSeconds));
         services.AddScoped<IItsmOutboundIntegrationHealthService, ItsmOutboundIntegrationHealthService>();
         services.AddScoped<ItsmOutboundIssueCreationService>();
+        services.Configure<EvidenceBulkUploadOptions>(
+            configuration.GetSection(EvidenceBulkUploadOptions.SectionName));
         services.AddScoped<IBulkEvidenceUploadService, BulkEvidenceUploadService>();
         RegisterScimProvisioning(services, configuration);
 

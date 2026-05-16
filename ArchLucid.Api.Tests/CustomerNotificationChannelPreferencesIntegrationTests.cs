@@ -1,17 +1,12 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Notifications;
 using ArchLucid.Core.Authorization;
 
 using FluentAssertions;
-
-using Microsoft.IdentityModel.Tokens;
 
 namespace ArchLucid.Api.Tests;
 
@@ -30,7 +25,7 @@ public sealed class CustomerNotificationChannelPreferencesIntegrationTests(JwtLo
     [SkippableFact]
     public async Task Get_customer_channel_preferences_with_reader_jwt_returns_unconfigured_defaults()
     {
-        string token = MintJwt(
+        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
             factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
@@ -53,33 +48,5 @@ public sealed class CustomerNotificationChannelPreferencesIntegrationTests(JwtLo
         body.TeamsCustomerNotificationsEnabled.Should().BeFalse();
         body.OutboundWebhookCustomerNotificationsEnabled.Should().BeFalse();
         body.SchemaVersion.Should().Be(1);
-    }
-
-    private static string MintJwt(
-        string privatePkcs8Pem,
-        string issuer,
-        string audience,
-        string name,
-        IReadOnlyList<string> roles)
-    {
-        using RSA rsa = RSA.Create();
-        rsa.ImportFromPem(privatePkcs8Pem);
-        RSAParameters keyMaterial = rsa.ExportParameters(true);
-        RsaSecurityKey signingKey = new(keyMaterial);
-        SigningCredentials creds = new(signingKey, SecurityAlgorithms.RsaSha256);
-
-        List<Claim> claims = [new(JwtRegisteredClaimNames.Sub, "test-sub"), new("name", name)];
-        claims.AddRange(roles.Select(r => new Claim("roles", r)));
-
-        JwtSecurityTokenHandler handler = new();
-        JwtSecurityToken token = new(
-            issuer,
-            audience,
-            claims,
-            TimeProvider.System.UtcNowDateTime().AddMinutes(-1),
-            TimeProvider.System.UtcNowDateTime().AddHours(1),
-            creds);
-
-        return handler.WriteToken(token);
     }
 }

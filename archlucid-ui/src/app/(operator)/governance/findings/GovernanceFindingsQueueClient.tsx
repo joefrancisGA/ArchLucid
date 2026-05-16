@@ -22,6 +22,9 @@ import {
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import type { RunSummary } from "@/types/authority";
 
+/** Distinguishes explainability-backed findings from recorded architecture decisions in the mixed queue. */
+export type GovernanceFindingQueueRecordKind = "finding" | "decision";
+
 export type GovernanceFindingQueueRow = {
   runId: string;
   runLabel: string;
@@ -33,7 +36,16 @@ export type GovernanceFindingQueueRow = {
   category: string;
   status: string;
   recommended: string;
+  recordKind: GovernanceFindingQueueRecordKind;
 };
+
+function formatGovernanceQueueRecordKind(kind: GovernanceFindingQueueRecordKind, buyerPolishedShell: boolean): string {
+  if (kind === "decision") {
+    return buyerPolishedShell ? "Decision" : "Architecture decision";
+  }
+
+  return "Finding";
+}
 
 function demoPhiRow(): GovernanceFindingQueueRow {
   return {
@@ -47,6 +59,7 @@ function demoPhiRow(): GovernanceFindingQueueRow {
     status: "Accepted · monitoring · non-blocking",
     recommended:
       "Review PHI handling posture with intake and security owners before production rollout; weekly exception-volume review while monitored.",
+    recordKind: "finding",
   };
 }
 
@@ -62,6 +75,7 @@ function staticDemoGovernanceRows(): GovernanceFindingQueueRow[] {
     category: "Architecture decision",
     status: "Recorded",
     recommended: "Confirm with owners in the next design review.",
+    recordKind: "decision",
   }));
 
   return [phi, ...decisionRows];
@@ -87,6 +101,7 @@ function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): 
         category: (t.ruleId ?? "—").replace(/;/g, ", "),
         status: "Open",
         recommended: firstAction ?? "Open the finding to review rationale, evidence, and recommended next steps.",
+        recordKind: "finding",
       };
     });
 }
@@ -217,7 +232,7 @@ export default function GovernanceFindingsQueueClient() {
       <div className="mt-4 space-y-4">
         <p className="m-0 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
           {buyerPolishedShell
-            ? "Portfolio view of review findings with severity, disposition, and recommended next steps — open a row to see evidence, impact, and monitoring posture."
+            ? "Portfolio view of findings and recorded decisions — severity, disposition, and recommended next steps. Open a row for evidence, impact, and monitoring posture."
             : "Findings from architecture reviews — severity, category, and links to inspect each item in context."}
         </p>
 
@@ -238,6 +253,7 @@ export default function GovernanceFindingsQueueClient() {
                 <thead className="bg-neutral-100 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
                   <tr>
                     <th className="px-3 py-2">Severity</th>
+                    <th className="px-3 py-2">{buyerPolishedShell ? "Record" : "Record kind"}</th>
                     <th className="px-3 py-2">Finding</th>
                     <th className="px-3 py-2">Review</th>
                     {buyerPolishedShell ? null : <th className="px-3 py-2">Manifest</th>}
@@ -253,6 +269,9 @@ export default function GovernanceFindingsQueueClient() {
                       className="border-t border-neutral-200 dark:border-neutral-800"
                     >
                       <td className="px-3 py-2 align-top text-neutral-800 dark:text-neutral-200">{row.severity}</td>
+                      <td className="px-3 py-2 align-top text-neutral-800 dark:text-neutral-200">
+                        {formatGovernanceQueueRecordKind(row.recordKind, buyerPolishedShell)}
+                      </td>
                       <td className="px-3 py-2 align-top font-medium text-neutral-900 dark:text-neutral-100">
                         <Link
                           className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
@@ -293,7 +312,11 @@ export default function GovernanceFindingsQueueClient() {
                       <td className="px-3 py-2 align-top">
                         <Button asChild variant="outline" size="sm" className="h-8 border-teal-300 dark:border-teal-700">
                           <Link href={inspectHref(row.runId, row.findingId)}>
-                            {buyerPolishedShell ? "View finding and evidence" : "Open"}
+                            {buyerPolishedShell
+                              ? row.recordKind === "decision"
+                                ? "View decision"
+                                : "View finding and evidence"
+                              : "Open"}
                           </Link>
                         </Button>
                       </td>
@@ -358,6 +381,14 @@ export default function GovernanceFindingsQueueClient() {
                 </CardHeader>
                 <CardContent className="grid gap-2 pt-0 text-sm sm:grid-cols-2">
                   <div>
+                    <span className="font-medium text-neutral-700 dark:text-neutral-300">
+                      {buyerPolishedShell ? "Record" : "Record kind"}
+                    </span>
+                    <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">
+                      {formatGovernanceQueueRecordKind(row.recordKind, buyerPolishedShell)}
+                    </p>
+                  </div>
+                  <div>
                     <span className="font-medium text-neutral-700 dark:text-neutral-300">Severity</span>
                     <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.severity}</p>
                   </div>
@@ -374,7 +405,11 @@ export default function GovernanceFindingsQueueClient() {
                   <div className="sm:col-span-2">
                     <Button asChild variant="outline" size="sm" className="h-9 border-teal-300 dark:border-teal-700">
                       <Link href={inspectHref(row.runId, row.findingId)}>
-                        {buyerPolishedShell ? "View finding and evidence" : "Open finding"}
+                        {buyerPolishedShell
+                          ? row.recordKind === "decision"
+                            ? "View decision"
+                            : "View finding and evidence"
+                          : "Open finding"}
                       </Link>
                     </Button>
                   </div>
@@ -410,8 +445,9 @@ export default function GovernanceFindingsQueueClient() {
               What findings look like
             </summary>
             <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-              Each finding includes a severity level, category, rationale, supporting evidence, and a recommended action
-              when the analysis produced one. Findings are attached to architecture reviews.
+              Each row is either a finding (explainability-backed item to inspect) or a recorded architecture decision. Both
+              include severity and category where applicable, plus rationale, supporting evidence, and a recommended
+              action when the analysis produced one. Items are attached to architecture reviews.
             </p>
             <ol className="mb-0 mt-3 list-decimal space-y-2 pl-5 text-sm text-neutral-600 dark:text-neutral-400">
               <li>Create an architecture request and wait for the pipeline to complete.</li>

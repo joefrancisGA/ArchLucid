@@ -41,7 +41,7 @@ public sealed class EvidenceBulkUploadController(
     [RequestSizeLimit(100 * 1024 * 1024)] // 100MB batch limit
     public async Task<IActionResult> UploadBulkEvidenceAsync(
         Guid runId,
-        IFormFileCollection files,
+        [FromForm] IFormFileCollection files,
         CancellationToken cancellationToken)
     {
         BulkEvidenceUploadResult result = await uploadService.UploadBulkEvidenceAsync(

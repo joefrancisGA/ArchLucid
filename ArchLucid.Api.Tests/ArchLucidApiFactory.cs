@@ -94,7 +94,8 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
                 ["RateLimiting:Registration:WindowMinutes"] = "1",
                 ["Billing:Provider"] = "Noop",
                 ["ASPNETCORE_URLS"] = "http://127.0.0.1:0",
-                ["ArchLucidAuth:AllowTestActorHeaders"] = "true"
+                ["ArchLucidAuth:AllowTestActorHeaders"] = "true",
+                ["ArchLucid:EvidenceBulkUploadMaxFiles"] = "30"
             };
 
             ApiTestWebHostLogging.AddQuietDefaultLogLevel(settings);

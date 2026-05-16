@@ -85,8 +85,14 @@ public sealed class BulkEvidenceUploadService(
                     continue;
                 }
 
+                // Form parsers may omit Content-Disposition filenames; Path.GetFileName(null) throws.
+                string safeBaseName = Path.GetFileName(file.FileName ?? string.Empty);
+
+                if (string.IsNullOrEmpty(safeBaseName))
+                    safeBaseName = "upload";
+
                 string evidenceItemId = Guid.NewGuid().ToString("N");
-                string blobName = $"evidence/{runId:N}/{evidenceItemId}_{Path.GetFileName(file.FileName)}";
+                string blobName = $"evidence/{runId:N}/{evidenceItemId}_{safeBaseName}";
 
                 using Stream stream = file.OpenReadStream();
                 using MemoryStream ms = new();
@@ -97,7 +103,7 @@ public sealed class BulkEvidenceUploadService(
                 await blobStore.WriteAsync("artifacts", blobName, contentBase64, cancellationToken);
 
                 uploadedIds.Add(evidenceItemId);
-                fileNames.Add(file.FileName);
+                fileNames.Add(safeBaseName);
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
