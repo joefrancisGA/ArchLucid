@@ -77,7 +77,7 @@ export function auditBuyerActorRoleLine(actorName: string, eventType: string): s
   const name = actorName.trim();
 
   if (auditBuyerEventIsSystemRecordedActor(name)) {
-    return "System-recorded";
+    return "Automatically recorded";
   }
 
   if (name === "Jordan Lee") {

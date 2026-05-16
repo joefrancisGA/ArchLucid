@@ -6,12 +6,13 @@
 
 **V1 scoring boundary:**
 
-- **MCP:** Inbound Model Context Protocol is **explicitly out of V1** and scheduled for **V1.1** per `docs/library/V1_SCOPE.md` §3 and `docs/library/V1_DEFERRED.md` §6d. **V1.1** scope is pinned in `docs/library/MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md` **§5.1** (**seven** read-only tools, **Streamable HTTP** for production on a private endpoint, optional **`stdio`** for local/self-hosted harness only). Absence of an MCP host does not reduce any weighted quality score; REST, CLI, operator UI, webhooks, and first-party integrations are the in-contract V1 integration surfaces.
 - **Native SAML 2.0 Service Provider (workforce SSO):** **Shipped for V1 GA** (**`docs/library/V1_SCOPE.md` §2.12**). **`JwtBearer`** OIDC remains **first-class**; SAML **SP** augments buyer choice.
 - **ServiceNow bi-directional status sync:** **`V1` GA** per **`docs/library/V1_SCOPE.md` §2.13** — unchanged. As of **2026-05-15**: **no** ServiceNow developer instance **yet**; bidirectional sync implementation proceeds when a **cost-free** **ServiceNow Developer Program** / personal developer-style instance is available (**paid** sandbox **not** a **`V1` GA** prerequisite). Until provisioned, engineering is **queued only** — explicit scope demotion requires **`V1_SCOPE.md`** / **`PENDING_QUESTIONS.md`** amendment **if** a **free** path never materializes.
 - **Durable Task Framework (DTF):** SQL storage hosts bind the authority pipeline to the Durable Task port (`DtfAuthorityRunOrchestrator`); `ArchLucid.Application` still has no compile-time dependency on `Microsoft.DurableTask.*`. InMemory / simulator paths remain on the legacy adapter until separately migrated.
 
 - **V2-only (deferral docs):** Items committed only to **V2** in **`V1_DEFERRED.md`** are **omitted** from **Pending Questions** in this file and **do not** reduce **`(A)`** weighted V1 scores (track in deferral/scope docs only).
+
+- **V1.1-only (scope + pinned backlogs):** Capabilities deferred to **V1.1** in **`V1_SCOPE.md`** / **`V1_DEFERRED.md`**, with implementation detail only in nested backlog docs, are **omitted** from **Pending Questions** in this file and **do not** reduce **`(A)`** weighted V1 scores.
 - **Operator UI vocabulary vs marketing workflow (V1):** Buyer-facing labels in **`archlucid-ui`** align with the evidence-backed governance narrative (e.g. **Capture system**, **Evidence**, **Review**, **Findings**, **Decisions**, **Report**) mapped from existing flows (**run**, **manifest**, **commit**, **authority** remain internal/API). **REST routes, OpenAPI operation IDs, CLI commands, and audit event names are unchanged** unless separately versioned. **Usability** headline (**77**) reflects **Marketing alignment** row **1** (glossary) plus bounded bulk capture (row **4**).
 
 - **Buyer-grade architecture review export:** A **default DOCX/PDF export profile** matching the landing-page report narrative (executive summary, system overview, evidence reviewed, architecture decisions, key risks, policy findings, AI-assisted analysis with human-review framing, traceability appendix, recommended next actions) is a **V1 GA gate** (**Marketing alignment** row 2). **Consultant whitelabel** on cover/metadata is **also GA** per row **5** — same export pipeline. Landing demos and downloadable sample reports assume both ship with GA.
@@ -54,7 +55,7 @@
 - **Weighted deficiency signal:** 144
 - **Justification:** The system effectively uses Azure OpenAI with prompt redaction, execution traces, and a well-tested authority pipeline. **Improvement #26 (2026-05-16)** delivers the SQL Durable Task port for authority orchestration; further checkpoint-native scheduling strengthens the governance story for regulated buyers.
 - **Tradeoffs:** DTF introduces a durable orchestration history schema in SQL and a new operational runbook surface. The trade-off is justified: the parity-test obligation and operational cost are bounded; the governance-provenance benefit compounds over time and aligns with the primary buyer wedge.
-- **Improvement recommendations:** Add explicit logging for state transitions during and after DTF scheduling hardening. (Inbound MCP is **V1.1** per scope docs — not a V1 readiness gap.)
+- **Improvement recommendations:** Add explicit logging for state transitions during and after DTF scheduling hardening.
 
 ### 3. Correctness
 - **Score:** 84
@@ -124,9 +125,9 @@
 - **Score:** 92
 - **Weight:** 2
 - **Weighted deficiency signal:** 16
-- **Justification:** V1 contract surfaces—**REST API**, **CLI**, **operator UI**, integration events/webhooks, and **first-party** ITSM and chat connectors—meet the documented integration posture. **Native SAML 2.0 SP** is **shipped** for **V1 GA** (**`V1_SCOPE.md` §2.12**). **No MCP host in V1 is in-contract deferral** (`V1_SCOPE.md` §3, `V1_DEFERRED.md` §6d), not a scored weakness for this pass.
-- **Tradeoffs:** Buyers who want MCP-native agent tools wait until **V1.1**; until then HTTP/CLI and first-party connectors remain the automation paths of record. SAML SP adds dual auth-surface operational burden (cert rotation, metadata drift) versus OIDC-only tenants.
-- **Improvement recommendations:** Tighten OpenAPI-aligned client examples and webhook recipe discoverability (`docs/integrations/recipes/`). Track inbound MCP membrane only under the **V1.1** program (`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`).
+- **Justification:** V1 contract surfaces—**REST API**, **CLI**, **operator UI**, integration events/webhooks, and **first-party** ITSM and chat connectors—meet the documented integration posture. **Native SAML 2.0 SP** is **shipped** for **V1 GA** (**`V1_SCOPE.md` §2.12**).
+- **Tradeoffs:** SAML SP adds dual auth-surface operational burden (cert rotation, metadata drift) versus OIDC-only tenants.
+- **Improvement recommendations:** Tighten OpenAPI-aligned client examples and webhook recipe discoverability (`docs/integrations/recipes/`).
 
 ### 12. Stickiness
 - **Score:** 81
@@ -765,7 +766,7 @@ Implement status sync between ArchLucid review/findings state and ServiceNow cha
 - **Batch 4 (UX & adoption):** 6, 15, 19, 20, 22, 24. Dashboard health, rule UI, progressive disclosure, pack depth, demo smoke, and finding trust signals.
 - **Batch 5 (Architecture hygiene):** 23. ArchUnitNET boundaries — isolated PR, expand rules incrementally.
 - **Batch 6 (Integrations — credential-dependent):** 25. ServiceNow bi-directional sync when **P10** developer instance is available; do not block other batches.
-- **Deferred / V1.1 program (do not batch into V1 execution):** inbound MCP; **Azure CAF / landing-zone curated policy pack**; **bulk evidence upload above 30 files**, ZIP expansion, recursive folder ingest; Stripe live keys / Marketplace (**#7** in commercial packaging notes). Plan V1.1 slices with dedicated context.
+- **Deferred / V1.1 program (do not batch into V1 execution):** **Azure CAF / landing-zone curated policy pack**; **bulk evidence upload above 30 files**, ZIP expansion, recursive folder ingest; Stripe live keys / Marketplace (**#7** in commercial packaging notes). Plan V1.1 slices with dedicated context (see **`V1_SCOPE.md`**, **`V1_DEFERRED.md`**, pinned backlog docs — not re-listed here).
 
 ---
 
@@ -789,7 +790,6 @@ Sequential decisions so marketing ↔ technical V1 stay aligned.
 
 - **P4 — Stripe live keys + Marketplace publication:** **Defer** execution **until finance confirms** Partner Center readiness (seller verification, tax profile, payout/banking). **Next step:** Finance “go” → run improvement **#7** against billing/runbook checklists (e.g. **`docs/library/DEPLOYMENT_TERRAFORM.md`** and any Partner Center / Stripe cutover notes the team maintains).
 - **P10 — ServiceNow developer instance + schemas:** **No** access **at this time**. **`V1` GA** bidirectional ServiceNow sync **remains in contract** (`V1_SCOPE.md` §2.13). Provisioning a **cost-free** **ServiceNow Developer Program** / personal developer-style instance for engineering (**#22**) **when available** — **paid** sandbox **not** a **`V1` GA** gate. **If** a **free** path cannot be obtained before a future GA decision, scope docs must be **explicitly** revised — do **not** silently drop **`V1` GA** claims.
-- **P12 — Inbound MCP V1.1 scope freeze:** **Pinned slice** in `docs/library/MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md` **§5.1** — **seven** **read-only** tools (`GetRunStatus`, `GetManifestSummary`, `CompareRuns`, `GetProvenanceGraph`, `GetGovernanceStatus`, `ListArtifacts`, `GetAuditSlice`); **production transport:** **Streamable HTTP** (private endpoint); **`stdio`:** optional **non-production** / local-self-hosted only; **shared membrane** + **`SESSION_CONTEXT`**; **no** outbound MCP client in **V1.1**. Cross-links: **`V1_SCOPE.md`** §3 MCP row, **`V1_DEFERRED.md`** §6d.
 - **Marketing alignment Q7** (landing CTAs / **#32**): **Hybrid:** walkthrough primary, self-demo secondary (**#31** A), early access tertiary; **no public $ band** first 90 days; see row 7 and **§V1 scoring boundary** (landing CTA bullet).
 - **Marketing alignment Q6** (demo workspaces / **#31**): **Hard GA gate** for **two** curated workspaces + automated smoke; see row 6 and **§V1 scoring boundary** (demo workspaces bullet).
 - **Marketing alignment Q5** (consultant whitelabel / **#28**): **V1 GA**; cover + attribution on **DOCX + PDF**; see row 5 and **§V1 scoring boundary** (whitelabel bullet).

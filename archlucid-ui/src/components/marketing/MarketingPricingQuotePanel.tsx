@@ -6,7 +6,14 @@ import { Button } from "@/components/ui/button";
 
 const MAX_MESSAGE_CHARS = 2000;
 
-function buildQuoteMessageBody(userMessage: string, industry: string, procurementTimeline: string): string {
+function buildQuoteMessageBody(
+  userMessage: string,
+  industry: string,
+  procurementTimeline: string,
+  deploymentPreference: string,
+  dataSensitivity: string,
+  expectedMonthlyReviewVolume: string,
+): string {
   const lines: string[] = [];
 
   if (industry.trim().length > 0) {
@@ -15,6 +22,18 @@ function buildQuoteMessageBody(userMessage: string, industry: string, procuremen
 
   if (procurementTimeline.trim().length > 0) {
     lines.push(`Procurement timeline: ${procurementTimeline.trim()}`);
+  }
+
+  if (deploymentPreference.trim().length > 0) {
+    lines.push(`Deployment preference: ${deploymentPreference.trim()}`);
+  }
+
+  if (dataSensitivity.trim().length > 0) {
+    lines.push(`Data sensitivity: ${dataSensitivity.trim()}`);
+  }
+
+  if (expectedMonthlyReviewVolume.trim().length > 0) {
+    lines.push(`Expected monthly review volume: ${expectedMonthlyReviewVolume.trim()}`);
   }
 
   if (lines.length > 0) {
@@ -33,6 +52,9 @@ export function MarketingPricingQuotePanel() {
   const [tierInterest, setTierInterest] = useState("Professional");
   const [industry, setIndustry] = useState("");
   const [procurementTimeline, setProcurementTimeline] = useState("");
+  const [deploymentPreference, setDeploymentPreference] = useState("");
+  const [dataSensitivity, setDataSensitivity] = useState("");
+  const [expectedMonthlyReviewVolume, setExpectedMonthlyReviewVolume] = useState("");
   const [message, setMessage] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [busy, setBusy] = useState(false);
@@ -44,7 +66,14 @@ export function MarketingPricingQuotePanel() {
     setBusy(true);
     setError(null);
 
-    const composed = buildQuoteMessageBody(message, industry, procurementTimeline);
+    const composed = buildQuoteMessageBody(
+      message,
+      industry,
+      procurementTimeline,
+      deploymentPreference,
+      dataSensitivity,
+      expectedMonthlyReviewVolume,
+    );
 
     if (composed.length > MAX_MESSAGE_CHARS) {
       setError(`Message and optional fields combined must be at most ${MAX_MESSAGE_CHARS} characters.`);
@@ -166,9 +195,42 @@ export function MarketingPricingQuotePanel() {
             />
           </label>
           <label className="flex flex-col gap-1 text-sm">
+            <span>Deployment preference (optional)</span>
+            <input
+              type="text"
+              autoComplete="off"
+              value={deploymentPreference}
+              onChange={(ev) => setDeploymentPreference(ev.target.value)}
+              placeholder="e.g. SaaS, customer-managed, private Azure"
+              className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span>Data sensitivity (optional)</span>
+            <input
+              type="text"
+              autoComplete="off"
+              value={dataSensitivity}
+              onChange={(ev) => setDataSensitivity(ev.target.value)}
+              placeholder="e.g. PHI, regulated financial, no regulated data in scope"
+              className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span>Expected monthly review volume (optional)</span>
+            <input
+              type="text"
+              autoComplete="off"
+              value={expectedMonthlyReviewVolume}
+              onChange={(ev) => setExpectedMonthlyReviewVolume(ev.target.value)}
+              placeholder="e.g. 2–5 architecture reviews per month"
+              className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
             <span>Message</span>
             <span className="text-xs font-normal text-neutral-500 dark:text-neutral-400">
-              Include deployment scope, procurement timeline, data sensitivity, and expected review volume if known.
+              Add context not covered above; procurement and account teams follow up on details.
             </span>
             <textarea
               required

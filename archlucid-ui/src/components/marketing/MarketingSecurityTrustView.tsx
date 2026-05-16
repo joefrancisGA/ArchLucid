@@ -12,6 +12,22 @@ import {
 
 const MATURITY_RENDER_ORDER: AssuranceMaturityTier[] = ["available_now", "during_diligence", "planned_next"];
 
+function assuranceTierBadgeLabel(tier: AssuranceMaturityTier): string {
+  switch (tier) {
+    case "available_now":
+      return "Available now";
+
+    case "during_diligence":
+      return "During diligence";
+
+    case "planned_next":
+      return "Planned";
+
+    default:
+      return tier;
+  }
+}
+
 type MarketingSecurityTrustViewProps = {
   rows?: ReadonlyArray<AssuranceEngagementRow>;
 };
@@ -105,9 +121,14 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
                       data-testid={`assurance-row-${row.id}`}
                       className="rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-950/40"
                     >
-                      <h4 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-                        {row.engagement}
-                      </h4>
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <h4 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+                          {row.engagement}
+                        </h4>
+                        <span className="inline-flex shrink-0 rounded-full border border-neutral-300 bg-neutral-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200">
+                          {assuranceTierBadgeLabel(row.maturityTier)}
+                        </span>
+                      </div>
                       <dl className="m-0 mt-3 grid gap-2 text-sm text-neutral-800 dark:text-neutral-200">
                         <div className="flex flex-col gap-0.5">
                           <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">

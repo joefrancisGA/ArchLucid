@@ -14,30 +14,40 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
     <div className="space-y-10">
       <header>
         <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Trust Center</h1>
-        <p className="mt-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          Procurement and security reviewer entry point for assurance posture on the ArchLucid product. Current assurance
-          materials include internal control mapping, architecture and security documentation, SOC{"\u00A0"}2 readiness
-          summaries, and questionnaire-oriented diligence packets.
+        <p className="mt-3 text-sm font-medium leading-relaxed text-neutral-900 dark:text-neutral-100">
+          Buyers can rely on published procurement artifacts today: control mapping and questionnaire-oriented summaries,
+          architecture and security documentation, and audit-ready evidence packages backed by immutable lifecycle logging for
+          material changes.
+        </p>
+        <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          Diligence deep-dives (questionnaire responses, subprocessors, tenancy detail) are delivered through your
+          procurement channel — coordinate intake via{" "}
+          <Link
+            href="#trust-contact-review"
+            className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+          >
+            Security review contact
+          </Link>
+          .
         </p>
 
         <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
           {lastReviewedUtc !== null
             ? `Last assurance content review (UTC): ${lastReviewedUtc}.`
-            : "Last assurance content review is refreshed with each assurance-cycle update."}{" "}
-          Internal security assessment proceeds on a rolling cadence.
+            : "Last assurance content review is refreshed with each assurance-cycle update."}
         </p>
 
         <div className="mt-6 rounded-lg border border-blue-100 bg-blue-50/70 px-4 py-4 dark:border-blue-950 dark:bg-blue-950/35">
           <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Assurance at a glance</p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div>
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                 Available today
               </p>
               <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-                <li>SOC&nbsp;2 readiness control mapping — readiness artifact, not an attestation report</li>
+                <li>Published procurement artifacts and SOC&nbsp;2–aligned control mapping (readiness — not CPA attestation)</li>
                 <li>Architecture, operations, and security documentation packs</li>
-                <li>Audit-ready evidence packages (immutable audit design for material changes)</li>
+                <li>Audit-ready evidence packages suitable for diligence questionnaires</li>
               </ul>
             </div>
             <div>
@@ -45,9 +55,9 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
                 Procurement path
               </p>
               <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-                <li>Diligence questionnaire responses and CAIQ-lite / SIG oriented summaries under confidentiality</li>
+                <li>CAIQ-lite / SIG–oriented summaries and questionnaire responses under confidentiality</li>
                 <li>
-                  Subprocessors and tenancy overview on request — see{" "}
+                  Subprocessors and tenancy overview on request — start with{" "}
                   <Link
                     href="#trust-contact-review"
                     className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
@@ -55,14 +65,6 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
                     Security review contact
                   </Link>
                 </li>
-              </ul>
-            </div>
-            <div>
-              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                Planned / in flight
-              </p>
-              <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-                <li>Independent third-party assessment planned for the next assurance cycle.</li>
               </ul>
             </div>
           </div>
@@ -88,36 +90,6 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           Request the current procurement-ready bundle containing questionnaire pre-fills (for example CAIQ-lite and SIG
           oriented summaries), tenancy and subprocessors overview, SLA summary excerpts, incident response placeholders, and
           security contact references. Detailed reports referenced in questionnaires are commonly shared under confidentiality.
-        </p>
-      </section>
-
-      <section aria-labelledby="trust-third-party">
-        <h2 id="trust-third-party" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
-          Third-party assessment status
-        </h2>
-        <ul className="mt-3 max-w-3xl list-disc space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-          <li>
-            Internal security assessments are performed on scheduled windows; summaries for buyers are available during due
-            diligence.
-          </li>
-          <li>
-            Independent third-party penetration testing is planned as part of the next assurance cycle. Redacted summaries,
-            when approved for distribution, accompany detailed questionnaire responses.
-          </li>
-          <li>
-            Independent penetration test reports, once completed, and other detailed assessment reports beyond public summaries
-            remain under NDA by default.
-          </li>
-        </ul>
-      </section>
-
-      <section aria-labelledby="trust-planned-assurance">
-        <h2 id="trust-planned-assurance" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
-          Planned assurance
-        </h2>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          CPA-issued attestations and independent penetration-test summaries ship when formally published and approved for
-          distribution. Timelines are confirmed during procurement.
         </p>
       </section>
 
@@ -159,6 +131,23 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           </Link>{" "}
           so we align the artefact bundle to your process.
         </p>
+      </section>
+
+      <section aria-labelledby="trust-planned-assurance">
+        <h2 id="trust-planned-assurance" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+          Planned assurance
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          The items below are roadmap or in-flight — timelines align with your procurement calendar.
+        </p>
+        <ul className="mt-3 max-w-3xl list-disc space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+          <li>Internal security assessment windows continue on a rolling cadence; buyer-facing summaries are provided during diligence.</li>
+          <li>Independent third-party penetration testing is planned for the next assurance cycle; redacted summaries ship when approved for distribution.</li>
+          <li>
+            CPA-issued SOC&nbsp;2 attestations and formal third-party test reports are referenced when published and approved;
+            distribution follows your diligence process.
+          </li>
+        </ul>
       </section>
 
       <section id="trust-contact-review" aria-labelledby="trust-contact-review-heading">

@@ -12,7 +12,7 @@ export function BuyerAuditEventsTechnicalAppendix(props: BuyerAuditEventsTechnic
   return (
     <details className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
       <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
-        Technical correlation appendix
+        Audit verification appendix
       </summary>
       <div className="mt-3 space-y-4">
         {events.map((ev) => (

@@ -85,10 +85,10 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
     id: "pen-test-third-party-planned",
     maturityTier: "planned_next",
     engagement: "Independent third-party penetration testing",
-    vendor: "Independent third-party testing planned for the next assurance cycle",
+    vendor: "Independent third-party assessor (vendor confirmed in executed SOW)",
     scope:
       "Hosted product API, application and administrative interfaces, and primary data-handling paths (scope confirmed in executed Statement of Work)",
-    completedUtc: "Planned",
+    completedUtc: "Planned — next assurance cycle",
     summaryAccess: {
       kind: "nda",
       description: "Redacted summary when available — contact security@archlucid.net",

@@ -89,7 +89,7 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
       onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
     >
       <summary className="cursor-pointer list-none text-[15px] font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden">
-        Raw manifest line diff
+        Manifest diff appendix
       </summary>
       <div className="mt-3 space-y-3">
         <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">

@@ -238,9 +238,8 @@ export function formatBuyerAuditTrailSummaryLine(
   const runKey =
     uniformRunId ?? (filterRunId.trim().length > 0 ? filterRunId.trim() : SHOWCASE_STATIC_DEMO_RUN_ID);
   const reviewTitle = buyerFacingReviewLinkLabelFromRunId(runKey);
-  const eventCount = events.length;
 
-  return `${eventCount} recorded events, ${distinctHumans.size} human actor${distinctHumans.size === 1 ? "" : "s"}, ${systemRows} event${systemRows === 1 ? "" : "s"} recorded automatically by ArchLucid lifecycle logging, all tied to ${reviewTitle}.`;
+  return `This audit trail shows the lifecycle from review creation through governance approval and packaged deliverables for ${reviewTitle}.`;
 }
 
 /** Metric tiles for buyer-polished audit header — same actor classification as {@link formatBuyerAuditTrailSummaryLine}. */

@@ -32,9 +32,8 @@ export default async function PricingPage(props: PricingPageProps) {
         <strong className="font-semibold text-neutral-800 dark:text-neutral-200">
           Team, Professional, and Enterprise
         </strong>{" "}
-        plans in the section below, then request a quote when you are ready. Regulated-industry buyers typically finalize
-        scope, licensing, deployment model, and contractual terms through procurement. Self-service checkout, where offered,
-        is aimed at smaller teams — enterprise evaluations remain sales-guided. For custom deployments,{" "}
+        plans on this page, then request a quote when you are ready. Regulated-industry buyers typically finalize scope,
+        licensing, deployment model, and contractual terms through procurement. For custom deployments,{" "}
         <a
           className="font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-200"
           href="#pricing-quote-request"

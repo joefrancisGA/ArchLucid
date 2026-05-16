@@ -203,7 +203,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             )}
             {golden !== null && (
               <li>
-                <a href="#compare-raw-manifest-diff">Raw manifest line diff</a>
+                <a href="#compare-raw-manifest-diff">Manifest diff appendix</a>
               </li>
             )}
             {result !== null && (

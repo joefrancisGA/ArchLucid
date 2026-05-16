@@ -31,26 +31,26 @@ export default function MarketingTrustCenterPage(): ReactNode {
       <div className="mt-10">
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
           <span className="font-medium text-neutral-800 dark:text-neutral-200">Public evidence summary</span>
+          <span> · Version 2026.05</span>
           {lastReviewedUtc !== null ? (
             <>
               {" "}
               · Last reviewed {lastReviewedUtc}
             </>
           ) : null}
+          <span> · Public-safe excerpt for questionnaires (not a customer-specific evidence pack)</span>
         </p>
         <a
           className="mt-2 inline-flex items-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:bg-blue-600 dark:hover:bg-blue-700"
           data-testid="trust-center-evidence-pack-download"
-          download
-          href="/v1/marketing/trust-center/evidence-pack.zip"
+          href="mailto:security@archlucid.net?subject=Public%20evidence%20summary%20request"
           rel="noopener"
         >
-          Download public evidence summary (ZIP)
+          Request public evidence summary
         </a>
         <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-          Public procurement-oriented bundle assembled from approved sources — not a customer-specific evidence pack. Use
-          with your questionnaire process; coordinated disclosure for detailed summaries is arranged through your diligence
-          process.
+          We email the current public procurement bundle or confirm the right diligence path — same materials anchor the
+          Trust Center narrative.
         </p>
       </div>
     </main>
