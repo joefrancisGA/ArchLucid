@@ -148,7 +148,7 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine();
         sb.AppendLine("---");
         sb.AppendLine();
-        sb.AppendLine("**Sponsor narrative (canonical):** repository `docs/EXECUTIVE_SPONSOR_BRIEF.md` (not served by this HTTP endpoint).");
+        sb.AppendLine("**Sponsor narrative (canonical):** repository `docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md` (not served by this HTTP endpoint).");
         sb.AppendLine();
         sb.AppendLine($"*Generated from run `{run.RunId}`.*");
         sb.AppendLine();

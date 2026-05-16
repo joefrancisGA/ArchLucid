@@ -54,7 +54,7 @@ public sealed class EvidencePackBuilder(IEvidencePackSourceProvider sourceProvid
         readme.AppendLine("This ZIP is the consolidated procurement-evidence bundle exposed by");
         readme.AppendLine("`GET /v1/marketing/trust-center/evidence-pack.zip`. Contents are sourced from");
         readme.AppendLine("the canonical files maintained in the ArchLucid repository — the same files");
-        readme.AppendLine("linked from `docs/trust-center.md`.");
+        readme.AppendLine("linked from `docs/go-to-market/trust-center.md`.");
         readme.AppendLine();
         readme.AppendLine("> Status posture: this pack is **self-asserted documentation** plus");
         readme.AppendLine("> **in-flight engagement** artefacts. It is NOT a SOC 2 attestation and is NOT");

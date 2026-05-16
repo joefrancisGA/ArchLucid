@@ -115,7 +115,7 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("Why this top finding is trustworthy");
         md.Should().Contain("`top-finding-id`");
         md.Should().Contain("11111111-1111-1111-1111-111111111111");
-        md.Should().Contain("docs/EXECUTIVE_SPONSOR_BRIEF.md");
+        md.Should().Contain("docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md");
     }
 
     [SkippableFact]

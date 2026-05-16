@@ -2,7 +2,7 @@
 
 ## Objective
 
-Keep `docs/trust-center.md` honest: links resolve and posture timestamps stay within policy windows documented here.
+Keep `docs/go-to-market/trust-center.md` honest: links resolve and posture timestamps stay within policy windows documented here.
 
 ## Checks (CI)
 

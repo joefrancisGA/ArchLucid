@@ -2,7 +2,7 @@
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
-**Buyer posture table (single index):** [`docs/trust-center.md`](../trust-center.md) — same evidence links; rendered in-product at **`/trust`**.
+**Buyer posture table (single index):** [`docs/go-to-market/trust-center.md`](trust-center.md) — same evidence links; rendered in-product at **`/trust`**.
 
 # ArchLucid Trust Center
 

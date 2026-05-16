@@ -7,7 +7,7 @@ using QuestPDF.Infrastructure;
 namespace ArchLucid.Application.Pilots;
 
 /// <summary>
-///     PDF projection of <c>docs/EXECUTIVE_SPONSOR_BRIEF.md</c> — same QuestPDF stack as
+///     PDF projection of <c>docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md</c> — same QuestPDF stack as
 ///     <see cref="FirstValueReportPdfBuilder" />;
 ///     does not mutate the Markdown file (read-only IO at controller).
 /// </summary>
@@ -33,7 +33,7 @@ public sealed class ExecutiveSponsorBriefPdfBuilder
                 page.Footer()
                     .AlignCenter()
                     .Text(text =>
-                        text.Span("Canonical body: docs/EXECUTIVE_SPONSOR_BRIEF.md — PDF is a portable rendering"));
+                        text.Span("Canonical body: docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md — PDF is a portable rendering"));
             });
         });
     }

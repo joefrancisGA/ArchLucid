@@ -120,7 +120,7 @@ public sealed class SponsorOnePagerPdfBuilder(
                     });
                     column.Item().PaddingTop(12).Text("Canonical narrative").Bold();
                     column.Item().Text(
-                        "Repository docs/EXECUTIVE_SPONSOR_BRIEF.md and docs/go-to-market/ROI_MODEL.md — this PDF is a pointer, not a substitute for those documents.");
+                        "Repository docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md and docs/go-to-market/ROI_MODEL.md — this PDF is a pointer, not a substitute for those documents.");
                     column.Item().PaddingTop(10).Text($"Deep link (API): {footer}/v1/architecture/run/{run.RunId}");
                     string ui = _publicSiteOptions.CurrentValue.BaseUrl.Trim().TrimEnd('/');
                     column.Item().PaddingTop(8).Text("Return to operator UI").Bold().FontSize(11);

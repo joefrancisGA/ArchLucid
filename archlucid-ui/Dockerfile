@@ -42,8 +42,8 @@ COPY docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md ./go-to-market
 # Public accessibility self-attestation reads root ACCESSIBILITY.md at build time (mirrors monorepo `../ACCESSIBILITY.md`).
 COPY ACCESSIBILITY.md ./go-to-market-samples/ACCESSIBILITY.md
 
-# Public Trust Center marketing route reads docs/trust-center.md (mirrors monorepo `../docs/trust-center.md`).
-COPY docs/trust-center.md ./go-to-market-samples/trust-center.md
+# Public Trust Center marketing route reads docs/go-to-market/trust-center.md (mirrors monorepo path).
+COPY docs/go-to-market/trust-center.md ./go-to-market-samples/trust-center.md
 
 # The pricing generator (plus `pricing_json_checkout_guard.py`) and its
 # single-source document must be present at build time. They live outside

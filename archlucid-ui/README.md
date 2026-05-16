@@ -2,7 +2,7 @@
 
 Thin Next.js App Router UI for the ArchLucid operator experience. The default job of the UI is to help a team move from an architecture request to a reviewable, defensible output quickly through the **Pilot** path, then expand into **Operate** only when needed.
 
-**Canonical buyer narrative:** For sponsor-facing and outward buyer messaging, start with [../docs/EXECUTIVE_SPONSOR_BRIEF.md](../docs/EXECUTIVE_SPONSOR_BRIEF.md). This UI README explains operator flow and implementation-facing shaping; it is not the primary buyer summary. **Measurement companion:** [../docs/PILOT_ROI_MODEL.md](../docs/library/PILOT_ROI_MODEL.md).
+**Canonical buyer narrative:** For sponsor-facing and outward buyer messaging, start with [../docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md](../docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md). This UI README explains operator flow and implementation-facing shaping; it is not the primary buyer summary. **Measurement companion:** [../docs/PILOT_ROI_MODEL.md](../docs/library/PILOT_ROI_MODEL.md).
 
 **Pilot first-value rule:** for most first pilots, stay on the **Pilot** path until request → commit → artifact review is working cleanly. Treat **Operate** as a follow-on maturity path, not a co-equal Day-1 proof.
 

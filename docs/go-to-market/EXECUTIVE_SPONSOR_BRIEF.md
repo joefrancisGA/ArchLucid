@@ -47,7 +47,7 @@ At a practical level, ArchLucid is an AI-assisted architecture workflow system t
 
 In many organizations, architecture work slows down because teams must manually assemble review packages, explain design reasoning, reconcile revisions, and prepare governance evidence.
 
-**Security and procurement reviewers** should start from the consolidated Trust Center index — **[`docs/security/trust-center.md`](security/trust-center.md)** (public marketing route **`/trust`**) — which links the same self-assessment, questionnaire, and deferral evidence the repository ships to CI.
+**Security and procurement reviewers** should start from the consolidated Trust Center index — **[`trust-center.md`](trust-center.md)** (public marketing route **`/trust`**) — which links the same self-assessment, questionnaire, and deferral evidence the repository ships to CI.
 
 That creates four common problems:
 

@@ -44,7 +44,8 @@ docker-compose*.yml
 # the Trust Center evidence pack (`ArchLucid.Application.csproj` EmbeddedResource). Re-include
 # whole subfolders (same pattern as go-to-market) so nested paths (e.g. `pen-test-summaries/`)
 # are in the build context; per-file `!` alone can fail if a parent is excluded.
-# UI image: `archlucid-ui/Dockerfile` COPYs `docs/trust-center.md` for `/trust` SSR.
+# UI image: `archlucid-ui/Dockerfile` COPYs `docs/go-to-market/trust-center.md` for `/trust` SSR;
+# root `docs/trust-center.md` is a short redirect for legacy links.
 docs/
 !docs/go-to-market/
 !docs/go-to-market/PRICING_PHILOSOPHY.md

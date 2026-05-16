@@ -48,7 +48,7 @@ Two **documentation planes** coexist: **outward-facing product + trust narration
 
 | Area | Predominant audience | Notes |
 | --- | --- | --- |
-| [`docs/trust-center.md`](../trust-center.md), [`docs/compliance/`](../compliance/), much of [`docs/go-to-market/`](../go-to-market/) | **Customers / procurement / sponsors** | Trust, pricing ideas, integrations catalog, objections; still useful reading for founders. |
+| [`docs/go-to-market/trust-center.md`](../go-to-market/trust-center.md), [`docs/compliance/`](../compliance/), much of [`docs/go-to-market/`](../go-to-market/) | **Customers / procurement / sponsors** | Trust, pricing ideas, integrations catalog, objections; still useful reading for founders. |
 | [`docs/runbooks/`](../runbooks/), [`docs/onboarding/day-one-sre.md`](../onboarding/day-one-sre.md), many [`docs/deployment/`](../deployment/) pages | **Vendor internal / reliability / infra** | Incident, failover, Stripe GA, infra setup. |
 | [`docs/engineering/`](../engineering/) | **Contributors / platform engineers** | Install order, first commit loop, IaC ergonomics adjacent to BUILD. |
 | [`docs/security/`](../security/) (long-form) | **Security reviewers + architects** mixed | VPAT/threat-model depth — skim [`trust-center.md`](../trust-center.md) first when buying. |

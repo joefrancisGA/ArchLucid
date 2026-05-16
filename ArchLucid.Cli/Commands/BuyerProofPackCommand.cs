@@ -165,7 +165,7 @@ internal static class BuyerProofPackCommand
 
         byte[] pdfBytes = await pdfResponse.Content.ReadAsByteArrayAsync(cancellationToken);
 
-        string sponsorBriefSource = Path.Combine(repoRoot, "docs", "EXECUTIVE_SPONSOR_BRIEF.md");
+        string sponsorBriefSource = Path.Combine(repoRoot, "docs", "go-to-market", "EXECUTIVE_SPONSOR_BRIEF.md");
 
         if (!File.Exists(sponsorBriefSource))
         {

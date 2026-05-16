@@ -28,19 +28,22 @@ public sealed class SponsorBriefMarketingController(
     private readonly ExecutiveSponsorBriefPdfBuilder _pdfBuilder =
         pdfBuilder ?? throw new ArgumentNullException(nameof(pdfBuilder));
 
-    /// <summary>Returns the sponsor brief as PDF — content matches <c>docs/EXECUTIVE_SPONSOR_BRIEF.md</c> on disk.</summary>
+    /// <summary>Returns the sponsor brief as PDF — content matches <c>docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md</c> on disk.</summary>
     [HttpGet("sponsor-brief.pdf")]
     [Produces("application/pdf")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public IActionResult GetSponsorBriefPdf()
     {
-        string? path = RepositoryDocsMarkdownPath.TryFindFile(_hostEnvironment, "EXECUTIVE_SPONSOR_BRIEF.md");
+        string? path = RepositoryDocsMarkdownPath.TryFindFile(
+            _hostEnvironment,
+            "go-to-market",
+            "EXECUTIVE_SPONSOR_BRIEF.md");
 
         if (string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path))
         {
             return this.NotFoundProblem(
-                $"Executive sponsor brief was not found under docs/ (started from '{_hostEnvironment.ContentRootPath}').",
+                $"Executive sponsor brief was not found under docs/go-to-market (started from '{_hostEnvironment.ContentRootPath}').",
                 ProblemTypes.ResourceNotFound);
         }
 
