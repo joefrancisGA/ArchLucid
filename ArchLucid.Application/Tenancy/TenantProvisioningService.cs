@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -16,7 +17,8 @@ public sealed class TenantProvisioningService(
     IActorContext actorContext,
     IAuditService auditService,
     ILogger<TenantProvisioningService> logger,
-    ITenantSqlCatalogProvisioner tenantSqlCatalogProvisioner) : ITenantProvisioningService
+    ITenantSqlCatalogProvisioner tenantSqlCatalogProvisioner,
+    IDefaultPolicyPackSeeder defaultPolicyPackSeeder) : ITenantProvisioningService
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -28,6 +30,9 @@ public sealed class TenantProvisioningService(
 
     private readonly ITenantSqlCatalogProvisioner _tenantSqlCatalogProvisioner =
         tenantSqlCatalogProvisioner ?? throw new ArgumentNullException(nameof(tenantSqlCatalogProvisioner));
+
+    private readonly IDefaultPolicyPackSeeder _defaultPolicyPackSeeder =
+        defaultPolicyPackSeeder ?? throw new ArgumentNullException(nameof(defaultPolicyPackSeeder));
 
     /// <inheritdoc/>
     public async Task<TenantProvisioningResult> ProvisionAsync(TenantProvisioningRequest request, CancellationToken ct)
@@ -61,6 +66,8 @@ public sealed class TenantProvisioningService(
                 await _tenantSqlCatalogProvisioner.ProvisionTenantCatalogAsync(tenantId, TenantDatabaseNaming.SqlLogicalNameForTenant(tenantId), ct);
                 await _tenantRepository.InsertWorkspaceAsync(workspaceId, tenantId, "Default", projectId, ct);
                 await _architectureProjectRepository.InsertAsync(projectId, tenantId, workspaceId, "default", ct);
+
+                await _defaultPolicyPackSeeder.EnsureDefaultPolicyPacksAsync(tenantId, workspaceId, projectId, ct);
             }
             catch (Exception ex)
             {

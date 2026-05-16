@@ -34,6 +34,9 @@
     <None Update="Compliance\RulePacks\default-compliance.rules.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Compliance\RulePacks\ga-starter-compliance.rules.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

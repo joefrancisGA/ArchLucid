@@ -29,7 +29,9 @@ public static partial class ServiceCollectionExtensions
             "Compliance",
             "RulePacks",
             "default-compliance.rules.json");
-        services.AddSingleton<IComplianceRulePackLoader>(_ => new FileComplianceRulePackLoader(complianceRulePackPath));
+        string gaPath = Path.Combine(AppContext.BaseDirectory, "Compliance", "RulePacks", "ga-starter-compliance.rules.json");
+        services.AddSingleton<IComplianceRulePackLoader>(_ => new MergedComplianceRulePackLoader(
+            [new FileComplianceRulePackLoader(complianceRulePackPath), new FileComplianceRulePackLoader(gaPath)]));
         services.AddScoped<IComplianceRulePackProvider, PolicyFilteredComplianceRulePackProvider>();
         services.AddSingleton<IComplianceRulePackValidator, ComplianceRulePackValidator>();
         services.AddSingleton<IComplianceEvaluator, GraphComplianceEvaluator>();

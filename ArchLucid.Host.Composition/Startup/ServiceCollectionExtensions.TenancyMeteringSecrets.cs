@@ -1,5 +1,6 @@
 using ArchLucid.Application.Identity;
 using ArchLucid.Application.Notifications.Email;
+using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Metering;
@@ -41,6 +42,7 @@ public static partial class ServiceCollectionExtensions
 
         services.AddScoped<IUsageMeteringService, UsageMeteringService>();
         services.AddScoped<ITenantProvisioningService, TenantProvisioningService>();
+        services.AddScoped<IDefaultPolicyPackSeeder, DefaultPolicyPackSeeder>();
         services.AddScoped<ITrialTenantBootstrapService, TrialTenantBootstrapService>();
         services.AddScoped<TrialLimitGate>();
         services.AddScoped<TrialSeatAccountant>();

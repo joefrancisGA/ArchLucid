@@ -1,4 +1,5 @@
 ﻿using ArchLucid.Application.Common;
+using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Tenancy;
@@ -28,6 +29,11 @@ public sealed class TenantProvisioningServiceTests
             .Setup(p => p.ProvisionTenantCatalogAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IDefaultPolicyPackSeeder> packSeeder = new();
+        packSeeder
+            .Setup(s => s.EnsureDefaultPolicyPacksAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         InMemoryArchitectureProjectRepository projects = new();
 
         TenantProvisioningService sut = new(
@@ -36,7 +42,8 @@ public sealed class TenantProvisioningServiceTests
             actor.Object,
             audit.Object,
             NullLogger<TenantProvisioningService>.Instance,
-            sqlCatalog.Object);
+            sqlCatalog.Object,
+            packSeeder.Object);
 
         TenantProvisioningRequest req = new() { Name = "Contoso Labs", AdminEmail = "ops@contoso.example", Tier = TenantTier.Enterprise, };
 
@@ -50,6 +57,10 @@ public sealed class TenantProvisioningServiceTests
 
         audit.Verify(
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        packSeeder.Verify(
+            s => s.EnsureDefaultPolicyPacksAsync(first.TenantId, first.DefaultWorkspaceId, first.DefaultProjectId, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -89,13 +100,19 @@ public sealed class TenantProvisioningServiceTests
             .Setup(p => p.ProvisionTenantCatalogAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IDefaultPolicyPackSeeder> packSeeder = new();
+        packSeeder
+            .Setup(s => s.EnsureDefaultPolicyPacksAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         TenantProvisioningService sut = new(
             repo.Object,
             projects.Object,
             actor.Object,
             audit.Object,
             NullLogger<TenantProvisioningService>.Instance,
-            sqlCatalog.Object);
+            sqlCatalog.Object,
+            packSeeder.Object);
 
         TenantProvisioningRequest req = new()
         {
@@ -149,13 +166,19 @@ public sealed class TenantProvisioningServiceTests
             .Setup(p => p.ProvisionTenantCatalogAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IDefaultPolicyPackSeeder> packSeeder = new();
+        packSeeder
+            .Setup(s => s.EnsureDefaultPolicyPacksAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         TenantProvisioningService sut = new(
             repo.Object,
             projects.Object,
             actor.Object,
             audit.Object,
             NullLogger<TenantProvisioningService>.Instance,
-            sqlCatalog.Object);
+            sqlCatalog.Object,
+            packSeeder.Object);
 
         TenantProvisioningRequest req = new()
         {

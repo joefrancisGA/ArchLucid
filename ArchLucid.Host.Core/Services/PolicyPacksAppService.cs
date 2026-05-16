@@ -9,14 +9,16 @@ namespace ArchLucid.Host.Core.Services;
 /// Default <see cref="IPolicyPacksAppService"/>: mutates packs through <see cref="IPolicyPackManagementService"/> and writes audit trails.
 /// </summary>
 /// <remarks>
-/// Registered scoped in <c>ServiceCollectionExtensions</c>. Uses <see cref="IPolicyPackVersionRepository"/> only for assign preflight
+/// Registered scoped in <c>ServiceCollectionExtensions</c>. Uses <see cref="IPolicyPackVersionRepository"/> for assign preflight
 /// (version existence) before delegating persistence to the management service.
 /// </remarks>
 /// <param name="managementService">Domain mutations (create / publish / assign row).</param>
+/// <param name="packRepository">Loads pack metadata to block republishing platform defaults.</param>
 /// <param name="versionRepository">Read path for assign 404 semantics.</param>
 /// <param name="auditService">Structured audit log.</param>
 public sealed class PolicyPacksAppService(
     IPolicyPackManagementService managementService,
+    IPolicyPackRepository packRepository,
     IPolicyPackVersionRepository versionRepository,
     IAuditService auditService) : IPolicyPacksAppService
 {
@@ -54,6 +56,12 @@ public sealed class PolicyPacksAppService(
         string contentJson,
         CancellationToken ct)
     {
+        PolicyPack? pack = await packRepository.GetByIdAsync(policyPackId, ct);
+
+        if (pack is not null
+            && string.Equals(pack.PackType, PolicyPackType.PlatformDefault, StringComparison.Ordinal))
+            throw new InvalidOperationException("Platform-default policy packs cannot be republished via API.");
+
         PolicyPackVersion packVersion = await managementService
                 .PublishVersionAsync(policyPackId, version, contentJson, ct)
             ;

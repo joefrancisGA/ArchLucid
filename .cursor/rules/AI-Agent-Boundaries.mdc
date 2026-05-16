@@ -1,0 +1,41 @@
+---
+description: >-
+  Editing agent execution, authority pipeline orchestration, finding engines, context
+  connectors, alert delivery, or DTF wiring — preserve layer boundaries and extension seams.
+globs:
+  - "ArchLucid.AgentRuntime/**/*.cs"
+  - "ArchLucid.Decisioning/**/*.cs"
+  - "ArchLucid.Application/**/*.cs"
+  - "ArchLucid.ContextIngestion/**/*.cs"
+  - "ArchLucid.Host.Composition/**/*.cs"
+alwaysApply: false
+---
+
+# AI and agent layer boundaries
+
+## Durable Task Framework (DTF)
+
+- **CI boundary:** **`Microsoft.DurableTask.*` must not appear** in **`ArchLucid.Application`** or **`ArchLucid.Contracts`** — see **`ArchLucid.Architecture.Tests/DtfNamespaceBoundaryArchitectureTests.cs`** (improvement #26).
+- **Implementation posture:** DTF client/worker wiring, activities, and package references belong in **`ArchLucid.Host.Composition`** (and persistence adapters the orchestrator delegates to), not in agent runtime or domain libraries. Do not expand DTF into **`ArchLucid.Core`** or **`ArchLucid.AgentRuntime`** without an ADR and new architecture coverage.
+- Authority runs: **`IAuthorityRunOrchestrator`** is the application port (**`ArchLucid.Application/Runs/Orchestration/IAuthorityRunOrchestrator.cs`**). Host composition registers legacy vs DTF-backed implementations; switching backends is configuration / DI, not a contract change on the port.
+
+## Extension surfaces (prefer these over ad hoc services)
+
+Use existing extension points; see **`.cursor/rules/Navigation.mdc`** for file-level entry points:
+
+| Seam | Typical interface / area |
+|------|---------------------------|
+| Finding engines | **`IFindingEngine`** → **`ArchLucid.Decisioning`** registration |
+| Context connectors | **`IContextConnector`**, **`IConnectorDescriptor`**, pipeline orchestration → **`ArchLucid.ContextIngestion`** |
+| Agent handlers | **`IAgentHandler`** → **`ArchLucid.AgentRuntime`** + DI registration in host composition |
+| Alert delivery | **`IAlertDeliveryChannel`** → **`ArchLucid.Decisioning/Alerts/Delivery`** |
+
+New “agent-ish” behavior should plug into one of these patterns instead of duplicating orchestration in random feature classes.
+
+## Logging and externally influenced strings
+
+For LLM-adjacent and user-influenced identifiers in logs, follow **`.cursor/rules/CodeQL-Sanitized-Logging.mdc`** (**`ArchLucid.Core.Diagnostics`** sanitized extensions, **`docs/library/CODEQL_TRIAGE.md`**).
+
+## Architecture invariants
+
+Numbered cross-cutting rules: **`docs/library/ARCHITECTURE_INVARIANTS.md`** (**`INV-*`**). Governance: **`docs/adr/0035-architecture-invariant-catalog.md`**.

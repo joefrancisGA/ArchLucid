@@ -9,15 +9,23 @@ public sealed class ComplianceRulePackHealthCheck : IHealthCheck
         HealthCheckContext context,
         CancellationToken cancellationToken = default)
     {
-        string fullPath = Path.Combine(AppContext.BaseDirectory, EmbeddedContentPaths.ComplianceRulePackRelativePath);
+        string defaultPath = Path.Combine(AppContext.BaseDirectory, EmbeddedContentPaths.ComplianceRulePackRelativePath);
+        string gaPath = Path.Combine(AppContext.BaseDirectory, EmbeddedContentPaths.GaStarterComplianceRulePackRelativePath);
 
-        if (!File.Exists(fullPath))
+        if (!File.Exists(defaultPath))
 
             return Task.FromResult(
                 HealthCheckResult.Unhealthy(
-                    $"Compliance rule pack not found at '{fullPath}'. Expected bundled content from ArchLucid.Decisioning (CopyToOutputDirectory)."));
+                    $"Compliance rule pack not found at '{defaultPath}'. Expected bundled content from ArchLucid.Decisioning (CopyToOutputDirectory)."));
+
+        if (!File.Exists(gaPath))
+
+            return Task.FromResult(
+                HealthCheckResult.Unhealthy(
+                    $"GA starter compliance rule pack not found at '{gaPath}'. Expected bundled content from ArchLucid.Decisioning (CopyToOutputDirectory)."));
 
         return Task.FromResult(
-            HealthCheckResult.Healthy($"Compliance rule pack present: {EmbeddedContentPaths.ComplianceRulePackRelativePath}."));
+            HealthCheckResult.Healthy(
+                $"Compliance rule packs present: {EmbeddedContentPaths.ComplianceRulePackRelativePath} + {EmbeddedContentPaths.GaStarterComplianceRulePackRelativePath}."));
     }
 }

@@ -8,6 +8,7 @@ alwaysApply: false
 ## Read first
 
 - **Coding agents (repo-level)**: root **`AGENTS.md`** — monorepo map, **`*.slnf`** partial solution loads, assessments pointers; **`archlucid-ui/AGENTS.md`** for the Next.js app only.
+- **AI / agent boundaries & prompts**: `.cursor/rules/AI-Agent-Boundaries.mdc` (DTF host-only, orchestrator port, extension seams), `.cursor/rules/AI-Prompt-And-Redaction-Hygiene.mdc` (LLM prompts, redaction, model-call hygiene).
 - **LLM-driven assessments (narrow read surface)**: `docs/library/ASSESSMENT_INPUTS.md` then `.cursor/rules/Assessment-Read-First.mdc` (when producing a readiness pass — output to `docs/assessments/LATEST.md`; snapshots in `docs/archive/assessments/`).
 - **Weighted readiness assessments (SOC 2 scoring boundary)**: **`@Assessment-Scope-V1_1`** (`.cursor/rules/Assessment-Scope-V1_1.mdc` — not always injected; attach for assessment passes), plus `docs/library/V1_DEFERRED.md` §6c — **`(A)` headline vs `(B)` procurement realism**.
 - **Canonical buyer / operator spine**: `docs/START_HERE.md` (five-document table + journey; `docs/FIRST_5_DOCS.md` is a thin redirect).
