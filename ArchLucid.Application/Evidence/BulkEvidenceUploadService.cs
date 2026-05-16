@@ -113,27 +113,33 @@ public sealed class BulkEvidenceUploadService(
             };
         }
 
-        // 5. Emit audit event
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.EvidenceBulkAttached,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = runId,
-                CorrelationId = correlationId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        fileCount = uploadedIds.Count,
-                        fileNames = fileNames
-                    },
-                    AuditJsonSerializationOptions.Instance)
-            },
-            cancellationToken);
+        // 5. Emit audit event (bounded retry — transient SQL failures must not silently drop the row)
+        AuditEvent auditEvent = new()
+        {
+            EventType = AuditEventTypes.EvidenceBulkAttached,
+            ActorUserId = actor,
+            ActorUserName = actor,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            RunId = runId,
+            CorrelationId = correlationId,
+            DataJson = JsonSerializer.Serialize(
+                new
+                {
+                    fileCount = uploadedIds.Count,
+                    fileNames = fileNames
+                },
+                AuditJsonSerializationOptions.Instance)
+        };
+
+        await DurableAuditLogRetry.TryLogAsync(
+                ct => auditService.LogAsync(auditEvent, ct),
+                logger,
+                $"BulkEvidenceUpload:{runId:N}",
+                cancellationToken,
+                auditEventTypeForMetrics: auditEvent.EventType)
+            .ConfigureAwait(false);
 
         return new BulkEvidenceUploadResult
         {
