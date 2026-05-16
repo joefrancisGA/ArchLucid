@@ -2,6 +2,7 @@ using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Auth.Scim;
 using ArchLucid.Api.Authentication;
 using ArchLucid.Api.Configuration;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Host.Core.Services;
 
