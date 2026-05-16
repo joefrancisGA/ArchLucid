@@ -60,7 +60,41 @@ ArchLucid is designed to reduce those problems.
 
 ---
 
-## 3. What Pilot proves
+## 3. Core Value Pillars
+
+### Pillar 1: AI-native architecture analysis
+
+ArchLucid is not an architecture documentation tool with AI bolted on. It was built from day one around a **multi-agent pipeline** — four specialized AI agents (Topology, Cost, Compliance, Critic) analyze architecture requests through a structured pipeline: context ingestion → knowledge graph → findings → decisioning → artifact synthesis. The result is a **versioned golden manifest** with structured findings, not a chat conversation that disappears.
+
+### Pillar 2: Auditable decision trail
+
+Every architecture recommendation ArchLucid produces comes with a complete chain of evidence. The `ExplainabilityTrace` on every finding records what was examined, what rules were applied, what decisions were taken, and why. The provenance graph connects evidence to decisions to manifest entries to artifacts. This is not "AI said so" — it is "AI analyzed these inputs, applied these rules, and reached this conclusion, and here is the full trail."
+
+### Pillar 3: Enterprise governance
+
+Architecture decisions in ArchLucid are not just analyzed — they are governed. Policy packs define compliance rules. Approval workflows enforce segregation of duties. Pre-commit gates block manifests when findings exceed severity thresholds. Approval SLAs track time-to-review and escalate breaches via webhooks. And 78 typed audit events in an append-only SQL store provide the evidence trail that regulators and auditors expect.
+
+---
+
+## 4. Elevator Pitches
+
+### 30-second pitch
+
+"ArchLucid turns messy architecture evidence into a prioritized risk review — in minutes, not weeks. Upload your architecture materials, and ArchLucid's AI agents identify the top risks across topology, cost, compliance, and design quality. Every finding cites its evidence. Every recommendation is actionable. You get an executive-ready summary your CTO can actually read."
+
+### 60-second pitch
+
+"Architecture review is a bottleneck in every enterprise I talk to. A small team of senior architects reviews every major design proposal. Reviews take weeks. Different architects apply different standards. Decisions are captured in email threads no one can find six months later. And compliance gaps surface in production — not during design.
+
+ArchLucid solves this with evidence-linked architecture risk reviews.
+
+You upload your architecture materials. ArchLucid runs a multi-agent analysis — topology, cost, compliance, design quality — and surfaces a prioritized findings board: each risk ranked by severity, confidence-rated, evidence-cited, and accompanied by a concrete recommended action.
+
+The result: your architects get a defensible review package. Your CTO gets a clear executive summary. Your audit trail is complete. Reviews that took two weeks now take two hours."
+
+---
+
+## 5. What Pilot proves
 
 A successful Pilot should prove that a team can:
 
@@ -75,7 +109,7 @@ That is the main V1 buying motion.
 
 ---
 
-## 4. What measurable value a pilot should show
+## 6. What measurable value a pilot should show
 
 A credible pilot should show improvement in a few concrete areas:
 
@@ -92,7 +126,7 @@ For the scorecard and measurement model, see [PILOT_ROI_MODEL.md](library/PILOT_
 
 ---
 
-## 5. What Operate adds
+## 7. What Operate adds
 
 After **Pilot** is proven, **Operate** is the second buyer-facing layer. It combines everything that helps teams go deeper after the first committed manifest:
 
@@ -104,7 +138,7 @@ Progressive disclosure still applies: deeper governance and write-oriented opera
 
 ---
 
-## 6. What expansion would look like
+## 8. What expansion would look like
 
 A practical adoption path is:
 
@@ -115,7 +149,7 @@ That sequence keeps adoption disciplined and makes value easier to defend intern
 
 ---
 
-## 7. What not to over-claim yet
+## 9. What not to over-claim yet
 
 ArchLucid should not be sold as a magic answer to every architecture or governance problem.
 
@@ -133,7 +167,7 @@ The strongest V1 claim is simpler:
 
 ---
 
-## 8. What success should allow a sponsor to say
+## 10. What success should allow a sponsor to say
 
 After a strong pilot, a sponsor should be able to say:
 
@@ -143,6 +177,6 @@ That is a credible sponsor-level outcome.
 
 ---
 
-## 9. Limits of AI explanations (citations vs. proof)
+## 11. Limits of AI explanations (citations vs. proof)
 
 Explanations in ArchLucid combine **LLM-generated narrative** with **persisted artifacts** (manifests, findings, decision traces, optional bundles). The UI surfaces **citation links** to those artifacts so reviewers know **where the system grounded** an answer. That improves transparency; it does **not** turn an LLM paragraph into a **legal attestation** or a **formal verification**. The sponsor-safe stance: treat AI text as **decision support**; treat manifests, findings, traces, and governance records as **reviewable evidence** for human sign-off.

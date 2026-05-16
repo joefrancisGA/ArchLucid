@@ -27,25 +27,7 @@
 
 ## 2. Three value pillars
 
-### Pillar 1: AI-native architecture analysis
-
-ArchLucid is not an architecture documentation tool with AI bolted on. It was built from day one around a **multi-agent pipeline** — four specialized AI agents (Topology, Cost, Compliance, Critic) analyze architecture requests through a structured pipeline: context ingestion → knowledge graph → findings → decisioning → artifact synthesis. The result is a **versioned golden manifest** with structured findings, not a chat conversation that disappears.
-
-**Proof points:**
-- 10 finding engine types running in parallel via `FindingsOrchestrator`
-- Multi-vendor LLM support with automatic fallback (`ILlmProvider`, `FallbackAgentCompletionClient`)
-- Deterministic simulator mode for testing and CI without LLM costs
-- Agent output quality scoring (structural completeness + semantic quality) with configurable quality gates
-
-### Pillar 2: Auditable decision trail
-
-Every architecture recommendation ArchLucid produces comes with a complete chain of evidence. The `ExplainabilityTrace` on every finding records what was examined, what rules were applied, what decisions were taken, and why. The provenance graph connects evidence to decisions to manifest entries to artifacts. This is not "AI said so" — it is "AI analyzed these inputs, applied these rules, and reached this conclusion, and here is the full trail."
-
-**Proof points:**
-- `ExplainabilityTrace` with 5 structured fields on every finding (trace completeness measured by OTel metric)
-- Provenance graph with nodes, edges, and graph algorithms (`ProvenanceBuilder`, `ProvenanceNode`, `ProvenanceEdge`)
-- Explanation faithfulness checking (token overlap heuristic with aggregate fallback)
-- Full agent execution trace persistence (prompt/response forensics in blob storage)
+*The core value pillars (AI-native architecture analysis, Auditable decision trail, Enterprise governance) have been consolidated into the [Executive Sponsor Brief](../EXECUTIVE_SPONSOR_BRIEF.md#3-core-value-pillars). Use the brief as the single source of truth for value claims.*
 
 **Live deep link in the staging funnel:**
 
@@ -57,7 +39,7 @@ The unauthenticated proof route **`/demo/explain`** (operator shell) renders the
 
 ### Pillar 3: Enterprise governance
 
-Architecture decisions in ArchLucid are not just analyzed — they are governed. Policy packs define compliance rules. Approval workflows enforce segregation of duties. Pre-commit gates block manifests when findings exceed severity thresholds. Approval SLAs track time-to-review and escalate breaches via webhooks. And 78 typed audit events in an append-only SQL store provide the evidence trail that regulators and auditors expect.
+*See the [Executive Sponsor Brief](../EXECUTIVE_SPONSOR_BRIEF.md#3-core-value-pillars) for details on Enterprise governance.*
 
 **Proof points:**
 - Pre-commit governance gate with configurable severity thresholds and warning-only mode
@@ -71,39 +53,7 @@ Architecture decisions in ArchLucid are not just analyzed — they are governed.
 
 ## 3. Elevator pitches
 
-### 30-second pitch
-
-"ArchLucid turns messy architecture evidence into a prioritized risk review — in minutes, not weeks. Upload your architecture materials, and ArchLucid's AI agents identify the top risks across topology, cost, compliance, and design quality. Every finding cites its evidence. Every recommendation is actionable. You get an executive-ready summary your CTO can actually read."
-
-### 60-second pitch
-
-"Architecture review is a bottleneck in every enterprise I talk to. A small team of senior architects reviews every design proposal. Reviews take weeks. Different architects apply different standards. Decisions are captured in email threads no one can find six months later. And compliance gaps surface in production — not during design.
-
-ArchLucid solves this with evidence-linked architecture risk reviews.
-
-You upload your architecture materials. ArchLucid runs a multi-agent analysis — topology, cost, compliance, design quality — and surfaces a prioritized findings board: each risk ranked by severity, confidence-rated, evidence-cited, and accompanied by a concrete recommended action.
-
-The result: your architects get a defensible review package. Your CTO gets a clear executive summary. Your audit trail is complete. Reviews that took two weeks now take two hours."
-
-### 2-minute pitch
-
-"Let me describe a problem I see in every enterprise.
-
-Architecture review is a bottleneck. A small group of senior architects reviews every major design. Reviews take weeks. Different architects apply different standards. Decisions are captured in email threads and slide decks that no one can find six months later. Compliance gaps surface during audits — or worse, in production incidents.
-
-ArchLucid fixes this. Here is what it does.
-
-You upload architecture evidence — diagrams, requirements, infrastructure notes, design documents. ArchLucid runs a structured multi-agent analysis: four specialized agents covering topology, cost, compliance, and design critique. The analysis runs in minutes and surfaces a prioritized findings board.
-
-Each finding tells you: what the risk is, how severe it is, how confident the system is, what evidence it is based on, and what you should do about it. Not AI prose — a structured, evidence-linked, actionable finding.
-
-This is the key question any buyer asks: can I trust this? ArchLucid is built for that. Every finding cites the evidence it used. Every recommendation traces back to a rule. The full decision chain is persisted in an append-only audit store. When your auditor asks 'who reviewed this, what did they find, and who approved it?' — ArchLucid has the answer.
-
-For the executive, ArchLucid exports an executive summary: top risks, severity, business impact, recommended actions, readiness status. For the architect, it exports a full architecture review package — findings, evidence, rationale, decision trail.
-
-Architecture review. Evidence-linked findings. An executive summary your CTO can act on.
-
-That is ArchLucid. I would love to show you a 10-minute demo."
+*The elevator pitches have been consolidated into the [Executive Sponsor Brief](../EXECUTIVE_SPONSOR_BRIEF.md#4-elevator-pitches). Use the brief as the single source of truth for narrative.*
 
 ---
 
