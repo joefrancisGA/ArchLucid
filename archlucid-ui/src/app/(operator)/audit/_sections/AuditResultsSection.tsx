@@ -121,7 +121,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
               <div className="space-y-8">
                 {displayEventGroups.map((group) => (
                   <div key={group.stage} className="space-y-3">
-                    <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                    <h3 className="m-0 border-l-[3px] border-teal-600/70 pl-2.5 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:border-teal-500/80 dark:text-neutral-400">
                       {group.stage}
                     </h3>
                     <div className="grid gap-3">
