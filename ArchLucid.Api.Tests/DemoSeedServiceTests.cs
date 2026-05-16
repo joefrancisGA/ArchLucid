@@ -11,7 +11,7 @@ using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ArchLucid.Api.Tests;
+using Xunit;
 
 /// <summary>Validates trusted-baseline Contoso demo seed against the integration test SQL Server database.</summary>
 [Trait("Category", "Integration")]
@@ -168,33 +168,39 @@ public sealed class DemoSeedServiceTests
         using IServiceScope scope = factory.Services.CreateScope();
         IScopeContextProvider scopeProvider = scope.ServiceProvider.GetRequiredService<IScopeContextProvider>();
         Guid tenantId = scopeProvider.GetCurrentScope().TenantId;
+
+        Skip.If(tenantId != ScopeIds.DefaultTenant,
+            "Workspace A synthetic tour seed is keyed to ScopeIds.DefaultTenant to avoid cloning demo fixtures onto trial catalogs.");
+
         Guid tourWorkspaceId = DemoTourWorkspaceIds.WorkspaceRowId(tenantId);
         Guid tourProjectId = DemoTourWorkspaceIds.ProjectScopeRowId(tenantId);
         Guid tourRunId = DemoTourWorkspaceIds.AuthorityRunId(tenantId);
 
         await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
 
-        ScopeContext tourScope = new() { TenantId = tenantId, WorkspaceId = tourWorkspaceId, ProjectId = tourProjectId };
-
-        using (AmbientScopeContext.Push(tourScope))
-
+        ScopeContext tourScope = new()
         {
+            TenantId = tenantId,
+            WorkspaceId = tourWorkspaceId,
+            ProjectId = tourProjectId,
+        };
 
-            IAuthorityQueryService authority = scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
+        using IDisposable _ = AmbientScopeContext.Push(tourScope);
+        IAuthorityQueryService authority = scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
 
-            IReadOnlyList<RunSummaryDto> rows =
-                await authority.ListRunsByProjectAsync(tourScope, "Contoso Cloud Platform", 50, CancellationToken.None);
+        IReadOnlyList<RunSummaryDto> rows =
+            await authority.ListRunsByProjectAsync(tourScope, "Contoso Cloud Platform", 50, CancellationToken.None);
 
-            rows.Should().Contain(r => r.RunId == tourRunId);
+        rows.Should().Contain(r => r.RunId == tourRunId);
 
-            IRunDetailQueryService detail = scope.ServiceProvider.GetRequiredService<IRunDetailQueryService>();
-            ArchitectureRunDetail? tour = await detail.GetRunDetailAsync(tourRunId.ToString("N"));
-            tour.Should().NotBeNull();
-            tour!.Manifest.Should().NotBeNull();
-            tour.Manifest!.SystemName.Should().Be("Contoso Cloud Platform");
-            tour.Run.CurrentManifestVersion.Should().Be(ProductTourWorkspaceSeed.ManifestVersionLiteral);
-            AssertCommittedDemoManifestSnapshotChain(tour, tourRunId);
-        }
+        IRunDetailQueryService detail = scope.ServiceProvider.GetRequiredService<IRunDetailQueryService>();
+        ArchitectureRunDetail? tour = await detail.GetRunDetailAsync(tourRunId.ToString("N"));
+        tour.Should().NotBeNull();
+        tour!.Manifest.Should().NotBeNull();
+        tour.Manifest!.SystemName.Should().Be("Contoso Cloud Platform");
+        tour.Run.CurrentManifestVersion.Should().Be("northwind-product-tour-v1-manifest");
+
+        AssertCommittedDemoManifestSnapshotChain(tour, tourRunId);
     }
 
     /// <summary>
