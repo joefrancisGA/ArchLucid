@@ -65,6 +65,17 @@ describe("HeroEarlyAccessCta", () => {
     expect(screen.getByTestId("welcome-early-access-thanks")).toHaveTextContent(/follow up within 2 business days/i);
   });
 
+  it("does not emit cta_early_access_submit when opening the form (only after successful submit)", () => {
+    render(<HeroEarlyAccessCta />);
+
+    fireEvent.click(screen.getByRole("button", { name: /join early access/i }));
+
+    expect(screen.getByRole("textbox", { name: /work email/i })).toBeInTheDocument();
+
+    const clarityApi = (window as Window & { clarity: ReturnType<typeof vi.fn> }).clarity;
+    expect(clarityApi.mock.calls.some((c) => c[0] === "event" && c[1] === "cta_early_access_submit")).toBe(false);
+  });
+
   it("does not emit Clarity when POST fails", async () => {
     const fetchMock = vi.mocked(globalThis.fetch);
     fetchMock.mockResolvedValueOnce(new Response("bad", { status: 400 }));
