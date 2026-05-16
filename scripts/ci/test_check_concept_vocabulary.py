@@ -71,11 +71,13 @@ class FindViolationsTests(unittest.TestCase):
 
             self.assertEqual([], result)
 
-    def test_skips_concepts_md_self(self) -> None:
+    def test_skips_vocabulary_doc_self(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = pathlib.Path(tmp)
             docs = _make_repo_with_docs(root)
-            (docs / "CONCEPTS.md").write_text(
+            vocab = docs / "library"
+            vocab.mkdir()
+            (vocab / "CONCEPT_VOCABULARY.md").write_text(
                 "Don't write Azure AD or Azure Active Directory; use Microsoft Entra ID.\n",
                 encoding="utf-8",
             )

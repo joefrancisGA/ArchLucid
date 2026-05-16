@@ -129,8 +129,8 @@
 
 - **Glossary** – 20 domain terms (authority run, golden manifest, finding engine, policy pack …)  
   - `docs/GLOSSARY.md`
-- **Concepts (canonical vocabulary)** – adjudicates between competing terms (e.g. Microsoft Entra ID over its legacy name); enforced by `scripts/ci/check_concept_vocabulary.py` against `docs/` (excluding `docs/archive/`)  
-  - `docs/CONCEPTS.md`
+- **Concept vocabulary (canonical forms in prose)** – Microsoft Entra ID vs legacy directory product names; enforced by `scripts/ci/check_concept_vocabulary.py` against `docs/` (excluding `docs/archive/` and this rules file)  
+  - `docs/library/CONCEPT_VOCABULARY.md`
 - **Changelog** – per-release summaries (55R → latest); archived design-session logs in `docs/archive/`  
   - `docs/CHANGELOG.md`
 - **ADRs** – numbered decisions (`docs/adr/README.md` index); no shared prefix IDs  

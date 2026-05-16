@@ -1,14 +1,14 @@
-"""CI guard: enforce ArchLucid concept vocabulary rules from ``docs/CONCEPTS.md``.
+"""CI guard: enforce ArchLucid concept vocabulary rules from ``docs/library/CONCEPT_VOCABULARY.md``.
 
 The guard is intentionally **conservative**: only rules in the ``RULES`` list
-below are enforced. Each rule cites the ``docs/CONCEPTS.md`` row that
+below are enforced. Each rule cites the ``docs/library/CONCEPT_VOCABULARY.md`` row that
 authorizes it. The guard scans every Markdown file under ``docs/`` *except*
 ``docs/archive/`` (historical receipts; never retroactively rewritten) and
-``docs/CONCEPTS.md`` itself (which legitimately quotes the rejected forms
+``docs/library/CONCEPT_VOCABULARY.md`` itself (which legitimately quotes the rejected forms
 inside its rationale text).
 
 A new rule must:
-  1. land as a row in ``docs/CONCEPTS.md`` § 1 first;
+  1. land as a row in ``docs/library/CONCEPT_VOCABULARY.md`` § 1 first;
   2. survive one full release cycle as reviewer-enforced (§ 1.2);
   3. only then be promoted into the ``RULES`` list here, with every existing
      occurrence in ``docs/`` already fixed in the same PR.
@@ -38,13 +38,13 @@ DOCS_DIR_NAME: str = "docs"
 # the rejected forms inside its rationale.
 EXCLUDED_RELATIVE_PATHS: frozenset[str] = frozenset({
     "archive",
-    "CONCEPTS.md",
+    "library/CONCEPT_VOCABULARY.md",
 })
 
 
 @dataclasses.dataclass(frozen=True)
 class VocabularyRule:
-    """One canonical-vs-rejected vocabulary rule from ``docs/CONCEPTS.md``."""
+    """One canonical-vs-rejected vocabulary rule from ``docs/library/CONCEPT_VOCABULARY.md``."""
 
     canonical: str
     rejected_pattern: re.Pattern[str]
@@ -54,7 +54,7 @@ class VocabularyRule:
 
 
 # Initial enforced rule set. New rules must follow the promotion gate in
-# ``docs/CONCEPTS.md`` § 3.
+# ``docs/library/CONCEPT_VOCABULARY.md`` § 2.
 RULES: list[VocabularyRule] = [
     VocabularyRule(
         canonical="Microsoft Entra ID",
@@ -180,9 +180,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  {relative}:{violation.line_number} - matched '{violation.matched_text}' (rule #{violation.rule.docs_concepts_row}: {violation.rule.fix_hint})")
 
     print(
-        "\nRemediation: see docs/CONCEPTS.md § 1 for the canonical form and "
+        "\nRemediation: see docs/library/CONCEPT_VOCABULARY.md § 1 for the canonical form and "
         "rationale for each rule. Historical archive content under docs/archive/ "
-        "is exempt; CONCEPTS.md itself is also exempt because it legitimately "
+        "is exempt; CONCEPT_VOCABULARY.md itself is also exempt because it legitimately "
         "quotes the rejected forms in its own rationale.",
         file=sys.stderr,
     )

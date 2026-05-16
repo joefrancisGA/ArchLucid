@@ -65,6 +65,7 @@ flowchart LR
 
 | Need | Doc |
 |------|-----|
+| Writer/editor — Microsoft Entra ID naming rules | **[CONCEPT_VOCABULARY.md](CONCEPT_VOCABULARY.md)** |
 | First pilot checklist | **[CORE_PILOT.md](../CORE_PILOT.md)** |
 | V1 in/out scope | **[V1_SCOPE.md](V1_SCOPE.md)** |
 | Containers + pipelines | **[ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md)** |

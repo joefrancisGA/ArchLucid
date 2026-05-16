@@ -51,7 +51,7 @@ Concrete details to include:
 
 - Which **layer** they started on (Core Pilot in V1; expanding into Advanced/Enterprise should be called out as a *follow-on* phase, not Day-1).
 - Which **finding engines** ran on their first three commits (use the names from `docs/PRODUCT_PACKAGING.md`).
-- Which **integrations** they wired up (Microsoft Entra ID SSO, Azure DevOps PR gate, etc.). Use canonical product names — see [`docs/CONCEPTS.md`](../../CONCEPTS.md) § 1.
+- Which **integrations** they wired up (Microsoft Entra ID SSO, Azure DevOps PR gate, etc.). Use canonical product names — see [`docs/library/CONCEPT_VOCABULARY.md`](../library/CONCEPT_VOCABULARY.md) § 1.
 - How **governance approvals** changed (if Operate (governance and trust) were used). Skip if not applicable.
 
 ---
