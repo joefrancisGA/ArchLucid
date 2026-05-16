@@ -1,8 +1,7 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Security.Cryptography;
+
+using ArchLucid.Api.Tests;
 
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -72,15 +71,12 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
     [SkippableFact]
     public async Task Post_generate_returns_docx_when_operator_jwt_and_standard_tier()
     {
-        string token = MintJwt(
+        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
             _baseFactory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
             "OperatorUser",
-            [ArchLucidRoles.Operator],
-            ScopeIds.DefaultTenant,
-            ScopeIds.DefaultWorkspace,
-            ScopeIds.DefaultProject);
+            [ArchLucidRoles.Operator]);
 
         HttpClient client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -96,45 +92,6 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
             .Be("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
         byte[] body = await res.Content.ReadAsByteArrayAsync();
         body.Should().NotBeEmpty();
-    }
-
-    private static string MintJwt(
-        string privatePkcs8Pem,
-        string issuer,
-        string audience,
-        string name,
-        IReadOnlyList<string> roles,
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId)
-    {
-        using RSA rsa = RSA.Create();
-        rsa.ImportFromPem(privatePkcs8Pem);
-        RSAParameters keyMaterial = rsa.ExportParameters(true);
-        RsaSecurityKey signingKey = new(keyMaterial);
-        SigningCredentials creds = new(signingKey, SecurityAlgorithms.RsaSha256);
-
-        List<Claim> claims =
-        [
-            new(JwtRegisteredClaimNames.Sub, "test-sub"),
-            new("name", name),
-            new("tenant_id", tenantId.ToString("D")),
-            new("workspace_id", workspaceId.ToString("D")),
-            new("project_id", projectId.ToString("D"))
-        ];
-
-        claims.AddRange(roles.Select(r => new Claim("roles", r)));
-
-        JwtSecurityTokenHandler handler = new();
-        JwtSecurityToken token = new(
-            issuer,
-            audience,
-            claims,
-            TimeProvider.System.UtcNowDateTime().AddMinutes(-1),
-            TimeProvider.System.UtcNowDateTime().AddHours(1),
-            creds);
-
-        return handler.WriteToken(token);
     }
 
     private sealed class StubValueReportMetricsReader : IValueReportMetricsReader

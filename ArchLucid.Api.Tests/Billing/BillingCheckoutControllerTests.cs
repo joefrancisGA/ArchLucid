@@ -1,17 +1,12 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text.Json;
 
 using ArchLucid.Api.Models.Billing;
 using ArchLucid.Core.Authorization;
 
 using FluentAssertions;
-
-using Microsoft.IdentityModel.Tokens;
 
 namespace ArchLucid.Api.Tests.Billing;
 
@@ -41,7 +36,7 @@ public sealed class BillingCheckoutControllerTests(JwtLocalSigningWebAppFactory 
     [SkippableFact]
     public async Task Checkout_with_reader_jwt_returns_403()
     {
-        string token = MintJwt(
+        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
             factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
@@ -68,7 +63,7 @@ public sealed class BillingCheckoutControllerTests(JwtLocalSigningWebAppFactory 
     [SkippableFact]
     public async Task Checkout_with_admin_jwt_returns_200()
     {
-        string token = MintJwt(
+        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
             factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
@@ -99,34 +94,5 @@ public sealed class BillingCheckoutControllerTests(JwtLocalSigningWebAppFactory 
         dto.Should().NotBeNull();
         dto.CheckoutUrl.Should().NotBeNullOrWhiteSpace();
         dto.ProviderSessionId.Should().NotBeNullOrWhiteSpace();
-    }
-
-    private static string MintJwt(
-        string privatePkcs8Pem,
-        string issuer,
-        string audience,
-        string name,
-        IReadOnlyList<string> roles)
-    {
-        using RSA rsa = RSA.Create();
-
-        rsa.ImportFromPem(privatePkcs8Pem);
-        RSAParameters keyMaterial = rsa.ExportParameters(true);
-        RsaSecurityKey signingKey = new(keyMaterial);
-        SigningCredentials creds = new(signingKey, SecurityAlgorithms.RsaSha256);
-
-        List<Claim> claims = [new(JwtRegisteredClaimNames.Sub, "test-sub"), new("name", name)];
-        claims.AddRange(roles.Select(r => new Claim("roles", r)));
-
-        JwtSecurityTokenHandler handler = new();
-        JwtSecurityToken token = new(
-            issuer,
-            audience,
-            claims,
-            TimeProvider.System.UtcNowDateTime().AddMinutes(-1),
-            TimeProvider.System.UtcNowDateTime().AddHours(1),
-            creds);
-
-        return handler.WriteToken(token);
     }
 }

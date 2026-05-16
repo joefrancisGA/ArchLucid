@@ -1211,7 +1211,7 @@ jobs:
           --filter "Category!=Slow&Category=Integration"
           --collect:"XPlat Code Coverage"
           --results-directory "${{ runner.temp }}/coverage-full-core-api-integration"
-          --logger "console;verbosity=normal"
+          --logger "console;verbosity=minimal"
           --logger "trx;LogFilePrefix=full-core-api-integration-"
 
       - uses: actions/upload-artifact@v6

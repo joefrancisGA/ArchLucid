@@ -1,9 +1,6 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text.Json;
 
 using ArchLucid.Api.Routing;
@@ -11,8 +8,6 @@ using ArchLucid.Contracts.Integrations;
 using ArchLucid.Core.Authorization;
 
 using FluentAssertions;
-
-using Microsoft.IdentityModel.Tokens;
 
 namespace ArchLucid.Api.Tests;
 
@@ -27,7 +22,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSign
     [SkippableFact]
     public async Task Post_connections_with_reader_jwt_returns_forbidden()
     {
-        string token = MintJwt(
+        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
             factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
@@ -52,7 +47,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSign
     [SkippableFact]
     public async Task Post_connections_with_https_body_returns_bad_request()
     {
-        string token = MintJwt(
+        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
             factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
@@ -77,7 +72,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSign
     [SkippableFact]
     public async Task Get_post_delete_round_trip_with_operator_jwt()
     {
-        string token = MintJwt(
+        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
             factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
@@ -134,7 +129,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSign
     [SkippableFact]
     public async Task Post_connections_with_unknown_trigger_returns_bad_request()
     {
-        string token = MintJwt(
+        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
             factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
@@ -162,7 +157,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSign
     [SkippableFact]
     public async Task Get_triggers_catalog_returns_v1_default_set()
     {
-        string token = MintJwt(
+        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
             factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
@@ -181,33 +176,5 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSign
         triggers.Should().Contain("com.archlucid.compliance.drift.escalated");
         triggers.Should().Contain("com.archlucid.advisory.scan.completed");
         triggers.Should().Contain("com.archlucid.seat.reservation.released");
-    }
-
-    private static string MintJwt(
-        string privatePkcs8Pem,
-        string issuer,
-        string audience,
-        string name,
-        IReadOnlyList<string> roles)
-    {
-        using RSA rsa = RSA.Create();
-        rsa.ImportFromPem(privatePkcs8Pem);
-        RSAParameters keyMaterial = rsa.ExportParameters(true);
-        RsaSecurityKey signingKey = new(keyMaterial);
-        SigningCredentials creds = new(signingKey, SecurityAlgorithms.RsaSha256);
-
-        List<Claim> claims = [new(JwtRegisteredClaimNames.Sub, "test-sub"), new("name", name)];
-        claims.AddRange(roles.Select(r => new Claim("roles", r)));
-
-        JwtSecurityTokenHandler handler = new();
-        JwtSecurityToken token = new(
-            issuer,
-            audience,
-            claims,
-            TimeProvider.System.UtcNowDateTime().AddMinutes(-1),
-            TimeProvider.System.UtcNowDateTime().AddHours(1),
-            creds);
-
-        return handler.WriteToken(token);
     }
 }

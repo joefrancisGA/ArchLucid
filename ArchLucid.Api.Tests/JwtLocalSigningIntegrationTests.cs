@@ -1,15 +1,9 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Security.Cryptography;
 
-using ArchLucid.Api.Auth.Models;
 using ArchLucid.Core.Authorization;
 
 using FluentAssertions;
-
-using Microsoft.IdentityModel.Tokens;
 
 namespace ArchLucid.Api.Tests;
 
@@ -20,7 +14,7 @@ public sealed class JwtLocalSigningIntegrationTests(JwtLocalSigningWebAppFactory
     [SkippableFact]
     public async Task Get_architecture_runs_with_valid_local_jwt_returns_OK()
     {
-        string token = MintJwt(
+        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
             factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
@@ -44,34 +38,5 @@ public sealed class JwtLocalSigningIntegrationTests(JwtLocalSigningWebAppFactory
         HttpResponseMessage res = await client.GetAsync(new Uri("/v1/architecture/runs", UriKind.Relative));
 
         res.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-    }
-
-    private static string MintJwt(
-        string privatePkcs8Pem,
-        string issuer,
-        string audience,
-        string name,
-        IReadOnlyList<string> roles)
-    {
-        using RSA rsa = RSA.Create();
-
-        rsa.ImportFromPem(privatePkcs8Pem);
-        RSAParameters keyMaterial = rsa.ExportParameters(true);
-        RsaSecurityKey signingKey = new(keyMaterial);
-        SigningCredentials creds = new(signingKey, SecurityAlgorithms.RsaSha256);
-
-        List<Claim> claims = [new(JwtRegisteredClaimNames.Sub, "test-sub"), new("name", name)];
-        claims.AddRange(roles.Select(r => new Claim("roles", r)));
-
-        JwtSecurityTokenHandler handler = new();
-        JwtSecurityToken token = new(
-            issuer,
-            audience,
-            claims,
-            TimeProvider.System.UtcNowDateTime().AddMinutes(-1),
-            TimeProvider.System.UtcNowDateTime().AddHours(1),
-            creds);
-
-        return handler.WriteToken(token);
     }
 }
