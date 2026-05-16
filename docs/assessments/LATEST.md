@@ -163,7 +163,7 @@
 
 ---
 
-## Top 6 Most Important Weaknesses
+## Top 10 Most Important Weaknesses
 
 1. Absence of cross-tenant analytics, limiting Proof-of-ROI for enterprise buyers.
 2. Playwright E2E still relies heavily on mocked **`/api/proxy`** paths — **live** **`ui-e2e-live`** negative API checks (**improvement #8**, **`live-api-negative-paths.spec.ts`**) shrink blind spots but do **not** replace broad golden-path coverage.
@@ -171,21 +171,32 @@
 4. Manual nature of some cost estimations in the Azure extractor.
 5. Until improvement **#27** ships, operator shell copy may still read engineering-first vs landing-page workflow vocabulary (**Capture / Evidence / …**) on residual surfaces.
 6. **Demo workspace fixture drift:** With **two GA-gated workspaces** (**Marketing alignment Q6** / **#31**), UX, export, policy-pack, or graph changes can silently break evaluator smoke — CI/release discipline must pin fixtures or owners risk shipping broken demos.
+7. **Agent orchestration concurrency limits:** The `AuthorityRunOrchestrator` lacks rate limiting and concurrency controls, posing a reliability risk where a single tenant could exhaust worker pool resources during bursty workloads.
+8. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
+9. **Durable Task Framework (DTF) parity gaps:** While SQL production DI is wired to DTF, full multiset parity and release-smoke validation remain engineering obligations before the legacy orchestrator can be safely removed.
+10. **Auth mismatches in operational scripts:** Potential authentication mismatches exist in operational scripts (like `v1-rc-drill.ps1`) that assume `DevelopmentBypass`, reducing testing realism against environments secured with JWT or API keys.
 
 ---
 
-## Top 2 Monetization Blockers
+## Top 6 Monetization Blockers
 
 1. Lack of cross-tenant analytics to prove ROI to executive buyers.
 2. **GA-gated demo workspaces (#31)** — if automated smoke regresses, sales-led pilots lose a credible first-session story even when core product paths stay healthy.
+3. **Incomplete Buyer-grade Architecture Review Report export:** Until the DOCX/PDF export with consultant whitelabel ships, boutique consultants cannot easily monetize their own deliverables.
+4. **Manual Azure cost estimations:** The Azure extractor's manual cost estimation limits the platform's ability to automatically prove hard infrastructure savings to buyers.
+5. **Coarse `ComparisonReplayCostEstimator` heuristics:** Lack of granular heuristics makes Proof-of-ROI less accurate for complex agent tasks, weakening the commercial business case.
+6. **Operator shell vocabulary mismatch:** Engineering-first terminology in the UI creates friction during sales-led demos, weakening the marketing governance positioning.
 
 ---
 
-## Top 3 Enterprise Adoption Blockers
+## Top 6 Enterprise Adoption Blockers
 
 1. **Immutable SQL / identity lineage strings** (historic migration bodies, session-context keys, allowlisted CI/doc carve-outs) plus honest disclosure obligations for procurement — **Terraform Phase 7.5 / improvement #1** complete for committed **`infra/**/*.tf`** **2026-05-15**; **Phase 7.6–7.7 / improvement #2** closed **2026-04-19** (**`docs/ARCHLUCID_RENAME_CHECKLIST.md`**); **`terraform state mv`** only when remote state lists **`archiforge`** (**`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**).
 2. **Native SAML 2.0 SP** — **V1 GA engineering gate** (**`V1_SCOPE.md` §2.12**, **P6** owner **2026-05-15**, improvement **#13**); **until shipped**, SAML-mandatory enterprises cannot rely on **direct SP** posture — interim OIDC federation / brokers remain valid.
 3. Absence of multi-region active/active guarantees out of the box.
+4. **Lack of automated tenant data deletion:** Absence of a verifiable GDPR/CCPA "right to be forgotten" mechanism causes friction in enterprise procurement and legal reviews.
+5. **Noisy neighbor risks in orchestration:** The lack of rate limiting and concurrency controls for the `AuthorityRunOrchestrator` raises reliability concerns for enterprise buyers evaluating multi-tenant SaaS.
+6. **IdP configuration documentation gaps:** Missing explicit documentation for `ArchLucidAuth:Authority` configuration causes friction during enterprise SSO onboarding and security reviews.
 
 ---
 
