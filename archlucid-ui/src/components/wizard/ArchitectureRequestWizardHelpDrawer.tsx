@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 const WIZARD_DOC_LINKS: { title: string; docPath: string; blurb: string }[] = [
   {
     title: "First run wizard",
-    docPath: "docs/FIRST_RUN_WIZARD.md",
+    docPath: "docs/library/FIRST_RUN_WIZARD.md",
     blurb: "End-to-end walkthrough from request through manifest, artifacts, and operator flows.",
   },
   {
@@ -29,7 +29,7 @@ const WIZARD_DOC_LINKS: { title: string; docPath: string; blurb: string }[] = [
   },
   {
     title: "Second run import and export",
-    docPath: "docs/SECOND_RUN.md",
+    docPath: "docs/library/SECOND_RUN.md",
     blurb: "Schema and workflow for reusing a prepared request in the wizard or automation.",
   },
   {

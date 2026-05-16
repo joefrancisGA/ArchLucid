@@ -11,8 +11,8 @@ describe("getDocHref", () => {
   it("returns a full URL when NEXT_PUBLIC_DOCS_BASE_URL is set", () => {
     vi.stubEnv("NEXT_PUBLIC_DOCS_BASE_URL", "https://docs.example.com/archlucid");
 
-    expect(getDocHref("docs/FIRST_RUN_WIZARD.md")).toBe(
-      "https://docs.example.com/archlucid/docs/FIRST_RUN_WIZARD.md",
+    expect(getDocHref("docs/library/FIRST_RUN_WIZARD.md")).toBe(
+      "https://docs.example.com/archlucid/docs/library/FIRST_RUN_WIZARD.md",
     );
   });
 

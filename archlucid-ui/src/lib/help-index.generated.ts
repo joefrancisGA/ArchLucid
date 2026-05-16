@@ -80,7 +80,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Troubleshooting for pilots and operators (56R)",
     "sectionSlug": "first-line-steps-try-in-order",
     "sectionHeading": "First-line steps (try in order)",
-    "excerpt": "1. See [Common operator errors (top 10)](runbooks/COMMON_ERRORS.md) for step-by-step fixes to startup, auth, migrations, OpenAI, rate limits, concurrency, and readiness checks. 2. `GET /health/live` — process up? Then `GET /health/ready` — read JSON `entries[]` for the first `Unhealthy` / `Degraded` check. 2. `GET /…"
+    "excerpt": "1. See [Common operator errors (top 10)](COMMON_ERRORS.md) for step-by-step fixes to startup, auth, migrations, OpenAI, rate limits, concurrency, and readiness checks. 2. `GET /health/live` — process up? Then `GET /health/ready` — read JSON `entries[]` for the first `Unhealthy` / `Degraded` check. 2. `GET /version` …"
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",

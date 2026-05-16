@@ -11,7 +11,7 @@ using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
 
-using Xunit;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>Validates trusted-baseline Contoso demo seed against the integration test SQL Server database.</summary>
 [Trait("Category", "Integration")]

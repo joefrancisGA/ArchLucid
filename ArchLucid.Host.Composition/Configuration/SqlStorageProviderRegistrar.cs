@@ -269,6 +269,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IPilotBaselineRepository, DapperPilotBaselineRepository>();
         services.AddScoped<IPilotCloseoutRepository, DapperPilotCloseoutRepository>();
         services.AddScoped<IMarketingPricingQuoteRequestRepository, SqlMarketingPricingQuoteRequestRepository>();
+        services.AddScoped<IMarketingEarlyAccessRequestRepository, SqlMarketingEarlyAccessRequestRepository>();
         services.AddScoped<IFirstTenantFunnelEventStore, SqlFirstTenantFunnelEventStore>();
         services.AddScoped<IFirstTenantFunnelArchivalBatchStore, SqlFirstTenantFunnelArchivalBatchStore>();
         services.AddScoped<IItsmFindingCorrelationRepository, SqlItsmFindingCorrelationRepository>();

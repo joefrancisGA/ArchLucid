@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "./ui/button"; // Assuming standard shadcn-like buttons
 import { Progress } from "./ui/progress"; // Assuming progress component
 import { X, UploadCloud, AlertCircle } from "lucide-react";
@@ -87,7 +87,7 @@ export function BulkEvidenceUpload({ runId }: BulkEvidenceUploadProps) {
         setSuccess(true);
         setFiles([]);
       }
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred during upload.");
     } finally {
       setUploading(false);

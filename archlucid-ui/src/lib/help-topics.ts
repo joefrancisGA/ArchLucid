@@ -43,7 +43,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["wizard", "create", "pipeline", "run", "request"],
     summary:
       "Create a request, track progress, finalize the reviewed manifest, and review artifacts, findings, and the review trail.",
-    docPath: "docs/FIRST_RUN_WIZARD.md",
+    docPath: "docs/library/FIRST_RUN_WIZARD.md",
     routes: ["/reviews/new", "/", "/onboarding"],
   },
   {

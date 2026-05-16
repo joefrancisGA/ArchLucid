@@ -1,5 +1,6 @@
 import { ReadonlyURLSearchParams } from "next/navigation";
 import { MARKETING_ATTRIBUTION_QUERY_KEYS } from "@/lib/marketing/attribution-query-keys";
+import type { ReadonlyURLSearchParams } from "next/navigation";
 
 /**
  * Merges current page attribution params into the target URL (overwrites same keys on the base URL).

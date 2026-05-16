@@ -107,6 +107,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
         services.TryAddScoped<ITrialLifecycleEmailDispatcher, TrialLifecycleEmailDispatcher>();
         services.TryAddScoped<ICommitSponsorEmailNotifier, CommitSponsorEmailNotifier>();
         services.TryAddScoped<IMarketingPricingQuoteSalesNotifier, MarketingPricingQuoteSalesNotifier>();
+        services.TryAddScoped<IMarketingEarlyAccessSalesNotifier, MarketingEarlyAccessSalesNotifier>();
         services.TryAddScoped<TrialScheduledLifecycleEmailScanner>();
         services.TryAddSingleton<IAzureCommunicationEmailApi, AzureCommunicationEmailApi>();
 
