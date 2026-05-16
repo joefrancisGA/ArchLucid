@@ -12,7 +12,6 @@ import {
   OperatorEmptyState,
   OperatorMalformedCallout,
 } from "@/components/OperatorShellMessage";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
@@ -185,10 +184,13 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
             </p>
             {buyerPolishedLayout && primaryFindingHref ? (
               <div className="mt-3 space-y-3 rounded-lg border border-amber-200/90 bg-amber-50/80 p-3 dark:border-amber-900/60 dark:bg-amber-950/25">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge className="bg-amber-700 text-white hover:bg-amber-700">High severity</Badge>
-                </div>
                 <dl className="m-0 grid gap-2 text-sm text-neutral-800 dark:text-neutral-200 sm:grid-cols-2">
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                      Severity
+                    </dt>
+                    <dd className="m-0 mt-0.5">High</dd>
+                  </div>
                   <div>
                     <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                       Risk area
