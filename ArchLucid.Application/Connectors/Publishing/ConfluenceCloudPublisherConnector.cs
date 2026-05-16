@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Connectors.Publishing;
+using ArchLucid.Core.Diagnostics;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -81,7 +82,7 @@ public sealed class ConfluenceCloudPublisherConnector : IPublisherConnector
         string detail = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
         if (_logger.IsEnabled(LogLevel.Warning))
-            _logger.LogWarning("Confluence publish failed: {Status} {Body}", response.StatusCode, detail);
+            _logger.LogWarning("Confluence publish failed: {Status} {Body}", response.StatusCode, LogSanitizer.Sanitize(detail));
 
         return new PublishOutcome(false, null, reason, Truncate(detail, 2048));
     }

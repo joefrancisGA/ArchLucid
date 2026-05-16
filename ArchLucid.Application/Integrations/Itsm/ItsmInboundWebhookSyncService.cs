@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Integrations;
 
 using Microsoft.Extensions.Logging;
@@ -90,7 +91,7 @@ public sealed class ItsmInboundWebhookSyncService(
 
         if (!mapped)
         {
-            _logger.LogWarning(
+            _logger.LogWarningWithTwoSanitizedUserStrings(
                 "ITSM Jira webhook: status {StatusName} for issue {IssueKey} is not mapped to a HumanReviewStatus — ignoring state change.",
                 statusName,
                 issueKey);
@@ -120,7 +121,7 @@ public sealed class ItsmInboundWebhookSyncService(
 
         if (row is null)
         {
-            _logger.LogWarning("ITSM Jira webhook: no correlation for issue {IssueKey}.", issueKey);
+            _logger.LogWarning("ITSM Jira webhook: no correlation for issue {IssueKey}.", LogSanitizer.Sanitize(issueKey));
 
             return new ItsmInboundWebhookProcessResult(true, null);
         }
@@ -161,7 +162,7 @@ public sealed class ItsmInboundWebhookSyncService(
             _logger.LogWarning(
                 "ITSM Jira webhook: correlation exists but no FindingRecords updated for tenant {TenantId} finding {FindingId}.",
                 row.TenantId,
-                row.FindingId);
+                LogSanitizer.Sanitize(row.FindingId)); // codeql[cs/log-forging]: FindingId persisted NVARCHAR operational id; TenantId is Guid.
 
         AuditEvent auditEvent = new()
         {
@@ -222,7 +223,7 @@ public sealed class ItsmInboundWebhookSyncService(
 
         if (!mapped)
         {
-            _logger.LogWarning(
+            _logger.LogWarningWithTwoSanitizedUserStrings(
                 "ITSM ServiceNow webhook: state {State} for incident {ExternalKey} is not mapped to a HumanReviewStatus — ignoring state change.",
                 stateNormalized,
                 externalKey);
@@ -252,7 +253,7 @@ public sealed class ItsmInboundWebhookSyncService(
 
         if (row is null)
         {
-            _logger.LogWarning("ITSM ServiceNow webhook: no correlation for key {Key}.", externalKey);
+            _logger.LogWarning("ITSM ServiceNow webhook: no correlation for key {Key}.", LogSanitizer.Sanitize(externalKey));
 
             return new ItsmInboundWebhookProcessResult(true, null);
         }
@@ -293,7 +294,7 @@ public sealed class ItsmInboundWebhookSyncService(
             _logger.LogWarning(
                 "ITSM ServiceNow webhook: correlation exists but no FindingRecords updated for tenant {TenantId} finding {FindingId}.",
                 row.TenantId,
-                row.FindingId);
+                LogSanitizer.Sanitize(row.FindingId)); // codeql[cs/log-forging]: FindingId persisted NVARCHAR operational id; TenantId is Guid.
 
         AuditEvent auditEvent = new()
         {

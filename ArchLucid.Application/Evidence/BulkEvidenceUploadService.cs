@@ -1,9 +1,9 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Host.Core.ProblemDetails;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -23,6 +23,11 @@ public sealed class BulkEvidenceUploadService(
     IOptions<EvidenceBulkUploadOptions> options,
     ILogger<BulkEvidenceUploadService> logger) : IBulkEvidenceUploadService
 {
+    // Mirrors ArchLucid.Host.Core.ProblemDetails.ProblemErrorCodes (Application must not reference Host.Core).
+    private const string RunNotFoundCode = "RUN_NOT_FOUND";
+
+    private const string InternalErrorCode = "INTERNAL_ERROR";
+
     private readonly BulkEvidenceUploadValidator _validator = new();
 
     public async Task<BulkEvidenceUploadResult> UploadBulkEvidenceAsync(
@@ -55,7 +60,7 @@ public sealed class BulkEvidenceUploadService(
             return new BulkEvidenceUploadResult
             {
                 Succeeded = false,
-                ErrorCode = ProblemErrorCodes.RunNotFound,
+                ErrorCode = RunNotFoundCode,
                 FailureDetail = $"Run '{runId:N}' was not found in the current scope."
             };
         }
@@ -74,7 +79,7 @@ public sealed class BulkEvidenceUploadService(
                 // Basic per-file validation
                 if (file.Length == 0)
                 {
-                    logger.LogWarning("Skipped empty file '{FileName}' during bulk upload for run {RunId}", file.FileName, runId);
+                    logger.LogWarning("Skipped empty file '{FileName}' during bulk upload for run {RunId}", LogSanitizer.Sanitize(file.FileName), runId);
                     continue;
                 }
 
@@ -100,7 +105,7 @@ public sealed class BulkEvidenceUploadService(
             return new BulkEvidenceUploadResult
             {
                 Succeeded = false,
-                ErrorCode = ProblemErrorCodes.InternalError,
+                ErrorCode = InternalErrorCode,
                 FailureDetail = $"An error occurred during upload. {uploadedIds.Count} of {files.Count} files were uploaded. Error: {ex.Message}",
                 UploadedEvidenceItemIds = uploadedIds
             };

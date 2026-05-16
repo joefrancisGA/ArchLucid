@@ -1,3 +1,4 @@
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Resilience;
 
 using Microsoft.Extensions.Logging;
@@ -40,13 +41,14 @@ public sealed class CircuitBreakingAgentCompletionClient(
         }
         catch (CircuitBreakerOpenException ex)
         {
+            string safeGate = LogSanitizer.Sanitize(_gate.GateName);
+
             _logger.LogWarning(
                 ex,
                 "LLM circuit gate {GateName} rejected call (state {State}, retry after {RetryAfter}).",
-                _gate.GateName,
+                safeGate,
                 _gate.CurrentState,
-                ex.RetryAfterUtc);
-
+                ex.RetryAfterUtc); // codeql[cs/log-forging]: gate name sanitized; state is circuit state string; RetryAfterUtc is DateTimeOffset.
             throw;
         }
 
@@ -66,9 +68,11 @@ public sealed class CircuitBreakingAgentCompletionClient(
             if (stateBeforeOutcome.Equals("HalfOpen", StringComparison.Ordinal) &&
                 _gate.CurrentState.Equals("Closed", StringComparison.Ordinal))
             {
+                string safeGate = LogSanitizer.Sanitize(_gate.GateName);
+
                 _logger.LogInformation(
                     "LLM Circuit Breaker reset; circuit closed and completions may proceed. Gate={GateName}.",
-                    _gate.GateName);
+                    safeGate);
             }
 
             return result;
@@ -88,9 +92,11 @@ public sealed class CircuitBreakingAgentCompletionClient(
                 (stateBeforeFailure.Equals("Closed", StringComparison.Ordinal) ||
                  stateBeforeFailure.Equals("HalfOpen", StringComparison.Ordinal)))
             {
+                string safeGate = LogSanitizer.Sanitize(_gate.GateName);
+
                 _logger.LogWarning(
                     "LLM Circuit Breaker opened due to consecutive failures. Gate={GateName}.",
-                    _gate.GateName);
+                    safeGate);
             }
 
             _logger.LogWarning(ex, "LLM completion call failed after retries; circuit breaker recorded failure.");

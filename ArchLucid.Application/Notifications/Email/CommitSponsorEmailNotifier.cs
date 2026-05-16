@@ -1,6 +1,7 @@
 using System.Net;
 
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Core.Tenancy;
 
@@ -32,7 +33,7 @@ public sealed class CommitSponsorEmailNotifier(
         if (tenantId == Guid.Empty)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-                _logger.LogWarning("Commit sponsor email skipped: empty tenant id for run {RunId}.", runId);
+                _logger.LogWarning("Commit sponsor email skipped: empty tenant id for run {RunId}.", LogSanitizer.Sanitize(runId));
             return;
         }
 
@@ -48,7 +49,8 @@ public sealed class CommitSponsorEmailNotifier(
         if (string.IsNullOrWhiteSpace(to))
         {
             if (_logger.IsEnabled(LogLevel.Information))
-                _logger.LogInformation("Commit sponsor email skipped: no admin mailbox for tenant {TenantId}, run {RunId}.", tenantId, trimmedRunId);
+                _logger.LogInformation("Commit sponsor email skipped: no admin mailbox for tenant {TenantId}, run {RunId}.", tenantId,
+                    LogSanitizer.Sanitize(trimmedRunId));
             return;
         }
 
@@ -84,7 +86,8 @@ public sealed class CommitSponsorEmailNotifier(
         catch (Exception ex)when (!cancellationToken.IsCancellationRequested)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-                _logger.LogWarning(ex, "Commit sponsor email send failed for tenant {TenantId}, run {RunId}.", tenantId, trimmedRunId);
+                _logger.LogWarning(ex, "Commit sponsor email send failed for tenant {TenantId}, run {RunId}.", tenantId,
+                    LogSanitizer.Sanitize(trimmedRunId)); // codeql[cs/log-forging]: run id sanitized; TenantId is Guid.
         }
     }
 }

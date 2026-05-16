@@ -1,6 +1,7 @@
 using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Connectors.Publishing;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -70,7 +71,10 @@ public sealed class ConfluenceFirstValueReportPublisher(
             ExistingConfluencePageId: null);
         PublishOutcome outcome = await _publisherConnector.PublishDocumentAsync(request, cancellationToken).ConfigureAwait(false);
         if (outcome.Succeeded && _logger.IsEnabled(LogLevel.Information))
-            _logger.LogInformation("Published first-value report for run {RunId} to Confluence page {PageId}.", normalizedRunId, outcome.ExternalPageId);
+            _logger.LogInformation(
+                "Published first-value report for run {RunId} to Confluence page {PageId}.",
+                normalizedRunId,
+                LogSanitizer.Sanitize(outcome.ExternalPageId)); // codeql[cs/log-forging]: page id originates from upstream JSON; sanitize for plaintext sinks.
         return outcome;
     }
 

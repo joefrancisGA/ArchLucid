@@ -207,7 +207,8 @@ public sealed class ArchitectureApplicationService(
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             if (logger.IsEnabled(LogLevel.Warning))
-                logger.LogWarning(ex, "Architecture finding confidence enrichment failed after fake seed for RunId={RunId}; continuing.", runId);
+                logger.LogWarningWithSanitizedUserArg(ex, "Architecture finding confidence enrichment failed after fake seed for RunId={RunId}; continuing.",
+                    runId);
         }
 
         if (logger.IsEnabled(LogLevel.Information))

@@ -1,6 +1,7 @@
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Pilots;
+using ArchLucid.Core.Diagnostics;
 
 using Microsoft.Extensions.Logging;
 
@@ -85,7 +86,8 @@ public sealed class RecentPilotRunDeltasService(
         }
         catch (Exception ex)when (ex is not OperationCanceledException)
         {
-            _logger.LogWarning(ex, "Recent pilot run deltas: skipping run {RunId} because the per-run delta projection failed.", summary.RunId);
+            _logger.LogWarningWithSanitizedUserArg(ex,
+                "Recent pilot run deltas: skipping run {RunId} because the per-run delta projection failed.", summary.RunId);
             return null;
         }
     }

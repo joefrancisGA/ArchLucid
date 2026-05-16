@@ -73,7 +73,11 @@ public sealed class ArchitectureRunAuthorityCoordination(
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation(
                 "Coordination completed: RunId={RunId}, RequestId={RequestId}, StarterTaskCount={TaskCount}, EvidenceBundleId={EvidenceBundleId}, Deferred={Deferred}",
-                run.RunId, LogSanitizer.Sanitize(request.RequestId), tasks.Count, evidenceBundle.EvidenceBundleId, deferred);
+                LogSanitizer.Sanitize(run.RunId),
+                LogSanitizer.Sanitize(request.RequestId),
+                tasks.Count,
+                LogSanitizer.Sanitize(evidenceBundle.EvidenceBundleId),
+                deferred);
         return output;
     }
 

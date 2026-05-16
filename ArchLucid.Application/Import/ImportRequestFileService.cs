@@ -6,6 +6,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
@@ -60,7 +61,7 @@ public sealed class ImportRequestFileService(
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Failed to read import file {FileName}.", file.FileName);
+            logger.LogWarningWithSanitizedUserArg(ex, "Failed to read import file {FileName}.", file.FileName);
             return Fail("Could not read uploaded file as UTF-8 text.");
         }
 
@@ -73,7 +74,10 @@ public sealed class ImportRequestFileService(
         }
         catch (Exception ex)when (ex is JsonException or InvalidOperationException)
         {
-            logger.LogWarning(ex, "Import file {FileName} failed to deserialize as {Format}.", file.FileName, format);
+            string safeFileName = LogSanitizer.Sanitize(file.FileName);
+            string safeFormat = LogSanitizer.Sanitize(format);
+
+            logger.LogWarning(ex, "Import file {FileName} failed to deserialize as {Format}.", safeFileName, safeFormat); // codeql[cs/log-forging]: user filename + format sanitized immediately above (params boxing).
             return Fail($"File is not valid {format}: {ex.Message}");
         }
 

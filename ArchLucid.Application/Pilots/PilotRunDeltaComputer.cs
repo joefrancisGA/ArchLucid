@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
@@ -118,7 +119,8 @@ public sealed class PilotRunDeltaComputer(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogWarning(ex, "Pilot delta: execution traces unavailable for run {RunId}; LLM counts and PilotStrict gates not attested.", runId);
+            _logger.LogWarningWithSanitizedUserArg(ex,
+                "Pilot delta: execution traces unavailable for run {RunId}; LLM counts and PilotStrict gates not attested.", runId);
             return ([], 0, false);
         }
     }
@@ -173,7 +175,7 @@ public sealed class PilotRunDeltaComputer(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogWarning(ex, "Pilot delta: audit row count unavailable for run {RunId}; reporting 0.", runId);
+            _logger.LogWarningWithSanitizedUserArg(ex, "Pilot delta: audit row count unavailable for run {RunId}; reporting 0.", runId);
             return (0, false);
         }
     }
@@ -186,7 +188,11 @@ public sealed class PilotRunDeltaComputer(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogWarning(ex, "Pilot delta: evidence chain unavailable for run {RunId} finding {FindingId}; omitting chain pointers.", runId, findingId);
+            _logger.LogWarning(
+                ex,
+                "Pilot delta: evidence chain unavailable for run {RunId} finding {FindingId}; omitting chain pointers.",
+                LogSanitizer.Sanitize(runId),
+                LogSanitizer.Sanitize(findingId)); // codeql[cs/log-forging]: operational ids sanitized immediately above (params boxing).
             return null;
         }
     }

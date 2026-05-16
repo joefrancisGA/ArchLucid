@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Text;
 
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Integrations;
 
@@ -89,7 +90,7 @@ public sealed class ItsmOutboundIntegrationHealthService(
                 .ConfigureAwait(false);
 
         if (!ok && _logger.IsEnabled(LogLevel.Warning))
-            _logger.LogWarning("ITSM health probe: Jira unreachable ({Detail}).", detail);
+            _logger.LogWarning("ITSM health probe: Jira unreachable ({Detail}).", LogSanitizer.Sanitize(detail));
 
         string summary = ok ? "Jira REST reachable (GET /rest/api/3/myself)." : detail;
 
@@ -114,7 +115,7 @@ public sealed class ItsmOutboundIntegrationHealthService(
             .ConfigureAwait(false);
 
         if (!ok && _logger.IsEnabled(LogLevel.Warning))
-            _logger.LogWarning("ITSM health probe: ServiceNow unreachable ({Detail}).", detail);
+            _logger.LogWarning("ITSM health probe: ServiceNow unreachable ({Detail}).", LogSanitizer.Sanitize(detail));
 
         string summary = ok
             ? "ServiceNow Table API reachable (GET incident with sysparm_limit=1)."

@@ -4,6 +4,7 @@ using System.Text.Json;
 
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Pilots;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -95,7 +96,7 @@ public sealed class ReferenceEvidenceAdminExportService(
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 {
-                    _logger.LogWarning(ex, "Reference evidence: first-value PDF omitted for run {RunId}.", runId);
+                    _logger.LogWarningWithSanitizedUserArg(ex, "Reference evidence: first-value PDF omitted for run {RunId}.", runId);
                 }
 
                 try
@@ -110,7 +111,7 @@ public sealed class ReferenceEvidenceAdminExportService(
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 {
-                    _logger.LogWarning(ex, "Reference evidence: sponsor one-pager omitted for run {RunId}.", runId);
+                    _logger.LogWarningWithSanitizedUserArg(ex, "Reference evidence: sponsor one-pager omitted for run {RunId}.", runId);
                 }
 
                 string readme = $"""

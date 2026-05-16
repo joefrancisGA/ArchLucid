@@ -38,6 +38,10 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
         DateTimeOffset expires = now.AddMinutes(Math.Clamp(local.AccessTokenLifetimeMinutes, 5, 24 * 60));
 
+        // Align with CI/local PEM JWT integration tests: start validity slightly in the past so small host/vm clock
+        // skew cannot reject the token at Authentication (401) while identical Reader tokens still validate.
+        DateTimeOffset notBefore = now.AddMinutes(-2);
+
         Claim[] claims =
         [
             new(JwtRegisteredClaimNames.Sub, userId.ToString("D")),
@@ -54,7 +58,7 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
             local.JwtIssuer,
             local.JwtAudience,
             claims,
-            now.UtcDateTime,
+            notBefore.UtcDateTime,
             expires.UtcDateTime,
             creds);
 

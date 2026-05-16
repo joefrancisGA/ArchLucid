@@ -1,5 +1,3 @@
-using ArchLucid.Host.Core.ProblemDetails;
-
 namespace ArchLucid.Application.Evidence;
 
 /// <summary>
@@ -27,6 +25,11 @@ public sealed class BulkEvidenceUploadValidationResult
 /// </summary>
 public sealed class BulkEvidenceUploadValidator
 {
+    // Mirrors ArchLucid.Host.Core.ProblemDetails.ProblemErrorCodes (Application must not reference Host.Core).
+    private const string ValidationFailedCode = "VALIDATION_FAILED";
+
+    private const string EvidenceBulkUploadLimitExceededCode = "EVIDENCE_BULK_UPLOAD_LIMIT_EXCEEDED";
+
     /// <summary>
     /// Validates the uploaded file count against the configured maximum.
     /// </summary>
@@ -34,12 +37,14 @@ public sealed class BulkEvidenceUploadValidator
     {
         if (fileCount <= 0)
         {
-            return BulkEvidenceUploadValidationResult.Failure(ProblemErrorCodes.ValidationFailed, "At least 1 file is required.");
+            return BulkEvidenceUploadValidationResult.Failure(ValidationFailedCode, "At least 1 file is required.");
         }
 
         if (fileCount > maxAllowed)
         {
-            return BulkEvidenceUploadValidationResult.Failure(ProblemErrorCodes.EvidenceBulkUploadLimitExceeded, $"Upload exceeds the maximum allowed file count of {maxAllowed}.");
+            return BulkEvidenceUploadValidationResult.Failure(
+                EvidenceBulkUploadLimitExceededCode,
+                $"Upload exceeds the maximum allowed file count of {maxAllowed}.");
         }
 
         return BulkEvidenceUploadValidationResult.Success();
