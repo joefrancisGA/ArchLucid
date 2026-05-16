@@ -273,6 +273,21 @@ Two **first-party** starter bundles (AI Governance + Security baseline) ship as 
 
 ---
 
+## 6k. Evidence Bulk Upload — Limits and Batching (V1.1 candidates)
+
+**V1 GA stance:** Bulk upload of evidence files is supported up to a configured cap (30 files by default). The V1 endpoint natively handles multiple file parts and emits granular or aggregate audit events.
+
+The following bulk processing features are explicitly deferred to **V1.1**:
+
+- **Raising bulk upload cap beyond 30 files** — V1.1 candidate
+- **ZIP archive expansion for evidence upload** — V1.1 candidate
+- **Folder recursion for evidence upload** — V1.1 candidate
+
+**Rules:**
+- Do not log the absence of ZIP expansion or deep folder recursion as a V1 GA defect.
+
+---
+
 ## 7. Engineering backlog (not a product roadmap)
 
 | Item | Doc source |

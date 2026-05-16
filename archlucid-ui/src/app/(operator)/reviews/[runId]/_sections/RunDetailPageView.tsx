@@ -38,6 +38,7 @@ import { RunDetailRunActionsSection } from "./RunDetailRunActionsSection";
 import { RunDetailRunExplanationCollapsible } from "./RunDetailRunExplanationCollapsible";
 import { RunDetailRunMetadataSection } from "./RunDetailRunMetadataSection";
 import { RunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
+import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSection";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 
 /** Server component: renders the main run detail chrome from a preloaded `RunDetailPageModel`. */
@@ -146,6 +147,13 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       {m.manifestId && m.resolvedDetail.trustEvidenceCard ? (
         <RunTrustEvidenceCardSection card={m.resolvedDetail.trustEvidenceCard} />
+      ) : null}
+
+      {!m.manifestId ? (
+        <RunDetailCaptureEvidenceSection
+          runId={m.resolvedDetail.run.runId}
+          buyerPolished={m.buyerPolishedArtifactTable ?? false}
+        />
       ) : null}
 
       {m.manifestId && m.manifestSummaryForUi ? (

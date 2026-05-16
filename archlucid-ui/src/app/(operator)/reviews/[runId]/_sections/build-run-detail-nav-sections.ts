@@ -16,24 +16,26 @@ export function buildRunDetailNavSections(
   const { buyerPolishedSections, manifestSummary, trustEvidenceCard, manifestId, graphSnapshotId } =
     args;
 
-  if (buyerPolishedSections) {
+    if (buyerPolishedSections) {
+      return [
+        { id: "manifest-summary", label: "Outcome", available: Boolean(manifestSummary) },
+        { id: "capture-evidence", label: "Capture evidence", available: !Boolean(manifestId) },
+        { id: "trust-evidence", label: "Evidence", available: Boolean(trustEvidenceCard) },
+        { id: "run-explanation", label: "Assessment", available: Boolean(manifestId) },
+        { id: "pipeline-timeline", label: "Activity", available: true },
+        {
+          id: "architecture-graph",
+          label: "Evidence graph",
+          available: Boolean(graphSnapshotId),
+        },
+        { id: "artifacts-exports", label: "Deliverables", available: Boolean(manifestId) },
+      ];
+    }
+  
     return [
-      { id: "manifest-summary", label: "Outcome", available: Boolean(manifestSummary) },
-      { id: "trust-evidence", label: "Evidence", available: Boolean(trustEvidenceCard) },
-      { id: "run-explanation", label: "Assessment", available: Boolean(manifestId) },
-      { id: "pipeline-timeline", label: "Activity", available: true },
-      {
-        id: "architecture-graph",
-        label: "Evidence graph",
-        available: Boolean(graphSnapshotId),
-      },
-      { id: "artifacts-exports", label: "Deliverables", available: Boolean(manifestId) },
-    ];
-  }
-
-  return [
-    { id: "manifest-summary", label: "Manifest", available: Boolean(manifestSummary) },
-    { id: "trust-evidence", label: "Evidence card", available: Boolean(trustEvidenceCard) },
+      { id: "manifest-summary", label: "Manifest", available: Boolean(manifestSummary) },
+      { id: "capture-evidence", label: "Add evidence", available: !Boolean(manifestId) },
+      { id: "trust-evidence", label: "Evidence card", available: Boolean(trustEvidenceCard) },
     { id: "run-metadata", label: "Review", available: true },
     { id: "pipeline-timeline", label: "Timeline", available: true },
     {

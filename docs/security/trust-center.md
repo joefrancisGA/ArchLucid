@@ -12,25 +12,25 @@ This page is the **single buyer-facing index** for security questionnaires, self
 
 ## Procurement questionnaire accelerator
 
-**Canonical artefact/status table:** [PROCUREMENT_PACK_INDEX.md](go-to-market/PROCUREMENT_PACK_INDEX.md) (`scripts/ci/check_procurement_pack_index.py` validates paths, **90-day** freshness on **Implemented** and **Self-asserted** canonical rows, buyer-placeholder strictness, forbidden false-assurance wording, and **Procurement artifact status map** status tokens). **Ultra-short skim (same curated paths):** [PROCUREMENT_FAST_LANE.md](go-to-market/PROCUREMENT_FAST_LANE.md).
+**Canonical artefact/status table:** [PROCUREMENT_PACK_INDEX.md](../go-to-market/PROCUREMENT_PACK_INDEX.md) (`scripts/ci/check_procurement_pack_index.py` validates paths, **90-day** freshness on **Implemented** and **Self-asserted** canonical rows, buyer-placeholder strictness, forbidden false-assurance wording, and **Procurement artifact status map** status tokens). **Ultra-short skim (same curated paths):** [PROCUREMENT_FAST_LANE.md](../go-to-market/PROCUREMENT_FAST_LANE.md).
 
 For spreadsheets (SIG-, CAIQ-style rows), use **`docs/go-to-market/PROCUREMENT_RESPONSE_ACCELERATOR.md`** — **50** prompts grouped like SIG themes, each row pointing **only** to existing repository evidence (**no fabricated SOC 2 Type II issuance**):
 
-- [PROCUREMENT_RESPONSE_ACCELERATOR.md](go-to-market/PROCUREMENT_RESPONSE_ACCELERATOR.md)
+- [PROCUREMENT_RESPONSE_ACCELERATOR.md](../go-to-market/PROCUREMENT_RESPONSE_ACCELERATOR.md)
 
 ---
 
 ## Healthcare and PHI
 
-ArchLucid is for **architecture and governance evidence** about systems you describe — not a regulated record system for clinical care. **Do not upload PHI** into briefs, uploads, or free-text fields intended for architecture context. For **BAA**, **MSA/DPA** wording, or **contractual** posture beyond the in-repo templates ([DPA template](go-to-market/DPA_TEMPLATE.md), [`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md), [`V1_SCOPE.md`](library/V1_SCOPE.md)), contact **`sales@archlucid.net`**. For **tenant isolation** and residency messaging aimed at procurement, see [`TENANT_ISOLATION.md`](go-to-market/TENANT_ISOLATION.md). Deeper **vertical positioning** (Medicare/Medicaid–adjacent patterns, starter HIPAA *program* mapping for conversations — not a legal attestation) lives in [`HEALTHCARE_VERTICAL_BRIEF.md`](go-to-market/HEALTHCARE_VERTICAL_BRIEF.md). This section states product fit and data-handling expectations only; it does **not** add new compliance-certification claims beyond what linked documents already say.
+ArchLucid is for **architecture and governance evidence** about systems you describe — not a regulated record system for clinical care. **Do not upload PHI** into briefs, uploads, or free-text fields intended for architecture context. For **BAA**, **MSA/DPA** wording, or **contractual** posture beyond the in-repo templates ([DPA template](../go-to-market/DPA_TEMPLATE.md), [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md), [`V1_SCOPE.md`](../library/V1_SCOPE.md)), contact **`sales@archlucid.net`**. For **tenant isolation** and residency messaging aimed at procurement, see [`TENANT_ISOLATION.md`](../go-to-market/TENANT_ISOLATION.md). Deeper **vertical positioning** (Medicare/Medicaid–adjacent patterns, starter HIPAA *program* mapping for conversations — not a legal attestation) lives in [`HEALTHCARE_VERTICAL_BRIEF.md`](../go-to-market/HEALTHCARE_VERTICAL_BRIEF.md). This section states product fit and data-handling expectations only; it does **not** add new compliance-certification claims beyond what linked documents already say.
 
 ---
 
 ## Azure connectivity (extractor)
 
-**Default (Tier 1):** You run the in-repo PowerShell collector and upload a schema-versioned ZIP — **no vendor Entra app or subscription role** is required in your tenant for that path. Details: [`TRUST_CENTER.md`](go-to-market/TRUST_CENTER.md) (**Azure connectivity**), operator runbook [`AZURE_EXTRACTOR_INGEST.md`](runbooks/AZURE_EXTRACTOR_INGEST.md), and technical follow-ups [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md).
+**Default (Tier 1):** You run the in-repo PowerShell collector and upload a schema-versioned ZIP — **no vendor Entra app or subscription role** is required in your tenant for that path. Details: [`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) (**Azure connectivity**), operator runbook [`AZURE_EXTRACTOR_INGEST.md`](../runbooks/AZURE_EXTRACTOR_INGEST.md), and technical follow-ups [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md).
 
-**What we will never ask for (high level):** **`Global Reader`**, **`Owner`**, **`Contributor`**, **`User Access Administrator`**, or any **write/destructive** subscription role — see [`TRUST_CENTER.md`](go-to-market/TRUST_CENTER.md) for the explicit buyer-facing list.
+**What we will never ask for (high level):** **`Global Reader`**, **`Owner`**, **`Contributor`**, **`User Access Administrator`**, or any **write/destructive** subscription role — see [`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) for the explicit buyer-facing list.
 
 ---
 

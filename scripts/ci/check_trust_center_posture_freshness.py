@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Verify docs/trust-center.md posture summary table:
+Verify docs/security/trust-center.md posture summary table:
   - Parses "Last reviewed" column as YYYY-MM-DD.
   - Computes staleness hints by Status class (warnings only unless --fail-on-stale).
 
@@ -115,7 +115,7 @@ def main(argv: list[str]) -> int:
     args = p.parse_args(argv)
 
     root = repo_root()
-    trust_md = root / "docs" / "trust-center.md"
+    trust_md = root / "docs" / "security" / "trust-center.md"
 
     if not trust_md.is_file():
 

@@ -27,10 +27,12 @@
 # NuGet cache on setup-dotnet, PR sticky coverage comment.
 name: CI
 
-# Runs only when started from Actions → CI → "Run workflow" (pick branch/ref). This keeps workflow definitions
-# versioned in git without spending runners on every push/PR. Update branch protection / merge policy accordingly:
-# required checks will not appear until you run CI for that commit.
+# PR (main/master): Tier 0–1 pre-corset jobs + **trimmed** `dotnet-fast-core` (no SBOM, no coverlet/ReportGenerator,
+# no finding-engine template test). All jobs after `dotnet-fast-core` run only on **workflow_dispatch** (full CI).
+# Full CI: Actions → CI → Run workflow (pick branch/ref).
 on:
+  pull_request:
+    branches: [main, master]
   workflow_dispatch:
     inputs:
       run_extended_live_a11y_matrix:
@@ -848,6 +850,7 @@ jobs:
           fi
 
       - name: Generate .NET SBOM (CycloneDX)
+        if: github.event_name != 'pull_request'
         run: |
           dotnet tool install CycloneDX --tool-path "${RUNNER_TEMP}/cdx" --verbosity quiet
           CDX="${RUNNER_TEMP}/cdx/dotnet-cyclonedx"
@@ -855,6 +858,7 @@ jobs:
           "$CDX" ArchLucid.Api/ArchLucid.Api.csproj -o sbom-dotnet.json
 
       - uses: actions/upload-artifact@v6
+        if: github.event_name != 'pull_request'
         with:
           name: sbom-dotnet
           path: sbom-dotnet.json
@@ -893,11 +897,16 @@ jobs:
       # ArchLucid.Api.Client regenerates from that snapshot on build (NSwag); Generated/ is gitignored.
       # coverage.runsettings: Cobertura format + Tier 5 excludes (generated/OpenAPI/CLI client); matches local merged reports.
       # GoldenCorpusMaterializerTests is Category=GoldenCorpusRecord (local corpus refresh only; no LLM/SQL).
-      - name: Test — fast core
+      - name: Test — fast core (with coverage)
+        if: github.event_name != 'pull_request'
         run: dotnet test ArchLucid.sln --no-build -c Release --settings coverage.runsettings --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord" --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-fast-core"
 
+      - name: Test — fast core (PR trimmed — no coverage collection)
+        if: github.event_name == 'pull_request'
+        run: dotnet test ArchLucid.sln --no-build -c Release --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord"
+
       - name: Merge coverage (HTML + GitHub job summary)
-        if: success()
+        if: success() && github.event_name != 'pull_request'
         run: |
           set -euo pipefail
           dotnet tool restore
@@ -928,19 +937,21 @@ jobs:
           cat "${OUT}/SummaryGithub.md" >> "${GITHUB_STEP_SUMMARY}"
 
       - uses: actions/upload-artifact@v6
+        if: github.event_name != 'pull_request'
         with:
           name: coverage-fast-core
           path: ${{ runner.temp }}/coverage-fast-core/**/coverage.cobertura.xml
           if-no-files-found: warn
 
       - uses: actions/upload-artifact@v6
-        if: success()
+        if: success() && github.event_name != 'pull_request'
         with:
           name: coverage-report-fast-core-html
           path: ${{ runner.temp }}/coverage-report-fast-core/**
           if-no-files-found: warn
 
       - name: Test — finding-engine template (not in main solution)
+        if: github.event_name != 'pull_request'
         run: dotnet test templates/archlucid-finding-engine/ArchLucidFindingEngine.Tests/ArchLucidFindingEngine.Tests.csproj -c Release
 
   # All infra/terraform* + infra/modules: init (no backend) + validate; apply-saas.ps1 consistency. No Azure creds.
@@ -948,6 +959,7 @@ jobs:
   saas-terraform-roots-validate:
     name: "SaaS: Terraform roots validate (script suite)"
     needs: dotnet-fast-core
+    if: github.event_name != 'pull_request'
     continue-on-error: true
     runs-on: ubuntu-latest
     timeout-minutes: 40
@@ -979,6 +991,7 @@ jobs:
   sql-dbup-empty-catalog:
     name: ".NET: Tier 1.5 — DbUp migrations on empty catalog (Docker SQL)"
     needs: dotnet-fast-core
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     services:
@@ -1048,6 +1061,7 @@ jobs:
   api-greenfield-boot:
     name: ".NET: greenfield SQL boot (empty catalog)"
     needs: dotnet-fast-core
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     services:
@@ -1153,6 +1167,7 @@ jobs:
       - dotnet-fast-core
       - api-greenfield-boot
       - sql-dbup-empty-catalog
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 300
     services:

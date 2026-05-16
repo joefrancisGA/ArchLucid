@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Verify that markdown links in docs/trust-center.md resolve to existing repo files.
+Verify that markdown links in docs/security/trust-center.md resolve to existing repo files.
 
 Resolves:
   - https://github.com/joefrancisGA/ArchLucid/blob/main/<path>
@@ -46,7 +46,7 @@ def resolve_url_target(url: str, trust_md: Path, root: Path) -> Path | None:
 
 def main() -> int:
     root = repo_root()
-    trust_md = root / "docs" / "trust-center.md"
+    trust_md = root / "docs" / "security" / "trust-center.md"
 
     if not trust_md.is_file():
         print(f"ERROR: missing {trust_md.relative_to(root)}", file=sys.stderr)
