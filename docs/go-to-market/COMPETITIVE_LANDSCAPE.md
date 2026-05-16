@@ -170,12 +170,12 @@ Buyer-repeatable claim rows (symbols only in product columns). Row order and lab
 | Claim | ArchLucid | draw.io+Confluence | GitHub Copilot for generic IaC review | Generic AI architect tool |
 | --- | --- | --- | --- | --- |
 | Every commit produces a versioned, immutable manifest | ✓ | partial | — | — |
-| Every mutation produces a typed audit row in an append-only store | ✓ | partial | — | — |
+| Every material change produces a typed audit record in an append-only store | ✓ | partial | — | — |
 | Tenant isolation is enforced at SQL via Row-Level Security with SESSION_CONTEXT | ✓ | — | — | — |
 | Authentication fails closed by default (API keys disabled until enabled) | ✓ | partial | — | — |
 | Comparison replay can re-derive the same artifact and detect drift | ✓ | — | — | — |
 | Findings carry typed payloads per category, not free-text | ✓ | — | partial | partial |
-| Pre-commit governance gate can block commit on configured severity thresholds | ✓ | — | — | — |
+| Governance gate can block configured high-severity changes before approval | ✓ | — | — | — |
 
 ---
 

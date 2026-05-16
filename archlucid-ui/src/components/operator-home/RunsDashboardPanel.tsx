@@ -284,9 +284,6 @@ export function RunsDashboardPanel() {
                     <Button asChild variant="outline" size="sm" className="h-8">
                       <Link href={`/reviews/${encodeURIComponent(showcaseDemoRun.runId)}`}>Open full review package</Link>
                     </Button>
-                    <Button asChild variant="ghost" size="sm" className="h-8">
-                      <Link href="/#buyer-review-journey">Jump to review journey</Link>
-                    </Button>
                   </div>
                 </div>
               ) : null}

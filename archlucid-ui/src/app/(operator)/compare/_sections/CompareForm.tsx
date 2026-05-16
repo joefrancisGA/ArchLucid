@@ -299,12 +299,12 @@ export function CompareForm() {
 
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const leftPickerLabel = isDemoClaimsIntakeComparePair
-    ? "Claims Intake baseline review"
+    ? "Baseline Claims Intake Review"
     : buyerPolished
       ? "Prior architecture review (same request)"
       : "Baseline review";
   const rightPickerLabel = isDemoClaimsIntakeComparePair
-    ? "Claims Intake updated review"
+    ? "Updated Claims Intake Review"
     : buyerPolished
       ? "Later architecture review (same request)"
       : "Updated review";

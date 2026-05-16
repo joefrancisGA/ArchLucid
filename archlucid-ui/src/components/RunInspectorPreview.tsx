@@ -162,7 +162,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         <p className="m-0 mt-1 text-xs text-neutral-700 dark:text-neutral-200">{artifactNote}</p>
         <ul className="m-0 mt-2 list-none space-y-1 p-0 text-xs">
           <li className="flex justify-between gap-2">
-            <span>Context captured</span>
+            <span>Source context captured</span>
             <span aria-label={run.hasContextSnapshot ? "Context snapshot present" : "Context snapshot missing"}>
               {snapshotLabel(run.hasContextSnapshot)}
             </span>
@@ -191,6 +191,22 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
       {/* Primary exploration — buyer shell leads with the full package; signed manifest + graph stay one click away. */}
       <div className="space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         {buyerPolished ? (
+          <div className="flex flex-col gap-2">
+            <Button variant="primary" size="sm" className="w-full" asChild>
+              <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
+            </Button>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button variant="outline" size="sm" className="w-full sm:flex-1" asChild>
+                <Link href={signedManifestExplore.href}>{signedManifestExplore.label}</Link>
+              </Button>
+              {showEvidenceGraphCta ? (
+                <Button variant="outline" size="sm" className="w-full sm:flex-1" asChild>
+                  <Link href="/graph">View evidence graph</Link>
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        ) : (
           <div
             className={cn(
               "grid gap-2",
@@ -209,12 +225,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
               </Button>
             ) : null}
           </div>
-        ) : (
-          <Button variant="primary" size="sm" className="w-full" asChild>
-            <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
-          </Button>
         )}
-
         {buyerPolished ? (
           <details className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20">
             <summary className="cursor-pointer select-none px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">

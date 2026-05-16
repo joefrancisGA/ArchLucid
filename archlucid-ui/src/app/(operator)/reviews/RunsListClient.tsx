@@ -248,6 +248,7 @@ export function RunsListClient({
   }, [runs]);
 
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const buyerCollapseFilters = buyerPolished && totalCount <= 1;
 
   const [filterText, setFilterText] = useState("");
   const [buyerPackageScope, setBuyerPackageScope] = useState<BuyerPackageScopeFilter>("all");
@@ -421,7 +422,7 @@ export function RunsListClient({
           buyerPolished && "w-full max-w-none",
         )}
         autoComplete="off"
-        autoFocus
+        autoFocus={!buyerCollapseFilters}
         aria-label={
           buyerPolished ? "Search reviews by name or description" : "Filter reviews by name or description"
         }
@@ -449,53 +450,108 @@ export function RunsListClient({
   return (
     <div className="mt-4 space-y-4">
       {buyerPolished ? (
-        <div className="space-y-3">
-          {runsFilterControl}
-          <fieldset className="m-0 min-w-0 border-0 p-0">
-            <legend className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-              Show
-            </legend>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant={buyerPackageScope === "all" ? "primary" : "outline"}
-                className="h-8"
-                onClick={() => {
-                  setBuyerPackageScope("all");
-                }}
-              >
-                All
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant={buyerPackageScope === "finalized" ? "primary" : "outline"}
-                className="h-8"
-                onClick={() => {
-                  setBuyerPackageScope("finalized");
-                }}
-              >
-                Finalized packages
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant={buyerPackageScope === "in_flight" ? "primary" : "outline"}
-                className="h-8"
-                onClick={() => {
-                  setBuyerPackageScope("in_flight");
-                }}
-              >
-                In flight
-              </Button>
+        buyerCollapseFilters ? (
+          <details className="rounded-lg border border-neutral-200 bg-neutral-50/40 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30">
+            <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
+              Filter reviews
+            </summary>
+            <div className="mt-3 space-y-3">
+              {runsFilterControl}
+              <fieldset className="m-0 min-w-0 border-0 p-0">
+                <legend className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                  Show
+                </legend>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={buyerPackageScope === "all" ? "primary" : "outline"}
+                    className="h-8"
+                    onClick={() => {
+                      setBuyerPackageScope("all");
+                    }}
+                  >
+                    All
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={buyerPackageScope === "finalized" ? "primary" : "outline"}
+                    className="h-8"
+                    onClick={() => {
+                      setBuyerPackageScope("finalized");
+                    }}
+                  >
+                    Finalized packages
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={buyerPackageScope === "in_flight" ? "primary" : "outline"}
+                    className="h-8"
+                    onClick={() => {
+                      setBuyerPackageScope("in_flight");
+                    }}
+                  >
+                    In flight
+                  </Button>
+                </div>
+              </fieldset>
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
+                {runsSortControl}
+                {runsListFilterStatus}
+              </div>
             </div>
-          </fieldset>
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
-            {runsSortControl}
-            {runsListFilterStatus}
+          </details>
+        ) : (
+          <div className="space-y-3">
+            {runsFilterControl}
+            <fieldset className="m-0 min-w-0 border-0 p-0">
+              <legend className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                Show
+              </legend>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={buyerPackageScope === "all" ? "primary" : "outline"}
+                  className="h-8"
+                  onClick={() => {
+                    setBuyerPackageScope("all");
+                  }}
+                >
+                  All
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={buyerPackageScope === "finalized" ? "primary" : "outline"}
+                  className="h-8"
+                  onClick={() => {
+                    setBuyerPackageScope("finalized");
+                  }}
+                >
+                  Finalized packages
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={buyerPackageScope === "in_flight" ? "primary" : "outline"}
+                  className="h-8"
+                  onClick={() => {
+                    setBuyerPackageScope("in_flight");
+                  }}
+                >
+                  In flight
+                </Button>
+              </div>
+            </fieldset>
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
+              {runsSortControl}
+              {runsListFilterStatus}
+            </div>
           </div>
-        </div>
+        )
       ) : (
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
           {runsFilterControl}
@@ -695,51 +751,55 @@ export function RunsListClient({
           <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
             {paginationAnnouncement}
           </div>
-          <nav
-            className="mt-5 flex flex-wrap items-center gap-4 text-sm"
-            aria-label="Reviews pagination"
-          >
-            <span className="text-neutral-600 dark:text-neutral-400">
-              Page {page} of {pages} · {totalCount} review{totalCount === 1 ? "" : "s"} total
-            </span>
-            {page > 1 ? (
-              <Link
-                className="font-semibold text-teal-800 underline dark:text-teal-300"
-                href={previousHref}
-                aria-label={page === 2 ? "Previous page" : "First page (keyset pagination)"}
-              >
-                {page === 2 ? "Previous" : "First page"}
-              </Link>
-            ) : (
-              <button
-                type="button"
-                disabled
-                className={cn(
-                  "cursor-not-allowed font-semibold text-neutral-400 dark:text-neutral-500",
-                )}
-              >
-                Previous
-              </button>
-            )}
-            {page < pages ? (
-              <Link
-                className="font-semibold text-teal-800 underline dark:text-teal-300"
-                href={nextHref}
-              >
-                Next
-              </Link>
-            ) : (
-              <button
-                type="button"
-                disabled
-                className={cn(
-                  "cursor-not-allowed font-semibold text-neutral-400 dark:text-neutral-500",
-                )}
-              >
-                Next
-              </button>
-            )}
-          </nav>
+          {buyerPolished && pages === 1 && totalCount === 1 ? (
+            <p className="m-0 mt-5 text-sm text-neutral-600 dark:text-neutral-400">1 finalized review package</p>
+          ) : (
+            <nav
+              className="mt-5 flex flex-wrap items-center gap-4 text-sm"
+              aria-label="Reviews pagination"
+            >
+              <span className="text-neutral-600 dark:text-neutral-400">
+                Page {page} of {pages} · {totalCount} review{totalCount === 1 ? "" : "s"} total
+              </span>
+              {page > 1 ? (
+                <Link
+                  className="font-semibold text-teal-800 underline dark:text-teal-300"
+                  href={previousHref}
+                  aria-label={page === 2 ? "Previous page" : "First page (keyset pagination)"}
+                >
+                  {page === 2 ? "Previous" : "First page"}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className={cn(
+                    "cursor-not-allowed font-semibold text-neutral-400 dark:text-neutral-500",
+                  )}
+                >
+                  Previous
+                </button>
+              )}
+              {page < pages ? (
+                <Link
+                  className="font-semibold text-teal-800 underline dark:text-teal-300"
+                  href={nextHref}
+                >
+                  Next
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className={cn(
+                    "cursor-not-allowed font-semibold text-neutral-400 dark:text-neutral-500",
+                  )}
+                >
+                  Next
+                </button>
+              )}
+            </nav>
+          )}
         </div>
 
         {!viewportNarrow ? (

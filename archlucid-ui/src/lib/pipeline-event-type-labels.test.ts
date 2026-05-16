@@ -10,7 +10,7 @@ describe("pipelineEventTypeFriendlyLabel", () => {
 
   it("maps legacy short keys used by mocks", () => {
     expect(pipelineEventTypeFriendlyLabel("RunStarted")).toBe("Review started");
-    expect(pipelineEventTypeFriendlyLabel("context.snapshot.created")).toBe("Context captured");
+    expect(pipelineEventTypeFriendlyLabel("context.snapshot.created")).toBe("Source context captured");
   });
 
   it("falls back to Contracts-aligned titles for durable spine codes not in the pipeline map", () => {

@@ -130,6 +130,19 @@ export function AuditPageView(props: AuditPageViewProps) {
           onExportCsv={props.onExportCsv}
         />
       ) : null}
+
+      {buyerPolishedShell ? (
+        <details className="mt-6 rounded-lg border border-neutral-200 bg-neutral-50/60 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40">
+          <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
+            Next steps after sample review
+          </summary>
+          <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+            When your team is ready for tenant-backed governed reviews, procurement and workspace onboarding use a
+            separate request flow. You have now seen the sample audit trail — use this section when you are ready to
+            discuss tenant-backed workspaces.
+          </p>
+        </details>
+      ) : null}
     </div>
   );
 }

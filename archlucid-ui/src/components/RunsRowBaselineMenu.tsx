@@ -1,6 +1,7 @@
 "use client";
 
 import type { RefObject } from "react";
+import Link from "next/link";
 import { useRef } from "react";
 
 import { persistCompareBaselineRunId } from "@/lib/compare-baseline-run";
@@ -22,12 +23,38 @@ function closeDetails(ref: RefObject<HTMLDetailsElement | null>): void {
 export function RunsRowBaselineMenu(props: { runId: string }) {
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const runEnc = encodeURIComponent(props.runId);
 
   const onSetBaseline = () => {
     persistCompareBaselineRunId(props.runId);
     showSuccess("Baseline review saved for compare.");
     closeDetails(detailsRef);
   };
+
+  if (buyerPolished) {
+    return (
+      <div
+        data-testid={`runs-row-baseline-menu-${props.runId}`}
+        className="flex flex-col items-start gap-1.5 text-xs font-medium"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
+        <Link
+          href={`/governance?runId=${runEnc}`}
+          className="text-teal-800 underline underline-offset-2 dark:text-teal-300"
+        >
+          View governance approval
+        </Link>
+        <Link href={`/audit?runId=${runEnc}`} className="text-teal-800 underline underline-offset-2 dark:text-teal-300">
+          View audit trail
+        </Link>
+        <Link href={`/ask?runId=${runEnc}`} className="text-teal-800 underline underline-offset-2 dark:text-teal-300">
+          Ask about this review
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <details
@@ -44,7 +71,7 @@ export function RunsRowBaselineMenu(props: { runId: string }) {
           "[&::-webkit-details-marker]:hidden",
         )}
       >
-        {buyerPolished ? "More actions" : "More"}
+        More
       </summary>
       <div className="absolute right-0 z-20 mt-1 min-w-[12rem] rounded-md border border-neutral-200 bg-white py-1 shadow-md dark:border-neutral-700 dark:bg-neutral-950">
         <button

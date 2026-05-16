@@ -136,10 +136,10 @@ export function SampleFirstReviewPackageCard() {
                   Open full review package
                 </Link>
                 <Link
-                  href="/#buyer-review-journey"
+                  href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
                   className="inline-flex min-h-[24px] items-center font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
                 >
-                  Review decision evidence
+                  Open evidence graph
                 </Link>
               </div>
             ) : null}

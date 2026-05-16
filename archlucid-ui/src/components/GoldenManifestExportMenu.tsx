@@ -80,7 +80,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
           downloadMarkdownSummary();
         }}
       >
-        Download Markdown summary
+        Download review summary
       </Button>
     );
   }

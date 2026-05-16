@@ -208,7 +208,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
           Symbols in the product columns (✓ / partial / —) summarize capability depth; each row links to diligence
-          references. This is a technical claim map — not a vendor scorecard.
+          references. This section is a governance capability comparison — not a vendor scorecard.
         </p>
 
         <div className="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">

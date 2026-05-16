@@ -18,10 +18,9 @@ export function BuyerGoldenJourneyStrip() {
         Review journey
       </p>
       <p className="m-0 mt-2 max-w-prose text-xs leading-snug text-neutral-600 dark:text-neutral-400">
-        Executive summary, signed manifest, evidence graph, governance approval, then audit trail — the same sequence
-        appears under the page header on each step (and as{" "}
-        <strong className="font-medium text-neutral-800 dark:text-neutral-200">Review journey</strong> quick links in
-        the sidebar).
+        Follow the finalized review record from executive decision through signed manifest, evidence graph, governance
+        approval, and audit trail — the same sequence appears in the sidebar{" "}
+        <strong className="font-medium text-neutral-800 dark:text-neutral-200">Review journey</strong> links.
       </p>
       <ol className="m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-2 p-0 text-sm">
         {steps.map((item) => (

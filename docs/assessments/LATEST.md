@@ -786,14 +786,9 @@ Sequential decisions so marketing ↔ technical V1 stay aligned.
 
 ---
 
-## Pending Questions for Later
+## Pending technical questions for later
+
+Technical / commercial-owner queue only. **Marketing ↔ product decisions** are recorded in **§ Marketing alignment** (table above), not duplicated here.
 
 - **P4 — Stripe live keys + Marketplace publication:** **Defer** execution **until finance confirms** Partner Center readiness (seller verification, tax profile, payout/banking). **Next step:** Finance “go” → run improvement **#7** against billing/runbook checklists (e.g. **`docs/library/DEPLOYMENT_TERRAFORM.md`** and any Partner Center / Stripe cutover notes the team maintains).
 - **P10 — ServiceNow developer instance + schemas:** **No** access **at this time**. **`V1` GA** bidirectional ServiceNow sync **remains in contract** (`V1_SCOPE.md` §2.13). Provisioning a **cost-free** **ServiceNow Developer Program** / personal developer-style instance for engineering (**#22**) **when available** — **paid** sandbox **not** a **`V1` GA** gate. **If** a **free** path cannot be obtained before a future GA decision, scope docs must be **explicitly** revised — do **not** silently drop **`V1` GA** claims.
-- **Marketing alignment Q7** (landing CTAs / **#32**): **Hybrid:** walkthrough primary, self-demo secondary (**#31** A), early access tertiary; **no public $ band** first 90 days; see row 7 and **§V1 scoring boundary** (landing CTA bullet).
-- **Marketing alignment Q6** (demo workspaces / **#31**): **Hard GA gate** for **two** curated workspaces + automated smoke; see row 6 and **§V1 scoring boundary** (demo workspaces bullet).
-- **Marketing alignment Q5** (consultant whitelabel / **#28**): **V1 GA**; cover + attribution on **DOCX + PDF**; see row 5 and **§V1 scoring boundary** (whitelabel bullet).
-- **Marketing alignment Q4** (bulk evidence upload / **#30**): **V1 GA** with **≤30 files** per upload; disclose everywhere marketing promises bulk capture; **V1.1** for higher limits / ZIP / recursion — see row 4 and **§V1 scoring boundary** bullet.
-- **Marketing alignment Q3** (default policy packs / #29): **V1 GA:** AI governance + security baseline MVP packs; **V1.1:** Azure landing-zone / CAF-aligned curated pack; see row 3 and **§V1 scoring boundary** bullet.
-- **Marketing alignment Q2** (buyer-grade export): **V1 GA gate**; see row 2 and improvement **#28**.
-- **Marketing alignment Q1** (glossary / #27): see **§ Marketing alignment** row 1 (canonical UI labels: Review, Finalize review, Architecture snapshot, Evidence graph).

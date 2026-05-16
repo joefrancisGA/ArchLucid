@@ -37,7 +37,7 @@ export function ExecutiveReviewHandoffActions(props: ExecutiveReviewHandoffActio
         <a href={getArchitecturePackageDocxUrl(runId)}>Download architecture package (DOCX)</a>
       </Button>
       <Button type="button" variant="outline" size="sm" onClick={onMarkdownDownload}>
-        Download Markdown summary
+        Download review summary
       </Button>
     </div>
   );
