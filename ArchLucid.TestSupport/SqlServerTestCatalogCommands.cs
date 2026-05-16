@@ -10,6 +10,12 @@ namespace ArchLucid.TestSupport;
 /// </summary>
 public static class SqlServerTestCatalogCommands
 {
+    /// <summary>
+    ///     <see cref="SqlCommand.CommandTimeout" /> for <c>CREATE DATABASE</c> / <c>DROP DATABASE</c> on shared dev SQL
+    ///     (default 30s is too tight when the server is under load or anti-virus latches files).
+    /// </summary>
+    private const int CatalogAdminCommandTimeoutSeconds = 120;
+
     private const string EnsureDatabaseSql = """
                                              IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = @name)
                                              BEGIN
@@ -44,6 +50,7 @@ public static class SqlServerTestCatalogCommands
         master.Open();
 
         using SqlCommand cmd = master.CreateCommand();
+        cmd.CommandTimeout = CatalogAdminCommandTimeoutSeconds;
         cmd.CommandText = EnsureDatabaseSql;
         cmd.Parameters.AddWithValue("@name", databaseName);
         cmd.ExecuteNonQuery();
@@ -74,6 +81,8 @@ public static class SqlServerTestCatalogCommands
             """,
             connection);
 
+        command.CommandTimeout = CatalogAdminCommandTimeoutSeconds;
+
         SqlParameter dbParameter = command.Parameters.Add("@db", SqlDbType.NVarChar, 128);
         dbParameter.Value = databaseName;
 
@@ -102,6 +111,7 @@ public static class SqlServerTestCatalogCommands
         master.Open();
 
         using SqlCommand cmd = master.CreateCommand();
+        cmd.CommandTimeout = CatalogAdminCommandTimeoutSeconds;
         cmd.CommandText = DropDatabaseSql;
         cmd.Parameters.AddWithValue("@name", databaseName);
         cmd.ExecuteNonQuery();

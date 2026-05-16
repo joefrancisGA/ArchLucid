@@ -35,7 +35,7 @@ public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchLucidApiFact
 
         HttpResponseMessage getResponse = await Client.GetAsync(
             $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}");
-        getResponse.EnsureSuccessStatusCode();
+        await getResponse.EnsureSuccessForTestAsync();
         ComparisonRecordResponseDto? dto =
             await getResponse.Content.ReadFromJsonAsync<ComparisonRecordResponseDto>(JsonOptions);
         string payloadJson = dto!.Record.PayloadJson;

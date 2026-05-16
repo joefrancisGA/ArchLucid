@@ -424,3 +424,4 @@ infra/**/.terraform/
 /codeql-out/
 /trx-download/coverage-report-fast-core-html
 /trx-download
+/coverage/html

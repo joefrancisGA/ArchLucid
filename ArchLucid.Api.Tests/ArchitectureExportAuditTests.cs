@@ -20,8 +20,7 @@ public sealed class ArchitectureExportAuditTests(ArchLucidApiFactory factory) : 
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-EXPORT-AUDIT-001")));
 
-        createResponse.EnsureSuccessStatusCode();
-
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;

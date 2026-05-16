@@ -42,15 +42,13 @@ public sealed class CommitRunConcurrencyIntegrationTests
             JsonContent(
                 TestRequestFactory.CreateArchitectureRequest("REQ-COMMIT-PAR-" + Guid.NewGuid().ToString("N")[..8])));
 
-        createResponse.EnsureSuccessStatusCode();
-
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        executeResponse.EnsureSuccessStatusCode();
-
+        await executeResponse.EnsureSuccessForTestAsync();
         const int parallel = 8;
         Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
 

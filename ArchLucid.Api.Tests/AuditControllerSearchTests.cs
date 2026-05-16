@@ -31,7 +31,7 @@ public sealed class AuditControllerSearchTests
 
         HttpResponseMessage response = await client.GetAsync("/v1/audit/search?eventType=RunStarted&take=50");
 
-        response.EnsureSuccessStatusCode();
+        await response.EnsureSuccessForTestAsync();
         repo.Verify(
             r => r.GetFilteredAsync(
                 It.IsAny<Guid>(),
@@ -71,7 +71,7 @@ public sealed class AuditControllerSearchTests
 
         HttpResponseMessage response = await client.GetAsync("/v1/audit/search?beforeUtc=2026-01-01T00:00:00.0000000Z");
 
-        response.EnsureSuccessStatusCode();
+        await response.EnsureSuccessForTestAsync();
         repo.Verify(
             r => r.GetFilteredAsync(
                 It.IsAny<Guid>(),
@@ -104,7 +104,7 @@ public sealed class AuditControllerSearchTests
 
         HttpResponseMessage response = await client.GetAsync("/v1/audit/search?take=99999");
 
-        response.EnsureSuccessStatusCode();
+        await response.EnsureSuccessForTestAsync();
         repo.Verify(
             r => r.GetFilteredAsync(
                 It.IsAny<Guid>(),
@@ -132,7 +132,7 @@ public sealed class AuditControllerSearchTests
 
         HttpResponseMessage response = await client.GetAsync("/v1/audit/search?correlationId=test-corr-42");
 
-        response.EnsureSuccessStatusCode();
+        await response.EnsureSuccessForTestAsync();
         repo.Verify(
             r => r.GetFilteredAsync(
                 It.IsAny<Guid>(),
@@ -162,7 +162,7 @@ public sealed class AuditControllerSearchTests
 
         HttpResponseMessage response = await client.GetAsync($"/v1/audit/search?runId={runId}");
 
-        response.EnsureSuccessStatusCode();
+        await response.EnsureSuccessForTestAsync();
         repo.Verify(
             r => r.GetFilteredAsync(
                 It.IsAny<Guid>(),
@@ -180,8 +180,7 @@ public sealed class AuditControllerSearchTests
         HttpClient client = plain.CreateClient();
 
         HttpResponseMessage response = await client.GetAsync("/v1/audit/event-types");
-        response.EnsureSuccessStatusCode();
-
+        await response.EnsureSuccessForTestAsync();
         List<string>? types = await response.Content.ReadFromJsonAsync<List<string>>();
         types.Should().NotBeNull();
 

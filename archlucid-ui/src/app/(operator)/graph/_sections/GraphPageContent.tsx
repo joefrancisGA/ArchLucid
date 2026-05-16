@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import type { EmptyStateProps } from "@/components/EmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
@@ -291,7 +292,7 @@ export function GraphPageContent() {
     setMode("provenance-full");
   }, [buyerPolishedShell, demoUi]);
 
-  const graphIdlePreset = useMemo(() => {
+  const graphIdlePreset = useMemo((): EmptyStateProps => {
     if (demoUi && showIdleCard) {
       const manifestHref = `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`;
       const auditHref = `/audit?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
@@ -303,7 +304,7 @@ export function GraphPageContent() {
           description: `Evidence graph unavailable in this sample view. Open the signed manifest or audit trail for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`,
           actions: [
             { label: "Open signed manifest", href: manifestHref },
-            { label: "Open audit trail", href: auditHref, variant: "outline" },
+            { label: "Open audit trail", href: auditHref, variant: "outline" as const },
           ],
         };
       }

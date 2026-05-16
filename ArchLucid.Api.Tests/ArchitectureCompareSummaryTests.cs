@@ -20,18 +20,15 @@ public sealed class ArchitectureCompareSummaryTests(ArchLucidApiFactory factory)
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-COMPARE-SUMMARY-001")));
 
-        createResponse.EnsureSuccessStatusCode();
-
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        executeResponse.EnsureSuccessStatusCode();
-
+        await executeResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-        commitResponse.EnsureSuccessStatusCode();
-
+        await commitResponse.EnsureSuccessForTestAsync();
         CommitRunResponseDto? commitPayload =
             await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         string leftVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
@@ -46,8 +43,7 @@ public sealed class ArchitectureCompareSummaryTests(ArchLucidApiFactory factory)
         HttpResponseMessage replayResponse = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/replay",
             JsonContent(replayRequest));
-        replayResponse.EnsureSuccessStatusCode();
-
+        await replayResponse.EnsureSuccessForTestAsync();
         ReplayRunResponseDto? replayPayload =
             await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         replayPayload.Should().NotBeNull();

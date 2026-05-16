@@ -110,7 +110,7 @@ public sealed class TenantIsolationSmokeTests
         HttpResponseMessage create = await PostArchitectureRequestWithTransientRetryAsync(
             clientA,
             TestRequestFactory.CreateArchitectureRequest(requestId));
-        create.EnsureSuccessStatusCode();
+        await create.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>();
         string runId = created!.Run.RunId;
 
@@ -121,12 +121,12 @@ public sealed class TenantIsolationSmokeTests
         getOther.StatusCode.Should().Be(HttpStatusCode.NotFound, "Cross-tenant scope must hide other-tenant runs.");
 
         HttpResponseMessage listOther = await clientB.GetAsync("/v1/architecture/runs?limit=200");
-        listOther.EnsureSuccessStatusCode();
+        await listOther.EnsureSuccessForTestAsync();
         string listJson = await listOther.Content.ReadAsStringAsync();
         ListContainsRunId(listJson, runId).Should().BeFalse("list must not return runs from another tenant.");
 
         HttpResponseMessage getOwn = await clientA.GetAsync($"/v1/architecture/run/{runId}");
-        getOwn.EnsureSuccessStatusCode();
+        await getOwn.EnsureSuccessForTestAsync();
     }
 
     [SkippableFact]
@@ -150,7 +150,7 @@ public sealed class TenantIsolationSmokeTests
         HttpResponseMessage create = await PostArchitectureRequestWithTransientRetryAsync(
             clientA,
             TestRequestFactory.CreateArchitectureRequest(requestId));
-        create.EnsureSuccessStatusCode();
+        await create.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>();
         string runId = created!.Run.RunId;
 
@@ -211,7 +211,7 @@ public sealed class TenantIsolationSmokeTests
         HttpResponseMessage createA = await PostArchitectureRequestWithTransientRetryAsync(
             clientA,
             TestRequestFactory.CreateArchitectureRequest(reqA));
-        createA.EnsureSuccessStatusCode();
+        await createA.EnsureSuccessForTestAsync();
         CreateRunResponseDto? createdA = await createA.Content.ReadFromJsonAsync<CreateRunResponseDto>();
         string runIdA = createdA!.Run.RunId;
 
@@ -219,7 +219,7 @@ public sealed class TenantIsolationSmokeTests
         HttpResponseMessage createB = await PostArchitectureRequestWithTransientRetryAsync(
             clientB,
             TestRequestFactory.CreateArchitectureRequest(reqB));
-        createB.EnsureSuccessStatusCode();
+        await createB.EnsureSuccessForTestAsync();
         CreateRunResponseDto? createdB = await createB.Content.ReadFromJsonAsync<CreateRunResponseDto>();
         string runIdB = createdB!.Run.RunId;
 
@@ -227,11 +227,9 @@ public sealed class TenantIsolationSmokeTests
             "/v1/admin/runs/archive-batch",
             new AdminArchiveRunsBatchRequest { CreatedBeforeUtc = TimeProvider.System.GetUtcNow().AddYears(1) });
 
-        archive.EnsureSuccessStatusCode();
-
+        await archive.EnsureSuccessForTestAsync();
         HttpResponseMessage getB = await clientB.GetAsync($"/v1/architecture/run/{runIdB}");
-        getB.EnsureSuccessStatusCode();
-
+        await getB.EnsureSuccessForTestAsync();
         HttpResponseMessage getA = await clientA.GetAsync($"/v1/architecture/run/{runIdA}");
         getA.StatusCode.Should().Be(HttpStatusCode.NotFound, "tenant A admin batch should archive only tenant A runs.");
     }
@@ -341,8 +339,7 @@ public sealed class TenantIsolationSmokeTests
 
             if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
             {
-                response.EnsureSuccessStatusCode();
-
+                await response.EnsureSuccessForTestAsync();
                 return;
             }
 

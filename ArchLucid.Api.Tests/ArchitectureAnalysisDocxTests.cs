@@ -26,18 +26,15 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-DOCX-001")));
 
-        createResponse.EnsureSuccessStatusCode();
-
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        executeResponse.EnsureSuccessStatusCode();
-
+        await executeResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-        commitResponse.EnsureSuccessStatusCode();
-
+        await commitResponse.EnsureSuccessForTestAsync();
         var request = new
         {
             includeEvidence = true,
@@ -72,18 +69,15 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-DOCX-ASYNC-001")));
 
-        createResponse.EnsureSuccessStatusCode();
-
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        executeResponse.EnsureSuccessStatusCode();
-
+        await executeResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-        commitResponse.EnsureSuccessStatusCode();
-
+        await commitResponse.EnsureSuccessForTestAsync();
         var request = new
         {
             includeEvidence = true,
@@ -115,8 +109,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
         for (int i = 0; i < AsyncDocxJobPollMaxIterations; i++)
         {
             HttpResponseMessage statusResp = await Client.GetAsync($"/v1/jobs/{jobId}");
-            statusResp.EnsureSuccessStatusCode();
-
+            await statusResp.EnsureSuccessForTestAsync();
             JsonElement status = await statusResp.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
             state = status.GetProperty("state").GetString() ?? state;
 

@@ -24,16 +24,15 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-AUTH-LIST-UNPAGED-001")));
-        createResponse.EnsureSuccessStatusCode();
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        executeResponse.EnsureSuccessStatusCode();
+        await executeResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-        commitResponse.EnsureSuccessStatusCode();
-
+        await commitResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage response = await Client.GetAsync("/v1/authority/projects/EnterpriseRag/runs?take=20");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -54,16 +53,15 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-AUTH-LIST-PAGED-001")));
-        createResponse.EnsureSuccessStatusCode();
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        executeResponse.EnsureSuccessStatusCode();
+        await executeResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-        commitResponse.EnsureSuccessStatusCode();
-
+        await commitResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage response =
             await Client.GetAsync("/v1/authority/projects/EnterpriseRag/runs?page=1&pageSize=10");
 

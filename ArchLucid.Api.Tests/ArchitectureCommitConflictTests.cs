@@ -21,7 +21,7 @@ public sealed class ArchitectureCommitConflictTests(ArchLucidApiFactory factory)
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-COMMIT-CONFLICT-001")));
 
-        createResponse.EnsureSuccessStatusCode();
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;

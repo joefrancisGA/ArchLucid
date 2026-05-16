@@ -1,5 +1,9 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Decisioning.Validation;
 
 using FluentAssertions;
 
@@ -84,6 +88,42 @@ public sealed class ApplicationProblemMapperTests
         mapped.Should().BeTrue();
         MvcProblemDetails p = result!.Value.Should().BeOfType<MvcProblemDetails>().Subject;
         p.Extensions["evaluationReason"].Should().Be("missing_or_empty_citations");
+    }
+
+    [SkippableFact]
+    public void TryMapUnhandledException_AgentHandlerExecutionException_Returns400_with_inner_detail_and_extensions()
+    {
+        InvalidOperationException inner = new("Unsupported agent type key: Foo");
+        AgentHandlerExecutionException ex = new(AgentTypeKeys.Topology, AgentType.Topology, inner);
+        DefaultHttpContext http = CreateHttpContext("/v1/architecture/run/abc/replay", "corr-agent");
+
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.BusinessRuleViolation);
+        p.Detail.Should().Be("Unsupported agent type key: Foo");
+        p.Extensions["agentTypeKey"].Should().Be(AgentTypeKeys.Topology);
+        p.Extensions["agentType"].Should().Be(AgentType.Topology.ToString());
+    }
+
+    [SkippableFact]
+    public void TryMapUnhandledException_GoldenManifestSchemaValidation_Returns400_with_errors_extension()
+    {
+        SchemaValidationResult validation = new();
+        validation.Errors.Add("schema error one");
+        GoldenManifestSchemaValidationException ex = new(validation);
+        DefaultHttpContext http = CreateHttpContext("/v1/architecture/run/x/replay", "corr-schema");
+
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.ValidationFailed);
+        p.Detail.Should().Contain("schema error one");
+        p.Extensions["errors"].Should().BeEquivalentTo(new[] { "schema error one" });
     }
 
     [SkippableFact]

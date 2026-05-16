@@ -74,11 +74,9 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
             string runId = created.Run.RunId;
 
             HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-            executeResponse.EnsureSuccessStatusCode();
-
+            await executeResponse.EnsureSuccessForTestAsync();
             HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-            commitResponse.EnsureSuccessStatusCode();
-
+            await commitResponse.EnsureSuccessForTestAsync();
             string commitJson = await commitResponse.Content.ReadAsStringAsync();
             using JsonDocument commitDoc = JsonDocument.Parse(commitJson);
             JsonElement manifestElement = commitDoc.RootElement.GetProperty("manifest");
@@ -91,8 +89,7 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
             bool shaMatches = string.Equals(actualSha, expectedSha, StringComparison.OrdinalIgnoreCase);
 
             HttpResponseMessage getRunResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
-            getRunResponse.EnsureSuccessStatusCode();
-
+            await getRunResponse.EnsureSuccessForTestAsync();
             GetRunResponseDto? runPayload =
                 await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
             runPayload.Should().NotBeNull();

@@ -61,8 +61,8 @@ export function PostCommitAdvancedAnalysisHint({
           </>
         ) : (
           <>
-            This run has a finalized manifest. None of this is required to judge first-pilot value—only when you have a
-            concrete question the first-review path does not answer (diff two runs, re-validate the provenance chain, or
+            This review has a finalized architecture snapshot. None of this is required to judge first-pilot value—only when you have a
+            concrete question the first-review path does not answer (diff two reviews, re-validate the provenance chain, or
             explore a graph). {sidebarHint}
           </>
         )}

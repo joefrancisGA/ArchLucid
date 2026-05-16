@@ -54,8 +54,7 @@ public sealed class AuditExportControllerTests
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
         HttpResponseMessage response = await client.GetAsync(ExportUri);
-        response.EnsureSuccessStatusCode();
-
+        await response.EnsureSuccessForTestAsync();
         JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         doc.RootElement.ValueKind.Should().Be(JsonValueKind.Array);
         doc.RootElement.GetArrayLength().Should().Be(1);
@@ -97,7 +96,7 @@ public sealed class AuditExportControllerTests
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/csv"));
 
         HttpResponseMessage response = await client.GetAsync(ExportUri);
-        response.EnsureSuccessStatusCode();
+        await response.EnsureSuccessForTestAsync();
         response.Content.Headers.ContentType?.MediaType.Should().Be("text/csv");
 
         string? disposition = response.Content.Headers.ContentDisposition?.ToString();
@@ -145,7 +144,7 @@ public sealed class AuditExportControllerTests
 
         Uri uri = new("/v1/audit/export?fromUtc=2026-01-01T00:00:00.0000000Z&toUtc=2026-01-02T00:00:00.0000000Z&format=cef", UriKind.Relative);
         HttpResponseMessage response = await client.GetAsync(uri);
-        response.EnsureSuccessStatusCode();
+        await response.EnsureSuccessForTestAsync();
         response.Content.Headers.ContentType?.MediaType.Should().Be("text/plain");
 
         string? disposition = response.Content.Headers.ContentDisposition?.ToString();
@@ -200,7 +199,7 @@ public sealed class AuditExportControllerTests
         HttpResponseMessage response = await client.GetAsync(
             "/v1/audit/export?fromUtc=2026-01-01T00:00:00.0000000Z&toUtc=2026-01-02T00:00:00.0000000Z&maxRows=9999999");
 
-        response.EnsureSuccessStatusCode();
+        await response.EnsureSuccessForTestAsync();
         repo.Verify(
             r => r.GetFilteredExportAsync(
                 It.IsAny<Guid>(),
@@ -233,8 +232,7 @@ public sealed class AuditExportControllerTests
             UriKind.Relative);
 
         HttpResponseMessage response = await client.GetAsync(uri);
-        response.EnsureSuccessStatusCode();
-
+        await response.EnsureSuccessForTestAsync();
         repo.Verify(
             r => r.GetFilteredExportAsync(
                 It.IsAny<Guid>(),

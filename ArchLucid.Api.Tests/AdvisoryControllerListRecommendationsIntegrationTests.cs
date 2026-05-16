@@ -40,16 +40,15 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
         HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-ADV-REC-LIST-001")));
-        createResponse.EnsureSuccessStatusCode();
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        executeResponse.EnsureSuccessStatusCode();
+        await executeResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-        commitResponse.EnsureSuccessStatusCode();
-
+        await commitResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage response = await Client.GetAsync($"/v1/advisory/runs/{runId}/recommendations");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);

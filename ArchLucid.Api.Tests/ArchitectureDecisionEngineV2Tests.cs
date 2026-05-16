@@ -20,18 +20,15 @@ public sealed class ArchitectureDecisionEngineV2Tests(ArchLucidApiFactory factor
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-DECISION-V2-001")));
 
-        createResponse.EnsureSuccessStatusCode();
-
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        executeResponse.EnsureSuccessStatusCode();
-
+        await executeResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-        commitResponse.EnsureSuccessStatusCode();
-
+        await commitResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage decisionsResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/decisions");
         decisionsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 

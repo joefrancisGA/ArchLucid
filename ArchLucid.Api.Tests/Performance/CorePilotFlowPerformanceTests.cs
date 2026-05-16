@@ -37,7 +37,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest($"REQ-PERF-E2E-{Guid.NewGuid():N}")));
         tCreate.Sw.Stop();
-        createResponse.EnsureSuccessStatusCode();
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
@@ -46,12 +46,11 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         HttpResponseMessage seedResponse =
             await Client.PostAsync($"/v1/internal/architecture/runs/{runId}/seed-fake-results", null);
         tSeed.Sw.Stop();
-        seedResponse.EnsureSuccessStatusCode();
-
+        await seedResponse.EnsureSuccessForTestAsync();
         tCommit.Sw.Start();
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         tCommit.Sw.Stop();
-        commitResponse.EnsureSuccessStatusCode();
+        await commitResponse.EnsureSuccessForTestAsync();
         CommitRunResponseDto? commit =
             await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commit!.Manifest.Metadata.ManifestVersion;
@@ -60,7 +59,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         tGet.Sw.Start();
         HttpResponseMessage manifestResponse = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}");
         tGet.Sw.Stop();
-        manifestResponse.EnsureSuccessStatusCode();
+        await manifestResponse.EnsureSuccessForTestAsync();
         total.Stop();
         output.WriteLine($"[perf] {tCreate}");
         output.WriteLine($"[perf] {tSeed}");
@@ -82,7 +81,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
             Stopwatch sw = Stopwatch.StartNew();
             HttpResponseMessage r = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}");
             sw.Stop();
-            r.EnsureSuccessStatusCode();
+            await r.EnsureSuccessForTestAsync();
             ms.Add(sw.ElapsedMilliseconds);
         }
 
@@ -105,17 +104,16 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest($"REQ-PERF-MANIFEST-{Guid.NewGuid():N}")));
-        createResponse.EnsureSuccessStatusCode();
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage seedResponse =
             await Client.PostAsync($"/v1/internal/architecture/runs/{runId}/seed-fake-results", null);
-        seedResponse.EnsureSuccessStatusCode();
-
+        await seedResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-        commitResponse.EnsureSuccessStatusCode();
+        await commitResponse.EnsureSuccessForTestAsync();
         CommitRunResponseDto? commit =
             await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commit!.Manifest.Metadata.ManifestVersion;

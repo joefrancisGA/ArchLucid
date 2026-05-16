@@ -21,15 +21,13 @@ public sealed class ArchitectureTraceTests(ArchLucidApiFactory factory) : Integr
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-TRACE-001")));
 
-        createResponse.EnsureSuccessStatusCode();
-
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        executeResponse.EnsureSuccessStatusCode();
-
+        await executeResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage tracesResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/traces");
 
         tracesResponse.StatusCode.Should().Be(HttpStatusCode.OK);

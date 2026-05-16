@@ -19,7 +19,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         HttpResponseMessage response = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
-        response.EnsureSuccessStatusCode();
+        await response.EnsureSuccessForTestAsync();
         CreateRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
 
         payload.Should().NotBeNull();
@@ -106,7 +106,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             runId,
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
-        submitResponse.EnsureSuccessStatusCode();
+        await submitResponse.EnsureSuccessForTestAsync();
         GovernanceApprovalResponseDto? submitted =
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
@@ -134,7 +134,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             runId,
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
-        submitResponse.EnsureSuccessStatusCode();
+        await submitResponse.EnsureSuccessForTestAsync();
         GovernanceApprovalResponseDto? submitted =
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
@@ -158,7 +158,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             runId,
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
-        submitResponse.EnsureSuccessStatusCode();
+        await submitResponse.EnsureSuccessForTestAsync();
         GovernanceApprovalResponseDto? submitted =
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
         string url = $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/reject";
@@ -290,8 +290,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             runId,
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
-        submitResponse.EnsureSuccessStatusCode();
-
+        await submitResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage listResponse = await Client.GetAsync($"/v1/governance/runs/{runId}/approval-requests");
         listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -359,7 +358,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             runId,
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
-        submitResponse.EnsureSuccessStatusCode();
+        await submitResponse.EnsureSuccessForTestAsync();
         GovernanceApprovalResponseDto? submitted =
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
@@ -382,7 +381,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             runId,
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
-        submitResponse.EnsureSuccessStatusCode();
+        await submitResponse.EnsureSuccessForTestAsync();
         GovernanceApprovalResponseDto? submitted =
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
         HttpResponseMessage first = await PostJsonAsTestActorAsync(
@@ -405,7 +404,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         string runId = await CreateRunAsync("REQ-GOV-PAR-01");
         // Default DevelopmentBypass submitter (same pattern as GovernanceApprovalConcurrencyIntegrationTests).
         HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(runId);
-        submitResponse.EnsureSuccessStatusCode();
+        await submitResponse.EnsureSuccessForTestAsync();
         GovernanceApprovalResponseDto? submitted =
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
 

@@ -61,9 +61,9 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   compare: {
     layerBadge: "Advanced operations",
     headline: "Answers: what changed between two finalized reviews?",
-    useWhen: "Use after you have two reviews with reviewed manifests when you need a structured diff or narrative.",
+    useWhen: "Use after you have two reviews with architecture snapshots when you need a structured diff or narrative.",
     firstPilotNote:
-      "Optional until first Pilot proof unless you deliberately compare two committed outcomes.",
+      "Optional until first Pilot proof unless you deliberately compare two finalized reviews.",
   },
   replay: {
     layerBadge: "Advanced operations",
@@ -76,7 +76,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     headline: "Answers: how does provenance or architecture look for this review?",
     useWhen: "Use when tables and compare are not enough and you need a visual exploration.",
     firstPilotNote:
-      "Best once you have a committed review—a graph complements manifest and finding tables when stakeholders need visuals.",
+      "Best once you have a finalized review—a graph complements architecture snapshot and finding tables when stakeholders need visuals.",
   },
   "integrations-operations": {
     layerBadge: "Advanced operations",
@@ -90,7 +90,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Governance",
     headline: "Executive Workspace Health — governance and value signals in your current scope.",
     useWhen:
-      "Use after Pilot proof when sponsors need pre-commit outcomes, severity exposure, compliance drift, SLA posture, and a hours-first value proxy.",
+      "Use after Pilot proof when sponsors need pre-finalization outcomes, severity exposure, compliance drift, SLA posture, and a hours-first value proxy.",
     firstPilotNote: "Optional until first Pilot proof; data is scoped to the active tenant/workspace/project.",
     enterpriseFootnote: "Read-only tiles; writes stay in workflow, findings queue, and audit.",
   },
@@ -136,7 +136,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "teams-notifications": {
     layerBadge: "Governance",
     headline: "Microsoft Teams channel wiring for integration-event fan-out.",
-    useWhen: "After Service Bus topics are live and operators want run / governance / alert cards in Teams.",
+    useWhen: "After Service Bus topics are live and operators want review / governance / alert cards in Teams.",
     firstPilotNote:
       "After Pilot proof when Teams routing matters; store only a Key Vault secret id here.",
     enterpriseFootnote: "Read vs Execute matches API; Logic Apps resolves the secret at delivery time.",
@@ -151,7 +151,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "value-report-roi": {
     layerBadge: "Advanced operations",
-    headline: "Sponsor-facing hours estimate from severities and pre-commit blocks.",
+    headline: "Sponsor-facing hours estimate from severities and pre-finalization blocks.",
     useWhen:
       "When champions need a defensible hours story before negotiating loaded $/hour internally; pairs with Workspace health.",
     firstPilotNote: "Read-tier data pulls; Admin-only optional USD line uses local browser override.",
@@ -175,7 +175,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     headline: "Submit finalized architecture outputs for governance review and promotion.",
     useWhen: "Pick one review and move from submission through approval, promotion, and activation.",
     firstPilotNote:
-      "After Pilot proof when your team promotes finalized manifests through governed stages.",
+      "After Pilot proof when your team promotes finalized architecture snapshots through governed stages.",
     enterpriseFootnote: "Approvals follow the configured approval path for packages in this workspace.",
   },
   "policy-packs": {
@@ -246,7 +246,7 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     layerBadge: "Evidence trail",
     headline: "Decision traceability graph for the Claims Intake review package.",
     useWhen:
-      "Walk the same milestones as the signed manifest and audit trail — as a connected decision trace.",
+      "Walk the same milestones as the signed architecture snapshot and audit trail — as a connected decision trace.",
     firstPilotNote: null,
   },
   compare: {

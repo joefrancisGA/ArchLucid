@@ -20,18 +20,15 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-EXPORT-DIFF-001")));
 
-        createResponse.EnsureSuccessStatusCode();
-
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        executeResponse.EnsureSuccessStatusCode();
-
+        await executeResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-        commitResponse.EnsureSuccessStatusCode();
-
+        await commitResponse.EnsureSuccessForTestAsync();
         var executiveRequest = new
         {
             templateProfile = "executive",
@@ -81,16 +78,13 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
         HttpResponseMessage executiveExport = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/analysis-report/export/docx/consulting",
             JsonContent(executiveRequest));
-        executiveExport.EnsureSuccessStatusCode();
-
+        await executiveExport.EnsureSuccessForTestAsync();
         HttpResponseMessage internalExport = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/analysis-report/export/docx/consulting",
             JsonContent(internalRequest));
-        internalExport.EnsureSuccessStatusCode();
-
+        await internalExport.EnsureSuccessForTestAsync();
         HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/exports");
-        historyResponse.EnsureSuccessStatusCode();
-
+        await historyResponse.EnsureSuccessForTestAsync();
         RunExportHistoryResponse? history =
             await historyResponse.Content.ReadFromJsonAsync<RunExportHistoryResponse>(JsonOptions);
         history.Should().NotBeNull();

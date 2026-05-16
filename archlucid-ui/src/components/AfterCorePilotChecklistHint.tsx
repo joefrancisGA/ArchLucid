@@ -26,7 +26,7 @@ const suggestions: Suggestion[] = [
   {
     title: "Compare two reviews",
     href: "/compare",
-    description: "Structured manifest diff between a baseline review and a target review when you need to know what changed.",
+    description: "Structured architecture snapshot diff between a baseline review and a target review when you need to know what changed.",
     sidebarNote: `Requires “${NAV_DISCLOSURE.extended.show}” in the sidebar (extended analysis links).`,
   },
   {

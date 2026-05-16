@@ -22,8 +22,7 @@ public sealed class ArchitectureComparisonAuditTests(ArchLucidApiFactory factory
         object request = TestRequestFactory.CreateArchitectureRequest("REQ-COMP-AUDIT-001");
 
         HttpResponseMessage createResponse = await Client.PostAsync("/v1/architecture/request", JsonContent(request));
-        createResponse.EnsureSuccessStatusCode();
-
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
@@ -42,8 +41,7 @@ public sealed class ArchitectureComparisonAuditTests(ArchLucidApiFactory factory
                 executionMode = "Current",
                 manifestVersionOverride = "v1-replay"
             }));
-        replayResponse.EnsureSuccessStatusCode();
-
+        await replayResponse.EnsureSuccessForTestAsync();
         ReplayRunResponseDto? replayPayload =
             await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         string replayRunId = replayPayload!.ReplayRunId;

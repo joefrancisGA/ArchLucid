@@ -20,8 +20,7 @@ public sealed class ArchitectureAgentCompareTests(ArchLucidApiFactory factory) :
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-AGENT-COMPARE-001")));
 
-        createResponse.EnsureSuccessStatusCode();
-
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
@@ -37,8 +36,7 @@ public sealed class ArchitectureAgentCompareTests(ArchLucidApiFactory factory) :
             $"/v1/architecture/run/{runId}/replay",
             JsonContent(replayRequest));
 
-        replayResponse.EnsureSuccessStatusCode();
-
+        await replayResponse.EnsureSuccessForTestAsync();
         ReplayRunResponseDto? replayPayload =
             await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         string replayRunId = replayPayload!.ReplayRunId;

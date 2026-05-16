@@ -24,18 +24,16 @@ public sealed class ReplayCommitOriginalGoldenManifestIsolationIntegrationTests(
         HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-INV013-REPLAY-001")));
-        createResponse.EnsureSuccessStatusCode();
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        executeResponse.EnsureSuccessStatusCode();
-
+        await executeResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-        commitResponse.EnsureSuccessStatusCode();
-
+        await commitResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage detailBeforeReplay = await Client.GetAsync($"/v1/authority/runs/{runId}");
-        detailBeforeReplay.EnsureSuccessStatusCode();
+        await detailBeforeReplay.EnsureSuccessForTestAsync();
         string bodyBefore = await detailBeforeReplay.Content.ReadAsStringAsync();
         string fingerprintBefore = GoldenManifestRawFingerprint(bodyBefore);
 
@@ -47,12 +45,12 @@ public sealed class ReplayCommitOriginalGoldenManifestIsolationIntegrationTests(
             {
                 commitReplay = true, executionMode = "Current", manifestVersionOverride = replayManifestVersion
             }));
-        replayResponse.EnsureSuccessStatusCode();
+        await replayResponse.EnsureSuccessForTestAsync();
         ReplayRunResponseDto? replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         replayPayload!.ReplayRunId.Should().NotBe(runId);
 
         HttpResponseMessage detailAfterReplay = await Client.GetAsync($"/v1/authority/runs/{runId}");
-        detailAfterReplay.EnsureSuccessStatusCode();
+        await detailAfterReplay.EnsureSuccessForTestAsync();
         string bodyAfter = await detailAfterReplay.Content.ReadAsStringAsync();
         string fingerprintAfter = GoldenManifestRawFingerprint(bodyAfter);
 

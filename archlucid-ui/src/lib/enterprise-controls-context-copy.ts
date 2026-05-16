@@ -330,7 +330,7 @@ export const governanceWorkflowQueryCardDescriptionBuyerPolished =
   "The sample below shows a completed approval trail for the Claims Intake review. In production, choose a review to load its workflow history; approving and activating follow your organization’s role policy.";
 
 export const governanceWorkflowQueryCardDescriptionOperator =
-  "Pick a review, then load its approval requests. Approve or reject submitted requests, promote approved manifests, and activate in the target environment when ready.";
+  "Pick a review, then load its approval requests. Approve or reject submitted requests, promote approved architecture snapshots, and activate in the target environment when ready.";
 
 /** No rows returned for the loaded review — reader copy references submit section position when inspect-first layout is used. */
 export const governanceWorkflowNoApprovalsReaderHint =
@@ -540,7 +540,7 @@ export const auditExportCsvButtonLabelRoleRestricted = "Download audit trail";
 
 /** Audit log — buyer-polished shell: narrative promise before event list. */
 export const auditTrailBuyerProofNarrativeLead =
-  "This audit trail demonstrates how the review progressed from captured context through manifest finalization, governance approval, and packaged deliverables with named human actors and lifecycle events recorded by the product.";
+  "This audit trail demonstrates how the review progressed from captured context through architecture snapshot finalization, governance approval, and packaged deliverables with named human actors and lifecycle events recorded by the product.";
 
 /** Policy packs — intro under “Compare versions” when caller can mutate (Execute+ in shell). */
 export const policyPacksCompareVersionsIntroOperator =

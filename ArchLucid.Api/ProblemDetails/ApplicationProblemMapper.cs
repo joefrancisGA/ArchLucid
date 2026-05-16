@@ -2,6 +2,8 @@ using System.Data.Common;
 
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Repositories;
@@ -73,6 +75,49 @@ public static class ApplicationProblemMapper
                     d.Extensions[ProblemDocumentationLinks.RunbookExtensionKey] =
                         ProblemDocumentationLinks.QualityGateRejectionRunbookRelativePath;
                 });
+            return true;
+        }
+
+        // Simulator / real executor wrap per-task failures so callers get dispatch key + AgentType; without mapping this
+        // surfaced as HTTP 500 (ReplayRun/Execute only caught InvalidOperationException).
+        if (ex is AgentHandlerExecutionException agentHandlerEx)
+        {
+            string detail = agentHandlerEx.InnerException is not null
+                ? agentHandlerEx.InnerException.Message
+                : agentHandlerEx.Message;
+            result = CreateProblemResult(
+                StatusCodes.Status400BadRequest,
+                "Bad Request",
+                detail,
+                ProblemTypes.BusinessRuleViolation,
+                instance,
+                httpContext,
+                d =>
+                {
+                    d.Extensions["agentTypeKey"] = agentHandlerEx.AgentTypeKey;
+                    d.Extensions["agentType"] = agentHandlerEx.AgentType.ToString();
+                });
+            return true;
+        }
+
+        if (ex is GoldenManifestSchemaValidationException schemaValidationEx)
+        {
+            IReadOnlyList<string> errors = schemaValidationEx.Result.Errors;
+            string detail = errors.Count == 0
+                ? "Golden manifest schema validation failed."
+                : string.Join(
+                    "; ",
+                    errors.Count <= 5
+                        ? errors
+                        : errors.Take(5).Concat([$"(+{errors.Count - 5} more)"]));
+            result = CreateProblemResult(
+                StatusCodes.Status400BadRequest,
+                "Bad Request",
+                detail,
+                ProblemTypes.ValidationFailed,
+                instance,
+                httpContext,
+                d => d.Extensions["errors"] = errors.ToArray());
             return true;
         }
 

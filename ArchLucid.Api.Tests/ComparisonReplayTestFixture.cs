@@ -29,12 +29,12 @@ public static class ComparisonReplayTestFixture
         HttpResponseMessage createResponse = await client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
-        createResponse.EnsureSuccessStatusCode();
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(jsonOptions);
         string runId = created!.Run.RunId;
         HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        executeResponse.EnsureSuccessStatusCode();
+        await executeResponse.EnsureSuccessForTestAsync();
         return runId;
     }
 
@@ -53,16 +53,16 @@ public static class ComparisonReplayTestFixture
         HttpResponseMessage createResponse = await client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
-        createResponse.EnsureSuccessStatusCode();
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(jsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        executeResponse.EnsureSuccessStatusCode();
+        await executeResponse.EnsureSuccessForTestAsync();
 
         HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-        commitResponse.EnsureSuccessStatusCode();
+        await commitResponse.EnsureSuccessForTestAsync();
 
         string replayManifestVersion = NewReplayCommittedManifestVersion();
 
@@ -72,7 +72,7 @@ public static class ComparisonReplayTestFixture
             {
                 commitReplay = true, executionMode = "Current", manifestVersionOverride = replayManifestVersion
             }));
-        replayResponse.EnsureSuccessStatusCode();
+        await replayResponse.EnsureSuccessForTestAsync();
         ReplayRunResponseDto? replayPayload =
             await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(jsonOptions);
         return (runId, replayPayload!.ReplayRunId);
@@ -95,7 +95,7 @@ public static class ComparisonReplayTestFixture
         HttpResponseMessage persist = await client.PostAsync(
             $"/v1/architecture/run/compare/end-to-end/summary?leftRunId={Uri.EscapeDataString(leftRunId)}&rightRunId={Uri.EscapeDataString(rightRunId)}",
             new StringContent("""{"persist":true}""", Encoding.UTF8, "application/json"));
-        persist.EnsureSuccessStatusCode();
+        await persist.EnsureSuccessForTestAsync();
         string? comparisonRecordId = persist.Headers.GetValues("X-ArchLucid-ComparisonRecordId").FirstOrDefault();
         return string.IsNullOrEmpty(comparisonRecordId)
             ? throw new InvalidOperationException("X-ArchLucid-ComparisonRecordId header missing.")

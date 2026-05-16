@@ -20,21 +20,17 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-RUNDETAILS-001")));
 
-        createResponse.EnsureSuccessStatusCode();
-
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        executeResponse.EnsureSuccessStatusCode();
-
+        await executeResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-        commitResponse.EnsureSuccessStatusCode();
-
+        await commitResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage runResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
-        runResponse.EnsureSuccessStatusCode();
-
+        await runResponse.EnsureSuccessForTestAsync();
         RunDetailsResponseDto? payload =
             await runResponse.Content.ReadFromJsonAsync<RunDetailsResponseDto>(JsonOptions);
 
@@ -53,13 +49,13 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
         Guid authorityRunKey = Guid.Parse(runId);
         HttpResponseMessage authorityDetailResponse =
             await Client.GetAsync($"/v1/authority/runs/{authorityRunKey:D}");
-        authorityDetailResponse.EnsureSuccessStatusCode();
+        await authorityDetailResponse.EnsureSuccessForTestAsync();
         using JsonDocument authorityDetailDoc =
             JsonDocument.Parse(await authorityDetailResponse.Content.ReadAsStringAsync());
         authorityDetailDoc.RootElement.GetProperty("executionFlavorBuyerSummary").GetString().Should().NotBeNullOrWhiteSpace();
 
         HttpResponseMessage roiResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/roi");
-        roiResponse.EnsureSuccessStatusCode();
+        await roiResponse.EnsureSuccessForTestAsync();
         using JsonDocument doc = JsonDocument.Parse(await roiResponse.Content.ReadAsStringAsync());
 
         doc.RootElement.GetProperty("runId").GetString().Should().Be(runId);

@@ -49,15 +49,14 @@ public sealed class ArchivalConcurrencyIntegrationTests
             JsonContent(
                 TestRequestFactory.CreateArchitectureRequest("REQ-ARCH-CONC-" + Guid.NewGuid().ToString("N")[..8])));
 
-        createResponse.EnsureSuccessStatusCode();
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
         Guid runKey = Guid.Parse(runId);
 
         HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        executeResponse.EnsureSuccessStatusCode();
-
+        await executeResponse.EnsureSuccessForTestAsync();
         const int parallel = 5;
         object body = new { runIds = new[] { runKey } };
         Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];

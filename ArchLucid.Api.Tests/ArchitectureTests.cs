@@ -35,8 +35,7 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
             "/v1/architecture/request",
             JsonContent(request));
 
-        response.EnsureSuccessStatusCode();
-
+        await response.EnsureSuccessForTestAsync();
         string body = await response.Content.ReadAsStringAsync();
 
         body.Should().Contain("runId");
@@ -58,8 +57,7 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
             "/v1/architecture/request",
             JsonContent(request));
 
-        create.EnsureSuccessStatusCode();
-
+        await create.EnsureSuccessForTestAsync();
         string body = await create.Content.ReadAsStringAsync();
 
         string? runId = JsonDocument.Parse(body)
@@ -72,14 +70,12 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
             $"/v1/internal/architecture/runs/{runId}/seed-fake-results",
             null);
 
-        seed.EnsureSuccessStatusCode();
-
+        await seed.EnsureSuccessForTestAsync();
         HttpResponseMessage commit = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/commit",
             null);
 
-        commit.EnsureSuccessStatusCode();
-
+        await commit.EnsureSuccessForTestAsync();
         CommitRunResponseDto? commitPayload =
             await commit.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
@@ -87,7 +83,7 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
         HttpResponseMessage manifest = await Client.GetAsync(
             $"/v1/architecture/manifest/{Uri.EscapeDataString(manifestVersion)}");
 
-        manifest.EnsureSuccessStatusCode();
+        await manifest.EnsureSuccessForTestAsync();
     }
 
     [SkippableFact]

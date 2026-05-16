@@ -3518,6 +3518,23 @@ END;
 
 GO
 
+/* Tenant consultant whitelabel defaults for architecture-review-board exports (single row per tenant; blob refs stay tenant-scoped in storage). */
+IF OBJECT_ID(N'dbo.TenantConsultantWhitelabelProfiles', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantConsultantWhitelabelProfiles
+    (
+        TenantId                  UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_TenantConsultantWhitelabelProfiles PRIMARY KEY,
+        FirmDisplayName           NVARCHAR(256)    NOT NULL,
+        DefaultEngagementTitle    NVARCHAR(512)    NOT NULL,
+        LogoBlobReference         NVARCHAR(1024)   NULL,
+        FooterAttributionTemplate NVARCHAR(1024)   NULL,
+        UpdatedUtc                DATETIMEOFFSET   NOT NULL CONSTRAINT DF_TenantConsultantWhitelabelProfiles_UpdatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT FK_TenantConsultantWhitelabelProfiles_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+END;
+
+GO
+
 -- 077: Trial local identity users (email/password; see docs/security/TRIAL_AUTH.md).
 IF OBJECT_ID(N'dbo.IdentityUsers', N'U') IS NULL
 BEGIN

@@ -39,8 +39,7 @@ public sealed class ArchitectureProvenanceExplanationEndpointTests
         HttpResponseMessage createResponse =
             await client.PostAsync("/v1/architecture/request", SerializeJsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PROV-EXPLAIN-001")));
 
-        createResponse.EnsureSuccessStatusCode();
-
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
 
@@ -73,8 +72,7 @@ public sealed class ArchitectureProvenanceExplanationEndpointTests
         HttpResponseMessage createResponse =
             await client.PostAsync("/v1/architecture/request", SerializeJsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PROV-EXPLAIN-002")));
 
-        createResponse.EnsureSuccessStatusCode();
-
+        await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
 

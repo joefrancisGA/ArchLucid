@@ -77,8 +77,7 @@ public sealed class ArchitectureControllerTests
                 "/v1/architecture/request",
                 JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-002")));
 
-            createResponse.EnsureSuccessStatusCode();
-
+            await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
                 await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
             created.Should().NotBeNull();
@@ -106,8 +105,7 @@ public sealed class ArchitectureControllerTests
                 "/v1/architecture/request",
                 JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-003")));
 
-            createResponse.EnsureSuccessStatusCode();
-
+            await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
                 await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
 
@@ -126,8 +124,7 @@ public sealed class ArchitectureControllerTests
             executePayload.Results.Should().HaveCount(4);
 
             HttpResponseMessage getRunResponse = await client.GetAsync($"/v1/architecture/run/{runId}");
-            getRunResponse.EnsureSuccessStatusCode();
-
+            await getRunResponse.EnsureSuccessForTestAsync();
             GetRunResponseDto? getRunPayload =
                 await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
             getRunPayload!.Results.Should().HaveCount(4);
@@ -143,15 +140,13 @@ public sealed class ArchitectureControllerTests
                 "/v1/architecture/request",
                 JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-004")));
 
-            createResponse.EnsureSuccessStatusCode();
-
+            await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
                 await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
             string runId = created!.Run.RunId;
 
             HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-            executeResponse.EnsureSuccessStatusCode();
-
+            await executeResponse.EnsureSuccessForTestAsync();
             HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
 
             commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -179,8 +174,7 @@ public sealed class ArchitectureControllerTests
                 "/v1/architecture/request",
                 JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-EXEC")));
 
-            createResponse.EnsureSuccessStatusCode();
-
+            await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
                 await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
             created.Should().NotBeNull();
@@ -206,8 +200,7 @@ public sealed class ArchitectureControllerTests
                 "/v1/architecture/request",
                 JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-006")));
 
-            createResponse.EnsureSuccessStatusCode();
-
+            await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
                 await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
             created.Should().NotBeNull();
@@ -216,11 +209,9 @@ public sealed class ArchitectureControllerTests
             runId.Should().NotBeNullOrWhiteSpace();
 
             HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-            executeResponse.EnsureSuccessStatusCode();
-
+            await executeResponse.EnsureSuccessForTestAsync();
             HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-            commitResponse.EnsureSuccessStatusCode();
-
+            await commitResponse.EnsureSuccessForTestAsync();
             CommitRunResponseDto? commitPayload =
                 await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
             commitPayload.Should().NotBeNull();
@@ -233,8 +224,7 @@ public sealed class ArchitectureControllerTests
 
             HttpResponseMessage manifestResponse =
                 await client.GetAsync($"/v1/architecture/manifest/{Uri.EscapeDataString(manifestVersion)}");
-            manifestResponse.EnsureSuccessStatusCode();
-
+            await manifestResponse.EnsureSuccessForTestAsync();
             ManifestDto? manifestPayload = await manifestResponse.Content.ReadFromJsonAsync<ManifestDto>(JsonOptions);
             manifestPayload.Should().NotBeNull();
             manifestPayload.SystemName.Should().Be("EnterpriseRag");
@@ -254,8 +244,7 @@ public sealed class ArchitectureControllerTests
                 "/v1/architecture/request",
                 JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-005")));
 
-            createResponse.EnsureSuccessStatusCode();
-
+            await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
                 await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
             created.Should().NotBeNull();
@@ -264,18 +253,15 @@ public sealed class ArchitectureControllerTests
             runId.Should().NotBeNullOrWhiteSpace();
 
             HttpResponseMessage getRunResponse = await client.GetAsync($"/v1/architecture/run/{runId}");
-            getRunResponse.EnsureSuccessStatusCode();
-
+            await getRunResponse.EnsureSuccessForTestAsync();
             GetRunResponseDto? getRunPayload =
                 await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
             getRunPayload!.Tasks.Should().HaveCount(4);
 
             HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-            executeResponse.EnsureSuccessStatusCode();
-
+            await executeResponse.EnsureSuccessForTestAsync();
             HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-            commitResponse.EnsureSuccessStatusCode();
-
+            await commitResponse.EnsureSuccessForTestAsync();
             CommitRunResponseDto? commitPayload =
                 await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
             commitPayload.Should().NotBeNull();
@@ -288,8 +274,7 @@ public sealed class ArchitectureControllerTests
 
             HttpResponseMessage manifestResponse =
                 await client.GetAsync($"/v1/architecture/manifest/{Uri.EscapeDataString(manifestVersion)}");
-            manifestResponse.EnsureSuccessStatusCode();
-
+            await manifestResponse.EnsureSuccessForTestAsync();
             ManifestDto? manifestPayload = await manifestResponse.Content.ReadFromJsonAsync<ManifestDto>(JsonOptions);
             manifestPayload.Should().NotBeNull();
             manifestPayload.SystemName.Should().Be("EnterpriseRag");
@@ -349,8 +334,7 @@ public sealed class ArchitectureControllerTests
             first.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
             HttpResponseMessage firstResponse = await client.SendAsync(first);
-            firstResponse.EnsureSuccessStatusCode();
-
+            await firstResponse.EnsureSuccessForTestAsync();
             object secondBody = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-002B");
             using HttpRequestMessage second = new(HttpMethod.Post, "/v1/architecture/request");
             second.Content = JsonContent(secondBody);

@@ -20,7 +20,7 @@ public sealed class GovernanceApprovalConcurrencyIntegrationTests(ArchLucidApiFa
         HttpResponseMessage response = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
-        response.EnsureSuccessStatusCode();
+        await response.EnsureSuccessForTestAsync();
         CreateRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         return payload!.Run.RunId;
     }
@@ -30,7 +30,7 @@ public sealed class GovernanceApprovalConcurrencyIntegrationTests(ArchLucidApiFa
     {
         string runId = await CreateRunAsync("REQ-GOV-32-" + Guid.NewGuid().ToString("N")[..8]);
         HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(runId);
-        submitResponse.EnsureSuccessStatusCode();
+        await submitResponse.EnsureSuccessForTestAsync();
         GovernanceApprovalResponseDto? submitted =
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
 

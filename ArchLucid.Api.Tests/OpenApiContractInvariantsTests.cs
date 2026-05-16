@@ -24,8 +24,7 @@ public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory 
             new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
 
         using HttpResponseMessage response = await client.GetAsync(OpenApiDocumentPath);
-        response.EnsureSuccessStatusCode();
-
+        await response.EnsureSuccessForTestAsync();
         string body = await response.Content.ReadAsStringAsync();
         JsonNode? root = JsonNode.Parse(body);
         root.Should().NotBeNull();

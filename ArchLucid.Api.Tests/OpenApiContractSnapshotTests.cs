@@ -32,8 +32,7 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
             new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
 
         using HttpResponseMessage response = await client.GetAsync(OpenApiDocumentPath);
-        response.EnsureSuccessStatusCode();
-
+        await response.EnsureSuccessForTestAsync();
         string actual = await response.Content.ReadAsStringAsync();
         JsonNode? actualNode = JsonNode.Parse(actual);
         Assert.NotNull(actualNode);
