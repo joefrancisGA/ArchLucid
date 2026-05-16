@@ -1,0 +1,457 @@
+{
+  "rulePackId": "archlucid-ga-starter-v1",
+  "name": "ArchLucid GA Starter Compliance Stubs",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "ruleId": "ai-gov-001",
+      "controlId": "AI-GOV-001",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-001; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-002",
+      "controlId": "AI-GOV-002",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-002; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-003",
+      "controlId": "AI-GOV-003",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-003; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-004",
+      "controlId": "AI-GOV-004",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-004; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-005",
+      "controlId": "AI-GOV-005",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-005; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-006",
+      "controlId": "AI-GOV-006",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-006; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-007",
+      "controlId": "AI-GOV-007",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-007; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-008",
+      "controlId": "AI-GOV-008",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-008; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-009",
+      "controlId": "AI-GOV-009",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-009; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-010",
+      "controlId": "AI-GOV-010",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-010; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-011",
+      "controlId": "AI-GOV-011",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-011; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-012",
+      "controlId": "AI-GOV-012",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-012; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-013",
+      "controlId": "AI-GOV-013",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-013; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-014",
+      "controlId": "AI-GOV-014",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-014; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-015",
+      "controlId": "AI-GOV-015",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-015; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-016",
+      "controlId": "AI-GOV-016",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-016; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-017",
+      "controlId": "AI-GOV-017",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-017; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-018",
+      "controlId": "AI-GOV-018",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-018; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-019",
+      "controlId": "AI-GOV-019",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-019; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "ai-gov-020",
+      "controlId": "AI-GOV-020",
+      "controlName": "GA AI governance starter rule (catalog stub)",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for ai-gov-020; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-001",
+      "controlId": "SEC-BASE-001",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-001; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-002",
+      "controlId": "SEC-BASE-002",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-002; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-003",
+      "controlId": "SEC-BASE-003",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-003; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-004",
+      "controlId": "SEC-BASE-004",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-004; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-005",
+      "controlId": "SEC-BASE-005",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-005; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-006",
+      "controlId": "SEC-BASE-006",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-006; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-007",
+      "controlId": "SEC-BASE-007",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-007; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-008",
+      "controlId": "SEC-BASE-008",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-008; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-009",
+      "controlId": "SEC-BASE-009",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-009; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-010",
+      "controlId": "SEC-BASE-010",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-010; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-011",
+      "controlId": "SEC-BASE-011",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-011; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-012",
+      "controlId": "SEC-BASE-012",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-012; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-013",
+      "controlId": "SEC-BASE-013",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-013; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-014",
+      "controlId": "SEC-BASE-014",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-014; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-015",
+      "controlId": "SEC-BASE-015",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-015; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-016",
+      "controlId": "SEC-BASE-016",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-016; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-017",
+      "controlId": "SEC-BASE-017",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-017; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-018",
+      "controlId": "SEC-BASE-018",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-018; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-019",
+      "controlId": "SEC-BASE-019",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-019; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-020",
+      "controlId": "SEC-BASE-020",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-020; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-021",
+      "controlId": "SEC-BASE-021",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-021; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-022",
+      "controlId": "SEC-BASE-022",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-022; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-023",
+      "controlId": "SEC-BASE-023",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-023; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-024",
+      "controlId": "SEC-BASE-024",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-024; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-025",
+      "controlId": "SEC-BASE-025",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-025; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    }
+  ]
+}

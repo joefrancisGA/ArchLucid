@@ -9,6 +9,12 @@ public static class PolicyPackType
     /// <summary>Platform-provided template packs.</summary>
     public const string BuiltIn = "BuiltIn";
 
+    /// <summary>
+    ///     First-party default seeded at tenant provisioning; not user-republishable via the public policy-pack API (HTTP guard
+    ///     in <c>PolicyPacksAppService</c>).
+    /// </summary>
+    public const string PlatformDefault = "PlatformDefault";
+
     /// <summary>Tenant-scoped custom pack.</summary>
     public const string TenantCustom = "TenantCustom";
 
