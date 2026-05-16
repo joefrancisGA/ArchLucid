@@ -97,7 +97,7 @@ function DemoStatusBanner({
         className="rounded border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
         role="status"
       >
-        <span className="font-semibold">Sample output</span>
+        <span className="font-semibold">Sample review package</span>
         {" · "}
         <span className="text-neutral-600 dark:text-neutral-400">Claims Intake modernization (illustrative)</span>
       </div>
@@ -247,7 +247,7 @@ export function DemoPreviewMarketingBody({
           />
           <details className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-800">
             <summary className="cursor-pointer select-none font-medium text-neutral-900 dark:text-neutral-100">
-              {demoMode ? "Full audit timeline" : "Classic vertical timeline"}
+              {demoMode ? "Full audit trail" : "Classic vertical timeline"}
             </summary>
             <div className="mt-3">
               <AuthorityPipelineTimeline items={pipelineItems} omitEventTechnicalDetails={demoMode} />
@@ -405,25 +405,25 @@ export function DemoPreviewMarketingBody({
 
       <section data-testid="demo-preview-signup-cta" className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900/50">
         <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-50">
-          Try with your own architecture
+          Evaluate ArchLucid for your program
         </h2>
         <p className="mt-2 m-0 text-sm text-neutral-600 dark:text-neutral-400">
-          Start a free workspace trial — bring your material and run a governed architecture review comparable to what you
+          Schedule an enterprise demo — bring your material and walk through a governed architecture review comparable to what you
           see here.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link
-            href="/signup"
+            href="/pricing#pricing-quote-request"
             className="inline-flex rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
             data-testid="demo-preview-cta-signup"
           >
-            Start free trial
+            Schedule enterprise demo
           </Link>
           <Link
-            href="/get-started"
+            href="/auth/signin"
             className="inline-flex rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-900 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
           >
-            Getting started
+            Sign in
           </Link>
         </div>
       </section>

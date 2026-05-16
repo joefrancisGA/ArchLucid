@@ -6,19 +6,6 @@ export type MarketingTrustCenterBuyerBodyProps = {
   readonly lastReviewedUtc: string | null;
 };
 
-/** Contact for security questionnaires and procurement follow-up */
-const SECURITY_CONTACT = (
-  <>
-    Email{" "}
-    <Link
-      className="font-medium text-blue-800 underline underline-offset-2 hover:text-blue-950 dark:text-blue-300 dark:hover:text-blue-200"
-      href="mailto:security@archlucid.net"
-    >
-      security@archlucid.net
-    </Link>
-  </>
-);
-
 /** Public Trust Center structured layout (marketing route). Does not imply SOC&nbsp;2 CPA attestation or completed third-party penetration tests unless a published summary states otherwise. */
 export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBodyProps): ReactNode {
   const { lastReviewedUtc } = props;
@@ -31,10 +18,6 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           Procurement and security reviewer entry point for assurance posture on the ArchLucid product. Current assurance
           materials include internal control mapping, architecture and security documentation, SOC{"\u00A0"}2 readiness
           summaries, and questionnaire-oriented diligence packets.
-        </p>
-        <p className="mt-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          CPA-issued attestations and independent penetration-test summaries ship when formally published — detailed status
-          and artifacts are reviewed during procurement.
         </p>
 
         <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
@@ -52,9 +35,9 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
                 Available today
               </p>
               <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-                <li>SOC&nbsp;2 control-mapping self-assessment (not a CPA opinion)</li>
+                <li>SOC&nbsp;2 readiness control mapping — readiness artifact, not an attestation report</li>
                 <li>Architecture, operations, and security documentation packs</li>
-                <li>Audit-ready evidence packages (immutable audit design for mutating routes)</li>
+                <li>Audit-ready evidence packages (immutable audit design for material changes)</li>
               </ul>
             </div>
             <div>
@@ -63,7 +46,15 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
               </p>
               <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
                 <li>Diligence questionnaire responses and CAIQ-lite / SIG oriented summaries under confidentiality</li>
-                <li>Subprocessors and tenancy overview on request via {SECURITY_CONTACT}</li>
+                <li>
+                  Subprocessors and tenancy overview on request — see{" "}
+                  <Link
+                    href="#trust-contact-review"
+                    className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+                  >
+                    Security review contact
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
@@ -71,9 +62,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
                 Planned / in flight
               </p>
               <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-                <li>
-                  Independent third-party assessment planned for the next assurance cycle.
-                </li>
+                <li>Independent third-party assessment planned for the next assurance cycle.</li>
               </ul>
             </div>
           </div>
@@ -86,9 +75,8 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           ArchLucid is built for regulated buyers: tenant isolation, scope-filtered APIs, immutable audit instrumentation for
-          mutating routes, and evidence packs suitable for questionnaires.{" "}
-          Detailed control narratives and questionnaire responses are shared with buyers during due diligence, not scraped
-          from filenames on this page.
+          material changes, and evidence packs suitable for questionnaires. Detailed control narratives and questionnaire
+          responses are shared during diligence.
         </p>
       </section>
 
@@ -98,7 +86,8 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           Request the current procurement-ready bundle containing questionnaire pre-fills (for example CAIQ-lite and SIG
-          oriented summaries), tenancy and subprocessors overview, SLA summary excerpts, incident response placeholders, and security contact references. Detailed reports referenced in questionnaires are commonly shared under confidentiality.
+          oriented summaries), tenancy and subprocessors overview, SLA summary excerpts, incident response placeholders, and
+          security contact references. Detailed reports referenced in questionnaires are commonly shared under confidentiality.
         </p>
       </section>
 
@@ -122,6 +111,16 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         </ul>
       </section>
 
+      <section aria-labelledby="trust-planned-assurance">
+        <h2 id="trust-planned-assurance" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+          Planned assurance
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          CPA-issued attestations and independent penetration-test summaries ship when formally published and approved for
+          distribution. Timelines are confirmed during procurement.
+        </p>
+      </section>
+
       <section aria-labelledby="trust-data-handling">
         <h2 id="trust-data-handling" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
           Data handling &amp; privacy
@@ -130,12 +129,15 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           ArchLucid stores architecture review evidence and governance metadata about systems customers describe — not a clinical
           record system or patient-care record store.{" "}
           The public demo uses illustrative data only and is not intended for regulated health data. Production deployments are
-          configured under contractual data-processing terms. Coordinate with{" "}
-          {SECURITY_CONTACT} for privacy agreements. Plain-language disclosures live on the{" "}
+          configured under contractual data-processing terms. Coordinate via the{" "}
           <Link
-            href="/privacy"
+            href="#trust-contact-review"
             className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
           >
+            Security review contact
+          </Link>{" "}
+          for privacy agreements. Plain-language disclosures live on the{" "}
+          <Link href="/privacy" className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300">
             Privacy
           </Link>{" "}
           page.
@@ -147,17 +149,31 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           Procurement questionnaire response package
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          Procurement teams reuse structured answers mapped to ArchLucid&rsquo;s reusable procurement evidence catalogue. Submit your
-          intake form requirements and stakeholder list via {SECURITY_CONTACT} so we align the artefact bundle to your
-          process.
+          Procurement teams reuse structured answers mapped to ArchLucid&rsquo;s reusable procurement evidence catalogue. Submit
+          your intake form requirements and stakeholder list via the{" "}
+          <Link
+            href="#trust-contact-review"
+            className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+          >
+            Security review contact
+          </Link>{" "}
+          so we align the artefact bundle to your process.
         </p>
       </section>
 
-      <section aria-labelledby="trust-contact-review">
-        <h2 id="trust-contact-review" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+      <section id="trust-contact-review" aria-labelledby="trust-contact-review-heading">
+        <h2 id="trust-contact-review-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
           Contact — security review
         </h2>
-        <p className="mt-2 max-w-3xl text-sm text-neutral-700 dark:text-neutral-300">{SECURITY_CONTACT}</p>
+        <p className="mt-2 max-w-3xl text-sm text-neutral-700 dark:text-neutral-300">
+          Email{" "}
+          <Link
+            className="font-medium text-blue-800 underline underline-offset-2 hover:text-blue-950 dark:text-blue-300 dark:hover:text-blue-200"
+            href="mailto:security@archlucid.net"
+          >
+            security@archlucid.net
+          </Link>
+        </p>
       </section>
     </div>
   );

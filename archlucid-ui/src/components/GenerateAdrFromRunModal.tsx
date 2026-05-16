@@ -71,7 +71,7 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
   return (
     <>
       <Button type="button" variant="outline" data-testid="generate-adr-button" onClick={() => onOpenChange(true)}>
-        {buyerPolished ? "Open decision record" : "Generate ADR"}
+        {buyerPolished ? "View signed manifest" : "Generate ADR"}
       </Button>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-h-[min(90vh,56rem)] max-w-3xl gap-4 overflow-y-auto">

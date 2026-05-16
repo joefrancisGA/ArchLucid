@@ -47,7 +47,7 @@ describe("PricingPage brand category", () => {
     expect(text).not.toContain(BRAND_CATEGORY_LEGACY);
   });
 
-  it("renders the quote request section before the tier pricing heading (sales-led layout)", async () => {
+  it("renders the tier pricing heading before the quote request section (plans before lead capture)", async () => {
     const element = await PricingPage({ searchParams: Promise.resolve({}) });
     const { container, getByTestId } = render(element);
 
@@ -61,6 +61,6 @@ describe("PricingPage brand category", () => {
     }
 
     const position = quoteSection.compareDocumentPosition(pricingHeading);
-    expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(position & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
   });
 });

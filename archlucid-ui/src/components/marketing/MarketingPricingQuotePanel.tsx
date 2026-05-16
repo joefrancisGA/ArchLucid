@@ -4,11 +4,35 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
+const MAX_MESSAGE_CHARS = 2000;
+
+function buildQuoteMessageBody(userMessage: string, industry: string, procurementTimeline: string): string {
+  const lines: string[] = [];
+
+  if (industry.trim().length > 0) {
+    lines.push(`Industry: ${industry.trim()}`);
+  }
+
+  if (procurementTimeline.trim().length > 0) {
+    lines.push(`Procurement timeline: ${procurementTimeline.trim()}`);
+  }
+
+  if (lines.length > 0) {
+    lines.push("");
+  }
+
+  lines.push(userMessage.trim());
+
+  return lines.join("\n");
+}
+
 /** Anonymous quote request — POST `/v1/marketing/pricing/quote-request` via same-origin proxy. */
 export function MarketingPricingQuotePanel() {
   const [workEmail, setWorkEmail] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [tierInterest, setTierInterest] = useState("Professional");
+  const [industry, setIndustry] = useState("");
+  const [procurementTimeline, setProcurementTimeline] = useState("");
   const [message, setMessage] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [busy, setBusy] = useState(false);
@@ -20,6 +44,15 @@ export function MarketingPricingQuotePanel() {
     setBusy(true);
     setError(null);
 
+    const composed = buildQuoteMessageBody(message, industry, procurementTimeline);
+
+    if (composed.length > MAX_MESSAGE_CHARS) {
+      setError(`Message and optional fields combined must be at most ${MAX_MESSAGE_CHARS} characters.`);
+      setBusy(false);
+
+      return;
+    }
+
     try {
       const res = await fetch("/api/proxy/v1/marketing/pricing/quote-request", {
         method: "POST",
@@ -28,7 +61,7 @@ export function MarketingPricingQuotePanel() {
           workEmail,
           companyName,
           tierInterest,
-          message,
+          message: composed,
           websiteUrl,
         }),
       });
@@ -113,14 +146,33 @@ export function MarketingPricingQuotePanel() {
             </select>
           </label>
           <label className="flex flex-col gap-1 text-sm">
+            <span>Industry (optional)</span>
+            <input
+              type="text"
+              autoComplete="off"
+              value={industry}
+              onChange={(ev) => setIndustry(ev.target.value)}
+              className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span>Procurement timeline (optional)</span>
+            <input
+              type="text"
+              value={procurementTimeline}
+              onChange={(ev) => setProcurementTimeline(ev.target.value)}
+              placeholder="e.g. Q3 RFP, 90-day pilot"
+              className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
             <span>Message</span>
             <span className="text-xs font-normal text-neutral-500 dark:text-neutral-400">
-              Include deployment scope, procurement timeline, data sensitivity, and expected review volume if known (up to
-              2000 characters).
+              Include deployment scope, procurement timeline, data sensitivity, and expected review volume if known.
             </span>
             <textarea
               required
-              maxLength={2000}
+              maxLength={MAX_MESSAGE_CHARS}
               rows={4}
               value={message}
               onChange={(ev) => setMessage(ev.target.value)}

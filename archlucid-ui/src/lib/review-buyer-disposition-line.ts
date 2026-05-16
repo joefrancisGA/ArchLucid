@@ -28,7 +28,11 @@ export function buildBuyerReviewPackagePlainStatusHeadline(input: BuyerReviewDis
   const unresolved = clampNonNegativeInt(input.unresolvedIssueCountDisplay);
 
   if (postureRaw === "approved with monitoring" && warnings === 1 && (unresolved === null || unresolved === 0)) {
-    return "Approved with monitoring: one non-blocking PHI minimization item remains under weekly exception-volume review.";
+    return [
+      "Decision: Approved with monitoring",
+      "Remaining risk: PHI minimization at the intake boundary",
+      "Monitoring cadence: Weekly exception-volume review",
+    ].join("\n");
   }
 
   if (postureRaw === "approved with monitoring") {
@@ -60,7 +64,7 @@ export function buyerHeaderStatusTwinPillCaption(input: BuyerReviewDispositionIn
  */
 export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDispositionInput): string {
   if (!input.hasGoldenManifest) {
-    return "Finalize the reviewed manifest to lock findings, warnings, and governance approval signals for this package.";
+    return "Finalize the reviewed manifest to lock findings, monitored risks, and governance approval signals for this package.";
   }
 
   const findings = clampNonNegativeInt(input.findingCountDisplay);
@@ -82,7 +86,7 @@ export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDisposi
 
   const warningPhrase =
     warnings !== null && warnings > 0
-      ? ` ${warnings} non-blocking warning${warnings === 1 ? "" : "s"} remain on the sealed record.`
+      ? ` ${warnings} non-blocking monitored risk${warnings === 1 ? "" : "s"} remain on the sealed record.`
       : "";
 
   const lead =

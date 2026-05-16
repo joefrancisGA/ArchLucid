@@ -30,7 +30,7 @@ describe("buildBuyerReviewPackagePlainStatusHeadline", () => {
         governanceGateLabel: "Passed",
         aggregateRiskPosture: "Approved with monitoring",
       }),
-    ).toContain("PHI minimization");
+    ).toContain("Decision: Approved with monitoring");
   });
 });
 
@@ -89,7 +89,7 @@ describe("buildBuyerReviewPackageDispositionLine", () => {
     expect(line).toContain("Approved with monitoring");
     expect(line).toContain("governance gate Approved with monitoring");
     expect(line).toContain("9 findings");
-    expect(line).toContain("non-blocking warning");
+    expect(line).toContain("non-blocking monitored risk");
   });
 
   it("surfaces unresolved manifest issues when present", () => {

@@ -66,7 +66,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
             </p>
             <p className="m-0 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
               For this sample review, the PHI minimization finding is tied to source context, applied policy packs, the signed
-              manifest, and packaged deliverables in one trace consumers can replay.
+              manifest, and packaged deliverables in one trace consumers can follow in a single evidence trail.
             </p>
           </div>
           {graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
@@ -84,7 +84,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
           )}
         >
           <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-            Filter evidence view
+            Filter evidence trail
           </summary>
           <div className="border-t border-neutral-200 px-2 pb-3 pt-1 dark:border-neutral-700">{controls}</div>
         </details>

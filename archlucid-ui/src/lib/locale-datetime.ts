@@ -62,12 +62,12 @@ export function formatConversationListDate(iso: string | null | undefined): stri
 }
 
 /**
- * Conversation sidebar rows in polished demo builds: show "Sample conversation" to avoid stale-looking
+ * Conversation sidebar rows in polished demo builds: show a stable example label to avoid stale-looking
  * static demo dates in buyer captures.
  */
 export function formatConversationListDatePolished(iso: string | null | undefined): string {
   // Same arity as `formatConversationListDate` so callers can swap formatters; value not shown in polished shell.
   void iso;
 
-  return "Sample conversation";
+  return "Example evidence answer";
 }

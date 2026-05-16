@@ -46,7 +46,7 @@ export default async function DemoPreviewMarketingPage() {
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
         <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
           A read-only walkthrough of a completed architecture review tailored for procurement and sponsor conversations —
-          sample identifiers are simplified for readability.
+          This public walkthrough uses illustrative sample data.
         </p>
         <div className="mt-8">
           <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
@@ -69,7 +69,7 @@ export default async function DemoPreviewMarketingPage() {
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
         <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
           A read-only walkthrough of a completed architecture review tailored for procurement and sponsor conversations —
-          sample identifiers are simplified for readability.
+          This public walkthrough uses illustrative sample data.
         </p>
         <div className="mt-8">
           <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
@@ -84,7 +84,7 @@ export default async function DemoPreviewMarketingPage() {
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
         <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
           A read-only walkthrough of a completed architecture review tailored for procurement and sponsor conversations —
-          sample identifiers are simplified for readability.
+          This public walkthrough uses illustrative sample data.
         </p>
         <div className="mt-8">
           <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
@@ -100,7 +100,7 @@ export default async function DemoPreviewMarketingPage() {
       <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
         A read-only walkthrough of a completed architecture review tailored for procurement and sponsor conversations —
-        sample identifiers are simplified for readability.
+        This public walkthrough uses illustrative sample data.
       </p>
       <div className="mt-8">
         <DemoPreviewMarketingBody payload={payload} />

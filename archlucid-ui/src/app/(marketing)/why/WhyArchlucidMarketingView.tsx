@@ -83,7 +83,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
 
       <section className="mt-12" aria-labelledby="why-market-landscape-heading">
         <h2 id="why-market-landscape-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
-          Where ArchLucid fits (adjacent tooling · qualitative landscape)
+          Where ArchLucid fits (adjacent tooling)
         </h2>
         <p className="mt-2 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400">
           Summarized wording only — citations and benchmark detail are included in the proof pack linked from this page.
@@ -204,7 +204,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
 
       <section className="mt-12" aria-labelledby="why-hard-compare-heading">
         <h2 id="why-hard-compare-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
-          Fit-for-purpose comparison (technical claims)
+          Governance capability comparison
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
           Symbols in the product columns (✓ / partial / —) summarize capability depth; each row links to diligence

@@ -24,14 +24,14 @@ export function AskBuyerRunAnchors(props: AskBuyerRunAnchorsProps) {
         className="font-medium text-teal-800 underline dark:text-teal-300"
         href={`/reviews/${encodeURIComponent(canonical)}`}
       >
-        Open linked architecture review
+        Open review package
       </Link>
       {canonical === SHOWCASE_STATIC_DEMO_RUN_ID ? (
         <Link
           className="font-medium text-teal-800 underline dark:text-teal-300"
           href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}
         >
-          Open manifest
+          Open signed manifest
         </Link>
       ) : null}
     </p>

@@ -17,16 +17,16 @@ test.describe("marketing-demo-preview", () => {
 
     const outcomeStrip = page.getByRole("region", { name: "Open completed output" });
     await expect(outcomeStrip).toBeVisible();
-    await expect(outcomeStrip.getByText(/1 · Architecture review/)).toBeVisible();
+    await expect(outcomeStrip.getByText(/1 · Executive summary/)).toBeVisible();
     await expect(outcomeStrip.getByText(/2 · Signed manifest/)).toBeVisible();
 
     const signup = page.locator('[data-testid="demo-preview-cta-signup"]');
 
     await expect(signup).toBeVisible();
-    await expect(signup).toHaveAttribute("href", "/signup");
-    await expect(page.getByTestId("demo-preview-signup-cta").getByRole("link", { name: "Getting started" })).toHaveAttribute(
+    await expect(signup).toHaveAttribute("href", "/pricing#pricing-quote-request");
+    await expect(page.getByTestId("demo-preview-signup-cta").getByRole("link", { name: "Sign in" })).toHaveAttribute(
       "href",
-      "/get-started",
+      "/auth/signin",
     );
 
     await expect(page.getByTestId("demo-preview-guided-callouts")).toBeVisible();

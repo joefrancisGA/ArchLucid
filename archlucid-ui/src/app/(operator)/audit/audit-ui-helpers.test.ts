@@ -82,7 +82,7 @@ describe("auditEventLifecycleSortKey", () => {
 describe("audit lifecycle grouping", () => {
   it("maps PascalCase audit spine types into grouping headings via Contracts parity", () => {
     expect(auditEventLifecycleStageLabel("ManifestGenerated")).toBe("Manifest finalized");
-    expect(auditEventLifecycleStageLabel("GovernanceApprovalRequested")).toBe("Governance handoff");
+    expect(auditEventLifecycleStageLabel("GovernanceApprovalRequested")).toBe("Governance approval recorded");
     expect(auditEventLifecycleStageLabel("RunSubmitted")).toBe("Review started");
   });
 
@@ -103,23 +103,23 @@ describe("audit lifecycle grouping", () => {
       { eventType: "context.snapshot.created" },
     ]);
 
-    expect(grouped.map((g) => g.stage)).toEqual(["Review started", "Context captured", "Artifacts bundled"]);
+    expect(grouped.map((g) => g.stage)).toEqual(["Review started", "Source context captured", "Artifacts bundled"]);
     expect(grouped[0]?.events).toHaveLength(1);
     expect(grouped[0]?.events[0]?.eventType).toBe("RunStarted");
   });
 
-  it("maps governance approval recorded to governance handoff grouping", () => {
-    expect(auditEventLifecycleStageLabel("com.archlucid.governance.approval.recorded")).toBe("Governance handoff");
+  it("maps governance approval recorded to governance approval grouping", () => {
+    expect(auditEventLifecycleStageLabel("com.archlucid.governance.approval.recorded")).toBe("Governance approval recorded");
   });
 
-  it("orders manifest, governance handoff, then artifacts bundle in canonical lifecycle order", () => {
+  it("orders manifest, governance approval, then artifacts bundle in canonical lifecycle order", () => {
     const grouped = groupAuditEventsByLifecycleStage([
       { eventType: "artifact.bundle.created" },
       { eventType: "com.archlucid.governance.approval.recorded" },
       { eventType: "finalize.run" },
     ]);
 
-    expect(grouped.map((g) => g.stage)).toEqual(["Manifest finalized", "Governance handoff", "Artifacts bundled"]);
+    expect(grouped.map((g) => g.stage)).toEqual(["Manifest finalized", "Governance approval recorded", "Artifacts bundled"]);
   });
 });
 

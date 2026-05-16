@@ -14,26 +14,26 @@ export function DemoPreviewGuidedCallouts() {
       <p className="m-0 font-semibold">How to read this walkthrough</p>
       <ol className="mt-3 list-decimal space-y-2 pl-5 text-teal-900 dark:text-teal-100">
         <li data-callout="findings">
-          <strong>Findings &amp; evidence</strong> — severity, recommended actions, and traceable rationale in the review
+          <strong>Evidence graph</strong> — trace findings, decisions, and deliverables to source evidence in the review
           outcome strip above.
         </li>
         <li data-callout="provenance">
           <strong>Provenance &amp; review lifecycle</strong> — see how the review moved from captured context to the
-          committed manifest. Open <span className="font-medium">Full audit timeline</span> for the vertical sequence.
+          committed manifest. Open <span className="font-medium">Full audit trail</span> for the vertical sequence.
         </li>
         <li data-callout="governance">
-          <strong>Governance posture</strong> — manifest summary captures policy pack, decisions, and monitored risks for
+          <strong>Governance approval</strong> — manifest summary captures policy pack, decisions, and monitored risks for
           this architecture review.
         </li>
         <li data-callout="manifest">
-          <strong>Manifest &amp; deliverables</strong> — signed record plus exportable rows your team can attach to review
+          <strong>Signed manifest &amp; deliverables</strong> — record plus exportable rows your team can attach to review
           packs.
         </li>
       </ol>
       <p className="mt-3 m-0 text-xs text-teal-800 dark:text-teal-200">
-        Prefer the shorter teaser first? Try{" "}
+        For a shorter overview, view the{" "}
         <Link href="/see-it" className="font-medium underline underline-offset-2">
-          See it in 30 seconds
+          30-second summary
         </Link>
         .
       </p>

@@ -43,7 +43,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="text-xl font-semibold text-neutral-900 dark:text-neutral-50"
       id="why-market-landscape-heading"
     >
-      Where ArchLucid fits (adjacent tooling · qualitative landscape)
+      Where ArchLucid fits (adjacent tooling)
     </h2>
     <p
       class="mt-2 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400"
@@ -272,7 +272,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="text-xl font-semibold text-neutral-900 dark:text-neutral-50"
       id="why-hard-compare-heading"
     >
-      Fit-for-purpose comparison (technical claims)
+      Governance capability comparison
     </h2>
     <p
       class="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400"

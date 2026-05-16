@@ -87,11 +87,11 @@ export function auditEventLifecycleSortKey(eventType: string): number {
 /** Ordered stage titles for the review pipeline (demo / buyer lifecycle grouping). */
 export const AUDIT_EVENT_LIFECYCLE_STAGE_ORDER: ReadonlyArray<string> = [
   "Review started",
-  "Context captured",
+  "Source context captured",
   "Graph created",
   "Findings generated",
   "Manifest finalized",
-  "Governance handoff",
+  "Governance approval recorded",
   "Artifacts bundled",
 ];
 
@@ -101,7 +101,7 @@ function lifecycleStageHeading(stage: ReviewAuditLifecycleStageValue): string | 
       return "Review started";
 
     case ReviewAuditLifecycleStage.ContextCaptured:
-      return "Context captured";
+      return "Source context captured";
 
     case ReviewAuditLifecycleStage.GraphCreated:
       return "Graph created";
@@ -116,7 +116,7 @@ function lifecycleStageHeading(stage: ReviewAuditLifecycleStageValue): string | 
       return "Artifacts bundled";
 
     case ReviewAuditLifecycleStage.GovernanceHandoff:
-      return "Governance handoff";
+      return "Governance approval recorded";
 
     default:
       return null;
@@ -137,7 +137,7 @@ export function auditEventLifecycleStageLabel(eventType: string): string | null 
 
     case "context.snapshot.created":
     case "context_snapshot":
-      return "Context captured";
+      return "Source context captured";
 
     case "graph.snapshot.created":
     case "graph_snapshot":
@@ -150,8 +150,11 @@ export function auditEventLifecycleStageLabel(eventType: string): string | null 
     case "finalize.run":
       return "Manifest finalized";
 
+    case "GovernanceApprovalRequested":
+      return "Governance approval recorded";
+
     case "com.archlucid.governance.approval.recorded":
-      return "Governance handoff";
+      return "Governance approval recorded";
 
     case "artifact.bundle.created":
       return "Artifacts bundled";

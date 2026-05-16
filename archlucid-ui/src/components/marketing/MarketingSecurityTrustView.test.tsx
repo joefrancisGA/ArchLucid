@@ -27,6 +27,8 @@ describe("MarketingSecurityTrustView", () => {
     expect(text.toLowerCase()).not.toMatch(/cvss[:\s]*\d/);
     expect(text.toLowerCase()).not.toMatch(/severity[:\s]+(critical|high|medium|low)/);
     expect(text.toLowerCase()).not.toMatch(/customer:\s*[a-z]/);
+    expect(text).not.toMatch(/PENDING_QUESTIONS/i);
+    expect(text).not.toMatch(/2026-04-29/i);
   });
 
   it("surfaces the NDA notice and points reviewers at security@archlucid.net", () => {
@@ -36,12 +38,10 @@ describe("MarketingSecurityTrustView", () => {
     expect(screen.getAllByText(/security@archlucid\.net/i).length).toBeGreaterThan(0);
   });
 
-  it("flags the staging-chaos row as production-out-of-scope", () => {
+  it("describes staging resilience without internal backlog references", () => {
     render(<MarketingSecurityTrustView />);
 
-    const chaosRow = screen.getByTestId(
-      "assurance-row-chaos-game-day-quarterly-staging-2026",
-    );
-    expect(within(chaosRow).getByText(/production out of scope/i)).toBeInTheDocument();
+    const chaosRow = screen.getByTestId("assurance-row-chaos-game-day-quarterly-staging-2026");
+    expect(within(chaosRow).getByText(/Staging-only fault-injection/i)).toBeInTheDocument();
   });
 });

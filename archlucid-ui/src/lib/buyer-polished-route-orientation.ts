@@ -48,7 +48,7 @@ export function buyerPolishedRouteOrientation(pathname: string): {
   if (path.includes(`/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`)) {
     return {
       label: "Signed manifest",
-      line: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} — decisions, warnings, and deliverables linkage.`,
+      line: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} — decisions, monitored risks, and deliverables.`,
     };
   }
 
@@ -57,7 +57,7 @@ export function buyerPolishedRouteOrientation(pathname: string): {
   if (path.replace(/\/$/, "") === friendlyManifestPath) {
     return {
       label: "Signed manifest",
-      line: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} — decisions, warnings, and deliverables linkage.`,
+      line: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} — decisions, monitored risks, and deliverables.`,
     };
   }
 

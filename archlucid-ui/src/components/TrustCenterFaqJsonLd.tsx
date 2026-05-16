@@ -9,7 +9,7 @@ const faqItems: ReadonlyArray<{ question: string; answer: string }> = [
   {
     question: "What is ArchLucid's SOC 2 posture?",
     answer:
-      "ArchLucid maintains an in-repository SOC 2 self-assessment under internal CISO ownership. A CPA SOC 2 attestation is a roadmap item when procurement demand warrants it — see the Trust Center compliance table for current assurance wording.",
+      "ArchLucid publishes SOC 2 readiness control mapping under internal security ownership. This is a readiness artifact, not a CPA attestation report — see the Trust Center for current assurance materials.",
   },
   {
     question: "Does ArchLucid require access to my Azure subscription?",
