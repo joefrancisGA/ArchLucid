@@ -22,6 +22,7 @@
     "Integrations/ItsmInboundWebhooksController.cs": "partner_webhook_ingest",
     "Integrations/SlackInteractivityController.cs": "partner_webhook_ingest",
     "Marketing/EnterpriseComparisonMarketingController.cs": "marketing_public_api",
+    "Marketing/MarketingEarlyAccessRequestController.cs": "marketing_public_api",
     "Marketing/MarketingPricingQuoteRequestController.cs": "marketing_public_api",
     "Marketing/MarketingShowcaseController.cs": "marketing_public_api",
     "Marketing/SponsorBriefMarketingController.cs": "marketing_public_api",

@@ -75,7 +75,7 @@ public sealed class EmailNotificationOptions
         init;
     }
 
-    /// <summary>Inbox for <c>POST /v1/marketing/pricing/quote-request</c> notifications (sales follow-up).</summary>
+    /// <summary>Inbox for anonymous marketing notifications: <c>POST /v1/marketing/pricing/quote-request</c> and <c>POST /v1/marketing/early-access</c> (sales follow-up).</summary>
     public string? PricingQuoteSalesInbox
     {
         get;

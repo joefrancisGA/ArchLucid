@@ -832,6 +832,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Marketing/MarketingEarlyAccessRequestController.cs",
+      "class_name": "MarketingEarlyAccessRequestController",
+      "route_template": "v{version:apiVersion}/marketing/early-access",
+      "normalized_prefix": "/v1/marketing/early-access",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "marketing_public_api",
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Marketing/MarketingPricingQuoteRequestController.cs",
       "class_name": "MarketingPricingQuoteRequestController",
       "route_template": "v{version:apiVersion}/marketing/pricing",

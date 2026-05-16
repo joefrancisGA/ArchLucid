@@ -1,4 +1,3 @@
-import { ReadonlyURLSearchParams } from "next/navigation";
 import { MARKETING_ATTRIBUTION_QUERY_KEYS } from "@/lib/marketing/attribution-query-keys";
 import type { ReadonlyURLSearchParams } from "next/navigation";
 
