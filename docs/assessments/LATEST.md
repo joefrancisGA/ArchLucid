@@ -163,18 +163,17 @@
 
 ---
 
-## Top 10 Most Important Weaknesses
+## Top 9 Most Important Weaknesses
 
-1. **Legacy naming seams** inside **immutable** DbUp migration history and some persisted RLS / graph identifiers (**not** unreleased GitHub or Entra rename work — **Phase 7.6–7.7 closed 2026-04-19**, **7.8 waived**, **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**). Enterprise reviewers may ask for an explicit legacy-to-current map in procurement appendix until remaining honest doc pointers land.
-2. Absence of cross-tenant analytics, limiting Proof-of-ROI for enterprise buyers.
-3. Playwright E2E still relies heavily on mocked **`/api/proxy`** paths — **live** **`ui-e2e-live`** negative API checks (**improvement #8**, **`live-api-negative-paths.spec.ts`**) shrink blind spots but do **not** replace broad golden-path coverage.
-4. **Residual** legacy **RLS** catalog/history identifiers (**improvement #4** dropped orphan predicates only; **`108`** coordination remains where **`ArchiforgeTenantScope`** persists).
-5. Manual nature of some cost estimations in the Azure extractor.
-6. Absence of in-Slack interactive approvals (**early V1.1** target per **P3**, **2026-05-15** — explicitly **out** of V1 GA sprint).
-7. Until improvement **#27** ships, operator shell copy may still read engineering-first vs landing-page workflow vocabulary (**Capture / Evidence / …**) on residual surfaces.
-8. **Azure landing-zone / CAF-aligned curated policy pack deferred to V1.1:** Until **V1.1** ships that pack (same platform as improvement **#29**), marketing must **not** imply bundled CAF mapping — GA relies on **extractor + advisor** posture plus **AI governance + security baseline** packs only.
-9. **Bulk evidence upload capped at 30 files (V1):** Landing or demo copy must not imply unlimited drag-and-drop dossiers; pilots exceeding the envelope need **multiple uploads** or **V1.1** lift — document prominently next to **Capture / Evidence** messaging (**Marketing alignment Q4**).
-10. **Demo workspace fixture drift:** With **two GA-gated workspaces** (**Marketing alignment Q6** / **#31**), UX, export, policy-pack, or graph changes can silently break evaluator smoke — CI/release discipline must pin fixtures or owners risk shipping broken demos.
+1. Absence of cross-tenant analytics, limiting Proof-of-ROI for enterprise buyers.
+2. Playwright E2E still relies heavily on mocked **`/api/proxy`** paths — **live** **`ui-e2e-live`** negative API checks (**improvement #8**, **`live-api-negative-paths.spec.ts`**) shrink blind spots but do **not** replace broad golden-path coverage.
+3. **Residual** legacy **RLS** catalog/history identifiers (**improvement #4** dropped orphan predicates only; **`108`** coordination remains where **`ArchiforgeTenantScope`** persists).
+4. Manual nature of some cost estimations in the Azure extractor.
+5. Absence of in-Slack interactive approvals (**early V1.1** target per **P3**, **2026-05-15** — explicitly **out** of V1 GA sprint).
+6. Until improvement **#27** ships, operator shell copy may still read engineering-first vs landing-page workflow vocabulary (**Capture / Evidence / …**) on residual surfaces.
+7. **Azure landing-zone / CAF-aligned curated policy pack deferred to V1.1:** Until **V1.1** ships that pack (same platform as improvement **#29**), marketing must **not** imply bundled CAF mapping — GA relies on **extractor + advisor** posture plus **AI governance + security baseline** packs only.
+8. **Bulk evidence upload capped at 30 files (V1):** Landing or demo copy must not imply unlimited drag-and-drop dossiers; pilots exceeding the envelope need **multiple uploads** or **V1.1** lift — document prominently next to **Capture / Evidence** messaging (**Marketing alignment Q4**).
+9. **Demo workspace fixture drift:** With **two GA-gated workspaces** (**Marketing alignment Q6** / **#31**), UX, export, policy-pack, or graph changes can silently break evaluator smoke — CI/release discipline must pin fixtures or owners risk shipping broken demos.
 
 ---
 
