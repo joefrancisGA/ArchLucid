@@ -1,6 +1,10 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import { BRAND_CATEGORY } from "@/lib/brand-category";
 
 import { WelcomeMarketingPage } from "./WelcomeMarketingPage";
