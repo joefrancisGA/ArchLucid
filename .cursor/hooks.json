@@ -11,6 +11,11 @@
       {
         "command": "node .cursor/hooks/guard-background.mjs"
       }
+    ],
+    "stop": [
+      {
+        "command": "node .cursor/hooks/auto-commit-push.mjs"
+      }
     ]
   }
 }
