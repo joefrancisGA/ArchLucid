@@ -88,7 +88,7 @@ Open `http://localhost:8080` and load **`workspace.dsl`** from this directory.
 
 ### Decisions and onboarding
 - **Glossary** — `../GLOSSARY.md`
-- **ADRs** — `adr/README.md`
+- **ADRs** — [`adrs/README.md`](adrs/README.md)
 
 ### API and contracts
 - **HTTP contracts** — `../library/API_CONTRACTS.md`

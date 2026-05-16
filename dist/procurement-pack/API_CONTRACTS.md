@@ -36,7 +36,7 @@
 
 **Architecture request body (`POST /v1/architecture/request`):** Field-level summary and integrator notes live in **[`ARCHITECTURE_REQUEST_WIRE_FORMAT.md`](ARCHITECTURE_REQUEST_WIRE_FORMAT.md)** (canonical shapes remain **`GET /openapi/v1.json`** and **`ArchLucid.Contracts.Requests.ArchitectureRequest`**).
 
-**Operator narrative:** `docs/ONBOARDING_HAPPY_PATH.md` (request → commit → retrieval). **Consistency guarantees:** `docs/DATA_CONSISTENCY_MATRIX.md`. **Admin / runbooks:** `docs/OPERATIONS_ADMIN.md`, **`docs/OPERATIONS_LLM_QUOTA.md`** (token budgets, quotas, hosted LLM posture). **ADRs:** `docs/architecture/adr/README.md`.
+**Operator narrative:** `docs/ONBOARDING_HAPPY_PATH.md` (request → commit → retrieval). **Consistency guarantees:** `docs/DATA_CONSISTENCY_MATRIX.md`. **Admin / runbooks:** `docs/OPERATIONS_ADMIN.md`, **`docs/OPERATIONS_LLM_QUOTA.md`** (token budgets, quotas, hosted LLM posture). **ADRs:** `docs/architecture/adrs/README.md`.
 
 ## LLM cost signals — wire contract vs vendor economics
 
@@ -211,7 +211,7 @@ When the tenant is on an **Active** trial that has **expired**, or **run** / **s
 }
 ```
 
-**Reads** under **ReadAuthority** (e.g. explain, GET run detail) are **not** blocked by this rule so operators can still inspect existing work. **Conversion** uses **`POST /v1/tenant/convert`** (annotated to skip the trial write gate). See **`docs/security/TRIAL_LIMITS.md`** and **ADR [0014](../architecture/adr/0014-trial-enforcement-boundary.md)**.
+**Reads** under **ReadAuthority** (e.g. explain, GET run detail) are **not** blocked by this rule so operators can still inspect existing work. **Conversion** uses **`POST /v1/tenant/convert`** (annotated to skip the trial write gate). See **`docs/security/TRIAL_LIMITS.md`** and **ADR [0014](../architecture/adrs/0014-trial-enforcement-boundary.md)**.
 
 ## Comparison replay — verify mode
 

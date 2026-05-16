@@ -35,7 +35,7 @@ namespace ArchLucid.Application.Bootstrap;
 ///     (Snapshot rows + GoldenManifest + AuthorityDecisionTrace). The previous
 ///     <c>ICoordinatorDecisionTraceRepository</c> second write to <c>dbo.DecisionTraces</c> was removed when
 ///     the coordinator interfaces themselves were deleted in PR A3 — see
-///     <c>docs/architecture/adr/0030-coordinator-authority-pipeline-unification.md</c>.
+///     <c>docs/architecture/adrs/0030-coordinator-authority-pipeline-unification.md</c>.
 ///     The export row is optional metadata for export history — not required for consulting DOCX replay. See
 ///     <c>docs/TRUSTED_BASELINE.md</c>.
 /// </remarks>

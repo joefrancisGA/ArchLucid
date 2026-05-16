@@ -18,7 +18,7 @@ ArchLucid is a **proprietary** product codebase. References below to onboarding 
 
 Start at **[docs/START_HERE.md](docs/START_HERE.md)** (buyers). **Engineering team** onboarding for this repo also starts at **[docs/START_HERE.md](docs/START_HERE.md)** (see the contributor section).
 
-**Architecture Decision Records:** **[docs/architecture/adr/README.md](docs/architecture/adr/README.md)**.
+**Architecture Decision Records:** **[docs/architecture/adrs/README.md](docs/architecture/adrs/README.md)**.
 
 Buyers: `docs/BUYER_FIRST_30_MINUTES.md` · Sponsors: `docs/EXECUTIVE_SPONSOR_BRIEF.md` · Security / trust: `docs/trust-center.md` · Depth: `docs/library/` · `docs/ARCHITECTURE_INDEX.md` · Archived root-era snapshots: `docs/archive/root-superseded-2026-05-01/README.md` · Engineering onboarding persona table: [`docs/library/CONTRIBUTOR_PERSONA_TABLE.md`](docs/library/CONTRIBUTOR_PERSONA_TABLE.md) (legacy filename — refers to engineers on the codebase, not public OSS contributors).
 
