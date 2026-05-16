@@ -1,9 +1,5 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
-import {
-  canonicalizeDemoRunId,
-  demoRunUrlRequiresCanonicalRedirect,
-} from "@/lib/demo-run-canonical";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 
 import { loadRunDetailPageModel } from "./_sections/load-run-detail-page-model";
@@ -21,10 +17,6 @@ export default async function RunDetailPage({
 
   if (isInvalidGuidOrSlugRouteToken(runId)) {
     notFound();
-  }
-
-  if (demoRunUrlRequiresCanonicalRedirect(runId)) {
-    redirect(`/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`);
   }
 
   const result = await loadRunDetailPageModel(runId);

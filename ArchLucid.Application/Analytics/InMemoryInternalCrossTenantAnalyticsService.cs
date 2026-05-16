@@ -1,3 +1,5 @@
+using ArchLucid.Core.Analytics;
+
 namespace ArchLucid.Application.Analytics;
 
 /// <summary>In-memory hosts do not model SQL row stores; return an empty-shaped summary.</summary>

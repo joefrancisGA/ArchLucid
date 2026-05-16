@@ -1,5 +1,5 @@
 using ArchLucid.Api.Models.Analytics;
-using ArchLucid.Application.Analytics;
+using ArchLucid.Core.Analytics;
 using ArchLucid.Core.Authorization;
 
 using Asp.Versioning;

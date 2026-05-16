@@ -1,7 +1,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchLucid.Application.Analytics;
+using ArchLucid.Core.Analytics;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;

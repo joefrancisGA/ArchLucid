@@ -1,10 +1,23 @@
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
+import { demoRunAliasRedirectDestinationPath } from "@/lib/demo-run-alias-path-redirect";
+
 /**
- * Next.js middleware: extend for auth checks or request transforms (e.g. runs/compare/replay/manifests).
- * Invalid dynamic segments are handled with `notFound()` in segment layouts or page loaders (branded 404).
+ * Next.js middleware: demo run id aliases (bookmark slugs → canonical showcase id) MUST preserve pathname tails
+ * (`/findings/.../inspect`, `/provenance`, …). Matching logic also lives alongside {@link canonicalizeDemoRunId}.
  */
-export function middleware() {
+export function middleware(request: NextRequest) {
+  const nextPath = demoRunAliasRedirectDestinationPath(request.nextUrl.pathname);
+
+  if (nextPath !== null) {
+    const u = request.nextUrl.clone();
+
+    u.pathname = nextPath;
+
+    return NextResponse.redirect(u, 308);
+  }
+
   return NextResponse.next();
 }
 

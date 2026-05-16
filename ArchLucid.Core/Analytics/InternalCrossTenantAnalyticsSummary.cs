@@ -1,4 +1,4 @@
-namespace ArchLucid.Application.Analytics;
+namespace ArchLucid.Core.Analytics;
 
 /// <summary>
 ///     Anonymized cross-tenant aggregates for internal operators (no per-tenant identifiers).

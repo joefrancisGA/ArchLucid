@@ -3,7 +3,10 @@
 import { useLayoutEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-import { isDemoStrictNavigationRedirectsActive } from "@/lib/demo-ui-env";
+import {
+  isDemoStrictNavigationRedirectsActive,
+  isDemoStrictNavigationRedirectsBypassedForE2E,
+} from "@/lib/demo-ui-env";
 
 /**
  * Demo-only guard: redirects blocked operator prefixes (see buyer demo allowlist discussion) back to Home while keeping
@@ -32,6 +35,10 @@ export function DemoStrictNavigationGate() {
 
   useLayoutEffect(() => {
     if (!isDemoStrictNavigationRedirectsActive()) {
+      return;
+    }
+
+    if (isDemoStrictNavigationRedirectsBypassedForE2E()) {
       return;
     }
 

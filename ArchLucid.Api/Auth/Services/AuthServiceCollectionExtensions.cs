@@ -26,6 +26,8 @@ public static class AuthServiceCollectionExtensions
         IConfiguration configuration)
     {
         services.Configure<ArchLucidAuthOptions>(configuration.GetSection(ArchLucidAuthOptions.SectionName));
+        services.PostConfigure<ArchLucidAuthOptions>(
+            ArchLucidAuthConfigurationBridge.NormalizeModeForJwtLocalSigning);
         services.Configure<ApiKeyAuthenticationOptions>(
             configuration.GetSection(ApiKeyAuthenticationOptions.SectionPath));
 

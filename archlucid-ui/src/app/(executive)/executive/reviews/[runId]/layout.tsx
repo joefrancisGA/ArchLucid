@@ -1,7 +1,6 @@
-import { notFound, permanentRedirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
-import { canonicalizeDemoRunId, demoRunUrlRequiresCanonicalRedirect } from "@/lib/demo-run-canonical";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 
 export default async function ExecutiveReviewRunLayout({
@@ -15,10 +14,6 @@ export default async function ExecutiveReviewRunLayout({
 
   if (isInvalidGuidOrSlugRouteToken(runId)) {
     notFound();
-  }
-
-  if (demoRunUrlRequiresCanonicalRedirect(runId)) {
-    permanentRedirect(`/executive/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`);
   }
 
   return children;

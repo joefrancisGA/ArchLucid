@@ -1,5 +1,6 @@
 using ArchLucid.Application.Advisory;
 using ArchLucid.Application.Analytics;
+using ArchLucid.Core.Analytics;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Runs.Orchestration;

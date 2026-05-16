@@ -61,3 +61,13 @@ export function isDemoStrictNavigationRedirectsActive(): boolean {
     process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "1"
   );
 }
+
+/**
+ * Mock / Playwright screenshot crawls intentionally visit operator routes blocked in packaged demo navigation gates.
+ * **Build-time:** set only in harness env (see `playwright.mock.config.ts`); never enable in sponsor-facing demo builds.
+ */
+export function isDemoStrictNavigationRedirectsBypassedForE2E(): boolean {
+  const raw = (process.env.NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES ?? "").trim().toLowerCase();
+
+  return raw === "1" || raw === "true";
+}
