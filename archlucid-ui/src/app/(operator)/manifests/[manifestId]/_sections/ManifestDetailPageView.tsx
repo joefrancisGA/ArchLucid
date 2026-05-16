@@ -64,6 +64,15 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
 
   const decisionsLeadCard = <ManifestTopDecisionsCard summary={summary} buyerPolishedLayout={buyerPolishedLayout} />;
 
+  const buyerFinalizedPackageDownload =
+    buyerPolishedLayout === true ? (
+      <div className="flex flex-wrap gap-2">
+        <Button variant="primary" size="sm" asChild>
+          <a href={getBundleDownloadUrl(manifestId)}>Download finalized review package</a>
+        </Button>
+      </div>
+    ) : null;
+
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-1 py-2 sm:px-0">
       <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
@@ -111,13 +120,13 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
                 : "Finalized Architecture Manifest"}
           </h1>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="primary" size="sm" asChild>
-            <a href={getBundleDownloadUrl(manifestId)}>
-              {buyerPolishedLayout ? "Download evidence package (ZIP)" : "Export manifest bundle"}
-            </a>
-          </Button>
-        </div>
+        {buyerPolishedLayout !== true ? (
+          <div className="flex flex-wrap gap-2">
+            <Button variant="primary" size="sm" asChild>
+              <a href={getBundleDownloadUrl(manifestId)}>Export manifest bundle</a>
+            </Button>
+          </div>
+        ) : null}
       </div>
 
       <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
@@ -147,6 +156,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         <>
           {overviewSummaryCard}
           {decisionsLeadCard}
+          {buyerFinalizedPackageDownload}
         </>
       ) : (
         <>
@@ -158,10 +168,12 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       {summary.warningCount > 0 || summary.unresolvedIssueCount > 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base font-semibold">Related findings</CardTitle>
+            <CardTitle className="text-base font-semibold">
+              {buyerPolishedLayout ? "Related monitored risk" : "Related findings"}
+            </CardTitle>
             <CardDescription>
               {buyerPolishedLayout
-                ? "Monitored-risk items for this package also appear on the originating review."
+                ? "This package records a monitored risk that maps back to the originating review and evidence trail."
                 : "Warnings or unresolved issues on this manifest correspond to surfaced findings on the originating review."}
             </CardDescription>
           </CardHeader>
@@ -175,10 +187,27 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
               <div className="mt-3 space-y-3 rounded-lg border border-amber-200/90 bg-amber-50/80 p-3 dark:border-amber-900/60 dark:bg-amber-950/25">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge className="bg-amber-700 text-white hover:bg-amber-700">High severity</Badge>
-                  <p className="m-0 text-xs font-semibold uppercase tracking-wide text-amber-950/90 dark:text-amber-100/90">
-                    PHI minimization — monitored control
-                  </p>
                 </div>
+                <dl className="m-0 grid gap-2 text-sm text-neutral-800 dark:text-neutral-200 sm:grid-cols-2">
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                      Risk area
+                    </dt>
+                    <dd className="m-0 mt-0.5">PHI minimization</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                      Disposition
+                    </dt>
+                    <dd className="m-0 mt-0.5">Accepted with monitoring</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                      Blocking status
+                    </dt>
+                    <dd className="m-0 mt-0.5">Non-blocking</dd>
+                  </div>
+                </dl>
                 <ul className="m-0 list-none space-y-2 p-0 text-sm leading-snug text-neutral-800 dark:text-neutral-200">
                   <li>
                     <strong className="text-neutral-900 dark:text-neutral-100">Risk:</strong> expanded breach and audit
@@ -203,7 +232,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
                   }
                 >
                   {primaryFindingHref
-                    ? "High severity · PHI minimization · open finding detail"
+                    ? "View PHI minimization risk and evidence"
                     : buyerPolishedLayout
                       ? "View findings on review"
                       : "Open review findings"}
@@ -221,7 +250,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           </CardTitle>
           <CardDescription>
             {buyerPolishedLayout
-              ? "Files produced for this review — open in the browser or download."
+              ? "These deliverables package the executive decision, architecture review board record, and audit evidence for sign-off and diligence."
               : "Outputs produced during this review — available for preview and download."}
           </CardDescription>
         </CardHeader>
@@ -248,8 +277,8 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
               <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
                 {buyerPolishedLayout ? (
                   <>
-                    Try reloading, or return to the review. You can still use Download all files (ZIP) when the bundle is
-                    available.
+                    Try reloading, or return to the review. You can still use Download finalized review package when the
+                    bundle is available.
                   </>
                 ) : (
                   <>

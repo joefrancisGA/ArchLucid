@@ -175,7 +175,10 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
   );
 
   const auditIdentifiers = (
-    <CollapsibleSection title="Verification appendix (identifiers)" defaultOpen={false}>
+    <CollapsibleSection
+      title={buyerPolishedLayout ?? false ? "Audit verification appendix" : "Verification appendix (identifiers)"}
+      defaultOpen={false}
+    >
       <dl className="m-0 grid gap-3 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-6">
         <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Manifest ID</dt>
         <dd className="m-0 flex min-w-0 flex-wrap items-center gap-2 text-sm text-neutral-900 dark:text-neutral-100">
@@ -218,6 +221,15 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
       </section>
     ) : null;
 
+  const buyerManifestProvesCallout =
+    (buyerPolishedLayout ?? false) && isCuratedDemo ? (
+      <p className="m-0 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+        What this signed manifest proves: a versioned decision record with enumerated outcomes, monitored risks under an
+        explicit governance cadence, stable identifiers for audit correlation, and packaged deliverables wired to the
+        evidence graph and audit trail.
+      </p>
+    ) : null;
+
   const buyerRecordedOutcomes =
     buyerPolishedLayout ?? false ? (
       <section aria-labelledby="manifest-buyer-recorded-heading" className="space-y-3">
@@ -225,8 +237,9 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
           id="manifest-buyer-recorded-heading"
           className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400"
         >
-          Recorded in this package
+          Package summary
         </h3>
+        {buyerManifestProvesCallout}
         {isCuratedDemo ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5" data-testid="manifest-buyer-pack-summary-cards">
             <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
@@ -284,7 +297,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         {buyerPolicyPackCallout}
         {relatedFinding}
         {buyerRecordedOutcomes}
-        {countsGrid}
+        {!isCuratedDemo ? countsGrid : null}
         {auditIdentifiers}
       </>
     );

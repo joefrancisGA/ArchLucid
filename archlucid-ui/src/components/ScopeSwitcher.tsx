@@ -27,7 +27,7 @@ import { ApiV1Routes } from "@/lib/api-v1-routes";
 const WORKSPACES_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspaces}`;
 
 /** Hover / accessible description for the buyer-polished curated workspace strip + Example badge. */
-const BUYER_CURATED_SCOPE_TOOLTIP = "Example workspace: sample data only";
+const BUYER_CURATED_SCOPE_TOOLTIP = "Example workspace using illustrative sample data only.";
 
 type ProjectOption = { projectId: string; name: string };
 type WorkspaceOption = { workspaceId: string; name: string; projects: ProjectOption[] };

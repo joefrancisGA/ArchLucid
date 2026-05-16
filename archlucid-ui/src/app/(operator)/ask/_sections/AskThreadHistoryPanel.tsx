@@ -1,10 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { ConversationThread } from "@/types/conversation";
 
 export type AskThreadHistoryPanelProps = {
   buyerPolishedShell: boolean;
+  /** Selected review for buyer-scoped context labels. */
+  runId: string;
   threads: ConversationThread[];
   selectedThreadId: string;
   listDateFormatter: (isoUtc: string) => string;
@@ -15,6 +19,7 @@ export type AskThreadHistoryPanelProps = {
 export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
   const {
     buyerPolishedShell,
+    runId,
     threads,
     selectedThreadId,
     listDateFormatter,
@@ -22,17 +27,25 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
     onSelectThread,
   } = props;
 
+  const scopedPackageLabel =
+    canonicalizeDemoRunId(runId.trim()) === SHOWCASE_STATIC_DEMO_RUN_ID
+      ? `Scoped to ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}`
+      : "Scoped to the selected review package";
+
   return (
     <Card className="h-fit border-neutral-200 dark:border-neutral-700">
       <CardHeader className="p-4 pb-2">
         <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-          {buyerPolishedShell ? "Review Q&A history" : "Your conversation history"}
+          {buyerPolishedShell ? "Saved review questions" : "Your conversation history"}
         </CardTitle>
+        {buyerPolishedShell ? (
+          <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">{scopedPackageLabel}</p>
+        ) : null}
         <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
           {buyerPolishedShell ? (
             <>
-              Answers use only the selected review package and cite evidence from that package when it exists. Open a
-              saved question below to continue, or ask a new question after you pick a review.
+              Answers use the selected review package and cite evidence from that package when it exists. Open a saved
+              question below to continue, or ask a new question after you pick a review.
             </>
           ) : (
             <>

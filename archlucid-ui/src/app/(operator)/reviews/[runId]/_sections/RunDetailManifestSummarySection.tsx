@@ -57,7 +57,9 @@ export function RunDetailManifestSummarySection(
             <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100 tabular-nums">
               {finiteIntegerCountDisplay(manifestSummary.decisionCount)}
             </dd>
-            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Warnings</dt>
+            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              {buyerPolishedShell ? "Monitored risks" : "Warnings"}
+            </dt>
             <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100 tabular-nums">
               {finiteIntegerCountDisplay(manifestSummary.warningCount)}
             </dd>

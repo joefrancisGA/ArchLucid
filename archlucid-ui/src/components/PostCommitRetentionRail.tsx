@@ -60,10 +60,10 @@ export function PostCommitRetentionRail({
       <CardContent className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         {buyerPolishedShell ? (
           <>
+            {/*
+              Executive summary is already the prominent CTA on review detail; this rail continues the package path.
+            */}
             <Button type="button" asChild variant="default" size="sm" className="justify-center sm:justify-start">
-              <Link href={`/executive/reviews/${encodeURIComponent(runId)}`}>View Executive Summary</Link>
-            </Button>
-            <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">
               <Link href={`/governance?runId=${encodeURIComponent(runId)}`}>View governance approval</Link>
             </Button>
             {goldenManifestId !== null && goldenManifestId.trim().length > 0 ? (

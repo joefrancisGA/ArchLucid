@@ -101,6 +101,7 @@
     <!-- Test-only: text extraction from QuestPDF PDFs (MIT; package id is PdfPig on NuGet). -->
     <PackageVersion Include="PdfPig" Version="0.1.14" />
     <PackageVersion Include="System.ClientModel" Version="1.8.0" />
+    <PackageVersion Include="Verify.Xunit" Version="31.12.5" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="WireMock.Net" Version="1.25.0" />
     <PackageVersion Include="Xunit.SkippableFact" Version="1.5.61" />
