@@ -4,12 +4,15 @@ import Link from "next/link";
 import { useEffect, useState, type ReactElement } from "react";
 
 import { EmptyState } from "@/components/EmptyState";
+import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getRunExplanationSummary, listRunsByProjectPaged } from "@/lib/api";
 import { severityFromTrace } from "@/lib/executive-finding-severity";
+import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
+import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import { isStaticDemoPayloadFallbackActiveForRun, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -19,6 +22,8 @@ import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
+import type { FindingConfidenceLevel, FindingTraceConfidenceDto } from "@/types/explanation";
+import type { RunSummary } from "@/types/authority";
 
 /** Buyer-polished demo rows: action text aligned to each bundled decision synopsis (indices 0–7). */
 const SHOWCASE_GOVERNANCE_DECISION_RECOMMENDED: readonly string[] = [
@@ -31,8 +36,6 @@ const SHOWCASE_GOVERNANCE_DECISION_RECOMMENDED: readonly string[] = [
   "Align retention attestations with enterprise records management ahead of external audits.",
   "Publish intake latency, queue depth, and exception-rate dashboards in the sponsor KPI pack.",
 ];
-import type { FindingTraceConfidenceDto } from "@/types/explanation";
-import type { RunSummary } from "@/types/authority";
 
 /** Distinguishes explainability-backed findings from recorded architecture decisions in the mixed queue. */
 export type GovernanceFindingQueueRecordKind = "finding" | "decision";
@@ -49,6 +52,7 @@ export type GovernanceFindingQueueRow = {
   status: string;
   recommended: string;
   recordKind: GovernanceFindingQueueRecordKind;
+  traceConfidenceLevel?: FindingConfidenceLevel | null;
 };
 
 function formatGovernanceQueueRecordKind(kind: GovernanceFindingQueueRecordKind, buyerPolishedShell: boolean): string {
@@ -72,6 +76,7 @@ function demoPhiRow(): GovernanceFindingQueueRow {
     recommended:
       "Review PHI handling posture with intake and security owners before production rollout; weekly exception-volume review while monitored.",
     recordKind: "finding",
+    traceConfidenceLevel: "Medium",
   };
 }
 
@@ -116,6 +121,7 @@ function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): 
         status: "Open",
         recommended: firstAction ?? "Open the finding to review rationale, evidence, and recommended next steps.",
         recordKind: "finding",
+        traceConfidenceLevel: t.confidenceLevel ?? null,
       };
     });
 }
@@ -140,6 +146,26 @@ function dedupeRows(rows: GovernanceFindingQueueRow[]): GovernanceFindingQueueRo
 
 function inspectHref(runId: string, findingId: string): string {
   return `/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect`;
+}
+
+function governanceQueueGraphEvidenceHref(row: GovernanceFindingQueueRow): string | null {
+  if (row.recordKind !== "finding") {
+    return null;
+  }
+
+  const focused = preferredGraphNodeIdForFindingDeepLink(row.runId, row.findingId);
+
+  if (focused !== null) {
+    return graphTrailHrefWithOptionalNode(row.runId, focused);
+  }
+
+  const level = row.traceConfidenceLevel;
+
+  if (level === "High" || level === "Medium" || level === "Low") {
+    return graphTrailHrefWithOptionalNode(row.runId, null);
+  }
+
+  return null;
 }
 
 function manifestHref(manifestId: string): string {
@@ -304,6 +330,7 @@ export default function GovernanceFindingsQueueClient() {
                 <thead className="bg-neutral-100 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
                   <tr>
                     <th className="px-3 py-2">Severity</th>
+                    {buyerPolishedShell ? <th className="px-3 py-2">Confidence</th> : null}
                     <th className="px-3 py-2">{buyerPolishedShell ? "Record" : "Record kind"}</th>
                     <th className="px-3 py-2">{buyerPolishedShell ? "Record summary" : "Finding"}</th>
                     <th className="px-3 py-2">Review</th>
@@ -320,6 +347,19 @@ export default function GovernanceFindingsQueueClient() {
                       className="border-t border-neutral-200 dark:border-neutral-800"
                     >
                       <td className="px-3 py-2 align-top">{governanceQueueSeverityCell(row, buyerPolishedShell)}</td>
+                      {buyerPolishedShell ? (
+                        <td className="px-3 py-2 align-top">
+                          {row.recordKind === "decision" ? (
+                            <span className="text-neutral-400 dark:text-neutral-500">—</span>
+                          ) : row.traceConfidenceLevel === "High" ||
+                            row.traceConfidenceLevel === "Medium" ||
+                            row.traceConfidenceLevel === "Low" ? (
+                            <FindingConfidenceBadge level={row.traceConfidenceLevel} />
+                          ) : (
+                            <span className="text-neutral-400 dark:text-neutral-500">—</span>
+                          )}
+                        </td>
+                      ) : null}
                       <td className="px-3 py-2 align-top text-neutral-800 dark:text-neutral-200">
                         {formatGovernanceQueueRecordKind(row.recordKind, buyerPolishedShell)}
                       </td>
@@ -361,15 +401,26 @@ export default function GovernanceFindingsQueueClient() {
                         {row.recommended}
                       </td>
                       <td className="px-3 py-2 align-top">
-                        <Button asChild variant="outline" size="sm" className="h-8 border-teal-300 dark:border-teal-700">
-                          <Link href={inspectHref(row.runId, row.findingId)}>
-                            {buyerPolishedShell
-                              ? row.recordKind === "decision"
-                                ? "View decision"
-                                : "View finding and evidence"
-                              : "Open"}
-                          </Link>
-                        </Button>
+                        <div className="flex flex-col gap-2">
+                          <Button asChild variant="outline" size="sm" className="h-8 border-teal-300 dark:border-teal-700">
+                            <Link href={inspectHref(row.runId, row.findingId)}>
+                              {buyerPolishedShell
+                                ? row.recordKind === "decision"
+                                  ? "View decision"
+                                  : "View finding and evidence"
+                                : "Open"}
+                            </Link>
+                          </Button>
+                          {(() => {
+                            const graphHref = governanceQueueGraphEvidenceHref(row);
+
+                            return graphHref !== null ? (
+                              <Button asChild variant="outline" size="sm" className="h-8 border-neutral-300 dark:border-neutral-600">
+                                <Link href={graphHref}>View evidence</Link>
+                              </Button>
+                            ) : null;
+                          })()}
+                        </div>
                       </td>
                     </tr>
                   ))}

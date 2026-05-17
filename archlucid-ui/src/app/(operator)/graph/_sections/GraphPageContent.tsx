@@ -48,6 +48,7 @@ import { GraphPageIntroParagraph } from "@/app/(operator)/graph/_sections/GraphP
 export function GraphPageContent() {
   const searchParams = useSearchParams();
   const urlRunId = searchParams.get("runId")?.trim() ?? "";
+  const urlGraphNodeId = searchParams.get("graphNodeId")?.trim() ?? "";
   const workspaceRun = useWorkspaceActiveRun();
   const [runId, setRunId] = useState(() =>
     urlRunId.length > 0 ? urlRunId : SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -403,6 +404,7 @@ export function GraphPageContent() {
           onGraphInteractiveSurfaceReady={handleGraphInteractiveSurfaceReady}
           controls={controls}
           leadIntro={leadIntro}
+          defaultSelectedGraphNodeId={urlGraphNodeId.length > 0 ? urlGraphNodeId : undefined}
         />
       ) : null}
     </div>

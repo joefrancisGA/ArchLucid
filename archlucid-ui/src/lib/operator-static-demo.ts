@@ -389,6 +389,8 @@ export function buildStaticDemoPrimaryFindingInspectPayload(effectiveRunId: stri
     auditRowId: null,
     runId: d.run.runId,
     manifestVersion: "Healthcare Claims Policy Pack v3.4.1",
+    confidenceLevel: "Medium",
+    evaluationConfidenceScore: 0.78,
   };
 }
 

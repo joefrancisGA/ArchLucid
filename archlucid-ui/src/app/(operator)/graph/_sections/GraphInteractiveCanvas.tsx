@@ -32,6 +32,7 @@ export type GraphInteractiveCanvasProps = {
   runIdTrimmed: string;
   presentation: "buyerTrail" | "operator";
   onInteractiveSurfaceReady?: () => void;
+  defaultSelectedGraphNodeId?: string;
 };
 
 export function GraphInteractiveCanvas(props: GraphInteractiveCanvasProps) {
@@ -43,6 +44,7 @@ export function GraphInteractiveCanvas(props: GraphInteractiveCanvasProps) {
     runIdTrimmed,
     presentation,
     onInteractiveSurfaceReady,
+    defaultSelectedGraphNodeId,
   } = props;
 
   return (
@@ -58,6 +60,11 @@ export function GraphInteractiveCanvas(props: GraphInteractiveCanvasProps) {
           runId={runIdTrimmed}
           presentation={presentation}
           onInteractiveSurfaceReady={onInteractiveSurfaceReady}
+          defaultSelectedNodeId={
+            defaultSelectedGraphNodeId !== undefined && defaultSelectedGraphNodeId.trim().length > 0
+              ? defaultSelectedGraphNodeId.trim()
+              : undefined
+          }
         />
       </div>
     </ClientErrorBoundary>

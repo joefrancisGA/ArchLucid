@@ -1,4 +1,4 @@
-> **Scope:** Internal weighted readiness assessment for repo stewards — V1 scoring boundary and backlog prompts; not a customer-facing datasheet nor an exhaustive audit substitute.
+﻿> **Scope:** Internal weighted readiness assessment for repo stewards — V1 scoring boundary and backlog prompts; not a customer-facing datasheet nor an exhaustive audit substitute.
 
 **Canonical pair:** This file is the **single current score and backlog** for weighted readiness. Read **`docs/library/ASSESSMENT_INPUTS.md`** first for the evidence contract; treat **`docs/archive/assessments/`** and archived quality narratives as **history only** — see **“One workflow (current score vs history)”** there.
 
@@ -295,7 +295,7 @@
 - **Weighted deficiency signal:** 32
 - **Justification:** Clean code architecture.
 - **Tradeoffs:** The large surface area increases maintenance overhead.
-- **Improvement recommendations:** Introduce stricter module boundaries using .NET internal visibility and ArchUnitNET to manage the large surface area.
+- **Improvement recommendations:** **`ArchLucid.Architecture.Tests`** (**NetArchTest**) gates core layering in CI (**improvement #23**, **completed 2026-05-17**); continue narrowing public surfaces via **`internal`** where appropriate and expand boundary rules incrementally per **`INV-*`** / **`docs/library/TECH_BACKLOG.md`** enforcement waves.
 
 ### 33. Azure Compatibility and SaaS Deployment Readiness
 - **Score:** 100
@@ -743,19 +743,21 @@ Pin demo workspace seeds (SQL + blob fixtures) to versioned packages consumed by
 - Acceptance criteria: GA checklist cannot pass without both workspaces green on pinned fixtures.
 ```
 
-23. **Add ArchUnitNET (or equivalent) architecture boundary tests**
+23. **COMPLETED:** Add ArchUnitNET (or equivalent) architecture boundary tests
 - Why it matters: Large monorepo surface increases accidental coupling; automated boundaries protect maintainability at scale.
-- Expected impact: Maintainability (+4 pts), Modularity (+2 pts). Weighted readiness impact: +0.10%.
+- Expected impact: (Delivered **2026-05-17**.) Maintainability (+4 pts), Modularity (+2 pts). Weighted readiness impact: +0.10%.
 - Affected qualities: Maintainability, Modularity.
 - Actionable: Completed
 
 ```markdown
+**Task status:** **Completed** (**2026-05-17**). **`ArchLucid.Architecture.Tests`** (**NetArchTest.Rules**) — merge-blocking under **`dotnet test`** fast Core (`Suite=Core`).
+
 Introduce architecture tests in `ArchLucid.TestSupport` (or a dedicated test project) that enforce layer rules (e.g. `ArchLucid.Core` must not reference `ArchLucid.Api`, UI must not reference persistence).
 - Start with a minimal rule set matching `.cursor/rules/Architecture-Invariants.mdc` INV-* pointers; expand incrementally.
 - Wire into existing `dotnet test` CI; fail on violation.
 - Acceptance criteria: At least five boundary rules run in CI and block obvious layer violations.
 
-**Delivered:** **`ArchLucid.Architecture.Tests`** — **NetArchTest.Rules** (not ArchUnit.NET; equivalent dependency-graph checks). Boundary rules live in **`DependencyConstraintTests.cs`** plus companion architecture test types; tests use **`Trait("Suite","Core")`** so **`dotnet test ArchLucid.sln --filter Suite=Core&…`** in **`.github/workflows/ci.yml`** runs them merge-blocking. **`Api_must_not_reference_Persistence_assembly`** guards the HTTP host against direct **`ArchLucid.Persistence`** coupling. SPA layering (`archlucid-ui` vs persistence) remains a separate surface — track with ESLint import boundaries if needed; .NET **`Suite=Core`** already encodes ≥5 host/library rules.
+**Delivered:** **`ArchLucid.Architecture.Tests`** — **NetArchTest.Rules** (not ArchUnit.NET; equivalent assembly / type-reference checks per **`docs/library/ARCHITECTURE_CONSTRAINTS.md`**). Layer rules concentrate in **`DependencyConstraintTests.cs`** (plus companion architecture-test files); each rule is **`Trait("Suite","Core")`**, **`Category=Unit`** so **`dotnet test ArchLucid.sln --filter Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord`** in **`.github/workflows/ci.yml`** runs them merge-blocking (**≥ five** boundaries: foundation leaves **Core** / **Contracts**, hexagonal **no Persistence** edges for Decisioning/KnowledgeGraph/ContextIngestion/ArtifactSynthesis/Notifications/Retrieval, **Cli** / **Worker** host edges, **`Api_must_not_depend_on_AgentRuntime`**, and additional guards in the same class). **`ArchLucid.Api`** still compiles against **`ArchLucid.Persistence`** today (controllers/services use persistence query/DTO surfaces) — tightening that to **Application-only** is a backlog refactor, not asserted in CI yet. SPA vs persistence layering stays outside this project (e.g. **`archlucid-ui`** import-lint policy).
 ```
 
 24. **Surface finding confidence and evidence links prominently in review UI**
@@ -783,24 +785,79 @@ Implement status sync between ArchLucid review/findings state and ServiceNow cha
 - Acceptance criteria: Status change in ArchLucid updates ServiceNow and vice versa in a developer-instance integration test.
 ```
 
-33. **Implement marketing landing page content (hero, problem/solution, use cases, proof)**
-- Why it matters: The landing page hero copy, problem/solution narrative, use case listing, and proof section are the primary evaluator entry point. `WelcomeMarketingPage.tsx` and `archlucid-ui/src/app/(marketing)/layout.tsx` exist as untracked files with no corresponding improvement item; without complete content the CTA stack (**#32**) routes buyers to an incomplete page.
-- Expected impact: Marketability, Adoption Friction, Commercial Packaging Readiness.
-- Affected qualities: Marketability, Adoption Friction.
-- Actionable: Yes — files exist; content and copy need implementation aligned to `POSITIONING.md` tagline and the five V1-approved use cases (architecture review boards, AI governance reviews, security architecture reviews, M&A / modernization assessments, consultant architecture assessments). **Do not** include CAF landing-zone pack claim until V1.1.
-- GTM dependency: Blocks marketing tasks **M-09** in `docs/go-to-market/GTM_BACKLOG.md`.
+26. **COMPLETED:** Operator UI vocabulary alignment — marketing-safe buyer labels
+- Why it matters: Engineering-centric terms (**run**, **commit**, **manifest**) created friction for regulated EA and security buyers evaluating the product. Aligning operator shell copy to marketing vocabulary removed that barrier without touching HTTP contracts.
+- Expected impact: (Delivered **2026-05-17**.) Usability, Adoption Friction, Marketability.
+- Affected qualities: Usability, Adoption Friction.
+- Actionable: Completed
 
 ```markdown
-Implement marketing landing page sections in `archlucid-ui/src/app/(marketing)/` and `WelcomeMarketingPage.tsx`:
-- Hero: headline + sub-headline aligned to `POSITIONING.md` tagline; primary CTA from #32.
-- Problem: architecture review is fragmented across diagrams, decks, wikis, meetings, and memory.
-- Solution: ArchLucid creates a reviewable evidence graph connecting decisions to source artifacts, risks, policies, and reports.
-- Core workflow: six-step visual (Capture system → Add evidence → Run review → Resolve findings → Record decisions → Generate report).
-- Use cases: five V1-approved cases listed above; exclude CAF landing-zone pack claim.
-- Proof: screenshot gallery (≥6 screenshots from Workspace A/B), downloadable sample report link (from #28 export), link to Workspace A self-demo.
-- CTA stack: per #32 (Request walkthrough / Try the self-demo / Early access).
-- Acceptance criteria: Page renders all sections; copy reviewed against `POSITIONING.md`; screenshots sourced from stable Workspace A/B (#31); no claim that contradicts `docs/library/V1_SCOPE.md` honesty constraints.
+**Delivered:** Surface copy shifted from engineering-centric terms to marketing-aligned governance vocabulary — **Run** → **Review** / *Architecture review*; **Commit** → **Finalize review** / **Finalize**; **Manifest / golden manifest** → **Architecture snapshot** / **Snapshot** in tight UI; graph screen → **Evidence graph**. REST routes, OpenAPI operation IDs, CLI commands, and audit event names unchanged. Tooltip near finalize: replay/compare still allowed after lock.
 ```
+
+27. **COMPLETED:** Bulk evidence upload with ≤30-file server-enforced cap
+- Why it matters: Buyers need to gather scattered artifacts in a single session. Shipping a bounded bulk attach at GA enables the "capture scattered evidence" demo narrative while keeping scope honest.
+- Expected impact: (Delivered **2026-05-17**.) Usability (+2 pts), Customer Self-Sufficiency, Adoption Friction. Marketing alignment row 4.
+- Affected qualities: Usability, Customer Self-Sufficiency.
+- Actionable: Completed
+
+```markdown
+**Delivered:** Multi-file bulk attach to a review's evidence set ships with a hard ceiling of **30 files per request** (server-enforced). Landing page, support, and demo copy disclose the cap explicitly ("up to 30 files per upload"). Raising / removing the limit, ZIP unpack, and recursive folder ingest are deferred to V1.1.
+```
+
+28. **COMPLETED:** Buyer-grade architecture review export (DOCX + PDF) with consultant whitelabel
+- Why it matters: Enterprise buyers evaluate products by their outputs. A professional DOCX/PDF report matching the marketing narrative — complete with consultant whitelabeling — is the highest-leverage single marketing artifact at GA.
+- Expected impact: (Delivered **2026-05-17**.) Proof-of-ROI Readiness, Commercial Packaging Readiness, Stickiness. Marketing alignment rows 2 and 5.
+- Affected qualities: Proof-of-ROI Readiness, Executive Value Visibility.
+- Actionable: Completed
+
+```markdown
+**Delivered:** Default DOCX + PDF export profile with sections matching the landing-page report narrative: executive summary, system overview, evidence reviewed, architecture decisions, key risks, policy findings, AI-assisted analysis with human-review framing, traceability appendix, recommended next actions. Tenant-scoped consultant whitelabel: **firm name**, **engagement / client title**, optional **logo image** (PNG/SVG; MIME + size caps per security review), **"Prepared by … using ArchLucid"** cover footer disclaimer. Single export pipeline for DOCX and PDF. Unblocks marketing tasks **M-06** and **M-24** in `docs/go-to-market/GTM_BACKLOG.md`.
+```
+
+29. **COMPLETED:** Ship default AI governance + security architecture baseline policy packs at V1 GA
+- Why it matters: Pilots onboarding to an empty-pack shell abandon without evidence of value. Two curated starter packs surface real findings immediately, proving ROI faster than buyer-authored-only onboarding.
+- Expected impact: (Delivered **2026-05-17**.) Proof-of-ROI Readiness, Commercial Packaging Readiness, Stickiness, Template and Accelerator Richness. Marketing alignment row 3.
+- Affected qualities: Proof-of-ROI Readiness, Stickiness.
+- Actionable: Completed
+
+```markdown
+**Delivered:** **(1) AI governance / responsible AI** MVP pack — explicit framework mapping (NIST AI RMF v1.0 themes, EU AI Act high-risk categories); mapping only, no certification claim. **(2) Security architecture baseline** MVP pack — rules aligned to CIS Azure Foundations / OWASP ASVS-style controls (`sec-base-001` … `sec-base-030`). Azure landing-zone / CAF-aligned curated pack **deferred to V1.1** — GA marketing relies on extractor + advisor for cloud posture narrative; must not imply bundled CAF pack until V1.1 release. Honesty copy: `docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md`, `docs/library/POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md`. Provisioning via `DefaultPolicyPackTemplates`. Unblocks marketing task **M-25** in `docs/go-to-market/GTM_BACKLOG.md`.
+```
+
+30. **COMPLETED:** Two curated demo workspaces (Workspace A — self-demo + Workspace B — synthetic regulated scenario)
+- Why it matters: Sales-led GA requires evaluators to experience the product before a calendar call. Two stable, smoke-monitored workspaces are the foundation for every marketing deliverable at launch.
+- Expected impact: (Delivered **2026-05-17**.) Adoption Friction, Commercial Packaging Readiness, Proof-of-ROI Readiness. Marketing alignment row 6. Hard V1 release gate.
+- Affected qualities: Adoption Friction, Proof-of-ROI Readiness.
+- Actionable: Completed
+
+```markdown
+**Delivered:** **(A) Self-demo / product tour** — Workspace A seeded with ArchLucid-reviews-ArchLucid content; lands evaluators on the canonical workflow (Capture → Evidence → Review → Findings → Decisions → Report) using synthetic-safe content. **(B) Synthetic regulated scenario** — `RegulatedScenarioWorkspaceSeed` seeds AI governance + cloud posture narrative with evidence, seeded policy findings sourced from shipped pack IDs (`sec-base-006`, `sec-base-011`, `sec-base-018`). Playwright smoke: `archlucid-ui/e2e/demo-workspace-b.smoke.spec.ts`. Both workspaces monitored by automated smoke to prevent fixture drift. Unblocks marketing tasks **M-04**, **M-05**, **M-07**, **M-16**, **M-19**, **M-26** in `docs/go-to-market/GTM_BACKLOG.md`.
+```
+
+31. **COMPLETED:** Landing CTA stack — hybrid posture for first 90 days
+- Why it matters: The CTA hierarchy must match the sales-led GA reality — no self-serve checkout, no public $ band — while still giving evaluators a product touch before a calendar call.
+- Expected impact: (Delivered **2026-05-17**.) Adoption Friction, Commercial Packaging Readiness, Marketability. Marketing alignment row 7.
+- Affected qualities: Adoption Friction, Marketability.
+- Actionable: Completed
+
+```markdown
+**Delivered:** **Primary CTA** = **Request walkthrough** (sales-led GA; matches deferred Stripe live / Marketplace). **Secondary CTA** = **Try the self-demo** — deep-link into Workspace A. **Tertiary** = **Early access** / waitlist capture — must not imply instant product access or live checkout. Public paid-pilot $ band excluded from hero for first 90 days (qualify → quote path). `nav-shell-visibility.ts` + `SidebarNav.tsx` implement navigation shell visibility rules. Unblocks marketing task **M-09** (partial — also depends on **#32**) in `docs/go-to-market/GTM_BACKLOG.md`.
+```
+
+32. **COMPLETED:** Marketing landing page content (hero, problem/solution, use cases, proof)
+- Why it matters: The landing page is the primary evaluator entry point. Without complete hero and section content, the CTA stack routes buyers to a placeholder.
+- Expected impact: (Delivered **2026-05-17**.) Marketability, Adoption Friction, Commercial Packaging Readiness.
+- Affected qualities: Marketability, Adoption Friction.
+- Actionable: Completed
+
+```markdown
+**Delivered:** `WelcomeMarketingPage.tsx` + `archlucid-ui/src/app/(marketing)/layout.tsx` implement: hero copy and sub-headline aligned to `POSITIONING.md` tagline; problem section (architecture review fragmented across diagrams, decks, wikis, meetings, memory); solution section (reviewable evidence graph); six-step core workflow visual (Capture system → Add evidence → Run review → Resolve findings → Record decisions → Generate report); five V1-approved use cases (architecture review boards, AI governance reviews, security architecture reviews, M&A / modernization assessments, consultant architecture assessments); proof section (screenshots from Workspace A/B, downloadable sample report link, Workspace A self-demo link); hybrid CTA stack from **#31**. CAF landing-zone pack claim excluded; copy reviewed against `POSITIONING.md`. Test: `welcome-brand-category.test.tsx`. Unblocks marketing task **M-09** in `docs/go-to-market/GTM_BACKLOG.md`.
+```
+
+33. **COMPLETED:** Marketing landing page content (hero, problem/solution, use cases, proof) — superseded by **#32** above
+- Note: This item was added as a forward-looking task before the work was confirmed complete. **Improvement #32** records the delivered state. This entry is retained for numbering continuity only.
+- Actionable: Completed — see **#32**.
 
 ---
 
@@ -812,7 +869,7 @@ Implement marketing landing page sections in `archlucid-ui/src/app/(marketing)/`
 - **Batch 4 (UX & adoption):** 6, 15, 19, **20 — security baseline pack expansion — COMPLETED** **2026-05-17**, 22, 24. Dashboard health, rule UI, progressive disclosure, pack depth, demo smoke, and finding trust signals.
 - **Batch 5 (Architecture hygiene):** **23 — NetArchTest boundary suite — COMPLETED** **2026-05-17** (expand rules incrementally in **`ArchLucid.Architecture.Tests`** as needs arise).
 - **Batch 6 (Integrations — credential-dependent):** 25. ServiceNow bi-directional sync when **P10** developer instance is available; do not block other batches.
-- **Batch 7 (Marketing landing page — GTM gate):** 33. Marketing landing page content implementation (`WelcomeMarketingPage.tsx` + `(marketing)/layout.tsx`); coordinate with GTM task **M-09** in `docs/go-to-market/GTM_BACKLOG.md`. Copy review must precede engineering implementation — do not build placeholder content.
+- **Batch 7 (Marketing landing page — COMPLETED 2026-05-17):** **#26** (UI vocabulary), **#27** (bulk upload), **#28** (DOCX/PDF export + whitelabel), **#29** (default policy packs), **#30** (demo workspaces A + B), **#31** (landing CTA stack), **#32** (landing page content), **#33** (superseded by #32). All marketing alignment gates closed. GTM tasks **M-04**, **M-05**, **M-06**, **M-07**, **M-09**, **M-16**, **M-19**, **M-24**, **M-25**, **M-26** are unblocked — see `docs/go-to-market/GTM_BACKLOG.md`.
 - **Deferred / V1.1 program (do not batch into V1 execution):** **Azure CAF / landing-zone curated policy pack**; **bulk evidence upload above 30 files**, ZIP expansion, recursive folder ingest; Stripe live keys / Marketplace (**#7** in commercial packaging notes). Plan V1.1 slices with dedicated context (see **`V1_SCOPE.md`**, **`V1_DEFERRED.md`**, pinned backlog docs — not re-listed here).
 
 ---
@@ -824,12 +881,12 @@ Sequential decisions so marketing ↔ technical V1 stay aligned. **Do not** dupl
 | # | Topic | Answer |
 |---|--------|--------|
 | 1 | Operator UI ↔ technical glossary (#27) — canonical buyer-facing labels vs API/internal terms | Primary work unit **Run** → UI **Review** (use *Architecture review* where space allows). Persist-golden-manifest action **Commit** → **Finalize review** / **Finalize** in context. **Manifest / golden manifest** → **Architecture snapshot** / **Snapshot** in tight UI. Graph screen → **Evidence graph**; route **`/graph`** unchanged. Internal/API: `RunRecord`, `POST .../commit`, `GoldenManifest`, `KnowledgeGraph` unchanged. Tooltip near finalize: replay/compare still allowed after lock. |
-| 2 | Buyer-grade default architecture review export (DOCX/PDF sections matching landing narrative) — **V1 GA gate** vs **post-V1 polish** | **V1 GA gate.** Default export profile(s) must match marketing narrative sections; landing page / demos / downloadable sample assume GA ships with buyer-grade DOCX **and** PDF. Implementation tracked via improvement **#28** (extended by row 5). |
-| 3 | Ship **default AI governance / landing-zone / security baseline policy packs** in **V1 GA** vs soften AI-governance marketing until packs exist | **V1 GA — ship subset:** (**1**) **AI governance / responsible AI** MVP pack; (**2**) **Security architecture baseline** MVP pack. **Azure landing-zone / CAF-aligned** curated pack **deferred to V1.1** — GA marketing relies on **extractor + advisor** for cloud baseline narrative; **must not** imply bundled CAF landing-zone pack until release. Implementation + honesty docs tracked via improvement **#29**; scoring boundary — see **§V1 scoring boundary** (policy packs bullet). |
-| 4 | **Bulk evidence upload** (mixed files → run evidence) — **V1** vs **V1.1** vs **not planned** (sets honesty bar for “capture scattered evidence” copy) | **V1 GA — capped:** bulk attach ships at GA with **≤30 files per upload/action** (hard server limit). Landing/support/demo copy **must** disclose the cap; raising/removing limit, ZIP unpack, recursive folders → **V1.1** backlog. Implementation tracked via improvement **#30**; scoring boundary — **§V1 scoring boundary** (bulk upload bullet). |
-| 5 | **Consultant / engagement report whitelabel** (cover branding for Upwork-style deliverables) — **V1** vs **later** | **V1 GA.** DOCX **and** PDF exports support **tenant-scoped** whitelabel: **firm name**, **engagement/client title**, optional **logo**, **Prepared by … using ArchLucid** attribution. Folded into improvement **#28** (same profile); **§V1 scoring boundary** (whitelabel bullet). Security sign-off on logo handling. |
-| 6 | Two **curated demo workspaces** (self-demo + synthetic regulated scenario) — **V1 release gate** vs **best-effort before GA** | **Hard V1 release gate.** Exactly **two** tenant-ready workspaces (**self-demo / tour** + **synthetic regulated AI + governance scenario**) ship before GA; **release checklist blocks GA** until both pass automated smoke (**Playwright** / **`release-smoke`** per repo norms). Implementation **#31**; **§V1 scoring boundary** (demo workspaces bullet). |
-| 7 | Landing **primary CTA** for first 90 days — **Request walkthrough** vs **Early access** vs **Paid pilot ($ band)** vs hybrid | **Hybrid.** **Primary:** **Request walkthrough** (sales-led GA; matches deferred Stripe live / Marketplace). **Secondary:** **Try the self-demo** — deep-link to **Workspace A** (**#31**). **Tertiary:** **Early access** / email waitlist — **must not** imply instant product access or live checkout. **Public paid-pilot $ band** **excluded** from hero for **first 90 days** (qualify→quote path). Implementation **#32**; **§V1 scoring boundary** (landing CTA bullet). |
+| 2 | Buyer-grade default architecture review export (DOCX/PDF sections matching landing narrative) | **COMPLETED (2026-05-17) — improvement #28.** DOCX + PDF with full section coverage; consultant whitelabel (firm name, engagement title, logo, attribution footer). Downloadable sample report unblocked for marketing. |
+| 3 | Ship **default AI governance / landing-zone / security baseline policy packs** at V1 GA | **COMPLETED (2026-05-17) — improvement #29.** (**1**) AI governance / responsible AI MVP pack (NIST AI RMF + EU AI Act mapping only); (**2**) Security architecture baseline MVP pack (`sec-base-001`…`sec-base-030`). **Azure landing-zone / CAF-aligned** curated pack **remains deferred to V1.1** — must not imply bundled CAF pack in GA marketing copy. |
+| 4 | **Bulk evidence upload** (mixed files → run evidence) — honesty bar for "capture scattered evidence" copy | **COMPLETED (2026-05-17) — improvement #27.** Bulk attach ships with hard **≤30-file** server ceiling. Landing / support / demo copy must disclose cap. Raising / removing limit, ZIP unpack, recursive folders → V1.1. |
+| 5 | **Consultant / engagement report whitelabel** (cover branding for Upwork-style deliverables) | **COMPLETED (2026-05-17) — improvement #28** (same pipeline as row 2). Firm name, engagement title, optional logo (MIME + size caps), attribution footer. Upwork service listing copy unblocked. |
+| 6 | Two **curated demo workspaces** (self-demo + synthetic regulated scenario) — V1 release gate | **COMPLETED (2026-05-17) — improvement #30.** Workspace A (self-demo / product tour) and Workspace B (`RegulatedScenarioWorkspaceSeed`) both pass automated Playwright smoke (`demo-workspace-b.smoke.spec.ts`). Release checklist gate cleared. |
+| 7 | Landing **primary CTA** for first 90 days — hybrid posture | **COMPLETED (2026-05-17) — improvements #31 (CTA stack) + #32 (landing page content).** Request walkthrough (primary) / Try the self-demo — Workspace A deep-link (secondary) / Early access waitlist (tertiary). No public paid-pilot $ band in first 90 days. Full landing page hero, problem/solution, use cases, and proof section also shipped. |
 
 ---
 

@@ -1,6 +1,21 @@
 import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 import type { GraphNodeVm } from "@/types/graph";
 
+/** Query param read by {@link GraphPageContent} to pre-select a node in buyer-trail graph presentation. */
+export const GRAPH_NODE_FOCUS_QUERY_PARAM = "graphNodeId";
+
+export function graphTrailHrefWithOptionalNode(runId: string, graphNodeId: string | null): string {
+  const params = new URLSearchParams();
+  params.set("runId", runId.trim());
+  const nid = graphNodeId?.trim() ?? "";
+
+  if (nid.length > 0) {
+    params.set(GRAPH_NODE_FOCUS_QUERY_PARAM, nid);
+  }
+
+  return `/graph?${params.toString()}`;
+}
+
 /**
  * Resolves a finding id from a graph node for deep links. Static demo nodes may omit `metadata.referenceId`
  * but still use stable internal ids (e.g. `n-phi`).

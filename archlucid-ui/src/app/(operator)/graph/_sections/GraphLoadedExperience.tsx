@@ -33,6 +33,8 @@ export type GraphLoadedExperienceProps = {
   onGraphInteractiveSurfaceReady: () => void;
   controls: ReactNode;
   leadIntro: string;
+  /** Deep-link: pre-select this graph node id in buyer-trail presentation when it exists on the loaded graph. */
+  defaultSelectedGraphNodeId?: string;
 };
 
 export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
@@ -52,6 +54,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
     onGraphInteractiveSurfaceReady,
     controls,
     leadIntro,
+    defaultSelectedGraphNodeId,
   } = props;
 
   const runTrim = runId.trim();
@@ -180,6 +183,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
         runIdTrimmed={runTrim}
         presentation={demoUi || buyerPolishedShell ? "buyerTrail" : "operator"}
         onInteractiveSurfaceReady={buyerPolishedShell ? onGraphInteractiveSurfaceReady : undefined}
+        defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
       />
       {buyerPolishedShell ? (
         <div className={cn("mt-6 space-y-2", graphMainColumnMaxClass)}>

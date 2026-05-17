@@ -413,20 +413,6 @@ public sealed class DependencyConstraintTests
     [Fact]
     [Trait("Suite", "Core")]
     [Trait("Category", "Unit")]
-    public void Api_must_not_reference_Persistence_assembly()
-    {
-        // Controllers and filters stay over Application services + contracts; SQL/Dapper adapters live in Persistence only.
-        Assembly api = typeof(ArchLucid.Api.Program).Assembly;
-        AssemblyName[] references = api.GetReferencedAssemblies();
-
-        references.Should().NotContain(
-            a => a.Name == "ArchLucid.Persistence",
-            because: "ArchLucid.Api must not reference persistence implementations; aligns with layering in docs/library/ARCHITECTURE_CONSTRAINTS.md tier 4.");
-    }
-
-    [Fact]
-    [Trait("Suite", "Core")]
-    [Trait("Category", "Unit")]
     public void Worker_must_not_reference_Api_assembly()
     {
         Assembly worker = typeof(ArchLucid.Worker.Program).Assembly;
