@@ -7,7 +7,7 @@
 
 **Audience:** Anyone who needs to explain what ArchLucid is and why it matters — in a sentence, a paragraph, or a two-minute conversation.
 
-**Last reviewed:** 2026-05-17
+**Last reviewed:** 2026-05-17 (service-led GTM companion lines)
 
 **Grounding rule:** Every claim maps to a shipped V1 capability. See [V1_SCOPE.md](../library/V1_SCOPE.md) and [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) for evidence.
 
@@ -24,6 +24,13 @@
 > For **enterprise architects and the CTOs who sponsor their work**, ArchLucid turns scattered architecture evidence into a **prioritized, evidence-linked risk review** — complete with recommended actions, confidence ratings, explicit limits where the system does not conclude, and an exportable executive summary. Unlike **manual architecture review** which is slow, inconsistent, and undocumented, or **ad-hoc AI tools** which produce prose without accountability, ArchLucid delivers a **proof-oriented package**: every risk traced to evidence, every recommendation actionable, every decision auditable — obvious without a founder narrating it.
 
 **Category:** Architecture Proof Engine — sits between traditional Enterprise Architecture Management (which catalogs but does not analyze) and ad-hoc AI assistance (which analyzes but lacks governance and traceability). **Lead promise:** *Defensible architecture, on demand.*
+
+**GTM companion lines (founder-led / consulting-enabled motion):**
+
+- **Pain-led one-liner:** *ArchLucid turns architecture review from scattered opinion into evidence-backed decisions.*
+- **Founder-led service line (outreach / LinkedIn):** *I use ArchLucid to deliver evidence-backed AI and cloud architecture reviews for teams that need defensible decisions, not just diagrams.*
+
+Use these where the buyer is evaluating **a review and report**, not self-serve platform signup. Category tagline and sponsor brief remain authoritative for **product** framing. Named service SKUs and bands: [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md). Execution tasks: [`GTM_BACKLOG.md`](GTM_BACKLOG.md).
 
 ---
 
@@ -158,6 +165,8 @@ Used as the homepage H1, lead promise, and one-sentence positioning tagline acro
 | Position as **complementary** to existing EA tools (LeanIX, Ardoq), not a replacement | Position as a **replacement** for existing EA tools — different category |
 | Be honest about V1 limitations (Azure-only, no import connectors yet) | Imply multi-cloud support or integrations that do not exist |
 | Reference the **audit trail** for skeptical buyers: "every finding traces to evidence" | Lead with "AI" alone — every tool claims AI now |
+| Frame **architecture evidence and review governance** (decisions, risks, traceability) | Headline as **standalone "AI governance platform"** — crowded category; we complement GRC, not replace it |
+| Describe default packs as **inputs to architecture review** (mapping / findings) | Imply **certification** or full EU AI Act / ISO 42001 program coverage from starter packs |
 
 ---
 
@@ -176,3 +185,5 @@ Used as the homepage H1, lead promise, and one-sentence positioning tagline acro
 | [INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md) | Available and planned integrations |
 | [REFERENCE_NARRATIVE_TEMPLATE.md](REFERENCE_NARRATIVE_TEMPLATE.md) | Case study templates (3 fictional narratives) |
 | [SEO_AND_PAID_ACQUISITION.md](SEO_AND_PAID_ACQUISITION.md) | Organic SEO + disciplined web-paid acquisition playbook (apex, ICP-aligned channels, measurement stance) |
+| [GTM_BACKLOG.md](GTM_BACKLOG.md) | Internal service-led sequencing, outreach, and monetization tasks |
+| [SERVICE_LED_OFFERS.md](SERVICE_LED_OFFERS.md) | Named productized consulting SKUs and indicative private bands |

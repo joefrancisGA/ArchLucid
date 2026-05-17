@@ -27,8 +27,6 @@ public sealed class InfrastructureMonthlyUsdCostEstimator
     /// <param name="attemptRetailPricing">
     ///     When <see langword="true" /> with a non-null <paramref name="retailPrices"/>, SKU/region rows attempt live Retail probing.
     /// </param>
-
-    /// <inheritdoc cref="" />
     public async Task<InfrastructureCostEstimateTotals> EstimateNodesAsync(IReadOnlyList<InfrastructureCostQueryNode> nodes,
         bool attemptRetailPricing,
 
@@ -60,12 +58,8 @@ public sealed class InfrastructureMonthlyUsdCostEstimator
                              !string.IsNullOrWhiteSpace(node.ArmRegion) &&
 
 
-                             !string.IsNullOrWhiteSpace(node.SkuOrTier) && InfrastructureCostPricingCatalog.TryGetRetailServiceName(
-
-                                 node.Platform,
-
-
-                                 out string _);
+                             !string.IsNullOrWhiteSpace(node.SkuOrTier) &&
+                             InfrastructureCostPricingCatalog.TryGetRetailServiceName(node.Platform, out _);
 
             if (!canRetail)
 

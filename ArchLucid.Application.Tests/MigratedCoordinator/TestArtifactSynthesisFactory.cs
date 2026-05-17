@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Generators;
 using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.Core.Costing;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.ArtifactSynthesis.Services;
 
@@ -21,7 +22,7 @@ internal static class TestArtifactSynthesisFactory
             new DiagramAstGenerator(),
             new MermaidDiagramArtifactGenerator(renderer),
             new InventoryArtifactGenerator(),
-            new CostSummaryArtifactGenerator(),
+            new CostSummaryArtifactGenerator(new IllustrativeOnlyInfrastructureCostArtifactAugmentationProvider(null)),
             new TerraformAdvisoryArtifactGenerator(),
             new UnresolvedIssuesArtifactGenerator()
         ];

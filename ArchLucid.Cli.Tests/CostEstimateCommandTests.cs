@@ -57,9 +57,9 @@ public sealed class CostEstimateCommandTests
             output.Should().Contain("orders");
             output.Should().Contain("Azure App Service");
             output.Should().Contain("Azure SQL");
-            output.Should().Contain("$45");
-            output.Should().Contain("$15");
-            output.Should().Contain("Total (mock):");
+            output.Should().Contain("Illustrative infrastructure USD/month");            output.Should().Contain("$15");
+            output.Should().Contain("Total:");
+            output.Should().Contain("estimated");
             output.Should().Contain("$60");
             errWriter.ToString().Should().BeEmpty();
         }
@@ -87,8 +87,9 @@ public sealed class CostEstimateCommandTests
             line.Should().StartWith("{");
             line.Should().Contain("\"ok\":true");
             line.Should().Contain("\"totalUsdPerMonth\":60");
-            line.Should().Contain("\"azureProduct\"");
-            errWriter.ToString().Should().BeEmpty();
+            line.Should().Contain("\"pricingMode\":\"illustrative\"");
+            line.Should().Contain("\"priceSource\":\"estimated\"");
+            line.Should().Contain("\"inputKind\":\"GoldenManifest\"");            errWriter.ToString().Should().BeEmpty();
         }
         finally
         {

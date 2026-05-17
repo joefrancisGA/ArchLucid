@@ -7,6 +7,16 @@ namespace ArchLucid.Core.Costing;
 /// </summary>
 public static class IllustrativeInfrastructureCostFallback
 {
+    /// <summary>Same values as fallback line items (deterministic).</summary>
+    public static decimal EstimateIllustrativeMonthlyUsd(RuntimePlatform platform)
+    {
+
+        IllustrativeInfrastructureCostFallback.TryGetIllustrativeMonthlyUsd(platform, out decimal monthly);
+
+        return monthly;
+
+    }
+
     internal static bool TryGetIllustrativeMonthlyUsd(RuntimePlatform platform, out decimal usdPerMonth)
     {
         usdPerMonth = platform switch

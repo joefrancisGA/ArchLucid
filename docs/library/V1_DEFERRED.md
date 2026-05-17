@@ -120,6 +120,7 @@ These commercial milestones are **explicitly release-window-pinned to V1.1** so 
 - **Design partner (Resolved 2026-05-03):** the same rule applies — future assessments **must not** treat absence of a signed design partner as an **`(A)`** defect or premise repeated “you lack a design partner” narrative; see [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) *Resolved 2026-05-03*.
 - These decisions do **not** retract or downgrade other commercial / security milestones — **third-party** pen-test summary publication is **V2** per §6c (owner 2026-05-01); PGP key generation, board-pack PDF endpoint, etc. stay as documented unless a separate owner decision defers them.
 - A new commercial milestone **must not** be added to this table without its own owner decision recorded in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
+- **Commerce un-hold demand gate (planning 2026-05-17):** The **Stripe live / Marketplace `Published`** flip remains a **V1.1** engineering and owner obligation per the **Commerce un-hold** row above; **timing** should reflect **validated buyer motion** (e.g. repeated paid review or pilot pattern) in addition to finance readiness — see **`docs/assessments/LATEST.md` P4** and **`docs/go-to-market/GTM_BACKLOG.md`** service-led baseline. This does **not** remove the **`BillingProductionSafetyRules`** guard or TEST-mode trial obligations in **`V1`**.
 
 ---
 

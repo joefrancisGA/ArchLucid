@@ -22,6 +22,18 @@
 
 ---
 
+## Service-led GTM baseline (planning)
+
+**Captured 2026-05-17** — complements technical readiness in [`LATEST.md`](../assessments/LATEST.md).
+
+- **Wedge:** Sell a **buyable architecture review outcome** (evidence-backed report), not “complete platform” breadth on first touch. V1 product scope stays **`V1_SCOPE.md`**; GTM copy and SOWs lead with **pain → outcome → report**.
+- **Named SKUs:** Canonical menu and indicative bands live in **[`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md)**. Upwork listings (M-24–M-26) and pilot drafts (M-22–M-23) should use those **names** and deliverables.
+- **ICP (first revenue):** Mid-market CTO, fractional CTO, cloud consultant, regulated startup — faster cycle than Fortune 50 unless a sponsor already exists.
+- **V1.1 commerce un-hold (Stripe live / Marketplace):** Engineering milestone remains **`V1_DEFERRED.md` §6b**; **calendar alone** does not force the flip — owner validates **repeatable purchasing motion** (see **`LATEST.md` P4**).
+- **V2 roadmap:** Platform items in **`V1_DEFERRED.md`** (e.g. cross-tenant analytics, Redis baselines) stay **candidates** until paid engagements show which buyers actually pay for them.
+
+---
+
 ## V1 Marketing Backlog
 
 ### Phase 1 — Demo and messaging foundation (Days 1–15)
@@ -59,17 +71,18 @@
 | M-19 | Run 5–10 live demos against Workspace A and Workspace B | Sales | P2 | Not started | **Improvement #30 — COMPLETED (2026-05-17)**; M-03 (demo script) |
 | M-20 | Track objections from demos; refine one-sentence positioning and demo script | Copy iteration | P2 | Not started | M-19 (demos must start) |
 | M-21 | Identify the one strongest buyer segment from demo feedback | Positioning | P2 | Not started | M-20 |
+| M-34 | Align SOWs / `ORDER_FORM_TEMPLATE.md` drafts and outreach talk track to named SKUs in `SERVICE_LED_OFFERS.md` (Readiness Review, Evidence Pack, ARB Report, Azure-first review) | Business | P2 | Not started | None — `SERVICE_LED_OFFERS.md` is canonical SKU list |
 
 ### Phase 4 — Monetization (Days 61–90)
 
 | # | Task | Type | Priority | Status | Depends on (technical) |
 |---|------|------|----------|--------|------------------------|
-| M-22 | Draft paid pilot offer (Option A: $2,500–$7,500 architecture review package using ArchLucid) — use `ORDER_FORM_TEMPLATE.md` as starting point | Business | P3 | Not started | None |
-| M-23 | Draft paid pilot offer (Option B: $5,000–$15,000 / 30–60 day pilot with setup, demo workspace, review workflow, sample reports) | Business | P3 | Not started | None |
+| M-22 | Draft paid pilot offer (Option A: architecture review package using ArchLucid) — align scope and **SKU name** to **`SERVICE_LED_OFFERS.md`**; use `ORDER_FORM_TEMPLATE.md` as starting point; private quote bands may use indicative rows in that doc | Business | P3 | Not started | M-34 (recommended before first paid signature) |
+| M-23 | Draft paid pilot offer (Option B: 30–60 day pilot with setup, demo workspace, review workflow, sample reports) — align deliverables to **`SERVICE_LED_OFFERS.md`** where overlapping | Business | P3 | Not started | M-34 (recommended) |
 | M-24 | Create Upwork service listing: "AI Architecture Governance Review" (evidence-backed process + structured architecture review report) | Business | P3 | Not started | **Improvement #28 — COMPLETED (2026-05-17)** |
 | M-25 | Create Upwork service listing: "Azure Architecture Readiness Review" (Azure extractor + security baseline + cost findings) | Business | P3 | Not started | **Improvement #29 — COMPLETED (2026-05-17)** |
 | M-26 | Create Upwork service listing: "Architecture Decision Record Cleanup" (capture + decisioning flow) | Business | P3 | Not started | **Improvement #30 — COMPLETED (2026-05-17)** |
-| M-27 | Run at least one paid pilot or Upwork engagement with ArchLucid as internal tool + demo asset | Business | P3 | Not started | M-22 or M-23 |
+| M-27 | Run at least one paid pilot or Upwork engagement with ArchLucid as internal tool + demo asset | Business | P3 | Not started | M-22 or M-23; **`SERVICE_LED_OFFERS.md`** defines SKU names deliverables |
 | M-28 | Request testimonial from any non-NDA-conflicted early user or pilot participant | Relationship | P3 | Not started | M-27 |
 | M-29 | Publish LinkedIn post on ServiceNow integration ("ArchLucid writes architecture findings back to your ServiceNow workflow") | Content | P3 | Blocked | **Improvement #25** (ServiceNow bi-directional sync) and **P10** (developer instance not yet provisioned) |
 
@@ -80,7 +93,7 @@
 | # | Task | Milestone | Reason deferred |
 |---|------|-----------|-----------------|
 | M-30 | Publish CAF / Azure landing-zone use case claim with bundled curated policy pack | V1.1 | CAF pack deferred to V1.1 per `LATEST.md` and `V1_DEFERRED.md` |
-| M-31 | Solo architect self-serve SaaS pricing page ($49–$199/month) and public self-serve checkout | V2 | Stripe live keys deferred to V1.1; self-serve funnel deferred to V2; no public $ band in first 90 days per `LATEST.md` Marketing alignment Q7 |
+| M-31 | Solo architect self-serve SaaS pricing page ($49–$199/month) and public self-serve checkout | V2 | Stripe live keys deferred to V1.1; self-serve funnel deferred to V2; no public $ band in first 90 days per `LATEST.md` Marketing alignment Q7; prefer **demand signal** from service-led engagements before positioning self-serve as primary motion |
 | M-32 | Reference customer / design partner case study publication | V1.1 | Depends on signed pilot and `reference-customers/PUBLICATION_CHECKLIST.md` clearance |
 | M-33 | Cross-tenant portfolio ROI analytics marketing claim | V2 | Cross-tenant analytics deferred to V2 per `V1_DEFERRED.md` |
 

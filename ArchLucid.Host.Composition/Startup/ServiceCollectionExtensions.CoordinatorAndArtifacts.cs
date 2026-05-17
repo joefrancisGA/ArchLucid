@@ -12,6 +12,8 @@ using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.ArtifactSynthesis.Services;
 using ArchLucid.Core.Ask;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Costing;
+using ArchLucid.Core.Http;
 using ArchLucid.Decisioning.Advisory.Analysis;
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Services;
@@ -20,6 +22,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Services.Ask;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Coordination.Caching;
@@ -30,8 +33,7 @@ using ArchLucid.Persistence.Reads;
 using ArchLucid.Persistence.Repositories;
 
 using Microsoft.Extensions.DependencyInjection;
-
-using ArchLucid.Host.Core.Hosted;
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Host.Composition.Startup;
 
@@ -153,6 +155,8 @@ public static partial class ServiceCollectionExtensions
 
     private static void RegisterArtifactSynthesis(IServiceCollection services)
     {
+        RegisterInfrastructureCostSizing(services);
+
         services.AddSingleton<IArtifactContentTypeResolver, ArtifactContentTypeResolver>();
         services.AddSingleton<IArtifactPackagingService, ArtifactPackagingService>();
         services.AddSingleton<IArtifactBundleValidator, ArtifactBundleValidator>();
@@ -164,11 +168,27 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArtifactGenerator, DiagramAstGenerator>();
         services.AddScoped<IArtifactGenerator, MermaidDiagramArtifactGenerator>();
         services.AddScoped<IArtifactGenerator, InventoryArtifactGenerator>();
-        services.AddScoped<IArtifactGenerator, CostSummaryArtifactGenerator>();
+        services.AddScoped<IArtifactGenerator>(static sp =>
+            new CostSummaryArtifactGenerator(sp.GetRequiredService<IInfrastructureCostArtifactAugmentationProvider>()));
         services.AddScoped<IArtifactGenerator, TerraformAdvisoryArtifactGenerator>();
         services.AddScoped<IArtifactGenerator, UnresolvedIssuesArtifactGenerator>();
         services.AddScoped<IArtifactSynthesisService, ArtifactSynthesisService>();
         services.AddScoped<IDocxExportService, DocxExportService>();
         services.AddSingleton<IValueReportRenderer, DocxValueReportRenderer>();
+    }
+
+    /// <summary>Registers outbound Retail probing plus artifact augmentation injected into cost summaries.</summary>
+    private static void RegisterInfrastructureCostSizing(IServiceCollection services)
+    {
+        services.AddSingleton<AzureRetailPricesCatalogClient>(
+            static sp =>
+                new AzureRetailPricesCatalogClient(
+                    () =>
+                        sp.GetRequiredService<IHttpClientFactory>()
+                            .CreateClient(ArchLucidAzurePublicHttpClients.RetailPricesHttpClientName),
+                    TimeProvider.System,
+                    sp.GetRequiredService<ILogger<AzureRetailPricesCatalogClient>>()));
+
+        services.AddSingleton<IInfrastructureCostArtifactAugmentationProvider, RetailInfrastructureCostArtifactAugmentationProvider>();
     }
 }
