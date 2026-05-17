@@ -36,6 +36,7 @@ public sealed class AuthorityRunOrchestrator(
     IAuthorityPipelineWorkRepository authorityPipelineWorkRepository,
     IAsyncAuthorityPipelineModeResolver asyncAuthorityPipelineModeResolver,
     IOptionsMonitor<AuthorityPipelineOptions> authorityPipelineOptions,
+    ITenantAuthorityPipelineConcurrencyGate tenantAuthorityPipelineConcurrencyGate,
     ILogger<AuthorityRunOrchestrator> logger)
 {
     private readonly IRunRepository _runRepository =
@@ -48,6 +49,10 @@ public sealed class AuthorityRunOrchestrator(
     private readonly IAuthorityCommittedPipelineFinalizer _authorityCommittedPipelineFinalizer =
         authorityCommittedPipelineFinalizer
         ?? throw new ArgumentNullException(nameof(authorityCommittedPipelineFinalizer));
+
+    private readonly ITenantAuthorityPipelineConcurrencyGate _tenantAuthorityPipelineConcurrencyGate =
+        tenantAuthorityPipelineConcurrencyGate
+        ?? throw new ArgumentNullException(nameof(tenantAuthorityPipelineConcurrencyGate));
 
     /// <inheritdoc />
     /// <remarks>
@@ -199,6 +204,13 @@ public sealed class AuthorityRunOrchestrator(
 
             LogAgentExecutionStateTransition(run.RunId, "run_persisted", "inline_authority_pipeline_stages", "(none)");
 
+            await using IAsyncDisposable executionConcurrencyLease =
+                await _tenantAuthorityPipelineConcurrencyGate.AcquireExecutionSlotAsync(
+                    scope.TenantId,
+                    run.RunId,
+                    authorityPipelineOptions.CurrentValue.Concurrency.RejectInlineCreateWhenConcurrencyUnavailable,
+                    pipelineCt);
+
 
             if (_authorityPipelineStagesExecutionDriver.RequiresCommittedRunHeaderBeforeStages)
                 await uow.CommitAsync(pipelineCt);
@@ -322,6 +334,13 @@ public sealed class AuthorityRunOrchestrator(
             RunRecord run = existing;
 
             LogAgentExecutionStateTransition(run.RunId, "queued_resume", "inline_authority_pipeline_stages", "(none)");
+
+            await using IAsyncDisposable executionConcurrencyLease =
+                await _tenantAuthorityPipelineConcurrencyGate.AcquireExecutionSlotAsync(
+                    run.TenantId,
+                    run.RunId,
+                    failFastWhenUnavailable: false,
+                    pipelineCt);
 
 
             using Activity? runActivity = ArchLucidInstrumentation.AuthorityRun.StartActivity();

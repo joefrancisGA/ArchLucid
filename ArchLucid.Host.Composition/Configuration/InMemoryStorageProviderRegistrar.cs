@@ -183,6 +183,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddScoped<IAuthorityPipelineStagesExecutor, AuthorityPipelineStagesExecutor>();
         services.AddScoped<IAuthorityCommittedPipelineFinalizer, AuthorityCommittedPipelineFinalizer>();
         services.AddScoped<IAuthorityPipelineStagesExecutionDriver, InlineAuthorityPipelineStagesExecutionDriver>();
+        services.AddSingleton<ITenantAuthorityPipelineConcurrencyGate, InMemoryTenantAuthorityPipelineConcurrencyGate>();
         services.AddScoped<AuthorityRunOrchestrator>();
         services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestratorApplicationAdapter>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();

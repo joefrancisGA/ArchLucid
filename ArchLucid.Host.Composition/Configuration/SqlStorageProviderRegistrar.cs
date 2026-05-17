@@ -267,6 +267,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IAuthorityPipelineStagesExecutor, AuthorityPipelineStagesExecutor>();
         services.AddScoped<IAuthorityCommittedPipelineFinalizer, AuthorityCommittedPipelineFinalizer>();
         services.AddScoped<IAuthorityPipelineStagesExecutionDriver, InlineAuthorityPipelineStagesExecutionDriver>();
+        services.AddScoped<SqlAuthorityPipelineTenantExecutionLeaseRepository>();
+        services.AddScoped<ITenantAuthorityPipelineConcurrencyGate, SqlTenantAuthorityPipelineConcurrencyGate>();
         // Legacy AuthorityRunOrchestrator retained in ArchLucid.Persistence for ArchLucid.Persistence.Tests;
         // not registered as IAuthorityRunOrchestrator in production DI since DTF parity confirmed — SQL host uses Durable Task port.
         services.AddScoped<AuthorityRunOrchestrator>();

@@ -1,4 +1,4 @@
-using ArchLucid.Core.Authority;
+using System.Globalization;
 
 using ArchLucid.Persistence.Connections;
 
@@ -7,11 +7,10 @@ using Dapper;
 using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Orchestration;
-
 /// <summary>
 ///     Durable lease rows enforcing per-tenant authority pipeline concurrency (<c>dbo.AuthorityPipelineTenantExecutionLease</c>).
 /// </summary>
-internal sealed class SqlAuthorityPipelineTenantExecutionLeaseRepository(ISqlConnectionFactory sqlConnectionFactory)
+public sealed class SqlAuthorityPipelineTenantExecutionLeaseRepository(ISqlConnectionFactory sqlConnectionFactory)
 {
     private readonly ISqlConnectionFactory _sqlConnectionFactory =
         sqlConnectionFactory ?? throw new ArgumentNullException(nameof(sqlConnectionFactory));
@@ -47,9 +46,10 @@ internal sealed class SqlAuthorityPipelineTenantExecutionLeaseRepository(ISqlCon
                                  WHERE TenantId = @TenantId;
                                  """;
 
-        long active = await connection.ExecuteScalarAsync<long>(
+        object? activeScalar = await connection.ExecuteScalarAsync(
             new CommandDefinition(countSql, new { TenantId = tenantId }, transaction,
                 cancellationToken: cancellationToken));
+        long active = activeScalar is long l ? l : Convert.ToInt64(activeScalar, CultureInfo.InvariantCulture);
 
         if (active >= maxConcurrent)
 

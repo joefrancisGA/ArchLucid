@@ -7184,3 +7184,18 @@ BEGIN
         INCLUDE (Role);
 END;
 GO
+
+/* 169: Authority pipeline tenant execution leases (see Migrations/169_AuthorityPipelineTenantExecutionLease.sql). */
+IF OBJECT_ID(N'dbo.AuthorityPipelineTenantExecutionLease', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuthorityPipelineTenantExecutionLease
+    (
+        RunId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuthorityPipelineTenantExecutionLease2 PRIMARY KEY,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        AcquiredUtc DATETIME2 NOT NULL CONSTRAINT DF_AuthorityPipelineTenantExecutionLease_AcquiredUtc2 DEFAULT SYSUTCDATETIME()
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuthorityPipelineTenantExecutionLease_TenantId_AcquiredUtc2
+        ON dbo.AuthorityPipelineTenantExecutionLease (TenantId, AcquiredUtc);
+END;
+GO
