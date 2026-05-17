@@ -302,11 +302,11 @@ ArchLucid is a functionally complete V1 product with a solid architectural found
 
 ## Top Improvement Opportunities
 
-1. **Implement progressive disclosure for advanced governance routes**
+1. **Implement progressive disclosure for advanced governance routes** (**completed 2026-05-17**)
 - Why it matters: Reduces first-session cognitive load while keeping Operate depth available after the pilot proof path.
 - Expected impact: Cognitive Load (+6 pts), Usability (+2 pts), Adoption Friction (+2 pts). Weighted readiness impact: +0.14%.
 - Affected qualities: Cognitive Load, Usability, Adoption Friction.
-- Actionable: Yes
+- Actionable: Yes (**done** — `archlucid-ui`: pilot nav + home CTAs on four-step path; pre-commit gate expanded for `/graph` + `/dashboard`; **Architecture advisory** at **advanced** tier with Alerts / Planning / Digests; routes and RBAC unchanged. **Residual:** optional tenant/API “full shell” unlock for admins before first committed review if product wants parity with the assessment line.)
 
 ```markdown
 In `archlucid-ui` navigation and home CTAs, default to the four-step pilot path (Capture → Evidence → Review → Report).

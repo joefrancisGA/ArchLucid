@@ -67,9 +67,6 @@ describe("SidebarNav (primary navigation)", () => {
       expect(within(nav).queryByRole("link", { name: "Compare two reviews" })).toBeNull();
       expect(within(nav).queryByRole("link", { name: "Replay a review" })).toBeNull();
 
-      expect(screen.queryByRole("link", { name: "Compare two reviews" })).toBeNull();
-      expect(screen.queryByRole("link", { name: "Replay a review" })).toBeNull();
-
       fireEvent.click(screen.getByRole("button", { name: "Sidebar layout" }));
       fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }));
       fireEvent.click(screen.getByRole("button", { name: "Close dialog" }));
