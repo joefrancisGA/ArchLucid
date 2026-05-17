@@ -2,6 +2,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Compliance.Models;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks.CuratedRules;
 
 namespace ArchLucid.Persistence.Coordination.Compliance;
 
@@ -16,7 +17,9 @@ namespace ArchLucid.Persistence.Coordination.Compliance;
 /// <remarks>
 ///     Registered as <see cref="IComplianceRulePackProvider" /> in DI. Primary callers: compliance checks that resolve
 ///     rules per scope.
-///     Uses <see cref="ComplianceRulePackGovernanceFilter.Filter" /> so only rules referenced (and enabled) in effective
+///     Merges tenant-authored rules from <see cref="CuratedRules.PolicyPackCuratedRulesMetadataKey.V1" /> into the file
+///     pack via <see cref="CuratedRules.TenantCuratedComplianceRulePackMerger" />, then uses
+///     <see cref="ComplianceRulePackGovernanceFilter.Filter" /> so only rules referenced (and enabled) in effective
 ///     governance remain.
 /// </remarks>
 public sealed class PolicyFilteredComplianceRulePackProvider(
@@ -40,6 +43,7 @@ public sealed class PolicyFilteredComplianceRulePackProvider(
         PolicyPackContentDocument effective = await governanceLoader
                 .LoadEffectiveContentAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, ct)
             ;
-        return ComplianceRulePackGovernanceFilter.Filter(full, effective);
+        ComplianceRulePack merged = TenantCuratedComplianceRulePackMerger.MergeFilePackWithCuratedFromGovernance(full, effective);
+        return ComplianceRulePackGovernanceFilter.Filter(merged, effective);
     }
 }

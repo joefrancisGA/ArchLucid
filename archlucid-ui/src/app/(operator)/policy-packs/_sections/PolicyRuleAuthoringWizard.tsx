@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,10 +11,16 @@ import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import {
-  buildPolicyPackContentFromGuidedFields,
   guidedFieldsFromContentDocument,
   type GuidedPolicyFields,
 } from "@/lib/policy-pack-guided-content";
+import {
+  composePolicyPackContentForPublish,
+  createEmptyCuratedRulesDocument,
+  hydrateCuratedFromContentDocument,
+  type CuratedRulesDocument,
+  validateCuratedRulesDocument,
+} from "@/lib/policy-pack-curated-rules-v1";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import type { components } from "@/lib/openapi-schemas";
 import type { PolicyPackContentDocument } from "@/types/policy-packs";
@@ -22,6 +28,7 @@ import { showSuccess } from "@/lib/toast";
 import type { RunSummary } from "@/types/authority";
 
 import { PACK_TYPES } from "./policy-packs-page-constants";
+import { CuratedRulesAuthoringSection } from "./CuratedRulesAuthoringSection";
 
 const AUTH_WIZARD_PROJECT_ID = "default";
 
@@ -88,6 +95,24 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
     compositeAlertRuleIdsText: "",
     metadataLinesText: "",
   }));
+  const [curatedDoc, setCuratedDoc] = useState<CuratedRulesDocument>(() => createEmptyCuratedRulesDocument({}));
+  const [authoringErrors, setAuthoringErrors] = useState<string[]>([]);
+
+  useEffect(() => {
+    const doc: PolicyPackContentDocument | null = tryParseContentDocument(policyContentJson);
+
+    if (doc === null) {
+      return;
+    }
+
+    const hydrated = hydrateCuratedFromContentDocument(doc);
+    setCuratedDoc(hydrated.curated);
+    setGuidedFields({
+      ...guidedFieldsFromContentDocument(doc),
+      complianceRuleKeysText: hydrated.additionalComplianceKeysText,
+    });
+    setAuthoringErrors([]);
+  }, [selectedPackId, policyContentJson]);
 
   const [simulateRunId, setSimulateRunId] = useState("");
   const [recentRuns, setRecentRuns] = useState<RunSummary[]>([]);
@@ -101,11 +126,29 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
 
   const jsonEditorValue = policyContentJson;
 
-  const applyGuidedToPolicyJson = useCallback(() => {
-    const doc: PolicyPackContentDocument = buildPolicyPackContentFromGuidedFields(guidedFields);
+  const mergeAuthoringIntoPolicyJson = useCallback(() => {
+    const validationErrors: string[] = validateCuratedRulesDocument(curatedDoc);
+
+    if (validationErrors.length > 0) {
+      setAuthoringErrors(validationErrors);
+
+      return;
+    }
+
+    setAuthoringErrors([]);
+    const doc: PolicyPackContentDocument = composePolicyPackContentForPublish({
+      guided: guidedFields,
+      curated: curatedDoc,
+      packContext: {
+        name,
+        description,
+        version: publishVersion,
+        packType,
+      },
+    });
 
     onPolicyContentJsonSync(JSON.stringify(doc, null, 2));
-  }, [guidedFields, onPolicyContentJsonSync]);
+  }, [curatedDoc, guidedFields, name, description, onPolicyContentJsonSync, packType, publishVersion]);
 
   const syncGuidedFromCurrentJson = useCallback(() => {
     const doc: PolicyPackContentDocument | null = tryParseContentDocument(policyContentJson);
@@ -114,7 +157,13 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
       return;
     }
 
-    setGuidedFields(guidedFieldsFromContentDocument(doc));
+    const hydrated = hydrateCuratedFromContentDocument(doc);
+    setCuratedDoc(hydrated.curated);
+    setGuidedFields({
+      ...guidedFieldsFromContentDocument(doc),
+      complianceRuleKeysText: hydrated.additionalComplianceKeysText,
+    });
+    setAuthoringErrors([]);
   }, [policyContentJson]);
 
   const loadRecentRuns = useCallback(async () => {
@@ -327,9 +376,28 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
                   placeholder={"vertical=healthcare"}
                 />
               </div>
+              <CuratedRulesAuthoringSection
+                canMutatePacks={canMutatePacks}
+                curatedDoc={curatedDoc}
+                onCuratedDocChange={setCuratedDoc}
+                packName={name}
+                packDescription={description}
+                publishVersion={publishVersion}
+                packType={packType}
+              />
+              {authoringErrors.length > 0 ? (
+                <div role="alert" className="rounded-md border border-amber-200 bg-amber-50 p-2 text-xs text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
+                  <p className="font-medium m-0 mb-1">Fix before merging</p>
+                  <ul className="list-disc ml-4 m-0">
+                    {authoringErrors.map((e) => (
+                      <li key={e}>{e}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
               <div className="flex flex-wrap gap-2">
-                <Button type="button" size="sm" onClick={() => applyGuidedToPolicyJson()}>
-                  Merge guided fields into policy JSON
+                <Button type="button" size="sm" data-testid="policy-rule-wizard-merge-authoring" onClick={() => mergeAuthoringIntoPolicyJson()}>
+                  Merge guided + curated rules into policy JSON
                 </Button>
                 <Button type="button" size="sm" variant="secondary" onClick={() => syncGuidedFromCurrentJson()}>
                   Load guided fields from current JSON

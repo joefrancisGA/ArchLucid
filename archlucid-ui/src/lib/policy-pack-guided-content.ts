@@ -1,5 +1,7 @@
 import type { PolicyPackContentDocument } from "@/types/policy-packs";
 
+import { POLICY_PACK_CURATED_RULES_METADATA_V1 } from "@/lib/policy-pack-curated-rules-constants";
+
 import { DEFAULT_POLICY_PACK_CONTENT_JSON } from "@/lib/policy-pack-default-content";
 
 export type GuidedPolicyFields = {
@@ -93,6 +95,10 @@ export function guidedFieldsFromContentDocument(doc: PolicyPackContentDocument):
   const compositeLines = (doc.compositeAlertRuleIds ?? []).join("\n");
   const meta = doc.metadata ?? {};
   const metaLines = Object.entries(meta)
+    .filter(
+      ([key]) =>
+        key.trim().toLowerCase() !== POLICY_PACK_CURATED_RULES_METADATA_V1.toLowerCase(),
+    )
     .map(([key, value]) => `${key}=${value}`)
     .join("\n");
 

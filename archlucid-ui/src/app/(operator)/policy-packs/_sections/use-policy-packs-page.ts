@@ -115,6 +115,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
 
     void (async () => {
       try {
+        setPublishJson(DEFAULT_CONTENT);
         const versions = await listPolicyPackVersions(selectedPackId);
         setPackVersions(versions);
         const latest = versions[0];

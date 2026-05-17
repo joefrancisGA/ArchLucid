@@ -30,4 +30,18 @@ describe("buildPolicyPackContentFromGuidedFields", () => {
 
     expect(buildPolicyPackContentFromGuidedFields(back).complianceRuleKeys).toEqual(doc.complianceRuleKeys);
   });
+
+  it("omits pack.curatedRules.v1 from guided metadata lines (blob is edited elsewhere)", () => {
+    const doc: PolicyPackContentDocument = {
+      complianceRuleIds: [],
+      complianceRuleKeys: [],
+      alertRuleIds: [],
+      compositeAlertRuleIds: [],
+      advisoryDefaults: {},
+      metadata: { "pack.curatedRules.v1": '{"schemaVersion":1}', vertical: "saas" },
+    };
+    const back = guidedFieldsFromContentDocument(doc);
+
+    expect(back.metadataLinesText).toBe("vertical=saas");
+  });
 });
