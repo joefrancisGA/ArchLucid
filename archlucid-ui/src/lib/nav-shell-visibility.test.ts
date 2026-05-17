@@ -544,8 +544,6 @@ describe("visibleOperatorShellHrefSet", () => {
 });
 
 describe("buyer-polished shell nav narrowing", () => {
-  const pilot = NAV_GROUPS.find((g) => g.id === "pilot");
-
   beforeEach(() => {
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "");
   });
