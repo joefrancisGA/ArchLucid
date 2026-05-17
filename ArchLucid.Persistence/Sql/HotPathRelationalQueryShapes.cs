@@ -8,7 +8,7 @@ namespace ArchLucid.Persistence.Sql;
 ///     When changing repository queries, update these constants in the same PR and extend test assertions if new
 ///     predicates are required — see <c>docs/library/PERFORMANCE_BASELINES.md</c>.
 /// </remarks>
-public static class HotPathRelationalQueryShapes
+internal static class HotPathRelationalQueryShapes
 {
     /// <summary>Dashboard run list by project slug (<c>SqlRunRepository.ListByProjectAsync</c>).</summary>
     public const string RunsListByProjectNoLock = """

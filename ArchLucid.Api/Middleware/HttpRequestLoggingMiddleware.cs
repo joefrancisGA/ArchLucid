@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Middleware;
 ///     Register immediately after <see cref="ArchLucid.Host.Core.Middleware.CorrelationIdMiddleware" /> so the
 ///     correlation header and <see cref="HttpContext.TraceIdentifier" /> are authoritative.
 /// </remarks>
-public sealed class HttpRequestLoggingMiddleware(RequestDelegate next, ILogger<HttpRequestLoggingMiddleware> logger)
+internal sealed class HttpRequestLoggingMiddleware(RequestDelegate next, ILogger<HttpRequestLoggingMiddleware> logger)
 {
     private const string CorrelationHeaderName = "X-Correlation-ID";
 

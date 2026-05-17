@@ -10,7 +10,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace ArchLucid.Api.Auth.Scim;
 
-public sealed class ScimBearerAuthenticationHandler(
+internal sealed class ScimBearerAuthenticationHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
     UrlEncoder encoder,

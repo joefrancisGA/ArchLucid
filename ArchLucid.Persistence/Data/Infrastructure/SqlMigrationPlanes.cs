@@ -1,7 +1,7 @@
 namespace ArchLucid.Persistence.Data.Infrastructure;
 
 /// <summary>Classifies embedded DbUp script resource names into system vs tenant planes.</summary>
-public static class SqlMigrationPlanes
+internal static class SqlMigrationPlanes
 {
     private const string BaselineToken = ".Migrations.Baseline.";
 

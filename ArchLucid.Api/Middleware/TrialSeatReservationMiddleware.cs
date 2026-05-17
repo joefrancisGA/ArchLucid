@@ -9,7 +9,7 @@ namespace ArchLucid.Api.Middleware;
 ///     Reserves a trial seat for the authenticated principal before authorization so seat exhaustion surfaces as
 ///     <c>402 Payment Required</c> with the same problem contract as other trial blocks.
 /// </summary>
-public sealed class TrialSeatReservationMiddleware(RequestDelegate next)
+internal sealed class TrialSeatReservationMiddleware(RequestDelegate next)
 {
     private static bool SkipSeatAccounting(PathString path)
     {

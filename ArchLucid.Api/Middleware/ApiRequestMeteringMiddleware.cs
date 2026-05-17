@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Middleware;
 ///     Implements <see cref="IMiddleware" /> so <see cref="IUsageMeteringService" /> (scoped) is resolved per request, not
 ///     at pipeline build time.
 /// </remarks>
-public sealed class ApiRequestMeteringMiddleware(
+internal sealed class ApiRequestMeteringMiddleware(
     IScopeContextProvider scopeProvider,
     IUsageMeteringService usageMetering,
     IOptionsMonitor<MeteringOptions> meteringOptions,

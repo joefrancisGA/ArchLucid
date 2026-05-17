@@ -12,7 +12,7 @@ namespace ArchLucid.Api.Middleware;
 /// </summary>
 [ExcludeFromCodeCoverage(
     Justification = "Thin guard unit-tested via LooksLikeArchitectureCreateRun static helpers.")]
-public sealed class ContextIngestionMaxPayloadMiddleware(
+internal sealed class ContextIngestionMaxPayloadMiddleware(
     RequestDelegate next,
     IOptions<ArchitectureRunCreationPayloadLimitsOptions> options)
 {
