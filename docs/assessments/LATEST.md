@@ -422,10 +422,12 @@ Audit all `.ps1` scripts in the `scripts/` directory and update them to accept `
 ```
 
 ### 8. Guided baseline collection wizard (ZIP-first, thin required fields)
+- **Status:** Completed (2026-05-17)
 - **Why it matters:** Real-mode value requires tenant baseline data; a wizard that leads with the Azure extractor ZIP reduces manual typing and speeds first commit.
 - **Expected impact:** Time-to-Value (+10 pts), Usability (+5 pts).
 - **Affected qualities:** Time-to-Value, Usability.
-- **Actionable:** Yes
+- **Actionable:** No
+- **Completion evidence:** Baseline-first route `/reviews/new?baseline=1` (path switcher opens detailed wizard; full wizard inserts ZIP step before identity). Client-side unpack via `fflate` reads `manifest.json` from the `Get-ArchLucidAzurePackage.ps1` ZIP (52 MB cap aligned with `AzureExtractorUploadLimits.MaxZipBytes`); prefills `description`, optional `systemName`, `topologyHints`. Key files: `archlucid-ui/src/components/wizard/steps/WizardStepBaselineZip.tsx`, `AzureExtractorPackageZipField.tsx`, `archlucid-ui/src/lib/read-arch-lucid-azure-package-zip.ts`, `archlucid-ui/src/app/(operator)/reviews/new/NewRunWizardClient.tsx`, `QuickReviewWizard.tsx` (`ReviewsNewPathSwitcher`). Pilot guide CTA (`HelpLink` → `PILOT_GUIDE.md`). Baseline ZIP parse signals: `recordPilotBaselineZipApplied` (session + `archlucid-pilot-baseline-zip-applied`); `first_run_started` unchanged on submit. Tests: `archlucid-ui/src/lib/read-arch-lucid-azure-package-zip.test.ts`, `NewRunWizardClient.baseline-first.test.tsx`, baseline step mapping in `wizard-step-validate.test.ts`.
 ```text
 Extend the operator **new review** flow (`archlucid-ui` — `reviews/new`, `NewRunWizardClient`, existing wizard steps including `WizardStepAzureContext`) with a **baseline-first path** without bloating the V1 gate checklist.
 
@@ -440,6 +442,7 @@ Extend the operator **new review** flow (`archlucid-ui` — `reviews/new`, `NewR
 - **Explicitly out of scope here** (deferred per `docs/library/V1_DEFERRED.md` — baseline wizard enrichments): manual datastore/service enumeration as a **gate**, mandatory governance/compliance/risk fields pre-commit, portfolio multi-system capture in one wizard, and deep framework-mapping steps. V1.1 carries structured enrichment gates; V2 carries portfolio-style onboarding where noted in that table.
 
 **Impact:** Time-to-Value (+6–10 pts), Usability (+3–5 pts). Weighted readiness impact: +0.1–0.2%.
+- **Acceptance criteria met:** `?baseline=1` ZIP-first step with manifest-driven prefill; 52 MB client cap; clear errors for invalid ZIPs; identity/constraints/advanced remain optional beyond existing wizard validation; PILOT_GUIDE CTA from wizard; Vitest + RTL coverage as listed in completion evidence. No new unpack HTTP route.
 ```
 
 ### 9. Add a 'Missing Baseline' warning to the executive dashboard
