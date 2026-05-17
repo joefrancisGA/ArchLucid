@@ -9,7 +9,7 @@ const faqItems: ReadonlyArray<{ question: string; answer: string }> = [
   {
     question: "What is ArchLucid's SOC 2 posture?",
     answer:
-      "ArchLucid publishes SOC 2 readiness control mapping under internal security ownership. This is a readiness artifact, not a CPA attestation report — see the Trust Center for current assurance materials.",
+      "ArchLucid publishes control mapping aligned to SOC 2 criteria under internal security ownership. Not a SOC 2 attestation report — see the Trust Center for current assurance materials.",
   },
   {
     question: "Does ArchLucid require access to my Azure subscription?",

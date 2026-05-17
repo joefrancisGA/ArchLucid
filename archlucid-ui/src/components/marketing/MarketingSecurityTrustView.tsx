@@ -87,6 +87,27 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
       </p>
 
       <section
+        aria-labelledby="security-trust-buyer-proof-strip"
+        className="mt-6 rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-4 dark:border-emerald-900 dark:bg-emerald-950/35"
+      >
+        <h2 id="security-trust-buyer-proof-strip" className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+          Available for diligence today
+        </h2>
+        <ul className="m-0 mt-3 list-disc space-y-1 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
+          <li>Procurement-oriented evidence summary and questionnaire-ready excerpts</li>
+          <li>Security and architecture documentation suitable for vendor reviews</li>
+          <li>Control mapping aligned to common questionnaire structures</li>
+          <li>Published data-handling posture suitable for privacy reviews</li>
+          <li>Immutable audit instrumentation for material lifecycle changes</li>
+          <li>Diligence intake via{" "}
+            <a className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300" href="mailto:security@archlucid.net">
+              security@archlucid.net
+            </a>
+          </li>
+        </ul>
+      </section>
+
+      <section
         aria-label="Third-party assurance and NDA"
         className="mt-6 rounded-lg border border-sky-200 bg-sky-50/80 px-4 py-3 dark:border-sky-900 dark:bg-sky-950/40"
       >
@@ -116,13 +137,30 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
 
             const meta = SECURITY_TRUST_MATURITY_SECTION_HEADINGS[tier];
 
+            const plannedTierMuted = tier === "planned_next";
+
             return (
-              <div key={tier} className="space-y-4">
+              <div key={tier} className={plannedTierMuted ? "space-y-4 opacity-90" : "space-y-4"}>
                 <div>
-                  <h3 id={meta.id} className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                  <h3
+                    id={meta.id}
+                    className={
+                      plannedTierMuted
+                        ? "m-0 text-base font-semibold text-neutral-700 dark:text-neutral-300"
+                        : "m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+                    }
+                  >
                     {meta.title}
                   </h3>
-                  <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">{meta.intro}</p>
+                  <p
+                    className={
+                      plannedTierMuted
+                        ? "m-0 mt-2 text-xs text-neutral-500 dark:text-neutral-500"
+                        : "m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400"
+                    }
+                  >
+                    {meta.intro}
+                  </p>
                 </div>
                 <div className="space-y-4">
                   {tierRows.map((row) => {

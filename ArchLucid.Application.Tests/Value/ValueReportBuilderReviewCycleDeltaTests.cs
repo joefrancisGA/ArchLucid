@@ -68,6 +68,32 @@ public sealed class ValueReportBuilderReviewCycleDeltaTests
     }
 
     [SkippableFact]
+    public async Task BuildAsync_TenantSuppliedViaSettings_when_operator_marker_prefixed_source()
+    {
+        ValueReportRawMetrics raw = new(
+            [],
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            TenantBaselineReviewCycleHours: 20m,
+            TenantBaselineReviewCycleSource: "baseline_settings: questionnaire",
+            TenantBaselineReviewCycleCapturedUtc: DateTimeOffset.Parse("2026-04-01T00:00:00Z"),
+            MeasuredAverageReviewCycleHoursForWindow: 12m,
+            MeasuredReviewCycleSampleSize: 3,
+            null,
+            null,
+            null);
+
+        ValueReportSnapshot snap = await BuildSnapshotAsync(raw);
+
+        snap.ReviewCycleBaselineProvenance.Should().Be(ReviewCycleBaselineProvenance.TenantSuppliedViaSettings);
+        snap.ReviewCycleHoursDelta.Should().Be(8m);
+    }
+
+    [SkippableFact]
     public async Task BuildAsync_DefaultedFromRoiModel_when_tenant_baseline_null_but_measured_present()
     {
         ValueReportRawMetrics raw = new(

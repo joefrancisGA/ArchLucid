@@ -359,7 +359,7 @@ function labelForSegment(
 
     if (buyer === true && segment === "graph") {
 
-      return "Evidence graph";
+      return "Evidence trail";
     }
 
     if (buyer === true && segment === "search") {

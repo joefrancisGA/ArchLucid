@@ -49,6 +49,22 @@ public sealed class RoiEvidenceCompletenessMarkdownFormatterTests
     }
 
     [Fact]
+    public void Describe_operator_marker_suffix_surfaces_human_note_only()
+    {
+        DateTimeOffset captured = DateTimeOffset.Parse("2026-04-01T12:00:00Z");
+        ValueReportSnapshot snap = CreateMinimalSnapshot(
+            ReviewCycleBaselineProvenance.TenantSuppliedViaSettings,
+            manualPrep: 5.25m,
+            capturedUtc: captured,
+            tenantSourceNote: "baseline_settings: ops workshop");
+
+        (_, string body) = RoiEvidenceCompletenessMarkdownFormatter.Describe(snap);
+
+        body.Should().Contain("ops workshop");
+        body.Should().NotContain("baseline_settings:");
+    }
+
+    [Fact]
     public void AppendMarkdownSection_includes_section_heading()
     {
         ValueReportSnapshot snap = CreateMinimalSnapshot(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions);

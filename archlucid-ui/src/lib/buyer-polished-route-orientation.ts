@@ -78,15 +78,15 @@ export function buyerPolishedRouteOrientation(
 
   if (path.startsWith("/graph")) {
     return {
-      label: "Evidence graph",
-      line: "Trace how reviewed source context and policy checks feed prioritized risk findings, decisions, the signed manifest, and deliverables.",
+      label: "Evidence trail",
+      line: "Decision traceability graph — trace how reviewed context and policy checks feed prioritized findings, decisions, the signed manifest, and deliverables.",
     };
   }
 
   if (path.startsWith("/governance")) {
     return {
       label: "Governance approval record",
-      line: "Signed approval record for this workspace — ties to evidence without replacing change-management decisions.",
+      line: "Signed approval record for this workspace — records reviewers, approval outcome, and remaining monitoring; production deployments remain with enterprise change management.",
     };
   }
 
@@ -100,14 +100,14 @@ export function buyerPolishedRouteOrientation(
   if (path.startsWith(`/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`)) {
     return {
       label: SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
-      line: "Finalized decision record — findings, sealed manifest, evidence graph, governance disposition, and deliverables.",
+      line: "Finalized decision record — findings, sealed manifest, evidence trail, governance disposition, and deliverables.",
     };
   }
 
   if (/^\/reviews\/[^/]+$/.exec(path) !== null) {
     return {
       label: "Review package",
-      line: "Run record — outcomes, findings, artifacts, downloads, and deep links into evidence surfaces.",
+      line: "Review package record — outcomes, findings, artifacts, downloads, and deep links into evidence surfaces.",
     };
   }
 
@@ -121,7 +121,7 @@ export function buyerPolishedRouteOrientation(
   if (path.startsWith("/ask")) {
     return {
       label: "Ask this review",
-      line: `Pose questions scoped to persisted reviews; answers cite the manifest and evidence graph when available.`,
+      line: `Pose questions scoped to persisted reviews; answers cite the manifest and evidence trail when available.`,
     };
   }
 
@@ -143,7 +143,7 @@ export function buyerPolishedRouteOrientation(
 
   if (path.startsWith("/compare")) {
     return {
-      label: "Compare reviews",
+      label: "Review change comparison",
       line: "Side-by-side architecture deltas — what changed in scope, posture, risk, and deliverables.",
     };
   }

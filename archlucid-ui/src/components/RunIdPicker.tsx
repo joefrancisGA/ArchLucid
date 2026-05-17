@@ -271,7 +271,11 @@ export function RunIdPicker({
               const primaryText = useBuyerFacingRunLabels
                 ? buyerFacingReviewTitleFromSummary(r)
                 : truncate(runSummaryDisplayLabel(r), 52);
-              const secondaryText = useBuyerFacingRunLabels ? truncate(r.runId, 48) : truncate(r.runId, 48);
+              const secondaryText = useBuyerFacingRunLabels ? (
+                <span className="sr-only">Technical review id: {truncate(r.runId, 120)}</span>
+              ) : (
+                truncate(r.runId, 48)
+              );
 
               return (
                 <li key={r.runId} role="presentation">
@@ -295,7 +299,11 @@ export function RunIdPicker({
                     }}
                   >
                     <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{primaryText}</span>
-                    <span className="font-mono text-xs text-neutral-600 dark:text-neutral-400">{secondaryText}</span>
+                    {useBuyerFacingRunLabels ? (
+                      secondaryText
+                    ) : (
+                      <span className="font-mono text-xs text-neutral-600 dark:text-neutral-400">{secondaryText}</span>
+                    )}
                   </button>
                 </li>
               );

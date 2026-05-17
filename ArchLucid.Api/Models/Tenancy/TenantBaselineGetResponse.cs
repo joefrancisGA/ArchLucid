@@ -20,4 +20,24 @@ public sealed class TenantBaselineGetResponse
         get;
         init;
     }
+
+    /// <summary>Median hours from architecture request to reviewable package (tenant baseline).</summary>
+    public decimal? BaselineReviewCycleHours
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Optional provenance / signup note — operators may persist reserved <c>baseline_settings</c> markers.</summary>
+    public string? BaselineReviewCycleSource
+    {
+        get;
+        init;
+    }
+
+    public DateTimeOffset? BaselineReviewCycleCapturedUtc
+    {
+        get;
+        init;
+    }
 }

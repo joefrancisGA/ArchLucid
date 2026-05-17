@@ -22,6 +22,8 @@ export type CompareRunPickersSectionProps = {
   onSummarizeForSponsor: () => void;
   onLeftRunPicked: (summary: RunSummary | null) => void;
   onRightRunPicked: (summary: RunSummary | null) => void;
+  /** Buyer shell: show review titles in inputs while retaining technical ids for requests. */
+  useBuyerFacingRunLabels?: boolean;
 };
 
 export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
@@ -44,6 +46,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
     onSummarizeForSponsor,
     onLeftRunPicked,
     onRightRunPicked,
+    useBuyerFacingRunLabels = false,
   } = props;
 
   return (
@@ -62,6 +65,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           inputId="compare-left-run-id"
           forCompare
           onRunPicked={onLeftRunPicked}
+          useBuyerFacingRunLabels={useBuyerFacingRunLabels}
         />
         {leftFootnote !== null ? (
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
@@ -77,6 +81,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           inputId="compare-right-run-id"
           forCompare
           onRunPicked={onRightRunPicked}
+          useBuyerFacingRunLabels={useBuyerFacingRunLabels}
         />
         {rightFootnote !== null ? (
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">

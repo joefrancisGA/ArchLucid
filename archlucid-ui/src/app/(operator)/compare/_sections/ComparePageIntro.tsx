@@ -25,11 +25,13 @@ export function ComparePageIntro(props: ComparePageIntroProps) {
           </>
         )}
       </p>
+      {buyerPolished ? null : (
       <p className="mb-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
         The primary table is the <GlossaryTooltip termKey="manifest_diff">manifest diff</GlossaryTooltip> over finalized
         outputs. The service may retain a <GlossaryTooltip termKey="comparison_record">comparison record</GlossaryTooltip>{" "}
         for later audit review.
       </p>
+      )}
     </>
   );
 }

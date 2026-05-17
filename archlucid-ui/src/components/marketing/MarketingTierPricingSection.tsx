@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { BILLING_TIER_FEATURE_BULLETS } from "@/lib/billing-plan-tier-features";
 import { isPublicStripeTeamCheckoutEnabled } from "@/lib/marketing/is-public-stripe-team-checkout-enabled";
 import type { PricingDoc } from "@/lib/pricing-types";
 import { looksStripeHostedTestCheckoutUrl, resolveTeamStripeCheckoutHref } from "@/lib/team-stripe-checkout-url";
@@ -109,6 +110,13 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
               >
                 <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{pkg.title}</h3>
                 <p className="mt-2 flex-1 text-sm text-neutral-700 dark:text-neutral-300">{pkg.summary}</p>
+                {BILLING_TIER_FEATURE_BULLETS[pkg.id] !== undefined ? (
+                  <ul className="mt-3 list-disc space-y-1 pl-5 text-xs leading-snug text-neutral-700 dark:text-neutral-300">
+                    {BILLING_TIER_FEATURE_BULLETS[pkg.id]!.slice(0, 5).map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                ) : null}
                 <dl className="mt-4 space-y-1 text-sm text-neutral-800 dark:text-neutral-200">
                   {typeof pkg.workspaceMonthlyUsd === "number" ? (
                     <div className="flex justify-between gap-2">

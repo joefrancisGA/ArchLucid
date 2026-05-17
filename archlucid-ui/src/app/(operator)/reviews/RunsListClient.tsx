@@ -425,7 +425,7 @@ export function RunsListClient({
         autoFocus={!buyerCollapseFilters}
         aria-label={
           buyerPolished
-            ? "Search reviews by name, description, or review identifier"
+            ? "Search reviews by title or description"
             : "Filter reviews by name or description"
         }
         aria-controls="runs-list-filter-status"
@@ -451,7 +451,7 @@ export function RunsListClient({
 
   return (
     <div className="mt-4 space-y-4">
-      {buyerPolished ? (
+      {buyerPolished && totalCount <= 1 ? null : buyerPolished ? (
         buyerCollapseFilters ? (
           <details className="rounded-lg border border-neutral-200 bg-neutral-50/40 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30">
             <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">

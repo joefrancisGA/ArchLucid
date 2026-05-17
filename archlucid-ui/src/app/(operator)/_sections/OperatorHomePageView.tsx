@@ -2,7 +2,6 @@
 
 import { AfterCorePilotChecklistHint } from "@/components/AfterCorePilotChecklistHint";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
-import { BuyerGoldenJourneyStrip } from "@/components/BuyerGoldenJourneyStrip";
 import { CorePilotBuyerStepHint } from "@/components/CorePilotBuyerStepHint";
 import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
@@ -43,7 +42,6 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
         <WelcomeBanner />
 
         {buyerPolishedShell ? <CorePilotBuyerStepHint /> : null}
-        {buyerPolishedShell ? <BuyerGoldenJourneyStrip /> : null}
 
         <SampleFirstReviewPackageCard />
 

@@ -30,7 +30,7 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
   {
     id: "owner-security-self-assessment-2026",
     maturityTier: "available_now",
-    engagement: "SOC 2 readiness control mapping",
+    engagement: "Control mapping aligned to SOC 2 criteria",
     vendor: "ArchLucid internal security ownership",
     scope:
       "STRIDE-aligned control review mapped to SOC 2 Common Criteria themes — readiness artifact for procurement questionnaires",
@@ -84,7 +84,7 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
   {
     id: "pen-test-third-party-planned",
     maturityTier: "planned_next",
-    engagement: "Independent third-party penetration testing",
+    engagement: "Planned next assurance cycle — independent third-party penetration test",
     vendor: "Independent third-party assessor (vendor confirmed in executed SOW)",
     scope:
       "Hosted product API, application and administrative interfaces, and primary data-handling paths (scope confirmed in executed Statement of Work)",
@@ -122,5 +122,4 @@ export const SECURITY_TRUST_NDA_NOTICE =
 export const SECURITY_TRUST_REPO_TRUST_CENTER_URL =
   "https://github.com/joefrancisGA/ArchLucid/blob/main/docs/go-to-market/TRUST_CENTER.md";
 
-export const SECURITY_TRUST_SOC2_READINESS_FOOTNOTE =
-  "This is a readiness artifact, not an attestation report.";
+export const SECURITY_TRUST_SOC2_READINESS_FOOTNOTE = "Not a SOC 2 attestation report.";

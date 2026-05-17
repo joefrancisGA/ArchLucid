@@ -53,7 +53,7 @@ public sealed class ValueReportBuilder(IValueReportMetricsReader metricsReader, 
             decimal measuredHours = raw.MeasuredAverageReviewCycleHoursForWindow.Value;
             decimal baselineReviewHours = raw.TenantBaselineReviewCycleHours ?? o.BaselineArchitectHoursBeforeArchLucidPerCommittedManifest;
             reviewProvenance = raw.TenantBaselineReviewCycleHours is not null
-                ? string.Equals(raw.TenantBaselineReviewCycleSource, "baseline_settings", StringComparison.OrdinalIgnoreCase)
+                ? BaselineReviewCycleSourceMarkers.IndicatesTenantCapturedViaOperatorSettings(raw.TenantBaselineReviewCycleSource)
                     ? ReviewCycleBaselineProvenance.TenantSuppliedViaSettings
                     : ReviewCycleBaselineProvenance.TenantSuppliedAtSignup
                 : ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions;

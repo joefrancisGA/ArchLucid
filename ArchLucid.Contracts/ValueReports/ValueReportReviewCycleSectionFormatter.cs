@@ -88,18 +88,18 @@ public static class ValueReportReviewCycleSectionFormatter
                         22));
             }
 
-            if (!string.IsNullOrWhiteSpace(snapshot.TenantBaselineReviewCycleSource) &&
-                !string.Equals(
-                    snapshot.TenantBaselineReviewCycleSource.Trim(),
-                    "baseline_settings",
-                    StringComparison.Ordinal))
+            if (!string.IsNullOrWhiteSpace(snapshot.TenantBaselineReviewCycleSource))
             {
-                list.Add(
-                    new ValueReportReviewCycleParagraph(
-                        $"Source note: {snapshot.TenantBaselineReviewCycleSource.Trim()}",
-                        false,
-                        true,
-                        22));
+                string? note =
+                    BaselineReviewCycleSourceMarkers.FormatReviewCycleSourceNoteForDisplay(snapshot.TenantBaselineReviewCycleSource);
+
+                if (!string.IsNullOrWhiteSpace(note))
+                    list.Add(
+                        new ValueReportReviewCycleParagraph(
+                            $"Source note: {note.Trim()}",
+                            false,
+                            true,
+                            22));
             }
         }
 

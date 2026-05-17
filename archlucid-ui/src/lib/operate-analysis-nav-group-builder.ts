@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
@@ -27,12 +28,15 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
       label: "Analysis",
       surface: "review-workflow",
       caption:
-        "Evidence graphs, comparisons, replay, advisory, Ask, reporting, and digests once you leave the baseline review lane.",
+        "Evidence trails, comparisons, replay, advisory, Ask, reporting, and digests once you leave the baseline review lane.",
       links: [
         {
           href: "/graph",
-          label: "Evidence graph",
-          title: this.shortcutTitle("Evidence graph — review-trail or architecture view for one review", "alt+y"),
+          label: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
+          title: this.shortcutTitle(
+            `${BUYER_SURFACE_VOCABULARY.evidenceGraphNav} — decision traceability graph for one review`,
+            "alt+y",
+          ),
           keyShortcut: "alt+y",
           icon: GitGraph,
           tier: "extended",

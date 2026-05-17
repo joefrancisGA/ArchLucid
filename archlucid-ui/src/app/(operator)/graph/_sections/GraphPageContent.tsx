@@ -301,7 +301,7 @@ export function GraphPageContent() {
         return {
           ...GRAPH_IDLE,
           title: BUYER_SURFACE_VOCABULARY.evidenceGraph,
-          description: `Evidence graph unavailable in this sample view. Open the signed manifest or audit trail for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`,
+          description: `Decision traceability graph unavailable in this sample view. Open the signed manifest or audit trail for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`,
           actions: [
             { label: "Open signed manifest", href: manifestHref },
             { label: "Open audit trail", href: auditHref, variant: "outline" as const },

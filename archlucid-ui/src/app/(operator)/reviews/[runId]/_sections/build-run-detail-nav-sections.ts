@@ -25,7 +25,7 @@ export function buildRunDetailNavSections(
         { id: "pipeline-timeline", label: "Activity", available: true },
         {
           id: "architecture-graph",
-          label: "Evidence graph",
+          label: "Evidence trail",
           available: Boolean(graphSnapshotId),
         },
         { id: "artifacts-exports", label: "Deliverables", available: Boolean(manifestId) },

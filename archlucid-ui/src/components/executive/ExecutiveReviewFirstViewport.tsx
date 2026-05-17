@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunExplanationSummary } from "@/types/explanation";
 
@@ -78,6 +79,7 @@ function pickRecommendedExecutiveAction(summary: RunExplanationSummary): string 
 export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewportProps): ReactElement {
   const { runId, goldenManifestId, summary } = props;
   const enc = encodeURIComponent(runId);
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const structuredConfidence = summary.explanation?.structured?.confidence;
   const faithfulnessWarningTrimmed = (summary.faithfulnessWarning ?? "").trim();
 
@@ -201,7 +203,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
                 className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
                 href={`/graph?runId=${enc}`}
               >
-                View evidence graph
+                View decision traceability graph
               </Link>
             </li>
             <li>
@@ -220,6 +222,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
                 Ask this review
               </Link>
             </li>
+            {!buyerPolishedShell ? (
             <li>
               <Link
                 className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
@@ -228,6 +231,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
                 Start a follow-up review request (operator shell)
               </Link>
             </li>
+            ) : null}
           </ul>
         </CardContent>
       </Card>

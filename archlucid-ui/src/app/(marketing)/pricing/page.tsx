@@ -27,27 +27,26 @@ export default async function PricingPage(props: PricingPageProps) {
       <MarketingTierPricingSection
         sectionHeadingId="pricing-page-heading"
         sectionTitle="Pricing"
-        sectionIntro="Compare Team, Professional, and Enterprise plans. Tier summaries reflect the current published price list. Final pricing depends on deployment scope, volume, and procurement channel — your account team confirms details."
+        sectionIntro="Compare Team, Professional, and Enterprise plans. Tier summaries reflect the current published price list."
         signupHref={signupHref}
         signupCallToActionLabel="Start workspace trial"
         showSignupCallToAction={false}
       />
+      <MarketingPricingPublicCutoverNotice />
       <p
         className="mb-6 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
         data-testid="pricing-brand-category-paragraph"
       >
-        ArchLucid is an {BRAND_CATEGORY} offering. Regulated-industry buyers typically finalize scope, licensing,
-        deployment model, and contractual terms through procurement. For custom deployments,{" "}
+        ArchLucid is an {BRAND_CATEGORY} offering. For procurement-led deployments,{" "}
         <a
           className="font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-200"
           href="#pricing-quote-request"
         >
           request a quote
         </a>{" "}
-        — your account team confirms licensing.
+        below.
       </p>
       <MarketingPricingQuotePanel />
-      <MarketingPricingPublicCutoverNotice />
     </main>
   );
 }

@@ -48,7 +48,7 @@ export function RunsPageView(props: Props) {
           <>
             Open an <GlossaryTooltip termKey="run">architecture review</GlossaryTooltip> to review its manifest, evidence,
             findings, and deliverables. Use <strong className="font-medium text-neutral-800 dark:text-neutral-100">Search reviews</strong>{" "}
-            below to narrow by title, description, or review identifier.
+            below to narrow by title or description.
           </>
         ) : (
           <>

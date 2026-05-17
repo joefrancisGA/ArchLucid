@@ -262,13 +262,13 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
               <p className="m-0 mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-50">{summary.unresolvedIssueCount}</p>
             </div>
             <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
-              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Evidence graph anchors</p>
+              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Evidence trail anchors</p>
               <p className="m-0 mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-50">{SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT}</p>
               <Link
                 href={`/graph?runId=${encodeURIComponent(canonicalizeDemoRunId(summary.runId))}`}
                 className="m-0 mt-2 inline-block text-xs font-medium text-teal-800 underline dark:text-teal-300"
               >
-                Explore graph
+                Explore decision traceability graph
               </Link>
             </div>
             <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
@@ -365,7 +365,7 @@ function countsGridTiles(summary: ManifestSummary, options: CountsGridTilesOptio
         <>
           <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
             <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-              Evidence graph
+              Evidence trail
             </p>
             <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
               {SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT}

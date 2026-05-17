@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
@@ -45,9 +45,18 @@ describe("PricingPage brand category", () => {
 
     expect(text).toContain(BRAND_CATEGORY);
     expect(text).not.toContain(BRAND_CATEGORY_LEGACY);
-    expect(text).toContain(
-      "Regulated-industry buyers typically finalize scope, licensing, deployment model, and contractual terms through procurement.",
-    );
+    expect(text).toContain("request a quote");
+  });
+
+  it("renders a single consolidated pricing caveat above the quote form", async () => {
+    const element = await PricingPage({ searchParams: Promise.resolve({}) });
+    const { getByTestId } = render(element);
+
+    const footnote = getByTestId("pricing-single-footnote");
+    expect(footnote.textContent ?? "").toContain("Final pricing depends on deployment scope");
+
+    const caveats = screen.queryAllByText(/Final pricing depends/s);
+    expect(caveats.length).toBe(1);
   });
 
   it("renders the tier pricing heading before the quote request section (plans before lead capture)", async () => {

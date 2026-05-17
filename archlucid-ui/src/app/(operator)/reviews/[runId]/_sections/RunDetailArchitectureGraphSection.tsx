@@ -26,7 +26,7 @@ export function RunDetailArchitectureGraphSection(
       <Card>
         <CardHeader>
           <h3 className={runDetailSectionHeadingClass}>
-            {buyerPolishedArtifactTable ? "Evidence graph" : "Architecture graph"}
+            {buyerPolishedArtifactTable ? "Evidence trail" : "Architecture graph"}
           </h3>
           <CardDescription>
             {buyerPolishedArtifactTable ? (

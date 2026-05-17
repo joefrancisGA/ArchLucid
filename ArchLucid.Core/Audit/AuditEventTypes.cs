@@ -447,6 +447,9 @@ public static class AuditEventTypes
     /// <summary>Prospect supplied optional review-cycle baseline hours at trial signup (persisted on <c>dbo.Tenants</c>).</summary>
     public const string TrialBaselineReviewCycleCaptured = "TrialBaselineReviewCycleCaptured";
 
+    /// <summary>Operator updated review-cycle baseline hours after an earlier capture (settings / wizard).</summary>
+    public const string TrialBaselineReviewCycleUpdated = "TrialBaselineReviewCycleUpdated";
+
     /// <summary>First save of <c>BaselineManualPrep*</c> on <c>dbo.Tenants</c> (settings or migration from prior null).</summary>
     public const string TrialBaselineManualPrepCaptured = "TrialBaselineManualPrepCaptured";
 

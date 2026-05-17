@@ -75,12 +75,9 @@ export function RunDetailArtifactsExportsSection(
               ) : null}
               <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
                 Rows are organized by sponsor versus review-board consumers. Use{" "}
-                <strong className="text-neutral-800 dark:text-neutral-200">Download evidence package</strong> for the
-                diligence ZIP; optional <strong className="text-neutral-800 dark:text-neutral-200">Markdown summary</strong>{" "}
-                exports a lightweight narrative. Tenant-specific export channels (Teams routing, extra ZIPs, compare
-                tooling) are{" "}
-                <strong className="text-neutral-800 dark:text-neutral-200">available in a connected workspace</strong>{" "}
-                — not simulated in this sample.
+                <strong className="text-neutral-800 dark:text-neutral-200">Download evidence package</strong> for the diligence ZIP.
+                Use <strong className="text-neutral-800 dark:text-neutral-200">Download review summary</strong> for a lightweight narrative export.
+                Additional enterprise export formats are available after workspace configuration — not simulated in this sample.
               </p>
             </div>
           ) : null}

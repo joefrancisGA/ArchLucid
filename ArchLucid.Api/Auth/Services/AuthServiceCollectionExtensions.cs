@@ -8,7 +8,7 @@ using ArchLucid.Host.Core.Services;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ArchLucid.Api.Auth.Services;
 
@@ -21,6 +21,13 @@ public static class AuthServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+
+        // ArchLucidJwtBearerOptionsConfigurer needs IConfiguration from DI; bare ServiceCollections (unit tests)
+        // often omit it. Hosts already register IConfiguration, so TryAdd does not replace production wiring.
+        services.TryAddSingleton(configuration);
+
         services.Configure<ArchLucidAuthOptions>(configuration.GetSection(ArchLucidAuthOptions.SectionName));
         services.PostConfigure<ArchLucidAuthOptions>(
             ArchLucidAuthConfigurationBridge.NormalizeModeForJwtLocalSigning);
@@ -33,9 +40,8 @@ public static class AuthServiceCollectionExtensions
             configuration.GetSection(ArchLucidSamlAuthOptions.ConfigurationSectionPath));
 
         if (string.Equals(authOptions.Mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
-
+        {
             services
-                .AddSingleton<IConfigureNamedOptions<JwtBearerOptions>, ArchLucidJwtBearerOptionsConfigurer>()
                 .AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -47,6 +53,18 @@ public static class AuthServiceCollectionExtensions
                     _ =>
                     {
                     });
+
+            // Use Options.Configure<IConfiguration> so JWT options are applied in the same named-options pipeline as
+            // AddJwtBearer after IConfiguration is available (bare ServiceCollection tests and hosts).
+            services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+                .Configure<IConfiguration>(static (options, configuration) =>
+                {
+                    ArgumentNullException.ThrowIfNull(configuration);
+
+                    ArchLucidAuthOptions jwtAuthOptions = ArchLucidAuthConfigurationBridge.Resolve(configuration);
+                    ArchLucidJwtBearerConfiguration.Apply(options, jwtAuthOptions, configuration);
+                });
+        }
 
         else if (string.Equals(authOptions.Mode, "ApiKey", StringComparison.OrdinalIgnoreCase))
 

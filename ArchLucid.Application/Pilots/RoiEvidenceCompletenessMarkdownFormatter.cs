@@ -64,8 +64,9 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
         if (snapshot.TenantBaselineManualPrepHoursPerReview is { } manual)
             parts.Add($"**Manual prep hrs/review:** `{manual.ToString(CultureInfo.InvariantCulture)}`.");
 
-        if (!string.IsNullOrWhiteSpace(snapshot.TenantBaselineReviewCycleSource))
-            parts.Add($"**Source note:** {snapshot.TenantBaselineReviewCycleSource.Trim()}");
+        if (BaselineReviewCycleSourceMarkers.FormatReviewCycleSourceNoteForDisplay(snapshot.TenantBaselineReviewCycleSource)
+            is { } noteTrimmed)
+            parts.Add($"**Source note:** {noteTrimmed}");
 
         return string.Join(" ", parts);
     }

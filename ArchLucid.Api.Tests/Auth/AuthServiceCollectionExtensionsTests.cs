@@ -31,10 +31,6 @@ public sealed class AuthServiceCollectionExtensionsTests
         var services = new ServiceCollection();
         services.AddLogging();
 
-        // ArchLucidJwtBearerOptionsConfigurer resolves IConfiguration from DI (same as the real host);
-        // bare ServiceCollection tests must register it or JWT options stay at defaults.
-        services.AddSingleton<IConfiguration>(configuration);
-
         services.AddArchLucidAuth(configuration);
 
         var sp = services.BuildServiceProvider();

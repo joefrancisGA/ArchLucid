@@ -50,6 +50,12 @@ function manifestWarningsSecondaryCopy(warningCountDisplay: number | null): stri
     return null;
   }
 
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
+  if (buyerPolishedShell) {
+    return `${n} monitored risk${n === 1 ? "" : "s"} (PHI minimization)`;
+  }
+
   return `${n} review warning${n === 1 ? "" : "s"} (PHI minimization)`;
 }
 

@@ -261,6 +261,8 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     useWhen:
       "Review the recorded approval path and how this package is authorized for governed downstream use.",
     firstPilotNote: null,
+    enterpriseFootnote:
+      "This page records who reviewed the package, what approval was granted, and what monitoring remains.",
   },
 };
 

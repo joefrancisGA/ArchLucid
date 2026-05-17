@@ -277,8 +277,7 @@ export function RunsDashboardPanel() {
                     Claims Intake — workspace preview
                   </p>
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                    Same completed package as the hero card and review journey above — open the run record here, or jump
-                    back to the numbered journey strip.
+                    Finalized Claims Intake review package with signed manifest, evidence trail, governance approval, and audit trail — open the review package here.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Button asChild variant="outline" size="sm" className="h-8">

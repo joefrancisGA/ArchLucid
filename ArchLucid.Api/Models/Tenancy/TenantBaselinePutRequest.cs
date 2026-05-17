@@ -14,4 +14,18 @@ public sealed class TenantBaselinePutRequest
         get;
         init;
     }
+
+    /// <summary>When set, persists review-cycle baseline hours for ROI deltas (signup-equivalent columns).</summary>
+    public decimal? BaselineReviewCycleHours
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Optional operator note appended after reserved <c>baseline_settings:</c> persistence marker.</summary>
+    public string? BaselineReviewCycleSourceNote
+    {
+        get;
+        init;
+    }
 }

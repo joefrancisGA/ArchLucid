@@ -8,7 +8,10 @@ public enum ReviewCycleBaselineProvenance
 {
     TenantSuppliedAtSignup,
 
-    /// <summary>When <c>dbo.Tenants.BaselineReviewCycleSource</c> is set to the reserved token <c>baseline_settings</c>.</summary>
+    /// <summary>
+    ///     When <c>dbo.Tenants.BaselineReviewCycleSource</c> uses reserved operator markers (<c>baseline_settings</c> or
+    ///     <c>baseline_settings:</c> suffix notes).
+    /// </summary>
     TenantSuppliedViaSettings,
 
     DefaultedFromRoiModelOptions,

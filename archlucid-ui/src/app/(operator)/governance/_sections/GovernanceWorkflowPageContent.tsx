@@ -469,7 +469,7 @@ export function GovernanceWorkflowPageContent() {
         docsPageKey="/governance"
         subtitle={
           buyerPolishedShell && approvals.length > 0 && activeRunId !== null
-            ? "This approval records architecture governance disposition for this sealed review package — production deployments remain governed by your enterprise change-management process."
+            ? "Approved for governed use with monitored PHI minimization control. Production deployment remains governed by your enterprise change-management process."
             : buyerPolishedShell
               ? "The approval path records whether a finalized review package is authorized for governed use. ArchLucid stores approvals and audit context; your enterprise change process governs any environment movement."
               : canMutateWorkflow
@@ -525,7 +525,7 @@ export function GovernanceWorkflowPageContent() {
       ) : null}
 
       {buyerPolishedShell ? (
-        <CollapsibleSection title="Governance quick path" defaultOpen={false}>
+        <CollapsibleSection title="Related governance links" defaultOpen={false}>
           <GovernanceInteractiveQuickstartCard hideFirst30DaysLink suppressCardTitle className="mb-0" />
         </CollapsibleSection>
       ) : (

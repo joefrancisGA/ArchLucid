@@ -298,6 +298,7 @@ export function CompareForm() {
     pairAligned && !loading && (golden !== null || result !== null || aiExplanation !== null);
 
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
+
   const leftPickerLabel = isDemoClaimsIntakeComparePair
     ? "Baseline Claims Intake Review"
     : buyerPolished
@@ -318,7 +319,7 @@ export function CompareForm() {
     <div>
       <LayerHeader pageKey="compare" />
       <OperatorPageHeader
-        title="Compare reviews"
+        title={buyerPolished ? "Review change comparison" : "Compare reviews"}
         helpKey="compare-runs"
         docsPageKey="/compare"
         metadata={
@@ -351,6 +352,7 @@ export function CompareForm() {
           onSummarizeForSponsor={loadAiExplanation}
           onLeftRunPicked={setLeftPickedSummary}
           onRightRunPicked={setRightPickedSummary}
+          useBuyerFacingRunLabels={buyerPolished}
         />
 
         <CompareResultsPanel
