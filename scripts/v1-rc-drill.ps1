@@ -2,11 +2,12 @@
 # Does not build, deploy, or start the API. See docs/library/V1_RC_DRILL.md
 #
 # Authentication:
-# - Omit both -BearerToken and -ApiKey for DevelopmentBypass labs (existing behavior unchanged).
+# - Omit -BearerToken and -ApiKey with no ARCHLUCID_BEARER_TOKEN / ARCHLUCID_API_KEY env for DevelopmentBypass labs (unchanged).
 # - -BearerToken <jwt>: sends Authorization: Bearer on script HTTP (Invoke-RestMethod / export download).
 # - -ApiKey <key>: sends X-Api-Key on script HTTP and temporarily sets ARCHLUCID_API_KEY for CLI steps
 #   (doctor, support-bundle) so /health/diagnostics and other probes match the ApiKey-auth API.
-# - You may pass both if your environment expects both headers (unusual).
+# - Params override env; when params omitted, ARCHLUCID_BEARER_TOKEN / ARCHLUCID_API_KEY are used for HTTP headers.
+# - You may pass both headers if your environment expects both (unusual).
 param(
     [string] $ApiBaseUrl = 'http://localhost:5128',
     [switch] $SkipSupportBundle,

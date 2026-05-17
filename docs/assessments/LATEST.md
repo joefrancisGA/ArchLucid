@@ -224,8 +224,8 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weight:** 1
 - **Weighted deficiency signal:** 15
 - **Justification:** Good logging, OpenTelemetry, and CLI diagnostics (`doctor`, `support-bundle`).
-- **Tradeoffs:** Some operational scripts assume `DevelopmentBypass`.
-- **Improvement recommendations:** Update all operational scripts to accept `-BearerToken` or `-ApiKey`.
+- **Tradeoffs:** New HTTP utilities must reuse `scripts/ArchLucid.AuthHeaders.ps1` or risk regressing authenticated-probe behavior.
+- **Improvement recommendations:** None for JWT/API-key headers on existing HTTP scripts (completed 2026-05-17 per improvement **#7**).
 
 ---
 
@@ -237,7 +237,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 4. **Manual Azure cost estimations:** The extractor now appends public Retail Prices catalog rows (**`retail-prices.json`**, `-IncludeRetailPrices`) for inventoried App Service plans and Azure SQL databases; Cost Management-/Advisor-shaped exports and many other SKU families remain manual or off-tool, limiting full automated ROI proof.
 5. ~~**Lack of automated tenant data deletion**~~ **Deferred V2 (2026-05-17):** Full quarantine + legal-hold + orchestrated purge pipeline is **out of `(A)`** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**. **`(B)`** — privacy questionnaires may still diligence deletion; V1 answers with operator/trial purge paths + roadmap.
 6. **Lack of custom rule authoring UI:** Evaluators must write raw code or JSON to author custom governance rules, increasing adoption friction.
-7. **Operational script auth realism:** Some scripts still rely on `DevelopmentBypass`, breaking realism and hindering secure operations.
+7. ~~**Operational script auth realism**~~ **Completed 2026-05-17:** HTTP operational scripts accept `-BearerToken`/`-ApiKey` (and env `ARCHLUCID_BEARER_TOKEN`/`ARCHLUCID_API_KEY`) via `scripts/ArchLucid.AuthHeaders.ps1` (improvement **#7**).
 8. **Worker pool scaling triggers:** Scaling relies primarily on Azure queue depth rather than SQL authority outbox depth, risking noisy neighbor issues.
 9. **Background job transient fault handling:** Asynchronous jobs may lack comprehensive Polly-based retry policies for SQL transient errors.
 10. **Data residency verification gaps:** The provisioning pipeline lacks automated assertions to verify that Azure resources match the requested `DataRegion`.
@@ -272,7 +272,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 
 1. **LLM observability consumption gaps:** Producer GenAI spans and `archlucid_llm_*` metrics ship (2026-05-17); operators still need curated dashboards, SLOs, and alerting on those signals for day-2 operations.
 2. **E2E test mock reliance:** Heavy reliance on mocks in `ui-e2e-smoke` risks missing integration regressions.
-3. **Operational script auth realism:** Scripts assuming `DevelopmentBypass` mask real-world authentication failures.
+3. ~~**Operational script auth realism:** Scripts assuming `DevelopmentBypass` mask real-world authentication failures.~~ **Completed 2026-05-17** (improvement **#7** — shared `scripts/ArchLucid.AuthHeaders.ps1` + wired HTTP clients). **Residual:** code review should require new ArchLucid HTTP probes to use the same helper.
 4. **Background job transient fault handling:** Incomplete retry policies for SQL connections in background workers risk silent failures.
 5. **Worker pool scaling triggers:** Scaling on Azure queue depth rather than SQL outbox depth risks backlog accumulation.
 6. **Terraform advisory syntax errors:** Unvalidated Terraform snippets could produce invalid advisory output, damaging trust.
@@ -400,16 +400,19 @@ Update `Get-ArchLucidAzurePackage.ps1` to automatically query the Azure Retail P
 ```
 
 ### 7. Update all operational scripts to support JWT/API keys
+- **Status:** Completed (2026-05-17)
 - **Why it matters:** Scripts assuming `DevelopmentBypass` mask real-world authentication failures and hinder secure operations.
 - **Expected impact:** Supportability (+10 pts), Correctness (+5 pts).
 - **Affected qualities:** Supportability, Correctness.
-- **Actionable:** Yes
+- **Actionable:** No
+- **Completion evidence:** Shared helper `scripts/ArchLucid.AuthHeaders.ps1` (`Get-ArchLucidHttpAuthHeadersHashtable` — `-BearerToken`/`-ApiKey` parameters with env fallback `ARCHLUCID_BEARER_TOKEN`/`ARCHLUCID_API_KEY`; empty yields prior no-header behavior). HTTP probes extended in `scripts/OperatorDiagnostics.ps1` (`Get-ArchLucidHttpProbe`, `Write-ArchLucidReadinessTimeoutDiagnostics`). ArchLucid HTTP clients updated across smoke/release/drill (`staging-smoke.ps1`, `release-smoke.ps1`, `release-smoke-live-ui-sql.ps1`, `v1-rc-drill.ps1`, `capture-staging-readiness-evidence.ps1`), probes (`env-readiness.ps1`, `validate-deployment.ps1`, `reliability_drill.ps1`, `integrations/validate-itsm-live.ps1`), benchmarks (`benchmark-e2e-time.ps1`, `benchmark-real-mode-e2e.ps1`), ops (`generate-worked-example-roi.ps1`, `refresh-demo-preview-snapshot.ps1`), and `integrations/jira/jira-webhook-bridge.ps1` (run detail GET accepts bearer or API key).
 ```text
 Audit all `.ps1` scripts in the `scripts/` directory and update them to accept `-BearerToken` or `-ApiKey` parameters.
 - Acceptance criteria: Scripts must authenticate using the provided token/key instead of relying on `DevelopmentBypass`.
 - Constraints: Maintain backward compatibility for local development if no token is provided.
 - What not to change: Do not change the core logic of the scripts, only the HTTP client authentication headers.
 - Impact: Directly improves Supportability (+8-10 pts) and Correctness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- Acceptance criteria met: ArchLucid-facing HTTP scripts wire `Authorization: Bearer` and/or `X-Api-Key` via the shared helper; omitting params and env preserves DevelopmentBypass-style anonymous probes where the API allows it.
 ```
 
 ### 8. Guided baseline collection wizard (ZIP-first, thin required fields)
@@ -693,7 +696,7 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 1 (Observability & Reliability):** 2, 18, 21, 22, 23
 - **Batch 2 (Testing & CI Hygiene):** 5, 12, 14, 15, 16, 24
 - **Batch 3 (Integrations & Extractor):** ~~6~~ completed 2026-05-17, 13, 25
-- **Batch 4 (Architecture, infrastructure, tenant lifecycle):** ~~3~~ (**V2** — [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**), 7, 11, 17, 19, 20
+- **Batch 4 (Architecture, infrastructure, tenant lifecycle):** ~~3~~ (**V2** — [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**), ~~7~~ completed 2026-05-17, 11, 17, 19, 20
 - **Batch 5 (UX & Dashboards):** 4, 8, 9, 10
 - **Batch 6 (Internal cross-tenant rollups):** ~~1~~ completed 2026-05-17
 

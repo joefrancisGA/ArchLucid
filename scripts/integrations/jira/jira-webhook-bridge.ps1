@@ -18,7 +18,7 @@
     $env:JIRA_EMAIL='you@example.com'
     $env:JIRA_API_TOKEN='<api token>'
     $env:JIRA_PROJECT_KEY='ARCH'
-    $env:ARCHLUCID_API_KEY='<key>'   # required for run.completed
+    $env:ARCHLUCID_API_KEY='<key>'   # or $env:ARCHLUCID_BEARER_TOKEN — required for run.completed (param -ApiKey / -BearerToken overrides env)
     $env:ARCHLUCID_BASE_URL='https://your-api'
     ./jira-webhook-bridge.ps1 -ProcessPath .\sample-alert-fired.json
 #>

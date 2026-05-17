@@ -313,6 +313,8 @@ export function CommandPalette() {
   );
 
   const polishedPaletteLabel = useMemo(() => buyerPolishedCommandPaletteLabel(pathname ?? ""), [pathname]);
+
+  const polishedPalettePlaceholder = useMemo(() => {
     const path = (pathname ?? "").split("?")[0] ?? "";
 
     if (path.startsWith("/graph")) {
