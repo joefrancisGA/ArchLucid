@@ -428,3 +428,9 @@ infra/**/.terraform/
 /trx-download/coverage-report-fast-core-html
 /trx-download
 /coverage/html
+
+# Local GitHub/action artifacts and diagnostics
+_gh_artifacts/
+*.dmp
+*.dump
+*.hangdump
