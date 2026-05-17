@@ -1,6 +1,6 @@
 > **Scope:** Generated skim for coding agents and contributors; not a buyer document. Regenerate after large project-tree changes. Does not replace **`V1_SCOPE.md`** or **`V1_DEFERRED.md`**.
 
-**Generated:** 2026-05-17 08:34 UTC (`python scripts/repo_digest/build_repo_digest.py`)
+**Generated:** 2026-05-17 14:59 UTC (`python scripts/repo_digest/build_repo_digest.py`)
 
 ## Root .NET projects
 

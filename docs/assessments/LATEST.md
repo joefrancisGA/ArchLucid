@@ -419,11 +419,11 @@ Update in-app tooltips within the review UI to highlight core differentiation el
 Enhance OpenTelemetry instrumentation to capture detailed metrics for all LLM API calls, including token count and latency.
 ```
 
-12. **Expand coverage for transient SQL failures in background workers**
+12. **Expand coverage for transient SQL failures in background workers** (**completed 2026-05-17**)
 - Why it matters: While primary API connections handle transient SQL faults, background workers and asynchronous jobs may lack comprehensive retry policies.
 - Expected impact: Reliability (+3 pts), Performance (+2 pts).
 - Affected qualities: Reliability, Performance.
-- Actionable: Yes
+- Actionable: Yes (**done** — **`DataConsistencyOrphanProbeExecutor`** and **`DataConsistencyReconciliationService`** use **`IDbConnectionFactory.CreateOpenConnectionAsync`** so opens follow scoped **`ResilientSqlConnectionFactory`** / **`SqlOpenResilienceDefaults`**; **`ReadReplicaRoutedConnectionFactory`** replica opens use the same Polly pipeline; **`SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline`** accepts **`ILogger?`** for replica-path retry logs. **Residual:** health probes and **`AdminDiagnosticsService`** still open via **`CreateConnection`** + **`OpenAsync`** by design unless extended.)
 
 ```markdown
 Audit and update background jobs to ensure Polly-based retry policies are uniformly applied to all SQL connection attempts, specifically for Azure SQL transient errors.

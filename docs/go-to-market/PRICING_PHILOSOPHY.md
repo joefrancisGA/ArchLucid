@@ -249,7 +249,7 @@ Each gate below removes its associated discount from the stack. Trigger a **prod
 
 **How this table is maintained.** Every PR that materially advances a gate (e.g., publishes a real reference customer, lands the SOC 2 attestation, completes the pen-test exec summary) updates the matching row's *Owner* and *Target close date* fields and adds a one-line entry to [`docs/CHANGELOG.md`](../CHANGELOG.md). When all three rows reach a "ready for re-rate" state, finance triggers the re-rate gate decision in § 5.3 — this table does **not** authorize price changes on its own.
 
-**Cross-references.** The reference-customers index and case-study placeholder live in [`reference-customers/`](reference-customers/). The CI guard backing the reference row is `scripts/ci/check_reference_customer_status.py`, wired non-blocking in `.github/workflows/ci.yml`. Both are described from the discoverability side in [`README.md`](../REPOSITORY_README.md) "Key documentation".
+**Cross-references.** The reference-customers index and case-study placeholder live in [`reference-customers/`](reference-customers/). The CI guard backing the reference row is `scripts/ci/check_reference_customer_status.py`, wired non-blocking in `.github/workflows/ci.yml`. Both are described from the discoverability side in **[`REPOSITORY_README.md`](../REPOSITORY_README.md)** (documentation spine / deeper index).
 
 ---
 

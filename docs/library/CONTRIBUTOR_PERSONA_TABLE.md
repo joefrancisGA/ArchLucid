@@ -1,4 +1,4 @@
-> **Scope:** Deeper-than-`READ_THIS_FIRST` contributor routing — who starts where. Linked from the repository **[`README.md`](../REPOSITORY_README.md)**.
+> **Scope:** Deeper-than-`READ_THIS_FIRST` contributor routing — who starts where. Linked from the repository **[overview (`REPOSITORY_README.md`)](../REPOSITORY_README.md)** and root **`README.md`** stub.
 
 # Contributor persona table
 

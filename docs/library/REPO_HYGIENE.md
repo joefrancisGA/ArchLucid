@@ -52,4 +52,4 @@ If you see **root-level** files such as `testresults.txt`, `commit2-log.txt`, or
 2. After **`package-release`**, hand off **`artifacts/release/`** per [RELEASE_LOCAL.md](RELEASE_LOCAL.md); do not commit that folder.  
 3. Regenerate **`ArchLucid.Api.Client`** when OpenAPI changes and **commit** the updated `Generated` file so consumers stay in sync.
 
-For first-time orientation, start at [START_HERE.md](../START_HERE.md) and the root [README.md](../REPOSITORY_README.md).
+For first-time orientation, start at [START_HERE.md](../START_HERE.md) and the repository overview ([REPOSITORY_README.md](../REPOSITORY_README.md)).
