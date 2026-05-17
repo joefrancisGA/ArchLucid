@@ -40,7 +40,9 @@ test.describe("operator journey — run detail to manifest and back", () => {
       }),
     ).toBeVisible();
 
-    await page.getByText("Verification appendix (identifiers)", { exact: true }).click();
+    // Buyer-polished shell renders "Audit verification appendix"; full-operator renders "Verification appendix (identifiers)".
+    // Mock builds default to buyer-polished (`NEXT_PUBLIC_DEMO_MODE=true`), so use the buyer label here.
+    await page.getByText("Audit verification appendix", { exact: true }).click();
     await expect(page.getByText(FIXTURE_MANIFEST_ID)).toBeVisible();
 
     await expect(
