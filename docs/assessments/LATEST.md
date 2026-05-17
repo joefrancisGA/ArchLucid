@@ -715,11 +715,11 @@ Add five buyer-credible rules to the shipped **security architecture baseline** 
 **Delivered:** Five rules **`sec-base-026`**–**`sec-base-030`** in **`docs/samples/policy-packs/security-architecture-baseline-rules-v1.json`** (pack **`1.1.0`**); provisioning keys in **`DefaultPolicyPackTemplates.SecurityArchitectureBaselineV1Json`** + sample **`security-architecture-baseline.json`**; catalog stubs in **`ArchLucid.Decisioning/Compliance/RulePacks/ga-starter-compliance.rules.json`**. Workspace **B** seed (**`RegulatedScenarioWorkspaceSeed`**) now references shipped IDs (**`sec-base-006`**, **`sec-base-011`**, **`sec-base-018`**) instead of phantom identifiers. Honesty copy: **`docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md`**, **`docs/library/POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md`**. **`MergedComplianceRulePackLoaderTests`** asserts **`sec-base-030`** merge; Playwright **`demo-workspace-b.smoke.spec.ts`** expects **`sec-base-006`** on review detail.
 ```
 
-21. **Complete DTF multiset parity tests and release-smoke validation**
+21. **COMPLETED:** Complete DTF multiset parity tests and release-smoke validation
 - Why it matters: SQL DTF port is wired; legacy orchestrator cannot be removed until parity and smoke prove equivalence.
-- Expected impact: Correctness (+2 pts), Reliability (+3 pts), AI/Agent Readiness (+2 pts). Weighted readiness impact: +0.35%.
+- Expected impact: (Delivered **2026-05-17**.) Correctness (+2 pts), Reliability (+3 pts), AI/Agent Readiness (+2 pts). Weighted readiness impact: +0.35%.
 - Affected qualities: Correctness, Reliability, AI/Agent Readiness.
-- Actionable: Yes
+- Actionable: Completed
 
 ```markdown
 Add integration tests that run the same authority-run scenarios through DTF and legacy paths and assert equivalent manifest, audit, and terminal states.
