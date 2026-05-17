@@ -157,5 +157,5 @@ Both paths honor **scope** (`TenantId` / `WorkspaceId` / `ProjectId`) and **auth
 - `docs/architecture/adrs/0010-dual-manifest-trace-repository-contracts.md`
 - `docs/CONTEXT_INGESTION.md`
 - `docs/ARCHITECTURE_FLOWS.md` — narrative run lifecycle
-- `docs/ONBOARDING_HAPPY_PATH.md` — short HTTP spine (links here for the split)
+- [`../onboarding/ONBOARDING_HAPPY_PATH.md`](../onboarding/ONBOARDING_HAPPY_PATH.md) — HTTP spine redirect; [`../library/LIVE_E2E_HAPPY_PATH.md`](../library/LIVE_E2E_HAPPY_PATH.md) — scripted parity.
 - `docs/ARCHITECTURE_INDEX.md`

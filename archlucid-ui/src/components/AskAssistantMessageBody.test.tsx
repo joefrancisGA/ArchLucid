@@ -44,6 +44,8 @@ describe("AskAssistantMessageBody", () => {
       <AskAssistantMessageBody buyerPolishedLinks content={`Runs ${sampleId} and 22222222-2222-4222-8222-222222222222.`} />,
     );
 
+    expect(screen.getByText("Based on the evidence indexed for this review package:")).toBeInTheDocument();
+
     const links = screen.getAllByRole("link");
 
     expect(links).toHaveLength(2);
@@ -58,6 +60,8 @@ describe("AskAssistantMessageBody", () => {
       "22222222-2222-4222-8222-222222222222.\n\nMitigation:\n\nThird.\n\nValidation:\n\nFourth.";
 
     render(<AskAssistantMessageBody buyerPolishedLinks content={structured} />);
+
+    expect(screen.getByText("Based on the evidence indexed for this review package:")).toBeInTheDocument();
 
     expect(screen.getByRole("heading", { name: "Risk" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Evidence" })).toBeInTheDocument();

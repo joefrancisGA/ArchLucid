@@ -2,10 +2,10 @@
 
 # Cursor Prompts — GA Task #26 (Authority pipeline: DTF migration)
 
-> **Canonical file:** `docs/library/CURSOR_PROMPTS_GA_TASK_26_AUTHORITY_DTF.md`  
+> **Canonical file:** `docs/archive/agent-prompts/CURSOR_PROMPTS_GA_TASK_26_AUTHORITY_DTF.md`  
 > **Created:** 2026-05-15  
 > **Source:** `docs/assessments/LATEST.md` improvement #26 — Migrate `AuthorityRunOrchestrator` to the Durable Task Framework (scoped V1 slice)  
-> **See also:** `CURSOR_PROMPTS_GA_TASKS_27_32.md` (GA tasks #27–#32)  
+> **See also:** `docs/archive/agent-prompts/CURSOR_PROMPTS_GA_TASKS_27_32.md` (GA tasks #27–#32)  
 > **Prerequisites:** The interface-extraction phase is complete — `IAuthorityRunOrchestrator` lives in `ArchLucid.Application.Runs.Orchestration`, `AuthorityRunOrchestratorApplicationAdapter` bridges it to the legacy `ArchLucid.Persistence.Orchestration.AuthorityRunOrchestrator`, both storage-provider registrars wire the interface, and unit tests for the legacy path are finishing.  
 > **Scope:** These prompts pick up **after** the unit-test phase. Work through them one at a time; each prompt is designed to be copy-pasted into a fresh Cursor session.
 

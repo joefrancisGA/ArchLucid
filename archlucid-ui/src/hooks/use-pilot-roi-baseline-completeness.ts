@@ -9,15 +9,12 @@ import { isLikelySignedIn } from "@/lib/oidc/session";
 import { isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
-type TenantTrialStatusBaselineSlice = {
+type TenantBaselineRoiGatePayload = {
   baselineReviewCycleHours?: unknown;
-};
-
-type TenantBaselineManualSlice = {
   manualPrepHoursPerReview?: unknown;
 };
 
-/** Loads `/v1/tenant/trial-status` + `/v1/tenant/baseline` for sponsor ROI readiness gates. */
+/** Loads `/v1/tenant/baseline` for sponsor ROI readiness gates (review-cycle + manual prep anchors). */
 
 export function usePilotRoiBaselineCompleteness(): {
   loading: boolean;
@@ -46,24 +43,19 @@ export function usePilotRoiBaselineCompleteness(): {
 
     try {
       const headers = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } });
+      const baselineRes = await fetch("/api/proxy/v1/tenant/baseline", headers);
 
-      const [trialRes, baselineRes] = await Promise.all([
-        fetch("/api/proxy/v1/tenant/trial-status", headers),
-        fetch("/api/proxy/v1/tenant/baseline", headers),
-      ]);
-
-      if (!trialRes.ok || !baselineRes.ok) {
+      if (!baselineRes.ok) {
         setComplete(null);
 
         return;
       }
 
-      const trialJson = (await trialRes.json()) as TenantTrialStatusBaselineSlice;
-      const baselineJson = (await baselineRes.json()) as TenantBaselineManualSlice;
+      const baselineJson = (await baselineRes.json()) as TenantBaselineRoiGatePayload;
 
       setComplete(
         isPilotRoiBaselineComplete({
-          baselineReviewCycleHours: trialJson.baselineReviewCycleHours,
+          baselineReviewCycleHours: baselineJson.baselineReviewCycleHours,
           manualPrepHoursPerReview: baselineJson.manualPrepHoursPerReview,
         }),
       );

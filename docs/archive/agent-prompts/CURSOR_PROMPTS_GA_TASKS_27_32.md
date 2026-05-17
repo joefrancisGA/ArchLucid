@@ -4,7 +4,7 @@
 
 > **Created:** 2026-05-15  
 > **Source:** `docs/assessments/LATEST.md` improvements #27–#32  
-> **Preceding task:** Improvement #26 (authority pipeline DTF migration) — sequenced prompts live in `docs/library/CURSOR_PROMPTS_GA_TASK_26_AUTHORITY_DTF.md`.  
+> **Preceding task:** Improvement #26 (authority pipeline DTF migration) — sequenced prompts live in **`docs/archive/agent-prompts/CURSOR_PROMPTS_GA_TASK_26_AUTHORITY_DTF.md`**.  
 > **Scope:** Each task below is broken into sequenced prompts (numbered P1, P2 …). Prompts are designed to be copy-pasted into Cursor sessions one at a time per task. Cross-task dependencies are noted where coordination is needed.
 
 ---

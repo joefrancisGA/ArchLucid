@@ -52,6 +52,11 @@ UTF8_BOM = "\ufeff"
 # First non-empty line must be a blockquote starting with **Scope:**
 SCOPE_BLOCKQUOTE_RE = re.compile(r"^\s*>\s*\*\*Scope:\*\*", re.IGNORECASE)
 
+# Optional metadata blockquotes immediately after Scope (same opening block — may include bare `>` lines).
+STATUS_LINE_RE = re.compile(r"^\s*>\s*\*\*Status:\*\*\s*(.+?)\s*$", re.IGNORECASE)
+
+ALLOWED_SCOPE_STATUS_VALUES = frozenset({"draft", "current", "deprecated"})
+
 # README-only: single-line HTML comment starting with <!-- **Scope:**
 SCOPE_README_HTML_RE = re.compile(r"^\s*<!--\s*\*\*Scope:\*\*", re.IGNORECASE)
 
@@ -85,13 +90,81 @@ def first_non_empty_line(text: str) -> str | None:
     return first_line if first_line.strip() else None
 
 
+def iter_leading_blockquote_lines(lines: list[str]) -> list[str]:
+    collected: list[str] = []
+
+    for raw in lines:
+        stripped = raw.strip()
+
+        if not stripped:
+            continue
+
+        if stripped.startswith(">"):
+            collected.append(raw.rstrip())
+
+            continue
+
+        break
+
+    return collected
+
+
+def docs_scope_metadata_violations_from_blockquotes(blockquotes: list[str]) -> list[str]:
+    """If **Status:** appears in the leading blockquote run, validate its keyword."""
+    errs: list[str] = []
+
+    for raw in blockquotes[1:]:
+        status_m = STATUS_LINE_RE.match(raw)
+
+        if not status_m:
+            continue
+
+        first_token = status_m.group(1).strip().split(None, 1)[0].lower()
+
+        while first_token and first_token[0] in "(['\"":
+            first_token = first_token[1:].lower()
+
+        first_token = first_token.rstrip(".,;:)]}'\"")
+
+        if first_token not in ALLOWED_SCOPE_STATUS_VALUES:
+            errs.append(
+                f"invalid **Status:** value {first_token!r} "
+                f"(allowed: {', '.join(sorted(ALLOWED_SCOPE_STATUS_VALUES))})"
+            )
+
+    return errs
+
+
+def docs_scope_validation_errors(content: str) -> list[str]:
+    stripped = strip_leading_bom_and_blank_lines(content)
+
+    if not stripped:
+        return ["missing content"]
+
+    lines = stripped.splitlines()
+    first = lines[0] if lines else ""
+
+    errs: list[str] = []
+
+    if not first.strip():
+        errs.append("missing first non-empty line")
+
+        return errs
+
+    if not SCOPE_BLOCKQUOTE_RE.match(first):
+        errs.append("first non-empty line is not `> **Scope:**` blockquote")
+
+        return errs
+
+    blockquotes = iter_leading_blockquote_lines(lines)
+
+    errs.extend(docs_scope_metadata_violations_from_blockquotes(blockquotes))
+
+    return errs
+
+
 def has_valid_docs_scope_header(content: str) -> bool:
-    first = first_non_empty_line(content)
-
-    if first is None:
-        return False
-
-    return bool(SCOPE_BLOCKQUOTE_RE.match(first))
+    return len(docs_scope_validation_errors(content)) == 0
 
 
 def has_valid_readme_scope_header(content: str) -> bool:
@@ -175,11 +248,14 @@ def main(argv: list[str] | None = None) -> int:
     for md in iter_markdown_files(args.docs_dir, exclude_archive=args.exclude_archive):
         text = md.read_text(encoding="utf-8", errors="replace")
 
-        if not has_valid_docs_scope_header(text):
+        doc_errs = docs_scope_validation_errors(text)
+
+        if doc_errs:
             try:
-                violations.append(str(md.relative_to(repo_root())))
+                rel = md.relative_to(repo_root())
+                violations.extend([f"{rel}: {e}" for e in doc_errs])
             except ValueError:
-                violations.append(str(md))
+                violations.extend([f"{md}: {e}" for e in doc_errs])
 
     if not violations:
         print(

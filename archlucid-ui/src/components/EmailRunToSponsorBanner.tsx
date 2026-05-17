@@ -23,6 +23,8 @@ import {
   describeSponsorProofReadiness,
   type PilotRunDeltasProofSummaryJson,
 } from "@/lib/pilot-proof-readiness";
+import { isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
+import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
 
@@ -37,6 +39,11 @@ export type EmailRunToSponsorBannerProps = {
 
 type TrialStatusPayload = {
   firstCommitUtc?: string | null;
+};
+
+type TenantBaselineRoiGatePayload = {
+  baselineReviewCycleHours?: unknown;
+  manualPrepHoursPerReview?: unknown;
 };
 
 type ProofGateState =
@@ -76,6 +83,7 @@ export function EmailRunToSponsorBanner({
   } | null>(null);
   const [badgeDayN, setBadgeDayN] = useState<number | null>(null);
   const [proofGate, setProofGate] = useState<ProofGateState>({ status: "loading" });
+  const [roiBaselineGate, setRoiBaselineGate] = useState<boolean | null>(null);
   const telemetrySentRef = useRef(false);
   const [readinessLoadingPhase, setReadinessLoadingPhase] = useState<"quick" | "slow">("quick");
 
@@ -88,7 +96,10 @@ export function EmailRunToSponsorBanner({
 
     async function loadSidecars(): Promise<void> {
       if (AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn()) {
-        if (!cancelled) setProofGate({ status: "skipped" });
+        if (!cancelled) {
+          setProofGate({ status: "skipped" });
+          setRoiBaselineGate(null);
+        }
 
         return;
       }
@@ -99,12 +110,32 @@ export function EmailRunToSponsorBanner({
       const deltasUrl = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/pilot-run-deltas`;
 
       try {
-        const [trialRes, deltasRes] = await Promise.all([
+        const [trialRes, deltasRes, baselineRes] = await Promise.all([
           fetch("/api/proxy/v1/tenant/trial-status", headers),
           fetch(deltasUrl, headers),
+          fetch("/api/proxy/v1/tenant/baseline", headers),
         ]);
 
         if (cancelled) return;
+
+        if (baselineRes.ok) {
+          try {
+            const baselinePayload = (await baselineRes.json()) as TenantBaselineRoiGatePayload;
+
+            if (!cancelled) {
+              setRoiBaselineGate(
+                isPilotRoiBaselineComplete({
+                  baselineReviewCycleHours: baselinePayload.baselineReviewCycleHours,
+                  manualPrepHoursPerReview: baselinePayload.manualPrepHoursPerReview,
+                }),
+              );
+            }
+          } catch {
+            if (!cancelled) setRoiBaselineGate(null);
+          }
+        } else if (!cancelled) {
+          setRoiBaselineGate(null);
+        }
 
         if (trialRes.ok) {
           try {
@@ -144,7 +175,10 @@ export function EmailRunToSponsorBanner({
           setProofGate({ status: "error" });
         }
       } catch {
-        if (!cancelled) setProofGate({ status: "error" });
+        if (!cancelled) {
+          setProofGate({ status: "error" });
+          setRoiBaselineGate(null);
+        }
       }
     }
 
@@ -200,6 +234,7 @@ export function EmailRunToSponsorBanner({
   const readinessCopy = proofGate.status === "ok" ? describeSponsorProofReadiness(proofGate.payload) : null;
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const blockSponsorPdfForRoi = roiBaselineGate === false && !curatedSampleRun;
 
   return (
     <aside
@@ -248,6 +283,46 @@ export function EmailRunToSponsorBanner({
         </a>
         .{buyerPolishedShell ? " Downloads and readiness checks are split below." : " Use the exports below for sponsor-ready collateral."}
       </p>
+
+      {blockSponsorPdfForRoi ? (
+        <div
+          role="alert"
+          data-testid="email-run-to-sponsor-roi-baseline-gap"
+          className="mt-3 rounded-md border border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-600 dark:bg-amber-950/40 dark:text-amber-50"
+        >
+          <p className="m-0 font-semibold">Missing tenant ROI baselines</p>
+          <p className="m-0 mt-1 text-xs leading-relaxed opacity-95">
+            The sponsor PDF assumes captured review-cycle and manual-prep anchors from{" "}
+            <a
+              className="font-medium text-teal-900 underline underline-offset-2 dark:text-teal-200"
+              href={pilotRoiModelHref}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              PILOT_ROI_MODEL §3
+            </a>
+            . Capture baselines before circulating this package externally.
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                window.dispatchEvent(new Event(PILOT_BASELINE_WIZARD_OPEN_EVENT));
+              }}
+            >
+              Guided baseline wizard
+            </Button>
+            <Link
+              className="text-xs font-semibold text-teal-900 underline underline-offset-2 dark:text-teal-200"
+              href="/settings/baseline"
+            >
+              Baseline settings
+            </Link>
+          </div>
+        </div>
+      ) : null}
 
       <h3 className="m-0 mt-4 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
         {buyerPolishedShell ? "Executive readiness (sample signals)" : "Sponsor readiness"}
