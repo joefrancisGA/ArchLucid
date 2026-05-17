@@ -424,7 +424,9 @@ export function RunsListClient({
         autoComplete="off"
         autoFocus={!buyerCollapseFilters}
         aria-label={
-          buyerPolished ? "Search reviews by name or description" : "Filter reviews by name or description"
+          buyerPolished
+            ? "Search reviews by name, description, or review identifier"
+            : "Filter reviews by name or description"
         }
         aria-controls="runs-list-filter-status"
       />

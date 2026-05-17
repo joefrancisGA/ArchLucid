@@ -1,5 +1,6 @@
 /**
- * JSON shapes from `GET /health/ready` (summary), anonymous `GET /health` (SQL summary), and `GET /health/diagnostics` (detailed) — see
+ * JSON shapes from `GET /health/ready` (summary; includes checks tagged Ready, e.g. `data_archival`),
+ * anonymous `GET /health` (database probe only), and `GET /health/diagnostics` (detailed) — see
  * `ArchLucid.Host.Core/Health/DetailedHealthCheckResponseWriter.cs` and
  * `ArchLucid.Api/Startup/PipelineExtensions.cs`.
  */
@@ -91,5 +92,19 @@ export function findCircuitBreakersEntry(entries: ReadonlyArray<HealthDetailedEn
       return e;
     }
   }
+  return null;
+}
+
+/** Resolves a single named entry from the readiness summary (`GET /health/ready`). */
+export function findHealthReadyEntryByName(
+  entries: HealthReadyResponse["entries"],
+  name: string,
+): HealthReadyResponse["entries"][number] | null {
+  for (const e of entries) {
+    if (e.name === name) {
+      return e;
+    }
+  }
+
   return null;
 }

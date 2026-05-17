@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import type { HealthReadyResponse } from "@/lib/health-dashboard-types";
+import { findHealthReadyEntryByName, type HealthReadyResponse } from "@/lib/health-dashboard-types";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -88,6 +88,8 @@ export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripPr
   }
 
   const overall = ready?.status?.trim() ?? "";
+  const archival = ready !== null ? findHealthReadyEntryByName(ready.entries, "data_archival") : null;
+  const archivalStatus = archival?.status?.trim() ?? "";
 
   if (phase !== "ready" || overall.length === 0) {
     return null;
@@ -96,22 +98,42 @@ export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripPr
   return (
     <div
       data-testid="command-center-health-card"
-      className={cn("mb-2 flex flex-wrap items-center gap-2 text-xs", className)}
+      className={cn("mb-2 flex flex-col gap-1 text-xs", className)}
       aria-label="System health"
     >
-      <span
-        className={cn("h-2 w-2 shrink-0 rounded-full", healthReadinessDotClass(overall))}
-        aria-hidden
-      />
-      <span className="text-neutral-800 dark:text-neutral-200">
-        Platform services: <span className="font-medium">{overall}</span>
-      </span>
-      <Link
-        href="/admin/health"
-        className="ml-auto inline-block text-xs font-semibold text-teal-800 underline dark:text-teal-300"
-      >
-        Details
-      </Link>
+      <div className="flex flex-wrap items-center gap-2">
+        <span
+          className={cn("h-2 w-2 shrink-0 rounded-full", healthReadinessDotClass(overall))}
+          aria-hidden
+        />
+        <span className="text-neutral-800 dark:text-neutral-200">
+          Platform services: <span className="font-medium">{overall}</span>
+        </span>
+        <Link
+          href="/admin/health"
+          className="ml-auto inline-block text-xs font-semibold text-teal-800 underline dark:text-teal-300"
+        >
+          Details
+        </Link>
+      </div>
+      {archival !== null && archivalStatus.length > 0 ? (
+        <div
+          data-testid="command-center-data-archival-health"
+          className="flex flex-wrap items-center gap-2 ps-0 sm:ps-4"
+          aria-label={`Data archival health: ${archivalStatus}`}
+        >
+          <span
+            className={cn("h-2 w-2 shrink-0 rounded-full", healthReadinessDotClass(archivalStatus))}
+            aria-hidden
+          />
+          <span className="text-neutral-800 dark:text-neutral-200">
+            Data archival: <span className="font-medium">{archivalStatus}</span>
+            {archivalStatus.toLowerCase().includes("degraded") ? (
+              <span className="ms-1 text-amber-800 dark:text-amber-200">(warning)</span>
+            ) : null}
+          </span>
+        </div>
+      ) : null}
     </div>
   );
 }

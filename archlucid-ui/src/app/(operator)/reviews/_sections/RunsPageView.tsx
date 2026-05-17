@@ -48,7 +48,7 @@ export function RunsPageView(props: Props) {
           <>
             Open an <GlossaryTooltip termKey="run">architecture review</GlossaryTooltip> to review its manifest, evidence,
             findings, and deliverables. Use <strong className="font-medium text-neutral-800 dark:text-neutral-100">Search reviews</strong>{" "}
-            below to narrow by title or description.
+            below to narrow by title, description, or review identifier.
           </>
         ) : (
           <>
@@ -138,7 +138,11 @@ export function RunsPageView(props: Props) {
           <EmptyState
             {...RUNS_EMPTY}
             title="No architecture reviews yet"
-            description={`Each architecture review is tracked as a run in the system. Your Run ID appears in metadata for support and diagnostics.\n\n${RUNS_EMPTY.description}`}
+            description={
+              isBuyerPolishedOperatorShellEnv()
+                ? `Each review package is tracked in this workspace for manifest, evidence, findings, and deliverables.\n\n${RUNS_EMPTY.description}`
+                : `Each architecture review is tracked as a run in the system. Your Run ID appears in metadata for support and diagnostics.\n\n${RUNS_EMPTY.description}`
+            }
             actions={
               RUNS_EMPTY.actions === undefined
                 ? undefined

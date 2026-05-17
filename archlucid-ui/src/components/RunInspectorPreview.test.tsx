@@ -78,6 +78,22 @@ describe("RunInspectorPreview", () => {
       "href",
       "/reviews/claims-intake-modernization/manifest",
     );
+    expect(screen.getByRole("link", { name: "View evidence graph" })).toHaveAttribute(
+      "href",
+      "/graph?runId=claims-intake-modernization",
+    );
+    expect(screen.getByRole("link", { name: "View governance approval" })).toHaveAttribute(
+      "href",
+      "/governance?runId=claims-intake-modernization",
+    );
+    expect(screen.getByRole("link", { name: "View audit trail" })).toHaveAttribute(
+      "href",
+      "/audit?runId=claims-intake-modernization",
+    );
+    expect(screen.getByRole("link", { name: "Ask about this review" })).toHaveAttribute(
+      "href",
+      "/ask?runId=claims-intake-modernization",
+    );
     fireEvent.click(screen.getByText("Next steps"));
 
     expect(screen.getByRole("link", { name: "Executive summary" })).toHaveAttribute(

@@ -503,13 +503,13 @@ Add explicit `ILogger` calls in `AuthorityRunOrchestrator` and `ArchLucid.Worker
 Create snapshot tests in `ArchLucid.Api.Tests` or `ArchLucid.Application.Tests` that validate the output of the advisory Terraform recommendation emit. Use a library like `Verify` or `Snapshooter` to ensure the generated Terraform snippets match expected baselines. Ensure the tests verify the presence of the `# ArchLucid advisory` comment. Do not execute `terraform validate` in the unit tests to avoid external dependencies. Acceptance criteria: Snapshot tests cover the major Terraform recommendation scenarios.
 ```
 
-6. Add `DataArchivalHostHealthCheck` to the operator dashboard
+6. COMPLETED: Show `data_archival` on the operator dashboard health strip
 - Why it matters: Improves observability of background data archival processes.
-- Expected impact: Directly improves Observability (+4 pts), Usability (+1 pts). Weighted readiness impact: +0.15%.
+- Expected impact: (Delivered **2026-05-16**.) Directly improves Observability (+4 pts), Usability (+1 pts). Weighted readiness impact: +0.15%.
 - Affected qualities: Observability, Usability.
-- Actionable: Yes
+- Actionable: Completed
 ```markdown
-Update the operator UI dashboard to display the status of the `data_archival` health check. Fetch the health status from the `/health` endpoint and display a warning indicator if the status is `Degraded`. Do not change the underlying health check logic in the backend. Acceptance criteria: Operators can see the data archival health status on the UI dashboard.
+Update the operator UI dashboard to display the status of the `data_archival` health check. Fetch the readiness summary from `GET /health/ready` (the check is tagged Ready; anonymous `GET /health` lists only the database probe in this codebase) and display a warning indicator if the status is `Degraded`. Do not change the underlying health check logic in the backend. Acceptance criteria: Operators can see the data archival health status on the UI dashboard.
 ```
 
 7. Enhance `SqlScopedResolutionDbConnectionFactory` with connection retry logic

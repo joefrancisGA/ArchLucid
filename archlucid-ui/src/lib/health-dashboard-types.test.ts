@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { findCircuitBreakersEntry, parseCircuitGatesFromHealthEntry } from "./health-dashboard-types";
+import {
+  findCircuitBreakersEntry,
+  findHealthReadyEntryByName,
+  parseCircuitGatesFromHealthEntry,
+} from "./health-dashboard-types";
 
 describe("parseCircuitGatesFromHealthEntry", () => {
   it("maps gates from circuit_breakers data payload", () => {
@@ -27,5 +31,22 @@ describe("findCircuitBreakersEntry", () => {
       { name: "circuit_breakers", status: "Healthy", data: { gates: [] } },
     ]);
     expect(e?.name).toBe("circuit_breakers");
+  });
+});
+
+describe("findHealthReadyEntryByName", () => {
+  it("returns the matching readiness entry", () => {
+    const e = findHealthReadyEntryByName(
+      [
+        { name: "database", status: "Healthy" },
+        { name: "data_archival", status: "Degraded" },
+      ],
+      "data_archival",
+    );
+    expect(e?.status).toBe("Degraded");
+  });
+
+  it("returns null when missing", () => {
+    expect(findHealthReadyEntryByName([{ name: "database", status: "Healthy" }], "data_archival")).toBeNull();
   });
 });

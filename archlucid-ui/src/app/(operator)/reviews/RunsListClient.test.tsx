@@ -165,7 +165,7 @@ describe("RunsListClient inspector", () => {
 
     expect(screen.getByRole("heading", { name: /finalized review packages/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^finalized packages$/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/Search reviews by name or description/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Search reviews by name, description, or review identifier/i)).toBeInTheDocument();
   });
 
   it("buyer-polished: finalized scope hides in-flight runs", () => {
