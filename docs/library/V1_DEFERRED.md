@@ -301,6 +301,22 @@ The following bulk processing features are explicitly deferred to **V1.1**:
 
 ---
 
+## 6m. Privacy — automated tenant erasure quarantine pipeline (**V2**) (product decision 2026-05-17)
+
+**Scope:** A **fully automated** tenant erasure product path: verified request → **quarantine** (`TenantErasureRequestedUtc` or equivalent) → **30-day** (or policy-configured) delay → **legal hold** gate → orchestrated **hard purge** (per-tenant SQL catalog, tenant-scoped blobs, control-plane bindings) with durable audit — as specified in [`LATEST.md`](../assessments/LATEST.md) improvement **#3** (spec block retained there).
+
+**V1 GA / `(A)` headline posture:** This pipeline is **not** a V1 or V1.1 **weighted readiness** commitment. **Independent assessments must not** reduce **`(A)` Compliance Readiness** (or other pillars) solely because the **automated** quarantine/hold/purge product is absent. **V1** already ships **operator/trial offboarding** mechanics (`TenantDeletionService` — blobs + SQL hard purge + `PlatformAuditEvents`; trial lifecycle hard purge via `ITenantHardPurgeService`) — sufficient for honest pilot and sales-led motion when combined with process and documentation.
+
+**`(B)` procurement / privacy realism:** Some buyers will still ask GDPR/CCPA deletion questions. Answer with **current** controls, **trust center** posture, and this **V2** roadmap pointer — zero weight on **`(A)`** unless an in-contract commitment supersedes this doc.
+
+**Release-window commitment:** **V2** (calendar not pinned here). Promoting or reprioritizing requires an owner note in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) if dates or contractual obligations change.
+
+**Rules:**
+- Do not imply V1 lacks **any** tenant data removal capability — distinguish **automated product pipeline** (deferred) from **existing** purge/offboarding paths.
+- When **`LATEST.md`** is rescored, treat improvement **#3** as **`Actionable: No`** for V1 batching until promoted from this section.
+
+---
+
 ## 7. Engineering backlog (not a product roadmap)
 
 | Item | Doc source |

@@ -1,17 +1,18 @@
 ﻿> **Scope:** Independent, first-principles assessment of ArchLucid readiness.
 > **Status:** current
+> **Re-score:** 2026-05-17 — automated tenant erasure pipeline (improvement **#3**) deferred to **V2** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m** (excluded from **`(A)`** headline per Assessment-Scope); Compliance Readiness **80→85**; headline **84.60%**.
 
-# ArchLucid Assessment – (A) Headline Readiness: 84.03%
+# ArchLucid Assessment – (A) Headline Readiness: 84.60%
 
-This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold).
+This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold, **V2** automated tenant erasure quarantine pipeline — see [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**).
 
 ## Executive Summary
 
 ### (A) Overall Headline Readiness
-ArchLucid is a functionally complete V1 product with a solid architectural foundation (84.03% readiness). It successfully executes the core pilot loop (request → execute → commit → manifest) and provides strong governance and traceability features. The integration of native SAML 2.0 SP, curated default policy packs, and consultant whitelabeling significantly strengthens the V1 GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting) and test automation for new integrations.
+ArchLucid is a functionally complete V1 product with a solid architectural foundation (84.60% readiness). It successfully executes the core pilot loop (request → execute → commit → manifest) and provides strong governance and traceability features. The integration of native SAML 2.0 SP, curated default policy packs, and consultant whitelabeling significantly strengthens the V1 GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting) and test automation for new integrations.
 
 ### (B) Procurement/Market-Motion Realism
-Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. The lack of automated tenant data deletion (GDPR/CCPA) will also trigger privacy reviews.
+Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. **Product policy:** the full **automated** tenant erasure quarantine pipeline (30-day delay, legal hold, orchestrated purge) is a **V2** engineering commitment — see [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m** — and is **not** scored as an **`(A)`** defect. Some privacy reviews will still ask about deletion posture; V1 relies on **operator-driven** and **trial/offboarding** deletion paths (`TenantDeletionService`, hard purge) and trust-center honesty rather than a shipped end-to-end GDPR automation product.
 
 ### Commercial Picture
 The commercial posture is strongly aligned for a sales-led, service-led motion. The inclusion of consultant whitelabeling on architecture review exports enables boutique consulting firms to use ArchLucid as a delivery engine. Curated demo workspaces and default policy packs (AI governance + security baseline) accelerate Time-to-Value and Proof-of-ROI. The deferred live commerce (Stripe/Marketplace) correctly prioritizes validated purchasing motions over premature self-serve availability.
@@ -99,12 +100,12 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Improvement recommendations:** Implement bi-directional ServiceNow status sync.
 
 ### 10. Compliance Readiness
-- **Score:** 80
+- **Score:** 85
 - **Weight:** 2
-- **Weighted deficiency signal:** 40
-- **Justification:** A durable audit trail exists, and the SOC 2 self-assessment is complete. RLS provides tenant isolation.
-- **Tradeoffs:** Lack of automated tenant data deletion (GDPR/CCPA) causes friction in privacy reviews.
-- **Improvement recommendations:** Implement automated tenant data deletion (GDPR/CCPA "right to be forgotten").
+- **Weighted deficiency signal:** 30
+- **Justification:** A durable audit trail exists, and the SOC 2 self-assessment is complete. RLS provides tenant isolation. **V1 posture (2026-05-17):** absence of a **fully automated** GDPR/CCPA quarantine-and-purge pipeline is **not** an **`(A)`** headline defect — that work is **deferred to V2** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m** (aligned with `Assessment-Scope-V1_1.mdc`). V1 ships **operator-invoked** and **trial lifecycle** hard-delete paths backed by platform audit.
+- **Tradeoffs:** **`(B)` procurement realism** — some enterprise privacy questionnaires will still ask for a productized “one-click” erasure story; answer with current controls, roadmap pointer to §**6m**, and process commitments as needed.
+- **Improvement recommendations:** Ship the **V2** automated tenant erasure pipeline (improvement **#3**, deferred) when promoted from [`V1_DEFERRED.md`](../library/V1_DEFERRED.md).
 
 ### 11. Decision Velocity
 - **Score:** 83
@@ -234,7 +235,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 2. ~~**Missing LLM observability**~~ **Completed (2026-05-17):** GenAI Activities (`ArchLucid.Agent.LlmCompletion`, `ArchLucid.Agent.LlmEmbedding`) and `archlucid_llm_*` meters (incl. `archlucid_llm_gen_ai_operation_duration_ms`, chat/embedding token counters). **Residual:** operator dashboards and SLO/alert coverage on those signals.
 3. **E2E test mock reliance:** `ui-e2e-smoke` relies heavily on mocked `/api/proxy`, leaving integration surfaces vulnerable to regressions.
 4. **Manual Azure cost estimations:** The Azure extractor requires manual cost estimation for many resource types, limiting automated ROI proof.
-5. **Lack of automated tenant data deletion:** Absence of a GDPR/CCPA "right to be forgotten" mechanism causes friction in privacy reviews.
+5. ~~**Lack of automated tenant data deletion**~~ **Deferred V2 (2026-05-17):** Full quarantine + legal-hold + orchestrated purge pipeline is **out of `(A)`** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**. **`(B)`** — privacy questionnaires may still diligence deletion; V1 answers with operator/trial purge paths + roadmap.
 6. **Lack of custom rule authoring UI:** Evaluators must write raw code or JSON to author custom governance rules, increasing adoption friction.
 7. **Operational script auth realism:** Some scripts still rely on `DevelopmentBypass`, breaking realism and hindering secure operations.
 8. **Worker pool scaling triggers:** Scaling relies primarily on Azure queue depth rather than SQL authority outbox depth, risking noisy neighbor issues.
@@ -258,7 +259,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 
 ## Top 6 Enterprise Adoption Blockers
 
-1. **Lack of automated tenant data deletion:** Fails GDPR/CCPA privacy reviews during procurement.
+1. ~~**Lack of automated tenant data deletion**~~ **Deferred V2 (2026-05-17):** Not an **`(A)`** headline blocker — see [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**. **`(B)`** — buyers may still request a productized erasure narrative; mitigate with trust-center + operator runbooks + roadmap citation.
 2. **Absence of compliance attestations:** Lack of a CPA-issued SOC 2 Type II report causes friction in security reviews.
 3. **Lack of custom rule authoring UI:** Non-developer architects cannot easily author and test custom governance rules.
 4. **Data residency diligence depth:** Buyers require verifiable proof that SQL topology and backups match their geography.
@@ -280,7 +281,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 
 ## Most Important Truth
 
-ArchLucid is a functionally complete, highly rigorous V1 product ready for sales-led pilots, but its ability to scale commercially is bottlenecked by observability consumption gaps (curated LLM dashboards and alerts atop shipped telemetry), manual ROI proof (Azure cost extraction), and enterprise friction (lack of automated data deletion and custom rule authoring UI).
+ArchLucid is a functionally complete, highly rigorous V1 product ready for sales-led pilots, but its ability to scale commercially is bottlenecked by observability consumption gaps (curated LLM dashboards and alerts atop shipped telemetry), manual ROI proof (Azure cost extraction), and enterprise friction (custom rule authoring UI; **full automated GDPR erasure** is **V2** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**, excluded from **`(A)`** scoring).
 
 ---
 
@@ -322,10 +323,11 @@ Modify `ArchLucid.Host.Core/ObservabilityExtensions.cs` (or equivalent instrumen
 ```
 
 ### 3. Implement automated tenant erasure (30-day quarantine, legal-hold flag, blob + SQL purge)
-- **Why it matters:** GDPR/CCPA-aligned erasure and enterprise procurement expect a verifiable delete story; a bounded quarantine plus audited hold is proportionate without a separate storage tier.
-- **Expected impact:** Compliance Readiness (+10 pts), Adoption Friction (+5 pts).
+- **Status:** Deferred **V2** (2026-05-17) — **not** an **`(A)` V1 headline gate**; documented in [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**. **V1** continues to rely on **`TenantDeletionService`**, trial hard purge, and operator processes.
+- **Why it matters (when promoted):** GDPR/CCPA-aligned **productized** erasure and some enterprise RFPs expect a verifiable delete story; a bounded quarantine plus audited hold is proportionate without a separate storage tier.
+- **Expected impact (if implemented as V2):** Compliance Readiness (+6–10 pts), Adoption Friction (+3–5 pts) — **not** folded into current **`(A)`** until shipped.
 - **Affected qualities:** Compliance Readiness, Adoption Friction.
-- **Actionable:** Yes
+- **Actionable:** No (V2 backlog; rescored **2026-05-17**)
 ```text
 Implement an automated tenant erasure pipeline aligned to GDPR/CCPA storage-limitation practice (product policy — not legal advice).
 - Quarantine: On verified erasure request + operator/admin confirmation, mark tenant **soft-deleted** with `TenantErasureRequestedUtc` (or equivalent). **Hard purge** runs automatically **30 calendar days** after that timestamp unless blocked below.
@@ -688,7 +690,7 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 1 (Observability & Reliability):** 2, 18, 21, 22, 23
 - **Batch 2 (Testing & CI Hygiene):** 5, 12, 14, 15, 16, 24
 - **Batch 3 (Integrations & Extractor):** 6, 13, 25
-- **Batch 4 (Architecture, infrastructure, tenant lifecycle):** 3, 7, 11, 17, 19, 20
+- **Batch 4 (Architecture, infrastructure, tenant lifecycle):** ~~3~~ (**V2** — [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**), 7, 11, 17, 19, 20
 - **Batch 5 (UX & Dashboards):** 4, 8, 9, 10
 - **Batch 6 (Internal cross-tenant rollups):** ~~1~~ completed 2026-05-17
 
