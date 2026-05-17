@@ -401,11 +401,26 @@ Audit all `.ps1` scripts in the `scripts/` directory and update them to accept `
 - Impact: Directly improves Supportability (+8-10 pts) and Correctness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 8. DEFERRED Add a guided baseline collection wizard to the onboarding flow
-- **Why it matters:** Real-mode value requires tenant baseline data; a wizard accelerates Time-to-Value.
+### 8. Guided baseline collection wizard (ZIP-first, thin required fields)
+- **Why it matters:** Real-mode value requires tenant baseline data; a wizard that leads with the Azure extractor ZIP reduces manual typing and speeds first commit.
 - **Expected impact:** Time-to-Value (+10 pts), Usability (+5 pts).
 - **Affected qualities:** Time-to-Value, Usability.
-- **Input needed from user:** Define the required fields and steps for the baseline collection wizard.
+- **Actionable:** Yes
+```text
+Extend the operator **new review** flow (`archlucid-ui` — `reviews/new`, `NewRunWizardClient`, existing wizard steps including `WizardStepAzureContext`) with a **baseline-first path** without bloating the V1 gate checklist.
+
+**V1 scope (ship in this slice)**
+- **Step 1 — Extractor ZIP upload:** Accept the customer’s Azure packager ZIP (same artifact produced by `Get-ArchLucidAzurePackage.ps1`). Client-side, unpack enough to read normalized manifest / identity fields used today (e.g. `SubscriptionId`, `ScopeDescriptor`, `CollectionTimestamp`, schema versions) and **auto-fill** wizard state where the form already supports it. Enforce generous but bounded file size consistent with existing bulk-evidence limits; surface clear errors for corrupt or non-packager zips.
+- **Step 2 — Minimal identity (required):** Operator must confirm or enter **system name**, **environment** (default sensible non-prod if unknown), and **cloud provider** (default **Azure**, confirm-only — forward-compat). These align with `ArchitectureRequest` / wizard schema fields already used by `wizardValuesToCreateRunPayload` / `createArchitectureRun` — do not invent parallel DTOs.
+- **Progressive disclosure:** Keep existing steps (constraints, advanced) **optional** and skippable for this path; do **not** require governance tags, compliance constraint matrices, datastore/service graph authoring, or framework-mapping inputs before first run creation.
+- **Telemetry / checklist:** Wire into the same first-tenant funnel / core pilot step affordances as today (`core-pilot-steps`, funnel events) so “baseline captured” is observable.
+- **Docs link:** CTA from the wizard to `docs/library/PILOT_GUIDE.md` (or the canonical packager doc path already linked from the Azure step).
+- **Tests:** Vitest for ZIP metadata extraction + form prefill (fixture: minimal valid zip structure or mocked `File`/`Blob` path per existing test patterns); one RTL test that baseline-first path reaches submit with only required fields set.
+- **Constraints:** Reuse OpenAPI types; no new HTTP routes unless the product already needs a server-side unpack endpoint — prefer browser-side unzip + parse if safe for size limits; if server unpack is required, follow `Http-Surface-Docs-And-Clients.mdc`.
+- **Explicitly out of scope here** (deferred per `docs/library/V1_DEFERRED.md` — baseline wizard enrichments): manual datastore/service enumeration as a **gate**, mandatory governance/compliance/risk fields pre-commit, portfolio multi-system capture in one wizard, and deep framework-mapping steps. V1.1 carries structured enrichment gates; V2 carries portfolio-style onboarding where noted in that table.
+
+**Impact:** Time-to-Value (+6–10 pts), Usability (+3–5 pts). Weighted readiness impact: +0.1–0.2%.
+```
 
 ### 9. Add a 'Missing Baseline' warning to the executive dashboard
 - **Why it matters:** Executive value can become abstract if real tenant baselines are missing.
@@ -624,15 +639,12 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 2 (Testing & CI Hygiene):** 5, 12, 14, 15, 16, 24
 - **Batch 3 (Integrations & Extractor):** 6, 13, 25
 - **Batch 4 (Architecture, infrastructure, tenant lifecycle):** 3, 7, 11, 19, 20
-- **Batch 5 (UX & Dashboards):** 4, 9
+- **Batch 5 (UX & Dashboards):** 4, 8, 9
 - **Batch 6 (Internal cross-tenant rollups):** 1
 
 ---
 
 ## Pending Questions for Later
-
-### DEFERRED Add a guided baseline collection wizard to the onboarding flow
-- What are the minimum required fields for the baseline wizard? Should it support uploading the Azure extractor ZIP directly in step 1?
 
 ### DEFERRED Develop an internal "Policy Pack Hub" for sharing custom policies
 - What is the versioning and approval workflow for sharing policy packs? Who has the authority to publish a pack globally?
