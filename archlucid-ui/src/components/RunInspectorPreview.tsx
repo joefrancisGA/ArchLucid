@@ -68,6 +68,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
       : formatInstantForLocale(run.createdUtc)
     : formatInstantForLocale(run.createdUtc);
   const compareHref = comparePageHrefAdaptive(run.runId);
+  const graphEvidenceHref = `/graph?runId=${encodeURIComponent(run.runId)}`;
   const replayHref = `/replay?runId=${encodeURIComponent(run.runId)}`;
   const manifestId = run.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID;
   const findingHref = showcaseStory
@@ -201,9 +202,25 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
               </Button>
               {showEvidenceGraphCta ? (
                 <Button variant="outline" size="sm" className="w-full sm:flex-1" asChild>
-                  <Link href="/graph">View evidence graph</Link>
+                  <Link href={graphEvidenceHref}>View evidence graph</Link>
                 </Button>
               ) : null}
+            </div>
+            <div className="space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
+              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                Governance and audit
+              </p>
+              <div className="flex flex-col gap-2">
+                <Button variant="outline" size="sm" className="w-full" asChild>
+                  <Link href={`/governance?runId=${encodeURIComponent(run.runId)}`}>View governance approval</Link>
+                </Button>
+                <Button variant="outline" size="sm" className="w-full" asChild>
+                  <Link href={`/audit?runId=${encodeURIComponent(run.runId)}`}>View audit trail</Link>
+                </Button>
+                <Button variant="outline" size="sm" className="w-full" asChild>
+                  <Link href={`/ask?runId=${encodeURIComponent(run.runId)}`}>Ask about this review</Link>
+                </Button>
+              </div>
             </div>
           </div>
         ) : (
@@ -221,7 +238,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             </Button>
             {showEvidenceGraphCta ? (
               <Button variant="outline" size="sm" className="w-full" asChild>
-                <Link href="/graph">View evidence graph</Link>
+                <Link href={graphEvidenceHref}>View evidence graph</Link>
               </Button>
             ) : null}
           </div>
@@ -278,7 +295,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           <>
             {showcaseStory || run.hasGraphSnapshot === true ? (
               <Button variant="outline" size="sm" className="w-full" asChild>
-                <Link href="/graph">View evidence graph</Link>
+                <Link href={graphEvidenceHref}>View evidence graph</Link>
               </Button>
             ) : null}
             {buyerSafePrimary ? (
@@ -346,7 +363,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
               ) : null}
               {run.hasGraphSnapshot === true || showcaseStory ? (
                 <Button variant="outline" size="sm" className="h-8" asChild>
-                  <Link href="/graph">Trail graph</Link>
+                  <Link href={graphEvidenceHref}>Trail graph</Link>
                 </Button>
               ) : null}
               <Button variant="outline" size="sm" className="h-8" asChild>
