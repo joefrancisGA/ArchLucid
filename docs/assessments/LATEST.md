@@ -35,7 +35,7 @@
 
 **Enterprise Picture:** The system supports robust tenant isolation (database-per-tenant), workforce SSO via **OIDC / Entra ID** and **native SAML 2.0 SP**, and private connectivity. First-party ITSM connectors (Jira, ServiceNow) and Slack/Confluence integrations are strong enterprise features.
 
-**Engineering Picture:** The engineering foundation is strong, utilizing SQL persistence, DbUp migrations, and a well-architected agent orchestration pipeline. SQL storage hosts bind the authority pipeline to the Durable Task port (`DtfAuthorityRunOrchestrator`); deeper DTF-native scheduling and full multiset parity remain incremental work. The system includes **`FirstTenantFunnelEvents`** SQL purge when per-tenant emission is **off**, merge-blocking **`ui-e2e-live`** golden-path + negative-path specs (**#14** / **#8**, **2026-05-16** / **2026-05-15**), and optional **Redis-backed** graph projection **`IDistributedCache`**. Residual risks include single-process projection defaults without Redis.
+**Engineering Picture:** The engineering foundation is strong, utilizing SQL persistence, DbUp migrations, and a well-architected agent orchestration pipeline. SQL storage hosts bind the authority pipeline to the Durable Task port (`DtfAuthorityRunOrchestrator`); deeper DTF-native scheduling and full multiset parity remain incremental work. The system includes **`FirstTenantFunnelEvents`** SQL purge when per-tenant emission is **off**, merge-blocking **`ui-e2e-live`** golden-path + negative-path specs (**#14** / **#8**, **2026-05-16** / **2026-05-15**), and optional **Redis-backed** graph projection **`IDistributedCache`**. Multi-replica operators should follow **`docs/engineering/DEPLOYMENT.md`** § Knowledge graph projection cache — default Memory backend remains fine for single-replica pilots.
 
 ---
 
@@ -111,7 +111,7 @@
 - **Weighted deficiency signal:** 36
 - **Justification:** The system provides comparison replays and a knowledge graph, offering good visibility into architectural decisions.
 - **Tradeoffs:** Default **in-process** projection cache still caps multi-replica coherence unless operators enable **Distributed** backend + Redis (configure **`ArchLucid:KnowledgeGraph:ProjectionCache:Backend`**).
-- **Improvement recommendations:** Retain **`V1_DEFERRED.md` §6e** honesty when Redis is **not** configured.
+- **Improvement recommendations:** ~~Deployment documentation for Memory vs Distributed projection cache~~ **Done (2026-05-17)** — **`docs/engineering/DEPLOYMENT.md`**; retain **`V1_DEFERRED.md` §6e** honesty for roadmap items beyond shipped **`Distributed`** backend.
 
 ### 10. Interoperability
 - **Score:** 92
@@ -119,7 +119,7 @@
 - **Weighted deficiency signal:** 16
 - **Justification:** V1 contract surfaces—**REST API**, **CLI**, **operator UI**, integration events/webhooks, and **first-party** ITSM and chat connectors—meet the documented integration posture. **Native SAML 2.0 SP** is **shipped** for **V1 GA** (**`V1_SCOPE.md` §2.12**).
 - **Tradeoffs:** SAML SP adds dual auth-surface operational burden (cert rotation, metadata drift) versus OIDC-only tenants.
-- **Improvement recommendations:** Tighten OpenAPI-aligned client examples and webhook recipe discoverability (`docs/integrations/recipes/`).
+- **Improvement recommendations:** ~~OpenAPI + webhook recipe hub~~ **Done (2026-05-17)** — **`docs/integrations/recipes/README.md`** (+ **`docs/integrations/CONNECTOR_SMOKE_INDEX.md`** pointer).
 
 ### 11. Stickiness
 - **Score:** 81
@@ -199,7 +199,7 @@
 - **Weighted deficiency signal:** 36
 - **Justification:** DTF orchestration improves reliability.
 - **Tradeoffs:** Multi-region worker fleets still need disciplined slot sizing versus SQL lease churn; orphaned leases rely on **`LeaseRecognitionHorizon`** scavenging.
-- **Improvement recommendations:** Operational runbooks should document defaults for **`AuthorityPipeline:Concurrency`** per environment tier and monitor lease table growth alongside worker saturation.
+- **Improvement recommendations:** ~~**`AuthorityPipeline:Concurrency`** tier defaults + lease table monitoring~~ **Done (2026-05-17)** — **`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`** §8.5–§8.6; continue tuning thresholds per fleet.
 
 ### 21. Maintainability
 - **Score:** 84
@@ -256,7 +256,7 @@
 1. Absence of cross-tenant analytics, limiting Proof-of-ROI for enterprise buyers.
 2. **Mock-backed default smoke breadth:** **`ui-e2e-smoke`** still relies heavily on mocked **`/api/proxy`** for wide route coverage — merge-blocking **`ui-e2e-live`** validates the operator golden spine on **real API + ephemeral SQL CI** (**#14**, **`live-api-journey`** / **`live-api-core-pilot-path`**) alongside negatives (**#8**, **`live-api-negative-paths.spec.ts`**) and additional live parity for manifest/compare (**#5**, **2026-05-17**).
 3. Manual nature of some cost estimations in the Azure extractor (distinct from comparison replay payload heuristics — **#11** **closed 2026-05-16**).
-4. **Agent orchestration noisy-neighbor mitigation (narrow residual):** Per-tenant **`AuthorityPipeline:Concurrency`** slots and SQL lease-backed counting (**#11 backlog**, **2026-05-16**) cap concurrent heavy-stage work; **Improvement 9 (2026-05-17)** adds Prometheus/Grafana + runbook coverage for backlog, staleness, and dead-letter signals. **Residual:** rightsizing replicas, optional KEDA queue autoscale, and per-environment slot caps.
+4. **Agent orchestration noisy-neighbor mitigation (narrow residual):** Per-tenant **`AuthorityPipeline:Concurrency`** slots and SQL lease-backed counting (**#11 backlog**, **2026-05-16**) cap concurrent heavy-stage work; **Improvement 9 (2026-05-17)** adds Prometheus/Grafana + runbook coverage for backlog, staleness, and dead-letter signals; **improvement #20 (2026-05-17)** documents recommended slot defaults by tier and **`dbo.AuthorityPipelineTenantExecutionLease`** monitoring (**`AUTHORITY_PIPELINE_OBSERVABILITY.md`** §8.5–§8.6). **Residual:** rightsizing replicas and optional KEDA queue autoscale per workload.
 5. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
 6. **Durable Task Framework (narrow residual):** Legacy vs DTF **adapter** multiset parity is CI-gated (`ArchLucid.Host.Composition.Tests` / `AuthorityOrchestratorAdapterParityTests`); **`release-smoke`** supports **`-AuthorityPipelineDtfSmoke`** for tenant SQL + gRPC validation. Remaining work is **worker/engine scheduling depth** and optional DI cleanup once main stays green — not a commitment-gap for GA reads.
 7. **Operational script auth realism (narrow residual):** `v1-rc-drill.ps1` accepts **`-BearerToken`** / **`-ApiKey`** (**#3**, **2026-05-16**); other scripts may remain DevelopmentBypass-assumptive; JwtBearer drills still rely on **`ARCHLUCID_API_KEY`** for CLI detailed **`/health/diagnostics`** probes (JWT covers script REST).
@@ -287,7 +287,7 @@
 
 1. **Durable Task Framework (V1 posture — depth deferred):** **V1 GA** ships gRPC worker/client registration, **`release-smoke -AuthorityPipelineDtfSmoke`**, host composition parity tests, and **`Microsoft.DurableTask.*`** namespace boundaries; the runnable pipeline remains **`AuthorityRunOrchestrator`** behind a forwarder. **V1.1** backlog (improvement **#13**, deferred **2026-05-17**): real orchestrator/activities, engine-aligned observability, then redundant legacy registration cleanup after sustained green — not an open **V1** multiset-coverage gap.
 2. **E2E test mock reliance (residual):** **`ui-e2e-smoke`** still uses mocked **`/api/proxy`** for most routes; golden-path integration is covered by merge-blocking **`ui-e2e-live`** (**#14**, **2026-05-16**) plus showcase manifest round-trip + structured compare assertions (**#5**, **2026-05-17**) — extend live specs when remaining mock-only surfaces are high-risk.
-3. **Agent orchestration parallelism observability (narrow residual):** Concurrency leases cap tenant fan-out (**#11 backlog**, **2026-05-16**); **Improvement 9 (2026-05-17)** exposes backlog depth, oldest-pending age, and dead-letter gauges with alert rules (**`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`**). **Residual:** threshold tuning per environment; optional future explicit metering of tenant slot **acquire** wait separate from outbox row age.
+3. **Agent orchestration parallelism observability (narrow residual):** Concurrency leases cap tenant fan-out (**#11 backlog**, **2026-05-16**); **Improvement 9 (2026-05-17)** exposes backlog depth, oldest-pending age, and dead-letter gauges with alert rules (**`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`**). **Improvement #20 (2026-05-17)** adds tier **`Concurrency`** defaults and **`dbo.AuthorityPipelineTenantExecutionLease`** monitoring (**§8.5–§8.6**). **Residual:** Prometheus **`for`/threshold** tuning per fleet; optional future explicit metering of tenant slot **acquire** wait separate from outbox row age.
 4. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
 5. **Operational script auth realism (narrow residual):** Beyond **`v1-rc-drill.ps1`** JWT/API key support (**#3**, **2026-05-16**), some scripts remain DevelopmentBypass-assumptive; CLI JWT parity for probes that require ReadAuthority remains a tooling gap versus API-key env (`ARCHLUCID_API_KEY`).
 
@@ -449,21 +449,21 @@ Defer engine-native DTF orchestration and DTF-first observability to V1.1; after
 Implement telemetry to track `108` replay notes during catalog migrations to provide visibility into lag.
 ```
 
-15. **Enhance documentation for single-process projection limitations**
+15. **Enhance documentation for single-process projection limitations** (**completed 2026-05-17**)
 - Why it matters: Default in-process projection cache caps multi-replica coherence when Redis is absent.
 - Expected impact: Explainability (+3 pts), Reliability (+2 pts).
 - Affected qualities: Explainability, Reliability.
-- Actionable: Yes
+- Actionable: Yes (**done** — **`docs/engineering/DEPLOYMENT.md`** § Knowledge graph projection cache (multi-replica): Memory backend limits, **`Distributed`** + Redis recommendation, related **`CONFIGURATION_REFERENCE.md`** link.)
 
 ```markdown
 Update deployment documentation to clearly state the limitations of single-process projection caches and strongly recommend Redis for scaled environments.
 ```
 
-16. **Improve discoverability of OpenAPI client examples and webhook recipes**
+16. **Improve discoverability of OpenAPI client examples and webhook recipes** (**completed 2026-05-17**)
 - Why it matters: Developers struggle to find examples, increasing integration time.
 - Expected impact: Interoperability (+4 pts), Adoption Friction (+2 pts).
 - Affected qualities: Interoperability, Adoption Friction.
-- Actionable: Yes
+- Actionable: Yes (**done** — **`docs/integrations/recipes/README.md`** reorganized with OpenAPI **`/openapi/v1.json`** + codegen examples and webhook configuration table first; **`docs/integrations/CONNECTOR_SMOKE_INDEX.md`** cross-link.)
 
 ```markdown
 Reorganize `docs/integrations/recipes/` to surface OpenAPI-aligned client examples and webhook configurations more prominently.
@@ -499,11 +499,11 @@ Add a CI step that parses `docs/library/AUDIT_COVERAGE_MATRIX.md` and fails the 
 Update `DataArchivalHostHealthCheck` and the underlying archival services to implement exponential backoff and dead-letter queues for failed blob deletions.
 ```
 
-20. **Update operational runbooks for AuthorityPipeline concurrency**
+20. **Update operational runbooks for AuthorityPipeline concurrency** (**completed 2026-05-17**)
 - Why it matters: Operators need clear guidance on configuring and monitoring worker pool concurrency.
 - Expected impact: Reliability (+4 pts), Supportability (+2 pts).
 - Affected qualities: Reliability, Supportability.
-- Actionable: Yes
+- Actionable: Yes (**done** — **`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`** §8.5 recommended **`ArchLucid:AuthorityPipeline:Concurrency`** by tier (aligned with **`RTO_RPO_TARGETS.md`**) and §8.6 **`dbo.AuthorityPipelineTenantExecutionLease`** monitoring queries + remediation; §8.2 links §8.5.)
 
 ```markdown
 Document the recommended defaults for `AuthorityPipeline:Concurrency` per environment tier and add a runbook section for monitoring lease table growth.
@@ -553,10 +553,10 @@ Design the API contracts and storage schema necessary to support an internal "Po
 
 - **Batch 1 (High Leverage, Low Risk):** 1, 3, 6, 11
 - **Batch 2 (Performance & Observability):** 2, 5, 7, 9, 13
-- **Batch 3 (UX & adoption):** 10, 15, 16
+- **Batch 3 (UX & adoption):** 10 ~~15, 16~~ (**15–16 completed 2026-05-17**)
 - **Batch 4 (Architecture hygiene & Testing):** 8, 12, 14, 18, 21, 23
 - **Batch 5 (Integrations — credential-dependent):** 4 (ServiceNow), 19
-- **Batch 6 (Business Value & Stickiness):** 17, 20, 22, 24
+- **Batch 6 (Business Value & Stickiness):** 17, ~~20~~ (**20 completed 2026-05-17**), 22, 24
 - **Deferred / V1.1 program:** Azure CAF / landing-zone curated policy pack; bulk evidence upload above 30 files, ZIP expansion, recursive folder ingest; Stripe live keys / Marketplace.
 
 ## Marketing alignment
