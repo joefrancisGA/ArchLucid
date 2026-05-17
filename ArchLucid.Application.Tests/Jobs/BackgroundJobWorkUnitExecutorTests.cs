@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Application.Tenancy;
@@ -150,6 +152,6 @@ public sealed class BackgroundJobWorkUnitExecutorTests
 
         file.ContentType.Should().Be("application/json");
         file.FileName.Should().Be("tenant-deletion-result.json");
-        System.Text.Json.JsonSerializer.Deserialize<TenantDeletionResult>(file.Bytes)!.SqlRowsDeleted.Should().Be(3);
+        JsonSerializer.Deserialize<TenantDeletionResult>(file.Bytes)!.SqlRowsDeleted.Should().Be(3);
     }
 }

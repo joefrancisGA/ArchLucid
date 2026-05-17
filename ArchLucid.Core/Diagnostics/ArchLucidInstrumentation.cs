@@ -32,6 +32,9 @@ public sealed class AgentExecutionLlmCallAccumulator
 /// </summary>
 public static class ArchLucidInstrumentation
 {
+    /// <summary>Maximum characters for optional GenAI span payloads gated by <c>LlmTelemetry:CapturePromptResponseOnSpans</c>.</summary>
+    public const int SensitiveGenAiTelemetrySnapshotMaxChars = 65536;
+
     /// <summary>Meter name registered with OpenTelemetry in <c>AddArchLucidOpenTelemetry</c>.</summary>
     public const string MeterName = "ArchLucid";
 
@@ -72,6 +75,9 @@ public static class ArchLucidInstrumentation
 
     /// <summary>Azure OpenAI chat completion calls (nested under agent handler when a trace is active).</summary>
     public static readonly ActivitySource AgentLlmCompletion = new("ArchLucid.Agent.LlmCompletion", "1.0.0");
+
+    /// <summary>Azure OpenAI text-embedding RPCs (retrieval indexer / evidence embeddings).</summary>
+    public static readonly ActivitySource AgentLlmEmbedding = new("ArchLucid.Agent.LlmEmbedding", "1.0.0");
 
     /// <summary>Retrieval indexing outbox batch processor (<c>RetrievalIndexingOutboxProcessor</c>).</summary>
     public static readonly ActivitySource RetrievalIndexingOutbox = new("ArchLucid.RetrievalIndexing.Outbox", "1.0.0");

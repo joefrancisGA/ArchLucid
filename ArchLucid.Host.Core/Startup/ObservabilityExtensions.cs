@@ -105,6 +105,7 @@ public static class ObservabilityExtensions
                     ArchLucidInstrumentation.AgentHandler.Name,
                     ArchLucidInstrumentation.AgentExecution.Name,
                     ArchLucidInstrumentation.AgentLlmCompletion.Name,
+                    ArchLucidInstrumentation.AgentLlmEmbedding.Name,
                     ArchLucidInstrumentation.RetrievalIndexingOutbox.Name,
                     ArchLucidInstrumentation.IntegrationEventOutbox.Name,
                     ArchLucidInstrumentation.DataArchival.Name);

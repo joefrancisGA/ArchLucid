@@ -15,4 +15,16 @@ public sealed class LlmTelemetryOptions
         get;
         set;
     }
+
+    /// <summary>
+    ///     When false (default), OpenTelemetry spans never carry raw prompts, user context, completions, or embedding
+    ///     inputs — only aggregates (token counters, deployments, durations). Operators may set this to true in a guarded
+    ///     environment (scoped App Configuration / Key Vault-backed secret flip) while investigating provider issues:
+    ///     payload fields are capped and should still traverse redaction decorators upstream.
+    /// </summary>
+    public bool CapturePromptResponseOnSpans
+    {
+        get;
+        set;
+    }
 }

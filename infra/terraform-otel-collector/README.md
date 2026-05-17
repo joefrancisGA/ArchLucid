@@ -17,9 +17,10 @@
 | Root span duration > 2s | 100% |
 | `ActivitySource` is `ArchLucid.AuthorityRun` | 100% |
 | `ActivitySource` is `ArchLucid.Agent.LlmCompletion` | 100% |
+| `ActivitySource` is `ArchLucid.Agent.LlmEmbedding` | 100% |
 | Everything else | head-based ratio (configurable, default 10%) |
 
-These are the same five activity sources called out in `docs/OBSERVABILITY.md` plus the wildcard fallback.
+These are the same activity sources called out in `docs/OBSERVABILITY.md` plus the wildcard fallback.
 
 ## Inputs (see `variables.tf`)
 

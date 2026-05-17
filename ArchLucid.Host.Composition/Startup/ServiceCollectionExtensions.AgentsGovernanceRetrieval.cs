@@ -337,9 +337,20 @@ public static partial class ServiceCollectionExtensions
 
                         List<AzureOpenAiCompletionClient> clients = new(ordered.Count);
 
+                        IOptionsMonitor<LlmTelemetryOptions> llmTelemetryOptions =
+                            sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
+
                         foreach ((string ep, string key, string dep) in ordered)
                         {
-                            clients.Add(new AzureOpenAiCompletionClient(ep, key, dep, maxTokens, schema, completionLogger));
+                            clients.Add(
+                                new AzureOpenAiCompletionClient(
+                                    ep,
+                                    key,
+                                    dep,
+                                    maxTokens,
+                                    schema,
+                                    completionLogger,
+                                    llmTelemetryOptions));
                         }
 
                         return new FallbackAzureOpenAiInnerClientsRegistry { Clients = clients };
@@ -366,8 +377,17 @@ public static partial class ServiceCollectionExtensions
                     BinaryData? schema = ResolveStructuredOutputAgentResultSchema(config, ao);
                     ILogger<AzureOpenAiCompletionClient> completionLogger =
                         sp.GetRequiredService<ILogger<AzureOpenAiCompletionClient>>();
+                    IOptionsMonitor<LlmTelemetryOptions> llmTelemetryOptions =
+                        sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
 
-                    return new AzureOpenAiCompletionClient(endpoint, apiKey, deploymentName, maxTokens, schema, completionLogger);
+                    return new AzureOpenAiCompletionClient(
+                        endpoint,
+                        apiKey,
+                        deploymentName,
+                        maxTokens,
+                        schema,
+                        completionLogger,
+                        llmTelemetryOptions);
                 });
 
                 services.AddSingleton<LlmTokenQuotaWindowTracker>();
@@ -681,7 +701,9 @@ public static partial class ServiceCollectionExtensions
 
             services.AddSingleton<IOpenAiEmbeddingClient>(sp =>
             {
-                AzureOpenAiEmbeddingClient inner = new(endpoint!, apiKey!, embedDeployment!);
+                IOptionsMonitor<LlmTelemetryOptions> llmTelemetryOptions =
+                    sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
+                AzureOpenAiEmbeddingClient inner = new(endpoint!, apiKey!, embedDeployment!, llmTelemetryOptions);
                 CircuitBreakerGate gate = sp.GetRequiredKeyedService<CircuitBreakerGate>(OpenAiCircuitBreakerKeys.Embedding);
                 ILogger<CircuitBreakingOpenAiEmbeddingClient> logger =
                     sp.GetRequiredService<ILogger<CircuitBreakingOpenAiEmbeddingClient>>();
@@ -848,6 +870,8 @@ public static partial class ServiceCollectionExtensions
 
         ILogger<AzureOpenAiCompletionClient> completionLogger =
             sp.GetRequiredService<ILogger<AzureOpenAiCompletionClient>>();
+        IOptionsMonitor<LlmTelemetryOptions> llmTelemetryOptions =
+            sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
 
         AzureOpenAiCompletionClient inner = new(
             endpoint,
@@ -855,7 +879,8 @@ public static partial class ServiceCollectionExtensions
             deployment,
             maxTok,
             structuredOutputAgentResultSchema: null,
-            completionLogger);
+            completionLogger,
+            llmTelemetryOptions);
 
         IContentSafetyGuard contentSafetyGuard = sp.GetRequiredService<IContentSafetyGuard>();
         IOptionsMonitor<ContentSafetyOptions> contentSafetyOpts =
@@ -872,8 +897,6 @@ public static partial class ServiceCollectionExtensions
         LlmTokenQuotaWindowTracker quotaTracker = sp.GetRequiredService<LlmTokenQuotaWindowTracker>();
         IScopeContextProvider scopeProvider = sp.GetRequiredService<IScopeContextProvider>();
         IOptionsMonitor<LlmTokenQuotaOptions> quotaOpts = sp.GetRequiredService<IOptionsMonitor<LlmTokenQuotaOptions>>();
-        IOptionsMonitor<LlmTelemetryOptions> telemetryOpts =
-            sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
         IOptionsMonitor<LlmTelemetryLabelOptions> labelTelemetryOpts =
             sp.GetRequiredService<IOptionsMonitor<LlmTelemetryLabelOptions>>();
         IOptionsMonitor<LlmPromptRedactionOptions> redactionOpts =
@@ -896,7 +919,7 @@ public static partial class ServiceCollectionExtensions
             quotaTracker,
             scopeProvider,
             quotaOpts,
-            telemetryOpts,
+            llmTelemetryOptions,
             labelTelemetryOpts,
             redactionOpts,
             promptRedactor,

@@ -9,6 +9,7 @@ using ArchLucid.Core.Diagnostics;
 using Azure.AI.OpenAI;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using OpenAI.Chat;
 
@@ -48,6 +49,9 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
     private readonly BinaryData? _structuredOutputAgentResultSchema;
     private readonly ILogger<AzureOpenAiCompletionClient>? _logger;
 
+    /// <remarks>Observable per request for hot-reload toggle of sensitive span payloads.</remarks>
+    private readonly IOptionsMonitor<LlmTelemetryOptions>? _llmTelemetryOptions;
+
     /// <summary>
     ///     Creates a client for the given deployment (model) on the Azure OpenAI resource.
     /// </summary>
@@ -60,13 +64,18 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
     ///     schema; HTTP 400 falls back to JSON object mode.
     /// </param>
     /// <param name="logger">Optional logger for structured-output fallback diagnostics.</param>
+    /// <param name="llmTelemetryOptions">
+    ///     When non-null and <see cref="LlmTelemetryOptions.CapturePromptResponseOnSpans" /> is true, attaches truncated
+    ///     prompt/completion payloads to spans (default off — see telemetry docs).
+    /// </param>
     public AzureOpenAiCompletionClient(
         string endpoint,
         string apiKey,
         string deploymentName,
         int maxCompletionTokens,
         BinaryData? structuredOutputAgentResultSchema = null,
-        ILogger<AzureOpenAiCompletionClient>? logger = null)
+        ILogger<AzureOpenAiCompletionClient>? logger = null,
+        IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
@@ -86,7 +95,22 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         _maxOutputTokens = maxCompletionTokens;
         _structuredOutputAgentResultSchema = structuredOutputAgentResultSchema;
         _logger = logger;
+        _llmTelemetryOptions = llmTelemetryOptions;
         Descriptor = LlmProviderDescriptor.ForAzureOpenAi(endpointUri, deploymentName);
+    }
+
+    /// <remarks>Truncates opt-in span payloads so exporters stay predictable.</remarks>
+    internal static string TruncateForSensitiveTelemetrySnapshot(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+
+            return string.Empty;
+
+        if (text.Length <= ArchLucidInstrumentation.SensitiveGenAiTelemetrySnapshotMaxChars)
+
+            return text;
+
+        return text.Substring(0, ArchLucidInstrumentation.SensitiveGenAiTelemetrySnapshotMaxChars) + "…truncated";
     }
 
     /// <inheritdoc />
@@ -120,65 +144,111 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
             "gen_ai.chat.completion",
             ActivityKind.Client);
 
+        long latencyStartTicks = Stopwatch.GetTimestamp();
+
         llmActivity?.SetTag("gen_ai.system", "azure_openai");
+        llmActivity?.SetTag("gen_ai.operation.name", "chat");
+        llmActivity?.SetTag("gen_ai.request.model", _deploymentName);
+
+        if (_llmTelemetryOptions?.CurrentValue.CapturePromptResponseOnSpans == true && llmActivity is not null)
+        {
+            llmActivity.SetTag("gen_ai.prompt.system", TruncateForSensitiveTelemetrySnapshot(systemPrompt));
+
+            llmActivity.SetTag("gen_ai.prompt.user", TruncateForSensitiveTelemetrySnapshot(userPrompt));
+        }
 
         ChatCompletion completion;
 
         try
         {
-            completion = await CompleteChatCoreAsync(messages, cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            LastModelMetadata.Value = null;
-            llmActivity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-            llmActivity?.AddException(ex);
 
-            throw;
-        }
+            try
+            {
+                completion = await CompleteChatCoreAsync(messages, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                LastModelMetadata.Value = null;
+                llmActivity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                llmActivity?.AddException(ex);
 
-        if (completion.Usage is { } usage)
-        {
-            int inTok = usage.InputTokenCount is var ip ? ip : 0;
-            int outTok = usage.OutputTokenCount is var op ? op : 0;
-            int reasoningTok = usage.OutputTokenDetails?.ReasoningTokenCount ?? 0;
+                throw;
+            }
 
-            if (inTok > 0 || outTok > 0 || reasoningTok > 0)
+            if (completion.Usage is { } usage)
+            {
+                int inTok = usage.InputTokenCount is var ip ? ip : 0;
+                int outTok = usage.OutputTokenCount is var op ? op : 0;
+                int reasoningTok = usage.OutputTokenDetails?.ReasoningTokenCount ?? 0;
 
-                LastCompletionTokenUsage.Value = (inTok, outTok, reasoningTok);
+                if (inTok > 0 || outTok > 0 || reasoningTok > 0)
+
+                    LastCompletionTokenUsage.Value = (inTok, outTok, reasoningTok);
+
+                if (llmActivity is not null)
+                {
+                    llmActivity.SetTag("gen_ai.usage.input_tokens", usage.InputTokenCount);
+                    llmActivity.SetTag("gen_ai.usage.output_tokens", usage.OutputTokenCount);
+                    llmActivity.SetTag("gen_ai.usage.total_tokens", usage.TotalTokenCount);
+
+                    if (reasoningTok > 0)
+
+                        llmActivity.SetTag("gen_ai.usage.reasoning_tokens", reasoningTok);
+                }
+            }
+
+            IReadOnlyList<ChatMessageContentPart> parts = completion.Content;
+
+            if (parts is null || parts.Count < 1)
+
+                throw new InvalidOperationException("Azure OpenAI returned no message content.");
+
+            string? text = parts[0].Text;
+
+            if (string.IsNullOrEmpty(text))
+
+                throw new InvalidOperationException("Azure OpenAI returned an empty assistant message.");
+
+            string? modelId = completion.Model;
+            LastModelMetadata.Value = (_deploymentName, string.IsNullOrWhiteSpace(modelId) ? null : modelId.Trim());
 
             if (llmActivity is not null)
             {
-                llmActivity.SetTag("gen_ai.usage.input_tokens", usage.InputTokenCount);
-                llmActivity.SetTag("gen_ai.usage.output_tokens", usage.OutputTokenCount);
-                llmActivity.SetTag("gen_ai.usage.total_tokens", usage.TotalTokenCount);
+                if (!string.IsNullOrWhiteSpace(modelId))
 
-                if (reasoningTok > 0)
-                    llmActivity.SetTag("gen_ai.usage.reasoning_tokens", reasoningTok);
+                    llmActivity.SetTag("gen_ai.response.model", modelId.Trim());
+
+                if (_llmTelemetryOptions?.CurrentValue.CapturePromptResponseOnSpans == true)
+
+                    llmActivity.SetTag("gen_ai.completion", TruncateForSensitiveTelemetrySnapshot(text));
             }
+
+            ArchLucidInstrumentation.RecordLlmCompletionCallForCurrentRunBatch();
+
+            string? reasoningSnippet = BuildReasoningTraceSnippet(completion);
+
+            if (reasoningSnippet is not null)
+                AgentHandlerLlmReasoningTrace.AppendCompletionSnippet(reasoningSnippet);
+
+            return text;
+        }
+        finally
+        {
+
+            ApplyGenAiLatencyTag(llmActivity, latencyStartTicks);
+
         }
 
-        IReadOnlyList<ChatMessageContentPart> parts = completion.Content;
+    }
 
-        if (parts is null || parts.Count < 1)
-            throw new InvalidOperationException("Azure OpenAI returned no message content.");
+    private static void ApplyGenAiLatencyTag(Activity? llmActivity, long latencyStartTimestamp)
+    {
+        if (llmActivity is null)
+            return;
 
-        string? text = parts[0].Text;
+        double millis = Stopwatch.GetElapsedTime(latencyStartTimestamp).TotalMilliseconds;
 
-        if (string.IsNullOrEmpty(text))
-            throw new InvalidOperationException("Azure OpenAI returned an empty assistant message.");
-
-        string? modelId = completion.Model;
-        LastModelMetadata.Value = (_deploymentName, string.IsNullOrWhiteSpace(modelId) ? null : modelId.Trim());
-
-        ArchLucidInstrumentation.RecordLlmCompletionCallForCurrentRunBatch();
-
-        string? reasoningSnippet = BuildReasoningTraceSnippet(completion);
-
-        if (reasoningSnippet is not null)
-            AgentHandlerLlmReasoningTrace.AppendCompletionSnippet(reasoningSnippet);
-
-        return text;
+        llmActivity.SetTag("gen_ai.completion.latency_ms", millis);
     }
 
     private async Task<ChatCompletion> CompleteChatCoreAsync(

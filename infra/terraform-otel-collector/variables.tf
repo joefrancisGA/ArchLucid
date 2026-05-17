@@ -42,6 +42,7 @@ variable "tail_sampling_always_keep_activity_sources" {
   default = [
     "ArchLucid.AuthorityRun",
     "ArchLucid.Agent.LlmCompletion",
+    "ArchLucid.Agent.LlmEmbedding",
   ]
 }
 

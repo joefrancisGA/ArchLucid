@@ -547,11 +547,11 @@ Implement a durable background job to handle tenant offboarding and data deletio
 **Delivered:** `TenantDeletionService` + `TenantBlobPrefixDeletionService` (prefixes under `golden-manifests`, `artifact-bundles`, `agent-traces`; skips shared `artifact-contents` dedup), extended `SqlTenantHardPurgeService` (`DeleteTenantScopedAuditEvents`, funnel rows), new `dbo.PlatformAuditEvents` + `IPlatformAuditRepository`, `TenantDeletionWorkUnit` on the durable `IBackgroundJobQueue`, `POST /v1/admin/tenants/{id}/delete` (`PlatformTenantDeletionAuthority` / `ArchLucidRoles.PlatformOperator` → `platform:tenant-delete`). Knowledge-graph projections are SQL-backed (`GraphSnapshots` etc.) and are removed with the hard purge.
 ```
 
-10. **Add explicit OpenTelemetry tracing for LLM API calls**
+10. **COMPLETED:** Add explicit OpenTelemetry tracing for LLM API calls
 - Why it matters: AI/Agent Readiness requires deep observability into token usage, latency, and prompt/response pairs for debugging and cost attribution.
-- Expected impact: Observability (+3 pts), AI/Agent Readiness (+2 pts).
+- Expected impact: (Delivered **2026-05-16**.) Observability (+3 pts), AI/Agent Readiness (+2 pts).
 - Affected qualities: Observability, AI/Agent Readiness.
-- Actionable: Yes
+- Actionable: Completed
 
 ```markdown
 Enhance the existing OpenTelemetry instrumentation to capture detailed metrics for all LLM API calls.
@@ -559,6 +559,8 @@ Enhance the existing OpenTelemetry instrumentation to capture detailed metrics f
 - Include span attributes for: model name, prompt token count, completion token count, total token count, and latency.
 - Ensure sensitive prompt/response content is NOT logged by default (or is scrubbed), but allow opting in via a secure configuration flag for debugging.
 - Acceptance criteria: Token usage and latency for LLM calls are visible in the APM backend.
+
+**Delivered:** Chat completions already emitted `gen_ai.usage.*` on `ArchLucid.Agent.LlmCompletion` spans; extended with `gen_ai.request.model`, `gen_ai.response.model`, `gen_ai.operation.name`, `gen_ai.completion.latency_ms`, and `LlmTelemetry:CapturePromptResponseOnSpans` (default false, hard-capped payload length via `ArchLucidInstrumentation.SensitiveGenAiTelemetrySnapshotMaxChars`). Added `ArchLucid.Agent.LlmEmbedding` spans for Azure OpenAI embeddings (`gen_ai.embeddings`, usage when the SDK returns it, latency, input count) with the same opt-in prompt snapshot flag. Registered the new source in `AddArchLucidOpenTelemetry` and default tail-sampling keep list (`terraform-otel-collector`).
 ```
 
 11. **Implement rate limiting and concurrency controls for the `AuthorityRunOrchestrator`**
