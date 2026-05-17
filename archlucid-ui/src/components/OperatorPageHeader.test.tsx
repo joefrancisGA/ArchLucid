@@ -7,6 +7,12 @@ vi.mock("@/components/ContextualHelp", () => ({
   ),
 }));
 
+vi.mock("@/components/BuyerTitleHint", () => ({
+  BuyerTitleHint: ({ text }: { text: string }) => (
+    <span data-testid="buyer-title-hint">{text}</span>
+  ),
+}));
+
 vi.mock("@/components/ui/help-button", () => ({
   HelpButton: ({ pageKey }: { pageKey: string }) => (
     <span data-testid="docs-help-button">{pageKey}</span>
@@ -37,6 +43,16 @@ describe("OperatorPageHeader", () => {
     render(<OperatorPageHeader title="T" helpKey="some-key" />);
     const help = screen.getByTestId("contextual-help");
     expect(help).toHaveTextContent("some-key");
+  });
+
+  it("renders BuyerTitleHint when buyerTitleHint provided", () => {
+    render(<OperatorPageHeader title="T" buyerTitleHint="Section purpose line." />);
+    expect(screen.getByTestId("buyer-title-hint")).toHaveTextContent("Section purpose line.");
+  });
+
+  it("omits BuyerTitleHint when buyerTitleHint is whitespace-only", () => {
+    render(<OperatorPageHeader title="T" buyerTitleHint="   " />);
+    expect(screen.queryByTestId("buyer-title-hint")).toBeNull();
   });
 
   it("omits ContextualHelp when helpKey not provided", () => {

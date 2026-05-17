@@ -1,7 +1,8 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { LayerContextStrip } from "./LayerContextStrip";
+import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
 
 describe("LayerContextStrip", () => {
   it.each(
@@ -82,6 +83,10 @@ describe("LayerContextStrip", () => {
     expect(getByTestId("buyer-golden-journey-stepper")).toBeInTheDocument();
     expect(getByTestId("buyer-journey-prev")).toHaveAttribute("href", "/reviews/x/manifest");
     expect(getByTestId("buyer-journey-next")).toHaveAttribute("href", "/governance");
+
+    const evidenceTrailChip = screen.getByRole("link", { name: /View evidence trail/ });
+    expect(evidenceTrailChip).toHaveAttribute("title", BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[2].chipTooltip);
+
     unmount();
   });
 });

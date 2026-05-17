@@ -26,6 +26,7 @@ export function BuyerGoldenJourneyStrip() {
           <li key={item.step} className="min-w-0">
             <Link
               href={item.href}
+              title={item.chipTooltip}
               className="font-medium text-teal-900 underline decoration-teal-300 underline-offset-2 hover:text-teal-950 dark:text-teal-100 dark:decoration-teal-700 dark:hover:text-teal-50"
             >
               <span className="tabular-nums text-neutral-600 dark:text-neutral-400">{item.step}.</span> {item.label}
