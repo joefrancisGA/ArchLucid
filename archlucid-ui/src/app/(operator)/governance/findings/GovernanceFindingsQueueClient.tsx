@@ -503,6 +503,20 @@ export default function GovernanceFindingsQueueClient() {
                       )}
                     </p>
                   </div>
+                  {buyerPolishedShell && row.recordKind === "finding" ? (
+                    <div>
+                      <span className="font-medium text-neutral-700 dark:text-neutral-300">Confidence</span>
+                      <div className="mt-0.5">
+                        {row.traceConfidenceLevel === "High" ||
+                        row.traceConfidenceLevel === "Medium" ||
+                        row.traceConfidenceLevel === "Low" ? (
+                          <FindingConfidenceBadge level={row.traceConfidenceLevel} />
+                        ) : (
+                          <span className="text-neutral-400 dark:text-neutral-500">—</span>
+                        )}
+                      </div>
+                    </div>
+                  ) : null}
                   {buyerPolishedShell ? null : (
                     <div>
                       <span className="font-medium text-neutral-700 dark:text-neutral-300">Category</span>
@@ -513,7 +527,7 @@ export default function GovernanceFindingsQueueClient() {
                     <span className="font-medium text-neutral-700 dark:text-neutral-300">Status</span>
                     <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.status}</p>
                   </div>
-                  <div className="sm:col-span-2">
+                  <div className="flex flex-col gap-2 sm:col-span-2">
                     <Button asChild variant="outline" size="sm" className="h-9 border-teal-300 dark:border-teal-700">
                       <Link href={inspectHref(row.runId, row.findingId)}>
                         {buyerPolishedShell
@@ -523,6 +537,15 @@ export default function GovernanceFindingsQueueClient() {
                           : "Open finding"}
                       </Link>
                     </Button>
+                    {(() => {
+                      const graphHref = governanceQueueGraphEvidenceHref(row);
+
+                      return graphHref !== null ? (
+                        <Button asChild variant="outline" size="sm" className="h-9 border-neutral-300 dark:border-neutral-600">
+                          <Link href={graphHref}>View evidence</Link>
+                        </Button>
+                      ) : null;
+                    })()}
                   </div>
                 </CardContent>
               </Card>

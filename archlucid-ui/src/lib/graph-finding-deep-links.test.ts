@@ -4,6 +4,8 @@ import {
   findingIdForGraphDeepLink,
   graphFindingDetailHref,
   graphFindingInspectHref,
+  graphTrailHrefWithOptionalNode,
+  GRAPH_NODE_FOCUS_QUERY_PARAM,
 } from "@/lib/graph-finding-deep-links";
 import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 import type { GraphNodeVm } from "@/types/graph";
@@ -34,5 +36,10 @@ describe("graph-finding-deep-links", () => {
   it("builds detail and inspect hrefs", () => {
     expect(graphFindingDetailHref("run-a", "fid-1")).toBe("/reviews/run-a/findings/fid-1");
     expect(graphFindingInspectHref("run-a", "fid-1")).toBe("/reviews/run-a/findings/fid-1/inspect");
+  });
+
+  it("graphTrailHrefWithOptionalNode adds graphNodeId only when focused id is non-empty", () => {
+    expect(graphTrailHrefWithOptionalNode("run-z", null)).toBe("/graph?runId=run-z");
+    expect(graphTrailHrefWithOptionalNode("run-z", "n-phi")).toBe(`/graph?runId=run-z&${GRAPH_NODE_FOCUS_QUERY_PARAM}=n-phi`);
   });
 });

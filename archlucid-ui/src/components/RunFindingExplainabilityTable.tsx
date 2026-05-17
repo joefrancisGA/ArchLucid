@@ -10,6 +10,8 @@ import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingExplainabilityDialog } from "@/components/FindingExplainabilityDialog";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { Button } from "@/components/ui/button";
+import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
+import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { FindingWireSnapshot } from "@/lib/quick-decision-summary-derive";
 import { truncateForList } from "@/lib/truncate-for-list";
@@ -173,6 +175,15 @@ export function RunFindingExplainabilityTable({
                 <span className="text-neutral-400 dark:text-neutral-500">—</span>
               );
 
+            const graphFocusId = preferredGraphNodeIdForFindingDeepLink(runId, row.findingId);
+            const explainGraphHref =
+              (typeof row.evidenceRefCount === "number" &&
+                Number.isFinite(row.evidenceRefCount) &&
+                row.evidenceRefCount > 0) ||
+              graphFocusId !== null
+                ? graphTrailHrefWithOptionalNode(runId, graphFocusId)
+                : null;
+
             return (
               <div
                 key={row.findingId}
@@ -253,6 +264,11 @@ export function RunFindingExplainabilityTable({
                         Explain
                       </Link>
                     </Button>
+                    {explainGraphHref !== null ? (
+                      <Button type="button" size="sm" variant="outline" className="h-7 px-2 text-xs" asChild>
+                        <Link href={explainGraphHref}>View evidence</Link>
+                      </Button>
+                    ) : null}
                   </div>
                   <CopyTraceRowWorkItemButton row={row} runId={runId} />
                   {!buyerPolishedShell ? (
