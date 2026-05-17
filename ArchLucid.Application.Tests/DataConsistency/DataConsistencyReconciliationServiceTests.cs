@@ -32,5 +32,6 @@ public sealed class DataConsistencyReconciliationServiceTests
         report.IsHealthy.Should().BeTrue();
         report.Findings.Should().ContainSingle(f => f.Severity == DataConsistencyFindingSeverity.Info);
         connectionFactory.Verify(f => f.CreateConnection(), Times.Never);
+        connectionFactory.Verify(f => f.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

@@ -13,33 +13,26 @@ const SCREENSHOT_FORBIDDEN_TEXT_FRAGMENTS: readonly string[] = [
 const REGISTERED_PACKS_EMPTY_KPI_REGEX = /Registered packs\r?\n0\r?\nVisible in this workspace/;
 
 /**
- * Graph uses `next/dynamic`; wait for the chunk placeholder to unmount before asserting copy.
+ * Graph uses `next/dynamic` (chunk placeholder) and `GraphFetchStatusAlerts` / Suspense copy that includes
+ * “Loading graph”. A one-shot `count() === 0` check races: those nodes often appear after the first query,
+ * so we poll until both the chunk shell is gone and the body no longer carries that copy.
  */
-async function waitForGraphChunkIfNeeded(page: Page, href: string): Promise<void> {
+async function waitForGraphScreenshotSettled(page: Page, href: string): Promise<void> {
   if (href !== "/graph" && !href.startsWith("/graph?")) {
     return;
   }
 
-  const loading = page.locator('[data-testid="graph-viewer-chunk-loading"]');
+  await expect
+    .poll(
+      async () => {
+        const chunkLoadingCount = await page.locator('[data-testid="graph-viewer-chunk-loading"]').count();
+        const bodyText = await page.locator("body").innerText();
 
-  if ((await loading.count()) === 0) {
-    return;
-  }
-
-  await loading.waitFor({ state: "detached", timeout: 120_000 });
-}
-
-/**
- * Dynamic import shells may briefly render “Loading graph” before the viewer mounts.
- */
-async function waitOutLoadingGraphIfPresent(page: Page): Promise<void> {
-  const loadingGraph = page.getByText("Loading graph");
-
-  if ((await loadingGraph.count()) === 0) {
-    return;
-  }
-
-  await loadingGraph.first().waitFor({ state: "detached", timeout: 120_000 });
+        return chunkLoadingCount === 0 && !bodyText.includes("Loading graph");
+      },
+      { timeout: 120_000 },
+    )
+    .toBe(true);
 }
 
 /**
@@ -59,8 +52,7 @@ async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Prom
 }
 
 export async function assertPageFreeOfScreenshotDemoFailures(page: Page, href: string): Promise<void> {
-  await waitForGraphChunkIfNeeded(page, href);
-  await waitOutLoadingGraphIfPresent(page);
+  await waitForGraphScreenshotSettled(page, href);
   await waitForAuditSearchSummaryNonEmpty(page, href);
 
   const bodyText = await page.locator("body").innerText();

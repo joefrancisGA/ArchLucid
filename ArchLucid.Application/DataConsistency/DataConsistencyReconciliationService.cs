@@ -42,9 +42,9 @@ public sealed class DataConsistencyReconciliationService(
         }
 
         List<DataConsistencyFinding> list = [];
-        await using (DbConnection connection = OpenConnection())
+        await using (DbConnection connection =
+                         (DbConnection)await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false))
         {
-            await connection.OpenAsync(cancellationToken);
             await AddCountAndFindingsAsync(connection, DataConsistencyReconciliationSql.RunsMissingArchitectureRequest, "runs_missing_architecture_request",
                 "Non-archived Runs reference an ArchitectureRequestId missing from dbo.ArchitectureRequests.",
                 DataConsistencyReconciliationSql.SampleRunsMissingArchitectureRequest, list, cancellationToken).ConfigureAwait(false);
@@ -74,11 +74,6 @@ public sealed class DataConsistencyReconciliationService(
             _logger.LogInformation("Data consistency reconciliation finished in {ElapsedMs} ms; healthy={IsHealthy}; findings={FindingCount}.",
                 sw.ElapsedMilliseconds, report.IsHealthy, list.Count);
         return report;
-    }
-
-    private DbConnection OpenConnection()
-    {
-        return (DbConnection)_connectionFactory.CreateConnection();
     }
 
     private static bool IsHealthy(IReadOnlyList<DataConsistencyFinding> findings)

@@ -208,17 +208,23 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IAuthorityRunListConnectionFactory>(sp => new ReadReplicaRoutedConnectionFactory(
             sp.GetRequiredService<ResilientSqlConnectionFactory>(),
             sp.GetRequiredService<IOptionsMonitor<SqlServerOptions>>(),
-            ReadReplicaQueryRoute.AuthorityRunList));
+            ReadReplicaQueryRoute.AuthorityRunList,
+            sp.GetRequiredService<IOptions<SqlOpenResilienceOptions>>(),
+            sp.GetRequiredService<ILogger<ReadReplicaRoutedConnectionFactory>>()));
 
         services.AddScoped<IGovernanceResolutionReadConnectionFactory>(sp => new ReadReplicaRoutedConnectionFactory(
             sp.GetRequiredService<ResilientSqlConnectionFactory>(),
             sp.GetRequiredService<IOptionsMonitor<SqlServerOptions>>(),
-            ReadReplicaQueryRoute.GovernanceResolution));
+            ReadReplicaQueryRoute.GovernanceResolution,
+            sp.GetRequiredService<IOptions<SqlOpenResilienceOptions>>(),
+            sp.GetRequiredService<ILogger<ReadReplicaRoutedConnectionFactory>>()));
 
         services.AddScoped<IGoldenManifestLookupReadConnectionFactory>(sp => new ReadReplicaRoutedConnectionFactory(
             sp.GetRequiredService<ResilientSqlConnectionFactory>(),
             sp.GetRequiredService<IOptionsMonitor<SqlServerOptions>>(),
-            ReadReplicaQueryRoute.GoldenManifestLookup));
+            ReadReplicaQueryRoute.GoldenManifestLookup,
+            sp.GetRequiredService<IOptions<SqlOpenResilienceOptions>>(),
+            sp.GetRequiredService<ILogger<ReadReplicaRoutedConnectionFactory>>()));
 
         services.AddScoped<ISchemaBootstrapper>(sp =>
             new SqlSchemaBootstrapper(

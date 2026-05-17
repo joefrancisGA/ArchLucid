@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Persistence.Connections;
 
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
@@ -31,7 +32,9 @@ public sealed class AuthorityRunListConnectionFactoryTests
         ReadReplicaRoutedConnectionFactory sut = new(
             resilient,
             options.Object,
-            ReadReplicaQueryRoute.AuthorityRunList);
+            ReadReplicaQueryRoute.AuthorityRunList,
+            Options.Create(new SqlOpenResilienceOptions { MaxRetryAttempts = 1 }),
+            NullLogger<ReadReplicaRoutedConnectionFactory>.Instance);
 
         SqlConnection actual = await sut.CreateOpenConnectionAsync(CancellationToken.None);
 

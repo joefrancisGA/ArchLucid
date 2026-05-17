@@ -159,7 +159,15 @@ public sealed class DataConsistencyOrphanProbeExecutorSqlIntegrationTests(SqlSer
             });
 
             var dbConnectionFactory = new Mock<IDbConnectionFactory>();
-            dbConnectionFactory.Setup(f => f.CreateConnection()).Returns(() => new SqlConnection(fixture.ConnectionString));
+            dbConnectionFactory
+                .Setup(f => f.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()))
+                .Returns(async (CancellationToken ct) =>
+                {
+                    SqlConnection c = new(fixture.ConnectionString);
+                    await c.OpenAsync(ct);
+
+                    return c;
+                });
 
             var archLucidOptions = new Mock<IOptions<ArchLucidOptions>>();
             archLucidOptions.Setup(o => o.Value).Returns(new ArchLucidOptions { StorageProvider = "Sql" });

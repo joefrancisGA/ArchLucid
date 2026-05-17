@@ -58,9 +58,8 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
         int sampleCap = Math.Clamp(snapshot.OrphanProbeRemediationDryRunLogMaxRows, 0, 500);
 
-        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
-        await using DbConnection _ = connection;
-        await connection.OpenAsync(cancellationToken);
+        await using DbConnection connection =
+            (DbConnection)await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         long goldenCount = await LogAndCountOrphansAsync(
                 connection,

@@ -12,8 +12,9 @@ public static class SqlOpenResilienceDefaults
     ///     Matches the historical <see cref="ResilientSqlConnectionFactory" /> defaults: 3 attempts, 200 ms base
     ///     exponential backoff with jitter.
     /// </summary>
+    /// <param name="logger">Optional; retry attempts log at Warning using this logger's category.</param>
     public static ResiliencePipeline BuildSqlOpenRetryPipeline(
-        ILogger<ResilientSqlConnectionFactory>? logger = null,
+        ILogger? logger = null,
         int maxRetryAttempts = 3,
         TimeSpan? baseDelay = null,
         Func<long>? getElapsedMillisecondsSinceOpenStarted = null)

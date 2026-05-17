@@ -48,11 +48,7 @@ public static class AuthServiceCollectionExtensions
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                .AddJwtBearer(options =>
-                {
-                    ArchLucidAuthOptions jwtAuthOptions = ArchLucidAuthConfigurationBridge.Resolve(configuration);
-                    ArchLucidJwtBearerConfiguration.Apply(options, jwtAuthOptions, configuration);
-                })
+                .AddJwtBearer(options => ArchLucidJwtBearerConfiguration.Apply(options, authOptions, configuration))
                 .AddScheme<AuthenticationSchemeOptions, ScimBearerAuthenticationHandler>(
                     ScimBearerDefaults.AuthenticationScheme,
                     _ =>
