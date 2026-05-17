@@ -717,6 +717,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/auth/saml-operational-health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminSamlOperationalHealthResponse"];
+                        "text/json": components["schemas"]["AdminSamlOperationalHealthResponse"];
+                        "text/plain": components["schemas"]["AdminSamlOperationalHealthResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/config-lint": {
         parameters: {
             query?: never;
@@ -15903,6 +15940,187 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/internal/analytics/cross-tenant/daily": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    rollupDate?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InternalCrossTenantRollupDailyListResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/internal/analytics/cross-tenant/daily/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    rollupDate?: string;
+                    format?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                        "text/csv": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/csv": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/csv": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/csv": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/internal/analytics/cross-tenant/daily/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    rollupDate?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/internal/architecture/run/{runId}/agent-evaluation": {
         parameters: {
             query?: never;
@@ -21925,6 +22143,15 @@ export interface components {
             /** Format: int64 */
             retrievalIndexingPending: number | string;
         };
+        AdminSamlOperationalHealthResponse: {
+            idpMetadataDiagnosticSummary?: null | string;
+            /** Format: date-time */
+            idpMetadataValidUntilUtc?: null | string;
+            saml2Enabled?: boolean;
+            spSigningCertificateDiagnosticSummary?: null | string;
+            /** Format: date-time */
+            spSigningCertificateNotAfterUtc?: null | string;
+        };
         AdvisoryScanExecution: {
             /** Format: date-time */
             completedUtc?: null | string;
@@ -22962,9 +23189,6 @@ export interface components {
             needDeterminismOrCompareAppendices?: boolean;
             needExecutionTraces?: boolean;
             regulatedEnvironment?: boolean;
-            reviewBoardWhitelabelClientEngagementTitle?: null | string;
-            reviewBoardWhitelabelFirmDisplayName?: null | string;
-            reviewBoardWhitelabelLogoBase64?: null | string;
             templateProfile?: null | string;
         };
         ConsultingDocxProfileRecommendation: {
@@ -24310,6 +24534,28 @@ export interface components {
             /** Format: int64 */
             totalRunsNonArchived?: number | string;
         };
+        InternalCrossTenantRollupDailyItemResponse: {
+            analyticsTenantKey?: string;
+            /** Format: double */
+            averageCompletedRunDurationSeconds?: null | number | string;
+            /** Format: date-time */
+            computedUtc?: string;
+            /** Format: double */
+            estimatedEngineeringHoursSaved?: number | string;
+            /** Format: int64 */
+            llmTokensUsed?: null | number | string;
+            /** Format: date */
+            rollupDate?: string;
+            /** Format: int64 */
+            totalCompletedRuns?: number | string;
+            /** Format: int64 */
+            totalRunsNonArchived?: number | string;
+        };
+        InternalCrossTenantRollupDailyListResponse: {
+            /** Format: date */
+            rollupDate?: string;
+            rows?: components["schemas"]["InternalCrossTenantRollupDailyItemResponse"][];
+        };
         ItsmIntegrationHealthProbeVm: {
             locallyConfigured?: boolean;
             reachable?: null | boolean;
@@ -24555,10 +24801,14 @@ export interface components {
             rightManifestId?: string;
         };
         ManifestDatastore: {
+            azureArmRegion?: null | string;
+            azurePricingSku?: null | string;
             datastoreId: string;
             datastoreName: string;
             datastoreType: components["schemas"]["DatastoreType"];
             encryptionAtRestRequired?: boolean;
+            /** Format: int32 */
+            instanceCount?: number;
             privateEndpointRequired?: boolean;
             purpose?: null | string;
             runtimePlatform: components["schemas"]["RuntimePlatform"];
@@ -24677,6 +24927,10 @@ export interface components {
             targetId: string;
         };
         ManifestService: {
+            azureArmRegion?: null | string;
+            azurePricingSku?: null | string;
+            /** Format: int32 */
+            instanceCount?: number;
             purpose?: null | string;
             requiredControls?: string[];
             runtimePlatform: components["schemas"]["RuntimePlatform"];

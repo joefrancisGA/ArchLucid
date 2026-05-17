@@ -229,6 +229,40 @@
         ],
         "type": "object"
       },
+      "AdminSamlOperationalHealthResponse": {
+        "properties": {
+          "idpMetadataDiagnosticSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "idpMetadataValidUntilUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "saml2Enabled": {
+            "type": "boolean"
+          },
+          "spSigningCertificateDiagnosticSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "spSigningCertificateNotAfterUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "AdvisoryScanExecution": {
         "properties": {
           "completedUtc": {
@@ -16767,6 +16801,35 @@
               "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminOidcDiagnosticsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "AdminAuthDiagnostics"
+        ]
+      }
+    },
+    "/v1/admin/auth/saml-operational-health": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSamlOperationalHealthResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSamlOperationalHealthResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSamlOperationalHealthResponse"
                 }
               }
             },
