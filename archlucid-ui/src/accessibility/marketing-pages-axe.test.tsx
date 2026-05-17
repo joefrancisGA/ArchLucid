@@ -114,6 +114,7 @@ describe("marketing pages — axe (Vitest)", () => {
 
       expect(await axe(container)).toHaveNoViolations();
     },
-    20_000,
+    // Privacy page is heavier; cold runs can exceed 20s on slower environments.
+    45_000,
   );
 });
