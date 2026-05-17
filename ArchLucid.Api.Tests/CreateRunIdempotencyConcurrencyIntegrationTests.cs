@@ -25,9 +25,11 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
     ///     <strong>above</strong> <see cref="ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout" />:
     ///     parallel POSTs link this token into each slot; a shorter guard cancels mid-response-buffer and yields
     ///     <see cref="OperationCanceledException" /> despite legitimate <c>sp_getapplock</c> + pipeline waits in slow CI.
+    ///     Must stay <strong>below</strong> the CI <c>--blame-hang-timeout</c> (90 min) so this token fires first and
+    ///     the test fails cleanly rather than the host being dumped mid-run.
     /// </summary>
     private static readonly TimeSpan ParallelCreateRunHangGuard =
-        ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout + TimeSpan.FromMinutes(25);
+        ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout + TimeSpan.FromMinutes(10);
 
     private const string SqlUnavailable =
         "API greenfield SQL tests need SQL Server. Set "

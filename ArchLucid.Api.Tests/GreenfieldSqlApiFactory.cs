@@ -85,10 +85,11 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
                 ["RateLimiting:Registration:PermitLimit"] = "100000",
                 ["RateLimiting:Registration:WindowMinutes"] = "1",
                 ["ArchLucid:Persistence:DefaultSqlCommandTimeoutSeconds"] = "300",
-                // Simulator runs finish quickly; cap budgets so parallel SQL idempotency bursts cannot stall CI near blame-hang.
-                ["AuthorityPipeline:PipelineTimeout"] = "00:20:00",
-                // Losers wait on sp_getapplock while the winner runs the authority pipeline — must exceed PipelineTimeout.
-                ["ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds"] = "1500000",
+                // Simulator finishes in seconds; 5 min is ample and keeps the lock chain well under the per-request CTS.
+                ["AuthorityPipeline:PipelineTimeout"] = "00:05:00",
+                // Losers wait on sp_getapplock while the winner runs the pipeline — must exceed PipelineTimeout (5 min).
+                // 10 min gives 5 min headroom; SqlCommandTimeoutSecondsForLockWait adds a further 120 s on top.
+                ["ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds"] = "600000",
                 // appsettings.Advanced.json sets 120s; that blocks DataConsistency readiness on Combined hosts until the first reconciliation.
                 ["DataConsistency:InitialDelaySeconds"] = "0",
                 // Http-only URL list disables HTTPS redirection middleware for in-memory TestServer (avoids redirect handler + long POST interaction quirks in CI).
@@ -105,7 +106,7 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
     {
         base.ConfigureClient(client);
 
-        // Worst wall clock for one POST: applock wait budget (~25m) + pipeline ceiling (~20m) — stay aligned with settings above.
+        // Worst wall clock for one POST: applock wait budget (10 min) + pipeline ceiling (5 min) — stay aligned with settings above.
         client.Timeout = TimeSpan.FromMinutes(28);
     }
 

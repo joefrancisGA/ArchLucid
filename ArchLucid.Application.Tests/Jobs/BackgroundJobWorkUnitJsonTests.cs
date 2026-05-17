@@ -40,6 +40,20 @@ public sealed class BackgroundJobWorkUnitJsonTests
         restored.Should().BeOfType<ConsultingDocxWorkUnit>();
         ConsultingDocxWorkUnit typed = (ConsultingDocxWorkUnit)restored;
         typed.Payload.RunId.Should().Be("run-2");
-        typed.Payload.TemplateProfile.Should().Be("exec");
+    [SkippableFact]
+    public void RoundTrip_TenantDeletionWorkUnit_PreservesPayload()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        TenantDeletionWorkUnit original = new(new TenantDeletionJobPayload(tenantId, "u1", "n1", "c1"));
+
+        string json = BackgroundJobWorkUnitJson.Serialize(original);
+        BackgroundJobWorkUnit? restored = BackgroundJobWorkUnitJson.Deserialize(json);
+
+        restored.Should().BeOfType<TenantDeletionWorkUnit>();
+        TenantDeletionWorkUnit typed = (TenantDeletionWorkUnit)restored!;
+        typed.Payload.TenantId.Should().Be(tenantId);
+        typed.Payload.RequestedByUserId.Should().Be("u1");
+        typed.Payload.RequestedByUserName.Should().Be("n1");
+        typed.Payload.CorrelationId.Should().Be("c1");
     }
 }

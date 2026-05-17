@@ -1,5 +1,6 @@
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Jobs;
+using ArchLucid.Application.Tenancy;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
@@ -33,13 +34,15 @@ public sealed class BackgroundJobWorkUnitExecutorTests
 
         Mock<IArchitectureAnalysisConsultingDocxExportService> consulting = new();
         Mock<IAuditService> audit = new();
+        Mock<ITenantDeletionService> tenantDeletion = new();
 
         BackgroundJobWorkUnitExecutor sut = new(
             runDetail.Object,
             analysis.Object,
             docx.Object,
             consulting.Object,
-            audit.Object);
+            audit.Object,
+            tenantDeletion.Object);
 
         AnalysisReportDocxWorkUnit unit = new(
             new AnalysisReportDocxJobPayload { RunId = runId },
@@ -80,13 +83,15 @@ public sealed class BackgroundJobWorkUnitExecutorTests
         consulting.Setup(c => c.GenerateDocxAsync(report, It.IsAny<CancellationToken>())).ReturnsAsync([9]);
 
         Mock<IAuditService> audit = new();
+        Mock<ITenantDeletionService> tenantDeletion = new();
 
         BackgroundJobWorkUnitExecutor sut = new(
             runDetail.Object,
             analysis.Object,
             docx.Object,
             consulting.Object,
-            audit.Object);
+            audit.Object,
+            tenantDeletion.Object);
 
         ConsultingDocxWorkUnit unit = new(
             new ConsultingDocxJobPayload { RunId = runId },
@@ -104,5 +109,47 @@ public sealed class BackgroundJobWorkUnitExecutorTests
                     e.CorrelationId.StartsWith("analysis-report-consulting-docx-async:", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_TenantDeletion_ReturnsJsonResult()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Mock<IRunDetailQueryService> runDetail = new();
+        Mock<IArchitectureAnalysisService> analysis = new();
+        Mock<IArchitectureAnalysisDocxExportService> docx = new();
+        Mock<IArchitectureAnalysisConsultingDocxExportService> consulting = new();
+        Mock<IAuditService> audit = new();
+        Mock<ITenantDeletionService> tenantDeletion = new();
+        tenantDeletion
+            .Setup(t => t.DeleteTenantAsync(tenantId, It.IsAny<TenantDeletionInvocation>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantDeletionResult
+                {
+                    TenantId = tenantId,
+                    SqlRowsDeleted = 3,
+                    SqlRowCountsByTable = new Dictionary<string, int> { ["Tenants"] = 1 },
+                    BlobsDeletedByContainer = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["golden-manifests"] = 2
+                    }
+                });
+
+        BackgroundJobWorkUnitExecutor sut = new(
+            runDetail.Object,
+            analysis.Object,
+            docx.Object,
+            consulting.Object,
+            audit.Object,
+            tenantDeletion.Object);
+
+        TenantDeletionWorkUnit unit = new(
+            new TenantDeletionJobPayload(tenantId, "actor-id", "actor-name", "corr-1"));
+
+        BackgroundJobFile file = await sut.ExecuteAsync(unit, CancellationToken.None);
+
+        file.ContentType.Should().Be("application/json");
+        file.FileName.Should().Be("tenant-deletion-result.json");
+        System.Text.Json.JsonSerializer.Deserialize<TenantDeletionResult>(file.Bytes)!.SqlRowsDeleted.Should().Be(3);
     }
 }

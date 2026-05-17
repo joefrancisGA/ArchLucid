@@ -5,14 +5,15 @@
 
 # Audit coverage matrix
 
-This document maps **state-changing** workflows to the audit signals they emit. ArchLucid has two parallel **channels** that share one **string catalog** in `ArchLucid.Core.Audit.AuditEventTypes`:
+This document maps **state-changing** workflows to the audit signals they emit. ArchLucid has **three** durable or structured **channels** that share one **string catalog** in `ArchLucid.Core.Audit.AuditEventTypes`:
 
 1. **Durable SQL audit** — `IAuditService.LogAsync` → `IAuditRepository.AppendAsync` → `dbo.AuditEvents` (`ArchLucid.Core.Audit.AuditEvent`). Event types use **top-level** `AuditEventTypes.*` constants (e.g. `RunStarted`, `GovernanceApprovalSubmitted`).
 2. **Baseline mutation log** — `IBaselineMutationAuditService.RecordAsync` → structured **ILogger** lines only (`ArchLucid.Application.Common.BaselineMutationAuditService`). Event types use **`AuditEventTypes.Baseline.Architecture.*`** and **`AuditEventTypes.Baseline.Governance.*`** (namespaced string values). These **do not** populate `dbo.AuditEvents`.
+3. **Platform SQL audit** — `IPlatformAuditRepository.AppendAsync` → `dbo.PlatformAuditEvents` (`ArchLucid.Core.Audit.PlatformAuditEvent`). Used for cross-tenant operator events (for example `TenantDataDeleted`); not filtered by tenant session scope.
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:193 -->
+<!-- audit-core-const-count:194 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -338,6 +339,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `SecurityAssessmentPublished` | `SecurityAssessmentPublished` | `SecurityTrustPublicationController` |
 | `TenantProvisioned` | `TenantProvisioned` | `TenantProvisioningService` |
 | `TenantSelfRegistered` | `TenantSelfRegistered` | `RegistrationController` |
+| `TenantDataDeleted` | `TenantDataDeleted` | `TenantDeletionService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; offboarding background job) |
 | `ArchitectureProjectSoftDeleted` | `ArchitectureProjectSoftDeleted` | `TenantWorkspacesController` (`DELETE /v1/tenant/workspaces/{workspaceId}/projects/{projectId}`) |
 | `ArchitectureProjectHardPurgedRetention` | `ArchitectureProjectHardPurgedRetention` | `ArchitectureProjectRetentionPurgeBackgroundWork` (`ArchitectureProjectRetentionPurgeHostedService`; API retention purge worker) |
 | `TrialProvisioned` | `TrialProvisioned` | `TrialTenantBootstrapService` |

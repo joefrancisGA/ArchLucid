@@ -617,6 +617,9 @@ BEGIN
         CanonicalObjectRowId UNIQUEIDENTIFIER NOT NULL
             CONSTRAINT PK_ContextSnapshotCanonicalObjects PRIMARY KEY,
         SnapshotId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NULL,
         SortOrder INT NOT NULL,
         ObjectId NVARCHAR(450) NOT NULL,
         ObjectType NVARCHAR(200) NOT NULL,
@@ -639,6 +642,9 @@ BEGIN
     CREATE TABLE dbo.ContextSnapshotCanonicalObjectProperties
     (
         CanonicalObjectRowId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NULL,
         PropertySortOrder INT NOT NULL,
         PropertyKey NVARCHAR(200) NOT NULL,
         PropertyValue NVARCHAR(MAX) NOT NULL,
@@ -658,6 +664,9 @@ BEGIN
     CREATE TABLE dbo.ContextSnapshotWarnings
     (
         SnapshotId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NULL,
         SortOrder INT NOT NULL,
         WarningText NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_ContextSnapshotWarnings PRIMARY KEY (SnapshotId, SortOrder),
@@ -676,6 +685,9 @@ BEGIN
     CREATE TABLE dbo.ContextSnapshotErrors
     (
         SnapshotId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NULL,
         SortOrder INT NOT NULL,
         ErrorText NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_ContextSnapshotErrors PRIMARY KEY (SnapshotId, SortOrder),
@@ -694,6 +706,9 @@ BEGIN
     CREATE TABLE dbo.ContextSnapshotSourceHashes
     (
         SnapshotId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NULL,
         SortOrder INT NOT NULL,
         SourceKey NVARCHAR(450) NOT NULL,
         HashValue NVARCHAR(MAX) NOT NULL,
@@ -715,6 +730,9 @@ BEGIN
         GraphSnapshotId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
         ContextSnapshotId UNIQUEIDENTIFIER NOT NULL,
         RunId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NULL,
         CreatedUtc DATETIME2 NOT NULL,
         NodesJson NVARCHAR(MAX) NULL,
         EdgesJson NVARCHAR(MAX) NULL,
@@ -774,6 +792,9 @@ BEGIN
     CREATE TABLE dbo.GraphSnapshotEdges
     (
         GraphSnapshotId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NULL,
         EdgeId            NVARCHAR(200) NOT NULL,
         FromNodeId        NVARCHAR(500) NOT NULL,
         ToNodeId          NVARCHAR(500) NOT NULL,
@@ -801,6 +822,9 @@ BEGIN
         GraphNodeRowId   UNIQUEIDENTIFIER NOT NULL
             CONSTRAINT PK_GraphSnapshotNodes PRIMARY KEY,
         GraphSnapshotId  UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NULL,
         SortOrder        INT NOT NULL,
         NodeId           NVARCHAR(500) NOT NULL,
         NodeType         NVARCHAR(100) NOT NULL,
@@ -824,6 +848,9 @@ BEGIN
     CREATE TABLE dbo.GraphSnapshotNodeProperties
     (
         GraphNodeRowId    UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NULL,
         PropertySortOrder INT NOT NULL,
         PropertyKey       NVARCHAR(200) NOT NULL,
         PropertyValue     NVARCHAR(MAX) NOT NULL,
@@ -843,6 +870,9 @@ BEGIN
     CREATE TABLE dbo.GraphSnapshotEdgeProperties
     (
         GraphSnapshotId   UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NULL,
         EdgeId            NVARCHAR(200) NOT NULL,
         PropertySortOrder INT NOT NULL,
         PropertyKey       NVARCHAR(200) NOT NULL,
@@ -863,6 +893,9 @@ BEGIN
     CREATE TABLE dbo.GraphSnapshotWarnings
     (
         GraphSnapshotId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NULL,
         SortOrder       INT NOT NULL,
         WarningText     NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_GraphSnapshotWarnings PRIMARY KEY (GraphSnapshotId, SortOrder),
@@ -945,6 +978,9 @@ IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_FindingsSna
 
 GO
 
+/* Relational findings — greenfield CREATE TABLE parity with DbUp 129 (scope columns on child/authority-path tables).
+   DbUp 129 replay backfills and SECURITY POLICY binds are brownfield-only (dynamic SQL / replay guards); keep this file aligned
+   with 129's final column layout. DbUp 148 may remove RLS after migrate (MULTI_TENANT_RLS.md). */
 -- Relational findings (dual-write with FindingsJson; typed payload only in FindingRecords.PayloadJson).
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NULL
 BEGIN
@@ -953,6 +989,9 @@ BEGIN
         FindingRecordId     UNIQUEIDENTIFIER NOT NULL
             CONSTRAINT PK_FindingRecords PRIMARY KEY,
         FindingsSnapshotId  UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SortOrder           INT NOT NULL,
         FindingId           NVARCHAR(200) NOT NULL,
         FindingSchemaVersion INT NOT NULL,
@@ -988,6 +1027,9 @@ BEGIN
     CREATE TABLE dbo.FindingRelatedNodes
     (
         FindingRecordId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SortOrder       INT NOT NULL,
         NodeId          NVARCHAR(500) NOT NULL,
         CONSTRAINT PK_FindingRelatedNodes PRIMARY KEY (FindingRecordId, SortOrder),
@@ -1006,6 +1048,9 @@ BEGIN
     CREATE TABLE dbo.FindingRecommendedActions
     (
         FindingRecordId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SortOrder       INT NOT NULL,
         ActionText      NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_FindingRecommendedActions PRIMARY KEY (FindingRecordId, SortOrder),
@@ -1024,6 +1069,9 @@ BEGIN
     CREATE TABLE dbo.FindingProperties
     (
         FindingRecordId    UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         PropertySortOrder  INT NOT NULL,
         PropertyKey        NVARCHAR(200) NOT NULL,
         PropertyValue      NVARCHAR(MAX) NOT NULL,
@@ -1043,6 +1091,9 @@ BEGIN
     CREATE TABLE dbo.FindingTraceGraphNodesExamined
     (
         FindingRecordId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SortOrder       INT NOT NULL,
         NodeId          NVARCHAR(500) NOT NULL,
         CONSTRAINT PK_FindingTraceGraphNodesExamined PRIMARY KEY (FindingRecordId, SortOrder),
@@ -1061,6 +1112,9 @@ BEGIN
     CREATE TABLE dbo.FindingTraceRulesApplied
     (
         FindingRecordId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SortOrder       INT NOT NULL,
         RuleText        NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_FindingTraceRulesApplied PRIMARY KEY (FindingRecordId, SortOrder),
@@ -1079,6 +1133,9 @@ BEGIN
     CREATE TABLE dbo.FindingTraceDecisionsTaken
     (
         FindingRecordId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SortOrder       INT NOT NULL,
         DecisionText    NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_FindingTraceDecisionsTaken PRIMARY KEY (FindingRecordId, SortOrder),
@@ -1097,6 +1154,9 @@ BEGIN
     CREATE TABLE dbo.FindingTraceAlternativePaths
     (
         FindingRecordId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SortOrder       INT NOT NULL,
         PathText        NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_FindingTraceAlternativePaths PRIMARY KEY (FindingRecordId, SortOrder),
@@ -1115,6 +1175,9 @@ BEGIN
     CREATE TABLE dbo.FindingTraceNotes
     (
         FindingRecordId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SortOrder       INT NOT NULL,
         NoteText        NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_FindingTraceNotes PRIMARY KEY (FindingRecordId, SortOrder),
@@ -1205,6 +1268,17 @@ IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Findi
 
 GO
 
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'IsMuted') IS NULL
+    ALTER TABLE dbo.FindingRecords
+        ADD IsMuted BIT NOT NULL CONSTRAINT DF_FindingRecords_IsMuted_Master DEFAULT (0);
+
+GO
+
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'MuteReason') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD MuteReason NVARCHAR(2000) NULL;
+
+GO
+
 IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_FindingRecords_ReviewedByWhenReviewed')
    AND OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL
    AND NOT EXISTS (
@@ -1273,6 +1347,36 @@ BEGIN
     );
     CREATE NONCLUSTERED INDEX IX_ImportedArchitectureRequests_Scope_Created
         ON dbo.ImportedArchitectureRequests (TenantId, WorkspaceId, ProjectId, CreatedUtc DESC);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.AzureExtractorPackages', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureExtractorPackages
+    (
+        PackageId               UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureExtractorPackages PRIMARY KEY CLUSTERED,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId             UNIQUEIDENTIFIER NOT NULL,
+        ProjectId               UNIQUEIDENTIFIER NOT NULL,
+        RunId                   UNIQUEIDENTIFIER NULL,
+        CreatedUtc              DATETIME2        NOT NULL,
+        SchemaVersion           INT              NOT NULL,
+        ScriptVersion           NVARCHAR(64)      NULL,
+        CollectionTimestampUtc  DATETIME2        NULL,
+        SubscriptionId          NVARCHAR(128)      NULL,
+        OriginalFileName        NVARCHAR(400)     NOT NULL,
+        ManifestJson            NVARCHAR(MAX)     NOT NULL,
+        PackageBytes            VARBINARY(MAX)    NOT NULL,
+        CONSTRAINT FK_AzureExtractorPackages_Runs FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureExtractorPackages_Scope_Created
+        ON dbo.AzureExtractorPackages (TenantId, WorkspaceId, ProjectId, CreatedUtc DESC);
+
+    CREATE NONCLUSTERED INDEX IX_AzureExtractorPackages_RunId
+        ON dbo.AzureExtractorPackages (RunId)
+        WHERE RunId IS NOT NULL;
 END;
 
 GO
@@ -1415,6 +1519,9 @@ BEGIN
     CREATE TABLE dbo.GoldenManifestWarnings
     (
         ManifestId   UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SortOrder    INT NOT NULL,
         WarningText  NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_GoldenManifestWarnings PRIMARY KEY (ManifestId, SortOrder),
@@ -1433,6 +1540,9 @@ BEGIN
     CREATE TABLE dbo.GoldenManifestDecisions
     (
         ManifestId       UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SortOrder        INT NOT NULL,
         DecisionId       NVARCHAR(200) NOT NULL,
         Category         NVARCHAR(500) NOT NULL,
@@ -1457,6 +1567,9 @@ BEGIN
     CREATE TABLE dbo.GoldenManifestDecisionEvidenceLinks
     (
         ManifestId   UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         DecisionId   NVARCHAR(200) NOT NULL,
         SortOrder    INT NOT NULL,
         FindingId    NVARCHAR(200) NOT NULL,
@@ -1476,6 +1589,9 @@ BEGIN
     CREATE TABLE dbo.GoldenManifestDecisionNodeLinks
     (
         ManifestId   UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         DecisionId   NVARCHAR(200) NOT NULL,
         SortOrder    INT NOT NULL,
         NodeId       NVARCHAR(500) NOT NULL,
@@ -1495,6 +1611,9 @@ BEGIN
     CREATE TABLE dbo.GoldenManifestProvenanceSourceFindings
     (
         ManifestId   UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SortOrder    INT NOT NULL,
         FindingId    NVARCHAR(200) NOT NULL,
         CONSTRAINT PK_GoldenManifestProvenanceSourceFindings PRIMARY KEY (ManifestId, SortOrder),
@@ -1513,6 +1632,9 @@ BEGIN
     CREATE TABLE dbo.GoldenManifestProvenanceSourceGraphNodes
     (
         ManifestId   UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SortOrder    INT NOT NULL,
         NodeId       NVARCHAR(500) NOT NULL,
         CONSTRAINT PK_GoldenManifestProvenanceSourceGraphNodes PRIMARY KEY (ManifestId, SortOrder),
@@ -1531,6 +1653,9 @@ BEGIN
     CREATE TABLE dbo.GoldenManifestProvenanceAppliedRules
     (
         ManifestId   UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SortOrder    INT NOT NULL,
         RuleId       NVARCHAR(200) NOT NULL,
         CONSTRAINT PK_GoldenManifestProvenanceAppliedRules PRIMARY KEY (ManifestId, SortOrder),
@@ -1619,6 +1744,9 @@ BEGIN
     CREATE TABLE dbo.ArtifactBundleArtifacts
     (
         BundleId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SortOrder INT NOT NULL,
         ArtifactId UNIQUEIDENTIFIER NOT NULL,
         RunId UNIQUEIDENTIFIER NOT NULL,
@@ -1647,6 +1775,9 @@ BEGIN
     CREATE TABLE dbo.ArtifactBundleArtifactMetadata
     (
         BundleId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         ArtifactSortOrder INT NOT NULL,
         MetaSortOrder INT NOT NULL,
         MetaKey NVARCHAR(500) NOT NULL,
@@ -1667,6 +1798,9 @@ BEGIN
     CREATE TABLE dbo.ArtifactBundleArtifactDecisionLinks
     (
         BundleId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         ArtifactSortOrder INT NOT NULL,
         LinkSortOrder INT NOT NULL,
         DecisionId NVARCHAR(200) NOT NULL,
@@ -1686,6 +1820,9 @@ BEGIN
     CREATE TABLE dbo.ArtifactBundleTraceGenerators
     (
         BundleId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SortOrder INT NOT NULL,
         GeneratorName NVARCHAR(500) NOT NULL,
         CONSTRAINT PK_ArtifactBundleTraceGenerators PRIMARY KEY (BundleId, SortOrder),
@@ -1704,6 +1841,9 @@ BEGIN
     CREATE TABLE dbo.ArtifactBundleTraceDecisionLinks
     (
         BundleId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SortOrder INT NOT NULL,
         DecisionId NVARCHAR(200) NOT NULL,
         CONSTRAINT PK_ArtifactBundleTraceDecisionLinks PRIMARY KEY (BundleId, SortOrder),
@@ -1722,6 +1862,9 @@ BEGIN
     CREATE TABLE dbo.ArtifactBundleTraceNotes
     (
         BundleId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SortOrder INT NOT NULL,
         NoteText NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_ArtifactBundleTraceNotes PRIMARY KEY (BundleId, SortOrder),
@@ -1799,6 +1942,9 @@ GO
    Authority/decisioning tables (dbo.Runs … dbo.ArtifactBundles): enforces insert order
    and referential integrity for the runtime chain. ON DELETE omitted => NO ACTION (default).
    GoldenManifests.DecisionTraceId references dbo.DecisioningTraces (PK column DecisionTraceId).
+
+   Greenfield parity: the IF NOT EXISTS + ALTER TABLE … WITH NOCHECK batches below align with
+   DbUp 147_AuthorityChain_RunForeignKeys_NotTrustedWhenMissing.sql (same constraint names).
 
    Constraints are added with WITH NOCHECK so brownfield databases that already contain legacy orphan
    rows can still install DDL; **new** inserts/updates must satisfy dbo.Runs and the snapshot chain.
@@ -2067,6 +2213,9 @@ BEGIN
     (
         MessageId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
         ThreadId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         Role NVARCHAR(50) NOT NULL,
         Content NVARCHAR(MAX) NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
@@ -2370,6 +2519,9 @@ BEGIN
     (
         ConditionId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_CompositeAlertRuleConditions PRIMARY KEY,
         CompositeRuleId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         MetricType NVARCHAR(100) NOT NULL,
         [Operator] NVARCHAR(50) NOT NULL,
         ThresholdValue DECIMAL(18, 4) NOT NULL,
@@ -2406,6 +2558,9 @@ BEGIN
     (
         PolicyPackVersionId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_PolicyPackVersions PRIMARY KEY,
         PolicyPackId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         [Version] NVARCHAR(50) NOT NULL,
         ContentJson NVARCHAR(MAX) NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
@@ -3113,6 +3268,9 @@ BEGIN
     CREATE TABLE dbo.ProductLearningImprovementPlanArchitectureRuns
     (
         PlanId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         ArchitectureRunId NVARCHAR(64) NOT NULL,
         CONSTRAINT PK_ProductLearningImprovementPlanArchitectureRuns PRIMARY KEY (PlanId, ArchitectureRunId),
         CONSTRAINT FK_ProductLearningImprovementPlanArchitectureRuns_Plan FOREIGN KEY (PlanId)
@@ -3130,6 +3288,9 @@ BEGIN
     CREATE TABLE dbo.ProductLearningImprovementPlanSignalLinks
     (
         PlanId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         SignalId UNIQUEIDENTIFIER NOT NULL,
         TriageStatusSnapshot NVARCHAR(32) NULL,
         CONSTRAINT PK_ProductLearningImprovementPlanSignalLinks PRIMARY KEY (PlanId, SignalId),
@@ -3165,6 +3326,9 @@ BEGIN
     (
         LinkId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_ProductLearningImprovementPlanArtifactLinks PRIMARY KEY,
         PlanId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         AuthorityBundleId UNIQUEIDENTIFIER NULL,
         AuthorityArtifactSortOrder INT NULL,
         PilotArtifactHint NVARCHAR(512) NULL,
@@ -3231,6 +3395,9 @@ BEGIN
     (
         SimulationRunId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_EvolutionSimulationRuns PRIMARY KEY,
         CandidateChangeSetId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         BaselineArchitectureRunId NVARCHAR(64) NOT NULL,
         EvaluationMode NVARCHAR(64) NOT NULL,
         OutcomeJson NVARCHAR(MAX) NOT NULL,
@@ -3350,6 +3517,10 @@ BEGIN
 END;
 
 GO
+
+/* Tenant isolation: SQL RLS removed (DbUp 148). Denormalized TenantId / WorkspaceId / ProjectId columns remain for query predicates. */
+
+
 
 /* ---- Tenant registry + usage metering (DbUp 069–070 parity; greenfield) ---- */
 
@@ -3518,23 +3689,6 @@ END;
 
 GO
 
-/* Tenant consultant whitelabel defaults for architecture-review-board exports (single row per tenant; blob refs stay tenant-scoped in storage). */
-IF OBJECT_ID(N'dbo.TenantConsultantWhitelabelProfiles', N'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.TenantConsultantWhitelabelProfiles
-    (
-        TenantId                  UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_TenantConsultantWhitelabelProfiles PRIMARY KEY,
-        FirmDisplayName           NVARCHAR(256)    NOT NULL,
-        DefaultEngagementTitle    NVARCHAR(512)    NOT NULL,
-        LogoBlobReference         NVARCHAR(1024)   NULL,
-        FooterAttributionTemplate NVARCHAR(1024)   NULL,
-        UpdatedUtc                DATETIMEOFFSET   NOT NULL CONSTRAINT DF_TenantConsultantWhitelabelProfiles_UpdatedUtc DEFAULT SYSUTCDATETIME(),
-        CONSTRAINT FK_TenantConsultantWhitelabelProfiles_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
-    );
-END;
-
-GO
-
 -- 077: Trial local identity users (email/password; see docs/security/TRIAL_AUTH.md).
 IF OBJECT_ID(N'dbo.IdentityUsers', N'U') IS NULL
 BEGIN
@@ -3592,6 +3746,7 @@ END;
 
 GO
 
+/* 157: Architecture projects (soft-delete; see Migrations/157_Projects_SoftDelete.sql). */
 IF OBJECT_ID(N'dbo.Projects', N'U') IS NULL
    AND OBJECT_ID(N'dbo.TenantWorkspaces', N'U') IS NOT NULL
    AND OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL
@@ -3634,16 +3789,6 @@ IF OBJECT_ID(N'dbo.Projects', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.Projects', N'DeletedUtc') IS NULL
 BEGIN
     ALTER TABLE dbo.Projects ADD DeletedUtc DATETIMEOFFSET NULL;
-END;
-
-GO
-
-IF OBJECT_ID(N'dbo.Projects', N'U') IS NOT NULL
-BEGIN
-    UPDATE dbo.Projects
-    SET DeletedUtc = CreatedUtc
-    WHERE IsDeleted = 1
-      AND DeletedUtc IS NULL;
 END;
 
 GO
@@ -4868,7 +5013,14 @@ END;
 
 GO
 
-/* 097: TenantOnboardingState + RLS (see Migrations/097_TenantOnboardingState.sql). */
+/* 097: TenantOnboardingState table (DbUp parity; RLS removed by migration 148).
+
+    See Migrations/097_TenantOnboardingState.sql.
+
+ */
+
+
+
 IF OBJECT_ID(N'dbo.TenantOnboardingState', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.TenantOnboardingState
@@ -5048,6 +5200,26 @@ END;
 
 GO
 
+/* 168: Platform audit (see Migrations/168_PlatformAuditEvents.sql). */
+IF OBJECT_ID(N'dbo.PlatformAuditEvents', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.PlatformAuditEvents
+    (
+        EventId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_PlatformAuditEvents2 PRIMARY KEY,
+        OccurredUtc DATETIME2 NOT NULL CONSTRAINT DF_PlatformAuditEvents_OccurredUtc2 DEFAULT SYSUTCDATETIME(),
+        EventType NVARCHAR(100) NOT NULL,
+        ActorUserId NVARCHAR(200) NOT NULL,
+        ActorUserName NVARCHAR(200) NOT NULL,
+        SubjectTenantId UNIQUEIDENTIFIER NOT NULL,
+        DataJson NVARCHAR(MAX) NOT NULL CONSTRAINT DF_PlatformAuditEvents_DataJson2 DEFAULT (N'{}'),
+        CorrelationId NVARCHAR(200) NULL,
+        INDEX IX_PlatformAuditEvents_SubjectTenantId_OccurredUtc2 NONCLUSTERED (SubjectTenantId, OccurredUtc DESC),
+        INDEX IX_PlatformAuditEvents_EventType_OccurredUtc2 NONCLUSTERED (EventType, OccurredUtc DESC)
+    );
+END;
+
+GO
+
 /* 112: First-tenant onboarding telemetry funnel rows
    (see Migrations/112_FirstTenantFunnelEvents.sql; Improvement 12; pending question 40).
    Schema is created unconditionally; rows appear only when
@@ -5069,6 +5241,8 @@ BEGIN
                 N'first_run_started',
                 N'first_run_committed',
                 N'first_finding_viewed',
+                N'first_finalization_attempted',
+                N'first_export_opened',
                 N'thirty_minute_milestone'
             )),
         CONSTRAINT FK_FirstTenantFunnelEvents_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
@@ -5099,6 +5273,256 @@ BEGIN
     ALTER TABLE dbo.Tenants ADD
         BrandingLogoUrl NVARCHAR(2048) NULL,
         BrandingCompanyName NVARCHAR(256) NULL;
+END;
+
+GO
+
+/* 162: Host LLM cost USD/M overrides (see Migrations/162_HostLlmCostEstimationUsdRates.sql). */
+IF OBJECT_ID(N'dbo.HostLlmCostEstimationUsdRates', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.HostLlmCostEstimationUsdRates
+    (
+        SingletonKey              NCHAR(1)      NOT NULL,
+        InputUsdPerMillionTokens  DECIMAL(18, 8) NOT NULL,
+        OutputUsdPerMillionTokens DECIMAL(18, 8) NOT NULL,
+        UpdatedUtc                DATETIME2(7)  NOT NULL,
+        UpdatedBy                 NVARCHAR(256) NOT NULL,
+        CONSTRAINT PK_HostLlmCostEstimationUsdRates PRIMARY KEY (SingletonKey),
+        CONSTRAINT CK_HostLlmCostEstimationUsdRates_Singleton CHECK (SingletonKey = N'G'),
+        CONSTRAINT CK_HostLlmCostEstimationUsdRates_InputPositive CHECK (InputUsdPerMillionTokens > 0),
+        CONSTRAINT CK_HostLlmCostEstimationUsdRates_OutputPositive CHECK (OutputUsdPerMillionTokens > 0)
+    );
+END;
+
+GO
+
+CREATE OR ALTER PROCEDURE dbo.Archival_PurgeStaleUncommittedRunsBatch
+    @CutoffUtc DATETIME2(7),
+    @BatchSize INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    IF @BatchSize < 1 OR @BatchSize > 10000
+        THROW 51000, N'Archival_PurgeStaleUncommittedRunsBatch: @BatchSize must be between 1 and 10000.', 1;
+
+    CREATE TABLE #PurgeRuns
+    (
+        RunId          UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+        TenantId       UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId    UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NOT NULL
+    );
+
+    INSERT INTO #PurgeRuns (RunId, TenantId, WorkspaceId, ScopeProjectId)
+    SELECT TOP (@BatchSize)
+           r.RunId,
+           r.TenantId,
+           r.WorkspaceId,
+           r.ScopeProjectId
+    FROM dbo.Runs AS r
+    WHERE r.CreatedUtc < @CutoffUtc
+      AND (   r.LegacyRunStatus IS NULL
+           OR r.LegacyRunStatus <> N'Committed')
+      AND r.IsDemoWelcomeRun = 0
+      AND r.IsPublicShowcase = 0
+    ORDER BY r.CreatedUtc ASC;
+
+    IF NOT EXISTS (SELECT 1 FROM #PurgeRuns)
+    BEGIN
+        SELECT TOP (0)
+               RunId,
+               TenantId,
+               WorkspaceId,
+               ScopeProjectId
+        FROM dbo.Runs;
+
+        RETURN;
+    END;
+
+    BEGIN TRANSACTION;
+
+    UPDATE ae
+    SET ae.RunId = NULL
+    FROM dbo.AuditEvents AS ae
+    WHERE ae.RunId IS NOT NULL
+      AND EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = ae.RunId);
+
+    UPDATE ct
+    SET ct.RunId = NULL
+    FROM dbo.ConversationThreads AS ct
+    WHERE ct.RunId IS NOT NULL
+      AND EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = ct.RunId);
+
+    UPDATE ct
+    SET ct.BaseRunId = NULL
+    FROM dbo.ConversationThreads AS ct
+    WHERE ct.BaseRunId IS NOT NULL
+      AND EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = ct.BaseRunId);
+
+    UPDATE ct
+    SET ct.TargetRunId = NULL
+    FROM dbo.ConversationThreads AS ct
+    WHERE ct.TargetRunId IS NOT NULL
+      AND EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = ct.TargetRunId);
+
+    IF OBJECT_ID(N'dbo.ConfluencePublishJobs', N'U') IS NOT NULL
+    BEGIN
+        DELETE j
+        FROM dbo.ConfluencePublishJobs AS j
+        WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = j.RunId);
+    END;
+
+    DELETE ada
+    FROM dbo.AlertDeliveryAttempts AS ada
+    WHERE EXISTS (
+        SELECT 1
+        FROM dbo.AlertRecords AS ar
+        WHERE ar.AlertId = ada.AlertId
+          AND (   EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = ar.RunId)
+               OR EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = ar.ComparedToRunId)));
+
+    DELETE ar
+    FROM dbo.AlertRecords AS ar
+    WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = ar.RunId)
+       OR EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = ar.ComparedToRunId);
+
+    DELETE rr
+    FROM dbo.RecommendationRecords AS rr
+    WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = rr.RunId)
+       OR EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = rr.ComparedToRunId);
+
+    IF OBJECT_ID(N'dbo.IntegrationEventOutbox', N'U') IS NOT NULL
+    BEGIN
+        DELETE o
+        FROM dbo.IntegrationEventOutbox AS o
+        WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = o.RunId);
+    END;
+
+    IF OBJECT_ID(N'dbo.RetrievalIndexingOutbox', N'U') IS NOT NULL
+    BEGIN
+        DELETE o
+        FROM dbo.RetrievalIndexingOutbox AS o
+        WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = o.RunId);
+    END;
+
+    IF OBJECT_ID(N'dbo.AuthorityPipelineWorkOutbox', N'U') IS NOT NULL
+    BEGIN
+        DELETE o
+        FROM dbo.AuthorityPipelineWorkOutbox AS o
+        WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = o.RunId);
+    END;
+
+    IF OBJECT_ID(N'dbo.ArchitectureRunIdempotency', N'U') IS NOT NULL
+    BEGIN
+        DELETE ari
+        FROM dbo.ArchitectureRunIdempotency AS ari
+        WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE TRY_CAST(ari.RunId AS UNIQUEIDENTIFIER) = p.RunId);
+    END;
+
+    IF OBJECT_ID(N'dbo.CommitRunIdempotency', N'U') IS NOT NULL
+    BEGIN
+        DELETE cri
+        FROM dbo.CommitRunIdempotency AS cri
+        WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE TRY_CAST(cri.RunId AS UNIQUEIDENTIFIER) = p.RunId);
+    END;
+
+    IF OBJECT_ID(N'dbo.AzureExtractorPackages', N'U') IS NOT NULL
+    BEGIN
+        DELETE x
+        FROM dbo.AzureExtractorPackages AS x
+        WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = x.RunId);
+    END;
+
+    DELETE et
+    FROM dbo.AgentExecutionTraces AS et
+    WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE TRY_CAST(et.RunId AS UNIQUEIDENTIFIER) = p.RunId);
+
+    DELETE aru
+    FROM dbo.AgentResults AS aru
+    WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE TRY_CAST(aru.RunId AS UNIQUEIDENTIFIER) = p.RunId);
+
+    DELETE t
+    FROM dbo.AgentTasks AS t
+    WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE TRY_CAST(t.RunId AS UNIQUEIDENTIFIER) = p.RunId);
+
+    DELETE aep
+    FROM dbo.AgentEvidencePackages AS aep
+    WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE TRY_CAST(aep.RunId AS UNIQUEIDENTIFIER) = p.RunId);
+
+    IF OBJECT_ID(N'dbo.DecisionTraces', N'U') IS NOT NULL
+    BEGIN
+        DELETE dt
+        FROM dbo.DecisionTraces AS dt
+        WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE TRY_CAST(dt.RunId AS UNIQUEIDENTIFIER) = p.RunId);
+    END;
+
+    IF OBJECT_ID(N'dbo.ProductLearningImprovementPlanArchitectureRuns', N'U') IS NOT NULL
+    BEGIN
+        DELETE plr
+        FROM dbo.ProductLearningImprovementPlanArchitectureRuns AS plr
+        WHERE EXISTS (
+            SELECT 1 FROM #PurgeRuns p WHERE TRY_CAST(plr.ArchitectureRunId AS UNIQUEIDENTIFIER) = p.RunId);
+    END;
+
+    DELETE ps
+    FROM dbo.ProvenanceSnapshots AS ps
+    WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = ps.RunId);
+
+    DELETE cr
+    FROM dbo.ComparisonRecords AS cr
+    WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = cr.LeftRunId)
+       OR EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = cr.RightRunId);
+
+    DELETE ab
+    FROM dbo.ArtifactBundles AS ab
+    WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = ab.RunId);
+
+    DELETE gm
+    FROM dbo.GoldenManifests AS gm
+    WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = gm.RunId);
+
+    DELETE fs
+    FROM dbo.FindingsSnapshots AS fs
+    WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = fs.RunId);
+
+    DELETE gs
+    FROM dbo.GraphSnapshots AS gs
+    WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = gs.RunId);
+
+    DELETE cs
+    FROM dbo.ContextSnapshots AS cs
+    WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = cs.RunId);
+
+    DELETE dtr
+    FROM dbo.DecisioningTraces AS dtr
+    WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = dtr.RunId);
+
+    DECLARE @Removed TABLE
+    (
+        RunId          UNIQUEIDENTIFIER NOT NULL,
+        TenantId       UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId    UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NOT NULL
+    );
+
+    DELETE r
+    OUTPUT deleted.RunId,
+           deleted.TenantId,
+           deleted.WorkspaceId,
+           deleted.ScopeProjectId
+    INTO @Removed
+    FROM dbo.Runs AS r
+    WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = r.RunId);
+
+    COMMIT TRANSACTION;
+
+    SELECT RunId,
+           TenantId,
+           WorkspaceId,
+           ScopeProjectId
+    FROM @Removed;
 END;
 
 GO
@@ -5306,6 +5730,55 @@ END;
 
 GO
 
+/* ---- DbUp 144 parity: ITSM finding correlations (see Migrations/144_ItsmFindingCorrelations.sql) ---- */
+
+IF OBJECT_ID(N'dbo.ItsmFindingCorrelations', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ItsmFindingCorrelations
+    (
+        CorrelationId    BIGINT           IDENTITY(1, 1) NOT NULL
+            CONSTRAINT PK_ItsmFindingCorrelations PRIMARY KEY CLUSTERED,
+        TenantId         UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId      UNIQUEIDENTIFIER NOT NULL,
+        ProjectId        UNIQUEIDENTIFIER NOT NULL,
+        FindingId        NVARCHAR(200)    NOT NULL,
+        Provider         NVARCHAR(32)     NOT NULL
+            CONSTRAINT CK_ItsmFindingCorrelations_Provider
+                CHECK (Provider IN (N'Jira', N'ServiceNow')),
+        ExternalKey      NVARCHAR(256)    NOT NULL,
+        ExternalSysId    NVARCHAR(64)     NULL,
+        CreatedUtc       DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_ItsmFindingCorrelations_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT FK_ItsmFindingCorrelations_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        CONSTRAINT UQ_ItsmFindingCorrelations_Provider_ExternalKey UNIQUE (Provider, ExternalKey)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ItsmFindingCorrelations_Tenant_Finding
+        ON dbo.ItsmFindingCorrelations (TenantId, FindingId);
+END;
+
+GO
+
+/* ---- DbUp 145 parity: tenant ITSM outbound settings (see Migrations/145_TenantItsmOutboundSettings.sql) ---- */
+
+IF OBJECT_ID(N'dbo.TenantItsmOutboundSettings', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantItsmOutboundSettings
+    (
+        TenantId                      UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_TenantItsmOutboundSettings PRIMARY KEY CLUSTERED,
+        JiraProjectKeyOverride       NVARCHAR(32)      NULL,
+        JiraSendInfoSeverity          BIT               NOT NULL
+            CONSTRAINT DF_TenantItsmOutboundSettings_JiraSendInfoSeverity DEFAULT (0),
+        JiraIssueTypeBySeverityJson   NVARCHAR(4000)    NULL,
+        ServiceNowAutoCreateCmdbCi    BIT               NOT NULL
+            CONSTRAINT DF_TenantItsmOutboundSettings_ServiceNowAutoCreateCmdbCi DEFAULT (0),
+        CONSTRAINT FK_TenantItsmOutboundSettings_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+END;
+
+GO
+
 /* ---- Analytics / Telemetry ---- */
 
 IF OBJECT_ID(N'dbo.RunTelemetry') IS NULL
@@ -5323,10 +5796,107 @@ END;
 
 GO
 
-IF OBJECT_ID(N'dbo.TenantWorkspaces', N'U') IS NOT NULL
-   AND COL_LENGTH(N'dbo.TenantWorkspaces', N'IsDemoWorkspace') IS NULL
+/* ---- DbUp 151 parity: LLM monthly tenant USD budget (see Migrations/151_LlmMonthlyTenantBudgetState.sql) ---- */
+
+IF OBJECT_ID(N'dbo.LlmMonthlyTenantBudgetState', N'U') IS NULL
 BEGIN
-    ALTER TABLE dbo.TenantWorkspaces ADD IsDemoWorkspace BIT NOT NULL CONSTRAINT DF_TenantWorkspaces_IsDemoWorkspace DEFAULT (0);
+    CREATE TABLE dbo.LlmMonthlyTenantBudgetState
+    (
+        TenantId             UNIQUEIDENTIFIER NOT NULL,
+        UtcYear              INT              NOT NULL,
+        UtcMonth             INT              NOT NULL,
+        SpentUsd             DECIMAL(18, 4)   NOT NULL
+            CONSTRAINT DF_LlmMonthlyTenantBudgetState_SpentUsd DEFAULT (0),
+        ReservedAssumedUsd   DECIMAL(18, 4)   NOT NULL
+            CONSTRAINT DF_LlmMonthlyTenantBudgetState_ReservedAssumedUsd DEFAULT (0),
+        PurchasedCapBumpUsd  DECIMAL(18, 6)   NOT NULL
+            CONSTRAINT DF_LlmMonthlyTenantBudgetState_PurchasedCapBumpUsd DEFAULT (0),
+        WarnedApproaching    BIT              NOT NULL
+            CONSTRAINT DF_LlmMonthlyTenantBudgetState_Warned DEFAULT (0),
+        LastUpdatedUtc       DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_LlmMonthlyTenantBudgetState_Lku DEFAULT SYSUTCDATETIME(),
+        RowVersion           ROWVERSION       NOT NULL,
+        CONSTRAINT PK_LlmMonthlyTenantBudgetState PRIMARY KEY CLUSTERED (TenantId, UtcYear, UtcMonth),
+        CONSTRAINT CK_LlmMonthlyTenantBudgetState_Month CHECK (UtcMonth >= 1 AND UtcMonth <= 12),
+        CONSTRAINT CK_LlmMonthlyTenantBudgetState_Year CHECK (UtcYear >= 2000 AND UtcYear <= 2100),
+        CONSTRAINT CK_LlmMonthlyTenantBudgetState_SpentNonNegative CHECK (SpentUsd >= 0)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_LlmMonthlyTenantBudgetState_LastUpdatedUtc
+        ON dbo.LlmMonthlyTenantBudgetState (LastUpdatedUtc DESC);
 END;
 
 GO
+
+/* ---- DbUp 152 parity: LLM daily tenant token window (see Migrations/152_LlmDailyTenantTokenWindowState.sql) ---- */
+
+IF OBJECT_ID(N'dbo.LlmDailyTenantTokenWindowState', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.LlmDailyTenantTokenWindowState
+    (
+        TenantId               UNIQUEIDENTIFIER NOT NULL,
+        UtcDay                 DATE             NOT NULL,
+        TotalTokens            BIGINT           NOT NULL
+            CONSTRAINT DF_LlmDailyTenantTokenWindowState_Tokens DEFAULT (0),
+        ReservedAssumedTokens  BIGINT           NOT NULL
+            CONSTRAINT DF_LlmDailyTenantTokenWindowState_ReservedAssumedTokens DEFAULT (0),
+        WarnedApproaching      BIT              NOT NULL
+            CONSTRAINT DF_LlmDailyTenantTokenWindowState_Warned DEFAULT (0),
+        LastUpdatedUtc         DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_LlmDailyTenantTokenWindowState_Lku DEFAULT SYSUTCDATETIME(),
+        RowVersion             ROWVERSION       NOT NULL,
+        CONSTRAINT PK_LlmDailyTenantTokenWindowState PRIMARY KEY CLUSTERED (TenantId, UtcDay),
+        CONSTRAINT CK_LlmDailyTenantTokenWindowState_TokensNonNegative CHECK (TotalTokens >= 0)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_LlmDailyTenantTokenWindowState_LastUpdatedUtc
+        ON dbo.LlmDailyTenantTokenWindowState (LastUpdatedUtc DESC);
+END;
+
+GO
+
+/* ---- DbUp 159 parity: commit-run idempotency + project role assignments (see Migrations/159_CommitRunIdempotency_ProjectRoleAssignments.sql) ---- */
+
+IF OBJECT_ID(N'dbo.CommitRunIdempotency', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.CommitRunIdempotency
+    (
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId             UNIQUEIDENTIFIER NOT NULL,
+        ProjectId               UNIQUEIDENTIFIER NOT NULL,
+        RunId                   NVARCHAR(64)       NOT NULL,
+        IdempotencyKeyHash      VARBINARY(32)      NOT NULL,
+        RequestFingerprint      VARBINARY(32)      NOT NULL,
+        CreatedUtc               DATETIME2(7)      NOT NULL
+            CONSTRAINT DF_CommitRunIdempotency_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_CommitRunIdempotency PRIMARY KEY CLUSTERED (TenantId, WorkspaceId, ProjectId, RunId, IdempotencyKeyHash),
+        CONSTRAINT FK_CommitRunIdempotency_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        CONSTRAINT CK_CommitRunIdempotency_RunIdLen CHECK (LEN(RunId) > 0)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_CommitRunIdempotency_Scope_Key
+        ON dbo.CommitRunIdempotency (TenantId, WorkspaceId, ProjectId, IdempotencyKeyHash);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.ProjectRoleAssignments', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ProjectRoleAssignments
+    (
+        TenantId        UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId      UNIQUEIDENTIFIER NOT NULL,
+        ProjectId       UNIQUEIDENTIFIER NOT NULL,
+        UserId          UNIQUEIDENTIFIER NOT NULL,
+        Role            NVARCHAR(32)     NOT NULL,
+        CreatedUtc       DATETIME2(7)     NOT NULL CONSTRAINT DF_ProjectRoleAssignments_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_ProjectRoleAssignments PRIMARY KEY CLUSTERED (TenantId, ProjectId, UserId),
+        CONSTRAINT FK_ProjectRoleAssignments_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        CONSTRAINT FK_ProjectRoleAssignments_ScimUsers FOREIGN KEY (UserId) REFERENCES dbo.ScimUsers (Id),
+        CONSTRAINT CK_ProjectRoleAssignments_Role CHECK (Role IN (N'Reader', N'Operator', N'ProjectAdmin'))
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ProjectRoleAssignments_User_Scope
+        ON dbo.ProjectRoleAssignments (TenantId, WorkspaceId, ProjectId, UserId)
+        INCLUDE (Role);
+END;

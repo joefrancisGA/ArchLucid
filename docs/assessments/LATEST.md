@@ -531,11 +531,11 @@ Create a new markdown file `docs/runbooks/GENERIC_OIDC_SETUP.md` that provides s
 **Delivered:** Runbook rewritten with accurate **`roles`** → **`ArchLucidRoles`** value mapping (JWT bearer **`RoleClaimType`**), **`MultiTenantEntra=false`** guardrail, JWKS / IDX troubleshooting table, Okta/Auth0 deep links, and **`CONFIGURATION_REFERENCE.md`** quick-start row links **[GENERIC_OIDC_SETUP.md](../runbooks/GENERIC_OIDC_SETUP.md)**; **`SECURITY.md`** already linked the runbook.
 ```
 
-9. **Implement automated tenant data deletion (GDPR/CCPA right to be forgotten)**
+9. COMPLETED: Automated tenant data deletion (GDPR/CCPA right to be forgotten)
 - Why it matters: Enterprise compliance requires a verifiable way to delete all tenant data upon contract termination or user request.
-- Expected impact: Compliance Readiness (+3 pts).
+- Expected impact: (Delivered **2026-05-16**.) Directly improves Compliance Readiness (+3 pts). Weighted readiness impact: per scoring model.
 - Affected qualities: Compliance Readiness, Security.
-- Actionable: Yes
+- Actionable: Completed
 
 ```markdown
 Implement a durable background job to handle tenant offboarding and data deletion.
@@ -543,6 +543,8 @@ Implement a durable background job to handle tenant offboarding and data deletio
 - Ensure the deletion process emits a durable `TenantDataDeleted` audit event (stored in a system-level audit log, outside the tenant's scope).
 - Add an administrative API endpoint `POST /v1/admin/tenants/{id}/delete` (secured by a highly privileged internal role).
 - Acceptance criteria: A tenant can be fully deleted, and the deletion is durably audited.
+
+**Delivered:** `TenantDeletionService` + `TenantBlobPrefixDeletionService` (prefixes under `golden-manifests`, `artifact-bundles`, `agent-traces`; skips shared `artifact-contents` dedup), extended `SqlTenantHardPurgeService` (`DeleteTenantScopedAuditEvents`, funnel rows), new `dbo.PlatformAuditEvents` + `IPlatformAuditRepository`, `TenantDeletionWorkUnit` on the durable `IBackgroundJobQueue`, `POST /v1/admin/tenants/{id}/delete` (`PlatformTenantDeletionAuthority` / `ArchLucidRoles.PlatformOperator` → `platform:tenant-delete`). Knowledge-graph projections are SQL-backed (`GraphSnapshots` etc.) and are removed with the hard purge.
 ```
 
 10. **Add explicit OpenTelemetry tracing for LLM API calls**
