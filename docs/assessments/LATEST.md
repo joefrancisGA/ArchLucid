@@ -286,11 +286,21 @@ ArchLucid is a functionally complete, highly rigorous V1 product ready for sales
 
 ## Top Improvement Opportunities
 
-### 1. DEFERRED Implement cross-tenant analytics for portfolio-wide insights
-- **Why it matters:** Proves portfolio-wide ROI to executive buyers and provides internal product telemetry.
+### 1. Implement internal cross-tenant analytics rollups with tenant pseudonymization
+- **Why it matters:** Proves portfolio-wide ROI signal for founders/operators and supports internal product telemetry without exposing tenant identity in rollups.
 - **Expected impact:** Proof-of-ROI Readiness (+10 pts), Executive Value Visibility (+5 pts).
 - **Affected qualities:** Proof-of-ROI Readiness, Executive Value Visibility.
-- **Input needed from user:** Define the data privacy and consent model for aggregating data across tenants.
+- **Actionable:** Yes
+```text
+Add an internal-only cross-tenant analytics path (operator/admin or offline job — not a tenant-facing API) that aggregates non-sensitive counters and latency/throughput metrics across tenants.
+- Pseudonymization: every stored or exported rollup row must key tenants by an opaque surrogate (e.g. stable per-tenant `AnalyticsTenantKey` derived with HMAC-SHA256 over tenant id + server-side salt from configuration/Key Vault — never store tenant slug, domain, or display name in rollup tables).
+- Scope: aggregate only metrics already classified as internal BI-safe (counts, durations, token totals if already non-content, queue depths). Do not ingest review text, findings bodies, evidence filenames, or manifest excerpts into cross-tenant stores.
+- Storage: prefer a dedicated system-catalog table or reporting schema (`dbo.InternalCrossTenantRollup*` or equivalent) with RLS not applicable — access only via `RequireOperatorRole` / internal service principal; document in `docs/runbooks/` or `docs/operations/` who may query it.
+- Acceptance criteria: (1) A scheduled or on-demand job produces daily rollups keyed by surrogate id only; (2) no PII/PHI columns in rollup DDL; (3) tests prove surrogate stability and that raw tenant id does not appear in exported CSV/JSON for rollups.
+- Constraints: No per-tenant opt-in UI; internal use only per product decision. Do not add new public HTTP routes without versioning review.
+- What not to change: Do not weaken per-tenant isolation on tenant-scoped APIs; do not copy customer content blobs into a shared analytics store.
+- Impact: Directly improves Proof-of-ROI Readiness (+6-10 pts) and Executive Value Visibility (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
+```
 
 ### 2. Add explicit OpenTelemetry tracing for LLM API calls
 - **Why it matters:** Missing tracing for token usage and latency hinders debugging, cost attribution, and scaling.
@@ -580,13 +590,11 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 3 (Integrations & Extractor):** 6, 13, 25
 - **Batch 4 (Architecture & Infrastructure):** 7, 11, 19, 20
 - **Batch 5 (UX & Dashboards):** 9
+- **Batch 6 (Internal cross-tenant rollups):** 1
 
 ---
 
 ## Pending Questions for Later
-
-### DEFERRED Implement cross-tenant analytics for portfolio-wide insights
-- What is the data privacy and consent model for aggregating data across tenants? Do we need an explicit opt-in mechanism?
 
 ### DEFERRED Implement automated tenant data deletion (GDPR/CCPA)
 - What is the required soft-delete retention period? Should related artifacts (e.g., exported DOCX reports) be cascaded or retained for audit purposes?
