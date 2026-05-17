@@ -17,6 +17,8 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
+The same workflow runs `scripts/ci/assert_openapi_mutations_in_audit_matrix.py` against `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`: every **POST** / **PUT** / **DELETE** path must appear here as an explicit route (`POST /v1/…`, `PUT …/suffix`, etc.) or be listed only in `scripts/ci/openapi_audit_matrix_allowlist.txt` when grandfathered — **new** routes should update this matrix, not the allowlist.
+
 ---
 
 ## Design notes (ADR-style)

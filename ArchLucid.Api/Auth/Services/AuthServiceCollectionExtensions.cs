@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Auth.Services;
 
@@ -48,12 +49,18 @@ public static class AuthServiceCollectionExtensions
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                .AddJwtBearer(options => ArchLucidJwtBearerConfiguration.Apply(options, authOptions, configuration))
+                .AddJwtBearer()
                 .AddScheme<AuthenticationSchemeOptions, ScimBearerAuthenticationHandler>(
                     ScimBearerDefaults.AuthenticationScheme,
                     _ =>
                     {
                     });
+
+            // Last: JwtBearerConfigureOptions (framework) runs before ArchLucid so Authentication:Schemes:Bearer
+            // cannot overwrite Authority/Audience bound from ArchLucidAuth.
+            services.Configure<JwtBearerOptions>(
+                JwtBearerDefaults.AuthenticationScheme,
+                options => ArchLucidJwtBearerConfiguration.Apply(options, authOptions, configuration));
         }
 
         else if (string.Equals(authOptions.Mode, "ApiKey", StringComparison.OrdinalIgnoreCase))
