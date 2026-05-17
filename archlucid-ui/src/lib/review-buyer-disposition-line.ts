@@ -53,7 +53,7 @@ export function buyerHeaderStatusTwinPillCaption(input: BuyerReviewDispositionIn
   const postureRaw = (input.aggregateRiskPosture ?? "").trim().toLowerCase();
 
   if (postureRaw === "approved with monitoring") {
-    return "The review package is finalized; one non-blocking risk remains under monitored control.";
+    return "The review package is finalized; one non-blocking risk remains under explicit monitored oversight.";
   }
 
   return null;

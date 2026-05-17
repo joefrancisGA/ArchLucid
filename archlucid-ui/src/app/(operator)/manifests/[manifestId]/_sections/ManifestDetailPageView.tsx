@@ -63,15 +63,6 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
 
   const decisionsLeadCard = <ManifestTopDecisionsCard summary={summary} buyerPolishedLayout={buyerPolishedLayout} />;
 
-  const buyerFinalizedPackageDownload =
-    buyerPolishedLayout === true ? (
-      <div className="flex flex-wrap gap-2">
-        <Button variant="primary" size="sm" asChild>
-          <a href={getBundleDownloadUrl(manifestId)}>Download finalized review package</a>
-        </Button>
-      </div>
-    ) : null;
-
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-1 py-2 sm:px-0">
       <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
@@ -155,7 +146,6 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         <>
           {overviewSummaryCard}
           {decisionsLeadCard}
-          {buyerFinalizedPackageDownload}
         </>
       ) : (
         <>
@@ -257,6 +247,14 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {buyerPolishedLayout === true ? (
+            <div className="flex flex-wrap gap-2">
+              <Button variant="primary" size="sm" asChild>
+                <a href={getBundleDownloadUrl(manifestId)}>Download finalized review package</a>
+              </Button>
+            </div>
+          ) : null}
+
           {!buyerPolishedLayout ? (
             <div>
               <Button variant="outline" size="sm" asChild>

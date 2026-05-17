@@ -45,7 +45,7 @@ describe("buyerHeaderStatusTwinPillCaption", () => {
         governanceGateLabel: "Passed",
         aggregateRiskPosture: "Approved with monitoring",
       }),
-    ).toContain("one non-blocking risk remains under monitored control");
+    ).toContain("one non-blocking risk remains under explicit monitored oversight");
   });
 
   it("returns null when posture does not imply monitored approval", () => {
