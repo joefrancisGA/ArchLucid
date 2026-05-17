@@ -1,14 +1,14 @@
 ﻿> **Scope:** Independent, first-principles assessment of ArchLucid readiness.
 > **Status:** current
 
-# ArchLucid Assessment – (A) Headline Readiness: 83.73%
+# ArchLucid Assessment – (A) Headline Readiness: 84.03%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold).
 
 ## Executive Summary
 
 ### (A) Overall Headline Readiness
-ArchLucid is a functionally complete V1 product with a solid architectural foundation (83.73% readiness). It successfully executes the core pilot loop (request → execute → commit → manifest) and provides strong governance and traceability features. The integration of native SAML 2.0 SP, curated default policy packs, and consultant whitelabeling significantly strengthens the V1 GA offering. The primary remaining gaps are in observability (LLM tracing), test automation for new integrations, and cross-tenant analytics.
+ArchLucid is a functionally complete V1 product with a solid architectural foundation (84.03% readiness). It successfully executes the core pilot loop (request → execute → commit → manifest) and provides strong governance and traceability features. The integration of native SAML 2.0 SP, curated default policy packs, and consultant whitelabeling significantly strengthens the V1 GA offering. The primary remaining gaps are in observability (LLM tracing), test automation for new integrations, and cross-tenant analytics.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. The lack of automated tenant data deletion (GDPR/CCPA) will also trigger privacy reviews.
@@ -67,12 +67,12 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Improvement recommendations:** Build a visual custom rule authoring UI for policy packs.
 
 ### 6. Usability
-- **Score:** 80
+- **Score:** 85
 - **Weight:** 3
-- **Weighted deficiency signal:** 60
-- **Justification:** The operator UI is functional and uses marketing-aligned vocabulary. Bounded bulk evidence upload (≤30 files) is supported.
-- **Tradeoffs:** The 30-file ceiling avoids abuse but may annoy heavy dossier pilots until V1.1.
-- **Improvement recommendations:** Implement a "confidence score" visual indicator on findings in the UI.
+- **Weighted deficiency signal:** 45
+- **Justification:** The operator UI is functional and uses marketing-aligned vocabulary. Bounded bulk evidence upload (≤30 files) is supported. Finding confidence is already surfaced via `FindingConfidenceBadge` (evaluation bucket + trace completeness) on detail, explainability, and governance queue surfaces.
+- **Tradeoffs:** The 30-file ceiling avoids abuse but may annoy heavy dossier pilots until V1.1. Run-scoped finding **lists** still push operators to open detail for rationale and evidence context.
+- **Improvement recommendations:** Add optional compact rationale or primary evidence link on run-scoped findings list rows to reduce drill-down churn.
 
 ### 7. Executive Value Visibility
 - **Score:** 85
@@ -107,12 +107,12 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Improvement recommendations:** Implement automated tenant data deletion (GDPR/CCPA "right to be forgotten").
 
 ### 11. Decision Velocity
-- **Score:** 80
+- **Score:** 83
 - **Weight:** 2
-- **Weighted deficiency signal:** 40
-- **Justification:** Speeds up architecture reviews by providing structured evidence and policy findings.
-- **Tradeoffs:** Requires operator trust in the AI's findings to truly accelerate decisions.
-- **Improvement recommendations:** Surface finding confidence and evidence links more prominently in the UI.
+- **Weighted deficiency signal:** 34
+- **Justification:** Speeds up architecture reviews by providing structured evidence and policy findings. Coarse confidence badges and explainability tables are already shipped for trust signals.
+- **Tradeoffs:** Requires operator trust in the AI's findings to truly accelerate decisions. List-level density still hides graph/evidence entry points until drill-down.
+- **Improvement recommendations:** Add one-click navigation from finding list rows to the knowledge graph node or explanation panel when `RelatedNodeIds` or trace targets exist.
 
 ### 12. Commercial Packaging Readiness
 - **Score:** 85
@@ -519,11 +519,29 @@ Create a new Playwright test file `archlucid-ui/e2e/live-api-confluence-publish.
 - Impact: Directly improves Testability (+8-10 pts) and Workflow Embeddedness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 17. DEFERRED Implement a "confidence score" visual indicator on findings in the UI
-- **Why it matters:** Operators need trust signals to accelerate decisions; buried provenance slows Decision Velocity.
-- **Expected impact:** Decision Velocity (+10 pts), Usability (+5 pts).
-- **Affected qualities:** Decision Velocity, Usability.
-- **Input needed from user:** Define the scoring algorithm and visual design (e.g., high/medium/low vs percentage) for the confidence score.
+### 17. Surface SAML SP signing certificate (and IdP metadata) expiry warnings for operators
+- **Why it matters:** Enterprise SAML SP deployments fail procurement and production reviews when cert or metadata rotation is discovered only after outages; proactive surfacing reduces support load and adoption friction.
+- **Expected impact:** Supportability (+10 pts), Adoption Friction (+5 pts).
+- **Affected qualities:** Supportability, Adoption Friction.
+- **Actionable:** Yes
+```text
+Ship **read-only** SAML 2.0 SP **operational health** signals for tenants with `ArchLucidAuth:Saml2:Enabled` so operators see rotation risk before IdP or SP certificates expire.
+
+**Backend**
+- Add an internal admin/operator read model (new `GET` route under existing admin auth conventions or extend an existing diagnostics DTO) that returns: SP **signing certificate** `NotAfter` (UTC) parsed from the configured cert material (no private keys on the wire); optional **IdP metadata** `validUntil` when metadata is loaded from XML and exposes that attribute; `Saml2Enabled` flag. Reuse `ArchLucidSamlAuthOptions` / host composition — do not log cert thumbprints or secrets. Follow `Http-Surface-Docs-And-Clients.mdc` if the HTTP contract changes.
+
+**UI (`archlucid-ui`)**
+- On the settings / security / auth surface where SAML is already documented (or add a thin **Security** strip under operator **Help** if no dedicated route exists today), render a **dismissible** banner when signing cert `NotAfter` is within **30 days** (make threshold a constant or config key) or already expired. Link to the repo SAML rotation runbook path (add or extend `docs/` if missing). `data-testid` + accessible name per `UI-Stable-Selectors-And-Snapshots.mdc`.
+
+**Tests**
+- API: unit or integration test with a fixed clock and stub certificate / options.
+- UI: Vitest for banner threshold logic; optional Playwright if live stack already exercises SAML fixtures.
+
+**Constraints**
+- No behavior change to SAML login, assertion validation, or cookie issuance — **surfacing only**.
+
+**Impact:** Supportability (+6-10 pts), Adoption Friction (+3-5 pts). Weighted readiness impact: +0.1-0.15%.
+```
 
 ### 18. Add explicit application-level logging to the findings list API endpoints
 - **Why it matters:** Allows evaluation of read-access patterns before committing them to the durable audit matrix.
@@ -638,7 +656,7 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 1 (Observability & Reliability):** 2, 18, 21, 22, 23
 - **Batch 2 (Testing & CI Hygiene):** 5, 12, 14, 15, 16, 24
 - **Batch 3 (Integrations & Extractor):** 6, 13, 25
-- **Batch 4 (Architecture, infrastructure, tenant lifecycle):** 3, 7, 11, 19, 20
+- **Batch 4 (Architecture, infrastructure, tenant lifecycle):** 3, 7, 11, 17, 19, 20
 - **Batch 5 (UX & Dashboards):** 4, 8, 9
 - **Batch 6 (Internal cross-tenant rollups):** 1
 
@@ -647,7 +665,5 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 ## Pending Questions for Later
 
 ### DEFERRED Develop an internal "Policy Pack Hub" for sharing custom policies
-- What is the versioning and approval workflow for sharing policy packs? Who has the authority to publish a pack globally?
-
-### DEFERRED Implement a "confidence score" visual indicator on findings in the UI
-- What is the scoring algorithm for the confidence score? Should it be displayed as a percentage, a high/medium/low badge, or a color-coded indicator?
+- **Resolved (2026-05-17) — global publish authority:** Only **internal ArchLucid platform admins** may publish to a **global / catalog** scope; **single-owner** control until additional admins are designated.
+- **Still open:** Versioning semantics, draft → approved → published workflow, and tenant-isolation rules for forked or imported packs.
