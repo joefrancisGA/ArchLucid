@@ -18,6 +18,8 @@
 #   CD_CANARY_INITIAL_PERCENT — optional repo var (default 10) initial weight on the new revision
 #   CD_CANARY_BAKE_MINUTES — optional repo var; sleep minutes between split and smoke (0 skips)
 #   CD_NOTIFY_WEBHOOK_URL — optional Slack-compatible JSON webhook
+#   TERRAFORM_DATA_REGION_ALLOWLIST_EXTRA — optional comma-separated Azure regions merged into CD
+#     Terraform plan location allowlist (after `terraform show -json`), e.g. a shared global Front Door region
 #
 # Rollback: set repository variable CD_ROLLBACK_ON_SMOKE_FAILURE=true to deactivate the new API revision when smoke fails.
 # Manual rollback: workflow_dispatch with action=rollback (same target environment).
@@ -235,6 +237,13 @@ jobs:
           fi
           # terraform.tfvars is auto-loaded when present; explicit -var-file documents operator intent per target.
           terraform plan -input=false -out=tfplan $VAR_FILE_ARGS
+
+      - name: Assert planned resource locations match expected data regions
+        if: steps.plan_gate.outputs.plan_created == 'true'
+        run: |
+          cd "$TF_DIR"
+          terraform show -json tfplan > "$RUNNER_TEMP/tfplan.json"
+          python3 "$GITHUB_WORKSPACE/scripts/ci/assert_terraform_plan_data_regions.py" "$RUNNER_TEMP/tfplan.json"
 
       - name: Stage Terraform plan for artifact upload
         if: steps.plan_gate.outputs.plan_created == 'true'

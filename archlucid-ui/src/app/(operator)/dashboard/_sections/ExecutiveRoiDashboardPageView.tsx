@@ -2,6 +2,7 @@ import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboardin
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
+import { ExecutiveDashboardBaselineWarningBanner } from "./ExecutiveDashboardBaselineWarningBanner";
 import { executiveRoiDashboardMockKpis } from "./executive-roi-dashboard-mock-kpis";
 export function ExecutiveRoiDashboardPageView() {
   const k = executiveRoiDashboardMockKpis;
@@ -9,6 +10,7 @@ export function ExecutiveRoiDashboardPageView() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+      <ExecutiveDashboardBaselineWarningBanner />
       <OperatorWelcomeOnboarding />
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">

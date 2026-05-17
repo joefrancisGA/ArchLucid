@@ -187,6 +187,9 @@ jobs:
       - name: Terraform root ordering sync
         run: python scripts/ci/assert_terraform_root_ordering_sync.py
 
+      - name: Terraform plan data-region guard (unit tests)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_terraform_plan_data_regions.py"
+
       - uses: actions/setup-node@v6
         with:
           node-version: "22"
