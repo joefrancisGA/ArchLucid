@@ -24,6 +24,7 @@ export type RunDetailPageModel = {
   readonly manifestId: string | undefined | null;
   readonly headline: string;
   readonly createdLabel: string;
+  readonly architectureGraphTemporalMinUtc: string;
   readonly canShowCompareReviewButton: boolean;
   readonly changesSinceLastReviewBanner: RunDetailChangesSinceLastReviewBanner | null;
   readonly goldenManifestJsonForExport: unknown | null;

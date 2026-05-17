@@ -155,13 +155,11 @@ public sealed class GraphController(
         if (limits.FullGraphResponseMaxNodes > 0 &&
             detail.GraphSnapshot.Nodes.Count > limits.FullGraphResponseMaxNodes)
         {
-            string resolvedHint =
-                $"{resolved.RunId:D}. Use GET /v1/graph/runs/{resolved.RunId:D}/nodes with page/pageSize.";
             return this.PayloadTooLargeProblem(
                 $"This graph has {detail.GraphSnapshot.Nodes.Count} nodes; the temporal snapshot endpoint allows at most "
-                + $"{limits.FullGraphResponseMaxNodes} for resolved run '{resolved.RunId:D}'. Resolved run id for paging: "
-                + resolvedHint,
-                ProblemTypes.GraphTooLargeForFullResponse);
+                + $"{limits.FullGraphResponseMaxNodes} for resolved run '{resolved.RunId:D}'. Use GET /v1/graph/runs/{resolved.RunId:D}/nodes with page/pageSize (resolvedRunId returned in this problem).",
+                ProblemTypes.GraphTooLargeForFullResponse,
+                extensions: new Dictionary<string, object?> { ["resolvedRunId"] = resolved.RunId });
         }
 
         GraphViewModel graph = MapArchitectureGraph(detail.GraphSnapshot);
@@ -169,10 +167,7 @@ public sealed class GraphController(
         {
             ResolvedRunId = resolved.RunId,
             AsOfUtc = new DateTimeOffset(DateTime.SpecifyKind(boundaryUtc, DateTimeKind.Utc), TimeSpan.Zero),
-            ResolvedRunCreatedUtc =
-                DateTime.SpecifyKind(resolved.CreatedUtc, resolved.CreatedUtc.Kind == DateTimeKind.Unspecified
-                    ? DateTimeKind.Utc
-                    : resolved.CreatedUtc.Kind),
+            ResolvedRunCreatedUtc = DateTime.SpecifyKind(resolved.CreatedUtc.ToUniversalTime(), DateTimeKind.Utc),
             Graph = graph
         };
 

@@ -1892,6 +1892,26 @@
         },
         "type": "object"
       },
+      "ArchitectureGraphTemporalSnapshotResponse": {
+        "properties": {
+          "asOfUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "graph": {
+            "$ref": "#/components/schemas/GraphViewModel"
+          },
+          "resolvedRunCreatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "resolvedRunId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ArchitectureLinkageEdge": {
         "properties": {
           "fromNodeId": {
@@ -8490,6 +8510,48 @@
         ],
         "type": "object"
       },
+      "InternalCrossTenantAnalyticsResponse": {
+        "properties": {
+          "averageCompletedRunDurationSeconds": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "catalogsAggregated": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalCompletedRuns": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "totalEstimatedEngineeringHoursSaved": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "totalRunsNonArchived": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "ItsmIntegrationHealthProbeVm": {
         "properties": {
           "locallyConfigured": {
@@ -14765,6 +14827,17 @@
         },
         "type": "object"
       },
+      "TenantDeletionQueuedResponse": {
+        "properties": {
+          "jobId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "jobId"
+        ],
+        "type": "object"
+      },
       "TenantHealthScoreResponse": {
         "properties": {
           "breadthScore": {
@@ -14938,6 +15011,9 @@
           "adminEmail": {
             "type": "string"
           },
+          "dataRegion": {
+            "type": "string"
+          },
           "name": {
             "type": "string"
           },
@@ -15029,6 +15105,9 @@
           },
           "createdUtc": {
             "format": "date-time",
+            "type": "string"
+          },
+          "dataRegion": {
             "type": "string"
           },
           "enterpriseSeatsLimit": {
@@ -17933,6 +18012,66 @@
         },
         "tags": [
           "TenantsAdmin"
+        ]
+      }
+    },
+    "/v1/admin/tenants/{id}/delete": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDeletionQueuedResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDeletionQueuedResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDeletionQueuedResponse"
+                }
+              }
+            },
+            "description": "Accepted"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "AdminTenants"
         ]
       }
     },
@@ -26553,6 +26692,16 @@
         ],
         "requestBody": {
           "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "files": {
+                    "$ref": "#/components/schemas/IFormFileCollection"
+                  }
+                },
+                "type": "object"
+              }
+            },
             "multipart/form-data": {
               "schema": {
                 "properties": {
@@ -37564,6 +37713,113 @@
         ]
       }
     },
+    "/v1/graph/snapshot": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "runId",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "asOf",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureGraphTemporalSnapshotResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureGraphTemporalSnapshotResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureGraphTemporalSnapshotResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large"
+          }
+        },
+        "tags": [
+          "Graph"
+        ]
+      }
+    },
     "/v1/integrations/itsm/correlations": {
       "post": {
         "requestBody": {
@@ -38411,6 +38667,45 @@
         },
         "tags": [
           "WebhookConnections"
+        ]
+      }
+    },
+    "/v1/internal/analytics/cross-tenant": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalCrossTenantAnalyticsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "InternalCrossTenantAnalytics"
         ]
       }
     },
@@ -46203,6 +46498,9 @@
       "name": "AdminLlmMonthlyDollarBudgetStatus"
     },
     {
+      "name": "AdminTenants"
+    },
+    {
       "name": "Advisory"
     },
     {
@@ -46375,6 +46673,9 @@
     },
     {
       "name": "InternalArchitectureDiagnostics"
+    },
+    {
+      "name": "InternalCrossTenantAnalytics"
     },
     {
       "name": "ItsmCorrelation"

@@ -595,17 +595,19 @@ Extend the tenant provisioning pipeline to support explicit data residency regio
 **Delivered:** **`dbo.Tenants.DataRegion`** (**`169_Tenants_DataRegion.sql`**, unified schema scripts), **`TenantRecord`** / **`TenantProvisioningRequest`** / **`TenantProvisionAdminRequest`**, **`TenantProvisioningDataRegionPolicy`** + **`TenantProvisioningOptions.SupportedDataRegions`**. **`RegionalArtifactBlobClientFactory`** / **`TenantRegionalArtifactBlobClients`** route **`ArtifactLargePayload`** **`AzureBlob`** clients via **`ArtifactLargePayload:AzureBlobServiceUriByRegion`** when **`DataRegion`** ≠ **`default`**. Supported regions documented under **`docs/go-to-market/PROCUREMENT_FAQ.md`** Q3.
 ```
 
-13. **Enhance the Knowledge Graph with temporal query support**
+13. **COMPLETED:** Enhance the Knowledge Graph with temporal query support
 - Why it matters: Advanced users need to query the state of the architecture at specific points in time to understand how decisions evolved.
-- Expected impact: Explainability (+4 pts), Usability (+2 pts).
+- Expected impact: (Delivered **2026-05-17**.) Explainability (+4 pts), Usability (+2 pts).
 - Affected qualities: Explainability, Usability.
-- Actionable: Yes
+- Actionable: Completed
 
 ```markdown
 Add temporal query capabilities to the `ArchLucid.KnowledgeGraph` API.
 - Implement an endpoint `GET /v1/graph/snapshot?asOf={timestamp}` that reconstructs the graph state at a given time.
 - Update the operator UI to include a time-scrubber control for visualizing historical graph states.
 - Acceptance criteria: Users can view the knowledge graph exactly as it existed at a past date.
+
+**Delivered:** `GET /v1/graph/snapshot` with required `runId` (anchors scope/project lineage) and `asOf` (UTC); resolves the latest non-archived run in the project with a persisted `GraphSnapshot` at or before `asOf`, returns `ArchitectureGraphTemporalSnapshotResponse` (`resolvedRunId`, `asOfUtc`, `resolvedRunCreatedUtc`, `graph`). SQL + in-memory **`IRunRepository.GetLatestWithGraphAtOrBeforeAsync`**. **413** problems may include **`resolvedRunId`** for paginated recovery. Operator review detail: **time-scrubber** between earliest graph-backed run in the loaded project list and this review’s `createdUtc` (disabled for static demo runs). OpenAPI snapshot + **`archlucid-ui` generated types** + **`ArchLucid.Api.Client`** refreshed.
 ```
 
 14. **COMPLETED:** Expand `ui-e2e-live` to cover the full golden path

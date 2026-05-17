@@ -10,12 +10,16 @@ import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 type RunDetailArchitectureGraphSectionProps = {
   readonly runId: string;
   readonly buyerPolishedArtifactTable: boolean;
+  readonly anchorRunCreatedUtc: string;
+  readonly graphHistoryMinCreatedUtc: string;
+  readonly disableTemporalBrowsing: boolean;
 };
 
 export function RunDetailArchitectureGraphSection(
   props: RunDetailArchitectureGraphSectionProps,
 ): ReactElement {
-  const { runId, buyerPolishedArtifactTable } = props;
+  const { runId, buyerPolishedArtifactTable, anchorRunCreatedUtc, graphHistoryMinCreatedUtc, disableTemporalBrowsing } =
+    props;
 
   return (
     <section id="architecture-graph" className="scroll-mt-24">
@@ -49,7 +53,12 @@ export function RunDetailArchitectureGraphSection(
               </Button>
             </div>
           ) : (
-            <ArchitectureGraphViewer runId={runId} />
+            <ArchitectureGraphViewer
+              runId={runId}
+              anchorRunCreatedUtc={anchorRunCreatedUtc}
+              graphHistoryMinCreatedUtc={graphHistoryMinCreatedUtc}
+              disableTemporalBrowsing={disableTemporalBrowsing}
+            />
           )}
         </CardContent>
       </Card>

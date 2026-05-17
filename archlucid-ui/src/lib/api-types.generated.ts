@@ -604,6 +604,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/analytics/cross-tenant-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CrossTenantUsageRollup"];
+                        "text/json": components["schemas"]["CrossTenantUsageRollup"];
+                        "text/plain": components["schemas"]["CrossTenantUsageRollup"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/auth-diagnostics": {
         parameters: {
             query?: never;
@@ -1324,6 +1361,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/llm-monthly-dollar-budget-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LlmMonthlyTenantDollarBudgetStatusResult"];
+                        "text/json": components["schemas"]["LlmMonthlyTenantDollarBudgetStatusResult"];
+                        "text/plain": components["schemas"]["LlmMonthlyTenantDollarBudgetStatusResult"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/metering/tenants/{tenantId}/summary": {
         parameters: {
             query?: never;
@@ -1786,6 +1860,56 @@ export interface paths {
                 };
                 /** @description Bad Request */
                 400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/tenants/{id}/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantDeletionQueuedResponse"];
+                        "text/json": components["schemas"]["TenantDeletionQueuedResponse"];
+                        "text/plain": components["schemas"]["TenantDeletionQueuedResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -7296,6 +7420,105 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/run/{runId}/evidence/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/x-www-form-urlencoded": {
+                        files?: components["schemas"]["IFormFileCollection"];
+                    };
+                    "multipart/form-data": {
+                        files?: components["schemas"]["IFormFileCollection"];
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Payload Too Large */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -14904,6 +15127,79 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/graph/snapshot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    runId?: string;
+                    asOf?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureGraphTemporalSnapshotResponse"];
+                        "text/json": components["schemas"]["ArchitectureGraphTemporalSnapshotResponse"];
+                        "text/plain": components["schemas"]["ArchitectureGraphTemporalSnapshotResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Payload Too Large */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/integrations/itsm/correlations": {
         parameters: {
             query?: never;
@@ -14948,6 +15244,54 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/integrations/itsm/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ItsmIntegrationHealthResponse"];
+                        "text/json": components["schemas"]["ItsmIntegrationHealthResponse"];
+                        "text/plain": components["schemas"]["ItsmIntegrationHealthResponse"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ItsmIntegrationHealthResponse"];
+                        "text/json": components["schemas"]["ItsmIntegrationHealthResponse"];
+                        "text/plain": components["schemas"]["ItsmIntegrationHealthResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -15500,6 +15844,59 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/internal/analytics/cross-tenant": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InternalCrossTenantAnalyticsResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -16516,6 +16913,56 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/marketing/early-access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["MarketingEarlyAccessPostRequest"];
+                    "application/json": null | components["schemas"]["MarketingEarlyAccessPostRequest"];
+                    "text/json": null | components["schemas"]["MarketingEarlyAccessPostRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -21944,6 +22391,15 @@ export interface components {
             severity?: components["schemas"]["FindingSeverity"];
             sourceAgent?: components["schemas"]["AgentType"];
         };
+        ArchitectureGraphTemporalSnapshotResponse: {
+            /** Format: date-time */
+            asOfUtc?: string;
+            graph?: components["schemas"]["GraphViewModel"];
+            /** Format: date-time */
+            resolvedRunCreatedUtc?: string;
+            /** Format: uuid */
+            resolvedRunId?: string;
+        };
         ArchitectureLinkageEdge: {
             fromNodeId: string;
             id: string;
@@ -22671,6 +23127,16 @@ export interface components {
             initialContentJson?: string;
             name?: string;
             packType?: string;
+        };
+        CrossTenantUsageRollup: {
+            /** Format: int64 */
+            committedRunsCount: number | string;
+            /** Format: int64 */
+            distinctTenantCount: number | string;
+            /** Format: date-time */
+            generatedUtc: string;
+            /** Format: int64 */
+            totalRunsCount: number | string;
         };
         CursorPagedResponseOfAuditEvent: {
             hasMore?: boolean;
@@ -23678,11 +24144,16 @@ export interface components {
             properties?: {
                 [key: string]: string;
             };
+            reasoningTrace?: null | string;
             toNodeId?: string;
             /** Format: double */
             weight?: number | string;
         };
         GraphEdgeVm: {
+            id?: null | string;
+            inferenceSource?: null | string;
+            label?: null | string;
+            reasoningTrace?: null | string;
             source?: string;
             target?: string;
             type?: string;
@@ -23695,6 +24166,7 @@ export interface components {
             properties?: {
                 [key: string]: string;
             };
+            reasoningTrace?: null | string;
             sourceId?: null | string;
             sourceType?: null | string;
         };
@@ -23704,6 +24176,7 @@ export interface components {
             metadata?: null | {
                 [key: string]: string;
             };
+            reasoningTrace?: null | string;
             type?: string;
         };
         GraphNodesPageResponse: {
@@ -23749,6 +24222,7 @@ export interface components {
         };
         /** Format: binary */
         IFormFile: string;
+        IFormFileCollection: components["schemas"]["IFormFile"][];
         ImprovementOpportunity: {
             affectedArtifactTypeOrWorkflowArea?: string;
             /** Format: double */
@@ -23820,6 +24294,28 @@ export interface components {
             retryCount?: number;
             /** Format: uuid */
             runId?: null | string;
+        };
+        InternalCrossTenantAnalyticsResponse: {
+            /** Format: double */
+            averageCompletedRunDurationSeconds?: null | number | string;
+            /** Format: int32 */
+            catalogsAggregated?: number;
+            /** Format: int64 */
+            totalCompletedRuns?: number | string;
+            /** Format: double */
+            totalEstimatedEngineeringHoursSaved?: number | string;
+            /** Format: int64 */
+            totalRunsNonArchived?: number | string;
+        };
+        ItsmIntegrationHealthProbeVm: {
+            locallyConfigured?: boolean;
+            reachable?: null | boolean;
+            summary?: string;
+        };
+        ItsmIntegrationHealthResponse: {
+            jira?: components["schemas"]["ItsmIntegrationHealthProbeVm"];
+            serviceNow?: components["schemas"]["ItsmIntegrationHealthProbeVm"];
+            status?: string;
         };
         JsonElement: unknown;
         LearningPlanDetailResponse: {
@@ -23997,6 +24493,21 @@ export interface components {
             inputUsdPerMillionTokens?: number | string;
             /** Format: double */
             outputUsdPerMillionTokens?: number | string;
+        };
+        LlmMonthlyTenantDollarBudgetStatusResult: {
+            /** Format: double */
+            assumedNextCallReservationUsd?: null | number | string;
+            blocksAdditionalLlmExecution?: boolean;
+            /** Format: double */
+            effectiveHardCapUsd?: null | number | string;
+            /** Format: double */
+            estimatedUsdPressure?: null | number | string;
+            /** Format: double */
+            hardCutoffUsdPerUtcMonth?: null | number | string;
+            monthlyBudgetMonitoringActive?: boolean;
+            /** Format: double */
+            purchasedCapBumpUsd?: null | number | string;
+            utcMonth?: string;
         };
         ManifestBundleResponse: {
             diagram?: string;
@@ -24192,6 +24703,15 @@ export interface components {
             /** Format: int32 */
             warningCount?: number;
         };
+        MarketingEarlyAccessPostRequest: {
+            companyName?: null | string;
+            email?: string;
+            role?: null | string;
+            utmCampaign?: null | string;
+            utmMedium?: null | string;
+            utmSource?: null | string;
+            websiteUrl?: null | string;
+        };
         MarketingPricingQuotePostRequest: {
             companyName?: string;
             message?: string;
@@ -24318,6 +24838,10 @@ export interface components {
             needDeterminismOrCompareAppendices?: boolean;
             needExecutionTraces?: boolean;
             regulatedEnvironment?: boolean;
+            reviewBoardWhitelabelClientEngagementTitle?: null | string;
+            reviewBoardWhitelabelFirmDisplayName?: null | string;
+            reviewBoardWhitelabelFooterAttribution?: null | string;
+            reviewBoardWhitelabelLogoBlobReference?: null | string;
             templateProfile?: null | string;
         };
         PilotCloseoutPostRequest: {
@@ -25717,6 +26241,9 @@ export interface components {
             methodologyNote?: string;
             tier?: string;
         };
+        TenantDeletionQueuedResponse: {
+            jobId: string;
+        };
         TenantHealthScoreResponse: {
             /** Format: double */
             breadthScore?: null | number | string;
@@ -25768,6 +26295,7 @@ export interface components {
         };
         TenantProvisionAdminRequest: {
             adminEmail?: string;
+            dataRegion?: string;
             name?: string;
             tier?: components["schemas"]["TenantTier"];
         };
@@ -25797,6 +26325,7 @@ export interface components {
             companySize?: null | string;
             /** Format: date-time */
             createdUtc?: string;
+            dataRegion?: string;
             /** Format: int32 */
             enterpriseSeatsLimit?: null | number;
             /** Format: int32 */

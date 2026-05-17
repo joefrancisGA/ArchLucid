@@ -116,12 +116,35 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
 
   let canShowCompareReviewButton = false;
   let priorCommittedRun: RunSummary | null = null;
+  let architectureGraphTemporalMinUtc = resolvedDetail.run.createdUtc;
 
   try {
     const projectRuns = await listRunsByProject(resolvedDetail.run.projectId, 60);
 
     canShowCompareReviewButton = projectRuns.length >= 2;
     priorCommittedRun = findPriorCommittedRun(resolvedDetail.run.runId, projectRuns);
+
+    let minUtc: string | null = null;
+
+    for (const r of projectRuns) {
+      if (r.graphSnapshotId === undefined || r.graphSnapshotId === null) {
+        continue;
+      }
+
+      const gid = String(r.graphSnapshotId).trim();
+
+      if (gid.length === 0) {
+        continue;
+      }
+
+      if (minUtc === null || r.createdUtc < minUtc) {
+        minUtc = r.createdUtc;
+      }
+    }
+
+    if (minUtc !== null) {
+      architectureGraphTemporalMinUtc = minUtc;
+    }
   } catch {
     canShowCompareReviewButton = false;
   }
@@ -375,6 +398,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     manifestId,
     headline,
     createdLabel,
+    architectureGraphTemporalMinUtc,
     canShowCompareReviewButton,
     changesSinceLastReviewBanner,
     goldenManifestJsonForExport,

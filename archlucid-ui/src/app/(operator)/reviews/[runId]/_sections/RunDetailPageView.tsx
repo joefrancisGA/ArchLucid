@@ -195,6 +195,9 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         <RunDetailArchitectureGraphSection
           runId={m.routeRunId}
           buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+          anchorRunCreatedUtc={m.resolvedDetail.run.createdUtc}
+          graphHistoryMinCreatedUtc={m.architectureGraphTemporalMinUtc}
+          disableTemporalBrowsing={m.usedStaticDemoRun}
         />
       ) : null}
 

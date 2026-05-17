@@ -1,4 +1,7 @@
 import { fetchArchLucidJson } from "@/lib/api";
+import { getRunSummary } from "@/lib/api/architecture-runs";
+import { ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "@/lib/api/http";
+import type { components } from "@/lib/openapi-schemas";
 import type { GraphNodesPageResponse, GraphViewModel } from "@/types/graph";
 
 /** Fetches the full provenance graph for a run (all decisions, findings, rules, artifacts). */
@@ -9,6 +12,95 @@ export async function getProvenanceGraph(runId: string): Promise<GraphViewModel>
 /** Fetches the full architecture graph for a run (may return 413 when node count exceeds API limit). */
 export async function getArchitectureGraph(runId: string): Promise<GraphViewModel> {
   return fetchArchLucidJson<GraphViewModel>(`/v1/graph/runs/${runId}`);
+}
+
+export type ArchitectureGraphTemporalSnapshot =
+  components["schemas"]["ArchitectureGraphTemporalSnapshotResponse"];
+
+/** Resolves the stored architecture graph as-of a UTC instant for the anchor review’s project lineage. */
+export async function getArchitectureGraphTemporalSnapshot(
+  anchorRunId: string,
+  asOfIsoUtc: string,
+): Promise<ArchitectureGraphTemporalSnapshot> {
+  const rid = anchorRunId.trim();
+  const path = `/v1/graph/snapshot?runId=${encodeURIComponent(rid)}&asOf=${encodeURIComponent(asOfIsoUtc)}`;
+
+  await ensureOidcBearerReady();
+  const { url, headers } = resolveRequest(path);
+  const fetchHeaders = withCorrelationHeaders(headers);
+  const response = await fetch(url, {
+    cache: "no-store",
+    headers: fetchHeaders,
+  });
+  const text = await response.text();
+
+  if (response.status === 413) {
+    const resolvedId: string | null = tryReadResolvedRunIdFromProblemJson(text);
+
+    if (resolvedId !== null) {
+      const merged = await mergeArchitectureGraphPages(resolvedId);
+      const summary = await getRunSummary(resolvedId);
+
+      return {
+        resolvedRunId: resolvedId,
+        asOfUtc: asOfIsoUtc,
+        resolvedRunCreatedUtc: summary.createdUtc,
+        graph: merged,
+      };
+    }
+  }
+
+  if (!response.ok) {
+    throwApiRequestError(response, text);
+  }
+
+  return JSON.parse(text) as ArchitectureGraphTemporalSnapshot;
+}
+
+function tryReadResolvedRunIdFromProblemJson(bodyText: string): string | null {
+  const trimmed = bodyText.trim();
+
+  if (!trimmed.startsWith("{")) {
+    return null;
+  }
+
+  try {
+    const parsed: unknown = JSON.parse(trimmed);
+
+    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return null;
+    }
+
+    const record = parsed as Record<string, unknown>;
+    const fromRoot = record.resolvedRunId;
+
+    if (typeof fromRoot === "string") {
+      const id = fromRoot.trim();
+
+      if (id.length > 0) {
+        return id;
+      }
+    }
+
+    const extRaw = record.extensions;
+
+    if (extRaw !== null && extRaw !== undefined && typeof extRaw === "object" && !Array.isArray(extRaw)) {
+      const ext = extRaw as Record<string, unknown>;
+      const fromExt = ext.resolvedRunId;
+
+      if (typeof fromExt === "string") {
+        const id = fromExt.trim();
+
+        if (id.length > 0) {
+          return id;
+        }
+      }
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
 }
 
 /** One page of architecture graph nodes (+ edges whose endpoints are both on the page). */
