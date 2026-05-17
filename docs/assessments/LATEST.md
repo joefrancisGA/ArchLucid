@@ -332,11 +332,35 @@ Implement an automated tenant erasure pipeline aligned to GDPR/CCPA storage-limi
 - Impact: Directly improves Compliance Readiness (+6-10 pts) and Adoption Friction (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 4. DEFERRED Build a visual custom rule authoring UI for policy packs
-- **Why it matters:** Non-developer architects cannot easily author custom governance rules, slowing adoption.
+### 4. Form-based custom policy rule authoring (curated rules JSON round-trip)
+- **Why it matters:** Non-developer architects need to extend governance packs without hand-editing JSON; a form-based editor matches enterprise expectations and reuses the shipped sample schema.
 - **Expected impact:** Adoption Friction (+10 pts), Usability (+5 pts).
 - **Affected qualities:** Adoption Friction, Usability.
-- **Input needed from user:** Provide UX wireframes and define the supported rule schema for the visual builder.
+- **Actionable:** Yes
+```text
+Deliver **form-based** (not block/Scratch-style) authoring for **tenant custom** policy packs, with JSON that **round-trips** the sample “curated rules” documents under `docs/samples/policy-packs/*-rules-v1.json`.
+
+**A. Decisioning bridge (backend, required for net-new rule bodies)**  
+Today `PolicyFilteredComplianceRulePackProvider` loads a **file-merged** `ComplianceRulePack` and filters by `complianceRuleKeys` on `PolicyPackContentDocument`. Keys alone are insufficient if the rule is not in that merged file set. Extend the compliance/governance pipeline so **tenant-published** pack content can **contribute additional `ComplianceRule` rows** before filtering (e.g. merge inline definitions derived from the curated-rules document alongside existing file loaders, or an equivalent approach documented in the PR). Map sample rule fields to `ArchLucid.Decisioning.Compliance.Models.ComplianceRule` explicitly in code (e.g. `id`→`RuleId`, `title`→`ControlName`, `description`→`Description`, `severity`→`Severity`; default or derive `ControlId`, `AppliesToCategory`, `RequiredNodeType`, `RequiredEdgeType` with documented semantics; carry `remediationGuidance` / `evidenceHints` / `frameworkMappings` only if the engine already consumes them or store as extensions per existing patterns — do not silently drop validation requirements).
+
+**B. Pack envelope (`contentJson`)**  
+On `POST /v1/policy-packs/{id}/publish`, serialized `contentJson` must remain a valid `PolicyPackContentDocument` (`ArchLucid.Decisioning.Governance.PolicyPacks.PolicyPackContentDocument`): keep `complianceRuleIds`, `complianceRuleKeys`, `alertRuleIds`, `compositeAlertRuleIds`, `advisoryDefaults`, `metadata` aligned with today’s merge semantics. **Every** authored rule’s `id` must appear in `complianceRuleKeys`. Persist the full curated-rules document in a **reserved `metadata` entry** (string value) agreed in the same PR (e.g. `pack.curatedRules.v1`) so the UI and decisioning share one canonical JSON shape — do not fork a second on-disk format in repo root.
+
+**C. UI (`archlucid-ui`)**  
+Under **`/policy-packs`** (or `/policy-packs/[id]/rules`): table of rules; **Add** / **Edit** opens a form — severity dropdown (match sample casing: Critical/High/Medium/Low), text fields, dynamic lists for `evidenceHints` and `frameworkMappings` rows; **read-only JSON preview** of the curated-rules doc. Enforce duplicate-id checks and required fields before calling publish. Use `@/lib/openapi-schemas` for API DTOs; `data-testid` on primary actions (`UI-Stable-Selectors-And-Snapshots.mdc`). RBAC: match existing policy-pack mutation gates (same roles as pack publish today).
+
+**D. HTTP surface**  
+Prefer existing routes. Any new contract fields require OpenAPI regeneration and `Http-Surface-Docs-And-Clients.mdc` checklist.
+
+**E. Tests**  
+- .NET: unit tests for metadata→`ComplianceRule` mapping and merge order vs governance filter.  
+- UI: Vitest for parse/serialize round-trip using a frozen snippet from `security-architecture-baseline-rules-v1.json`.
+
+**What not to do**  
+Block-based visual programming in this slice; editing **PlatformDefault** seeded packs; introducing ad hoc rule schema JSON outside the sample `*-rules-v1.json` shape without an ADR.
+
+**Impact:** Adoption Friction (+6–10 pts), Usability (+3–5 pts). Weighted readiness impact: +0.1–0.2%.
+```
 
 ### 5. Extend `ui-e2e-live` Playwright specs to cover consultant whitelabel export
 - **Why it matters:** Consultant whitelabeling is a key V1 commercial feature; automated UI tests ensure it does not regress.
@@ -600,15 +624,12 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 2 (Testing & CI Hygiene):** 5, 12, 14, 15, 16, 24
 - **Batch 3 (Integrations & Extractor):** 6, 13, 25
 - **Batch 4 (Architecture, infrastructure, tenant lifecycle):** 3, 7, 11, 19, 20
-- **Batch 5 (UX & Dashboards):** 9
+- **Batch 5 (UX & Dashboards):** 4, 9
 - **Batch 6 (Internal cross-tenant rollups):** 1
 
 ---
 
 ## Pending Questions for Later
-
-### DEFERRED Build a visual custom rule authoring UI for policy packs
-- What is the target UX for the rule builder? Should it be block-based (like Scratch) or form-based? What is the underlying JSON schema for rules?
 
 ### DEFERRED Add a guided baseline collection wizard to the onboarding flow
 - What are the minimum required fields for the baseline wizard? Should it support uploading the Azure extractor ZIP directly in step 1?

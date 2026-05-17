@@ -41,7 +41,10 @@ test.describe("operator journey — run detail to manifest and back", () => {
     ).toBeVisible();
 
     // Copy differs by buyer-polished vs full-operator shell; use stable test id from {@link CollapsibleSection}.
-    await page.getByTestId("manifest-verification-appendix").locator("summary").click();
+    const verificationAppendix = page.getByTestId("manifest-verification-appendix");
+
+    await expect(verificationAppendix).toBeVisible();
+    await verificationAppendix.locator("summary").click();
     await expect(page.getByText(FIXTURE_MANIFEST_ID)).toBeVisible();
 
     await expect(
