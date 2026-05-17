@@ -85,6 +85,8 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
     {
         long latencyTicks = Stopwatch.GetTimestamp();
 
+        bool operationSucceededForTelemetry = false;
+
         using Activity? activity =
             ArchLucidInstrumentation.AgentLlmEmbedding.StartActivity("gen_ai.embeddings", ActivityKind.Client);
 
@@ -111,7 +113,15 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
                 activity.SetTag("gen_ai.usage.total_tokens", embeddingUsage.TotalTokenCount);
             }
 
+            if (embeddingUsage?.InputTokenCount is { } inTok && inTok > 0)
+
+                ArchLucidInstrumentation.RecordLlmEmbeddingInputTokens(inTok, _embeddingDeploymentName);
+
             List<float[]> vectors = collection.Select(static e => e.ToFloats().ToArray()).ToList();
+
+            activity?.SetStatus(ActivityStatusCode.Ok);
+
+            operationSucceededForTelemetry = true;
 
             return Task.FromResult<IReadOnlyList<float[]>>(vectors);
         }
@@ -124,12 +134,15 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
         }
         finally
         {
+            double latencyMs = Stopwatch.GetElapsedTime(latencyTicks).TotalMilliseconds;
+
             if (activity is not null)
-            {
-                activity.SetTag(
-                    "gen_ai.completion.latency_ms",
-                    Stopwatch.GetElapsedTime(latencyTicks).TotalMilliseconds);
-            }
+                activity.SetTag("gen_ai.completion.latency_ms", latencyMs);
+
+            ArchLucidInstrumentation.RecordLlmGenAiOperationDurationMilliseconds(
+                "embeddings",
+                latencyMs,
+                operationSucceededForTelemetry);
         }
     }
 

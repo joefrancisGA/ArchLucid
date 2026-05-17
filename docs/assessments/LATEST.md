@@ -8,7 +8,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 ## Executive Summary
 
 ### (A) Overall Headline Readiness
-ArchLucid is a functionally complete V1 product with a solid architectural foundation (84.03% readiness). It successfully executes the core pilot loop (request → execute → commit → manifest) and provides strong governance and traceability features. The integration of native SAML 2.0 SP, curated default policy packs, and consultant whitelabeling significantly strengthens the V1 GA offering. The primary remaining gaps are in observability (LLM tracing) and test automation for new integrations.
+ArchLucid is a functionally complete V1 product with a solid architectural foundation (84.03% readiness). It successfully executes the core pilot loop (request → execute → commit → manifest) and provides strong governance and traceability features. The integration of native SAML 2.0 SP, curated default policy packs, and consultant whitelabeling significantly strengthens the V1 GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting) and test automation for new integrations.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. The lack of automated tenant data deletion (GDPR/CCPA) will also trigger privacy reviews.
@@ -20,7 +20,7 @@ The commercial posture is strongly aligned for a sales-led, service-led motion. 
 ArchLucid provides strong enterprise integration points, including Jira, ServiceNow, Slack, and Confluence. Tenant isolation is robustly handled via database-per-tenant and RLS. However, the lack of a visual custom rule authoring UI means enterprise evaluators must rely on raw code or JSON to extend policy packs, increasing adoption friction for non-developer architects. 
 
 ### Engineering Picture
-The engineering foundation is highly rigorous, with strong architectural invariants, NetArchTest boundary rules, and a durable audit trail. The agent orchestration pipeline is resilient, though it lacks explicit OpenTelemetry tracing for LLM token usage and latency. The heavy reliance on mocked `/api/proxy` in `ui-e2e-smoke` remains a testability risk, though the golden path is covered by live API specs.
+The engineering foundation is highly rigorous, with strong architectural invariants, NetArchTest boundary rules, and a durable audit trail. The agent orchestration pipeline is resilient, and producer-side OpenTelemetry GenAI instrumentation (Activities on `ArchLucid.Agent.LlmCompletion` / `ArchLucid.Agent.LlmEmbedding` plus `archlucid_llm_*` counters and latency histogram on the shared `ArchLucid` meter) records token aggregates, latency, and deployment identifiers without logging raw prompts or completions by default. Curating operator dashboards and alerts on those signals remains a gap. The heavy reliance on mocked `/api/proxy` in `ui-e2e-smoke` remains a testability risk, though the golden path is covered by live API specs.
 
 ---
 
@@ -39,8 +39,8 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weight:** 8
 - **Weighted deficiency signal:** 120
 - **Justification:** The system effectively uses Azure OpenAI with prompt redaction, execution traces, and a well-tested authority pipeline.
-- **Tradeoffs:** Missing explicit LLM tracing (tokens/latency) limits cost attribution and debugging at scale.
-- **Improvement recommendations:** Add explicit OpenTelemetry tracing for LLM API calls.
+- **Tradeoffs:** **Resolved 2026-05-17** for producer instrumentation (GenAI Activities + meters). Cost attribution still depends on exporters, retention, and operator dashboards—not yet fully operationalized tenant-by-tenant narratives.
+- **Improvement recommendations:** Operationalize dashboards and alerting on shipped GenAI telemetry; none required for emitting LLM OTel Activities/metrics.
 
 ### 3. Time-to-Value
 - **Score:** 85
@@ -150,9 +150,9 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Score:** 75
 - **Weight:** 1
 - **Weighted deficiency signal:** 25
-- **Justification:** OpenTelemetry and Serilog provide good visibility, but explicit LLM tracing is missing.
+- **Justification:** OpenTelemetry and Serilog provide good visibility. **Explicit GenAI instrumentation shipped 2026-05-17** (LLM Activities + `archlucid_llm_*` histograms/counters); **consumption gaps** remain (dashboards/SLO linkage on those signals—not scored here as “missing producer tracing”).
 - **Tradeoffs:** Standard observability tools require operator expertise to configure.
-- **Improvement recommendations:** Add explicit OpenTelemetry tracing for LLM API calls.
+- **Improvement recommendations:** Curate Grafana/Application Insights panels and alerts for `ArchLucid.Agent.Llm*` spans and `archlucid_llm_gen_ai_operation_duration_ms` / embedding and chat token counters.
 
 ### 17. Performance
 - **Score:** 80
@@ -231,7 +231,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 ## Top 12 Most Important Weaknesses
 
 1. ~~**Lack of cross-tenant analytics**~~ **Completed 2026-05-17:** Pseudonymized internal daily rollups shipped (`InternalCrossTenantRollupDaily`, `GET/POST /v1/internal/analytics/cross-tenant/daily*`, runbook `docs/runbooks/INTERNAL_CROSS_TENANT_ANALYTICS.md`).
-2. **Missing LLM observability:** Lack of explicit OpenTelemetry tracing for LLM token usage and latency hinders cost attribution and debugging.
+2. ~~**Missing LLM observability**~~ **Completed (2026-05-17):** GenAI Activities (`ArchLucid.Agent.LlmCompletion`, `ArchLucid.Agent.LlmEmbedding`) and `archlucid_llm_*` meters (incl. `archlucid_llm_gen_ai_operation_duration_ms`, chat/embedding token counters). **Residual:** operator dashboards and SLO/alert coverage on those signals.
 3. **E2E test mock reliance:** `ui-e2e-smoke` relies heavily on mocked `/api/proxy`, leaving integration surfaces vulnerable to regressions.
 4. **Manual Azure cost estimations:** The Azure extractor requires manual cost estimation for many resource types, limiting automated ROI proof.
 5. **Lack of automated tenant data deletion:** Absence of a GDPR/CCPA "right to be forgotten" mechanism causes friction in privacy reviews.
@@ -269,7 +269,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 
 ## Top 6 Engineering Risks
 
-1. **LLM observability gaps:** Missing explicit tracing for token usage and latency hinders debugging and scaling.
+1. **LLM observability consumption gaps:** Producer GenAI spans and `archlucid_llm_*` metrics ship (2026-05-17); operators still need curated dashboards, SLOs, and alerting on those signals for day-2 operations.
 2. **E2E test mock reliance:** Heavy reliance on mocks in `ui-e2e-smoke` risks missing integration regressions.
 3. **Operational script auth realism:** Scripts assuming `DevelopmentBypass` mask real-world authentication failures.
 4. **Background job transient fault handling:** Incomplete retry policies for SQL connections in background workers risk silent failures.
@@ -280,7 +280,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 
 ## Most Important Truth
 
-ArchLucid is a functionally complete, highly rigorous V1 product ready for sales-led pilots, but its ability to scale commercially is bottlenecked by observability gaps (LLM tracing), manual ROI proof (Azure cost extraction), and enterprise friction (lack of automated data deletion and custom rule authoring UI).
+ArchLucid is a functionally complete, highly rigorous V1 product ready for sales-led pilots, but its ability to scale commercially is bottlenecked by observability consumption gaps (curated LLM dashboards and alerts atop shipped telemetry), manual ROI proof (Azure cost extraction), and enterprise friction (lack of automated data deletion and custom rule authoring UI).
 
 ---
 
@@ -306,16 +306,19 @@ Add an internal-only cross-tenant analytics path (operator/admin or offline job 
 ```
 
 ### 2. Add explicit OpenTelemetry tracing for LLM API calls
-- **Why it matters:** Missing tracing for token usage and latency hinders debugging, cost attribution, and scaling.
+- **Status:** Completed (2026-05-17)
+- **Why it matters:** Producer GenAI spans and meters now surface token usage, latency, and deployment/model identifiers without default prompt/completion payloads; remaining gap is operator-facing dashboards, SLO linkage, and alerting on those exports.
 - **Expected impact:** Observability (+15 pts), AI/Agent Readiness (+5 pts).
 - **Affected qualities:** Observability, AI/Agent Readiness.
-- **Actionable:** Yes
+- **Actionable:** No (follow-on: operationalize dashboards/SLOs on shipped signals)
+- **Completion evidence:** `AzureOpenAiCompletionClient` (chat: `gen_ai.*` span tags, `archlucid_llm_gen_ai_operation_duration_ms`); `AzureOpenAiEmbeddingClient` (embeddings: same pattern + `archlucid_llm_embedding_input_tokens_total`); `ArchLucidInstrumentation`; `ObservabilityExtensions` remarks documenting GenAI telemetry; tests `ArchLucid.Core.Tests/Diagnostics/LlmGenAiInstrumentationTests.cs`. HTTP client instrumentation unchanged per constraint.
 ```text
 Modify `ArchLucid.Host.Core/ObservabilityExtensions.cs` (or equivalent instrumentation setup) to add explicit OpenTelemetry tracing for all LLM API calls.
 - Acceptance criteria: Token usage, latency, and model version are captured as custom metrics or trace attributes.
 - Constraints: Do not log raw prompt text or completion text to avoid PII leakage.
 - What not to change: Do not modify existing HTTP client instrumentation.
 - Impact: Directly improves Observability (+10-15 pts) and AI/Agent Readiness (+5-8 pts). Weighted readiness impact: +0.2-0.4%.
+- Acceptance criteria met: (1) Token usage emitted on GenAI Activities and **`ArchLucid`** meter counters (chat completions via existing token totals + **`LlmCompletionAccountingClient`**; embeddings via **`archlucid_llm_embedding_input_tokens_total`**); (2) latency recorded as **`gen_ai.completion.latency_ms`** span tags and **`archlucid_llm_gen_ai_operation_duration_ms`** histogram (**`gen_ai.operation.name`** = chat | embeddings); (3) model/deployment identifiers on spans (**`gen_ai.request.model`**, chat **`gen_ai.response.model`** when the provider returns it). Default path does not attach raw prompt or completion text to spans.
 ```
 
 ### 3. Implement automated tenant erasure (30-day quarantine, legal-hold flag, blob + SQL purge)

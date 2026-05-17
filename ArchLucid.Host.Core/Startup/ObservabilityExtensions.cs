@@ -37,6 +37,14 @@ public static class ObservabilityExtensions
     /// is set, trace and metric exporters are registered <b>in addition</b> to
     /// OTLP / console (dual export). Prefer private ingestion paths in regulated environments.
     /// </para>
+    /// <para>
+    /// <strong>GenAI telemetry:</strong> Explicit OpenTelemetry Activities on
+    /// <c>ArchLucid.Agent.LlmCompletion</c> and <c>ArchLucid.Agent.LlmEmbedding</c> augment HTTP spans with
+    /// <c>gen_ai.*</c> semantic attributes (token tallies and latency tags; prompts and completions omitted by default for
+    /// PII). The shared <see cref="ArchLucidInstrumentation.MeterName"/> meter aggregates <c>archlucid_llm_*</c>
+    /// token counters (<c>LlmCompletionAccountingClient</c> for chat plus embedding input tokens),
+    /// <c>archlucid_llm_gen_ai_operation_duration_ms</c>, rate limits, and budgets without replacing HTTP client instrumentation.
+    /// </para>
     /// </remarks>
     public static IServiceCollection AddArchLucidOpenTelemetry(
         this IServiceCollection services,

@@ -134,6 +134,8 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         LastCompletionTokenUsage.Value = null;
         LastModelMetadata.Value = null;
 
+        bool completionSucceededForTelemetry = false;
+
         List<ChatMessage> messages =
         [
             new SystemChatMessage(systemPrompt),
@@ -230,25 +232,32 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
             if (reasoningSnippet is not null)
                 AgentHandlerLlmReasoningTrace.AppendCompletionSnippet(reasoningSnippet);
 
+            llmActivity?.SetStatus(ActivityStatusCode.Ok);
+
+            completionSucceededForTelemetry = true;
+
             return text;
         }
         finally
         {
+            double latencyMs = Stopwatch.GetElapsedTime(latencyStartTicks).TotalMilliseconds;
 
-            ApplyGenAiLatencyTag(llmActivity, latencyStartTicks);
+            ApplyGenAiLatencyTag(llmActivity, latencyMs);
 
+            ArchLucidInstrumentation.RecordLlmGenAiOperationDurationMilliseconds(
+                "chat",
+                latencyMs,
+                completionSucceededForTelemetry);
         }
 
     }
 
-    private static void ApplyGenAiLatencyTag(Activity? llmActivity, long latencyStartTimestamp)
+    private static void ApplyGenAiLatencyTag(Activity? llmActivity, double latencyMilliseconds)
     {
         if (llmActivity is null)
             return;
 
-        double millis = Stopwatch.GetElapsedTime(latencyStartTimestamp).TotalMilliseconds;
-
-        llmActivity.SetTag("gen_ai.completion.latency_ms", millis);
+        llmActivity.SetTag("gen_ai.completion.latency_ms", latencyMilliseconds);
     }
 
     private async Task<ChatCompletion> CompleteChatCoreAsync(

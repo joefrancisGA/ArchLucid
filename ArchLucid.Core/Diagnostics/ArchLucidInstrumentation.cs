@@ -723,6 +723,22 @@ public static class ArchLucidInstrumentation
             "archlucid_llm_completion_tokens_total",
             description: "Cumulative completion tokens reported by Azure OpenAI completions.");
 
+    /// <summary>Embedding input tokens reported by Azure OpenAI embeddings (<c>AzureOpenAiEmbeddingClient</c>).</summary>
+    public static readonly Counter<long> LlmEmbeddingInputTokensTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_embedding_input_tokens_total",
+            description: "Cumulative embedding input tokens from Azure OpenAI (not double-counted with chat prompt tokens).");
+
+    /// <summary>
+    ///     End-to-end latency for outbound GenAI operations (chat completions and embedding RPCs; labels
+    ///     <c>gen_ai.operation.name</c>, <c>status</c>).
+    /// </summary>
+    public static readonly Histogram<double> LlmGenAiOperationDurationMilliseconds =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_llm_gen_ai_operation_duration_ms",
+            "ms",
+            "Wall time for GenAI client operations (complements HTTP client spans; no prompt or completion text).");
+
     /// <summary>
     ///     Estimated LLM spend (USD) from configured per-million token rates on recorded traces (label <c>tenant</c>).
     /// </summary>
@@ -1303,6 +1319,53 @@ public static class ArchLucidInstrumentation
 
             return tags;
         }
+    }
+
+    /// <summary>Increments embedding input-token counter (orthogonal to chat <see cref="RecordLlmTokenUsage" />).</summary>
+    public static void RecordLlmEmbeddingInputTokens(long inputTokens, string? llmDeploymentLabel)
+    {
+        if (inputTokens <= 0)
+            return;
+
+        if (string.IsNullOrWhiteSpace(llmDeploymentLabel))
+        {
+            LlmEmbeddingInputTokensTotal.Add(inputTokens);
+
+            return;
+        }
+
+        TagList tags = new() { { "llm_deployment", llmDeploymentLabel.Trim() } };
+
+        LlmEmbeddingInputTokensTotal.Add(inputTokens, tags);
+    }
+
+    /// <summary>
+    ///     Records <see cref="LlmGenAiOperationDurationMilliseconds" /> for chat or embeddings (low-cardinality
+    ///     <paramref name="operationName" />: <c>chat</c> or <c>embeddings</c>).
+    /// </summary>
+    public static void RecordLlmGenAiOperationDurationMilliseconds(
+        string operationName,
+        double durationMilliseconds,
+        bool succeeded)
+    {
+        string op = string.IsNullOrWhiteSpace(operationName) ? "unknown" : operationName.Trim();
+
+        if (op is not ("chat" or "embeddings"))
+            throw new ArgumentOutOfRangeException(
+                nameof(operationName),
+                operationName,
+                "operationName must be chat or embeddings.");
+
+        if (durationMilliseconds < 0 || double.IsNaN(durationMilliseconds) || double.IsInfinity(durationMilliseconds))
+            return;
+
+        TagList tags = new()
+        {
+            { "gen_ai.operation.name", op },
+            { "status", succeeded ? "ok" : "error" }
+        };
+
+        LlmGenAiOperationDurationMilliseconds.Record(durationMilliseconds, tags);
     }
 
     private readonly struct LlmCallsPerRunAccumulationScope : IDisposable
