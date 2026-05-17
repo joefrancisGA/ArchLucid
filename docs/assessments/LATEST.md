@@ -1,14 +1,14 @@
 ﻿> **Scope:** Independent, first-principles assessment of ArchLucid readiness.
 > **Status:** current
 
-# ArchLucid Assessment – (A) Headline Readiness: 83.68%
+# ArchLucid Assessment – (A) Headline Readiness: 83.73%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold).
 
 ## Executive Summary
 
 ### (A) Overall Headline Readiness
-ArchLucid is a functionally complete V1 product with a solid architectural foundation (83.68% readiness). It successfully executes the core pilot loop (request → execute → commit → manifest) and provides strong governance and traceability features. The integration of native SAML 2.0 SP, curated default policy packs, and consultant whitelabeling significantly strengthens the V1 GA offering. The primary remaining gaps are in observability (LLM tracing), test automation for new integrations, and cross-tenant analytics.
+ArchLucid is a functionally complete V1 product with a solid architectural foundation (83.73% readiness). It successfully executes the core pilot loop (request → execute → commit → manifest) and provides strong governance and traceability features. The integration of native SAML 2.0 SP, curated default policy packs, and consultant whitelabeling significantly strengthens the V1 GA offering. The primary remaining gaps are in observability (LLM tracing), test automation for new integrations, and cross-tenant analytics.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. The lack of automated tenant data deletion (GDPR/CCPA) will also trigger privacy reviews.
@@ -178,15 +178,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Tradeoffs:** The library is currently small, shifting burden to credible authoring by the tenant.
 - **Improvement recommendations:** Develop an internal "Policy Pack Hub" for sharing custom policies.
 
-### 20. Accessibility
-- **Score:** 80
-- **Weight:** 1
-- **Weighted deficiency signal:** 20
-- **Justification:** Basic web accessibility is present; merge-blocking `@axe-core/playwright` baselines cover the V1 posture.
-- **Tradeoffs:** No participant user testing with assistive technologies (deferred).
-- **Improvement recommendations:** None for automated baseline scans; rely on existing axe-core tests.
-
-### 21. Testability
+### 20. Testability
 - **Score:** 80
 - **Weight:** 1
 - **Weighted deficiency signal:** 20
@@ -194,7 +186,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Tradeoffs:** Default `ui-e2e-smoke` remains mock-heavy, relying on `/api/proxy`.
 - **Improvement recommendations:** Add Playwright smoke tests for new integrations (Jira, Slack, Confluence).
 
-### 22. Cognitive Load
+### 21. Cognitive Load
 - **Score:** 80
 - **Weight:** 1
 - **Weighted deficiency signal:** 20
@@ -202,7 +194,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Tradeoffs:** Breadth is valuable for expansion but increases first-session confusion.
 - **Improvement recommendations:** Add explicit application-level logging to the findings list API endpoints to evaluate read-access patterns and simplify the UI.
 
-### 23. Cost-Effectiveness
+### 22. Cost-Effectiveness
 - **Score:** 80
 - **Weight:** 1
 - **Weighted deficiency signal:** 20
@@ -210,7 +202,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Tradeoffs:** Some manual estimation remains in broader Azure cost workflows.
 - **Improvement recommendations:** Automate broader Azure cost estimations in the PowerShell extractor.
 
-### 24. Interoperability
+### 23. Interoperability
 - **Score:** 90
 - **Weight:** 2
 - **Weighted deficiency signal:** 20
@@ -218,7 +210,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Tradeoffs:** SAML SP adds dual auth-surface operational burden.
 - **Improvement recommendations:** Add a CI step that fails the build if new API endpoints lack documented audit events.
 
-### 25. Scalability
+### 24. Scalability
 - **Score:** 85
 - **Weight:** 1
 - **Weighted deficiency signal:** 15
@@ -226,7 +218,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Tradeoffs:** Single-tenant worker pool exhaustion is still a risk if not carefully configured.
 - **Improvement recommendations:** Implement auto-scaling rules for the worker pool based on SQL authority outbox depth.
 
-### 26. Supportability
+### 25. Supportability
 - **Score:** 85
 - **Weight:** 1
 - **Weighted deficiency signal:** 15
