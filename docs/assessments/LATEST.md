@@ -278,8 +278,8 @@
 - **Weight:** 2
 - **Weighted deficiency signal:** 36
 - **Justification:** DTF orchestration improves reliability.
-- **Tradeoffs:** Concurrency limits are a known improvement area to prevent worker pool exhaustion.
-- **Improvement recommendations:** Implement rate limiting on the `AuthorityRunOrchestrator` to prevent worker pool exhaustion.
+- **Tradeoffs:** Multi-region worker fleets still need disciplined slot sizing versus SQL lease churn; orphaned leases rely on **`LeaseRecognitionHorizon`** scavenging.
+- **Improvement recommendations:** Operational runbooks should document defaults for **`AuthorityPipeline:Concurrency`** per environment tier and monitor lease table growth alongside worker saturation.
 
 ### 31. Data Consistency
 - **Score:** 100
@@ -417,7 +417,7 @@
 2. Playwright E2E still relies heavily on mocked **`/api/proxy`** paths — **live** **`ui-e2e-live`** negative API checks (**improvement #8**, **`live-api-negative-paths.spec.ts`**) shrink blind spots but do **not** replace broad golden-path coverage.
 3. Manual nature of some cost estimations in the Azure extractor (distinct from comparison replay payload heuristics — **#11** **closed 2026-05-16**).
 4. **Demo workspace fixture drift:** With **two GA-gated workspaces** (**Marketing alignment** / **#31**), UX, export, policy-pack, or graph changes can silently break evaluator smoke — CI/release discipline must pin fixtures or teams risk shipping broken demos.
-5. **Agent orchestration concurrency limits:** The `AuthorityRunOrchestrator` lacks rate limiting and concurrency controls, posing a reliability risk where a single tenant could exhaust worker pool resources during bursty workloads.
+5. **Agent orchestration noisy-neighbor mitigation (narrow residual):** Per-tenant **`AuthorityPipeline:Concurrency`** slots and SQL lease-backed counting (**#11 backlog**, **2026-05-16**) cap concurrent heavy-stage work; bursts still justify queue/offload telemetry and alerting when leases approach limits.
 6. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
 7. **Durable Task Framework (DTF) parity gaps:** While SQL production DI is wired to DTF, full multiset parity and release-smoke validation remain engineering obligations before the legacy orchestrator can be safely removed.
 8. **Operational script auth realism (narrow residual):** `v1-rc-drill.ps1` accepts **`-BearerToken`** / **`-ApiKey`** (**#3**, **2026-05-16**); other scripts may remain DevelopmentBypass-assumptive; JwtBearer drills still rely on **`ARCHLUCID_API_KEY`** for CLI detailed **`/health/diagnostics`** probes (JWT covers script REST).
@@ -438,7 +438,7 @@
 ## Top 5 Enterprise Adoption Blockers
 
 1. **Lack of automated tenant data deletion:** Absence of a verifiable GDPR/CCPA "right to be forgotten" mechanism causes friction in enterprise procurement and legal reviews.
-2. **Noisy neighbor risks in orchestration:** The lack of rate limiting and concurrency controls for the `AuthorityRunOrchestrator` raises reliability concerns for enterprise buyers evaluating multi-tenant SaaS.
+2. **Noisy neighbor posture in orchestration (narrow residual):** Tenant-scoped concurrency gates now protect the worker-heavy authority path (**#11 backlog**, **2026-05-16**); buyers still diligence steady-state parallelism, queue depth during incidents, and multi-region fairness.
 3. **Lack of custom rule authoring UI:** Evaluators cannot easily author and test custom governance rules without writing raw code, slowing down enterprise adoption.
 4. **Absence of compliance attestations:** The lack of a CPA-issued SOC 2 report will cause friction during procurement and security reviews.
 5. **Residency diligence depth:** Tenant provisioning pins a **`DataRegion`** key and routes large artifact blobs to regional URIs when configured; buyers still validate during diligence that SQL topology, backups, DR, and networking match their geography and contractual posture (**`PROCUREMENT_FAQ.md`** Q3).
@@ -449,7 +449,7 @@
 
 2. **Durable Task Framework (DTF) parity gaps:** While SQL production DI is wired to DTF, full multiset parity, release-smoke validation, and deeper engine-native scheduling remain engineering obligations before the legacy orchestrator can be safely removed.
 3. **E2E test mock reliance:** Despite the addition of negative live-API paths, the majority of the Playwright E2E suite still relies heavily on mocked `/api/proxy` responses, leaving integration blind spots until `ui-e2e-live` expands further.
-4. **Agent orchestration concurrency limits:** The `AuthorityRunOrchestrator` lacks rate limiting and concurrency controls, posing a reliability risk where a single tenant could exhaust worker pool resources during bursty workloads.
+4. **Agent orchestration parallelism observability:** Concurrency leases cap tenant fan-out (**#11 backlog**, **2026-05-16**); operators still need dashboards on wait times / dead letters when workers queue behind saturated slots.
 5. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
 6. **Operational script auth realism (narrow residual):** Beyond **`v1-rc-drill.ps1`** JWT/API key support (**#3**, **2026-05-16**), some scripts remain DevelopmentBypass-assumptive; CLI JWT parity for probes that require ReadAuthority remains a tooling gap versus API-key env (`ARCHLUCID_API_KEY`).
 
