@@ -11,16 +11,16 @@ using VerifyXunit;
 namespace ArchLucid.Application.Tests.TerraformAdvisory;
 
 /// <summary>Snapshot baselines for advisory Terraform emits (no <c>terraform validate</c>; strings only).</summary>
-[UsesVerify]
-public sealed class TerraformAdvisoryEmitSnapshotTests
+public sealed class TerraformAdvisoryEmitSnapshotTests : VerifyBase
 {
+    public TerraformAdvisoryEmitSnapshotTests()
+        : base()
+    {
+    }
+
     private static VerifySettings TerraformSnapshotSettings()
     {
-        VerifySettings settings = new();
-
-        settings.UseExtension("tf");
-
-        return settings;
+        return new VerifySettings();
     }
 
     private static string NormalizeNewLines(string text)
