@@ -22962,6 +22962,9 @@ export interface components {
             needDeterminismOrCompareAppendices?: boolean;
             needExecutionTraces?: boolean;
             regulatedEnvironment?: boolean;
+            reviewBoardWhitelabelClientEngagementTitle?: null | string;
+            reviewBoardWhitelabelFirmDisplayName?: null | string;
+            reviewBoardWhitelabelLogoBase64?: null | string;
             templateProfile?: null | string;
         };
         ConsultingDocxProfileRecommendation: {

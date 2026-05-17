@@ -15,10 +15,19 @@ public sealed class ConsultingDocxArchitectureAnalysisExportService(
     private readonly IDocumentLogoProvider _logoProvider = logoProvider ?? throw new ArgumentNullException(nameof(logoProvider));
     private readonly IDiagramImageRenderer _diagramImageRenderer = diagramImageRenderer ?? throw new ArgumentNullException(nameof(diagramImageRenderer));
 
-    public async Task<byte[]> GenerateDocxAsync(ArchitectureAnalysisReport report, CancellationToken cancellationToken = default)
+    public async Task<byte[]> GenerateDocxAsync(
+        ArchitectureAnalysisReport report,
+        ConsultingDocxExportBranding? branding = null,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(report);
         ConsultingDocxTemplateOptions options = optionsProvider.GetOptions();
-        return await ConsultingDocxOpenXmlComposer.GenerateAsync(report, options, diagramImageRenderer, logoProvider, cancellationToken);
+        return await ConsultingDocxOpenXmlComposer.GenerateAsync(
+            report,
+            options,
+            diagramImageRenderer,
+            logoProvider,
+            branding,
+            cancellationToken);
     }
 }

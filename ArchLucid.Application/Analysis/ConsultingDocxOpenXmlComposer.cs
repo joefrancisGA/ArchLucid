@@ -17,6 +17,7 @@ internal static class ConsultingDocxOpenXmlComposer
         ConsultingDocxTemplateOptions options,
         IDiagramImageRenderer diagramImageRenderer,
         IDocumentLogoProvider logoProvider,
+        ConsultingDocxExportBranding? branding,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(report);
@@ -37,7 +38,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
             ConsultingDocxOpenXmlPrimitives.AddStylesPart(mainPart, options);
 
-            await ConsultingDocxCoverPageBuilder.AddAsync(mainPart, body, report, options, logoProvider,
+            await ConsultingDocxCoverPageBuilder.AddAsync(mainPart, body, report, options, logoProvider, branding,
                 cancellationToken);
             ConsultingDocxOpenXmlPrimitives.AddPageBreak(body);
 

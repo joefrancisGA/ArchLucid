@@ -125,4 +125,22 @@ public sealed record ConsultingDocxJobPayload
         get;
         init;
     }
+
+    public string? ReviewBoardWhitelabelFirmDisplayName
+    {
+        get;
+        init;
+    }
+
+    public string? ReviewBoardWhitelabelClientEngagementTitle
+    {
+        get;
+        init;
+    }
+
+    public string? ReviewBoardWhitelabelLogoBase64
+    {
+        get;
+        init;
+    }
 }

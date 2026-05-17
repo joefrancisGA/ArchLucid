@@ -76,11 +76,20 @@ export function getTraceabilityBundleDownloadUrl(runId: string): string {
   return `/api/proxy/v1/architecture/run/${encodeURIComponent(runId)}/traceability-bundle.zip`;
 }
 
+export type ConsultingDocxExportBrandingPayload = {
+  reviewBoardWhitelabelFirmDisplayName?: string;
+  reviewBoardWhitelabelClientEngagementTitle?: string;
+  reviewBoardWhitelabelLogoBase64?: string | null;
+};
+
 /**
  * POST consulting-template architecture analysis DOCX (`CanExportConsultingDocx` / `export:consulting-docx`).
  * Browser-only download; API returns `application/vnd.openxmlformats-officedocument.wordprocessingml.document`.
  */
-export async function downloadConsultingArchitectureReportDocx(runId: string): Promise<void> {
+export async function downloadConsultingArchitectureReportDocx(
+  runId: string,
+  branding?: ConsultingDocxExportBrandingPayload | null,
+): Promise<void> {
   if (!isBrowser()) {
     throw new Error("downloadConsultingArchitectureReportDocx is only supported in the browser.");
   }
@@ -100,12 +109,30 @@ export async function downloadConsultingArchitectureReportDocx(runId: string): P
     headers.set("Authorization", `Bearer ${bearer}`);
   }
 
+  const bodyPayload: Record<string, unknown> = {};
+
+  if (branding?.reviewBoardWhitelabelFirmDisplayName?.trim()) {
+    bodyPayload.reviewBoardWhitelabelFirmDisplayName = branding.reviewBoardWhitelabelFirmDisplayName.trim();
+  }
+
+  if (branding?.reviewBoardWhitelabelClientEngagementTitle?.trim()) {
+    bodyPayload.reviewBoardWhitelabelClientEngagementTitle = branding.reviewBoardWhitelabelClientEngagementTitle.trim();
+  }
+
+  if (
+    branding?.reviewBoardWhitelabelLogoBase64 !== undefined &&
+    branding.reviewBoardWhitelabelLogoBase64 !== null &&
+    branding.reviewBoardWhitelabelLogoBase64.trim().length > 0
+  ) {
+    bodyPayload.reviewBoardWhitelabelLogoBase64 = branding.reviewBoardWhitelabelLogoBase64.trim();
+  }
+
   const init = mergeRegistrationScopeForProxy({
     method: "POST",
     headers,
     credentials: "same-origin",
     cache: "no-store",
-    body: JSON.stringify({}),
+    body: JSON.stringify(bodyPayload),
   });
   const h = new Headers(init.headers);
   h.set(CORRELATION_ID_HEADER, generateCorrelationId());

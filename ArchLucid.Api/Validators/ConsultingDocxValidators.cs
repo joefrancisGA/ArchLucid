@@ -31,6 +31,15 @@ public sealed class ConsultingDocxExportRequestValidator : AbstractValidator<Con
                 .NotEmpty().WithMessage("CompareRunId is required when IncludeAgentResultCompare is true.")
                 .MaximumLength(200).WithMessage("CompareRunId must not exceed 200 characters.");
         });
+
+        RuleFor(x => x.ReviewBoardWhitelabelFirmDisplayName)
+            .MaximumLength(200).WithMessage("ReviewBoardWhitelabelFirmDisplayName must not exceed 200 characters.");
+
+        RuleFor(x => x.ReviewBoardWhitelabelClientEngagementTitle)
+            .MaximumLength(400).WithMessage("ReviewBoardWhitelabelClientEngagementTitle must not exceed 400 characters.");
+
+        RuleFor(x => x.ReviewBoardWhitelabelLogoBase64)
+            .MaximumLength(750_000).WithMessage("ReviewBoardWhitelabelLogoBase64 must not exceed 750000 characters.");
     }
 }
 

@@ -56,7 +56,12 @@ internal static class ConsultingDocxExportAuditMapper
             IncludeManifestCompare = request.IncludeManifestCompare,
             CompareManifestVersion = request.CompareManifestVersion,
             IncludeAgentResultCompare = request.IncludeAgentResultCompare,
-            CompareRunId = request.CompareRunId
+            CompareRunId = request.CompareRunId,
+            ReviewBoardWhitelabelFirmDisplayName = request.ReviewBoardWhitelabelFirmDisplayName,
+            ReviewBoardWhitelabelClientEngagementTitle = request.ReviewBoardWhitelabelClientEngagementTitle,
+            ReviewBoardWhitelabelLogoBlobReference = string.IsNullOrWhiteSpace(request.ReviewBoardWhitelabelLogoBase64)
+                ? null
+                : "inline-logo-supplied"
         };
     }
 }

@@ -11,9 +11,19 @@ internal static class ConsultingDocxCoverPageBuilder
         ArchitectureAnalysisReport report,
         ConsultingDocxTemplateOptions options,
         IDocumentLogoProvider logoProvider,
+        ConsultingDocxExportBranding? branding,
         CancellationToken cancellationToken)
     {
-        if (options.IncludeLogo)
+        byte[]? brandingLogoBytes = branding?.LogoBytes;
+
+        if (brandingLogoBytes is { Length: > 0 })
+        {
+            ConsultingDocxOpenXmlPrimitives.AddImageToBody(mainPart, body, brandingLogoBytes, "Review board logo",
+                2_200_000L,
+                700_000L);
+            ConsultingDocxOpenXmlPrimitives.AddSpacer(body, 2);
+        }
+        else if (options.IncludeLogo)
         {
             byte[]? logoBytes = await logoProvider.GetLogoBytesAsync(options, cancellationToken);
 
@@ -26,6 +36,22 @@ internal static class ConsultingDocxCoverPageBuilder
         }
 
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, options.DocumentTitle, "Title");
+
+        string? firmLabel = branding?.FirmDisplayName?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(firmLabel))
+        {
+            ConsultingDocxOpenXmlPrimitives.AddSpacer(body, 1);
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, firmLabel!, "Subtitle");
+        }
+
+        string? engagementLabel = branding?.EngagementTitle?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(engagementLabel))
+        {
+            ConsultingDocxOpenXmlPrimitives.AddSpacer(body, 1);
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, engagementLabel!, "BodyText");
+        }
 
         string systemName = report.Evidence?.SystemName
                             ?? report.Manifest?.SystemName

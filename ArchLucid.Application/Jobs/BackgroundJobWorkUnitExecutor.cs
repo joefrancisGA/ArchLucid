@@ -103,7 +103,17 @@ public sealed class BackgroundJobWorkUnitExecutor(
             throw new InvalidOperationException($"Run '{p.RunId}' was not found.");
         analysisRequest.PreloadedRunDetail = detail;
         ArchitectureAnalysisReport report = await _architectureAnalysisService.BuildAsync(analysisRequest, cancellationToken);
-        byte[] bytes = await _consultingDocxExportService.GenerateDocxAsync(report, cancellationToken);
+
+        ConsultingDocxExportBranding? branding = ConsultingDocxExportBrandingMapper.TryCreate(
+            p.ReviewBoardWhitelabelFirmDisplayName,
+            p.ReviewBoardWhitelabelClientEngagementTitle,
+            p.ReviewBoardWhitelabelLogoBase64,
+            out string? brandingError);
+
+        if (brandingError is not null)
+            throw new InvalidOperationException(brandingError);
+
+        byte[] bytes = await _consultingDocxExportService.GenerateDocxAsync(report, branding, cancellationToken);
         await LogArchitectureDocxExportGeneratedAsync(p.RunId, "analysis-report-consulting-docx-async", bytes.Length, unit.FileName, cancellationToken);
         return new BackgroundJobFile(unit.FileName, unit.ContentType, bytes);
     }

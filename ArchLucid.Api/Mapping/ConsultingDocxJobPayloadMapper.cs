@@ -30,7 +30,10 @@ internal static class ConsultingDocxJobPayloadMapper
             IncludeManifestCompare = request.IncludeManifestCompare,
             CompareManifestVersion = request.CompareManifestVersion,
             IncludeAgentResultCompare = request.IncludeAgentResultCompare,
-            CompareRunId = request.CompareRunId
+            CompareRunId = request.CompareRunId,
+            ReviewBoardWhitelabelFirmDisplayName = request.ReviewBoardWhitelabelFirmDisplayName,
+            ReviewBoardWhitelabelClientEngagementTitle = request.ReviewBoardWhitelabelClientEngagementTitle,
+            ReviewBoardWhitelabelLogoBase64 = request.ReviewBoardWhitelabelLogoBase64
         };
     }
 }

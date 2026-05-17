@@ -9,6 +9,7 @@ import { ConsultingDocxExportButton } from "@/components/ConsultingDocxExportBut
 import { ExportTerraformAdvisoryButton } from "@/components/ExportTerraformAdvisoryButton";
 import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
+import { ReviewBoardWhitelabelConsultingExportButton } from "@/components/ReviewBoardWhitelabelConsultingExportButton";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   OperatorEmptyState,
@@ -193,6 +194,7 @@ export function RunDetailArtifactsExportsSection(
                   <FunnelTelemetryExportAnchor href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</FunnelTelemetryExportAnchor>
                 </Button>
                 <ConsultingDocxExportButton runId={runId} />
+                <ReviewBoardWhitelabelConsultingExportButton runId={runId} />
                 <ExportTerraformAdvisoryButton runId={runId} />
               </div>
             )}

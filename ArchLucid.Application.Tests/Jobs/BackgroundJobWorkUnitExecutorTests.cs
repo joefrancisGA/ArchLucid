@@ -82,7 +82,8 @@ public sealed class BackgroundJobWorkUnitExecutorTests
 
         Mock<IArchitectureAnalysisDocxExportService> docx = new();
         Mock<IArchitectureAnalysisConsultingDocxExportService> consulting = new();
-        consulting.Setup(c => c.GenerateDocxAsync(report, It.IsAny<CancellationToken>())).ReturnsAsync([9]);
+        consulting.Setup(c => c.GenerateDocxAsync(report, It.IsAny<ConsultingDocxExportBranding?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([9]);
 
         Mock<IAuditService> audit = new();
         Mock<ITenantDeletionService> tenantDeletion = new();

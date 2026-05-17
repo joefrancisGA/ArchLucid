@@ -118,4 +118,25 @@ public sealed class ConsultingDocxExportRequest
         get;
         set;
     }
+
+    /// <summary>Optional consulting firm label on review-board DOCX covers.</summary>
+    public string? ReviewBoardWhitelabelFirmDisplayName
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Optional engagement headline paired with <see cref="ReviewBoardWhitelabelFirmDisplayName"/>.</summary>
+    public string? ReviewBoardWhitelabelClientEngagementTitle
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Optional PNG/JPEG/SVG logo as base64 (data URLs tolerated).</summary>
+    public string? ReviewBoardWhitelabelLogoBase64
+    {
+        get;
+        set;
+    }
 }

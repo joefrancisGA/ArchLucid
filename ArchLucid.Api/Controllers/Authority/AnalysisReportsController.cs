@@ -318,8 +318,18 @@ public sealed class AnalysisReportsController(
                 analysisRequest,
                 cancellationToken);
 
+            ConsultingDocxExportBranding? branding = ConsultingDocxExportBrandingMapper.TryCreate(
+                request.ReviewBoardWhitelabelFirmDisplayName,
+                request.ReviewBoardWhitelabelClientEngagementTitle,
+                request.ReviewBoardWhitelabelLogoBase64,
+                out string? brandingError);
+
+            if (brandingError is not null)
+                return this.BadRequestProblem(brandingError, ProblemTypes.ValidationFailed);
+
             byte[] bytes = await architectureAnalysisConsultingDocxExportService.GenerateDocxAsync(
                 report,
+                branding,
                 cancellationToken);
 
             ResolvedConsultingDocxExportProfile resolvedProfile = consultingDocxExportProfileSelector.Resolve(

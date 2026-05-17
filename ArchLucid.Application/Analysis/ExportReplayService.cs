@@ -74,19 +74,42 @@ public sealed class ExportReplayService(
         ArchitectureAnalysisReport report = await architectureAnalysisService.BuildAsync(analysisRequest, cancellationToken);
         return record.ExportType switch
         {
-            ExportTypeConsultingDocx => await ReplayDocxAsync(record, persistedRequest, report, request.RecordReplayExport,
-                consultingDocxExportService.GenerateDocxAsync, cancellationToken),
-            ExportTypeAnalysisDocx => await ReplayDocxAsync(record, persistedRequest, report, request.RecordReplayExport,
-                analysisDocxExportService.GenerateDocxAsync, cancellationToken),
+            ExportTypeConsultingDocx => await ReplayConsultingDocxAsync(record, persistedRequest, report, request.RecordReplayExport, cancellationToken),
+            ExportTypeAnalysisDocx => await ReplayAnalysisDocxAsync(record, persistedRequest, report, request.RecordReplayExport, cancellationToken),
             _ => throw new InvalidOperationException($"Replay is not supported for export type '{record.ExportType}'.")
         };
     }
 
-    private async Task<ReplayExportResult> ReplayDocxAsync(RunExportRecord record, PersistedAnalysisExportRequest persistedRequest,
-        ArchitectureAnalysisReport report, bool recordReplayExport, Func<ArchitectureAnalysisReport, CancellationToken, Task<byte[]>> generateDocxAsync,
+    private async Task<ReplayExportResult> ReplayConsultingDocxAsync(RunExportRecord record,
+        PersistedAnalysisExportRequest persistedRequest,
+        ArchitectureAnalysisReport report,
+        bool recordReplayExport,
         CancellationToken cancellationToken)
     {
-        byte[] bytes = await generateDocxAsync(report, cancellationToken);
+        ConsultingDocxExportBranding? branding = ConsultingDocxExportBrandingMapper.FromPersistedHints(persistedRequest);
+        byte[] bytes = await _consultingDocxExportService.GenerateDocxAsync(report, branding, cancellationToken);
+
+        return await FinishReplayDocxAsync(record, persistedRequest, report, recordReplayExport, bytes, cancellationToken);
+    }
+
+    private async Task<ReplayExportResult> ReplayAnalysisDocxAsync(RunExportRecord record,
+        PersistedAnalysisExportRequest persistedRequest,
+        ArchitectureAnalysisReport report,
+        bool recordReplayExport,
+        CancellationToken cancellationToken)
+    {
+        byte[] bytes = await _analysisDocxExportService.GenerateDocxAsync(report, cancellationToken);
+
+        return await FinishReplayDocxAsync(record, persistedRequest, report, recordReplayExport, bytes, cancellationToken);
+    }
+
+    private async Task<ReplayExportResult> FinishReplayDocxAsync(RunExportRecord record,
+        PersistedAnalysisExportRequest persistedRequest,
+        ArchitectureAnalysisReport report,
+        bool recordReplayExport,
+        byte[] bytes,
+        CancellationToken cancellationToken)
+    {
         string replayFileName = BuildReplayFileName(record.FileName);
         string? recordedReplayExportRecordId = null;
         if (!recordReplayExport)

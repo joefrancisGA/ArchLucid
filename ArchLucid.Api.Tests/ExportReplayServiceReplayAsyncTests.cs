@@ -124,7 +124,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
         ArchitectureAnalysisReport built = new();
         analysis.Setup(a => a.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(built);
-        consultingDocx.Setup(c => c.GenerateDocxAsync(built, It.IsAny<CancellationToken>()))
+        consultingDocx.Setup(c => c.GenerateDocxAsync(built, It.IsAny<ConsultingDocxExportBranding?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([1, 2, 3]);
 
         ReplayExportResult result =
@@ -133,7 +133,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
         result.Content.Should().Equal(1, 2, 3);
         result.FileName.Should().Be("base_replay.docx");
         consultingDocx.Verify(
-            c => c.GenerateDocxAsync(built, It.IsAny<CancellationToken>()),
+            c => c.GenerateDocxAsync(built, It.IsAny<ConsultingDocxExportBranding?>(), It.IsAny<CancellationToken>()),
             Times.Once);
         standardDocx.Verify(
             s => s.GenerateDocxAsync(It.IsAny<ArchitectureAnalysisReport>(), It.IsAny<CancellationToken>()),
@@ -169,7 +169,10 @@ public sealed class ExportReplayServiceReplayAsyncTests
             s => s.GenerateDocxAsync(built, It.IsAny<CancellationToken>()),
             Times.Once);
         consultingDocx.Verify(
-            c => c.GenerateDocxAsync(It.IsAny<ArchitectureAnalysisReport>(), It.IsAny<CancellationToken>()),
+            c => c.GenerateDocxAsync(
+                It.IsAny<ArchitectureAnalysisReport>(),
+                It.IsAny<ConsultingDocxExportBranding?>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -242,7 +245,10 @@ public sealed class ExportReplayServiceReplayAsyncTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
         consultingDocx.Verify(
-            c => c.GenerateDocxAsync(It.IsAny<ArchitectureAnalysisReport>(), It.IsAny<CancellationToken>()),
+            c => c.GenerateDocxAsync(
+                It.IsAny<ArchitectureAnalysisReport>(),
+                It.IsAny<ConsultingDocxExportBranding?>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

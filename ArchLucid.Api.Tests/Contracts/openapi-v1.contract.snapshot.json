@@ -8552,6 +8552,79 @@
         },
         "type": "object"
       },
+      "InternalCrossTenantRollupDailyItemResponse": {
+        "properties": {
+          "analyticsTenantKey": {
+            "type": "string"
+          },
+          "averageCompletedRunDurationSeconds": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "computedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "estimatedEngineeringHoursSaved": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "llmTokensUsed": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ]
+          },
+          "rollupDate": {
+            "format": "date",
+            "type": "string"
+          },
+          "totalCompletedRuns": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "totalRunsNonArchived": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "InternalCrossTenantRollupDailyListResponse": {
+        "properties": {
+          "rollupDate": {
+            "format": "date",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/InternalCrossTenantRollupDailyItemResponse"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "ItsmIntegrationHealthProbeVm": {
         "properties": {
           "locallyConfigured": {
@@ -9260,6 +9333,18 @@
       },
       "ManifestDatastore": {
         "properties": {
+          "azureArmRegion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "azurePricingSku": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "datastoreId": {
             "type": "string"
           },
@@ -9271,6 +9356,10 @@
           },
           "encryptionAtRestRequired": {
             "type": "boolean"
+          },
+          "instanceCount": {
+            "format": "int32",
+            "type": "integer"
           },
           "privateEndpointRequired": {
             "type": "boolean"
@@ -9686,6 +9775,22 @@
       },
       "ManifestService": {
         "properties": {
+          "azureArmRegion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "azurePricingSku": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instanceCount": {
+            "format": "int32",
+            "type": "integer"
+          },
           "purpose": {
             "type": [
               "null",
@@ -38733,6 +38838,196 @@
           "403": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "InternalCrossTenantAnalytics"
+        ]
+      }
+    },
+    "/v1/internal/analytics/cross-tenant/daily": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "rollupDate",
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalCrossTenantRollupDailyListResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "InternalCrossTenantAnalytics"
+        ]
+      }
+    },
+    "/v1/internal/analytics/cross-tenant/daily/export": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "rollupDate",
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "format",
+            "schema": {
+              "default": "csv",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {},
+              "text/csv": {}
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "InternalCrossTenantAnalytics"
+        ]
+      }
+    },
+    "/v1/internal/analytics/cross-tenant/daily/refresh": {
+      "post": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "rollupDate",
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
