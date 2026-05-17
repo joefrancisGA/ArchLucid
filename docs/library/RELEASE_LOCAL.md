@@ -81,9 +81,9 @@ dotnet .\ArchLucid.Api.dll
 
 Defaults for URLs are in `ArchLucid.Api/Properties/launchSettings.json` when developing; for published runs, set `ASPNETCORE_URLS` (e.g. `http://localhost:5128`) if you need a fixed binding.
 
-**Health:** `GET /health/live`, `GET /health/ready`, `GET /health` (see root [README.md](../../README.md)).
+**Health:** `GET /health/live`, `GET /health/ready`, `GET /health` (see root [README.md](../REPOSITORY_README.md)).
 
-**Configuration:** [README.md](../../README.md) (secrets, auth modes), [demo-quickstart.md](demo-quickstart.md) for optional demo seed.
+**Configuration:** [README.md](../REPOSITORY_README.md) (secrets, auth modes), [demo-quickstart.md](demo-quickstart.md) for optional demo seed.
 
 ---
 

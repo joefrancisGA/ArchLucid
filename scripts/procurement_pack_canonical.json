@@ -8,7 +8,7 @@
     },
     {
       "pack_path": "README.md",
-      "source_repo_path": "README.md",
+      "source_repo_path": "docs/REPOSITORY_README.md",
       "description": "Repository overview",
       "artifact_status": "Evidence"
     },

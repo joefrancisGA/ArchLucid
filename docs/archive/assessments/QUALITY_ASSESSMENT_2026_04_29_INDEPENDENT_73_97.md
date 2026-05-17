@@ -381,7 +381,7 @@ Below, each quality follows the requested structure (**score / weight / weighted
 #### Supportability — Score **76**, Weight **1**
 
 - **Weighted impact:** +0.75 pts.
-- **Why:** CLI support bundle + correlation IDs ([README.md](../../README.md)).
+- **Why:** CLI support bundle + correlation IDs ([README.md](../REPOSITORY_README.md)).
 - **Tradeoffs:** Rich diagnostics risk **PII leakage** if mishandled.
 - **Improvements:** Sanitizer regression tests expansion ([SECURITY.md](SECURITY.md) pointers).
 - **Fix horizon:** **v1**.

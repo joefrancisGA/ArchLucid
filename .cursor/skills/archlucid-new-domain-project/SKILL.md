@@ -36,7 +36,7 @@ Clone patterns from the **closest existing** sibling (e.g. another `ArchLucid.*`
    - [`ArchLucid.Backend.slnf`](../../../ArchLucid.Backend.slnf)
    - [`ArchLucid.UI.slnf`](../../../ArchLucid.UI.slnf) — only if the project belongs in the minimal UI slice (typically Contracts + Api.Client + tests only).
 
-   Rule pointer: [`AGENTS.md`](../../../AGENTS.md) — update filters when adding or renaming `*.csproj` under the repo root.
+   Rule pointer: [`engineering/AGENTS.md`](../../../docs/engineering/AGENTS.md) — update filters when adding or renaming `*.csproj` under the repo root.
 
 5. **Wire references:** Add `ProjectReference` from consuming apps (`ArchLucid.Application`, `ArchLucid.Api`, workers, etc.) only where needed; avoid cyclic graphs. Check extension points against [`.cursor/rules/Architecture-Invariants.mdc`](../../../.cursor/rules/Architecture-Invariants.mdc) / [`docs/library/V1_SCOPE.md`](../../../docs/library/V1_SCOPE.md).
 

@@ -48,7 +48,7 @@ For each quality: **Score** | **Weight** | **Weighted deficiency signal** | **We
 
 ### Adoption Friction — Score **52** · Weight **6** · Deficiency **288** · Impact **3.06**
 
-- **Justification:** The product packs **Pilot + Operate** with large API/UI surfaces ([`PRODUCT_PACKAGING.md`](PRODUCT_PACKAGING.md)); progressive disclosure helps but **onboarding still requires** identity, tenancy, SQL in non-SaaS installs, and literacy in “run vs architecture review” vocabulary ([`README.md`](../../README.md), [`CORE_PILOT.md`](../CORE_PILOT.md)). Evaluators face **tooling + domain** load before sponsor-safe proof exists.
+- **Justification:** The product packs **Pilot + Operate** with large API/UI surfaces ([`PRODUCT_PACKAGING.md`](PRODUCT_PACKAGING.md)); progressive disclosure helps but **onboarding still requires** identity, tenancy, SQL in non-SaaS installs, and literacy in “run vs architecture review” vocabulary ([`README.md`](../REPOSITORY_README.md), [`CORE_PILOT.md`](../CORE_PILOT.md)). Evaluators face **tooling + domain** load before sponsor-safe proof exists.
 - **Tradeoffs:** Narrowing the default UX further improves friction but can **hide** governance value that closes Enterprise deals later.
 - **Improvements:** Single **Day-0 checklist** in-product linking to Core Pilot-only scope; tighten **empty states** to one recommended path; keep Operate behind disclosure but add **“why hidden”** microcopy once ([`OPERATOR_DECISION_GUIDE.md`](OPERATOR_DECISION_GUIDE.md)).
 - **Fix horizon:** **V1** (mostly UI/docs).
@@ -174,7 +174,7 @@ For each quality: **Score** | **Weight** | **Weighted deficiency signal** | **We
 
 ### Traceability — Score **82** · Weight **3** · Deficiency **54** · Impact **2.41**
 
-- **Justification:** Typed audit catalog + CI anchors ([`AUDIT_COVERAGE_MATRIX.md`](AUDIT_COVERAGE_MATRIX.md)); correlation IDs standard ([`README.md`](../../README.md)).
+- **Justification:** Typed audit catalog + CI anchors ([`AUDIT_COVERAGE_MATRIX.md`](AUDIT_COVERAGE_MATRIX.md)); correlation IDs standard ([`README.md`](../REPOSITORY_README.md)).
 - **Tradeoffs:** Durable audit failures are fire-and-forget on some hot paths—by design—can surprise investigators.
 - **Improvements:** Monitor **`archlucid_audit_write_failures_total`** in prod dashboards as Tier-1 signal ([`AUDIT_COVERAGE_MATRIX.md`](AUDIT_COVERAGE_MATRIX.md) notes).
 - **Fix horizon:** **V1** ops.
@@ -202,7 +202,7 @@ For each quality: **Score** | **Weight** | **Weighted deficiency signal** | **We
 
 ### Interoperability — Score **77** · Weight **2** · Deficiency **46** · Impact **1.51**
 
-- **Justification:** Versioned REST, CLI tool, integration events + AsyncAPI ([`README.md`](../../README.md)), SCIM surface in scope ([`V1_SCOPE.md`](V1_SCOPE.md) §2.12). First-party ITSM beyond webhooks deferred (scope).
+- **Justification:** Versioned REST, CLI tool, integration events + AsyncAPI ([`README.md`](../REPOSITORY_README.md)), SCIM surface in scope ([`V1_SCOPE.md`](V1_SCOPE.md) §2.12). First-party ITSM beyond webhooks deferred (scope).
 - **Tradeoffs:** Every new connector increases CVE/support surface.
 - **Improvements:** Publish **minimum automation recipes** for top 3 enterprise patterns (event → ticket, export → SharePoint) using existing contracts.
 - **Fix horizon:** **V1** recipes; connectors **V1.1+**.
@@ -230,7 +230,7 @@ For each quality: **Score** | **Weight** | **Weighted deficiency signal** | **We
 
 ### Customer Self-Sufficiency — Score **58** · Weight **1** · Deficiency **42** · Impact **0.57**
 
-- **Justification:** Docs are deep; **contributor** vs **buyer** paths are separated ([`README.md`](../../README.md))—good—but pilots still ping humans for SQL/auth edge cases in self-hosted modes.
+- **Justification:** Docs are deep; **contributor** vs **buyer** paths are separated ([`README.md`](../REPOSITORY_README.md))—good—but pilots still ping humans for SQL/auth edge cases in self-hosted modes.
 - **Tradeoffs:** More self-help increases doc maintenance.
 - **Improvements:** Add **troubleshooting decision tree** to `docs/TROUBLESHOOTING.md` keyed to `release-smoke` triage blocks.
 - **Fix horizon:** **V1**.
@@ -328,7 +328,7 @@ For each quality: **Score** | **Weight** | **Weighted deficiency signal** | **We
 
 ### Supportability — Score **79** · Weight **1** · Deficiency **21** · Impact **0.77**
 
-- **Justification:** `doctor`, support bundle, correlation headers ([`README.md`](../../README.md)); triage blocks in smoke scripts.
+- **Justification:** `doctor`, support bundle, correlation headers ([`README.md`](../REPOSITORY_README.md)); triage blocks in smoke scripts.
 - **Tradeoffs:** Support bundles risk sensitive data—redaction discipline required (recent changelog notes on redaction).
 - **Improvements:** Automated **bundle size limits** + secret scanner preflight locally.
 - **Fix horizon:** **V1**.
@@ -357,7 +357,7 @@ For each quality: **Score** | **Weight** | **Weighted deficiency signal** | **We
 ### Documentation — Score **83** · Weight **1** · Deficiency **17** · Impact **0.81**
 
 - **Justification:** Exceptionally complete; CI guards on headers and pricing single-source ([`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md)).
-- **Tradeoffs:** Volume can obscure the **5-doc spine**—discipline required ([`README.md`](../../README.md)).
+- **Tradeoffs:** Volume can obscure the **5-doc spine**—discipline required ([`README.md`](../REPOSITORY_README.md)).
 - **Improvements:** Quarterly **doc inventory** pruning pass automated via link checker job.
 - **Fix horizon:** **V1** hygiene.
 

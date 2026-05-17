@@ -15,7 +15,7 @@ This scope document lists in-scope capabilities, explicit out-of-scope items, th
 
 ## Related
 
-- **[README.md](../../README.md)** — repo overview and install spine
+- **[README.md](../REPOSITORY_README.md)** — repo overview and install spine
 - **[GLOSSARY.md](GLOSSARY.md)** — terms and naming
 - **[BREAKING_CHANGES.md](../../BREAKING_CHANGES.md)** — breaking change trail
 - **[ARCHLUCID_RENAME_CHECKLIST.md](../ARCHLUCID_RENAME_CHECKLIST.md)** — remaining rename phases
@@ -68,10 +68,10 @@ The minimum set every pilot must complete. Delivered by default; no additional c
 
 - **Container images** and **docker compose** profiles ([CONTAINERIZATION.md](CONTAINERIZATION.md)).
 - **SQL Server** persistence via DbUp migrations; automatic on startup ([SQL_SCRIPTS.md](SQL_SCRIPTS.md)). **`SystemWithPerTenantCatalogs`** (**database-per-tenant** with **`TenantDatabaseBindings`** and a control-plane system catalog) is the **only supported multitenant isolation model for hosted workloads**, **including self-serve trial tenants** ([TENANT_DATABASE_TOPOLOGY.md](TENANT_DATABASE_TOPOLOGY.md)). **`SingleCatalog`** remains available for narrow **developer/CI ergonomics**, not as a substitute for tenant isolation on hosted SaaS.
-- **Hosted SaaS LLM execution (real mode):** On **ArchLucid-operated** deployments, agent **real** execution uses **platform-provisioned Azure OpenAI** from environment configuration (**`AzureOpenAI:*`** / Key Vault-backed secrets — [CONFIGURATION_REFERENCE.md](CONFIGURATION_REFERENCE.md)). The **standard hosted and trial-tenant path** does **not** treat customer-supplied model endpoints as a prerequisite for normal operation, and **sales-engineer-assisted LLM onboarding is not a V1 gate** on that path. **Self-hosted** installs, deliberate **simulator** environments, or **bring-your-own** inference endpoints remain configuration-owned per [README.md](../../README.md).
+- **Hosted SaaS LLM execution (real mode):** On **ArchLucid-operated** deployments, agent **real** execution uses **platform-provisioned Azure OpenAI** from environment configuration (**`AzureOpenAI:*`** / Key Vault-backed secrets — [CONFIGURATION_REFERENCE.md](CONFIGURATION_REFERENCE.md)). The **standard hosted and trial-tenant path** does **not** treat customer-supplied model endpoints as a prerequisite for normal operation, and **sales-engineer-assisted LLM onboarding is not a V1 gate** on that path. **Self-hosted** installs, deliberate **simulator** environments, or **bring-your-own** inference endpoints remain configuration-owned per [README.md](../REPOSITORY_README.md).
 - **Health:** `/health/live`, `/health/ready`, `/health`; `GET /version` for support attribution.
 - **Correlation IDs**, **CLI diagnostics** (`doctor`, `support-bundle`), and **Troubleshooting** runbooks.
-- **Authentication modes:** development bypass, JWT bearer, API key ([README.md](../../README.md)).
+- **Authentication modes:** development bypass, JWT bearer, API key ([README.md](../REPOSITORY_README.md)).
 - **Infrastructure-as-code** examples (Terraform modules under `infra/`).
 
 ---
@@ -269,7 +269,7 @@ These are **practical gates** already encoded or described in-repo—not an exha
 |-----------|------------------|
 | **Solution builds** in Release | CI and [BUILD.md](BUILD.md) |
 | **Core-tier tests** pass for the agreed filter (e.g. fast core / `Suite=Core` conventions) | [TEST_STRUCTURE.md](TEST_STRUCTURE.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
-| **API starts** against Sql configuration; **health/live** and **health/ready** succeed when dependencies are up | [README.md](../../README.md), [PILOT_GUIDE.md](PILOT_GUIDE.md) |
+| **API starts** against Sql configuration; **health/live** and **health/ready** succeed when dependencies are up | [README.md](../REPOSITORY_README.md), [PILOT_GUIDE.md](PILOT_GUIDE.md) |
 | **One scripted end-to-end run** produces a committed manifest and **at least one** artifact descriptor | `release-smoke.ps1` expectations ([RELEASE_SMOKE.md](RELEASE_SMOKE.md)) |
 | **Operator UI** builds when Node is in use; Vitest/build steps as per readiness scripts | [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [archlucid-ui/README.md](../../archlucid-ui/README.md) |
 | **Version and diagnostics** available for handoff (`GET /version`, CLI `doctor`, support bundle discipline) | [PILOT_GUIDE.md](PILOT_GUIDE.md) |
@@ -299,4 +299,4 @@ These are **practical gates** already encoded or described in-repo—not an exha
 
 ---
 
-**Change control:** When V1 boundaries shift, update **this file** first, then align [PILOT_GUIDE.md](PILOT_GUIDE.md) and [README.md](../../README.md) so pilots do not see conflicting messages.
+**Change control:** When V1 boundaries shift, update **this file** first, then align [PILOT_GUIDE.md](PILOT_GUIDE.md) and [README.md](../REPOSITORY_README.md) so pilots do not see conflicting messages.

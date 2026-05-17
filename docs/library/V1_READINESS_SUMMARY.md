@@ -51,7 +51,7 @@ The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (D
 | Risk | Mitigation (in-repo) |
 |------|----------------------|
 | **Environment-specific failure** | Run [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) + [V1_RC_DRILL.md](V1_RC_DRILL.md) on **your** staging stack; capture `/version` and support bundle. |
-| **Auth mismatch** | Scripts such as `v1-rc-drill.ps1` assume **DevelopmentBypass** unless you extend them; JWT/API key pilots must follow [README.md](../../README.md). |
+| **Auth mismatch** | Scripts such as `v1-rc-drill.ps1` assume **DevelopmentBypass** unless you extend them; JWT/API key pilots must follow [README.md](../REPOSITORY_README.md). |
 | **UI E2E vs live API** | **`npm run test:e2e`** uses **mock** **`playwright.mock.config.ts`**; do not treat it as SQL-backed UI proof ([RELEASE_SMOKE.md](RELEASE_SMOKE.md)). CI **`ui-e2e-live`** runs all **`live-api-*.spec.ts`** ([LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)) **merge-blocking** — broader than a single happy path, still not a substitute for your own staging validation. |
 | **DB / RLS legacy names** | Historical migrations and some **RLS object names** still reference older tokens; breaking-change doc lists them ([BREAKING_CHANGES.md](../../BREAKING_CHANGES.md)). |
 | **Compliance expectations** | If pilots need **audit UI parity** for every export path, read [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md) before promising coverage. |

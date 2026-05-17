@@ -96,7 +96,7 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 
 ## Solution filters (**`*.slnf`**) at repo root
 
-- `ArchLucid.Core.slnf`, `ArchLucid.Backend.slnf`, `ArchLucid.UI.slnf` — see **[`AGENTS.md`](../../AGENTS.md)** on `*.slnf` behavior vs **`dotnet build` closures**.
+- `ArchLucid.Core.slnf`, `ArchLucid.Backend.slnf`, `ArchLucid.UI.slnf` — see **[`engineering/AGENTS.md`](../engineering/AGENTS.md)** on `*.slnf` behavior vs **`dotnet build` closures**.
 
 ## Next.js UI
 

@@ -2,7 +2,7 @@
   "docScanVersion": "1.0",
   "notes": "Warning-only heuristics — triage hits manually; align wording with V1_SCOPE / V1_DEFERRED / TRUST_CENTER.",
   "targets": [
-    "README.md",
+    "docs/REPOSITORY_README.md",
     "docs/START_HERE.md",
     "docs/CORE_PILOT.md",
     "docs/EXECUTIVE_SPONSOR_BRIEF.md",

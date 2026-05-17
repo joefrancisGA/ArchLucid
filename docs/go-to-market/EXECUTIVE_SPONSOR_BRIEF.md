@@ -13,7 +13,7 @@ This file is the outward **sponsor story of record**: why a pilot matters, what 
 ## Related
 
 - **[READ_THIS_FIRST.md](archive/READ_THIS_FIRST.md)** — forced decision-tree entry (buyer vs contributor vs security vs architecture)
-- **[README.md](../README.md)** — repo entry and deeper operator material
+- **[README.md](../REPOSITORY_README.md)** — repo entry and deeper operator material
 - **[go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md](go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md)** — one-email sponsor/procurement copy (subject, ~120-word summary, four-artifact checklist)
 - **[PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md)** — pilot measurement companion
 - **[PRODUCT_PACKAGING.md](library/PRODUCT_PACKAGING.md)** — capability layers and UI seams

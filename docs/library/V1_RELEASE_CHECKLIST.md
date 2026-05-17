@@ -33,7 +33,7 @@
 - **Optional evidence bundle sweep:** `docs/library/RELEASE_EVIDENCE_SUMMARY.md` and `scripts/Invoke-ReleaseEvidenceSummary.ps1 -MarkdownOut <path>` (non-blocking collector; use `-FailOnError` only when you want local script failures to block the shell).
 - [ ] *(Optional SaaS fleets)* **Reliability drill** automation understood if you consume the scheduled workflow output — [RELIABILITY_DRILL_PACKAGE.md](../runbooks/RELIABILITY_DRILL_PACKAGE.md).
 - [ ] **Package handoff** (if distributing bits): `package-release.ps1`; verify `artifacts/release/` contains **`metadata.json`**, **`PACKAGE-HANDOFF.txt`**, and checksums when required ([RELEASE_LOCAL.md](RELEASE_LOCAL.md)).
-- [ ] **Runtime config** documented for target environment: connection string key (**`ConnectionStrings:ArchLucid`** or **`ArchLucid`** per bridge), **`ArchLucid:StorageProvider`** / **`ArchLucid:StorageProvider`**, **`ArchLucidAuth`** / **`ArchLucidAuth`**, agent mode (**`AgentExecution:Mode`**) ([README.md](../../README.md), [BUILD.md](BUILD.md)).
+- [ ] **Runtime config** documented for target environment: connection string key (**`ConnectionStrings:ArchLucid`** or **`ArchLucid`** per bridge), **`ArchLucid:StorageProvider`** / **`ArchLucid:StorageProvider`**, **`ArchLucidAuth`** / **`ArchLucidAuth`**, agent mode (**`AgentExecution:Mode`**) ([README.md](../REPOSITORY_README.md), [BUILD.md](BUILD.md)).
 - [ ] **Containers** (if used): image tags recorded; compose profile documented ([CONTAINERIZATION.md](CONTAINERIZATION.md)).
 - [ ] **Migrations:** DbUp applies cleanly on a fresh DB and on upgrade from **previous supported** schema ([SQL_SCRIPTS.md](SQL_SCRIPTS.md)).
 
@@ -42,7 +42,7 @@
 ## 3. Health and diagnostics
 
 - [ ] **`GET /health/live`** returns success on running instances.
-- [ ] **`GET /health/ready`** reflects real dependencies (e.g. Sql when not InMemory; schema files, compliance pack, temp dir as configured) ([README.md](../../README.md)).
+- [ ] **`GET /health/ready`** reflects real dependencies (e.g. Sql when not InMemory; schema files, compliance pack, temp dir as configured) ([README.md](../REPOSITORY_README.md)).
 - [ ] **`GET /version`** (or health JSON **`version`** / **`commitSha`**) matches **`metadata.json`** / git expectation for this build ([PILOT_GUIDE.md](PILOT_GUIDE.md)).
 - [ ] **`dotnet run --project ArchLucid.Cli -- doctor`** succeeds against the deployed/staged API base URL (or equivalent in packaged deployment).
 - [ ] **Correlation:** sample request with **`X-Correlation-ID`** appears in logs as expected ([API_CONTRACTS.md](API_CONTRACTS.md)).
@@ -64,7 +64,7 @@ Execute the **core path** from [V1_SCOPE.md](V1_SCOPE.md) §4 (or [PILOT_GUIDE.m
 - [ ] **Compare** — two-run compare produces an expected structured or legacy diff in UI or API ([COMPARISON_REPLAY.md](COMPARISON_REPLAY.md)).
 - [ ] **Replay** — run replay or comparison replay path exercised per your pilot script ([ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md)).
 - [ ] **Graph** — load graph for one **run ID** in UI ([operator-shell.md](operator-shell.md), [KNOWLEDGE_GRAPH.md](KNOWLEDGE_GRAPH.md)).
-- [ ] **Auth:** pilot role (**Reader** / **Operator** / **Admin**) matches documented policies ([README.md](../../README.md)).
+- [ ] **Auth:** pilot role (**Reader** / **Operator** / **Admin**) matches documented policies ([README.md](../REPOSITORY_README.md)).
 - [ ] **Self-serve trial (automated)** — merge-blocking workflow **`ui-e2e-live`** includes [`live-api-trial-end-to-end.spec.ts`(../../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts) (register → trial metering → Noop checkout → harness activation → metrics); operator runbook [TRIAL_END_TO_END.md](../runbooks/TRIAL_END_TO_END.md).
 
 ---
@@ -81,7 +81,7 @@ Execute the **core path** from [V1_SCOPE.md](V1_SCOPE.md) §4 (or [PILOT_GUIDE.m
 ## 6. Naming consistency
 
 - [ ] **User-facing** copy (UI, Swagger titles where customized, CLI operator strings) says **ArchLucid** where product-facing ([V1_SCOPE.md](V1_SCOPE.md) naming note).
-- [ ] **Legacy config keys** (`ArchLucid*`, `ARCHIFORGE_*`) documented in runbook; **bridge** behavior verified if both old and new keys appear ([README.md](../../README.md), [GLOSSARY.md](GLOSSARY.md)).
+- [ ] **Legacy config keys** (`ArchLucid*`, `ARCHIFORGE_*`) documented in runbook; **bridge** behavior verified if both old and new keys appear ([README.md](../REPOSITORY_README.md), [GLOSSARY.md](GLOSSARY.md)).
 - [ ] **Integration event type strings** — canonical vs legacy aliases understood if consumers exist ([INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md)).
 - [ ] **Image / container names** in deploy docs match what was actually pushed ([CONTAINERIZATION.md](CONTAINERIZATION.md), [RELEASE_LOCAL.md](RELEASE_LOCAL.md)).
 

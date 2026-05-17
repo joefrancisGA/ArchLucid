@@ -36,7 +36,7 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - **New:** [PILOT_GUIDE.md](PILOT_GUIDE.md) — what the product does, minimum setup, first run (Swagger + CLI), artifact review, readiness/core tests, logs vs DB artifacts, support hints.
 - **New:** [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) — copy-paste command blocks only.
 - **New:** [TROUBLESHOOTING.md](TROUBLESHOOTING.md) — common failure modes, triage table, log search tokens, UI proxy notes.
-- **Updated:** [README.md](../README.md) — pilot onboarding section + doc table rows.
+- **Updated:** [README.md](../REPOSITORY_README.md) — pilot onboarding section + doc table rows.
 
 ### Prompt 7 — end-to-end release readiness smoke
 

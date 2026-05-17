@@ -94,7 +94,7 @@ Architecture is **modular and internally coherent** (Application vs Persistence 
 
 ### 2.2 Adoption Friction — Score **62**, Weight **6**, Weighted impact **+3.65%**
 
-**Justification:** Evaluators face **Azure-primary** assumptions, **two-layer Pilot/Operate** mental model, optional LLM setup, and enterprise auth modes. Contributors need Docker/.NET/SQL discipline per [README.md](../../README.md). Friction is **acceptable** for ICP but **high** for casual evaluators.
+**Justification:** Evaluators face **Azure-primary** assumptions, **two-layer Pilot/Operate** mental model, optional LLM setup, and enterprise auth modes. Contributors need Docker/.NET/SQL discipline per [README.md](../REPOSITORY_README.md). Friction is **acceptable** for ICP but **high** for casual evaluators.
 
 **Tradeoffs:** Depth (governance, compare, replay) **increases** onboarding surface area; progressive disclosure helps but cannot remove domain complexity.
 
@@ -420,7 +420,7 @@ Architecture is **modular and internally coherent** (Application vs Persistence 
 
 **Justification:** Benchmarks, CPU baselines, k6 thresholds — **present**. Real AOAI latency dominates wall-clock for “full truth” runs.
 
-**Tradeoffs:** Aggressive caching **vs** audit/replay fidelity — must be bounded ([demo preview cache documented](../../README.md)).
+**Tradeoffs:** Aggressive caching **vs** audit/replay fidelity — must be bounded ([demo preview cache documented](../REPOSITORY_README.md)).
 
 **Improvements:** Publish **p95** targets for **non-LLM** API surfaces separately from LLM E2E.
 

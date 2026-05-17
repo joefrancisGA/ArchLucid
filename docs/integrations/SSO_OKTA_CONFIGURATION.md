@@ -289,4 +289,4 @@ Verify the response includes:
 - **[SCIM provisioning (Okta supported)](SCIM_PROVISIONING.md)** — automate user/group sync from Okta to ArchLucid.
 - **[appsettings.Entra.sample.json](../../ArchLucid.Api/appsettings.Entra.sample.json)** — reference config for the primary Entra ID integration.
 - **[docs/security/TRIAL_AUTH.md](../security/TRIAL_AUTH.md)** — trial-tier authentication (External ID + local identity).
-- **[README.md § API authentication](../../README.md#api-authentication-archlucidauth)** — summary of all auth modes.
+- **[README.md § API authentication](../REPOSITORY_README.md#api-authentication-archlucidauth)** — summary of all auth modes.

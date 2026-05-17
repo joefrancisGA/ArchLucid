@@ -29,7 +29,7 @@ Open **`ArchLucid.UI.slnf`** at the repo root when you only need **Contracts + `
 
 ## Repo-level agent docs
 
-See root **`AGENTS.md`** for monorepo layout, assessments read list, and other **`*.slnf`** filters.
+See **`docs/engineering/AGENTS.md`** (repo-root **`AGENTS.md`** is a pointer) for monorepo layout, assessments read list, and other **`*.slnf`** filters.
 
 **Cursor rules for this folder:** `.cursor/rules/UI-React-Next-Conventions.mdc`, `.cursor/rules/UI-Stable-Selectors-And-Snapshots.mdc`, `.cursor/rules/UI-Accessibility-Baseline.mdc` (auto-applied when editing `archlucid-ui/**/*.ts` / `*.tsx`).
 

@@ -9,7 +9,7 @@
 
 **Status:** Future-state packaging guidance. This document does **not** implement licensing, billing, or entitlement. It explains how today’s layer model can support future commercial discipline.
 
-**Related:** [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) · [README.md](../../README.md)
+**Related:** [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) · [README.md](../REPOSITORY_README.md)
 
 ---
 

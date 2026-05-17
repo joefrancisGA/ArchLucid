@@ -103,11 +103,11 @@ Legend: **Weighted impact on readiness** = (score × weight) ÷ **Σw**. **Σw =
 
 3. **Workflow Embeddedness** — **70**, **3**, **90**. ServiceNow/Jira **V1.1** per [`V1_SCOPE.md`](V1_SCOPE.md) §3 — not scored against current V1. Tradeoff: ship core vs connector matrix. **Improve:** Teams + webhooks-first recipes in pilot. **Fixability:** V1.1 for first-party ITSM.
 
-4. **Adoption Friction** — **85**, **6**, **90**. Hosted path is intentional ([`README.md`](../../README.md)); contributor path is Docker/SQL/.NET-heavy — [`INSTALL_ORDER.md`](../engineering/INSTALL_ORDER.md). Tradeoff: parity vs laptop simplicity. **Improve:** tighten dev-container story. **Fixable in V1.**
+4. **Adoption Friction** — **85**, **6**, **90**. Hosted path is intentional ([`README.md`](../REPOSITORY_README.md)); contributor path is Docker/SQL/.NET-heavy — [`INSTALL_ORDER.md`](../engineering/INSTALL_ORDER.md). Tradeoff: parity vs laptop simplicity. **Improve:** tighten dev-container story. **Fixable in V1.**
 
 5. **Time-to-Value** — **90**, **7**, **70**. CLI `try`, wizard, smoke scripts — [`RELEASE_SMOKE.md`](RELEASE_SMOKE.md). Tradeoff: happy path breadth vs branching UI. **Improve:** richer accelerators/templates. **Fixable in V1.**
 
-6. **Executive Value Visibility** — **85**, **4**, **60**. Sponsor exports and DOCX path exist ([`README.md`](../../README.md)); aggregate bulletin needs Published reference rows — [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md). Tradeoff: static artifacts vs dashboards. **Improve:** graduate reference-customer narrative. **Owner input (**DEFERRED**)**.
+6. **Executive Value Visibility** — **85**, **4**, **60**. Sponsor exports and DOCX path exist ([`README.md`](../REPOSITORY_README.md)); aggregate bulletin needs Published reference rows — [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md). Tradeoff: static artifacts vs dashboards. **Improve:** graduate reference-customer narrative. **Owner input (**DEFERRED**)**.
 
 7. **Differentiability** — **85**, **4**, **60**. Manifest + governance product story is differentiated; formal third-party attestation publication is deferred **V1.1** ([`V1_SCOPE.md`](V1_SCOPE.md) §3 pen-test row). Tradeoff: cost vs credibility. **Owner funding (**DEFERRED**)**.
 
@@ -163,7 +163,7 @@ Legend: **Weighted impact on readiness** = (score × weight) ÷ **Σw**. **Σw =
 4. **Owner-queue concentration** — reference publication, privacy finalization, ARR-triggered SOC2, pen-test funded execution.
 5. **Third-party assurance gap for largest deals** — self-assessment + templates vs executed pen-test report **V1.1**.
 6. **Telemetry + audit observability edges** — first-tenant funnel flag; async audit resilience must not be silent-lossy.
-7. **Contributor onboarding cost** — full stack prerequisites vs SaaS evaluator path asymmetry by design ([`README.md`](../../README.md)).
+7. **Contributor onboarding cost** — full stack prerequisites vs SaaS evaluator path asymmetry by design ([`README.md`](../REPOSITORY_README.md)).
 8. **SOC 2 ARR trigger unset** ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)) — procurement narrative ambiguity for scale buyers.
 9. **Support-bundle forwarding policy open** ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 37) — privacy vs diagnostic richness.
 10. **HTTP denial semantics** — 404-vs-403 split must land consistently to reduce enumeration signals without harming tenant-debug flows.
@@ -185,7 +185,7 @@ Legend: **Weighted impact on readiness** = (score × weight) ÷ **Σw**. **Σw =
 1. Lack of packaged **first-party ITSM** in V1 (ServiceNow deferred — [`INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md)).
 2. PGP coordinated disclosure artefact deferred **V1.1** ([`V1_SCOPE.md`](V1_SCOPE.md) §3) — reviewers read “pending”.
 3. Support-bundle forwarding redaction policy incomplete ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item **37**).
-4. Operators may still perceive **JWT vs API-key** ergonomics mismatches outside prod ([`README.md`](../../README.md)).
+4. Operators may still perceive **JWT vs API-key** ergonomics mismatches outside prod ([`README.md`](../REPOSITORY_README.md)).
 5. Audit completeness story requires async path honesty + tooling — [`V1_READINESS_SUMMARY.md`](V1_READINESS_SUMMARY.md).
 
 ---

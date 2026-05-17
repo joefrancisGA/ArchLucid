@@ -106,7 +106,7 @@ def main() -> int:
             "## Solution filters (**`*.slnf`**) at repo root",
             "",
             "- `ArchLucid.Core.slnf`, `ArchLucid.Backend.slnf`, `ArchLucid.UI.slnf` — "
-            "see **[`AGENTS.md`](../../AGENTS.md)** on `*.slnf` behavior vs **"
+            "see **[`engineering/AGENTS.md`](../engineering/AGENTS.md)** on `*.slnf` behavior vs **"
             "`dotnet build` closures**.",
             "",
             "## Next.js UI",

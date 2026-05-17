@@ -72,7 +72,7 @@ dotnet build ArchLucid.Core.slnf -c Release
 dotnet build ArchLucid.Backend.slnf -c Release
 ```
 
-When you **add or rename** a tracked **`*.csproj`** under the repo root, update the **`projects`** list in affected **`*.slnf`** files. Agent-oriented notes: **`AGENTS.md`**, **`archlucid-ui/AGENTS.md`**.
+When you **add or rename** a tracked **`*.csproj`** under the repo root, update the **`projects`** list in affected **`*.slnf`** files. Agent-oriented notes: **`docs/engineering/AGENTS.md`**, **`archlucid-ui/AGENTS.md`**.
 
 **Repo digest (`docs/library/REPO_DIGEST.md`):** Regenerate when the root **`ArchLucid.*`** project set changes (cheap inventory for agents):
 

@@ -7,7 +7,7 @@
 
 This document is the **canonical guide** to every SQL artifact in ArchLucid: what each file does, how it is executed, how the pieces relate, and how to change schema safely.
 
-**Related:** [DATA_MODEL.md](DATA_MODEL.md) (tables and domains at a glance) · [README.md](../../README.md) (database setup & DbUp) · [TEST_STRUCTURE.md](TEST_STRUCTURE.md) (`DatabaseMigrationScriptTests`)
+**Related:** [DATA_MODEL.md](DATA_MODEL.md) (tables and domains at a glance) · [README.md](../REPOSITORY_README.md) (database setup & DbUp) · [TEST_STRUCTURE.md](TEST_STRUCTURE.md) (`DatabaseMigrationScriptTests`)
 
 ---
 

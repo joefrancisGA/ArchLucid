@@ -17,7 +17,7 @@ Resolve or **triage** common ArchLucid issues without data mutation, using only 
 ## Constraints
 
 - **Do not DELETE** rows in **production** from tier-1.
-- **Do not** paste **secrets** into tickets — use [`archlucid support-bundle`](../../README.md) output **after** redaction (Bearer, `X-Api-Key`, connection secrets stripped in bundle writer).
+- **Do not** paste **secrets** into tickets — use [`archlucid support-bundle`](../REPOSITORY_README.md) output **after** redaction (Bearer, `X-Api-Key`, connection secrets stripped in bundle writer).
 
 ## Architecture overview
 

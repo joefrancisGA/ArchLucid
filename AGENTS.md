@@ -1,37 +1,5 @@
-# Repository guidance for coding agents
+<!-- **Scope:** Repo-root Cursor convention; canonical copy lives in docs/engineering/AGENTS.md. -->
 
-## Monorepo layout
+# Repository guidance — coding agents
 
-| Area | Path | Scoped agent doc |
-|------|------|------------------|
-| Backend / .NET hosts | Root `ArchLucid.*` projects, `ArchLucid.sln` | This file + `.cursor/rules/Navigation.mdc` |
-| Web app | **`archlucid-ui/`** | **`archlucid-ui/AGENTS.md`** |
-| Docs spine | **`docs/`** | `docs/START_HERE.md`; **`docs/archive/` is historical only** — do not index navigation or regenerated digests against it unless comparing history. Builders: `docs/engineering/` |
-
-Full build and CI alignment: **`docs/engineering/BUILD.md`**.
-
-## Reduce context before deep reads
-
-- **Assessments / readiness passes:** **`docs/library/REPO_DIGEST.md`** (skim; regenerate with **`python scripts/repo_digest/build_repo_digest.py`**), **`docs/library/ASSESSMENT_INPUTS.md`**, **`docs/assessments/LATEST.md`**, `.cursor/rules/Assessment-Read-First.mdc`, and attach **`.cursor/rules/Assessment-Scope-V1_1.mdc`** (**`@Assessment-Scope-V1_1`**) for scoring rules (not always injected).
-- **Session / token hygiene (always-loaded rule):** `.cursor/rules/Session-Hygiene.mdc` — use **`REPO_DIGEST`** for orientation, avoid repeating full-file reads already in-thread, batch with one preamble; suggest a **new chat** when context is enormous or you pivot subsystems.
-- **Agent execution (always-loaded):** `.cursor/rules/Agent-Execution-Policy.mdc` — do the work yourself (no implementation subagents), single-thread by default, hooks block parallel workers unless adjusted with explicit approval.
-- **Task discipline (always-loaded):** `.cursor/rules/User-Task-Discipline.mdc` — surface uncertainty, avoid speculative code, keep edits surgical, state acceptance criteria and verify before calling work done.
-- **Historical artifact snapshots:** **`docs/archive/`** (including **`docs/archive/assessments/`**) — cite **`docs/assessments/LATEST.md`** when you need today's weighted pass, not archive folders.
-
-## Partial .NET solution load
-
-Use **[solution filters](https://learn.microsoft.com/visualstudio/ide/filtered-solutions)** next to **`ArchLucid.sln`** (Visual Studio **Open a project or solution**, or CLI `dotnet build <filter>.slnf`):
-
-| Filter | Purpose |
-|--------|---------|
-| **`ArchLucid.Core.slnf`** | Contracts + Core + Application + focused unit tests (**`ArchLucid.TestSupport`**) |
-| **`ArchLucid.Backend.slnf`** | Product hosts + domain libraries + integration tests (**excludes** **`ArchLucid.Benchmarks`**, **`ArchLucid.Analyzers`**) |
-| **`ArchLucid.UI.slnf`** | Minimal .NET slice for **`archlucid-ui`**: Contracts + **`ArchLucid.Api.Client`** (+ client tests); the SPA itself is **`archlucid-ui/`** |
-
-**CI and release** still assume the **full** **`ArchLucid.sln`**. **`dotnet build *.slnf`** still compiles **ProjectReference** closures (for example **`ArchLucid.Application`** pulls most domain projects); filters mainly shape **IDE top-level load** and give agents a **narrow entry**, not a smaller compile graph unless project references shrink.
-
-After adding or renaming **`*.csproj`** files under the repo root, update the **`projects`** arrays in these **`*.slnf`** files.
-
-## Canonical extension map
-
-Contributor decision tree and entry points: **`.cursor/rules/Architecture-Invariants.mdc`**, **`docs/library/V1_SCOPE.md`**, **`docs/library/API_CONTRACTS.md`**.
+Full **monorepo map**, **`*.slnf`** filters, and assessment pointers: **`[docs/engineering/AGENTS.md](docs/engineering/AGENTS.md)`** · Next.js app only: **`[archlucid-ui/AGENTS.md](archlucid-ui/AGENTS.md)`**.

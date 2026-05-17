@@ -18,7 +18,7 @@
 | Action | CLI (examples) | Primary API | Operator UI | Authority (nav hint) | Runbook / doc |
 |--------|----------------|-------------|-------------|------------------------|---------------|
 | Health / readiness | `dotnet run --project ArchLucid.Cli -- health` | `GET /health/live`, `GET /health/ready` | — | Anonymous | [BUILD.md](BUILD.md) |
-| Version | `dotnet run --project ArchLucid.Cli -- doctor` | `GET /version` | — | Read (doctor) | [README.md](../../README.md) |
+| Version | `dotnet run --project ArchLucid.Cli -- doctor` | `GET /version` | — | Read (doctor) | [README.md](../REPOSITORY_README.md) |
 | Create architecture request | `dotnet run --project ArchLucid.Cli -- run` | `POST /v1/architecture/request` | `/runs/new` | Execute (wizard submit) | [CORE_PILOT.md §3](../CORE_PILOT.md#3-step-by-step-walkthrough) |
 | Poll run / pipeline | `… status <runId>` | `GET /v1/architecture/run/{runId}` | `/runs/{runId}` | Read | [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) |
 | Commit manifest | `… commit <runId>` | `POST /v1/architecture/run/{runId}/commit` | Run detail | Execute | [CORE_PILOT.md §3](../CORE_PILOT.md#3-step-by-step-walkthrough) |
@@ -84,7 +84,7 @@
 | Pilot stack | `… pilot up` | Demo-oriented compose | [FIRST_30_MINUTES.md](../FIRST_30_MINUTES.md) |
 | One-shot try | `… try` | Seed + sample + open UI | [CLI_USAGE.md](CLI_USAGE.md#archlucid-try) |
 | Comparisons library | `… comparisons …` | list / replay / drift | [COMPARISON_REPLAY.md](COMPARISON_REPLAY.md) |
-| Support bundle | `… support-bundle …` | Sanitize before sharing | [README.md](../../README.md) |
+| Support bundle | `… support-bundle …` | Sanitize before sharing | [README.md](../REPOSITORY_README.md) |
 | Reference evidence ZIP | `… reference-evidence …` | tenant or admin | [go-to-market/reference-customers/README.md](../go-to-market/reference-customers/README.md) |
 
 ---

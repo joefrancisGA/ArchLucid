@@ -228,7 +228,7 @@ Run the API (example)
 
 $uiLine
 
-Docs: docs/RELEASE_LOCAL.md, docs/PILOT_GUIDE.md, README.md (health: /health/live, /health/ready).
+Docs: docs/RELEASE_LOCAL.md, docs/PILOT_GUIDE.md, docs/REPOSITORY_README.md (health: /health/live, /health/ready).
 "@
 
 Set-Content -LiteralPath $handoffPath -Value $handoff.TrimEnd() -Encoding utf8
