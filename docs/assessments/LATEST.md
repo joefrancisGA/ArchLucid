@@ -57,7 +57,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted deficiency signal:** 100
 - **Justification:** The Azure extractor provides cost data, the comparison replay cost estimator is useful, and internal pseudonymized cross-tenant daily rollups (`dbo.InternalCrossTenantRollupDaily`, operator-only APIs) support portfolio-wide executive proof without exposing tenant identity in rollup stores.
 - **Tradeoffs:** Rollup salt rotation changes surrogate keys; production operators must configure Key Vault salt and apply migration `170` before relying on SQL rollups.
-- **Improvement recommendations:** None for cross-tenant analytics (completed 2026-05-17); continue hardening Azure cost automation for per-tenant ROI narratives.
+- **Improvement recommendations:** None for cross-tenant analytics (completed 2026-05-17); continue hardening broader Azure cost narratives (Cost Management / Advisor exporter parity, catalog breadth beyond App Service + SQL retail append completed 2026-05-17 per improvement **#6**).
 
 ### 5. Adoption Friction
 - **Score:** 85
@@ -201,7 +201,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted deficiency signal:** 20
 - **Justification:** Azure cost extractor provides visibility. Comparison replay cost estimation uses granular payload heuristics.
 - **Tradeoffs:** Some manual estimation remains in broader Azure cost workflows.
-- **Improvement recommendations:** Automate broader Azure cost estimations in the PowerShell extractor.
+- **Improvement recommendations:** Extend automated Azure cost narratives beyond App Service plans and SQL databases (Retail **`retail-prices.json`** via `-IncludeRetailPrices` shipped 2026-05-17 — see improvement **#6** completion evidence).
 
 ### 23. Interoperability
 - **Score:** 90
@@ -234,7 +234,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 1. ~~**Lack of cross-tenant analytics**~~ **Completed 2026-05-17:** Pseudonymized internal daily rollups shipped (`InternalCrossTenantRollupDaily`, `GET/POST /v1/internal/analytics/cross-tenant/daily*`, runbook `docs/runbooks/INTERNAL_CROSS_TENANT_ANALYTICS.md`).
 2. ~~**Missing LLM observability**~~ **Completed (2026-05-17):** GenAI Activities (`ArchLucid.Agent.LlmCompletion`, `ArchLucid.Agent.LlmEmbedding`) and `archlucid_llm_*` meters (incl. `archlucid_llm_gen_ai_operation_duration_ms`, chat/embedding token counters). **Residual:** operator dashboards and SLO/alert coverage on those signals.
 3. **E2E test mock reliance:** `ui-e2e-smoke` relies heavily on mocked `/api/proxy`, leaving integration surfaces vulnerable to regressions.
-4. **Manual Azure cost estimations:** The Azure extractor requires manual cost estimation for many resource types, limiting automated ROI proof.
+4. **Manual Azure cost estimations:** The extractor now appends public Retail Prices catalog rows (**`retail-prices.json`**, `-IncludeRetailPrices`) for inventoried App Service plans and Azure SQL databases; Cost Management-/Advisor-shaped exports and many other SKU families remain manual or off-tool, limiting full automated ROI proof.
 5. ~~**Lack of automated tenant data deletion**~~ **Deferred V2 (2026-05-17):** Full quarantine + legal-hold + orchestrated purge pipeline is **out of `(A)`** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**. **`(B)`** — privacy questionnaires may still diligence deletion; V1 answers with operator/trial purge paths + roadmap.
 6. **Lack of custom rule authoring UI:** Evaluators must write raw code or JSON to author custom governance rules, increasing adoption friction.
 7. **Operational script auth realism:** Some scripts still rely on `DevelopmentBypass`, breaking realism and hindering secure operations.
@@ -249,7 +249,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 ## Top 6 Monetization Blockers
 
 1. ~~**Lack of cross-tenant analytics**~~ **Completed 2026-05-17** (internal operator rollups; not a tenant-facing or marketing claim).
-2. **Manual Azure cost estimations:** Reduces the platform's ability to automatically prove hard infrastructure savings.
+2. ~~**Manual Azure cost estimations**~~ **Partially addressed (2026-05-17):** App Service plans and Azure SQL databases can carry Retail catalog evidence via extractor **`retail-prices.json`** (`-IncludeRetailPrices`). **Residual:** amortized/`Cost Management`-shaped totals and SKU breadth beyond those families.
 3. **Lack of a published reference customer:** Slows early momentum and trust generation (deferred to V1.1).
 4. **Lack of self-serve transactability:** Stripe live keys and Marketplace publication are deferred, forcing a high-touch sales motion.
 5. **Named productized offers packaging:** Velocity to cash depends on a buyable review SKU and SOW alignment, which requires GTM execution.
@@ -384,16 +384,19 @@ Create a new Playwright test file `archlucid-ui/e2e/live-api-whitelabel-export.s
 ```
 
 ### 6. Automate broader Azure cost estimations in the PowerShell extractor
+- **Status:** Completed (2026-05-17)
 - **Why it matters:** Manual cost estimation limits the platform's ability to automatically prove hard infrastructure savings.
 - **Expected impact:** Cost-Effectiveness (+10 pts), Proof-of-ROI Readiness (+5 pts).
 - **Affected qualities:** Cost-Effectiveness, Proof-of-ROI Readiness.
-- **Actionable:** Yes
+- **Actionable:** No
+- **Completion evidence:** `scripts/azure/Get-ArchLucidAzurePackage.ps1` (`scriptVersion` 0.2.0, `-IncludeRetailPrices` writes `retail-prices.json` into the extractor ZIP); `scripts/azure/ArchLucid.RetailPrices.helpers.ps1` (`New-ArchLucidRetailPricesDocument` — OData filter to `https://prices.azure.com/` for Retail catalog `serviceName` **Azure App Service** and **SQL Database**, USD consumption-oriented rows, SKU matching vs inventory `sku`); core `Get-AzResource` inventory loops unchanged.
 ```text
 Update `Get-ArchLucidAzurePackage.ps1` to automatically query the Azure Retail Prices API for App Service Plans and Azure SQL Databases.
 - Acceptance criteria: The script outputs `retail-prices.json` containing the current retail rates for the collected App Service and SQL SKUs.
 - Constraints: Do not require any new Azure RBAC roles beyond `Reader` and `Cost Management Reader`.
 - What not to change: Do not alter the core ARM resource collection logic.
 - Impact: Directly improves Cost-Effectiveness (+8-10 pts) and Proof-of-ROI Readiness (+3-5 pts). Weighted readiness impact: +0.2-0.3%.
+- Acceptance criteria met: `-IncludeRetailPrices` appends `retail-prices.json` (consumption-priced catalog rows correlated to inventoried App Service plans and SQL databases); pricing calls are outbound HTTPS-only to `prices.azure.com` — no incremental Azure RBAC beyond ARM read scopes already assumed for extractor inventory.
 ```
 
 ### 7. Update all operational scripts to support JWT/API keys
@@ -689,7 +692,7 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 
 - **Batch 1 (Observability & Reliability):** 2, 18, 21, 22, 23
 - **Batch 2 (Testing & CI Hygiene):** 5, 12, 14, 15, 16, 24
-- **Batch 3 (Integrations & Extractor):** 6, 13, 25
+- **Batch 3 (Integrations & Extractor):** ~~6~~ completed 2026-05-17, 13, 25
 - **Batch 4 (Architecture, infrastructure, tenant lifecycle):** ~~3~~ (**V2** — [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**), 7, 11, 17, 19, 20
 - **Batch 5 (UX & Dashboards):** 4, 8, 9, 10
 - **Batch 6 (Internal cross-tenant rollups):** ~~1~~ completed 2026-05-17
