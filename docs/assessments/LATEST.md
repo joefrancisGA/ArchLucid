@@ -444,13 +444,134 @@ Implement cross-tenant analytics dashboards for internal operators to track aggr
 Complete deeper engine-native scheduling and observability for the Durable Task Framework port and clean up legacy paths once sustained green.
 ```
 
+14. **Add tracking for 108 replay notes during catalog migrations**
+- Why it matters: RLS migrations remain coordination-heavy; tracking replay notes where catalogs lag improves correctness visibility.
+- Expected impact: Correctness (+3 pts), Maintainability (+2 pts).
+- Affected qualities: Correctness, Maintainability.
+- Actionable: Yes
+
+```markdown
+Implement telemetry to track `108` replay notes during catalog migrations to provide visibility into lag.
+```
+
+15. **Enhance documentation for single-process projection limitations**
+- Why it matters: Default in-process projection cache caps multi-replica coherence when Redis is absent.
+- Expected impact: Explainability (+3 pts), Reliability (+2 pts).
+- Affected qualities: Explainability, Reliability.
+- Actionable: Yes
+
+```markdown
+Update deployment documentation to clearly state the limitations of single-process projection caches and strongly recommend Redis for scaled environments.
+```
+
+16. **Improve discoverability of OpenAPI client examples and webhook recipes**
+- Why it matters: Developers struggle to find examples, increasing integration time.
+- Expected impact: Interoperability (+4 pts), Adoption Friction (+2 pts).
+- Affected qualities: Interoperability, Adoption Friction.
+- Actionable: Yes
+
+```markdown
+Reorganize `docs/integrations/recipes/` to surface OpenAPI-aligned client examples and webhook configurations more prominently.
+```
+
+17. **Automate broader Azure cost estimations**
+- Why it matters: Manual cost estimation limits the platform's ability to prove hard infrastructure savings automatically.
+- Expected impact: Cost-Effectiveness (+4 pts), Proof-of-ROI Readiness (+2 pts).
+- Affected qualities: Cost-Effectiveness, Proof-of-ROI Readiness.
+- Actionable: Yes
+
+```markdown
+Extend the Azure extractor to automate cost estimations across a broader set of Azure resources, reducing reliance on manual operator input.
+```
+
+18. **Implement automated checks for audit matrix reviews**
+- Why it matters: Ensures that any new HTTP mutations automatically trigger a review of the audit coverage matrix.
+- Expected impact: Compliance Readiness (+4 pts), Auditability (+2 pts).
+- Affected qualities: Compliance Readiness, Auditability.
+- Actionable: Yes
+
+```markdown
+Add a CI step that parses `docs/library/AUDIT_COVERAGE_MATRIX.md` and fails the build if new `POST`/`PUT`/`DELETE` API endpoints lack documented audit events.
+```
+
+19. **Prepare Stripe live keys and Marketplace publication pipeline**
+- Why it matters: Required to capture self-serve revenue once finance approves.
+- Expected impact: Commercial Packaging Readiness (+5 pts), Adoption Friction (+2 pts).
+- Affected qualities: Commercial Packaging Readiness, Adoption Friction.
+- Actionable: Yes
+
+```markdown
+Stage the necessary configuration changes and Terraform updates required to flip Stripe keys to live and publish the Marketplace listing, gating them behind a feature flag.
+```
+
+20. **Update operational runbooks for AuthorityPipeline concurrency**
+- Why it matters: Operators need clear guidance on configuring and monitoring worker pool concurrency.
+- Expected impact: Reliability (+4 pts), Supportability (+2 pts).
+- Affected qualities: Reliability, Supportability.
+- Actionable: Yes
+
+```markdown
+Document the recommended defaults for `AuthorityPipeline:Concurrency` per environment tier and add a runbook section for monitoring lease table growth.
+```
+
+21. **Incrementally expand NetArchTest boundary rules**
+- Why it matters: Continued expansion of automated boundary rules protects maintainability as the codebase grows.
+- Expected impact: Maintainability (+4 pts), Modularity (+2 pts).
+- Affected qualities: Maintainability, Modularity.
+- Actionable: Yes
+
+```markdown
+Add at least three new architecture boundary rules in `ArchLucid.Architecture.Tests` to further tighten public surfaces using the `internal` modifier.
+```
+
+22. **Establish a periodic manual accessibility review process**
+- Why it matters: Automated scans (axe-core) do not catch all accessibility issues; manual testing with assistive technologies is required.
+- Expected impact: Accessibility (+5 pts), Usability (+2 pts).
+- Affected qualities: Accessibility, Usability.
+- Actionable: Yes
+
+```markdown
+Create a documented process and schedule for manual accessibility reviews using screen readers, and add a recurring reminder task for the team.
+```
+
+23. **Develop a program to publish the first reference customer**
+- Why it matters: The absence of a published reference customer slows early momentum and trust.
+- Expected impact: Marketability (+5 pts), Proof-of-ROI Readiness (+2 pts).
+- Affected qualities: Marketability, Proof-of-ROI Readiness.
+- Actionable: Yes
+
+```markdown
+Draft a reference customer onboarding plan, including criteria for selection, expected outcomes, and a template for the resulting case study.
+```
+
+24. **Formalize data residency verification in the provisioning pipeline**
+- Why it matters: Enterprise buyers require verifiable proof that their data resides in the specified geographic region.
+- Expected impact: Compliance Readiness (+4 pts), Security (+2 pts).
+- Affected qualities: Compliance Readiness, Security.
+- Actionable: Yes
+
+```markdown
+Add automated tests to the tenant provisioning pipeline that verify Azure Blob Storage and SQL database locations match the requested `DataRegion`.
+```
+
+25. **Develop a framework for sharing custom policy packs**
+- Why it matters: Encouraging tenants to author and share their own policy packs increases platform stickiness and value.
+- Expected impact: Stickiness (+4 pts), Template and Accelerator Richness (+3 pts).
+- Affected qualities: Stickiness, Template and Accelerator Richness.
+- Actionable: Yes
+
+```markdown
+Design the API contracts and storage schema necessary to support an internal "Policy Pack Hub" where tenants can publish and subscribe to custom packs.
+```
+
 ## Prompt Batching Guidance
 
 - **Batch 1 (High Leverage, Low Risk):** 1, 3, 6, 11
 - **Batch 2 (Performance & Observability):** 2, 5, 7, 9, 13
-- **Batch 3 (UX & adoption):** 1, 4, 10
-- **Batch 4 (Architecture hygiene & Testing):** 2, 8, 12
-- **Batch 5 (Integrations — credential-dependent):** 4 (ServiceNow)
+- **Batch 3 (UX & adoption):** 10, 15, 16, 22
+- **Batch 4 (Architecture hygiene & Testing):** 8, 12, 14, 18, 21, 24
+- **Batch 5 (Integrations — credential-dependent):** 4 (ServiceNow), 19
+- **Batch 6 (Business Value & Stickiness):** 17, 20, 23, 25
 - **Deferred / V1.1 program:** Azure CAF / landing-zone curated policy pack; bulk evidence upload above 30 files, ZIP expansion, recursive folder ingest; Stripe live keys / Marketplace.
 
 ## Marketing alignment
