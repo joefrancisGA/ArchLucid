@@ -28,7 +28,7 @@
 
 | # | Task | Type | Priority | Status | Depends on (technical) |
 |---|------|------|----------|--------|------------------------|
-| M-01 | Finalize one-sentence positioning tagline and update `POSITIONING.md` | Copy | P0 | Not started | None — `POSITIONING.md` exists as basis |
+| M-01 | Finalize one-sentence positioning tagline and update `POSITIONING.md` | Copy | P0 | Done | None — `POSITIONING.md` exists as basis |
 | M-02 | Write one-minute verbal pitch (elevator script) | Copy | P0 | Not started | None — `EXECUTIVE_SPONSOR_BRIEF.md` as basis |
 | M-03 | Write five-minute demo script aligned to marketing vocabulary (Capture → Evidence → Review → Findings → Decisions → Report) | Copy | P0 | Not started | None — `DEMO_VIDEO_SCRIPT.md` exists; validate against Workspace A/B flows |
 | M-04 | Verify self-demo workspace (Workspace A — ArchLucid reviews ArchLucid) passes Playwright smoke | QA sign-off | P0 | Not started | **Improvement #30 — COMPLETED (2026-05-17)** |

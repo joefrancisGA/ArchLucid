@@ -7,7 +7,7 @@
 
 **Audience:** Anyone who needs to explain what ArchLucid is and why it matters — in a sentence, a paragraph, or a two-minute conversation.
 
-**Last reviewed:** 2026-05-07
+**Last reviewed:** 2026-05-17
 
 **Grounding rule:** Every claim maps to a shipped V1 capability. See [V1_SCOPE.md](../library/V1_SCOPE.md) and [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) for evidence.
 
@@ -18,6 +18,8 @@
 ---
 
 ## 1. Positioning statement
+
+**One-sentence tagline:** ***Defensible architecture, on demand.***
 
 > For **enterprise architects and the CTOs who sponsor their work**, ArchLucid turns scattered architecture evidence into a **prioritized, evidence-linked risk review** — complete with recommended actions, confidence ratings, explicit limits where the system does not conclude, and an exportable executive summary. Unlike **manual architecture review** which is slow, inconsistent, and undocumented, or **ad-hoc AI tools** which produce prose without accountability, ArchLucid delivers a **proof-oriented package**: every risk traced to evidence, every recommendation actionable, every decision auditable — obvious without a founder narrating it.
 
@@ -123,16 +125,23 @@ This category sits between traditional **Enterprise Architecture Management** (w
 
 ---
 
-## 6. Taglines (options for testing)
+## 6. Tagline
 
-| Tagline | Angle |
-|---------|-------|
-| *Defensible architecture, on demand.* | Lead promise (homepage H1) |
-| "Architecture proof engine — evidence, limits, and value without narration." | Proof-machine framing |
-| "Architecture decisions you can explain, govern, and audit." | Accountability focus |
-| "AI-driven architecture review. Enterprise-grade governance." | Capability + trust |
-| "From design to decision trail — in minutes, not weeks." | Speed + auditability |
-| "Every recommendation traced. Every decision governed." | Transparency + control |
+**Finalized (2026-05-17):** ***Defensible architecture, on demand.***
+
+Used as the homepage H1, lead promise, and one-sentence positioning tagline across all GTM surfaces. Aligns with the [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md) §1 category line and the §7 messaging guidance below (buyer-outcome-first, no jargon).
+
+<details><summary>Considered alternatives (retained for reference)</summary>
+
+| Tagline | Angle | Why not chosen |
+|---------|-------|----------------|
+| "Architecture proof engine — evidence, limits, and value without narration." | Proof-machine framing | "Without narration" is internal language; violates §7 "don't lead with implementation" |
+| "Architecture decisions you can explain, govern, and audit." | Accountability focus | Longer; lists features rather than a buyer outcome |
+| "AI-driven architecture review. Enterprise-grade governance." | Capability + trust | Leads with "AI-driven," which §7 discourages as a headline |
+| "From design to decision trail — in minutes, not weeks." | Speed + auditability | Good supporting copy but emphasizes speed over defensibility |
+| "Every recommendation traced. Every decision governed." | Transparency + control | Strong secondary line; kept as candidate subhead |
+
+</details>
 
 ---
 
