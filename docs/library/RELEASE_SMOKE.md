@@ -5,7 +5,7 @@
 
 # Release smoke path (Change Set 56R)
 
-One **deterministic** end-to-end check for **pilot / commercial confidence** on **ArchLucid** (not full coverage). Implemented as **`release-smoke.ps1`** / **`release-smoke.cmd`** at the repo root.
+One **deterministic** end-to-end check for **pilot / commercial confidence** on **ArchLucid** (not full coverage). Implemented as **`scripts/release-smoke.ps1`** / **`scripts/release-smoke.cmd`** (run **`.\scripts\release-smoke.ps1`** or **`scripts\release-smoke.cmd`** from repo root).
 
 **For pilots:** Use **`run-readiness-check`** first (faster — no temporary API). Use **`release-smoke`** when you have **SQL** and want one scripted path that also runs **CLI `run --quick`** and checks **artifacts**. If the script fails, copy the **`--- FAILURE (triage) ---`** block (**Stage**, **Category**, **Next:**) into your report — see [PILOT_GUIDE.md](PILOT_GUIDE.md#when-you-report-an-issue).
 
@@ -19,7 +19,7 @@ One **deterministic** end-to-end check for **pilot / commercial confidence** on 
 6. **Sample run** — CLI **`new ArchLucidSmokeRc`** in a temp folder, then **`run --quick`** (Development seed + commit).
 7. **Artifacts** — **`GET /v1/architecture/run/{runId}`** must show **`goldenManifestId`**; **`GET /v1/artifacts/manifests/{manifestId}`** must return **≥ 1** descriptor.
 8. **Optional: Playwright (mock)** — **`-RunPlaywright`** runs **`archlucid-ui`** **`npm run test:e2e`** (mock/fixture loopback) **after** the steps above.
-9. **Optional: Playwright (live API parity)** — **`-LivePlaywright`** or **named `-Profile LiveUiSql`** runs **`npm exec playwright test`** against **`playwright.config.ts`** with **`LIVE_API_URL`** (defaults to **`-ApiBaseUrl`**). Mirrors **`ci.yml`** **`ui-e2e-live`** for **`live-api-*.spec.ts`** while reusing the smoke-started API when **`-SkipE2E`** is omitted. Equivalent convenience entry points: **`release-smoke-live-ui-sql.ps1`** / **`release-smoke-live-ui-sql.cmd`**. **`LIVE_API_KEY`** / **`LIVE_JWT_TOKEN`** remain optional — auth subset specs skip when unset (same as CI). Not run by default.
+9. **Optional: Playwright (live API parity)** — **`-LivePlaywright`** or **named `-Profile LiveUiSql`** runs **`npm exec playwright test`** against **`playwright.config.ts`** with **`LIVE_API_URL`** (defaults to **`-ApiBaseUrl`**). Mirrors **`ci.yml`** **`ui-e2e-live`** for **`live-api-*.spec.ts`** while reusing the smoke-started API when **`-SkipE2E`** is omitted. Equivalent convenience entry points: **`scripts/release-smoke-live-ui-sql.ps1`** / **`scripts/release-smoke-live-ui-sql.cmd`**. **`LIVE_API_KEY`** / **`LIVE_JWT_TOKEN`** remain optional — auth subset specs skip when unset (same as CI). Not run by default.
 10. **Evidence summary footer** — on success, the script prints a short **`Release smoke evidence summary`** stating which gates validated and what was **not** asserted (default smoke still skips live parity unless **`LiveUiSql` profile** / **`-LivePlaywright`** / **`-RunPlaywright`** as applicable).
 
 ### Does passing `release-smoke` prove UI ↔ SQL parity?
@@ -30,13 +30,13 @@ One **deterministic** end-to-end check for **pilot / commercial confidence** on 
 
 | What ran | Validates API + CLI + artifacts from steps 5–7 (same smoke process)? | Validates operator **browser** against **that** SQL-backed API (`live-api-*.spec.ts`)? |
 |----------|----------------------------------------------------------------------|----------------------------------------------------------------------------------------|
-| **`release-smoke.ps1`** (default; no `-RunPlaywright`) | **Yes** | **No** (no live Playwright lane) |
-| **`release-smoke.ps1 -RunPlaywright`** | **Yes** for API/CLI; **`-RunPlaywright`** then runs **`npm run test:e2e`** (**mock**/fixture loopback — [§ What `-RunPlaywright` exercises](#what--runplaywright-actually-exercises-57r)) | **No** — mocks do not call the smoke API instance |
-| **`release-smoke.ps1 -LivePlaywright`** when **`-SkipE2E`** omitted | **Yes** | **Yes** — **`live-api-*.spec.ts`** via **`playwright.config.ts`** / **`npm exec playwright test`** and **`LIVE_API_URL`** (**`-ApiBaseUrl`** default); same chromium project as **`ui-e2e-live`** |
-| **`release-smoke.ps1 -Profile LiveUiSql`** (aliases **`release-smoke-live-ui-sql.ps1`** / **`release-smoke-live-ui-sql.cmd`**) **without** `-SkipE2E -SkipUi` | **Yes** (identical API/CLI/artifact gates; implicitly enables `-LivePlaywright`) | **Yes** |
+| **`scripts/release-smoke.ps1`** (default; no `-RunPlaywright`) | **Yes** | **No** (no live Playwright lane) |
+| **`scripts/release-smoke.ps1 -RunPlaywright`** | **Yes** for API/CLI; **`-RunPlaywright`** then runs **`npm run test:e2e`** (**mock**/fixture loopback — [§ What `-RunPlaywright` exercises](#what--runplaywright-actually-exercises-57r)) | **No** — mocks do not call the smoke API instance |
+| **`scripts/release-smoke.ps1 -LivePlaywright`** when **`-SkipE2E`** omitted | **Yes** | **Yes** — **`live-api-*.spec.ts`** via **`playwright.config.ts`** / **`npm exec playwright test`** and **`LIVE_API_URL`** (**`-ApiBaseUrl`** default); same chromium project as **`ui-e2e-live`** |
+| **`scripts/release-smoke.ps1 -Profile LiveUiSql`** (aliases **`scripts/release-smoke-live-ui-sql.ps1`** / **`scripts/release-smoke-live-ui-sql.cmd`**) **without** `-SkipE2E -SkipUi` | **Yes** (identical API/CLI/artifact gates; implicitly enables `-LivePlaywright`) | **Yes** |
 | CI **`ui-e2e-live`** / **`ui-e2e-live-apikey`** / **`ui-e2e-live-jwt`** (`live-api-*.spec.ts`) | N/A (different entry point) | **Yes** |
 
-**One-minute answer:** passing **`release-smoke.ps1`** with neither mock nor live playwright flags does **not** replace **`ci.yml`** **`live-api-*.spec.ts`** gates. Use **`-LivePlaywright`** **or** the named **`LiveUiSql` profile / wrapper scripts** to mirror **`ui-e2e-live`** against the smoke-started **`ArchLucid.Api`** locally when SQL plus Node/Chromium prerequisites are satisfied. Canonical live path: **[LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)**; tier table: **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)**.
+**One-minute answer:** passing **`scripts/release-smoke.ps1`** with neither mock nor live playwright flags does **not** replace **`ci.yml`** **`live-api-*.spec.ts`** gates. Use **`-LivePlaywright`** **or** the named **`LiveUiSql` profile / wrapper scripts** to mirror **`ui-e2e-live`** against the smoke-started **`ArchLucid.Api`** locally when SQL plus Node/Chromium prerequisites are satisfied. Canonical live path: **[LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)**; tier table: **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)**.
 
 **Not included (unless opted in):** Playwright (**`-RunPlaywright`** mock lane or **`-LivePlaywright`** live parity lane), SQL container contract tests, multi-tenant matrix, performance — by design.
 
@@ -87,7 +87,7 @@ $env:ARCHLUCID_SMOKE_SQL = 'Server=localhost,1433;Database=ArchLucid;User Id=sa;
 
 The script sets **`ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask`** for the temporary API process only (**`-SkipE2E`** is incompatible). See **`docs/runbooks/STAGING_DEPLOYMENT_VALIDATION.md`** (Authority pipeline section).
 
-**Windows CMD:** connection strings contain `;` — avoid inline `set` (it breaks at the first semicolon). Prefer PowerShell above, or run **`release-smoke.cmd`** after setting the variable in PowerShell / System Properties. The **`.cmd`** wrapper invokes **`release-smoke.ps1`** with `%*`; you can pass **`-SqlConnectionString '...'`** from CMD if quoted carefully.
+**Windows CMD:** connection strings contain `;` — avoid inline `set` (it breaks at the first semicolon). Prefer PowerShell above, or run **`scripts/release-smoke.cmd`** after setting the variable in PowerShell / System Properties. The **`.cmd`** wrapper invokes **`scripts/release-smoke.ps1`** with `%*`; you can pass **`-SqlConnectionString '...'`** from CMD if quoted carefully.
 
 **CI-style: include full Core suite (after fast core):**
 
@@ -150,7 +150,7 @@ With **`-SkipE2E`**, **`-LivePlaywright`** is skipped with a warning (no API to 
 | **`-SkipUi`** | No `npm ci` / Vitest / `next build` |
 | **`-RunPlaywright`** | After other steps: **`archlucid-ui`** Playwright E2E (**`CI=1`**, mock config); see [What `-RunPlaywright` actually exercises](#what--runplaywright-actually-exercises-57r) |
 | **`-LivePlaywright`** | After steps 5–7 (skipped when **`-SkipE2E`**): **`npm exec playwright test`** (**`live-api-*.spec.ts`**) with **`playwright.config.ts`** and **`LIVE_API_URL`** (defaults from **`-ApiBaseUrl`**); **`AgentExecution__Mode=Simulator`** on child API; **`ASPNETCORE_ENVIRONMENT=Development`** (script default). **`LIVE_API_KEY`** / **`LIVE_JWT_TOKEN`** optional. |
-| **`-Profile LiveUiSql`** | Same parity lane as **`LivePlaywright`** (after steps 5–7); also runs **`npm exec playwright install chromium`** before launching the smoke API whenever UI built; prints **evidence summary** banner on completion. Forbidden with **`-SkipUi`**/**`-SkipE2E`**. Equivalent convenience entry:**`release-smoke-live-ui-sql.ps1`**. Combine with **`RunPlaywright`** only when you intentionally want mock + live back-to-back. |
+| **`-Profile LiveUiSql`** | Same parity lane as **`LivePlaywright`** (after steps 5–7); also runs **`npm exec playwright install chromium`** before launching the smoke API whenever UI built; prints **evidence summary** banner on completion. Forbidden with **`-SkipUi`**/**`-SkipE2E`**. Equivalent convenience entry:**`scripts/release-smoke-live-ui-sql.ps1`**. Combine with **`RunPlaywright`** only when you intentionally want mock + live back-to-back. |
 | **`-AuthorityPipelineDtfSmoke`** | Before starting the smoke API: requires **`ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint`** in the environment; sets **`ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask`** for the temporary **API** process. Forbidden with **`-SkipE2E`**. |
 | **`-FullCore`** | After fast core, run **`dotnet test` —filter `Suite=Core`** |
 
@@ -162,7 +162,7 @@ With **`-SkipE2E`**, **`-LivePlaywright`** is skipped with a warning (no API to 
 |--------|------|
 | **`run-readiness-check`** | Release build + fast core + Vitest only (no E2E API, no artifact assertion) |
 | **`package-release`** | Publish API to `artifacts/release/api/` |
-| **`release-smoke-live-ui-sql(.ps1/.cmd)`** | Wrapper that forwards **`release-smoke.ps1 -Profile LiveUiSql`** (+ optional **`RunPlaywright`**) |
+| **`scripts/release-smoke-live-ui-sql(.ps1/.cmd)`** | Wrapper that forwards **`scripts/release-smoke.ps1 -Profile LiveUiSql`** (+ optional **`RunPlaywright`**) |
 
 ---
 
@@ -184,7 +184,7 @@ If validation fails and **`CD_ROLLBACK_ON_SMOKE_FAILURE`** is **true**, the work
 
 ## Failure triage (script output)
 
-Both **`release-smoke.ps1`** and **`run-readiness-check.ps1`** use shared helpers in **`scripts/OperatorDiagnostics.ps1`**.
+Both **`scripts/release-smoke.ps1`** and **`scripts/run-readiness-check.ps1`** use shared helpers in **`scripts/OperatorDiagnostics.ps1`**.
 
 - **Phases** are labeled **`[step/total]`** in the log (e.g. **`[5/6]`**) so you can see **which gate failed first**.
 - On failure, a **`--- FAILURE (triage) ---`** block prints **`Stage`**, **`Category`** (e.g. `ReadinessTimeout`, `Misconfiguration`, `TestFailure`), and **`Next:`** bullet hints.

@@ -862,7 +862,7 @@ Added **`GET /v1/demo/preview`** and the marketing **`/demo/preview`** page so s
 
 **Added:** Single canonical test driver — [`test.ps1`](../scripts/test.ps1) (PowerShell) and [`test.cmd`](../scripts/test.cmd) (cmd trampoline) with a `-Tier <name>` parameter accepting `Core`, `FastCore`, `Integration`, `SqlServerIntegration`, `Full`, `UiUnit`, `UiSmoke`, `Slow`. `.\scripts\test.ps1 -ListTiers` enumerates all tiers and the underlying command. Replaces 8 separate per-tier script pairs (16 files) that drifted independently.
 
-**Deprecated (kept as shims):** `test-core.{cmd,ps1}`, `test-fast-core.{cmd,ps1}`, `test-integration.{cmd,ps1}`, `test-sqlserver-integration.{cmd,ps1}`, `test-full.{cmd,ps1}`, `test-slow.{cmd,ps1}`, `test-ui-unit.{cmd,ps1}`, `test-ui-smoke.{cmd,ps1}` are all now thin shims that delegate to the consolidated driver. They are scheduled for removal **after 2026-Q3**; new docs and runbooks should call `.\scripts\test.ps1 -Tier <name>` directly.
+**Deprecated (kept as shims under `scripts/`):** `test-core.{cmd,ps1}`, `test-fast-core.{cmd,ps1}`, `test-integration.{cmd,ps1}`, `test-sqlserver-integration.{cmd,ps1}`, `test-full.{cmd,ps1}`, `test-slow.{cmd,ps1}`, `test-ui-unit.{cmd,ps1}`, `test-ui-smoke.{cmd,ps1}` are all now thin shims that delegate to the consolidated driver. They are scheduled for removal **after 2026-Q3**; new docs and runbooks should call `.\scripts\test.ps1 -Tier <name>` directly.
 
 **Added:** [`docs/library/CONCEPT_VOCABULARY.md`](library/CONCEPT_VOCABULARY.md) — canonical concept vocabulary with explicit canonical-vs-rejected mappings, rationale, and a documented promotion gate (originally added as `docs/CONCEPTS.md` 2026-04-20; **relocated** to library and root file removed 2026-05-16). Distinct from [`docs/GLOSSARY.md`](library/GLOSSARY.md) (which defines terms) by focusing on adjudication between competing forms and the rules for when reviewers should push back.
 
@@ -870,7 +870,7 @@ Added **`GET /v1/demo/preview`** and the marketing **`/demo/preview`** page so s
 
 **Updated:** [`docs/AZURE_MARKETPLACE_SAAS_OFFER.md`](AZURE_MARKETPLACE_SAAS_OFFER.md) — fixed one stale legacy-tenant reference in the publishing checklist to use the canonical Microsoft Entra ID form so the new CI guard passes against live `docs/`.
 
-**Updated:** [`docs/TEST_EXECUTION_MODEL.md`](library/TEST_EXECUTION_MODEL.md) — added a "Canonical entry point" callout at the top documenting `.\scripts\test.ps1 -Tier <name>` and `test.cmd <name>`, and rewrote the optional pre-PR sequence to use the consolidated driver.
+**Updated:** [`docs/TEST_EXECUTION_MODEL.md`](library/TEST_EXECUTION_MODEL.md) — added a "Canonical entry point" callout at the top documenting `.\scripts\test.ps1 -Tier <name>` and `.\scripts\test.cmd <name>`, and rewrote the optional pre-PR sequence to use the consolidated driver.
 
 **Background.** Improvement 6 in [`archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md`](archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md) called for "collapse `test-*.cmd/.ps1` proliferation into a parameterized driver and add a CI vocabulary guard". The two changes ship together because both are documentation-discipline mechanisms that keep the project legible as it grows: one for runnable entry points, one for terminology. The shim layer preserves backward compatibility with every existing runbook reference, runbook screenshot, and external link while pushing all *new* writing toward the consolidated form.
 
@@ -1087,7 +1087,7 @@ Added aggregate run explanation endpoint (`/v1/explain/runs/{runId}/aggregate`) 
 - Specs: `smoke`, `compare-proxy-mock`, `run-manifest-journey`, `compare-journey`, `compare-stale-input-warning`, `manifest-empty-artifacts`.
 - `e2e/mock-archlucid-api-server.ts` + `e2e/start-e2e-with-mock.ts` — loopback HTTP mock on port 18765 for RSC pages; `playwright.config.ts` `webServer` updated.
 - `tsx` devDependency for TS mock runner; `e2e/tsconfig.json` + `npm run typecheck:e2e`.
-- `-RunPlaywright` flag added to `release-smoke.ps1` / `.cmd`.
+- `-RunPlaywright` flag added to `scripts/release-smoke.ps1` / `.cmd`.
 - Docs: `archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md` (section 8 rewritten).
 
 ---
@@ -1104,7 +1104,7 @@ Added aggregate run explanation endpoint (`/v1/explain/runs/{runId}/aggregate`) 
 - `BuildProvenance` + `BuildInfoResponse` (Core): parses `CommitSha` from `+{sha}` suffix of informational version; CI stamps `SourceRevisionId=$(git rev-parse HEAD)`.
 - API `ProblemSupportHints` (`extensions.supportHint`); CLI `CliOperatorHints` (`Next:` lines); UI proxy `502/503 supportHint`.
 - `archlucid support-bundle` CLI command (folder + optional `--zip`): `README.txt`, `manifest.json` (v1.1 + `triageReadOrder`), `build.json`, `health.json`, `api-contract.json` (bounded OpenAPI probe), `config-summary.json`, `environment.json`, `workspace.json`, `references.json`, `logs.json`.
-- Local scripts: `build-release`, `package-release`, `run-readiness-check`, `release-smoke` (`.cmd` + `.ps1`); `scripts/OperatorDiagnostics.ps1` (structured triage output).
+- Local scripts (`scripts/`): `build-release`, `package-release`, `run-readiness-check`, `release-smoke` (`.cmd` + `.ps1`); `scripts/OperatorDiagnostics.ps1` (structured triage output).
 - Release handoff artifacts in `artifacts/release/`: `metadata.json` (schema 1.1), `release-manifest.json`, `checksums-sha256.txt`, `PACKAGE-HANDOFF.txt`.
 - Docs added: `PILOT_GUIDE.md`, `OPERATOR_QUICKSTART.md`, `TROUBLESHOOTING.md`, `RELEASE_LOCAL.md`, `RELEASE_SMOKE.md`, `CLI_USAGE.md`.
 

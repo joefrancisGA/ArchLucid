@@ -51,13 +51,13 @@ dotnet test ArchLucid.sln --filter "Category=Slow"
 dotnet test ArchLucid.sln
 ```
 
-**Configuration:** GitHub Actions .NET jobs use **`-c Release`**. Repo-root `test-*.cmd` / `.ps1` call `dotnet test` **without** `-c` (typically **Debug**). To mirror CI: `dotnet test ArchLucid.sln -c Release`.
+**Configuration:** GitHub Actions .NET jobs use **`-c Release`**. `scripts\test-*.cmd` / `scripts\test-*.ps1` call `dotnet test` **without** `-c` (typically **Debug**). To mirror CI: `dotnet test ArchLucid.sln -c Release`.
 
-**Windows:** `.\scripts\test.ps1 -Tier OpenApiContract` runs the OpenAPI snapshot script above. **`test-core.cmd`**, **`test-fast-core.cmd`**, … delegate to **`.\scripts\test.ps1`** (same filters).
+**Windows:** `.\scripts\test.ps1 -Tier OpenApiContract` runs the OpenAPI snapshot script above. **`scripts\test-core.cmd`**, **`scripts\test-fast-core.cmd`**, … delegate to **`.\scripts\test.ps1`** (same filters).
 
 ### Release candidate packaging (56R)
 
-**Doc:** [RELEASE_LOCAL.md](RELEASE_LOCAL.md). **Scripts:** `build-release`, `package-release`, `run-readiness-check` (`.cmd` / `.ps1` at repo root). `run-readiness-check` runs a **Release** build, **fast core** tests with `-c Release`, then **Vitest** when Node is on `PATH`. **Pilot onboarding:** [PILOT_GUIDE.md](PILOT_GUIDE.md), [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md). **E2E release smoke:** [RELEASE_SMOKE.md](RELEASE_SMOKE.md) (`release-smoke.cmd`).
+**Doc:** [RELEASE_LOCAL.md](RELEASE_LOCAL.md). **Scripts:** `scripts/build-release`, `scripts/package-release`, `scripts/run-readiness-check` (`.cmd` / `.ps1`). `run-readiness-check` runs a **Release** build, **fast core** tests with `-c Release`, then **Vitest** when Node is on `PATH`. **Pilot onboarding:** [PILOT_GUIDE.md](PILOT_GUIDE.md), [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md). **E2E release smoke:** [RELEASE_SMOKE.md](RELEASE_SMOKE.md) (`scripts/release-smoke.cmd`).
 
 ### SQL Server–first (Persistence Dapper)
 
@@ -67,7 +67,7 @@ Persistence integration against a **real** SQL Server (Dapper + DbUp migrations;
 dotnet test ArchLucid.Persistence.Tests --filter "Category=SqlServerContainer"
 ```
 
-**Script:** `test-sqlserver-integration.cmd` / `.ps1`
+**Script:** `scripts/test-sqlserver-integration.cmd` / `scripts/test-sqlserver-integration.ps1`
 
 ### Greenfield SQL boot (empty catalog + API host)
 
@@ -276,4 +276,4 @@ dotnet test ArchLucid.sln --filter "Category!=Integration"
 
 **Unit-style tests in Api.Tests** that do not extend **IntegrationTestBase** are often tagged **`Category=Unit`**.
 
-No separate unit-only test project; filter by category as above.
+No separate unit-only te

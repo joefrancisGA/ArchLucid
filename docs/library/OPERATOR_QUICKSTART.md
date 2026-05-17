@@ -148,7 +148,7 @@ curl -s "http://localhost:5128/v1/product-learning/summary"
 ## Readiness + tests
 
 ```bat
-run-readiness-check.cmd
+scripts\run-readiness-check.cmd
 ```
 
 ```powershell
@@ -163,7 +163,7 @@ $env:ARCHLUCID_SMOKE_SQL = 'Server=...;Database=...;...'
 ```
 
 ```bat
-release-smoke.cmd
+scripts\release-smoke.cmd
 ```
 
 ```bash
@@ -179,13 +179,13 @@ cd archlucid-ui && npm ci && npm test
 ```
 
 ```bat
-test-ui-unit.cmd
+scripts\test-ui-unit.cmd
 ```
 
 **Package API to `artifacts/release/api/`:**
 
 ```bat
-package-release.cmd
+scripts\package-release.cmd
 ```
 
 Also creates **`artifacts/release/PACKAGE-HANDOFF.txt`**, **`metadata.json`**, **`release-manifest.json`**, and **`checksums-sha256.txt`** (see [RELEASE_LOCAL.md](RELEASE_LOCAL.md)).
