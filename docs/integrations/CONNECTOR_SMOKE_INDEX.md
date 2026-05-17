@@ -8,7 +8,7 @@ Each recipe under [smoke/](smoke/) is written so an operator can execute it **wi
 
 **Scope contract (V1):** [library/V1_SCOPE.md](../library/V1_SCOPE.md) §2.13–§2.16 (ITSM, Slack, Confluence, Azure extractor).
 
-**Customer-owned bridges** (Logic Apps / Power Automate) stay under [integrations/recipes/](recipes/README.md).
+**Customer-owned bridges** (Logic Apps / Power Automate), **canonical OpenAPI (`/openapi/v1.json`)**, and **webhook configuration** entry tables: [integrations/recipes/README.md](recipes/README.md).
 
 ## Evidence types (legend)
 

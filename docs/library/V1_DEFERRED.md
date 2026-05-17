@@ -52,6 +52,7 @@ Operational cleanup is **scheduled and gated**, not “unfinished V1 product.”
 
 | Item | Doc source |
 |------|------------|
+| **Periodic manual accessibility review** — scheduled screen-reader / assistive-technology validation beyond merge-blocking **`@axe-core/playwright`** baselines | Assessment boundary: participant AT studies are not a V1 **`(A)`** gate per **Assessment-Scope-V1_1**; **V1.1** candidate for an explicit review cadence. |
 | **Playwright** operator smoke may use **mocked** `/api/proxy`; it does not replace **SQL-backed** API + UI validation for a given release | [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [V1_SCOPE.md](V1_SCOPE.md) §3 |
 | **Audit search** keyset cursor uses **`OccurredUtc` with optional `EventId` tie-break** (`GET /v1/audit/search?beforeUtc=…&beforeEventId=…`); clients must pass both when continuing past same-second events | [AuditController.cs](../../ArchLucid.Api/Controllers/Admin/AuditController.cs), operator audit UI “Load more” |
 

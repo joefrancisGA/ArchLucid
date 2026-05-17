@@ -557,7 +557,7 @@ Design the API contracts and storage schema necessary to support an internal "Po
 - **Batch 4 (Architecture hygiene & Testing):** 8, 12, 14, 18, 21, 23
 - **Batch 5 (Integrations — credential-dependent):** 4 (ServiceNow), 19
 - **Batch 6 (Business Value & Stickiness):** 17, 20, 22, 24
-- **Deferred / V1.1 program:** Azure CAF / landing-zone curated policy pack; bulk evidence upload above 30 files, ZIP expansion, recursive folder ingest; Stripe live keys / Marketplace; periodic manual accessibility review (screen-reader / AT cadence — track in **`V1_DEFERRED.md`** / V1.1 backlog, not **`(A)`**).
+- **Deferred / V1.1 program:** Azure CAF / landing-zone curated policy pack; bulk evidence upload above 30 files, ZIP expansion, recursive folder ingest; Stripe live keys / Marketplace.
 
 ## Marketing alignment
 

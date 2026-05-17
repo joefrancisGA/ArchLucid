@@ -1,16 +1,56 @@
-> **Scope:** Index of **customer-owned** no-code webhook integration recipes: ArchLucid CloudEvents to third-party tools via Power Automate or Logic Apps **you** maintain — complements optional **or interim** coverage alongside **V1** first-party **Jira** / **ServiceNow** / **Confluence** ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13–§2.15).
+> **Scope:** Integrator entry for **OpenAPI**-aligned REST clients and **webhook** configuration, plus an index of **customer-owned** no-code recipes (Power Automate / Logic Apps) — complements optional **or interim** coverage alongside **V1** first-party **Jira** / **ServiceNow** / **Confluence** ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13–§2.15).
 
-**Audience:** Customers and integration engineers who prefer **customer-operated** automation (Microsoft Power Automate or Azure Logic Apps) for ITSM/documentation bridges — whether **before** first-party connectors are enabled, **instead of** them for operational preference, or when you need an **Azure-first** no-code path during rollout.
+**Audience:** Integration engineers building **REST clients**, configuring **webhooks** (inbound or outbound), or preferring **customer-operated** Microsoft automation for ITSM/documentation bridges.
 
-**Customer-owned means:** These documents are **reference recipes only**. They are **not** marketplace listings, vendor-certified apps, or ArchLucid-managed integrations. ArchLucid publishes CloudEvents (or Service Bus messages); **your** tenant wires webhooks and calls third-party REST APIs under **your** contracts with Microsoft, Atlassian, and ServiceNow.
+**Customer-owned means:** Step-by-step automation docs here are **reference recipes only**. They are **not** marketplace listings, vendor-certified apps, or ArchLucid-managed integrations. ArchLucid publishes CloudEvents (or Service Bus messages); **your** tenant wires webhooks and calls third-party REST APIs under **your** contracts with Microsoft, Atlassian, and ServiceNow.
 
-**Why recipes?** **First-party** **Jira**, **ServiceNow**, and **Confluence** publish are **V1 GA** commitments ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13–§2.15, [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)). These recipes use the same [event catalog](../../../schemas/integration-events/catalog.json) and [webhook / HMAC contracts](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) as any subscriber.
+**Why this folder?** **First-party** **Jira**, **ServiceNow**, **Slack**, and **Confluence** surfaces are **V1 GA** commitments ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13–§2.15, [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)). Recipes below use the same [event catalog](../../../schemas/integration-events/catalog.json) and [webhook / HMAC contracts](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) as any subscriber.
 
 **Roadmap truth check:** Connector SKU status and “planned vs shipped” remain authoritative in [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md).
 
 ---
 
-## Recipes
+## OpenAPI REST clients (`GET /openapi/v1.json`)
+
+Use the **Microsoft OpenAPI** document only — **not** `/swagger/v1/swagger.json` (explorer-only; can drift). Full contract rules: [**API_CONTRACTS.md**](../../library/API_CONTRACTS.md) · drift / snapshot workflow: [**OPENAPI_CONTRACT_DRIFT.md**](../../library/OPENAPI_CONTRACT_DRIFT.md).
+
+| Step | What to do |
+|------|------------|
+| **1. Fetch** | `GET https://<api-host>/openapi/v1.json` (requires auth consistent with your environment — API keys, JWT, etc.; see [**SECURITY.md**](../../library/SECURITY.md)). |
+| **2. Generate** | Import into **OpenAPI Generator**, **Kiota**, **NSwag**, **openapi-typescript**, APIM, or your gateway’s OpenAPI importer. Maintainer snapshot/regen workflow: [**OPENAPI_CONTRACT_DRIFT.md**](../../library/OPENAPI_CONTRACT_DRIFT.md). |
+| **3. Smoke manually** | Repo [**`contracts/bruno/`**](../../../contracts/bruno/) holds example HTTP requests (set `baseUrl` + credentials per environment). Interactive UI (when enabled): [**API_EXPLORER.md**](../../library/API_EXPLORER.md). |
+
+**Minimal download (replace host and auth):**
+
+```bash
+curl -sS -o archlucid-openapi-v1.json "https://<api-host>/openapi/v1.json"
+```
+
+**Example — OpenAPI Generator (Docker, C# client):**
+
+```bash
+docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli:latest generate \
+  -i /local/archlucid-openapi-v1.json -g csharp -o /local/out/csharp-client --additional-properties=targetFramework=net8.0
+```
+
+Recipes that call ArchLucid from Power Automate often **Parse JSON** using DTO names from the same document (e.g. **`RunDetailDto`**) — see [ServiceNow (Power Automate)](SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md) and [Jira (Power Automate)](JIRA_ISSUE_VIA_POWER_AUTOMATE.md).
+
+---
+
+## Webhook configuration
+
+| Topic | Document |
+|-------|----------|
+| **Outbound** subscriber setup — CloudEvents envelope, delivery modes, **`X-ArchLucid-Webhook-Signature`** | [**INTEGRATION_EVENTS_AND_WEBHOOKS.md**](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) |
+| **Outbound** JSON payload shapes (quick reference + samples) | [**WEBHOOK_SCHEMAS.md**](../WEBHOOK_SCHEMAS.md) · [**INTEGRATION_EVENT_CATALOG.md**](../../library/INTEGRATION_EVENT_CATALOG.md) |
+| **Outbound** AsyncAPI narrative | [`docs/contracts/archlucid-asyncapi-2.6.yaml`](../../contracts/archlucid-asyncapi-2.6.yaml) |
+| **Inbound** ITSM HTTP bridges (shared-secret routes; shapes on OpenAPI) | [**API_CONTRACTS.md**](../../library/API_CONTRACTS.md) (search **`/v1/integrations/webhooks`**); developer-oriented [**JIRA_WEBHOOK_BRIDGE.md**](../JIRA_WEBHOOK_BRIDGE.md) |
+| **Hardening** Event Grid / HTTPS subscribers | [Event Grid / webhook hardening checklist](recipe-event-grid-webhook-hardening-checklist.md) |
+| **Machine-readable** event schemas | [`schemas/integration-events/catalog.json`](../../../schemas/integration-events/catalog.json) |
+
+---
+
+## No-code automation recipes
 
 | Recipe | Target tool | Automation platform | Event type(s) |
 |--------|-------------|---------------------|----------------|
@@ -24,9 +64,9 @@
 
 ---
 
-## Event catalog
+## Event catalog (reference)
 
-All recipes subscribe to event types defined in [`IntegrationEventTypes.cs`](../../../ArchLucid.Core/Integration/IntegrationEventTypes.cs). For the full catalog, payload schemas, and delivery configuration:
+All recipes subscribe to event types defined in [`IntegrationEventTypes.cs`](../../../ArchLucid.Core/Integration/IntegrationEventTypes.cs). For narrative catalog, payload schemas, and delivery configuration:
 
 | Resource | Path |
 |----------|------|
@@ -59,4 +99,4 @@ See [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md) for conn
 
 ---
 
-*Last reviewed: 2026-05-05 — Atlassian sequencing: **Confluence** before **Jira** in one workstream; **ServiceNow** first; recipes remain optional customer-operated bridges.*
+*Last reviewed: 2026-05-17 — README reorganized to foreground OpenAPI client entry and webhook configuration; Atlassian sequencing unchanged.*
