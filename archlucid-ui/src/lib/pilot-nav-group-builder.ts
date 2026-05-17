@@ -2,6 +2,7 @@ import {
   AlertCircle,
   BarChart3,
   ClipboardList,
+  GitGraph,
   Home,
   LayoutDashboard,
   LifeBuoy,
@@ -10,6 +11,7 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
@@ -21,7 +23,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: "Review work",
       surface: "review-workflow",
       caption:
-        "Start here: home, onboarding, executive summary, create a governed review package, browse reviews, findings, help, and pilot scorecard.",
+        "Pilot path: Capture → Evidence → Review → Report; then onboarding, findings, help, and scorecard as you expand.",
       links: [
         {
           href: "/",
@@ -33,18 +35,10 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           defaultVisibleInCollapsedSidebar: true,
         },
         {
-          href: "/onboarding",
-          label: "Onboarding",
-          title: "Onboarding — checklist and milestones",
-          tier: "essential",
-          icon: ClipboardList,
-          defaultVisibleInCollapsedSidebar: true,
-        },
-        {
           href: "/reviews/new",
-          label: "New review",
+          label: "Capture",
           title: this.shortcutTitle(
-            "Start a new architecture review — guided wizard through pipeline tracking",
+            "Capture — start a new architecture review (guided wizard through pipeline tracking)",
             "alt+n",
           ),
           keyShortcut: "alt+n",
@@ -53,9 +47,21 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           defaultVisibleInCollapsedSidebar: true,
         },
         {
+          href: "/graph",
+          label: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
+          title: this.shortcutTitle(
+            `${BUYER_SURFACE_VOCABULARY.evidenceGraphNav} — decision traceability graph for one review`,
+            "alt+y",
+          ),
+          keyShortcut: "alt+y",
+          icon: GitGraph,
+          tier: "essential",
+          defaultVisibleInCollapsedSidebar: true,
+        },
+        {
           href: "/reviews?projectId=default",
-          label: "Reviews",
-          title: this.shortcutTitle("Reviews — open review detail, architecture package, artifacts, exports", "alt+r"),
+          label: "Review",
+          title: this.shortcutTitle("Review — open review detail, architecture package, artifacts, exports", "alt+r"),
           keyShortcut: "alt+r",
           icon: ListOrdered,
           tier: "essential",
@@ -63,10 +69,18 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/dashboard",
-          label: "Executive Summary",
-          title: "Executive summary — sponsor-facing ROI snapshot (illustrative metrics until API lands)",
+          label: "Report",
+          title: "Report — executive summary and sponsor-facing ROI snapshot (illustrative metrics until API lands)",
           icon: LayoutDashboard,
           tier: "essential",
+          defaultVisibleInCollapsedSidebar: true,
+        },
+        {
+          href: "/onboarding",
+          label: "Onboarding",
+          title: "Onboarding — checklist and milestones",
+          tier: "essential",
+          icon: ClipboardList,
           defaultVisibleInCollapsedSidebar: true,
         },
         {

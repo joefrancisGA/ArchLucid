@@ -7,14 +7,17 @@ import {
 } from "@/lib/nav-committed-architecture-review-gate";
 
 describe("pathnameEligibleBeforeFirstCommittedArchitectureReview", () => {
-  it("allows home and review workflow surfaces before first commit, not executive summary", () => {
+  it("allows the four-step pilot path and help/onboarding before first commit, not operate hubs", () => {
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/reviews")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/reviews/new")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/reviews/abc/def")).toBe(true);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/dashboard")).toBe(false);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/graph")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/dashboard")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/help")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/onboarding")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/governance/findings")).toBe(false);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/onboarding")).toBe(false);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/alerts")).toBe(false);
   });
 });
 
@@ -42,6 +45,14 @@ describe("filterNavLinksByCommittedArchitectureReviewGate", () => {
     expect(thin.every((l) => pathnameEligibleBeforeFirstCommittedArchitectureReview(l.href.split("?")[0] ?? ""))).toBe(
       true,
     );
-    expect(hrefs.every((h) => h === "/" || h.startsWith("/reviews"))).toBe(true);
+    expect(hrefs).toEqual([
+      "/",
+      "/reviews/new",
+      "/graph",
+      "/reviews?projectId=default",
+      "/dashboard",
+      "/onboarding",
+      "/help",
+    ]);
   });
 });

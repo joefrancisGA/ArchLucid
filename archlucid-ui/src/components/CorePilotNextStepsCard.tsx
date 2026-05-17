@@ -40,7 +40,7 @@ function RunIdNote({ runId }: { runId: string }) {
 
 /**
  * "Skip for now" callout — explicitly names advanced features so first-time operators
- * are not distracted by Compare, Replay, and Governance surfaces.
+ * are not distracted by Operate surfaces (alerts, planning, digests, advisory, Compare, Replay, Governance, Ask).
  */
 function SkipForNowNote() {
   return (
@@ -49,7 +49,8 @@ function SkipForNowNote() {
       data-testid="pilot-skip-for-now"
     >
       <span className="font-medium text-neutral-600 dark:text-neutral-300">Skip for now:</span>{" "}
-      Compare, Replay, Governance, and Ask — not needed for first architecture review.
+      Alerts, Planning, Digests, Advisory, Compare, Replay, Governance, and Ask — not needed for your first architecture
+      review.
     </p>
   );
 }

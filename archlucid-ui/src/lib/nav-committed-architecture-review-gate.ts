@@ -2,8 +2,9 @@ import type { NavLinkItem } from "@/lib/nav-config";
 
 /**
  * Sidebar/palette narrowing before the first committed golden-manifest review (`CurrentPrincipal.hasCommittedArchitectureReview`).
- * Allowed: Home, Reviews list/new, active review detail under `/reviews/...`. Executive summary (`/dashboard`) stays gated until
- * the first commit so the shell stays on architecture-review essentials only.
+ * Allowed: the **pilot path** (Capture → Evidence → Review → Report) plus help/onboarding, reviews list/new, and
+ * active review detail under `/reviews/...`. Operate destinations such as Alerts, Planning, Digests, and Advisory stay
+ * out until **`hasCommittedArchitectureReview`** (tier/disclosure still applies after unlock); deep links remain valid.
  */
 export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathWithoutQuery: string): boolean {
   if (pathWithoutQuery === "/" || pathWithoutQuery === "/reviews") {
@@ -15,6 +16,22 @@ export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathWitho
   }
 
   if (pathWithoutQuery.startsWith("/reviews/")) {
+    return true;
+  }
+
+  if (pathWithoutQuery === "/graph" || pathWithoutQuery.startsWith("/graph/")) {
+    return true;
+  }
+
+  if (pathWithoutQuery === "/dashboard") {
+    return true;
+  }
+
+  if (pathWithoutQuery === "/help" || pathWithoutQuery.startsWith("/help/")) {
+    return true;
+  }
+
+  if (pathWithoutQuery === "/onboarding" || pathWithoutQuery.startsWith("/onboarding/")) {
     return true;
   }
 

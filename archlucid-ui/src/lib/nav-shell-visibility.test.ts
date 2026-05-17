@@ -516,7 +516,11 @@ describe("committed architecture review gate — operator shell composition", ()
     expect(rows[0]!.visibleLinks.map((l) => l.href)).toEqual([
       "/",
       "/reviews/new",
+      "/graph",
       "/reviews?projectId=default",
+      "/dashboard",
+      "/onboarding",
+      "/help",
     ]);
   });
 });

@@ -17,7 +17,7 @@ export const OPERATOR_SHELL_PRESET_ORDER: readonly OperatorShellPresetId[] = [
 /** Route path prefixes matched after stripping `?query` — longest wins when checking startswith semantics. */
 
 const PREFIX_RULES: Record<Exclude<OperatorShellPresetId, "full">, readonly string[]> = {
-  pilot_operator: ["/reviews", "/", "/help", "/onboarding"],
+  pilot_operator: ["/reviews", "/", "/help", "/onboarding", "/graph", "/dashboard"],
   governance_reviewer: ["/reviews", "/", "/help", "/governance", "/policy-packs", "/audit", "/alerts"],
   analytics_investigator: ["/graph", "/compare", "/replay", "/ask", "/search", "/", "/reviews", "/advisory", "/value-report"],
 };

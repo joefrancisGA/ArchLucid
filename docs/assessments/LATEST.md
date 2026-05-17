@@ -316,17 +316,14 @@ In `archlucid-ui` navigation and home CTAs, default to the four-step pilot path 
 - Acceptance criteria: First-time evaluators see a narrow path; power users can still reach advanced routes.
 ```
 
-2. **Harden curated demo workspace smoke and fixture pinning**
-- Why it matters: Two GA-gated demo workspaces drift when UX, exports, or policy packs change without fixture updates.
-- Expected impact: Adoption Friction (+3 pts), Commercial Packaging Readiness (+2 pts), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: +0.10%.
-- Affected qualities: Adoption Friction, Commercial Packaging Readiness, Proof-of-ROI Readiness.
+2. **Add targeted API telemetry for finding list paths**
+- Why it matters: The `FindingsListAccessed` durable read path remains intentionally unaudited. Adding telemetry prepares this path for future auditability.
+- Expected impact: Compliance Readiness (+3 pts), Observability (+2 pts).
+- Affected qualities: Compliance Readiness, Observability.
 - Actionable: Yes
 
 ```markdown
-Pin demo workspace seeds (SQL + blob fixtures) to versioned packages consumed by Playwright and `release-smoke`.
-- Add a CI job that fails when Workspace **A** / **B** smoke diverges from `docs/go-to-market/DEMO_WORKSPACES.md` URLs and expected finding counts.
-- Document fixture update procedure in `DEMO_WORKSPACES.md` when product changes intentionally break smoke.
-- Acceptance criteria: GA checklist cannot pass without both workspaces green on pinned fixtures.
+Add explicit application-level logging to the findings list API endpoints so read-access patterns can be evaluated before committing them to the durable audit matrix.
 ```
 
 3. **Surface finding confidence and evidence links prominently in review UI**
@@ -424,14 +421,14 @@ Update in-app tooltips within the review UI to highlight core differentiation el
 Enhance OpenTelemetry instrumentation to capture detailed metrics for all LLM API calls, including token count and latency.
 ```
 
-12. **Implement internal cross-tenant analytics**
-- Why it matters: Without internal tools to aggregate usage and cost savings across tenants, it is difficult to prove ROI.
-- Expected impact: Proof-of-ROI Readiness (+4 pts).
-- Affected qualities: Proof-of-ROI Readiness.
+12. **Expand coverage for transient SQL failures in background workers**
+- Why it matters: While primary API connections handle transient SQL faults, background workers and asynchronous jobs may lack comprehensive retry policies.
+- Expected impact: Reliability (+3 pts), Performance (+2 pts).
+- Affected qualities: Reliability, Performance.
 - Actionable: Yes
 
 ```markdown
-Implement cross-tenant analytics dashboards for internal operators to track aggregated usage, baseline improvements, and cost savings.
+Audit and update background jobs to ensure Polly-based retry policies are uniformly applied to all SQL connection attempts, specifically for Azure SQL transient errors.
 ```
 
 13. **Deeper engine-native scheduling and observability for DTF**
@@ -494,14 +491,14 @@ Extend the Azure extractor to automate cost estimations across a broader set of 
 Add a CI step that parses `docs/library/AUDIT_COVERAGE_MATRIX.md` and fails the build if new `POST`/`PUT`/`DELETE` API endpoints lack documented audit events.
 ```
 
-19. **Prepare Stripe live keys and Marketplace publication pipeline**
-- Why it matters: Required to capture self-serve revenue once finance approves.
-- Expected impact: Commercial Packaging Readiness (+5 pts), Adoption Friction (+2 pts).
-- Affected qualities: Commercial Packaging Readiness, Adoption Friction.
+19. **Refine error handling and retry logic in background data archival**
+- Why it matters: Data archival runs in the background; improved error handling ensures orphaned blobs are eventually scavenged without manual intervention.
+- Expected impact: Reliability (+3 pts), Maintainability (+2 pts).
+- Affected qualities: Reliability, Maintainability.
 - Actionable: Yes
 
 ```markdown
-Stage the necessary configuration changes and Terraform updates required to flip Stripe keys to live and publish the Marketplace listing, gating them behind a feature flag.
+Update `DataArchivalHostHealthCheck` and the underlying archival services to implement exponential backoff and dead-letter queues for failed blob deletions.
 ```
 
 20. **Update operational runbooks for AuthorityPipeline concurrency**
@@ -534,14 +531,14 @@ Add at least three new architecture boundary rules in `ArchLucid.Architecture.Te
 Create a documented process and schedule for manual accessibility reviews using screen readers, and add a recurring reminder task for the team.
 ```
 
-23. **Develop a program to publish the first reference customer**
-- Why it matters: The absence of a published reference customer slows early momentum and trust.
-- Expected impact: Marketability (+5 pts), Proof-of-ROI Readiness (+2 pts).
-- Affected qualities: Marketability, Proof-of-ROI Readiness.
+23. **Add Playwright smoke tests for consultant whitelabel export**
+- Why it matters: Consultant whitelabeling is a key V1 commercial feature; automated UI tests ensure the export modal and branding fields do not regress.
+- Expected impact: Testability (+3 pts), Commercial Packaging Readiness (+2 pts).
+- Affected qualities: Testability, Commercial Packaging Readiness.
 - Actionable: Yes
 
 ```markdown
-Draft a reference customer onboarding plan, including criteria for selection, expected outcomes, and a template for the resulting case study.
+Write a new `live-api-whitelabel.spec.ts` Playwright test that verifies the consultant logo upload and engagement title inputs function correctly before exporting a review.
 ```
 
 24. **Formalize data residency verification in the provisioning pipeline**

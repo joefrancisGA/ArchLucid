@@ -51,19 +51,22 @@ describe("SidebarNav (primary navigation)", () => {
       const nav = screen.getByRole("navigation", { name: "Review work" });
       expect(nav).toBeInTheDocument();
 
-      // New review also appears under Quick actions (`/reviews/new`); scope essentials to this group.
+      // Capture also appears under Quick actions (`/reviews/new`); scope essentials to this group.
       const homeLink = within(nav).getByRole("link", { name: "Home" });
       expect(homeLink).toHaveAttribute("href", "/");
       expect(homeLink).toHaveAttribute("aria-current", "page");
-      expect(within(nav).getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
-      expect(within(nav).getByRole("link", { name: "New review" })).toHaveAttribute(
+      expect(within(nav).getByRole("link", { name: "Capture" })).toHaveAttribute("href", "/reviews/new");
+      expect(within(nav).getByRole("link", { name: "Capture" })).toHaveAttribute(
         "title",
-        "Start a new architecture review — guided wizard through pipeline tracking (Alt+N)",
+        "Capture — start a new architecture review (guided wizard through pipeline tracking) (Alt+N)",
       );
-      expect(within(nav).getByRole("link", { name: "Reviews" })).toHaveAttribute("href", "/reviews?projectId=default");
-      expect(within(nav).getByRole("link", { name: "Executive Summary" })).toHaveAttribute("href", "/dashboard");
+      expect(within(nav).getByRole("link", { name: "Evidence trail" })).toHaveAttribute("href", "/graph");
+      expect(within(nav).getByRole("link", { name: "Review" })).toHaveAttribute("href", "/reviews?projectId=default");
+      expect(within(nav).getByRole("link", { name: "Report" })).toHaveAttribute("href", "/dashboard");
 
-      expect(screen.queryByRole("link", { name: "Evidence trail" })).toBeNull();
+      expect(within(nav).queryByRole("link", { name: "Compare two reviews" })).toBeNull();
+      expect(within(nav).queryByRole("link", { name: "Replay a review" })).toBeNull();
+
       expect(screen.queryByRole("link", { name: "Compare two reviews" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Replay a review" })).toBeNull();
 

@@ -6,7 +6,6 @@ import {
   FileText,
   GitBranch,
   GitCompare,
-  GitGraph,
   LineChart,
   MessageSquare,
   Plug,
@@ -16,7 +15,6 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
@@ -28,20 +26,8 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
       label: "Analysis",
       surface: "review-workflow",
       caption:
-        "Evidence trails, comparisons, replay, advisory, Ask, reporting, and digests once you leave the baseline review lane.",
+        "Comparisons, replay, advisory (advanced), Ask, extended reporting, and digests once you leave the baseline review lane. Evidence trail is on the pilot path.",
       links: [
-        {
-          href: "/graph",
-          label: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
-          title: this.shortcutTitle(
-            `${BUYER_SURFACE_VOCABULARY.evidenceGraphNav} — decision traceability graph for one review`,
-            "alt+y",
-          ),
-          keyShortcut: "alt+y",
-          icon: GitGraph,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
-        },
         {
           href: "/compare",
           label: "Compare two reviews",
@@ -82,7 +68,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
           label: "Architecture advisory",
           title: "Architecture advisory — architecture scans and scan schedules",
           icon: Activity,
-          tier: "extended",
+          tier: "advanced",
           requiredAuthority: "ReadAuthority",
         },
         {
