@@ -349,41 +349,41 @@ export function CommandPalette() {
             variant="outline"
             size="sm"
             className={
-              polishedShell
+              buyerPolishedShell
                 ? "h-8 gap-1.5 border-neutral-300 bg-white px-2.5 text-xs font-medium text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
                 : "h-8 gap-1.5 border-dashed border-neutral-400 bg-neutral-50/90 px-2.5 font-mono text-xs font-semibold tracking-tight text-neutral-800 shadow-sm hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900/80 dark:text-neutral-100 dark:hover:bg-neutral-800"
             }
-            aria-label={polishedShell ? polishedPaletteLabel : "Open command palette"}
+            aria-label={buyerPolishedShell ? polishedPaletteLabel : "Open command palette"}
             onClick={() => {
               setOpen(true);
             }}
           >
-            {polishedShell ? null : (
+            {buyerPolishedShell ? null : (
               <span className="rounded border border-neutral-300 bg-white px-1 py-0.5 text-[10px] font-semibold text-neutral-600 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400">
                 ⌘K
               </span>
             )}
-            <span>{polishedShell ? polishedPaletteLabel : "Search"}</span>
+            <span>{buyerPolishedShell ? polishedPaletteLabel : "Search"}</span>
           </Button>
         </TooltipTrigger>
         <TooltipContent sideOffset={6}>
-          {polishedShell
+          {buyerPolishedShell
             ? `${polishedPaletteLabel} — ⌘K to jump destinations and documentation.`
             : "Search pages or open a workflow with the keyboard shortcut."}
         </TooltipContent>
       </Tooltip>
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder={polishedShell ? polishedPalettePlaceholder : "Search pages or paste a review ID…"} />
+        <CommandInput placeholder={buyerPolishedShell ? polishedPalettePlaceholder : "Search pages or paste a review ID…"} />
         <CommandList>
-          <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!polishedShell} />
-          <CommandPaletteDocumentationSearch buyerPolishedShell={polishedShell} />
+          <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />
+          <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} />
           <CommandPaletteCuratedTasks
             visibleHrefs={visibleHrefs}
-            buyerPolishedShell={polishedShell}
+            buyerPolishedShell={buyerPolishedShell}
             onNavigate={navigate}
           />
           <CommandEmpty>
-            {polishedShell
+            {buyerPolishedShell
               ? "No matching page. Try another search."
               : "No matching pages. Try another search or paste a review ID."}
           </CommandEmpty>
@@ -392,10 +392,10 @@ export function CommandPalette() {
             shellShowExtended={paletteExtended}
             shellShowAdvanced={paletteAdvanced}
             hasCommittedArchitectureReview={hasCommittedArchitectureReview}
-            buyerPolishedShell={polishedShell}
+            buyerPolishedShell={buyerPolishedShell}
             onNavigate={navigate}
           />
-          {polishedShell ? null : (
+          {buyerPolishedShell ? null : (
             <>
               <CommandSeparator />
               <CommandGroup heading="Keyboard shortcuts (navigation)">
