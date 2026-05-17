@@ -303,231 +303,7 @@ ArchLucid is a functionally complete V1 product with a solid architectural found
 
 ## Top Improvement Opportunities
 
-1. COMPLETED: Add cross-tenant analytics capabilities (internal only)
-- Why it matters: Helps prove ROI across the customer base and informs product direction.
-- Expected impact: Directly improves Proof-of-ROI Readiness (+3 pts), Stickiness (+2 pts). Weighted readiness impact: +0.35%.
-- Affected qualities: Proof-of-ROI Readiness, Stickiness.
-- Actionable: Completed
-
-2. COMPLETED: Enhance `ComparisonReplayCostEstimator` with more granular heuristics
-- Why it matters: Comparison replay cost estimates now track manifest/agent/export diff payload complexity via `ComparisonReplayPayloadComplexity`; operator API shape unchanged.
-- Expected impact: (Delivered **2026-05-16**.) Proof-of-ROI Readiness, Cost-Effectiveness.
-- Affected qualities: Proof-of-ROI Readiness, Cost-Effectiveness, Explainability.
-- Actionable: Completed
-
-3. COMPLETED: Enhance `v1-rc-drill.ps1` to support JWT/API key authentication
-- Why it matters: Reduces auth mismatches and improves testing realism.
-- Expected impact: (Delivered **2026-05-16**.) Directly improves Correctness (+2 pts), Security (+2 pts). Weighted readiness impact: +0.46%.
-- Affected qualities: Correctness, Security.
-- Actionable: Completed
-```markdown
-Update the `v1-rc-drill.ps1` script to accept optional parameters for a JWT bearer token or API key. If provided, use these credentials instead of relying on `DevelopmentBypass`. Update the script documentation to explain how to use these parameters. Do not break the existing `DevelopmentBypass` behavior when no credentials are provided. Acceptance criteria: The RC drill script can be run against an environment secured with JWT or API keys.
-```
-
-4. COMPLETED: Add explicit logging for agent state machine transitions
-- Why it matters: `AuthorityRunOrchestrator`, queued completion, finalize, and the worker-hosted deferred outbox (`AuthorityPipelineWorkProcessor`) now emit Information-level `Agent execution state transition` logs with run id, current/next states, and task or outbox identifiers where applicable.
-- Expected impact: (Delivered **2026-05-16**.) Directly improves Observability (+5 pts), AI/Agent Readiness (+1 pts). Weighted readiness impact: +0.27%.
-- Affected qualities: Observability, AI/Agent Readiness.
-- Actionable: Completed
-```markdown
-Add explicit `ILogger` calls in `AuthorityRunOrchestrator` and `ArchLucid.Worker` to log every state transition of the agent execution state machine. Include the run ID, current state, next state, and any relevant task IDs in the log context. Ensure these logs are emitted at the `Information` level. Do not change the state machine logic itself. Acceptance criteria: Agent state transitions are clearly visible in the application logs.
-```
-
-5. COMPLETED: Add snapshot tests for advisory Terraform recommendation emit
-- Why it matters: Ensures Terraform snippets remain stable and the advisory banner cannot regress silently.
-- Expected impact: (Delivered **2026-05-16**.) Directly improves Correctness (+3 pts), Security (+1 pts). Weighted readiness impact: +0.56%.
-- Affected qualities: Correctness, Security.
-- Actionable: Completed
-```markdown
-Create snapshot tests in `ArchLucid.Api.Tests` or `ArchLucid.Application.Tests` that validate the output of the advisory Terraform recommendation emit. Use a library like `Verify` or `Snapshooter` to ensure the generated Terraform snippets match expected baselines. Ensure the tests verify the presence of the `# ArchLucid advisory` comment. Do not execute `terraform validate` in the unit tests to avoid external dependencies. Acceptance criteria: Snapshot tests cover the major Terraform recommendation scenarios.
-```
-
-6. COMPLETED: Show `data_archival` on the operator dashboard health strip
-- Why it matters: Improves observability of background data archival processes.
-- Expected impact: (Delivered **2026-05-16**.) Directly improves Observability (+4 pts), Usability (+1 pts). Weighted readiness impact: +0.15%.
-- Affected qualities: Observability, Usability.
-- Actionable: Completed
-```markdown
-Update the operator UI dashboard to display the status of the `data_archival` health check. Fetch the readiness summary from `GET /health/ready` (the check is tagged Ready; anonymous `GET /health` lists only the database probe in this codebase) and display a warning indicator if the status is `Degraded`. Do not change the underlying health check logic in the backend. Acceptance criteria: Operators can see the data archival health status on the UI dashboard.
-```
-
-7. COMPLETED: Connection retry logic for scoped SQL opens (`SqlScopedResolutionDbConnectionFactory`)
-- Why it matters: Improves resilience against transient database connection failures.
-- Expected impact: (Delivered **2026-05-16**.) Directly improves Correctness (+2 pts), Performance (+1 pts). Weighted readiness impact: +0.35%.
-- Affected qualities: Correctness, Performance.
-- Actionable: Completed
-```markdown
-Update `SqlScopedResolutionDbConnectionFactory` in `ArchLucid.Host.Core` (historic assessment text cited `ArchLucid.Api.DataAccess`) so SQL connection opens use Polly for transient faults: exponential backoff for common transient SQL errors (40613, 40197, 40501 via `SqlTransientDetector`), configurable under `Persistence:SqlOpenResilience`, without changing `IDbConnectionFactory`. **Delivered:** `CreateOpenConnectionAsync` delegates to scoped `ResilientSqlConnectionFactory` + `SqlOpenResilienceDefaults`; `ArchLucid.Host.Composition` binds options from configuration; regression test asserts the bridge retries after transient `SqlException` 40613.
-```
-
-8. COMPLETED: Explicit documentation for `ArchLucidAuth:Authority` (generic OIDC)
-- Why it matters: Reduces adoption friction for generic OIDC setup.
-- Expected impact: (Delivered **2026-05-16**.) Directly improves Adoption Friction (+3 pts), Customer Self-Sufficiency (+2 pts). Weighted readiness impact: +0.42%.
-- Affected qualities: Adoption Friction, Customer Self-Sufficiency.
-- Actionable: Completed
-```markdown
-Create a new markdown file `docs/runbooks/GENERIC_OIDC_SETUP.md` that provides step-by-step instructions for configuring `ArchLucidAuth:Authority` with a non-Microsoft OIDC issuer (e.g., Okta, Auth0). Include examples of claim mapping to `ArchLucidRoles` and troubleshooting tips for common JWKS validation errors. Link this new file from `docs/library/SECURITY.md` and `docs/library/CONFIGURATION_REFERENCE.md`. Acceptance criteria: Clear documentation exists for setting up generic OIDC.
-
-**Delivered:** Runbook rewritten with accurate **`roles`** → **`ArchLucidRoles`** value mapping (JWT bearer **`RoleClaimType`**), **`MultiTenantEntra=false`** guardrail, JWKS / IDX troubleshooting table, Okta/Auth0 deep links, and **`CONFIGURATION_REFERENCE.md`** quick-start row links **[GENERIC_OIDC_SETUP.md](../runbooks/GENERIC_OIDC_SETUP.md)**; **`SECURITY.md`** already linked the runbook.
-```
-
-9. COMPLETED: Automated tenant data deletion (GDPR/CCPA right to be forgotten)
-- Why it matters: Enterprise compliance requires a verifiable way to delete all tenant data upon contract termination or user request.
-- Expected impact: (Delivered **2026-05-16**.) Directly improves Compliance Readiness (+3 pts). Weighted readiness impact: per scoring model.
-- Affected qualities: Compliance Readiness, Security.
-- Actionable: Completed
-
-```markdown
-Implement a durable background job to handle tenant offboarding and data deletion.
-- Create a `TenantDeletionService` that orchestrates the removal of all tenant-scoped data across SQL, Blob Storage, and Knowledge Graph.
-- Ensure the deletion process emits a durable `TenantDataDeleted` audit event (stored in a system-level audit log, outside the tenant's scope).
-- Add an administrative API endpoint `POST /v1/admin/tenants/{id}/delete` (secured by a highly privileged internal role).
-- Acceptance criteria: A tenant can be fully deleted, and the deletion is durably audited.
-
-**Delivered:** `TenantDeletionService` + `TenantBlobPrefixDeletionService` (prefixes under `golden-manifests`, `artifact-bundles`, `agent-traces`; skips shared `artifact-contents` dedup), extended `SqlTenantHardPurgeService` (`DeleteTenantScopedAuditEvents`, funnel rows), new `dbo.PlatformAuditEvents` + `IPlatformAuditRepository`, `TenantDeletionWorkUnit` on the durable `IBackgroundJobQueue`, `POST /v1/admin/tenants/{id}/delete` (`PlatformTenantDeletionAuthority` / `ArchLucidRoles.PlatformOperator` → `platform:tenant-delete`). Knowledge-graph projections are SQL-backed (`GraphSnapshots` etc.) and are removed with the hard purge.
-```
-
-10. **COMPLETED:** Add explicit OpenTelemetry tracing for LLM API calls
-- Why it matters: AI/Agent Readiness requires deep observability into token usage, latency, and prompt/response pairs for debugging and cost attribution.
-- Expected impact: (Delivered **2026-05-16**.) Observability (+3 pts), AI/Agent Readiness (+2 pts).
-- Affected qualities: Observability, AI/Agent Readiness.
-- Actionable: Completed
-
-```markdown
-Enhance the existing OpenTelemetry instrumentation to capture detailed metrics for all LLM API calls.
-- Add spans for every call to the underlying LLM provider (e.g., Azure OpenAI).
-- Include span attributes for: model name, prompt token count, completion token count, total token count, and latency.
-- Ensure sensitive prompt/response content is NOT logged by default (or is scrubbed), but allow opting in via a secure configuration flag for debugging.
-- Acceptance criteria: Token usage and latency for LLM calls are visible in the APM backend.
-
-**Delivered:** Chat completions already emitted `gen_ai.usage.*` on `ArchLucid.Agent.LlmCompletion` spans; extended with `gen_ai.request.model`, `gen_ai.response.model`, `gen_ai.operation.name`, `gen_ai.completion.latency_ms`, and `LlmTelemetry:CapturePromptResponseOnSpans` (default false, hard-capped payload length via `ArchLucidInstrumentation.SensitiveGenAiTelemetrySnapshotMaxChars`). Added `ArchLucid.Agent.LlmEmbedding` spans for Azure OpenAI embeddings (`gen_ai.embeddings`, usage when the SDK returns it, latency, input count) with the same opt-in prompt snapshot flag. Registered the new source in `AddArchLucidOpenTelemetry` and default tail-sampling keep list (`terraform-otel-collector`).
-```
-
-11. **COMPLETED:** Implement rate limiting and concurrency controls for the `AuthorityRunOrchestrator`
-- Why it matters: Prevents a single tenant from exhausting worker resources by submitting too many concurrent architecture review runs.
-- Expected impact: (Delivered **2026-05-16**.) Performance (+3 pts), Reliability (+2 pts).
-- Affected qualities: Performance, Reliability.
-- Actionable: Completed
-
-```markdown
-Introduce concurrency limits for the `AuthorityRunOrchestrator` to protect the worker pool.
-- Implement a tenant-level concurrency limit (e.g., max 5 concurrent runs per tenant).
-- If a tenant exceeds the limit, queue the runs or return a `429 Too Many Requests` response from the API.
-- Ensure the limits are configurable via `appsettings.json` or a dynamic configuration provider.
-- Acceptance criteria: A single tenant cannot monopolize the worker pool.
-
-**Delivered:** `ArchLucid:AuthorityPipeline:Concurrency` on `AuthorityPipelineOptions` binds `MaxConcurrentExecutionsPerTenant`, `RejectInlineCreateWhenConcurrencyUnavailable`, `LeaseRecognitionHorizon`, and `WaitPollMilliseconds`. Inline creates acquire a tenant slot before heavy stages; queued worker completions wait (poll SQL) rather than failing. SQL hosts use durable lease rows (`dbo.AuthorityPipelineTenantExecutionLease`, migration **169**) with serializable counting; optional fail-fast emits `AuthorityTenantConcurrencyLimitExceededException` → HTTP **429** / `ProblemTypes.AuthorityTenantConcurrentRunsExceeded`. In-memory hosts use `InMemoryTenantAuthorityPipelineConcurrencyGate` (per-process semaphores).
-```
-
-12. **COMPLETED:** Add tenant-specific data residency configuration options
-- Why it matters: European and highly regulated buyers often require explicit guarantees that their data (SQL and blobs) resides in a specific geographic region.
-- Expected impact: (Delivered **2026-05-16**.) Compliance Readiness (+3 pts), Commercial Packaging (+2 pts).
-- Affected qualities: Compliance Readiness, Commercial Packaging.
-- Actionable: Completed
-
-```markdown
-Extend the tenant provisioning pipeline to support explicit data residency region selection.
-- Update the `Tenant` database model to include a `DataRegion` column.
-- Ensure the storage provisioning logic (e.g., Azure Blob Storage containers) respects the selected region.
-- Document the supported regions in `docs/go-to-market/PROCUREMENT_FAQ.md`.
-- Acceptance criteria: Operators can provision tenants in specific geographic regions.
-
-**Delivered:** **`dbo.Tenants.DataRegion`** (**`169_Tenants_DataRegion.sql`**, unified schema scripts), **`TenantRecord`** / **`TenantProvisioningRequest`** / **`TenantProvisionAdminRequest`**, **`TenantProvisioningDataRegionPolicy`** + **`TenantProvisioningOptions.SupportedDataRegions`**. **`RegionalArtifactBlobClientFactory`** / **`TenantRegionalArtifactBlobClients`** route **`ArtifactLargePayload`** **`AzureBlob`** clients via **`ArtifactLargePayload:AzureBlobServiceUriByRegion`** when **`DataRegion`** ≠ **`default`**. Supported regions documented under **`docs/go-to-market/PROCUREMENT_FAQ.md`** Q3.
-```
-
-13. **COMPLETED:** Enhance the Knowledge Graph with temporal query support
-- Why it matters: Advanced users need to query the state of the architecture at specific points in time to understand how decisions evolved.
-- Expected impact: (Delivered **2026-05-17**.) Explainability (+4 pts), Usability (+2 pts).
-- Affected qualities: Explainability, Usability.
-- Actionable: Completed
-
-```markdown
-Add temporal query capabilities to the `ArchLucid.KnowledgeGraph` API.
-- Implement an endpoint `GET /v1/graph/snapshot?asOf={timestamp}` that reconstructs the graph state at a given time.
-- Update the operator UI to include a time-scrubber control for visualizing historical graph states.
-- Acceptance criteria: Users can view the knowledge graph exactly as it existed at a past date.
-
-**Delivered:** `GET /v1/graph/snapshot` with required `runId` (anchors scope/project lineage) and `asOf` (UTC); resolves the latest non-archived run in the project with a persisted `GraphSnapshot` at or before `asOf`, returns `ArchitectureGraphTemporalSnapshotResponse` (`resolvedRunId`, `asOfUtc`, `resolvedRunCreatedUtc`, `graph`). SQL + in-memory **`IRunRepository.GetLatestWithGraphAtOrBeforeAsync`**. **413** problems may include **`resolvedRunId`** for paginated recovery. Operator review detail: **time-scrubber** between earliest graph-backed run in the loaded project list and this review’s `createdUtc` (disabled for static demo runs). OpenAPI snapshot + **`archlucid-ui` generated types** + **`ArchLucid.Api.Client`** refreshed.
-```
-
-14. **COMPLETED:** Expand `ui-e2e-live` to cover the full golden path
-- Why it matters: Mock-only E2E cannot prove the operator spine against real SQL + HTTP — live specs close that gap without deleting fast mock smoke.
-- Expected impact: (Delivered **2026-05-16**.) Correctness (+3 pts), Reliability (+2 pts).
-- Affected qualities: Correctness, Reliability.
-- Actionable: Completed
-
-```markdown
-Expand the `ui-e2e-live` test suite to cover the complete golden path of the operator workflow against a live, non-mocked backend.
-- Include end-to-end coverage for: Capture system → Add evidence → Review → Resolve findings → Record decisions → Generate report.
-- Ensure the tests run against a dedicated staging or ephemeral environment with a real SQL database and isolated tenant.
-- Do not remove the existing mocked tests; treat the live E2E suite as a separate, higher-fidelity validation layer.
-- Acceptance criteria: The full operator golden path is validated against a live backend in CI.
-
-**Delivered:** Merge-blocking **`ui-e2e-live`** (`.github/workflows/ci.yml`, non-**`pull_request`**) runs **`archlucid-ui/e2e/live-api-*.spec.ts`** via **`playwright.live.config.ts`** against **ArchLucid.Api** with **SQL Server service** (ephemeral CI lab). **`live-api-journey.spec.ts`** drives **create → execute → commit → golden manifest** with browser checks on **`/runs/{id}`** and **`/manifests/{id}`**, **ZIP export** via API, **governance** approval + **`/governance`** UI, and **`/audit`** search (required audit event types enforced). **`live-api-core-pilot-path.spec.ts`** covers the buyer-polished **showcase** spine (home → new review → reviews list → review deliverables) on the same live stack. Mock-backed **`ui-e2e-smoke`** / **`playwright.mock.config.ts`** unchanged as the fast, broad layer.
-```
-
-15. **COMPLETED:** Enhance `ArchLucid.Decisioning` with custom rule authoring UI
-- Why it matters: Evaluators and enterprise buyers need a way to easily author and test custom governance rules without writing raw code.
-- Expected impact: (Delivered **2026-05-17**.) Customer Self-Sufficiency (+4 pts), Usability (+3 pts).
-- Affected qualities: Customer Self-Sufficiency, Usability.
-- Actionable: Completed
-
-```markdown
-Implement a web-based rule authoring interface in `archlucid-ui` that integrates with `ArchLucid.Decisioning`.
-- Provide a guided wizard or low-code builder for creating custom policy rules.
-- Allow operators to test the rule against existing architecture snapshots in the UI before publishing.
-- Ensure custom rules are durably stored and versioned alongside the default policy packs.
-- Acceptance criteria: Operators can create, test, and publish custom rules entirely through the UI.
-
-**Delivered:** **`PolicyRuleAuthoringWizard`** on **`/policy-packs`** (Advanced options): step **Design** (guided compliance/alert/composite/metadata fields with merge + raw JSON editor; **`buildPolicyPackContentFromGuidedFields`** in **`src/lib/policy-pack-guided-content.ts`**), step **Test on run** (`POST /v1/policy-packs/simulate` via **`simulatePolicyPackAgainstRun`** in **`src/lib/api/policy-governance-api.ts`** — pre-commit gate outcome; recent runs from **`listRunsByProjectPaged`**), step **Publish** (wired to existing **`createPolicyPack`** / **`publishPolicyPackVersion`** with **`syncPolicyContentJson`** keeping create + publish JSON aligned). Shared default skeleton moved to **`src/lib/policy-pack-default-content.ts`**. Vitest: **`policy-pack-guided-content.test.ts`**.
-```
-
-16. **COMPLETED:** Add guided baseline collection wizard (onboarding)
-- Why it matters: Proof-of-ROI and executive value depend on tenant baselines; empty baselines weaken sponsor narratives.
-- Expected impact: (Delivered **2026-05-17**.) Time-to-Value (+3 pts), Proof-of-ROI Readiness (+2 pts), Executive Value Visibility (+2 pts). Weighted readiness impact: +0.35%.
-- Affected qualities: Time-to-Value, Proof-of-ROI Readiness, Executive Value Visibility.
-- Actionable: Completed
-
-```markdown
-Add a first-run (or settings) wizard in `archlucid-ui` that captures pilot baseline fields required by `docs/library/PILOT_ROI_MODEL.md` (e.g. manual prep hours, review cycle length).
-- Persist values tenant-scoped via existing settings or ROI API contracts; do not invent a parallel store without aligning OpenAPI.
-- Block or warn on sponsor-export actions when required baseline fields are empty.
-- Acceptance criteria: A new tenant can complete baseline capture without sales engineering hand-holding.
-
-**Delivered:** **`PilotBaselineWizard`** + **`PilotBaselineWizardLauncher`** (operator shell FAB / session auto-open; **`NEXT_PUBLIC_SUPPRESS_CORE_PILOT_WIZARD`** suppresses alongside core pilot wizard). **`BaselineSettingsClient`** on **`/settings/baseline`** persists **`manualPrepHoursPerReview`** + **`baselineReviewCycleHours`** via **`PUT /v1/tenant/baseline`**; OpenAPI snapshot extended with **`baselineReviewCycleHours`**, **`baselineReviewCycleSource`**, **`baselineReviewCycleCapturedUtc`**, **`baselineReviewCycleSourceNote`** (`openapi-v1.contract.snapshot.json`). **`EmailRunToSponsorBanner`** warns and disables primary sponsor PDF when **`GET /v1/tenant/baseline`** gate fails (**`usePilotRoiBaselineCompleteness`**); **`GenerateSponsorValueReportButton`** blocks DOCX export the same way. Backend **`TenantBaselineController`** merges GET + selective PUT for review-cycle provenance (markers + audit). Vitest: **`pilot-roi-baseline-completeness.test.ts`**, **`EmailRunToSponsorBanner.test.tsx`**, **`baseline/page.test.tsx`**.
-```
-
-17. **COMPLETED:** Surface Missing Baseline warnings on executive / sponsor surfaces
-- Why it matters: Prevents sending abstract executive artifacts when quantified ROI inputs are absent.
-- Expected impact: (Delivered **2026-05-17**.) Executive Value Visibility (+4 pts), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: +0.22%.
-- Affected qualities: Executive Value Visibility, Proof-of-ROI Readiness.
-- Actionable: Completed
-
-```markdown
-On sponsor brief, first-value report, and architecture-review export preview routes, show a prominent **Missing baseline** banner when required ROI baseline fields are unset.
-- Link the banner to **Add guided baseline collection wizard (onboarding)** (completed item **16** above — **2026-05-17**).
-- Do not block read-only preview; block **sendable** or **download** classification when marketing requires quantified claims.
-- Acceptance criteria: Operators cannot mistake an incomplete baseline package for board-ready ROI proof.
-
-**Delivered:** Post-commit **`EmailRunToSponsorBanner`** (**`/runs/{runId}`**): amber **`role="alert"`** banner **`email-run-to-sponsor-roi-baseline-gap`** (**Missing tenant ROI baselines**) when **`GET /v1/tenant/baseline`** is incomplete (**`isPilotRoiBaselineComplete`**) alongside **`pilot-run-deltas`** readiness; **`PILOT_BASELINE_WIZARD_OPEN_EVENT`** + **`/settings/baseline`** CTA (**item 16** wizard). Sponsor **PDF** primary action disabled until baselines captured; Markdown first-value report, architecture **DOCX**, and ZIP exports remain available (read-only / collateral downloads). Persisted **`describeSponsorProofReadiness`** (**`src/lib/pilot-proof-readiness.ts`**) exposes **NeedsBaseline** vs **Sendable** copy for sponsor-send posture. **`GenerateSponsorValueReportButton`** gates tenant sponsor **DOCX** via **`usePilotRoiBaselineCompleteness`**. Vitest: **`EmailRunToSponsorBanner.test.tsx`** (ROI baseline gate).
-```
-
-18. **COMPLETED:** Integrate axe-core accessibility checks in CI
-- Why it matters: Catches regressions on operator-shell pages without claiming full assistive-technology user-study coverage (out of V1 headline scope).
-- Expected impact: (Delivered **2026-05-17**.) Accessibility (+8 pts). Weighted readiness impact: +0.08%.
-- Affected qualities: Accessibility.
-- Actionable: Completed
-
-```markdown
-Add `@axe-core/playwright` (or equivalent) to the existing Playwright CI job for golden-path operator routes (Home, Reviews list, Review detail, Manifest).
-- Fail the job on serious/critical violations; allow a short documented allowlist file checked into `archlucid-ui` with expiry comments.
-- Do not replace manual AT studies — document that limitation in the test README.
-- Acceptance criteria: CI fails when a serious a11y regression lands on covered routes.
-
-**Delivered:** **`@axe-core/playwright`** in **`archlucid-ui/package.json`**; live merge-blocking **`ui-e2e-live`** runs **`live-api-accessibility*.spec.ts`** with **`runAxe`** (**`e2e/helpers/axe-helper.ts`**) gating **critical** and **serious** violations. Default CI subset always includes golden paths via **`GOLDEN_PATH_OPERATOR_A11Y_PAGES`** in **`e2e/live-api-accessibility.spec.ts`**. Checked-in suppressions: **`e2e/axe-rule-allowlist.ts`** (empty list; expiry required when used). Mock **`ui-playwright-accessibility`** runs **`npm run test:e2e:accessibility`**. Limitation (no substitute for AT user studies): **`archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md`** § *Live accessibility*.
-```
-
-19. **Implement progressive disclosure for advanced governance routes**
+1. **Implement progressive disclosure for advanced governance routes**
 - Why it matters: Reduces first-session cognitive load while keeping Operate depth available after the pilot proof path.
 - Expected impact: Cognitive Load (+6 pts), Usability (+2 pts), Adoption Friction (+2 pts). Weighted readiness impact: +0.14%.
 - Affected qualities: Cognitive Load, Usability, Adoption Friction.
@@ -540,37 +316,7 @@ In `archlucid-ui` navigation and home CTAs, default to the four-step pilot path 
 - Acceptance criteria: First-time evaluators see a narrow path; power users can still reach advanced routes.
 ```
 
-20. **COMPLETED:** Expand security baseline policy pack with five additional MVP rules
-- Why it matters: Thin starter packs risk one-and-done pilots; modest depth improves demo credibility without over-claiming compliance.
-- Expected impact: (Delivered **2026-05-17**.) Template and Accelerator Richness (+5 pts), Stickiness (+2 pts), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: +0.09%.
-- Affected qualities: Template and Accelerator Richness, Stickiness, Proof-of-ROI Readiness.
-- Actionable: Completed
-
-```markdown
-Add five buyer-credible rules to the shipped **security architecture baseline** pack (e.g. private endpoint posture, Key Vault secret usage, TLS minimums) with framework **mapping only** (no certification claims).
-- Seed rules into demo workspace **B** so regulated synthetic smoke surfaces real findings.
-- Update pack metadata version and `docs/go-to-market` honesty copy if rule counts change.
-- Acceptance criteria: Security baseline pack ships ≥5 additional MVP rules and demo workspace smoke passes.
-
-**Delivered:** Five rules **`sec-base-026`**–**`sec-base-030`** in **`docs/samples/policy-packs/security-architecture-baseline-rules-v1.json`** (pack **`1.1.0`**); provisioning keys in **`DefaultPolicyPackTemplates.SecurityArchitectureBaselineV1Json`** + sample **`security-architecture-baseline.json`**; catalog stubs in **`ArchLucid.Decisioning/Compliance/RulePacks/ga-starter-compliance.rules.json`**. Workspace **B** seed (**`RegulatedScenarioWorkspaceSeed`**) now references shipped IDs (**`sec-base-006`**, **`sec-base-011`**, **`sec-base-018`**) instead of phantom identifiers. Honesty copy: **`docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md`**, **`docs/library/POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md`**. **`MergedComplianceRulePackLoaderTests`** asserts **`sec-base-030`** merge; Playwright **`demo-workspace-b.smoke.spec.ts`** expects **`sec-base-006`** on review detail.
-```
-
-21. **COMPLETED:** Complete DTF multiset parity tests and release-smoke validation
-- Why it matters: SQL DTF port is wired; legacy orchestrator cannot be removed until parity and smoke prove equivalence.
-- Expected impact: (Delivered **2026-05-17**.) Correctness (+2 pts), Reliability (+3 pts), AI/Agent Readiness (+2 pts). Weighted readiness impact: +0.35%.
-- Affected qualities: Correctness, Reliability, AI/Agent Readiness.
-- Actionable: Completed
-
-```markdown
-Add integration tests that run the same authority-run scenarios through DTF and legacy paths and assert equivalent manifest, audit, and terminal states.
-- Extend `release-smoke` (or equivalent) to exercise DTF on SQL storage hosts in staging.
-- Document rollback switch in operator runbook; do not delete legacy adapter until parity suite is green in CI.
-- Acceptance criteria: Parity suite green; release smoke documents DTF path; legacy removal is a follow-up PR gated on green main.
-
-**Delivered:** **`ArchLucid.Host.Composition.Tests/AuthorityOrchestratorAdapterParityTests.cs`** — same simulator **`AuthorityRunOrchestrator`**, **`AuthorityRunOrchestratorApplicationAdapter`** vs **`DtfAuthorityRunOrchestrator`**, asserts aligned terminal-shape fingerprint and ordered audit **event-type** multiset; runs under **fast Core** (`Suite=Core`, `Category!=Integration`). **`release-smoke.ps1 -AuthorityPipelineDtfSmoke`** (requires **`ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint`**, forbids **`-SkipE2E`**) sets **`ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask`** for the temporary API. Docs: **`docs/library/RELEASE_SMOKE.md`**, **`docs/runbooks/STAGING_DEPLOYMENT_VALIDATION.md`** (authority pipeline — SQL hosts use DTF port only; rollback = deployment revision). Removed gated-only **`ArchLucid.AgentRuntime.Tests/AuthorityPipelineOrchestratorParityTests.cs`** in favor of composition execution parity.
-```
-
-22. **Harden curated demo workspace smoke and fixture pinning**
+2. **Harden curated demo workspace smoke and fixture pinning**
 - Why it matters: Two GA-gated demo workspaces drift when UX, exports, or policy packs change without fixture updates.
 - Expected impact: Adoption Friction (+3 pts), Commercial Packaging Readiness (+2 pts), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: +0.10%.
 - Affected qualities: Adoption Friction, Commercial Packaging Readiness, Proof-of-ROI Readiness.
@@ -583,24 +329,7 @@ Pin demo workspace seeds (SQL + blob fixtures) to versioned packages consumed by
 - Acceptance criteria: GA checklist cannot pass without both workspaces green on pinned fixtures.
 ```
 
-23. **COMPLETED:** Add ArchUnitNET (or equivalent) architecture boundary tests
-- Why it matters: Large monorepo surface increases accidental coupling; automated boundaries protect maintainability at scale.
-- Expected impact: (Delivered **2026-05-17**.) Maintainability (+4 pts), Modularity (+2 pts). Weighted readiness impact: +0.10%.
-- Affected qualities: Maintainability, Modularity.
-- Actionable: Completed
-
-```markdown
-**Task status:** **Completed** (**2026-05-17**). **`ArchLucid.Architecture.Tests`** (**NetArchTest.Rules**) — merge-blocking under **`dotnet test`** fast Core (`Suite=Core`).
-
-Introduce architecture tests in `ArchLucid.TestSupport` (or a dedicated test project) that enforce layer rules (e.g. `ArchLucid.Core` must not reference `ArchLucid.Api`, UI must not reference persistence).
-- Start with a minimal rule set matching `.cursor/rules/Architecture-Invariants.mdc` INV-* pointers; expand incrementally.
-- Wire into existing `dotnet test` CI; fail on violation.
-- Acceptance criteria: At least five boundary rules run in CI and block obvious layer violations.
-
-**Delivered:** **`ArchLucid.Architecture.Tests`** — **NetArchTest.Rules** (not ArchUnit.NET; equivalent assembly / type-reference checks per **`docs/library/ARCHITECTURE_CONSTRAINTS.md`**). Layer rules concentrate in **`DependencyConstraintTests.cs`** (plus companion architecture-test files); each rule is **`Trait("Suite","Core")`**, **`Category=Unit`** so **`dotnet test ArchLucid.sln --filter Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord`** in **`.github/workflows/ci.yml`** runs them merge-blocking (**≥ five** boundaries: foundation leaves **Core** / **Contracts**, hexagonal **no Persistence** edges for Decisioning/KnowledgeGraph/ContextIngestion/ArtifactSynthesis/Notifications/Retrieval, **Cli** / **Worker** host edges, **`Api_must_not_depend_on_AgentRuntime`**, and additional guards in the same class). **`ArchLucid.Api`** still compiles against **`ArchLucid.Persistence`** today (controllers/services use persistence query/DTO surfaces) — tightening that to **Application-only** is a backlog refactor, not asserted in CI yet. SPA vs persistence layering stays outside this project (e.g. **`archlucid-ui`** import-lint policy).
-```
-
-24. **Surface finding confidence and evidence links prominently in review UI**
+3. **Surface finding confidence and evidence links prominently in review UI**
 - Why it matters: Operators need trust signals to accelerate decisions; buried provenance slows Decision Velocity.
 - Expected impact: Decision Velocity (+5 pts), Explainability (+2 pts), Differentiability (+1 pt). Weighted readiness impact: +0.13%.
 - Affected qualities: Decision Velocity, Explainability, Differentiability.
@@ -612,7 +341,7 @@ On finding detail and list views in `archlucid-ui`, show confidence (or severity
 - Acceptance criteria: PHI/minimization-style demo finding shows visible confidence and evidence navigation without opening the full manifest.
 ```
 
-25. **Implement bi-directional ServiceNow status sync (when dev credentials available)**
+4. **Implement bi-directional ServiceNow status sync (when dev credentials available)**
 - Why it matters: **V1 GA** commitment per `V1_SCOPE.md` §2.13; closes workflow gap for ITSM-led enterprises.
 - Expected impact: Workflow Embeddedness (+5 pts), Interoperability (+2 pts). Weighted readiness impact: +0.21%.
 - Affected qualities: Workflow Embeddedness, Interoperability.
@@ -625,94 +354,104 @@ Implement status sync between ArchLucid review/findings state and ServiceNow cha
 - Acceptance criteria: Status change in ArchLucid updates ServiceNow and vice versa in a developer-instance integration test.
 ```
 
-26. **COMPLETED:** Operator UI vocabulary alignment — marketing-safe buyer labels
-- Why it matters: Engineering-centric terms (**run**, **commit**, **manifest**) created friction for regulated EA and security buyers evaluating the product. Aligning operator shell copy to marketing vocabulary removed that barrier without touching HTTP contracts.
-- Expected impact: (Delivered **2026-05-17**.) Usability, Adoption Friction, Marketability.
-- Affected qualities: Usability, Adoption Friction.
-- Actionable: Completed
+5. **Extend live API specs for high-risk mock-only surfaces**
+- Why it matters: Mock-backed default smoke breadth relies on mocked /api/proxy. Live specs close this gap.
+- Expected impact: Correctness (+3 pts), Reliability (+2 pts).
+- Affected qualities: Correctness, Reliability.
+- Actionable: Yes
 
 ```markdown
-**Delivered:** Surface copy shifted from engineering-centric terms to marketing-aligned governance vocabulary — **Run** → **Review** / *Architecture review*; **Commit** → **Finalize review** / **Finalize**; **Manifest / golden manifest** → **Architecture snapshot** / **Snapshot** in tight UI; graph screen → **Evidence graph**. REST routes, OpenAPI operation IDs, CLI commands, and audit event names unchanged. Tooltip near finalize: replay/compare still allowed after lock.
+Add targeted `live-api-*.spec.ts` additions for high-risk surfaces that currently stay mock-only. Ensure golden-path integration is fully covered by `ui-e2e-live`.
 ```
 
-27. **COMPLETED:** Bulk evidence upload with ≤30-file server-enforced cap
-- Why it matters: Buyers need to gather scattered artifacts in a single session. Shipping a bounded bulk attach at GA enables the "capture scattered evidence" demo narrative while keeping scope honest.
-- Expected impact: (Delivered **2026-05-17**.) Usability (+2 pts), Customer Self-Sufficiency, Adoption Friction. Marketing alignment row 4.
-- Affected qualities: Usability, Customer Self-Sufficiency.
-- Actionable: Completed
+6. **Implement auto-scaling rules for the worker pool**
+- Why it matters: Prevents single-tenant worker pool exhaustion which is a known risk.
+- Expected impact: Scalability (+3 pts), Reliability (+2 pts).
+- Affected qualities: Scalability, Reliability.
+- Actionable: Yes
 
 ```markdown
-**Delivered:** Multi-file bulk attach to a review's evidence set ships with a hard ceiling of **30 files per request** (server-enforced). Landing page, support, and demo copy disclose the cap explicitly ("up to 30 files per upload"). Raising / removing the limit, ZIP unpack, and recursive folder ingest are deferred to V1.1.
+Implement auto-scaling rules for the worker pool based on queue depth to prevent noisy neighbor and pool exhaustion.
 ```
 
-28. **COMPLETED:** Buyer-grade architecture review export (DOCX + PDF) with consultant whitelabel
-- Why it matters: Enterprise buyers evaluate products by their outputs. A professional DOCX/PDF report matching the marketing narrative — complete with consultant whitelabeling — is the highest-leverage single marketing artifact at GA.
-- Expected impact: (Delivered **2026-05-17**.) Proof-of-ROI Readiness, Commercial Packaging Readiness, Stickiness. Marketing alignment rows 2 and 5.
-- Affected qualities: Proof-of-ROI Readiness, Executive Value Visibility.
-- Actionable: Completed
+7. **Add explicit logging for agent state machine transitions**
+- Why it matters: Makes it easier to observe and debug complex agent orchestrations in production.
+- Expected impact: Observability (+3 pts), AI/Agent Readiness (+2 pts).
+- Affected qualities: Observability, AI/Agent Readiness.
+- Actionable: Yes
 
 ```markdown
-**Delivered:** Default DOCX + PDF export profile with sections matching the landing-page report narrative: executive summary, system overview, evidence reviewed, architecture decisions, key risks, policy findings, AI-assisted analysis with human-review framing, traceability appendix, recommended next actions. Tenant-scoped consultant whitelabel: **firm name**, **engagement / client title**, optional **logo image** (PNG/SVG; MIME + size caps per security review), **"Prepared by … using ArchLucid"** cover footer disclaimer. Single export pipeline for DOCX and PDF. Unblocks marketing tasks **M-06** and **M-24** in `docs/go-to-market/GTM_BACKLOG.md`.
+Ensure detailed Information-level logs are emitted for `Agent execution state transition` with run id, current/next states, and task identifiers.
 ```
 
-29. **COMPLETED:** Ship default AI governance + security architecture baseline policy packs at V1 GA
-- Why it matters: Pilots onboarding to an empty-pack shell abandon without evidence of value. Two curated starter packs surface real findings immediately, proving ROI faster than buyer-authored-only onboarding.
-- Expected impact: (Delivered **2026-05-17**.) Proof-of-ROI Readiness, Commercial Packaging Readiness, Stickiness, Template and Accelerator Richness. Marketing alignment row 3.
-- Affected qualities: Proof-of-ROI Readiness, Stickiness.
-- Actionable: Completed
+8. **Update remaining operational scripts to support JWT/API keys**
+- Why it matters: Some operational scripts still rely on DevelopmentBypass, breaking realism.
+- Expected impact: Correctness (+2 pts), Security (+2 pts).
+- Affected qualities: Correctness, Security.
+- Actionable: Yes
 
 ```markdown
-**Delivered:** **(1) AI governance / responsible AI** MVP pack — explicit framework mapping (NIST AI RMF v1.0 themes, EU AI Act high-risk categories); mapping only, no certification claim. **(2) Security architecture baseline** MVP pack — rules aligned to CIS Azure Foundations / OWASP ASVS-style controls (`sec-base-001` … `sec-base-030`). Azure landing-zone / CAF-aligned curated pack **deferred to V1.1** — GA marketing relies on extractor + advisor for cloud posture narrative; must not imply bundled CAF pack until V1.1 release. Honesty copy: `docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md`, `docs/library/POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md`. Provisioning via `DefaultPolicyPackTemplates`. Unblocks marketing task **M-25** in `docs/go-to-market/GTM_BACKLOG.md`.
+Update operational scripts to accept optional parameters for a JWT bearer token or API key, removing the assumption of `DevelopmentBypass`.
 ```
 
-30. **COMPLETED:** Two curated demo workspaces (Workspace A — self-demo + Workspace B — synthetic regulated scenario)
-- Why it matters: Sales-led GA requires evaluators to experience the product before a calendar call. Two stable, smoke-monitored workspaces are the foundation for every marketing deliverable at launch.
-- Expected impact: (Delivered **2026-05-17**.) Adoption Friction, Commercial Packaging Readiness, Proof-of-ROI Readiness. Marketing alignment row 6. Hard V1 release gate.
-- Affected qualities: Adoption Friction, Proof-of-ROI Readiness.
-- Actionable: Completed
+9. **Add queue/offload telemetry and alerting for worker bursts**
+- Why it matters: Agent orchestration bursts still justify queue and offload telemetry when leases approach limits.
+- Expected impact: Observability (+3 pts), Performance (+2 pts).
+- Affected qualities: Observability, Performance.
+- Actionable: Yes
 
 ```markdown
-**Delivered:** **(A) Self-demo / product tour** — Workspace A seeded with ArchLucid-reviews-ArchLucid content; lands evaluators on the canonical workflow (Capture → Evidence → Review → Findings → Decisions → Report) using synthetic-safe content. **(B) Synthetic regulated scenario** — `RegulatedScenarioWorkspaceSeed` seeds AI governance + cloud posture narrative with evidence, seeded policy findings sourced from shipped pack IDs (`sec-base-006`, `sec-base-011`, `sec-base-018`). Playwright smoke: `archlucid-ui/e2e/demo-workspace-b.smoke.spec.ts`. Both workspaces monitored by automated smoke to prevent fixture drift. Unblocks marketing tasks **M-04**, **M-05**, **M-07**, **M-16**, **M-19**, **M-26** in `docs/go-to-market/GTM_BACKLOG.md`.
+Add dashboards and alerting on wait times and dead letters when workers queue behind saturated slots.
 ```
 
-31. **COMPLETED:** Landing CTA stack — hybrid posture for first 90 days
-- Why it matters: The CTA hierarchy must match the sales-led GA reality — no self-serve checkout, no public $ band — while still giving evaluators a product touch before a calendar call.
-- Expected impact: (Delivered **2026-05-17**.) Adoption Friction, Commercial Packaging Readiness, Marketability. Marketing alignment row 7.
-- Affected qualities: Adoption Friction, Marketability.
-- Actionable: Completed
+10. **Refine in-app tooltips to focus strictly on evidence-linked findings**
+- Why it matters: Broad proof surface helps defensibility but requires concise framing to avoid feature inventory overload.
+- Expected impact: Differentiability (+3 pts), Cognitive Load (+2 pts).
+- Affected qualities: Differentiability, Cognitive Load.
+- Actionable: Yes
 
 ```markdown
-**Delivered:** **Primary CTA** = **Request walkthrough** (sales-led GA; matches deferred Stripe live / Marketplace). **Secondary CTA** = **Try the self-demo** — deep-link into Workspace A. **Tertiary** = **Early access** / waitlist capture — must not imply instant product access or live checkout. Public paid-pilot $ band excluded from hero for first 90 days (qualify → quote path). `nav-shell-visibility.ts` + `SidebarNav.tsx` implement navigation shell visibility rules. Unblocks marketing task **M-09** (partial — also depends on **#32**) in `docs/go-to-market/GTM_BACKLOG.md`.
+Update in-app tooltips within the review UI to highlight core differentiation elements like evidence-linked findings.
 ```
 
-32. **COMPLETED:** Marketing landing page content (hero, problem/solution, use cases, proof)
-- Why it matters: The landing page is the primary evaluator entry point. Without complete hero and section content, the CTA stack routes buyers to a placeholder.
-- Expected impact: (Delivered **2026-05-17**.) Marketability, Adoption Friction, Commercial Packaging Readiness.
-- Affected qualities: Marketability, Adoption Friction.
-- Actionable: Completed
+11. **Add explicit OpenTelemetry tracing for LLM API calls**
+- Why it matters: Missing tracing for token usage and latency hinders debugging and AI/Agent readiness.
+- Expected impact: Observability (+3 pts), AI/Agent Readiness (+3 pts).
+- Affected qualities: Observability, AI/Agent Readiness.
+- Actionable: Yes
 
 ```markdown
-**Delivered:** `WelcomeMarketingPage.tsx` + `archlucid-ui/src/app/(marketing)/layout.tsx` implement: hero copy and sub-headline aligned to `POSITIONING.md` tagline; problem section (architecture review fragmented across diagrams, decks, wikis, meetings, memory); solution section (reviewable evidence graph); six-step core workflow visual (Capture system → Add evidence → Run review → Resolve findings → Record decisions → Generate report); five V1-approved use cases (architecture review boards, AI governance reviews, security architecture reviews, M&A / modernization assessments, consultant architecture assessments); proof section (screenshots from Workspace A/B, downloadable sample report link, Workspace A self-demo link); hybrid CTA stack from **#31**. CAF landing-zone pack claim excluded; copy reviewed against `POSITIONING.md`. Test: `welcome-brand-category.test.tsx`. Unblocks marketing task **M-09** in `docs/go-to-market/GTM_BACKLOG.md`.
+Enhance OpenTelemetry instrumentation to capture detailed metrics for all LLM API calls, including token count and latency.
 ```
 
-33. **COMPLETED:** Marketing landing page content (hero, problem/solution, use cases, proof) — superseded by **#32** above
-- Note: This item was added as a forward-looking task before the work was confirmed complete. **Improvement #32** records the delivered state. This entry is retained for numbering continuity only.
-- Actionable: Completed — see **#32**.
+12. **Implement internal cross-tenant analytics**
+- Why it matters: Without internal tools to aggregate usage and cost savings across tenants, it is difficult to prove ROI.
+- Expected impact: Proof-of-ROI Readiness (+4 pts).
+- Affected qualities: Proof-of-ROI Readiness.
+- Actionable: Yes
 
----
+```markdown
+Implement cross-tenant analytics dashboards for internal operators to track aggregated usage, baseline improvements, and cost savings.
+```
+
+13. **Deeper engine-native scheduling and observability for DTF**
+- Why it matters: Required for full multiset parity and operational depth.
+- Expected impact: Reliability (+3 pts), Maintainability (+2 pts).
+- Affected qualities: Reliability, Maintainability.
+- Actionable: Yes
+
+```markdown
+Complete deeper engine-native scheduling and observability for the Durable Task Framework port and clean up legacy paths once sustained green.
+```
 
 ## Prompt Batching Guidance
 
-- **Batch 1 (High Leverage, Low Risk):** 3, 4, 8, 14, 18 (**item 17 — missing baseline executive / sponsor surfaces — COMPLETED** **2026-05-17**). Correctness, observability, documentation, live E2E, and a11y CI without large architecture moves.
-- **Batch 2 (Performance & Observability):** 5, 7, 10, 11, 21. Operational robustness, SQL retries, LLM tracing, orchestration limits, and DTF parity smoke.
-- **Batch 3 (Testing, Analytics & ROI):** **16 — baseline wizard — COMPLETED** **2026-05-17** (**item 12 — data residency — COMPLETED** **2026-05-16**; do not re-prompt).
-- **Batch 4 (UX & adoption):** 6, 15, 19, **20 — security baseline pack expansion — COMPLETED** **2026-05-17**, 22, 24. Dashboard health, rule UI, progressive disclosure, pack depth, demo smoke, and finding trust signals.
-- **Batch 5 (Architecture hygiene):** **23 — NetArchTest boundary suite — COMPLETED** **2026-05-17** (expand rules incrementally in **`ArchLucid.Architecture.Tests`** as needs arise).
-- **Batch 6 (Integrations — credential-dependent):** 25. ServiceNow bi-directional sync when **P10** developer instance is available; do not block other batches.
-- **Batch 7 (Marketing landing page — COMPLETED 2026-05-17):** **#26** (UI vocabulary), **#27** (bulk upload), **#28** (DOCX/PDF export + whitelabel), **#29** (default policy packs), **#30** (demo workspaces A + B), **#31** (landing CTA stack), **#32** (landing page content), **#33** (superseded by #32). All marketing alignment gates closed. GTM tasks **M-04**, **M-05**, **M-06**, **M-07**, **M-09**, **M-16**, **M-19**, **M-24**, **M-25**, **M-26** are unblocked — see `docs/go-to-market/GTM_BACKLOG.md`.
-- **Deferred / V1.1 program (do not batch into V1 execution):** **Azure CAF / landing-zone curated policy pack**; **bulk evidence upload above 30 files**, ZIP expansion, recursive folder ingest; Stripe live keys / Marketplace (**#7** in commercial packaging notes). Plan V1.1 slices with dedicated context (see **`V1_SCOPE.md`**, **`V1_DEFERRED.md`**, pinned backlog docs — not re-listed here).
-
----
+- **Batch 1 (High Leverage, Low Risk):** 1, 3, 6, 11
+- **Batch 2 (Performance & Observability):** 2, 5, 7, 9, 13
+- **Batch 3 (UX & adoption):** 1, 4, 10
+- **Batch 4 (Architecture hygiene & Testing):** 2, 8, 12
+- **Batch 5 (Integrations — credential-dependent):** 4 (ServiceNow)
+- **Deferred / V1.1 program:** Azure CAF / landing-zone curated policy pack; bulk evidence upload above 30 files, ZIP expansion, recursive folder ingest; Stripe live keys / Marketplace.
 
 ## Marketing alignment
 
