@@ -1,3 +1,4 @@
+import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_BUYER_REVIEW_TITLE } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
@@ -18,6 +19,11 @@ export function buyerFacingReviewLinkLabelFromRunId(runId: string): string {
 /** Buyer-oriented review title: stable label for the curated sample; otherwise description or fallback. */
 export function buyerFacingReviewTitleFromSummary(run: RunSummary): string {
   const runIdRaw = run.runId ?? "";
+  const compareFriendly = compareRunBuyerDisplayLabel(runIdRaw.trim());
+
+  if (compareFriendly !== null) {
+    return compareFriendly;
+  }
 
   if (isShowcaseStaticDemoRunId(runIdRaw)) {
     return SHOWCASE_BUYER_REVIEW_TITLE;

@@ -60,8 +60,11 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/reviews?projectId=default",
-          label: "Review",
-          title: this.shortcutTitle("Review — open review detail, architecture package, artifacts, exports", "alt+r"),
+          label: "Review package",
+          title: this.shortcutTitle(
+            "Review package — open review detail, architecture package, artifacts, exports",
+            "alt+r",
+          ),
           keyShortcut: "alt+r",
           icon: ListOrdered,
           tier: "essential",

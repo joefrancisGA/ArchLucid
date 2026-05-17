@@ -7,7 +7,7 @@ import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 
 /** Buyer default shell: omit pilot distractions — golden path uses Reviews cluster + journey strip (`SidebarNav`). */
-const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/", "/onboarding", "/reviews/new"]);
+const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/", "/onboarding", "/reviews/new", "/compare"]);
 
 /** In buyer-polished operator builds, omit routes that read as unfinished operator tooling or leak internal surfaces. */
 const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([

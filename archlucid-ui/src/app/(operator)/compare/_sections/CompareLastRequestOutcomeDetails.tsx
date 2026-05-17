@@ -17,6 +17,7 @@ export type CompareLastRequestOutcomeDetailsProps = {
   result: RunComparison | null;
   legacyFailure: ApiLoadFailureState | null;
   legacyMalformed: string | null;
+  buyerPolished?: boolean;
 };
 
 export function CompareLastRequestOutcomeDetails(props: CompareLastRequestOutcomeDetailsProps) {
@@ -33,20 +34,23 @@ export function CompareLastRequestOutcomeDetails(props: CompareLastRequestOutcom
     result,
     legacyFailure,
     legacyMalformed,
+    buyerPolished = false,
   } = props;
 
   if (lastComparedPair === null || !pairAligned || loading) {
     return null;
   }
 
+  const summarizeCue = buyerPolished ? "Summarize for leadership" : "Summarize for sponsor";
+
   return (
     <details
       className="mt-6 max-w-3xl rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-900/50"
       aria-label="Comparison request outcome"
-      open={showStaleInputsWarning}
+      open={buyerPolished ? false : showStaleInputsWarning}
     >
       <summary className="cursor-pointer text-base font-semibold text-neutral-900 dark:text-neutral-100">
-        Last compare request (technical)
+        {buyerPolished ? "Comparison details (technical appendix)" : "Last compare request (technical)"}
       </summary>
       <div className="mt-3">
         <p className="mb-2.5 text-sm text-neutral-600 dark:text-neutral-400">
@@ -80,7 +84,7 @@ export function CompareLastRequestOutcomeDetails(props: CompareLastRequestOutcom
           </dd>
         </dl>
         <p className="mb-0 mt-2.5 text-xs text-neutral-500 dark:text-neutral-400">
-          AI explanation is not included here—use <strong>Summarize for sponsor</strong> for that pair.
+          AI explanation is not included here—use <strong>{summarizeCue}</strong> for that pair.
         </p>
       </div>
     </details>

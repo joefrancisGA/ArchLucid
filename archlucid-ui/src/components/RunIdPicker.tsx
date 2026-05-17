@@ -9,6 +9,7 @@ import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { runSummaryDisplayLabel } from "@/lib/run-summary-display-label";
 import { cn } from "@/lib/utils";
 
@@ -79,6 +80,13 @@ export function RunIdPicker({
   useEffect(() => {
     if (!useBuyerFacingRunLabels) {
       setQuery(value);
+      return;
+    }
+
+    const knownFriendly = compareRunBuyerDisplayLabel(value.trim());
+
+    if (knownFriendly !== null) {
+      setQuery(knownFriendly);
       return;
     }
 

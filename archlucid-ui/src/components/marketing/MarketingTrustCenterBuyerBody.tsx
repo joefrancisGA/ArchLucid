@@ -20,7 +20,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           material changes.
         </p>
         <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          Diligence deep-dives (questionnaire responses, subprocessors, tenancy detail) are delivered through your
+          Detailed diligence materials (questionnaire responses, subprocessors, tenancy detail) are delivered through your
           procurement channel — coordinate intake via{" "}
           <Link
             href="#trust-contact-review"
@@ -39,15 +39,15 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
 
         <div className="mt-6 rounded-lg border border-blue-100 bg-blue-50/70 px-4 py-4 dark:border-blue-950 dark:bg-blue-950/35">
           <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Assurance at a glance</p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div>
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                 Available now
               </p>
               <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm font-medium text-neutral-900 dark:text-neutral-100">
                 <li>
-                  Procurement-ready architecture, operations, and security documentation packs you can route into diligence
-                  immediately.
+                  Procurement-ready architecture, operations, and security documentation packs you can submit during initial
+                  procurement review.
                 </li>
                 <li>
                   Audit-ready evidence packages and questionnaire-oriented summaries, with immutable lifecycle logging for
@@ -70,6 +70,17 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
                   >
                     Security review contact
                   </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                Planned assurance
+              </p>
+              <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+                <li>
+                  Roadmap attestations and third-party tests follow your procurement calendar — we do not pre-release
+                  unfinished formal reports.
                 </li>
               </ul>
             </div>
@@ -149,8 +160,8 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         <ul className="mt-3 max-w-3xl list-disc space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
           <li>
             <span className="font-medium text-neutral-900 dark:text-neutral-100">SOC&nbsp;2 program:</span> readiness mapping
-            and control baselines continue on a published cadence. CPA-issued attestations and formally distributable
-            third-party test reports ship when published and approved — not before.
+            and control baselines continue on a published cadence. Formal attestations and third-party reports are
+            distributed only after completion, approval, and release through the appropriate procurement channel.
           </li>
           <li>
             <span className="font-medium text-neutral-900 dark:text-neutral-100">Penetration testing:</span> independent

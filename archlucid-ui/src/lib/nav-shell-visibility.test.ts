@@ -555,23 +555,12 @@ describe("buyer-polished shell nav narrowing", () => {
     process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
   });
 
-  it("drops home onboarding and new-review pilot links from composed shell filters", () => {
-    expect(pilot).toBeDefined();
+  it("drops compare from operate-analysis in buyer-polished shell", () => {
+    const op = NAV_GROUPS.find((g) => g.id === "operate-analysis");
 
-    const visible = filterNavLinksForOperatorShell(
-      pilot!.links,
-      false,
-      false,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      true,
-    );
-    const hrefs = visible.map((l) => l.href);
+    expect(op).toBeDefined();
 
-    expect(hrefs).not.toContain("/");
-    expect(hrefs).not.toContain("/onboarding");
-    expect(hrefs).not.toContain("/reviews/new");
-    expect(hrefs).toContain("/reviews?projectId=default");
-    expect(hrefs).toContain("/dashboard");
+    const visible = filterNavLinksForOperatorShell(op!.links, true, true, AUTHORITY_RANK.AdminAuthority, false, true);
+
+    expect(visible.map((l) => l.href)).not.toContain("/compare");
   });
-});

@@ -65,16 +65,34 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
                 className="mx-0.5 hidden h-5 w-px shrink-0 bg-neutral-200 dark:bg-neutral-700 sm:block"
                 aria-hidden
               />
-              <span className="sr-only">Trust and policies:</span>
-              <Button asChild variant="ghost" size="sm" className="shrink-0">
-                <Link href="/compliance-journey">Compliance journey</Link>
-              </Button>
-              <Button asChild variant="ghost" size="sm" className="shrink-0">
-                <Link href="/trust">Trust Center</Link>
-              </Button>
-              <Button asChild variant="ghost" size="sm" className="shrink-0">
-                <Link href="/privacy">Privacy</Link>
-              </Button>
+              <details className="group relative shrink-0 [&_summary::-webkit-details-marker]:hidden">
+                <summary className="inline-flex list-none cursor-pointer items-center rounded-md px-2 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800">
+                  Resources
+                  <span className="ml-0.5 text-neutral-400" aria-hidden>
+                    ▾
+                  </span>
+                </summary>
+                <div className="absolute end-0 top-full z-50 mt-1 min-w-[12rem] rounded-md border border-neutral-200 bg-white py-1 shadow-lg dark:border-neutral-700 dark:bg-neutral-950">
+                  <Link
+                    href="/compliance-journey"
+                    className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+                  >
+                    Compliance journey
+                  </Link>
+                  <Link
+                    href="/trust"
+                    className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+                  >
+                    Trust Center
+                  </Link>
+                  <Link
+                    href="/privacy"
+                    className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+                  >
+                    Privacy
+                  </Link>
+                </div>
+              </details>
             </nav>
           </div>
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">

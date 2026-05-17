@@ -82,4 +82,12 @@ describe("buyerFacingReviewTitleFromSummary", () => {
       ),
     ).toBe("Actual human title");
   });
+
+  it("uses known compare-demo slug labels before description heuristics", () => {
+    expect(
+      buyerFacingReviewTitleFromSummary(
+        summary({ runId: "claims-intake-run-v1", description: "Claims Intake v1" }),
+      ),
+    ).toBe("Baseline Claims Intake Review");
+  });
 });

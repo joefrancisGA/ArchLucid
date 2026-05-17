@@ -45,11 +45,18 @@ export function RunsPageView(props: Props) {
       />
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
         {isBuyerPolishedOperatorShellEnv() ? (
-          <>
-            Open an <GlossaryTooltip termKey="run">architecture review</GlossaryTooltip> to review its manifest, evidence,
-            findings, and deliverables. Use <strong className="font-medium text-neutral-800 dark:text-neutral-100">Search reviews</strong>{" "}
-            below to narrow by title or description.
-          </>
+          m.totalCount === 1 && m.runs[0]?.hasGoldenManifest === true ? (
+            <>
+              One finalized review package is available in this example workspace.
+            </>
+          ) : (
+            <>
+              Open an <GlossaryTooltip termKey="run">architecture review</GlossaryTooltip> to review its manifest,
+              evidence, findings, and deliverables. Use{" "}
+              <strong className="font-medium text-neutral-800 dark:text-neutral-100">Search reviews</strong> below to
+              narrow by title or description.
+            </>
+          )
         ) : (
           <>
             Open an <GlossaryTooltip termKey="run">architecture review</GlossaryTooltip> to inspect its manifest,

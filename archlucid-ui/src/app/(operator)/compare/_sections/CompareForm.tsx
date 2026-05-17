@@ -353,6 +353,7 @@ export function CompareForm() {
           onLeftRunPicked={setLeftPickedSummary}
           onRightRunPicked={setRightPickedSummary}
           useBuyerFacingRunLabels={buyerPolished}
+          summarizeButtonLabel={buyerPolished ? "Summarize for leadership" : "Summarize for sponsor"}
         />
 
         <CompareResultsPanel
@@ -374,6 +375,7 @@ export function CompareForm() {
           golden={golden}
           result={result}
           aiExplanation={aiExplanation}
+          buyerPolished={buyerPolished}
         />
       </div>
 
@@ -390,6 +392,7 @@ export function CompareForm() {
         result={result}
         legacyFailure={legacyFailure}
         legacyMalformed={legacyMalformed}
+        buyerPolished={buyerPolished}
       />
     </div>
   );

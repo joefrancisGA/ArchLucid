@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { getTraceabilityBundleDownloadUrl } from "@/lib/api";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
@@ -17,6 +18,7 @@ type RunDetailRunActionsSectionProps = {
 
 export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProps): ReactElement {
   const { runId, manifestId } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   return (
     <section id="run-actions" className="scroll-mt-24">
@@ -26,7 +28,8 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
           <CardDescription>
             <>
               Exports and sponsor-facing bundles sit in <strong>Deliverables & exports</strong> above. Use this card for
-              scorecard generation, traceability ZIP, and optional compare shortcuts.
+              scorecard generation and traceability ZIP
+              {buyerPolishedShell ? "." : ", and optional compare shortcuts."}
             </>
           </CardDescription>
         </CardHeader>
@@ -38,9 +41,11 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
                 Download traceability bundle (ZIP)
               </FunnelTelemetryExportAnchor>
             </Button>
+            {buyerPolishedShell ? null : (
             <Button variant="outline" size="sm" asChild>
               <Link href={comparePageHrefAdaptive(runId)}>Compare two reviews (baseline = this review)</Link>
             </Button>
+            )}
             {manifestId ? (
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/executive/reviews/${encodeURIComponent(runId)}`}>Open Executive Summary</Link>

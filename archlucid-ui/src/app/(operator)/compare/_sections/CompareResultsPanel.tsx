@@ -38,6 +38,8 @@ export type CompareResultsPanelProps = {
   golden: GoldenManifestComparison | null;
   result: RunComparison | null;
   aiExplanation: ComparisonExplanation | null;
+  /** Buyer shell: softer labels, collapsed technical outline, collapsed structured folds by default. */
+  buyerPolished?: boolean;
 };
 
 export function CompareResultsPanel(props: CompareResultsPanelProps) {
@@ -60,7 +62,10 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
     golden,
     result,
     aiExplanation,
+    buyerPolished = false,
   } = props;
+
+  const summarizeCue = buyerPolished ? "Summarize for leadership" : "Summarize for sponsor";
 
   return (
     <section className="space-y-6" aria-label="Comparison results">
@@ -76,7 +81,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             <strong>
               {lastComparedPair ? compareRunHeadingLabel(lastComparedPair.right, rightPickedSummary) : ""}
             </strong>
-            . Click <strong>Compare</strong> or <strong>Summarize for sponsor</strong> again after fixing selections, or
+            . Click <strong>Compare</strong> or <strong>{summarizeCue}</strong> again after fixing selections, or
             restore the previous values.
           </p>
           <details className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
@@ -171,7 +176,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
           <OperatorTryNext>
             AI is optional—use the structured summary and supplementary tables above for the authoritative diff. If this
             should work, check API LLM configuration, quotas, and proxy timeouts, then retry{" "}
-            <strong>Summarize for sponsor</strong>.
+            <strong>{summarizeCue}</strong>.
           </OperatorTryNext>
         </>
       )}
@@ -189,7 +194,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
         </>
       )}
 
-      {hasResultsToNavigate && (
+      {hasResultsToNavigate && !buyerPolished ? (
         <nav
           aria-label="Comparison results outline"
           className="mt-4 max-w-3xl rounded-lg border border-neutral-200 bg-white p-3 text-sm dark:border-neutral-700 dark:bg-neutral-900"
@@ -218,7 +223,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             )}
           </ol>
         </nav>
-      )}
+      ) : null}
 
       <ClientErrorBoundary title="Comparison results failed to render">
         {golden !== null && (
@@ -226,6 +231,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             golden={golden}
             baselinePickedSummary={leftPickedSummary}
             updatedPickedSummary={rightPickedSummary}
+            buyerCompareUi={buyerPolished}
           />
         )}
 
@@ -258,7 +264,9 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             className="mt-6 rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
           >
             <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-neutral-900 outline-none ring-offset-2 marker:content-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-neutral-100 [&::-webkit-details-marker]:hidden">
-              Sponsor narrative (AI-generated) — optional; confirm against structured diff before sign-off
+              {buyerPolished
+                ? "Executive narrative (AI-generated) — optional; confirm against structured summary before sign-off"
+                : "Sponsor narrative (AI-generated) — optional; confirm against structured diff before sign-off"}
             </summary>
             <div className="border-t border-neutral-200 px-4 pb-2 dark:border-neutral-700">
               <AiComparisonExplanationView explanation={aiExplanation} />

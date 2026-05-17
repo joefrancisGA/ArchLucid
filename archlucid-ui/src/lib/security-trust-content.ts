@@ -61,7 +61,7 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
     vendor: "ArchLucid internal security program",
     scope:
       "Application data-handling paths, administrative interfaces, HTTPS API behaviors, with a documented control review process",
-    completedUtc: "In progress",
+    completedUtc: "Summary available during diligence (in progress)",
     summaryAccess: {
       kind: "nda",
       description: "Summary available during due diligence.",
@@ -85,9 +85,9 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
     id: "pen-test-third-party-planned",
     maturityTier: "planned_next",
     engagement: "Planned next assurance cycle — independent third-party penetration test",
-    vendor: "Independent third-party assessor (vendor confirmed in executed SOW)",
+    vendor: "Independent third-party assessment planned for the next assurance cycle",
     scope:
-      "Hosted product API, application and administrative interfaces, and primary data-handling paths (scope confirmed in executed Statement of Work)",
+      "Hosted product API, application and administrative interfaces, and primary data-handling paths (scope and schedule managed through the assurance cycle)",
     completedUtc: "Planned — next assurance cycle",
     summaryAccess: {
       kind: "nda",

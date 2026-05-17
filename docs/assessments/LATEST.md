@@ -511,11 +511,11 @@ Update `DataArchivalHostHealthCheck` and the underlying archival services to imp
 Document the recommended defaults for `AuthorityPipeline:Concurrency` per environment tier and add a runbook section for monitoring lease table growth.
 ```
 
-21. **Incrementally expand NetArchTest boundary rules**
+21. **Incrementally expand NetArchTest boundary rules** (**completed 2026-05-17**)
 - Why it matters: Continued expansion of automated boundary rules protects maintainability as the codebase grows.
 - Expected impact: Maintainability (+4 pts), Modularity (+2 pts).
 - Affected qualities: Maintainability, Modularity.
-- Actionable: Yes
+- Actionable: Yes (**done** — **`ArchLucid.Architecture.Tests`/`InternalModifierBoundaryArchitectureTests.cs`**: four reflection guards for **`internal`** surfaces — `ArchLucid.Api.Middleware`, `ArchLucid.Api.Auth.Scim`, `SqlMigrationPlanes`, `HotPathRelationalQueryShapes`; matching types narrowed to **`internal`** in **`ArchLucid.Api`** and **`ArchLucid.Persistence`**.)
 
 ```markdown
 Add at least three new architecture boundary rules in `ArchLucid.Architecture.Tests` to further tighten public surfaces using the `internal` modifier.
@@ -556,7 +556,7 @@ Design the API contracts and storage schema necessary to support an internal "Po
 - **Batch 1 (High Leverage, Low Risk):** 1, 3, 6, 11
 - **Batch 2 (Performance & Observability):** 2, 5, 7, 9, 13
 - **Batch 3 (UX & adoption):** 10 ~~15, 16~~ (**15–16 completed 2026-05-17**)
-- **Batch 4 (Architecture hygiene & Testing):** 8, 12, 14, 18, 21, 23
+- **Batch 4 (Architecture hygiene & Testing):** 8, 12, 14, 18, ~~21~~ (**21 completed 2026-05-17**), 23
 - **Batch 5 (Integrations — credential-dependent):** 4 (ServiceNow), 19
 - **Batch 6 (Business Value & Stickiness):** 17, ~~20~~ (**20 completed 2026-05-17**), 22, 24
 - **Deferred / V1.1 program:** Azure CAF / landing-zone curated policy pack; bulk evidence upload above 30 files, ZIP expansion, recursive folder ingest; Stripe live keys / Marketplace.

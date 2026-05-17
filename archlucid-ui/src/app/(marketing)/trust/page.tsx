@@ -46,7 +46,7 @@ export default function MarketingTrustCenterPage(): ReactNode {
           href="mailto:security@archlucid.net?subject=Public%20evidence%20summary%20request"
           rel="noopener"
         >
-          Request public evidence summary by email
+          Request evidence summary
         </a>
         <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
           Email triggers procurement-safe routing — we send the current public bundle or confirm diligence intake (same

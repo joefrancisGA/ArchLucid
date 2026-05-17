@@ -87,8 +87,19 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
       </p>
 
       <section
+        aria-label="Current assurance posture summary"
+        className="mt-4 rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-800 shadow-sm dark:border-neutral-700 dark:bg-neutral-950/40 dark:text-neutral-200"
+      >
+        <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">At a glance</p>
+        <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          Current posture: public procurement evidence is available now; detailed security summaries are shared during
+          diligence; independent third-party testing is planned for the next assurance cycle.
+        </p>
+      </section>
+
+      <section
         aria-labelledby="security-trust-buyer-proof-strip"
-        className="mt-6 rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-4 dark:border-emerald-900 dark:bg-emerald-950/35"
+        className="mt-6 rounded-lg border-2 border-emerald-300 bg-emerald-50/80 px-4 py-4 shadow-sm dark:border-emerald-800 dark:bg-emerald-950/40"
       >
         <h2 id="security-trust-buyer-proof-strip" className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-50">
           Available for diligence today
@@ -140,7 +151,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
             const plannedTierMuted = tier === "planned_next";
 
             return (
-              <div key={tier} className={plannedTierMuted ? "space-y-4 opacity-90" : "space-y-4"}>
+              <div key={tier} className={plannedTierMuted ? "space-y-4 opacity-75" : "space-y-4"}>
                 <div>
                   <h3
                     id={meta.id}

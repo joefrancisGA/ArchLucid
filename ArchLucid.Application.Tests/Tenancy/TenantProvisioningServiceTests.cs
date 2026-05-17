@@ -113,6 +113,75 @@ public sealed class TenantProvisioningServiceTests
     }
 
     [SkippableFact]
+    public async Task ProvisionAsync_persists_normalized_DataRegion_and_audit_geo_field()
+    {
+        InMemoryTenantRepository repo = new();
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("admin@test");
+        Mock<IAuditService> audit = new();
+        AuditEvent? emitted = null;
+
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((evt, _) => emitted = evt)
+            .Returns(Task.CompletedTask);
+
+        Mock<ITenantSqlCatalogProvisioner> sqlCatalog = new();
+
+        sqlCatalog
+            .Setup(p => p.ProvisionTenantCatalogAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IDefaultPolicyPackSeeder> packSeeder = new();
+
+        packSeeder
+            .Setup(s =>
+                s.EnsureDefaultPolicyPacksAsync(
+                    It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<TenantProvisioningOptions>> options = DefaultProvisioningMonitor();
+        InMemoryArchitectureProjectRepository projects = new();
+
+        TenantProvisioningService sut = new(
+            repo,
+            projects,
+            actor.Object,
+            audit.Object,
+            NullLogger<TenantProvisioningService>.Instance,
+            options.Object,
+            sqlCatalog.Object,
+            packSeeder.Object);
+
+        TenantProvisioningRequest req = new()
+
+            { Name = "Geo Co", AdminEmail = "geo@example.com", Tier = TenantTier.Enterprise, DataRegion = " EastUS ", };
+
+        await sut.ProvisionAsync(req, CancellationToken.None);
+
+        TenantRecord? stored = await repo.GetBySlugAsync(TenantSlugNormalizer.FromName(req.Name), CancellationToken.None);
+
+        stored.Should().NotBeNull();
+        stored!.DataRegion.Should().Be("eastus");
+        emitted.Should().NotBeNull();
+        emitted!.DataJson.Should().Contain("\"dataRegion\":\"eastus\"");
+        emitted.TenantId.Should().Be(stored.Id);
+
+        TenantRecord? roundTrip = await repo.GetByIdAsync(stored.Id, CancellationToken.None);
+
+        roundTrip.Should().NotBeNull();
+        roundTrip!.DataRegion.Should().Be("eastus");
+
+        TenantProvisioningResult second =
+            await sut.ProvisionAsync(
+                new TenantProvisioningRequest { Name = req.Name, AdminEmail = req.AdminEmail, Tier = req.Tier, DataRegion = "eastUS", },
+                CancellationToken.None);
+
+        second.WasAlreadyProvisioned.Should().BeTrue();
+    }
+
+    [SkippableFact]
     public async Task ProvisionAsync_uses_audit_actor_override_when_set()
     {
         Mock<ITenantRepository> repo = new();

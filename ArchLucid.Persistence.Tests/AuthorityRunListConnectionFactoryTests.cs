@@ -33,7 +33,7 @@ public sealed class AuthorityRunListConnectionFactoryTests
             resilient,
             options.Object,
             ReadReplicaQueryRoute.AuthorityRunList,
-            Options.Create(new SqlOpenResilienceOptions { MaxRetryAttempts = 1 }),
+            Microsoft.Extensions.Options.Options.Create(new SqlOpenResilienceOptions { MaxRetryAttempts = 1 }),
             NullLogger<ReadReplicaRoutedConnectionFactory>.Instance);
 
         SqlConnection actual = await sut.CreateOpenConnectionAsync(CancellationToken.None);

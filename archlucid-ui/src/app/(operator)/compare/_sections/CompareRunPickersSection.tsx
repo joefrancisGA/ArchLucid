@@ -24,6 +24,8 @@ export type CompareRunPickersSectionProps = {
   onRightRunPicked: (summary: RunSummary | null) => void;
   /** Buyer shell: show review titles in inputs while retaining technical ids for requests. */
   useBuyerFacingRunLabels?: boolean;
+  /** Buyer shell: replaces “Summarize for sponsor” with procurement-oriented language. */
+  summarizeButtonLabel?: string;
 };
 
 export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
@@ -47,6 +49,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
     onLeftRunPicked,
     onRightRunPicked,
     useBuyerFacingRunLabels = false,
+    summarizeButtonLabel = "Summarize for sponsor",
   } = props;
 
   return (
@@ -115,7 +118,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
             onClick={() => void onSummarizeForSponsor()}
             disabled={aiLoading || !leftTrim || !rightTrim || sameCanonicalRunIdsBlocked}
           >
-            {aiLoading ? "Summarizing…" : "Summarize for sponsor"}
+            {aiLoading ? "Summarizing…" : summarizeButtonLabel}
           </button>
         </div>
       </div>

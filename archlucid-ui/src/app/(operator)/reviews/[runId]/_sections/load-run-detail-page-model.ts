@@ -122,6 +122,10 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     const projectRuns = await listRunsByProject(resolvedDetail.run.projectId, 60);
 
     canShowCompareReviewButton = projectRuns.length >= 2;
+
+    if (isBuyerPolishedOperatorShellEnv()) {
+      canShowCompareReviewButton = false;
+    }
     priorCommittedRun = findPriorCommittedRun(resolvedDetail.run.runId, projectRuns);
 
     let minUtc: string | null = null;

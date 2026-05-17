@@ -234,7 +234,8 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     useWhen:
       "See who acted, when, and why — filter when needed; download CSV when your role allows.",
     firstPilotNote: null,
-    enterpriseFootnote: "Exports follow your organization’s roles.",
+    enterpriseFootnote:
+      "Audit exports are available only to authorized audit or workspace administrators.",
   },
   alerts: {
     headline: "Operational and compliance signals.",
@@ -250,6 +251,10 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     firstPilotNote: null,
   },
   compare: {
+    layerBadge: "Review change comparison",
+    headline: "See what changed between two finalized architecture reviews.",
+    useWhen:
+      "Use when you need a structured package diff or an optional executive narrative after two packages are finalized.",
     firstPilotNote: null,
   },
   "policy-packs": {
@@ -259,7 +264,7 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
   "governance-workflow": {
     headline: "Governance approval completed for this review package.",
     useWhen:
-      "Review the recorded approval path and how this package is authorized for governed downstream use.",
+      "Review the recorded approval path and how this package is approved as the governed architecture record for downstream planning.",
     firstPilotNote: null,
     enterpriseFootnote:
       "This page records who reviewed the package, what approval was granted, and what monitoring remains.",

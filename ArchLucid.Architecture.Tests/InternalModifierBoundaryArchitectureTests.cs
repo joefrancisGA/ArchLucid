@@ -1,8 +1,6 @@
 using System.Reflection;
 
-using ArchLucid.Api.Auth.Scim;
-using ArchLucid.Api.Middleware;
-using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Persistence.Sql;
 
 using FluentAssertions;
@@ -14,15 +12,18 @@ namespace ArchLucid.Architecture.Tests;
 [Trait("Category", "Unit")]
 public sealed class InternalModifierBoundaryArchitectureTests
 {
+    private const string ApiMiddlewareNamespace = "ArchLucid.Api.Middleware";
+    private const string ApiScimAuthNamespace = "ArchLucid.Api.Auth.Scim";
+
     [Fact]
     public void ArchLucid_Api_Middleware_types_are_not_public()
     {
-        Assembly api = typeof(ApiDeprecationHeadersMiddleware).Assembly;
+        Assembly api = typeof(ManifestsController).Assembly;
         List<string> violations = [];
 
         foreach (Type type in api.GetTypes())
         {
-            if (type.Namespace != typeof(ApiDeprecationHeadersMiddleware).Namespace)
+            if (type.Namespace != ApiMiddlewareNamespace)
                 continue;
 
             if (type.IsPublic)
@@ -37,12 +38,12 @@ public sealed class InternalModifierBoundaryArchitectureTests
     [Fact]
     public void ArchLucid_Api_Scim_authentication_types_are_not_public()
     {
-        Assembly api = typeof(ScimBearerAuthenticationHandler).Assembly;
+        Assembly api = typeof(ManifestsController).Assembly;
         List<string> violations = [];
 
         foreach (Type type in api.GetTypes())
         {
-            if (type.Namespace != typeof(ScimBearerAuthenticationHandler).Namespace)
+            if (type.Namespace != ApiScimAuthNamespace)
                 continue;
 
             if (type.IsPublic)
@@ -57,9 +58,11 @@ public sealed class InternalModifierBoundaryArchitectureTests
     [Fact]
     public void ArchLucid_Persistence_SqlMigrationPlanes_is_not_public()
     {
-        Type type = typeof(SqlMigrationPlanes);
+        Assembly persistence = typeof(ISchemaBootstrapper).Assembly;
+        Type? type = persistence.GetType("ArchLucid.Persistence.Data.Infrastructure.SqlMigrationPlanes", throwOnError: false, ignoreCase: false);
 
-        type.IsPublic.Should().BeFalse(
+        type.Should().NotBeNull("SqlMigrationPlanes must remain in ArchLucid.Persistence");
+        type!.IsPublic.Should().BeFalse(
             $"{type.FullName} classifies embedded DbUp resources for ArchLucid.Persistence only; "
             + "other assemblies must not take a dependency on it.");
     }
@@ -67,9 +70,11 @@ public sealed class InternalModifierBoundaryArchitectureTests
     [Fact]
     public void ArchLucid_Persistence_HotPathRelationalQueryShapes_is_not_public()
     {
-        Type type = typeof(HotPathRelationalQueryShapes);
+        Assembly persistence = typeof(ISchemaBootstrapper).Assembly;
+        Type? type = persistence.GetType("ArchLucid.Persistence.Sql.HotPathRelationalQueryShapes", throwOnError: false, ignoreCase: false);
 
-        type.IsPublic.Should().BeFalse(
+        type.Should().NotBeNull("HotPathRelationalQueryShapes must remain in ArchLucid.Persistence");
+        type!.IsPublic.Should().BeFalse(
             $"{type.FullName} holds repository SQL text for ArchLucid.Persistence only; "
             + "expose behavior via repositories, not public string constants.");
     }

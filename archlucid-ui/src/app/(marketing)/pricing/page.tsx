@@ -29,7 +29,7 @@ export default async function PricingPage(props: PricingPageProps) {
         sectionTitle="Pricing"
         sectionIntro="Compare Team, Professional, and Enterprise plans. Tier summaries reflect the current published price list."
         signupHref={signupHref}
-        signupCallToActionLabel="Start workspace trial"
+        signupCallToActionLabel="Request evaluation workspace"
         showSignupCallToAction={false}
       />
       <MarketingPricingPublicCutoverNotice />

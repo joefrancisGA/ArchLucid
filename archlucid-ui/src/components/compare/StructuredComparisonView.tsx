@@ -113,9 +113,12 @@ export function StructuredComparisonView(props: {
   golden: GoldenManifestComparison;
   baselinePickedSummary?: RunSummary | null;
   updatedPickedSummary?: RunSummary | null;
+  /** Buyer-polished compare: collapse supplemental fold sections by default (summary stays open when present). */
+  buyerCompareUi?: boolean;
 }) {
   const golden = sortGoldenManifestComparison(props.golden);
   const summaryHighlights = applyBuyerPolishedGoldenManifestSummaryHighlights(golden.summaryHighlights);
+  const foldDefaultOpen = props.buyerCompareUi !== true;
   const total =
     golden.totalDeltaCount !== undefined
       ? golden.totalDeltaCount
@@ -203,7 +206,7 @@ export function StructuredComparisonView(props: {
       ) : (
         <>
           {golden.decisionChanges.length > 0 ? (
-            <ComparisonFoldSection title="Decision changes" countBadge={golden.decisionChanges.length} defaultOpen>
+            <ComparisonFoldSection title="Decision changes" countBadge={golden.decisionChanges.length} defaultOpen={foldDefaultOpen}>
               {(() => {
                 const { material, metadata } = partitionDecisionDeltas(golden.decisionChanges);
 
@@ -238,7 +241,7 @@ export function StructuredComparisonView(props: {
             <ComparisonFoldSection
               title="Requirement changes"
               countBadge={golden.requirementChanges.length}
-              defaultOpen
+              defaultOpen={foldDefaultOpen}
             >
               <table className="mt-2 w-full border-collapse text-sm">
                 <thead>
@@ -260,7 +263,11 @@ export function StructuredComparisonView(props: {
           ) : null}
 
           {golden.securityChanges.length > 0 ? (
-            <ComparisonFoldSection title="Finding / posture delta" countBadge={golden.securityChanges.length} defaultOpen>
+            <ComparisonFoldSection
+              title="Finding / posture delta"
+              countBadge={golden.securityChanges.length}
+              defaultOpen={foldDefaultOpen}
+            >
               <table className="mt-2 w-full border-collapse text-sm">
                 <thead>
                   <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
@@ -283,7 +290,11 @@ export function StructuredComparisonView(props: {
           ) : null}
 
           {golden.topologyChanges.length > 0 ? (
-            <ComparisonFoldSection title="Topology / footprint" countBadge={golden.topologyChanges.length} defaultOpen>
+            <ComparisonFoldSection
+              title="Topology / footprint"
+              countBadge={golden.topologyChanges.length}
+              defaultOpen={foldDefaultOpen}
+            >
               <table className="mt-2 w-full border-collapse text-sm">
                 <thead>
                   <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
@@ -304,7 +315,11 @@ export function StructuredComparisonView(props: {
           ) : null}
 
           {golden.costChanges.length > 0 ? (
-            <ComparisonFoldSection title="Projected cost impact" countBadge={golden.costChanges.length} defaultOpen>
+            <ComparisonFoldSection
+              title="Projected cost impact"
+              countBadge={golden.costChanges.length}
+              defaultOpen={foldDefaultOpen}
+            >
               <table className="mt-2 w-full border-collapse text-sm">
                 <thead>
                   <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
@@ -324,7 +339,8 @@ export function StructuredComparisonView(props: {
               <p className="mt-2 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
                 Projected monthly run rates are derived from the manifest pipeline cost model. Figures reflect the
                 architecture as described; validate against your FinOps baseline before using in budget planning.
-                Use &ldquo;Summarize for sponsor&rdquo; to include this delta in an executive narrative.
+                Use &ldquo;{props.buyerCompareUi === true ? "Summarize for leadership" : "Summarize for sponsor"}
+                &rdquo; to include this delta in an executive narrative.
               </p>
             </ComparisonFoldSection>
           ) : null}
