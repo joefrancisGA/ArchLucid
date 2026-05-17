@@ -21,6 +21,31 @@ This document ties together how **ArchLucid** (product; repository and assemblie
 - SQL is reachable only from **private network paths** (private endpoint / VNet integration), not from the public internet.
 - Optional components (Redis, Azure AI Search, etc.) follow the same “config-gated” pattern as in **`infra/`** Terraform roots.
 
+## Knowledge graph projection cache (multi-replica)
+
+The API optionally caches **read-through hydration** of **graph snapshot projections** (keys scoped by authority tenant/workspace/run/graph identifiers — see **`ArchLucid.KnowledgeGraph`** projection caching).
+
+### Default: Memory backend (`ProjectionCache:Backend=Memory`)
+
+The shipped default uses **`IMemoryCache`** inside **each process**. That is appropriate for **single-replica** pilots or dev stacks because it minimizes dependencies.
+
+**Limitations when you run multiple API replicas** (horizontal scale behind Front Door, Container Apps `minReplicas`/`maxReplicas` > 1 across revisions serving traffic simultaneously, etc.):
+
+- **No shared cache:** Each replica owns disjoint entries; a warm cache on instance A does not help instance B.
+- **Amplified rebuild/load:** Cold replicas independently rebuild or reload projections until locally warmed — duplicate SQL/read pressure versus one shared tier.
+- **Uneven latency:** Load-balanced callers hit replicas at different cache hit rates until each instance warms (persisted graph rows remain authoritative; caching affects latency and backend effort, not durable correctness).
+
+### Strong recommendation for scaled production
+
+For **hosted SaaS production where the API runs more than one concurrent replica**, **prefer Redis-backed projection caching**:
+
+1. Set **`ArchLucid:KnowledgeGraph:ProjectionCache:Backend=Distributed`** so **`IGraphSnapshotProjectionCache`** uses **`IDistributedCache`** (`ArchLucid.Host.Composition`).
+2. Ensure **`IDistributedCache`** resolves to Redis — configure **`ArchLucid:KnowledgeGraph:ProjectionCache:RedisConnectionString`** **or** rely on the host fallback chain (projection-specific Redis string unset falls through to LLM / hot-path Redis connection strings where composition wires **`GraphSnapshotProjectionDistributedCache`**).
+
+Treat Redis like other private-plane dependencies (typically **Azure Cache for Redis** + **private endpoint / controlled network path**, aligned with **`infra/`** roots — never expose cache endpoints broadly).
+
+Key catalog (presence semantics and TTL): [CONFIGURATION_REFERENCE.md](../library/CONFIGURATION_REFERENCE.md). Background **`Hosting:Role=Worker`** processes that exercise projection caching benefit from the same **`Distributed`** setting.
+
 ## Application deployment
 
 1. **Build and publish** the API image (or package) from **`ArchLucid.Api`** using your pipeline; tag with an immutable version. The same Docker image also carries **`ArchLucid.Worker.dll`** for Azure Container Apps worker revisions (see **`docs/engineering/CONTAINERIZATION.md`**).
@@ -38,6 +63,7 @@ This document ties together how **ArchLucid** (product; repository and assemblie
 
 | Topic | Document |
 |--------|-----------|
+| Configuration keys (projection cache, Redis fallbacks, TTL) | [library/CONFIGURATION_REFERENCE.md](../library/CONFIGURATION_REFERENCE.md) |
 | Migrations, DbUp, rollback posture | [runbooks/MIGRATION_ROLLBACK.md](../runbooks/MIGRATION_ROLLBACK.md) |
 | RTO/RPO targets by tier (dev / staging / production) | [RTO_RPO_TARGETS.md](../library/RTO_RPO_TARGETS.md) |
 | Azure SQL HA, failover, RPO/RTO | [runbooks/DATABASE_FAILOVER.md](../runbooks/DATABASE_FAILOVER.md) |

@@ -2,7 +2,7 @@
 
 **Canonical pair:** This file is the **single current score and backlog** for weighted readiness. Read **`docs/library/ASSESSMENT_INPUTS.md`** first for the evidence contract; treat **`docs/archive/assessments/`** and archived quality narratives as **history only** — see **“One workflow (current score vs history)”** there.
 
-# ArchLucid Assessment – Weighted Readiness 82.93%
+# ArchLucid Assessment – Weighted Readiness 83.00%
 
 **V1 scoring boundary:**
 
@@ -186,10 +186,10 @@
 - **Improvement recommendations:** Pack depth uplift delivered **2026-05-17** (five additional **`sec-base-026`**–**`sec-base-030`** rules + Workspace **B** seed IDs aligned to shipped keys); continue extending tenant-authored corpus over time.
 
 ### 19. Accessibility
-- **Score:** 75
+- **Score:** 80
 - **Weight:** 1
-- **Weighted deficiency signal:** 25
-- **Justification:** Basic web accessibility is present.
+- **Weighted deficiency signal:** 20
+- **Justification:** Basic web accessibility is present; merge-blocking **`@axe-core/playwright`** baselines cover the **V1** posture. **Periodic manual accessibility review** (scheduled screen-reader / assistive-technology validation) is **V1.1** per **`Assessment-Scope-V1_1`** — not a headline **`(A)`** deduction for this pass.
 - **Tradeoffs:** No participant user testing with assistive technologies (not a V1 requirement).
 - **Improvement recommendations:** None for automated baseline scans — merge-blocking **`@axe-core/playwright`** runs in **`ui-e2e-live`** and **`ui-playwright-accessibility`** (see **`archlucid-ui/e2e/live-api-accessibility.spec.ts`**). Participant assistive-technology studies remain out of V1 scope (see tradeoffs).
 
@@ -519,17 +519,7 @@ Document the recommended defaults for `AuthorityPipeline:Concurrency` per enviro
 Add at least three new architecture boundary rules in `ArchLucid.Architecture.Tests` to further tighten public surfaces using the `internal` modifier.
 ```
 
-22. **Establish a periodic manual accessibility review process**
-- Why it matters: Automated scans (axe-core) do not catch all accessibility issues; manual testing with assistive technologies is required.
-- Expected impact: Accessibility (+5 pts), Usability (+2 pts).
-- Affected qualities: Accessibility, Usability.
-- Actionable: Yes
-
-```markdown
-Create a documented process and schedule for manual accessibility reviews using screen readers, and add a recurring reminder task for the team.
-```
-
-23. **Add Playwright smoke tests for consultant whitelabel export**
+22. **Add Playwright smoke tests for consultant whitelabel export**
 - Why it matters: Consultant whitelabeling is a key V1 commercial feature; automated UI tests ensure the export modal and branding fields do not regress.
 - Expected impact: Testability (+3 pts), Commercial Packaging Readiness (+2 pts).
 - Affected qualities: Testability, Commercial Packaging Readiness.
@@ -539,7 +529,7 @@ Create a documented process and schedule for manual accessibility reviews using 
 Write a new `live-api-whitelabel.spec.ts` Playwright test that verifies the consultant logo upload and engagement title inputs function correctly before exporting a review.
 ```
 
-24. **Formalize data residency verification in the provisioning pipeline**
+23. **Formalize data residency verification in the provisioning pipeline**
 - Why it matters: Enterprise buyers require verifiable proof that their data resides in the specified geographic region.
 - Expected impact: Compliance Readiness (+4 pts), Security (+2 pts).
 - Affected qualities: Compliance Readiness, Security.
@@ -549,7 +539,7 @@ Write a new `live-api-whitelabel.spec.ts` Playwright test that verifies the cons
 Add automated tests to the tenant provisioning pipeline that verify Azure Blob Storage and SQL database locations match the requested `DataRegion`.
 ```
 
-25. **Develop a framework for sharing custom policy packs**
+24. **Develop a framework for sharing custom policy packs**
 - Why it matters: Encouraging tenants to author and share their own policy packs increases platform stickiness and value.
 - Expected impact: Stickiness (+4 pts), Template and Accelerator Richness (+3 pts).
 - Affected qualities: Stickiness, Template and Accelerator Richness.
@@ -563,11 +553,11 @@ Design the API contracts and storage schema necessary to support an internal "Po
 
 - **Batch 1 (High Leverage, Low Risk):** 1, 3, 6, 11
 - **Batch 2 (Performance & Observability):** 2, 5, 7, 9, 13
-- **Batch 3 (UX & adoption):** 10, 15, 16, 22
-- **Batch 4 (Architecture hygiene & Testing):** 8, 12, 14, 18, 21, 24
+- **Batch 3 (UX & adoption):** 10, 15, 16
+- **Batch 4 (Architecture hygiene & Testing):** 8, 12, 14, 18, 21, 23
 - **Batch 5 (Integrations — credential-dependent):** 4 (ServiceNow), 19
-- **Batch 6 (Business Value & Stickiness):** 17, 20, 23, 25
-- **Deferred / V1.1 program:** Azure CAF / landing-zone curated policy pack; bulk evidence upload above 30 files, ZIP expansion, recursive folder ingest; Stripe live keys / Marketplace.
+- **Batch 6 (Business Value & Stickiness):** 17, 20, 22, 24
+- **Deferred / V1.1 program:** Azure CAF / landing-zone curated policy pack; bulk evidence upload above 30 files, ZIP expansion, recursive folder ingest; Stripe live keys / Marketplace; periodic manual accessibility review (screen-reader / AT cadence — track in **`V1_DEFERRED.md`** / V1.1 backlog, not **`(A)`**).
 
 ## Marketing alignment
 
