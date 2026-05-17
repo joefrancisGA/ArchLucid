@@ -1,6 +1,6 @@
 > **Scope:** Generated skim for coding agents and contributors; not a buyer document. Regenerate after large project-tree changes. Does not replace **`V1_SCOPE.md`** or **`V1_DEFERRED.md`**.
 
-**Generated:** 2026-05-16 13:14 UTC (`python scripts/repo_digest/build_repo_digest.py`)
+**Generated:** 2026-05-17 08:34 UTC (`python scripts/repo_digest/build_repo_digest.py`)
 
 ## Root .NET projects
 
@@ -59,6 +59,10 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 | `ArchLucid.TestSupport/` | `ArchLucid.TestSupport/ArchLucid.TestSupport.csproj` |
 | `ArchLucid.Worker/` | `ArchLucid.Worker/ArchLucid.Worker.csproj` |
 | `ArchLucid.Worker.Tests/` | `ArchLucid.Worker.Tests/ArchLucid.Worker.Tests.csproj` |
+
+## Canonical terminology
+
+- [`GLOSSARY.md`](GLOSSARY.md) — domain terms (review package, signed manifest, audit trail, …).
 
 ## Architecture invariants (**INV-***)
 

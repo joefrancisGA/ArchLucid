@@ -1,6 +1,8 @@
 > **Scope:** Operators and privacy or compliance reviewers; states controller-side processing activities and legal-basis framing for ArchLucid operational telemetry. Not legal advice, a full subprocessors inventory, tenant workload DPA terms, or a consumer-facing privacy policy.
 
-> **Status:** **APPROVED — 2026-04-25.** All four owner sign-off items resolved. See §6 change history.
+> **Status:** current
+>
+> **Governance approval record:** Approved **2026-04-25** — all four owner sign-off items resolved. See §6 change history.
 
 ---
 

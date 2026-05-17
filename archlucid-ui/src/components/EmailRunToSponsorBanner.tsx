@@ -401,9 +401,14 @@ export function EmailRunToSponsorBanner({
         <Button
           type="button"
           variant="primary"
-          disabled={busy}
+          disabled={busy || blockSponsorPdfForRoi}
           onClick={() => void onDownloadPdf()}
           data-testid="email-run-to-sponsor-primary-action"
+          title={
+            blockSponsorPdfForRoi
+              ? "Capture tenant ROI baselines before generating the sponsor PDF."
+              : undefined
+          }
         >
           {busy
             ? "Preparing PDF…"
@@ -412,9 +417,11 @@ export function EmailRunToSponsorBanner({
               : "Generate pilot scorecard package"}
         </Button>
         <span className="text-xs text-neutral-600 dark:text-neutral-400">
-          {buyerPolishedShell
-            ? "Primary export is the sponsor one‑pager PDF — same storyline as the Markdown summary."
-            : "Step 1: generate the sponsor one‑pager PDF — same storyline as the Markdown narrative."}
+          {blockSponsorPdfForRoi
+            ? "PDF export stays disabled until tenant ROI baselines are captured."
+            : buyerPolishedShell
+              ? "Primary export is the sponsor one‑pager PDF — same storyline as the Markdown summary."
+              : "Step 1: generate the sponsor one‑pager PDF — same storyline as the Markdown narrative."}
         </span>
       </div>
 

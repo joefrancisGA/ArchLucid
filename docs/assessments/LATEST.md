@@ -642,17 +642,19 @@ Implement a web-based rule authoring interface in `archlucid-ui` that integrates
 **Delivered:** **`PolicyRuleAuthoringWizard`** on **`/policy-packs`** (Advanced options): step **Design** (guided compliance/alert/composite/metadata fields with merge + raw JSON editor; **`buildPolicyPackContentFromGuidedFields`** in **`src/lib/policy-pack-guided-content.ts`**), step **Test on run** (`POST /v1/policy-packs/simulate` via **`simulatePolicyPackAgainstRun`** in **`src/lib/api/policy-governance-api.ts`** — pre-commit gate outcome; recent runs from **`listRunsByProjectPaged`**), step **Publish** (wired to existing **`createPolicyPack`** / **`publishPolicyPackVersion`** with **`syncPolicyContentJson`** keeping create + publish JSON aligned). Shared default skeleton moved to **`src/lib/policy-pack-default-content.ts`**. Vitest: **`policy-pack-guided-content.test.ts`**.
 ```
 
-16. **Add guided baseline collection wizard (onboarding)**
+16. **COMPLETED:** Add guided baseline collection wizard (onboarding)
 - Why it matters: Proof-of-ROI and executive value depend on tenant baselines; empty baselines weaken sponsor narratives.
-- Expected impact: Time-to-Value (+3 pts), Proof-of-ROI Readiness (+2 pts), Executive Value Visibility (+2 pts). Weighted readiness impact: +0.35%.
+- Expected impact: (Delivered **2026-05-17**.) Time-to-Value (+3 pts), Proof-of-ROI Readiness (+2 pts), Executive Value Visibility (+2 pts). Weighted readiness impact: +0.35%.
 - Affected qualities: Time-to-Value, Proof-of-ROI Readiness, Executive Value Visibility.
-- Actionable: Yes
+- Actionable: Completed
 
 ```markdown
 Add a first-run (or settings) wizard in `archlucid-ui` that captures pilot baseline fields required by `docs/library/PILOT_ROI_MODEL.md` (e.g. manual prep hours, review cycle length).
 - Persist values tenant-scoped via existing settings or ROI API contracts; do not invent a parallel store without aligning OpenAPI.
 - Block or warn on sponsor-export actions when required baseline fields are empty.
 - Acceptance criteria: A new tenant can complete baseline capture without sales engineering hand-holding.
+
+**Delivered:** **`PilotBaselineWizard`** + **`PilotBaselineWizardLauncher`** (operator shell FAB / session auto-open; **`NEXT_PUBLIC_SUPPRESS_CORE_PILOT_WIZARD`** suppresses alongside core pilot wizard). **`BaselineSettingsClient`** on **`/settings/baseline`** persists **`manualPrepHoursPerReview`** + **`baselineReviewCycleHours`** via **`PUT /v1/tenant/baseline`**; OpenAPI snapshot extended with **`baselineReviewCycleHours`**, **`baselineReviewCycleSource`**, **`baselineReviewCycleCapturedUtc`**, **`baselineReviewCycleSourceNote`** (`openapi-v1.contract.snapshot.json`). **`EmailRunToSponsorBanner`** warns and disables primary sponsor PDF when **`GET /v1/tenant/baseline`** gate fails (**`usePilotRoiBaselineCompleteness`**); **`GenerateSponsorValueReportButton`** blocks DOCX export the same way. Backend **`TenantBaselineController`** merges GET + selective PUT for review-cycle provenance (markers + audit). Vitest: **`pilot-roi-baseline-completeness.test.ts`**, **`EmailRunToSponsorBanner.test.tsx`**, **`baseline/page.test.tsx`**.
 ```
 
 17. **Surface Missing Baseline warnings on executive / sponsor surfaces**

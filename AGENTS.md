@@ -6,7 +6,7 @@
 |------|------|------------------|
 | Backend / .NET hosts | Root `ArchLucid.*` projects, `ArchLucid.sln` | This file + `.cursor/rules/Navigation.mdc` |
 | Web app | **`archlucid-ui/`** | **`archlucid-ui/AGENTS.md`** |
-| Docs spine | **`docs/`** | `docs/START_HERE.md`, `docs/engineering/` for builders |
+| Docs spine | **`docs/`** | `docs/START_HERE.md`; **`docs/archive/` is historical only** — do not index navigation or regenerated digests against it unless comparing history. Builders: `docs/engineering/` |
 
 Full build and CI alignment: **`docs/engineering/BUILD.md`**.
 
@@ -16,7 +16,7 @@ Full build and CI alignment: **`docs/engineering/BUILD.md`**.
 - **Session / token hygiene (always-loaded rule):** `.cursor/rules/Session-Hygiene.mdc` — use **`REPO_DIGEST`** for orientation, avoid repeating full-file reads already in-thread, batch with one preamble; suggest a **new chat** when context is enormous or you pivot subsystems.
 - **Agent execution (always-loaded):** `.cursor/rules/Agent-Execution-Policy.mdc` — do the work yourself (no implementation subagents), single-thread by default, hooks block parallel workers unless adjusted with explicit approval.
 - **Task discipline (always-loaded):** `.cursor/rules/User-Task-Discipline.mdc` — surface uncertainty, avoid speculative code, keep edits surgical, state acceptance criteria and verify before calling work done.
-- **Historical artifact snapshots:** `docs/archive/assessments/` (default exclusions in `.cursorignore`).
+- **Historical artifact snapshots:** **`docs/archive/`** (including **`docs/archive/assessments/`**) — cite **`docs/assessments/LATEST.md`** when you need today's weighted pass, not archive folders.
 
 ## Partial .NET solution load
 

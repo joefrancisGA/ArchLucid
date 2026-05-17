@@ -26219,6 +26219,11 @@ export interface components {
         };
         TenantBaselineGetResponse: {
             /** Format: date-time */
+            baselineReviewCycleCapturedUtc?: null | string;
+            /** Format: double */
+            baselineReviewCycleHours?: null | number | string;
+            baselineReviewCycleSource?: null | string;
+            /** Format: date-time */
             capturedUtc?: null | string;
             /** Format: double */
             manualPrepHoursPerReview?: null | number | string;
@@ -26226,6 +26231,9 @@ export interface components {
             peoplePerReview?: null | number;
         };
         TenantBaselinePutRequest: {
+            /** Format: double */
+            baselineReviewCycleHours?: null | number | string;
+            baselineReviewCycleSourceNote?: null | string;
             /** Format: double */
             manualPrepHoursPerReview?: null | number | string;
             /** Format: int32 */

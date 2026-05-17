@@ -1,3 +1,7 @@
+> **Scope:** Internal working synthesis from a docs inventory ZIP pass; organisational navigation aid only — not authoritative over individual source markdown.
+>
+> **Status:** draft
+
 # ArchLucid Internal Documentation Review and Master Summary
 
 Generated: 2026-05-17
@@ -1942,7 +1946,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 #### `go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md`
 **Scope:** **Scope:** Buyer-safe pilot evidence capture — anonymized fields, no fabricated numerics, cross-links to PMF tracker and ROI model; internal and NDA channels only unless policy says otherwise.
 **Title:** Pilot evidence — buyer-safe capture template
-**Summary:** **Audience:** Pilot leads filling **Pilot A / B / …** rows in [PMF_VALIDATION_TRACKER.md](PMF_VALIDATION_TRACKER.md) and sponsor packs in [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md) / [PROOF_OF_VALUE_SNAPSHOT.md](../library/PROOF_OF_VALUE_SNAPSHOT.md). **Rules:** - Use **Pilot A**, **Pilot B** identifiers in shared docs — map to real programs only in restricted systems (CRM, charter). - **Do not** invent **Baseline** or **Result** numerics. Use **TBD** until measured, **See scorecard** for qualitative capture per [PMF_VALIDATION_TRACKER.md](PMF_VALIDATION_TRACKER.md) §2.2, or **Unknown** when deliberately not measured (note why). - Redact tenant, people, and identifiable quotes befor
+**Summary:** **Audience:** Pilot leads filling **Pilot A / B / …** rows in [PMF_VALIDATION_TRACKER.md](archive/gtm-internal/PMF_VALIDATION_TRACKER.md) and sponsor packs in [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md) / [PROOF_OF_VALUE_SNAPSHOT.md](../library/PROOF_OF_VALUE_SNAPSHOT.md). **Rules:** - Use **Pilot A**, **Pilot B** identifiers in shared docs — map to real programs only in restricted systems (CRM, charter). - **Do not** invent **Baseline** or **Result** numerics. Use **TBD** until measured, **See scorecard** for qualitative capture per [PMF_VALIDATION_TRACKER.md](archive/gtm-internal/PMF_VALIDATION_TRACKER.md) §2.2, or **Unknown** when deliberately not measured (note why). - Redact tenant, people, and identifiable quotes befor
 **Headings:** Pilot evidence — buyer-safe capture template; Evidence row (copy per hypothesis / pilot); Afterward
 
 #### `go-to-market/PILOT_SUCCESS_SCORECARD.md`

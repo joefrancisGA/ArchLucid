@@ -3,7 +3,8 @@
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 >
-> **Status:** Superseded by [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md) (2026-04-21)
+> **Status:** deprecated — superseded by [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md) (2026-04-21).
+>
 > **Supersedes / relates:** [0021-coordinator-pipeline-strangler-plan.md](0021-coordinator-pipeline-strangler-plan.md)
 
 # ADR 0028 — Coordinator strangler completion (scaffold)

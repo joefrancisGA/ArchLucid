@@ -5,6 +5,7 @@ import { useState } from "react";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { usePilotRoiBaselineCompleteness } from "@/hooks/use-pilot-roi-baseline-completeness";
 import { downloadValueReportDocx } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -32,6 +33,8 @@ async function resolveTenantIdFromMe(): Promise<string | null> {
 /** One-click sponsor DOCX for the current scope (last 30 days UTC). */
 export function GenerateSponsorValueReportButton() {
   const canMutate = useOperateCapability();
+  const { loading: roiBaselineLoading, complete: roiBaselineComplete } = usePilotRoiBaselineCompleteness();
+  const blockRoiExport = roiBaselineComplete === false;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{
     message: string;
@@ -80,11 +83,22 @@ export function GenerateSponsorValueReportButton() {
   return (
     <div className="max-w-xl space-y-2">
       <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">Sponsor collateral</p>
+      {roiBaselineLoading ? (
+        <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Checking ROI baseline posture…</p>
+      ) : blockRoiExport ? (
+        <p className="m-0 text-xs font-medium text-amber-800 dark:text-amber-200">
+          Capture tenant ROI baselines (review-cycle hours + manual preparation hours) before generating sponsor DOCX — use Settings → Baseline or the guided ROI baseline wizard on operator home.
+        </p>
+      ) : null}
       <Button
         type="button"
         variant="outline"
-        disabled={busy}
-        title="Generate a sponsor-ready DOCX for the current scope."
+        disabled={busy || blockRoiExport}
+        title={
+          blockRoiExport
+            ? "Tenant ROI baselines must be captured before generating sponsor-ready DOCX exports."
+            : "Generate a sponsor-ready DOCX for the current scope."
+        }
         onClick={() => void onClick()}
       >
         {busy ? "Generating…" : "Generate sponsor report"}

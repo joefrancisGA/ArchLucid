@@ -6,6 +6,10 @@ One-time (or idempotent) back-fill: prepend `> **Scope:** ...` to every
 Skips ``docs/archive/`` (same default as the checker). Safe to re-run: files
 that already have a valid scope header are unchanged.
 
+Optional contiguous ``> **Status:**`` opener lines (**draft**, **current**,
+**deprecated**) are intentionally not auto-inserted — add by hand where needed;
+``check_doc_scope_header.py`` validates the keyword only when present.
+
 Usage (from repo root)::
 
     python scripts/ci/backfill_doc_scope_headers.py --dry-run

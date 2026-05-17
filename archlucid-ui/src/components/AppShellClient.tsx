@@ -17,6 +17,7 @@ import { HelpSearchPanel } from "@/components/HelpSearchPanel";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
 import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
 import { CorePilotWizardLauncher } from "@/components/CorePilotWizard";
+import { PilotBaselineWizardLauncher } from "@/components/PilotBaselineWizardLauncher";
 import { DemoStrictNavigationGate } from "@/components/DemoStrictNavigationGate";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import {
@@ -294,6 +295,7 @@ function AppShellInner({ children }: AppShellClientProps) {
         />
         <HelpPanel open={helpGuidesOpen} onOpenChange={setHelpGuidesOpen} />
         <CorePilotWizardLauncher />
+        <PilotBaselineWizardLauncher />
         <OnboardingTour />
       </TooltipProvider>
       </WorkspaceActiveRunProvider>

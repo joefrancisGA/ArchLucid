@@ -28,9 +28,14 @@ function stubFetchForBannerMocks(init?: {
   readonly trialFirstCommitUtc?: string | null;
   readonly deltasBody?: unknown;
   readonly deltasOk?: boolean;
+  readonly roiBaselineComplete?: boolean;
 }): void {
   const trialUtc = init?.trialFirstCommitUtc ?? null;
   const deltasOk = init?.deltasOk ?? true;
+  const roiBaselinePayload =
+    init?.roiBaselineComplete === false
+      ? { baselineReviewCycleHours: null, manualPrepHoursPerReview: null }
+      : { baselineReviewCycleHours: 40, manualPrepHoursPerReview: 8 };
   const deltasBody =
     init?.deltasBody ??
     ({
@@ -53,6 +58,13 @@ function stubFetchForBannerMocks(init?: {
         return Promise.resolve({
           ok: true,
           json: async () => ({ firstCommitUtc: trialUtc }),
+        } as Response);
+      }
+
+      if (url.includes("/v1/tenant/baseline")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => roiBaselinePayload,
         } as Response);
       }
 
@@ -128,6 +140,13 @@ describe("EmailRunToSponsorBanner", () => {
         return Promise.resolve({
           ok: true,
           json: async () => ({ firstCommitUtc: null }),
+        } as Response);
+      }
+
+      if (url.includes("/v1/tenant/baseline")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ baselineReviewCycleHours: 40, manualPrepHoursPerReview: 8 }),
         } as Response);
       }
 
@@ -262,6 +281,13 @@ describe("EmailRunToSponsorBanner", () => {
         } as Response);
       }
 
+      if (url.includes("/v1/tenant/baseline")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ baselineReviewCycleHours: 40, manualPrepHoursPerReview: 8 }),
+        } as Response);
+      }
+
       if (url.includes("/pilot-run-deltas")) {
         return Promise.resolve({
           ok: true,
@@ -302,6 +328,13 @@ describe("EmailRunToSponsorBanner", () => {
         return Promise.resolve({
           ok: true,
           json: async () => ({ firstCommitUtc: anchorIso }),
+        } as Response);
+      }
+
+      if (url.includes("/v1/tenant/baseline")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ baselineReviewCycleHours: 40, manualPrepHoursPerReview: 8 }),
         } as Response);
       }
 
@@ -346,6 +379,13 @@ describe("EmailRunToSponsorBanner", () => {
         } as Response);
       }
 
+      if (url.includes("/v1/tenant/baseline")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ baselineReviewCycleHours: 40, manualPrepHoursPerReview: 8 }),
+        } as Response);
+      }
+
       if (url.includes("/pilot-run-deltas")) {
         return Promise.resolve({
           ok: true,
@@ -387,6 +427,18 @@ describe("EmailRunToSponsorBanner", () => {
     expect(mockTelemetry).not.toHaveBeenCalled();
   });
 
+  it("blocks sponsor PDF export when tenant ROI baseline posture is incomplete", async () => {
+    stubFetchForBannerMocks({ roiBaselineComplete: false });
+
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-roi-baseline-gap")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("email-run-to-sponsor-primary-action")).toBeDisabled();
+  });
+
   it("hides the badge when trial-status returns 5xx", async () => {
     vi.stubGlobal(
       "fetch",
@@ -398,6 +450,13 @@ describe("EmailRunToSponsorBanner", () => {
             ok: false,
             status: 503,
             json: async () => ({}),
+          } as Response);
+        }
+
+        if (url.includes("/v1/tenant/baseline")) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({ baselineReviewCycleHours: 40, manualPrepHoursPerReview: 8 }),
           } as Response);
         }
 

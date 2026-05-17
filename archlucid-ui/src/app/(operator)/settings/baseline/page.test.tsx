@@ -21,7 +21,10 @@ describe("BaselineSettingsPage", () => {
             JSON.stringify({
               manualPrepHoursPerReview: null,
               peoplePerReview: null,
-              capturedUtc: null
+              capturedUtc: null,
+              baselineReviewCycleHours: null,
+              baselineReviewCycleSource: null,
+              baselineReviewCycleCapturedUtc: null,
             }),
             { status: 200, headers: { "Content-Type": "application/json" } }
           );
@@ -31,7 +34,10 @@ describe("BaselineSettingsPage", () => {
             JSON.stringify({
               manualPrepHoursPerReview: 2,
               peoplePerReview: 3,
-              capturedUtc: "2026-01-01T00:00:00Z"
+              capturedUtc: "2026-01-01T00:00:00Z",
+              baselineReviewCycleHours: null,
+              baselineReviewCycleSource: null,
+              baselineReviewCycleCapturedUtc: null,
             }),
             { status: 200, headers: { "Content-Type": "application/json" } }
           );

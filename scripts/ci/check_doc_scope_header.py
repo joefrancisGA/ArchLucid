@@ -15,6 +15,8 @@ match::
 
 That is a GFM **blockquote** whose visible text starts with ``**Scope:**``.
 Additional text on the same line is allowed (and encouraged) after the colon.
+Optional contiguous blockquote rows may declare ``**Status:**`` (**draft**, **current**,
+**deprecated** — first word after the colon wins; stray prose must follow that keyword).
 
 **Optional README.md (repo root)**
 
