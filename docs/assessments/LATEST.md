@@ -521,13 +521,15 @@ Update the operator UI dashboard to display the status of the `data_archival` he
 Update `SqlScopedResolutionDbConnectionFactory` in `ArchLucid.Host.Core` (historic assessment text cited `ArchLucid.Api.DataAccess`) so SQL connection opens use Polly for transient faults: exponential backoff for common transient SQL errors (40613, 40197, 40501 via `SqlTransientDetector`), configurable under `Persistence:SqlOpenResilience`, without changing `IDbConnectionFactory`. **Delivered:** `CreateOpenConnectionAsync` delegates to scoped `ResilientSqlConnectionFactory` + `SqlOpenResilienceDefaults`; `ArchLucid.Host.Composition` binds options from configuration; regression test asserts the bridge retries after transient `SqlException` 40613.
 ```
 
-8. Add explicit documentation for `ArchLucidAuth:Authority` configuration
+8. COMPLETED: Explicit documentation for `ArchLucidAuth:Authority` (generic OIDC)
 - Why it matters: Reduces adoption friction for generic OIDC setup.
-- Expected impact: Directly improves Adoption Friction (+3 pts), Customer Self-Sufficiency (+2 pts). Weighted readiness impact: +0.42%.
+- Expected impact: (Delivered **2026-05-16**.) Directly improves Adoption Friction (+3 pts), Customer Self-Sufficiency (+2 pts). Weighted readiness impact: +0.42%.
 - Affected qualities: Adoption Friction, Customer Self-Sufficiency.
-- Actionable: Yes
+- Actionable: Completed
 ```markdown
 Create a new markdown file `docs/runbooks/GENERIC_OIDC_SETUP.md` that provides step-by-step instructions for configuring `ArchLucidAuth:Authority` with a non-Microsoft OIDC issuer (e.g., Okta, Auth0). Include examples of claim mapping to `ArchLucidRoles` and troubleshooting tips for common JWKS validation errors. Link this new file from `docs/library/SECURITY.md` and `docs/library/CONFIGURATION_REFERENCE.md`. Acceptance criteria: Clear documentation exists for setting up generic OIDC.
+
+**Delivered:** Runbook rewritten with accurate **`roles`** → **`ArchLucidRoles`** value mapping (JWT bearer **`RoleClaimType`**), **`MultiTenantEntra=false`** guardrail, JWKS / IDX troubleshooting table, Okta/Auth0 deep links, and **`CONFIGURATION_REFERENCE.md`** quick-start row links **[GENERIC_OIDC_SETUP.md](../runbooks/GENERIC_OIDC_SETUP.md)**; **`SECURITY.md`** already linked the runbook.
 ```
 
 9. **Implement automated tenant data deletion (GDPR/CCPA right to be forgotten)**
