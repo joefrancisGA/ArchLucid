@@ -564,3 +564,4 @@ describe("buyer-polished shell nav narrowing", () => {
 
     expect(visible.map((l) => l.href)).not.toContain("/compare");
   });
+});
