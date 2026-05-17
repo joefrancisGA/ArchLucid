@@ -242,7 +242,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 9. **Background job transient fault handling:** Asynchronous jobs may lack comprehensive Polly-based retry policies for SQL transient errors.
 10. ~~**Data residency verification gaps**~~ **Completed (2026-05-17):** CD validates Terraform plan JSON (`terraform show -json`) via `scripts/ci/assert_terraform_plan_data_regions.py` after plan in `.github/workflows/cd.yml`; unit tests `scripts/ci/tests/test_assert_terraform_plan_data_regions.py`. **Residual:** guard runs in the plan job only (apply uses the same artifact); edge regions need `TERRAFORM_DATA_REGION_ALLOWLIST_EXTRA` if not inferable from variables/data sources.
 11. **Terraform advisory validation:** Generated Terraform snippets are not automatically validated (`terraform fmt`/`validate`) in CI, risking syntax errors in advisory output.
-12. **Audit matrix drift:** New API endpoints can be merged without corresponding updates to the `AUDIT_COVERAGE_MATRIX.md`.
+12. ~~**Audit matrix drift**~~ **Completed (2026-05-17):** CI guards `assert_openapi_mutations_in_audit_matrix.py` plus `scripts/ci/check_audit_matrix.py` (controller `[HttpPost]`/`[HttpPut]`/`[HttpDelete]` vs matrix; exemptions documented in script).
 
 ---
 
@@ -510,16 +510,19 @@ Add a validation step in the Terraform CI pipeline (`.github/workflows/cd.yml` o
 ```
 
 ### 12. Add a CI step that fails the build if new API endpoints lack documented audit events
+- **Status:** Completed (2026-05-17)
 - **Why it matters:** Ensures that the `AUDIT_COVERAGE_MATRIX.md` does not drift from the actual API surface.
 - **Expected impact:** Compliance Readiness (+10 pts), Maintainability (+5 pts).
 - **Affected qualities:** Compliance Readiness, Maintainability.
-- **Actionable:** Yes
+- **Actionable:** No
+- **Completion evidence:** `scripts/ci/check_audit_matrix.py` resolves controller routes (including multiple `[HttpPost]` templates and absolute `/v{version:apiVersion}/…` routes), reuses `assert_openapi_mutations_in_audit_matrix` matrix matching + `scripts/ci/openapi_audit_matrix_allowlist.txt`, and exits non-zero when a POST/PUT/DELETE binding is undocumented. Bypasses: `[AuditExempt]`, end-of-line `audit-matrix-exempt` comments, and `[ApiExplorerSettings(IgnoreApi = true)]` at class or action level. `.github/workflows/ci.yml` runs the script in both audit-matrix guard slots. No API controller edits; one matrix narrative row added for `POST /v1/internal/analytics/cross-tenant/daily/refresh` (required for the existing OpenAPI matrix guard as well).
 ```text
 Create a Python script `scripts/ci/check_audit_matrix.py` that parses `ArchLucid.Api` controllers for `[HttpPost]`, `[HttpPut]`, and `[HttpDelete]` attributes and cross-references them against `docs/library/AUDIT_COVERAGE_MATRIX.md`.
 - Acceptance criteria: The script exits with a non-zero code if a mutating endpoint is missing from the matrix.
 - Constraints: Allow an explicit `[AuditExempt]` attribute or comment to bypass the check for valid exceptions.
 - What not to change: Do not modify the API controllers, only add the CI script.
 - Impact: Directly improves Compliance Readiness (+8-10 pts) and Maintainability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- Acceptance criteria met: Script and CI wiring shipped; exemptions and IgnoreApi-hidden surfaces documented in script docstring; matrix + allowlist integration matches OpenAPI guard behavior.
 ```
 
 ### 13. Implement bi-directional ServiceNow status sync
