@@ -11,7 +11,6 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 using ArchLucid.Provenance.Analysis;
@@ -21,6 +20,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Api.Controllers.Authority;
 
@@ -46,10 +46,14 @@ public sealed class AuthorityQueryController(
     IProvenanceBuilder provenanceBuilder,
     IAuditService auditService,
     IActorContext actorContext,
-    IConfiguration configuration) : ControllerBase
+    IConfiguration configuration,
+    ILogger<AuthorityQueryController> logger) : ControllerBase
 {
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly ILogger<AuthorityQueryController> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <summary>
     ///     Lists runs for an authority project slug (e.g. <c>default</c>). Prefer <paramref name="cursor" /> +
@@ -165,6 +169,9 @@ public sealed class AuthorityQueryController(
         result.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
             result.Run.RealModeFellBackToSimulator,
             _configuration["AgentExecution:Mode"]);
+
+        int findingCount = result.FindingsSnapshot?.Findings?.Count ?? 0;
+        FindingsListAccessTelemetry.LogFindingSnapshotExpose(_logger, scope, runId, nameof(GetRunDetail), findingCount);
 
         return Ok(result);
     }

@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Authorization;
@@ -47,6 +48,9 @@ public sealed class ExplanationController(
     ILogger<ExplanationController> logger)
     : ControllerBase
 {
+    private readonly ILogger<ExplanationController> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
     /// <summary>Stakeholder explanation for one run�s golden manifest, optionally enriched with stored provenance graph JSON.</summary>
     /// <param name="runId">Run to load.</param>
     /// <param name="ct">Cancellation token.</param>
@@ -74,7 +78,7 @@ public sealed class ExplanationController(
             }
             catch (InvalidOperationException ex)
             {
-                logger.LogWarningWithSanitizedUserArg(
+                _logger.LogWarningWithSanitizedUserArg(
                     ex,
                     "Provenance graph JSON for run {RunId} is corrupt; explanation will proceed without provenance.",
                     runId.ToString("D"));
@@ -85,6 +89,9 @@ public sealed class ExplanationController(
 
         if (traceRows.Count > 0)
             result.FindingTraceConfidences = traceRows;
+
+        int findingCountForTelemetry = detail.FindingsSnapshot?.Findings?.Count ?? 0;
+        FindingsListAccessTelemetry.LogFindingSnapshotExpose(_logger, scope, runId, nameof(ExplainRun), findingCountForTelemetry);
 
         return Ok(result);
     }
@@ -104,6 +111,13 @@ public sealed class ExplanationController(
             return this.NotFoundProblem(
                 $"Run '{runId}' was not found or has no committed manifest in the current scope.",
                 ProblemTypes.RunNotFound);
+
+        FindingsListAccessTelemetry.LogFindingSnapshotExpose(
+            _logger,
+            scope,
+            runId,
+            nameof(AggregateRunExplanation),
+            summary.FindingCount);
 
         return Ok(summary);
     }
