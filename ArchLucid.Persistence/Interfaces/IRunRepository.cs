@@ -50,6 +50,17 @@ public interface IRunRepository
     Task<RunRecord?> GetByRunIdAdminAsync(Guid runId, CancellationToken ct);
 
     /// <summary>
+    ///     Latest non-archived run for <paramref name="authorityProjectSlug" /> in <paramref name="scope" /> that has a
+    ///     <see cref="RunRecord.GraphSnapshotId" /> and whose <see cref="RunRecord.CreatedUtc" /> is on or before
+    ///     <paramref name="asOfUtc" />.
+    /// </summary>
+    Task<RunRecord?> GetLatestWithGraphAtOrBeforeAsync(
+        ScopeContext scope,
+        string authorityProjectSlug,
+        DateTime asOfUtc,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Returns up to <paramref name="take" /> runs for <paramref name="projectId" /> within
     ///     <paramref name="scope" />, ordered by <c>CreatedUtc</c> descending (newest first).
     /// </summary>

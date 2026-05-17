@@ -182,6 +182,63 @@ public sealed class SqlRunRepository(
         }
     }
 
+    public async Task<RunRecord?> GetLatestWithGraphAtOrBeforeAsync(
+        ScopeContext scope,
+        string authorityProjectSlug,
+        DateTime asOfUtc,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(authorityProjectSlug);
+
+        Stopwatch sw = Stopwatch.StartNew();
+
+        try
+        {
+            const string sql = """
+                               SELECT TOP (1)
+                                   RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
+                                   ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
+                                   GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
+                                   ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
+                                   IsDemoWelcomeRun, IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                   StructuralExecutionMode,
+                                   RetryCount, LastFailureReason,
+                                   RowVersionStamp AS RowVersion
+                               FROM dbo.Runs
+                               WHERE TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ScopeProjectId = @ScopeProjectId
+                                 AND ProjectId = @AuthorityProjectSlug
+                                 AND ArchivedUtc IS NULL
+                                 AND GraphSnapshotId IS NOT NULL
+                                 AND CreatedUtc <= @AsOfUtc
+                               ORDER BY CreatedUtc DESC, RunId DESC;
+                               """;
+
+            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+
+            return await connection.QuerySingleOrDefaultAsync<RunRecord>(
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId,
+                        AuthorityProjectSlug = authorityProjectSlug,
+                        AsOfUtc = DateTime.SpecifyKind(asOfUtc, DateTimeKind.Utc)
+                    },
+                    cancellationToken: ct));
+        }
+        finally
+        {
+            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
+                NamedQueryTelemetryNames.GetLatestRunWithGraphAtOrBefore,
+                sw.Elapsed.TotalMilliseconds);
+        }
+    }
+
     public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(
         ScopeContext scope,
         string projectId,

@@ -6,6 +6,8 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.KnowledgeGraph.Configuration;
 using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 
@@ -34,6 +36,7 @@ namespace ArchLucid.Api.Controllers.Planning;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class GraphController(
     IAuthorityQueryService authorityQueryService,
+    IRunRepository runRepository,
     IScopeContextProvider scopeProvider,
     IOptions<KnowledgeGraphLimitsOptions> knowledgeGraphLimits)
     : ControllerBase
@@ -94,6 +97,85 @@ public sealed class GraphController(
 
         GraphSnapshotNodesPage slice = GraphSnapshotPagination.CreatePage(detail.GraphSnapshot, page, pageSize);
         GraphNodesPageResponse body = MapArchitectureGraphPage(slice);
+        return Ok(body);
+    }
+
+    /// <summary>
+    ///     Architecture graph reconstructed at <paramref name="asOf"/> from the anchored review’s authority project lineage
+    ///     (latest committed run ≤ <paramref name="asOf"/> with a persisted graph snapshot).
+    /// </summary>
+    [HttpGet("snapshot")]
+    [ProducesResponseType(typeof(ArchitectureGraphTemporalSnapshotResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    public async Task<IActionResult> GetArchitectureGraphTemporalSnapshot(
+        [FromQuery] Guid runId,
+        [FromQuery] DateTimeOffset? asOf,
+        CancellationToken ct = default)
+    {
+        if (runId == Guid.Empty)
+            return this.BadRequestProblem("Query parameter \"runId\" is required.");
+
+        if (!asOf.HasValue)
+            return this.BadRequestProblem("Query parameter \"asOf\" is required.");
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        RunRecord? anchor = await runRepository.GetByIdAsync(scope, runId, ct);
+        if (anchor is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        DateTime boundaryUtc = DateTime.SpecifyKind(asOf.Value.UtcDateTime, DateTimeKind.Utc);
+
+        RunRecord? resolved =
+            await runRepository.GetLatestWithGraphAtOrBeforeAsync(scope, anchor.ProjectId, boundaryUtc, ct);
+
+        if (resolved is null)
+        {
+            return this.NotFoundProblem(
+                $"No persisted architecture graph exists for project '{anchor.ProjectId}' at or before the requested instant.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, resolved.RunId, ct);
+
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{resolved.RunId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (detail.GraphSnapshot is null)
+        {
+            return this.NotFoundProblem(
+                $"Run '{resolved.RunId}' does not have a graph snapshot.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        KnowledgeGraphLimitsOptions limits = knowledgeGraphLimits.Value;
+
+        if (limits.FullGraphResponseMaxNodes > 0 &&
+            detail.GraphSnapshot.Nodes.Count > limits.FullGraphResponseMaxNodes)
+        {
+            string resolvedHint =
+                $"{resolved.RunId:D}. Use GET /v1/graph/runs/{resolved.RunId:D}/nodes with page/pageSize.";
+            return this.PayloadTooLargeProblem(
+                $"This graph has {detail.GraphSnapshot.Nodes.Count} nodes; the temporal snapshot endpoint allows at most "
+                + $"{limits.FullGraphResponseMaxNodes} for resolved run '{resolved.RunId:D}'. Resolved run id for paging: "
+                + resolvedHint,
+                ProblemTypes.GraphTooLargeForFullResponse);
+        }
+
+        GraphViewModel graph = MapArchitectureGraph(detail.GraphSnapshot);
+        ArchitectureGraphTemporalSnapshotResponse body = new()
+        {
+            ResolvedRunId = resolved.RunId,
+            AsOfUtc = new DateTimeOffset(DateTime.SpecifyKind(boundaryUtc, DateTimeKind.Utc), TimeSpan.Zero),
+            ResolvedRunCreatedUtc =
+                DateTime.SpecifyKind(resolved.CreatedUtc, resolved.CreatedUtc.Kind == DateTimeKind.Unspecified
+                    ? DateTimeKind.Utc
+                    : resolved.CreatedUtc.Kind),
+            Graph = graph
+        };
+
         return Ok(body);
     }
 

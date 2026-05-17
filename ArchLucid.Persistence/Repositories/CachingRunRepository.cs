@@ -38,6 +38,14 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         => _inner.GetByRunIdAdminAsync(runId, ct);
 
     /// <inheritdoc />
+    public Task<RunRecord?> GetLatestWithGraphAtOrBeforeAsync(
+        ScopeContext scope,
+        string authorityProjectSlug,
+        DateTime asOfUtc,
+        CancellationToken ct)
+        => _inner.GetLatestWithGraphAtOrBeforeAsync(scope, authorityProjectSlug, asOfUtc, ct);
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(
         ScopeContext scope,
         string projectId,

@@ -14,6 +14,8 @@ ArchLucid.Api.Controllers.Admin.DemoController.SeedAsync
 # Durable audit: QuickStartService logs RunSubmitted + RunCompleted (demo-quickstart) via IAuditService.LogAsync.
 ArchLucid.Api.Controllers.Demo.QuickStartController.QuickStartAsync
 ArchLucid.Api.Controllers.Admin.TenantsAdminController.ProvisionAsync
+# Durable audit: TenantDeletionService logs TenantDataDeleted when the background job completes.
+AdminTenantsController.QueueTenantDeletionAsync
 ArchLucid.Api.Controllers.Advisory.AdvisorySchedulingController.RunNow
 ArchLucid.Api.Controllers.Alerts.AlertsController.AcknowledgeBatch
 ArchLucid.Api.Controllers.Alerts.AlertsController.ApplyAction

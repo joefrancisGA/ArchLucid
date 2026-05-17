@@ -73,6 +73,42 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         return Task.FromResult<RunRecord?>(r);
     }
 
+    public Task<RunRecord?> GetLatestWithGraphAtOrBeforeAsync(
+        ScopeContext scope,
+        string authorityProjectSlug,
+        DateTime asOfUtc,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        RunRecord? best = null;
+
+        foreach (RunRecord candidate in _store.Values)
+        {
+            if (!MatchesScope(candidate, scope))
+                continue;
+
+            if (candidate.ArchivedUtc.HasValue)
+                continue;
+
+            if (!string.Equals(candidate.ProjectId, authorityProjectSlug, StringComparison.Ordinal))
+                continue;
+
+            if (!candidate.GraphSnapshotId.HasValue)
+                continue;
+
+            if (candidate.CreatedUtc > asOfUtc)
+                continue;
+
+            if (best is null
+                || candidate.CreatedUtc > best.CreatedUtc
+                || (candidate.CreatedUtc == best.CreatedUtc && candidate.RunId.CompareTo(best.RunId) > 0))
+                best = candidate;
+        }
+
+        return Task.FromResult(best);
+    }
+
     public Task<IReadOnlyList<RunRecord>> ListByProjectAsync(ScopeContext scope, string projectId, int take,
         CancellationToken ct)
     {

@@ -35,7 +35,7 @@
 
 **Enterprise Picture:** The system supports robust tenant isolation (database-per-tenant), workforce SSO via **OIDC / Entra ID** and **native SAML 2.0 SP**, and private connectivity. First-party ITSM connectors (Jira, ServiceNow) and Slack/Confluence integrations are strong enterprise features.
 
-**Engineering Picture:** The engineering foundation is strong, utilizing SQL persistence, DbUp migrations, and a well-architected agent orchestration pipeline. SQL storage hosts bind the authority pipeline to the Durable Task port (`DtfAuthorityRunOrchestrator`); deeper DTF-native scheduling and full multiset parity remain incremental work. The system includes **`FirstTenantFunnelEvents`** SQL purge when per-tenant emission is **off**, **`ui-e2e-live`** negative-path coverage, and optional **Redis-backed** graph projection **`IDistributedCache`**. Residual risks include single-process projection defaults without Redis.
+**Engineering Picture:** The engineering foundation is strong, utilizing SQL persistence, DbUp migrations, and a well-architected agent orchestration pipeline. SQL storage hosts bind the authority pipeline to the Durable Task port (`DtfAuthorityRunOrchestrator`); deeper DTF-native scheduling and full multiset parity remain incremental work. The system includes **`FirstTenantFunnelEvents`** SQL purge when per-tenant emission is **off**, merge-blocking **`ui-e2e-live`** golden-path + negative-path specs (**#14** / **#8**, **2026-05-16** / **2026-05-15**), and optional **Redis-backed** graph projection **`IDistributedCache`**. Residual risks include single-process projection defaults without Redis.
 
 ---
 
@@ -77,7 +77,7 @@
 - **Score:** 79
 - **Weight:** 3
 - **Weighted deficiency signal:** 63
-- **Justification:** The operator UI is functional. Surface copy shifted from engineering-centric terms (**run**, **commit**, **manifest**) to marketing-aligned governance vocabulary (**Capture**, **Evidence**, **Review**, **Findings**, **Decisions**, **Report**) without renaming HTTP contracts — reducing cognitive load for regulated EA/security buyers and consultants. **Bulk evidence upload** lands in **V1 GA** capped at **≤30 files** per upload so “gather scattered artifacts” demos stay honest without taking unlimited ingestion scope pre-GA. **`/planning`** stays read-only browse; pilot-feedback materialization lives on **`/product-learning`**. **`ui-e2e-live`** now carries targeted **live API negatives** (**improvement #8** **closed 2026-05-15**); most operator-shell Playwright paths remain **`/api/proxy`** mocks until broader expansion lands.
+- **Justification:** The operator UI is functional. Surface copy shifted from engineering-centric terms (**run**, **commit**, **manifest**) to marketing-aligned governance vocabulary (**Capture**, **Evidence**, **Review**, **Findings**, **Decisions**, **Report**) without renaming HTTP contracts — reducing cognitive load for regulated EA/security buyers and consultants. **Bulk evidence upload** lands in **V1 GA** capped at **≤30 files** per upload so “gather scattered artifacts” demos stay honest without taking unlimited ingestion scope pre-GA. **`/planning`** stays read-only browse; pilot-feedback materialization lives on **`/product-learning`**. **`ui-e2e-live`** exercises **live API + ephemeral SQL CI** (**improvement #14** **closed 2026-05-16**) via **`live-api-journey`** / **`live-api-core-pilot-path`** plus negatives (**#8**, **2026-05-15**); default **`ui-e2e-smoke`** remains **`/api/proxy`**-mock-backed for broad surface churn.
 - **Tradeoffs:** Dual vocabulary (friendly labels vs stable API names) must be documented for integrators and support; translators/tests must reference stable selectors where headers change copy. The **30-file** ceiling avoids abuse and MVP complexity but forces explicit marketing disclosure and may annoy heavy dossier pilots until **V1.1**.
 - **Improvement recommendations:** Add `DataArchivalHostHealthCheck` to the dashboard (**#21**).
 
@@ -349,9 +349,9 @@
 - **Score:** 84
 - **Weight:** 1
 - **Weighted deficiency signal:** 16
-- **Justification:** Strong unit/integration tests and `ui-e2e-live` negative paths.
-- **Tradeoffs:** Playwright still relies heavily on mocks for the golden path.
-- **Improvement recommendations:** Expand `ui-e2e-live` to cover the full golden path and reduce reliance on mocks.
+- **Justification:** Strong unit/integration tests plus merge-blocking **`ui-e2e-live`** golden-path coverage (**#14**, **2026-05-16**) and **`live-api-negative-paths`** (**#8**).
+- **Tradeoffs:** Default **`ui-e2e-smoke`** remains mock-heavy — fast churn coverage without standing up SQL on every PR.
+- **Improvement recommendations:** Prefer targeted **`live-api-*.spec.ts`** additions when a high-risk surface stays mock-only; golden-path **`live-api-journey`** / **`live-api-core-pilot-path`** already merge-block via **`ui-e2e-live`** (**#14**, **2026-05-16**).
 
 ### 40. Modularity
 - **Score:** 100
@@ -414,7 +414,7 @@
 ## Top 9 Most Important Weaknesses
 
 1. Absence of cross-tenant analytics, limiting Proof-of-ROI for enterprise buyers.
-2. Playwright E2E still relies heavily on mocked **`/api/proxy`** paths — **live** **`ui-e2e-live`** negative API checks (**improvement #8**, **`live-api-negative-paths.spec.ts`**) shrink blind spots but do **not** replace broad golden-path coverage.
+2. **Mock-backed default smoke breadth:** **`ui-e2e-smoke`** still relies heavily on mocked **`/api/proxy`** for wide route coverage — merge-blocking **`ui-e2e-live`** now validates the operator golden spine on **real API + ephemeral SQL CI** (**#14**, **`live-api-journey`** / **`live-api-core-pilot-path`**) alongside negatives (**#8**, **`live-api-negative-paths.spec.ts`**).
 3. Manual nature of some cost estimations in the Azure extractor (distinct from comparison replay payload heuristics — **#11** **closed 2026-05-16**).
 4. **Demo workspace fixture drift:** With **two GA-gated workspaces** (**Marketing alignment** / **#31**), UX, export, policy-pack, or graph changes can silently break evaluator smoke — CI/release discipline must pin fixtures or teams risk shipping broken demos.
 5. **Agent orchestration noisy-neighbor mitigation (narrow residual):** Per-tenant **`AuthorityPipeline:Concurrency`** slots and SQL lease-backed counting (**#11 backlog**, **2026-05-16**) cap concurrent heavy-stage work; bursts still justify queue/offload telemetry and alerting when leases approach limits.
@@ -448,7 +448,7 @@
 ## Top 6 Engineering Risks
 
 2. **Durable Task Framework (DTF) parity gaps:** While SQL production DI is wired to DTF, full multiset parity, release-smoke validation, and deeper engine-native scheduling remain engineering obligations before the legacy orchestrator can be safely removed.
-3. **E2E test mock reliance:** Despite the addition of negative live-API paths, the majority of the Playwright E2E suite still relies heavily on mocked `/api/proxy` responses, leaving integration blind spots until `ui-e2e-live` expands further.
+3. **E2E test mock reliance (residual):** **`ui-e2e-smoke`** still uses mocked **`/api/proxy`** for most routes; golden-path integration is covered by merge-blocking **`ui-e2e-live`** (**#14**, **2026-05-16**) — extend live specs when a surface is mock-only and high-risk.
 4. **Agent orchestration parallelism observability:** Concurrency leases cap tenant fan-out (**#11 backlog**, **2026-05-16**); operators still need dashboards on wait times / dead letters when workers queue behind saturated slots.
 5. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
 6. **Operational script auth realism (narrow residual):** Beyond **`v1-rc-drill.ps1`** JWT/API key support (**#3**, **2026-05-16**), some scripts remain DevelopmentBypass-assumptive; CLI JWT parity for probes that require ReadAuthority remains a tooling gap versus API-key env (`ARCHLUCID_API_KEY`).
@@ -608,11 +608,11 @@ Add temporal query capabilities to the `ArchLucid.KnowledgeGraph` API.
 - Acceptance criteria: Users can view the knowledge graph exactly as it existed at a past date.
 ```
 
-14. **Expand `ui-e2e-live` to cover the full golden path**
-- Why it matters: The Playwright E2E suite still relies heavily on mocked `/api/proxy` responses, leaving integration blind spots.
-- Expected impact: Correctness (+3 pts), Reliability (+2 pts).
+14. **COMPLETED:** Expand `ui-e2e-live` to cover the full golden path
+- Why it matters: Mock-only E2E cannot prove the operator spine against real SQL + HTTP — live specs close that gap without deleting fast mock smoke.
+- Expected impact: (Delivered **2026-05-16**.) Correctness (+3 pts), Reliability (+2 pts).
 - Affected qualities: Correctness, Reliability.
-- Actionable: Yes
+- Actionable: Completed
 
 ```markdown
 Expand the `ui-e2e-live` test suite to cover the complete golden path of the operator workflow against a live, non-mocked backend.
@@ -620,6 +620,8 @@ Expand the `ui-e2e-live` test suite to cover the complete golden path of the ope
 - Ensure the tests run against a dedicated staging or ephemeral environment with a real SQL database and isolated tenant.
 - Do not remove the existing mocked tests; treat the live E2E suite as a separate, higher-fidelity validation layer.
 - Acceptance criteria: The full operator golden path is validated against a live backend in CI.
+
+**Delivered:** Merge-blocking **`ui-e2e-live`** (`.github/workflows/ci.yml`, non-**`pull_request`**) runs **`archlucid-ui/e2e/live-api-*.spec.ts`** via **`playwright.live.config.ts`** against **ArchLucid.Api** with **SQL Server service** (ephemeral CI lab). **`live-api-journey.spec.ts`** drives **create → execute → commit → golden manifest** with browser checks on **`/runs/{id}`** and **`/manifests/{id}`**, **ZIP export** via API, **governance** approval + **`/governance`** UI, and **`/audit`** search (required audit event types enforced). **`live-api-core-pilot-path.spec.ts`** covers the buyer-polished **showcase** spine (home → new review → reviews list → review deliverables) on the same live stack. Mock-backed **`ui-e2e-smoke`** / **`playwright.mock.config.ts`** unchanged as the fast, broad layer.
 ```
 
 15. **Enhance `ArchLucid.Decisioning` with custom rule authoring UI**
