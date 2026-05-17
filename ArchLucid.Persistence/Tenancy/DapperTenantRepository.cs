@@ -39,7 +39,7 @@ public sealed class DapperTenantRepository(
         await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                           SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
+                           SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
                                   TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                   TrialStatus, TrialSampleRunId,
                                   TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
@@ -67,7 +67,7 @@ public sealed class DapperTenantRepository(
         await using SqlConnection connection = await OpenDirectoryMetadataConnectionAsync(ct);
 
         const string sql = """
-                           SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
+                           SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
                                   TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                   TrialStatus, TrialSampleRunId,
                                   TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
@@ -93,7 +93,7 @@ public sealed class DapperTenantRepository(
         await using SqlConnection connection = await OpenDirectoryMetadataConnectionAsync(ct);
 
         const string sql = """
-                           SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
+                           SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
                                   TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                   TrialStatus, TrialSampleRunId,
                                   TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
@@ -119,7 +119,7 @@ public sealed class DapperTenantRepository(
         await using SqlConnection connection = await OpenDirectoryMetadataConnectionAsync(ct);
 
         const string sql = """
-                           SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
+                           SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
                                   TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                   TrialStatus, TrialSampleRunId,
                                   TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
@@ -330,6 +330,7 @@ public sealed class DapperTenantRepository(
         string slug,
         TenantTier tier,
         Guid? entraTenantId,
+        string dataRegion,
         CancellationToken ct,
         int? enterpriseScimSeatsLimit = null)
     {
@@ -337,12 +338,12 @@ public sealed class DapperTenantRepository(
 
         string sql = enterpriseScimSeatsLimit is null
             ? """
-              INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId)
-              VALUES (@Id, @Name, @Slug, @Tier, @EntraTenantId);
+              INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId, DataRegion)
+              VALUES (@Id, @Name, @Slug, @Tier, @EntraTenantId, @DataRegion);
               """
             : """
-              INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId, EnterpriseSeatsLimit)
-              VALUES (@Id, @Name, @Slug, @Tier, @EntraTenantId, @EnterpriseSeatsLimit);
+              INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId, EnterpriseSeatsLimit, DataRegion)
+              VALUES (@Id, @Name, @Slug, @Tier, @EntraTenantId, @EnterpriseSeatsLimit, @DataRegion);
               """;
 
         await connection.ExecuteAsync(
@@ -355,7 +356,8 @@ public sealed class DapperTenantRepository(
                     Slug = slug,
                     Tier = TenantTierSql.ToTierString(tier),
                     EntraTenantId = entraTenantId,
-                    EnterpriseSeatsLimit = enterpriseScimSeatsLimit
+                    EnterpriseSeatsLimit = enterpriseScimSeatsLimit,
+                    DataRegion = dataRegion
                 },
                 cancellationToken: ct));
     }
@@ -1131,6 +1133,12 @@ public sealed class DapperTenantRepository(
             init;
         }
 
+        public string DataRegion
+        {
+            get;
+            init;
+        } = TenantDataRegions.Default;
+
         public DateTimeOffset CreatedUtc
         {
             get;
@@ -1290,6 +1298,7 @@ public sealed class DapperTenantRepository(
                 Slug = Slug,
                 Tier = TenantTierSql.ParseTier(Tier),
                 EntraTenantId = EntraTenantId,
+                DataRegion = TenantDataRegions.NormalizeOptional(DataRegion),
                 CreatedUtc = CreatedUtc,
                 SuspendedUtc = SuspendedUtc,
                 TrialStartUtc = TrialStartUtc,

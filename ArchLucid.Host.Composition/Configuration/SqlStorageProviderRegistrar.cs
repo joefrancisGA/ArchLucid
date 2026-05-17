@@ -333,6 +333,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IPlatformAuditRepository, DapperPlatformAuditRepository>();
         services.AddScoped<ITenantBlobPrefixDeletionService>(static sp => new TenantBlobPrefixDeletionService(
             sp.GetRequiredService<IOptionsMonitor<ArtifactLargePayloadOptions>>(),
+            sp.GetService<ITenantRegionalArtifactBlobClients>(),
             sp.GetService<BlobServiceClient>()));
         services.AddScoped<ITenantDeletionService, TenantDeletionService>();
         services.AddScoped<IBillingLedger, SqlBillingLedger>();

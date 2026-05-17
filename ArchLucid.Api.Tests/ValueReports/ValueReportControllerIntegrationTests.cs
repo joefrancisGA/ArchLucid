@@ -63,6 +63,7 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
             "valuereporttest",
             TenantTier.Standard,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
     }
 

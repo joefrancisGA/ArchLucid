@@ -7,36 +7,44 @@ using Azure.Storage.Blobs.Models;
 
 namespace ArchLucid.Persistence.BlobStore;
 
-/// <summary>Azure Blob Storage using a shared <see cref="BlobServiceClient" /> and <see cref="TokenCredential" />.</summary>
+/// <summary>Azure Blob Storage using regional <see cref="BlobServiceClient" /> bindings + tenant-scoped path prefixes.</summary>
 public sealed class AzureBlobArtifactBlobStore(
-    BlobServiceClient serviceClient,
+    ITenantRegionalArtifactBlobClients regionalClients,
     TokenCredential credential,
     IScopeContextProvider scopeProvider) : IArtifactBlobStore
 {
     private readonly TokenCredential _credential = credential ?? throw new ArgumentNullException(nameof(credential));
 
+    private readonly ITenantRegionalArtifactBlobClients _regionalClients =
+        regionalClients ?? throw new ArgumentNullException(nameof(regionalClients));
+
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
-
-    private readonly BlobServiceClient _serviceClient =
-        serviceClient ?? throw new ArgumentNullException(nameof(serviceClient));
 
     public async Task<string> WriteAsync(string containerName, string blobName, string content, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
         ArgumentException.ThrowIfNullOrWhiteSpace(blobName);
 
+        BlobServiceClient serviceClient = await ScopedClientAsync(ct).ConfigureAwait(false);
+
         string scopedBlobName = ArtifactBlobTenantPaths.PrefixWithTenant(_scopeProvider, blobName);
-        BlobContainerClient container = _serviceClient.GetBlobContainerClient(containerName.ToLowerInvariant());
-        await container.CreateIfNotExistsAsync(cancellationToken: ct);
+
+        BlobContainerClient container = serviceClient.GetBlobContainerClient(containerName.ToLowerInvariant());
+        await container.CreateIfNotExistsAsync(cancellationToken: ct).ConfigureAwait(false);
+
         BlobClient blob = container.GetBlobClient(scopedBlobName);
+
         await blob.UploadAsync(
-            new BinaryData(content),
-            new BlobUploadOptions
-            {
-                HttpHeaders = new BlobHttpHeaders { ContentType = "application/json; charset=utf-8" }
-            },
-            ct);
+                new BinaryData(content),
+                new BlobUploadOptions
+                {
+                    HttpHeaders = new BlobHttpHeaders { ContentType = "application/json; charset=utf-8" }
+                },
+                ct)
+
+            .ConfigureAwait(false);
+
         return blob.Uri.ToString();
     }
 
@@ -45,11 +53,14 @@ public sealed class AzureBlobArtifactBlobStore(
         ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
         ArgumentException.ThrowIfNullOrWhiteSpace(logicalBlobName);
 
+        BlobServiceClient serviceClient = await ScopedClientAsync(ct).ConfigureAwait(false);
+
         string scopedBlobName = ArtifactBlobTenantPaths.PrefixWithTenant(_scopeProvider, logicalBlobName);
-        BlobContainerClient container = _serviceClient.GetBlobContainerClient(containerName.ToLowerInvariant());
+
+        BlobContainerClient container = serviceClient.GetBlobContainerClient(containerName.ToLowerInvariant());
         BlobClient blob = container.GetBlobClient(scopedBlobName);
 
-        if (!await blob.ExistsAsync(ct))
+        if (!await blob.ExistsAsync(ct).ConfigureAwait(false))
             return null;
 
         return blob.Uri.ToString();
@@ -61,9 +72,14 @@ public sealed class AzureBlobArtifactBlobStore(
             return null;
 
         BlobClient blob = new(new Uri(blobUri, UriKind.Absolute), _credential);
+
         ArtifactBlobTenantPaths.EnsureReadBlobNameMatchesTenant(_scopeProvider, blob.Name);
 
-        Response<BlobDownloadResult> response = await blob.DownloadContentAsync(ct);
+        Response<BlobDownloadResult> response = await blob.DownloadContentAsync(ct).ConfigureAwait(false);
         return response.Value.Content.ToString();
     }
+
+    private Task<BlobServiceClient> ScopedClientAsync(CancellationToken ct)
+
+        => _regionalClients.GetArtifactsBlobServiceClientAsync(_scopeProvider.GetCurrentScope().TenantId, ct);
 }

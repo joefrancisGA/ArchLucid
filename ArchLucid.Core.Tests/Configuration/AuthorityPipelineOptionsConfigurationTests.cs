@@ -39,4 +39,37 @@ public sealed class AuthorityPipelineOptionsConfigurationTests
             options.OrchestratorBackend.Should().Be(expected);
         }
     }
+
+    [Fact]
+    public void AuthorityPipeline_Concurrency_binds_under_nested_ArchLucid_section()
+    {
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+
+                    ["ArchLucid:AuthorityPipeline:Concurrency:MaxConcurrentExecutionsPerTenant"] = "5",
+
+                    ["ArchLucid:AuthorityPipeline:Concurrency:RejectInlineCreateWhenConcurrencyUnavailable"] = "true",
+
+                    ["ArchLucid:AuthorityPipeline:Concurrency:LeaseRecognitionHorizon"] = "02:30:00",
+
+                    ["ArchLucid:AuthorityPipeline:Concurrency:WaitPollMilliseconds"] = "120",
+
+                })
+
+            .Build();
+
+        AuthorityPipelineOptions options = new();
+
+        configuration.GetSection("ArchLucid").GetSection(AuthorityPipelineOptions.SectionName).Bind(options);
+
+        options.Concurrency.MaxConcurrentExecutionsPerTenant.Should().Be(5);
+
+        options.Concurrency.RejectInlineCreateWhenConcurrencyUnavailable.Should().BeTrue();
+
+        options.Concurrency.LeaseRecognitionHorizon.Should().Be(TimeSpan.FromHours(2.5));
+
+        options.Concurrency.WaitPollMilliseconds.Should().Be(120);
+    }
 }

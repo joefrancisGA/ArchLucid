@@ -18,7 +18,7 @@ namespace ArchLucid.Persistence.AzureExtractorChunkUpload;
 
 /// <summary>Stages chunked uploads into Azure Block Blob storage before ingest reads the assembled ZIP.</summary>
 public sealed class AzureBlobAzureExtractorChunkSessionStore(
-    BlobServiceClient blobServiceClient,
+    ITenantRegionalArtifactBlobClients regionalClients,
     IScopeContextProvider scopeProvider,
     IOptions<AzureExtractorChunkUploadOptions> chunkOptions) : IAzureExtractorChunkSessionStore
 {
@@ -28,8 +28,8 @@ public sealed class AzureBlobAzureExtractorChunkSessionStore(
         PropertyNameCaseInsensitive = true,
     };
 
-    private readonly BlobServiceClient _blobServiceClient =
-        blobServiceClient ?? throw new ArgumentNullException(nameof(blobServiceClient));
+    private readonly ITenantRegionalArtifactBlobClients _regionalClients =
+        regionalClients ?? throw new ArgumentNullException(nameof(regionalClients));
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
@@ -50,16 +50,19 @@ public sealed class AzureBlobAzureExtractorChunkSessionStore(
         AzureExtractorChunkSessionMetadata meta =
             AzureExtractorChunkSessionMetadata.FromDescriptor(descriptor, TimeProvider.System.GetUtcNow());
 
-        BlobContainerClient container = GetContainer();
+        BlobServiceClient svc = await ClientAsync(ct).ConfigureAwait(false);
+        BlobContainerClient container = svc.GetBlobContainerClient(_options.AzureContainerName.ToLowerInvariant());
 
-        await container.CreateIfNotExistsAsync(PublicAccessType.None, cancellationToken: ct);
+        await container.CreateIfNotExistsAsync(PublicAccessType.None, cancellationToken: ct).ConfigureAwait(false);
 
         BlobClient metaBlob = container.GetBlobClient(BuildMetaBlobPath(sessionId));
 
         await metaBlob.UploadAsync(
-            new BinaryData(JsonSerializer.Serialize(meta, SerializerOptions)),
-            overwrite: true,
-            cancellationToken: ct);
+                new BinaryData(JsonSerializer.Serialize(meta, SerializerOptions)),
+                overwrite: true,
+                cancellationToken: ct)
+
+            .ConfigureAwait(false);
 
         return sessionId;
     }
@@ -68,7 +71,7 @@ public sealed class AzureBlobAzureExtractorChunkSessionStore(
     {
         ArgumentNullException.ThrowIfNull(chunkBody);
 
-        AzureExtractorChunkSessionMetadata meta = await LoadMetadataAsync(sessionId, ct);
+        AzureExtractorChunkSessionMetadata meta = await LoadMetadataAsync(sessionId, ct).ConfigureAwait(false);
 
         meta.EnsureMatchesScope(_scopeProvider.GetCurrentScope());
 
@@ -77,27 +80,29 @@ public sealed class AzureBlobAzureExtractorChunkSessionStore(
             throw new InvalidOperationException(
                 $"Chunk index {chunkIndex} is out of range for this session (totalChunks={meta.TotalChunks}).");
 
-        BlockBlobClient zipBlob = GetZipBlob(sessionId);
+        BlobServiceClient svc = await ClientAsync(ct).ConfigureAwait(false);
+        BlobContainerClient container = svc.GetBlobContainerClient(_options.AzureContainerName.ToLowerInvariant());
+        BlockBlobClient zipBlob = container.GetBlockBlobClient(BuildZipBlobPath(sessionId));
 
-        await zipBlob.StageBlockAsync(
-            ToBlockId(chunkIndex),
-            chunkBody,
-            cancellationToken: ct);
+        await zipBlob
+            .StageBlockAsync(ToBlockId(chunkIndex), chunkBody, cancellationToken: ct)
+            .ConfigureAwait(false);
     }
 
     public async Task<(AzureExtractorChunkSessionMetadata Meta, byte[] Zip)> FinalizeAndReadAssemblyAsync(
         Guid sessionId,
         CancellationToken ct)
     {
-        AzureExtractorChunkSessionMetadata meta = await LoadMetadataAsync(sessionId, ct);
+        AzureExtractorChunkSessionMetadata meta = await LoadMetadataAsync(sessionId, ct).ConfigureAwait(false);
 
         meta.EnsureMatchesScope(_scopeProvider.GetCurrentScope());
 
-        BlockBlobClient zipBlob = GetZipBlob(sessionId);
+        BlobServiceClient svc = await ClientAsync(ct).ConfigureAwait(false);
+        BlobContainerClient container = svc.GetBlobContainerClient(_options.AzureContainerName.ToLowerInvariant());
+        BlockBlobClient zipBlob = container.GetBlockBlobClient(BuildZipBlobPath(sessionId));
 
-        Response<BlockList> blocks = await zipBlob.GetBlockListAsync(
-            BlockListTypes.Uncommitted,
-            cancellationToken: ct);
+        Response<BlockList> blocks =
+            await zipBlob.GetBlockListAsync(BlockListTypes.Uncommitted, cancellationToken: ct).ConfigureAwait(false);
 
         int uncommittedCount = blocks.Value.UncommittedBlocks.Count();
 
@@ -112,9 +117,9 @@ public sealed class AzureBlobAzureExtractorChunkSessionStore(
 
             orderedIds.Add(ToBlockId(i));
 
-        await zipBlob.CommitBlockListAsync(orderedIds, cancellationToken: ct);
+        await zipBlob.CommitBlockListAsync(orderedIds, cancellationToken: ct).ConfigureAwait(false);
 
-        Response<BlobProperties> props = await zipBlob.GetPropertiesAsync(cancellationToken: ct);
+        Response<BlobProperties> props = await zipBlob.GetPropertiesAsync(cancellationToken: ct).ConfigureAwait(false);
 
         long length = props.Value.ContentLength;
 
@@ -128,7 +133,7 @@ public sealed class AzureBlobAzureExtractorChunkSessionStore(
             throw new InvalidOperationException(
                 $"Assembled ZIP exceeds configured maximum of {_options.MaxAssembledZipBytes} bytes.");
 
-        Response<BlobDownloadResult> downloaded = await zipBlob.DownloadContentAsync(cancellationToken: ct);
+        Response<BlobDownloadResult> downloaded = await zipBlob.DownloadContentAsync(cancellationToken: ct).ConfigureAwait(false);
 
         ReadOnlyMemory<byte> content = downloaded.Value.Content;
 
@@ -141,24 +146,21 @@ public sealed class AzureBlobAzureExtractorChunkSessionStore(
 
     public async Task DeleteSessionAsync(Guid sessionId, CancellationToken ct)
     {
-        BlobContainerClient container = GetContainer();
+        BlobServiceClient svc = await ClientAsync(ct).ConfigureAwait(false);
+        BlobContainerClient container = svc.GetBlobContainerClient(_options.AzureContainerName.ToLowerInvariant());
 
         BlobClient metaBlob = container.GetBlobClient(BuildMetaBlobPath(sessionId));
 
         BlobClient zipBlob = container.GetBlobClient(BuildZipBlobPath(sessionId));
 
-        await metaBlob.DeleteIfExistsAsync(cancellationToken: ct);
+        await metaBlob.DeleteIfExistsAsync(cancellationToken: ct).ConfigureAwait(false);
 
-        await zipBlob.DeleteIfExistsAsync(cancellationToken: ct);
+        await zipBlob.DeleteIfExistsAsync(cancellationToken: ct).ConfigureAwait(false);
     }
 
-    private BlobContainerClient GetContainer()
+    private Task<BlobServiceClient> ClientAsync(CancellationToken ct)
 
-        => _blobServiceClient.GetBlobContainerClient(_options.AzureContainerName.ToLowerInvariant());
-
-    private BlockBlobClient GetZipBlob(Guid sessionId)
-
-        => GetContainer().GetBlockBlobClient(BuildZipBlobPath(sessionId));
+        => _regionalClients.GetArtifactsBlobServiceClientAsync(_scopeProvider.GetCurrentScope().TenantId, ct);
 
     private string BuildMetaBlobPath(Guid sessionId)
 
@@ -170,15 +172,16 @@ public sealed class AzureBlobAzureExtractorChunkSessionStore(
 
     private async Task<AzureExtractorChunkSessionMetadata> LoadMetadataAsync(Guid sessionId, CancellationToken ct)
     {
-        BlobContainerClient container = GetContainer();
+        BlobServiceClient svc = await ClientAsync(ct).ConfigureAwait(false);
+        BlobContainerClient container = svc.GetBlobContainerClient(_options.AzureContainerName.ToLowerInvariant());
 
         BlobClient metaBlob = container.GetBlobClient(BuildMetaBlobPath(sessionId));
 
-        if (!await metaBlob.ExistsAsync(cancellationToken: ct))
+        if (!await metaBlob.ExistsAsync(cancellationToken: ct).ConfigureAwait(false))
 
             throw new InvalidOperationException("Chunk upload session was not found or has expired.");
 
-        Response<BlobDownloadResult> downloaded = await metaBlob.DownloadContentAsync(cancellationToken: ct);
+        Response<BlobDownloadResult> downloaded = await metaBlob.DownloadContentAsync(cancellationToken: ct).ConfigureAwait(false);
 
         ReadOnlyMemory<byte> metaUtf8 = downloaded.Value.Content.ToMemory();
 

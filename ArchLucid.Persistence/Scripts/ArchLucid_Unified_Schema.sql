@@ -5277,6 +5277,15 @@ END;
 
 GO
 
+/* 169: Tenant-selected data residency (see Migrations/169_Tenants_DataRegion.sql). */
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Tenants', N'DataRegion') IS NULL
+BEGIN
+    ALTER TABLE dbo.Tenants ADD
+        DataRegion NVARCHAR(64) NOT NULL CONSTRAINT DF_Tenants_DataRegion DEFAULT N'default';
+END;
+
+GO
+
 /* 162: Host LLM cost USD/M overrides (see Migrations/162_HostLlmCostEstimationUsdRates.sql). */
 IF OBJECT_ID(N'dbo.HostLlmCostEstimationUsdRates', N'U') IS NULL
 BEGIN
@@ -5900,3 +5909,20 @@ BEGIN
         ON dbo.ProjectRoleAssignments (TenantId, WorkspaceId, ProjectId, UserId)
         INCLUDE (Role);
 END;
+
+GO
+
+/* 169: Authority pipeline tenant execution leases (see Migrations/169_AuthorityPipelineTenantExecutionLease.sql). */
+IF OBJECT_ID(N'dbo.AuthorityPipelineTenantExecutionLease', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuthorityPipelineTenantExecutionLease
+    (
+        RunId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuthorityPipelineTenantExecutionLease PRIMARY KEY,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        AcquiredUtc DATETIME2 NOT NULL CONSTRAINT DF_AuthorityPipelineTenantExecutionLease_AcquiredUtc DEFAULT SYSUTCDATETIME()
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuthorityPipelineTenantExecutionLease_TenantId_AcquiredUtc
+        ON dbo.AuthorityPipelineTenantExecutionLease (TenantId, AcquiredUtc);
+END;
+GO

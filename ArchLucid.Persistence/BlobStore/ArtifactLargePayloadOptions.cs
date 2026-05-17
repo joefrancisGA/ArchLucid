@@ -46,4 +46,14 @@ public sealed class ArtifactLargePayloadOptions
         get;
         set;
     } = "";
+
+    /// <summary>
+    ///     Optional Azure blob service URIs keyed by lowercase <see cref="Tenancy.TenantRecord.DataRegion" /> (excluding
+    ///     <see cref="Tenancy.TenantDataRegions.Default" />, which always uses <see cref="AzureBlobServiceUri" />).
+    /// </summary>
+    public Dictionary<string, string>? AzureBlobServiceUriByRegion
+    {
+        get;
+        set;
+    }
 }

@@ -70,6 +70,9 @@ public static class ProblemSupportHints
         if (typeUri == ProblemTypes.LlmTokenQuotaExceeded)
             return "Raise LlmTokenQuota limits, wait for the sliding window to elapse, or reduce LLM usage. See docs/OPERATIONS_LLM_QUOTA.md.";
 
+        if (typeUri == ProblemTypes.AuthorityTenantConcurrentRunsExceeded)
+            return "Retry later, enable deferred authority offload, disable RejectInlineCreateWhenConcurrencyUnavailable, or raise AuthorityPipeline:Concurrency:MaxConcurrentExecutionsPerTenant with operator judgment.";
+
         if (typeUri == ProblemTypes.ComparisonVerificationFailed)
             return "Review drift fields in the response. Regenerate or verify replay inputs against stored artifacts if you need a passing comparison.";
 

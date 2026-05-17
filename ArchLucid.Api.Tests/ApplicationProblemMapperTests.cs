@@ -1,9 +1,11 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
+using ArchLucid.Core;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Decisioning.Validation;
+using ArchLucid.Host.Core.ProblemDetails;
 
 using FluentAssertions;
 
@@ -167,6 +169,20 @@ public sealed class ApplicationProblemMapperTests
         mapped.Should().BeTrue();
         MvcProblemDetails p = result!.Value.Should().BeOfType<MvcProblemDetails>().Subject;
         p.Extensions["retryAfterUtc"].Should().Be(retry);
+    }
+
+    [SkippableFact]
+    public void TryMapUnhandledException_AuthorityTenantConcurrencyLimitExceeded_Returns429()
+    {
+        AuthorityTenantConcurrencyLimitExceededException ex = new("too many");
+        DefaultHttpContext http = CreateHttpContext("/p", "corr-auth-conc");
+
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result!.StatusCode.Should().Be(StatusCodes.Status429TooManyRequests);
+        MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.AuthorityTenantConcurrentRunsExceeded);
     }
 
     [SkippableFact]

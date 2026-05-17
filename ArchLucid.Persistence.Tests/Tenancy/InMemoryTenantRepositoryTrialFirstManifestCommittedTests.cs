@@ -13,7 +13,7 @@ public sealed class InMemoryTenantRepositoryTrialFirstManifestCommittedTests
         Guid tenantId = Guid.NewGuid();
         InMemoryTenantRepository sut = new();
 
-        await sut.InsertTenantAsync(tenantId, "Acme", "acme", TenantTier.Free, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantId, "Acme", "acme", TenantTier.Free, null, TenantDataRegions.Default, CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
             DateTimeOffset.Parse("2026-04-01T00:00:00+00:00"),
@@ -48,7 +48,7 @@ public sealed class InMemoryTenantRepositoryTrialFirstManifestCommittedTests
         Guid tenantId = Guid.NewGuid();
         InMemoryTenantRepository sut = new();
 
-        await sut.InsertTenantAsync(tenantId, "Contoso", "contoso", TenantTier.Enterprise, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantId, "Contoso", "contoso", TenantTier.Enterprise, null, TenantDataRegions.Default, CancellationToken.None);
 
         DateTimeOffset committed = DateTimeOffset.Parse("2026-06-01T08:00:00+00:00");
         TrialFirstManifestCommitOutcome? outcome =

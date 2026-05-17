@@ -30,6 +30,8 @@
 
 **Answer:** **Vendor-hosted** Azure workloads (region choices depend on contracted Azure regions and private-connectivity setup). Architectural networking guidance: **[CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md)** and infra modules under **`infra/`**.
 
+**Tenant-selected residency keys:** Operator provisioning stores a lowercase Azure-style region identifier on **`dbo.Tenants.DataRegion`**. Unless configuration narrows it, allowed keys match product defaults: **`default`** (follow the deployment’s primary **`ArtifactLargePayload`** blob URI), **`eastus`**, **`eastus2`**, **`westus2`**, **`centralus`**, **`westeurope`**, **`northeurope`**, **`uksouth`**, **`southeastasia`**, **`australiaeast`**, **`centralindia`**, and **`brazilsouth`**. Operators may replace that allowlist via **`TenantProvisioning:SupportedDataRegions`**. For any non-**`default`** key, **`ArtifactLargePayload:AzureBlobServiceUriByRegion`** must map that key to a regional Blob service URI so large artifact payloads resolve to storage in the chosen geography—otherwise provisioning or blob access fails fast by design.
+
 ---
 
 ### 4. Can we authenticate with **Okta / Ping / Auth0** instead of Microsoft Entra ID?

@@ -12,7 +12,7 @@ public sealed class TrialTenantBootstrapServiceBaselinePersistenceTests
     {
         InMemoryTenantRepository repo = new();
         Guid tenantId = Guid.NewGuid();
-        await repo.InsertTenantAsync(tenantId, "T", "t-" + tenantId.ToString("N")[..8], TenantTier.Free, null, CancellationToken.None);
+        await repo.InsertTenantAsync(tenantId, "T", "t-" + tenantId.ToString("N")[..8], TenantTier.Free, null, TenantDataRegions.Default, CancellationToken.None);
 
         DateTimeOffset cap = DateTimeOffset.Parse("2026-04-10T10:00:00Z");
 

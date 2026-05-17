@@ -171,6 +171,7 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
             CreatePassiveChatOpsHook().Object,
+            CreateUnlimitedTenantConcurrencyGate(),
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -375,6 +376,7 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
             CreatePassiveChatOpsHook().Object,
+            CreateUnlimitedTenantConcurrencyGate(),
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -490,6 +492,7 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
             CreatePassiveChatOpsHook().Object,
+            CreateUnlimitedTenantConcurrencyGate(),
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -679,6 +682,7 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
             CreatePassiveChatOpsHook().Object,
+            CreateUnlimitedTenantConcurrencyGate(),
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -784,6 +788,7 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
             CreatePassiveChatOpsHook().Object,
+            CreateUnlimitedTenantConcurrencyGate(),
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -905,6 +910,7 @@ public sealed class AuthorityRunOrchestratorTests
             pipelineOpts.Object,
             CreatePublicSiteOptionsMonitor().Object,
             CreatePassiveChatOpsHook().Object,
+            CreateUnlimitedTenantConcurrencyGate(),
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -919,6 +925,19 @@ public sealed class AuthorityRunOrchestratorTests
 
         uow.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
         uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    private static ITenantAuthorityPipelineConcurrencyGate CreateUnlimitedTenantConcurrencyGate()
+    {
+        Mock<ITenantAuthorityPipelineConcurrencyGate> gate = new();
+
+        gate.Setup(g => g.AcquireExecutionSlotAsync(
+                It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+
+            .ReturnsAsync(NoTenantAuthorityPipelineConcurrencyGate.DisabledLease);
+
+
+        return gate.Object;
     }
 
     private static Mock<IAuthorityRunCommittedChatOpsHook> CreatePassiveChatOpsHook()
@@ -972,6 +991,7 @@ public sealed class AuthorityRunOrchestratorTests
         IOptionsMonitor<AuthorityPipelineOptions> pipelineOpts,
         IOptionsMonitor<PublicSiteOptions> publicSiteOpts,
         IAuthorityRunCommittedChatOpsHook chatOpsHook,
+        ITenantAuthorityPipelineConcurrencyGate tenantConcurrencyGate,
         ILogger<AuthorityRunOrchestrator> logger)
     {
         InlineAuthorityPipelineStagesExecutionDriver driver = new(pipeline);
@@ -997,6 +1017,7 @@ public sealed class AuthorityRunOrchestratorTests
             workRepo,
             modeResolver,
             pipelineOpts,
+            tenantConcurrencyGate,
             logger);
     }
 

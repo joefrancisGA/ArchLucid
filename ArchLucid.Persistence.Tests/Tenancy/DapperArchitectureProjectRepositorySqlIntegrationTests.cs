@@ -31,6 +31,7 @@ public sealed class DapperArchitectureProjectRepositorySqlIntegrationTests(SqlSe
             slug,
             TenantTier.Free,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
 
         await tenants.InsertWorkspaceAsync(workspaceId, tenantId, "ws-p", defaultProjectId, CancellationToken.None);

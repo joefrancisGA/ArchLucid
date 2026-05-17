@@ -34,6 +34,13 @@ public sealed class TenantRecord
         init;
     }
 
+    /// <summary>Logical Azure residency key mirrored to tenant catalogs; binds blob accounts via configuration mapping.</summary>
+    public string DataRegion
+    {
+        get;
+        init;
+    } = TenantDataRegions.Default;
+
     public DateTimeOffset CreatedUtc
     {
         get;

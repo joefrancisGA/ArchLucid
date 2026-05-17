@@ -47,6 +47,8 @@ public static class ProblemErrorCodes
 
     public const string LlmTokenQuotaExceeded = "LLM_TOKEN_QUOTA_EXCEEDED";
 
+    public const string AuthorityTenantConcurrentRunsExceeded = "AUTHORITY_TENANT_CONCURRENT_RUNS_EXCEEDED";
+
     public const string BatchReplayAllFailed = "BATCH_REPLAY_ALL_FAILED";
 
     public const string TrialLimitExceeded = "TRIAL_LIMIT_EXCEEDED";
@@ -138,6 +140,9 @@ public static class ProblemErrorCodes
 
         if (problemTypeUri == ProblemTypes.LlmTokenQuotaExceeded)
             return LlmTokenQuotaExceeded;
+
+        if (problemTypeUri == ProblemTypes.AuthorityTenantConcurrentRunsExceeded)
+            return AuthorityTenantConcurrentRunsExceeded;
 
         if (problemTypeUri == ProblemTypes.GraphTooLargeForFullResponse)
             return GraphTooLargeForFullResponse;

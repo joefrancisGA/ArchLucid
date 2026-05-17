@@ -75,15 +75,18 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         string slug,
         TenantTier tier,
         Guid? entraTenantId,
+        string dataRegion,
         CancellationToken ct,
         int? enterpriseScimSeatsLimit = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(slug);
+
         _ = ct;
 
         string slugKey = slug.Trim().ToLowerInvariant();
 
+        string residencyKey = TenantDataRegions.NormalizeOptional(dataRegion);
         TenantRecord record = new()
         {
             Id = tenantId,
@@ -91,6 +94,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             Slug = slugKey,
             Tier = tier,
             EntraTenantId = entraTenantId,
+            DataRegion = residencyKey,
             CreatedUtc = TimeProvider.System.GetUtcNow(),
             SuspendedUtc = null,
             TrialStartUtc = null,
@@ -874,6 +878,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             Slug = slug,
             Tier = TenantTier.Standard,
             EntraTenantId = null,
+            DataRegion = TenantDataRegions.Default,
             CreatedUtc = now,
             SuspendedUtc = null,
             TrialStartUtc = null,
@@ -928,6 +933,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             Slug = source.Slug,
             Tier = commercialTier ?? source.Tier,
             EntraTenantId = source.EntraTenantId,
+            DataRegion = source.DataRegion,
             CreatedUtc = source.CreatedUtc,
             SuspendedUtc = source.SuspendedUtc,
             TrialStartUtc = source.TrialStartUtc,

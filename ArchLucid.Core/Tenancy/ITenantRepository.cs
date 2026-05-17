@@ -20,6 +20,7 @@ public interface ITenantRepository
         string slug,
         TenantTier tier,
         Guid? entraTenantId,
+        string dataRegion,
         CancellationToken ct,
         int? enterpriseScimSeatsLimit = null);
 

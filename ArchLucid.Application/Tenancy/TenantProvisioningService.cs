@@ -3,10 +3,12 @@ using System.Text.Json;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Tenancy;
 
@@ -17,6 +19,7 @@ public sealed class TenantProvisioningService(
     IActorContext actorContext,
     IAuditService auditService,
     ILogger<TenantProvisioningService> logger,
+    IOptionsMonitor<TenantProvisioningOptions> tenantProvisioningOptions,
     ITenantSqlCatalogProvisioner tenantSqlCatalogProvisioner,
     IDefaultPolicyPackSeeder defaultPolicyPackSeeder) : ITenantProvisioningService
 {
@@ -34,6 +37,9 @@ public sealed class TenantProvisioningService(
     private readonly IDefaultPolicyPackSeeder _defaultPolicyPackSeeder =
         defaultPolicyPackSeeder ?? throw new ArgumentNullException(nameof(defaultPolicyPackSeeder));
 
+    private readonly IOptionsMonitor<TenantProvisioningOptions> _tenantProvisioningOptions =
+        tenantProvisioningOptions ?? throw new ArgumentNullException(nameof(tenantProvisioningOptions));
+
     /// <inheritdoc/>
     public async Task<TenantProvisioningResult> ProvisionAsync(TenantProvisioningRequest request, CancellationToken ct)
     {
@@ -46,9 +52,21 @@ public sealed class TenantProvisioningService(
         TenantRecord? existing = await _tenantRepository.GetBySlugAsync(slug, ct);
         if (existing is not null)
         {
+            string requestedRegion = TenantProvisioningDataRegionPolicy.NormalizeRequest(request.DataRegion);
+
+            TenantProvisioningDataRegionPolicy.Validate(requestedRegion, _tenantProvisioningOptions.CurrentValue);
+
+            if (!string.Equals(requestedRegion, TenantDataRegions.NormalizeOptional(existing.DataRegion),
+                    StringComparison.Ordinal))
+                throw new ArgumentException(
+                    $"Tenant slug '{slug}' already exists under data region '{existing.DataRegion}'.",
+                    nameof(request.DataRegion));
+
             TenantWorkspaceLink? link = await _tenantRepository.GetFirstWorkspaceAsync(existing.Id, ct);
+
             if (link is null)
                 throw new InvalidOperationException($"Tenant '{existing.Id:D}' exists without a workspace row; data is inconsistent.");
+
             return new TenantProvisioningResult
             {
                 TenantId = existing.Id, DefaultWorkspaceId = link.WorkspaceId, DefaultProjectId = link.DefaultProjectId, WasAlreadyProvisioned = true,
@@ -58,7 +76,12 @@ public sealed class TenantProvisioningService(
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
-        await _tenantRepository.InsertTenantAsync(tenantId, request.Name.Trim(), slug, request.Tier, request.EntraTenantId, ct);
+        string dataRegionKey = TenantProvisioningDataRegionPolicy.NormalizeRequest(request.DataRegion);
+
+        TenantProvisioningDataRegionPolicy.Validate(dataRegionKey, _tenantProvisioningOptions.CurrentValue);
+
+        await _tenantRepository.InsertTenantAsync(
+            tenantId, request.Name.Trim(), slug, request.Tier, request.EntraTenantId, dataRegionKey, ct);
         ScopeContext provisionScope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, };
         using (AmbientScopeContext.Push(provisionScope))
             try
@@ -87,7 +110,8 @@ public sealed class TenantProvisioningService(
                 TenantId = tenantId,
                 WorkspaceId = workspaceId,
                 ProjectId = projectId,
-                DataJson = JsonSerializer.Serialize(new { slug, request.AdminEmail, tier = request.Tier.ToString() }),
+                DataJson = JsonSerializer.Serialize(
+                    new { slug, request.AdminEmail, tier = request.Tier.ToString(), dataRegion = dataRegionKey }),
             }, ct);
         return new TenantProvisioningResult
         {

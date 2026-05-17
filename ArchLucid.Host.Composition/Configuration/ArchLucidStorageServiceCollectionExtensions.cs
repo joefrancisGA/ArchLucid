@@ -391,11 +391,14 @@ public static class ArchLucidStorageServiceCollectionExtensions
 
             Uri serviceUri = new(uriText, UriKind.Absolute);
             services.AddSingleton<TokenCredential>(_ => new DefaultAzureCredential());
+            services.AddSingleton<RegionalArtifactBlobClientFactory>();
+
             services.AddSingleton(sp =>
                 new BlobServiceClient(serviceUri, sp.GetRequiredService<TokenCredential>()));
-            services.AddSingleton<IArtifactBlobStore>(sp =>
+            services.AddScoped<ITenantRegionalArtifactBlobClients, TenantRegionalArtifactBlobClients>();
+            services.AddScoped<IArtifactBlobStore>(sp =>
                 new AzureBlobArtifactBlobStore(
-                    sp.GetRequiredService<BlobServiceClient>(),
+                    sp.GetRequiredService<ITenantRegionalArtifactBlobClients>(),
                     sp.GetRequiredService<TokenCredential>(),
                     sp.GetRequiredService<IScopeContextProvider>()));
             services.AddScoped<IAzureExtractorChunkSessionStore, AzureBlobAzureExtractorChunkSessionStore>();

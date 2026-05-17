@@ -1,5 +1,6 @@
 using System.Data.Common;
 
+using ArchLucid.Core;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
@@ -227,6 +228,19 @@ public static class ApplicationProblemMapper
                 ProblemTypes.GraphResolutionFailed,
                 instance,
                 httpContext);
+            return true;
+        }
+
+        if (ex is AuthorityTenantConcurrencyLimitExceededException tcx)
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status429TooManyRequests,
+                "Architecture authority concurrency limit exceeded",
+                tcx.Message,
+                ProblemTypes.AuthorityTenantConcurrentRunsExceeded,
+                instance,
+                httpContext);
+
             return true;
         }
 

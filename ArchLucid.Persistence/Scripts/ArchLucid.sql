@@ -6408,6 +6408,14 @@ BEGIN
 END;
 GO
 
+/* 169: Tenant-selected data residency (see Migrations/169_Tenants_DataRegion.sql). */
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Tenants', N'DataRegion') IS NULL
+BEGIN
+    ALTER TABLE dbo.Tenants ADD
+        DataRegion NVARCHAR(64) NOT NULL CONSTRAINT DF_Tenants_DataRegion DEFAULT N'default';
+END;
+GO
+
 /* 162: Host LLM cost USD/M overrides (see Migrations/162_HostLlmCostEstimationUsdRates.sql). */
 IF OBJECT_ID(N'dbo.HostLlmCostEstimationUsdRates', N'U') IS NULL
 BEGIN

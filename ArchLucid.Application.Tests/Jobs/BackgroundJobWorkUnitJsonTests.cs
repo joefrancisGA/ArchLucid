@@ -40,6 +40,11 @@ public sealed class BackgroundJobWorkUnitJsonTests
         restored.Should().BeOfType<ConsultingDocxWorkUnit>();
         ConsultingDocxWorkUnit typed = (ConsultingDocxWorkUnit)restored;
         typed.Payload.RunId.Should().Be("run-2");
+        typed.Payload.TemplateProfile.Should().Be("exec");
+        typed.FileName.Should().Be("c.docx");
+        typed.ContentType.Should().Contain("wordprocessingml");
+    }
+
     [SkippableFact]
     public void RoundTrip_TenantDeletionWorkUnit_PreservesPayload()
     {

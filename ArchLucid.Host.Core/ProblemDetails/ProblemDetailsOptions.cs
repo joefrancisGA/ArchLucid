@@ -64,6 +64,9 @@ public static class ProblemTypes
     /// <summary>Tenant exceeded configured LLM token quota for the current sliding window.</summary>
     public const string LlmTokenQuotaExceeded = Base + "#llm-token-quota-exceeded";
 
+    /// <summary>Too many concurrent in-flight authority heavy-stage executions for the tenant slot budget.</summary>
+    public const string AuthorityTenantConcurrentRunsExceeded = Base + "#authority-tenant-concurrent-runs-exceeded";
+
     /// <summary>Batch comparison replay had no successful replays for any requested record ID.</summary>
     public const string BatchReplayAllFailed = Base + "#batch-replay-all-failed";
 

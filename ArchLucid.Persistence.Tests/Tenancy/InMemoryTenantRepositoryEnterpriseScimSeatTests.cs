@@ -17,6 +17,7 @@ public sealed class InMemoryTenantRepositoryEnterpriseScimSeatTests
             "slug-scim-seat",
             TenantTier.Enterprise,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None,
             2);
 
@@ -33,7 +34,7 @@ public sealed class InMemoryTenantRepositoryEnterpriseScimSeatTests
     {
         Guid tenantId = Guid.NewGuid();
         InMemoryTenantRepository sut = new();
-        await sut.InsertTenantAsync(tenantId, "Unlim", "slug-unlim", TenantTier.Free, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantId, "Unlim", "slug-unlim", TenantTier.Free, null, TenantDataRegions.Default, CancellationToken.None);
 
         for (int i = 0; i < 5; i++)
             (await sut.TryIncrementEnterpriseScimSeatAsync(tenantId, CancellationToken.None)).Should().BeTrue();

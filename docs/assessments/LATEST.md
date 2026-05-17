@@ -441,7 +441,7 @@
 2. **Noisy neighbor risks in orchestration:** The lack of rate limiting and concurrency controls for the `AuthorityRunOrchestrator` raises reliability concerns for enterprise buyers evaluating multi-tenant SaaS.
 3. **Lack of custom rule authoring UI:** Evaluators cannot easily author and test custom governance rules without writing raw code, slowing down enterprise adoption.
 4. **Absence of compliance attestations:** The lack of a CPA-issued SOC 2 report will cause friction during procurement and security reviews.
-5. **Lack of data residency options:** European and highly regulated buyers often require explicit guarantees that their data resides in a specific geographic region, which is currently not configurable per tenant.
+5. **Residency diligence depth:** Tenant provisioning pins a **`DataRegion`** key and routes large artifact blobs to regional URIs when configured; buyers still validate during diligence that SQL topology, backups, DR, and networking match their geography and contractual posture (**`PROCUREMENT_FAQ.md`** Q3).
 
 ---
 
@@ -563,11 +563,11 @@ Enhance the existing OpenTelemetry instrumentation to capture detailed metrics f
 **Delivered:** Chat completions already emitted `gen_ai.usage.*` on `ArchLucid.Agent.LlmCompletion` spans; extended with `gen_ai.request.model`, `gen_ai.response.model`, `gen_ai.operation.name`, `gen_ai.completion.latency_ms`, and `LlmTelemetry:CapturePromptResponseOnSpans` (default false, hard-capped payload length via `ArchLucidInstrumentation.SensitiveGenAiTelemetrySnapshotMaxChars`). Added `ArchLucid.Agent.LlmEmbedding` spans for Azure OpenAI embeddings (`gen_ai.embeddings`, usage when the SDK returns it, latency, input count) with the same opt-in prompt snapshot flag. Registered the new source in `AddArchLucidOpenTelemetry` and default tail-sampling keep list (`terraform-otel-collector`).
 ```
 
-11. **Implement rate limiting and concurrency controls for the `AuthorityRunOrchestrator`**
+11. **COMPLETED:** Implement rate limiting and concurrency controls for the `AuthorityRunOrchestrator`
 - Why it matters: Prevents a single tenant from exhausting worker resources by submitting too many concurrent architecture review runs.
-- Expected impact: Performance (+3 pts), Reliability (+2 pts).
+- Expected impact: (Delivered **2026-05-16**.) Performance (+3 pts), Reliability (+2 pts).
 - Affected qualities: Performance, Reliability.
-- Actionable: Yes
+- Actionable: Completed
 
 ```markdown
 Introduce concurrency limits for the `AuthorityRunOrchestrator` to protect the worker pool.
@@ -575,13 +575,15 @@ Introduce concurrency limits for the `AuthorityRunOrchestrator` to protect the w
 - If a tenant exceeds the limit, queue the runs or return a `429 Too Many Requests` response from the API.
 - Ensure the limits are configurable via `appsettings.json` or a dynamic configuration provider.
 - Acceptance criteria: A single tenant cannot monopolize the worker pool.
+
+**Delivered:** `ArchLucid:AuthorityPipeline:Concurrency` on `AuthorityPipelineOptions` binds `MaxConcurrentExecutionsPerTenant`, `RejectInlineCreateWhenConcurrencyUnavailable`, `LeaseRecognitionHorizon`, and `WaitPollMilliseconds`. Inline creates acquire a tenant slot before heavy stages; queued worker completions wait (poll SQL) rather than failing. SQL hosts use durable lease rows (`dbo.AuthorityPipelineTenantExecutionLease`, migration **169**) with serializable counting; optional fail-fast emits `AuthorityTenantConcurrencyLimitExceededException` → HTTP **429** / `ProblemTypes.AuthorityTenantConcurrentRunsExceeded`. In-memory hosts use `InMemoryTenantAuthorityPipelineConcurrencyGate` (per-process semaphores).
 ```
 
-12. **Add tenant-specific data residency configuration options**
+12. **COMPLETED:** Add tenant-specific data residency configuration options
 - Why it matters: European and highly regulated buyers often require explicit guarantees that their data (SQL and blobs) resides in a specific geographic region.
-- Expected impact: Compliance Readiness (+3 pts), Commercial Packaging (+2 pts).
+- Expected impact: (Delivered **2026-05-16**.) Compliance Readiness (+3 pts), Commercial Packaging (+2 pts).
 - Affected qualities: Compliance Readiness, Commercial Packaging.
-- Actionable: Yes
+- Actionable: Completed
 
 ```markdown
 Extend the tenant provisioning pipeline to support explicit data residency region selection.
@@ -589,6 +591,8 @@ Extend the tenant provisioning pipeline to support explicit data residency regio
 - Ensure the storage provisioning logic (e.g., Azure Blob Storage containers) respects the selected region.
 - Document the supported regions in `docs/go-to-market/PROCUREMENT_FAQ.md`.
 - Acceptance criteria: Operators can provision tenants in specific geographic regions.
+
+**Delivered:** **`dbo.Tenants.DataRegion`** (**`169_Tenants_DataRegion.sql`**, unified schema scripts), **`TenantRecord`** / **`TenantProvisioningRequest`** / **`TenantProvisionAdminRequest`**, **`TenantProvisioningDataRegionPolicy`** + **`TenantProvisioningOptions.SupportedDataRegions`**. **`RegionalArtifactBlobClientFactory`** / **`TenantRegionalArtifactBlobClients`** route **`ArtifactLargePayload`** **`AzureBlob`** clients via **`ArtifactLargePayload:AzureBlobServiceUriByRegion`** when **`DataRegion`** ≠ **`default`**. Supported regions documented under **`docs/go-to-market/PROCUREMENT_FAQ.md`** Q3.
 ```
 
 13. **Enhance the Knowledge Graph with temporal query support**
@@ -767,7 +771,7 @@ Implement status sync between ArchLucid review/findings state and ServiceNow cha
 
 - **Batch 1 (High Leverage, Low Risk):** 3, 4, 8, 14, 17, 18. Correctness, observability, documentation, live E2E, executive baseline honesty, and a11y CI without large architecture moves.
 - **Batch 2 (Performance & Observability):** 5, 7, 10, 11, 21. Operational robustness, SQL retries, LLM tracing, orchestration limits, and DTF parity smoke.
-- **Batch 3 (Testing, Analytics & ROI):** 12, 16 — data residency and baseline wizard (**items 1–2** in this list are **COMPLETED**; do not re-prompt).
+- **Batch 3 (Testing, Analytics & ROI):** 16 — baseline wizard (**item 12 — data residency — COMPLETED** **2026-05-16**; do not re-prompt).
 - **Batch 4 (UX & adoption):** 6, 15, 19, 20, 22, 24. Dashboard health, rule UI, progressive disclosure, pack depth, demo smoke, and finding trust signals.
 - **Batch 5 (Architecture hygiene):** 23. ArchUnitNET boundaries — isolated PR, expand rules incrementally.
 - **Batch 6 (Integrations — credential-dependent):** 25. ServiceNow bi-directional sync when **P10** developer instance is available; do not block other batches.

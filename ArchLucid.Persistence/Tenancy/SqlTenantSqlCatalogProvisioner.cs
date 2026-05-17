@@ -82,7 +82,7 @@ public sealed class SqlTenantSqlCatalogProvisioner(
             await _systemSqlConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         const string selectSql = """
-                                 SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
+                                 SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
                                         TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                         TrialStatus, TrialSampleRunId,
                                         TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
@@ -110,7 +110,7 @@ public sealed class SqlTenantSqlCatalogProvisioner(
                                  IF NOT EXISTS (SELECT 1 FROM dbo.Tenants WHERE Id = @Id)
                                  BEGIN
                                      INSERT INTO dbo.Tenants (
-                                         Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
+                                         Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
                                          TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                          TrialStatus, TrialSampleRunId,
                                          TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
@@ -119,7 +119,7 @@ public sealed class SqlTenantSqlCatalogProvisioner(
                                          CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
                                          EnterpriseSeatsLimit, EnterpriseSeatsUsed)
                                      VALUES (
-                                         @Id, @Name, @Slug, @Tier, @EntraTenantId, @CreatedUtc, @SuspendedUtc,
+                                         @Id, @Name, @Slug, @Tier, @EntraTenantId, @DataRegion, @CreatedUtc, @SuspendedUtc,
                                          @TrialStartUtc, @TrialExpiresUtc, @TrialRunsLimit, @TrialRunsUsed, @TrialSeatsLimit, @TrialSeatsUsed,
                                          @TrialStatus, @TrialSampleRunId,
                                          @TrialArchitecturePreseedEnqueuedUtc, @TrialWelcomeRunId, @TrialFirstManifestCommittedUtc,
@@ -166,6 +166,12 @@ public sealed class SqlTenantSqlCatalogProvisioner(
             get;
             init;
         }
+
+        public string DataRegion
+        {
+            get;
+            init;
+        } = string.Empty;
 
         public DateTimeOffset CreatedUtc
         {

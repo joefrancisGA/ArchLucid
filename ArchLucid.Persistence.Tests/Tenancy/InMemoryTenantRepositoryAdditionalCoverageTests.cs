@@ -16,7 +16,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
         Guid entra = Guid.NewGuid();
         Guid id = Guid.NewGuid();
         string slug = "l-" + Guid.NewGuid().ToString("N")[..8];
-        await sut.InsertTenantAsync(id, "L", slug, TenantTier.Standard, entra, CancellationToken.None);
+        await sut.InsertTenantAsync(id, "L", slug, TenantTier.Standard, entra, TenantDataRegions.Default, CancellationToken.None);
 
         (await sut.GetByEntraTenantIdAsync(entra, CancellationToken.None))!.Id.Should().Be(id);
 
@@ -35,6 +35,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             "sus2-" + Guid.NewGuid().ToString("N")[..8],
             TenantTier.Standard,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
 
         await sut.SuspendTenantAsync(id, CancellationToken.None);
@@ -83,6 +84,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             "mcv-" + Guid.NewGuid().ToString("N")[..8],
             TenantTier.Standard,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             id,
@@ -118,6 +120,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             "ent-bind-" + Guid.NewGuid().ToString("N")[..8],
             TenantTier.Standard,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
 
         (await sut.UpdateEntraTenantIdAsync(id, entraNew, CancellationToken.None)).Should().BeTrue();
@@ -147,6 +150,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             "ent-diff-" + Guid.NewGuid().ToString("N")[..8],
             TenantTier.Standard,
             first,
+            TenantDataRegions.Default,
             CancellationToken.None);
 
         (await sut.UpdateEntraTenantIdAsync(id, second, CancellationToken.None)).Should().BeFalse();
@@ -165,6 +169,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             "ent-idem-" + Guid.NewGuid().ToString("N")[..8],
             TenantTier.Standard,
             entra,
+            TenantDataRegions.Default,
             CancellationToken.None);
 
         (await sut.UpdateEntraTenantIdAsync(id, entra, CancellationToken.None)).Should().BeTrue();
@@ -183,6 +188,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             "a-" + Guid.NewGuid().ToString("N")[..8],
             TenantTier.Standard,
             entra,
+            TenantDataRegions.Default,
             CancellationToken.None);
         await sut.InsertTenantAsync(
             b,
@@ -190,6 +196,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             "b-" + Guid.NewGuid().ToString("N")[..8],
             TenantTier.Standard,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
 
         (await sut.UpdateEntraTenantIdAsync(b, entra, CancellationToken.None)).Should().BeFalse();
@@ -207,6 +214,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             "fm-" + Guid.NewGuid().ToString("N")[..8],
             TenantTier.Standard,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             id,
@@ -243,6 +251,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             "trc-" + Guid.NewGuid().ToString("N")[..8],
             TenantTier.Standard,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             id,
@@ -280,6 +289,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             "clm-" + Guid.NewGuid().ToString("N")[..8],
             TenantTier.Standard,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             id,
@@ -315,6 +325,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             "sci-" + Guid.NewGuid().ToString("N")[..8],
             TenantTier.Enterprise,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None,
             enterpriseScimSeatsLimit: 2);
 
@@ -336,6 +347,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             "q-" + Guid.NewGuid().ToString("N")[..8],
             TenantTier.Standard,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             id,

@@ -28,6 +28,13 @@ public sealed class TenantProvisioningRequest
         init;
     }
 
+    /// <summary>Normalized Azure geography key for tenancy (see <see cref="TenantDataRegions" />).</summary>
+    public string DataRegion
+    {
+        get;
+        init;
+    } = TenantDataRegions.Default;
+
     /// <summary>When set, used as audit actor instead of HTTP actor context (e.g. self-service registration email).</summary>
     public string? AuditActorOverride
     {

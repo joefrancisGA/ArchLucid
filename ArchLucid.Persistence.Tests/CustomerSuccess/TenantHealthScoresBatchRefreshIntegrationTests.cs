@@ -36,6 +36,7 @@ public sealed class TenantHealthScoresBatchRefreshIntegrationTests(SqlServerPers
             slug,
             TenantTier.Free,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
 
         await tenants.InsertWorkspaceAsync(

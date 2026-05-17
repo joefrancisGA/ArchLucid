@@ -47,6 +47,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             slug,
             TenantTier.Free,
             entra,
+            TenantDataRegions.Default,
             CancellationToken.None);
 
         TenantRecord? byId = await sut.GetByIdAsync(tenantId, CancellationToken.None);
@@ -93,6 +94,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             slug,
             TenantTier.Standard,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
 
         await sut.SuspendTenantAsync(tenantId, CancellationToken.None);
@@ -117,6 +119,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             slug,
             TenantTier.Standard,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
@@ -165,6 +168,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             slug,
             TenantTier.Standard,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
@@ -220,6 +224,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             slug,
             TenantTier.Standard,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
@@ -256,6 +261,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             slug,
             TenantTier.Standard,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
@@ -295,6 +301,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             slug,
             TenantTier.Standard,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
@@ -336,6 +343,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             slug,
             TenantTier.Standard,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
@@ -386,6 +394,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             slug,
             TenantTier.Enterprise,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None,
             enterpriseScimSeatsLimit: 1);
 
@@ -412,6 +421,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             slug,
             TenantTier.Standard,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
@@ -456,6 +466,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             slug,
             TenantTier.Standard,
             first,
+            TenantDataRegions.Default,
             CancellationToken.None);
 
         (await sut.UpdateEntraTenantIdAsync(tenantId, second, CancellationToken.None)).Should().BeFalse();
@@ -473,8 +484,8 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Guid tenantA = Guid.NewGuid();
         Guid tenantB = Guid.NewGuid();
         
-        await sut.InsertTenantAsync(tenantA, "Tenant A", "t-a-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, null, CancellationToken.None);
-        await sut.InsertTenantAsync(tenantB, "Tenant B", "t-b-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantA, "Tenant A", "t-a-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantB, "Tenant B", "t-b-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
 
         Guid workspaceA1 = Guid.NewGuid();
         Guid workspaceA2 = Guid.NewGuid();
@@ -505,8 +516,8 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Guid tenantA = Guid.NewGuid();
         Guid tenantB = Guid.NewGuid();
         
-        await sut.InsertTenantAsync(tenantA, "Tenant A", "t-a-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, null, CancellationToken.None);
-        await sut.InsertTenantAsync(tenantB, "Tenant B", "t-b-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantA, "Tenant A", "t-a-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantB, "Tenant B", "t-b-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
 
         await sut.CommitSelfServiceTrialAsync(
             tenantA, TimeProvider.System.GetUtcNow(), TimeProvider.System.GetUtcNow().AddDays(14),
@@ -547,7 +558,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         
         Guid tenantId = Guid.NewGuid();
         
-        await sut.InsertTenantAsync(tenantId, "Tenant Baseline", "t-b-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantId, "Tenant Baseline", "t-b-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
         
         var captureDate = TimeProvider.System.GetUtcNow();
         await sut.PersistTrialSignupBaselineReviewCycleAsync(tenantId, 40.5m, "Survey", captureDate, CancellationToken.None);
@@ -569,7 +580,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Guid tenantId = Guid.NewGuid();
         string slug = "mc-sus-" + Guid.NewGuid().ToString("N")[..8];
 
-        await sut.InsertTenantAsync(tenantId, "MC Suspend", slug, TenantTier.Standard, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantId, "MC Suspend", slug, TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
         await DapperTenantRepositoryTestFactory.EnsureActiveBindingForCurrentCatalogAsync(factory, tenantId, CancellationToken.None);
 
         await sut.SuspendTenantAsync(tenantId, CancellationToken.None);
@@ -586,7 +597,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Guid tenantId = Guid.NewGuid();
         string slug = "mc-auto-" + Guid.NewGuid().ToString("N")[..8];
 
-        await sut.InsertTenantAsync(tenantId, "MC Auto", slug, TenantTier.Standard, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantId, "MC Auto", slug, TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
         await DapperTenantRepositoryTestFactory.EnsureActiveBindingForCurrentCatalogAsync(factory, tenantId, CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
@@ -630,8 +641,8 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Guid tenantA = Guid.NewGuid();
         Guid tenantB = Guid.NewGuid();
 
-        await sut.InsertTenantAsync(tenantA, "A", "a-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, null, CancellationToken.None);
-        await sut.InsertTenantAsync(tenantB, "B", "b-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, entra, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantA, "A", "a-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantB, "B", "b-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, entra, TenantDataRegions.Default, CancellationToken.None);
 
         (await sut.UpdateEntraTenantIdAsync(tenantA, entra, CancellationToken.None)).Should().BeFalse();
     }
@@ -646,7 +657,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Guid tenantId = Guid.NewGuid();
         string slug = "mcv-" + Guid.NewGuid().ToString("N")[..8];
 
-        await sut.InsertTenantAsync(tenantId, "Tier hold", slug, TenantTier.Standard, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantId, "Tier hold", slug, TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
             TimeProvider.System.GetUtcNow(),
@@ -680,7 +691,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Guid tenantId = Guid.NewGuid();
         string slug = "ext-" + Guid.NewGuid().ToString("N")[..8];
 
-        await sut.InsertTenantAsync(tenantId, "Ext conn", slug, TenantTier.Standard, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantId, "Ext conn", slug, TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
             TimeProvider.System.GetUtcNow(),
@@ -730,7 +741,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Guid tenantId = Guid.NewGuid();
         string slug = "idle-" + Guid.NewGuid().ToString("N")[..8];
 
-        await sut.InsertTenantAsync(tenantId, "No trial", slug, TenantTier.Standard, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantId, "No trial", slug, TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
         await sut.TryClaimTrialSeatAsync(tenantId, "user@contoso.com", CancellationToken.None);
         (await sut.GetByIdAsync(tenantId, CancellationToken.None))!.TrialSeatsUsed.Should().Be(0);
     }
@@ -745,7 +756,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Guid tenantId = Guid.NewGuid();
         string slug = "exp-" + Guid.NewGuid().ToString("N")[..8];
 
-        await sut.InsertTenantAsync(tenantId, "Expired trial", slug, TenantTier.Standard, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantId, "Expired trial", slug, TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
         DateTimeOffset start = TimeProvider.System.GetUtcNow().AddDays(-10);
         DateTimeOffset expired = TimeProvider.System.GetUtcNow().AddDays(-1);
         await sut.CommitSelfServiceTrialAsync(
@@ -816,7 +827,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Guid tenantId = Guid.NewGuid();
         string slug = "fm-" + Guid.NewGuid().ToString("N")[..8];
 
-        await sut.InsertTenantAsync(tenantId, "First manifest", slug, TenantTier.Standard, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantId, "First manifest", slug, TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
 
         TrialFirstManifestCommitOutcome? outcome = await sut.TryMarkFirstManifestCommittedAsync(
             tenantId,
@@ -837,7 +848,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Guid tenantId = Guid.NewGuid();
         string slug = "nows-" + Guid.NewGuid().ToString("N")[..8];
 
-        await sut.InsertTenantAsync(tenantId, "No workspaces", slug, TenantTier.Standard, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantId, "No workspaces", slug, TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
 
         (await sut.GetFirstWorkspaceAsync(tenantId, CancellationToken.None)).Should().BeNull();
     }
@@ -854,7 +865,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         DateTimeOffset start = TimeProvider.System.GetUtcNow().AddDays(-5);
         DateTimeOffset expired = TimeProvider.System.GetUtcNow().AddSeconds(-30);
 
-        await sut.InsertTenantAsync(tenantId, "Expired run gate", slug, TenantTier.Standard, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantId, "Expired run gate", slug, TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
             start,
@@ -904,7 +915,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Guid tenantId = Guid.NewGuid();
         string slug = "ratio-" + Guid.NewGuid().ToString("N")[..8];
 
-        await sut.InsertTenantAsync(tenantId, "Ratio", slug, TenantTier.Standard, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantId, "Ratio", slug, TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
             TimeProvider.System.GetUtcNow(),
@@ -949,6 +960,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             slug,
             TenantTier.Enterprise,
             null,
+            TenantDataRegions.Default,
             CancellationToken.None,
             enterpriseScimSeatsLimit: 5);
 
@@ -966,7 +978,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Guid tenantId = Guid.NewGuid();
         string slug = "pre2-" + Guid.NewGuid().ToString("N")[..8];
 
-        await sut.InsertTenantAsync(tenantId, "Pre idem", slug, TenantTier.Standard, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantId, "Pre idem", slug, TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
             TimeProvider.System.GetUtcNow(),
@@ -1004,7 +1016,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Guid tenantId = Guid.NewGuid();
         string slug = "macv0-" + Guid.NewGuid().ToString("N")[..8];
 
-        await sut.InsertTenantAsync(tenantId, "No trial yet", slug, TenantTier.Standard, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantId, "No trial yet", slug, TenantTier.Standard, null, TenantDataRegions.Default, CancellationToken.None);
         await sut.MarkTrialConvertedAsync(tenantId, TenantTier.Enterprise, CancellationToken.None);
 
         TenantRecord? row = await sut.GetByIdAsync(tenantId, CancellationToken.None);

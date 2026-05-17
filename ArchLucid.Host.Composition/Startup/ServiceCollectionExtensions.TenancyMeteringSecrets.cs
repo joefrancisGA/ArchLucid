@@ -27,6 +27,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(TrialLifecycleSchedulerOptions.SectionName));
         services.Configure<TrialLifecycleEmailRoutingOptions>(
             configuration.GetSection(TrialLifecycleEmailRoutingOptions.SectionName));
+        services.Configure<TenantProvisioningOptions>(
+            configuration.GetSection(TenantProvisioningOptions.SectionName));
 
         services.AddScoped<ITrialBootstrapEmailVerificationPolicy, TrialBootstrapEmailVerificationPolicy>();
         services.AddSingleton<PasswordHasher<TrialIdentityHasherUser>>();

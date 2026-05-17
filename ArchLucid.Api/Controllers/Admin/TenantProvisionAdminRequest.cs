@@ -22,4 +22,11 @@ public sealed class TenantProvisionAdminRequest
         get;
         init;
     } = TenantTier.Standard;
+
+    /// <summary>Normalized Azure geography key (<see cref="TenantDataRegions" />).</summary>
+    public string DataRegion
+    {
+        get;
+        init;
+    } = TenantDataRegions.Default;
 }
