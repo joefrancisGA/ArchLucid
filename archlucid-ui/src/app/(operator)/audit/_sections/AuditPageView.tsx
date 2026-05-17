@@ -19,6 +19,12 @@ import type { AuditPageViewProps } from "./audit-page-view-props";
 export function AuditPageView(props: AuditPageViewProps) {
   const buyerPolishedShell = props.buyerPolishedShell;
 
+  const buyerOmitSearchFiltersChrome =
+    buyerPolishedShell &&
+    !props.searching &&
+    props.displayEvents.length > 0 &&
+    props.displayEvents.length <= 12;
+
   return (
     <div className={buyerPolishedShell ? "max-w-6xl" : "max-w-4xl"}>
       <LayerHeader pageKey="audit" />
@@ -69,6 +75,7 @@ export function AuditPageView(props: AuditPageViewProps) {
         <div className={cn(buyerPolishedShell && "order-2")}>
           <AuditSearchSection
             buyerPolishedShell={buyerPolishedShell}
+            buyerOmitSearchFiltersChrome={buyerOmitSearchFiltersChrome}
             callerAuthorityRank={props.callerAuthorityRank}
             canMutateEnterpriseShell={props.canMutateEnterpriseShell}
             advancedAuditFiltersOpen={props.advancedAuditFiltersOpen}

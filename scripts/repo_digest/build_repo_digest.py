@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Regenerate docs/library/REPO_DIGEST.md with an inventory and doc anchors."""
+"""Regenerate docs/library/REPO_DIGEST.md with an inventory and doc anchors.
+
+Excludes **historical** inventories: this script does **not** walk `docs/archive/`
+or index archived markdown; `REPO_DIGEST.md` describes the live engineering spine only.
+"""
 
 from __future__ import annotations
 
@@ -54,6 +58,10 @@ def main() -> int:
 
     lines.extend(
         [
+            "",
+            "## Canonical terminology",
+            "",
+            "- [`GLOSSARY.md`](GLOSSARY.md) — domain terms (review package, signed manifest, audit trail, …).",
             "",
             "## Architecture invariants (**INV-***)",
             "",

@@ -87,7 +87,7 @@ If you add realism, prefer clearly fake domains (**`*.example`** / **`northwind-
 
 ## Acceptance criteria checklist (demo workspace readiness)
 
-Use this checklist before tagging **GA / external pilot freeze** aligned with **`CURSOR_PROMPTS_GA_TASKS`**.
+Use this checklist before tagging **GA / external pilot freeze** aligned with the sequenced prompts in **`[CURSOR_PROMPTS_GA_TASKS_27_32.md](../../archive/agent-prompts/CURSOR_PROMPTS_GA_TASKS_27_32.md)`** (and related **`CURSOR_PROMPTS_GA_TASK_*.md`** under **`docs/archive/agent-prompts/`** — historical task lists, not product documentation).
 
 - [ ] **`@release-gate` discipline:** **`ui-e2e-live`** executes **`demo-workspace-*.smoke.spec.ts`** when it runs (**`ci.yml`**: job `if:` is **`github.event_name != 'pull_request`** — **`push`** to default branch / **`workflow_dispatch`** / **`merge_group`**, depending on triggers). Confirm org branch protection attaches that check wherever you certify GA. Before tagging, additionally run **`cd archlucid-ui`** → **`npm exec playwright test --grep "@release-gate"`** and **`release-smoke`** live parity when claiming SQL/UI alignment.
 

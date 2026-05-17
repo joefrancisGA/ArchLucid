@@ -17,7 +17,7 @@ When the prompt is an **architecture / readiness / weighted / first-principles /
 
    Repo-root shorthand: **`docs/library/ASSESSMENT_INPUTS.md`**.
 
-   **GA / improvement execution:** when **`docs/library/CURSOR_PROMPTS_GA_TASK*.md`** exists for the improvement being executed (e.g. **`CURSOR_PROMPTS_GA_TASKS_27_32.md`**, **`CURSOR_PROMPTS_GA_TASK_26_AUTHORITY_DTF.md`**), treat that file as the **sequenced prompt source of record** — do not re-derive step lists solely from `LATEST.md` when the hand-authored prompts are richer.
+   **GA / improvement execution:** when sequenced **`docs/archive/agent-prompts/CURSOR_PROMPTS_GA_TASK*.md`** files apply (e.g. **`CURSOR_PROMPTS_GA_TASKS_27_32.md`**, **`CURSOR_PROMPTS_GA_TASK_26_AUTHORITY_DTF.md`** — **archived prompts**, not product docs), treat that file as the **sequenced prompt source of record** — do not re-derive step lists solely from `LATEST.md` when the hand-authored prompts are richer.
 
 2. **Apply** **`Assessment-Scope-V1_1.mdc`** explicitly — it is **not** always-loaded. In Cursor, **`@Assessment-Scope-V1_1`** / **`@.cursor/rules/Assessment-Scope-V1_1.mdc`**, or read the file directly. `(A)` vs `(B)` scoring boundary is mandatory for these passes.
 3. **Write** the new assessment body to **`docs/assessments/LATEST.md`** (overwrite). Before overwriting, optional: copy the previous `LATEST.md` to **`docs/archive/assessments/`** with a dated filename.

@@ -1,92 +1,25 @@
-> **Scope:** ArchLucid glossary - full detail, tables, and links in the sections below.
+> **Scope:** Canonical product and governance vocabulary for buyers, operators, engineers, and GRC reviewers; aligns naming across docs, UI copy, and API concepts. Does not redefine legal terms in procurement templates.
+>
+> **Status:** current
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+# Glossary — ArchLucid canonical terms
 
+Use these meanings in buyer-facing narratives, **`docs/`**, and **`archlucid-ui`** surfaces unless a doc’s **Scope** explicitly defines a narrower local sense.
 
-# ArchLucid glossary
+| Term | Definition |
+|------|------------|
+| **Review** | A structured examination of architecture change or design intent tied to **runs**, **artifacts**, and **policies**. In product copy, prefer **architecture review** when the reader might confuse “review” with code review alone. |
+| **Review package** | The cohesive set of **review** outputs the product assembles for stakeholders: summaries, manifests, explanations, diagrams, findings, and links to underlying **evidence**. Exportable variants are still review packages unless the doc distinguishes **bundle** packaging. |
+| **Signed manifest** | The cryptographic or provenance-backed record that closes the **authority** ledger for committed work (what was decided, bound to lineage). Treat “manifest” alone as ambiguous until provenance/signing semantics are stated. |
+| **Finding** | A machine- or assisted-generated observation from **decisioning** (risk, drift, conformance, duplication, etc.). **Finding** severity and policy mapping live in packs and workflows; distinguish from informal “comments” outside the ledger. |
+| **Risk** | A potential adverse outcome attached to architecture or operational change — often materialized through **finding** types and surfaced in dashboards and approvals. Risk **without** linkage to artifacts or approvals is conversational, not authoritative. |
+| **Control** | A mitigating safeguard (process, tooling, entitlement, isolation, retention, alerting) asserted against **risk** — whether customer-operated (“customer control”) or platform-operated (**ArchLucid control** surfaces are documented separately from customer obligations). |
+| **Decision** | A recorded disposition on **review** proposals (approve, waive, defer with rationale, escalate), auditable alongside **finding** deltas. Casual “team decided in Slack” is not a committed **decision** in this sense. |
+| **Evidence trail** | The chronological, inspectable lineage from inputs (prompts, repositories, citations) through deterministic steps to reviewer-visible outputs. Evidence that cannot be reconstructed from stored traces is weaker procurement posture — call that gap explicitly. |
+| **Governance approval** | A committed **decision** in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled “Approve” unless they write to governance state. |
+| **Audit trail** | The persisted, replayable ledger of authenticated actions across **reviews**, merges, approvals, retention, notifications, exports, and integrations — narrower than informal logging; wider than SIEM payloads alone. Audit trail retention norms are posture-specific. |
 
-**Last reviewed:** 2026-04-05
+### Related canonical reads
 
-Short definitions for domain terms used across the codebase, docs, and runbooks. **ArchLucid** is the product name; legacy identifiers may still read **ArchLucid** in code and configuration (rename is incremental; see `docs/ARCHLUCID_RENAME_CHECKLIST.md`). Deeper context is linked from each entry.
-
----
-
-## Architecture run (run)
-
-The top-level work unit: an **`ArchitectureRequest`** submitted by an operator or integrator that passes through ingestion, knowledge-graph build, findings, decisioning, artifact synthesis, and optional agent invocation, then results in a committed **golden manifest**. Tracked in **`dbo.Runs`** (GUID-keyed authority table). See **`docs/DATA_CONSISTENCY_MATRIX.md`**.
-
-## Artifact bundle
-
-A ZIP package produced by **`ArtifactPackagingService`** that collects all artifacts for a run (diagrams, DOCX, JSON manifests). Downloadable via `GET /v1/.../bundle`. Large bundles are stored in **Azure Blob Storage** when `ArtifactLargePayload:Enabled = true`; smaller payloads stay in SQL. See **`docs/DATA_MODEL.md`**.
-
-## Authority run orchestrator
-
-**`IAuthorityRunOrchestrator`** — the in-process pipeline that executes the full ingestion → graph → findings → decisioning → artifact synthesis sequence for a single run. Called by the coordinator; runs inside a SQL unit of work. Distinct from the legacy "coordinator" execution path.
-
-## Comparison replay
-
-Re-executing a stored run against new or updated comparison logic (or comparing two runs' outputs) without re-invoking agents. Powered by **`IComparisonReplayService`** and related interfaces. See **`docs/COMPARISON_REPLAY.md`**.
-
-## Context snapshot
-
-A serialized point-in-time capture of structured context (infrastructure declarations, requirements, topology) ingested via **`IContextConnector`** implementations. Stored as **`dbo.ContextSnapshots`**; the knowledge graph is built from it. See **`docs/CONTEXT_INGESTION.md`**.
-
-## Decision trace
-
-A structured log of every decisioning step during a run: which rules fired, which findings applied, what the outcome was. Persisted in two flavors: coordinator-layer (`IDecisionTraceRepository` in **`ArchLucid.Persistence.Data.*`**) and authority-layer (`IDecisionTraceRepository` in **`ArchLucid.Decisioning`**). See **ADR 0010** (`docs/architecture/adrs/0010-dual-manifest-trace-repository-contracts.md`).
-
-## Effective governance
-
-The **merged** `PolicyPackContentDocument` that results from applying all applicable policy pack assignments to a scope (project → workspace → tenant precedence). Computed by **`IEffectiveGovernanceResolver`**. Drives alerts, compliance filtering, and advisory defaults. See **ADR 0007** (`docs/architecture/adrs/0007-effective-governance-merge.md`) and `GET /v1/governance-resolution`.
-
-## Evidence bundle
-
-The collection of agent outputs, findings, and decision traces assembled during a run and referenced in the final golden manifest. Accessed via **`IEvidenceBundleRepository`** and the `GET /v1/.../evidence` API.
-
-## Finding
-
-A structured observation produced by a **finding engine** about the architecture under review. Examples: missing security coverage, policy applicability gap, cost constraint violation. Typed via **`FindingPayload`** subtypes and stored as **`dbo.FindingsSnapshots`**. See **`docs/FINDINGS_TYPED_SCHEMA.md`**.
-
-## Finding engine
-
-A class implementing **`IFindingEngine`** (`ArchLucid.Decisioning`) that analyses a **context snapshot / knowledge graph** and returns a list of **findings**. Multiple engines run in parallel inside **`FindingsOrchestrator`**. Add new engines via DI registration or the `dotnet new archlucid-finding-engine` template.
-
-## Golden manifest
-
-The committed, versioned output of a completed architecture run — the "source of truth" artifact that governance, comparison, and advisory flows operate on. Stored in **`dbo.GoldenManifests`** (with optional blob offload for large payloads). Has a `ROWVERSION` column for optimistic concurrency.
-
-## Hosting role
-
-**`Hosting:Role`** configuration (`Api` / `Worker` / `Combined`). Controls which hosted services and controllers are activated in a process. Production typically splits API and Worker; local dev defaults to Combined. See **ADR 0001** (`docs/architecture/adrs/0001-hosting-roles-api-worker-combined.md`) and **`docs/DEPLOYMENT_TERRAFORM.md`**.
-
-## Knowledge graph
-
-A typed graph of nodes and edges derived from a **context snapshot** by **`IKnowledgeGraphService`**. Nodes represent infrastructure elements, requirements, policies; edges represent relationships and inferences. Used by finding engines and displayed via the graph API. See **`docs/KNOWLEDGE_GRAPH.md`**.
-
-## Leader election
-
-A SQL-backed lease mechanism (**`IHostLeaderLeaseRepository`**, `dbo.HostLeaderLeases`) that ensures only one worker instance processes a given outbox at a time. Background services call `RunLeaderWorkAsync` before polling. Prevents duplicate advisory scans or outbox re-processing in horizontally scaled deployments.
-
-## Outbox (transactional outbox)
-
-SQL tables where deferred work is **enqueued atomically inside the same transaction** as the triggering operation. Includes **`dbo.AuthorityPipelineWorkOutbox`**, **`dbo.RetrievalIndexingOutbox`**, and **`dbo.IntegrationEventOutbox`** (integration events toward Service Bus). A background worker polls and processes rows. Failed integration publishes use **retry with exponential backoff** and then **dead-letter** (`DeadLetteredUtc`); operators can list and re-queue rows via admin API (`GET/POST .../admin/integration-outbox/...`). Prevents lost work on crash. See **ADR 0004** (`docs/architecture/adrs/0004-transactional-outbox-retrieval-indexing.md`).
-
-## Policy pack
-
-A versioned document (`PolicyPackContentDocument`) that bundles compliance rules, advisory defaults, and alert rule ids. Created and published via `PolicyPacksController`; assigned to scopes (tenant/workspace/project) via **`IPolicyPackAssignmentRepository`**. Active packs are merged into **effective governance** at evaluation time.
-
-## Scope (tenant / workspace / project)
-
-The three-level hierarchical identifier that isolates data between customers and teams. Passed in JWT claims or headers (`x-tenant-id`, `x-workspace-id`, `x-project-id`). All primary authority tables carry these columns. RLS enforces isolation at the SQL layer when `ApplySessionContext = true`. See **`docs/security/MULTI_TENANT_RLS.md`**.
-
-## Simulator mode / Real mode
-
-**`AgentExecution:Mode`** setting. **`Simulator`** (default) uses `DeterministicAgentSimulator` — no Azure OpenAI calls, deterministic outputs, safe for tests and CI. **`Real`** uses `RealAgentExecutor` + Azure OpenAI completions. See **ADR 0005** (`docs/architecture/adrs/0005-llm-completion-pipeline.md`) and **`docs/OPERATIONS_LLM_QUOTA.md`**.
-
-## Storage provider
-
-**`ArchLucid:StorageProvider`** (`InMemory` / `Sql`). Switches the entire persistence graph between in-memory singletons (dev/test) and Dapper SQL repositories (production). See **ADR 0011** (`docs/architecture/adrs/0011-inmemory-vs-sql-storage-provider.md`).
-
-## Unit of work (UoW)
-
-**`IArchLucidUnitOfWork`** — wraps a SQL connection + transaction. Repositories that implement `SupportsExternalTransaction` can enlist in the same transaction as the calling orchestrator, ensuring e.g. authority commit + outbox enqueue are atomic. Created by **`IArchLucidUnitOfWorkFactory`**.
+- **UI term mapping:** [`../go-to-market/UI_GLOSSARY_V1.md`](../go-to-market/UI_GLOSSARY_V1.md) — label-level alignment for public shell copy.
+- **Authority and traces:** [`../architecture/README.md`](../architecture/README.md) · ADR **`0012`**, **`0010`**.

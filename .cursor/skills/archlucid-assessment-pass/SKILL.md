@@ -30,7 +30,7 @@ disable-model-invocation: true
 5. **Before overwrite:** optionally copy current `LATEST.md` to `docs/archive/assessments/` with a **dated** filename (see `ASSESSMENT_INPUTS.md`).
 6. **Write** the new pass by **overwriting** `docs/assessments/LATEST.md`. Do not add new giant dated assessment files under `docs/library/` unless the team explicitly opts in — archive instead.
 7. **Targeted evidence:** after the doc pass, open **specific** code/docs for claims (controllers, orchestrators, ADRs), not whole-tree listing.
-8. **GA / shipping tasks:** if `docs/library/CURSOR_PROMPTS_GA_TASK*.md` applies to the improvement, use that file as the **sequenced prompt source**; still align closure notes back into `LATEST.md` when done.
+8. **GA / shipping tasks:** if **`docs/archive/agent-prompts/CURSOR_PROMPTS_GA_TASK*.md`** applies to the improvement, use that file as the **sequenced prompt source**; still align closure notes back into `LATEST.md` when done.
 
 ## Optional math check
 

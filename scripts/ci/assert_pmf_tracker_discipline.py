@@ -25,7 +25,7 @@ def main(argv: list[str]) -> int:
     p.add_argument(
         "--tracker",
         type=Path,
-        default=root / "docs" / "go-to-market" / "PMF_VALIDATION_TRACKER.md",
+        default=root / "docs" / "archive" / "gtm-internal" / "PMF_VALIDATION_TRACKER.md",
         help="Path to PMF_VALIDATION_TRACKER.md",
     )
     ns = p.parse_args(argv)

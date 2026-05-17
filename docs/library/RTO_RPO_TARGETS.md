@@ -81,4 +81,4 @@ Document **Recovery Time Objective (RTO)** and **Recovery Point Objective (RPO)*
 
 - `docs/runbooks/DATABASE_FAILOVER.md` — operational steps, listener, connection strings.
 - `docs/DEPLOYMENT_TERRAFORM.md` — Terraform roots and ordering.
-- `docs/ONBOARDING_HAPPY_PATH.md` — end-to-end flow for post-failover smoke tests.
+- `docs/library/LIVE_E2E_HAPPY_PATH.md` — scripted HTTP parity for post-failover smoke tests.

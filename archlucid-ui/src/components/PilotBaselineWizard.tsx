@@ -61,7 +61,7 @@ function parsePeopleOrNull(raw: string): number | null {
 
 /** Guided capture for PILOT_ROI_MODEL §3 anchors — persists via `PUT /v1/tenant/baseline`. */
 
-export function PilotBaselineWizard(props: PilotBaselineWizardProps): ReactElement {
+export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaselineWizardProps): ReactElement {
   const demoMode = isNextPublicDemoMode();
   const [stepIndex, setStepIndex] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -87,9 +87,9 @@ export function PilotBaselineWizard(props: PilotBaselineWizardProps): ReactEleme
         resetTransientFields();
       }
 
-      props.onOpenChange(open);
+      onOpenChange(open);
     },
-    [props, resetTransientFields],
+    [onOpenChange, resetTransientFields],
   );
 
   function validateReviewStep(): boolean {
@@ -198,7 +198,7 @@ export function PilotBaselineWizard(props: PilotBaselineWizardProps): ReactEleme
       }
 
       showSuccess("Pilot ROI baselines saved.");
-      props.onSaved?.();
+      onSaved?.();
       handleDialogChange(false);
     } catch (err) {
       showError("Pilot baseline", err instanceof Error ? err.message : "Request failed.");
@@ -211,7 +211,7 @@ export function PilotBaselineWizard(props: PilotBaselineWizardProps): ReactEleme
     stepIndex === 0 ? "Pilot ROI baseline — review-cycle anchor" : "Pilot ROI baseline — manual preparation";
 
   return (
-    <Dialog open={props.open} onOpenChange={handleDialogChange}>
+    <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogContent
         className="max-h-[calc(100vh-3rem)] w-[min(100vw-2rem,34rem)] max-w-xl overflow-y-auto pb-10 sm:p-8"
         aria-describedby="pilot-baseline-wizard-body"

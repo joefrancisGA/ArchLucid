@@ -94,4 +94,4 @@ If a list view looks stale immediately after a write, wait briefly and refresh. 
 
 - `docs/architecture/adrs/0002-dual-persistence-architecture-runs-and-runs.md`
 - `docs/architecture/adrs/0012-runs-authority-convergence-write-freeze.md`
-- `docs/ONBOARDING_HAPPY_PATH.md`
+- `docs/library/LIVE_E2E_HAPPY_PATH.md` — scripted HTTP happy path references.

@@ -12,7 +12,7 @@ Use this sequence so **headline readiness** never mixes with **historical narrat
 4. **Backlog** — Action queue and improvement IDs live **in `LATEST.md`** alongside that score.
 5. **History** — Prior passes, dated scores, and narrative-only artifacts (**e.g.** **`docs/archive/assessments/`**, **`docs/archive/quality/`**) are **archive-only**: trend and forensic context, **not** canonical readiness.
 
-**Execution prompts** (e.g. **`docs/library/CURSOR_PROMPTS_GA_TASK*.md`**) are **task sequences** for shipping improvements — they are **not** a second scorecard; still align closure notes back into **`LATEST.md`** when the pass completes.
+**Execution prompts** (e.g. **`docs/archive/agent-prompts/CURSOR_PROMPTS_GA_TASK*.md`**) are **task sequences** for shipping improvements — they are **not** a second scorecard; still align closure notes back into **`LATEST.md`** when the pass completes.
 
 Read these **before** grepping broadly or opening large code regions. For scoring rules and out-of-scope procurement items, load **`Assessment-Scope-V1_1.mdc`** explicitly (**`@Assessment-Scope-V1_1`** in Cursor — it is not always injected).
 

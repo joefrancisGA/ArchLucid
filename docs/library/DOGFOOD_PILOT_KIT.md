@@ -7,7 +7,7 @@
 
 **Audience:** ArchLucid product, engineering, and GTM teammates running an **internal** pilot where the system under review is internal architecture work (not a labeled customer deployment).
 
-**Purpose:** Produce **real** baseline and pilot-outcome observations aligned to **[CORE_PILOT.md](../CORE_PILOT.md)** and **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** — then record them in **[PMF_VALIDATION_TRACKER.md](../go-to-market/PMF_VALIDATION_TRACKER.md)** (**Pilot A** slot) **without inventing numbers**.
+**Purpose:** Produce **real** baseline and pilot-outcome observations aligned to **[CORE_PILOT.md](../CORE_PILOT.md)** and **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** — then record them in **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** (**Pilot A** slot) **without inventing numbers**.
 
 This is **not** a substitute for external design-partner pilots. It validates flow, tooling, and measurement hygiene before customer-facing scorecards.
 
@@ -24,7 +24,7 @@ Follow the **four steps** in **[CORE_PILOT.md](../CORE_PILOT.md)** §3 as the de
 
 **Anti-creep:** Do not expand scope to advanced Operate layers for the first dogfood pass unless the pilot charter explicitly includes them. **[CORE_PILOT.md](../CORE_PILOT.md)** §1 explains what stays secondary.
 
-**Subject matter:** Pick one **real** internal initiative (e.g. a subsystem, integration, or platform decision) that would normally get an architecture review package — not synthetic demo-only inputs unless you mark outcomes as **non-customer** and never copy demo numerics into **[PMF_VALIDATION_TRACKER.md](../go-to-market/PMF_VALIDATION_TRACKER.md)** as if they were measured baselines (see **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** §4.1.1).
+**Subject matter:** Pick one **real** internal initiative (e.g. a subsystem, integration, or platform decision) that would normally get an architecture review package — not synthetic demo-only inputs unless you mark outcomes as **non-customer** and never copy demo numerics into **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** as if they were measured baselines (see **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** §4.1.1).
 
 ---
 
@@ -42,8 +42,8 @@ Ground in **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** §3 (especially §3.1–�
 
 **Outputs:**  
 
-- Copy **summaries** into your internal charter or **`PILOT_SUCCESS_SCORECARD.md`** appendix — not straight into **[PMF_VALIDATION_TRACKER.md](../go-to-market/PMF_VALIDATION_TRACKER.md)** baselines unless the tracker row definitions match numerically.  
-- For **[PMF_VALIDATION_TRACKER.md](../go-to-market/PMF_VALIDATION_TRACKER.md)**: leave **Baseline** as **TBD** until you have a defensible number or agreed **Unknown** per tracker §2.2; describe gaps only in **Notes**.
+- Copy **summaries** into your internal charter or **`PILOT_SUCCESS_SCORECARD.md`** appendix — not straight into **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** baselines unless the tracker row definitions match numerically.  
+- For **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)**: leave **Baseline** as **TBD** until you have a defensible number or agreed **Unknown** per tracker §2.2; describe gaps only in **Notes**.
 
 ---
 
@@ -65,7 +65,7 @@ Ground in **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** §4 and **§4.1** primary
 | O4 | **Audit / observability** — enough rows to tell the story | | |
 | O5 | **Qualitative bar** — did we meet ROI §5.1 minimum success? §5.2 strong? | | |
 
-**Outputs:** Prefer **`PILOT_SUCCESS_SCORECARD.md`** synthesis first; then reflect **honest** **Result** cells in **[PMF_VALIDATION_TRACKER.md](../go-to-market/PMF_VALIDATION_TRACKER.md)** only when values are **Captured** per tracker §2.2 (**TBD**, **Unknown**, **See scorecard**, or real numbers).
+**Outputs:** Prefer **`PILOT_SUCCESS_SCORECARD.md`** synthesis first; then reflect **honest** **Result** cells in **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** only when values are **Captured** per tracker §2.2 (**TBD**, **Unknown**, **See scorecard**, or real numbers).
 
 ---
 
@@ -77,7 +77,7 @@ Ground in **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** §4 and **§4.1** primary
 - **Status** transitions that match reality (**Pending** → **Captured** when qualitative or numeric evidence exists — see tracker §2.2).  
 - **ICP score** / **ICP segment** when scored per **[IDEAL_CUSTOMER_PROFILE.md](../go-to-market/IDEAL_CUSTOMER_PROFILE.md)** (else leave **TBD**).
 
-**Not allowed:** Fabricating **Baseline** or **Result** numerics to “fill the table.” If only qualitative signal exists, use **See scorecard** for **Result** and **Captured** **Status**, per **[PMF_VALIDATION_TRACKER.md](../go-to-market/PMF_VALIDATION_TRACKER.md)** §2.2.
+**Not allowed:** Fabricating **Baseline** or **Result** numerics to “fill the table.” If only qualitative signal exists, use **See scorecard** for **Result** and **Captured** **Status**, per **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** §2.2.
 
 Hypothesis mapping (reminder):
 
@@ -94,6 +94,6 @@ Hypothesis mapping (reminder):
 
 - **[CORE_PILOT.md](../CORE_PILOT.md)** — operator path of record  
 - **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** — baseline §3, during-pilot §4–§4.1, demo redaction §4.1.1  
-- **[PMF_VALIDATION_TRACKER.md](../go-to-market/PMF_VALIDATION_TRACKER.md)** — **Pilot A** evidence rows  
+- **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** — **Pilot A** evidence rows  
 - **[PILOT_GUIDE.md](PILOT_GUIDE.md)** — fuller pilot onboarding  
 - **[PILOT_SUCCESS_SCORECARD.md](../go-to-market/PILOT_SUCCESS_SCORECARD.md)** — scorecard framing  

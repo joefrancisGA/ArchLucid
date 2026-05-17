@@ -36,7 +36,7 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
     <Card className="h-fit border-neutral-200 dark:border-neutral-700">
       <CardHeader className="p-4 pb-2">
         <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-          {buyerPolishedShell ? "Saved review questions" : "Your conversation history"}
+          {buyerPolishedShell ? "Questions for this review" : "Your conversation history"}
         </CardTitle>
         {buyerPolishedShell ? (
           <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">{scopedPackageLabel}</p>
@@ -44,8 +44,7 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
         <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
           {buyerPolishedShell ? (
             <>
-              Answers use the selected review package and cite evidence from that package when it exists. Open a saved
-              question below to continue, or ask a new question after you pick a review.
+              Pick a thread below to resume, or start a new question once a review is selected.
             </>
           ) : (
             <>

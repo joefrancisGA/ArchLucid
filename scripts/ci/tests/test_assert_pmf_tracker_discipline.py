@@ -5,7 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = ROOT / "scripts" / "ci" / "assert_pmf_tracker_discipline.py"
-TRACKER = ROOT / "docs" / "go-to-market" / "PMF_VALIDATION_TRACKER.md"
+TRACKER = ROOT / "docs" / "archive" / "gtm-internal" / "PMF_VALIDATION_TRACKER.md"
 
 
 class AssertPmfTrackerDisciplineTests(unittest.TestCase):

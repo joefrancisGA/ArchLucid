@@ -31,7 +31,7 @@ flowchart LR
 ## Where to read next
 
 - `docs/ARCHITECTURE_FLOWS.md` — narrative lifecycle and API touchpoints.
-- `docs/ONBOARDING_HAPPY_PATH.md` — shortest path through one successful run.
+- `docs/library/FIRST_RUN_WALKTHROUGH.md` — operator UI checklist for first successful run; HTTP-level parity in `docs/library/LIVE_E2E_HAPPY_PATH.md`.
 - `docs/OPERATOR_ATLAS.md` — task → UI map.
 - `docs/API_CONTRACTS.md` — stable HTTP contracts.
 

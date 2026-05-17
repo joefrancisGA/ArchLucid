@@ -36,7 +36,7 @@
 
 **Architecture request body (`POST /v1/architecture/request`):** Field-level summary and integrator notes live in **[`ARCHITECTURE_REQUEST_WIRE_FORMAT.md`](ARCHITECTURE_REQUEST_WIRE_FORMAT.md)** (canonical shapes remain **`GET /openapi/v1.json`** and **`ArchLucid.Contracts.Requests.ArchitectureRequest`**).
 
-**Operator narrative:** `docs/ONBOARDING_HAPPY_PATH.md` (request → commit → retrieval). **Consistency guarantees:** `docs/DATA_CONSISTENCY_MATRIX.md`. **Admin / runbooks:** `docs/OPERATIONS_ADMIN.md`, **`docs/OPERATIONS_LLM_QUOTA.md`** (token budgets, quotas, hosted LLM posture). **ADRs:** `docs/architecture/adrs/README.md`.
+**Operator narrative:** `docs/library/LIVE_E2E_HAPPY_PATH.md` (HTTP request → commit → retrieval parity); **`docs/library/FIRST_RUN_WALKTHROUGH.md`** for the operator wizard surface.
 
 ## LLM cost signals — wire contract vs vendor economics
 

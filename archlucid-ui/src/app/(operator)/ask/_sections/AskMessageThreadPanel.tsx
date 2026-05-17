@@ -34,7 +34,8 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     <div className="space-y-3 pt-1">
       {buyerPolishedShell ? (
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          Answers use only the selected review package and cite evidence from that package when available.
+          Each assistant reply is scoped to the selected package; verify citations on the linked surfaces before you rely on
+          them in diligence.
         </p>
       ) : null}
       {buyerPolishedShell && tryStaticDemoConversationMessages(selectedThreadId.trim()) !== null ? (

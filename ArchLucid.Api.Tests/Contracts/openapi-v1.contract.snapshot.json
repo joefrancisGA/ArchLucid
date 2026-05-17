@@ -14744,6 +14744,28 @@
       },
       "TenantBaselineGetResponse": {
         "properties": {
+          "baselineReviewCycleCapturedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "baselineReviewCycleHours": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "baselineReviewCycleSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "capturedUtc": {
             "format": "date-time",
             "type": [
@@ -14772,6 +14794,21 @@
       },
       "TenantBaselinePutRequest": {
         "properties": {
+          "baselineReviewCycleHours": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "baselineReviewCycleSourceNote": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "manualPrepHoursPerReview": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",

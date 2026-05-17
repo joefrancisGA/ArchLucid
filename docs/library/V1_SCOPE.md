@@ -30,7 +30,7 @@ This scope document lists in-scope capabilities, explicit out-of-scope items, th
 - States **what is out of V1** (deferred, optional, or non-goals).
 - Defines the **core operator happy path** and **minimum release checks** aligned with existing scripts and guides.
 
-For deeper flow detail, use [ONBOARDING_HAPPY_PATH.md](ONBOARDING_HAPPY_PATH.md) and [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md).
+For deeper flow detail, use [FIRST_RUN_WALKTHROUGH.md](FIRST_RUN_WALKTHROUGH.md), [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md), and [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md).
 
 **Deferred / exploratory inventory (doc-sourced):** [V1_DEFERRED.md](V1_DEFERRED.md) — consolidates partial stories so V1 does not read as open-ended.
 

@@ -100,12 +100,19 @@ export function AskAssistantMessageBody(props: {
       <GroundingLinksFooter links={groundingLinks} />
     ) : null;
 
+  const buyerAnswerLead = buyerPolishedLinks ? (
+    <p className="m-0 mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
+      Based on the evidence indexed for this review package:
+    </p>
+  ) : null;
+
   if (structured !== null) {
     const bodyClass =
       "m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200";
 
     return (
       <div className="space-y-4">
+        {buyerAnswerLead}
         {structured.preamble.length > 0 ? (
           <p className={bodyClass}>{renderTextWithUuidReviewLinks(structured.preamble, buyerPolishedLinks)}</p>
         ) : null}
@@ -128,6 +135,7 @@ export function AskAssistantMessageBody(props: {
 
   return (
     <div className="space-y-0">
+      {buyerAnswerLead}
       <p className="m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200">
         {renderTextWithUuidReviewLinks(content, buyerPolishedLinks)}
       </p>

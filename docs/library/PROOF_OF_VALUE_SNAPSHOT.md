@@ -55,7 +55,7 @@ Deliver a reproducible dossier tying four independent signals:
 4. **Sample explainability** on 3–5 representative findings (high/medium severity mix). Record **`traceCompletenessRatio`** and note whether **`missingTraceFields`** is empty for each.
 5. **Write the sponsor one-pager** using **§6 template** (export to PDF or slide — both start from the same Markdown).
 
-**Structured pilot row (anonymized):** [PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md](../go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md) — use when populating [PMF_VALIDATION_TRACKER.md](../go-to-market/PMF_VALIDATION_TRACKER.md) alongside this snapshot.
+**Structured pilot row (anonymized):** [PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md](../go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md) — use when populating [PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md) alongside this snapshot.
 
 ---
 

@@ -19,6 +19,8 @@ import { auditRunIdInputDisplayValue, auditRunIdParseInputValue } from "./audit-
 
 type AuditSearchSectionProps = {
   buyerPolishedShell: boolean;
+  /** Buyer demo: hide optional filter chrome when the loaded timeline is already a short, curated walkthrough. */
+  buyerOmitSearchFiltersChrome: boolean;
   callerAuthorityRank: number;
   canMutateEnterpriseShell: boolean;
   advancedAuditFiltersOpen: boolean;
@@ -50,6 +52,7 @@ type AuditSearchSectionProps = {
 export function AuditSearchSection(props: AuditSearchSectionProps) {
   const {
     buyerPolishedShell,
+    buyerOmitSearchFiltersChrome,
     callerAuthorityRank,
     canMutateEnterpriseShell,
     advancedAuditFiltersOpen,
@@ -92,10 +95,19 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
             ? auditSearchEventsSectionHeadingReader
             : auditSearchEventsSectionHeadingOperator}
       </h3>
-      {buyerPolishedShell ? (
+      {buyerPolishedShell && !buyerOmitSearchFiltersChrome ? (
         <p className="m-0 mb-3 max-w-2xl text-xs text-neutral-600 dark:text-neutral-400">
           Optional — open filters only when you need to narrow events. The audit timeline below is the primary
           walkthrough.
+        </p>
+      ) : null}
+      {buyerPolishedShell && buyerOmitSearchFiltersChrome ? (
+        <p
+          className="m-0 mb-3 max-w-2xl text-xs text-neutral-600 dark:text-neutral-400"
+          data-testid="audit-buyer-short-timeline-filter-omit"
+        >
+          This sample timeline is short — scroll the milestones below. Open filters only if you switch reviews or need to
+          narrow event types.
         </p>
       ) : null}
       {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority && !buyerPolishedShell ? (
@@ -164,7 +176,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
           </>
         )}
       </div>
-      {buyerPolishedShell ? (
+      {buyerPolishedShell && buyerOmitSearchFiltersChrome ? null : buyerPolishedShell ? (
         <Collapsible
           open={buyerPrimaryFiltersOpen}
           onOpenChange={setBuyerPrimaryFiltersOpen}
