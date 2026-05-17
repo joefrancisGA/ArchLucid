@@ -22,8 +22,8 @@ The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (D
 | Area | Evidence |
 |------|-----------|
 | **Core operator path** | Request → execute → commit → manifest/artifacts; documented in [V1_SCOPE.md](V1_SCOPE.md) §4, [PILOT_GUIDE.md](PILOT_GUIDE.md), [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md). |
-| **Automation gates** | `run-readiness-check.ps1` (build + fast core + UI unit/build), `release-smoke.ps1` (optional full path with SQL + CLI quick run), `package-release.ps1` ([RELEASE_LOCAL.md](RELEASE_LOCAL.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md)). |
-| **RC environment drill** | `v1-rc-drill.ps1` + [V1_RC_DRILL.md](V1_RC_DRILL.md): two runs, compare, authority replay, export ZIP, doctor, support bundle—against a **running** API. |
+| **Automation gates** | `scripts/run-readiness-check.ps1` (build + fast core + UI unit/build), `scripts/release-smoke.ps1` (optional full path with SQL + CLI quick run), `scripts/package-release.ps1` ([RELEASE_LOCAL.md](RELEASE_LOCAL.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md)). |
+| **RC environment drill** | `scripts/v1-rc-drill.ps1` + [V1_RC_DRILL.md](V1_RC_DRILL.md): two runs, compare, authority replay, export ZIP, doctor, support bundle—against a **running** API. |
 | **Diagnostics** | `GET /health/*`, `GET /version`, CLI `doctor`, `support-bundle` ([CLI_USAGE.md](CLI_USAGE.md), [TROUBLESHOOTING.md](../TROUBLESHOOTING.md)). |
 | **Breaking-change trail** | Phase 7 rename and config surface documented in [BREAKING_CHANGES.md](../../BREAKING_CHANGES.md); integration events **canonical `com.archlucid.*` only**. |
 | **Deploy artifacts** | Dockerfiles, compose profiles, Terraform modules under `infra/` ([CONTAINERIZATION.md](CONTAINERIZATION.md), [DEPLOYMENT_TERRAFORM.md](DEPLOYMENT_TERRAFORM.md)). |
@@ -51,7 +51,7 @@ The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (D
 | Risk | Mitigation (in-repo) |
 |------|----------------------|
 | **Environment-specific failure** | Run [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) + [V1_RC_DRILL.md](V1_RC_DRILL.md) on **your** staging stack; capture `/version` and support bundle. |
-| **Auth mismatch** | Scripts such as `v1-rc-drill.ps1` assume **DevelopmentBypass** unless you extend them; JWT/API key pilots must follow [README.md](../REPOSITORY_README.md). |
+| **Auth mismatch** | Scripts such as `scripts/v1-rc-drill.ps1` assume **DevelopmentBypass** unless you extend them; JWT/API key pilots must follow [README.md](../REPOSITORY_README.md). |
 | **UI E2E vs live API** | **`npm run test:e2e`** uses **mock** **`playwright.mock.config.ts`**; do not treat it as SQL-backed UI proof ([RELEASE_SMOKE.md](RELEASE_SMOKE.md)). CI **`ui-e2e-live`** runs all **`live-api-*.spec.ts`** ([LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)) **merge-blocking** — broader than a single happy path, still not a substitute for your own staging validation. |
 | **DB / RLS legacy names** | Historical migrations and some **RLS object names** still reference older tokens; breaking-change doc lists them ([BREAKING_CHANGES.md](../../BREAKING_CHANGES.md)). |
 | **Compliance expectations** | If pilots need **audit UI parity** for every export path, read [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md) before promising coverage. |
@@ -66,7 +66,7 @@ Minimum bar (already described in-repo):
 
 1. **Release build** + agreed **Core** test filter ([TEST_STRUCTURE.md](TEST_STRUCTURE.md)).
 2. **API up** on **Sql**; **DbUp** clean on fresh DB ([SQL_SCRIPTS.md](SQL_SCRIPTS.md)).
-3. **One scripted E2E** (`release-smoke.ps1`) or equivalent manual path + **`v1-rc-drill.ps1`** on the target URL.
+3. **One scripted E2E** (`scripts/release-smoke.ps1`) or equivalent manual path + **`scripts/v1-rc-drill.ps1`** on the target URL.
 4. **Pilot docs** read ([PILOT_GUIDE.md](PILOT_GUIDE.md)) and **known issues** attached ([V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) §9).
 
 If those pass **in the environment you hand off**, the repo is **aligned** with its own V1 contract ([V1_SCOPE.md](V1_SCOPE.md)). If they do not, the product is not “wrong”—the **environment or process** is not ready.

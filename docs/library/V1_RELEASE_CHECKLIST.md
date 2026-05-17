@@ -9,7 +9,7 @@
 
 **How to use:** Work top to bottom. Check boxes when the item is **done for this release** (build ID / environment recorded in your run notes). This is **operational**, not a substitute for full automated CI.
 
-**Scope:** Aligned with [V1_SCOPE.md](V1_SCOPE.md). **Automated gates:** [RELEASE_LOCAL.md](RELEASE_LOCAL.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [TEST_STRUCTURE.md](TEST_STRUCTURE.md). **RC environment drill (API already running):** [V1_RC_DRILL.md](V1_RC_DRILL.md) and **`v1-rc-drill.ps1`**.
+**Scope:** Aligned with [V1_SCOPE.md](V1_SCOPE.md). **Automated gates:** [RELEASE_LOCAL.md](RELEASE_LOCAL.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [TEST_STRUCTURE.md](TEST_STRUCTURE.md). **RC environment drill (API already running):** [V1_RC_DRILL.md](V1_RC_DRILL.md) and **`scripts/v1-rc-drill.ps1`**.
 
 ---
 
@@ -24,15 +24,15 @@
 
 ## 2. Deployment readiness
 
-- [ ] **Release build** succeeds: `build-release.ps1` (or `dotnet build ArchLucid.sln -c Release`) per [RELEASE_LOCAL.md](RELEASE_LOCAL.md).
+- [ ] **Release build** succeeds: `scripts/build-release.ps1` (or `dotnet build ArchLucid.sln -c Release`) per [RELEASE_LOCAL.md](RELEASE_LOCAL.md).
 - [ ] **Merge-blocking .NET full regression (SQL)** on default branch is green before declaring release-ready — job **`.NET: full regression (SQL)`** (`dotnet-full-regression`) in `.github/workflows/ci.yml`; merged Cobertura + package-line gates per [COVERAGE_GAP_ANALYSIS.md](../COVERAGE_GAP_ANALYSIS.md) and [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md). If CI is red, record the blocking failure; do not imply "clean regression" without that job.
-- [ ] **Readiness script** green for the agreed filter: `run-readiness-check.ps1` (Phase 2 now runs **`dotnet run … -- config lint`**; use `-SkipUi` only if UI is out of scope for this handoff).
-- [ ] **Smoke with SQL** (when V1 includes Sql persistence): `release-smoke.ps1` with **`ARCHLUCID_SMOKE_SQL`** (or **`ConnectionStrings__ArchLucid`**) or `-SqlConnectionString` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md).
-- [ ] **RC drill** (staged/prod-like API URL): run **`v1-rc-drill.ps1`** against the candidate deployment or run the manual steps in [V1_RC_DRILL.md](V1_RC_DRILL.md) (two runs, compare, authority replay, export ZIP, support bundle).
-- [ ] **Staging evidence artifact** captured: `.\capture-staging-readiness-evidence.ps1 -BaseUrl https://<staging-host> -AuthMode <mode>`; add `-RunDoctor` / `-RunRcDrill` when the target allows those checks. Store the generated `artifacts/staging-readiness/*.md` with release artifacts, not in git.
+- [ ] **Readiness script** green for the agreed filter: `scripts/run-readiness-check.ps1` (Phase 2 now runs **`dotnet run … -- config lint`**; use `-SkipUi` only if UI is out of scope for this handoff).
+- [ ] **Smoke with SQL** (when V1 includes Sql persistence): `scripts/release-smoke.ps1` with **`ARCHLUCID_SMOKE_SQL`** (or **`ConnectionStrings__ArchLucid`**) or `-SqlConnectionString` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md).
+- [ ] **RC drill** (staged/prod-like API URL): run **`scripts/v1-rc-drill.ps1`** against the candidate deployment or run the manual steps in [V1_RC_DRILL.md](V1_RC_DRILL.md) (two runs, compare, authority replay, export ZIP, support bundle).
+- [ ] **Staging evidence artifact** captured: `.\scripts\capture-staging-readiness-evidence.ps1 -BaseUrl https://<staging-host> -AuthMode <mode>`; add `-RunDoctor` / `-RunRcDrill` when the target allows those checks. Store the generated `artifacts/staging-readiness/*.md` with release artifacts, not in git.
 - **Optional evidence bundle sweep:** `docs/library/RELEASE_EVIDENCE_SUMMARY.md` and `scripts/Invoke-ReleaseEvidenceSummary.ps1 -MarkdownOut <path>` (non-blocking collector; use `-FailOnError` only when you want local script failures to block the shell).
 - [ ] *(Optional SaaS fleets)* **Reliability drill** automation understood if you consume the scheduled workflow output — [RELIABILITY_DRILL_PACKAGE.md](../runbooks/RELIABILITY_DRILL_PACKAGE.md).
-- [ ] **Package handoff** (if distributing bits): `package-release.ps1`; verify `artifacts/release/` contains **`metadata.json`**, **`PACKAGE-HANDOFF.txt`**, and checksums when required ([RELEASE_LOCAL.md](RELEASE_LOCAL.md)).
+- [ ] **Package handoff** (if distributing bits): `scripts/package-release.ps1`; verify `artifacts/release/` contains **`metadata.json`**, **`PACKAGE-HANDOFF.txt`**, and checksums when required ([RELEASE_LOCAL.md](RELEASE_LOCAL.md)).
 - [ ] **Runtime config** documented for target environment: connection string key (**`ConnectionStrings:ArchLucid`** or **`ArchLucid`** per bridge), **`ArchLucid:StorageProvider`** / **`ArchLucid:StorageProvider`**, **`ArchLucidAuth`** / **`ArchLucidAuth`**, agent mode (**`AgentExecution:Mode`**) ([README.md](../REPOSITORY_README.md), [BUILD.md](BUILD.md)).
 - [ ] **Containers** (if used): image tags recorded; compose profile documented ([CONTAINERIZATION.md](CONTAINERIZATION.md)).
 - [ ] **Migrations:** DbUp applies cleanly on a fresh DB and on upgrade from **previous supported** schema ([SQL_SCRIPTS.md](SQL_SCRIPTS.md)).

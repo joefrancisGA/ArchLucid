@@ -103,7 +103,7 @@ Complete in order; each line lists **verification**, **minimum Azure RBAC** (low
 
 ## 6. Smoke test (production base URL)
 
-**Important:** [`release-smoke.ps1`](../../scripts/release-smoke.ps1) **starts a local `ArchLucid.Api` process** for its default E2E ladder (see [`docs/library/RELEASE_SMOKE.md`](../library/RELEASE_SMOKE.md)). It does **not** replace hosted probes against a **remote** production URL.
+**Important:** [`scripts/release-smoke.ps1`](../../scripts/release-smoke.ps1) **starts a local `ArchLucid.Api` process** for its default E2E ladder (see [`docs/library/RELEASE_SMOKE.md`](../library/RELEASE_SMOKE.md)). It does **not** replace hosted probes against a **remote** production URL.
 
 | Step | Action | Verify |
 |------|--------|--------|

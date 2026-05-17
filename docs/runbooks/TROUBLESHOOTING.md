@@ -16,7 +16,7 @@
 2. **`GET /version`** — capture build identity for your report (same info appears in enriched **`/health/ready`** / **`/health`** JSON as **`version`** / **`commitSha`**).
 3. **`dotnet run --project ArchLucid.Cli -- doctor`** (repo root, API reachable) — CLI + API version + all health endpoints.
 4. **`support-bundle --zip`** — sanitized diagnostics folder (review before sending). See [Support bundle](#support-bundle-attach-to-tickets) below.
-5. **`run-readiness-check`** or **`.\scripts\release-smoke.ps1 -SkipE2E`** (repo root; **`release-smoke.cmd`** also forwards switches) — confirm your clone builds and fast core tests pass without starting the temporary API ([RELEASE_LOCAL.md](../library/RELEASE_LOCAL.md), [RELEASE_SMOKE.md](../library/RELEASE_SMOKE.md)).
+5. **`run-readiness-check`** or **`.\scripts\release-smoke.ps1 -SkipE2E`** (repo root; **`scripts\release-smoke.cmd`** also forwards switches) — confirm your clone builds and fast core tests pass without starting the temporary API ([RELEASE_LOCAL.md](../library/RELEASE_LOCAL.md), [RELEASE_SMOKE.md](../library/RELEASE_SMOKE.md)).
 
 If still stuck, use **[When you report an issue](../library/PILOT_GUIDE.md#when-you-report-an-issue)** in [PILOT_GUIDE.md](../library/PILOT_GUIDE.md).
 
@@ -118,6 +118,6 @@ Full CLI flags: [CLI_USAGE.md](../library/CLI_USAGE.md).
 
 1. Run **`dotnet run --project ArchLucid.Cli -- doctor`** with the API up.
 2. Run **`support-bundle --zip`** (above) and attach the archive after redacting anything your policy still forbids.
-3. Run **`run-readiness-check.cmd`** (or `.ps1`) to confirm build + fast core + UI unit tests on your machine.
+3. Run **`scripts\run-readiness-check.cmd`** (or **`scripts\run-readiness-check.ps1`**) to confirm build + fast core + UI unit tests on your machine.
 4. For an automated **API + CLI + artifact** check, see **[RELEASE_SMOKE.md](../library/RELEASE_SMOKE.md)** (`release-smoke` — requires SQL for the E2E block unless `-SkipE2E`).
 5. Open **[PILOT_GUIDE.md](../library/PILOT_GUIDE.md)** — first-run narrative and **[what to send when reporting an issue](../library/PILOT_GUIDE.md#when-you-report-an-issue)**.

@@ -276,4 +276,4 @@ dotnet test ArchLucid.sln --filter "Category!=Integration"
 
 **Unit-style tests in Api.Tests** that do not extend **IntegrationTestBase** are often tagged **`Category=Unit`**.
 
-No separate unit-only te
+No separate unit-only test project; filter by category as above.
