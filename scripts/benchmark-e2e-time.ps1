@@ -17,7 +17,7 @@
 
     Prerequisites:
       - ArchLucid API is up and reachable (e.g. http://127.0.0.1:5000 after demo-start / docker).
-      - Auth: if your deployment requires it, set ARCHLUCID_API_KEY (sent as X-Api-Key). Connection string / SQL apply to the API host, not to this script.
+      - Auth: use -BearerToken / -ApiKey or env ARCHLUCID_BEARER_TOKEN / ARCHLUCID_API_KEY when your deployment requires it.
       - For Real: AZURE_OPENAI_* and stack configured per docs/library/FIRST_REAL_VALUE.md; the API container must already be running in real mode (this script does not flip compose overlays). The CLI uses ARCHLUCID_REAL_AOAI=1 as a local safety gate; start the real-AOAI stack the same way you do for `archlucid try --real` before running this script in -Mode Real.
 
     Environment:
@@ -42,11 +42,17 @@ param(
     [int] $TimeoutSeconds = 300,
 
     [ValidateRange(1, 30)]
-    [int] $PollIntervalSeconds = 2
+    [int] $PollIntervalSeconds = 2,
+
+    [string] $BearerToken = '',
+
+    [string] $ApiKey = ''
 )
 
 Set-StrictMode -Version 3.0
 $ErrorActionPreference = "Stop"
+
+. (Join-Path $PSScriptRoot 'ArchLucid.AuthHeaders.ps1')
 
 function Get-BaseUrlResolved {
     param([string] $B)
@@ -56,13 +62,12 @@ function Get-BaseUrlResolved {
 
 function New-RequestHeaders {
     param([bool] $ForRealExecute)
-    $h = @{}
-    if (-not [string]::IsNullOrWhiteSpace($env:ARCHLUCID_API_KEY)) {
-        $h["X-Api-Key"] = $env:ARCHLUCID_API_KEY
-    }
+    $h = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
+
     if ($ForRealExecute) {
         $h["X-ArchLucid-Pilot-Try-Real-Mode"] = "1"
     }
+
     return $h
 }
 

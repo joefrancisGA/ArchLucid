@@ -58,7 +58,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
             </div>
             <div>
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                Procurement path
+                Shared during diligence
               </p>
               <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
                 <li>CAIQ-lite / SIG–oriented summaries and questionnaire responses under confidentiality</li>

@@ -11,9 +11,16 @@
   $env:ARCHLUCID_API_BASE_URL = "https://localhost:5000"
   .\scripts\integrations\validate-itsm-live.ps1
 #>
-param()
+param(
+    [string] $BearerToken = '',
+    [string] $ApiKey = ''
+)
 
 $ErrorActionPreference = "Stop"
+
+$scriptsDir = Split-Path -Parent $PSScriptRoot
+
+. (Join-Path $scriptsDir 'ArchLucid.AuthHeaders.ps1')
 
 $base = [string]$env:ARCHLUCID_API_BASE_URL
 
@@ -26,8 +33,21 @@ $uri = "$trimmed/health/live"
 
 Write-Host "Checking $uri"
 
+$probeHeaders = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
+
 try {
-    $response = Invoke-WebRequest -Uri $uri -Method GET -UseBasicParsing -TimeoutSec 30
+    $req = @{
+        Uri             = $uri
+        Method          = 'GET'
+        UseBasicParsing = $true
+        TimeoutSec      = 30
+    }
+
+    if ($probeHeaders.Count -gt 0) {
+        $req.Headers = $probeHeaders
+    }
+
+    $response = Invoke-WebRequest @req
     Write-Host "OK $($response.StatusCode)"
     exit 0
 }

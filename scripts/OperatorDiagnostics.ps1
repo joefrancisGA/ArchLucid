@@ -45,11 +45,23 @@ function Write-OperatorFailureTriage {
 function Get-ArchLucidHttpProbe {
     param(
         [Parameter(Mandatory = $true)][string] $Uri,
-        [int] $TimeoutSec = 8
+        [int] $TimeoutSec = 8,
+        [hashtable] $Headers = @{}
     )
 
     try {
-        $r = Invoke-WebRequest -Uri $Uri -UseBasicParsing -TimeoutSec $TimeoutSec -ErrorAction Stop
+        $webParams = @{
+            Uri             = $Uri
+            UseBasicParsing = $true
+            TimeoutSec      = $TimeoutSec
+            ErrorAction     = 'Stop'
+        }
+
+        if ($null -ne $Headers -and $Headers.Count -gt 0) {
+            $webParams.Headers = $Headers
+        }
+
+        $r = Invoke-WebRequest @webParams
         return @{
             Ok         = $true
             StatusCode = [int] $r.StatusCode
@@ -142,14 +154,15 @@ function Get-ArchLucidReadinessFailureSummaryLines {
 function Write-ArchLucidReadinessTimeoutDiagnostics {
     param(
         [Parameter(Mandatory = $true)][string] $ApiBaseUrl,
-        [int] $TimeoutSec = 10
+        [int] $TimeoutSec = 10,
+        [hashtable] $ProbeHeaders = @{}
     )
 
     $base = $ApiBaseUrl.TrimEnd('/')
     Write-Host ''
     Write-Host '--- Readiness probe snapshot (after timeout) ---' -ForegroundColor DarkYellow
 
-    $ready = Get-ArchLucidHttpProbe -Uri ($base + '/health/ready') -TimeoutSec $TimeoutSec
+    $ready = Get-ArchLucidHttpProbe -Uri ($base + '/health/ready') -TimeoutSec $TimeoutSec -Headers $ProbeHeaders
     Write-Host "GET /health/ready -> HTTP $($ready.StatusCode) ok=$($ready.Ok)"
 
     if (-not [string]::IsNullOrWhiteSpace($ready.Error)) {
@@ -162,6 +175,6 @@ function Write-ArchLucidReadinessTimeoutDiagnostics {
         Write-Host $dl
     }
 
-    $agg = Get-ArchLucidHttpProbe -Uri ($base + '/health') -TimeoutSec $TimeoutSec
+    $agg = Get-ArchLucidHttpProbe -Uri ($base + '/health') -TimeoutSec $TimeoutSec -Headers $ProbeHeaders
     Write-Host "GET /health -> HTTP $($agg.StatusCode) ok=$($agg.Ok) (aggregate; same order as API health pipeline)"
 }

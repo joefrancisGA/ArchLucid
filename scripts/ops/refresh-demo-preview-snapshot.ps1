@@ -15,11 +15,20 @@
 #>
 [CmdletBinding()]
 param(
-  [string] $BaseUrl = "http://localhost:5000"
+  [string] $BaseUrl = "http://localhost:5000",
+
+  [string] $BearerToken = '',
+
+  [string] $ApiKey = ''
 )
 
 $ErrorActionPreference = "Stop"
 $root = Resolve-Path (Join-Path $PSScriptRoot "..\..")
+
+. (Join-Path $root "scripts\ArchLucid.AuthHeaders.ps1")
+
+$authHeaders = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
+
 $outDir = Join-Path $root "archlucid-ui\public"
 $jsonPath = Join-Path $outDir "demo-preview-snapshot.json"
 $etagPath = Join-Path $outDir "demo-preview-snapshot.etag"
@@ -29,7 +38,18 @@ $uri = "$baseTrimmed/v1/demo/preview"
 
 Write-Host "GET $uri"
 
-$response = Invoke-WebRequest -Uri $uri -Headers @{ Accept = "application/json" } -Method Get -UseBasicParsing
+$previewReq = @{
+  Uri             = $uri
+  Headers         = @{ Accept = "application/json" }
+  Method          = 'Get'
+  UseBasicParsing = $true
+}
+
+foreach ($hk in $authHeaders.Keys) {
+  $previewReq.Headers[$hk] = $authHeaders[$hk]
+}
+
+$response = Invoke-WebRequest @previewReq
 
 if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 300) {
   throw "Unexpected status $($response.StatusCode) from demo preview."

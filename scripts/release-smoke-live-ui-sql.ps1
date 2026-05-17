@@ -8,7 +8,11 @@ param(
     [switch] $SkipE2E,
     [switch] $SkipUi,
     [switch] $FullCore,
-    [switch] $RunPlaywright
+    [switch] $RunPlaywright,
+
+    [string] $BearerToken = '',
+
+    [string] $ApiKey = ''
 )
 
 Set-StrictMode -Version Latest
@@ -23,6 +27,8 @@ $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
     -SkipUi:$SkipUi `
     -FullCore:$FullCore `
     -RunPlaywright:$RunPlaywright `
-    -LivePlaywright:$false
+    -LivePlaywright:$false `
+    -BearerToken $BearerToken `
+    -ApiKey $ApiKey
 
 exit $LASTEXITCODE

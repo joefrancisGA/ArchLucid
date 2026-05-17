@@ -1,12 +1,13 @@
 #!/usr/bin/env pwsh
 # Read-only HTTP smoke. Requires PowerShell 7+.
 #   pwsh ./scripts/validate-deployment.ps1 -BaseUrl http://localhost:5128
-# Optional: -ApiKey for authenticated routes; -Json for machine output; -Verbose for per-check text.
+# Optional: -BearerToken / -ApiKey or env ARCHLUCID_BEARER_TOKEN / ARCHLUCID_API_KEY; -Json for machine output; -Verbose for per-check text.
 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
     [string] $BaseUrl,
+    [string] $BearerToken = "",
     [string] $ApiKey = "",
     [switch] $Verbose,
     [switch] $Json
@@ -14,6 +15,8 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+. (Join-Path $PSScriptRoot 'ArchLucid.AuthHeaders.ps1')
 
 $allPassed = $true
 $script:rows = [System.Collections.Generic.List[object]]::new()
@@ -25,8 +28,7 @@ function Add-Row([string] $n, [string] $s, [int] $ms, [string] $d = "") {
 }
 
 function Get-Text([string] $uri) {
-    $h = @{}
-    if ($ApiKey) { $h["X-API-Key"] = $ApiKey }
+    $h = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
     try {
         $r = Invoke-WebRequest -Uri $uri -Headers $h -SkipHttpErrorCheck -TimeoutSec 60
@@ -75,7 +77,14 @@ elseif ($gc.Ok) {
 }
 else { Add-Row "X-Correlation-ID" "FAIL" $gc.Ms $gc.Error }
 
-$go = Invoke-WebRequest -Uri ("$Base/health/live") -Headers @{ Origin = "https://example.test" } -SkipHttpErrorCheck -TimeoutSec 60
+$authForMisc = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
+$hGo = @{ Origin = "https://example.test" }
+
+foreach ($hk in $authForMisc.Keys) {
+    $hGo[$hk] = $authForMisc[$hk]
+}
+
+$go = Invoke-WebRequest -Uri ("$Base/health/live") -Headers $hGo -SkipHttpErrorCheck -TimeoutSec 60
 $msO = 0
 if ($go.Headers["Access-Control-Allow-Origin"]) {
     Add-Row "CORS (Origin header)" "PASS" 0 "ACAO set"
@@ -89,7 +98,25 @@ foreach ($k in $go.Headers.Keys) { if ("$k" -like "X-RateLimit*") { $rl = $true;
 if ($rl) { Add-Row "X-RateLimit-*" "PASS" 0 "present" } else { Add-Row "X-RateLimit-*" "SKIP" 0 "not on health/live" }
 
 if ($u.Scheme -eq "http") {
-    $rd = Invoke-WebRequest -Uri ("$Base/health/live") -MaximumRedirection 0 -SkipHttpErrorCheck -ErrorAction SilentlyContinue
+    $rdHeaders = @{}
+
+    foreach ($rk in $authForMisc.Keys) {
+        $rdHeaders[$rk] = $authForMisc[$rk]
+    }
+
+    $rdParams = @{
+        Uri                = ("$Base/health/live")
+        MaximumRedirection = 0
+        SkipHttpErrorCheck = $true
+        ErrorAction        = 'SilentlyContinue'
+        TimeoutSec         = 60
+    }
+
+    if ($rdHeaders.Count -gt 0) {
+        $rdParams.Headers = $rdHeaders
+    }
+
+    $rd = Invoke-WebRequest @rdParams
     if ($null -ne $rd -and @(301, 302, 307, 308) -contains [int]$rd.StatusCode) {
         Add-Row "HTTP→HTTPS" "PASS" 0 "redirect $([int]$rd.StatusCode)"
     }

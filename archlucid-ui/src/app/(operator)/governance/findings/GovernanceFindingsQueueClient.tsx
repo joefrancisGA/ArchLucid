@@ -185,6 +185,149 @@ function governanceQueueSeverityCell(row: GovernanceFindingQueueRow, buyerPolish
   return <span className="text-neutral-800 dark:text-neutral-200">{row.severity}</span>;
 }
 
+function GovernanceFindingsBuyerDesktopRow(props: { readonly row: GovernanceFindingQueueRow }): ReactElement {
+  const row = props.row;
+  const graphHref = governanceQueueGraphEvidenceHref(row);
+
+  return (
+    <tr className="border-t border-neutral-200 dark:border-neutral-800">
+      <td className="px-3 py-2 align-top font-medium text-neutral-900 dark:text-neutral-100">
+        <Link
+          className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+          href={inspectHref(row.runId, row.findingId)}
+        >
+          {row.title}
+        </Link>
+        {row.recordKind === "finding" ? (
+          <details className="mt-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+            <summary className="cursor-pointer select-none font-medium text-neutral-700 dark:text-neutral-300">
+              Severity, confidence, and review
+            </summary>
+            <p className="m-0 mt-1">
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">Severity</span> {row.severity}
+            </p>
+            <p className="m-0 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">Confidence</span>
+              {row.traceConfidenceLevel === "High" ||
+              row.traceConfidenceLevel === "Medium" ||
+              row.traceConfidenceLevel === "Low" ? (
+                <FindingConfidenceBadge level={row.traceConfidenceLevel} />
+              ) : (
+                <span className="text-neutral-500">—</span>
+              )}
+            </p>
+            <p className="m-0 mt-1">
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">Review</span>{" "}
+              <Link
+                className="text-teal-800 underline dark:text-teal-300"
+                href={`/reviews/${encodeURIComponent(row.runId)}`}
+              >
+                {row.runLabel}
+              </Link>
+            </p>
+          </details>
+        ) : null}
+      </td>
+      <td className="px-3 py-2 align-top text-neutral-800 dark:text-neutral-200">
+        {formatGovernanceQueueRecordKind(row.recordKind, true)}
+      </td>
+      <td className="px-3 py-2 align-top">{row.status}</td>
+      <td className="px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400">{row.recommended}</td>
+      <td className="px-3 py-2 align-top">
+        <div className="flex flex-col gap-2">
+          <Button asChild variant="outline" size="sm" className="h-8 border-teal-300 dark:border-teal-700">
+            <Link href={inspectHref(row.runId, row.findingId)}>
+              {row.recordKind === "decision" ? "View decision" : "View finding and evidence"}
+            </Link>
+          </Button>
+          {graphHref !== null ? (
+            <Button asChild variant="outline" size="sm" className="h-8 border-neutral-300 dark:border-neutral-600">
+              <Link href={graphHref}>View evidence</Link>
+            </Button>
+          ) : null}
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+function GovernanceFindingsBuyerMobileRow(props: { readonly row: GovernanceFindingQueueRow }): ReactElement {
+  const row = props.row;
+  const graphHref = governanceQueueGraphEvidenceHref(row);
+
+  return (
+    <Card className="border border-neutral-200 shadow-sm dark:border-neutral-800">
+      <CardHeader className="space-y-1 pb-2">
+        <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <Link
+            className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+            href={inspectHref(row.runId, row.findingId)}
+          >
+            {row.title}
+          </Link>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="grid gap-3 pt-0 text-sm">
+        <div>
+          <div className="font-medium text-neutral-700 dark:text-neutral-300">Record type</div>
+          <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">
+            {formatGovernanceQueueRecordKind(row.recordKind, true)}
+          </p>
+        </div>
+        <div>
+          <div className="font-medium text-neutral-700 dark:text-neutral-300">Status</div>
+          <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.status}</p>
+        </div>
+        <div>
+          <div className="font-medium text-neutral-700 dark:text-neutral-300">Recommended action</div>
+          <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.recommended}</p>
+        </div>
+        {row.recordKind === "finding" ? (
+          <details className="rounded-md border border-neutral-200 bg-neutral-50/80 px-2 py-2 text-xs text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-400">
+            <summary className="cursor-pointer select-none font-medium text-neutral-700 dark:text-neutral-300">
+              Severity, confidence, and review
+            </summary>
+            <p className="m-0 mt-2">
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">Severity</span> {row.severity}
+            </p>
+            <p className="m-0 mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">Confidence</span>
+              {row.traceConfidenceLevel === "High" ||
+              row.traceConfidenceLevel === "Medium" ||
+              row.traceConfidenceLevel === "Low" ? (
+                <FindingConfidenceBadge level={row.traceConfidenceLevel} />
+              ) : (
+                <span className="text-neutral-500">—</span>
+              )}
+            </p>
+            <p className="m-0 mt-2">
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">Review</span>{" "}
+              <Link
+                className="text-teal-800 underline dark:text-teal-300"
+                href={`/reviews/${encodeURIComponent(row.runId)}`}
+              >
+                {row.runLabel}
+              </Link>
+            </p>
+          </details>
+        ) : null}
+        <div className="flex flex-col gap-2">
+          <Button asChild variant="outline" size="sm" className="h-9 border-teal-300 dark:border-teal-700">
+            <Link href={inspectHref(row.runId, row.findingId)}>
+              {row.recordKind === "decision" ? "View decision" : "View finding and evidence"}
+            </Link>
+          </Button>
+          {graphHref !== null ? (
+            <Button asChild variant="outline" size="sm" className="h-9 border-neutral-300 dark:border-neutral-600">
+              <Link href={graphHref}>View evidence</Link>
+            </Button>
+          ) : null}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 /**
  * Findings hub: cross-run queue from explainability aggregates, plus a deterministic PHI sample row in public demo mode.
  */
@@ -193,6 +336,8 @@ export default function GovernanceFindingsQueueClient() {
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const findingRows = rows.filter((row) => row.recordKind === "finding");
+  const decisionRows = rows.filter((row) => row.recordKind === "decision");
 
   useEffect(() => {
     let cancelled = false;
@@ -327,6 +472,88 @@ export default function GovernanceFindingsQueueClient() {
         ) : null}
 
         {!loading && rows.length > 0 ? (
+          buyerPolishedShell ? (
+            <div className="space-y-10">
+              {findingRows.length > 0 ? (
+                <section className="space-y-3" aria-labelledby="governance-findings-risks">
+                  <h2
+                    id="governance-findings-risks"
+                    className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
+                  >
+                    Findings and monitored risks
+                  </h2>
+                  <div className="hidden overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800 md:block">
+                    <table className="w-full min-w-[520px] border-collapse text-left text-sm">
+                      <thead className="bg-neutral-100 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
+                        <tr>
+                          <th className="px-3 py-2">Record summary</th>
+                          <th className="px-3 py-2">Record type</th>
+                          <th className="px-3 py-2">Status</th>
+                          <th className="px-3 py-2">Recommended action</th>
+                          <th className="px-3 py-2">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {findingRows.map((row) => (
+                          <GovernanceFindingsBuyerDesktopRow key={`${row.runId}:${row.findingId}:find`} row={row} />
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="space-y-3 md:hidden">
+                    {findingRows.map((row) => (
+                      <GovernanceFindingsBuyerMobileRow key={`${row.runId}:${row.findingId}:mfind`} row={row} />
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+              {decisionRows.length > 0 ? (
+                <section className="space-y-3" aria-labelledby="governance-findings-decisions">
+                  <h2
+                    id="governance-findings-decisions"
+                    className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
+                  >
+                    Recorded decisions
+                  </h2>
+                  <div className="hidden overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800 md:block">
+                    <table className="w-full min-w-[520px] border-collapse text-left text-sm">
+                      <thead className="bg-neutral-100 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
+                        <tr>
+                          <th className="px-3 py-2">Record summary</th>
+                          <th className="px-3 py-2">Record type</th>
+                          <th className="px-3 py-2">Status</th>
+                          <th className="px-3 py-2">Recommended action</th>
+                          <th className="px-3 py-2">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {decisionRows.map((row) => (
+                          <GovernanceFindingsBuyerDesktopRow key={`${row.runId}:${row.findingId}:dec`} row={row} />
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="space-y-3 md:hidden">
+                    {decisionRows.map((row) => (
+                      <GovernanceFindingsBuyerMobileRow key={`${row.runId}:${row.findingId}:mdec`} row={row} />
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+              <section className="space-y-2" aria-labelledby="governance-findings-validated">
+                <h2
+                  id="governance-findings-validated"
+                  className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
+                >
+                  Validated controls
+                </h2>
+                <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+                  No separate validated-control attestations are listed in this sample workspace. Control effectiveness evidence is
+                  still reflected in the governance approval and monitored-risk rows above.
+                </p>
+              </section>
+            </div>
+          ) : (
           <>
             <div className="hidden overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800 md:block">
               <table
@@ -561,6 +788,7 @@ export default function GovernanceFindingsQueueClient() {
             ))}
           </div>
           </>
+          )
         ) : null}
 
         {!loading && rows.length === 0 ? (

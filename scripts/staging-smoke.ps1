@@ -4,15 +4,22 @@
     Staging smoke test: health, version, architecture create/execute/poll/commit, authority manifest.
 
 .DESCRIPTION
-    Uses ARCHLUCID_BASE_URL or ARCHLUCID_API_BASE_URL, optional ARCHLUCID_API_KEY (X-Api-Key).
+    Uses ARCHLUCID_BASE_URL or ARCHLUCID_API_BASE_URL. Authentication: -BearerToken / -ApiKey, or env
+    ARCHLUCID_BEARER_TOKEN / ARCHLUCID_API_KEY (X-Api-Key). Parameter values override env.
     Writes staging-smoke-results.json or STAGING_SMOKE_RESULTS_FILE.
 #>
 param(
-    [string] $BaseUrl = ""
+    [string] $BaseUrl = "",
+
+    [string] $BearerToken = "",
+
+    [string] $ApiKey = ""
 )
 
 Set-StrictMode -Version 3.0
 $ErrorActionPreference = "Stop"
+
+. (Join-Path $PSScriptRoot 'ArchLucid.AuthHeaders.ps1')
 
 function Get-ResolvedBase {
     param([string] $B)
@@ -22,21 +29,13 @@ function Get-ResolvedBase {
     return "http://127.0.0.1:5000"
 }
 
-function New-SmokeHeaders {
-    $h = @{}
-    if (-not [string]::IsNullOrWhiteSpace($env:ARCHLUCID_API_KEY)) {
-        $h["X-Api-Key"] = $env:ARCHLUCID_API_KEY
-    }
-    return $h
-}
-
 function NowMs {
     [int64]([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())
 }
 
 $resolved = Get-ResolvedBase -B $BaseUrl
 $outFile = if ($env:STAGING_SMOKE_RESULTS_FILE) { $env:STAGING_SMOKE_RESULTS_FILE } else { "staging-smoke-results.json" }
-$headers = New-SmokeHeaders
+$headers = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
 
 function Fail([string] $msg) {
     Write-Error "STAGING SMOKE FAIL: $msg"

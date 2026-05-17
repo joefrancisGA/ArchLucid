@@ -469,7 +469,7 @@ export function GovernanceWorkflowPageContent() {
         docsPageKey="/governance"
         subtitle={
           buyerPolishedShell && approvals.length > 0 && activeRunId !== null
-            ? "Approved for governed use with monitored PHI minimization control. Production deployment remains governed by your enterprise change-management process."
+            ? "Governance approval is recorded for this review package — monitored PHI minimization is the open, non-blocking control posture for citation and steering."
             : buyerPolishedShell
               ? "The approval path records whether a finalized review package is authorized for governed use. ArchLucid stores approvals and audit context; your enterprise change process governs any environment movement."
               : canMutateWorkflow
@@ -478,6 +478,12 @@ export function GovernanceWorkflowPageContent() {
         }
         helpKey="governance-workflow"
       />
+      {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (
+        <p className="mb-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+          Production deployments and environment promotions still follow your enterprise change-management process — ArchLucid
+          records the governed architecture evidence; operations teams gate execution separately.
+        </p>
+      ) : null}
       {buyerPolishedShell && !(approvals.length > 0 && activeRunId !== null) ? (
         <p
           className="mb-4 max-w-prose rounded-md border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-sm text-neutral-800 dark:border-teal-900/60 dark:bg-teal-950/30 dark:text-neutral-200"

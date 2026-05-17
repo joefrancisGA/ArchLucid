@@ -23,11 +23,19 @@
     ./jira-webhook-bridge.ps1 -ProcessPath .\sample-alert-fired.json
 #>
 param(
-    [Parameter(Mandatory)][string] $ProcessPath
+    [Parameter(Mandatory)][string] $ProcessPath,
+
+    [string] $BearerToken = '',
+
+    [string] $ApiKey = ''
 )
 
 Set-StrictMode -Version 3.0
 $ErrorActionPreference = "Stop"
+
+$scriptsDirForAuth = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+
+. (Join-Path $scriptsDirForAuth 'ArchLucid.AuthHeaders.ps1')
 
 function Get-EnvOptional([string]$Name, [string]$Default = "") {
     $value = [Environment]::GetEnvironmentVariable($Name)
@@ -73,11 +81,17 @@ function Build-JiraAdf([string[]]$Lines) {
 
 function Invoke-ArchLucidGetJson {
 
-    param([string] $Url, [string] $ApiKey)
+    param([string] $Url, [hashtable] $AuthHeaders)
 
     $hdr = @{
-        "X-Api-Key" = $ApiKey
-        Accept      = "application/json"
+        Accept = "application/json"
+    }
+
+    if ($null -ne $AuthHeaders) {
+
+        foreach ($key in @($AuthHeaders.Keys)) {
+            $hdr[$key] = $AuthHeaders[$key]
+        }
     }
 
     return Invoke-RestMethod -Uri $Url -Headers $hdr -Method Get
@@ -167,10 +181,15 @@ elseif ($typeStr -eq "com.archlucid.authority.run.completed") {
 
     $archBase = Get-EnvOptional "ARCHLUCID_BASE_URL"
 
-    $apiKey = Get-EnvOptional "ARCHLUCID_API_KEY"
+    $archAuth = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
 
-    if ([string]::IsNullOrWhiteSpace($archBase) -or [string]::IsNullOrWhiteSpace($apiKey)) {
-        throw "run.completed requires ARCHLUCID_BASE_URL and ARCHLUCID_API_KEY."
+    if ([string]::IsNullOrWhiteSpace($archBase)) {
+        throw "run.completed requires ARCHLUCID_BASE_URL."
+
+    }
+
+    if ($archAuth.Count -eq 0) {
+        throw "run.completed requires ApiKey or Bearer token (-ApiKey / -BearerToken or ARCHLUCID_API_KEY / ARCHLUCID_BEARER_TOKEN)."
 
     }
 
@@ -180,7 +199,7 @@ elseif ($typeStr -eq "com.archlucid.authority.run.completed") {
     if ([string]::IsNullOrWhiteSpace($rid)) { throw "data.runId missing." }
 
     $url = ($archBase.TrimEnd('/')) + "/v1/authority/runs/$([uri]::EscapeDataString($rid))"
-    $detail = Invoke-ArchLucidGetJson -Url $url -ApiKey $apiKey
+    $detail = Invoke-ArchLucidGetJson -Url $url -AuthHeaders $archAuth
 
 
     $findings = @()

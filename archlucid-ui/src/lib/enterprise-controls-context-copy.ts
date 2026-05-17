@@ -542,6 +542,14 @@ export const auditExportCsvButtonLabelRoleRestricted = "Download audit trail";
 export const auditTrailBuyerProofNarrativeLead =
   "This audit trail demonstrates how the review progressed from captured context through architecture snapshot finalization, governance approval, and packaged deliverables with named human actors and lifecycle events recorded by the product.";
 
+/** Audit log — buyer-polished: intro under results heading (complements `auditTrailBuyerProofNarrativeLead`; avoid repeating the lifecycle story). */
+export const auditResultsSectionIntroBuyerPolished =
+  "The grouped timeline below shows actors and timing by stage. Expand the technical appendix when your team needs raw event metadata.";
+
+/** Audit log — buyer-polished public sample: short note when bulk CSV is not enabled (date window and/or role). */
+export const auditExportSampleWorkspaceCsvHintBuyerPolished =
+  "In the public sample, bulk CSV export follows the same role and date-window rules as production.";
+
 /** Policy packs — intro under “Compare versions” when caller can mutate (Execute+ in shell). */
 export const policyPacksCompareVersionsIntroOperator =
   "Pick two versions for a JSON path diff.";

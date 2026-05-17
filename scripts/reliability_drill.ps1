@@ -12,11 +12,17 @@ param(
     [Parameter(Mandatory = $false)]
     [string] $BaseUrl = "http://localhost:5000",
     [int] $TimeoutSeconds = 20,
-    [switch] $SkipProbe
+    [switch] $SkipProbe,
+
+    [string] $BearerToken = '',
+
+    [string] $ApiKey = ''
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+. (Join-Path $PSScriptRoot 'ArchLucid.AuthHeaders.ps1')
 
 $root = Resolve-Path (Join-Path $PSScriptRoot '..')
 Set-Location $root
@@ -32,9 +38,20 @@ $checks = New-Object System.Collections.Generic.List[object]
 $overallPass = $true
 
 function Probe-Ready {
-    param([string] $ProbeBase)
+    param([string] $ProbeBase, [hashtable] $Headers)
+
     try {
-        $resp = Invoke-WebRequest -Uri "$ProbeBase/health/ready" -TimeoutSec $TimeoutSeconds -UseBasicParsing
+        $req = @{
+            Uri             = "$ProbeBase/health/ready"
+            TimeoutSec      = $TimeoutSeconds
+            UseBasicParsing = $true
+        }
+
+        if ($null -ne $Headers -and $Headers.Count -gt 0) {
+            $req.Headers = $Headers
+        }
+
+        $resp = Invoke-WebRequest @req
         $bodyLen = 0
 
         if ($resp.Content.Length -gt 0) {
@@ -98,7 +115,9 @@ if ($SkipProbe) {
 else {
 
 
-    $r = Probe-Ready -ProbeBase $base
+    $authHdr = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
+
+    $r = Probe-Ready -ProbeBase $base -Headers $authHdr
 
     if (-not $r.healthy) {
 

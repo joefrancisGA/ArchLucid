@@ -20,7 +20,7 @@
     Prerequisites:
       - ArchLucid API running in real mode (AgentExecution__Mode=Real) with Azure OpenAI env vars
         configured on the host.  See docs/library/FIRST_REAL_VALUE.md for the real-AOAI compose overlay.
-      - Optional: ARCHLUCID_API_KEY env var for keyed deployments (sent as X-Api-Key).
+      - Optional: -BearerToken / -ApiKey parameters or ARCHLUCID_BEARER_TOKEN / ARCHLUCID_API_KEY env vars for keyed deployments.
       - This script does NOT require or embed any Azure OpenAI keys — those belong to the API host.
 
     Environment:
@@ -62,13 +62,19 @@ param(
 
     [switch] $SkipArtifact,
 
-    [string] $OutputFile
+    [string] $OutputFile,
+
+    [string] $BearerToken = '',
+
+    [string] $ApiKey = ''
 )
 
 Set-StrictMode -Version 3.0
 $ErrorActionPreference = "Stop"
 
 $RepoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")).Path
+
+. (Join-Path $PSScriptRoot 'ArchLucid.AuthHeaders.ps1')
 
 if ([string]::IsNullOrWhiteSpace($ArtifactPath)) {
     $ArtifactPath = Join-Path $RepoRoot "artifacts" "benchmark-real-mode-latest.json"
@@ -86,12 +92,7 @@ function Resolve-BaseUrl {
 
 function Build-Headers {
     param([bool] $IncludePilotRealMode)
-    $h = @{}
-    $key = $env:ARCHLUCID_API_KEY
-
-    if (-not [string]::IsNullOrWhiteSpace($key)) {
-        $h["X-Api-Key"] = $key
-    }
+    $h = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
 
     if ($IncludePilotRealMode) {
         $h["X-ArchLucid-Pilot-Try-Real-Mode"] = "1"

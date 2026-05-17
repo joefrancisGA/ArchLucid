@@ -47,7 +47,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
     : null;
 
   const overviewSummaryCard = (
-    <Card>
+    <Card id="manifest-overview" className="scroll-mt-24">
       <CardHeader>
         <CardTitle className="text-base font-semibold">{buyerPolishedLayout ? "Overview" : "Summary"}</CardTitle>
         <CardDescription>
@@ -144,9 +144,48 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       </p>
 
       {buyerPolishedLayout ? (
+        <nav
+          aria-label="On this page"
+          className="flex flex-wrap gap-x-4 gap-y-1 rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-sm text-neutral-700 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-200"
+        >
+          <a className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300" href="#manifest-overview">
+            Overview
+          </a>
+          <a
+            className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300"
+            href="#manifest-decisions"
+          >
+            Decisions
+          </a>
+          <a className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300" href="#manifest-bundle-zip">
+            Bundle download
+          </a>
+          {summary.warningCount > 0 || summary.unresolvedIssueCount > 0 ? (
+            <a
+              className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300"
+              href="#manifest-monitored-risk"
+            >
+              Monitored risk
+            </a>
+          ) : null}
+          <a className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300" href="#manifest-ask">
+            Diligence questions
+          </a>
+          <a
+            className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300"
+            href="#manifest-deliverables"
+          >
+            Deliverables
+          </a>
+        </nav>
+      ) : null}
+
+      {buyerPolishedLayout ? (
         <>
           {overviewSummaryCard}
-          {decisionsLeadCard}
+          <div id="manifest-decisions" className="scroll-mt-24 space-y-6">
+            {decisionsLeadCard}
+          </div>
         </>
       ) : (
         <>
@@ -156,7 +195,10 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       )}
 
       {summary.warningCount > 0 || summary.unresolvedIssueCount > 0 ? (
-        <Card>
+        <Card
+          id={buyerPolishedLayout ? "manifest-monitored-risk" : undefined}
+          className={buyerPolishedLayout ? "scroll-mt-24" : undefined}
+        >
           <CardHeader>
             <CardTitle className="text-base font-semibold">
               {buyerPolishedLayout ? "Related monitored risk" : "Related findings"}
@@ -237,7 +279,10 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       ) : null}
 
       {buyerPolishedLayout ? (
-        <div className="rounded-lg border border-teal-200/80 bg-teal-50/50 p-4 text-sm shadow-sm dark:border-teal-900/50 dark:bg-teal-950/20">
+        <div
+          id="manifest-bundle-zip"
+          className="scroll-mt-24 rounded-lg border border-teal-200/80 bg-teal-50/50 p-4 text-sm shadow-sm dark:border-teal-900/50 dark:bg-teal-950/20"
+        >
           <p className="m-0 max-w-prose text-neutral-800 dark:text-neutral-200">
             Prefer the consolidated bundle for diligence and archiving — it seals the downloadable outputs that align to the
             decisions and posture summarized above.
@@ -250,7 +295,26 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         </div>
       ) : null}
 
-      <Card>
+      {buyerPolishedLayout ? (
+        <Card id="manifest-ask" className="scroll-mt-24 border border-blue-200/80 bg-blue-50/50 shadow-sm dark:border-blue-950/60 dark:bg-blue-950/25">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-50">Questions during diligence?</CardTitle>
+            <CardDescription>
+              Align questionnaire formats, bundled downloads, and security follow-ups through our Trust Center contact.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/trust#trust-contact-review">Open Trust Center contact</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      <Card
+        id={buyerPolishedLayout ? "manifest-deliverables" : undefined}
+        className={buyerPolishedLayout ? "scroll-mt-24" : undefined}
+      >
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1 space-y-1.5">
             <CardTitle className="text-base font-semibold">
@@ -348,14 +412,29 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
             </OperatorEmptyState>
           )}
 
-          {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length > 0 && (
+          {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length > 0 && buyerPolishedLayout ? (
+            <details className="group rounded-md border border-neutral-200/90 bg-neutral-50/40 p-3 dark:border-neutral-800 dark:bg-neutral-950/30">
+              <summary className="cursor-pointer select-none text-sm font-medium text-neutral-900 outline-none marker:text-neutral-500 focus-visible:ring-2 focus-visible:ring-teal-500/80 dark:text-neutral-100">
+                Show individual deliverable files ({artifacts.length})
+              </summary>
+              <div className="mt-4">
+                <ArtifactListTable
+                  manifestId={manifestId}
+                  artifacts={artifacts}
+                  sponsorMode={buyerPolishedLayout}
+                  audienceSections={buyerPolishedLayout}
+                />
+              </div>
+            </details>
+          ) : null}
+          {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length > 0 && !buyerPolishedLayout ? (
             <ArtifactListTable
               manifestId={manifestId}
               artifacts={artifacts}
               sponsorMode={buyerPolishedLayout}
               audienceSections={buyerPolishedLayout}
             />
-          )}
+          ) : null}
         </CardContent>
       </Card>
 

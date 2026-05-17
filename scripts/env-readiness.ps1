@@ -5,7 +5,8 @@
 
 .DESCRIPTION
     Mirrors a subset of checks bundled into archlucid support-bundle: GET /health/live, GET /openapi/v1.json,
-    GET /version. Uses ARCHLUCID_API_URL when -BaseUrl omitted; forwards ARCHLUCID_API_KEY when set.
+    GET /version. Uses ARCHLUCID_API_URL when -BaseUrl omitted. Authentication: -BearerToken / -ApiKey, or env
+    ARCHLUCID_BEARER_TOKEN / ARCHLUCID_API_KEY.
 
 .PARAMETER BaseUrl
     HTTP(S) API root without trailing operation path (example: http://localhost:5128).
@@ -14,11 +15,17 @@
     ./env-readiness.ps1 -BaseUrl http://localhost:5128
 #>
 param(
-    [string] $BaseUrl = ''
+    [string] $BaseUrl = '',
+
+    [string] $BearerToken = '',
+
+    [string] $ApiKey = ''
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+. (Join-Path $PSScriptRoot 'ArchLucid.AuthHeaders.ps1')
 
 if ([string]::IsNullOrWhiteSpace($BaseUrl)) {
     $BaseUrl = $env:ARCHLUCID_API_URL
@@ -39,14 +46,21 @@ function Invoke-ArchLucidProbe {
     $uri = "$root$RelativePath"
     Write-Host "[$Label] GET $uri"
 
-    $headers = @{}
-
-    if (-not [string]::IsNullOrWhiteSpace($env:ARCHLUCID_API_KEY)) {
-        $headers['X-Api-Key'] = $env:ARCHLUCID_API_KEY
-    }
+    $headers = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
 
     try {
-        Invoke-WebRequest -Uri $uri -UseBasicParsing -Method GET -Headers $headers -TimeoutSec 45 | Out-Null
+        $req = @{
+            Uri             = $uri
+            UseBasicParsing = $true
+            Method          = 'GET'
+            TimeoutSec      = 45
+        }
+
+        if ($headers.Count -gt 0) {
+            $req.Headers = $headers
+        }
+
+        Invoke-WebRequest @req | Out-Null
     }
     catch {
         throw "Probe '$Label' failed: $($_.Exception.Message)"

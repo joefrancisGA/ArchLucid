@@ -18,23 +18,11 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+. (Join-Path $PSScriptRoot 'ArchLucid.AuthHeaders.ps1')
+
 function Get-V1RcDrillOptionalHeaders
 {
-    $headers = @{}
-
-    if (-not [string]::IsNullOrWhiteSpace($BearerToken)) {
-        $headers['Authorization'] = 'Bearer ' + $BearerToken.Trim()
-    }
-
-    if (-not [string]::IsNullOrWhiteSpace($ApiKey)) {
-        $headers['X-Api-Key'] = $ApiKey.Trim()
-    }
-
-    if ($headers.Count -eq 0) {
-        return $null
-    }
-
-    return $headers
+    return Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
 }
 
 function Invoke-V1RcDrillRestMethod
@@ -51,7 +39,7 @@ function Invoke-V1RcDrillRestMethod
     $optionalHeaders = Get-V1RcDrillOptionalHeaders
     $params = @{ Uri = $Uri; Method = $Method }
 
-    if ($null -ne $optionalHeaders) {
+    if ($optionalHeaders.Count -gt 0) {
         $params['Headers'] = $optionalHeaders
     }
 
@@ -216,7 +204,7 @@ try
 
     Write-DrillPhase 'Health + version (live, ready, /version)'
 
-    $liveProbe = Get-ArchLucidHttpProbe -Uri "$base/health/live" -TimeoutSec 15
+    $liveProbe = Get-ArchLucidHttpProbe -Uri "$base/health/live" -TimeoutSec 15 -Headers (Get-V1RcDrillOptionalHeaders)
 
     if (-not $liveProbe.Ok -or $liveProbe.StatusCode -ne 200) {
         Write-OperatorFailureTriage -Stage 'GET /health/live' -Category 'LivenessFailure' `
@@ -225,13 +213,13 @@ try
         exit 1
     }
 
-    $readyProbe = Get-ArchLucidHttpProbe -Uri "$base/health/ready" -TimeoutSec 30
+    $readyProbe = Get-ArchLucidHttpProbe -Uri "$base/health/ready" -TimeoutSec 30 -Headers (Get-V1RcDrillOptionalHeaders)
 
     if (-not $readyProbe.Ok -or $readyProbe.StatusCode -ne 200) {
         Write-OperatorFailureTriage -Stage 'GET /health/ready' -Category 'ReadinessFailure' `
             -Details @("HTTP $($readyProbe.StatusCode); $($readyProbe.Error)") `
             -NextSteps @('Inspect readiness JSON', 'docs/TROUBLESHOOTING.md - SQL, storage, compliance pack')
-        Write-ArchLucidReadinessTimeoutDiagnostics -ApiBaseUrl $ApiBaseUrl
+        Write-ArchLucidReadinessTimeoutDiagnostics -ApiBaseUrl $ApiBaseUrl -ProbeHeaders (Get-V1RcDrillOptionalHeaders)
         exit 1
     }
 
@@ -319,7 +307,7 @@ try
 
         $zipHeaders = Get-V1RcDrillOptionalHeaders
 
-        if ($null -ne $zipHeaders) {
+        if ($zipHeaders.Count -gt 0) {
             $zipInvokeParams['Headers'] = $zipHeaders
         }
 

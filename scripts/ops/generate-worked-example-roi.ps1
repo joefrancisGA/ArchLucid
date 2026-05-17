@@ -29,11 +29,20 @@
 [CmdletBinding()]
 param(
   [string] $ApiBaseUrl = "http://localhost:5000",
-  [switch] $SkipDocker
+  [switch] $SkipDocker,
+
+  [string] $BearerToken = '',
+
+  [string] $ApiKey = ''
 )
 
 $ErrorActionPreference = "Stop"
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..\..")
+
+. (Join-Path $repoRoot "scripts\ArchLucid.AuthHeaders.ps1")
+
+$authHeaders = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
+
 $docxTemp = Join-Path $env:TEMP "archlucid-worked-example-value-report.docx"
 $pdfOutDocs = Join-Path $repoRoot "docs\go-to-market\WORKED_EXAMPLE_ROI.pdf"
 $pdfOutPublic = Join-Path $repoRoot "archlucid-ui\public\WORKED_EXAMPLE_ROI.pdf"
@@ -106,7 +115,17 @@ if (-not $SkipDocker) {
 
   do {
     try {
-      $health = Invoke-WebRequest -Uri "$ApiBaseUrl/health/live" -UseBasicParsing -TimeoutSec 5
+      $healthReq = @{
+        Uri             = "$ApiBaseUrl/health/live"
+        UseBasicParsing = $true
+        TimeoutSec      = 5
+      }
+
+      if ($authHeaders.Count -gt 0) {
+        $healthReq.Headers = $authHeaders
+      }
+
+      $health = Invoke-WebRequest @healthReq
 
       if ($health.StatusCode -ge 200 -and $health.StatusCode -lt 300) {
         break
@@ -125,7 +144,18 @@ if (-not $SkipDocker) {
 $base = $ApiBaseUrl.TrimEnd("/")
 
 Write-Host "POST $base/v1.0/demo/seed"
-$seed = Invoke-WebRequest -Uri "$base/v1.0/demo/seed" -Method Post -UseBasicParsing -TimeoutSec 120
+$seedReq = @{
+  Uri             = "$base/v1.0/demo/seed"
+  Method          = 'Post'
+  UseBasicParsing = $true
+  TimeoutSec      = 120
+}
+
+if ($authHeaders.Count -gt 0) {
+  $seedReq.Headers = $authHeaders
+}
+
+$seed = Invoke-WebRequest @seedReq
 
 if ($seed.StatusCode -notin @(200, 204)) {
   throw "Demo seed returned HTTP $($seed.StatusCode) (expected 200 or 204)."
@@ -136,7 +166,19 @@ $to = "2025-04-01T00:00:00.0000000Z"
 $genUrl = "$base/v1.0/value-report/$defaultTenant/generate?from=$([uri]::EscapeDataString($from))&to=$([uri]::EscapeDataString($to))"
 
 Write-Host "POST $genUrl"
-Invoke-WebRequest -Uri $genUrl -Method Post -UseBasicParsing -TimeoutSec 300 -OutFile $docxTemp
+$genReq = @{
+  Uri             = $genUrl
+  Method          = 'Post'
+  UseBasicParsing = $true
+  TimeoutSec      = 300
+  OutFile         = $docxTemp
+}
+
+if ($authHeaders.Count -gt 0) {
+  $genReq.Headers = $authHeaders
+}
+
+Invoke-WebRequest @genReq
 
 $len = (Get-Item $docxTemp).Length
 Write-Host "Wrote DOCX to $docxTemp ($len bytes)"

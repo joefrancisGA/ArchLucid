@@ -13,7 +13,11 @@ param(
     [switch] $FullCore,
     [switch] $RunPlaywright,
     [switch] $LivePlaywright,
-    [switch] $AuthorityPipelineDtfSmoke
+    [switch] $AuthorityPipelineDtfSmoke,
+
+    [string] $BearerToken = '',
+
+    [string] $ApiKey = ''
 )
 
 Set-StrictMode -Version Latest
@@ -21,6 +25,9 @@ $ErrorActionPreference = 'Stop'
 
 $root = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot 'OperatorDiagnostics.ps1')
+. (Join-Path $PSScriptRoot 'ArchLucid.AuthHeaders.ps1')
+
+$releaseSmokeAuthHeaders = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
 
 $runLiveUiSqlProfile = ($Profile -eq 'LiveUiSql')
 
@@ -119,6 +126,13 @@ $cliProj = Join-Path $root 'ArchLucid.Cli\ArchLucid.Cli.csproj'
 
 $savedConn = $env:ConnectionStrings__ArchLucid
 $savedApiUrl = $env:ARCHLUCID_API_URL
+$savedArchLucidApiKeyForSmoke = $env:ARCHLUCID_API_KEY
+$script:releaseSmokeSetApiKeyFromParam = (-not [string]::IsNullOrWhiteSpace($ApiKey))
+
+if ($script:releaseSmokeSetApiKeyFromParam) {
+    $env:ARCHLUCID_API_KEY = $ApiKey.Trim()
+}
+
 $apiProc = $null
 $tempRoot = $null
 
@@ -129,6 +143,16 @@ function Restore-Env
 
     if ($null -eq $savedApiUrl) { Remove-Item Env:\ARCHLUCID_API_URL -ErrorAction SilentlyContinue }
     else { $env:ARCHLUCID_API_URL = $savedApiUrl }
+
+    if ($script:releaseSmokeSetApiKeyFromParam) {
+
+        if ($null -eq $savedArchLucidApiKeyForSmoke -or [string]::IsNullOrWhiteSpace($savedArchLucidApiKeyForSmoke)) {
+            Remove-Item Env:\ARCHLUCID_API_KEY -ErrorAction SilentlyContinue
+        }
+        else {
+            $env:ARCHLUCID_API_KEY = $savedArchLucidApiKeyForSmoke
+        }
+    }
 }
 
 function Ensure-ReleaseSmokePlaywrightChromiumBrowsersInstalled {
@@ -637,7 +661,7 @@ try
             exit 1
         }
 
-        $probe = Get-ArchLucidHttpProbe -Uri $readyUrl -TimeoutSec 2
+        $probe = Get-ArchLucidHttpProbe -Uri $readyUrl -TimeoutSec 2 -Headers $releaseSmokeAuthHeaders
 
         if ($probe.Ok -and $probe.StatusCode -eq 200) {
             $ready = $true
@@ -659,12 +683,12 @@ try
             'docs/TROUBLESHOOTING.md — SQL, port 5128, ArchLucid:StorageProvider',
             'Pilot misconfig: wrong connection string or SQL unreachable from this machine'
         )
-        Write-ArchLucidReadinessTimeoutDiagnostics -ApiBaseUrl $ApiBaseUrl
+        Write-ArchLucidReadinessTimeoutDiagnostics -ApiBaseUrl $ApiBaseUrl -ProbeHeaders $releaseSmokeAuthHeaders
         exit 1
     }
 
     $liveUrl = $ApiBaseUrl.TrimEnd('/') + '/health/live'
-    $liveProbe = Get-ArchLucidHttpProbe -Uri $liveUrl -TimeoutSec 8
+    $liveProbe = Get-ArchLucidHttpProbe -Uri $liveUrl -TimeoutSec 8 -Headers $releaseSmokeAuthHeaders
 
     if (-not $liveProbe.Ok -or $liveProbe.StatusCode -ne 200) {
         Write-OperatorFailureTriage -Stage '5/6 Liveness after readiness' -Category 'LivenessFailure' `
@@ -731,7 +755,17 @@ try
     }
 
     Write-OperatorPhaseHeader -Title "Verify manifest + synthesized artifacts (run $runId)" -Step 6 -Total 6
-    $runJson = Invoke-RestMethod -Uri ($ApiBaseUrl.TrimEnd('/') + '/v1/architecture/run/' + $runId) -Method Get
+
+    $artifactGetParams = @{
+        Uri    = ($ApiBaseUrl.TrimEnd('/') + '/v1/architecture/run/' + $runId)
+        Method = 'Get'
+    }
+
+    if ($releaseSmokeAuthHeaders.Count -gt 0) {
+        $artifactGetParams.Headers = $releaseSmokeAuthHeaders
+    }
+
+    $runJson = Invoke-RestMethod @artifactGetParams
     $manifestId = $runJson.run.goldenManifestId
     if ([string]::IsNullOrWhiteSpace($manifestId)) {
         Write-OperatorFailureTriage -Stage '6/6 Artifact verification' -Category 'MissingGoldenManifest' `
@@ -744,7 +778,16 @@ try
     }
 
     try {
-        $artifacts = Invoke-RestMethod -Uri ($ApiBaseUrl.TrimEnd('/') + '/v1/artifacts/manifests/' + $manifestId) -Method Get
+        $manifestGetParams = @{
+            Uri    = ($ApiBaseUrl.TrimEnd('/') + '/v1/artifacts/manifests/' + $manifestId)
+            Method = 'Get'
+        }
+
+        if ($releaseSmokeAuthHeaders.Count -gt 0) {
+            $manifestGetParams.Headers = $releaseSmokeAuthHeaders
+        }
+
+        $artifacts = Invoke-RestMethod @manifestGetParams
     }
     catch {
         Write-OperatorFailureTriage -Stage '6/6 Artifact verification' -Category 'ArtifactsApiFailure' `

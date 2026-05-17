@@ -8,11 +8,13 @@ import {
   auditExportControlDisabledTitle,
   auditExportCsvButtonLabelRoleRestricted,
   auditExportCsvButtonLabelWindowIncomplete,
+  auditExportSampleWorkspaceCsvHintBuyerPolished,
   auditLoadMoreButtonTitleOperator,
   auditLoadMoreButtonTitleReader,
   auditResultsSectionHeadingBuyerPolished,
   auditResultsSectionHeadingOperator,
   auditResultsSectionHeadingReader,
+  auditResultsSectionIntroBuyerPolished,
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
@@ -72,10 +74,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
       </h3>
       <p className="text-neutral-600 dark:text-neutral-400 text-[13px] mt-0 mb-2 max-w-2xl">
         {buyerPolishedShell ? (
-          <>
-            Each milestone is traceable to an actor, time, and review context. For deeper verification, expand the
-            technical appendix below for technical audit metadata when your procurement or IT team needs it.
-          </>
+          <>{auditResultsSectionIntroBuyerPolished}</>
         ) : (
           <>
             Each card is one <GlossaryTooltip termKey="audit_event">audit event</GlossaryTooltip>
@@ -175,9 +174,23 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
             ) : null}
             {buyerPolishedShell && events.length > 0 ? (
               <div className="mt-6 border-t border-neutral-200 pt-4 dark:border-neutral-700">
+                {isNextPublicDemoMode() && !csvExportUiAllowed ? (
+                  <p
+                    className="mb-2 max-w-prose text-xs text-neutral-500 dark:text-neutral-400"
+                    data-testid="audit-buyer-sample-csv-hint"
+                  >
+                    {auditExportSampleWorkspaceCsvHintBuyerPolished}
+                  </p>
+                ) : null}
                 <Button
                   type="button"
-                  variant={csvExportUiAllowed ? "default" : "outline"}
+                  variant={
+                    csvExportUiAllowed
+                      ? "primary"
+                      : isNextPublicDemoMode()
+                        ? "secondary"
+                        : "outline"
+                  }
                   size="sm"
                   onClick={() => void onExportCsv()}
                   disabled={!csvExportUiAllowed || exporting || searching}

@@ -10,6 +10,8 @@ param(
 
     [switch]$RunRcDrill,
 
+    [string]$BearerToken = "",
+
     [string]$ApiKey = ""
 )
 
@@ -17,6 +19,8 @@ $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $repoRoot
+
+. (Join-Path $PSScriptRoot 'ArchLucid.AuthHeaders.ps1')
 
 function Add-Result {
     param(
@@ -37,7 +41,18 @@ function Invoke-JsonProbe {
     )
 
     try {
-        $response = Invoke-WebRequest -Uri $Url -Headers $Headers -Method Get -UseBasicParsing -TimeoutSec 30
+        $req = @{
+            Uri             = $Url
+            Method          = 'Get'
+            UseBasicParsing = $true
+            TimeoutSec      = 30
+        }
+
+        if ($null -ne $Headers -and $Headers.Count -gt 0) {
+            $req.Headers = $Headers
+        }
+
+        $response = Invoke-WebRequest @req
         return @{
             Status = "PASS"
             Detail = "HTTP $($response.StatusCode); $($response.Content.Substring(0, [Math]::Min(400, $response.Content.Length)))"
@@ -57,12 +72,7 @@ $outputRoot = Join-Path (Get-Location) $OutputDirectory
 New-Item -ItemType Directory -Force -Path $outputRoot | Out-Null
 $outputPath = Join-Path $outputRoot "staging-readiness-$timestamp.md"
 
-$headers = @{}
-if (-not [string]::IsNullOrWhiteSpace($ApiKey)) {
-    $headers["X-Api-Key"] = $ApiKey
-}
-
-$lines = [System.Collections.Generic.List[string]]::new()
+$headers = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
 $lines.Add("# ArchLucid staging readiness evidence")
 $lines.Add("")
 $lines.Add("| Field | Value |")
@@ -70,7 +80,9 @@ $lines.Add("| --- | --- |")
 $lines.Add("| Generated UTC | $timestamp |")
 $lines.Add("| Base URL | $normalizedBaseUrl |")
 $lines.Add("| Auth mode declared | $AuthMode |")
-$lines.Add("| API key supplied | $(-not [string]::IsNullOrWhiteSpace($ApiKey)) |")
+$lines.Add("| Bearer token supplied (param) | $(-not [string]::IsNullOrWhiteSpace($BearerToken)) |")
+$lines.Add("| API key supplied (param) | $(-not [string]::IsNullOrWhiteSpace($ApiKey)) |")
+$lines.Add("| HTTP auth headers present | $($headers.Count -gt 0) |")
 $lines.Add("")
 $lines.Add("## Probe Results")
 $lines.Add("")
@@ -102,7 +114,7 @@ else {
 
 if ($RunRcDrill) {
     try {
-        $rcOutput = & (Join-Path $PSScriptRoot 'v1-rc-drill.ps1') -ApiBaseUrl $normalizedBaseUrl 2>&1 | Out-String
+        $rcOutput = & (Join-Path $PSScriptRoot 'v1-rc-drill.ps1') -ApiBaseUrl $normalizedBaseUrl -BearerToken $BearerToken -ApiKey $ApiKey 2>&1 | Out-String
         Add-Result -Lines $lines -Name "v1-rc-drill" -Status "PASS" -Detail $rcOutput.Trim()
     }
     catch {
