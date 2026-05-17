@@ -289,7 +289,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         <caption
           class="border-b border-neutral-200 bg-neutral-100 px-3 py-2 text-left text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
         >
-          ArchLucid vs typical adjacent stacks — scoped technical rows
+          ArchLucid vs typical adjacent stacks — governance-focused capability rows
         </caption>
         <thead>
           <tr

@@ -61,7 +61,7 @@ describe("SidebarNav (primary navigation)", () => {
         "Capture — start a new architecture review (guided wizard through pipeline tracking) (Alt+N)",
       );
       expect(within(nav).getByRole("link", { name: "Evidence trail" })).toHaveAttribute("href", "/graph");
-      expect(within(nav).getByRole("link", { name: "Review" })).toHaveAttribute("href", "/reviews?projectId=default");
+      expect(within(nav).getByRole("link", { name: "Review package" })).toHaveAttribute("href", "/reviews?projectId=default");
       expect(within(nav).getByRole("link", { name: "Report" })).toHaveAttribute("href", "/dashboard");
 
       expect(within(nav).queryByRole("link", { name: "Compare two reviews" })).toBeNull();
