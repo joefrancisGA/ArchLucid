@@ -747,13 +747,15 @@ Pin demo workspace seeds (SQL + blob fixtures) to versioned packages consumed by
 - Why it matters: Large monorepo surface increases accidental coupling; automated boundaries protect maintainability at scale.
 - Expected impact: Maintainability (+4 pts), Modularity (+2 pts). Weighted readiness impact: +0.10%.
 - Affected qualities: Maintainability, Modularity.
-- Actionable: Yes
+- Actionable: Completed
 
 ```markdown
 Introduce architecture tests in `ArchLucid.TestSupport` (or a dedicated test project) that enforce layer rules (e.g. `ArchLucid.Core` must not reference `ArchLucid.Api`, UI must not reference persistence).
 - Start with a minimal rule set matching `.cursor/rules/Architecture-Invariants.mdc` INV-* pointers; expand incrementally.
 - Wire into existing `dotnet test` CI; fail on violation.
 - Acceptance criteria: At least five boundary rules run in CI and block obvious layer violations.
+
+**Delivered:** **`ArchLucid.Architecture.Tests`** — **NetArchTest.Rules** (not ArchUnit.NET; equivalent dependency-graph checks). Boundary rules live in **`DependencyConstraintTests.cs`** plus companion architecture test types; tests use **`Trait("Suite","Core")`** so **`dotnet test ArchLucid.sln --filter Suite=Core&…`** in **`.github/workflows/ci.yml`** runs them merge-blocking. **`Api_must_not_reference_Persistence_assembly`** guards the HTTP host against direct **`ArchLucid.Persistence`** coupling. SPA layering (`archlucid-ui` vs persistence) remains a separate surface — track with ESLint import boundaries if needed; .NET **`Suite=Core`** already encodes ≥5 host/library rules.
 ```
 
 24. **Surface finding confidence and evidence links prominently in review UI**
@@ -808,7 +810,7 @@ Implement marketing landing page sections in `archlucid-ui/src/app/(marketing)/`
 - **Batch 2 (Performance & Observability):** 5, 7, 10, 11, 21. Operational robustness, SQL retries, LLM tracing, orchestration limits, and DTF parity smoke.
 - **Batch 3 (Testing, Analytics & ROI):** **16 — baseline wizard — COMPLETED** **2026-05-17** (**item 12 — data residency — COMPLETED** **2026-05-16**; do not re-prompt).
 - **Batch 4 (UX & adoption):** 6, 15, 19, **20 — security baseline pack expansion — COMPLETED** **2026-05-17**, 22, 24. Dashboard health, rule UI, progressive disclosure, pack depth, demo smoke, and finding trust signals.
-- **Batch 5 (Architecture hygiene):** 23. ArchUnitNET boundaries — isolated PR, expand rules incrementally.
+- **Batch 5 (Architecture hygiene):** **23 — NetArchTest boundary suite — COMPLETED** **2026-05-17** (expand rules incrementally in **`ArchLucid.Architecture.Tests`** as needs arise).
 - **Batch 6 (Integrations — credential-dependent):** 25. ServiceNow bi-directional sync when **P10** developer instance is available; do not block other batches.
 - **Batch 7 (Marketing landing page — GTM gate):** 33. Marketing landing page content implementation (`WelcomeMarketingPage.tsx` + `(marketing)/layout.tsx`); coordinate with GTM task **M-09** in `docs/go-to-market/GTM_BACKLOG.md`. Copy review must precede engineering implementation — do not build placeholder content.
 - **Deferred / V1.1 program (do not batch into V1 execution):** **Azure CAF / landing-zone curated policy pack**; **bulk evidence upload above 30 files**, ZIP expansion, recursive folder ingest; Stripe live keys / Marketplace (**#7** in commercial packaging notes). Plan V1.1 slices with dedicated context (see **`V1_SCOPE.md`**, **`V1_DEFERRED.md`**, pinned backlog docs — not re-listed here).
