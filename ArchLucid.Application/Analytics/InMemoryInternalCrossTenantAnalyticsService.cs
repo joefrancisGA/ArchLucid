@@ -1,10 +1,19 @@
 using ArchLucid.Core.Analytics;
+using ArchLucid.Persistence.Analytics;
 
 namespace ArchLucid.Application.Analytics;
 
 /// <summary>In-memory hosts do not model SQL row stores; return an empty-shaped summary.</summary>
-public sealed class InMemoryInternalCrossTenantAnalyticsService : IInternalCrossTenantAnalyticsService
+public sealed class InMemoryInternalCrossTenantAnalyticsService(
+    IInternalCrossTenantRollupRepository rollupRepository,
+    InternalCrossTenantRollupProcessor rollupProcessor) : IInternalCrossTenantAnalyticsService
 {
+    private readonly IInternalCrossTenantRollupRepository _rollupRepository =
+        rollupRepository ?? throw new ArgumentNullException(nameof(rollupRepository));
+
+    private readonly InternalCrossTenantRollupProcessor _rollupProcessor =
+        rollupProcessor ?? throw new ArgumentNullException(nameof(rollupProcessor));
+
     /// <inheritdoc />
     public Task<InternalCrossTenantAnalyticsSummary> GetSummaryAsync(CancellationToken cancellationToken = default)
     {
@@ -19,4 +28,26 @@ public sealed class InMemoryInternalCrossTenantAnalyticsService : IInternalCross
 
         return Task.FromResult(summary);
     }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<InternalCrossTenantRollupDailyRow>> GetDailyRollupsAsync(
+        DateOnly rollupDate,
+        CancellationToken cancellationToken = default)
+    {
+        return _rollupRepository.ListDailyRowsAsync(rollupDate, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task RefreshDailyRollupsAsync(DateOnly rollupDate, CancellationToken cancellationToken = default)
+    {
+        return _rollupProcessor.RefreshDailyRollupsAsync(rollupDate, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public string ExportDailyRollupsCsv(IReadOnlyList<InternalCrossTenantRollupDailyRow> rows) =>
+        InternalCrossTenantRollupExportFormatter.ToCsv(rows);
+
+    /// <inheritdoc />
+    public string ExportDailyRollupsJson(IReadOnlyList<InternalCrossTenantRollupDailyRow> rows) =>
+        InternalCrossTenantRollupExportFormatter.ToJson(rows);
 }

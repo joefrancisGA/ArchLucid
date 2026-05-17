@@ -34,4 +34,32 @@ public sealed class InternalCrossTenantAnalyticsEndpointTests
         body.TotalRunsNonArchived.Should().BeGreaterThanOrEqualTo(0);
         body.TotalCompletedRuns.Should().BeGreaterThanOrEqualTo(0);
     }
+
+    [Fact]
+    public async Task GetDailyRollups_returns_ok_with_list_shape()
+    {
+        await using OperatorRoleArchLucidApiFactory factory = new();
+        using HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response = await client.GetAsync("/v1/internal/analytics/cross-tenant/daily");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task ExportDailyRollups_csv_does_not_contain_guid_literals()
+    {
+        await using OperatorRoleArchLucidApiFactory factory = new();
+        using HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response =
+            await client.GetAsync("/v1/internal/analytics/cross-tenant/daily/export?format=csv");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        string body = await response.Content.ReadAsStringAsync();
+
+        body.Should().Contain("analytics_tenant_key");
+        body.Should().NotMatchRegex(
+            "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
+    }
 }

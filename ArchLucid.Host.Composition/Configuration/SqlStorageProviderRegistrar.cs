@@ -180,6 +180,9 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
                 sp.GetRequiredService<IScopeContextProvider>(),
                 sp.GetRequiredService<IOptionsMonitor<SqlTopologyOptions>>()));
 
+        services.AddScoped<IInternalCrossTenantMetricsCollector, SqlInternalCrossTenantMetricsCollector>();
+        services.AddScoped<IInternalCrossTenantRollupRepository, SqlInternalCrossTenantRollupRepository>();
+        services.AddScoped<InternalCrossTenantRollupProcessor>();
         services.AddScoped<IInternalCrossTenantAnalyticsService, SqlInternalCrossTenantAnalyticsService>();
 
         services.AddScoped<ResilientSqlConnectionFactory>(sp =>

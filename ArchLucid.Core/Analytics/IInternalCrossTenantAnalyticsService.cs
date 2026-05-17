@@ -7,4 +7,16 @@ public interface IInternalCrossTenantAnalyticsService
 {
     Task<InternalCrossTenantAnalyticsSummary> GetSummaryAsync(
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<InternalCrossTenantRollupDailyRow>> GetDailyRollupsAsync(
+        DateOnly rollupDate,
+        CancellationToken cancellationToken = default);
+
+    Task RefreshDailyRollupsAsync(
+        DateOnly rollupDate,
+        CancellationToken cancellationToken = default);
+
+    string ExportDailyRollupsCsv(IReadOnlyList<InternalCrossTenantRollupDailyRow> rows);
+
+    string ExportDailyRollupsJson(IReadOnlyList<InternalCrossTenantRollupDailyRow> rows);
 }

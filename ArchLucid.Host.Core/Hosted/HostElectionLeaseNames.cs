@@ -34,4 +34,6 @@ public static class HostElectionLeaseNames
     public const string ArchitectureProjectRetentionPurge = "hosted:architecture-project-retention-purge";
 
     public const string AzureExtractorAutoPull = "hosted:azure-extractor-auto-pull";
+
+    public const string InternalCrossTenantRollup = "hosted:internal-cross-tenant-rollup";
 }

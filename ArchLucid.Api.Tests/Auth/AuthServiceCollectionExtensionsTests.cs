@@ -41,9 +41,9 @@ public sealed class AuthServiceCollectionExtensionsTests
         jwtOptions.Authority.Should().Be("https://generic-oidc.local/");
         jwtOptions.Audience.Should().Be("test-api");
 
-        // When Authority is set and no explicit MetadataAddress/ConfigurationManager is provided, 
+        // When Authority is set and no explicit MetadataAddress/ConfigurationManager is provided,
         // ASP.NET Core JwtBearerHandler will automatically append .well-known/openid-configuration for JWKS discovery.
-        
+
         // Verify Role mapping configuration
         jwtOptions.TokenValidationParameters.RoleClaimType.Should().Be("roles");
 

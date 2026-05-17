@@ -1,4 +1,3 @@
-using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Analytics;
@@ -6,8 +5,6 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
-
-using Dapper;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
@@ -26,12 +23,16 @@ public sealed class SqlInternalCrossTenantAnalyticsService : IInternalCrossTenan
     private readonly IOptionsMonitor<SqlTopologyOptions> _topologyOptions;
     private readonly ITenantDatabaseBindingRepository _tenantDatabaseBindingRepository;
     private readonly ITenantDatabaseResolver _tenantDatabaseResolver;
+    private readonly IInternalCrossTenantRollupRepository _rollupRepository;
+    private readonly InternalCrossTenantRollupProcessor _rollupProcessor;
 
     public SqlInternalCrossTenantAnalyticsService(
         SqlConnectionFactory connectionFactory,
         IOptionsMonitor<SqlTopologyOptions> topologyOptions,
         ITenantDatabaseBindingRepository tenantDatabaseBindingRepository,
-        ITenantDatabaseResolver tenantDatabaseResolver)
+        ITenantDatabaseResolver tenantDatabaseResolver,
+        IInternalCrossTenantRollupRepository rollupRepository,
+        InternalCrossTenantRollupProcessor rollupProcessor)
     {
         _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
         _topologyOptions = topologyOptions ?? throw new ArgumentNullException(nameof(topologyOptions));
@@ -39,6 +40,8 @@ public sealed class SqlInternalCrossTenantAnalyticsService : IInternalCrossTenan
             tenantDatabaseBindingRepository ?? throw new ArgumentNullException(nameof(tenantDatabaseBindingRepository));
         _tenantDatabaseResolver =
             tenantDatabaseResolver ?? throw new ArgumentNullException(nameof(tenantDatabaseResolver));
+        _rollupRepository = rollupRepository ?? throw new ArgumentNullException(nameof(rollupRepository));
+        _rollupProcessor = rollupProcessor ?? throw new ArgumentNullException(nameof(rollupProcessor));
     }
 
     /// <inheritdoc />
@@ -49,9 +52,13 @@ public sealed class SqlInternalCrossTenantAnalyticsService : IInternalCrossTenan
         if (snapshot.Mode == SqlTopologyMode.SingleCatalog)
         {
             await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-            await ApplyRowLevelSecurityBypassAsync(connection, cancellationToken);
-            RowTotals rowTotals = await QueryRunTotalsAsync(connection, cancellationToken);
-            decimal hoursSaved = await QueryEngineeringHoursSavedIfPresentAsync(connection, cancellationToken);
+            await InternalCrossTenantSqlMetricsQueries.ApplyRowLevelSecurityBypassAsync(connection, cancellationToken);
+
+            InternalCrossTenantSqlMetricsQueries.CatalogRunTotalsRow rowTotals =
+                await InternalCrossTenantSqlMetricsQueries.QueryCatalogRunTotalsAsync(connection, cancellationToken);
+
+            decimal hoursSaved =
+                await InternalCrossTenantSqlMetricsQueries.QueryEngineeringHoursSavedAsync(connection, null, cancellationToken);
 
             return BuildSummary(1, rowTotals, hoursSaved);
         }
@@ -86,12 +93,20 @@ public sealed class SqlInternalCrossTenantAnalyticsService : IInternalCrossTenan
 
             await using SqlConnection tenantConnection = new(tenantConnectionString);
             await tenantConnection.OpenAsync(cancellationToken);
-            await ApplyRowLevelSecurityBypassAsync(tenantConnection, cancellationToken);
-            RowTotals part = await QueryRunTotalsAsync(tenantConnection, cancellationToken);
-            decimal partHours = await QueryEngineeringHoursSavedIfPresentAsync(tenantConnection, cancellationToken);
+            await InternalCrossTenantSqlMetricsQueries.ApplyRowLevelSecurityBypassAsync(tenantConnection, cancellationToken);
+
+            InternalCrossTenantSqlMetricsQueries.CatalogRunTotalsRow part =
+                await InternalCrossTenantSqlMetricsQueries.QueryCatalogRunTotalsAsync(tenantConnection, cancellationToken);
+
+            decimal partHours =
+                await InternalCrossTenantSqlMetricsQueries.QueryEngineeringHoursSavedAsync(
+                    tenantConnection,
+                    null,
+                    cancellationToken);
+
             catalogs++;
             sumTotalRuns += part.TotalRunsNonArchived;
-            sumCompleted += part.CompletedRuns;
+            sumCompleted += part.TotalCompletedRuns;
             sumCompletionSeconds += part.SumCompletionSeconds;
             sumHoursSaved += partHours;
         }
@@ -99,15 +114,37 @@ public sealed class SqlInternalCrossTenantAnalyticsService : IInternalCrossTenan
         return BuildSummaryFromParts(catalogs, sumTotalRuns, sumCompleted, sumCompletionSeconds, sumHoursSaved);
     }
 
+    /// <inheritdoc />
+    public Task<IReadOnlyList<InternalCrossTenantRollupDailyRow>> GetDailyRollupsAsync(
+        DateOnly rollupDate,
+        CancellationToken cancellationToken = default)
+    {
+        return _rollupRepository.ListDailyRowsAsync(rollupDate, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task RefreshDailyRollupsAsync(DateOnly rollupDate, CancellationToken cancellationToken = default)
+    {
+        return _rollupProcessor.RefreshDailyRollupsAsync(rollupDate, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public string ExportDailyRollupsCsv(IReadOnlyList<InternalCrossTenantRollupDailyRow> rows) =>
+        InternalCrossTenantRollupExportFormatter.ToCsv(rows);
+
+    /// <inheritdoc />
+    public string ExportDailyRollupsJson(IReadOnlyList<InternalCrossTenantRollupDailyRow> rows) =>
+        InternalCrossTenantRollupExportFormatter.ToJson(rows);
+
     private static InternalCrossTenantAnalyticsSummary BuildSummary(
         int catalogs,
-        RowTotals rowTotals,
+        InternalCrossTenantSqlMetricsQueries.CatalogRunTotalsRow rowTotals,
         decimal hoursSaved)
     {
         return BuildSummaryFromParts(
             catalogs,
             rowTotals.TotalRunsNonArchived,
-            rowTotals.CompletedRuns,
+            rowTotals.TotalCompletedRuns,
             rowTotals.SumCompletionSeconds,
             hoursSaved);
     }
@@ -133,76 +170,4 @@ public sealed class SqlInternalCrossTenantAnalyticsService : IInternalCrossTenan
             TotalEstimatedEngineeringHoursSaved = sumHoursSaved,
         };
     }
-
-    /// <summary>
-    ///     When RLS policies are enabled, this key must be set on the connection before cross-tenant aggregates that
-    ///     intentionally span tenants (see <c>rls.archlucid_scope_predicate</c> in DbUp migrations).
-    /// </summary>
-    private static async Task ApplyRowLevelSecurityBypassAsync(
-        SqlConnection connection,
-        CancellationToken cancellationToken)
-    {
-        await using SqlCommand cmd = connection.CreateCommand();
-        cmd.CommandText =
-            """
-            EXEC sys.sp_set_session_context @key = N'al_rls_bypass', @value = @Bypass, @read_only = 0;
-            """;
-        SqlParameter bypass = cmd.Parameters.Add("@Bypass", SqlDbType.Int);
-        bypass.Value = 1;
-
-        await cmd.ExecuteNonQueryAsync(cancellationToken);
-    }
-
-    private static async Task<RowTotals> QueryRunTotalsAsync(
-        SqlConnection connection,
-        CancellationToken cancellationToken)
-    {
-        const string sql = """
-                           SELECT (SELECT COUNT(*)
-                                   FROM dbo.Runs AS r
-                                   WHERE r.ArchivedUtc IS NULL) AS TotalRunsNonArchived,
-                                  (SELECT COUNT(*)
-                                   FROM dbo.Runs AS r
-                                   WHERE r.CompletedUtc IS NOT NULL
-                                     AND r.ArchivedUtc IS NULL) AS CompletedRuns,
-                                  (SELECT ISNULL(SUM(CAST(DATEDIFF_BIG(SECOND, r.CreatedUtc, r.CompletedUtc) AS FLOAT)),
-                                                 0.0)
-                                   FROM dbo.Runs AS r
-                                   WHERE r.CompletedUtc IS NOT NULL
-                                     AND r.ArchivedUtc IS NULL) AS SumCompletionSeconds;
-                           """;
-
-        RowTotals row = await connection.QuerySingleAsync<RowTotals>(
-            new CommandDefinition(sql, cancellationToken: cancellationToken));
-
-        return row;
-    }
-
-    private static async Task<decimal> QueryEngineeringHoursSavedIfPresentAsync(
-        SqlConnection connection,
-        CancellationToken cancellationToken)
-    {
-        const string existsSql = """
-                                 SELECT CASE WHEN OBJECT_ID(N'dbo.RunTelemetry', N'U') IS NULL THEN 0 ELSE 1 END;
-                                 """;
-
-        int exists = await connection.QuerySingleAsync<int>(new CommandDefinition(existsSql, cancellationToken: cancellationToken));
-
-        if (exists == 0)
-            return 0;
-
-        const string sql = """
-                           SELECT CAST(ISNULL(SUM(CAST(rt.EstimatedHoursSaved AS DECIMAL(18, 2))), 0) AS DECIMAL(18, 2))
-                           FROM dbo.RunTelemetry AS rt
-                                    INNER JOIN dbo.Runs AS r ON r.RunId = rt.RunId
-                           WHERE r.ArchivedUtc IS NULL;
-                           """;
-
-        return await connection.QuerySingleAsync<decimal>(new CommandDefinition(sql, cancellationToken: cancellationToken));
-    }
-
-    private sealed record RowTotals(
-        long TotalRunsNonArchived,
-        long CompletedRuns,
-        double SumCompletionSeconds);
 }

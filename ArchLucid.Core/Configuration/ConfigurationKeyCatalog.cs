@@ -10,7 +10,7 @@ public static class ConfigurationKeyCatalog
 
     private static IReadOnlyList<ConfigurationKeyEntry> Build()
     {
-        return new List<ConfigurationKeyEntry>(158)
+        return new List<ConfigurationKeyEntry>(161)
         {
             E("Hosting", "Hosting:LogStartupConfigurationSummary", M("appsettings", "env"), "true", "—",
                 "Log effective configuration on startup (host).", ConfigKeyRequirementKind.None),
@@ -56,6 +56,14 @@ public static class ConfigurationKeyCatalog
                 ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:Notifications:TrialLifecycle:Owner", M("appsettings", "env"), "Hosted", "—",
                 "Who runs trial notification emails for this tenant class.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:InternalCrossTenantAnalytics:RollupJobEnabled", M("appsettings", "env"), "true", "—",
+                "Leader-elected worker that writes dbo.InternalCrossTenantRollupDaily.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:InternalCrossTenantAnalytics:RollupIntervalHours", M("appsettings", "env"), "24",
+                "—", "Hours between rollup passes (UTC calendar day).", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:InternalCrossTenantAnalytics:PseudonymizationSalt", M("appsettings", "env", "KeyVault"),
+                "empty", "When SQL rollups run",
+                "HMAC key material for AnalyticsTenantKey (never store raw tenant ids in rollup tables).",
+                ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:Enabled", M("appsettings", "env"), "true", "—",
                 "Enables quality gate for agent output.", ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:Mode", M("appsettings", "env"), "WarnOnly", "—",

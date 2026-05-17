@@ -58,6 +58,7 @@ using ArchLucid.Persistence.Coordination.Replay;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.CustomerSuccess;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Analytics;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Feedback;
 using ArchLucid.Persistence.Findings;
@@ -207,6 +208,9 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
 
         services.AddSingleton<IOutboxOperationalMetricsReader, InMemoryOutboxOperationalMetricsReader>();
         services.AddSingleton<ITrialFunnelOperationalMetricsReader, InMemoryTrialFunnelOperationalMetricsReader>();
+        services.AddSingleton<IInternalCrossTenantMetricsCollector, InMemoryInternalCrossTenantMetricsCollector>();
+        services.AddSingleton<IInternalCrossTenantRollupRepository, InMemoryInternalCrossTenantRollupRepository>();
+        services.AddSingleton<InternalCrossTenantRollupProcessor>();
         services.AddSingleton<IInternalCrossTenantAnalyticsService, InMemoryInternalCrossTenantAnalyticsService>();
         services.AddScoped<ITrialFunnelCommitHook, SqlTrialFunnelCommitHook>();
         // In-memory hosts intentionally omit ISqlConnectionFactory; first-session SQL persistence is not modeled here.

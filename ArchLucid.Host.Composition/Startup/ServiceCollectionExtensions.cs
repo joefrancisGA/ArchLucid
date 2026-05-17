@@ -77,6 +77,7 @@ public static partial class ServiceCollectionExtensions
         RegisterTrialLifecycleScheduler(services, configuration, hostingRole);
         RegisterTrialArchitecturePreseed(services, configuration, hostingRole);
         RegisterTenantHealthScoring(services, configuration, hostingRole);
+        RegisterInternalCrossTenantAnalytics(services, configuration, hostingRole);
         RegisterDigestDelivery(services, configuration);
         RegisterIntegrationEventPublishing(services, configuration);
         RegisterTrialLifecycleAuditEmailPublishing(services);
