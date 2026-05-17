@@ -665,7 +665,7 @@ Add a first-run (or settings) wizard in `archlucid-ui` that captures pilot basel
 
 ```markdown
 On sponsor brief, first-value report, and architecture-review export preview routes, show a prominent **Missing baseline** banner when required ROI baseline fields are unset.
-- Link the banner to **Add guided baseline collection wizard (onboarding)** (item **16** above).
+- Link the banner to **Add guided baseline collection wizard (onboarding)** (item **16** above — **COMPLETED** **2026-05-17**).
 - Do not block read-only preview; block **sendable** or **download** classification when marketing requires quantified claims.
 - Acceptance criteria: Operators cannot mistake an incomplete baseline package for board-ready ROI proof.
 ```
@@ -779,7 +779,7 @@ Implement status sync between ArchLucid review/findings state and ServiceNow cha
 
 - **Batch 1 (High Leverage, Low Risk):** 3, 4, 8, 14, 17, 18. Correctness, observability, documentation, live E2E, executive baseline honesty, and a11y CI without large architecture moves.
 - **Batch 2 (Performance & Observability):** 5, 7, 10, 11, 21. Operational robustness, SQL retries, LLM tracing, orchestration limits, and DTF parity smoke.
-- **Batch 3 (Testing, Analytics & ROI):** 16 — baseline wizard (**item 12 — data residency — COMPLETED** **2026-05-16**; do not re-prompt).
+- **Batch 3 (Testing, Analytics & ROI):** **16 — baseline wizard — COMPLETED** **2026-05-17** (**item 12 — data residency — COMPLETED** **2026-05-16**; do not re-prompt).
 - **Batch 4 (UX & adoption):** 6, 15, 19, 20, 22, 24. Dashboard health, rule UI, progressive disclosure, pack depth, demo smoke, and finding trust signals.
 - **Batch 5 (Architecture hygiene):** 23. ArchUnitNET boundaries — isolated PR, expand rules incrementally.
 - **Batch 6 (Integrations — credential-dependent):** 25. ServiceNow bi-directional sync when **P10** developer instance is available; do not block other batches.
