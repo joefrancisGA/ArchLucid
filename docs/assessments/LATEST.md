@@ -255,7 +255,7 @@
 - **Weighted deficiency signal:** 25
 - **Justification:** Basic web accessibility is present.
 - **Tradeoffs:** No participant user testing with assistive technologies (not a V1 requirement).
-- **Improvement recommendations:** Integrate axe-core into the CI pipeline for automated basic web accessibility checks.
+- **Improvement recommendations:** None for automated baseline scans — merge-blocking **`@axe-core/playwright`** runs in **`ui-e2e-live`** and **`ui-playwright-accessibility`** (see **`archlucid-ui/e2e/live-api-accessibility.spec.ts`**). Participant assistive-technology studies remain out of V1 scope (see tradeoffs).
 
 ### 28. Change Impact Clarity
 - **Score:** 100
@@ -672,17 +672,19 @@ On sponsor brief, first-value report, and architecture-review export preview rou
 **Delivered:** Post-commit **`EmailRunToSponsorBanner`** (**`/runs/{runId}`**): amber **`role="alert"`** banner **`email-run-to-sponsor-roi-baseline-gap`** (**Missing tenant ROI baselines**) when **`GET /v1/tenant/baseline`** is incomplete (**`isPilotRoiBaselineComplete`**) alongside **`pilot-run-deltas`** readiness; **`PILOT_BASELINE_WIZARD_OPEN_EVENT`** + **`/settings/baseline`** CTA (**item 16** wizard). Sponsor **PDF** primary action disabled until baselines captured; Markdown first-value report, architecture **DOCX**, and ZIP exports remain available (read-only / collateral downloads). Persisted **`describeSponsorProofReadiness`** (**`src/lib/pilot-proof-readiness.ts`**) exposes **NeedsBaseline** vs **Sendable** copy for sponsor-send posture. **`GenerateSponsorValueReportButton`** gates tenant sponsor **DOCX** via **`usePilotRoiBaselineCompleteness`**. Vitest: **`EmailRunToSponsorBanner.test.tsx`** (ROI baseline gate).
 ```
 
-18. **Integrate axe-core accessibility checks in CI**
+18. **COMPLETED:** Integrate axe-core accessibility checks in CI
 - Why it matters: Catches regressions on operator-shell pages without claiming full assistive-technology user-study coverage (out of V1 headline scope).
-- Expected impact: Accessibility (+8 pts). Weighted readiness impact: +0.08%.
+- Expected impact: (Delivered **2026-05-17**.) Accessibility (+8 pts). Weighted readiness impact: +0.08%.
 - Affected qualities: Accessibility.
-- Actionable: Yes
+- Actionable: Completed
 
 ```markdown
 Add `@axe-core/playwright` (or equivalent) to the existing Playwright CI job for golden-path operator routes (Home, Reviews list, Review detail, Manifest).
 - Fail the job on serious/critical violations; allow a short documented allowlist file checked into `archlucid-ui` with expiry comments.
 - Do not replace manual AT studies — document that limitation in the test README.
 - Acceptance criteria: CI fails when a serious a11y regression lands on covered routes.
+
+**Delivered:** **`@axe-core/playwright`** in **`archlucid-ui/package.json`**; live merge-blocking **`ui-e2e-live`** runs **`live-api-accessibility*.spec.ts`** with **`runAxe`** (**`e2e/helpers/axe-helper.ts`**) gating **critical** and **serious** violations. Default CI subset always includes golden paths via **`GOLDEN_PATH_OPERATOR_A11Y_PAGES`** in **`e2e/live-api-accessibility.spec.ts`**. Checked-in suppressions: **`e2e/axe-rule-allowlist.ts`** (empty list; expiry required when used). Mock **`ui-playwright-accessibility`** runs **`npm run test:e2e:accessibility`**. Limitation (no substitute for AT user studies): **`archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md`** § *Live accessibility*.
 ```
 
 19. **Implement progressive disclosure for advanced governance routes**

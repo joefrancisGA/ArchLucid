@@ -19,6 +19,46 @@ const KNOWN_REFERENCE_SLUGS: Record<string, string> = {
   [SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID]: "PHI Minimization Risk",
 };
 
+/**
+ * Buyer-trail panel: one-line disposition when inferable from metadata (showcase PHI finding or explicit disposition keys).
+ */
+export function graphBuyerTrailDispositionLine(
+  nodeType: string,
+  metadata: Record<string, string> | undefined,
+): string | null {
+  if (nodeType !== "Finding") {
+    return null;
+  }
+
+  if (metadata === undefined) {
+    return null;
+  }
+
+  for (const [rawKey, rawVal] of Object.entries(metadata)) {
+    const key = rawKey.trim().toLowerCase();
+
+    if (key === "disposition" || key === "riskdisposition" || key === "findingdisposition") {
+      const value = String(rawVal).trim();
+
+      if (value.length > 0) {
+        return value;
+      }
+    }
+  }
+
+  const referenceId = (metadata.referenceId ?? metadata.ReferenceId ?? "").trim();
+  const referencedSlug = (metadata.referenced ?? "").trim();
+
+  if (
+    referenceId === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID ||
+    referencedSlug === "phi-minimization-risk"
+  ) {
+    return "Accepted with monitoring — non-blocking for go-live; governance cadence covers unstructured attachment exceptions.";
+  }
+
+  return null;
+}
+
 /** Splits graph node metadata into sponsor-facing lines vs. technical key–value pairs (buyer trail panel). */
 export function graphBuyerTrailMetadataLines(
   metadata: Record<string, string> | undefined,

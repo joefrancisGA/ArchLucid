@@ -50,7 +50,7 @@ export function GraphInteractiveCanvas(props: GraphInteractiveCanvasProps) {
       <div
         data-testid="graph-canvas-ready"
         key={graphSurfaceKey}
-        className={cn("w-full min-h-[min(28rem,60vh)]", buyerPolishedShell && "min-h-[min(34rem,68vh)]")}
+        className={cn("w-full min-h-[min(28rem,60vh)]", buyerPolishedShell && "min-h-[min(36rem,72vh)]")}
       >
         <GraphViewer
           graph={graph}

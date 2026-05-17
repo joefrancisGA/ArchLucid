@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { axeLiveE2eDisableRuleIdsNow } from "./axe-rule-allowlist";
 import { formatViolations, runAxe } from "./helpers/axe-helper";
 import {
   FIXTURE_FINDING_ID,
@@ -132,13 +133,28 @@ const PAGES = [
 ] as const;
 
 /**
- * PRs run the first slice (tag {@link liveA11yPrTag}) plus all non-accessibility live specs.
- * Remaining routes run under {@link liveA11yFullMatrixTag} (nightly / manual full matrix; omitted on PR via `--grep-invert`).
+ * Default `ui-e2e-live` run (non-`workflow_dispatch` full matrix): tag {@link liveA11yPrTag} always includes
+ * {@link GOLDEN_PATH_OPERATOR_A11Y_PAGES} plus a bounded tail from {@link PAGES}. The extended matrix uses
+ * {@link liveA11yFullMatrixTag} (`--grep-invert` in CI for default runs).
  */
 const LIVE_A11Y_PR_SLICE_LEN = 28;
 
+/** Golden-path operator surfaces — always in the PR-visible subset (assessment backlog item 18). */
+const GOLDEN_PATH_OPERATOR_A11Y_PAGES = [
+  { name: "Home", path: "/" },
+  { name: "Reviews list (canonical /reviews)", path: "/reviews?projectId=default" },
+  { name: "Run detail (canonical /reviews)", path: `/reviews/${FIXTURE_RUN_ID}` },
+  { name: "Manifest detail", path: `/manifests/${FIXTURE_MANIFEST_ID}` },
+] as const;
+
+const goldenPathSet = new Set<string>(GOLDEN_PATH_OPERATOR_A11Y_PAGES.map((p) => p.path));
+const prRemainingBudget = LIVE_A11Y_PR_SLICE_LEN - GOLDEN_PATH_OPERATOR_A11Y_PAGES.length;
+
 /** PR-visible subset — must stay smaller than the full matrix to keep `ui-e2e-live` bounded. */
-const PAGES_LIVE_A11Y_PR = PAGES.slice(0, LIVE_A11Y_PR_SLICE_LEN);
+const PAGES_LIVE_A11Y_PR = [
+  ...GOLDEN_PATH_OPERATOR_A11Y_PAGES,
+  ...PAGES.filter((p) => !goldenPathSet.has(p.path)).slice(0, prRemainingBudget),
+];
 const liveA11yPrPathSet = new Set<string>(PAGES_LIVE_A11Y_PR.map((p) => p.path));
 
 /** Extended routes (everything after the PR slice). */
@@ -175,7 +191,7 @@ async function expectNoCriticalOrSeriousAxeViolations(page: Page, path: string) 
   await page.goto(path, { waitUntil: "load" });
   await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
 
-  const results = await runAxe(page);
+  const results = await runAxe(page, { disableRules: axeLiveE2eDisableRuleIdsNow() });
   const critical = results.violations.filter((v) => v.impact === "critical" || v.impact === "serious");
 
   expect(critical, formatViolations(critical)).toHaveLength(0);

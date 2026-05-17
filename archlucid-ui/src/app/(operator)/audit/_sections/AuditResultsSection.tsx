@@ -120,11 +120,19 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
             {displayEventGroups !== null ? (
               <div className="space-y-8">
                 {displayEventGroups.map((group) => (
-                  <div key={group.stage} className="space-y-3">
-                    <h3 className="m-0 border-l-[3px] border-teal-600/70 pl-2.5 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:border-teal-500/80 dark:text-neutral-400">
-                      {group.stage}
-                    </h3>
-                    <div className="grid gap-3">
+                  <div
+                    key={group.stage}
+                    className="rounded-xl border border-neutral-200/95 bg-neutral-50/50 p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900/30"
+                  >
+                    <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-neutral-200/90 pb-2 dark:border-neutral-700">
+                      <h3 className="m-0 border-l-[3px] border-teal-600/70 pl-2.5 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:border-teal-500/80 dark:text-neutral-400">
+                        {group.stage}
+                      </h3>
+                      <p className="m-0 text-[11px] font-medium tabular-nums text-neutral-500 dark:text-neutral-400">
+                        {group.events.length} event{group.events.length === 1 ? "" : "s"}
+                      </p>
+                    </div>
+                    <div className="mt-3 grid gap-3">
                       {group.events.map((ev) => (
                         <AuditTimelineEventCard
                           key={ev.eventId}

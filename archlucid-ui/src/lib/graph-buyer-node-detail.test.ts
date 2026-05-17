@@ -2,7 +2,29 @@ import { describe, expect, it } from "vitest";
 
 import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 
-import { graphBuyerTrailMetadataLines } from "@/lib/graph-buyer-node-detail";
+import { graphBuyerTrailDispositionLine, graphBuyerTrailMetadataLines } from "@/lib/graph-buyer-node-detail";
+
+describe("graphBuyerTrailDispositionLine", () => {
+  it("returns curated disposition copy for the showcase PHI finding reference id", () => {
+    expect(
+      graphBuyerTrailDispositionLine("Finding", {
+        referenceId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+      }),
+    ).toContain("Accepted with monitoring");
+  });
+
+  it("returns API disposition field when present", () => {
+    expect(
+      graphBuyerTrailDispositionLine("Finding", {
+        disposition: "Hold — blocking until remediation",
+      }),
+    ).toBe("Hold — blocking until remediation");
+  });
+
+  it("returns null for non-finding nodes", () => {
+    expect(graphBuyerTrailDispositionLine("GoldenManifest", { disposition: "x" })).toBeNull();
+  });
+});
 
 describe("graphBuyerTrailMetadataLines", () => {
   it("maps referenced slug to primary risk and preserves raw reference as technical", () => {

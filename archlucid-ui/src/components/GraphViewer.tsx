@@ -33,7 +33,7 @@ import {
   graphFindingDetailHref,
   graphFindingInspectHref,
 } from "@/lib/graph-finding-deep-links";
-import { graphBuyerTrailMetadataLines } from "@/lib/graph-buyer-node-detail";
+import { graphBuyerTrailDispositionLine, graphBuyerTrailMetadataLines } from "@/lib/graph-buyer-node-detail";
 import { ReasoningTraceReadMore } from "@/components/ReasoningTraceReadMore";
 import Link from "next/link";
 
@@ -168,8 +168,8 @@ export function GraphViewer({
 
   const buyerTrailPanel = flowPresentation === "buyerTrail";
 
-  const fitPadding = buyerTrailPanel ? 0.07 : 0.08;
-  const fitMaxZoom = buyerTrailPanel ? 2.95 : 1.52;
+  const fitPadding = buyerTrailPanel ? 0.12 : 0.08;
+  const fitMaxZoom = buyerTrailPanel ? 2.55 : 1.52;
 
   useEffect(() => {
     if (filtered.nodes.length === 0) {
@@ -252,7 +252,7 @@ export function GraphViewer({
             fitView
             fitViewOptions={{ padding: fitPadding, maxZoom: fitMaxZoom }}
             minZoom={buyerTrailPanel ? 0.18 : 0.2}
-            maxZoom={buyerTrailPanel ? 2.45 : 1.72}
+            maxZoom={buyerTrailPanel ? 2.15 : 1.72}
             onlyRenderVisibleElements
             nodesDraggable={!compactChrome}
             nodesConnectable={!compactChrome}
@@ -466,6 +466,48 @@ export function GraphViewer({
                   {selectedNode.type}
                 </p>
               )}
+
+              {buyerTrailPanel
+                ? (() => {
+                    const dispositionLine = graphBuyerTrailDispositionLine(
+                      selectedNode.type,
+                      selectedNode.metadata,
+                    );
+
+                    if (dispositionLine === null) {
+                      return null;
+                    }
+
+                    return (
+                      <p className="m-0 mt-2 rounded-md border border-amber-200/85 bg-amber-50/75 px-2.5 py-2 text-sm leading-snug text-neutral-800 dark:border-amber-900/55 dark:bg-amber-950/35 dark:text-neutral-200">
+                        <span className="font-semibold text-neutral-900 dark:text-neutral-100">Disposition</span>{" "}
+                        {dispositionLine}
+                      </p>
+                    );
+                  })()
+                : null}
+
+              {buyerTrailPanel && runId.trim().length > 0 && selectedNode.type === "GoldenManifest" ? (
+                <div className="mt-3 flex flex-col gap-2">
+                  <Button type="button" variant="default" size="sm" className="h-9 w-full justify-center" asChild>
+                    <Link href={`/manifests/${encodeURIComponent(selectedNode.id.trim())}`}>
+                      Open signed manifest record
+                    </Link>
+                  </Button>
+                </div>
+              ) : null}
+
+              {buyerTrailPanel && runId.trim().length > 0 && selectedNode.type === "Decision" ? (
+                <div className="mt-3 flex flex-col gap-2">
+                  <Button type="button" variant="outline" size="sm" className="h-9 w-full justify-center" asChild>
+                    <Link
+                      href={`/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId.trim()))}#run-explanation`}
+                    >
+                      View recorded decisions on review
+                    </Link>
+                  </Button>
+                </div>
+              ) : null}
 
               {buyerTrailPanel && runId.trim().length > 0 && selectedNode.type === "Finding" ? (
                 <div className="mt-3 flex flex-col gap-2">

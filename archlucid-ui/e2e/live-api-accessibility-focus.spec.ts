@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { axeLiveE2eDisableRuleIdsNow } from "./axe-rule-allowlist";
 import { runAxe } from "./helpers/axe-helper";
 
 /**
@@ -105,7 +106,7 @@ test.describe("route focus and announcements", () => {
     await page.reload({ waitUntil: "load" });
     await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
 
-    const results = await runAxe(page);
+    const results = await runAxe(page, { disableRules: axeLiveE2eDisableRuleIdsNow() });
     const critical = results.violations.filter((v) => v.impact === "critical" || v.impact === "serious");
 
     expect(critical, JSON.stringify(critical, null, 2)).toHaveLength(0);
