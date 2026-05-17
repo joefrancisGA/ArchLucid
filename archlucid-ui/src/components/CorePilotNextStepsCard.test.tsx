@@ -34,7 +34,7 @@ describe("CorePilotNextStepsCard", () => {
       expect(screen.getByTestId("pilot-step-badge")).toHaveTextContent("Step 1 of 4");
     });
 
-    it("marks Create architecture request as the active step CTA", async () => {
+    it("marks Capture as the active step CTA", async () => {
       render(<CorePilotNextStepsCard />);
 
       await waitFor(() => {
@@ -42,7 +42,7 @@ describe("CorePilotNextStepsCard", () => {
       });
 
       expect(screen.getByTestId("pilot-active-step-link")).toHaveAttribute("href", "/reviews/new");
-      expect(screen.getByTestId("pilot-active-step-link")).toHaveTextContent(/create architecture request/i);
+      expect(screen.getByTestId("pilot-active-step-link")).toHaveTextContent(/capture/i);
     });
 
     it("shows skip-for-now note naming advanced features", async () => {
@@ -54,6 +54,10 @@ describe("CorePilotNextStepsCard", () => {
 
       const skipNote = screen.getByTestId("pilot-skip-for-now");
 
+      expect(skipNote).toHaveTextContent(/alerts/i);
+      expect(skipNote).toHaveTextContent(/planning/i);
+      expect(skipNote).toHaveTextContent(/digests/i);
+      expect(skipNote).toHaveTextContent(/advisory/i);
       expect(skipNote).toHaveTextContent(/compare/i);
       expect(skipNote).toHaveTextContent(/governance/i);
       expect(skipNote).toHaveTextContent(/ask/i);
@@ -121,13 +125,17 @@ describe("CorePilotNextStepsCard", () => {
       expect(screen.getByTestId("pilot-run-id")).toHaveTextContent("run-abc-123");
     });
 
-    it("active step CTA links to the existing run detail", async () => {
+    it("Review step CTA links to the existing run detail; Evidence links to the graph", async () => {
       render(<CorePilotNextStepsCard />);
 
       await waitFor(() => {
         expect(screen.getByTestId("pilot-active-step-link")).toBeInTheDocument();
       });
 
+      expect(screen.getByTestId("pilot-active-evidence-link")).toHaveAttribute(
+        "href",
+        "/graph?runId=run-abc-123",
+      );
       expect(screen.getByTestId("pilot-active-step-link")).toHaveAttribute("href", "/reviews/run-abc-123");
     });
 

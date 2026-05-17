@@ -216,28 +216,37 @@ export function CorePilotNextStepsCard() {
         <ol className="m-0 mt-3 list-none space-y-2 p-0 text-sm text-neutral-800 dark:text-neutral-200">
           <li className="flex items-start gap-2 text-neutral-400 dark:text-neutral-500" aria-label="Step 1 complete">
             <span aria-hidden className="mt-0.5 shrink-0 text-[11px] font-bold text-teal-600 dark:text-teal-400">✓</span>
-            <span className="line-through">Create architecture request</span>
+            <span className="line-through">Capture — architecture request</span>
           </li>
           <li className="flex items-start gap-2" aria-label="Step 2 active">
+            <span aria-hidden className="mt-0.5 shrink-0 text-[11px] font-bold text-teal-700 dark:text-teal-300">▶</span>
+            <Link
+              href={latestRunId !== null ? `/graph?runId=${encodeURIComponent(latestRunId)}` : "/graph"}
+              className="font-medium text-blue-700 underline dark:text-blue-400"
+              data-testid="pilot-active-evidence-link"
+            >
+              Evidence — open evidence trail
+            </Link>
+          </li>
+          <li className="flex items-start gap-2" aria-label="Step 3 active">
             <span aria-hidden className="mt-0.5 shrink-0 text-[11px] font-bold text-teal-700 dark:text-teal-300">▶</span>
             <Link
               href={latestRunId !== null ? `/reviews/${latestRunId}` : "/reviews?projectId=default"}
               className="font-medium text-blue-700 underline dark:text-blue-400"
               data-testid="pilot-active-step-link"
             >
-              Open Reviews — run the pipeline
+              Review — run the pipeline and commit the manifest
             </Link>
-          </li>
-          <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 3 pending">
-            <span aria-hidden className="mt-0.5 shrink-0 text-[11px] text-neutral-400">3.</span>
-            <span>
-              Commit an architecture manifest from review detail when the pipeline completes (
-              <HelpLink docPath="/docs/CORE_PILOT.md" label="Core Pilot — commit step (new tab)" />).
-            </span>
           </li>
           <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 4 pending">
             <span aria-hidden className="mt-0.5 shrink-0 text-[11px] text-neutral-400">4.</span>
-            <span>Review the architecture package and findings.</span>
+            <span>
+              Report — sponsor-facing summary on{" "}
+              <Link href="/dashboard" className="font-medium text-blue-700 underline dark:text-blue-400">
+                Report
+              </Link>{" "}
+              after outputs land.
+            </span>
           </li>
         </ol>
 
@@ -269,20 +278,20 @@ export function CorePilotNextStepsCard() {
             className="font-medium text-blue-700 underline dark:text-blue-400"
             data-testid="pilot-active-step-link"
           >
-            Create architecture request
+            Capture — create architecture request
           </Link>
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 2 pending">
           <span aria-hidden className="mt-0.5 shrink-0 text-[11px] text-neutral-400">2.</span>
-          <span>Open Reviews — run the pipeline.</span>
+          <span>Evidence — open the evidence trail after your review run starts.</span>
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 3 pending">
           <span aria-hidden className="mt-0.5 shrink-0 text-[11px] text-neutral-400">3.</span>
-          <span>Commit the architecture manifest from review detail.</span>
+          <span>Review — run the pipeline and commit the manifest from review detail.</span>
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 4 pending">
           <span aria-hidden className="mt-0.5 shrink-0 text-[11px] text-neutral-400">4.</span>
-          <span>Review the architecture package and findings.</span>
+          <span>Report — executive summary and sponsor-facing outputs when ready.</span>
         </li>
       </ol>
 

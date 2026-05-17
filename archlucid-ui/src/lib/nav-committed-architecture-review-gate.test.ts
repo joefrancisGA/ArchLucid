@@ -49,7 +49,7 @@ describe("filterNavLinksByCommittedArchitectureReviewGate", () => {
       "/",
       "/reviews/new",
       "/graph",
-      "/reviews?projectId=default",
+      "/reviews",
       "/dashboard",
       "/onboarding",
       "/help",
