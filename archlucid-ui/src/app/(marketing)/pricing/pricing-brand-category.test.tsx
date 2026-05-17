@@ -45,6 +45,9 @@ describe("PricingPage brand category", () => {
 
     expect(text).toContain(BRAND_CATEGORY);
     expect(text).not.toContain(BRAND_CATEGORY_LEGACY);
+    expect(text).toContain(
+      "Regulated-industry buyers typically finalize scope, licensing, deployment model, and contractual terms through procurement.",
+    );
   });
 
   it("renders the tier pricing heading before the quote request section (plans before lead capture)", async () => {

@@ -24,16 +24,20 @@ export default async function PricingPage(props: PricingPageProps) {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
+      <MarketingTierPricingSection
+        sectionHeadingId="pricing-page-heading"
+        sectionTitle="Pricing"
+        sectionIntro="Compare Team, Professional, and Enterprise plans. Tier summaries reflect the current published price list. Final pricing depends on deployment scope, volume, and procurement channel — your account team confirms details."
+        signupHref={signupHref}
+        signupCallToActionLabel="Start workspace trial"
+        showSignupCallToAction={false}
+      />
       <p
         className="mb-6 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
         data-testid="pricing-brand-category-paragraph"
       >
-        ArchLucid is an {BRAND_CATEGORY} offering. Compare{" "}
-        <strong className="font-semibold text-neutral-800 dark:text-neutral-200">
-          Team, Professional, and Enterprise
-        </strong>{" "}
-        plans on this page, then request a quote when you are ready. Regulated-industry buyers typically finalize scope,
-        licensing, deployment model, and contractual terms through procurement. For custom deployments,{" "}
+        ArchLucid is an {BRAND_CATEGORY} offering. Regulated-industry buyers typically finalize scope, licensing,
+        deployment model, and contractual terms through procurement. For custom deployments,{" "}
         <a
           className="font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-200"
           href="#pricing-quote-request"
@@ -42,14 +46,6 @@ export default async function PricingPage(props: PricingPageProps) {
         </a>{" "}
         — your account team confirms licensing.
       </p>
-      <MarketingTierPricingSection
-        sectionHeadingId="pricing-page-heading"
-        sectionTitle="Pricing"
-        sectionIntro="Tier summaries reflect the current published price list. Final pricing depends on deployment scope, volume, and procurement channel — your account team confirms details."
-        signupHref={signupHref}
-        signupCallToActionLabel="Start workspace trial"
-        showSignupCallToAction={false}
-      />
       <MarketingPricingQuotePanel />
       <MarketingPricingPublicCutoverNotice />
     </main>

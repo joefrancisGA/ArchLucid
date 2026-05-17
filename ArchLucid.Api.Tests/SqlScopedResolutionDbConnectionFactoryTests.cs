@@ -69,7 +69,7 @@ public sealed class SqlScopedResolutionDbConnectionFactoryTests
         Mock<ISqlConnectionFactory> inner = new();
         int callCount = 0;
 
-        inner.Setup(f => f.CreateOpenConnectionAsync(It.IsAny<CancellationToken>())).Returns(() =>
+        inner.Setup(f => f.CreateOpenConnectionAsync(It.IsAny<CancellationToken>())).Returns<CancellationToken>(_ =>
         {
             callCount++;
 

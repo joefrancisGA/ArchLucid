@@ -59,10 +59,10 @@ public static class DemoRegulatedScenarioWorkspaceIds
         byte[] utf8 = Encoding.UTF8.GetBytes(builder.ToString());
         using SHA256 sha = SHA256.Create();
         byte[] hash = sha.ComputeHash(utf8);
-        Span<byte> guidBytes = stackalloc byte[16];
+        Span<byte> digestPrefix = stackalloc byte[16];
 
-        hash.AsSpan(0, 16).CopyTo(guidBytes);
+        hash.AsSpan(0, 16).CopyTo(digestPrefix);
 
-        return new Guid(guidBytes);
+        return new Guid(digestPrefix, bigEndian: true);
     }
 }
