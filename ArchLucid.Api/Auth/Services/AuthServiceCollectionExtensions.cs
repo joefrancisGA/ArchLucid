@@ -54,16 +54,14 @@ public static class AuthServiceCollectionExtensions
                     {
                     });
 
-            // Use Options.Configure<IConfiguration> so JWT options are applied in the same named-options pipeline as
-            // AddJwtBearer after IConfiguration is available (bare ServiceCollection tests and hosts).
-            services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
-                .Configure<IConfiguration>(static (options, configuration) =>
-                {
-                    ArgumentNullException.ThrowIfNull(configuration);
-
-                    ArchLucidAuthOptions jwtAuthOptions = ArchLucidAuthConfigurationBridge.Resolve(configuration);
-                    ArchLucidJwtBearerConfiguration.Apply(options, jwtAuthOptions, configuration);
-                });
+            // Apply ArchLucid JWT settings in the named-options pipeline using the same IConfiguration reference the host
+            // passed into AddArchLucidAuth (avoids relying on DI IConfiguration + ConfigureNamedOptions<T, TDep> ordering in
+            // bare ServiceCollection runs).
+            services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                ArchLucidAuthOptions jwtAuthOptions = ArchLucidAuthConfigurationBridge.Resolve(configuration);
+                ArchLucidJwtBearerConfiguration.Apply(options, jwtAuthOptions, configuration);
+            });
         }
 
         else if (string.Equals(authOptions.Mode, "ApiKey", StringComparison.OrdinalIgnoreCase))

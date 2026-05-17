@@ -657,17 +657,19 @@ Add a first-run (or settings) wizard in `archlucid-ui` that captures pilot basel
 **Delivered:** **`PilotBaselineWizard`** + **`PilotBaselineWizardLauncher`** (operator shell FAB / session auto-open; **`NEXT_PUBLIC_SUPPRESS_CORE_PILOT_WIZARD`** suppresses alongside core pilot wizard). **`BaselineSettingsClient`** on **`/settings/baseline`** persists **`manualPrepHoursPerReview`** + **`baselineReviewCycleHours`** via **`PUT /v1/tenant/baseline`**; OpenAPI snapshot extended with **`baselineReviewCycleHours`**, **`baselineReviewCycleSource`**, **`baselineReviewCycleCapturedUtc`**, **`baselineReviewCycleSourceNote`** (`openapi-v1.contract.snapshot.json`). **`EmailRunToSponsorBanner`** warns and disables primary sponsor PDF when **`GET /v1/tenant/baseline`** gate fails (**`usePilotRoiBaselineCompleteness`**); **`GenerateSponsorValueReportButton`** blocks DOCX export the same way. Backend **`TenantBaselineController`** merges GET + selective PUT for review-cycle provenance (markers + audit). Vitest: **`pilot-roi-baseline-completeness.test.ts`**, **`EmailRunToSponsorBanner.test.tsx`**, **`baseline/page.test.tsx`**.
 ```
 
-17. **Surface Missing Baseline warnings on executive / sponsor surfaces**
+17. **COMPLETED:** Surface Missing Baseline warnings on executive / sponsor surfaces
 - Why it matters: Prevents sending abstract executive artifacts when quantified ROI inputs are absent.
-- Expected impact: Executive Value Visibility (+4 pts), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: +0.22%.
+- Expected impact: (Delivered **2026-05-17**.) Executive Value Visibility (+4 pts), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: +0.22%.
 - Affected qualities: Executive Value Visibility, Proof-of-ROI Readiness.
-- Actionable: Yes
+- Actionable: Completed
 
 ```markdown
 On sponsor brief, first-value report, and architecture-review export preview routes, show a prominent **Missing baseline** banner when required ROI baseline fields are unset.
-- Link the banner to **Add guided baseline collection wizard (onboarding)** (item **16** above — **COMPLETED** **2026-05-17**).
+- Link the banner to **Add guided baseline collection wizard (onboarding)** (completed item **16** above — **2026-05-17**).
 - Do not block read-only preview; block **sendable** or **download** classification when marketing requires quantified claims.
 - Acceptance criteria: Operators cannot mistake an incomplete baseline package for board-ready ROI proof.
+
+**Delivered:** Post-commit **`EmailRunToSponsorBanner`** (**`/runs/{runId}`**): amber **`role="alert"`** banner **`email-run-to-sponsor-roi-baseline-gap`** (**Missing tenant ROI baselines**) when **`GET /v1/tenant/baseline`** is incomplete (**`isPilotRoiBaselineComplete`**) alongside **`pilot-run-deltas`** readiness; **`PILOT_BASELINE_WIZARD_OPEN_EVENT`** + **`/settings/baseline`** CTA (**item 16** wizard). Sponsor **PDF** primary action disabled until baselines captured; Markdown first-value report, architecture **DOCX**, and ZIP exports remain available (read-only / collateral downloads). Persisted **`describeSponsorProofReadiness`** (**`src/lib/pilot-proof-readiness.ts`**) exposes **NeedsBaseline** vs **Sendable** copy for sponsor-send posture. **`GenerateSponsorValueReportButton`** gates tenant sponsor **DOCX** via **`usePilotRoiBaselineCompleteness`**. Vitest: **`EmailRunToSponsorBanner.test.tsx`** (ROI baseline gate).
 ```
 
 18. **Integrate axe-core accessibility checks in CI**
@@ -777,7 +779,7 @@ Implement status sync between ArchLucid review/findings state and ServiceNow cha
 
 ## Prompt Batching Guidance
 
-- **Batch 1 (High Leverage, Low Risk):** 3, 4, 8, 14, 17, 18. Correctness, observability, documentation, live E2E, executive baseline honesty, and a11y CI without large architecture moves.
+- **Batch 1 (High Leverage, Low Risk):** 3, 4, 8, 14, 18 (**item 17 — missing baseline executive / sponsor surfaces — COMPLETED** **2026-05-17**). Correctness, observability, documentation, live E2E, and a11y CI without large architecture moves.
 - **Batch 2 (Performance & Observability):** 5, 7, 10, 11, 21. Operational robustness, SQL retries, LLM tracing, orchestration limits, and DTF parity smoke.
 - **Batch 3 (Testing, Analytics & ROI):** **16 — baseline wizard — COMPLETED** **2026-05-17** (**item 12 — data residency — COMPLETED** **2026-05-16**; do not re-prompt).
 - **Batch 4 (UX & adoption):** 6, 15, 19, 20, 22, 24. Dashboard health, rule UI, progressive disclosure, pack depth, demo smoke, and finding trust signals.
