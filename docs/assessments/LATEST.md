@@ -240,7 +240,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 7. ~~**Operational script auth realism**~~ **Completed 2026-05-17:** HTTP operational scripts accept `-BearerToken`/`-ApiKey` (and env `ARCHLUCID_BEARER_TOKEN`/`ARCHLUCID_API_KEY`) via `scripts/ArchLucid.AuthHeaders.ps1` (improvement **#7**).
 8. **Worker pool scaling triggers:** Scaling relies primarily on Azure queue depth rather than SQL authority outbox depth, risking noisy neighbor issues.
 9. **Background job transient fault handling:** Asynchronous jobs may lack comprehensive Polly-based retry policies for SQL transient errors.
-10. **Data residency verification gaps:** The provisioning pipeline lacks automated assertions to verify that Azure resources match the requested `DataRegion`.
+10. ~~**Data residency verification gaps**~~ **Completed (2026-05-17):** CD validates Terraform plan JSON (`terraform show -json`) via `scripts/ci/assert_terraform_plan_data_regions.py` after plan in `.github/workflows/cd.yml`; unit tests `scripts/ci/tests/test_assert_terraform_plan_data_regions.py`. **Residual:** guard runs in the plan job only (apply uses the same artifact); edge regions need `TERRAFORM_DATA_REGION_ALLOWLIST_EXTRA` if not inferable from variables/data sources.
 11. **Terraform advisory validation:** Generated Terraform snippets are not automatically validated (`terraform fmt`/`validate`) in CI, risking syntax errors in advisory output.
 12. **Audit matrix drift:** New API endpoints can be merged without corresponding updates to the `AUDIT_COVERAGE_MATRIX.md`.
 
@@ -494,16 +494,19 @@ Implement an **internal Policy Pack Hub**: a **read-only catalog** of **platform
 ```
 
 ### 11. Formalize data residency verification in the Terraform provisioning pipeline
+- **Status:** Completed (2026-05-17)
 - **Why it matters:** Enterprise buyers require verifiable proof that resources match their geography.
 - **Expected impact:** Compliance Readiness (+10 pts), Reliability (+5 pts).
 - **Affected qualities:** Compliance Readiness, Reliability.
-- **Actionable:** Yes
+- **Actionable:** No
+- **Completion evidence:** `scripts/ci/assert_terraform_plan_data_regions.py` consumes `terraform show -json` plan output; `.github/workflows/cd.yml` runs it immediately after `terraform plan`; `scripts/ci/tests/test_assert_terraform_plan_data_regions.py` is executed from `.github/workflows/ci.yml` (doc-markdown-links tier). Allowlist = root variables `location` and `secondary_location`, locations from planned `data.azurerm_resource_group`, always `global`, plus optional `TERRAFORM_DATA_REGION_ALLOWLIST_EXTRA`. Terraform resource definitions were not modified.
 ```text
 Add a validation step in the Terraform CI pipeline (`.github/workflows/cd.yml` or equivalent) that asserts the `location` of all provisioned resources matches the expected `DataRegion`.
 - Acceptance criteria: The pipeline fails if any resource is provisioned in an unexpected region.
 - Constraints: Use Terraform `plan` output or `azurerm` data sources for validation.
 - What not to change: Do not modify the actual Terraform resource definitions.
 - Impact: Directly improves Compliance Readiness (+8-10 pts) and Reliability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- Acceptance criteria met: Planned managed resources with an explicit `location` must match the derived allowlist or CD fails; validation uses plan JSON only; no changes to `.tf` resource blocks.
 ```
 
 ### 12. Add a CI step that fails the build if new API endpoints lack documented audit events
