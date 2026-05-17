@@ -8,6 +8,7 @@ using ArchLucid.Host.Core.Services;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
@@ -55,7 +56,9 @@ public static class AuthServiceCollectionExtensions
                     {
                     });
 
-            services.AddSingleton<IConfigureNamedOptions<JwtBearerOptions>, ArchLucidJwtBearerOptionsConfigurer>();
+            // Register as IConfigureOptions<> (enumerable); registering only IConfigureNamedOptions<> is not picked up by OptionsFactory.
+            services.TryAddEnumerable(
+                ServiceDescriptor.Singleton<IConfigureOptions<JwtBearerOptions>, ArchLucidJwtBearerOptionsConfigurer>());
         }
 
         else if (string.Equals(authOptions.Mode, "ApiKey", StringComparison.OrdinalIgnoreCase))
