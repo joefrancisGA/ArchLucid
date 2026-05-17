@@ -55703,6 +55703,16 @@ namespace ArchLucid.Api.Client.Generated
     public partial class TenantBaselineGetResponse
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("baselineReviewCycleCapturedUtc")]
+        public System.DateTimeOffset? BaselineReviewCycleCapturedUtc { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("baselineReviewCycleHours")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? BaselineReviewCycleHours { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("baselineReviewCycleSource")]
+        public string? BaselineReviewCycleSource { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("capturedUtc")]
         public System.DateTimeOffset? CapturedUtc { get; set; } = default!;
 
@@ -55727,6 +55737,13 @@ namespace ArchLucid.Api.Client.Generated
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class TenantBaselinePutRequest
     {
+
+        [System.Text.Json.Serialization.JsonPropertyName("baselineReviewCycleHours")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? BaselineReviewCycleHours { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("baselineReviewCycleSourceNote")]
+        public string? BaselineReviewCycleSourceNote { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manualPrepHoursPerReview")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]

@@ -1,36 +1,34 @@
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 import { executiveRoiDashboardMockKpis } from "./executive-roi-dashboard-mock-kpis";
-
 export function ExecutiveRoiDashboardPageView() {
   const k = executiveRoiDashboardMockKpis;
+  const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
       <OperatorWelcomeOnboarding />
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
-          Executive summary
+          {v.pageTitle}
         </h1>
-        <p className="max-w-3xl text-sm text-neutral-600 dark:text-neutral-300">
-          High-level ROI indicators for sponsors. Figures below are illustrative placeholders until live workspace metrics
-          are wired.
-        </p>
+        <p className="max-w-3xl text-sm text-neutral-600 dark:text-neutral-300">{v.pageLead}</p>
       </header>
 
       <section aria-labelledby="exec-roi-heading">
         <h2 id="exec-roi-heading" className="sr-only">
-          Executive ROI metrics
+          {v.roiMetricsSrOnly}
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                Architectural drifts prevented
+                {v.architecturalDriftsPreventedMetric.title}
               </CardTitle>
               <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
-                Early correction count (mock)
+                {v.architecturalDriftsPreventedMetric.description}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -43,10 +41,10 @@ export function ExecutiveRoiDashboardPageView() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                Estimated hours saved
+                {v.estimatedHoursSavedMetric.title}
               </CardTitle>
               <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
-                Architect time (mock)
+                {v.estimatedHoursSavedMetric.description}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -60,10 +58,10 @@ export function ExecutiveRoiDashboardPageView() {
           <Card className="sm:col-span-2 lg:col-span-1">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                Compliance posture score
+                {v.compliancePostureScoreMetric.title}
               </CardTitle>
               <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
-                Aggregate posture (mock)
+                {v.compliancePostureScoreMetric.description}
               </CardDescription>
             </CardHeader>
             <CardContent>

@@ -1,4 +1,4 @@
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
@@ -24,7 +24,7 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
 
   return [
     {
-      label: "Executive summary",
+      label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
       href: getShowcaseExecutiveHref(),
     },
     {

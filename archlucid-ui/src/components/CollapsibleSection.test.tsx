@@ -31,4 +31,16 @@ describe("CollapsibleSection", () => {
 
     expect(screen.getByText("Visible")).toBeVisible();
   });
+
+  it("applies sectionTestId to the details root", () => {
+    render(
+      <CollapsibleSection title="Tagged" sectionTestId="collapsible-section-test">
+        <p>Inner</p>
+      </CollapsibleSection>,
+    );
+
+    const details = screen.getByTestId("collapsible-section-test");
+    expect(details.tagName).toBe("DETAILS");
+    expect(details).toContainElement(screen.getByText("Tagged"));
+  });
 });

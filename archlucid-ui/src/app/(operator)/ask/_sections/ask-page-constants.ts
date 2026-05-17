@@ -1,4 +1,8 @@
-/** Operator shell: at most three suggested prompts (buyer shell uses `ASK_FOLLOW_UP_CHIPS_BUYER`). */
+/**
+ * Operator shell: at most three suggested prompts (buyer shell uses `ASK_FOLLOW_UP_CHIPS_BUYER`).
+ */
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+
 export const ASK_EXAMPLE_PROMPTS: readonly string[] = [
   "Summarize the PHI risk for this review.",
   "What should the sponsor review before sign-off?",
@@ -21,7 +25,7 @@ export type AskBuyerPromptGroup = {
 /** Buyer shell: suggested prompts grouped by intent (flat list remains for operator shell). */
 export const ASK_BUYER_PROMPT_GROUPS: readonly AskBuyerPromptGroup[] = [
   {
-    heading: "Executive summary",
+    heading: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
     prompts: [
       "Summarize this for an executive sponsor.",
       "What are the top three risks I should brief leadership on?",

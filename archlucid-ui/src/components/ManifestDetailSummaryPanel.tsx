@@ -178,6 +178,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
     <CollapsibleSection
       title={buyerPolishedLayout ?? false ? "Audit verification appendix" : "Verification appendix (identifiers)"}
       defaultOpen={false}
+      sectionTestId="manifest-verification-appendix"
     >
       <dl className="m-0 grid gap-3 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-6">
         <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Manifest ID</dt>

@@ -25,10 +25,8 @@ test.describe("operator journey — manifest empty artifact list", () => {
       }),
     ).toBeVisible();
 
-    // Manifest ID lives under a collapsed <details> in the summary panel.
-    // Buyer-polished shell renders "Audit verification appendix"; full-operator renders "Verification appendix (identifiers)".
-    // Mock builds default to buyer-polished (`NEXT_PUBLIC_DEMO_MODE=true`), so use the buyer label here.
-    await page.getByText("Audit verification appendix", { exact: true }).click();
+    // Manifest ID lives under a collapsed <details> in the summary panel; label varies by shell — use stable test id.
+    await page.getByTestId("manifest-verification-appendix").locator("summary").click();
     await expect(page.getByText(FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID)).toBeVisible();
 
     await expect(page.getByText("Artifact list could not be loaded.", { exact: true })).toHaveCount(0);

@@ -13,3 +13,26 @@ export const BUYER_SURFACE_VOCABULARY = {
   riskObservation: "Risk observation",
   phiMinimizationRisk: "PHI minimization risk",
 } as const;
+
+/**
+ * Canonical `/dashboard` executive summary copy — import here instead of repeating literals so breadcrumbs,
+ * metadata, Ask grounding, and KPI cards stay aligned.
+ */
+export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
+  pageTitle: "Executive summary",
+  pageLead:
+    "High-level ROI indicators for sponsors. Figures below are illustrative placeholders until live workspace metrics are wired.",
+  roiMetricsSrOnly: "Executive ROI metrics",
+  architecturalDriftsPreventedMetric: {
+    title: "Architectural drifts prevented",
+    description: "Early correction count (mock)",
+  },
+  estimatedHoursSavedMetric: {
+    title: "Estimated hours saved",
+    description: "Architect time (mock)",
+  },
+  compliancePostureScoreMetric: {
+    title: "Compliance posture score",
+    description: "Aggregate posture (mock)",
+  },
+} as const;

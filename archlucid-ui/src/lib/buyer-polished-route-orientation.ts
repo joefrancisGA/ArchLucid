@@ -1,3 +1,4 @@
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -41,7 +42,7 @@ export function buyerPolishedRouteOrientation(
 
   if (path.startsWith(`/executive/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`)) {
     return {
-      label: "Executive summary",
+      label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
       line: `Board-ready posture, outcomes, and evidence hooks for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`,
     };
   }
