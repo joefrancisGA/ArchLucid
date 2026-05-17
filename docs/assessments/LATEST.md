@@ -435,11 +435,37 @@ Modify the executive dashboard component in `archlucid-ui` to display a prominen
 - Impact: Directly improves Executive Value Visibility (+8-10 pts) and Usability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 10. DEFERRED Develop an internal "Policy Pack Hub" for sharing custom policies
-- **Why it matters:** Encouraging tenants to author and share policy packs increases platform stickiness and value.
+### 10. Internal Policy Pack Hub (catalog read model + admin-only promotion)
+- **Why it matters:** Tenants need discoverable, trustworthy starter and vertical packs without emailing JSON; central catalog visibility increases stickiness while keeping mutation authority narrow.
 - **Expected impact:** Stickiness (+15 pts), Template and Accelerator Richness (+10 pts).
 - **Affected qualities:** Stickiness, Template and Accelerator Richness.
-- **Input needed from user:** Define the versioning, approval workflow, and tenant isolation rules for the hub.
+- **Actionable:** Yes
+```text
+Implement an **internal Policy Pack Hub**: a **read-only catalog** of **platform-curated** policy packs that any tenant can **browse and clone or assign**, while **only internal ArchLucid platform admins** (same RBAC surface as other operator-critical mutations — e.g. `RequireAdminAuthority` / internal operator rank already used for `/policy-packs`) may **promote** a pack version into that catalog. **Single-owner operational control** for catalog promotion is acceptable for V1 of the hub until additional admins are explicitly registered (document in runbook).
+
+**Product rules**
+- **Catalog vs tenant-private:** Packs created by customers remain **tenant-scoped**. A pack enters the **catalog** only via an explicit **PromoteToCatalog** (name TBD) mutation. Catalog entries are **immutable** at a given semantic version — corrections ship as **new versions** using the existing publish/semver flow (`POST .../publish`).
+- **Versioning:** Reuse **semantic version** strings already on `PolicyPackVersion`; catalog row references `policyPackId` + **pinned published** `version`. No parallel version scheme.
+- **Workflow:** Author or import in **tenant or internal staging tenant** → **Publish** (existing) → **Promote to catalog** (new, **admin-only**) → optional **deprecate** flag on catalog row (hide from default list; still honor existing assignments).
+- **Fork / isolation:** When a tenant **“Use in my workspace”** from catalog, create a **new pack id** (deep copy of published `contentJson` + metadata snapshot) so edits never mutate the catalog source. Durable **audit** on promote, demote, and fork.
+
+**Backend**
+- Persistence: extend policy pack tables or add a thin `PolicyPackCatalogEntry` (pack id, version, display order, deprecatedUtc, promotedBy, promotedUtc) — prefer **minimal schema** and reuse existing repositories where possible.
+- HTTP: add **GET** list/detail for catalog (tenant-authenticated, read-only). Add **POST** promote/demote (admin-only). Follow `Http-Surface-Docs-And-Clients.mdc` — OpenAPI snapshot, `.NET` client if applicable, `npm run generate:api-types` for UI.
+
+**UI (`archlucid-ui`)**
+- **`/policy-packs`:** new **“Catalog”** tab or sub-route listing promoted packs with version, description, **Fork to my tenant**, and **Assign** (if assignment UX already exists — reuse). Internal admin sees **Promote** only on packs they own operationally.
+- Stable selectors for tests (`UI-Stable-Selectors-And-Snapshots.mdc`).
+
+**Tests**
+- .NET integration: promote forbidden for non-admin; allowed for admin fixture; fork creates distinct pack id.
+- UI: Vitest for catalog table empty/rows; optional Playwright smoke if live harness exists.
+
+**What not to do**
+- Do **not** open multi-tenant **write** sharing (no tenant A edits tenant B’s pack). Do **not** expose SMB or public blob URLs for pack payloads.
+
+**Impact:** Stickiness (+10-15 pts), Template and Accelerator Richness (+6-10 pts). Weighted readiness impact: +0.15-0.25%.
+```
 
 ### 11. Formalize data residency verification in the Terraform provisioning pipeline
 - **Why it matters:** Enterprise buyers require verifiable proof that resources match their geography.
@@ -657,13 +683,11 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 2 (Testing & CI Hygiene):** 5, 12, 14, 15, 16, 24
 - **Batch 3 (Integrations & Extractor):** 6, 13, 25
 - **Batch 4 (Architecture, infrastructure, tenant lifecycle):** 3, 7, 11, 17, 19, 20
-- **Batch 5 (UX & Dashboards):** 4, 8, 9
+- **Batch 5 (UX & Dashboards):** 4, 8, 9, 10
 - **Batch 6 (Internal cross-tenant rollups):** 1
 
 ---
 
 ## Pending Questions for Later
 
-### DEFERRED Develop an internal "Policy Pack Hub" for sharing custom policies
-- **Resolved (2026-05-17) — global publish authority:** Only **internal ArchLucid platform admins** may publish to a **global / catalog** scope; **single-owner** control until additional admins are designated.
-- **Still open:** Versioning semantics, draft → approved → published workflow, and tenant-isolation rules for forked or imported packs.
+(None.)
