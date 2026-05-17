@@ -4,7 +4,7 @@
 
 # Authority pipeline metering and Grafana remediation
 
-**Last reviewed:** 2026-04-29
+**Last reviewed:** 2026-05-17
 
 ## 1. Objective
 
@@ -81,8 +81,63 @@ Turn **Grafana** panels and **Prometheus** alerts on authority-pipeline and data
   - **Orphans detected:** identification-only — trace **missing `dbo.Runs`** keys; follow **`COMPARISON_RECORD_ORPHAN_REMEDIATION.md`** for comparison / golden / findings snapshots.
   - **Alerts raised:** enforcement is **Alert** or **Quarantine** — read **`docs/data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md`** and align with **data owners** before destructive fixes.
 
+### 8.5 Recommended `ArchLucid:AuthorityPipeline:Concurrency` by environment tier
+
+Bindings live under **`ArchLucid:AuthorityPipeline:Concurrency`** (`AuthorityPipelineConcurrencyOptions` in product code). **`MaxConcurrentExecutionsPerTenant`** ≤ **0** disables SQL lease enforcement (gate becomes a no-op). **`LeaseRecognitionHorizon`** defaults to **48 hours** and **`WaitPollMilliseconds`** to **75** — change these only when tuning stale-lease cleanup or poll cadence after reviewing **`SqlAuthorityPipelineTenantExecutionLeaseRepository`**.
+
+Tier names align with **[`RTO_RPO_TARGETS.md`](../library/RTO_RPO_TARGETS.md)**. Values below are **starting recommendations** for hosted SaaS posture; validate against worker replica count, SQL SKU, and pilot concurrency.
+
+| Tier | **`MaxConcurrentExecutionsPerTenant`** | **`RejectInlineCreateWhenConcurrencyUnavailable`** | Notes |
+|------|----------------------------------------|-----------------------------------------------------|-------|
+| **Development** | **0** *(omit or explicit)* — enforcement **off** | **false** *(default)* | Matches shipped default when unset; avoids blocking parallel local runs. Set a **small positive** value only when intentionally testing the lease gate. |
+| **Staging / pre-production** | **2**–**4** | **false** *(default)* unless validating fast-fail UX | Exercises **`dbo.AuthorityPipelineTenantExecutionLease`** and queue/offload paths before production; prefer **lower** bound on shared SQL. |
+| **Production** | **4** *(initial)*; adjust **2**–**8** with capacity review | **false** by default; **true** when synchronous **`POST /v1/architecture/request`** must **429-style fail fast** instead of waiting for a slot | Caps per-tenant **heavy-stage** fan-out (graph / findings / decision / manifest). Raise slots only when **§8.2** backlog stays healthy, SQL has headroom, and **§8.6** lease counts stay bounded. Pair with **`worker_min_replicas` / `worker_max_replicas`** (`infra/terraform-container-apps`) rather than unbounded concurrency alone. |
+
+**Inline vs queued:** When **`RejectInlineCreateWhenConcurrencyUnavailable`** is **true** and slots are full, **synchronous** creates fail fast with **`AuthorityTenantConcurrencyLimitExceededException`** (problem hints reference concurrency keys — see **`ProblemSupportHints`**). Work processed via the **authority pipeline work outbox** still **waits** for capacity (poll interval **`WaitPollMilliseconds`**).
+
+### 8.6 Lease table growth — `dbo.AuthorityPipelineTenantExecutionLease`
+
+**Purpose:** One row per **run** currently holding a **per-tenant execution slot** for authority heavy stages. Implementation: **`SqlAuthorityPipelineTenantExecutionLeaseRepository`** / **`SqlTenantAuthorityPipelineConcurrencyGate`**.
+
+**Lifecycle (steady state):**
+
+- **Insert** when a slot is acquired (**`TryAcquireLeaseAsync`**, serializable transaction).
+- **Delete** when the pipeline releases the slot (**`ReleaseLeaseAsync`** on normal completion).
+- **Stale cleanup:** On each acquire attempt for a **tenant**, rows with **`AcquiredUtc`** older than **`UTC now − LeaseRecognitionHorizon`** are deleted for **that tenant** before counting active leases — crashed workers eventually stop counting toward capacity once leases age past the horizon **and** that tenant has another acquire attempt.
+
+**Why monitor row count:** Under healthy operation, total rows should stay **small** (order of **active concurrent pipelines** across all tenants). **Sustained growth** or **per-tenant counts persistently above `MaxConcurrentExecutionsPerTenant`** suggests stuck pipelines, crash loops without release, misconfigured horizon, or overload — correlate with **`archlucid_authority_pipeline_work_pending`**, **`AuthorityPipelineWorkOutbox`**, and **`TRACE_A_RUN.md`**.
+
+**Suggested SQL checks** (read-only; run in maintenance window or via least-privilege auditor):
+
+```sql
+-- Fleet-wide lease cardinality (alert if baseline drifts upward without tenant growth).
+SELECT COUNT_BIG(*) AS LeaseRowCount
+FROM dbo.AuthorityPipelineTenantExecutionLease;
+
+-- Noisy tenants or imbalance (compare to configured MaxConcurrentExecutionsPerTenant).
+SELECT TenantId,
+       COUNT_BIG(*) AS ActiveLeases,
+       MIN(AcquiredUtc) AS OldestAcquireUtc,
+       MAX(AcquiredUtc) AS NewestAcquireUtc
+FROM dbo.AuthorityPipelineTenantExecutionLease
+GROUP BY TenantId
+ORDER BY ActiveLeases DESC;
+
+-- Oldest holders — investigate stuck runs / missing releases first.
+SELECT TOP (50) RunId, TenantId, AcquiredUtc
+FROM dbo.AuthorityPipelineTenantExecutionLease
+ORDER BY AcquiredUtc ASC;
+```
+
+**Remediation outline:**
+
+1. Match outliers to **`RunId`** — **`GET /v1/admin/diagnostics/outboxes`** (authorized) and application logs for those runs.
+2. If workers crash mid-pipeline, restore worker health first; rely on **`LeaseRecognitionHorizon`** + subsequent acquires for cleanup — **do not** shorten the horizon drastically without understanding longest legitimate pipeline duration.
+3. If overload is legitimate, prefer **§8.5** slot tuning and **worker/SQL scale** over disabling enforcement entirely.
+
 ## 9. Related documentation
 
 - **`docs/library/OBSERVABILITY.md`** — canonical metric names.
 - **`infra/prometheus/archlucid-alerts.yml`** — alert thresholds and **`for`** durations.
 - **`docs/runbooks/SLO_PROMETHEUS_GRAFANA.md`** — broader Grafana / SLO context.
+- **`docs/library/RTO_RPO_TARGETS.md`** — environment tier naming (continuity); **`docs/runbooks/TRACE_A_RUN.md`** — single-run drill-down.

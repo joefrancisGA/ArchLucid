@@ -129,7 +129,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Troubleshooting for pilots and operators (56R)",
     "sectionSlug": "still-stuck",
     "sectionHeading": "Still stuck?",
-    "excerpt": "1. Run `dotnet run --project ArchLucid.Cli -- doctor` with the API up. 2. Run `support-bundle --zip` (above) and attach the archive after redacting anything your policy still forbids. 3. Run `run-readiness-check.cmd` (or `.ps1`) to confirm build + fast core + UI unit tests on your machine. 4. For an automated API + …"
+    "excerpt": "1. Run `dotnet run --project ArchLucid.Cli -- doctor` with the API up. 2. Run `support-bundle --zip` (above) and attach the archive after redacting anything your policy still forbids. 3. Run `scripts\\run-readiness-check.cmd` (or `scripts\\run-readiness-check.ps1`) to confirm build + fast core + UI unit tests on your …"
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
