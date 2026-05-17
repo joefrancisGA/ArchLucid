@@ -81,7 +81,7 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
 
     expect(
       screen.getByText(
-        /Review the completed Claims Intake package through executive summary, signed manifest, evidence graph, governance approval, and audit trail/,
+        /Illustrative Claims Intake package — start at the executive summary, or open the full review record to explore manifest, evidence trail, governance, and audit from one workspace view/,
       ),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start executive review" })).toHaveAttribute(
@@ -92,10 +92,7 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
       "href",
       "/reviews/claims-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "Open evidence graph" })).toHaveAttribute(
-      "href",
-      "/graph?runId=claims-intake-modernization",
-    );
+    expect(screen.queryByRole("link", { name: "Open evidence graph" })).toBeNull();
     expect(screen.getByRole("button", { name: /About this sample review package/i })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Start a new request" })).toBeNull();
   });

@@ -38,7 +38,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     expect(navA?.currentStepIndex).toBe(1);
     expect(navB?.currentStepIndex).toBe(1);
     expect(navA?.prev?.label).toBe("Executive summary");
-    expect(navA?.next?.label).toBe("Evidence graph");
+    expect(navA?.next?.label).toBe("View evidence trail");
   });
 
   it("resolves graph governance and audit sequence", () => {

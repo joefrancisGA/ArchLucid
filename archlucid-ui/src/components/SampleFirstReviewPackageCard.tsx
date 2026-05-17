@@ -63,8 +63,8 @@ export function SampleFirstReviewPackageCard() {
           <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
             {buyerPolished === true ? (
               <>
-                Review the completed Claims Intake package through executive summary, signed manifest, evidence graph,
-                governance approval, and audit trail.
+                Illustrative Claims Intake package — start at the executive summary, or open the full review record to
+                explore manifest, evidence trail, governance, and audit from one workspace view.
               </>
             ) : (
               "Open the Claims Intake sample to see the reviewed manifest, evidence trail, findings, and artifacts before filling out the real-input wizard."
@@ -134,12 +134,6 @@ export function SampleFirstReviewPackageCard() {
                   className="inline-flex min-h-[24px] items-center font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
                 >
                   Open full review package
-                </Link>
-                <Link
-                  href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
-                  className="inline-flex min-h-[24px] items-center font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
-                >
-                  Open evidence graph
                 </Link>
               </div>
             ) : null}

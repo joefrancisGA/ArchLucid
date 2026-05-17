@@ -14,7 +14,7 @@ const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
   { step: 1, label: "Executive summary", href: getShowcaseExecutiveHref() },
   { step: 2, label: "Signed manifest", href: getShowcaseManifestHref() },
-  { step: 3, label: BUYER_SURFACE_VOCABULARY.evidenceGraphNav, href: `/graph?runId=${showcaseRunEnc}` },
+  { step: 3, label: "View evidence trail", href: `/graph?runId=${showcaseRunEnc}` },
   { step: 4, label: "Governance approval", href: `/governance?runId=${showcaseRunEnc}` },
   { step: 5, label: BUYER_SURFACE_VOCABULARY.auditTrail, href: `/audit?runId=${showcaseRunEnc}` },
 ] as const;
@@ -25,7 +25,7 @@ export type BuyerGoldenJourneyNavLink = {
 };
 
 export type ResolvedBuyerGoldenJourneyNav = {
-  /** Line shown between prev/next, e.g. "Step 3 of 5 · Evidence graph" */
+  /** Line shown between prev/next, e.g. "Step 3 of 5 · View evidence trail" */
   readonly summaryLine: string;
   readonly prev: BuyerGoldenJourneyNavLink | null;
   readonly next: BuyerGoldenJourneyNavLink | null;

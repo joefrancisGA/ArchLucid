@@ -143,7 +143,7 @@
 - **Weighted deficiency signal:** 22
 - **Justification:** Rate limiting is implemented; optional Redis and **memory** caches remain deployment-dependent — **distributed graph projection cache** is **available when configured**.
 - **Tradeoffs:** Making Redis optional simplifies single-replica deployments but complicates scaled operations.
-- **Improvement recommendations:** Enhance `SqlScopedResolutionDbConnectionFactory` with connection retry logic.
+- **Improvement recommendations:** ~~Connection open retries~~ **Delivered (2026-05-16):** `SqlScopedResolutionDbConnectionFactory.CreateOpenConnectionAsync` resolves scoped `ISqlConnectionFactory`, which production registers as `ResilientSqlConnectionFactory` wrapping Polly (`SqlOpenResilienceDefaults`, transient detection including Azure SQL codes 40613 / 40197 / 40501). Configure attempts and backoff via `Persistence:SqlOpenResilience` in `appsettings`.
 
 ### 14. Customer Self-Sufficiency
 - **Score:** 100
@@ -512,13 +512,13 @@ Create snapshot tests in `ArchLucid.Api.Tests` or `ArchLucid.Application.Tests` 
 Update the operator UI dashboard to display the status of the `data_archival` health check. Fetch the readiness summary from `GET /health/ready` (the check is tagged Ready; anonymous `GET /health` lists only the database probe in this codebase) and display a warning indicator if the status is `Degraded`. Do not change the underlying health check logic in the backend. Acceptance criteria: Operators can see the data archival health status on the UI dashboard.
 ```
 
-7. Enhance `SqlScopedResolutionDbConnectionFactory` with connection retry logic
+7. COMPLETED: Connection retry logic for scoped SQL opens (`SqlScopedResolutionDbConnectionFactory`)
 - Why it matters: Improves resilience against transient database connection failures.
-- Expected impact: Directly improves Correctness (+2 pts), Performance (+1 pts). Weighted readiness impact: +0.35%.
+- Expected impact: (Delivered **2026-05-16**.) Directly improves Correctness (+2 pts), Performance (+1 pts). Weighted readiness impact: +0.35%.
 - Affected qualities: Correctness, Performance.
-- Actionable: Yes
+- Actionable: Completed
 ```markdown
-Update `SqlScopedResolutionDbConnectionFactory` in `ArchLucid.Api.DataAccess` to use Polly for transient fault handling when opening SQL connections. Implement a retry policy with exponential backoff for common transient SQL errors (e.g., error numbers 40613, 40197, 40501). Ensure the retry policy is configurable via `appsettings.json`. Do not change the `IDbConnectionFactory` interface. Acceptance criteria: SQL connections automatically retry on transient failures.
+Update `SqlScopedResolutionDbConnectionFactory` in `ArchLucid.Host.Core` (historic assessment text cited `ArchLucid.Api.DataAccess`) so SQL connection opens use Polly for transient faults: exponential backoff for common transient SQL errors (40613, 40197, 40501 via `SqlTransientDetector`), configurable under `Persistence:SqlOpenResilience`, without changing `IDbConnectionFactory`. **Delivered:** `CreateOpenConnectionAsync` delegates to scoped `ResilientSqlConnectionFactory` + `SqlOpenResilienceDefaults`; `ArchLucid.Host.Composition` binds options from configuration; regression test asserts the bridge retries after transient `SqlException` 40613.
 ```
 
 8. Add explicit documentation for `ArchLucidAuth:Authority` configuration

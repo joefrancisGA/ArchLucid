@@ -2,11 +2,13 @@
 
 using ArchLucid.Host.Core.DataAccess;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
@@ -54,5 +56,47 @@ public sealed class SqlScopedResolutionDbConnectionFactoryTests
 
         conn.Should().BeOfType<SqlConnection>();
         conn.State.Should().Be(ConnectionState.Closed);
+    }
+
+    /// <summary>
+    ///     Product SQL composition registers scoped <see cref="ResilientSqlConnectionFactory" /> as
+    ///     <see cref="ISqlConnectionFactory" /> — this verifies the singleton bridge participates in Polly-backed opens.
+    /// </summary>
+    [SkippableFact]
+    public async Task CreateOpenConnectionAsync_with_ResilientSqlConnectionFactory_retries_transient_sql_error()
+    {
+        SqlConnection expected = new();
+        Mock<ISqlConnectionFactory> inner = new();
+        int callCount = 0;
+
+        inner.Setup(f => f.CreateOpenConnectionAsync(It.IsAny<CancellationToken>())).Returns(() =>
+        {
+            callCount++;
+
+            if (callCount == 1)
+                throw SqlExceptionTestFactory.Create(40613);
+
+            return Task.FromResult(expected);
+        });
+
+        ResilientSqlConnectionFactory resilient = new(
+            inner.Object,
+            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(
+                NullLogger<ResilientSqlConnectionFactory>.Instance,
+                maxRetryAttempts: 3,
+                baseDelay: TimeSpan.FromMilliseconds(1)));
+
+        ServiceCollection services = [];
+        services.AddScoped<ISqlConnectionFactory>(_ => resilient);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        SqlScopedResolutionDbConnectionFactory sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            "Server=(localdb)\\mssqllocaldb;Database=master;Trusted_Connection=True;TrustServerCertificate=True");
+
+        IDbConnection conn = await sut.CreateOpenConnectionAsync(CancellationToken.None);
+
+        conn.Should().BeSameAs(expected);
+        callCount.Should().Be(2);
     }
 }

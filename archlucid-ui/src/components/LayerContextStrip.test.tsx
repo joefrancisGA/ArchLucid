@@ -69,9 +69,9 @@ describe("LayerContextStrip", () => {
     const { getByTestId, unmount } = render(
       <LayerContextStrip
         layerId="pilot"
-        buyerRouteOrientation={{ label: "Evidence graph", line: "Demo orientation." }}
+        buyerRouteOrientation={{ label: "View evidence trail", line: "Demo orientation." }}
         buyerGoldenJourneyNav={{
-          summaryLine: "Step 3 of 5 · Evidence graph",
+          summaryLine: "Step 3 of 5 · View evidence trail",
           prev: { label: "Signed manifest", href: "/reviews/x/manifest" },
           next: { label: "Governance approval", href: "/governance" },
           currentStepIndex: 2,
