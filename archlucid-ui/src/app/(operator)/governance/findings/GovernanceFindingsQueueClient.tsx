@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 
 import { EmptyState } from "@/components/EmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -19,6 +19,18 @@ import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
+
+/** Buyer-polished demo rows: action text aligned to each bundled decision synopsis (indices 0–7). */
+const SHOWCASE_GOVERNANCE_DECISION_RECOMMENDED: readonly string[] = [
+  "Reconfirm intake stays system-of-record in the next integration review; refresh the adapter inventory.",
+  "Spot-check ingress PHI classifications quarterly and tighten tagging rules when drift appears.",
+  "Load-test bounded queues and back-pressure thresholds ahead of peak season; document rollback.",
+  "Review capped rework-queue metrics monthly; escalate sustained overflow to supervised exception owners.",
+  "Verify OCR vendor agreements and human confirm gates before expanding unstructured attachment volume.",
+  "Exercise signing-key rotation and consumer idempotency in CI before major adjudication changes.",
+  "Align retention attestations with enterprise records management ahead of external audits.",
+  "Publish intake latency, queue depth, and exception-rate dashboards in the sponsor KPI pack.",
+];
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import type { RunSummary } from "@/types/authority";
 
@@ -74,7 +86,9 @@ function staticDemoGovernanceRows(): GovernanceFindingQueueRow[] {
     severity: "Info",
     category: "Architecture decision",
     status: "Recorded",
-    recommended: "Confirm with owners in the next design review.",
+    recommended:
+      SHOWCASE_GOVERNANCE_DECISION_RECOMMENDED[i] ??
+      "Document acceptance with owning teams in the next design review.",
     recordKind: "decision",
   }));
 
@@ -130,6 +144,19 @@ function inspectHref(runId: string, findingId: string): string {
 
 function manifestHref(manifestId: string): string {
   return `/manifests/${encodeURIComponent(manifestId)}`;
+}
+
+function governanceQueueSeverityCell(row: GovernanceFindingQueueRow, buyerPolishedShell: boolean): ReactElement {
+  if (buyerPolishedShell && row.recordKind === "decision") {
+    return (
+      <span className="text-neutral-500 dark:text-neutral-400">
+        <span aria-hidden="true">—</span>
+        <span className="sr-only">Severity does not apply to recorded decision rows.</span>
+      </span>
+    );
+  }
+
+  return <span className="text-neutral-800 dark:text-neutral-200">{row.severity}</span>;
 }
 
 /**
@@ -227,13 +254,37 @@ export default function GovernanceFindingsQueueClient() {
   return (
     <>
       <LayerHeader pageKey="governance-findings" density="compact" />
-      <OperatorPageHeader title={buyerPolishedShell ? "Review findings and disposition" : "Findings"} />
+      {buyerPolishedShell ? (
+        <nav aria-label="Breadcrumb" className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+          <Link className="text-teal-800 underline dark:text-teal-300" href="/">
+            Home
+          </Link>
+          {" · "}
+          <Link className="text-teal-800 underline dark:text-teal-300" href="/governance">
+            Governance
+          </Link>
+          {" · "}
+          <span className="font-medium text-neutral-800 dark:text-neutral-200" aria-current="page">
+            Review records and dispositions
+          </span>
+        </nav>
+      ) : null}
+      <OperatorPageHeader title={buyerPolishedShell ? "Review records and dispositions" : "Findings"} />
 
       <div className="mt-4 space-y-4">
         <p className="m-0 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
-          {buyerPolishedShell
-            ? "Portfolio view of findings and recorded decisions — severity, disposition, and recommended next steps. Open a row for evidence, impact, and monitoring posture."
-            : "Findings from architecture reviews — severity, category, and links to inspect each item in context."}
+          {buyerPolishedShell ? (
+            <>
+              Portfolio view of findings and recorded architecture decisions — disposition and recommended next steps. Open a
+              row for evidence, impact, and monitoring posture.{" "}
+              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/governance">
+                Governance workflow overview
+              </Link>
+              .
+            </>
+          ) : (
+            "Findings from architecture reviews — severity, category, and links to inspect each item in context."
+          )}
         </p>
 
         {loading ? (
@@ -254,7 +305,7 @@ export default function GovernanceFindingsQueueClient() {
                   <tr>
                     <th className="px-3 py-2">Severity</th>
                     <th className="px-3 py-2">{buyerPolishedShell ? "Record" : "Record kind"}</th>
-                    <th className="px-3 py-2">Finding</th>
+                    <th className="px-3 py-2">{buyerPolishedShell ? "Record summary" : "Finding"}</th>
                     <th className="px-3 py-2">Review</th>
                     {buyerPolishedShell ? null : <th className="px-3 py-2">Manifest</th>}
                     <th className="px-3 py-2">Status</th>
@@ -268,7 +319,7 @@ export default function GovernanceFindingsQueueClient() {
                       key={`${row.runId}:${row.findingId}:table`}
                       className="border-t border-neutral-200 dark:border-neutral-800"
                     >
-                      <td className="px-3 py-2 align-top text-neutral-800 dark:text-neutral-200">{row.severity}</td>
+                      <td className="px-3 py-2 align-top">{governanceQueueSeverityCell(row, buyerPolishedShell)}</td>
                       <td className="px-3 py-2 align-top text-neutral-800 dark:text-neutral-200">
                         {formatGovernanceQueueRecordKind(row.recordKind, buyerPolishedShell)}
                       </td>
@@ -390,7 +441,16 @@ export default function GovernanceFindingsQueueClient() {
                   </div>
                   <div>
                     <span className="font-medium text-neutral-700 dark:text-neutral-300">Severity</span>
-                    <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.severity}</p>
+                    <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">
+                      {buyerPolishedShell && row.recordKind === "decision" ? (
+                        <>
+                          <span aria-hidden="true">—</span>
+                          <span className="sr-only">Severity does not apply to recorded decision rows.</span>
+                        </>
+                      ) : (
+                        row.severity
+                      )}
+                    </p>
                   </div>
                   {buyerPolishedShell ? null : (
                     <div>
