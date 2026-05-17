@@ -160,12 +160,35 @@ describe("RunsListClient inspector", () => {
       hasFindingsSnapshot: true,
       hasGoldenManifest: true,
     };
+    const committed2: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cf",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
 
-    render(<RunsListClient runs={[committed]} projectId="default" page={1} pageSize={20} totalCount={1} />);
+    render(
+      <RunsListClient runs={[committed, committed2]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
 
     expect(screen.getByRole("heading", { name: /finalized review packages/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^finalized packages$/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/Search reviews by name, description, or review identifier/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Search reviews by title or description/i)).toBeInTheDocument();
+  });
+
+  it("buyer-polished: hides list filters when exactly one review exists", () => {
+    runsListBuyerPolishedForced.on = true;
+
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cc",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+
+    render(<RunsListClient runs={[committed]} projectId="default" page={1} pageSize={20} totalCount={1} />);
+
+    expect(screen.queryByLabelText(/Search reviews by title or description/i)).toBeNull();
   });
 
   it("buyer-polished: finalized scope hides in-flight runs", () => {

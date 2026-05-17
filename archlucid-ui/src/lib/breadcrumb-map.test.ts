@@ -93,7 +93,7 @@ describe("getBreadcrumbs", () => {
     ).toEqual([
       { label: "Home", href: "/" },
       { label: SHOWCASE_BUYER_REVIEW_TITLE, href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}` },
-      { label: "Evidence graph" },
+      { label: "Evidence trail" },
     ]);
   });
 
@@ -103,7 +103,7 @@ describe("getBreadcrumbs", () => {
         buyerPolishedShell: true,
         queryRunId: "other-review",
       }),
-    ).toEqual([{ label: "Home", href: "/" }, { label: "Evidence graph" }]);
+    ).toEqual([{ label: "Home", href: "/" }, { label: "Evidence trail" }]);
   });
 
   it("buyer-polished: compare demo runId on hub inserts review package title before the hub crumb", () => {

@@ -24,8 +24,8 @@ public static class AuthServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        // ArchLucidJwtBearerOptionsConfigurer needs IConfiguration from DI; bare ServiceCollections (unit tests)
-        // often omit it. Hosts already register IConfiguration, so TryAdd does not replace production wiring.
+        // JwtBearer configuration via Options.Configure<IConfiguration> needs IConfiguration in DI; bare
+        // ServiceCollections omit it. Hosts already register IConfiguration, so TryAdd does not replace production wiring.
         services.TryAddSingleton(configuration);
 
         services.Configure<ArchLucidAuthOptions>(configuration.GetSection(ArchLucidAuthOptions.SectionName));

@@ -141,6 +141,15 @@ export function AuditPageView(props: AuditPageViewProps) {
             separate request flow. You have now seen the sample audit trail — use this section when you are ready to
             discuss tenant-backed workspaces.
           </p>
+          <p className="m-0 mt-3 text-sm">
+            <a
+              className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+              href="/reviews/new"
+            >
+              Create follow-up review
+            </a>{" "}
+            when you need another governed package after completing this sample path.
+          </p>
         </details>
       ) : null}
     </div>
