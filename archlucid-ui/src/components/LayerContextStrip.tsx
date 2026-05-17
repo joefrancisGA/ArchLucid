@@ -166,6 +166,7 @@ export function LayerContextStrip({
                     <li key={`${def.step}-${def.href}`}>
                       <Link
                         href={def.href}
+                        title={def.chipTooltip}
                         className={cn(
                           "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium no-underline transition hover:opacity-95",
                           chipClass,

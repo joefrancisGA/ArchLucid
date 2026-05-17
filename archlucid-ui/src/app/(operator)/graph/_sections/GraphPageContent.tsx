@@ -352,7 +352,15 @@ export function GraphPageContent() {
   return (
     <div>
       <LayerHeader pageKey="graph" />
-      <OperatorPageHeader title={pageTitle} helpKey="architecture-graph" />
+      <OperatorPageHeader
+        title={pageTitle}
+        helpKey="architecture-graph"
+        buyerTitleHint={
+          buyerPolishedShell
+            ? "Use the canvas to open evidence, findings, decisions, and manifest outputs — detail appears in the side panel."
+            : undefined
+        }
+      />
       {graph === null ? <GraphPageIntroParagraph demoUi={demoUi} buyerPolishedShell={buyerPolishedShell} leadIntro={leadIntro} /> : null}
 
       {graph === null ? controls : null}

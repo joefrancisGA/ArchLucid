@@ -5,6 +5,7 @@ import {
   OperatorEvidenceLimitsFooter,
 } from "@/components/OperatorEvidenceLimitsFooter";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
+import { BuyerTitleHint } from "@/components/BuyerTitleHint";
 import { ManifestDetailSummaryPanel } from "@/components/ManifestDetailSummaryPanel";
 import { ManifestTopDecisionsCard } from "@/components/ManifestTopDecisionsCard";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -236,15 +237,20 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       ) : null}
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base font-semibold">
-            {buyerPolishedLayout ? "Deliverables" : "Generated artifacts"}
-          </CardTitle>
-          <CardDescription>
-            {buyerPolishedLayout
-              ? "These deliverables package the executive decision, architecture review board record, and audit evidence for sign-off and diligence."
-              : "Outputs produced during this review — available for preview and download."}
-          </CardDescription>
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <CardTitle className="text-base font-semibold">
+              {buyerPolishedLayout ? "Deliverables" : "Generated artifacts"}
+            </CardTitle>
+            <CardDescription>
+              {buyerPolishedLayout
+                ? "These deliverables package the executive decision, architecture review board record, and audit evidence for sign-off and diligence."
+                : "Outputs produced during this review — available for preview and download."}
+            </CardDescription>
+          </div>
+          {buyerPolishedLayout ? (
+            <BuyerTitleHint text="Rows below list individual sealed-package files. Prefer ZIP above when your workspace publishes a full bundle." />
+          ) : null}
         </CardHeader>
         <CardContent className="space-y-4">
           {buyerPolishedLayout === true ? (

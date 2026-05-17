@@ -91,6 +91,8 @@ export function ArtifactListTable(props: {
   } = props;
   const sorted = [...artifacts].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
   const hidePilotFeedbackOnArtifacts = isBuyerPolishedOperatorShellEnv();
+  const audienceDeliverablesCardChrome =
+    sponsorMode === true && audienceSections === true && hidePilotFeedbackOnArtifacts === true;
   const artifactColumnLabel = sponsorMode ? "Output" : "Artifact";
   const createdColumnLabel = sponsorMode ? "Generated" : "Created";
 
@@ -197,7 +199,15 @@ export function ArtifactListTable(props: {
             }
 
             return (
-              <section key={bucket} aria-labelledby={`artifact-audience-${bucket}`}>
+              <section
+                key={bucket}
+                aria-labelledby={`artifact-audience-${bucket}`}
+                className={
+                  audienceDeliverablesCardChrome
+                    ? "rounded-xl border border-neutral-200/90 bg-neutral-50/50 p-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-950/35 sm:p-4"
+                    : undefined
+                }
+              >
                 <h3
                   id={`artifact-audience-${bucket}`}
                   className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400"

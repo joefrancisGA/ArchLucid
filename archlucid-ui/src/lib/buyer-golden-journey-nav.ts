@@ -12,11 +12,37 @@ const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
  * Canonical five-step buyer demo spine — keep in sync with {@link BuyerGoldenJourneyStrip} home card.
  */
 export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
-  { step: 1, label: "Executive summary", href: getShowcaseExecutiveHref() },
-  { step: 2, label: "Signed manifest", href: getShowcaseManifestHref() },
-  { step: 3, label: "View evidence trail", href: `/graph?runId=${showcaseRunEnc}` },
-  { step: 4, label: "Governance approval", href: `/governance?runId=${showcaseRunEnc}` },
-  { step: 5, label: BUYER_SURFACE_VOCABULARY.auditTrail, href: `/audit?runId=${showcaseRunEnc}` },
+  {
+    step: 1,
+    label: "Executive summary",
+    href: getShowcaseExecutiveHref(),
+    chipTooltip:
+      "Condensed outcomes, posture, and monitored risks for sponsor sign-off — the diligence starting point.",
+  },
+  {
+    step: 2,
+    label: "Signed manifest",
+    href: getShowcaseManifestHref(),
+    chipTooltip: "Versioned record of decisions, findings, and downloadable outputs sealed for this package.",
+  },
+  {
+    step: 3,
+    label: "View evidence trail",
+    href: `/graph?runId=${showcaseRunEnc}`,
+    chipTooltip: "Interactive graph linking evidence → findings → decisions → manifest outputs.",
+  },
+  {
+    step: 4,
+    label: "Governance approval",
+    href: `/governance?runId=${showcaseRunEnc}`,
+    chipTooltip: "Governance posture, approvals, and monitoring hooks tied to this review package.",
+  },
+  {
+    step: 5,
+    label: BUYER_SURFACE_VOCABULARY.auditTrail,
+    href: `/audit?runId=${showcaseRunEnc}`,
+    chipTooltip: "Chronological audit trail of review events for compliance and operational follow-up.",
+  },
 ] as const;
 
 export type BuyerGoldenJourneyNavLink = {

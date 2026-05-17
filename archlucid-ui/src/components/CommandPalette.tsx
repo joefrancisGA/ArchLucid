@@ -38,9 +38,9 @@ function curatedPaletteVisibilityHref(href: string): string {
   return href.slice(0, i);
 }
 
-function CommandPaletteDocumentationSearch() {
+function CommandPaletteDocumentationSearch({ buyerPolishedShell }: { buyerPolishedShell: boolean }) {
   return (
-    <CommandGroup heading="Documentation">
+    <CommandGroup heading={buyerPolishedShell ? "Help topics" : "Documentation"}>
       {DOCUMENTATION_SEARCH_ITEMS.map((row) => (
         <CommandItem
           key={row.relativeDocsPath}
@@ -59,9 +59,11 @@ function CommandPaletteDocumentationSearch() {
 
 function CommandPaletteCuratedTasks({
   visibleHrefs,
+  buyerPolishedShell,
   onNavigate,
 }: {
   visibleHrefs: ReadonlySet<string>;
+  buyerPolishedShell: boolean;
   onNavigate: (href: string) => void;
 }) {
   const curated = useMemo(
@@ -75,7 +77,7 @@ function CommandPaletteCuratedTasks({
   }
 
   return (
-    <CommandGroup heading="Quick tasks">
+    <CommandGroup heading={buyerPolishedShell ? "Shortcuts" : "Quick tasks"}>
       {curated.map((task) => (
         <CommandItem
           key={`curated-${task.href}`}
@@ -91,17 +93,31 @@ function CommandPaletteCuratedTasks({
   );
 }
 
+function buyerPaletteNavGroupHeading(groupId: string, defaultLabel: string): string {
+  if (groupId === "pilot") {
+    return "Reviews";
+  }
+
+  if (groupId === "operate-analysis") {
+    return "Trace & exploration";
+  }
+
+  return defaultLabel;
+}
+
 function CommandPaletteNavGroups({
   callerAuthorityRank,
   shellShowExtended,
   shellShowAdvanced,
   hasCommittedArchitectureReview,
+  buyerPolishedShell,
   onNavigate,
 }: {
   callerAuthorityRank: number;
   shellShowExtended: boolean;
   shellShowAdvanced: boolean;
   hasCommittedArchitectureReview: boolean;
+  buyerPolishedShell: boolean;
   onNavigate: (href: string) => void;
 }) {
   const search = useCommandState((state) => state.search);
@@ -130,7 +146,10 @@ function CommandPaletteNavGroups({
   return (
     <>
       {reviewRows.map(({ group, visibleLinks }) => (
-        <CommandGroup key={group.id} heading={group.label}>
+        <CommandGroup
+          key={group.id}
+          heading={buyerPolishedShell ? buyerPaletteNavGroupHeading(group.id, group.label) : group.label}
+        >
           {visibleLinks.map((link) => (
             <CommandItem
               key={link.href}
@@ -271,8 +290,33 @@ export function CommandPalette() {
 
   const polishedShell = buyerPolishedShell;
 
-  const polishedPaletteLabel = "Search review evidence";
-  const polishedPalettePlaceholder = "Search review evidence or find a page…";
+  const polishedPaletteLabel = "Search package pages";
+
+  const polishedPalettePlaceholder = useMemo(() => {
+    const path = (pathname ?? "").split("?")[0] ?? "";
+
+    if (path.startsWith("/graph")) {
+      return "Jump to audit, manifest, governance, or type another destination…";
+    }
+
+    if (path.startsWith("/audit")) {
+      return "Jump to executive summary, evidence graph, manifest — or type a destination…";
+    }
+
+    if (path.startsWith("/governance")) {
+      return "Jump to audit trail, findings, executive summary…";
+    }
+
+    if (path.startsWith("/dashboard")) {
+      return "Jump to signed manifest, evidence graph, audit…";
+    }
+
+    if (path.startsWith("/manifests")) {
+      return "Jump to executive summary, graph, governance…";
+    }
+
+    return "Find another page in this review package…";
+  }, [pathname]);
 
   return (
     <>
@@ -310,8 +354,12 @@ export function CommandPalette() {
         <CommandInput placeholder={polishedShell ? polishedPalettePlaceholder : "Search pages or paste a review ID…"} />
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!polishedShell} />
-          <CommandPaletteDocumentationSearch />
-          <CommandPaletteCuratedTasks visibleHrefs={visibleHrefs} onNavigate={navigate} />
+          <CommandPaletteDocumentationSearch buyerPolishedShell={polishedShell} />
+          <CommandPaletteCuratedTasks
+            visibleHrefs={visibleHrefs}
+            buyerPolishedShell={polishedShell}
+            onNavigate={navigate}
+          />
           <CommandEmpty>
             {polishedShell
               ? "No matching page. Try another search."
@@ -322,6 +370,7 @@ export function CommandPalette() {
             shellShowExtended={paletteExtended}
             shellShowAdvanced={paletteAdvanced}
             hasCommittedArchitectureReview={hasCommittedArchitectureReview}
+            buyerPolishedShell={polishedShell}
             onNavigate={navigate}
           />
           {polishedShell ? null : (
