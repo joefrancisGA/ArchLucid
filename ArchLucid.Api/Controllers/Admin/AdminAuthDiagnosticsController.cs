@@ -23,7 +23,8 @@ namespace ArchLucid.Api.Controllers.Admin;
 [Route("v{version:apiVersion}/admin")]
 public sealed class AdminAuthDiagnosticsController(
     IAuthDiagnosticsRingBuffer authDiagnosticsRingBuffer,
-    IOidcWellKnownDiagnosticsService oidcWellKnownDiagnosticsService) : ControllerBase
+    IOidcWellKnownDiagnosticsService oidcWellKnownDiagnosticsService,
+    ISamlOperationalDiagnosticsService samlOperationalDiagnosticsService) : ControllerBase
 {
     private const int MaxAuthDiagnosticsEntries = 200;
 
@@ -32,6 +33,9 @@ public sealed class AdminAuthDiagnosticsController(
 
     private readonly IOidcWellKnownDiagnosticsService _oidcWellKnownDiagnosticsService =
         oidcWellKnownDiagnosticsService ?? throw new ArgumentNullException(nameof(oidcWellKnownDiagnosticsService));
+
+    private readonly ISamlOperationalDiagnosticsService _samlOperationalDiagnosticsService =
+        samlOperationalDiagnosticsService ?? throw new ArgumentNullException(nameof(samlOperationalDiagnosticsService));
 
     /// <summary>
     ///     Returns the most recent IdP JWT role-mapping failures captured in the in-memory ring buffer.
@@ -58,6 +62,21 @@ public sealed class AdminAuthDiagnosticsController(
     {
         AdminOidcDiagnosticsResponse snapshot =
             await _oidcWellKnownDiagnosticsService.BuildAsync(cancellationToken);
+
+        return Ok(snapshot);
+    }
+
+    /// <summary>
+    ///     Returns SAML 2.0 SP operational signals (signing certificate expiry and optional IdP metadata
+    ///     <c>validUntil</c>).
+    /// </summary>
+    [HttpGet("auth/saml-operational-health")]
+    [ProducesResponseType(typeof(AdminSamlOperationalHealthResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<AdminSamlOperationalHealthResponse>> GetSamlOperationalHealth(
+        CancellationToken cancellationToken)
+    {
+        AdminSamlOperationalHealthResponse snapshot =
+            await _samlOperationalDiagnosticsService.BuildAsync(cancellationToken);
 
         return Ok(snapshot);
     }

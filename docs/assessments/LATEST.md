@@ -1,15 +1,16 @@
 ﻿> **Scope:** Independent, first-principles assessment of ArchLucid readiness.
 > **Status:** current
-> **Re-score:** 2026-05-17 — automated tenant erasure pipeline (improvement **#3**) deferred to **V2** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m** (excluded from **`(A)`** headline per Assessment-Scope); Compliance Readiness **80→85**; headline **84.60%**.
+> **Re-score:** 2026-05-17 — improvement **#3** (automated tenant erasure) remains **V2** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m** (`(A)` exclusion); Compliance Readiness stays **85** (prior rescoring **80→85**, unchanged here); improvements **#13–#16** deferred **V1.1**, excluded from **`(A)` V1 headline**; Workflow Embeddedness **85→90**, Testability **80→85**; headline **84.45%**.
 
-# ArchLucid Assessment – (A) Headline Readiness: 84.60%
+# ArchLucid Assessment – (A) Headline Readiness: 84.45%
 
-This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold, **V2** automated tenant erasure quarantine pipeline — see [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**).
+This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold, **V2** automated tenant erasure quarantine pipeline — see [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m** — plus **V1.1 backlog** integrations/tests for improvements **#13–#16** below).
 
 ## Executive Summary
 
-### (A) Overall Headline Readiness
-ArchLucid is a functionally complete V1 product with a solid architectural foundation (84.60% readiness). It successfully executes the core pilot loop (request → execute → commit → manifest) and provides strong governance and traceability features. The integration of native SAML 2.0 SP, curated default policy packs, and consultant whitelabeling significantly strengthens the V1 GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting) and test automation for new integrations.
+### (A) Overall Headline Readiness (84.45%)
+
+ArchLucid is a functionally complete V1 product with a solid architectural foundation (84.45% readiness). It successfully executes the core pilot loop (request → execute → commit → manifest) and provides strong governance and traceability features. The integration of native SAML 2.0 SP, curated default policy packs, and consultant whitelabeling significantly strengthens the V1 GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting) and default `ui-e2e-smoke` mock-heavy coverage (distinct from **V1.1**-scoped integration suites — improvements **#14–#16**).
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. **Product policy:** the full **automated** tenant erasure quarantine pipeline (30-day delay, legal hold, orchestrated purge) is a **V2** engineering commitment — see [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m** — and is **not** scored as an **`(A)`** defect. Some privacy reviews will still ask about deletion posture; V1 relies on **operator-driven** and **trial/offboarding** deletion paths (`TenantDeletionService`, hard purge) and trust-center honesty rather than a shipped end-to-end GDPR automation product.
@@ -92,12 +93,12 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Improvement recommendations:** Develop an internal "Policy Pack Hub" for sharing custom policies.
 
 ### 9. Workflow Embeddedness
-- **Score:** 85
+- **Score:** 90
 - **Weight:** 3
-- **Weighted deficiency signal:** 45
-- **Justification:** Inclusion of first-party ITSM connectors (Jira, ServiceNow) and Slack/Confluence integrations in V1 GA is a strong positive.
-- **Tradeoffs:** Building first-party connectors takes resources away from core platform features.
-- **Improvement recommendations:** Implement bi-directional ServiceNow status sync.
+- **Weighted deficiency signal:** 30
+- **Justification:** Inclusion of first-party ITSM connectors (Jira, ServiceNow outbound) and Slack/Confluence integrations in V1 GA is a strong positive. **Inbound** ServiceNow incident status reconciliation is **explicitly deferred to V1.1** (**improvement #13**, out of **`(A)`** V1 headline per Assessment-Scope); it is narrated here as backlog, not as a withheld V1 contract gap.
+- **Tradeoffs:** Building first-party connectors takes resources away from core platform features. **`(B)`** procurement may still diligence full ITSM parity; answer with outbound coverage today + roadmap pointer to `#13`.
+- **Improvement recommendations:** None for **`(A)`** V1 headline — ship **bi-directional** ServiceNow status sync (**#13**) in the **V1.1** window.
 
 ### 10. Compliance Readiness
 - **Score:** 85
@@ -180,12 +181,12 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Improvement recommendations:** Develop an internal "Policy Pack Hub" for sharing custom policies.
 
 ### 20. Testability
-- **Score:** 80
+- **Score:** 85
 - **Weight:** 1
-- **Weighted deficiency signal:** 20
-- **Justification:** Strong unit/integration tests. `ui-e2e-live` covers the golden path.
+- **Weighted deficiency signal:** 15
+- **Justification:** Strong unit/integration tests. `ui-e2e-live` covers the golden path. Targeted integration Playwright smokes (**improvements #14–#16**) are explicitly **V1.1 backlog** and excluded from **`(A)`** V1 headline scoring (Assessment-Scope); absence of those suites therefore does **not** reduce this **`(A)`** dimension.
 - **Tradeoffs:** Default `ui-e2e-smoke` remains mock-heavy, relying on `/api/proxy`.
-- **Improvement recommendations:** Add Playwright smoke tests for new integrations (Jira, Slack, Confluence).
+- **Improvement recommendations:** Carry Jira / Slack / Confluence integration Playwright smokes (**#14–#16**) in **V1.1** — out of **`(A)` V1 headline** until shipped.
 
 ### 21. Cognitive Load
 - **Score:** 80
@@ -526,10 +527,12 @@ Create a Python script `scripts/ci/check_audit_matrix.py` that parses `ArchLucid
 ```
 
 ### 13. Implement bi-directional ServiceNow status sync
-- **Why it matters:** Closes a workflow gap for ITSM-led enterprises and fulfills a V1 GA commitment.
-- **Expected impact:** Workflow Embeddedness (+15 pts), Interoperability (+5 pts).
+- **Status:** Deferred **V1.1** (2026-05-17) — **not** an **`(A)` V1 headline gate** (Assessment-Scope); inbound ServiceNow ingest is backlog only until that window (outbound parity remains shipped).
+- **Why it matters:** Closes an ITSM loop for enterprises reconciling incidents back into governed findings (**when promoted from backlog**).
+- **Expected impact (V1.1):** Workflow Embeddedness (+15 pts when rescored inclusive), Interoperability (+5 pts).
 - **Affected qualities:** Workflow Embeddedness, Interoperability.
-- **Actionable:** Yes
+- **Actionable:** No for **`(A)` V1 headline** rescored **2026-05-17**.
+
 ```text
 Implement a webhook receiver or polling mechanism in `ArchLucid.Api` to sync ServiceNow incident status changes back to ArchLucid finding states.
 - Acceptance criteria: A status change in ServiceNow updates the corresponding finding in ArchLucid and emits a durable audit event.
@@ -539,10 +542,12 @@ Implement a webhook receiver or polling mechanism in `ArchLucid.Api` to sync Ser
 ```
 
 ### 14. Add Playwright smoke tests for the Jira bidirectional status sync
-- **Why it matters:** Ensures the Jira integration does not regress, protecting a key enterprise workflow.
-- **Expected impact:** Testability (+10 pts), Workflow Embeddedness (+5 pts).
+- **Status:** Deferred **V1.1** (2026-05-17) — **not** scored as an **`(A)` V1 headline defect**.
+- **Why it matters:** Ensures the Jira integration does not regress, protecting a key enterprise workflow (**when shipped**).
+- **Expected impact (V1.1):** Testability (+10 pts when rescored inclusive), Workflow Embeddedness (+5 pts).
 - **Affected qualities:** Testability, Workflow Embeddedness.
-- **Actionable:** Yes
+- **Actionable:** No for **`(A)` V1 headline** rescored **2026-05-17**.
+
 ```text
 Create a new Playwright test file `archlucid-ui/e2e/live-api-jira-sync.spec.ts`.
 - Acceptance criteria: The test mocks a Jira webhook payload indicating a status change and verifies the finding status updates in the ArchLucid UI.
@@ -552,10 +557,12 @@ Create a new Playwright test file `archlucid-ui/e2e/live-api-jira-sync.spec.ts`.
 ```
 
 ### 15. Add Playwright smoke tests for the Slack chat-ops integration
-- **Why it matters:** Ensures the Slack integration does not regress.
-- **Expected impact:** Testability (+10 pts), Workflow Embeddedness (+5 pts).
+- **Status:** Deferred **V1.1** (2026-05-17) — **not** scored as an **`(A)` V1 headline defect**.
+- **Why it matters:** Ensures the Slack integration does not regress (**when shipped**).
+- **Expected impact (V1.1):** Testability (+10 pts when rescored inclusive), Workflow Embeddedness (+5 pts).
 - **Affected qualities:** Testability, Workflow Embeddedness.
-- **Actionable:** Yes
+- **Actionable:** No for **`(A)` V1 headline** rescored **2026-05-17**.
+
 ```text
 Create a new Playwright test file `archlucid-ui/e2e/live-api-slack-integration.spec.ts`.
 - Acceptance criteria: The test triggers an alert or digest and verifies that the corresponding Slack webhook payload is generated correctly.
@@ -565,10 +572,12 @@ Create a new Playwright test file `archlucid-ui/e2e/live-api-slack-integration.s
 ```
 
 ### 16. Add Playwright smoke tests for the Confluence documentation publish integration
-- **Why it matters:** Ensures the Confluence integration does not regress.
-- **Expected impact:** Testability (+10 pts), Workflow Embeddedness (+5 pts).
+- **Status:** Deferred **V1.1** (2026-05-17) — **not** scored as an **`(A)` V1 headline defect**.
+- **Why it matters:** Ensures the Confluence integration does not regress (**when shipped**).
+- **Expected impact (V1.1):** Testability (+10 pts when rescored inclusive), Workflow Embeddedness (+5 pts).
 - **Affected qualities:** Testability, Workflow Embeddedness.
-- **Actionable:** Yes
+- **Actionable:** No for **`(A)` V1 headline** rescored **2026-05-17**.
+
 ```text
 Create a new Playwright test file `archlucid-ui/e2e/live-api-confluence-publish.spec.ts`.
 - Acceptance criteria: The test triggers a run summary publish and verifies that the outbound Confluence API payload is formatted correctly.
@@ -712,8 +721,8 @@ Update `Get-ArchLucidAzurePackage.ps1` to query Azure Policy compliance states (
 To optimize context window usage and cost-effectiveness, batch the actionable prompts as follows:
 
 - **Batch 1 (Observability & Reliability):** 2, 18, 21, 22, 23
-- **Batch 2 (Testing & CI Hygiene):** ~~5~~ completed 2026-05-17, 12, 14, 15, 16, 24
-- **Batch 3 (Integrations & Extractor):** ~~6~~ completed 2026-05-17, 13, 25
+- **Batch 2 (Testing & CI Hygiene):** ~~5~~ completed 2026-05-17, 12, ~~14, 15, 16~~ **V1.1** backlog (2026-05-17), 24
+- **Batch 3 (Integrations & Extractor):** ~~6~~ completed 2026-05-17, ~~13~~ **V1.1** backlog (2026-05-17), 25
 - **Batch 4 (Architecture, infrastructure, tenant lifecycle):** ~~3~~ (**V2** — [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**), ~~7~~ completed 2026-05-17, 11, 17, 19, 20
 - **Batch 5 (UX & Dashboards):** ~~4~~ completed 2026-05-17, 8, 9, 10
 - **Batch 6 (Internal cross-tenant rollups):** ~~1~~ completed 2026-05-17

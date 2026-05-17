@@ -46,6 +46,10 @@ public static class ApiWebLayerServiceCollectionExtensions
         {
             client.Timeout = TimeSpan.FromSeconds(10);
         });
+        services.AddHttpClient<ISamlOperationalDiagnosticsService, SamlOperationalDiagnosticsService>(static client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(10);
+        });
         services.AddScoped<ApiRequestMeteringMiddleware>();
         services.AddSingleton<ILocalTrialJwtIssuer, LocalTrialJwtIssuer>();
         services.AddScoped<IArchitectureRequestImportValidator, FluentArchitectureRequestImportValidator>();
