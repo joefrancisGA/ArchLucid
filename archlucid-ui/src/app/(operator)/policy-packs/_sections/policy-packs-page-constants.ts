@@ -5,14 +5,9 @@ export const PACK_TYPES: ReadonlyArray<{ value: string; label: string }> = [
   { value: "ProjectCustom", label: "Project custom" },
 ];
 
-export const DEFAULT_CONTENT = `{
-  "complianceRuleIds": [],
-  "complianceRuleKeys": [],
-  "alertRuleIds": [],
-  "compositeAlertRuleIds": [],
-  "advisoryDefaults": {},
-  "metadata": {}
-}`;
+import { DEFAULT_POLICY_PACK_CONTENT_JSON } from "@/lib/policy-pack-default-content";
+
+export const DEFAULT_CONTENT = DEFAULT_POLICY_PACK_CONTENT_JSON;
 
 export const VERTICAL_POLICY_PACK_IMPORTS: ReadonlyArray<{ slug: string; label: string }> = [
   { slug: "financial-services", label: "Financial services" },
