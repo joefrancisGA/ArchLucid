@@ -52,6 +52,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
 
         TenantRecord? byId = await sut.GetByIdAsync(tenantId, CancellationToken.None);
         byId.Should().NotBeNull();
+        byId!.DataRegion.Should().Be(TenantDataRegions.Default);
         byId.Slug.Should().Be(slug);
         byId.Tier.Should().Be(TenantTier.Free);
         byId.EntraTenantId.Should().Be(entra);

@@ -60,7 +60,7 @@ public sealed class TenantProvisioningService(
                     StringComparison.Ordinal))
                 throw new ArgumentException(
                     $"Tenant slug '{slug}' already exists under data region '{existing.DataRegion}'.",
-                    nameof(request.DataRegion));
+                    nameof(TenantProvisioningRequest.DataRegion));
 
             TenantWorkspaceLink? link = await _tenantRepository.GetFirstWorkspaceAsync(existing.Id, ct);
 

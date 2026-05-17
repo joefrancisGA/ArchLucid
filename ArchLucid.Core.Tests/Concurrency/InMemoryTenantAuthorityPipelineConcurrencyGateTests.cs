@@ -31,20 +31,16 @@ public sealed class InMemoryTenantAuthorityPipelineConcurrencyGateTests
 
         InMemoryTenantAuthorityPipelineConcurrencyGate sut = new(CreateMonitor(maxConcurrent: 1).Object);
 
-        await using (await sut.AcquireExecutionSlotAsync(tenant, Guid.NewGuid(), failFastWhenUnavailable: true,
+        await using IAsyncDisposable _ =
+            await sut.AcquireExecutionSlotAsync(tenant, Guid.NewGuid(), failFastWhenUnavailable: true,
+                CancellationToken.None);
 
-                   CancellationToken.None))
-        {
-
-
-            Func<Task> act =
-                () => sut.AcquireExecutionSlotAsync(tenant, Guid.NewGuid(), failFastWhenUnavailable: true,
-
-                    CancellationToken.None);
+        Func<Task> act =
+            () => sut.AcquireExecutionSlotAsync(tenant, Guid.NewGuid(), failFastWhenUnavailable: true,
+                CancellationToken.None);
 
 
-            await act.Should().ThrowAsync<AuthorityTenantConcurrencyLimitExceededException>();
-        }
+        await act.Should().ThrowAsync<AuthorityTenantConcurrencyLimitExceededException>();
     }
 
     private static Mock<IOptionsMonitor<AuthorityPipelineOptions>> CreateMonitor(int maxConcurrent)
@@ -53,8 +49,10 @@ public sealed class InMemoryTenantAuthorityPipelineConcurrencyGateTests
 
         mock.Setup(m => m.CurrentValue)
             .Returns(
-                new AuthorityPipelineOptions { Concurrency = new AuthorityPipelineConcurrencyOptions { MaxConcurrentExecutionsPerTenant = maxConcurrent } });
-
+                new AuthorityPipelineOptions
+                {
+                    Concurrency = new AuthorityPipelineConcurrencyOptions { MaxConcurrentExecutionsPerTenant = maxConcurrent }
+                });
 
         return mock;
     }

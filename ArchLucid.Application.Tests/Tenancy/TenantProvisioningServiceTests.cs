@@ -107,7 +107,9 @@ public sealed class TenantProvisioningServiceTests
 
         Func<Task> act = async () => await sut.ProvisionAsync(req, CancellationToken.None);
 
-        await act.Should().ThrowAsync<ArgumentException>().Where(e => string.Equals(e.ParamName, nameof(TenantProvisioningRequest.DataRegion)));
+        await act.Should()
+            .ThrowAsync<ArgumentException>()
+            .WithParameterName(nameof(TenantProvisioningRequest.DataRegion));
     }
 
     [SkippableFact]

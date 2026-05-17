@@ -47,17 +47,12 @@ public sealed class AuthorityPipelineOptionsConfigurationTests
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-
                     ["ArchLucid:AuthorityPipeline:Concurrency:MaxConcurrentExecutionsPerTenant"] = "5",
-
                     ["ArchLucid:AuthorityPipeline:Concurrency:RejectInlineCreateWhenConcurrencyUnavailable"] = "true",
-
                     ["ArchLucid:AuthorityPipeline:Concurrency:LeaseRecognitionHorizon"] = "02:30:00",
-
                     ["ArchLucid:AuthorityPipeline:Concurrency:WaitPollMilliseconds"] = "120",
 
                 })
-
             .Build();
 
         AuthorityPipelineOptions options = new();

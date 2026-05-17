@@ -47,7 +47,10 @@ public sealed class TenantsAdminController(ITenantRepository tenantRepository, I
         try
         {
             TenantProvisioningResult result = await _provisioning.ProvisionAsync(
-                new TenantProvisioningRequest { Name = body.Name, AdminEmail = body.AdminEmail, Tier = body.Tier },
+                new TenantProvisioningRequest
+                {
+                    Name = body.Name, AdminEmail = body.AdminEmail, Tier = body.Tier, DataRegion = body.DataRegion,
+                },
                 cancellationToken);
 
             return Ok(result);
