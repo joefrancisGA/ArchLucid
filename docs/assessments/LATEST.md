@@ -18,7 +18,7 @@ Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 
 The commercial posture is strongly aligned for a sales-led, service-led motion. The inclusion of consultant whitelabeling on architecture review exports enables boutique consulting firms to use ArchLucid as a delivery engine. Curated demo workspaces and default policy packs (AI governance + security baseline) accelerate Time-to-Value and Proof-of-ROI. The deferred live commerce (Stripe/Marketplace) correctly prioritizes validated purchasing motions over premature self-serve availability.
 
 ### Enterprise Picture
-ArchLucid provides strong enterprise integration points, including Jira, ServiceNow, Slack, and Confluence. Tenant isolation is robustly handled via database-per-tenant and RLS. However, the lack of a visual custom rule authoring UI means enterprise evaluators must rely on raw code or JSON to extend policy packs, increasing adoption friction for non-developer architects. 
+ArchLucid provides strong enterprise integration points, including Jira, ServiceNow, Slack, and Confluence. Tenant isolation is robustly handled via database-per-tenant and RLS. **Tenant custom** governance packs support **form-based** authoring for curated-rules-shaped documents (`pack.curatedRules.v1` metadata round-trip under `/policy-packs`, merged into decisioning before governance filtering — improvement **#4**, completed 2026-05-17); evaluators extending packs outside that schema still rely on guided JSON or operational workflows. 
 
 ### Engineering Picture
 The engineering foundation is highly rigorous, with strong architectural invariants, NetArchTest boundary rules, and a durable audit trail. The agent orchestration pipeline is resilient, and producer-side OpenTelemetry GenAI instrumentation (Activities on `ArchLucid.Agent.LlmCompletion` / `ArchLucid.Agent.LlmEmbedding` plus `archlucid_llm_*` counters and latency histogram on the shared `ArchLucid` meter) records token aggregates, latency, and deployment identifiers without logging raw prompts or completions by default. Curating operator dashboards and alerts on those signals remains a gap. The heavy reliance on mocked `/api/proxy` in `ui-e2e-smoke` remains a testability risk, though the golden path is covered by live API specs.
@@ -63,9 +63,9 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Score:** 85
 - **Weight:** 6
 - **Weighted deficiency signal:** 90
-- **Justification:** Operator shell labels are aligned with marketing vocabulary (Capture, Evidence, Review). Integrations with Jira, ServiceNow, Slack, and Confluence reduce workflow disruption.
-- **Tradeoffs:** The lack of a visual custom rule authoring UI increases friction for non-developer architects.
-- **Improvement recommendations:** Build a visual custom rule authoring UI for policy packs.
+- **Justification:** Operator shell labels are aligned with marketing vocabulary (Capture, Evidence, Review). Integrations with Jira, ServiceNow, Slack, and Confluence reduce workflow disruption. Form-based curated-rules authoring for **tenant custom** packs ships under `/policy-packs` (improvement **#4**, completed 2026-05-17).
+- **Tradeoffs:** Governance authoring UX depth (e.g., bulk compare vs PlatformDefault, versioning) may still lag specialist policy-studio expectations for some buyers.
+- **Improvement recommendations:** None for form-based curated-rules policy authoring (completed 2026-05-17 per improvement **#4**).
 
 ### 6. Usability
 - **Score:** 85
@@ -121,7 +121,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted deficiency signal:** 30
 - **Justification:** Sales-led pilot ready. Trial funnel tested in Stripe TEST mode. Consultant whitelabeling improves resale positioning.
 - **Tradeoffs:** Deferring live commerce delays self-serve revenue but allows for a controlled rollout.
-- **Improvement recommendations:** Extend `ui-e2e-live` Playwright specs to cover the consultant whitelabel export flow.
+- **Improvement recommendations:** None for consultant whitelabel export Playwright coverage (completed 2026-05-17 per improvement **#5** — `archlucid-ui/e2e/live-api-whitelabel-export.spec.ts`).
 
 ### 13. Reliability
 - **Score:** 85
@@ -236,7 +236,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 3. **E2E test mock reliance:** `ui-e2e-smoke` relies heavily on mocked `/api/proxy`, leaving integration surfaces vulnerable to regressions.
 4. **Manual Azure cost estimations:** The extractor now appends public Retail Prices catalog rows (**`retail-prices.json`**, `-IncludeRetailPrices`) for inventoried App Service plans and Azure SQL databases; Cost Management-/Advisor-shaped exports and many other SKU families remain manual or off-tool, limiting full automated ROI proof.
 5. ~~**Lack of automated tenant data deletion**~~ **Deferred V2 (2026-05-17):** Full quarantine + legal-hold + orchestrated purge pipeline is **out of `(A)`** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**. **`(B)`** — privacy questionnaires may still diligence deletion; V1 answers with operator/trial purge paths + roadmap.
-6. **Lack of custom rule authoring UI:** Evaluators must write raw code or JSON to author custom governance rules, increasing adoption friction.
+6. ~~**Lack of custom rule authoring UI (curated-rules schema)**~~ **Completed 2026-05-17:** Form-based wizard + read-only JSON preview (`PolicyRuleAuthoringWizard`, `CuratedRulesAuthoringSection`), `pack.curatedRules.v1` metadata, decisioning merge (`TenantCuratedComplianceRulePackMerger`, `PolicyFilteredComplianceRulePackProvider`) — improvement **#4**. **Residual:** packs outside `*-rules-v1.json` shape still need guided JSON / ADR-approved extensions.
 7. ~~**Operational script auth realism**~~ **Completed 2026-05-17:** HTTP operational scripts accept `-BearerToken`/`-ApiKey` (and env `ARCHLUCID_BEARER_TOKEN`/`ARCHLUCID_API_KEY`) via `scripts/ArchLucid.AuthHeaders.ps1` (improvement **#7**).
 8. **Worker pool scaling triggers:** Scaling relies primarily on Azure queue depth rather than SQL authority outbox depth, risking noisy neighbor issues.
 9. **Background job transient fault handling:** Asynchronous jobs may lack comprehensive Polly-based retry policies for SQL transient errors.
@@ -261,7 +261,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 
 1. ~~**Lack of automated tenant data deletion**~~ **Deferred V2 (2026-05-17):** Not an **`(A)`** headline blocker — see [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**. **`(B)`** — buyers may still request a productized erasure narrative; mitigate with trust-center + operator runbooks + roadmap citation.
 2. **Absence of compliance attestations:** Lack of a CPA-issued SOC 2 Type II report causes friction in security reviews.
-3. **Lack of custom rule authoring UI:** Non-developer architects cannot easily author and test custom governance rules.
+3. ~~**Lack of custom rule authoring UI (curated-rules schema)**~~ **Completed 2026-05-17** (improvement **#4**). **Residual:** procurement comparisons to full visual policy studios may still stress UX depth beyond curated-rules forms.
 4. **Data residency diligence depth:** Buyers require verifiable proof that SQL topology and backups match their geography.
 5. **Noisy neighbor posture in orchestration:** Buyers will diligence steady-state parallelism and multi-region fairness.
 6. **SAML SP operational burden:** Managing certificate rotation and metadata drift for SAML SP adds operational overhead for enterprise IT.
@@ -281,7 +281,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 
 ## Most Important Truth
 
-ArchLucid is a functionally complete, highly rigorous V1 product ready for sales-led pilots, but its ability to scale commercially is bottlenecked by observability consumption gaps (curated LLM dashboards and alerts atop shipped telemetry), manual ROI proof (Azure cost extraction), and enterprise friction (custom rule authoring UI; **full automated GDPR erasure** is **V2** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**, excluded from **`(A)`** scoring).
+ArchLucid is a functionally complete, highly rigorous V1 product ready for sales-led pilots, but its ability to scale commercially is bottlenecked by observability consumption gaps (curated LLM dashboards and alerts atop shipped telemetry), residual manual ROI proof breadth (Azure Retail append shipped per improvement **#6**; Cost Management / Advisor parity and wider SKU families remain), and enterprise friction (**full automated GDPR erasure** is **V2** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**, excluded from **`(A)`** scoring).
 
 ---
 
@@ -341,10 +341,12 @@ Implement an automated tenant erasure pipeline aligned to GDPR/CCPA storage-limi
 ```
 
 ### 4. Form-based custom policy rule authoring (curated rules JSON round-trip)
+- **Status:** Completed (2026-05-17)
 - **Why it matters:** Non-developer architects need to extend governance packs without hand-editing JSON; a form-based editor matches enterprise expectations and reuses the shipped sample schema.
 - **Expected impact:** Adoption Friction (+10 pts), Usability (+5 pts).
 - **Affected qualities:** Adoption Friction, Usability.
-- **Actionable:** Yes
+- **Actionable:** No
+- **Completion evidence:** Metadata key `pack.curatedRules.v1` (`PolicyPackCuratedRulesMetadataKey.V1`); `TenantCuratedComplianceRulePackMerger` + `CuratedComplianceRuleMapper` merged via `PolicyFilteredComplianceRulePackProvider` before governance filter; UI `PolicyRuleAuthoringWizard.tsx` / `CuratedRulesAuthoringSection.tsx` + `policy-pack-curated-rules-v1.ts`; .NET tests `TenantCuratedComplianceRulePackMergerTests`, `CuratedComplianceRuleMapperTests`; Vitest `policy-pack-curated-rules-v1.test.ts` (frozen `security-architecture-baseline-rules-v1.json` snippet round-trip).
 ```text
 Deliver **form-based** (not block/Scratch-style) authoring for **tenant custom** policy packs, with JSON that **round-trips** the sample “curated rules” documents under `docs/samples/policy-packs/*-rules-v1.json`.
 
@@ -368,19 +370,23 @@ Prefer existing routes. Any new contract fields require OpenAPI regeneration and
 Block-based visual programming in this slice; editing **PlatformDefault** seeded packs; introducing ad hoc rule schema JSON outside the sample `*-rules-v1.json` shape without an ADR.
 
 **Impact:** Adoption Friction (+6–10 pts), Usability (+3–5 pts). Weighted readiness impact: +0.1–0.2%.
+- Acceptance criteria met: Tenant curated-rules JSON is stored under **`pack.curatedRules.v1`**; **`TenantCuratedComplianceRulePackMerger`** maps entries via **`CuratedComplianceRuleMapper`** and merges into the file-backed pack before **`ComplianceRulePackGovernanceFilter`**; UI **`PolicyRuleAuthoringWizard`** / **`CuratedRulesAuthoringSection`** provides form rows + read-only serialized preview; **`policy-pack-curated-rules-v1.test.ts`** proves parse/serialize round-trip on a frozen baseline snippet; .NET **`TenantCuratedComplianceRulePackMergerTests`** / **`CuratedComplianceRuleMapperTests`** cover merge order and mapping. No block-based authoring or PlatformDefault editing added.
 ```
 
 ### 5. Extend `ui-e2e-live` Playwright specs to cover consultant whitelabel export
+- **Status:** Completed (2026-05-17)
 - **Why it matters:** Consultant whitelabeling is a key V1 commercial feature; automated UI tests ensure it does not regress.
 - **Expected impact:** Testability (+10 pts), Commercial Packaging Readiness (+5 pts).
 - **Affected qualities:** Testability, Commercial Packaging Readiness.
-- **Actionable:** Yes
+- **Actionable:** No
+- **Completion evidence:** `archlucid-ui/e2e/live-api-whitelabel-export.spec.ts` (live showcase review → Deliverables → modal → DOCX download); `ReviewBoardWhitelabelConsultingExportButton` + `RunDetailArtifactsExportsSection`; `downloadConsultingArchitectureReportDocx` branding payload; optional `ReviewBoardWhitelabel*` fields on `ConsultingDocxExportRequest`, cover branding in consulting DOCX pipeline (`ConsultingDocxExportBranding*` / `ConsultingDocxCoverPageBuilder`); OpenAPI snapshot + `api-types.generated.ts`, NSwag `ArchLucid.Api.Client`.
 ```text
 Create a new Playwright test file `archlucid-ui/e2e/live-api-whitelabel-export.spec.ts`.
 - Acceptance criteria: The test must log in, navigate to a finalized review, open the export modal, fill in the firm name and engagement title, upload a mock logo, and trigger the export.
 - Constraints: Use the existing `ui-e2e-live` setup and authentication helpers.
 - What not to change: Do not modify the underlying export API endpoints.
 - Impact: Directly improves Testability (+8-10 pts) and Commercial Packaging Readiness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- Acceptance criteria met: Live spec drives finalized seeded showcase review detail (`SHOWCASE_DEMO_RUN_ID`), opens firm-branded consulting export modal (`data-testid` hooks), fills firm + engagement, attaches `public/logo/icon-192.png`, asserts successful POST to consulting DOCX export and a `.docx` download. Artifact ZIP GET routes unchanged; consulting export uses the existing POST route with additive optional JSON fields only.
 ```
 
 ### 6. Automate broader Azure cost estimations in the PowerShell extractor
@@ -694,10 +700,10 @@ Update `Get-ArchLucidAzurePackage.ps1` to query Azure Policy compliance states (
 To optimize context window usage and cost-effectiveness, batch the actionable prompts as follows:
 
 - **Batch 1 (Observability & Reliability):** 2, 18, 21, 22, 23
-- **Batch 2 (Testing & CI Hygiene):** 5, 12, 14, 15, 16, 24
+- **Batch 2 (Testing & CI Hygiene):** ~~5~~ completed 2026-05-17, 12, 14, 15, 16, 24
 - **Batch 3 (Integrations & Extractor):** ~~6~~ completed 2026-05-17, 13, 25
 - **Batch 4 (Architecture, infrastructure, tenant lifecycle):** ~~3~~ (**V2** — [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**), ~~7~~ completed 2026-05-17, 11, 17, 19, 20
-- **Batch 5 (UX & Dashboards):** 4, 8, 9, 10
+- **Batch 5 (UX & Dashboards):** ~~4~~ completed 2026-05-17, 8, 9, 10
 - **Batch 6 (Internal cross-tenant rollups):** ~~1~~ completed 2026-05-17
 
 ---
