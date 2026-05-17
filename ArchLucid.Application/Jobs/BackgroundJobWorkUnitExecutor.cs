@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Tenancy;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Serialization;
@@ -15,7 +16,8 @@ public sealed class BackgroundJobWorkUnitExecutor(
     IArchitectureAnalysisService architectureAnalysisService,
     IArchitectureAnalysisDocxExportService docxExportService,
     IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService,
-    IAuditService auditService) : IBackgroundJobWorkUnitExecutor
+    IAuditService auditService,
+    ITenantDeletionService tenantDeletionService) : IBackgroundJobWorkUnitExecutor
 {
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
 
@@ -30,6 +32,9 @@ public sealed class BackgroundJobWorkUnitExecutor(
 
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
+    private readonly ITenantDeletionService _tenantDeletionService =
+        tenantDeletionService ?? throw new ArgumentNullException(nameof(tenantDeletionService));
+
     public async Task<BackgroundJobFile> ExecuteAsync(BackgroundJobWorkUnit workUnit, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(workUnit);
@@ -37,8 +42,28 @@ public sealed class BackgroundJobWorkUnitExecutor(
         {
             AnalysisReportDocxWorkUnit w => await ExecuteAnalysisReportDocxAsync(w, cancellationToken),
             ConsultingDocxWorkUnit w => await ExecuteConsultingDocxAsync(w, cancellationToken),
+            TenantDeletionWorkUnit w => await ExecuteTenantDeletionAsync(w, cancellationToken),
             _ => throw new InvalidOperationException($"Unsupported background job work unit: {workUnit.GetType().Name}.")
         };
+    }
+
+    private async Task<BackgroundJobFile> ExecuteTenantDeletionAsync(TenantDeletionWorkUnit unit, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(unit.Payload);
+        TenantDeletionResult result = await _tenantDeletionService.DeleteTenantAsync(
+                unit.Payload.TenantId,
+                new TenantDeletionInvocation
+                {
+                    ActorUserId = unit.Payload.RequestedByUserId,
+                    ActorUserName = unit.Payload.RequestedByUserName,
+                    CorrelationId = unit.Payload.CorrelationId
+                },
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(result);
+
+        return new BackgroundJobFile("tenant-deletion-result.json", "application/json", bytes);
     }
 
     private async Task<BackgroundJobFile> ExecuteAnalysisReportDocxAsync(AnalysisReportDocxWorkUnit unit, CancellationToken cancellationToken)

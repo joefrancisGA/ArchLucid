@@ -53,4 +53,10 @@ public static class ArchLucidPolicies
     ///     <see cref="ArchLucidRoles.Reader" />; allows Operator-class and tenant/workspace admins.
     /// </summary>
     public const string ArchitectureDefinitionImport = "ArchitectureDefinitionImport";
+
+    /// <summary>
+    ///     Queues durable tenant offboarding (SQL + blobs + platform audit). Requires
+    ///     <c>platform:tenant-delete</c> (see <see cref="ArchLucidRoles.PlatformOperator" />).
+    /// </summary>
+    public const string PlatformTenantDeletionAuthority = "PlatformTenantDeletionAuthority";
 }

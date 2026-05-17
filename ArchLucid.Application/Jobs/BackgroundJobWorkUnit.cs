@@ -8,6 +8,7 @@ namespace ArchLucid.Application.Jobs;
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "discriminator")]
 [JsonDerivedType(typeof(AnalysisReportDocxWorkUnit), "analysisReportDocx")]
 [JsonDerivedType(typeof(ConsultingDocxWorkUnit), "consultingDocx")]
+[JsonDerivedType(typeof(TenantDeletionWorkUnit), "tenantDeletion")]
 public abstract record BackgroundJobWorkUnit;
 
 /// <summary>Standard analysis report exported as DOCX.</summary>

@@ -396,6 +396,12 @@ public static class AuditEventTypes
     /// </summary>
     public const string TenantSelfRegistered = "TenantSelfRegistered";
 
+    /// <summary>
+    ///     Platform audit (<c>dbo.PlatformAuditEvents</c>): tenant offboarding removed tenant-scoped SQL + blobs; not
+    ///     written to <c>dbo.AuditEvents</c>.
+    /// </summary>
+    public const string TenantDataDeleted = "TenantDataDeleted";
+
     /// <summary>Architecture project soft-deleted (<c>dbo.Projects.IsDeleted = 1</c>) via tenant API.</summary>
     public const string ArchitectureProjectSoftDeleted = "ArchitectureProjectSoftDeleted";
 

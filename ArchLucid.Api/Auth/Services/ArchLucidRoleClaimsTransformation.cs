@@ -98,7 +98,12 @@ public sealed class ArchLucidRoleClaimsTransformation(
         HashSet<string> roles = BuildRoleSet(clone);
         bool mappedARole = false;
 
-        if (roles.Contains(ArchLucidRoles.Admin))
+        if (roles.Contains(ArchLucidRoles.PlatformOperator))
+        {
+            AddPermission("platform:tenant-delete");
+            mappedARole = true;
+        }
+        else if (roles.Contains(ArchLucidRoles.Admin))
         {
             foreach (string p in AdminPermissions)
                 AddPermission(p);

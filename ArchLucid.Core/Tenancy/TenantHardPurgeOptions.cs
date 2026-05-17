@@ -14,4 +14,14 @@ public sealed class TenantHardPurgeOptions
         get;
         init;
     } = 5000;
+
+    /// <summary>
+    ///     When true, also deletes <c>dbo.AuditEvents</c> for the tenant (right-to-be-forgotten offboarding). Trial
+    ///     lifecycle purges keep these rows per retention policy.
+    /// </summary>
+    public bool DeleteTenantScopedAuditEvents
+    {
+        get;
+        init;
+    }
 }

@@ -2,6 +2,7 @@ using System.Reflection;
 
 using Polly;
 using ArchLucid.Application.Advisory;
+using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Analytics;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Integrations.Itsm;
@@ -46,6 +47,7 @@ using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.Analytics;
 using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Audit;
+using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.Concurrency;
 using ArchLucid.Persistence.Configuration;
@@ -84,6 +86,8 @@ using ArchLucid.Persistence.Transactions;
 using ArchLucid.Persistence.Value;
 using ArchLucid.Persistence.WeeklyDigest;
 using ArchLucid.Provenance;
+
+using Azure.Storage.Blobs;
 
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
@@ -324,6 +328,11 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ITenantTeamsIncomingWebhookConnectionRepository, DapperTenantTeamsIncomingWebhookConnectionRepository>();
         services.AddScoped<ITenantExecDigestPreferencesRepository, DapperTenantExecDigestPreferencesRepository>();
         services.AddScoped<ITenantHardPurgeService, SqlTenantHardPurgeService>();
+        services.AddScoped<IPlatformAuditRepository, DapperPlatformAuditRepository>();
+        services.AddScoped<ITenantBlobPrefixDeletionService>(static sp => new TenantBlobPrefixDeletionService(
+            sp.GetRequiredService<IOptionsMonitor<ArtifactLargePayloadOptions>>(),
+            sp.GetService<BlobServiceClient>()));
+        services.AddScoped<ITenantDeletionService, TenantDeletionService>();
         services.AddScoped<IBillingLedger, SqlBillingLedger>();
         services.AddScoped<ITrialIdentityUserRepository, SqlTrialIdentityUserRepository>();
         services.AddScoped<IUsageEventRepository, DapperUsageEventRepository>();

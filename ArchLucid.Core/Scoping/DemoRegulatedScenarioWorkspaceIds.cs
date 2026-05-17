@@ -1,6 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
-
 namespace ArchLucid.Core.Scoping;
 
 /// <summary>Tenant-scoped GUIDs for Workspace B (synthetic regulated / AI governance scenario) under <see cref="ScopeIds"/> defaults.</summary>
@@ -50,19 +47,6 @@ public static class DemoRegulatedScenarioWorkspaceIds
         return DeriveGuid("ArchLucid.Demo.RegulatedScenario.RegulatedArtifact", authorityRunId.ToString("N"));
     }
 
-    private static Guid DeriveGuid(string purpose, string segment)
-    {
-        StringBuilder builder = new();
-        builder.Append(purpose);
-        builder.Append('\u001e');
-        builder.Append(segment);
-        byte[] utf8 = Encoding.UTF8.GetBytes(builder.ToString());
-        using SHA256 sha = SHA256.Create();
-        byte[] hash = sha.ComputeHash(utf8);
-        Span<byte> digestPrefix = stackalloc byte[16];
-
-        hash.AsSpan(0, 16).CopyTo(digestPrefix);
-
-        return new Guid(digestPrefix, bigEndian: true);
-    }
+    private static Guid DeriveGuid(string purpose, string segment) =>
+        StableShaKeyedGuidDerivation.GuidFromPurposeSeparatorAndSegmentUtf8Keyed(purpose, segment);
 }

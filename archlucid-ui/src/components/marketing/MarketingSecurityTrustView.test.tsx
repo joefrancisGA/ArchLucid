@@ -44,4 +44,16 @@ describe("MarketingSecurityTrustView", () => {
     const chaosRow = screen.getByTestId("assurance-row-chaos-game-day-quarterly-staging-2026");
     expect(within(chaosRow).getByText(/Staging-only fault-injection/i)).toBeInTheDocument();
   });
+
+  it("tags each card with maturity and access badges", () => {
+    render(<MarketingSecurityTrustView />);
+
+    const penTest = screen.getByTestId("assurance-row-pen-test-third-party-planned");
+    expect(within(penTest).getByTestId("assurance-maturity-badge")).toHaveTextContent("Planned");
+    expect(within(penTest).getByTestId("assurance-access-badge")).toHaveTextContent("Under NDA");
+
+    const soc2 = screen.getByTestId("assurance-row-owner-security-self-assessment-2026");
+    expect(within(soc2).getByTestId("assurance-maturity-badge")).toHaveTextContent("Available now");
+    expect(within(soc2).getByTestId("assurance-access-badge")).toHaveTextContent("Public");
+  });
 });

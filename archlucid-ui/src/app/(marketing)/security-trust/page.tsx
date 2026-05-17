@@ -6,7 +6,7 @@ import { MarketingSecurityTrustView } from "@/components/marketing/MarketingSecu
 export const metadata: Metadata = {
   title: "Security & trust",
   description:
-    "Engagement metadata for ArchLucid's most recent assurance activity. Pen-test redacted summaries are NDA-only.",
+    "Assurance engagement metadata for ArchLucid — public summaries, diligence-only materials, and planned cycles — with NDA handling for sensitive reports.",
 };
 
 export default function MarketingSecurityTrustPage(): ReactNode {

@@ -1,5 +1,6 @@
 using ArchLucid.Application.Advisory;
 using ArchLucid.Application.Analytics;
+using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Analytics;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Integrations.Itsm;
@@ -44,6 +45,7 @@ using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Audit;
+using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Conversation;
@@ -115,6 +117,9 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IWeeklyArchitectureCriticalFindingSummaryRepository,
             InMemoryWeeklyArchitectureCriticalFindingSummaryRepository>();
         services.AddSingleton<ITenantHardPurgeService, NoOpTenantHardPurgeService>();
+        services.AddSingleton<IPlatformAuditRepository, NoOpPlatformAuditRepository>();
+        services.AddSingleton<ITenantBlobPrefixDeletionService, NoOpTenantBlobPrefixDeletionService>();
+        services.AddScoped<ITenantDeletionService, TenantDeletionService>();
         services.AddSingleton<IBillingLedger, InMemoryBillingLedger>();
         services.AddSingleton<ITenantCustomerSuccessRepository, InMemoryTenantCustomerSuccessRepository>();
         services.AddSingleton<ICorePilotTeamChecklistRepository, InMemoryCorePilotTeamChecklistRepository>();

@@ -42,12 +42,18 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div>
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                Available today
+                Available now
               </p>
-              <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-                <li>Published procurement artifacts and SOC&nbsp;2–aligned control mapping (readiness — not CPA attestation)</li>
-                <li>Architecture, operations, and security documentation packs</li>
-                <li>Audit-ready evidence packages suitable for diligence questionnaires</li>
+              <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                <li>
+                  Procurement-ready architecture, operations, and security documentation packs you can route into diligence
+                  immediately.
+                </li>
+                <li>
+                  Audit-ready evidence packages and questionnaire-oriented summaries, with immutable lifecycle logging for
+                  material changes.
+                </li>
+                <li>Published procurement artifacts mapped to common security-questionnaire structures.</li>
               </ul>
             </div>
             <div>
@@ -138,14 +144,22 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           Planned assurance
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          The items below are roadmap or in-flight — timelines align with your procurement calendar.
+          Roadmap and in-flight items below — timelines align with your procurement calendar.
         </p>
         <ul className="mt-3 max-w-3xl list-disc space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-          <li>Internal security assessment windows continue on a rolling cadence; buyer-facing summaries are provided during diligence.</li>
-          <li>Independent third-party penetration testing is planned for the next assurance cycle; redacted summaries ship when approved for distribution.</li>
           <li>
-            CPA-issued SOC&nbsp;2 attestations and formal third-party test reports are referenced when published and approved;
-            distribution follows your diligence process.
+            <span className="font-medium text-neutral-900 dark:text-neutral-100">SOC&nbsp;2 program:</span> readiness mapping
+            and control baselines continue on a published cadence. CPA-issued attestations and formally distributable
+            third-party test reports ship when published and approved — not before.
+          </li>
+          <li>
+            <span className="font-medium text-neutral-900 dark:text-neutral-100">Penetration testing:</span> independent
+            third-party testing is planned for the next assurance cycle; redacted summaries are provided when approved for
+            distribution.
+          </li>
+          <li>
+            Internal security assessments continue on a rolling cadence; detailed summaries are shared during diligence under
+            confidentiality.
           </li>
         </ul>
       </section>

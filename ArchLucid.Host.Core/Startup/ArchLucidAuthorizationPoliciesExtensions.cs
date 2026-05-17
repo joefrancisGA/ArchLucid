@@ -80,6 +80,11 @@ public static class ArchLucidAuthorizationPoliciesExtensions
                 policy.Requirements.Add(
                     new TenantOrProjectCapabilityRequirement(TenantOrProjectCapabilityMode.ArchitectureDefinitionImport));
                 policy.Requirements.Add(new TrialActiveRequirement());
+            })
+            .AddPolicy(ArchLucidPolicies.PlatformTenantDeletionAuthority, policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.RequireClaim("permission", "platform:tenant-delete");
             });
 
         return services;

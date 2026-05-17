@@ -34,6 +34,12 @@ public static class ArchLucidRoles
 
     public const string Admin = "Admin";
 
+    /// <summary>
+    ///     Internal platform operator (hosted / break-glass). Mapped to <c>platform:tenant-delete</c> permission for
+    ///     tenant offboarding jobs — grant only via IdP or DevelopmentBypass <c>DevRole</c>.
+    /// </summary>
+    public const string PlatformOperator = "PlatformOperator";
+
     /// <summary>Read scope plus audit export and compliance-oriented audit access.</summary>
     public const string Auditor = "Auditor";
 }

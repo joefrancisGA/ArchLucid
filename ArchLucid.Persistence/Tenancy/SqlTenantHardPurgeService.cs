@@ -10,8 +10,8 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tenancy;
 
 /// <summary>
-///     Hard-deletes tenant-scoped <c>dbo</c> rows in dependency-safe order. <c>dbo.AuditEvents</c> is intentionally
-///     skipped.
+///     Hard-deletes tenant-scoped <c>dbo</c> rows in dependency-safe order. <c>dbo.AuditEvents</c> is skipped unless
+///     <see cref="TenantHardPurgeOptions.DeleteTenantScopedAuditEvents" /> is enabled (offboarding).
 /// </summary>
 public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFactory) : ITenantHardPurgeService
 {
@@ -63,7 +63,7 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
 
         if (options.DryRun)
         {
-            await AccumulateDryRunCountsAsync(connection, tenantId, counts, cancellationToken);
+            await AccumulateDryRunCountsAsync(connection, tenantId, options, counts, cancellationToken);
 
             return new TenantHardPurgeResult { RowsDeleted = 0, RowCountsByTable = counts };
         }
@@ -212,6 +212,26 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
             "TenantWorkspaces",
             cancellationToken);
 
+        if (await TableExistsAsync(connection, "dbo.FirstTenantFunnelEvents", cancellationToken))
+            totalDeleted += await DeleteLoopAsync(
+                connection,
+                "DELETE TOP (@Cap) FROM dbo.FirstTenantFunnelEvents WHERE TenantId = @TenantId",
+                tenantId,
+                options.MaxRowsPerStatement,
+                counts,
+                "FirstTenantFunnelEvents",
+                cancellationToken);
+
+        if (options.DeleteTenantScopedAuditEvents && await TableExistsAsync(connection, "dbo.AuditEvents", cancellationToken))
+            totalDeleted += await DeleteLoopAsync(
+                connection,
+                "DELETE TOP (@Cap) FROM dbo.AuditEvents WHERE TenantId = @TenantId",
+                tenantId,
+                options.MaxRowsPerStatement,
+                counts,
+                "AuditEvents",
+                cancellationToken);
+
         totalDeleted += await DeleteLoopAsync(
             connection,
             "DELETE TOP (@Cap) FROM dbo.Tenants WHERE Id = @TenantId",
@@ -227,6 +247,7 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
     private static async Task AccumulateDryRunCountsAsync(
         SqlConnection connection,
         Guid tenantId,
+        TenantHardPurgeOptions options,
         Dictionary<string, int> counts,
         CancellationToken cancellationToken)
     {
@@ -255,6 +276,35 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                 cancellationToken: cancellationToken));
 
         counts["Tenants"] = tenants;
+
+        if (await TableExistsAsync(connection, "dbo.FirstTenantFunnelEvents", cancellationToken))
+        {
+            int funnel = await connection.QuerySingleAsync<int>(
+                new CommandDefinition(
+                    "SELECT COUNT(*) FROM dbo.FirstTenantFunnelEvents WHERE TenantId = @TenantId;",
+                    new
+                    {
+                        TenantId = tenantId
+                    },
+                    cancellationToken: cancellationToken));
+
+            counts["FirstTenantFunnelEvents"] = funnel;
+        }
+
+        if (options.DeleteTenantScopedAuditEvents &&
+            await TableExistsAsync(connection, "dbo.AuditEvents", cancellationToken))
+        {
+            int auditRows = await connection.QuerySingleAsync<int>(
+                new CommandDefinition(
+                    "SELECT COUNT(*) FROM dbo.AuditEvents WHERE TenantId = @TenantId;",
+                    new
+                    {
+                        TenantId = tenantId
+                    },
+                    cancellationToken: cancellationToken));
+
+            counts["AuditEvents"] = auditRows;
+        }
     }
 
     private static async Task<int> DeleteProductLearningPlanChildrenAsync(

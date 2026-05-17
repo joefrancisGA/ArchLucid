@@ -28,6 +28,16 @@ function assuranceTierBadgeLabel(tier: AssuranceMaturityTier): string {
   }
 }
 
+function assuranceAccessBadgeLabel(kind: AssuranceEngagementRow["summaryAccess"]["kind"]): string {
+  switch (kind) {
+    case "public":
+      return "Public";
+
+    case "nda":
+      return "Under NDA";
+  }
+}
+
 type MarketingSecurityTrustViewProps = {
   rows?: ReadonlyArray<AssuranceEngagementRow>;
 };
@@ -115,19 +125,47 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
                   <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">{meta.intro}</p>
                 </div>
                 <div className="space-y-4">
-                  {tierRows.map((row) => (
+                  {tierRows.map((row) => {
+                    const isPlanned = tier === "planned_next";
+
+                    return (
                     <article
                       key={row.id}
                       data-testid={`assurance-row-${row.id}`}
-                      className="rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-950/40"
+                      className={
+                        isPlanned
+                          ? "rounded-lg border border-dashed border-neutral-300 bg-neutral-50/70 px-4 py-3 dark:border-neutral-600 dark:bg-neutral-950/25"
+                          : "rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-950/40"
+                      }
                     >
                       <div className="flex flex-wrap items-start justify-between gap-2">
-                        <h4 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+                        <h4
+                          className={
+                            isPlanned
+                              ? "m-0 text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+                              : "m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
+                          }
+                        >
                           {row.engagement}
                         </h4>
-                        <span className="inline-flex shrink-0 rounded-full border border-neutral-300 bg-neutral-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200">
-                          {assuranceTierBadgeLabel(row.maturityTier)}
-                        </span>
+                        <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+                          <span
+                            className="inline-flex rounded-full border border-neutral-300 bg-neutral-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200"
+                            data-testid="assurance-maturity-badge"
+                          >
+                            {assuranceTierBadgeLabel(row.maturityTier)}
+                          </span>
+                          <span
+                            className={
+                              row.summaryAccess.kind === "nda"
+                                ? "inline-flex rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-950 dark:border-amber-700 dark:bg-amber-950/60 dark:text-amber-100"
+                                : "inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-100"
+                            }
+                            data-testid="assurance-access-badge"
+                          >
+                            {assuranceAccessBadgeLabel(row.summaryAccess.kind)}
+                          </span>
+                        </div>
                       </div>
                       <dl className="m-0 mt-3 grid gap-2 text-sm text-neutral-800 dark:text-neutral-200">
                         <div className="flex flex-col gap-0.5">
@@ -161,7 +199,8 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
                         </p>
                       ) : null}
                     </article>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             );
