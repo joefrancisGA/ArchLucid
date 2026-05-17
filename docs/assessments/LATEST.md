@@ -419,7 +419,7 @@
 4. **Demo workspace fixture drift:** With **two GA-gated workspaces** (**Marketing alignment** / **#31**), UX, export, policy-pack, or graph changes can silently break evaluator smoke — CI/release discipline must pin fixtures or teams risk shipping broken demos.
 5. **Agent orchestration noisy-neighbor mitigation (narrow residual):** Per-tenant **`AuthorityPipeline:Concurrency`** slots and SQL lease-backed counting (**#11 backlog**, **2026-05-16**) cap concurrent heavy-stage work; bursts still justify queue/offload telemetry and alerting when leases approach limits.
 6. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
-7. **Durable Task Framework (DTF) parity gaps:** While SQL production DI is wired to DTF, full multiset parity and release-smoke validation remain engineering obligations before the legacy orchestrator can be safely removed.
+7. **Durable Task Framework (narrow residual):** Legacy vs DTF **adapter** multiset parity is CI-gated (`ArchLucid.Host.Composition.Tests` / `AuthorityOrchestratorAdapterParityTests`); **`release-smoke`** supports **`-AuthorityPipelineDtfSmoke`** for tenant SQL + gRPC validation. Remaining work is **worker/engine scheduling depth** and optional DI cleanup once main stays green — not a commitment-gap for GA reads.
 8. **Operational script auth realism (narrow residual):** `v1-rc-drill.ps1` accepts **`-BearerToken`** / **`-ApiKey`** (**#3**, **2026-05-16**); other scripts may remain DevelopmentBypass-assumptive; JwtBearer drills still rely on **`ARCHLUCID_API_KEY`** for CLI detailed **`/health/diagnostics`** probes (JWT covers script REST).
 9. **Lack of explicit logging for agent state machine transitions:** Makes it difficult to observe and debug complex agent orchestrations in production.
 
@@ -445,13 +445,13 @@
 
 ---
 
-## Top 6 Engineering Risks
+## Top 5 Engineering Risks
 
-2. **Durable Task Framework (DTF) parity gaps:** While SQL production DI is wired to DTF, full multiset parity, release-smoke validation, and deeper engine-native scheduling remain engineering obligations before the legacy orchestrator can be safely removed.
-3. **E2E test mock reliance (residual):** **`ui-e2e-smoke`** still uses mocked **`/api/proxy`** for most routes; golden-path integration is covered by merge-blocking **`ui-e2e-live`** (**#14**, **2026-05-16**) — extend live specs when a surface is mock-only and high-risk.
-4. **Agent orchestration parallelism observability:** Concurrency leases cap tenant fan-out (**#11 backlog**, **2026-05-16**); operators still need dashboards on wait times / dead letters when workers queue behind saturated slots.
-5. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
-6. **Operational script auth realism (narrow residual):** Beyond **`v1-rc-drill.ps1`** JWT/API key support (**#3**, **2026-05-16**), some scripts remain DevelopmentBypass-assumptive; CLI JWT parity for probes that require ReadAuthority remains a tooling gap versus API-key env (`ARCHLUCID_API_KEY`).
+1. **Durable Task Framework (narrow residual):** Wrapper-level parity vs the Legacy adapter is enforced in host composition tests; **`release-smoke -AuthorityPipelineDtfSmoke`** exercises tenant SQL with **`ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint`** set. Remaining: deeper engine-native scheduling/observability and optional removal of redundant registration paths after sustained green main — not the prior “no multiset tests” gap.
+2. **E2E test mock reliance (residual):** **`ui-e2e-smoke`** still uses mocked **`/api/proxy`** for most routes; golden-path integration is covered by merge-blocking **`ui-e2e-live`** (**#14**, **2026-05-16**) — extend live specs when a surface is mock-only and high-risk.
+3. **Agent orchestration parallelism observability:** Concurrency leases cap tenant fan-out (**#11 backlog**, **2026-05-16**); operators still need dashboards on wait times / dead letters when workers queue behind saturated slots.
+4. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
+5. **Operational script auth realism (narrow residual):** Beyond **`v1-rc-drill.ps1`** JWT/API key support (**#3**, **2026-05-16**), some scripts remain DevelopmentBypass-assumptive; CLI JWT parity for probes that require ReadAuthority remains a tooling gap versus API-key env (`ARCHLUCID_API_KEY`).
 
 ---
 
@@ -726,6 +726,8 @@ Add integration tests that run the same authority-run scenarios through DTF and 
 - Extend `release-smoke` (or equivalent) to exercise DTF on SQL storage hosts in staging.
 - Document rollback switch in operator runbook; do not delete legacy adapter until parity suite is green in CI.
 - Acceptance criteria: Parity suite green; release smoke documents DTF path; legacy removal is a follow-up PR gated on green main.
+
+**Delivered:** **`ArchLucid.Host.Composition.Tests/AuthorityOrchestratorAdapterParityTests.cs`** — same simulator **`AuthorityRunOrchestrator`**, **`AuthorityRunOrchestratorApplicationAdapter`** vs **`DtfAuthorityRunOrchestrator`**, asserts aligned terminal-shape fingerprint and ordered audit **event-type** multiset; runs under **fast Core** (`Suite=Core`, `Category!=Integration`). **`release-smoke.ps1 -AuthorityPipelineDtfSmoke`** (requires **`ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint`**, forbids **`-SkipE2E`**) sets **`ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask`** for the temporary API. Docs: **`docs/library/RELEASE_SMOKE.md`**, **`docs/runbooks/STAGING_DEPLOYMENT_VALIDATION.md`** (authority pipeline — SQL hosts use DTF port only; rollback = deployment revision). Removed gated-only **`ArchLucid.AgentRuntime.Tests/AuthorityPipelineOrchestratorParityTests.cs`** in favor of composition execution parity.
 ```
 
 22. **Harden curated demo workspace smoke and fixture pinning**
@@ -779,6 +781,25 @@ Implement status sync between ArchLucid review/findings state and ServiceNow cha
 - Acceptance criteria: Status change in ArchLucid updates ServiceNow and vice versa in a developer-instance integration test.
 ```
 
+33. **Implement marketing landing page content (hero, problem/solution, use cases, proof)**
+- Why it matters: The landing page hero copy, problem/solution narrative, use case listing, and proof section are the primary evaluator entry point. `WelcomeMarketingPage.tsx` and `archlucid-ui/src/app/(marketing)/layout.tsx` exist as untracked files with no corresponding improvement item; without complete content the CTA stack (**#32**) routes buyers to an incomplete page.
+- Expected impact: Marketability, Adoption Friction, Commercial Packaging Readiness.
+- Affected qualities: Marketability, Adoption Friction.
+- Actionable: Yes — files exist; content and copy need implementation aligned to `POSITIONING.md` tagline and the five V1-approved use cases (architecture review boards, AI governance reviews, security architecture reviews, M&A / modernization assessments, consultant architecture assessments). **Do not** include CAF landing-zone pack claim until V1.1.
+- GTM dependency: Blocks marketing tasks **M-09** in `docs/go-to-market/GTM_BACKLOG.md`.
+
+```markdown
+Implement marketing landing page sections in `archlucid-ui/src/app/(marketing)/` and `WelcomeMarketingPage.tsx`:
+- Hero: headline + sub-headline aligned to `POSITIONING.md` tagline; primary CTA from #32.
+- Problem: architecture review is fragmented across diagrams, decks, wikis, meetings, and memory.
+- Solution: ArchLucid creates a reviewable evidence graph connecting decisions to source artifacts, risks, policies, and reports.
+- Core workflow: six-step visual (Capture system → Add evidence → Run review → Resolve findings → Record decisions → Generate report).
+- Use cases: five V1-approved cases listed above; exclude CAF landing-zone pack claim.
+- Proof: screenshot gallery (≥6 screenshots from Workspace A/B), downloadable sample report link (from #28 export), link to Workspace A self-demo.
+- CTA stack: per #32 (Request walkthrough / Try the self-demo / Early access).
+- Acceptance criteria: Page renders all sections; copy reviewed against `POSITIONING.md`; screenshots sourced from stable Workspace A/B (#31); no claim that contradicts `docs/library/V1_SCOPE.md` honesty constraints.
+```
+
 ---
 
 ## Prompt Batching Guidance
@@ -789,6 +810,7 @@ Implement status sync between ArchLucid review/findings state and ServiceNow cha
 - **Batch 4 (UX & adoption):** 6, 15, 19, **20 — security baseline pack expansion — COMPLETED** **2026-05-17**, 22, 24. Dashboard health, rule UI, progressive disclosure, pack depth, demo smoke, and finding trust signals.
 - **Batch 5 (Architecture hygiene):** 23. ArchUnitNET boundaries — isolated PR, expand rules incrementally.
 - **Batch 6 (Integrations — credential-dependent):** 25. ServiceNow bi-directional sync when **P10** developer instance is available; do not block other batches.
+- **Batch 7 (Marketing landing page — GTM gate):** 33. Marketing landing page content implementation (`WelcomeMarketingPage.tsx` + `(marketing)/layout.tsx`); coordinate with GTM task **M-09** in `docs/go-to-market/GTM_BACKLOG.md`. Copy review must precede engineering implementation — do not build placeholder content.
 - **Deferred / V1.1 program (do not batch into V1 execution):** **Azure CAF / landing-zone curated policy pack**; **bulk evidence upload above 30 files**, ZIP expansion, recursive folder ingest; Stripe live keys / Marketplace (**#7** in commercial packaging notes). Plan V1.1 slices with dedicated context (see **`V1_SCOPE.md`**, **`V1_DEFERRED.md`**, pinned backlog docs — not re-listed here).
 
 ---

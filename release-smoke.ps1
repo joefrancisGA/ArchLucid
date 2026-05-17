@@ -1,5 +1,6 @@
 # End-to-end release smoke: Release build, core tests, optional UI, API+CLI+artifacts; optional -RunPlaywright (mock) and -LivePlaywright (live-api parity vs CI ui-e2e-live).
 # Named profile LiveUiSql: same gates + enforced live playwright (browser UI vs smoke SQL API). SQL required unless -SkipE2E.
+# Optional -AuthorityPipelineDtfSmoke: sets ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask for the temporary API (requires ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint in the environment — staging SQL + DTF worker validation).
 # Full detail: docs/library/RELEASE_SMOKE.md
 param(
     [ValidateSet('', 'LiveUiSql')]
@@ -11,7 +12,8 @@ param(
     [switch] $SkipUi,
     [switch] $FullCore,
     [switch] $RunPlaywright,
-    [switch] $LivePlaywright
+    [switch] $LivePlaywright,
+    [switch] $AuthorityPipelineDtfSmoke
 )
 
 Set-StrictMode -Version Latest
@@ -38,6 +40,31 @@ if ($runLiveUiSqlProfile) {
             -NextSteps @('Omit -SkipE2E, or use plain release-smoke with -SkipE2E for build-only.')
         exit 1
     }
+}
+
+if ([bool]$AuthorityPipelineDtfSmoke.IsPresent) {
+    if ($SkipE2E) {
+        Write-OperatorFailureTriage -Stage '-AuthorityPipelineDtfSmoke (precheck)' -Category 'Misconfiguration' `
+            -Details @('DTF SQL smoke requires the temporary API + tenant SQL (omit -SkipE2E).') `
+            -NextSteps @('Run without -SkipE2E', 'Set ARCHLUCID_SMOKE_SQL or -SqlConnectionString')
+        exit 1
+    }
+
+    $grpcPrecheck = $env:ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint
+
+    if ([string]::IsNullOrWhiteSpace($grpcPrecheck)) {
+        Write-OperatorFailureTriage -Stage '-AuthorityPipelineDtfSmoke (precheck — gRPC)' -Category 'Misconfiguration' `
+            -Details @(
+            'DTF backend requires a reachable Durable Task gRPC endpoint for the temporary API process.'
+        ) `
+            -NextSteps @(
+            '$env:ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint = ''https://<your-durable-task-worker>:<port>'''
+        )
+        exit 1
+    }
+
+    Write-Host ''
+    Write-Host '--- Authority pipeline: DTF smoke mode (OrchestratorBackend=DurableTask for started API) ---' -ForegroundColor DarkCyan
 }
 
 $runLivePlaywrightEffective = ([bool]$LivePlaywright.IsPresent -or $runLiveUiSqlProfile)
@@ -555,6 +582,11 @@ try
     $env:ConnectionStrings__ArchLucid = $cs
     $env:ASPNETCORE_ENVIRONMENT = 'Development'
     $env:AgentExecution__Mode = 'Simulator'
+
+    if ([bool]$AuthorityPipelineDtfSmoke.IsPresent)
+    {
+        $env:ArchLucid__AuthorityPipeline__OrchestratorBackend = 'DurableTask'
+    }
 
     $apiProc = Start-Process -FilePath 'dotnet' -ArgumentList @(
         'run',

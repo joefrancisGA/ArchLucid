@@ -73,6 +73,24 @@ Also see **`docs/LANDING_ZONE_PROVISIONING.md`** and **`scripts/provision-landin
 
 ---
 
+## Authority pipeline (Durable Task) — validation and rollback
+
+**Security:** The Durable Task **gRPC endpoint** and SQL catalog must stay on **private** network paths (no public engine exposure). Operators store **`ArchLucid:AuthorityPipeline:DurableTask:GrpcEndpoint`** in Key Vault / Container Apps secrets, not in repo files.
+
+**Validate SQL + DTF together (local clone against staging-like settings):**
+
+1. Set **`ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint`** to your **reachable** worker/scheduler address (same value-type used by Container Apps in staging).
+2. Set **`ARCHLUCID_SMOKE_SQL`** (or **`ConnectionStrings__ArchLucid`**) to a **tenant** catalog that matches migrations under test.
+3. From repo root: **`.\release-smoke.ps1 -AuthorityPipelineDtfSmoke`** (omit **`-SkipE2E`**). The script sets **`ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask`** for the temporary **API** process so startup exercises the same DI path as SQL hosts.
+
+**Scalability / cost:** DTF smoke does not replace capacity planning for the worker revision; it only proves the API can register clients and pass readiness against SQL when **OrchestratorBackend** is **DurableTask**.
+
+**Reliability / rollback:** Tenant SQL hosts register **`DtfAuthorityRunOrchestrator`** for **`IAuthorityRunOrchestrator`** (there is no alternate “Legacy adapter” registration on SQL). **Rollback** of a bad DTF deployment is **revision rollback** (Container Apps) or **Terraform apply** of the previous known-good image/env set — not a single runtime toggle that swaps SQL back to an in-process Legacy port. If the API cannot reach the gRPC endpoint, **fail fast** at startup (misconfiguration) rather than silently degrading.
+
+**Multiset parity (CI):** **`ArchLucid.Host.Composition.Tests`** **`AuthorityOrchestratorAdapterParityTests`** compares **Legacy** (`AuthorityRunOrchestratorApplicationAdapter`) vs **DTF** (`DtfAuthorityRunOrchestrator`) wrappers around the same **`AuthorityRunOrchestrator`** for terminal shape and audit **event-type** sequences (simulator, in-memory).
+
+---
+
 ## Smoke test (automated)
 
 From repo root after the API is reachable:

@@ -64,6 +64,7 @@ It is **not** a full browser regression suite. Authoritative detail: **[archluci
 | **`ARCHLUCID_SMOKE_SQL`** | Preferred: ADO.NET connection string for the temporary API process |
 | **`ConnectionStrings__ArchLucid`** | Alternative if already set in the shell |
 | **`ConnectionStrings__ArchLucidSystem`** | Required for smoke API only when **`ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`** (control-plane catalog). Optional for default single-catalog smoke. |
+| **`ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint`** | Required when using **`-AuthorityPipelineDtfSmoke`**: Durable Task gRPC address for the temporary API (staging / worker validation). Not set by the script — you provide it. |
 
 You can also pass **`-SqlConnectionString '...'`** (quote for special characters).
 
@@ -77,6 +78,14 @@ You can also pass **`-SqlConnectionString '...'`** (quote for special characters
 $env:ARCHLUCID_SMOKE_SQL = 'Server=localhost,1433;Database=ArchLucid;User Id=sa;Password=...;TrustServerCertificate=True;'
 .\release-smoke.ps1
 ```
+
+**Staging SQL + DTF path (optional):** with tenant SQL resolved as usual, set **`ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint`** to your Durable Task worker/scheduler gRPC URL, then:
+
+```powershell
+.\release-smoke.ps1 -AuthorityPipelineDtfSmoke
+```
+
+The script sets **`ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask`** for the temporary API process only (**`-SkipE2E`** is incompatible). See **`docs/runbooks/STAGING_DEPLOYMENT_VALIDATION.md`** (Authority pipeline section).
 
 **Windows CMD:** connection strings contain `;` — avoid inline `set` (it breaks at the first semicolon). Prefer PowerShell above, or run **`release-smoke.cmd`** after setting the variable in PowerShell / System Properties. The **`.cmd`** wrapper invokes **`release-smoke.ps1`** with `%*`; you can pass **`-SqlConnectionString '...'`** from CMD if quoted carefully.
 
@@ -142,6 +151,7 @@ With **`-SkipE2E`**, **`-LivePlaywright`** is skipped with a warning (no API to 
 | **`-RunPlaywright`** | After other steps: **`archlucid-ui`** Playwright E2E (**`CI=1`**, mock config); see [What `-RunPlaywright` actually exercises](#what--runplaywright-actually-exercises-57r) |
 | **`-LivePlaywright`** | After steps 5–7 (skipped when **`-SkipE2E`**): **`npm exec playwright test`** (**`live-api-*.spec.ts`**) with **`playwright.config.ts`** and **`LIVE_API_URL`** (defaults from **`-ApiBaseUrl`**); **`AgentExecution__Mode=Simulator`** on child API; **`ASPNETCORE_ENVIRONMENT=Development`** (script default). **`LIVE_API_KEY`** / **`LIVE_JWT_TOKEN`** optional. |
 | **`-Profile LiveUiSql`** | Same parity lane as **`LivePlaywright`** (after steps 5–7); also runs **`npm exec playwright install chromium`** before launching the smoke API whenever UI built; prints **evidence summary** banner on completion. Forbidden with **`-SkipUi`**/**`-SkipE2E`**. Equivalent convenience entry:**`release-smoke-live-ui-sql.ps1`**. Combine with **`RunPlaywright`** only when you intentionally want mock + live back-to-back. |
+| **`-AuthorityPipelineDtfSmoke`** | Before starting the smoke API: requires **`ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint`** in the environment; sets **`ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask`** for the temporary **API** process. Forbidden with **`-SkipE2E`**. |
 | **`-FullCore`** | After fast core, run **`dotnet test` —filter `Suite=Core`** |
 
 ---
