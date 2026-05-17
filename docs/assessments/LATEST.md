@@ -315,11 +315,22 @@ Modify `ArchLucid.Host.Core/ObservabilityExtensions.cs` (or equivalent instrumen
 - Impact: Directly improves Observability (+10-15 pts) and AI/Agent Readiness (+5-8 pts). Weighted readiness impact: +0.2-0.4%.
 ```
 
-### 3. DEFERRED Implement automated tenant data deletion (GDPR/CCPA)
-- **Why it matters:** Absence of a "right to be forgotten" mechanism causes friction in enterprise privacy reviews.
+### 3. Implement automated tenant erasure (30-day quarantine, legal-hold flag, blob + SQL purge)
+- **Why it matters:** GDPR/CCPA-aligned erasure and enterprise procurement expect a verifiable delete story; a bounded quarantine plus audited hold is proportionate without a separate storage tier.
 - **Expected impact:** Compliance Readiness (+10 pts), Adoption Friction (+5 pts).
 - **Affected qualities:** Compliance Readiness, Adoption Friction.
-- **Input needed from user:** Define the soft-delete retention period and cascade rules for related artifacts.
+- **Actionable:** Yes
+```text
+Implement an automated tenant erasure pipeline aligned to GDPR/CCPA storage-limitation practice (product policy — not legal advice).
+- Quarantine: On verified erasure request + operator/admin confirmation, mark tenant **soft-deleted** with `TenantErasureRequestedUtc` (or equivalent). **Hard purge** runs automatically **30 calendar days** after that timestamp unless blocked below.
+- Legal hold: Add nullable **`LegalHoldUntilUtc`** (or `LegalHoldReason` + `LegalHoldSetBy`) on the system-catalog tenant row. If `LegalHoldUntilUtc` is in the future (or a boolean hold is active per your schema), the hard-purge job **must skip** the tenant and emit a structured warning; clearing hold is an audited admin action. **No separate legal-hold blob bucket** — hold keeps data in place.
+- Scope of hard purge (same orchestrated job): (1) Drop or irreversibly scrub **per-tenant SQL catalog** per existing topology (`SystemWithPerTenantCatalogs`); (2) Delete **all tenant-scoped blobs** referenced from DB or known prefixes (exports DOCX/PDF, bundle ZIPs, Azure extractor upload packages, logos) using existing blob clients; (3) Remove **control-plane** tenant binding rows so the tenant id cannot authenticate.
+- Audit: Emit durable audit events for request received, quarantine start, hold set/cleared, hard purge start/complete, failures with correlation id.
+- Acceptance criteria: Integration or harness test proves quarantine → after simulated clock or test double, purge runs; hold blocks purge; blobs listed in fixture are gone after purge.
+- Constraints: Do not log secrets; do not weaken other tenants’ isolation; honor existing RBAC (only platform admin / operator MAY initiate or clear hold).
+- What not to change: Do not alter unrelated billing or global config tables except foreign-key cleanup required for tenant removal.
+- Impact: Directly improves Compliance Readiness (+6-10 pts) and Adoption Friction (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+```
 
 ### 4. DEFERRED Build a visual custom rule authoring UI for policy packs
 - **Why it matters:** Non-developer architects cannot easily author custom governance rules, slowing adoption.
@@ -588,16 +599,13 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 1 (Observability & Reliability):** 2, 18, 21, 22, 23
 - **Batch 2 (Testing & CI Hygiene):** 5, 12, 14, 15, 16, 24
 - **Batch 3 (Integrations & Extractor):** 6, 13, 25
-- **Batch 4 (Architecture & Infrastructure):** 7, 11, 19, 20
+- **Batch 4 (Architecture, infrastructure, tenant lifecycle):** 3, 7, 11, 19, 20
 - **Batch 5 (UX & Dashboards):** 9
 - **Batch 6 (Internal cross-tenant rollups):** 1
 
 ---
 
 ## Pending Questions for Later
-
-### DEFERRED Implement automated tenant data deletion (GDPR/CCPA)
-- What is the required soft-delete retention period? Should related artifacts (e.g., exported DOCX reports) be cascaded or retained for audit purposes?
 
 ### DEFERRED Build a visual custom rule authoring UI for policy packs
 - What is the target UX for the rule builder? Should it be block-based (like Scratch) or form-based? What is the underlying JSON schema for rules?
