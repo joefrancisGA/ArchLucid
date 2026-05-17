@@ -46,7 +46,7 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
               <Link href={comparePageHrefAdaptive(runId)}>Compare two reviews (baseline = this review)</Link>
             </Button>
             )}
-            {manifestId ? (
+            {manifestId && !buyerPolishedShell ? (
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/executive/reviews/${encodeURIComponent(runId)}`}>Open Executive Summary</Link>
               </Button>

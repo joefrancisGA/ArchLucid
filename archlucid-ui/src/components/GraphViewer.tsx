@@ -168,8 +168,8 @@ export function GraphViewer({
 
   const buyerTrailPanel = flowPresentation === "buyerTrail";
 
-  const fitPadding = buyerTrailPanel ? 0.12 : 0.08;
-  const fitMaxZoom = buyerTrailPanel ? 2.55 : 1.52;
+  const fitPadding = buyerTrailPanel ? 0.06 : 0.08;
+  const fitMaxZoom = buyerTrailPanel ? 2.92 : 1.52;
 
   useEffect(() => {
     if (filtered.nodes.length === 0) {
@@ -251,8 +251,8 @@ export function GraphViewer({
             edges={edges as Edge[]}
             fitView
             fitViewOptions={{ padding: fitPadding, maxZoom: fitMaxZoom }}
-            minZoom={buyerTrailPanel ? 0.18 : 0.2}
-            maxZoom={buyerTrailPanel ? 2.15 : 1.72}
+            minZoom={buyerTrailPanel ? 0.22 : 0.2}
+            maxZoom={buyerTrailPanel ? 2.35 : 1.72}
             onlyRenderVisibleElements
             nodesDraggable={!compactChrome}
             nodesConnectable={!compactChrome}
@@ -452,7 +452,7 @@ export function GraphViewer({
               ) : null}
 
               <p>
-                <strong>{buyerTrailPanel ? (selectedNode.type === "Finding" ? "Finding" : "Node") : "Label"}:</strong>{" "}
+                <strong>{buyerTrailPanel ? (selectedNode.type === "Finding" ? "Risk finding" : "Node") : "Label"}:</strong>{" "}
                 {selectedNode.label}
               </p>
 
@@ -462,8 +462,8 @@ export function GraphViewer({
                 </p>
               ) : (
                 <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                  <span className="font-medium text-neutral-700 dark:text-neutral-300">Evidence item:</span>{" "}
-                  {selectedNode.type}
+                  <span className="font-medium text-neutral-700 dark:text-neutral-300">Record type:</span>{" "}
+                  {selectedNode.type === "Finding" ? "Risk finding" : selectedNode.type}
                 </p>
               )}
 
@@ -527,10 +527,10 @@ export function GraphViewer({
                     return (
                       <>
                         <Button type="button" variant="default" size="sm" className="h-9 w-full justify-center" asChild>
-                          <Link href={graphFindingDetailHref(rid, fid)}>View finding and evidence</Link>
+                          <Link href={graphFindingDetailHref(rid, fid)}>View finding detail</Link>
                         </Button>
                         <Button type="button" variant="outline" size="sm" className="h-9 w-full justify-center" asChild>
-                          <Link href={graphFindingInspectHref(rid, fid)}>View evidence trail</Link>
+                          <Link href={graphFindingInspectHref(rid, fid)}>Open full trace record</Link>
                         </Button>
                       </>
                     );

@@ -169,7 +169,47 @@ export function graphBuyerTrailMetadataLines(
       continue;
     }
 
+    if (
+      lower === "blockingstatus" ||
+      lower === "blocking_status" ||
+      lower === "isblocking" ||
+      lower === "blocking"
+    ) {
+      summaryLines.push({ label: "Blocking status", value: value.length > 0 ? value : "—" });
+
+      continue;
+    }
+
+    if (lower === "monitoringcadence" || lower === "monitoring_cadence") {
+      summaryLines.push({ label: "Monitoring cadence", value: value.length > 0 ? value : "—" });
+
+      continue;
+    }
+
     technicalLines.push({ label: key, value: value.length > 0 ? value : "—" });
+  }
+
+  const inferredPhiFinding =
+    (metadata.referenceId ?? metadata.ReferenceId ?? "").trim() === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID ||
+    (metadata.referenced ?? "").trim() === "phi-minimization-risk";
+
+  if (inferredPhiFinding) {
+    const summaryLabelsPresent = new Set(summaryLines.map((row) => row.label));
+
+    const attachStructuredField = (label: string, value: string): void => {
+      if (!summaryLabelsPresent.has(label)) {
+        summaryLines.push({ label, value });
+        summaryLabelsPresent.add(label);
+      }
+    };
+
+    attachStructuredField("Severity", "High");
+    attachStructuredField("Disposition", "Accepted with monitoring");
+    attachStructuredField("Blocking status", "Non-blocking");
+    attachStructuredField(
+      "Monitoring cadence",
+      "Ongoing intake monitoring aligned to governance checkpoints",
+    );
   }
 
   return { summaryLines, technicalLines };

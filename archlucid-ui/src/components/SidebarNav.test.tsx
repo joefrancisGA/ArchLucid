@@ -62,7 +62,7 @@ describe("SidebarNav (primary navigation)", () => {
       );
       expect(within(nav).getByRole("link", { name: "Evidence trail" })).toHaveAttribute("href", "/graph");
       expect(within(nav).getByRole("link", { name: "Review package" })).toHaveAttribute("href", "/reviews?projectId=default");
-      expect(within(nav).getByRole("link", { name: "Report" })).toHaveAttribute("href", "/dashboard");
+      expect(within(nav).getByRole("link", { name: "Executive report" })).toHaveAttribute("href", "/dashboard");
 
       expect(within(nav).queryByRole("link", { name: "Compare two reviews" })).toBeNull();
       expect(within(nav).queryByRole("link", { name: "Replay a review" })).toBeNull();

@@ -21,8 +21,8 @@ const pricingFixture = {
       workspaceMonthlyUsd: 199,
       includedArchitectSeats: 5,
       seatMonthlyUsd: 79,
-      includedRunsPerMonth: 20,
-      overageRunUsd: 10,
+      includedReviewsPerMonth: 20,
+      overageReviewUsd: 10,
     },
     {
       id: "professional",
@@ -32,8 +32,8 @@ const pricingFixture = {
       maxWorkspaces: 5,
       includedArchitectSeats: 20,
       seatMonthlyUsd: 179,
-      includedRunsPerMonth: 100,
-      overageRunUsd: 8,
+      includedReviewsPerMonth: 100,
+      overageReviewUsd: 8,
     },
     {
       id: "enterprise",

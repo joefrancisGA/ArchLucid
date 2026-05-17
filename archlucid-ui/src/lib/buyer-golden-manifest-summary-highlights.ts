@@ -5,7 +5,7 @@ const FIXTURE_ALPHA_COST_LINE =
   "Fixture highlight alpha — cost increased from 100 to 120 with higher isolation in the target run.";
 
 const BUYER_POLISHED_COST_LINE =
-  "Estimated monthly run cost increased with stronger isolation in the updated review.";
+  "Estimated monthly platform operating cost increased with stronger isolation in the updated review.";
 
 /**
  * Maps seeded compare summary strings to buyer-facing wording so packaged demos do not expose

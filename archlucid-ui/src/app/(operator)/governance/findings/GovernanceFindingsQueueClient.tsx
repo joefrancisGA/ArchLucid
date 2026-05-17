@@ -286,8 +286,8 @@ export default function GovernanceFindingsQueueClient() {
             Home
           </Link>
           {" · "}
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/governance">
-            Governance
+          <Link className="text-teal-800 underline dark:text-teal-300" href={`/governance?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>
+            Governance approval
           </Link>
           {" · "}
           <span className="font-medium text-neutral-800 dark:text-neutral-200" aria-current="page">
@@ -297,12 +297,21 @@ export default function GovernanceFindingsQueueClient() {
       ) : null}
       <OperatorPageHeader title={buyerPolishedShell ? "Review records and dispositions" : "Findings"} />
 
-      <div className="mt-4 space-y-4">
+        <div className="mt-4 space-y-4">
+          {buyerPolishedShell ? (
+            <p className="m-0">
+              <Button asChild variant="outline" size="sm" className="h-8">
+                <Link href={`/governance?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>
+                  Back to governance approval
+                </Link>
+              </Button>
+            </p>
+          ) : null}
         <p className="m-0 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
           {buyerPolishedShell ? (
             <>
-              Portfolio view of findings and recorded architecture decisions — disposition and recommended next steps. Open a
-              row for evidence, impact, and monitoring posture.{" "}
+              Review records and dispositions — monitored risks, recorded decisions, and follow-up monitors tied to the
+              selected review package. Open a row for evidence and rationale.{" "}
               <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/governance">
                 Governance workflow overview
               </Link>

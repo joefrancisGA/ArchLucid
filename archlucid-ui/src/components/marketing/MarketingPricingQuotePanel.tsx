@@ -127,7 +127,7 @@ export function MarketingPricingQuotePanel() {
           Thanks — your request was received.
         </p>
       ) : (
-        <form className="space-y-3" onSubmit={(ev) => void onSubmit(ev)} noValidate>
+        <form className="space-y-4" onSubmit={(ev) => void onSubmit(ev)} noValidate>
           <div className="hidden" aria-hidden="true">
             <label htmlFor="pricing-quote-website">Website</label>
             <input
@@ -140,93 +140,104 @@ export function MarketingPricingQuotePanel() {
               className="w-full rounded border px-2 py-1 text-sm"
             />
           </div>
-          <label className="flex flex-col gap-1 text-sm">
-            <span>Work email</span>
-            <input
-              required
-              type="email"
-              autoComplete="email"
-              value={workEmail}
-              onChange={(ev) => setWorkEmail(ev.target.value)}
-              className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span>Company</span>
-            <input
-              required
-              type="text"
-              autoComplete="organization"
-              value={companyName}
-              onChange={(ev) => setCompanyName(ev.target.value)}
-              className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span>Tier interest</span>
-            <select
-              value={tierInterest}
-              onChange={(ev) => setTierInterest(ev.target.value)}
-              className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
-            >
-              <option>Team</option>
-              <option>Professional</option>
-              <option>Enterprise</option>
-            </select>
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span>Industry (optional)</span>
-            <input
-              type="text"
-              autoComplete="off"
-              value={industry}
-              onChange={(ev) => setIndustry(ev.target.value)}
-              className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span>Procurement timeline (optional)</span>
-            <input
-              type="text"
-              value={procurementTimeline}
-              onChange={(ev) => setProcurementTimeline(ev.target.value)}
-              placeholder="e.g. Q3 RFP, 90-day pilot"
-              className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span>Deployment preference (optional)</span>
-            <input
-              type="text"
-              autoComplete="off"
-              value={deploymentPreference}
-              onChange={(ev) => setDeploymentPreference(ev.target.value)}
-              placeholder="e.g. SaaS, customer-managed, private Azure"
-              className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span>Data sensitivity (optional)</span>
-            <input
-              type="text"
-              autoComplete="off"
-              value={dataSensitivity}
-              onChange={(ev) => setDataSensitivity(ev.target.value)}
-              placeholder="e.g. PHI, regulated financial, no regulated data in scope"
-              className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span>Expected monthly review volume (optional)</span>
-            <input
-              type="text"
-              autoComplete="off"
-              value={expectedMonthlyReviewVolume}
-              onChange={(ev) => setExpectedMonthlyReviewVolume(ev.target.value)}
-              placeholder="e.g. 2–5 architecture reviews per month"
-              className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
-            />
-          </label>
+          <div className="grid gap-3 md:grid-cols-2">
+            <label className="flex flex-col gap-1 text-sm">
+              <span>Work email</span>
+              <input
+                required
+                type="email"
+                autoComplete="email"
+                value={workEmail}
+                onChange={(ev) => setWorkEmail(ev.target.value)}
+                className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm">
+              <span>Company</span>
+              <input
+                required
+                type="text"
+                autoComplete="organization"
+                value={companyName}
+                onChange={(ev) => setCompanyName(ev.target.value)}
+                className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm md:col-span-2">
+              <span>Tier interest</span>
+              <select
+                value={tierInterest}
+                onChange={(ev) => setTierInterest(ev.target.value)}
+                className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
+              >
+                <option>Team</option>
+                <option>Professional</option>
+                <option>Enterprise</option>
+              </select>
+            </label>
+          </div>
+
+          <details className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
+            <summary className="cursor-pointer select-none text-sm font-medium text-neutral-800 dark:text-neutral-200">
+              Add deployment details (optional)
+            </summary>
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              <label className="flex flex-col gap-1 text-sm">
+                <span>Industry</span>
+                <input
+                  type="text"
+                  autoComplete="off"
+                  value={industry}
+                  onChange={(ev) => setIndustry(ev.target.value)}
+                  className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
+                <span>Procurement timeline</span>
+                <input
+                  type="text"
+                  value={procurementTimeline}
+                  onChange={(ev) => setProcurementTimeline(ev.target.value)}
+                  placeholder="e.g. Q3 RFP, 90-day pilot"
+                  className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
+                <span>Deployment preference</span>
+                <input
+                  type="text"
+                  autoComplete="off"
+                  value={deploymentPreference}
+                  onChange={(ev) => setDeploymentPreference(ev.target.value)}
+                  placeholder="e.g. SaaS, customer-managed, private Azure"
+                  className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
+                <span>Data sensitivity</span>
+                <input
+                  type="text"
+                  autoComplete="off"
+                  value={dataSensitivity}
+                  onChange={(ev) => setDataSensitivity(ev.target.value)}
+                  placeholder="e.g. PHI, regulated financial, no regulated data in scope"
+                  className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-sm md:col-span-2">
+                <span>Expected monthly review volume</span>
+                <input
+                  type="text"
+                  autoComplete="off"
+                  value={expectedMonthlyReviewVolume}
+                  onChange={(ev) => setExpectedMonthlyReviewVolume(ev.target.value)}
+                  placeholder="e.g. 2–5 architecture reviews per month"
+                  className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
+                />
+              </label>
+            </div>
+          </details>
+
           <label className="flex flex-col gap-1 text-sm">
             <span>Message</span>
             <span className="text-xs font-normal text-neutral-500 dark:text-neutral-400">

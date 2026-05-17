@@ -28,6 +28,30 @@ import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/** Buyer-polished header search: route-aware label for ⌘K control (accessible name matches visible chip). */
+function buyerPolishedCommandPaletteLabel(pathname: string): string {
+  const path = (pathname ?? "").split("?")[0] ?? "";
+
+  if (path.startsWith("/graph")) {
+    return "Search evidence trail";
+  }
+
+  if (path.startsWith("/audit")) {
+    return "Search audit trail";
+  }
+
+  const reviewPackageSubtree =
+    /^\/reviews\/[^/]+(?:\/|$)/u.test(path) ||
+    /^\/manifests\/[^/]/u.test(path) ||
+    /^\/executive\/reviews\/[^/]/u.test(path);
+
+  if (reviewPackageSubtree) {
+    return "Search this review package";
+  }
+
+  return "Search review packages";
+}
+
 function curatedPaletteVisibilityHref(href: string): string {
   const i = href.indexOf("?");
 
@@ -288,11 +312,7 @@ export function CommandPalette() {
     [router],
   );
 
-  const polishedShell = buyerPolishedShell;
-
-  const polishedPaletteLabel = "Search package pages";
-
-  const polishedPalettePlaceholder = useMemo(() => {
+  const polishedPaletteLabel = useMemo(() => buyerPolishedCommandPaletteLabel(pathname ?? ""), [pathname]);
     const path = (pathname ?? "").split("?")[0] ?? "";
 
     if (path.startsWith("/graph")) {
@@ -346,7 +366,7 @@ export function CommandPalette() {
         </TooltipTrigger>
         <TooltipContent sideOffset={6}>
           {polishedShell
-            ? "Jump to destinations and help topics relevant to this review package."
+            ? `${polishedPaletteLabel} — ⌘K to jump destinations and documentation.`
             : "Search pages or open a workflow with the keyboard shortcut."}
         </TooltipContent>
       </Tooltip>

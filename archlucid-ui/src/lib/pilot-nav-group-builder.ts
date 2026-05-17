@@ -23,7 +23,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: "Review work",
       surface: "review-workflow",
       caption:
-        "Pilot path: Capture → Evidence → Review → Report; then onboarding, findings, help, and scorecard as you expand.",
+        "Pilot path: Capture → Evidence → Review → Executive report; then onboarding, findings, help, and scorecard as you expand.",
       links: [
         {
           href: "/",
@@ -72,8 +72,8 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/dashboard",
-          label: "Report",
-          title: "Report — executive summary and sponsor-facing ROI snapshot (illustrative metrics until API lands)",
+          label: "Executive report",
+          title: "Executive report — executive summary and sponsor-facing ROI snapshot (illustrative metrics until API lands)",
           icon: LayoutDashboard,
           tier: "essential",
           defaultVisibleInCollapsedSidebar: true,

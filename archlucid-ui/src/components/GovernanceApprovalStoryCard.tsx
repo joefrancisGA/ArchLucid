@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 
 /**
@@ -31,9 +31,7 @@ export function GovernanceApprovalStoryCard(props: { readonly row: GovernanceApp
     {
       label: "Approved for governed use",
       done: promoteReady,
-      detail: promoteReady
-        ? "Use this sealed package when citing approvals, narratives, or audit artefacts — deployments follow your organization's change board."
-        : "Complete approval before citing this package in downstream decisions.",
+      detail: promoteReady ? "Citation-ready governance record sealed for downstream planning checkpoints." : "Complete approval before citing this package in downstream decisions.",
     },
   ];
 
@@ -43,12 +41,17 @@ export function GovernanceApprovalStoryCard(props: { readonly row: GovernanceApp
         <CardTitle className="text-base text-neutral-900 dark:text-neutral-50">
           {approved ? "This package completed the approval path" : "Approval status for this review"}
         </CardTitle>
-        <CardDescription>
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">Sealed package:</span> manifest version{" "}
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">{row.manifestVersion}</span>
-          {" — "}ready for citation in architecture governance and audit narratives. Deployment decisions stay with your enterprise
-          change process.
-        </CardDescription>
+        <div className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
+            <p className="m-0 leading-relaxed">
+              <span className="font-semibold text-neutral-900 dark:text-neutral-100">Approval outcome:</span> Sealed manifest
+              version <span className="font-semibold">{row.manifestVersion}</span> is approved for citation in diligence,
+              steering, and audit narratives anchored to this review package.
+            </p>
+            <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+              Production deployments and downstream change windows still follow your enterprise change board — ArchLucid carries
+              the governed architecture evidence; operations teams gate execution separately.
+            </p>
+        </div>
       </CardHeader>
       <CardContent className="pt-0">
         <p className="m-0 mb-3 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">

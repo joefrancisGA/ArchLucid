@@ -7,8 +7,8 @@ export type PricingPackage = {
   maxWorkspaces?: number;
   includedArchitectSeats?: number;
   seatMonthlyUsd?: number;
-  includedRunsPerMonth?: number;
-  overageRunUsd?: number;
+  includedReviewsPerMonth?: number;
+  overageReviewUsd?: number;
   annualFloorUsd?: number;
   annualCeilingUsd?: number;
 };

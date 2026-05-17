@@ -125,8 +125,8 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           <>
             {showcasePackage === true ? (
               <>
-                This <strong>signed, versioned manifest</strong> is the reviewed architecture record for this package —
-                decisions, findings, and downloadable deliverables.
+                This <strong>signed, versioned manifest</strong> is the authoritative reviewed architecture record for this
+                package — decisions, findings, and downloadable deliverables.
               </>
             ) : (
               <>
@@ -236,6 +236,20 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         </Card>
       ) : null}
 
+      {buyerPolishedLayout ? (
+        <div className="rounded-lg border border-teal-200/80 bg-teal-50/50 p-4 text-sm shadow-sm dark:border-teal-900/50 dark:bg-teal-950/20">
+          <p className="m-0 max-w-prose text-neutral-800 dark:text-neutral-200">
+            Prefer the consolidated bundle for diligence and archiving — it seals the downloadable outputs that align to the
+            decisions and posture summarized above.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button variant="primary" size="sm" asChild>
+              <a href={getBundleDownloadUrl(manifestId)}>Download finalized review package</a>
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
       <Card>
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1 space-y-1.5">
@@ -253,14 +267,6 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           ) : null}
         </CardHeader>
         <CardContent className="space-y-4">
-          {buyerPolishedLayout === true ? (
-            <div className="flex flex-wrap gap-2">
-              <Button variant="primary" size="sm" asChild>
-                <a href={getBundleDownloadUrl(manifestId)}>Download finalized review package</a>
-              </Button>
-            </div>
-          ) : null}
-
           {!buyerPolishedLayout ? (
             <div>
               <Button variant="outline" size="sm" asChild>

@@ -48,16 +48,8 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
                 <Link href="/pricing">Pricing</Link>
               </Button>
               <Button asChild variant="ghost" size="sm" className="shrink-0">
-                <Link href="/why">Why ArchLucid</Link>
+                <Link href="/see-it">See it</Link>
               </Button>
-              <Button asChild variant="ghost" size="sm" className="shrink-0">
-                <Link href="/see-it">See it (30s)</Link>
-              </Button>
-              {liveDemoLinked ? (
-                <Button asChild variant="ghost" size="sm" className="shrink-0">
-                  <Link href="/live-demo">Live demo</Link>
-                </Button>
-              ) : null}
               <Button asChild variant="ghost" size="sm" className="shrink-0">
                 <Link href="/pricing#pricing-quote-request">Request demo</Link>
               </Button>
@@ -72,7 +64,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
                     ▾
                   </span>
                 </summary>
-                <div className="absolute end-0 top-full z-50 mt-1 min-w-[12rem] rounded-md border border-neutral-200 bg-white py-1 shadow-lg dark:border-neutral-700 dark:bg-neutral-950">
+                <div className="absolute end-0 top-full z-50 mt-1 min-w-[14rem] rounded-md border border-neutral-200 bg-white py-1 shadow-lg dark:border-neutral-700 dark:bg-neutral-950">
                   <Link
                     href="/compliance-journey"
                     className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
@@ -86,11 +78,31 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
                     Trust Center
                   </Link>
                   <Link
+                    href="/security-trust"
+                    className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+                  >
+                    Security &amp; assurance
+                  </Link>
+                  <Link
                     href="/privacy"
                     className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
                   >
                     Privacy
                   </Link>
+                  <Link
+                    href="/why"
+                    className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+                  >
+                    Why ArchLucid
+                  </Link>
+                  {liveDemoLinked ? (
+                    <Link
+                      href="/live-demo"
+                      className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+                    >
+                      Live demo
+                    </Link>
+                  ) : null}
                 </div>
               </details>
             </nav>

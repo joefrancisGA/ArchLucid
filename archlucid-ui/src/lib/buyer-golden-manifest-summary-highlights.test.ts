@@ -25,7 +25,7 @@ describe("applyBuyerPolishedGoldenManifestSummaryHighlights", () => {
     const raw = [FIXTURE_LINE];
 
     expect(applyBuyerPolishedGoldenManifestSummaryHighlights(raw)).toEqual([
-      "Estimated monthly run cost increased with stronger isolation in the updated review.",
+      "Estimated monthly platform operating cost increased with stronger isolation in the updated review.",
     ]);
   });
 });

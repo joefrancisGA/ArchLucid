@@ -257,6 +257,14 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
       "Use when you need a structured package diff or an optional executive narrative after two packages are finalized.",
     firstPilotNote: null,
   },
+  "governance-findings": {
+    headline: "Review records, decisions, and monitoring actions tied to this review.",
+    useWhen:
+      "Scan dispositions alongside the governance approval — findings, recorded decisions, and follow-up monitors in one ledger.",
+    firstPilotNote: null,
+    enterpriseFootnote:
+      "Portfolio operators still use review detail for deep inspection; governance approval remains the authoritative checkpoint.",
+  },
   "policy-packs": {
     useWhen: "See which governance packs apply in this workspace and how they combine.",
     firstPilotNote: null,
@@ -264,7 +272,7 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
   "governance-workflow": {
     headline: "Governance approval completed for this review package.",
     useWhen:
-      "Review the recorded approval path and how this package is approved as the governed architecture record for downstream planning.",
+      "Review the recorded approval path and how this package is approved as the governed architecture record for the next stage of review and implementation planning.",
     firstPilotNote: null,
     enterpriseFootnote:
       "This page records who reviewed the package, what approval was granted, and what monitoring remains.",

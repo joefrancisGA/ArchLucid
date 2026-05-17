@@ -43,6 +43,9 @@ describe("graphBuyerTrailMetadataLines", () => {
 
     expect(summaryLines.some((l) => l.label === "Risk area")).toBe(true);
     expect(summaryLines.some((l) => l.label === "Why it matters")).toBe(true);
+    expect(summaryLines.some((l) => l.label === "Severity" && l.value === "High")).toBe(true);
+    expect(summaryLines.some((l) => l.label === "Blocking status")).toBe(true);
+    expect(summaryLines.some((l) => l.label === "Monitoring cadence")).toBe(true);
     expect(technicalLines.some((l) => l.label === "Reference ID")).toBe(true);
   });
 });

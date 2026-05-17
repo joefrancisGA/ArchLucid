@@ -180,8 +180,8 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
       "workspaceMonthlyUsd": 199,
       "includedArchitectSeats": 5,
       "seatMonthlyUsd": 79,
-      "includedRunsPerMonth": 20,
-      "overageRunUsd": 10
+      "includedReviewsPerMonth": 20,
+      "overageReviewUsd": 10
     },
     {
       "id": "professional",
@@ -191,8 +191,8 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
       "maxWorkspaces": 5,
       "includedArchitectSeats": 20,
       "seatMonthlyUsd": 179,
-      "includedRunsPerMonth": 100,
-      "overageRunUsd": 8
+      "includedReviewsPerMonth": 100,
+      "overageReviewUsd": 8
     },
     {
       "id": "enterprise",
@@ -211,10 +211,10 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
 |------|-------|
 | Team platform fee | $199 / workspace / month |
 | Team seat | $79 / architect / month |
-| Team run overage | $10 / run |
+| Team review overage | $10 / review |
 | Professional platform fee | $899 / workspace / month |
 | Professional seat | $179 / architect / month |
-| Professional run overage | $8 / run |
+| Professional review overage | $8 / review |
 | Enterprise annual floor | $60,000 / year |
 | Enterprise land range | $60,000–$250,000 / year |
 | Enterprise run model | Unlimited in fair-use (2,000 / month soft cap) |

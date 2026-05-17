@@ -20,7 +20,7 @@ export const BILLING_TIER_FEATURE_BULLETS: Readonly<Record<string, readonly stri
   enterprise: [
     "Unlimited workspaces and named architects (annual contract)",
     "Unlimited reviews — 2,000 / month fair-use soft cap",
-    "Full governance + custom policy pack support · Service Bus · SCIM provisioning planned",
+    "Full governance + custom policy pack support · Service Bus",
     "Custom audit retention + export · Entra ID + generic OIDC (roadmap)",
     "Dedicated CSM · priority response · custom SLA terms",
   ],

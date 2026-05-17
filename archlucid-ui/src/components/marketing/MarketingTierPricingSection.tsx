@@ -179,6 +179,17 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
               </li>
             ))}
           </ul>
+          <div className="mt-10 rounded-lg border border-dashed border-neutral-300 bg-neutral-50 p-5 dark:border-neutral-700 dark:bg-neutral-950/70">
+            <h3 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+              Planned enterprise capabilities
+            </h3>
+            <p className="m-0 mt-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+              Not committed in today&apos;s packaged tier cards — surfaced for roadmap and diligence conversations only.
+            </p>
+            <ul className="m-0 mt-3 list-disc space-y-1 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
+              <li>SCIM provisioning for directory-synchronized lifecycle</li>
+            </ul>
+          </div>
           {props.showSignupCallToAction !== false ? (
             <div className="mt-8 flex justify-center">
               <Button asChild variant="primary" size="lg">

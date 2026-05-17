@@ -46,16 +46,16 @@ function PricingLines(props: { pricing: PricingDoc; pkg: PricingPackage }) {
           <dd className="tabular-nums">Up to {pkg.includedArchitectSeats}</dd>
         </div>
       ) : null}
-      {typeof pkg.includedRunsPerMonth === "number" ? (
+      {typeof pkg.includedReviewsPerMonth === "number" ? (
         <div className="flex justify-between gap-2">
-          <dt>Runs / month (included)</dt>
-          <dd className="tabular-nums">{pkg.includedRunsPerMonth}</dd>
+          <dt>Reviews / month (included)</dt>
+          <dd className="tabular-nums">{pkg.includedReviewsPerMonth}</dd>
         </div>
       ) : null}
-      {typeof pkg.overageRunUsd === "number" ? (
+      {typeof pkg.overageReviewUsd === "number" ? (
         <div className="flex justify-between gap-2">
-          <dt>Run overage</dt>
-          <dd className="tabular-nums">{formatMoney(pkg.overageRunUsd, pricing.currency)} / run</dd>
+          <dt>Review overage</dt>
+          <dd className="tabular-nums">{formatMoney(pkg.overageReviewUsd, pricing.currency)} / review</dd>
         </div>
       ) : null}
       {typeof pkg.annualFloorUsd === "number" ? (

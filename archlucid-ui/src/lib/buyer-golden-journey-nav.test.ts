@@ -41,16 +41,25 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     expect(navA?.next?.label).toBe("View evidence trail");
   });
 
+  it("treats governance findings as secondary to the numbered spine", () => {
+    const findings = resolveBuyerGoldenJourneyNav("/governance/findings");
+
+    expect(findings?.summaryLine).toContain("Governance findings");
+    expect(findings?.currentStepIndex).toBeNull();
+    expect(findings?.prev?.label).toBe("Governance approval");
+    expect(findings?.next?.label).toBe(BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[4].label);
+
+    const gov = resolveBuyerGoldenJourneyNav("/governance");
+    expect(gov?.summaryLine).toContain("Step 4 of 5");
+    expect(gov?.currentStepIndex).toBe(3);
+  });
+
   it("resolves graph governance and audit sequence", () => {
     const graph = resolveBuyerGoldenJourneyNav("/graph");
     expect(graph?.summaryLine).toContain("Step 3 of 5");
     expect(graph?.currentStepIndex).toBe(2);
     expect(graph?.prev?.label).toBe("Signed manifest");
     expect(graph?.next?.label).toBe("Governance approval");
-
-    const gov = resolveBuyerGoldenJourneyNav("/governance");
-    expect(gov?.summaryLine).toContain("Step 4 of 5");
-    expect(gov?.currentStepIndex).toBe(3);
 
     const audit = resolveBuyerGoldenJourneyNav("/audit");
     expect(audit?.summaryLine).toContain("Step 5 of 5");
