@@ -9,6 +9,7 @@ using ArchLucid.Host.Core.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Auth.Services;
 
@@ -54,14 +55,7 @@ public static class AuthServiceCollectionExtensions
                     {
                     });
 
-            // Apply ArchLucid JWT settings in the named-options pipeline using the same IConfiguration reference the host
-            // passed into AddArchLucidAuth (avoids relying on DI IConfiguration + ConfigureNamedOptions<T, TDep> ordering in
-            // bare ServiceCollection runs).
-            services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
-            {
-                ArchLucidAuthOptions jwtAuthOptions = ArchLucidAuthConfigurationBridge.Resolve(configuration);
-                ArchLucidJwtBearerConfiguration.Apply(options, jwtAuthOptions, configuration);
-            });
+            services.AddSingleton<IConfigureNamedOptions<JwtBearerOptions>, ArchLucidJwtBearerOptionsConfigurer>();
         }
 
         else if (string.Equals(authOptions.Mode, "ApiKey", StringComparison.OrdinalIgnoreCase))
