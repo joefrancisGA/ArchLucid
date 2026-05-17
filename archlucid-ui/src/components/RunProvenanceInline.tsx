@@ -69,9 +69,9 @@ function stagesForRun(run: RunSummary, buyerPolished: boolean): StageDef[] {
       (run.hasGraphSnapshot === true ? "Present." : "Not yet generated.");
 
   const findingsTooltip = buyerPolished
-    ? "Risks & decisions — monitored-risk and architecture decision snapshot for this review. " +
+    ? "Evidence-linked findings — monitored risks and decisions anchor to retrieved sources for auditability in this package. " +
       (run.hasFindingsSnapshot === true ? "Present." : "Not yet captured.")
-    : "Findings — risk and decision findings snapshot. " +
+    : "Evidence-linked findings — risks and architecture decisions traced to snapshots, artifacts, and graph relationships. " +
       (run.hasFindingsSnapshot === true ? "Present." : "Not yet captured.");
 
   return [

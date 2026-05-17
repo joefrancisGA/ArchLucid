@@ -399,11 +399,11 @@ Update operational scripts to accept optional parameters for a JWT bearer token 
 Add dashboards and alerting on wait times and dead letters when workers queue behind saturated slots.
 ```
 
-10. **Refine in-app tooltips to focus strictly on evidence-linked findings**
+10. **Refine in-app tooltips to focus strictly on evidence-linked findings** (**completed 2026-05-17**)
 - Why it matters: Broad proof surface helps defensibility but requires concise framing to avoid feature inventory overload.
 - Expected impact: Differentiability (+3 pts), Cognitive Load (+2 pts).
 - Affected qualities: Differentiability, Cognitive Load.
-- Actionable: Yes
+- Actionable: Yes (**done** — review-trail **`Findings`** chip tooltips in **`archlucid-ui/src/components/RunProvenanceInline.tsx`** foreground evidence-linked wording for buyer-polished and operator modes.)
 
 ```markdown
 Update in-app tooltips within the review UI to highlight core differentiation elements like evidence-linked findings.
