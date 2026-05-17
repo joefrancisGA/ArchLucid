@@ -50,10 +50,12 @@ function parseMetadataLines(text: string): Record<string, string> {
 
 /**
  * Builds a {@link PolicyPackContentDocument} from low-code fields. Empty guided fields fall back to
- * {@link DEFAULT_CONTENT} shape for arrays/objects via JSON round-trip of the default skeleton.
+ * empty JSON skeleton for arrays/objects via round-trip of {@link DEFAULT_POLICY_PACK_CONTENT_JSON}.
  */
 export function buildPolicyPackContentFromGuidedFields(fields: GuidedPolicyFields): PolicyPackContentDocument {
-  const base: PolicyPackContentDocument = JSON.parse(DEFAULT_CONTENT) as PolicyPackContentDocument;
+  const base: PolicyPackContentDocument = JSON.parse(
+    DEFAULT_POLICY_PACK_CONTENT_JSON,
+  ) as PolicyPackContentDocument;
   const keysFromMultiline = splitNonEmptyLines(fields.complianceRuleKeysText);
   const keysFromCommas = splitCommaList(fields.complianceRuleKeysText);
   const complianceRuleKeys = keysFromMultiline.length > 0 ? keysFromMultiline : keysFromCommas;

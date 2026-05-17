@@ -626,11 +626,11 @@ Expand the `ui-e2e-live` test suite to cover the complete golden path of the ope
 **Delivered:** Merge-blocking **`ui-e2e-live`** (`.github/workflows/ci.yml`, non-**`pull_request`**) runs **`archlucid-ui/e2e/live-api-*.spec.ts`** via **`playwright.live.config.ts`** against **ArchLucid.Api** with **SQL Server service** (ephemeral CI lab). **`live-api-journey.spec.ts`** drives **create → execute → commit → golden manifest** with browser checks on **`/runs/{id}`** and **`/manifests/{id}`**, **ZIP export** via API, **governance** approval + **`/governance`** UI, and **`/audit`** search (required audit event types enforced). **`live-api-core-pilot-path.spec.ts`** covers the buyer-polished **showcase** spine (home → new review → reviews list → review deliverables) on the same live stack. Mock-backed **`ui-e2e-smoke`** / **`playwright.mock.config.ts`** unchanged as the fast, broad layer.
 ```
 
-15. **Enhance `ArchLucid.Decisioning` with custom rule authoring UI**
+15. **COMPLETED:** Enhance `ArchLucid.Decisioning` with custom rule authoring UI
 - Why it matters: Evaluators and enterprise buyers need a way to easily author and test custom governance rules without writing raw code.
-- Expected impact: Customer Self-Sufficiency (+4 pts), Usability (+3 pts).
+- Expected impact: (Delivered **2026-05-17**.) Customer Self-Sufficiency (+4 pts), Usability (+3 pts).
 - Affected qualities: Customer Self-Sufficiency, Usability.
-- Actionable: Yes
+- Actionable: Completed
 
 ```markdown
 Implement a web-based rule authoring interface in `archlucid-ui` that integrates with `ArchLucid.Decisioning`.
@@ -638,6 +638,8 @@ Implement a web-based rule authoring interface in `archlucid-ui` that integrates
 - Allow operators to test the rule against existing architecture snapshots in the UI before publishing.
 - Ensure custom rules are durably stored and versioned alongside the default policy packs.
 - Acceptance criteria: Operators can create, test, and publish custom rules entirely through the UI.
+
+**Delivered:** **`PolicyRuleAuthoringWizard`** on **`/policy-packs`** (Advanced options): step **Design** (guided compliance/alert/composite/metadata fields with merge + raw JSON editor; **`buildPolicyPackContentFromGuidedFields`** in **`src/lib/policy-pack-guided-content.ts`**), step **Test on run** (`POST /v1/policy-packs/simulate` via **`simulatePolicyPackAgainstRun`** in **`src/lib/api/policy-governance-api.ts`** — pre-commit gate outcome; recent runs from **`listRunsByProjectPaged`**), step **Publish** (wired to existing **`createPolicyPack`** / **`publishPolicyPackVersion`** with **`syncPolicyContentJson`** keeping create + publish JSON aligned). Shared default skeleton moved to **`src/lib/policy-pack-default-content.ts`**. Vitest: **`policy-pack-guided-content.test.ts`**.
 ```
 
 16. **Add guided baseline collection wizard (onboarding)**

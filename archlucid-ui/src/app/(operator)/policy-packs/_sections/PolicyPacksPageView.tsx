@@ -14,6 +14,7 @@ import { PolicyPacksMarketingIntro } from "./PolicyPacksMarketingIntro";
 import { PolicyPacksMetricStrip } from "./PolicyPacksMetricStrip";
 import { PolicyPacksRefreshToolbar } from "./PolicyPacksRefreshToolbar";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
+import { PolicyRuleAuthoringWizard } from "./PolicyRuleAuthoringWizard";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 
 type Props = {
@@ -64,6 +65,26 @@ export function PolicyPacksPageView(props: Props) {
 
         {!m.buyerPolishedShell ? (
           <AdvancedOptionsAccordion className="mb-8">
+            {isStaticDemoPayloadFallbackEnabled() ? null : (
+              <PolicyRuleAuthoringWizard
+                canMutatePacks={m.canMutatePacks}
+                loading={m.loading}
+                bundledPublishBlocked={m.bundledPublishBlocked}
+                selectedPackId={m.selectedPackId}
+                policyContentJson={m.publishJson}
+                onPolicyContentJsonSync={m.syncPolicyContentJson}
+                name={m.name}
+                onNameChange={m.setName}
+                description={m.description}
+                onDescriptionChange={m.setDescription}
+                packType={m.packType}
+                onPackTypeChange={m.setPackType}
+                publishVersion={m.publishVersion}
+                onPublishVersionChange={m.setPublishVersion}
+                onCreate={m.onCreate}
+                onPublish={m.onPublish}
+              />
+            )}
             <PolicyPacksInspectSection
               canMutatePacks={m.canMutatePacks}
               selectedPackId={m.selectedPackId}

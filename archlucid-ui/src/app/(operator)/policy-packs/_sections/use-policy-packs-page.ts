@@ -300,6 +300,11 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
   const bundledPublishBlocked =
     selectedPackSummary !== undefined && isBundledPlatformDefaultPackType(selectedPackSummary.packType);
 
+  const syncPolicyContentJson = useCallback((json: string) => {
+    setCreateJson(json);
+    setPublishJson(json);
+  }, []);
+
   return {
     canMutatePacks,
     buyerPolishedShell,
@@ -345,5 +350,6 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     compareLeftVersion,
     compareRightVersion,
     selectedPackSummary,
+    syncPolicyContentJson,
   };
 }

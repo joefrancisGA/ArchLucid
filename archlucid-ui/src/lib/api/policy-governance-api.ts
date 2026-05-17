@@ -1,4 +1,5 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import type { components } from "@/lib/openapi-schemas";
 import {
   POLICY_PACK_DRY_RUN_DEFAULT_PAGE_SIZE,
   POLICY_PACK_DRY_RUN_MAX_PAGE_SIZE,
@@ -277,6 +278,19 @@ export async function assignPolicyPack(
 ): Promise<PolicyPackAssignment> {
   return apiPostJson<PolicyPackAssignment>(
     `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/assign`,
+    body,
+  );
+}
+
+/**
+ * Dry-runs proposed policy pack content against a single authority run (pre-commit gate semantics).
+ * Matches {@code POST /v1/policy-packs/simulate}. Requires ReadAuthority.
+ */
+export async function simulatePolicyPackAgainstRun(
+  body: components["schemas"]["PolicyPackSimulateRequest"],
+): Promise<components["schemas"]["PolicyPackGovernanceDryRunResult"]> {
+  return apiPostJson<components["schemas"]["PolicyPackGovernanceDryRunResult"]>(
+    `/${ApiV1Routes.policyPacks}/simulate`,
     body,
   );
 }

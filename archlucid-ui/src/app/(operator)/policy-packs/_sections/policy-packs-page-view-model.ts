@@ -54,4 +54,5 @@ export type PolicyPacksPageViewModel = {
   readonly compareLeftVersion: PolicyPackVersion | undefined;
   readonly compareRightVersion: PolicyPackVersion | undefined;
   readonly selectedPackSummary: PolicyPack | undefined;
+  readonly syncPolicyContentJson: (json: string) => void;
 };
