@@ -120,7 +120,7 @@ public static class DefaultPolicyPackTemplates
         """;
 
     /// <summary>
-    ///     Security architecture baseline referencing <c>sec-base-001</c>–<c>sec-base-025</c>; curated narrative in
+    ///     Security architecture baseline referencing <c>sec-base-001</c>–<c>sec-base-030</c>; curated narrative in
     ///     <c>docs/samples/policy-packs/security-architecture-baseline-rules-v1.json</c>. Keys require compliance catalog
     ///     registration before enforcement — see P29-4 seeding.
     /// </summary>
@@ -153,7 +153,12 @@ public static class DefaultPolicyPackTemplates
             "sec-base-022",
             "sec-base-023",
             "sec-base-024",
-            "sec-base-025"
+            "sec-base-025",
+            "sec-base-026",
+            "sec-base-027",
+            "sec-base-028",
+            "sec-base-029",
+            "sec-base-030"
           ],
           "alertRuleIds": [],
           "compositeAlertRuleIds": [],
@@ -165,7 +170,7 @@ public static class DefaultPolicyPackTemplates
             "templateId": "security-architecture-baseline-v1",
             "pack.displayName": "Security Architecture Baseline",
             "pack.category": "Security",
-            "pack.version": "1.0.0",
+            "pack.version": "1.1.0",
             "pack.isDefault": "true",
             "pack.description": "Starter security posture checks for cloud architecture reviews — identity, network, encryption, logging, and secure SDLC. Aligned to CIS Azure Foundations and OWASP ASVS themes. Not an exhaustive compliance assessment.",
             "frameworkMappingDisclaimer": "CIS and OWASP references are thematic alignment for architecture review only; they are not an attestation against those frameworks.",

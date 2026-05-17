@@ -55,9 +55,6 @@ const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
 const SIDEBAR_NAV_EXPAND_ALL_KEY = "archlucid-nav-expanded";
 const SIDEBAR_ADMIN_SECTION_OPEN_KEY = "archlucid-sidebar-admin-section-open";
 
-/** Pilot-group paths omitted in buyer-polished shell — golden path lives in quick actions and reviews index. */
-const BUYER_POLISHED_PILOT_OMIT_PATHS = new Set<string>(["/", "/onboarding", "/reviews/new"]);
-
 /** Buyer-demo golden path — single source: {@link BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS}. */
 const BUYER_JOURNEY_STEP_ICONS = [LayoutDashboard, FileText, GitGraph, GitBranch, FileSearch] as const;
 
@@ -422,16 +419,7 @@ export function SidebarNav() {
             ? visibleLinks.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, true))
             : visibleLinks;
 
-        const linksAfterPilotBuyerFilter =
-          buyerPolishedShell && group.id === "pilot"
-            ? linksAfterDemoFilter.filter((l) => {
-                const base = (l.href.split("?", 1)[0] ?? "").trim();
-
-                return !BUYER_POLISHED_PILOT_OMIT_PATHS.has(base);
-              })
-            : linksAfterDemoFilter;
-
-        const linksForRender = linksAfterPilotBuyerFilter;
+        const linksForRender = linksAfterDemoFilter;
 
         const isOpen = !mounted || openByGroup[group.id] !== false;
         const hiddenByDisclosure = countLinksHiddenByProgressiveDisclosure(

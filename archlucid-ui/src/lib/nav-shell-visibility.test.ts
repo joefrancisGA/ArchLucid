@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { NAV_GROUPS, type NavGroupConfig } from "@/lib/nav-config";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -536,5 +536,38 @@ describe("visibleOperatorShellHrefSet", () => {
     const direct = visibleOperatorShellHrefSet(true, true, AUTHORITY_RANK.AdminAuthority, true);
 
     expect(direct).toEqual(fromRows);
+  });
+});
+
+describe("buyer-polished shell nav narrowing", () => {
+  const pilot = NAV_GROUPS.find((g) => g.id === "pilot");
+
+  beforeEach(() => {
+    vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
+  });
+
+  it("drops home onboarding and new-review pilot links from composed shell filters", () => {
+    expect(pilot).toBeDefined();
+
+    const visible = filterNavLinksForOperatorShell(
+      pilot!.links,
+      false,
+      false,
+      AUTHORITY_RANK.AdminAuthority,
+      false,
+      true,
+    );
+    const hrefs = visible.map((l) => l.href);
+
+    expect(hrefs).not.toContain("/");
+    expect(hrefs).not.toContain("/onboarding");
+    expect(hrefs).not.toContain("/reviews/new");
+    expect(hrefs).toContain("/reviews?projectId=default");
+    expect(hrefs).toContain("/dashboard");
   });
 });

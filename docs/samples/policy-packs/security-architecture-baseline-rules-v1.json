@@ -4,7 +4,7 @@
   "pack": {
     "name": "Security Architecture Baseline",
     "description": "Starter security posture checks for cloud architecture reviews — identity, network, encryption, logging, and secure SDLC. Aligned to CIS Azure Foundations and OWASP ASVS themes. Not an exhaustive compliance assessment.",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "Security",
     "isDefault": true,
     "suggestedPackType": "ProjectCustom",
@@ -416,6 +416,92 @@
       "frameworkMappings": [
         { "framework": "CIS Azure Foundations", "control": "9 Secret hygiene automation themes" },
         { "framework": "OWASP ASVS", "requirement": "V13 Secrets leakage prevention — scanning (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-026",
+      "title": "Runtime secrets retrieved via Key Vault (or equivalent vault)",
+      "description": "Workload connection strings, certificates, and API keys should resolve through Azure Key Vault references or managed secret APIs—not persistent plaintext in App Settings, container env blocks, or CI-visible parameter files.",
+      "severity": "High",
+      "remediationGuidance": "Model vault-backed retrieval on WritesTo/ReadsFrom edges and governance.RequiredControls; tag services with KeyVaultReference=true style hints where manifests capture deployment posture.",
+      "evidenceHints": [
+        "datastores[].RuntimePlatform",
+        "services[].Tags",
+        "services[].RequiredControls",
+        "governance.PolicyConstraints",
+        "relationships[].relationshipType"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "8 Key Vault usage / secret store integration themes" },
+        { "framework": "OWASP ASVS", "requirement": "V13 Secret management — centralized retrieval (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-027",
+      "title": "Legacy TLS protocols disabled at ingress",
+      "description": "Public and internal HTTPS listeners must disable TLS 1.0/1.1 and organization-disallowed cipher suites; manifests should record minimum TLS policy intent at gateways and app hosts.",
+      "severity": "High",
+      "remediationGuidance": "Encode TLSMinimumVersion and cipher posture strings in governance.PolicyConstraints and edge service Tags (APIM, Front Door, App Service).",
+      "evidenceHints": [
+        "services[].Tags",
+        "services[].RuntimePlatform",
+        "governance.PolicyConstraints",
+        "azureExtractor.manifest.RawJson"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "8 Encryption in transit — protocol minimum themes" },
+        { "framework": "OWASP ASVS", "requirement": "V9 Communications — cipher and protocol minimums (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-028",
+      "title": "Private endpoints mandatory for regulated-class datastores",
+      "description": "When governance labels imply regulated payloads (PHI/PCI-equivalent tags), backing PaaS stores must declare PrivateEndpointRequired and avoid reliance on public network paths.",
+      "severity": "Critical",
+      "remediationGuidance": "Set PrivateEndpointRequired=true on tagged datastores[], align ComplianceTags with segmentation narrative, and cite extractor scope when inventories justify exceptions.",
+      "evidenceHints": [
+        "datastores[].PrivateEndpointRequired",
+        "governance.ComplianceTags",
+        "governance.RiskClassification",
+        "relationships"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "7 Private Endpoint enforcement for sensitive data planes (thematic)" },
+        { "framework": "OWASP ASVS", "requirement": "V1 Architecture — regulated data enclave expectations (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-029",
+      "title": "Edge WAF or equivalent inspection for internet-facing APIs",
+      "description": "Externally reachable HTTP APIs should sit behind Web Application Firewall policies (managed rules or vetted equivalent) with documented exception handling.",
+      "severity": "High",
+      "remediationGuidance": "Note WAF attachment on ingress services[].Tags and governance.RequiredControls; relate AuthenticatesWith/APIM edges explicitly.",
+      "evidenceHints": [
+        "services[].Tags",
+        "services[].RequiredControls",
+        "relationships[].relationshipType",
+        "governance.PolicyConstraints"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "7 Edge protection / application-layer filtering themes" },
+        { "framework": "OWASP ASVS", "requirement": "V13 Request handling protections at the perimeter (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-030",
+      "title": "Just-in-time or time-bound privileged access documented",
+      "description": "Break-glass and standing Owner/Contributor assignments should be minimized; manifests should reference JIT/PIM-style elevation expectations for cloud administrators.",
+      "severity": "Medium",
+      "remediationGuidance": "Capture JIT/PIM posture in governance.PolicyConstraints alongside RBAC narratives (sec-base-004 complement); cite Identity governance attachments when uploaded.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "azureExtractor.manifest.ScopeDescriptor",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "1 Privileged access lifecycle / JIT themes" },
+        { "framework": "OWASP ASVS", "requirement": "V4 Access Control — privileged session boundaries (thematic)" }
       ]
     }
   ]

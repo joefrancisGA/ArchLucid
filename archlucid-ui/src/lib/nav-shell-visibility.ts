@@ -4,7 +4,10 @@ import { filterNavLinksByAuthority } from "@/lib/nav-authority";
 import { filterNavLinksByCommittedArchitectureReviewGate } from "@/lib/nav-committed-architecture-review-gate";
 import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+
+/** Buyer default shell: omit pilot distractions — golden path uses Reviews cluster + journey strip (`SidebarNav`). */
+const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/", "/onboarding", "/reviews/new"]);
 
 /** In buyer-polished operator builds, omit routes that read as unfinished operator tooling or leak internal surfaces. */
 const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
@@ -61,6 +64,14 @@ function omitThinRoutesInPublicDemoMode(links: NavLinkItem[]): NavLinkItem[] {
   }
 
   return links.filter((l) => !DEMO_MODE_OMIT_OPERATOR_HREFS.has(l.href));
+}
+
+function omitBuyerPolishedShellNonGoldenNavLinks(links: NavLinkItem[]): NavLinkItem[] {
+  if (!isBuyerPolishedOperatorShellEnv()) {
+    return links;
+  }
+
+  return links.filter((l) => !BUYER_POLISHED_SHELL_OMIT_NAV_HREFS.has(l.href));
 }
 
 /** One nav group after **tier → authority** filtering, only emitted when at least one link remains. */
@@ -129,6 +140,7 @@ export function filterNavLinksForOperatorShell(
   );
 
   tiered = omitThinRoutesInPublicDemoMode(tiered);
+  tiered = omitBuyerPolishedShellNonGoldenNavLinks(tiered);
 
   if (!applyCollapsedSidebarPilotFilter)
     return tiered;

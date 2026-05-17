@@ -47,5 +47,6 @@ describe("Welcome marketing brand category", () => {
 
     expect(text).toContain(BRAND_CATEGORY);
     expect(text).not.toContain(BRAND_CATEGORY_LEGACY);
+    expect(getByTestId("welcome-proof-at-a-glance")).toBeInTheDocument();
   });
 });

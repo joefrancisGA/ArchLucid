@@ -207,7 +207,7 @@
 - **Weighted deficiency signal:** 22
 - **Justification:** Two curated default policy packs (AI governance + security baseline) provide a good starting point.
 - **Tradeoffs:** The library is currently small, shifting some burden to credible authoring by the tenant.
-- **Improvement recommendations:** Add 5 more high-value rules to the existing security baseline pack to strengthen the initial offering.
+- **Improvement recommendations:** Pack depth uplift delivered **2026-05-17** (five additional **`sec-base-026`**–**`sec-base-030`** rules + Workspace **B** seed IDs aligned to shipped keys); continue extending tenant-authored corpus over time.
 
 ### 22. Traceability
 - **Score:** 100
@@ -700,17 +700,19 @@ In `archlucid-ui` navigation and home CTAs, default to the four-step pilot path 
 - Acceptance criteria: First-time evaluators see a narrow path; power users can still reach advanced routes.
 ```
 
-20. **Expand security baseline policy pack with five additional MVP rules**
+20. **COMPLETED:** Expand security baseline policy pack with five additional MVP rules
 - Why it matters: Thin starter packs risk one-and-done pilots; modest depth improves demo credibility without over-claiming compliance.
-- Expected impact: Template and Accelerator Richness (+5 pts), Stickiness (+2 pts), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: +0.09%.
+- Expected impact: (Delivered **2026-05-17**.) Template and Accelerator Richness (+5 pts), Stickiness (+2 pts), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: +0.09%.
 - Affected qualities: Template and Accelerator Richness, Stickiness, Proof-of-ROI Readiness.
-- Actionable: Yes
+- Actionable: Completed
 
 ```markdown
 Add five buyer-credible rules to the shipped **security architecture baseline** pack (e.g. private endpoint posture, Key Vault secret usage, TLS minimums) with framework **mapping only** (no certification claims).
 - Seed rules into demo workspace **B** so regulated synthetic smoke surfaces real findings.
 - Update pack metadata version and `docs/go-to-market` honesty copy if rule counts change.
 - Acceptance criteria: Security baseline pack ships ≥5 additional MVP rules and demo workspace smoke passes.
+
+**Delivered:** Five rules **`sec-base-026`**–**`sec-base-030`** in **`docs/samples/policy-packs/security-architecture-baseline-rules-v1.json`** (pack **`1.1.0`**); provisioning keys in **`DefaultPolicyPackTemplates.SecurityArchitectureBaselineV1Json`** + sample **`security-architecture-baseline.json`**; catalog stubs in **`ArchLucid.Decisioning/Compliance/RulePacks/ga-starter-compliance.rules.json`**. Workspace **B** seed (**`RegulatedScenarioWorkspaceSeed`**) now references shipped IDs (**`sec-base-006`**, **`sec-base-011`**, **`sec-base-018`**) instead of phantom identifiers. Honesty copy: **`docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md`**, **`docs/library/POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md`**. **`MergedComplianceRulePackLoaderTests`** asserts **`sec-base-030`** merge; Playwright **`demo-workspace-b.smoke.spec.ts`** expects **`sec-base-006`** on review detail.
 ```
 
 21. **Complete DTF multiset parity tests and release-smoke validation**
@@ -784,7 +786,7 @@ Implement status sync between ArchLucid review/findings state and ServiceNow cha
 - **Batch 1 (High Leverage, Low Risk):** 3, 4, 8, 14, 18 (**item 17 — missing baseline executive / sponsor surfaces — COMPLETED** **2026-05-17**). Correctness, observability, documentation, live E2E, and a11y CI without large architecture moves.
 - **Batch 2 (Performance & Observability):** 5, 7, 10, 11, 21. Operational robustness, SQL retries, LLM tracing, orchestration limits, and DTF parity smoke.
 - **Batch 3 (Testing, Analytics & ROI):** **16 — baseline wizard — COMPLETED** **2026-05-17** (**item 12 — data residency — COMPLETED** **2026-05-16**; do not re-prompt).
-- **Batch 4 (UX & adoption):** 6, 15, 19, 20, 22, 24. Dashboard health, rule UI, progressive disclosure, pack depth, demo smoke, and finding trust signals.
+- **Batch 4 (UX & adoption):** 6, 15, 19, **20 — security baseline pack expansion — COMPLETED** **2026-05-17**, 22, 24. Dashboard health, rule UI, progressive disclosure, pack depth, demo smoke, and finding trust signals.
 - **Batch 5 (Architecture hygiene):** 23. ArchUnitNET boundaries — isolated PR, expand rules incrementally.
 - **Batch 6 (Integrations — credential-dependent):** 25. ServiceNow bi-directional sync when **P10** developer instance is available; do not block other batches.
 - **Deferred / V1.1 program (do not batch into V1 execution):** **Azure CAF / landing-zone curated policy pack**; **bulk evidence upload above 30 files**, ZIP expansion, recursive folder ingest; Stripe live keys / Marketplace (**#7** in commercial packaging notes). Plan V1.1 slices with dedicated context (see **`V1_SCOPE.md`**, **`V1_DEFERRED.md`**, pinned backlog docs — not re-listed here).

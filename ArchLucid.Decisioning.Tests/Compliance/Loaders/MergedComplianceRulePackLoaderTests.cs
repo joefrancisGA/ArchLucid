@@ -24,5 +24,6 @@ public sealed class MergedComplianceRulePackLoaderTests
         pack.Rules.Should().HaveCountGreaterThan(45);
         pack.Rules.Should().Contain(r => r.RuleId == "ai-gov-001");
         pack.Rules.Should().Contain(r => r.RuleId == "sec-base-025");
+        pack.Rules.Should().Contain(r => r.RuleId == "sec-base-030");
     }
 }

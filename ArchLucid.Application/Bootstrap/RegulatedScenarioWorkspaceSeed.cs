@@ -191,9 +191,9 @@ internal static class RegulatedScenarioWorkspaceSeed
                 Severity = FindingSeverity.Error,
                 Title = "Inference gateway still advertises interim public listener for partner smoke tests",
                 Rationale =
-                    "Rule sec-base-104 flags dual-homed listeners where production cohort traffic could traverse public paths; "
-                    + "synthetic Alpine subscription mirrors that transitional posture for demos.",
-                PolicyRuleId = "sec-base-104",
+                    "Rule sec-base-006 flags workloads that still rely on implicit public access where segmented landing zones expect Private Link or firewall constraints; "
+                    + "the interim dual-homed inference listener mirrors that gap for evaluator demos.",
+                PolicyRuleId = "sec-base-006",
                 RecommendedActions =
                 [
                     "Remove public ingress on production profiles; route partners through private APIM + Microsoft Entra claims",
@@ -303,8 +303,8 @@ internal static class RegulatedScenarioWorkspaceSeed
                 Severity = FindingSeverity.Warning,
                 Title = "Training lake encryption-at-rest parity lagged on archival tier for synthetic PHI-like tags",
                 Rationale =
-                    "Rule sec-base-118 expects uniform CMK-backed encryption tiers when labels imply restricted payloads — demo narrates remediation backlog.",
-                PolicyRuleId = "sec-base-118",
+                    "Rule sec-base-011 expects EncryptionAtRestRequired and CMK posture consistency when labels imply restricted payloads — demo narrates remediation backlog.",
+                PolicyRuleId = "sec-base-011",
                 RecommendedActions =
                 [
                     "Attach customer-managed keys to archival storage accounts",
@@ -370,8 +370,8 @@ internal static class RegulatedScenarioWorkspaceSeed
                 Severity = FindingSeverity.Info,
                 Title = "Immutable audit feed sampling interval widened during synthetic load tests",
                 Rationale =
-                    "Rule sec-base-127 highlights lag risk for audit proof packs; fixture documents variance acceptable for sandbox hours only.",
-                PolicyRuleId = "sec-base-127",
+                    "Rule sec-base-018 expects subscription-level change auditing assumptions to stay timely for proof packs; fixture documents variance acceptable for sandbox hours only.",
+                PolicyRuleId = "sec-base-018",
                 RecommendedActions =
                 [
                     "Tighten Event Hub capture interval post-demo",

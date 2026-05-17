@@ -45,6 +45,11 @@ Each rule exposes **`severity`**, **`remediationGuidance`**, **`evidenceHints`**
 | 9 Container security scanning themes | `sec-base-023` |
 | 9 Secure IaC themes | `sec-base-024` |
 | 9 Secret hygiene automation themes | `sec-base-025` |
+| 8 Key Vault usage / secret store integration themes | `sec-base-026` |
+| 8 Encryption in transit — protocol minimum themes | `sec-base-027` |
+| 7 Private Endpoint enforcement for sensitive data planes (thematic) | `sec-base-028` |
+| 7 Edge protection / application-layer filtering themes | `sec-base-029` |
+| 1 Privileged access lifecycle / JIT themes | `sec-base-030` |
 
 ---
 
@@ -76,10 +81,15 @@ Each rule exposes **`severity`**, **`remediationGuidance`**, **`evidenceHints`**
 | V14 Supply chain — container artifacts | `sec-base-023` |
 | V5 IaC hygiene | `sec-base-024` |
 | V13 Secret scanning automation | `sec-base-025` |
+| V13 Secret management — centralized retrieval | `sec-base-026` |
+| V9 Communications — cipher and protocol minimums | `sec-base-027` |
+| V1 Architecture — regulated data enclave expectations | `sec-base-028` |
+| V13 Request handling protections at the perimeter | `sec-base-029` |
+| V4 Access Control — privileged session boundaries | `sec-base-030` |
 
 ---
 
 ## Operational notes
 
-- **Rule counts:** **Twenty-five** curated keys populate the seeded **`complianceRuleKeys`** array shipped with provisioning templates (`DefaultPolicyPackTemplates.SecurityArchitectureBaselineV1Json`).
+- **Rule counts:** **Thirty** curated keys populate the seeded **`complianceRuleKeys`** array shipped with provisioning templates (`DefaultPolicyPackTemplates.SecurityArchitectureBaselineV1Json`). Pack narrative artifact version **1.1.0** adds five controls (**`sec-base-026`**–**`sec-base-030`**) focused on Key Vault retrieval, TLS protocol minimums at ingress, regulated datastore Private Link enforcement, perimeter WAF posture, and JIT-style privileged access documentation — **mapping only**, not certification.
 - **Azure landing-zone / CAF specificity:** Dedicated subscription-factory/LZ vending narrative pack is pinned to **V1.1** (see **[`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md)** and **`V1_DEFERRED.md` §6j**).

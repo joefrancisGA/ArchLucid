@@ -452,6 +452,56 @@
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
       "description": "Stub for sec-base-025; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-026",
+      "controlId": "SEC-BASE-026",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-026; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-027",
+      "controlId": "SEC-BASE-027",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-027; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-028",
+      "controlId": "SEC-BASE-028",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-028; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-029",
+      "controlId": "SEC-BASE-029",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-029; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-030",
+      "controlId": "SEC-BASE-030",
+      "controlName": "GA security baseline starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for sec-base-030; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
     }
   ]
 }

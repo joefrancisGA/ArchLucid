@@ -13,7 +13,7 @@
 | Bundled GA category | Display name | Pack type in UI/API | Stable rule references | Canonical narrative |
 |--------------------|--------------|---------------------|-----------------------|-----------------------|
 | **AI Governance** | **AI Governance / Responsible AI** | `PlatformDefault` (shown as **Bundled default (platform)** in Operator UI) | **20** curated keys (`ai-gov-001` … `ai-gov-020`) | Appendix: **[`POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md`](../library/POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md)** • JSON: [`docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json`](../samples/policy-packs/ai-governance-responsible-ai-rules-v1.json) |
-| **Security baseline** | **Security Architecture Baseline** | Same | **25** curated keys (`sec-base-001` … `sec-base-025`) | Appendix: **[`POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md`](../library/POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md)** • JSON: [`docs/samples/policy-packs/security-architecture-baseline-rules-v1.json`](../samples/policy-packs/security-architecture-baseline-rules-v1.json) |
+| **Security baseline** | **Security Architecture Baseline** | Same | **30** curated keys (`sec-base-001` … `sec-base-030`) | Appendix: **[`POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md`](../library/POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md)** • JSON: [`docs/samples/policy-packs/security-architecture-baseline-rules-v1.json`](../samples/policy-packs/security-architecture-baseline-rules-v1.json) |
 
 Assignments are seeded **enabled** (`PolicyPackAssignments.IsEnabled = true`); merges participate in **`PolicyPackResolver`** like any other activated assignment.
 

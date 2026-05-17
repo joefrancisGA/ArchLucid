@@ -56,12 +56,12 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await expect(page.locator("main").getByText(/ai-gov-002/i).first()).toBeVisible({ timeout: 90_000 });
 
-    /** Pack B security baseline posture (dual-homed listener rule from seed fixtures). */
+    /** Pack B security baseline posture (public exposure rule sec-base-006 from seed fixtures). */
     await expect(page.locator("main").getByText(/Inference gateway still advertises interim public listener/i)).toBeVisible({
       timeout: 90_000,
     });
 
-    await expect(page.locator("main").getByText(/sec-base-104/i).first()).toBeVisible({ timeout: 90_000 });
+    await expect(page.locator("main").getByText(/sec-base-006/i).first()).toBeVisible({ timeout: 90_000 });
 
     await page.locator("#run-explanation").scrollIntoViewIfNeeded();
 

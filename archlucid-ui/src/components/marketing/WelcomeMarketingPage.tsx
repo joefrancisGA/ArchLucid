@@ -194,6 +194,51 @@ export function WelcomeMarketingPage() {
         </div>
       </section>
 
+      <section
+        aria-labelledby="welcome-proof-heading"
+        className="mb-12"
+        data-testid="welcome-proof-at-a-glance"
+      >
+        <h2 id="welcome-proof-heading" className="sr-only">
+          Proof at a glance
+        </h2>
+        <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-3">
+          <li className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+            <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Decision-grade outputs</p>
+            <p className="m-0 mt-2 text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+              Structured findings with a versioned manifest you can hand to ARB and audit partners.
+            </p>
+            <p className="m-0 mt-3 text-xs font-medium">
+              <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/why">
+                Why teams standardize on ArchLucid
+              </Link>
+            </p>
+          </li>
+          <li className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+            <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Evidence you can follow</p>
+            <p className="m-0 mt-2 text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+              Trace graph tie-outs and audit milestones—not an ephemeral chat transcript.
+            </p>
+            <p className="m-0 mt-3 text-xs font-medium">
+              <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/see-it">
+                See it in 30 seconds
+              </Link>
+            </p>
+          </li>
+          <li className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+            <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Procurement-ready posture</p>
+            <p className="m-0 mt-2 text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+              Published Trust Center materials and downloadable diligence anchors—know what to verify.
+            </p>
+            <p className="m-0 mt-3 text-xs font-medium">
+              <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
+                Open Trust Center
+              </Link>
+            </p>
+          </li>
+        </ul>
+      </section>
+
       <section aria-labelledby="walkthrough-heading" className="mb-14 rounded-lg border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
         <h2 id="walkthrough-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
           First-time visitor path
