@@ -77,9 +77,9 @@ Evaluator URLs and Playwright/release-smoke anchors are driven from one JSON man
 1. Edit **`DemoSeedService`** / **`ProductTourWorkspaceSeed`** / **`RegulatedScenarioWorkspaceSeed`** (and **`DemoWorkspaceStableIds`** only when anchors truly move — rare).
 2. Bump **`fixturePackageVersion`** and adjust **`expectedCommittedFindingCount`** / evidence counts in the manifest so **`DemoWorkspaceFixtureManifestParityTests`** stays green.
 3. Align **`docs/go-to-market/DEMO_WORKSPACES.md`** tables and scope triplets with the manifest (CI runs **`scripts/demo-workspaces/Validate-DemoWorkspacesDoc.ps1`** and **`demo-workspaces-fixture-parity`**).
-4. Re-run **`@release-gate`** Playwright smoke (**`demo-workspace-*.smoke.spec.ts`**) and **`release-smoke.ps1 -LivePlaywright`** (or **`-Profile LiveUiSql`**) against Development SQL.
+4. Re-run **`@release-gate`** Playwright smoke (**`demo-workspace-*.smoke.spec.ts`**) and **`scripts/release-smoke.ps1 -LivePlaywright`** (or **`-Profile LiveUiSql`**) against Development SQL.
 
-See also **[`docs/library/RELEASE_SMOKE.md`](../library/RELEASE_SMOKE.md)** and **`release-smoke.ps1 -LivePlaywright`**.
+See also **[`docs/library/RELEASE_SMOKE.md`](../library/RELEASE_SMOKE.md)** and **`scripts/release-smoke.ps1 -LivePlaywright`**.
 
 ---
 
@@ -104,7 +104,7 @@ Use this checklist before tagging **GA / external pilot freeze** aligned with th
 
 - [ ] **`demo-workspaces-fixture-parity` + manifest pins:** Workflow job **`Go-to-market: demo workspace pins (manifest vs docs + seeds)`** green — validates **`DEMO_WORKSPACES.md`** anchors vs **`fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json`** and runs **`DemoWorkspaceFixtureManifestParityTests`** (finding/evidence counts vs seed builders). Branch protection should require this job wherever GA is certified.
 
-- [ ] **`@release-gate` discipline:** **`ui-e2e-live`** executes **`demo-workspace-*.smoke.spec.ts`** when it runs (**`ci.yml`**: job `if:` is **`github.event_name != 'pull_request`** — **`push`** to default branch / **`workflow_dispatch`** / **`merge_group`**, depending on triggers). Confirm org branch protection attaches that check wherever you certify GA. Before tagging, additionally run **`cd archlucid-ui`** → **`npm exec playwright test --grep "@release-gate"`** and **`release-smoke`** live parity when claiming SQL/UI alignment.
+- [ ] **`@release-gate` discipline:** **`ui-e2e-live`** executes **`demo-workspace-*.smoke.spec.ts`** when it runs (**`ci.yml`**: job `if:` is **`github.event_name != 'pull_request`** — **`push`** to default branch / **`workflow_dispatch`** / **`merge_group`**, depending on triggers). Confirm org branch protection attaches that check wherever you certify GA. Before tagging, additionally run **`cd archlucid-ui`** → **`npm exec playwright test --grep "@release-gate"`** and **`scripts/release-smoke`** live parity when claiming SQL/UI alignment.
 
 - [ ] **PII realism:** Hosted copy + seeds contain **only synthetic** firms and placeholders; onboarding and trial docs point here for naming truth.
 

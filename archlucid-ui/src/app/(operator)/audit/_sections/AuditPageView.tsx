@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { HelpLink } from "@/components/HelpLink";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
@@ -149,12 +151,12 @@ export function AuditPageView(props: AuditPageViewProps) {
             discuss tenant-backed workspaces.
           </p>
           <p className="m-0 mt-3 text-sm">
-            <a
+            <Link
               className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
               href="/reviews/new"
             >
               Create follow-up review
-            </a>{" "}
+            </Link>{" "}
             when you need another governed package after completing this sample path.
           </p>
         </details>

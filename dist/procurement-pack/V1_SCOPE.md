@@ -270,7 +270,7 @@ These are **practical gates** already encoded or described in-repo—not an exha
 | **Solution builds** in Release | CI and [BUILD.md](BUILD.md) |
 | **Core-tier tests** pass for the agreed filter (e.g. fast core / `Suite=Core` conventions) | [TEST_STRUCTURE.md](TEST_STRUCTURE.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
 | **API starts** against Sql configuration; **health/live** and **health/ready** succeed when dependencies are up | [README.md](../../docs/REPOSITORY_README.md), [PILOT_GUIDE.md](PILOT_GUIDE.md) |
-| **One scripted end-to-end run** produces a committed manifest and **at least one** artifact descriptor | `release-smoke.ps1` expectations ([RELEASE_SMOKE.md](RELEASE_SMOKE.md)) |
+| **One scripted end-to-end run** produces a committed manifest and **at least one** artifact descriptor | `scripts/release-smoke.ps1` expectations ([RELEASE_SMOKE.md](RELEASE_SMOKE.md)) |
 | **Operator UI** builds when Node is in use; Vitest/build steps as per readiness scripts | [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [archlucid-ui/README.md](../../archlucid-ui/README.md) |
 | **Version and diagnostics** available for handoff (`GET /version`, CLI `doctor`, support bundle discipline) | [PILOT_GUIDE.md](PILOT_GUIDE.md) |
 

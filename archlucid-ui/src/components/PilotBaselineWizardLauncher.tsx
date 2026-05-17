@@ -2,7 +2,7 @@
 
 import { ClipboardList } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { PilotBaselineWizard } from "@/components/PilotBaselineWizard";
 import { Button } from "@/components/ui/button";

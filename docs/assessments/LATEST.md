@@ -8,7 +8,7 @@
 
 - **Native SAML 2.0 Service Provider (workforce SSO):** **Shipped for V1 GA** (**`docs/library/V1_SCOPE.md` §2.12**). **`JwtBearer`** OIDC remains **first-class**; SAML **SP** augments buyer choice.
 - **ServiceNow bi-directional status sync:** **`V1` GA** per **`docs/library/V1_SCOPE.md` §2.13** — unchanged. As of **2026-05-15**: **no** ServiceNow developer instance **yet**; bidirectional sync implementation proceeds when a **cost-free** **ServiceNow Developer Program** / personal developer-style instance is available (**paid** sandbox **not** a **`V1` GA** prerequisite). Until provisioned, engineering is **queued only** — explicit scope demotion requires **`V1_SCOPE.md`** / **`PENDING_QUESTIONS.md`** amendment **if** a **free** path never materializes.
-- **Durable Task Framework (DTF):** SQL storage hosts bind the authority pipeline to the Durable Task port (`DtfAuthorityRunOrchestrator`); `ArchLucid.Application` still has no compile-time dependency on `Microsoft.DurableTask.*`. InMemory / simulator paths remain on the legacy adapter until separately migrated.
+- **Durable Task Framework (DTF):** SQL storage hosts may register the Durable Task port (`DtfAuthorityRunOrchestrator`) and gRPC worker/client when configured; **`DtfAuthorityRunOrchestrator`** currently forwards to **`AuthorityRunOrchestrator`** (same as the legacy adapter). **Engine-native** DTF activity scheduling, DTF-first observability, and legacy-adapter cleanup are **deferred to V1.1** (improvement **#13**, **2026-05-17**). `ArchLucid.Application` still has no compile-time dependency on `Microsoft.DurableTask.*`. InMemory / simulator paths remain on the legacy adapter until separately migrated.
 
 - **V2-only (deferral docs):** Items committed only to **V2** in **`V1_DEFERRED.md`** are **omitted** from **Pending technical questions** in this file and **do not** reduce **`(A)`** weighted V1 scores (track in deferral/scope docs only).
 
@@ -285,7 +285,7 @@
 
 ## Top 5 Engineering Risks
 
-1. **Durable Task Framework (narrow residual):** Wrapper-level parity vs the Legacy adapter is enforced in host composition tests; **`release-smoke -AuthorityPipelineDtfSmoke`** exercises tenant SQL with **`ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint`** set. Remaining: deeper engine-native scheduling/observability and optional removal of redundant registration paths after sustained green main — not the prior “no multiset tests” gap.
+1. **Durable Task Framework (V1 posture — depth deferred):** **V1 GA** ships gRPC worker/client registration, **`release-smoke -AuthorityPipelineDtfSmoke`**, host composition parity tests, and **`Microsoft.DurableTask.*`** namespace boundaries; the runnable pipeline remains **`AuthorityRunOrchestrator`** behind a forwarder. **V1.1** backlog (improvement **#13**, deferred **2026-05-17**): real orchestrator/activities, engine-aligned observability, then redundant legacy registration cleanup after sustained green — not an open **V1** multiset-coverage gap.
 2. **E2E test mock reliance (residual):** **`ui-e2e-smoke`** still uses mocked **`/api/proxy`** for most routes; golden-path integration is covered by merge-blocking **`ui-e2e-live`** (**#14**, **2026-05-16**) plus showcase manifest round-trip + structured compare assertions (**#5**, **2026-05-17**) — extend live specs when remaining mock-only surfaces are high-risk.
 3. **Agent orchestration parallelism observability (narrow residual):** Concurrency leases cap tenant fan-out (**#11 backlog**, **2026-05-16**); **Improvement 9 (2026-05-17)** exposes backlog depth, oldest-pending age, and dead-letter gauges with alert rules (**`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`**). **Residual:** threshold tuning per environment; optional future explicit metering of tenant slot **acquire** wait separate from outbox row age.
 4. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
@@ -429,14 +429,14 @@ Enhance OpenTelemetry instrumentation to capture detailed metrics for all LLM AP
 Audit and update background jobs to ensure Polly-based retry policies are uniformly applied to all SQL connection attempts, specifically for Azure SQL transient errors.
 ```
 
-13. **Deeper engine-native scheduling and observability for DTF**
-- Why it matters: Required for full multiset parity and operational depth.
+13. **Deeper engine-native scheduling and observability for DTF** (**deferred to V1.1 — 2026-05-17**)
+- Why it matters: Full multiset parity and operational depth require DTF to **own** scheduling (activities, replay, retries) rather than hosting a forwarder to the hand-rolled pipeline.
 - Expected impact: Reliability (+3 pts), Maintainability (+2 pts).
 - Affected qualities: Reliability, Maintainability.
-- Actionable: Yes
+- Actionable: **V1.1** (**V1 GA** keeps optional gRPC registration + smoke + architecture boundaries; **`DtfAuthorityRunOrchestrator`** stays a pass-through to **`AuthorityRunOrchestrator`** until a scoped migration.)
 
 ```markdown
-Complete deeper engine-native scheduling and observability for the Durable Task Framework port and clean up legacy paths once sustained green.
+Defer engine-native DTF orchestration and DTF-first observability to V1.1; after sustained green on main, replace the forwarder with real activities and only then remove redundant legacy registration paths.
 ```
 
 14. **Add tracking for 108 replay notes during catalog migrations**

@@ -115,6 +115,6 @@ The CI workflow `ui-e2e-live.yml` runs this suite as part of the staging deploym
 
 ## Notes
 
-- This checklist covers the **buyer/prospect** path only. Internal operator onboarding (Docker, .NET SDK) has a separate validation path via `release-smoke.ps1`.
+- This checklist covers the **buyer/prospect** path only. Internal operator onboarding (Docker, .NET SDK) has a separate validation path via `scripts/release-smoke.ps1`.
 - Staging should use **Stripe TEST keys** or **Noop billing** — never live payment processing.
 - Clean up test tenants after validation using the cleanup procedure in [TRIAL_END_TO_END.md](TRIAL_END_TO_END.md#cleaning-up-test-tenants).
