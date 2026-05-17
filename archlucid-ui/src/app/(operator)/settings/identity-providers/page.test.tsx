@@ -18,28 +18,39 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+function stubIdentityProvidersFetch(keys: unknown[]): void {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input instanceof Request ? input.url : String(input);
+
+      if (url.includes("/auth/saml-operational-health")) {
+        return new Response(JSON.stringify({ saml2Enabled: false }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({ keys }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }),
+  );
+}
+
 describe("IdentityProvidersSettingsPage", () => {
   it("renders ArchLucidAuth rows when demo build flags are set (still fetches catalog client-side)", async () => {
     hoistedIdentityProvidersLoad.demo = true;
 
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => {
-        return new Response(
-          JSON.stringify({
-            keys: [
-              {
-                section: "ArchLucidAuth",
-                configPath: "ArchLucidAuth:Authority",
-                isSet: true,
-                effectiveValue: "https://login.example.com",
-              },
-            ],
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        );
-      }),
-    );
+    stubIdentityProvidersFetch([
+      {
+        section: "ArchLucidAuth",
+        configPath: "ArchLucidAuth:Authority",
+        isSet: true,
+        effectiveValue: "https://login.example.com",
+      },
+    ]);
 
     const page = await IdentityProvidersSettingsPage();
 
@@ -48,33 +59,27 @@ describe("IdentityProvidersSettingsPage", () => {
     const table = await screen.findByTestId("identity-providers-table");
 
     expect(table).toHaveTextContent("ArchLucidAuth:Authority");
+
+    const samlCard = await screen.findByTestId("saml-operational-health-card");
+
+    expect(samlCard).toHaveTextContent("SAML 2.0 SP operational signals");
   });
 
   it("renders ArchLucidAuth rows from configuration summary", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => {
-        return new Response(
-          JSON.stringify({
-            keys: [
-              {
-                section: "ArchLucidAuth",
-                configPath: "ArchLucidAuth:Authority",
-                isSet: true,
-                effectiveValue: "https://login.example.com",
-              },
-              {
-                section: "ArchLucidAuth",
-                configPath: "ArchLucidAuth:Audience",
-                isSet: true,
-                effectiveValue: "api://demo",
-              },
-            ],
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        );
-      }),
-    );
+    stubIdentityProvidersFetch([
+      {
+        section: "ArchLucidAuth",
+        configPath: "ArchLucidAuth:Authority",
+        isSet: true,
+        effectiveValue: "https://login.example.com",
+      },
+      {
+        section: "ArchLucidAuth",
+        configPath: "ArchLucidAuth:Audience",
+        isSet: true,
+        effectiveValue: "api://demo",
+      },
+    ]);
 
     const page = await IdentityProvidersSettingsPage();
 
@@ -84,5 +89,9 @@ describe("IdentityProvidersSettingsPage", () => {
 
     expect(table).toHaveTextContent("ArchLucidAuth:Authority");
     expect(table).toHaveTextContent("ArchLucidAuth:Audience");
+
+    const samlCard = await screen.findByTestId("saml-operational-health-card");
+
+    expect(samlCard).toHaveTextContent("SAML 2.0 SP operational signals");
   });
 });

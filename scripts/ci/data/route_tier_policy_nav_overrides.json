@@ -43,6 +43,7 @@
     "Admin/AdminLlmCostTuningController.cs": "/settings/tenant-cost",
     "Admin/SecurityTrustPublicationController.cs": "/workspace/security-trust",
     "Admin/SupportBundleController.cs": "/admin/support",
+    "Admin/AdminTenantsController.cs": "/admin/users",
     "Admin/TenantsAdminController.cs": "/admin/users",
     "Advisory/AdvisoryController.cs": "/advisory",
     "Advisory/DigestSubscriptionsController.cs": "/digests",

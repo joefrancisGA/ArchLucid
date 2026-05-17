@@ -4,9 +4,9 @@ using System.Xml.Linq;
 namespace ArchLucid.Api.Services.Admin;
 
 /// <summary>Parses SAML metadata root <c>validUntil</c> without coupling to IdP vendor-specific deserialization.</summary>
-internal static class SamlMetadataValidUntilParser
+public static class SamlMetadataValidUntilParser
 {
-    internal static DateTimeOffset? TryExtractValidUntilUtc(string xml)
+    public static DateTimeOffset? TryExtractValidUntilUtc(string xml)
     {
         if (string.IsNullOrWhiteSpace(xml))
             return null;

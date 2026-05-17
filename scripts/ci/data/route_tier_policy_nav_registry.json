@@ -42,6 +42,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/AdminTenantsController.cs",
+      "class_name": "AdminTenantsController",
+      "route_template": "v{version:apiVersion}/admin/tenants",
+      "normalized_prefix": "/v1/admin/tenants",
+      "commercial_tier": "none",
+      "class_policy": "PlatformTenantDeletionAuthority",
+      "exemption": null,
+      "nav_operator_href": "/admin/users"
+    },
+    {
       "controller_file": "Admin/AuditController.cs",
       "class_name": "AuditController",
       "route_template": "v{version:apiVersion}/audit",

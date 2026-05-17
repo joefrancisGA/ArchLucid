@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { SamlOperationalHealthStrip } from "./SamlOperationalHealthStrip";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
 
 type IdentityProvidersSettingsPageViewProps = {
@@ -9,7 +10,7 @@ type IdentityProvidersSettingsPageViewProps = {
 };
 
 export function IdentityProvidersSettingsPageView({ model }: IdentityProvidersSettingsPageViewProps) {
-  const { note, rows } = model;
+  const { note, rows, samlOperationalHealth, samlOperationalHealthNote, samlOperationalHealthLoaded } = model;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -60,6 +61,10 @@ export function IdentityProvidersSettingsPageView({ model }: IdentityProvidersSe
           ) : null}
         </CardContent>
       </Card>
+
+      {samlOperationalHealthLoaded ? (
+        <SamlOperationalHealthStrip payload={samlOperationalHealth} fetchNote={samlOperationalHealthNote} />
+      ) : null}
     </div>
   );
 }
