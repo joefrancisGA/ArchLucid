@@ -41,4 +41,13 @@ public sealed class AuthorityPipelineOptions
         get;
         set;
     } = OrchestratorBackend.Legacy;
+
+    /// <summary>
+    ///     Per-tenant limits on concurrently executing authority pipeline heavy stages (graph/findings/decision/manifest).
+    /// </summary>
+    public AuthorityPipelineConcurrencyOptions Concurrency
+    {
+        get;
+        set;
+    } = new();
 }
