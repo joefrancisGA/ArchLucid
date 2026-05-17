@@ -64,7 +64,20 @@ GA evaluators rely on **`archlucid-ui/e2e/demo-workspace-*.smoke.spec.ts`** (tag
 2. **Co-change rule:** Any PR materially touching **finding display**, **evidence summaries**, **export formats/endpoints consulted by smoke**, **policy-pack evaluation payloads that seed manifests**, **run-detail section IDs / buyer nav anchors**, **or persisted export JSON shape** MUST:
    - Re-run **`cd archlucid-ui`** → **`npm exec playwright test --grep "@release-gate"`** (or full live suite) against seeded SQL Development paths, **or** justify with maintainer escalation if CI flakes are infra-only.
 
-3. **Seed format churn:** Persisted manifests, **`RunExportRecords`**, or **`dbo.Runs`/workspace rows** mutated for demo storytelling require **matching updates** under **`DemoSeedService`**, seeds, **`DemoWorkspaceStableIds` parity tests**, **`DemoTourWorkspaceIdsParityTests` / `DemoRegulatedScenarioWorkspaceIdsParityTests`**, and **`e2e/helpers/demo-workspace-live-scope.ts`** in the **same PR** whenever anchor IDs/content move.
+3. **Seed format churn:** Persisted manifests, **`RunExportRecords`**, or **`dbo.Runs`/workspace rows** mutated for demo storytelling require **matching updates** under **`DemoSeedService`**, seeds, **`DemoWorkspaceStableIds` parity tests**, **`DemoTourWorkspaceIdsParityTests` / `DemoRegulatedScenarioWorkspaceIdsParityTests`**, **`ArchLucid.Application.Tests/Bootstrap/DemoWorkspaceFixtureManifestParityTests`**, pinned **`fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json`**, **`archlucid-ui/e2e/helpers/demo-workspace-live-scope.ts`** (via manifest import), and **`e2e/helpers/demo-workspace-live-scope.ts`** in the **same PR** whenever anchor IDs/content move.
+
+### Pinned fixture package (SQL + blob narrative seeds)
+
+Evaluator URLs and Playwright/release-smoke anchors are driven from one JSON manifest:
+
+- **`fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json`** — `fixturePackageVersion`, stable GUIDs for Workspace **A** / **B**, **expectedCommittedFindingCount** (matches `ProductTourWorkspaceSeed` / `RegulatedScenarioWorkspaceSeed` builders), and evidence-object counts used for GA drift detection.
+
+**Update procedure when product intentionally changes demo seeds**
+
+1. Edit **`DemoSeedService`** / **`ProductTourWorkspaceSeed`** / **`RegulatedScenarioWorkspaceSeed`** (and **`DemoWorkspaceStableIds`** only when anchors truly move — rare).
+2. Bump **`fixturePackageVersion`** and adjust **`expectedCommittedFindingCount`** / evidence counts in the manifest so **`DemoWorkspaceFixtureManifestParityTests`** stays green.
+3. Align **`docs/go-to-market/DEMO_WORKSPACES.md`** tables and scope triplets with the manifest (CI runs **`scripts/demo-workspaces/Validate-DemoWorkspacesDoc.ps1`** and **`demo-workspaces-fixture-parity`**).
+4. Re-run **`@release-gate`** Playwright smoke (**`demo-workspace-*.smoke.spec.ts`**) and **`release-smoke.ps1 -LivePlaywright`** (or **`-Profile LiveUiSql`**) against Development SQL.
 
 See also **[`docs/library/RELEASE_SMOKE.md`](../library/RELEASE_SMOKE.md)** and **`release-smoke.ps1 -LivePlaywright`**.
 

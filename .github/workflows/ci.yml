@@ -642,11 +642,43 @@ jobs:
       - name: Agent prompt regression baseline (JSON shape)
         run: python3 scripts/ci/assert_prompt_regression.py
 
+  demo-workspaces-fixture-parity:
+    name: "Go-to-market: demo workspace pins (manifest vs docs + seeds)"
+    needs:
+      - doc-markdown-links
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Validate DEMO_WORKSPACES.md vs pinned manifest
+        shell: pwsh
+        run: ./scripts/demo-workspaces/Validate-DemoWorkspacesDoc.ps1 -RepoRoot "${{ github.workspace }}"
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore Application.Tests
+        run: dotnet restore ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj
+
+      - name: Build Application.Tests (Release)
+        run: dotnet build ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+
+      - name: DemoWorkspaceFixtureManifestParityTests
+        run: dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj --no-build -c Release --filter "FullyQualifiedName~DemoWorkspaceFixtureManifestParityTests"
+
   dotnet-fast-core:
     name: ".NET: fast core (corset)"
     needs:
       - gitleaks
       - doc-markdown-links
+      - demo-workspaces-fixture-parity
       - openapi-contract-snapshot
       - terraform-validate-private
       - terraform-validate-public-stacks
@@ -3121,6 +3153,7 @@ jobs:
       - openapi-contract-snapshot
       - ci-agent-prompt-injection-regression
       - ci-agent-offline-regression
+      - demo-workspaces-fixture-parity
       - dotnet-fast-core
       - saas-terraform-roots-validate
       - sql-dbup-empty-catalog

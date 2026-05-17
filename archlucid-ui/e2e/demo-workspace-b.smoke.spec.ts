@@ -12,7 +12,10 @@ import {
   DEMO_WORKSPACE_B_REGULATED_RUN_ID,
   injectDemoWorkspaceOperatorScope,
 } from "./helpers/demo-workspace-live-scope";
+import { demoWorkspacesFixtureManifest } from "./helpers/demo-workspaces-fixture-manifest";
 import {
+  countFindingsInAuthorityRunDetailPayload,
+  getAuthorityRunDetailRaw,
   getRunArchitectureExportHistoryRaw,
   liveApiBase,
   postConsultingAnalysisDocxRaw,
@@ -39,6 +42,19 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
     request,
   }) => {
     test.setTimeout(240_000);
+
+    const authorityProbe = await getAuthorityRunDetailRaw(request, DEMO_WORKSPACE_B_REGULATED_RUN_ID, DEMO_WORKSPACE_B_LIVE_IDS);
+
+    expect(
+      authorityProbe.ok(),
+      `GET /v1/authority/runs/{runId} expected 200 — ${await authorityProbe.text()}`,
+    ).toBeTruthy();
+
+    const authorityJson = await authorityProbe.json();
+
+    expect(countFindingsInAuthorityRunDetailPayload(authorityJson)).toBe(
+      demoWorkspacesFixtureManifest.workspaceB.expectedCommittedFindingCount,
+    );
 
     await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_B_LIVE_IDS);
     await page.goto(`/reviews/${DEMO_WORKSPACE_B_REGULATED_RUN_ID}`, { waitUntil: "domcontentloaded" });

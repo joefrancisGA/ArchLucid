@@ -430,6 +430,19 @@ try
         exit $LASTEXITCODE
     }
 
+    Write-Host ''
+    Write-Host '=== Demo workspace pins (manifest vs DEMO_WORKSPACES.md) ===' -ForegroundColor Cyan
+    & (Join-Path $root 'scripts/demo-workspaces/Validate-DemoWorkspacesDoc.ps1') -RepoRoot $root
+    if ($LASTEXITCODE -ne 0) {
+        Write-OperatorFailureTriage -Stage '1b Demo workspace doc parity' -Category 'DocumentationDrift' `
+            -Details @('fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json anchors must appear in docs/go-to-market/DEMO_WORKSPACES.md.') `
+            -NextSteps @(
+            'Run: ./scripts/demo-workspaces/Validate-DemoWorkspacesDoc.ps1',
+            'See docs/go-to-market/DEMO_WORKSPACES.md — Pinned fixture package'
+        )
+        exit $LASTEXITCODE
+    }
+
     Write-OperatorPhaseHeader -Title 'Fast core tests (Release)' -Step 2 -Total 6
     dotnet test $sln -c Release --no-build --filter "Suite=Core&Category!=Slow&Category!=Integration"
     if ($LASTEXITCODE -ne 0) {

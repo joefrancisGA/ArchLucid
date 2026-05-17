@@ -9,7 +9,12 @@ import {
   DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
   injectDemoWorkspaceOperatorScope,
 } from "./helpers/demo-workspace-live-scope";
-import { liveApiBase } from "./helpers/live-api-client";
+import { demoWorkspacesFixtureManifest } from "./helpers/demo-workspaces-fixture-manifest";
+import {
+  countFindingsInAuthorityRunDetailPayload,
+  getAuthorityRunDetailRaw,
+  liveApiBase,
+} from "./helpers/live-api-client";
 
 const releaseGateTag = "@release-gate";
 
@@ -48,7 +53,10 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     const evidenceBasisTiles = page.locator("#trust-evidence .grid.gap-3 > div.rounded-lg");
 
-    await expect.poll(async () => evidenceBasisTiles.count(), { timeout: 60_000 }).toBeGreaterThanOrEqual(5);
+    const minimumEvidenceTiles =
+      demoWorkspacesFixtureManifest.workspaceA.minimumEvidenceBasisTiles ?? 5;
+
+    await expect.poll(async () => evidenceBasisTiles.count(), { timeout: 60_000 }).toBeGreaterThanOrEqual(minimumEvidenceTiles);
 
     await page.locator("#run-explanation").scrollIntoViewIfNeeded();
 

@@ -391,6 +391,38 @@ export async function getRunDetailsRaw(
   });
 }
 
+/** GET `/v1/authority/runs/{runId}` — scoped authority aggregate incl. findings snapshot (demo workspace smoke counts). */
+export async function getAuthorityRunDetailRaw(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope: LiveTenantScopeHeaders,
+  options?: { apiKey?: string | null },
+): Promise<APIResponse> {
+  const encoded = encodeURIComponent(runId);
+
+  return request.get(`${resolveLiveApiBase()}/v1/authority/runs/${encoded}`, {
+    headers: mergeTenantScope(liveAcceptHeaders(options?.apiKey), tenantScope),
+  });
+}
+
+/** Counts sealed findings on `findingsSnapshot.findings` from {@link getAuthorityRunDetailRaw} JSON (camelCase wire shape). */
+export function countFindingsInAuthorityRunDetailPayload(payload: unknown): number {
+  if (payload === null || typeof payload !== "object") {
+    return 0;
+  }
+
+  const root = payload as Record<string, unknown>;
+  const snapshot = root.findingsSnapshot;
+
+  if (snapshot === null || typeof snapshot !== "object") {
+    return 0;
+  }
+
+  const findings = (snapshot as Record<string, unknown>).findings;
+
+  return Array.isArray(findings) ? findings.length : 0;
+}
+
 /** GET `/v1/architecture/run/{runId}` — run aggregate including golden manifest id after commit. */
 export async function getRunDetails(
   request: APIRequestContext,
