@@ -81,7 +81,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted deficiency signal:** 60
 - **Justification:** Architecture Review Report export (DOCX/PDF) with consultant whitelabeling provides immediate, tangible executive artifacts.
 - **Tradeoffs:** Executive value can become abstract if real tenant baselines are missing.
-- **Improvement recommendations:** Add a 'Missing Baseline' warning to the executive dashboard.
+- **Improvement recommendations:** None for executive dashboard baseline warning (completed 2026-05-17 per improvement **#9**).
 
 ### 8. Differentiability
 - **Score:** 85
@@ -446,16 +446,19 @@ Extend the operator **new review** flow (`archlucid-ui` — `reviews/new`, `NewR
 ```
 
 ### 9. Add a 'Missing Baseline' warning to the executive dashboard
+- **Status:** Completed (2026-05-17)
 - **Why it matters:** Executive value can become abstract if real tenant baselines are missing.
 - **Expected impact:** Executive Value Visibility (+10 pts), Usability (+5 pts).
 - **Affected qualities:** Executive Value Visibility, Usability.
-- **Actionable:** Yes
+- **Actionable:** No
+- **Completion evidence:** `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveDashboardBaselineWarningBanner.tsx` (Execute+ callers only via `AUTHORITY_RANK.ExecuteAuthority`; `usePilotRoiBaselineCompleteness` / `GET /v1/tenant/baseline` proxy shows banner when quantitative ROI anchors incomplete; session-only dismiss via `sessionStorage`; docs link through `DEFAULT_GITHUB_BLOB_BASE` → `docs/runbooks/AZURE_EXTRACTOR_INGEST.md`; in-app `/settings/baseline`; ROI KPI cards unchanged); wired from `ExecutiveRoiDashboardPageView.tsx`. Tests: `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveDashboardBaselineWarningBanner.test.tsx`.
 ```text
 Modify the executive dashboard component in `archlucid-ui` to display a prominent warning banner if no baseline data (e.g., Azure extractor ZIP) has been uploaded.
 - Acceptance criteria: The banner is visible to Admin and Operator roles and links to the baseline upload documentation.
 - Constraints: The banner must be dismissible for the current session.
 - What not to change: Do not alter the underlying dashboard metrics calculations.
 - Impact: Directly improves Executive Value Visibility (+8-10 pts) and Usability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- **Acceptance criteria met:** Banner on `/dashboard` for settled **ExecuteAuthority**/**AdminAuthority** ranks when sponsor ROI baseline anchors are incomplete (`usePilotRoiBaselineCompleteness`); links to **`docs/runbooks/AZURE_EXTRACTOR_INGEST.md`** plus `/settings/baseline`; dismiss persists for browser session (`sessionStorage`); executive KPI tile values untouched. Vitest coverage in `ExecutiveDashboardBaselineWarningBanner.test.tsx`.
 ```
 
 ### 10. Internal Policy Pack Hub (catalog read model + admin-only promotion)
