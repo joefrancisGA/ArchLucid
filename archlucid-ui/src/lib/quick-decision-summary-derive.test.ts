@@ -70,6 +70,91 @@ describe("quick-decision-summary-derive", () => {
     expect(sorted[2]?.findingId).toBe("a");
   });
 
+  it("extractQuickDecisionFindingsFromRunDetail maps confidenceLevel, evaluation score, and evidenceRefs count", () => {
+    const detail = {
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      results: [
+        {
+          findings: [
+            {
+              findingId: "ev1",
+              message: "Leak",
+              reasoningTrace: "Check.",
+              severity: 2,
+              confidenceLevel: "low",
+              evaluationConfidenceScore: 33,
+              evidenceRefs: ["r1", "r2", ""],
+            },
+          ],
+        },
+      ],
+    } as unknown as RunDetail;
+
+    const extracted = extractQuickDecisionFindingsFromRunDetail(detail);
+
+    expect(extracted).toHaveLength(1);
+    expect(extracted[0]?.confidenceLevel).toBe("Low");
+    expect(extracted[0]?.evaluationConfidenceScore).toBe(33);
+    expect(extracted[0]?.evidenceRefCount).toBe(2);
+  });
+
+  it("resolveQuickDecisionFindingsForRunDetail merges explainability trace rows onto extracted findings", () => {
+    const detail = {
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      results: [
+        {
+          findings: [
+            {
+              findingId: "x",
+              message: "Wire only",
+              reasoningTrace: "",
+              severity: 1,
+            },
+          ],
+        },
+      ],
+    } as unknown as RunDetail;
+
+    const summary = {
+      explanation: {
+        summary: "",
+        keyDrivers: [],
+        riskImplications: [],
+        costImplications: [],
+        complianceImplications: [],
+        detailedNarrative: "",
+        rawText: "",
+        structured: null,
+        confidence: null,
+        provenance: null,
+      },
+      themeSummaries: [],
+      overallAssessment: "",
+      riskPosture: "",
+      findingCount: 1,
+      decisionCount: 0,
+      unresolvedIssueCount: 0,
+      complianceGapCount: 0,
+      findingTraceConfidences: [
+        {
+          findingId: "x",
+          traceCompletenessRatio: 0.5,
+          traceConfidenceLabel: "Partial coverage",
+          confidenceLevel: "High",
+          evidenceRefCount: 2,
+        },
+      ],
+    } as RunExplanationSummary;
+
+    const resolved = resolveQuickDecisionFindingsForRunDetail(detail, summary);
+
+    expect(resolved).toHaveLength(1);
+    expect(resolved[0]?.findingId).toBe("x");
+    expect(resolved[0]?.confidenceLevel).toBe("High");
+    expect(resolved[0]?.traceConfidenceLabel).toBe("Partial coverage");
+    expect(resolved[0]?.evidenceRefCount).toBe(2);
+  });
+
   it("buildFindingWireSnapshotsForRunDetail maps ids to wire snapshots", () => {
     const detail = {
       run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },

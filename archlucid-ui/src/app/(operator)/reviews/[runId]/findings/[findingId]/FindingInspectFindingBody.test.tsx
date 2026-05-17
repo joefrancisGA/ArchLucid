@@ -44,6 +44,14 @@ describe("FindingInspectFindingBody", () => {
     expect(screen.queryByText("View AI Reasoning")).toBeNull();
     expect(screen.queryByText("AI Audit Inspection")).toBeNull();
     expect(screen.getByRole("heading", { name: "Audit" })).toBeTruthy();
+
+    const headings = screen.getAllByRole("heading").map((h) => h.textContent ?? "");
+    const evIdx = headings.indexOf("Evidence citations");
+    const recIdx = headings.indexOf("Recommended action");
+
+    expect(evIdx).toBeGreaterThanOrEqual(0);
+    expect(recIdx).toBeGreaterThanOrEqual(0);
+    expect(evIdx).toBeLessThan(recIdx);
   });
 
   it("inspect variant exposes reasoning and structured payload dumps", () => {

@@ -63,9 +63,9 @@ Turn **Grafana** panels and **Prometheus** alerts on authority-pipeline and data
 
 - **Rule:** `archlucid_authority_pipeline_work_pending > 50` for **15m** (`infra/prometheus/archlucid-alerts.yml`).
 - **Remediation order:**
-  1. **Worker health:** confirm worker Container App / job is running, not crash-looping, and processing the **authority** queue profile.
+  1. **Worker health:** confirm worker Container App / job is running, not crash-looping, and draining **`AuthorityPipelineWorkOutbox`** (SQL consumer paths — not Azure Storage Queue unless durable export jobs are enabled).
   2. **SQL tier:** check DTU/vCore saturation, blocking sessions, and failover state (**`DATABASE_FAILOVER.md`** if geo event).
-  3. **Scale out** worker replicas when SQL is healthy but **CPU** or **claim rate** lags demand (see **`infra/README.md`** → **`terraform-container-apps`** scaling levers).
+  3. **Scale capacity:** when SQL is healthy but processing lags sustained demand — raise **`worker_max_replicas`** / **`worker_min_replicas`** in **`infra/terraform-container-apps`** (**`infra/terraform-container-apps/README.md`** § Background services). When **`background_jobs_mode = "Durable"`**, enable **`worker_enable_queue_depth_scaling`** + **`worker_queue_scale_connection_string`** so KEDA **azure-queue** adds replicas as **Azure Storage Queue** backlog grows (**export/async jobs**, not SQL outbox row count). For **tenant noisy-neighbor isolation**, tune **`ArchLucid:AuthorityPipeline:Concurrency`** (per-tenant slot caps).
   4. **Deep inspection:** use admin outbox diagnostics for **stuck** `RunId`s; correlate with **`TRACE_A_RUN.md`**.
 
 ### 8.3 Stale oldest row — `ArchLucidAuthorityPipelineWorkStale`

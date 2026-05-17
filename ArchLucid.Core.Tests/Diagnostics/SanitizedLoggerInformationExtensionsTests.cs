@@ -402,4 +402,44 @@ public sealed class SanitizedLoggerInformationExtensionsTests
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("logger");
     }
+
+    [Fact]
+    public void LogInformationAgentExecutionStateTransition_emits_run_states_and_task_ids()
+    {
+        Mock<ILogger> mock = new();
+        mock.Setup(l => l.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+
+        string? rendered = null;
+
+        mock.Setup(m => m.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(new InvocationAction(invocation =>
+            {
+                Delegate formatter = (Delegate)invocation.Arguments[4];
+                object state = invocation.Arguments[2];
+                object ex = invocation.Arguments[3];
+                rendered = formatter.DynamicInvoke(state, ex) as string;
+            }));
+
+        Guid runId = Guid.Parse("6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501");
+
+        mock.Object.LogInformationAgentExecutionStateTransition(
+            runId,
+            "agent_batch_executing",
+            "agent_results_persisting",
+            "task-a,task-b");
+
+        rendered.Should().NotBeNull();
+        string text = rendered!;
+
+        text.Should().Contain("Agent execution state transition");
+        text.Should().Contain(runId.ToString());
+        text.Should().Contain("agent_batch_executing");
+        text.Should().Contain("agent_results_persisting");
+        text.Should().Contain("task-a,task-b");
+    }
 }

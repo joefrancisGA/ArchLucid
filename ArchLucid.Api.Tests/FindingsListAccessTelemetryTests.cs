@@ -14,7 +14,8 @@ public sealed class FindingsListAccessTelemetryTests
     public void LogFindingSnapshotExpose_emits_information_with_counters_and_scope_ids()
     {
         RecordingLoggerProvider provider = new();
-        using LoggerFactory lf = LoggerFactory.Create(b =>
+
+        using ILoggerFactory lf = LoggerFactory.Create(b =>
         {
             b.ClearProviders();
 

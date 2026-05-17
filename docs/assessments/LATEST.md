@@ -62,7 +62,7 @@
 - **Weight:** 8
 - **Weighted deficiency signal:** 128
 - **Justification:** The execution model is solid, incorporating the **`ManifestSuperseded`** durable path per **`docs/library/AUDIT_COVERAGE_MATRIX.md`**.
-- **Tradeoffs:** Read-path **`FindingsListAccessed`** stays intentionally unaudited until a stable bulk-list contract exists; RLS migrations remain coordination-heavy.
+- **Tradeoffs:** Durable **`FindingsListAccessed`** remains **intentionally deferred** until a stable bulk-list contract exists; **`2026-05-17`** adds structured **application** logs on canonical findings-snapshot reads (authority run detail + explain surfaces) so access patterns can be reviewed before committing matrix audit writes. RLS migrations remain coordination-heavy.
 - **Improvement recommendations:** Track honest **`108`** replay notes where catalogs lag (**migration header**).
 
 ### 4. Proof-of-ROI Readiness
@@ -93,9 +93,9 @@
 - **Score:** 75
 - **Weight:** 2
 - **Weighted deficiency signal:** 50
-- **Justification:** A durable audit trail exists, and the SOC 2 self-assessment is complete. **Finalize supersession** now emits **`ManifestSuperseded`** (**2026-05-15**); residual gaps are limited to explicit matrix deferrals (e.g. **`FindingsListAccessed`** read path).
+- **Justification:** A durable audit trail exists, and the SOC 2 self-assessment is complete. **Finalize supersession** now emits **`ManifestSuperseded`** (**2026-05-15**); residual gaps are limited to explicit matrix deferrals (**`FindingsListAccessed`** durable read path stays deferred — **application**-level telemetry for findings snapshot reads landed **2026-05-17** ahead of pinning that audit event).
 - **Tradeoffs:** Self-assessment is faster and cheaper than CPA attestation but carries less weight with enterprise buyers.
-- **Improvement recommendations:** Keep matrix reviews green when adding HTTP mutations; track **`FindingsListAccessed`** only when a list endpoint ships.
+- **Improvement recommendations:** Keep matrix reviews green when adding HTTP mutations; emit durable **`FindingsListAccessed`** only when bulk-list semantics are pinned (application telemetry for read patterns ships **2026-05-17**).
 
 ### 8. Commercial Packaging Readiness
 - **Score:** 86
@@ -143,7 +143,7 @@
 - **Weighted deficiency signal:** 18
 - **Justification:** OpenTelemetry, Serilog, and replay diagnostics provide good visibility.
 - **Tradeoffs:** Standard observability tools require operator expertise to configure and monitor effectively.
-- **Improvement recommendations:** Add explicit logging for agent state machine transitions.
+- **Improvement recommendations:** None for **`Agent execution state transition`** Information logs (**#7**, **completed 2026-05-17**); residual gap is LLM-specific OpenTelemetry (see weakness **#5** in Top 8).
 
 ### 14. Time-to-Value
 - **Score:** 85
@@ -214,8 +214,8 @@
 - **Weight:** 1
 - **Weighted deficiency signal:** 20
 - **Justification:** Scales well horizontally.
-- **Tradeoffs:** Single-tenant worker pool exhaustion is a known risk requiring rate limiting.
-- **Improvement recommendations:** Implement auto-scaling rules for the worker pool based on queue depth.
+- **Tradeoffs:** Single-tenant worker pool exhaustion is still a risk if replicas, queue autoscale, and concurrency caps are misconfigured.
+- **Improvement recommendations:** Operational autoscale levers are documented and available in **`infra/terraform-container-apps`** (**#6**, **completed 2026-05-17**); continue measuring authority SQL backlog separately from Azure queue depth and add an external/Prometheus scaler later if product demands automatic scale on **`archlucid_authority_pipeline_work_pending`** alone.
 
 ### 23. Supportability
 - **Score:** 82
@@ -231,7 +231,7 @@
 - **Weighted deficiency signal:** 16
 - **Justification:** Strong unit/integration tests plus merge-blocking **`ui-e2e-live`** golden-path coverage (**#14**, **2026-05-16**) and **`live-api-negative-paths`** (**#8**).
 - **Tradeoffs:** Default **`ui-e2e-smoke`** remains mock-heavy — fast churn coverage without standing up SQL on every PR.
-- **Improvement recommendations:** Prefer targeted **`live-api-*.spec.ts`** additions when a high-risk surface stays mock-only; golden-path **`live-api-journey`** / **`live-api-core-pilot-path`** already merge-block via **`ui-e2e-live`** (**#14**, **2026-05-16**).
+- **Improvement recommendations:** Prefer targeted **`live-api-*.spec.ts`** additions for any remaining high-risk mock-only surfaces (**#5** added showcase manifest round-trip + structured compare UI asserts **2026-05-17**); golden-path **`live-api-journey`** / **`live-api-core-pilot-path`** already merge-block via **`ui-e2e-live`** (**#14**, **2026-05-16**).
 
 ### 25. Cognitive Load
 - **Score:** 76
@@ -251,16 +251,15 @@
 
 ---
 
-## Top 8 Most Important Weaknesses
+## Top 7 Most Important Weaknesses
 
 1. Absence of cross-tenant analytics, limiting Proof-of-ROI for enterprise buyers.
-2. **Mock-backed default smoke breadth:** **`ui-e2e-smoke`** still relies heavily on mocked **`/api/proxy`** for wide route coverage — merge-blocking **`ui-e2e-live`** now validates the operator golden spine on **real API + ephemeral SQL CI** (**#14**, **`live-api-journey`** / **`live-api-core-pilot-path`**) alongside negatives (**#8**, **`live-api-negative-paths.spec.ts`**).
+2. **Mock-backed default smoke breadth:** **`ui-e2e-smoke`** still relies heavily on mocked **`/api/proxy`** for wide route coverage — merge-blocking **`ui-e2e-live`** validates the operator golden spine on **real API + ephemeral SQL CI** (**#14**, **`live-api-journey`** / **`live-api-core-pilot-path`**) alongside negatives (**#8**, **`live-api-negative-paths.spec.ts`**) and additional live parity for manifest/compare (**#5**, **2026-05-17**).
 3. Manual nature of some cost estimations in the Azure extractor (distinct from comparison replay payload heuristics — **#11** **closed 2026-05-16**).
-4. **Agent orchestration noisy-neighbor mitigation (narrow residual):** Per-tenant **`AuthorityPipeline:Concurrency`** slots and SQL lease-backed counting (**#11 backlog**, **2026-05-16**) cap concurrent heavy-stage work; bursts still justify queue/offload telemetry and alerting when leases approach limits.
+4. **Agent orchestration noisy-neighbor mitigation (narrow residual):** Per-tenant **`AuthorityPipeline:Concurrency`** slots and SQL lease-backed counting (**#11 backlog**, **2026-05-16**) cap concurrent heavy-stage work; **Improvement 9 (2026-05-17)** adds Prometheus/Grafana + runbook coverage for backlog, staleness, and dead-letter signals. **Residual:** rightsizing replicas, optional KEDA queue autoscale, and per-environment slot caps.
 5. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
 6. **Durable Task Framework (narrow residual):** Legacy vs DTF **adapter** multiset parity is CI-gated (`ArchLucid.Host.Composition.Tests` / `AuthorityOrchestratorAdapterParityTests`); **`release-smoke`** supports **`-AuthorityPipelineDtfSmoke`** for tenant SQL + gRPC validation. Remaining work is **worker/engine scheduling depth** and optional DI cleanup once main stays green — not a commitment-gap for GA reads.
 7. **Operational script auth realism (narrow residual):** `v1-rc-drill.ps1` accepts **`-BearerToken`** / **`-ApiKey`** (**#3**, **2026-05-16**); other scripts may remain DevelopmentBypass-assumptive; JwtBearer drills still rely on **`ARCHLUCID_API_KEY`** for CLI detailed **`/health/diagnostics`** probes (JWT covers script REST).
-8. **Lack of explicit logging for agent state machine transitions:** Makes it difficult to observe and debug complex agent orchestrations in production.
 
 ---
 
@@ -287,8 +286,8 @@
 ## Top 5 Engineering Risks
 
 1. **Durable Task Framework (narrow residual):** Wrapper-level parity vs the Legacy adapter is enforced in host composition tests; **`release-smoke -AuthorityPipelineDtfSmoke`** exercises tenant SQL with **`ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint`** set. Remaining: deeper engine-native scheduling/observability and optional removal of redundant registration paths after sustained green main — not the prior “no multiset tests” gap.
-2. **E2E test mock reliance (residual):** **`ui-e2e-smoke`** still uses mocked **`/api/proxy`** for most routes; golden-path integration is covered by merge-blocking **`ui-e2e-live`** (**#14**, **2026-05-16**) — extend live specs when a surface is mock-only and high-risk.
-3. **Agent orchestration parallelism observability:** Concurrency leases cap tenant fan-out (**#11 backlog**, **2026-05-16**); operators still need dashboards on wait times / dead letters when workers queue behind saturated slots.
+2. **E2E test mock reliance (residual):** **`ui-e2e-smoke`** still uses mocked **`/api/proxy`** for most routes; golden-path integration is covered by merge-blocking **`ui-e2e-live`** (**#14**, **2026-05-16**) plus showcase manifest round-trip + structured compare assertions (**#5**, **2026-05-17**) — extend live specs when remaining mock-only surfaces are high-risk.
+3. **Agent orchestration parallelism observability (narrow residual):** Concurrency leases cap tenant fan-out (**#11 backlog**, **2026-05-16**); **Improvement 9 (2026-05-17)** exposes backlog depth, oldest-pending age, and dead-letter gauges with alert rules (**`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`**). **Residual:** threshold tuning per environment; optional future explicit metering of tenant slot **acquire** wait separate from outbox row age.
 4. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
 5. **Operational script auth realism (narrow residual):** Beyond **`v1-rc-drill.ps1`** JWT/API key support (**#3**, **2026-05-16**), some scripts remain DevelopmentBypass-assumptive; CLI JWT parity for probes that require ReadAuthority remains a tooling gap versus API-key env (`ARCHLUCID_API_KEY`).
 
@@ -315,11 +314,11 @@ In `archlucid-ui` navigation and home CTAs, default to the four-step pilot path 
 - Acceptance criteria: First-time evaluators see a narrow path; power users can still reach advanced routes.
 ```
 
-2. **Add targeted API telemetry for finding list paths**
-- Why it matters: The `FindingsListAccessed` durable read path remains intentionally unaudited. Adding telemetry prepares this path for future auditability.
+2. **Add targeted API telemetry for finding list paths** (**completed 2026-05-17**)
+- Why it matters: The `FindingsListAccessed` durable read path remains intentionally unaudited. Structured application logging now samples read patterns so durable audit wiring can wait for a pinned bulk-list contract without flying blind operationally.
 - Expected impact: Compliance Readiness (+3 pts), Observability (+2 pts).
 - Affected qualities: Compliance Readiness, Observability.
-- Actionable: Yes
+- Actionable: Yes (**done** — `ArchLucid.Api`: `FindingsListAccessTelemetry` logs `FindingCount`, scope IDs, run id, and surface name on **`GET`** authority run detail and on **`explain`** run explain + aggregate; **no** `IAuditService` / matrix event yet.)
 
 ```markdown
 Add explicit application-level logging to the findings list API endpoints so read-access patterns can be evaluated before committing them to the durable audit matrix.
@@ -350,31 +349,31 @@ Implement status sync between ArchLucid review/findings state and ServiceNow cha
 - Acceptance criteria: Status change in ArchLucid updates ServiceNow and vice versa in a developer-instance integration test.
 ```
 
-5. **Extend live API specs for high-risk mock-only surfaces**
-- Why it matters: Mock-backed default smoke breadth relies on mocked /api/proxy. Live specs close this gap.
+5. **Extend live API specs for high-risk mock-only surfaces** (**completed 2026-05-17**)
+- Why it matters: Mock-backed default smoke breadth relies on mocked `/api/proxy`. Live specs close regressions against real Sql + Api.
 - Expected impact: Correctness (+3 pts), Reliability (+2 pts).
 - Affected qualities: Correctness, Reliability.
-- Actionable: Yes
+- Actionable: Yes (**done** — `archlucid-ui`: new **`live-api-review-manifest-roundtrip.spec.ts`** (showcase **`/reviews/claims-intake-modernization`** → outcome **Finalized** manifest → manifest detail → breadcrumb back to review); **`live-api-compare-runs`** now asserts **`#compare-structured`** plus **`comparisonRequestOutcomePanel`** after URL-driven compare along with **`OperatorPageHeader`** title variants. **Residual:** other mock-heavy surfaces (`compare-proxy-mock`, etc.) remain smoke-only unless promote risk warrants another live slice.)
 
 ```markdown
 Add targeted `live-api-*.spec.ts` additions for high-risk surfaces that currently stay mock-only. Ensure golden-path integration is fully covered by `ui-e2e-live`.
 ```
 
-6. **Implement auto-scaling rules for the worker pool**
+6. **Implement auto-scaling rules for the worker pool** (**completed 2026-05-17 — IaC baseline**)
 - Why it matters: Prevents single-tenant worker pool exhaustion which is a known risk.
 - Expected impact: Scalability (+3 pts), Reliability (+2 pts).
 - Affected qualities: Scalability, Reliability.
-- Actionable: Yes
+- Actionable: Yes (**done** — **`infra/terraform-container-apps`** ships optional KEDA **`azure-queue`** replica scaling (`worker_enable_queue_depth_scaling`, `worker_queue_depth_target_messages_per_revision`, connection-string secret) for **durable** background jobs plus **`worker_min_replicas` / `worker_max_replicas`** guards; **`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`** §8.2 and **`infra/terraform-container-apps/README.md`** now distinguish **Azure queue depth** (export jobs) vs **SQL authority outbox** depth and point operators at replica + **`ArchLucid:AuthorityPipeline:Concurrency`** levers for the latter.)
 
 ```markdown
 Implement auto-scaling rules for the worker pool based on queue depth to prevent noisy neighbor and pool exhaustion.
 ```
 
-7. **Add explicit logging for agent state machine transitions**
+7. **Add explicit logging for agent state machine transitions** (**completed 2026-05-17**)
 - Why it matters: Makes it easier to observe and debug complex agent orchestrations in production.
 - Expected impact: Observability (+3 pts), AI/Agent Readiness (+2 pts).
 - Affected qualities: Observability, AI/Agent Readiness.
-- Actionable: Yes
+- Actionable: Yes (**done** — Information-level **`Agent execution state transition`** via **`SanitizedLoggerInformationExtensions`** (EventIds **3012**/**3013**): **`AuthorityRunOrchestrator`** (inline + queued authority), **`AuthorityPipelineWorkProcessor`** (deferred outbox + task materialization), **`ArchitectureRunExecuteOrchestrator`** (execute batch); **`AgentExecutionStateTransitionTaskIds`** formats task id lists; triage in **`docs/runbooks/AGENT_EXECUTION_FAILURES.md`** §3a.)
 
 ```markdown
 Ensure detailed Information-level logs are emitted for `Agent execution state transition` with run id, current/next states, and task identifiers.
@@ -390,11 +389,11 @@ Ensure detailed Information-level logs are emitted for `Agent execution state tr
 Update operational scripts to accept optional parameters for a JWT bearer token or API key, removing the assumption of `DevelopmentBypass`.
 ```
 
-9. **Add queue/offload telemetry and alerting for worker bursts**
+9. **Add queue/offload telemetry and alerting for worker bursts** (**completed 2026-05-17**)
 - Why it matters: Agent orchestration bursts still justify queue and offload telemetry when leases approach limits.
 - Expected impact: Observability (+3 pts), Performance (+2 pts).
 - Affected qualities: Observability, Performance.
-- Actionable: Yes
+- Actionable: Yes (**done** — observable gauges **`archlucid_authority_pipeline_work_dead_letter`** / **`archlucid_integration_event_outbox_dead_letter`** plus backlog + **`archlucid_authority_pipeline_work_oldest_pending_age_seconds`** (**`ArchLucidInstrumentation`** / **`OutboxOperationalMetricsHostedService`**); Prometheus rules **`ArchLucidAuthorityPipelineWorkDeadLetters`**, **`ArchLucidIntegrationEventOutboxDeadLetter`**, **`ArchLucidAuthorityPipelineWorkBacklog`**, **`ArchLucidAuthorityPipelineWorkStale`** in **`infra/prometheus/archlucid-alerts.yml`**; operator panels/import path in **`infra/grafana/dashboard-archlucid-authority.json`** and remediation steps in **`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`**. **Residual:** tune **`for`/threshold exprs** per fleet; optional dedicated histogram for tenant concurrency **slot acquisition** latency.)
 
 ```markdown
 Add dashboards and alerting on wait times and dead letters when workers queue behind saturated slots.

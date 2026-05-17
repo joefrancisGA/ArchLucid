@@ -13,6 +13,7 @@ import {
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
+import { comparisonRequestOutcomePanel } from "./helpers/operator-journey";
 
 function buildCreateBody(suffix: string): Record<string, unknown> {
   return {
@@ -77,9 +78,15 @@ test.describe("live-api-compare-runs", () => {
 
     await page.goto(`/compare?leftRunId=${encodeURIComponent(runIdA)}&rightRunId=${encodeURIComponent(runIdB)}`);
 
-    await expect(page.getByRole("heading", { name: /compare runs/i }).first()).toBeVisible({
+    await expect(
+      page.getByRole("heading", { level: 2, name: /Compare reviews|Review change comparison/i }).first(),
+    ).toBeVisible({
       timeout: 60_000,
     });
+
+    await expect(page.locator("#compare-structured")).toBeVisible({ timeout: 120_000 });
+
+    await expect(comparisonRequestOutcomePanel(page)).toBeVisible({ timeout: 60_000 });
   });
 
   test("compare with missing right run returns 404", async ({ request }) => {

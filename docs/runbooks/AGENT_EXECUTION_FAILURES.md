@@ -39,6 +39,9 @@
 3. **Inspect traces**  
    When SQL storage is enabled, `dbo.AgentExecutionTraces` (and logs) show parse success/failure and redacted prompts. Correlation: **RunId** + **TaskId**.
 
+3a. **Structured state-transition logs**  
+   At **Information**, search for the message prefix **`Agent execution state transition`** (EventIds **3012** / **3013** in `SanitizedLoggerInformationExtensions`). Each line includes **`RunId`**, **`CurrentState`**, **`NextState`**, and **`TaskIds`** (comma-separated task ids, or `(none)`). Authority create/resume paths log via **`AuthorityRunOrchestrator`**; deferred outbox work adds **`AuthorityPipelineWorkOutboxId`** from **`AuthorityPipelineWorkProcessor`**; **`POST …/execute`** logs **`execute_enter` → `agent_batch_executing` → `agent_results_persisting` → `execute_complete`** in **`ArchitectureRunExecuteOrchestrator`**.
+
 4. **Schema validation**  
    Invalid agent JSON may fail merge or persistence. Ensure schema files configured under `SchemaValidation:*SchemaPath` exist on the host and match the contract version.
 

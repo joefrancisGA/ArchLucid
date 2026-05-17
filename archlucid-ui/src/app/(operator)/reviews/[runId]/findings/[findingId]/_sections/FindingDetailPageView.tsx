@@ -62,6 +62,8 @@ export function FindingDetailPageView(props: Props) {
 
   const confidenceLevel = inspectPayload?.confidenceLevel ?? null;
   const evaluationScore = inspectPayload?.evaluationConfidenceScore ?? null;
+
+  return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <nav className="flex flex-wrap items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
         <Link

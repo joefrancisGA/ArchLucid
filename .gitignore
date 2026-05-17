@@ -58,6 +58,9 @@ dlldata.c
 # Benchmark Results
 BenchmarkDotNet.Artifacts/
 
+# GitHub Actions blame/hang dumps downloaded locally (multi-GB; must not enter git history)
+_gh_artifacts/
+
 # .NET Core
 project.lock.json
 project.fragment.lock.json

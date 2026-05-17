@@ -1,5 +1,5 @@
 import type { RunDetail } from "@/types/authority";
-import type { FindingTraceConfidenceDto, RunExplanationSummary } from "@/types/explanation";
+import type { FindingConfidenceLevel, FindingTraceConfidenceDto, RunExplanationSummary } from "@/types/explanation";
 
 /**
  * Persisted architecture finding wire snapshot for "AI reasoning" deep-dive UI.
@@ -25,7 +25,59 @@ export type QuickDecisionFinding = {
   /** When true, hidden from default quick-decision list until "Show muted" is enabled. */
   isMuted: boolean;
   muteReason: string | null;
+  /** Coarse evaluation confidence when present on the wire or merged from explainability rows. */
+  confidenceLevel?: FindingConfidenceLevel | null;
+  /** Persisted 0–100-style score when serializable on the wire or explainability row. */
+  evaluationConfidenceScore?: number | null;
+  /** Trace completeness / label from aggregate explainability when overlaid. */
+  traceConfidenceLabel?: string | null;
+  /** Evidence reference count (finding `evidenceRefs` or explainability row); used for graph deep-link UX. */
+  evidenceRefCount?: number | null;
 };
+
+function normalizeConfidenceLevelFromWire(raw: unknown): FindingConfidenceLevel | null {
+  if (raw === null || raw === undefined) {
+    return null;
+  }
+
+  if (raw === "High" || raw === "Medium" || raw === "Low") {
+    return raw;
+  }
+
+  if (typeof raw === "number" && Number.isFinite(raw)) {
+    const n = Math.trunc(raw);
+
+    if (n === 0) {
+      return "High";
+    }
+
+    if (n === 1) {
+      return "Medium";
+    }
+
+    if (n === 2) {
+      return "Low";
+    }
+  }
+
+  if (typeof raw === "string") {
+    const lower = raw.trim().toLowerCase();
+
+    if (lower === "high") {
+      return "High";
+    }
+
+    if (lower === "medium") {
+      return "Medium";
+    }
+
+    if (lower === "low") {
+      return "Low";
+    }
+  }
+
+  return null;
+}
 
 export function firstRecommendationSentence(text: string): string {
   const t = text.trim();
@@ -160,6 +212,11 @@ function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto, order:
     wireJson = '{"error":"finding_trace_row_not_json_serializable"}';
   }
 
+  const evidenceRefCount =
+    typeof row.evidenceRefCount === "number" && Number.isFinite(row.evidenceRefCount) && row.evidenceRefCount > 0
+      ? Math.trunc(row.evidenceRefCount)
+      : null;
+
   return {
     findingId,
     title,
@@ -169,6 +226,16 @@ function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto, order:
     aiReasoning: { wireJson, reasoningTrace: recommendation },
     isMuted: false,
     muteReason: null,
+    confidenceLevel: normalizeConfidenceLevelFromWire(row.confidenceLevel),
+    evaluationConfidenceScore:
+      typeof row.evaluationConfidenceScore === "number" && Number.isFinite(row.evaluationConfidenceScore)
+        ? row.evaluationConfidenceScore
+        : null,
+    traceConfidenceLabel:
+      typeof row.traceConfidenceLabel === "string" && row.traceConfidenceLabel.trim().length > 0
+        ? row.traceConfidenceLabel.trim()
+        : null,
+    evidenceRefCount,
   };
 }
 
@@ -244,6 +311,23 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
       const muteReason =
         typeof muteReasonRaw === "string" && muteReasonRaw.trim().length > 0 ? muteReasonRaw.trim() : null;
 
+      const evidenceRefsRaw = fr.evidenceRefs;
+      let evidenceRefCount: number | null = null;
+
+      if (Array.isArray(evidenceRefsRaw)) {
+        const n = evidenceRefsRaw.filter((x) => typeof x === "string" && String(x).trim().length > 0).length;
+
+        if (n > 0) {
+          evidenceRefCount = n;
+        }
+      }
+
+      const evaluationRaw = fr.evaluationConfidenceScore;
+      const evaluationConfidenceScore =
+        typeof evaluationRaw === "number" && Number.isFinite(evaluationRaw) ? Math.trunc(evaluationRaw) : null;
+
+      const confidenceLevel = normalizeConfidenceLevelFromWire(fr.confidenceLevel);
+
       out.push({
         findingId,
         title,
@@ -253,11 +337,84 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         aiReasoning: { wireJson, reasoningTrace: reasoning },
         isMuted,
         muteReason,
+        confidenceLevel,
+        evaluationConfidenceScore,
+        traceConfidenceLabel: null,
+        evidenceRefCount,
       });
     }
   }
 
   return out;
+}
+
+function pickPositiveEvidenceRefCount(
+  a: number | null | undefined,
+  b: number | null | undefined,
+): number | null {
+  const na = typeof a === "number" && Number.isFinite(a) && a > 0 ? Math.trunc(a) : 0;
+  const nb = typeof b === "number" && Number.isFinite(b) && b > 0 ? Math.trunc(b) : 0;
+  const m = Math.max(na, nb);
+
+  return m > 0 ? m : null;
+}
+
+function mergeQuickDecisionFindingsWithExplanationTraces(
+  findings: QuickDecisionFinding[],
+  summary: RunExplanationSummary | null,
+): QuickDecisionFinding[] {
+  const rows = findingTraceRowsFromSummary(summary);
+
+  if (rows.length === 0) {
+    return findings;
+  }
+
+  const byId = new Map<string, FindingTraceConfidenceDto>();
+
+  for (const row of rows) {
+    const id = typeof row.findingId === "string" ? row.findingId.trim() : "";
+
+    if (id.length > 0) {
+      byId.set(id, row);
+    }
+  }
+
+  return findings.map((f) => {
+    const row = byId.get(f.findingId.trim());
+
+    if (row === undefined) {
+      return f;
+    }
+
+    const fromRowLevel = normalizeConfidenceLevelFromWire(row.confidenceLevel);
+    const confidenceLevel = f.confidenceLevel ?? fromRowLevel ?? null;
+
+    const fromRowScore =
+      typeof row.evaluationConfidenceScore === "number" && Number.isFinite(row.evaluationConfidenceScore)
+        ? row.evaluationConfidenceScore
+        : null;
+    const evaluationConfidenceScore = f.evaluationConfidenceScore ?? fromRowScore ?? null;
+
+    const traceLabelFromRow =
+      typeof row.traceConfidenceLabel === "string" && row.traceConfidenceLabel.trim().length > 0
+        ? row.traceConfidenceLabel.trim()
+        : null;
+    const traceConfidenceLabel = f.traceConfidenceLabel ?? traceLabelFromRow ?? null;
+
+    const rowErc =
+      typeof row.evidenceRefCount === "number" && Number.isFinite(row.evidenceRefCount) && row.evidenceRefCount > 0
+        ? Math.trunc(row.evidenceRefCount)
+        : null;
+    const evidenceRefCount = pickPositiveEvidenceRefCount(f.evidenceRefCount, rowErc);
+
+    return {
+      ...f,
+      confidenceLevel,
+      evaluationConfidenceScore,
+      traceConfidenceLabel,
+      evidenceRefCount,
+    };
+  });
 }
 
 /**
@@ -270,31 +427,33 @@ export function resolveQuickDecisionFindingsForRunDetail(
 ): QuickDecisionFinding[] {
   const fromDetail = extractQuickDecisionFindingsFromRunDetail(detail);
 
+  let base: QuickDecisionFinding[];
+
   if (fromDetail.length > 0) {
-    return fromDetail;
-  }
+    base = fromDetail;
+  } else {
+    const traces = findingTraceRowsFromSummary(explanationSummary);
 
-  const traces = findingTraceRowsFromSummary(explanationSummary);
-
-  if (traces.length === 0) {
-    return [];
-  }
-
-  const out: QuickDecisionFinding[] = [];
-  let order = 0;
-
-  for (const row of traces) {
-    const mapped = quickDecisionFindingFromTraceRow(row, order);
-
-    if (mapped === null) {
-      continue;
+    if (traces.length === 0) {
+      return [];
     }
 
-    out.push(mapped);
-    order += 1;
+    base = [];
+    let order = 0;
+
+    for (const row of traces) {
+      const mapped = quickDecisionFindingFromTraceRow(row, order);
+
+      if (mapped === null) {
+        continue;
+      }
+
+      base.push(mapped);
+      order += 1;
+    }
   }
 
-  return out;
+  return mergeQuickDecisionFindingsWithExplanationTraces(base, explanationSummary);
 }
 
 /** Map of finding id → wire snapshot for any row that lists findings (e.g. explainability table). */

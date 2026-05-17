@@ -101,9 +101,9 @@ export function FindingInspectFindingBody({
     return (
       <>
         {whyBlock}
+        {evidenceBlock}
         {recommendedBlock("detail")}
         {feedbackBlock}
-        {evidenceBlock}
         {auditBlock}
       </>
     );

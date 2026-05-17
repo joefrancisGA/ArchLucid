@@ -251,4 +251,50 @@ public static partial class SanitizedLoggerInformationExtensions
 
         EmitFirstValueReportRunNotFound(logger, safeRunId);
     }
+
+    /// <summary>
+    ///     Logs an authority or execute orchestration state transition (run id, current/next state labels, task id list).
+    /// </summary>
+    public static void LogInformationAgentExecutionStateTransition(
+        this ILogger logger,
+        Guid runId,
+        string currentState,
+        string nextState,
+        string taskIds)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeCurrentState = LogSanitizer.Sanitize(currentState);
+        string safeNextState = LogSanitizer.Sanitize(nextState);
+        string safeTaskIds = LogSanitizer.Sanitize(taskIds);
+
+        EmitAgentExecutionStateTransition(logger, runId, safeCurrentState, safeNextState, safeTaskIds);
+    }
+
+    /// <summary>
+    ///     Same as <see cref="LogInformationAgentExecutionStateTransition" /> with deferred authority outbox correlation.
+    /// </summary>
+    public static void LogInformationAgentExecutionStateTransitionDeferredOutbox(
+        this ILogger logger,
+        Guid runId,
+        string currentState,
+        string nextState,
+        string taskIds,
+        string userOutboxId)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeCurrentState = LogSanitizer.Sanitize(currentState);
+        string safeNextState = LogSanitizer.Sanitize(nextState);
+        string safeTaskIds = LogSanitizer.Sanitize(taskIds);
+        string safeOutboxId = LogSanitizer.Sanitize(userOutboxId);
+
+        EmitAgentExecutionStateTransitionDeferredOutbox(
+            logger,
+            runId,
+            safeCurrentState,
+            safeNextState,
+            safeTaskIds,
+            safeOutboxId);
+    }
 }

@@ -145,4 +145,29 @@ public static partial class SanitizedLoggerInformationExtensions
         Level = LogLevel.Information,
         Message = "First-value report: run {RunId} not found.")]
     private static partial void EmitFirstValueReportRunNotFound(ILogger logger, string runId);
+
+    [LoggerMessage(
+        EventId = 3012,
+        Level = LogLevel.Information,
+        Message =
+            "Agent execution state transition: RunId={RunId}, CurrentState={CurrentState}, NextState={NextState}, TaskIds={TaskIds}")]
+    private static partial void EmitAgentExecutionStateTransition(
+        ILogger logger,
+        Guid runId,
+        string currentState,
+        string nextState,
+        string taskIds);
+
+    [LoggerMessage(
+        EventId = 3013,
+        Level = LogLevel.Information,
+        Message =
+            "Agent execution state transition: RunId={RunId}, CurrentState={CurrentState}, NextState={NextState}, TaskIds={TaskIds}, AuthorityPipelineWorkOutboxId={OutboxId}")]
+    private static partial void EmitAgentExecutionStateTransitionDeferredOutbox(
+        ILogger logger,
+        Guid runId,
+        string currentState,
+        string nextState,
+        string taskIds,
+        string outboxId);
 }

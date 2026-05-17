@@ -84,16 +84,45 @@ describe("QuickDecisionSummary", () => {
 
     render(<QuickDecisionSummary runId="run-abc" findings={findings} />);
 
-    const links = screen.getAllByRole("link");
+    const findingDetailLinks = screen.getAllByRole("link").filter((el) => {
+      const href = el.getAttribute("href") ?? "";
 
-    expect(links).toHaveLength(3);
-    expect(links.map((el) => el.getAttribute("href"))).toEqual([
+      return href.includes("/reviews/run-abc/findings/") && !href.includes("/graph");
+    });
+
+    expect(findingDetailLinks).toHaveLength(3);
+    expect(findingDetailLinks.map((el) => el.getAttribute("href"))).toEqual([
       "/reviews/run-abc/findings/f-critical",
       "/reviews/run-abc/findings/f-high",
       "/reviews/run-abc/findings/f-extra",
     ]);
 
     expect(screen.getByText("Fix immediately.")).toBeInTheDocument();
+  });
+
+  it("shows View evidence graph link when synthetic evidence ref count is present", () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        findingId: "f1",
+        title: "Risk",
+        recommendation: "Mitigate.",
+        severityValue: 2,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        evidenceRefCount: 1,
+        confidenceLevel: "Medium",
+      },
+    ];
+
+    render(<QuickDecisionSummary runId="run-z" findings={findings} />);
+
+    const ev = screen.getByTestId("quick-decision-view-evidence");
+
+    expect(ev).toBeInTheDocument();
+    expect(ev.getAttribute("href") ?? "").toContain("/graph?");
+    expect(ev.getAttribute("href") ?? "").toContain("runId=run-z");
   });
 
   it("has no serious axe violations", async () => {

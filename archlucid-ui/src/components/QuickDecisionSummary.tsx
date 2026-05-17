@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { ReactElement } from "react";
 
 import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
+import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -20,6 +21,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { postFindingMute } from "@/lib/api";
+import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
+import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
   firstRecommendationSentence,
@@ -146,6 +149,12 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                     ? firstRecommendationSentence(f.recommendation)
                     : "See finding detail for recommended actions.";
                 const badgeLabel = severityBadgeLabel(f.severityValue);
+                const graphFocusId = preferredGraphNodeIdForFindingDeepLink(props.runId, f.findingId);
+                const evidenceRefCount = f.evidenceRefCount ?? 0;
+                const viewEvidenceHref =
+                  evidenceRefCount > 0 || graphFocusId !== null
+                    ? graphTrailHrefWithOptionalNode(props.runId, graphFocusId)
+                    : null;
 
                 return (
                   <li key={f.findingId} className="pl-1">
@@ -154,6 +163,9 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                         <span className="sr-only">Severity </span>
                         {badgeLabel}
                       </span>
+                      {f.confidenceLevel === "High" || f.confidenceLevel === "Medium" || f.confidenceLevel === "Low" ? (
+                        <FindingConfidenceBadge level={f.confidenceLevel} />
+                      ) : null}
                       {f.isMuted ? (
                         <span className={`${badgeBase} border-neutral-300 bg-neutral-100 text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200`}>
                           Muted
@@ -166,6 +178,13 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                         <span className="sr-only">Finding {f.findingId}: </span>
                         {f.title}
                       </Link>
+                      {viewEvidenceHref !== null ? (
+                        <Button type="button" size="sm" variant="outline" className="h-8 shrink-0 text-xs" asChild>
+                          <Link href={viewEvidenceHref} data-testid="quick-decision-view-evidence">
+                            View evidence
+                          </Link>
+                        </Button>
+                      ) : null}
                       <Button
                         type="button"
                         size="sm"
@@ -196,6 +215,23 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                         </Button>
                       ) : null}
                     </div>
+                    {f.traceConfidenceLabel !== null &&
+                    f.traceConfidenceLabel !== undefined &&
+                    f.traceConfidenceLabel.trim().length > 0 ? (
+                      <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                        Evaluation trace: {f.traceConfidenceLabel}
+                      </p>
+                    ) : null}
+                    {f.evaluationConfidenceScore !== null &&
+                    f.evaluationConfidenceScore !== undefined &&
+                    Number.isFinite(f.evaluationConfidenceScore) &&
+                    (f.confidenceLevel !== "High" &&
+                      f.confidenceLevel !== "Medium" &&
+                      f.confidenceLevel !== "Low") ? (
+                      <p className="m-0 mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+                        Evaluation score {Math.round(f.evaluationConfidenceScore)}
+                      </p>
+                    ) : null}
                     {snippet.length > 0 ? (
                       <p className="m-0 mt-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{snippet}</p>
                     ) : null}

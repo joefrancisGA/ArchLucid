@@ -457,14 +457,6 @@ public sealed class AuthorityRunOrchestrator(
 
     private void LogAgentExecutionStateTransition(Guid runId, string currentState, string nextState, string taskIds)
     {
-        if (!logger.IsEnabled(LogLevel.Information))
-            return;
-
-        logger.LogInformation(
-            "Agent execution state transition: RunId={RunId}, CurrentState={CurrentState}, NextState={NextState}, TaskIds={TaskIds}",
-            runId,
-            currentState,
-            nextState,
-            taskIds);
+        logger.LogInformationAgentExecutionStateTransition(runId, currentState, nextState, taskIds);
     }
 }

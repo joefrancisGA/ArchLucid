@@ -196,6 +196,16 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
             await _evidencePackageInjectionMitigator.RedactKnownInjectionPatternsAsync(evidence, cancellationToken);
 
+            string scheduledTaskIds = AgentExecutionStateTransitionTaskIds.Format(tasks.ToList());
+
+            if (TryParseRunGuid(runId, out Guid executeTransitionRunId))
+
+                logger.LogInformationAgentExecutionStateTransition(
+                    executeTransitionRunId,
+                    "execute_enter",
+                    "agent_batch_executing",
+                    scheduledTaskIds);
+
             IReadOnlyList<AgentResult> results;
 
             try
@@ -234,9 +244,25 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                     partial.CompletedResults.Count);
             }
 
+            if (TryParseRunGuid(runId, out Guid afterBatchRunId))
+
+                logger.LogInformationAgentExecutionStateTransition(
+                    afterBatchRunId,
+                    "agent_batch_executing",
+                    "agent_results_persisting",
+                    scheduledTaskIds);
+
             IReadOnlyList<AgentEvaluation> evaluations =
                 await agentEvaluationService.EvaluateAsync(runId, request, evidence, tasks, results, cancellationToken);
             await PersistExecutePhaseAsync(evidence, results, evaluations, cancellationToken);
+
+            if (TryParseRunGuid(runId, out Guid afterPersistRunId))
+
+                logger.LogInformationAgentExecutionStateTransition(
+                    afterPersistRunId,
+                    "agent_results_persisting",
+                    "execute_complete",
+                    scheduledTaskIds);
             try
             {
                 await outputTraceEvaluationHook.AfterSuccessfulExecuteAsync(runId, cancellationToken);
