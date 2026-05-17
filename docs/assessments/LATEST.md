@@ -491,11 +491,11 @@ Extend the Azure extractor to automate cost estimations across a broader set of 
 Add a CI step that parses `docs/library/AUDIT_COVERAGE_MATRIX.md` and fails the build if new `POST`/`PUT`/`DELETE` API endpoints lack documented audit events.
 ```
 
-19. **Refine error handling and retry logic in background data archival**
+19. **Refine error handling and retry logic in background data archival** (**completed 2026-05-17**)
 - Why it matters: Data archival runs in the background; improved error handling ensures orphaned blobs are eventually scavenged without manual intervention.
 - Expected impact: Reliability (+3 pts), Maintainability (+2 pts).
 - Affected qualities: Reliability, Maintainability.
-- Actionable: Yes
+- Actionable: Yes (**done**.)
 
 ```markdown
 Update `DataArchivalHostHealthCheck` and the underlying archival services to implement exponential backoff and dead-letter queues for failed blob deletions.
