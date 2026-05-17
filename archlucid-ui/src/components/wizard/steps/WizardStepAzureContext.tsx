@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { AzureExtractorPackageZipField } from "@/components/wizard/steps/AzureExtractorPackageZipField";
 import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
 import { showError, showSuccess } from "@/lib/toast";
 
@@ -22,11 +23,14 @@ export function WizardStepAzureContext() {
         </h2>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
           Run read-only ARM inventory packaging from your ArchLucid checkout, then attach the ZIP when configuring
-          ingestion or uploads for this tenant. Narrow scope with{" "}
+          ingestion or uploads for this tenant. You can also parse the packager ZIP locally to prefill the wizard (below).
+          Narrow scope with{" "}
           <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">-ResourceGroupScope</code> when
           you only need one resource group.
         </p>
       </div>
+
+      <AzureExtractorPackageZipField variant="ingest" />
 
       <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-950/80">
         <div className="flex flex-wrap items-center justify-between gap-2">

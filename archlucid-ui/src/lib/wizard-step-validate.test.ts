@@ -33,4 +33,12 @@ describe("validateWizardStep", () => {
     const err = validateWizardStep(1, v);
     expect(err.some((e) => e.field === "description")).toBe(true);
   });
+
+  it("maps baseline UI step 2 to identity picks", () => {
+    const v = buildDefaultWizardValues();
+    v.systemName = "";
+
+    const err = validateWizardStep(2, v, { baselineFirst: true });
+    expect(err.some((e) => e.field === "systemName")).toBe(true);
+  });
 });

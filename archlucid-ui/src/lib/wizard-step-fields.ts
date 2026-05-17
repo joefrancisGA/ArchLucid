@@ -1,7 +1,5 @@
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
-import { validateWizardStep } from "@/lib/wizard-step-validate";
-
 /** RHF field groups validated before leaving each step (0 = preset; 6 = pipeline — N/A for Next). */
 export const WIZARD_STEP_FIELD_GROUPS: Record<number, (keyof WizardFormValues)[] | null> = {
   0: null,
@@ -20,17 +18,24 @@ export const WIZARD_STEP_FIELD_GROUPS: Record<number, (keyof WizardFormValues)[]
 };
 
 /**
- * True when the current step fails the same Zod partial validation as {@link validateWizardStep}
- * (aligned with Next / Submit gating in NewRunWizardClient).
+ * UI step index for `NewRunWizardClient` — maps baseline-first (`?baseline=1`) steps onto
+ * {@link WIZARD_STEP_FIELD_GROUPS} (baseline inserts ZIP at UI step 1; identity shifts to UI step 2).
  */
-export function stepHasBlockingFormErrors(stepIndex: number, values: WizardFormValues): boolean {
-  if (stepIndex < 1 || stepIndex > 4) {
-    return false;
+export function getWizardStepFieldGroup(
+  stepIndex: number,
+  baselineFirst: boolean,
+): (keyof WizardFormValues)[] | null {
+  if (!baselineFirst) {
+    const legacy = WIZARD_STEP_FIELD_GROUPS[stepIndex];
+
+    return legacy ?? null;
   }
 
-  if (stepIndex === 3) {
-    return false;
+  if (stepIndex <= 1) {
+    return null;
   }
 
-  return validateWizardStep(stepIndex, values).length > 0;
+  const legacyIndex = stepIndex - 1;
+
+  return WIZARD_STEP_FIELD_GROUPS[legacyIndex] ?? null;
 }

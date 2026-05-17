@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-import { wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
 import { WIZARD_STEP_FIELD_GROUPS } from "@/lib/wizard-step-fields";
+import { wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
 
 const stepPickSchema: Record<number, z.ZodTypeAny | null> = {
   0: null,
@@ -28,13 +28,62 @@ const stepPickSchema: Record<number, z.ZodTypeAny | null> = {
 
 export type WizardStepFieldError = { field: string; message: string };
 
+export type ValidateWizardStepOptions = {
+  baselineFirst?: boolean;
+};
+
+function wizardStepAllowedFields(stepIndex: number, baselineFirst: boolean): (keyof WizardFormValues)[] {
+  if (!baselineFirst) {
+    return WIZARD_STEP_FIELD_GROUPS[stepIndex] ?? [];
+  }
+
+  if (stepIndex <= 1) {
+    return [];
+  }
+
+  const legacyIndex = stepIndex - 1;
+
+  return WIZARD_STEP_FIELD_GROUPS[legacyIndex] ?? [];
+}
+
+function resolvePickSchemaIndex(uiStep: number, baselineFirst: boolean): number | null {
+  if (!baselineFirst) {
+    if (uiStep <= 0 || uiStep > 6) {
+      return null;
+    }
+
+    return uiStep;
+  }
+
+  if (uiStep < 2) {
+    return null;
+  }
+
+  if (uiStep > 6) {
+    return null;
+  }
+
+  return uiStep - 1;
+}
+
 /**
  * Per-step Zod `pick` validation. Empty array = valid to advance. Used on Next, not async.
  */
-export function validateWizardStep(stepIndex: number, values: WizardFormValues): WizardStepFieldError[] {
-  const sub = stepPickSchema[stepIndex];
+export function validateWizardStep(
+  stepIndex: number,
+  values: WizardFormValues,
+  options?: ValidateWizardStepOptions,
+): WizardStepFieldError[] {
+  const baselineFirst = options?.baselineFirst === true;
+  const pickIndex = resolvePickSchemaIndex(stepIndex, baselineFirst);
 
-  if (sub === null) {
+  if (pickIndex === null) {
+    return [];
+  }
+
+  const sub = stepPickSchema[pickIndex];
+
+  if (sub === null || sub === undefined) {
     return [];
   }
 
@@ -44,9 +93,7 @@ export function validateWizardStep(stepIndex: number, values: WizardFormValues):
     return [];
   }
 
-  const allowed = new Set<string>(
-    (WIZARD_STEP_FIELD_GROUPS[stepIndex] ?? []) as string[],
-  );
+  const allowed = new Set<string>(wizardStepAllowedFields(stepIndex, baselineFirst) as string[]);
   if (allowed.size === 0) {
     return [];
   }
@@ -65,4 +112,26 @@ export function validateWizardStep(stepIndex: number, values: WizardFormValues):
     }
   }
   return [...byPath].map(([field, message]) => ({ field, message }));
+}
+
+/**
+ * True when the current step fails the same Zod partial validation as {@link validateWizardStep}
+ * (aligned with Next / Submit gating in NewRunWizardClient).
+ */
+export function stepHasBlockingFormErrors(
+  stepIndex: number,
+  values: WizardFormValues,
+  baselineFirst: boolean,
+): boolean {
+  if (baselineFirst) {
+    if (stepIndex < 2 || stepIndex > 5 || stepIndex === 1 || stepIndex === 4) {
+      return false;
+    }
+  } else {
+    if (stepIndex < 1 || stepIndex > 4 || stepIndex === 3) {
+      return false;
+    }
+  }
+
+  return validateWizardStep(stepIndex, values, { baselineFirst }).length > 0;
 }

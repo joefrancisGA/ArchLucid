@@ -10,6 +10,7 @@ import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { WizardStepAdvanced } from "@/components/wizard/steps/WizardStepAdvanced";
 import { WizardStepAzureContext } from "@/components/wizard/steps/WizardStepAzureContext";
+import { WizardStepBaselineZip } from "@/components/wizard/steps/WizardStepBaselineZip";
 import { WizardStepConstraints } from "@/components/wizard/steps/WizardStepConstraints";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
 import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity";
@@ -26,7 +27,7 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
-import { WIZARD_STEP_FIELD_GROUPS } from "@/lib/wizard-step-fields";
+import { getWizardStepFieldGroup } from "@/lib/wizard-step-fields";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
@@ -37,7 +38,7 @@ import { buildDefaultWizardValues, wizardFormSchema, type WizardFormValues } fro
 import { QuickStartWizard } from "./QuickStartWizard";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
-const WIZARD_STEP_DEFINITIONS = [
+const WIZARD_STEP_DEFINITIONS_FULL = [
   { label: "Choose starting point", description: "Template, import, or blank" },
   { label: "Identity & goals", description: "System, environment & requirements" },
   { label: "Constraints", description: "Limits & capabilities" },
@@ -46,6 +47,58 @@ const WIZARD_STEP_DEFINITIONS = [
   { label: "Review", description: "Confirm & create" },
   { label: "Pipeline", description: "Track progress" },
 ] as const;
+
+const WIZARD_STEP_DEFINITIONS_BASELINE = [
+  WIZARD_STEP_DEFINITIONS_FULL[0],
+  { label: "Upload extractor ZIP", description: "Packager output (read-only inventory)" },
+  WIZARD_STEP_DEFINITIONS_FULL[1],
+  WIZARD_STEP_DEFINITIONS_FULL[2],
+  WIZARD_STEP_DEFINITIONS_FULL[3],
+  WIZARD_STEP_DEFINITIONS_FULL[4],
+  WIZARD_STEP_DEFINITIONS_FULL[5],
+  WIZARD_STEP_DEFINITIONS_FULL[6],
+] as const;
+
+const STEP_INDEX_MAX_FULL = WIZARD_STEP_DEFINITIONS_FULL.length - 1;
+const STEP_INDEX_MAX_BASELINE = WIZARD_STEP_DEFINITIONS_BASELINE.length - 1;
+
+function macroWizardStepIndex(stepIndex: number, baselineFirst: boolean): number {
+  if (!baselineFirst) {
+    if (stepIndex <= 1) {
+      return 0;
+    }
+
+    if (stepIndex <= 4) {
+      return 1;
+    }
+
+    if (stepIndex === 5) {
+      return 2;
+    }
+
+    return 3;
+  }
+
+  if (stepIndex <= 2) {
+    return 0;
+  }
+
+  if (stepIndex <= 5) {
+    return 1;
+  }
+
+  if (stepIndex === 6) {
+    return 2;
+  }
+
+  return 3;
+}
+
+function macroCompletedSteps(stepIndex: number, baselineFirst: boolean): number[] {
+  const macro = macroWizardStepIndex(stepIndex, baselineFirst);
+
+  return Array.from({ length: macro }, (_, index) => index);
+}
 
 /** High-level phases (four sponsor-visible milestones across internal wizard slides). */
 const MACRO_WIZARD_STEP_DEFINITIONS = [
@@ -56,30 +109,6 @@ const MACRO_WIZARD_STEP_DEFINITIONS = [
 ] as const;
 
 const WIZARD_DRAFT_STORAGE_KEY = "archlucid_new_run_wizard_draft_v1";
-
-const STEP_INDEX_MAX = WIZARD_STEP_DEFINITIONS.length - 1;
-
-function macroWizardStepIndex(stepIndex: number): number {
-  if (stepIndex <= 1) {
-    return 0;
-  }
-
-  if (stepIndex <= 4) {
-    return 1;
-  }
-
-  if (stepIndex === 5) {
-    return 2;
-  }
-
-  return 3;
-}
-
-function macroCompletedSteps(stepIndex: number): number[] {
-  const macro = macroWizardStepIndex(stepIndex);
-
-  return Array.from({ length: macro }, (_, index) => index);
-}
 
 const SAMPLE_RUN_GUID_RE =
   /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$|^[0-9a-fA-F]{32}$/;
@@ -113,6 +142,12 @@ export function NewRunWizardClient() {
 
     return tryParseSampleRunQuery(raw);
   }, [searchParams]);
+  const baselineFirst = useMemo(() => searchParams?.get("baseline") === "1", [searchParams]);
+  const stepDefinitions = baselineFirst ? WIZARD_STEP_DEFINITIONS_BASELINE : WIZARD_STEP_DEFINITIONS_FULL;
+  const stepMax: number = baselineFirst ? STEP_INDEX_MAX_BASELINE : STEP_INDEX_MAX_FULL;
+  const reviewStepIndex: number = baselineFirst ? 6 : 5;
+  const trackStepIndex: number = baselineFirst ? 7 : 6;
+
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
@@ -142,8 +177,7 @@ export function NewRunWizardClient() {
   }, []);
 
   const { summary: pollSummary } = useRunSummaryStream(runId, {
-      enabled:
-      runId !== null && (wizardMode === "quick" ? true : stepIndex === 6),
+    enabled: runId !== null && (wizardMode === "quick" ? true : stepIndex === trackStepIndex),
   });
 
   const form = useForm<WizardFormValues>({
@@ -175,6 +209,24 @@ export function NewRunWizardClient() {
   }, [searchParams]);
 
   useEffect(() => {
+    if (!baselineFirst) {
+      return;
+    }
+
+    setWizardMode("full");
+
+    try {
+      window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "full");
+    } catch {
+      /* ignore */
+    }
+  }, [baselineFirst]);
+
+  useEffect(() => {
+    if (baselineFirst) {
+      return;
+    }
+
     let cancelled = false;
 
     void (async () => {
@@ -202,24 +254,24 @@ export function NewRunWizardClient() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [baselineFirst]);
 
   useEffect(() => {
     if (operatorHomeExampleKey !== OPERATOR_HOME_EXAMPLE_QUERY_VALUE) {
       return;
     }
 
-    if (stepIndex >= 1) {
+    if (stepIndex >= (baselineFirst ? 2 : 1)) {
       setValue("systemName", OPERATOR_HOME_EXAMPLE_SYSTEM_NAME, { shouldValidate: true, shouldDirty: true });
       setValue("description", OPERATOR_HOME_EXAMPLE_DESCRIPTION, { shouldValidate: true, shouldDirty: true });
     }
-  }, [operatorHomeExampleKey, setValue, stepIndex]);
+  }, [operatorHomeExampleKey, setValue, stepIndex, baselineFirst]);
 
   useEffect(() => {
-    if (stepIndex !== 5) {
+    if (stepIndex !== reviewStepIndex) {
       setSubmitError(null);
     }
-  }, [stepIndex]);
+  }, [stepIndex, reviewStepIndex]);
 
   const canProceed = !submitting;
   const canSubmit = !submitting && !blocksLlmExecution;
@@ -242,8 +294,8 @@ export function NewRunWizardClient() {
     }
   }, [getValues, stepIndex]);
 
-  const completedMacroSteps: number[] = macroCompletedSteps(stepIndex);
-  const macroStep = macroWizardStepIndex(stepIndex);
+  const completedMacroSteps: number[] = macroCompletedSteps(stepIndex, baselineFirst);
+  const macroStep: number = macroWizardStepIndex(stepIndex, baselineFirst);
 
   const liveMessage =
     runId === null
@@ -272,7 +324,7 @@ export function NewRunWizardClient() {
       return;
     }
 
-    const fieldGroup = WIZARD_STEP_FIELD_GROUPS[stepIndex];
+    const fieldGroup = getWizardStepFieldGroup(stepIndex, baselineFirst);
     if (fieldGroup != null) {
       const ok = await trigger(fieldGroup, { shouldFocus: true });
       if (!ok) {
@@ -281,7 +333,7 @@ export function NewRunWizardClient() {
       }
     }
 
-    setStepIndex((current) => Math.min(STEP_INDEX_MAX, current + 1));
+    setStepIndex((current) => Math.min(stepMax, current + 1));
   };
 
   const submitRun = async () => {
@@ -314,7 +366,7 @@ export function NewRunWizardClient() {
       }
 
       setRunId(id);
-      setStepIndex(6);
+      setStepIndex(trackStepIndex);
       recordFirstTenantFunnelEvent("first_run_started");
       showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
     } catch (error: unknown) {
@@ -332,11 +384,14 @@ export function NewRunWizardClient() {
     }
   };
 
-  const showNav = stepIndex < 6;
-  const isFirstStep = stepIndex === 0;
-  const isReviewStep = stepIndex === 5;
+  const showNav: boolean = stepIndex < trackStepIndex;
+  const isFirstStep: boolean = stepIndex === 0;
+  const isReviewStep: boolean = stepIndex === reviewStepIndex;
   const showQuickTrack = wizardMode === "quick" && runId !== null;
   const showFullWizardShell = wizardMode === "full" && !showQuickTrack;
+  const fullWizardStepCountLabel: number = baselineFirst
+    ? WIZARD_STEP_DEFINITIONS_BASELINE.length
+    : WIZARD_STEP_DEFINITIONS_FULL.length;
 
   return (
     <FormProvider {...form}>
@@ -374,7 +429,7 @@ export function NewRunWizardClient() {
                 aria-pressed={wizardMode === "full"}
                 onClick={() => persistWizardMode("full")}
               >
-                Full Wizard (7 steps)
+                Full Wizard ({fullWizardStepCountLabel} steps)
               </button>
             </div>
           ) : null}
@@ -413,7 +468,7 @@ export function NewRunWizardClient() {
               className="m-0 text-sm text-neutral-500 dark:text-neutral-400"
               data-testid="new-run-wizard-step-line"
             >
-              Step {stepIndex + 1}: {WIZARD_STEP_DEFINITIONS[stepIndex].label}
+              Step {stepIndex + 1}: {stepDefinitions[stepIndex].label}
             </p>
             </div>
             <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
@@ -428,7 +483,7 @@ export function NewRunWizardClient() {
             completedSteps={completedMacroSteps}
           />
 
-          {stepIndex >= 1 && stepIndex <= 5 ? (
+          {stepIndex >= 1 && stepIndex <= reviewStepIndex && !(baselineFirst && stepIndex === 1) ? (
             <div
               className="rounded-lg border border-teal-200/80 bg-teal-50/50 px-3 py-2 text-sm text-neutral-800 dark:border-teal-900/60 dark:bg-teal-950/30 dark:text-neutral-200"
               data-testid="new-run-wizard-step-recap"
@@ -470,22 +525,26 @@ export function NewRunWizardClient() {
 
           {stepIndex === 0 ? (
             <WizardStepPreset
+              baselineFirst={baselineFirst}
               featuredSampleRunId={featuredSampleRunId}
               onStartingPointCommitted={() => setStepIndex(1)}
               onWizardNotice={(kind, message) => showToast(kind === "ok" ? "ok" : "err", message)}
             />
           ) : null}
-          {stepIndex === 1 ? (
+          {stepIndex === 1 && baselineFirst ? <WizardStepBaselineZip /> : null}
+          {stepIndex === (baselineFirst ? 2 : 1) ? (
             <div className="space-y-8">
               <WizardStepIdentity />
               <WizardStepDescription />
             </div>
           ) : null}
-          {stepIndex === 2 ? <WizardStepConstraints /> : null}
-          {stepIndex === 3 ? <WizardStepAzureContext /> : null}
-          {stepIndex === 4 ? <WizardStepAdvanced /> : null}
-          {stepIndex === 5 ? <WizardStepReview /> : null}
-          {stepIndex === 6 && runId ? <WizardStepTrack runId={runId} pollSummary={pollSummary} /> : null}
+          {stepIndex === (baselineFirst ? 3 : 2) ? <WizardStepConstraints /> : null}
+          {stepIndex === (baselineFirst ? 4 : 3) ? <WizardStepAzureContext /> : null}
+          {stepIndex === (baselineFirst ? 5 : 4) ? <WizardStepAdvanced /> : null}
+          {stepIndex === reviewStepIndex ? <WizardStepReview /> : null}
+          {stepIndex === trackStepIndex && runId ? (
+            <WizardStepTrack runId={runId} pollSummary={pollSummary} />
+          ) : null}
 
           {showNav ? (
             <div
@@ -531,7 +590,7 @@ export function NewRunWizardClient() {
             </div>
           ) : null}
 
-          {stepIndex === 6 && !runId ? (
+          {stepIndex === trackStepIndex && !runId ? (
             <p className="text-sm text-red-600">Review id missing; cannot track pipeline.</p>
           ) : null}
 

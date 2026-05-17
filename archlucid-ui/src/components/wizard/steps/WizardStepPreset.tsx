@@ -29,6 +29,8 @@ function verticalTemplateActionLabel(preset: WizardPreset): string {
 }
 
 export type WizardStepPresetProps = {
+  /** When true, preset step explains the `?baseline=1` ZIP-first path (already on that route). */
+  baselineFirst?: boolean;
   /** Optional hook for analytics/tests when a named preset is applied (not fired for “Use defaults”). */
   onPresetSelect?: (presetId: string) => void;
   /** Trial onboarding: highlight the seeded demo run created for this tenant. */
@@ -47,7 +49,7 @@ export type WizardStepPresetProps = {
  * Step 1: pick a preset or start from scratch (`reset` with defaults).
  */
 export function WizardStepPreset(props: WizardStepPresetProps = {}) {
-  const { onPresetSelect, featuredSampleRunId, onWizardNotice, onStartingPointCommitted } = props;
+  const { baselineFirst, onPresetSelect, featuredSampleRunId, onWizardNotice, onStartingPointCommitted } = props;
   const { reset, getValues } = useFormContext<WizardFormValues>();
   const [secondRunPaste, setSecondRunPaste] = useState("");
   const [importOpen, setImportOpen] = useState(false);
@@ -138,7 +140,23 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
                 Use a sample (preset deep link)
               </Link>
             </Button>
+            {baselineFirst !== true ? (
+              <Button asChild variant="outline" size="sm" type="button">
+                <Link href="/reviews/new?baseline=1" data-testid="wizard-baseline-first-link">
+                  Baseline-first (ZIP before identity)
+                </Link>
+              </Button>
+            ) : null}
           </div>
+          {baselineFirst === true ? (
+            <p
+              className="m-0 rounded-md border border-teal-200/80 bg-teal-50/70 px-3 py-2 text-sm text-teal-950 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-50"
+              data-testid="wizard-baseline-path-active-notice"
+            >
+              Baseline-first path: upload the Azure extractor ZIP on the next step, then confirm system identity and
+              brief.
+            </p>
+          ) : null}
         </div>
       }
     >

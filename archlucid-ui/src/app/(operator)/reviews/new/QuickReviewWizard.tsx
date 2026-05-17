@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -321,13 +321,21 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
  * Toggle at the top of `/reviews/new`: Quick review (default) vs full detailed wizard (existing client).
  */
 export function ReviewsNewPathSwitcher() {
+  const searchParams = useSearchParams();
+  const baselineFirst = searchParams?.get("baseline") === "1";
   const [pathMode, setPathMode] = useState<"quick-review" | "detailed">("quick-review");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setPathMode(readStoredPathMode());
+    if (baselineFirst) {
+      setPathMode("detailed");
+      persistPathMode("detailed");
+    } else {
+      setPathMode(readStoredPathMode());
+    }
+
     setReady(true);
-  }, []);
+  }, [baselineFirst]);
 
   const selectQuick = () => {
     setPathMode("quick-review");
