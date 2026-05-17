@@ -14,7 +14,7 @@ internal static class ArchLucidJwtBearerConfiguration
 {
     internal static void Apply(JwtBearerOptions options, ArchLucidAuthOptions authOptions, IConfiguration configuration)
     {
-        string pemPath = authOptions.JwtSigningPublicKeyPemPath.Trim();
+        string pemPath = (authOptions.JwtSigningPublicKeyPemPath ?? string.Empty).Trim();
 
         if (!string.IsNullOrEmpty(pemPath))
         {

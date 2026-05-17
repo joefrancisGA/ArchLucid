@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Auth.Services;
 
@@ -49,16 +48,16 @@ public static class AuthServiceCollectionExtensions
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                .AddJwtBearer(static _ => { })
+                .AddJwtBearer(options =>
+                {
+                    ArchLucidAuthOptions jwtAuthOptions = ArchLucidAuthConfigurationBridge.Resolve(configuration);
+                    ArchLucidJwtBearerConfiguration.Apply(options, jwtAuthOptions, configuration);
+                })
                 .AddScheme<AuthenticationSchemeOptions, ScimBearerAuthenticationHandler>(
                     ScimBearerDefaults.AuthenticationScheme,
                     _ =>
                     {
                     });
-
-            // Register as IConfigureOptions<> (enumerable); registering only IConfigureNamedOptions<> is not picked up by OptionsFactory.
-            services.TryAddEnumerable(
-                ServiceDescriptor.Singleton<IConfigureOptions<JwtBearerOptions>, ArchLucidJwtBearerOptionsConfigurer>());
         }
 
         else if (string.Equals(authOptions.Mode, "ApiKey", StringComparison.OrdinalIgnoreCase))
