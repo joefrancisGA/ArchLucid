@@ -93,7 +93,7 @@
 | # | Task | Milestone | Reason deferred |
 |---|------|-----------|-----------------|
 | M-30 | Publish CAF / Azure landing-zone use case claim with bundled curated policy pack | V1.1 | CAF pack deferred to V1.1 per `LATEST.md` and `V1_DEFERRED.md` |
-| M-31 | Solo architect self-serve SaaS pricing page ($49–$199/month) and public self-serve checkout | V2 | Stripe live keys deferred to V1.1; self-serve funnel deferred to V2; no public $ band in first 90 days per `LATEST.md` Marketing alignment Q7; prefer **demand signal** from service-led engagements before positioning self-serve as primary motion |
+| M-31 | Solo architect self-serve SaaS pricing page (monthly tier bands per [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) §5) and public self-serve checkout | V2 | Stripe live keys deferred to V1.1; self-serve funnel deferred to V2; no public $ band in first 90 days per `LATEST.md` Marketing alignment Q7; prefer **demand signal** from service-led engagements before positioning self-serve as primary motion |
 | M-32 | Reference customer / design partner case study publication | V1.1 | Depends on signed pilot and `reference-customers/PUBLICATION_CHECKLIST.md` clearance |
 | M-33 | Cross-tenant portfolio ROI analytics marketing claim | V2 | Cross-tenant analytics deferred to V2 per `V1_DEFERRED.md` |
 
