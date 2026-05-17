@@ -8,7 +8,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 ## Executive Summary
 
 ### (A) Overall Headline Readiness
-ArchLucid is a functionally complete V1 product with a solid architectural foundation (84.03% readiness). It successfully executes the core pilot loop (request → execute → commit → manifest) and provides strong governance and traceability features. The integration of native SAML 2.0 SP, curated default policy packs, and consultant whitelabeling significantly strengthens the V1 GA offering. The primary remaining gaps are in observability (LLM tracing), test automation for new integrations, and cross-tenant analytics.
+ArchLucid is a functionally complete V1 product with a solid architectural foundation (84.03% readiness). It successfully executes the core pilot loop (request → execute → commit → manifest) and provides strong governance and traceability features. The integration of native SAML 2.0 SP, curated default policy packs, and consultant whitelabeling significantly strengthens the V1 GA offering. The primary remaining gaps are in observability (LLM tracing) and test automation for new integrations.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. The lack of automated tenant data deletion (GDPR/CCPA) will also trigger privacy reviews.
@@ -54,9 +54,9 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Score:** 80
 - **Weight:** 5
 - **Weighted deficiency signal:** 100
-- **Justification:** The Azure extractor provides cost data, and the comparison replay cost estimator is useful. However, the lack of cross-tenant analytics limits portfolio-wide executive proof.
-- **Tradeoffs:** Tenant isolation (database-per-tenant) makes cross-tenant analytics harder to implement securely.
-- **Improvement recommendations:** Implement cross-tenant analytics for portfolio-wide insights.
+- **Justification:** The Azure extractor provides cost data, the comparison replay cost estimator is useful, and internal pseudonymized cross-tenant daily rollups (`dbo.InternalCrossTenantRollupDaily`, operator-only APIs) support portfolio-wide executive proof without exposing tenant identity in rollup stores.
+- **Tradeoffs:** Rollup salt rotation changes surrogate keys; production operators must configure Key Vault salt and apply migration `170` before relying on SQL rollups.
+- **Improvement recommendations:** None for cross-tenant analytics (completed 2026-05-17); continue hardening Azure cost automation for per-tenant ROI narratives.
 
 ### 5. Adoption Friction
 - **Score:** 85
@@ -230,7 +230,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 
 ## Top 12 Most Important Weaknesses
 
-1. **Lack of cross-tenant analytics:** Limits portfolio-wide executive proof and internal product telemetry.
+1. ~~**Lack of cross-tenant analytics**~~ **Completed 2026-05-17:** Pseudonymized internal daily rollups shipped (`InternalCrossTenantRollupDaily`, `GET/POST /v1/internal/analytics/cross-tenant/daily*`, runbook `docs/runbooks/INTERNAL_CROSS_TENANT_ANALYTICS.md`).
 2. **Missing LLM observability:** Lack of explicit OpenTelemetry tracing for LLM token usage and latency hinders cost attribution and debugging.
 3. **E2E test mock reliance:** `ui-e2e-smoke` relies heavily on mocked `/api/proxy`, leaving integration surfaces vulnerable to regressions.
 4. **Manual Azure cost estimations:** The Azure extractor requires manual cost estimation for many resource types, limiting automated ROI proof.
@@ -247,7 +247,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 
 ## Top 6 Monetization Blockers
 
-1. **Lack of cross-tenant analytics:** Limits the ability to prove portfolio-wide ROI to executive buyers.
+1. ~~**Lack of cross-tenant analytics**~~ **Completed 2026-05-17** (internal operator rollups; not a tenant-facing or marketing claim).
 2. **Manual Azure cost estimations:** Reduces the platform's ability to automatically prove hard infrastructure savings.
 3. **Lack of a published reference customer:** Slows early momentum and trust generation (deferred to V1.1).
 4. **Lack of self-serve transactability:** Stripe live keys and Marketplace publication are deferred, forcing a high-touch sales motion.
@@ -287,10 +287,12 @@ ArchLucid is a functionally complete, highly rigorous V1 product ready for sales
 ## Top Improvement Opportunities
 
 ### 1. Implement internal cross-tenant analytics rollups with tenant pseudonymization
+- **Status:** Completed (2026-05-17)
 - **Why it matters:** Proves portfolio-wide ROI signal for founders/operators and supports internal product telemetry without exposing tenant identity in rollups.
 - **Expected impact:** Proof-of-ROI Readiness (+10 pts), Executive Value Visibility (+5 pts).
 - **Affected qualities:** Proof-of-ROI Readiness, Executive Value Visibility.
-- **Actionable:** Yes
+- **Actionable:** No
+- **Completion evidence:** Migration `170_InternalCrossTenantRollupDaily.sql`; `AnalyticsTenantKeyDeriver` + `InternalCrossTenantRollupHostedService`; operator routes `GET/POST /v1/internal/analytics/cross-tenant/daily*` and CSV/JSON export; `docs/runbooks/INTERNAL_CROSS_TENANT_ANALYTICS.md`; tests in `AnalyticsTenantKeyDeriverTests`, `InMemoryInternalCrossTenantAnalyticsServiceTests`, `InternalCrossTenantAnalyticsEndpointTests`.
 ```text
 Add an internal-only cross-tenant analytics path (operator/admin or offline job — not a tenant-facing API) that aggregates non-sensitive counters and latency/throughput metrics across tenants.
 - Pseudonymization: every stored or exported rollup row must key tenants by an opaque surrogate (e.g. stable per-tenant `AnalyticsTenantKey` derived with HMAC-SHA256 over tenant id + server-side salt from configuration/Key Vault — never store tenant slug, domain, or display name in rollup tables).
@@ -300,6 +302,7 @@ Add an internal-only cross-tenant analytics path (operator/admin or offline job 
 - Constraints: No per-tenant opt-in UI; internal use only per product decision. Do not add new public HTTP routes without versioning review.
 - What not to change: Do not weaken per-tenant isolation on tenant-scoped APIs; do not copy customer content blobs into a shared analytics store.
 - Impact: Directly improves Proof-of-ROI Readiness (+6-10 pts) and Executive Value Visibility (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
+- Acceptance criteria met: (1) scheduled/on-demand daily rollups keyed by surrogate only; (2) rollup DDL has no PII/PHI tenant identity columns; (3) tests assert surrogate stability and no raw tenant id in exported CSV/JSON.
 ```
 
 ### 2. Add explicit OpenTelemetry tracing for LLM API calls
@@ -684,7 +687,7 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 3 (Integrations & Extractor):** 6, 13, 25
 - **Batch 4 (Architecture, infrastructure, tenant lifecycle):** 3, 7, 11, 17, 19, 20
 - **Batch 5 (UX & Dashboards):** 4, 8, 9, 10
-- **Batch 6 (Internal cross-tenant rollups):** 1
+- **Batch 6 (Internal cross-tenant rollups):** ~~1~~ completed 2026-05-17
 
 ---
 

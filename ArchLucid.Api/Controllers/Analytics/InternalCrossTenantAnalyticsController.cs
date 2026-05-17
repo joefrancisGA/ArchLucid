@@ -1,5 +1,8 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Models.Analytics;
 using ArchLucid.Core.Analytics;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 
 using Asp.Versioning;
@@ -18,11 +21,15 @@ namespace ArchLucid.Api.Controllers.Analytics;
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
-public sealed class InternalCrossTenantAnalyticsController(IInternalCrossTenantAnalyticsService analyticsService)
-    : ControllerBase
+public sealed class InternalCrossTenantAnalyticsController(
+    IInternalCrossTenantAnalyticsService analyticsService,
+    IAuditService auditService) : ControllerBase
 {
     private readonly IInternalCrossTenantAnalyticsService _analyticsService =
         analyticsService ?? throw new ArgumentNullException(nameof(analyticsService));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     /// <summary>Returns anonymized aggregates (usage volume, completion durations, telemetry-derived hours saved).</summary>
     [HttpGet("cross-tenant")]
@@ -53,7 +60,7 @@ public sealed class InternalCrossTenantAnalyticsController(IInternalCrossTenantA
         [FromQuery] DateOnly? rollupDate = null,
         CancellationToken cancellationToken = default)
     {
-        DateOnly date = rollupDate ?? DateOnly.FromDateTime(DateTime.UtcNow);
+        DateOnly date = ResolveRollupDate(rollupDate);
         IReadOnlyList<InternalCrossTenantRollupDailyRow> rows =
             await _analyticsService.GetDailyRollupsAsync(date, cancellationToken);
 
@@ -73,9 +80,20 @@ public sealed class InternalCrossTenantAnalyticsController(IInternalCrossTenantA
         [FromQuery] DateOnly? rollupDate = null,
         CancellationToken cancellationToken = default)
     {
-        DateOnly date = rollupDate ?? DateOnly.FromDateTime(DateTime.UtcNow);
+        DateOnly date = ResolveRollupDate(rollupDate);
 
         await _analyticsService.RefreshDailyRollupsAsync(date, cancellationToken);
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.InternalCrossTenantRollupRefreshed,
+                ActorUserId = User.Identity?.Name ?? "operator",
+                ActorUserName = User.Identity?.Name ?? "operator",
+                CorrelationId = HttpContext.TraceIdentifier,
+                DataJson = JsonSerializer.Serialize(new { rollupDate = date.ToString("yyyy-MM-dd") }),
+            },
+            cancellationToken);
 
         return NoContent();
     }
@@ -90,7 +108,7 @@ public sealed class InternalCrossTenantAnalyticsController(IInternalCrossTenantA
         [FromQuery] string format = "csv",
         CancellationToken cancellationToken = default)
     {
-        DateOnly date = rollupDate ?? DateOnly.FromDateTime(DateTime.UtcNow);
+        DateOnly date = ResolveRollupDate(rollupDate);
         IReadOnlyList<InternalCrossTenantRollupDailyRow> rows =
             await _analyticsService.GetDailyRollupsAsync(date, cancellationToken);
 
@@ -110,6 +128,9 @@ public sealed class InternalCrossTenantAnalyticsController(IInternalCrossTenantA
 
         return BadRequest("format must be csv or json.");
     }
+
+    private static DateOnly ResolveRollupDate(DateOnly? rollupDate) =>
+        rollupDate ?? DateOnly.FromDateTime(TimeProvider.System.GetUtcNow().UtcDateTime);
 
     private static InternalCrossTenantRollupDailyItemResponse MapDailyRow(InternalCrossTenantRollupDailyRow row) =>
         new()

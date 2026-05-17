@@ -1,9 +1,10 @@
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Host.Core.Hosting;
 
 namespace ArchLucid.Host.Composition.Startup;
 
-internal static partial class ServiceCollectionExtensions
+public static partial class ServiceCollectionExtensions
 {
     private static void RegisterInternalCrossTenantAnalytics(
         IServiceCollection services,

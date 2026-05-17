@@ -86,6 +86,9 @@ public static class AuditEventTypes
     /// <summary>Internal dev: POST <c>…/internal/architecture/runs/{{runId}}/seed-fake-results</c> succeeded.</summary>
     public const string InternalArchitectureFakeResultsSeeded = "InternalArchitectureFakeResultsSeeded";
 
+    /// <summary>Operator refresh of pseudonymized <c>dbo.InternalCrossTenantRollupDaily</c> for a UTC day.</summary>
+    public const string InternalCrossTenantRollupRefreshed = "InternalCrossTenantRollupRefreshed";
+
     /// <summary>
     ///     Operator diagnostics: synthetic markers from <c>POST /v1/diagnostics/synthetic-operator-demo-pack</c> (
     ///     <c>archlucid seed-demo-data</c>) for empty-tenant UI validation only.
