@@ -77,7 +77,7 @@ Use an Action to **`api.accessToken.setCustomClaim('roles', assignedRoles)`** wi
 
 If authenticated requests return **403** while **401** is gone, decode a sample token (non-production) and confirm **`roles`** contains at least one known **`ArchLucidRoles`** value. Unmapped roles are recorded in the auth diagnostics ring buffer (see **`ArchLucidRoleClaimsTransformation`**).
 
-Full RBAC table: **[SECURITY.md § Role-based access control](../library/SECURITY.md)**.
+Full RBAC table: **[SECURITY.md](../library/SECURITY.md)** (Role-based access control).
 
 ---
 
@@ -86,9 +86,9 @@ Full RBAC table: **[SECURITY.md § Role-based access control](../library/SECURIT
 | Symptom / log | Likely cause | What to verify |
 | --- | --- | --- |
 | **`IDX10501`** / signature validation failed | Wrong **`Authority`**, wrong signing key, or cached JWKS stale vs rotating keys | Confirm **`iss`** in JWT equals discovery **`issuer`**. Fetch **`openid-configuration`** and **`jwks_uri`** manually from the API network; compare **`kid`** in JWT header to a JWK entry. |
-| **`IDX10502`** / issuer mismatch | **`Authority`** base URL does not match token **`iss`** (trailing slash, wrong auth server path, realm typo) | Normalize issuer URL with IdP docs; for Okta use full **`oauth2/{serverId}`** path, not only org URL. |
-| **`IDX10503`** / audience invalid | **`ArchLucidAuth:Audience`** ≠ token **`aud`** | Remember **`aud`** can be a string or array — ArchLucid must match the configured audience string your IdP issues for this API. |
-| **`IDX10517`** / token not yet valid / expired | Clock skew or wrong **`nbf`/`exp`** | Sync VM/container time (NTP); check IdP clock. |
+| **`IDX10205`** / issuer validation failed | **`Authority`** base URL does not match token **`iss`** (trailing slash, wrong auth server path, realm typo) | Normalize issuer URL with IdP docs; for Okta use full **`oauth2/{serverId}`** path, not only org URL. |
+| **`IDX10214`** / audience validation failed | **`ArchLucidAuth:Audience`** ≠ token **`aud`** | Remember **`aud`** can be a string or array — ArchLucid must match the configured audience string your IdP issues for this API. Use **access tokens**, not ID tokens, when calling the API. |
+| **`IDX10223`** (typical) / lifetime validation failed | Clock skew or wrong **`nbf`/`exp`** | Sync VM/container time (NTP); check IdP clock. Exact IDX text varies slightly by **`Microsoft.IdentityModel.Tokens`** version — search logs for **`Lifetime`** / **`nbf`** / **`exp`**. |
 | Metadata fetch timeouts / TLS errors | Egress firewall, TLS inspection, proxy | Ensure API host can reach **`Authority`** HTTPS and JWKS URL; corporate proxies may need allowlisting. |
 | **401** then fixed without config change | JWKS rotation delay | Middleware caches signing keys; transient failures during rotation usually clear after refresh — persist failures point to **`kid`** not published in JWKS. |
 
@@ -110,4 +110,4 @@ Drill parity: **`docs/library/V1_RC_DRILL.md`** and **`v1-rc-drill.ps1`** (**`-B
 
 - **[SECURITY.md](../library/SECURITY.md)** — modes, **`RequireJwtBearerInProduction`**, RBAC table.
 - **[CONFIGURATION_REFERENCE.md](../library/CONFIGURATION_REFERENCE.md)** — full **`ArchLucidAuth:*`** catalog.
-- **[V1_SCOPE.md](../library/V1_SCOPE.md)** — OIDC issuer scope (§2.12).
+- **[V1_SCOPE.md](../library/V1_SCOPE.md)** — OIDC issuer scope (section 2.12).

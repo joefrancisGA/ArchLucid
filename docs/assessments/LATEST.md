@@ -435,14 +435,13 @@
 
 ---
 
-## Top 6 Enterprise Adoption Blockers
+## Top 5 Enterprise Adoption Blockers
 
 1. **Lack of automated tenant data deletion:** Absence of a verifiable GDPR/CCPA "right to be forgotten" mechanism causes friction in enterprise procurement and legal reviews.
 2. **Noisy neighbor risks in orchestration:** The lack of rate limiting and concurrency controls for the `AuthorityRunOrchestrator` raises reliability concerns for enterprise buyers evaluating multi-tenant SaaS.
-3. **IdP configuration documentation gaps:** Missing explicit documentation for `ArchLucidAuth:Authority` configuration causes friction during enterprise SSO onboarding and security reviews.
-4. **Lack of custom rule authoring UI:** Evaluators cannot easily author and test custom governance rules without writing raw code, slowing down enterprise adoption.
-5. **Absence of compliance attestations:** The lack of a CPA-issued SOC 2 report will cause friction during procurement and security reviews.
-6. **Lack of data residency options:** European and highly regulated buyers often require explicit guarantees that their data resides in a specific geographic region, which is currently not configurable per tenant.
+3. **Lack of custom rule authoring UI:** Evaluators cannot easily author and test custom governance rules without writing raw code, slowing down enterprise adoption.
+4. **Absence of compliance attestations:** The lack of a CPA-issued SOC 2 report will cause friction during procurement and security reviews.
+5. **Lack of data residency options:** European and highly regulated buyers often require explicit guarantees that their data resides in a specific geographic region, which is currently not configurable per tenant.
 
 ---
 
