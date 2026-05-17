@@ -10,7 +10,7 @@ using ArchLucid.Core.Http;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 
-using Microsoft.Extensions.Http.Polly;
+using Polly;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -292,15 +292,7 @@ internal static class CostEstimateCommand
 
         ILogger logger = NullLoggerFactory.Instance.CreateLogger("ArchLucid.Cli.AzureRetail");
 
-        PolicyHttpMessageHandler retry = new(AzureRmAndRetailPricesHttpRetryPolicy.Create(logger))
-
-        {
-
-
-            InnerHandler = new HttpClientHandler(),
-
-        };
-
+        AzureRetailPricesCliRetryHandler retry = new(logger) { InnerHandler = new HttpClientHandler() };
 
         return new HttpClient(retry)
 
@@ -310,6 +302,44 @@ internal static class CostEstimateCommand
             BaseAddress = ArchLucidAzurePublicHttpClients.RetailPricesAuthority,
             Timeout = TimeSpan.FromSeconds(40),
         };
+
+    }
+
+
+
+    /// <remarks>
+    ///     Uses shared Polly v8 bridging policy (<see cref="AzureRmAndRetailPricesHttpRetryPolicy"/>) without IHttpClientFactory.
+    /// </remarks>
+    private sealed class AzureRetailPricesCliRetryHandler : DelegatingHandler
+
+    {
+
+
+        private readonly IAsyncPolicy<HttpResponseMessage> _policy;
+
+
+        public AzureRetailPricesCliRetryHandler(ILogger logger)
+
+        {
+
+
+            ArgumentNullException.ThrowIfNull(logger);
+
+            _policy = AzureRmAndRetailPricesHttpRetryPolicy.Create(logger);
+
+
+        }
+
+
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+
+
+                CancellationToken cancellationToken)
+
+            =>
+                _policy.ExecuteAsync(ct => base.SendAsync(request, ct), cancellationToken);
+
 
     }
 
