@@ -5,10 +5,10 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-$root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 
-. (Join-Path (Join-Path $root 'scripts') 'OperatorDiagnostics.ps1')
+. (Join-Path $PSScriptRoot 'OperatorDiagnostics.ps1')
 
 $nodeAvailable = $null -ne (Get-Command node -ErrorAction SilentlyContinue)
 $totalCorePhases = 3
@@ -22,13 +22,13 @@ else {
 }
 
 Write-OperatorPhaseHeader -Title 'Release build (ArchLucid.sln, -c Release)' -Step 1 -Total $totalPhases
-& (Join-Path $root 'build-release.ps1')
+& (Join-Path $PSScriptRoot 'build-release.ps1')
 
 if ($LASTEXITCODE -ne 0) {
     Write-OperatorFailureTriage -Stage '1 Release build' -Category 'BuildOrRestoreFailure' `
         -Details @('dotnet build or restore exited non-zero (see compiler output above).') `
         -NextSteps @(
-        'Fix compile errors, then re-run: .\build-release.ps1',
+        'Fix compile errors, then re-run: .\scripts\build-release.ps1',
         'Full log: dotnet build ArchLucid.sln -c Release --nologo'
     )
     exit $LASTEXITCODE
@@ -88,7 +88,7 @@ if (-not $SkipUi) {
                 -NextSteps @(
                 'cd archlucid-ui; npm ci',
                 'Confirm Node 22+ and a clean node_modules if needed',
-                'To skip UI gate: .\run-readiness-check.ps1 -SkipUi'
+                'To skip UI gate: .\scripts\run-readiness-check.ps1 -SkipUi'
             )
             exit $LASTEXITCODE
         }
@@ -102,7 +102,7 @@ if (-not $SkipUi) {
                 -NextSteps @(
                 'cd archlucid-ui; npm run test',
                 'Run a single file: npx vitest run path/to/file.test.ts',
-                'To skip UI gate: .\run-readiness-check.ps1 -SkipUi'
+                'To skip UI gate: .\scripts\run-readiness-check.ps1 -SkipUi'
             )
             exit $LASTEXITCODE
         }

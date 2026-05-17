@@ -7,7 +7,10 @@ param(
 
 $ErrorActionPreference = "Continue"
 
-$repo = Resolve-Path "."
+$repo = Split-Path -Parent $PSScriptRoot
+
+Set-Location $repo
+
 $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $artifacts = Join-Path $repo "artifacts/test-runs/$stamp"
 
@@ -63,7 +66,8 @@ if (-not $UiOnly) {
 }
 
 if (-not $ApiOnly) {
-    Push-Location "ui"
+    Push-Location (Join-Path $repo 'archlucid-ui')
+
 
     if (-not $SkipInstall) {
         Run-Step "NPM install" {

@@ -16,7 +16,7 @@
 2. **`GET /version`** — capture build identity for your report (same info appears in enriched **`/health/ready`** / **`/health`** JSON as **`version`** / **`commitSha`**).
 3. **`dotnet run --project ArchLucid.Cli -- doctor`** (repo root, API reachable) — CLI + API version + all health endpoints.
 4. **`support-bundle --zip`** — sanitized diagnostics folder (review before sending). See [Support bundle](#support-bundle-attach-to-tickets) below.
-5. **`run-readiness-check`** or **`.\release-smoke.ps1 -SkipE2E`** (repo root; **`release-smoke.cmd`** also forwards switches) — confirm your clone builds and fast core tests pass without starting the temporary API ([RELEASE_LOCAL.md](../library/RELEASE_LOCAL.md), [RELEASE_SMOKE.md](../library/RELEASE_SMOKE.md)).
+5. **`run-readiness-check`** or **`.\scripts\release-smoke.ps1 -SkipE2E`** (repo root; **`release-smoke.cmd`** also forwards switches) — confirm your clone builds and fast core tests pass without starting the temporary API ([RELEASE_LOCAL.md](../library/RELEASE_LOCAL.md), [RELEASE_SMOKE.md](../library/RELEASE_SMOKE.md)).
 
 If still stuck, use **[When you report an issue](../library/PILOT_GUIDE.md#when-you-report-an-issue)** in [PILOT_GUIDE.md](../library/PILOT_GUIDE.md).
 

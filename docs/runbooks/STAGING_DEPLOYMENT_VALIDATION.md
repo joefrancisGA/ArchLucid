@@ -81,7 +81,7 @@ Also see **`docs/LANDING_ZONE_PROVISIONING.md`** and **`scripts/provision-landin
 
 1. Set **`ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint`** to your **reachable** worker/scheduler address (same value-type used by Container Apps in staging).
 2. Set **`ARCHLUCID_SMOKE_SQL`** (or **`ConnectionStrings__ArchLucid`**) to a **tenant** catalog that matches migrations under test.
-3. From repo root: **`.\release-smoke.ps1 -AuthorityPipelineDtfSmoke`** (omit **`-SkipE2E`**). The script sets **`ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask`** for the temporary **API** process so startup exercises the same DI path as SQL hosts.
+3. From repo root: **`.\scripts\release-smoke.ps1 -AuthorityPipelineDtfSmoke`** (omit **`-SkipE2E`**). The script sets **`ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask`** for the temporary **API** process so startup exercises the same DI path as SQL hosts.
 
 **Scalability / cost:** DTF smoke does not replace capacity planning for the worker revision; it only proves the API can register clients and pass readiness against SQL when **OrchestratorBackend** is **DurableTask**.
 

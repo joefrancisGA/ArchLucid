@@ -9,7 +9,7 @@ This document is the **canonical reference** for how the ArchLucid product codeb
 
 **See also:** [TEST_STRUCTURE.md](TEST_STRUCTURE.md) (**54R operator cheat sheet** — copy-paste commands), [BUILD.md](BUILD.md) (SQL Server setup for tests), [API_FUZZ_TESTING.md](API_FUZZ_TESTING.md) (scheduled Schemathesis OpenAPI fuzz), [RELEASE_LOCAL.md](RELEASE_LOCAL.md) (**56R** — `build-release`, `package-release`, `run-readiness-check`), [RELEASE_SMOKE.md](RELEASE_SMOKE.md) (**56R** — `release-smoke` E2E gate).
 
-> **Canonical entry point (2026-04-20).** Every tier below can be invoked from the repo root with the consolidated driver: **`.\test.ps1 -Tier <name>`** (PowerShell) or **`test.cmd <name>`** (cmd trampoline). Tier names: `Core`, `FastCore`, `OpenApiContract`, `Integration`, `SqlServerIntegration`, `Full`, `UiUnit`, `UiSmoke`, `Slow`. Run **`.\test.ps1 -ListTiers`** for the full list. The legacy `test-<tier>.cmd` / `test-<tier>.ps1` scripts still exist as **shims** that delegate to the consolidated driver and are scheduled for removal **after 2026-Q3** — new docs and runbooks should call the consolidated driver directly.
+> **Canonical entry point (2026-04-20).** Every tier below can be invoked from the repo root with the consolidated driver: **`.\scripts\test.ps1 -Tier <name>`** (PowerShell) or **`test.cmd <name>`** (cmd trampoline). Tier names: `Core`, `FastCore`, `OpenApiContract`, `Integration`, `SqlServerIntegration`, `Full`, `UiUnit`, `UiSmoke`, `Slow`. Run **`.\scripts\test.ps1 -ListTiers`** for the full list. The legacy `test-<tier>.cmd` / `test-<tier>.ps1` scripts still exist as **shims** that delegate to the consolidated driver and are scheduled for removal **after 2026-Q3** — new docs and runbooks should call the consolidated driver directly.
 
 ---
 
@@ -38,7 +38,7 @@ This document is the **canonical reference** for how the ArchLucid product codeb
 dotnet test ArchLucid.sln --filter "Suite=Core"
 ```
 
-**Scripts:** `test-core.cmd` / `test-core.ps1`
+**Scripts:** `scripts/test-core.cmd` / `scripts/test-core.ps1`
 
 **Notes:**
 
@@ -63,7 +63,7 @@ dotnet test ArchLucid.sln --filter "Suite=Core"
 dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord"
 ```
 
-**Scripts:** `test-fast-core.cmd` / `test-fast-core.ps1`
+**Scripts:** `scripts/test-fast-core.cmd` / `scripts/test-fast-core.ps1`
 
 **Does not include:**
 
@@ -156,7 +156,7 @@ npm test                 # one-shot (CI)
 npm run test:watch       # local loop
 ```
 
-**Repo root:** `test-ui-unit.cmd` / `test-ui-unit.ps1`
+**Repo root:** `scripts/test-ui-unit.cmd` / `scripts/test-ui-unit.ps1`
 
 ### 7. Operator shell — Vitest axe (components) and mock Playwright (on demand)
 
@@ -238,13 +238,13 @@ These workflows run on a **weekly** cron (**Monday 06:00 UTC**) and **`workflow_
 
 Optional **local** sequence before a PR (preferred form using the consolidated driver):
 
-1. `.\test.ps1 -Tier OpenApiContract` (if you touched API routes, controllers, or OpenAPI metadata)
-2. `.\test.ps1 -Tier FastCore`
-3. `.\test.ps1 -Tier SqlServerIntegration` (if you touched Persistence / SQL)
-4. `.\test.ps1 -Tier Integration` (if you touched API / HTTP)
-5. `.\test.ps1 -Tier UiUnit` or `npm test` in `archlucid-ui/` (if you touched `archlucid-ui` logic/components)
-6. `.\test.ps1 -Tier UiSmoke` (if you touched `archlucid-ui` routes/build/e2e-relevant behavior)
-7. `.\test.ps1 -Tier Full` before merge (or rely on CI)
+1. `.\scripts\test.ps1 -Tier OpenApiContract` (if you touched API routes, controllers, or OpenAPI metadata)
+2. `.\scripts\test.ps1 -Tier FastCore`
+3. `.\scripts\test.ps1 -Tier SqlServerIntegration` (if you touched Persistence / SQL)
+4. `.\scripts\test.ps1 -Tier Integration` (if you touched API / HTTP)
+5. `.\scripts\test.ps1 -Tier UiUnit` or `npm test` in `archlucid-ui/` (if you touched `archlucid-ui` logic/components)
+6. `.\scripts\test.ps1 -Tier UiSmoke` (if you touched `archlucid-ui` routes/build/e2e-relevant behavior)
+7. `.\scripts\test.ps1 -Tier Full` before merge (or rely on CI)
 
 > **Legacy form (still works via shims).** The `test-<tier>.cmd` / `test-<tier>.ps1` scripts remain as deprecated shims that forward to the consolidated driver. They will be removed after **2026-Q3**.
 

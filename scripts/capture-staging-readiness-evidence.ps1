@@ -15,6 +15,9 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+$repoRoot = Split-Path -Parent $PSScriptRoot
+Set-Location $repoRoot
+
 function Add-Result {
     param(
         [System.Collections.Generic.List[string]]$Lines,
@@ -99,7 +102,7 @@ else {
 
 if ($RunRcDrill) {
     try {
-        $rcOutput = .\v1-rc-drill.ps1 -BaseUrl $normalizedBaseUrl 2>&1 | Out-String
+        $rcOutput = & (Join-Path $PSScriptRoot 'v1-rc-drill.ps1') -ApiBaseUrl $normalizedBaseUrl 2>&1 | Out-String
         Add-Result -Lines $lines -Name "v1-rc-drill" -Status "PASS" -Detail $rcOutput.Trim()
     }
     catch {

@@ -19,8 +19,8 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$root = Split-Path -Parent $MyInvocation.MyCommand.Path
-. (Join-Path (Join-Path $root 'scripts') 'OperatorDiagnostics.ps1')
+$root = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot 'OperatorDiagnostics.ps1')
 
 $runLiveUiSqlProfile = ($Profile -eq 'LiveUiSql')
 
@@ -106,7 +106,7 @@ if ($runLiveUiSqlProfile -and (-not $SkipE2E)) {
     if ($null -eq $nodePrecheck) {
         Write-OperatorFailureTriage -Stage '-Profile LiveUiSql (precheck — Node.js)' -Category 'Misconfiguration' `
             -Details @('-Profile LiveUiSql needs Node.js for archlucid-ui and Playwright (live-api-*.spec.ts).')
-            -NextSteps @('Install Node.js 22+ on PATH', 'Then re-run .\release-smoke.ps1 -Profile LiveUiSql')
+            -NextSteps @('Install Node.js 22+ on PATH', 'Then re-run .\scripts\release-smoke.ps1 -Profile LiveUiSql')
         exit 1
     }
 }
@@ -422,7 +422,7 @@ try
     $cs = Get-ResolvedReleaseSmokeSqlConnectionString -FromParam $SqlConnectionString
 
     Write-OperatorPhaseHeader -Title 'Release build' -Step 1 -Total 6
-    & (Join-Path $root 'build-release.ps1')
+    & (Join-Path $PSScriptRoot 'build-release.ps1')
     if ($LASTEXITCODE -ne 0) {
         Write-OperatorFailureTriage -Stage '1/6 Release build' -Category 'BuildOrRestoreFailure' `
             -Details @('build-release.ps1 exited non-zero.') `
@@ -432,7 +432,7 @@ try
 
     Write-Host ''
     Write-Host '=== Demo workspace pins (manifest vs DEMO_WORKSPACES.md) ===' -ForegroundColor Cyan
-    & (Join-Path $root 'scripts/demo-workspaces/Validate-DemoWorkspacesDoc.ps1') -RepoRoot $root
+    & (Join-Path $PSScriptRoot 'demo-workspaces/Validate-DemoWorkspacesDoc.ps1') -RepoRoot $root
     if ($LASTEXITCODE -ne 0) {
         Write-OperatorFailureTriage -Stage '1b Demo workspace doc parity' -Category 'DocumentationDrift' `
             -Details @('fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json anchors must appear in docs/go-to-market/DEMO_WORKSPACES.md.') `
@@ -484,7 +484,7 @@ try
                 Pop-Location
                 Write-OperatorFailureTriage -Stage '3/6 UI Vitest' -Category 'NpmCiFailure' `
                     -Details @('npm ci failed in archlucid-ui.') `
-                    -NextSteps @('cd archlucid-ui; npm ci', 'Or: .\release-smoke.ps1 -SkipUi')
+                    -NextSteps @('cd archlucid-ui; npm ci', 'Or: .\scripts\release-smoke.ps1 -SkipUi')
                 exit $LASTEXITCODE
             }
             & $releaseSmokeNpm run test
@@ -492,7 +492,7 @@ try
                 Pop-Location
                 Write-OperatorFailureTriage -Stage '3/6 UI Vitest' -Category 'VitestFailure' `
                     -Details @('Vitest failed — file names above.') `
-                    -NextSteps @('cd archlucid-ui; npm run test', 'Or: .\release-smoke.ps1 -SkipUi')
+                    -NextSteps @('cd archlucid-ui; npm run test', 'Or: .\scripts\release-smoke.ps1 -SkipUi')
                 exit $LASTEXITCODE
             }
 
@@ -502,7 +502,7 @@ try
             if ($LASTEXITCODE -ne 0) {
                 Write-OperatorFailureTriage -Stage '4/6 UI production build' -Category 'NextBuildFailure' `
                     -Details @('next build / npm run build failed.') `
-                    -NextSteps @('cd archlucid-ui; npm run build', 'Or: .\release-smoke.ps1 -SkipUi')
+                    -NextSteps @('cd archlucid-ui; npm run build', 'Or: .\scripts\release-smoke.ps1 -SkipUi')
                 exit $LASTEXITCODE
             }
 
@@ -583,7 +583,7 @@ try
             'Set env: $env:ARCHLUCID_SMOKE_SQL = ''Server=...;Database=...;...''',
             'Or pass: -SqlConnectionString ''...''',
             'Or set ConnectionStrings__ArchLucid in the shell',
-            'CI / agents without SQL: .\release-smoke.ps1 -SkipE2E'
+            'CI / agents without SQL: .\scripts\release-smoke.ps1 -SkipE2E'
         )
         exit 1
     }

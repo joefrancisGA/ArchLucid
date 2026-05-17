@@ -76,13 +76,13 @@ You can also pass **`-SqlConnectionString '...'`** (quote for special characters
 
 ```powershell
 $env:ARCHLUCID_SMOKE_SQL = 'Server=localhost,1433;Database=ArchLucid;User Id=sa;Password=...;TrustServerCertificate=True;'
-.\release-smoke.ps1
+.\scripts\release-smoke.ps1
 ```
 
 **Staging SQL + DTF path (optional):** with tenant SQL resolved as usual, set **`ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint`** to your Durable Task worker/scheduler gRPC URL, then:
 
 ```powershell
-.\release-smoke.ps1 -AuthorityPipelineDtfSmoke
+.\scripts\release-smoke.ps1 -AuthorityPipelineDtfSmoke
 ```
 
 The script sets **`ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask`** for the temporary API process only (**`-SkipE2E`** is incompatible). See **`docs/runbooks/STAGING_DEPLOYMENT_VALIDATION.md`** (Authority pipeline section).
@@ -92,25 +92,25 @@ The script sets **`ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask
 **CI-style: include full Core suite (after fast core):**
 
 ```powershell
-.\release-smoke.ps1 -FullCore
+.\scripts\release-smoke.ps1 -FullCore
 ```
 
 **Without E2E (no SQL / no API start):**
 
 ```powershell
-.\release-smoke.ps1 -SkipE2E
+.\scripts\release-smoke.ps1 -SkipE2E
 ```
 
 **Without UI (faster agent/headless):**
 
 ```powershell
-.\release-smoke.ps1 -SkipUi
+.\scripts\release-smoke.ps1 -SkipUi
 ```
 
 **Combine:**
 
 ```powershell
-.\release-smoke.ps1 -SkipE2E -SkipUi
+.\scripts\release-smoke.ps1 -SkipE2E -SkipUi
 ```
 
 **Optional release evidence bundle (documented checks + sample tests):** [RELEASE_EVIDENCE_SUMMARY.md](RELEASE_EVIDENCE_SUMMARY.md), `scripts/Invoke-ReleaseEvidenceSummary.ps1`, and `scripts/Invoke-RealLlmEvidenceGate.ps1`.
@@ -118,20 +118,20 @@ The script sets **`ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask
 **Named live UI-SQL parity profile** (implies **`-LivePlaywright`**, forbids **`-SkipUi`** and **`-SkipE2E`**, fail-fast tenant SQL plus Node/Chromium prerequisites before binding the smoke API):
 
 ```powershell
-.\release-smoke.ps1 -Profile LiveUiSql
-.\release-smoke-live-ui-sql.ps1
+.\scripts\release-smoke.ps1 -Profile LiveUiSql
+.\scripts\release-smoke-live-ui-sql.ps1
 ```
 
 **Include Playwright mock suite after UI (+ API smoke when not skipped):**
 
 ```powershell
-.\release-smoke.ps1 -RunPlaywright
+.\scripts\release-smoke.ps1 -RunPlaywright
 ```
 
 **Include Playwright live API parity suite** (**same **`live-api-*.spec.ts`** lane as CI **`ui-e2e-live`**) against the temporary smoke API:
 
 ```powershell
-.\release-smoke.ps1 -LivePlaywright
+.\scripts\release-smoke.ps1 -LivePlaywright
 ```
 
 Both switches may be combined (mock suite runs first, then live suite).

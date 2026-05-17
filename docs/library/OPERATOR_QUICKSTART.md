@@ -152,14 +152,14 @@ run-readiness-check.cmd
 ```
 
 ```powershell
-.\run-readiness-check.ps1
+.\scripts\run-readiness-check.ps1
 ```
 
 **Full E2E release smoke** (needs `ARCHLUCID_SMOKE_SQL` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md)):
 
 ```powershell
 $env:ARCHLUCID_SMOKE_SQL = 'Server=...;Database=...;...'
-.\release-smoke.ps1
+.\scripts\release-smoke.ps1
 ```
 
 ```bat

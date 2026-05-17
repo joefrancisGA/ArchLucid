@@ -25,9 +25,9 @@
 **Automated HTTP steps (no UI):** from repo root, with the API already up:
 
 ```powershell
-.\v1-rc-drill.ps1 -ApiBaseUrl 'http://localhost:5128' -BearerToken $env:ARCHLUCID_TEST_JWT
+.\scripts\v1-rc-drill.ps1 -ApiBaseUrl 'http://localhost:5128' -BearerToken $env:ARCHLUCID_TEST_JWT
 # or API key auth:
-.\v1-rc-drill.ps1 -ApiBaseUrl 'https://api.example.com' -ApiKey $env:ARCHLUCID_ADMIN_KEY
+.\scripts\v1-rc-drill.ps1 -ApiBaseUrl 'https://api.example.com' -ApiKey $env:ARCHLUCID_ADMIN_KEY
 ```
 
 **Switches:** **`-SkipDoctor`** / **`-SkipSupportBundle`** if you already validated CLI diagnostics separately.

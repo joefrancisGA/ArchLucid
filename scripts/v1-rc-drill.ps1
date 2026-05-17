@@ -70,8 +70,8 @@ function Invoke-V1RcDrillRestMethod
     return Invoke-RestMethod @params
 }
 
-$root = Split-Path -Parent $MyInvocation.MyCommand.Path
-. (Join-Path (Join-Path $root 'scripts') 'OperatorDiagnostics.ps1')
+$root = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot 'OperatorDiagnostics.ps1')
 
 $cliProj = Join-Path $root 'ArchLucid.Cli\ArchLucid.Cli.csproj'
 $base = $ApiBaseUrl.TrimEnd('/')

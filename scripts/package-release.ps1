@@ -6,10 +6,10 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-$root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 
-& (Join-Path $root 'build-release.ps1')
+& (Join-Path $PSScriptRoot 'build-release.ps1')
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 $apiOut = Join-Path $root 'artifacts/release/api'
@@ -37,7 +37,7 @@ if (-not $SkipUiBuild) {
     }
 }
 
-$writer = Join-Path (Join-Path $root 'scripts') 'Write-ReleasePackageArtifacts.ps1'
+$writer = Join-Path $PSScriptRoot 'Write-ReleasePackageArtifacts.ps1'
 try {
     & $writer `
         -RepoRoot $root `

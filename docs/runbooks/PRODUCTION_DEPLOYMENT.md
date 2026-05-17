@@ -103,14 +103,14 @@ Complete in order; each line lists **verification**, **minimum Azure RBAC** (low
 
 ## 6. Smoke test (production base URL)
 
-**Important:** [`release-smoke.ps1`](../../release-smoke.ps1) **starts a local `ArchLucid.Api` process** for its default E2E ladder (see [`docs/library/RELEASE_SMOKE.md`](../library/RELEASE_SMOKE.md)). It does **not** replace hosted probes against a **remote** production URL.
+**Important:** [`release-smoke.ps1`](../../scripts/release-smoke.ps1) **starts a local `ArchLucid.Api` process** for its default E2E ladder (see [`docs/library/RELEASE_SMOKE.md`](../library/RELEASE_SMOKE.md)). It does **not** replace hosted probes against a **remote** production URL.
 
 | Step | Action | Verify |
 |------|--------|--------|
 | 6.1 | **Hosted production (preferred):** `bash scripts/ci/cd-post-deploy-verify.sh https://<api-host>` | Script exits **0**; `/health/ready` Healthy. |
 | 6.2 | **CLI parity with CD:** `dotnet run --project ArchLucid.Cli -- doctor --api https://<api-host>` | Exit **0**; no failing readiness narrative. |
 | 6.3 | **Evidence bundle:** `dotnet run --project ArchLucid.Cli -- deployment-evidence --environment production --api-base-url https://<api-host> --repo <repo-path> …` | Exit **0**; Markdown artifact matches policy (same job pattern as [`DEPLOYMENT_CD_PIPELINE.md`](../library/DEPLOYMENT_CD_PIPELINE.md)). |
-| 6.4 | **Optional:** `.\release-smoke.ps1 -SkipE2E` **before** promotion | Confirms **local** build + core tests only — **not** production URL; use 6.1–6.3 for prod. |
+| 6.4 | **Optional:** `.\scripts\release-smoke.ps1 -SkipE2E` **before** promotion | Confirms **local** build + core tests only — **not** production URL; use 6.1–6.3 for prod. |
 
 **RBAC:** None for HTTPS checks; GitHub/Azure identity for pipeline-hosted smoke.
 

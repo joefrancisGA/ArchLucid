@@ -1,6 +1,6 @@
 @echo off
 setlocal
-cd /d "%~dp0"
+cd /d "%~dp0.."
 REM RC-style gate: Release build, fast-core in Release, UI Vitest if Node is available. See docs/RELEASE_LOCAL.md
 call "%~dp0build-release.cmd"
 if errorlevel 1 exit /b %ERRORLEVEL%

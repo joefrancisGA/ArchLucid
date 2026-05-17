@@ -33,10 +33,10 @@
         Use ``0`` to disable. UI tiers (e.g. UiUnit) use the same interval while npm runs.
 
     .EXAMPLE
-        .\test.ps1 -Tier FastCore
-        .\test.ps1 -Tier UiSmoke
-        .\test.ps1 -ListTiers
-        .\test.ps1 -Tier Full -HeartbeatSeconds 0
+        .\scripts\test.ps1 -Tier FastCore
+        .\scripts\test.ps1 -Tier UiSmoke
+        .\scripts\test.ps1 -ListTiers
+        .\scripts\test.ps1 -Tier Full -HeartbeatSeconds 0
 #>
 [CmdletBinding(DefaultParameterSetName = 'Run')]
 param(
@@ -64,7 +64,7 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-$root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 
 # Tier name → human-readable description (printed by -ListTiers and on dispatch).
@@ -247,7 +247,7 @@ function Invoke-Tier {
             return (Invoke-DotnetTest -Project 'ArchLucid.sln' -Filter 'Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord' -HeartbeatSec $TierHeartbeatSeconds)
         }
         'OpenApiContract' {
-            $script = Join-Path $root 'scripts/ci/check_openapi_contract_snapshot.ps1'
+            $script = Join-Path $PSScriptRoot 'ci/check_openapi_contract_snapshot.ps1'
             & $script
             return $LASTEXITCODE
         }

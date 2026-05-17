@@ -11,23 +11,23 @@ Practical steps to produce a **Release**-configuration build, run a **lightweigh
 
 ---
 
-## Scripts (repo root)
+## Scripts (`scripts/`)
 
 | Script | Purpose |
 |--------|---------|
-| `build-release.cmd` / `build-release.ps1` | `dotnet restore` + `dotnet build ArchLucid.sln -c Release` |
-| `package-release.cmd` / `package-release.ps1` | Runs release build, then **`dotnet publish`** API to `artifacts/release/api/`; if **Node** is on `PATH`, also runs `npm ci` + `npm run build` in `archlucid-ui/`. Emits **handoff metadata** next to `api/` (see below). |
-| `run-readiness-check.cmd` / `run-readiness-check.ps1` | Release build → **fast core** tests (`-c Release --no-build`) → **Vitest** in `archlucid-ui/` when Node is available. Failures print a **triage** block (stage, category, **Next:** hints) via `scripts/OperatorDiagnostics.ps1`. |
-| `release-smoke.cmd` / `release-smoke.ps1` | **E2E smoke:** build + fast core (+ optional `-FullCore`) + optional UI build + temporary API + CLI **`run --quick`** + artifact API check — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
-| `test-core.cmd` / `test-core.ps1` | Full Core suite (default configuration, usually Debug). See [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md) |
-| `test-fast-core.cmd` / `test-fast-core.ps1` | Core excluding Slow + Integration (default configuration) |
-| `test-ui-unit.cmd` / `test-ui-unit.ps1` | `npm ci` + `npm run test` (Vitest) |
+| `scripts/build-release.cmd` / `scripts/build-release.ps1` | `dotnet restore` + `dotnet build ArchLucid.sln -c Release` |
+| `scripts/package-release.cmd` / `scripts/package-release.ps1` | Runs release build, then **`dotnet publish`** API to `artifacts/release/api/`; if **Node** is on `PATH`, also runs `npm ci` + `npm run build` in `archlucid-ui/`. Emits **handoff metadata** next to `api/` (see below). |
+| `scripts/run-readiness-check.cmd` / `scripts/run-readiness-check.ps1` | Release build → **fast core** tests (`-c Release --no-build`) → **Vitest** in `archlucid-ui/` when Node is available. Failures print a **triage** block (stage, category, **Next:** hints) via `scripts/OperatorDiagnostics.ps1`. |
+| `scripts/release-smoke.cmd` / `scripts/release-smoke.ps1` | **E2E smoke:** build + fast core (+ optional `-FullCore`) + optional UI build + temporary API + CLI **`run --quick`** + artifact API check — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
+| `scripts/test-core.cmd` / `scripts/test-core.ps1` | Full Core suite (default configuration, usually Debug). See [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md) |
+| `scripts/test-fast-core.cmd` / `scripts/test-fast-core.ps1` | Core excluding Slow + Integration (default configuration) |
+| `scripts/test-ui-unit.cmd` / `scripts/test-ui-unit.ps1` | `npm ci` + `npm run test` (Vitest) |
 
 **PowerShell extras**
 
-- `package-release.ps1 -SkipUiBuild` — publish API only; no Next.js production build.
-- `package-release.ps1 -SkipChecksums` — skip per-file **SHA-256** generation (faster on huge trees; leaves a placeholder `checksums-sha256.txt` and sets `checksumsSha256Generated: false` in `release-manifest.json`).
-- `run-readiness-check.ps1 -SkipUi` — skip UI unit tests even if Node is installed.
+- `scripts/package-release.ps1 -SkipUiBuild` — publish API only; no Next.js production build.
+- `scripts/package-release.ps1 -SkipChecksums` — skip per-file **SHA-256** generation (faster on huge trees; leaves a placeholder `checksums-sha256.txt` and sets `checksumsSha256Generated: false` in `release-manifest.json`).
+- `scripts/run-readiness-check.ps1 -SkipUi` — skip UI unit tests even if Node is installed.
 
 **Merge discipline — Release fast-core:** after substantive .NET merges, run the analyzer-sensitive fast-core filter in **Release** so hygiene regressions (for example unread primary-constructor dependencies / **CS9113**) are caught before narrative readiness claims drift from CI:
 
@@ -54,11 +54,11 @@ The operator UI remains developed from `archlucid-ui/` in the repo (or deploy vi
 
 ## Typical pilot workflow
 
-1. **Verify:** `run-readiness-check.cmd` (or `.ps1`) from repo root.
-2. **Package:** `package-release.cmd` (or `.ps1`).
+1. **Verify:** `scripts/run-readiness-check.cmd` (or `scripts/run-readiness-check.ps1`) from repo root.
+2. **Package:** `scripts/package-release.cmd` (or `scripts/package-release.ps1`).
 3. **Hand off:** Share the **repository** (or archive) plus **`artifacts/release/`** (include **`PACKAGE-HANDOFF.txt`** and **`metadata.json`** for support). Verify file integrity with **`checksums-sha256.txt`** after copy when present.
 
-**After deploy:** For a **full V1 path** on the running API (health, two runs, compare, replay, export, support bundle), use [V1_RC_DRILL.md](V1_RC_DRILL.md) and **`v1-rc-drill.ps1`** from the repo root.
+**After deploy:** For a **full V1 path** on the running API (health, two runs, compare, replay, export, support bundle), use [V1_RC_DRILL.md](V1_RC_DRILL.md) and **`scripts/v1-rc-drill.ps1`** from the repo root.
 
 ### Support-friendly handoff
 
@@ -121,5 +121,5 @@ GitHub Actions uses **`-c Release`** for .NET jobs. Daily `test-fast-core` scrip
 
 ## Scope limits (56R)
 
-- **No** self-contained RID packaging in these scripts (keeps scripts small). To publish self-contained for a specific OS, add `-r win-x64` (or your RID) to `dotnet publish` in a local one-off or fork of `package-release.ps1`.
+- **No** self-contained RID packaging in these scripts (keeps scripts small). To publish self-contained for a specific OS, add `-r win-x64` (or your RID) to `dotnet publish` in a local one-off or fork of `scripts/package-release.ps1`.
 - **No** SBOM, container build, or signing in this change set.
