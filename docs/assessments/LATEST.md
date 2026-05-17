@@ -2,7 +2,7 @@
 
 **Canonical pair:** This file is the **single current score and backlog** for weighted readiness. Read **`docs/library/ASSESSMENT_INPUTS.md`** first for the evidence contract; treat **`docs/archive/assessments/`** and archived quality narratives as **history only** — see **“One workflow (current score vs history)”** there.
 
-# ArchLucid Assessment – Weighted Readiness 88.88%
+# ArchLucid Assessment – Weighted Readiness 82.56%
 
 **V1 scoring boundary:**
 
@@ -105,15 +105,7 @@
 - **Tradeoffs:** Deferring live commerce allows for a controlled, sales-led V1 rollout but delays self-serve revenue. Starter packs raise **copy honesty** obligations — claims must match shipped rule depth. **Consultant logos** increase **tenant-upload attack surface** — mitigate with MIME/size caps and existing malware-scan posture (sign-off required — **Q5**). **Early access** tertiary must avoid **bait-and-switch** vs walkthrough-led pilots (**Q7**).
 - **Improvement recommendations:** Flip Stripe live keys and publish the Marketplace listing **after finance confirms** Partner Center readiness (**P4**, **#7**).
 
-### 9. Security
-- **Score:** 100
-- **Weight:** 3
-- **Weighted deficiency signal:** 0
-- **Justification:** Strong fundamentals with OIDC, Entra ID, RBAC, private endpoints, and Key Vault. External third-party pen testing is explicitly deferred to V2. Achieves 100% of V1 scope.
-- **Tradeoffs:** Internal pen testing is sufficient for V1 but will not satisfy strict enterprise procurement requirements (which is a V2 concern).
-- **Improvement recommendations:** None (V1 complete).
-
-### 10. Explainability
+### 9. Explainability
 - **Score:** 82
 - **Weight:** 2
 - **Weighted deficiency signal:** 36
@@ -121,7 +113,7 @@
 - **Tradeoffs:** Default **in-process** projection cache still caps multi-replica coherence unless operators enable **Distributed** backend + Redis (configure **`ArchLucid:KnowledgeGraph:ProjectionCache:Backend`**).
 - **Improvement recommendations:** Retain **`V1_DEFERRED.md` §6e** honesty when Redis is **not** configured.
 
-### 11. Interoperability
+### 10. Interoperability
 - **Score:** 92
 - **Weight:** 2
 - **Weighted deficiency signal:** 16
@@ -129,7 +121,7 @@
 - **Tradeoffs:** SAML SP adds dual auth-surface operational burden (cert rotation, metadata drift) versus OIDC-only tenants.
 - **Improvement recommendations:** Tighten OpenAPI-aligned client examples and webhook recipe discoverability (`docs/integrations/recipes/`).
 
-### 12. Stickiness
+### 11. Stickiness
 - **Score:** 81
 - **Weight:** 1
 - **Weighted deficiency signal:** 19
@@ -137,7 +129,7 @@
 - **Tradeoffs:** Focusing on deterministic execution over open-ended planning ensures reliability but may feel less "agentic". Thin starter packs risk **one-and-done** pilots unless tenants customize and attach packs to recurring reviews.
 - **Improvement recommendations:** Execute improvement **#29** (baseline packs tenants extend over time). Add cross-tenant analytics capabilities to demonstrate ongoing value (**#12**).
 
-### 13. Performance
+### 12. Performance
 - **Score:** 78
 - **Weight:** 1
 - **Weighted deficiency signal:** 22
@@ -145,15 +137,7 @@
 - **Tradeoffs:** Making Redis optional simplifies single-replica deployments but complicates scaled operations.
 - **Improvement recommendations:** ~~Connection open retries~~ **Delivered (2026-05-16):** `SqlScopedResolutionDbConnectionFactory.CreateOpenConnectionAsync` resolves scoped `ISqlConnectionFactory`, which production registers as `ResilientSqlConnectionFactory` wrapping Polly (`SqlOpenResilienceDefaults`, transient detection including Azure SQL codes 40613 / 40197 / 40501). Configure attempts and backoff via `Persistence:SqlOpenResilience` in `appsettings`.
 
-### 14. Customer Self-Sufficiency
-- **Score:** 100
-- **Weight:** 1
-- **Weighted deficiency signal:** 0
-- **Justification:** Pilot guides and operator quickstarts are available. Bulk evidence upload (≤30 files) improves first-session capture without sales hand-holding. Expanding the limit is deferred to V1.1. Achieves 100% of V1 scope.
-- **Tradeoffs:** Bulk upload reduces friction only within the 30-file envelope — enterprises with massive ZIP dumps still chunk manually until V1.1.
-- **Improvement recommendations:** None (V1 complete).
-
-### 15. Observability
+### 13. Observability
 - **Score:** 82
 - **Weight:** 1
 - **Weighted deficiency signal:** 18
@@ -161,15 +145,7 @@
 - **Tradeoffs:** Standard observability tools require operator expertise to configure and monitor effectively.
 - **Improvement recommendations:** Add explicit logging for agent state machine transitions.
 
-### 16. Marketability
-- **Score:** 100
-- **Weight:** 8
-- **Weighted deficiency signal:** 0
-- **Justification:** Strong category narrative (architecture review package). Differentiated from generic AI. Hybrid CTA stack aligns with sales-led GA. Self-serve and reference customers are explicitly deferred to V1.1/V2. Achieves 100% of V1 scope.
-- **Tradeoffs:** Relies on sales explanation for deep value until self-serve and reference customers are established (which are V1.1/V2 scope).
-- **Improvement recommendations:** None (V1 complete).
-
-### 17. Time-to-Value
+### 14. Time-to-Value
 - **Score:** 85
 - **Weight:** 7
 - **Weighted deficiency signal:** 105
@@ -177,7 +153,7 @@
 - **Tradeoffs:** Real-mode value requires tenant baseline data, which can take time to gather.
 - **Improvement recommendations:** Add a guided baseline collection wizard to the onboarding flow to accelerate real-mode value.
 
-### 18. Executive Value Visibility
+### 15. Executive Value Visibility
 - **Score:** 84
 - **Weight:** 4
 - **Weighted deficiency signal:** 64
@@ -185,7 +161,7 @@
 - **Tradeoffs:** Executive value can become abstract if real tenant baselines are missing.
 - **Improvement recommendations:** Add a 'Missing Baseline' warning to the executive dashboard to ensure value is not abstract.
 
-### 19. Differentiability
+### 16. Differentiability
 - **Score:** 83
 - **Weight:** 4
 - **Weighted deficiency signal:** 68
@@ -193,7 +169,7 @@
 - **Tradeoffs:** Broad proof surface helps defensibility but requires concise buyer framing to avoid sounding like a feature inventory.
 - **Improvement recommendations:** Refine in-app tooltips to focus strictly on the core differentiation (evidence-linked findings) to avoid feature inventory overload.
 
-### 20. Decision Velocity
+### 17. Decision Velocity
 - **Score:** 80
 - **Weight:** 2
 - **Weighted deficiency signal:** 40
@@ -201,7 +177,7 @@
 - **Tradeoffs:** Requires operator trust in the AI's findings to truly accelerate decisions.
 - **Improvement recommendations:** Highlight confidence scores or evidence links more prominently in the UI to build operator trust faster.
 
-### 21. Template and Accelerator Richness
+### 18. Template and Accelerator Richness
 - **Score:** 78
 - **Weight:** 1
 - **Weighted deficiency signal:** 22
@@ -209,47 +185,7 @@
 - **Tradeoffs:** The library is currently small, shifting some burden to credible authoring by the tenant.
 - **Improvement recommendations:** Pack depth uplift delivered **2026-05-17** (five additional **`sec-base-026`**–**`sec-base-030`** rules + Workspace **B** seed IDs aligned to shipped keys); continue extending tenant-authored corpus over time.
 
-### 22. Traceability
-- **Score:** 100
-- **Weight:** 3
-- **Weighted deficiency signal:** 0
-- **Justification:** Strong evidence graph and durable audit trail (`ManifestSuperseded`). Achieves 100% of V1 scope.
-- **Tradeoffs:** None.
-- **Improvement recommendations:** None (V1 complete).
-
-### 23. Trustworthiness
-- **Score:** 100
-- **Weight:** 3
-- **Weighted deficiency signal:** 0
-- **Justification:** SOC 2 self-assessment completed. Private endpoints and tenant isolation are standard. CPA attestation and third-party pen tests are explicitly deferred to V2. Achieves 100% of V1 scope.
-- **Tradeoffs:** Lack of CPA attestation will cause friction in enterprise procurement, though they are not V1 technical gates.
-- **Improvement recommendations:** None (V1 complete).
-
-### 24. Auditability
-- **Score:** 100
-- **Weight:** 2
-- **Weighted deficiency signal:** 0
-- **Justification:** Durable task framework and SQL persistence provide a strong audit foundation. Achieves 100% of V1 scope.
-- **Tradeoffs:** None.
-- **Improvement recommendations:** None (V1 complete).
-
-### 25. Policy and Governance Alignment
-- **Score:** 100
-- **Weight:** 2
-- **Weighted deficiency signal:** 0
-- **Justification:** Policy packs align well with enterprise governance needs. Achieves 100% of V1 scope.
-- **Tradeoffs:** None.
-- **Improvement recommendations:** None (V1 complete).
-
-### 26. Procurement Readiness
-- **Score:** 100
-- **Weight:** 2
-- **Weighted deficiency signal:** 0
-- **Justification:** Trust center, DPA, and CAIQ pre-fill are available. CPA SOC 2 is explicitly deferred to V2. Achieves 100% of V1 scope.
-- **Tradeoffs:** Procurement friction is expected due to the lack of a CPA-issued SOC 2 report.
-- **Improvement recommendations:** None (V1 complete).
-
-### 27. Accessibility
+### 19. Accessibility
 - **Score:** 75
 - **Weight:** 1
 - **Weighted deficiency signal:** 25
@@ -257,23 +193,7 @@
 - **Tradeoffs:** No participant user testing with assistive technologies (not a V1 requirement).
 - **Improvement recommendations:** None for automated baseline scans — merge-blocking **`@axe-core/playwright`** runs in **`ui-e2e-live`** and **`ui-playwright-accessibility`** (see **`archlucid-ui/e2e/live-api-accessibility.spec.ts`**). Participant assistive-technology studies remain out of V1 scope (see tradeoffs).
 
-### 28. Change Impact Clarity
-- **Score:** 100
-- **Weight:** 1
-- **Weighted deficiency signal:** 0
-- **Justification:** Comparison replays help clarify the impact of architectural changes. Achieves 100% of V1 scope.
-- **Tradeoffs:** None.
-- **Improvement recommendations:** None (V1 complete).
-
-### 29. Architectural Integrity
-- **Score:** 100
-- **Weight:** 3
-- **Weighted deficiency signal:** 0
-- **Justification:** Solid SQL persistence, DbUp migrations, and clean separation of concerns. Achieves 100% of V1 scope.
-- **Tradeoffs:** None.
-- **Improvement recommendations:** None (V1 complete).
-
-### 30. Reliability
+### 20. Reliability
 - **Score:** 82
 - **Weight:** 2
 - **Weighted deficiency signal:** 36
@@ -281,15 +201,7 @@
 - **Tradeoffs:** Multi-region worker fleets still need disciplined slot sizing versus SQL lease churn; orphaned leases rely on **`LeaseRecognitionHorizon`** scavenging.
 - **Improvement recommendations:** Operational runbooks should document defaults for **`AuthorityPipeline:Concurrency`** per environment tier and monitor lease table growth alongside worker saturation.
 
-### 31. Data Consistency
-- **Score:** 100
-- **Weight:** 2
-- **Weighted deficiency signal:** 0
-- **Justification:** Database-per-tenant isolation and transactional SQL boundaries ensure high consistency. Achieves 100% of V1 scope.
-- **Tradeoffs:** None.
-- **Improvement recommendations:** None (V1 complete).
-
-### 32. Maintainability
+### 21. Maintainability
 - **Score:** 84
 - **Weight:** 2
 - **Weighted deficiency signal:** 32
@@ -297,23 +209,7 @@
 - **Tradeoffs:** The large surface area increases maintenance overhead.
 - **Improvement recommendations:** **`ArchLucid.Architecture.Tests`** (**NetArchTest**) gates core layering in CI (**improvement #23**, **completed 2026-05-17**); continue narrowing public surfaces via **`internal`** where appropriate and expand boundary rules incrementally per **`INV-*`** / **`docs/library/TECH_BACKLOG.md`** enforcement waves.
 
-### 33. Azure Compatibility and SaaS Deployment Readiness
-- **Score:** 100
-- **Weight:** 2
-- **Weighted deficiency signal:** 0
-- **Justification:** Native Azure integrations (OpenAI, Key Vault, SQL, App Service/ACA) are robust. Achieves 100% of V1 scope.
-- **Tradeoffs:** None.
-- **Improvement recommendations:** None (V1 complete).
-
-### 34. Availability
-- **Score:** 100
-- **Weight:** 1
-- **Weighted deficiency signal:** 0
-- **Justification:** Standard Azure high availability is supported. Multi-region active/active is explicitly deferred to V2. Achieves 100% of V1 scope.
-- **Tradeoffs:** None.
-- **Improvement recommendations:** None (V1 complete).
-
-### 35. Scalability
+### 22. Scalability
 - **Score:** 80
 - **Weight:** 1
 - **Weighted deficiency signal:** 20
@@ -321,7 +217,7 @@
 - **Tradeoffs:** Single-tenant worker pool exhaustion is a known risk requiring rate limiting.
 - **Improvement recommendations:** Implement auto-scaling rules for the worker pool based on queue depth.
 
-### 36. Supportability
+### 23. Supportability
 - **Score:** 82
 - **Weight:** 1
 - **Weighted deficiency signal:** 18
@@ -329,23 +225,7 @@
 - **Tradeoffs:** Some operational scripts assume DevelopmentBypass aside from curated paths (for example JWT-only CLI probes).
 - **Improvement recommendations:** Broaden JWT/API realism for remaining operator scripts (`ARCHLUCID_*` bearer parity); `v1-rc-drill.ps1` covered (**#3**, **closed 2026-05-16**).
 
-### 37. Manageability
-- **Score:** 100
-- **Weight:** 1
-- **Weighted deficiency signal:** 0
-- **Justification:** Operator shell and configuration references provide good manageability. Achieves 100% of V1 scope.
-- **Tradeoffs:** None.
-- **Improvement recommendations:** None (V1 complete).
-
-### 38. Deployability
-- **Score:** 100
-- **Weight:** 1
-- **Weighted deficiency signal:** 0
-- **Justification:** Automated CI/CD and DbUp migrations streamline deployment. Achieves 100% of V1 scope.
-- **Tradeoffs:** None.
-- **Improvement recommendations:** None (V1 complete).
-
-### 39. Testability
+### 24. Testability
 - **Score:** 84
 - **Weight:** 1
 - **Weighted deficiency signal:** 16
@@ -353,47 +233,7 @@
 - **Tradeoffs:** Default **`ui-e2e-smoke`** remains mock-heavy — fast churn coverage without standing up SQL on every PR.
 - **Improvement recommendations:** Prefer targeted **`live-api-*.spec.ts`** additions when a high-risk surface stays mock-only; golden-path **`live-api-journey`** / **`live-api-core-pilot-path`** already merge-block via **`ui-e2e-live`** (**#14**, **2026-05-16**).
 
-### 40. Modularity
-- **Score:** 100
-- **Weight:** 1
-- **Weighted deficiency signal:** 0
-- **Justification:** Highly modular architecture with clear project boundaries. Achieves 100% of V1 scope.
-- **Tradeoffs:** None.
-- **Improvement recommendations:** None (V1 complete).
-
-### 41. Extensibility
-- **Score:** 100
-- **Weight:** 1
-- **Weighted deficiency signal:** 0
-- **Justification:** Architecture supports new policy packs and ITSM connectors. Public extension SDK is deferred to V1.1. Achieves 100% of V1 scope.
-- **Tradeoffs:** None.
-- **Improvement recommendations:** None (V1 complete).
-
-### 42. Evolvability
-- **Score:** 100
-- **Weight:** 1
-- **Weighted deficiency signal:** 0
-- **Justification:** System is designed to evolve, with DTF paving the way for more complex workflows. Achieves 100% of V1 scope.
-- **Tradeoffs:** None.
-- **Improvement recommendations:** None (V1 complete).
-
-### 43. Documentation
-- **Score:** 100
-- **Weight:** 1
-- **Weighted deficiency signal:** 0
-- **Justification:** Comprehensive docs (API contracts, configuration, trust center). Achieves 100% of V1 scope.
-- **Tradeoffs:** None.
-- **Improvement recommendations:** None (V1 complete).
-
-### 44. Azure Ecosystem Fit
-- **Score:** 100
-- **Weight:** 1
-- **Weighted deficiency signal:** 0
-- **Justification:** Deep integration with Azure services (Entra ID, Azure OpenAI, Azure SQL). Achieves 100% of V1 scope.
-- **Tradeoffs:** None.
-- **Improvement recommendations:** None (V1 complete).
-
-### 45. Cognitive Load
+### 25. Cognitive Load
 - **Score:** 76
 - **Weight:** 1
 - **Weighted deficiency signal:** 24
@@ -401,7 +241,7 @@
 - **Tradeoffs:** Breadth is valuable for expansion but increases first-session confusion.
 - **Improvement recommendations:** Implement progressive disclosure in the UI to hide advanced governance features until needed.
 
-### 46. Cost-Effectiveness
+### 26. Cost-Effectiveness
 - **Score:** 82
 - **Weight:** 1
 - **Weighted deficiency signal:** 18

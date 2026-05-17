@@ -64,7 +64,7 @@ GA evaluators rely on **`archlucid-ui/e2e/demo-workspace-*.smoke.spec.ts`** (tag
 2. **Co-change rule:** Any PR materially touching **finding display**, **evidence summaries**, **export formats/endpoints consulted by smoke**, **policy-pack evaluation payloads that seed manifests**, **run-detail section IDs / buyer nav anchors**, **or persisted export JSON shape** MUST:
    - Re-run **`cd archlucid-ui`** → **`npm exec playwright test --grep "@release-gate"`** (or full live suite) against seeded SQL Development paths, **or** justify with maintainer escalation if CI flakes are infra-only.
 
-3. **Seed format churn:** Persisted manifests, **`RunExportRecords`**, or **`dbo.Runs`/workspace rows** mutated for demo storytelling require **matching updates** under **`DemoSeedService`**, seeds, **`DemoWorkspaceStableIds` parity tests**, **`DemoTourWorkspaceIdsParityTests` / `DemoRegulatedScenarioWorkspaceIdsParityTests`**, **`ArchLucid.Application.Tests/Bootstrap/DemoWorkspaceFixtureManifestParityTests`**, pinned **`fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json`**, **`archlucid-ui/e2e/helpers/demo-workspace-live-scope.ts`** (via manifest import), and **`e2e/helpers/demo-workspace-live-scope.ts`** in the **same PR** whenever anchor IDs/content move.
+3. **Seed format churn:** Persisted manifests, **`RunExportRecords`**, or **`dbo.Runs`/workspace rows** mutated for demo storytelling require **matching updates** under **`DemoSeedService`**, seeds, **`DemoWorkspaceStableIds` parity tests**, **`DemoTourWorkspaceIdsParityTests` / `DemoRegulatedScenarioWorkspaceIdsParityTests`**, **`DemoWorkspaceFixtureManifestParityTests`**, **`fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json`**, and **`archlucid-ui/e2e/helpers/demo-workspace-live-scope.ts`** (imports the manifest) in the **same PR** whenever anchor IDs/content move.
 
 ### Pinned fixture package (SQL + blob narrative seeds)
 
@@ -101,6 +101,8 @@ If you add realism, prefer clearly fake domains (**`*.example`** / **`northwind-
 ## Acceptance criteria checklist (demo workspace readiness)
 
 Use this checklist before tagging **GA / external pilot freeze** aligned with the sequenced prompts in **`[CURSOR_PROMPTS_GA_TASKS_27_32.md](../../archive/agent-prompts/CURSOR_PROMPTS_GA_TASKS_27_32.md)`** (and related **`CURSOR_PROMPTS_GA_TASK_*.md`** under **`docs/archive/agent-prompts/`** — historical task lists, not product documentation).
+
+- [ ] **`demo-workspaces-fixture-parity` + manifest pins:** Workflow job **`Go-to-market: demo workspace pins (manifest vs docs + seeds)`** green — validates **`DEMO_WORKSPACES.md`** anchors vs **`fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json`** and runs **`DemoWorkspaceFixtureManifestParityTests`** (finding/evidence counts vs seed builders). Branch protection should require this job wherever GA is certified.
 
 - [ ] **`@release-gate` discipline:** **`ui-e2e-live`** executes **`demo-workspace-*.smoke.spec.ts`** when it runs (**`ci.yml`**: job `if:` is **`github.event_name != 'pull_request`** — **`push`** to default branch / **`workflow_dispatch`** / **`merge_group`**, depending on triggers). Confirm org branch protection attaches that check wherever you certify GA. Before tagging, additionally run **`cd archlucid-ui`** → **`npm exec playwright test --grep "@release-gate"`** and **`release-smoke`** live parity when claiming SQL/UI alignment.
 

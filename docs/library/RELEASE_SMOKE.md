@@ -11,7 +11,7 @@ One **deterministic** end-to-end check for **pilot / commercial confidence** on 
 
 **What it verifies**
 
-1. **Release build** — whole solution (`build-release`).
+1. **Release build** — whole solution (`build-release`), then **demo workspace doc parity** — **`scripts/demo-workspaces/Validate-DemoWorkspacesDoc.ps1`** ensures **`docs/go-to-market/DEMO_WORKSPACES.md`** still cites the pinned **`fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json`** GUID anchors (same gate as CI **`demo-workspaces-fixture-parity`** doc step). Manifest vs SQL seed counts are enforced by **`DemoWorkspaceFixtureManifestParityTests`** inside the Core test step below.
 2. **Core-tier tests** — **fast core** (`Suite=Core`, excluding Slow + Integration), in **Release**, matching the usual first gate.
 3. **Optional: full Core** — `-FullCore` adds `Suite=Core` (may require SQL for integration tests).
 4. **Operator UI** — when Node is on `PATH`: `npm ci`, **Vitest**, **`npm run build`** (production bundle). Skip with **`-SkipUi`**.
