@@ -49,6 +49,32 @@ public sealed class ManifestService
         set;
     }
 
+    /// <summary>
+    ///     Optional Azure <c>armRegionName</c> so CLI / artifacts can probe public Retail hourly meters (<c>azureArmRegion</c> JSON).
+    /// </summary>
+    public string? AzureArmRegion
+    {
+        get;
+
+        set;
+    }
+
+    /// <summary>Optional Azure SKU/tier hint aligned with Retail <c>skuName</c>.</summary>
+    public string? AzurePricingSku
+    {
+        get;
+
+        set;
+    }
+
+    /// <summary>Multiplies hourly-derived totals (bounded to minimum 1).</summary>
+    public int InstanceCount
+    {
+        get;
+
+        set;
+    } = 1;
+
     /// <summary>Governance and security controls required for this specific service.</summary>
     public List<string> Tags
     {

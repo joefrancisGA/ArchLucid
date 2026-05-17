@@ -59,6 +59,27 @@ public sealed class ManifestDatastore
         set;
     }
 
+    /// <inheritdoc cref="ManifestService.AzureArmRegion" />
+    public string? AzureArmRegion
+    {
+        get;
+        set;
+    }
+
+    /// <inheritdoc cref="ManifestService.AzurePricingSku" />
+    public string? AzurePricingSku
+    {
+        get;
+        set;
+    }
+
+    /// <inheritdoc cref="ManifestService.InstanceCount" />
+    public int InstanceCount
+    {
+        get;
+        set;
+    } = 1;
+
     /// <summary>
     ///     When <see langword="true" />, all data persisted in this datastore must be
     ///     encrypted at rest. Defaults to <see langword="true" /> as a secure baseline.

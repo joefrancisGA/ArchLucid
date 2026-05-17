@@ -5,15 +5,16 @@ using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
 
-namespace ArchLucid.Host.Core.Http;
+namespace ArchLucid.Core.Http;
 
 /// <summary>
-///     Polly v8 outbound retry bridging to <see cref="IAsyncPolicy{TResult}" /> for
-///     <see cref="Microsoft.Extensions.Http.Polly.PolicyHttpMessageExtensions.AddPolicyHandler" /> on Azure ARM and Retail Prices APIs.
+///     Polly v8 outbound retry for Azure ARM / public Retail Prices via
+///     <see cref="Microsoft.Extensions.Http.Polly.PolicyHttpMessageExtensions.AddPolicyHandler" />.
 /// </summary>
 /// <remarks>
-///     Acceptance: transient <see cref="System.Net.HttpStatusCode.ServiceUnavailable" /> (among other transient HTTP outcomes) retries with
-///     exponential backoff. <see cref="MaxRetryAttempts" /> matches <see cref="ArchLucid.Host.Core.Services.Delivery.WebhookOutboundHttpRetryPolicy.ProductionRetryAttempts" />.
+///     Matches production webhook outbound posture: exponential backoff, retries on <see cref="HttpStatusCode.ServiceUnavailable"/>,
+///     other transient <see cref="HttpStatusCode"/>, HTTP <see cref="HttpStatusCode.TooManyRequests"/>, and HTTP
+///     <see cref="HttpStatusCode.RequestTimeout"/>.
 /// </remarks>
 public static class AzureRmAndRetailPricesHttpRetryPolicy
 {
@@ -21,11 +22,10 @@ public static class AzureRmAndRetailPricesHttpRetryPolicy
     public const int MaxRetryAttempts = 3;
 
     /// <summary>Uses exponential backoff (~2<sup>n</sup> seconds) between attempts.</summary>
-    public static IAsyncPolicy<HttpResponseMessage> Create(ILogger logger) => Create(logger, ProductionSleepDurationProvider);
+    public static IAsyncPolicy<HttpResponseMessage> Create(ILogger logger) =>
+        Create(logger, ProductionSleepDurationProvider);
 
-    /// <summary>
-    ///     Identical transient handling as the single-parameter overload; inject zero-delay backoff for deterministic tests.
-    /// </summary>
+    /// <summary>Identical transient handling as the single-parameter overload; inject zero-delay backoff for deterministic tests.</summary>
     public static IAsyncPolicy<HttpResponseMessage> Create(ILogger logger, Func<int, TimeSpan> sleepDurationProvider)
     {
         ArgumentNullException.ThrowIfNull(logger);

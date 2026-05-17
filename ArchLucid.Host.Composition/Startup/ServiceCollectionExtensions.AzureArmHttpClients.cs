@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Http;
+using ArchLucid.Core.Http;
 
 namespace ArchLucid.Host.Composition.Startup;
 
