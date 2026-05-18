@@ -63,6 +63,7 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 ## Canonical terminology
 
 - [`GLOSSARY.md`](GLOSSARY.md) — domain terms (review package, signed manifest, audit trail, …).
+- [`AUDIT_EVENT_MODEL.md`](AUDIT_EVENT_MODEL.md) — durable audit event fields, channel taxonomy, immutability (read before deep-diving [`AUDIT_COVERAGE_MATRIX.md`](AUDIT_COVERAGE_MATRIX.md)).
 
 ## Architecture invariants (**INV-***)
 

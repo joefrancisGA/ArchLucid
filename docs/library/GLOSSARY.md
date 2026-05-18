@@ -18,12 +18,18 @@ Use these meanings in buyer-facing narratives, **`docs/`**, and **`archlucid-ui`
 | **Evidence trail** | The chronological, inspectable lineage from inputs (prompts, repositories, citations) through deterministic steps to reviewer-visible outputs. Evidence that cannot be reconstructed from stored traces is weaker procurement posture — call that gap explicitly. |
 | **Governance approval** | A committed **decision** in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled “Approve” unless they write to governance state. |
 | **Audit trail** | The persisted, replayable ledger of authenticated actions across **reviews**, merges, approvals, retention, notifications, exports, and integrations — narrower than informal logging; wider than SIEM payloads alone. Audit trail retention norms are posture-specific. |
+| **Tenant** | The top-level customer boundary for data isolation; scoped rows carry **`TenantId`**. In typical SaaS posture, one tenant is one customer organization unless the contract defines otherwise. |
+| **Workspace** | A collaboration boundary under a tenant (team, program, or environment); scoped rows carry **`WorkspaceId`**. |
+| **Policy pack** | A versioned bundle of rules, thresholds, and governance mappings applied to **reviews** (compliance, finding treatment, pre-commit gates). Packs are assigned, published, and audited — not informal one-off prose. |
+| **Deliverable** | An exportable artifact aimed at a specific audience (executive summary, architecture board packet, security appendix, diligence bundle). Distinct from a raw **finding** row: deliverables are packaged outputs. |
 
 ---
 
 ## Record-type field taxonomy
 
 These tables define the canonical fields on each authoritative record type. They govern buyer-facing labels, API response shapes, and internal doc descriptions. A field not listed here is implementation-internal until promoted into this table.
+
+**Implementation alignment.** Persisted **`Finding`** payloads are engine-specific (`ArchLucid.Decisioning.Findings.Payloads`). Built-in engines emit **`Category`** values such as Security, Topology, Requirements, Policy, Compliance, and Cost — see **[`FINDING_ENGINE_OUTPUT_REFERENCE.md`](FINDING_ENGINE_OUTPUT_REFERENCE.md)**. The **Risk area** column below is the normalized buyer/GRC vocabulary; map engine **Category** to **Risk area** in UX and exports where they differ. **Severity** strings may vary by engine until fully normalized; treat the enumerations here as the target buyer-facing set.
 
 ### Finding
 

@@ -5,6 +5,8 @@
 
 # Audit coverage matrix
 
+For **what counts as an audit event**, row-level fields, immutability guarantees, and how audit differs from application logs, read **[`AUDIT_EVENT_MODEL.md`](AUDIT_EVENT_MODEL.md)** first.
+
 This document maps **state-changing** workflows to the audit signals they emit. ArchLucid has **three** durable or structured **channels** that share one **string catalog** in `ArchLucid.Core.Audit.AuditEventTypes`:
 
 1. **Durable SQL audit** — `IAuditService.LogAsync` → `IAuditRepository.AppendAsync` → `dbo.AuditEvents` (`ArchLucid.Core.Audit.AuditEvent`). Event types use **top-level** `AuditEventTypes.*` constants (e.g. `RunStarted`, `GovernanceApprovalSubmitted`).

@@ -23,7 +23,7 @@ START_HERE.md (you are here)
 │   ├─ PENDING_QUESTIONS.md                    (owner decisions + gates)
 │   ├─ library/CONTRIBUTOR_CODE_MAP.md         (1-page decision tree for where to change code)
 │   ├─ library/GLOSSARY.md                     (canonical product / governance vocabulary)
-│   └─ architecture/README.md                  (maps after first run)
+│   └─ architecture/README.md                  (maps after first **review**)
 │
 └─ Security / GRC — trust pack (hosted UI /trust mirrors narrative)
     ├─ onboarding/day-one-security.md          (canonical security onboarding)

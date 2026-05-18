@@ -2,7 +2,7 @@
 
 # Contributor on one page
 
-**ArchLucid** is an AI-assisted architecture workflow (structured request → run → committed manifest, with exports and governance hooks). **Doc hub:** [START_HERE.md](START_HERE.md).
+**ArchLucid** is an AI-assisted architecture workflow (structured request → **review** (pipeline) → committed manifest, with exports and governance hooks). **Doc hub:** [START_HERE.md](START_HERE.md).
 
 ## Common tasks
 

@@ -67,7 +67,7 @@ npm run dev
 
 ## Mental model: `POST /v1/architecture/request`
 
-**What this endpoint does:** Creates an architecture **run**, an **evidence bundle**, and **starter agent tasks** (when not deferred). It does **not** run the full agent simulation loop or manifest commit; those are separate execute/commit flows (`docs/API_CONTRACTS.md`).
+**What this endpoint does:** Creates an architecture **review** (persisted with `RunId` / `ArchitectureRun` in APIs and SQL for compatibility), an **evidence bundle**, and **starter agent tasks** (when not deferred). It does **not** run the full agent simulation loop or manifest commit; those are separate execute/commit flows (`docs/API_CONTRACTS.md`).
 
 **Flow (nodes and edges):**
 

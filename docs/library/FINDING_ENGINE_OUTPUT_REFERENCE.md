@@ -46,5 +46,5 @@ External **`IFindingEngine`** implementations can be dropped into the configured
 
 ## Related
 
-- **[ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md)** — run pipeline context.
+- **[ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md)** — review / authority pipeline context.
 - **[V1_SCOPE.md](V1_SCOPE.md)** — which engines and integrations are in headline scope vs deferred.

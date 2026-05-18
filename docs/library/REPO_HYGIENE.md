@@ -53,3 +53,13 @@ If you see **root-level** files such as `testresults.txt`, `commit2-log.txt`, or
 3. Regenerate **`ArchLucid.Api.Client`** when OpenAPI changes and **commit** the updated `Generated` file so consumers stay in sync.
 
 For first-time orientation, start at [START_HERE.md](../START_HERE.md) and the repository overview ([REPOSITORY_README.md](../REPOSITORY_README.md)).
+
+---
+
+## Documentation grooming (authority and stale files)
+
+1. **Advisory stale scan:** `python scripts/ci/detect_stale_docs.py` (warn-only; flags `docs/**/*.md` untouched in git for 90+ days that still reference source paths). Treat output as a *backlog*, not a merge gate.
+2. **Link and scope discipline:** after moving or superseding a doc, update inbound links and the first-line **`> **Scope:**`** block; run **`python scripts/ci/check_doc_scope_header.py`** and **`python scripts/ci/check_doc_links.py`** (or the workflow-equivalent) on touched paths.
+3. **Archive vs active:** superseded narratives belong under **`docs/archive/`** with an explicit scope/status — do not leave orphan duplicates in **`docs/`** root (see [**Docs root markdown budget**](../../.cursor/rules/Docs-Root-Markdown-Budget.mdc)).
+4. **Canonical reads:** prefer **[`GLOSSARY.md`](GLOSSARY.md)** and **[`CONCEPT_VOCABULARY.md`](CONCEPT_VOCABULARY.md)** for terminology; **[`assessments/LATEST.md`](../assessments/LATEST.md)** is the only standing weighted assessment.
+

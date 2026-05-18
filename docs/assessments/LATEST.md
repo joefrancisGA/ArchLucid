@@ -8,7 +8,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 ## Executive Summary
 
 ### (A) Overall Headline Readiness (84.94%)
-ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, the internal Policy Pack Hub (catalog + clone), operational script hardening, merge-blocking OpenAPI v1 snapshot drift checks in CI, Azure Retail Prices coverage for VMs and Storage Accounts in the extractor package, tenant-fair dequeue for the deferred authority pipeline SQL outbox, Terraform plan validation of declared Azure SQL backup redundancy (Geo/Zone) in CD, SAML SP certificate nearing-expiry email notifications, structured application logging for policy pack assign and archive (telemetry fields include `PolicyPackId`, `TenantId`, `WorkspaceId`), soft-delete for architecture projects on `dbo.Projects` (`IsDeleted`, `DeletedUtc`) with leader-elected retention hard-purge after the configured window (default 30 days via `ArchitectureProjectRetention`), Azure Monitor managed Prometheus alerting for integration event outbox dead-letter (`ArchLucidIntegrationOutboxDeadLetterNonZeroTf`) and for per-tenant LLM monthly dollar budget utilization over 75% (`ArchLucidLlmBudgetWarnFractionBreachedTf`; product gauge `archlucid_llm_budget_utilization_fraction`, both in `infra/terraform-monitoring/prometheus_slo_rules.tf` with CI regression coverage), Grafana **LLM GenAI telemetry** (`infra/grafana/dashboard-archlucid-llm.json`: **`archlucid_llm_gen_ai_operation_duration_ms`**, token counters incl. **`archlucid_llm_embedding_input_tokens_total`**) paired with **`dashboard-archlucid-llm-usage`** (**budget headroom** **`archlucid_llm_budget_remaining_usd`**, **`archlucid_llm_budget_utilization_fraction`** from §15), **`runbook_url` annotations on the three legacy HTTP / outbox-depth SLO mirror rules** (Authority Pipeline observability runbook via `local.archlucid_authority_observability_runbook_url`), and a dedicated configurable rate limit (`evidenceBulkUpload`) on multipart bulk evidence upload—significantly strengthen the GA offering. The primary remaining gaps include observability follow-through (**Loki** alerting on structured logs, composite GenAI / cross-service SLO coherence, optional **`grafana_dashboard`** Terraform for **`dashboard-archlucid-llm`** when teams rely on dashboards-as-code), Azure Cost Management actuals / Advisor parity versus retail estimates, and default `ui-e2e-smoke` mock-heavy coverage.
+ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, the internal Policy Pack Hub (catalog + clone), operational script hardening, merge-blocking OpenAPI v1 snapshot drift checks in CI, Azure Retail Prices coverage for VMs and Storage Accounts in the extractor package, tenant-fair dequeue for the deferred authority pipeline SQL outbox, Terraform plan validation of declared Azure SQL backup redundancy (Geo/Zone) in CD, SAML SP certificate nearing-expiry email notifications, structured application logging for policy pack assign and archive (telemetry fields include `PolicyPackId`, `TenantId`, `WorkspaceId`), soft-delete for architecture projects on `dbo.Projects` (`IsDeleted`, `DeletedUtc`) with leader-elected retention hard-purge after the configured window (default 30 days via `ArchitectureProjectRetention`), Azure Monitor managed Prometheus alerting for integration event outbox dead-letter (`ArchLucidIntegrationOutboxDeadLetterNonZeroTf`) and for per-tenant LLM monthly dollar budget utilization over 75% (`ArchLucidLlmBudgetWarnFractionBreachedTf`; product gauge `archlucid_llm_budget_utilization_fraction`, both in `infra/terraform-monitoring/prometheus_slo_rules.tf` with CI regression coverage), Grafana **LLM GenAI telemetry** (`infra/grafana/dashboard-archlucid-llm.json`: **`archlucid_llm_gen_ai_operation_duration_ms`**, token counters incl. **`archlucid_llm_embedding_input_tokens_total`**) paired with **`dashboard-archlucid-llm-usage`** (**budget headroom** **`archlucid_llm_budget_remaining_usd`**, **`archlucid_llm_budget_utilization_fraction`** from §15), **`runbook_url` annotations on the three legacy HTTP / outbox-depth SLO mirror rules** (Authority Pipeline observability runbook via `local.archlucid_authority_observability_runbook_url`), and a dedicated configurable rate limit (`evidenceBulkUpload`) on multipart bulk evidence upload, **`archlucid-ui/e2e/live-api-smoke.spec.ts`** (baseline extractor ZIP wizard + sealed findings UI on **`LIVE_API_URL`**; no Playwright **`page.route`** stubs)—significantly strengthen the GA offering. The primary remaining gaps include observability follow-through (**Loki** alerting on structured logs, composite GenAI / cross-service SLO coherence, optional **`grafana_dashboard`** Terraform for **`dashboard-archlucid-llm`** when teams rely on dashboards-as-code), Azure Cost Management actuals / Advisor parity versus retail estimates, and **PR UI skew** (mock-forward **`ui-e2e-smoke`** vs narrower real-integration **`live-api-*`** matrices).
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. The full automated tenant erasure quarantine pipeline is a V2 engineering commitment and is not scored as an `(A)` defect. V1 relies on operator-driven and trial/offboarding deletion paths.
@@ -20,7 +20,7 @@ The commercial posture is strongly aligned for a sales-led, service-led motion. 
 ArchLucid provides strong enterprise integration points, including Jira, ServiceNow, Slack, and Confluence. Tenant isolation is robustly handled via database-per-tenant and RLS. Tenant custom governance packs support form-based authoring for curated-rules-shaped documents. SAML SP nearing-expiry email notifications for tenant admins, tenant-fair authority pipeline outbox dequeue in the worker, CD-time Terraform checks for declared Azure SQL backup redundancy, configurable per-tenant rate limits on bulk architecture evidence multipart uploads, structured logging for policy pack assignment assign and archive, architecture project soft-delete with retention-based hard purge (default 30 days), optional Azure Monitor Prometheus alerting for integration outbox dead-letter rows and for LLM monthly tenant-dollar budget utilization (warn-fraction breach per `tenant_id`) when the managed SLO/rule group is enabled, **`runbook_url`-linked triage paths on the legacy HTTP latency, 5xx ratio, and outbox-depth Prometheus SLO mirror rules**, **direct Prometheus LLM monthly budget USD headroom** (`archlucid_llm_budget_remaining_usd` for Grafana `dashboard-archlucid-llm-usage` when **`LlmMonthlyTenantDollarBudget:Enabled`**), and data residency verification in Terraform CI further enhance enterprise readiness.
 
 ### Engineering Picture
-The engineering foundation is highly rigorous, with strong architectural invariants, NetArchTest boundary rules, and a durable audit trail. The agent orchestration pipeline is resilient, and producer-side OpenTelemetry GenAI instrumentation records token aggregates, latency, and deployment identifiers. Grafana **`dashboard-archlucid-llm`** complements **`dashboard-archlucid-llm-usage`** (latency + tokenizer throughput alongside **budget headroom** **`archlucid_llm_budget_remaining_usd`**); Loki alert rules on assignment logs, composite SLO depth, and dashboards-as-code wiring for **`dashboard-archlucid-llm`** remain follow-ups. The heavy reliance on mocked `/api/proxy` in `ui-e2e-smoke` remains a testability risk.
+The engineering foundation is highly rigorous, with strong architectural invariants, NetArchTest boundary rules, and a durable audit trail. The agent orchestration pipeline is resilient, and producer-side OpenTelemetry GenAI instrumentation records token aggregates, latency, and deployment identifiers. Grafana **`dashboard-archlucid-llm`** complements **`dashboard-archlucid-llm-usage`** (latency + tokenizer throughput alongside **budget headroom** **`archlucid_llm_budget_remaining_usd`**); Loki alert rules on assignment logs, composite SLO depth, and dashboards-as-code wiring for **`dashboard-archlucid-llm`** remain follow-ups. **`live-api-smoke.spec.ts`** adds an unstubbed **`/api/proxy`** ZIP-first pilot + findings slice on **`LIVE_API_URL`**, alongside other **`live-api-*`** specs — **mock-heavy `ui-e2e-smoke`** release gates nevertheless keep testability breadth uneven vs full live route coverage.
 
 ---
 
@@ -238,8 +238,8 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weight:** 1
 - **Weighted impact on readiness:** 13
 - **Why this score was assigned:** Strong unit/integration tests. Playwright specs for whitelabel export added.
-- **Key tradeoffs:** Default `ui-e2e-smoke` remains mock-heavy.
-- **Specific improvement recommendations:** Create a live API smoke test suite.
+- **Key tradeoffs:** **`ui-e2e-smoke`** / release mock suite remains skew vs **`live-api-*`** depth.
+- **Specific improvement recommendations:** Expand **`live-api-*`** matrices (CI/staging breadth) beyond **`live-api-smoke`** parity.
 - **Fixability:** Fixable in V1.
 
 ---
@@ -247,7 +247,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 ## Top 12 Most Important Weaknesses
 
 1. **LLM observability consumption gaps:** Producer GenAI spans and meters ship; committed Grafana covers GenAI latency + tokenizer throughput (**`dashboard-archlucid-llm`**) and usage/finops (**`dashboard-archlucid-llm-usage`**), but operators still need SLO depth, alerting, and **Loki** correlation for those signals.
-2. **E2E test mock reliance:** `ui-e2e-smoke` relies heavily on mocked `/api/proxy`, leaving integration surfaces vulnerable to regressions.
+2. **E2E test mock reliance:** **`live-api-smoke.spec.ts`** (**§7**) and the broader **`live-api-*`** suite exercise real **`/api/proxy`** → **`LIVE_API_URL`**, but mock-forward **`ui-e2e-smoke`** (**`playwright.mock.config`**) remains the default PR surface—regressions outside live matrices remain possible.
 3. **Manual Azure cost estimations for VMs and Storage:** App Service and SQL are covered, but other SKUs remain manual.
 4. **Missing Internal Policy Pack Hub:** Tenants need discoverable, trustworthy starter packs without emailing JSON.
 5. **Background job transient fault handling:** Incomplete retry policies for SQL connections in background workers risk silent failures.
@@ -286,7 +286,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 ## Top 6 Engineering Risks
 
 1. **LLM observability consumption gaps:** Committed Grafana covers GenAI latency + tokenizer throughput (**`dashboard-archlucid-llm`**) and usage/finops headroom (**`dashboard-archlucid-llm-usage`**); operators still need SLO depth, alerting, and **Loki** correlation for day-2 operations.
-2. **E2E test mock reliance:** Heavy reliance on mocks in `ui-e2e-smoke` risks missing integration regressions.
+2. **E2E test mock reliance:** **`live-api-smoke.spec.ts`** complements **`live-api-*`** against SQL/API, while **`ui-e2e-smoke`** stays mock-forward — coverage skew remains unless teams expand **`live-api-*`** or wire staging runs.
 3. **Background job transient fault handling:** Incomplete retry policies for SQL connections in background workers risk silent failures.
 4. **`evidenceBulkUpload` observability:** Fixed-window ASP.NET Core rate limiting is implemented for multipart bulk architecture evidence uploads; anomaly detection, WAF-aligned quotas, and operator dashboards for abusive tenants remain uneven.
 5. **Architecture project retention vs. UX:** Deleted projects linger for the purge window—operators need clarity on timelines and escalation if a mistaken delete must be reversed without a restore UI.
@@ -386,16 +386,17 @@ Modify the SQL outbox processor in `ArchLucid.Worker` to round-robin across tena
 - Impact: Directly improves Reliability (+8-10 pts) and Scalability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 7. Create Live API Smoke Test Suite
+### 7. Create Live API Smoke Test Suite — **complete**
 - **Why it matters:** Ensures integration surfaces are not vulnerable to regressions masked by mocks.
 - **Expected impact:** Testability (+15 pts), Correctness (+5 pts).
 - **Affected qualities:** Testability, Correctness.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (`archlucid-ui/e2e/live-api-smoke.spec.ts`: **`injectDemoWorkspaceOperatorScope`** seeded demo tenant; operator home → **`/reviews/new?baseline=1`** minimal packager **`manifest.json` ZIP via `fflate`**; **`POST /api/proxy/v1/architecture/request`** awaited (no **`page.route`** stubs); **`executeRun`** + authority findings poll; **`quick-decision-summary`** on **`/reviews/{runId}`**; JWT skips unless **`ARCHLUCID_PROXY_BEARER_TOKEN`**. Acceptance wording “without `/api/proxy`” interpreted as **no mocked proxy**, i.e. real Next proxy forwarding to **`LIVE_API_URL`**.)
 ```text
-Create a new Playwright test suite `archlucid-ui/e2e/live-api-smoke.spec.ts` that runs against a real staging environment.
-- Acceptance criteria: The suite covers the core pilot loop (login, upload ZIP, view findings) without using `/api/proxy`.
-- Constraints: Use existing authentication helpers and seeded test data.
-- What not to change: Do not modify the application code.
+Create a Playwright suite `archlucid-ui/e2e/live-api-smoke.spec.ts` against real API/SQL (**`LIVE_API_URL`** / default `live-api-*` Playwright config).
+- Status: COMPLETE — acceptance criteria met (**operator shell + seeded scope**, baseline-first **ZIP**, **`executeRun`**, **`quick-decision-summary`** findings surface; **`page.route`** not used — real **`/api/proxy`** to upstream).
+- Acceptance criteria: Core pilot spine (authenticated operator context, extractor ZIP wizard prefill, view findings summary) **without mocked `/api/proxy`** Playwright stubs.
+- Constraints: Reuse **`live-api-client`** and **`injectDemoWorkspaceOperatorScope`**; no production app edits for this backlog item.
+- What not to change: No application/backend changes tied to §7 (Playwright artifact only).
 - Impact: Directly improves Testability (+10-15 pts) and Correctness (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
 ```
 
@@ -621,7 +622,7 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 3 (Cost & Policy Packs):** 2, 3, 4, 19
 - **Batch 4 (Reliability & Scalability):** 6, 9
 - **Batch 5 (Security & Compliance):** 5, 8
-- **Batch 6 (Testing & CI):** 7, 18
+- **Batch 6 (Testing & CI):** 18 (**§7 complete:** `archlucid-ui/e2e/live-api-smoke.spec.ts` — seeded scope, baseline ZIP wizard, **`executeRun`**, **`quick-decision-summary`**, no **`page.route`** mocks.)
 - **Batch 7 (UX & Conversion):** 10, 20
 
 ---

@@ -1,8 +1,10 @@
 > **Scope:** Internal working synthesis from a docs inventory ZIP pass; organisational navigation aid only — not authoritative over individual source markdown.
 >
-> **Status:** draft
+> **Status:** historical
 
 # ArchLucid Internal Documentation Review and Master Summary
+
+**Do not treat this file as current product truth.** It is a **navigation and inventory aid** from a point-in-time ZIP review. For authoritative entry and routing, use **[`START_HERE.md`](START_HERE.md)**; for engineering skim and anchors, **[`library/REPO_DIGEST.md`](library/REPO_DIGEST.md)**; for weighted readiness, **[`assessments/LATEST.md`](assessments/LATEST.md)** only.
 
 Generated: 2026-05-17
 

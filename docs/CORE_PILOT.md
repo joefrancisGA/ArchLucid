@@ -27,9 +27,9 @@ Do not mistake the Core Pilot checklist for full product scope — advanced Oper
 
 Four steps — same sequence as **`[onboarding/EVALUATION_GUIDE.md`](onboarding/EVALUATION_GUIDE.md)** Part 2:
 
-1. **Create** an architecture review (operator **New run** wizard or **`archlucid run`** with project inputs).
-2. **Execute** the run and let the coordinator complete the pipeline (timeline on the run detail page).
+1. **Create** an architecture review (operator **New review** wizard or **`archlucid run`** CLI with project inputs — the CLI verb remains `run` for backward compatibility).
+2. **Execute** the **review** (pipeline) and let the coordinator complete the work (timeline on the **review detail** page — legacy routes may still use `/runs/`).
 3. **Commit** the manifest (produces golden manifest + synthesized artifacts — nothing exportable before this step).
-4. **Open** the review package — manifest summary, artifacts table, and bundle export on the run detail page.
+4. **Open** the review package — manifest summary, artifacts table, and bundle export on the **review detail** page.
 
-**Sponsor-visible artifact:** after commit, use the operator run detail (**“Email this run to your sponsor”** banner when manifest exists) plus **[`go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)** for narrative context.
+**Sponsor-visible artifact:** after commit, use the operator **review detail** (**“Email this review to your sponsor”** banner when manifest exists; exact UI copy may still say *run* until label-only updates land) plus **[`go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)** for narrative context.

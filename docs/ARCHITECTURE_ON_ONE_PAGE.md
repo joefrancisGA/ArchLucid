@@ -136,9 +136,9 @@ flowchart LR
 | Step | What happens |
 |------|----------------|
 | 1 | Operator creates an **architecture request** (UI wizard, `POST /v1/architecture/request`, or CLI `run`). |
-| 2 | **Coordinator / authority pipeline** executes the run; timeline updates on **run detail**. |
+| 2 | **Coordinator / authority pipeline** executes the **review**; timeline updates on **review detail** (legacy **run detail** / `/runs/` routes). |
 | 3 | Operator **commits** the manifest (`POST …/commit` or UI) — persists golden manifest and synthesized artifacts. |
-| 4 | Reviewer consumes **manifest, artifacts, exports** from run detail; optional sponsor package and trace replay. |
+| 4 | Reviewer consumes **manifest, artifacts, exports** from **review detail**; optional sponsor package and trace replay. |
 
 **Pilot narrative:** [`CORE_PILOT.md`](CORE_PILOT.md)
 
