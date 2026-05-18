@@ -9,6 +9,8 @@ import {
   createPolicyPack,
   getEffectivePolicyContent,
   getEffectivePolicyPacks,
+  getPolicyPackCatalogEntry,
+  listPolicyPackCatalog,
   listPolicyPackVersions,
   listPolicyPacks,
   publishPolicyPackVersion,
@@ -23,6 +25,7 @@ import { useNavSurface } from "@/lib/use-nav-surface";
 import type {
   EffectivePolicyPackSet,
   PolicyPack,
+  PolicyPackCatalogListItem,
   PolicyPackContentDocument,
   PolicyPackVersion,
 } from "@/types/policy-packs";
@@ -31,7 +34,7 @@ import { isBundledPlatformDefaultPackType } from "@/lib/policy-pack-type-label";
 
 import { DEFAULT_CONTENT } from "./policy-packs-page-constants";
 import type { PolicyPacksPageServerLoad } from "./load-policy-packs-page-data";
-import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
+import type { PolicyPacksPageTab, PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 
 export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): PolicyPacksPageViewModel {
   const canMutatePacks = useNavSurface("policy-packs").mutationCapability;
@@ -43,6 +46,12 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
   );
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(serverLoad.failure);
+
+  const [pageTab, setPageTab] = useState<PolicyPacksPageTab>("my-packs");
+  const [catalogItems, setCatalogItems] = useState<PolicyPackCatalogListItem[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(false);
+  const [catalogFailure, setCatalogFailure] = useState<ApiLoadFailureState | null>(null);
+  const [selectedCatalogEntryId, setSelectedCatalogEntryId] = useState("");
 
   const [name, setName] = useState("Baseline governance");
   const [description, setDescription] = useState("");
@@ -96,6 +105,67 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
       setLoading(false);
     }
   }, [buyerPolishedShell]);
+
+  const refreshCatalog = useCallback(async () => {
+    setCatalogLoading(true);
+    setCatalogFailure(null);
+
+    try {
+      const rows: PolicyPackCatalogListItem[] = await listPolicyPackCatalog();
+      setCatalogItems(rows);
+
+      setSelectedCatalogEntryId((prev) => {
+        if (prev.length > 0 && rows.some((r) => r.policyPackCatalogEntryId === prev)) {
+          return prev;
+        }
+
+        return rows[0]?.policyPackCatalogEntryId ?? "";
+      });
+    } catch (e: unknown) {
+      setCatalogFailure(toApiLoadFailure(e));
+    } finally {
+      setCatalogLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (pageTab !== "catalog") {
+      return;
+    }
+
+    void refreshCatalog();
+  }, [pageTab, refreshCatalog]);
+
+  const onCloneCatalogEntry = useCallback(async () => {
+    if (!canMutatePacks || selectedCatalogEntryId.length === 0) {
+      return;
+    }
+
+    setCatalogFailure(null);
+    setLoading(true);
+
+    try {
+      const detail = await getPolicyPackCatalogEntry(selectedCatalogEntryId);
+      const json = detail.snapshotContentJson ?? "{}";
+
+      JSON.parse(json);
+
+      const created: PolicyPack = await createPolicyPack({
+        name: `${detail.displayName ?? "Catalog pack"} (copy)`,
+        description: detail.description ?? "",
+        packType: detail.packType ?? "ProjectCustom",
+        initialContentJson: json,
+      });
+      await load();
+      setSelectedPackId(created.policyPackId);
+      setPageTab("my-packs");
+      showSuccess("Cloned catalog pack into your workspace.");
+    } catch (e: unknown) {
+      setCatalogFailure(toApiLoadFailure(e));
+    } finally {
+      setLoading(false);
+    }
+  }, [canMutatePacks, load, selectedCatalogEntryId]);
 
   useEffect(() => {
     if (packs.length > 0 && !selectedPackId) {
@@ -309,6 +379,15 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
   return {
     canMutatePacks,
     buyerPolishedShell,
+    pageTab,
+    setPageTab,
+    catalogItems,
+    catalogLoading,
+    catalogFailure,
+    selectedCatalogEntryId,
+    setSelectedCatalogEntryId,
+    refreshCatalog,
+    onCloneCatalogEntry,
     packs,
     effective,
     effectiveContent,

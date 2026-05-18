@@ -2,6 +2,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Governance;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -56,9 +57,12 @@ public sealed class PolicyPacksController(
     IPolicyPacksAppService policyPacksApp,
     IPolicyPackCatalogAdminService policyPackCatalogAdminService,
     IPolicyPackGovernanceDryRunService policyPackGovernanceDryRunService,
-    PolicyPackMarkdownExplainService policyPackMarkdownExplainService)
+    PolicyPackMarkdownExplainService policyPackMarkdownExplainService,
+    IAuditService auditService)
     : ControllerBase
 {
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     private readonly IPolicyPackCatalogRepository _policyPackCatalogRepository =
         policyPackCatalogRepository ?? throw new ArgumentNullException(nameof(policyPackCatalogRepository));
 
@@ -248,6 +252,20 @@ public sealed class PolicyPacksController(
                 $"Policy pack '{request.SourcePolicyPackId}' was not found in the current scope or has no content for the requested version.",
                 ProblemTypes.ResourceNotFound);
 
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.PolicyPackCatalogPromoted,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        policyPackCatalogEntryId = row.PolicyPackCatalogEntryId,
+                        sourcePolicyPackId = row.SourcePolicyPackId,
+                        snapshotVersion = row.SnapshotVersion
+                    }),
+            },
+            ct);
+
         return Ok(row);
     }
 
@@ -269,6 +287,14 @@ public sealed class PolicyPacksController(
             return this.NotFoundProblem(
                 $"Policy pack catalog entry '{request.PolicyPackCatalogEntryId}' was not found.",
                 ProblemTypes.ResourceNotFound);
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.PolicyPackCatalogDemoted,
+                DataJson = JsonSerializer.Serialize(new { policyPackCatalogEntryId = request.PolicyPackCatalogEntryId }),
+            },
+            ct);
 
         return NoContent();
     }

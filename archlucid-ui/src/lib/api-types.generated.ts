@@ -18610,6 +18610,208 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/policy-packs/catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PolicyPackCatalogListItem"][];
+                        "text/json": components["schemas"]["PolicyPackCatalogListItem"][];
+                        "text/plain": components["schemas"]["PolicyPackCatalogListItem"][];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/policy-packs/catalog/demote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["DemotePolicyPackCatalogEntryRequest"];
+                    "application/json": null | components["schemas"]["DemotePolicyPackCatalogEntryRequest"];
+                    "text/json": null | components["schemas"]["DemotePolicyPackCatalogEntryRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/policy-packs/catalog/promote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["PromotePolicyPackCatalogEntryRequest"];
+                    "application/json": null | components["schemas"]["PromotePolicyPackCatalogEntryRequest"];
+                    "text/json": null | components["schemas"]["PromotePolicyPackCatalogEntryRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PolicyPackCatalogEntryDetail"];
+                        "text/json": components["schemas"]["PolicyPackCatalogEntryDetail"];
+                        "text/plain": components["schemas"]["PolicyPackCatalogEntryDetail"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/policy-packs/catalog/{policyPackCatalogEntryId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    policyPackCatalogEntryId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PolicyPackCatalogEntryDetail"];
+                        "text/json": components["schemas"]["PolicyPackCatalogEntryDetail"];
+                        "text/plain": components["schemas"]["PolicyPackCatalogEntryDetail"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/policy-packs/effective": {
         parameters: {
             query?: never;
@@ -23189,6 +23391,9 @@ export interface components {
             needDeterminismOrCompareAppendices?: boolean;
             needExecutionTraces?: boolean;
             regulatedEnvironment?: boolean;
+            reviewBoardWhitelabelClientEngagementTitle?: null | string;
+            reviewBoardWhitelabelFirmDisplayName?: null | string;
+            reviewBoardWhitelabelLogoBase64?: null | string;
             templateProfile?: null | string;
         };
         ConsultingDocxProfileRecommendation: {
@@ -23586,6 +23791,10 @@ export interface components {
             runDetailUrl?: string;
             runId?: string;
             topFindings?: components["schemas"]["DemoQuickStartFindingSummary"][];
+        };
+        DemotePolicyPackCatalogEntryRequest: {
+            /** Format: uuid */
+            policyPackCatalogEntryId?: string;
         };
         DeterminismCheckRequest: {
             commitReplays?: boolean;
@@ -25372,6 +25581,31 @@ export interface components {
             /** Format: uuid */
             workspaceId?: string;
         };
+        PolicyPackCatalogEntryDetail: {
+            description?: string;
+            displayName?: string;
+            packType?: string;
+            /** Format: uuid */
+            policyPackCatalogEntryId?: string;
+            /** Format: date-time */
+            promotedUtc?: null | string;
+            snapshotContentJson?: string;
+            snapshotVersion?: string;
+            /** Format: uuid */
+            sourcePolicyPackId?: string;
+        };
+        PolicyPackCatalogListItem: {
+            description?: string;
+            displayName?: string;
+            packType?: string;
+            /** Format: uuid */
+            policyPackCatalogEntryId?: string;
+            /** Format: date-time */
+            promotedUtc?: null | string;
+            snapshotVersion?: string;
+            /** Format: uuid */
+            sourcePolicyPackId?: string;
+        };
         PolicyPackChangeLogEntry: {
             /** Format: uuid */
             changeLogId?: string;
@@ -25648,6 +25882,11 @@ export interface components {
             severity?: string;
             suggestedNextStep?: null | string;
             title?: string;
+        };
+        PromotePolicyPackCatalogEntryRequest: {
+            /** Format: uuid */
+            sourcePolicyPackId?: string;
+            version?: null | string;
         };
         ProofPackageCompletenessResponse: {
             agentOutputPilotStrictEvidenceSatisfied?: boolean;

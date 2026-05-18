@@ -276,6 +276,12 @@ public static class AuditEventTypes
     public const string PolicyPackAssignmentCreated = "PolicyPackAssignmentCreated";
     public const string PolicyPackAssignmentArchived = "PolicyPackAssignmentArchived";
 
+    /// <summary>Admin promoted a policy pack snapshot into the global catalog.</summary>
+    public const string PolicyPackCatalogPromoted = "PolicyPackCatalogPromoted";
+
+    /// <summary>Admin demoted a catalog entry from the buyer-visible catalog.</summary>
+    public const string PolicyPackCatalogDemoted = "PolicyPackCatalogDemoted";
+
     public const string GovernanceResolutionExecuted = "GovernanceResolutionExecuted";
     public const string GovernanceConflictDetected = "GovernanceConflictDetected";
 

@@ -4,14 +4,27 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type {
   EffectivePolicyPackSet,
   PolicyPack,
+  PolicyPackCatalogListItem,
   PolicyPackContentDocument,
   PolicyPackVersion,
 } from "@/types/policy-packs";
+
+/** Primary sections on the policy packs page. */
+export type PolicyPacksPageTab = "my-packs" | "catalog";
 
 /** Client view-model for {@link PolicyPacksPageView}; produced by {@link usePolicyPacksPage} after server hydration. */
 export type PolicyPacksPageViewModel = {
   readonly canMutatePacks: boolean;
   readonly buyerPolishedShell: boolean;
+  readonly pageTab: PolicyPacksPageTab;
+  readonly setPageTab: Dispatch<SetStateAction<PolicyPacksPageTab>>;
+  readonly catalogItems: PolicyPackCatalogListItem[];
+  readonly catalogLoading: boolean;
+  readonly catalogFailure: ApiLoadFailureState | null;
+  readonly selectedCatalogEntryId: string;
+  readonly setSelectedCatalogEntryId: Dispatch<SetStateAction<string>>;
+  readonly refreshCatalog: () => Promise<void>;
+  readonly onCloneCatalogEntry: () => Promise<void>;
   readonly packs: PolicyPack[];
   readonly effective: EffectivePolicyPackSet | null;
   readonly effectiveContent: PolicyPackContentDocument | null;

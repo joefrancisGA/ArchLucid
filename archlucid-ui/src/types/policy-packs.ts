@@ -1,3 +1,5 @@
+import type { components } from "@/lib/openapi-schemas";
+
 /** A policy pack containing compliance rules, alert rules, and advisory defaults. */
 export type PolicyPack = {
   policyPackId: string;
@@ -63,3 +65,9 @@ export type PolicyPackContentDocument = {
   advisoryDefaults: Record<string, string>;
   metadata: Record<string, string>;
 };
+
+/** Promoted platform catalog row (`GET /v1/policy-packs/catalog`). */
+export type PolicyPackCatalogListItem = components["schemas"]["PolicyPackCatalogListItem"];
+
+/** Catalog entry with snapshot JSON for cloning. */
+export type PolicyPackCatalogEntryDetail = components["schemas"]["PolicyPackCatalogEntryDetail"];

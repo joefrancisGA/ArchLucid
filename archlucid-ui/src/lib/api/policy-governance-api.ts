@@ -23,6 +23,8 @@ import type {
   EffectivePolicyPackSet,
   PolicyPack,
   PolicyPackAssignment,
+  PolicyPackCatalogEntryDetail,
+  PolicyPackCatalogListItem,
   PolicyPackContentDocument,
   PolicyPackVersion,
 } from "@/types/policy-packs";
@@ -30,6 +32,20 @@ import { apiGet, apiPostJson } from "./http";
 
 export async function listPolicyPacks(): Promise<PolicyPack[]> {
   return apiGet<PolicyPack[]>(`/${ApiV1Routes.policyPacks}`);
+}
+
+/** Lists platform-promoted policy packs available to clone into the tenant. */
+export async function listPolicyPackCatalog(): Promise<PolicyPackCatalogListItem[]> {
+  return apiGet<PolicyPackCatalogListItem[]>(`/${ApiV1Routes.policyPacks}/catalog`);
+}
+
+/** Reads one catalog entry including snapshot JSON. */
+export async function getPolicyPackCatalogEntry(
+  policyPackCatalogEntryId: string,
+): Promise<PolicyPackCatalogEntryDetail> {
+  return apiGet<PolicyPackCatalogEntryDetail>(
+    `/${ApiV1Routes.policyPacks}/catalog/${encodeURIComponent(policyPackCatalogEntryId)}`,
+  );
 }
 
 /** Lists published versions for a policy pack. */

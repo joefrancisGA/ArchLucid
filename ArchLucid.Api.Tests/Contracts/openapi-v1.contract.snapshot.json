@@ -3929,6 +3929,24 @@
           "regulatedEnvironment": {
             "type": "boolean"
           },
+          "reviewBoardWhitelabelClientEngagementTitle": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reviewBoardWhitelabelFirmDisplayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reviewBoardWhitelabelLogoBase64": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "templateProfile": {
             "type": [
               "null",
@@ -5279,6 +5297,15 @@
               "$ref": "#/components/schemas/DemoQuickStartFindingSummary"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "DemotePolicyPackCatalogEntryRequest": {
+        "properties": {
+          "policyPackCatalogEntryId": {
+            "format": "uuid",
+            "type": "string"
           }
         },
         "type": "object"
@@ -11195,6 +11222,73 @@
         },
         "type": "object"
       },
+      "PolicyPackCatalogEntryDetail": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "packType": {
+            "type": "string"
+          },
+          "policyPackCatalogEntryId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "promotedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "snapshotContentJson": {
+            "type": "string"
+          },
+          "snapshotVersion": {
+            "type": "string"
+          },
+          "sourcePolicyPackId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PolicyPackCatalogListItem": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "packType": {
+            "type": "string"
+          },
+          "policyPackCatalogEntryId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "promotedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "snapshotVersion": {
+            "type": "string"
+          },
+          "sourcePolicyPackId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PolicyPackChangeLogEntry": {
         "properties": {
           "changeLogId": {
@@ -12073,6 +12167,21 @@
           },
           "title": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PromotePolicyPackCatalogEntryRequest": {
+        "properties": {
+          "sourcePolicyPackId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "version": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -42193,6 +42302,285 @@
         "responses": {
           "204": {
             "description": "No Content"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "PolicyPacks"
+        ]
+      }
+    },
+    "/v1/policy-packs/catalog": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PolicyPackCatalogListItem"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PolicyPackCatalogListItem"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PolicyPackCatalogListItem"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "PolicyPacks"
+        ]
+      }
+    },
+    "/v1/policy-packs/catalog/demote": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/DemotePolicyPackCatalogEntryRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/DemotePolicyPackCatalogEntryRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/DemotePolicyPackCatalogEntryRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "PolicyPacks"
+        ]
+      }
+    },
+    "/v1/policy-packs/catalog/promote": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PromotePolicyPackCatalogEntryRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PromotePolicyPackCatalogEntryRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PromotePolicyPackCatalogEntryRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyPackCatalogEntryDetail"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyPackCatalogEntryDetail"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyPackCatalogEntryDetail"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "PolicyPacks"
+        ]
+      }
+    },
+    "/v1/policy-packs/catalog/{policyPackCatalogEntryId}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "policyPackCatalogEntryId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyPackCatalogEntryDetail"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyPackCatalogEntryDetail"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyPackCatalogEntryDetail"
+                }
+              }
+            },
+            "description": "OK"
           },
           "404": {
             "content": {

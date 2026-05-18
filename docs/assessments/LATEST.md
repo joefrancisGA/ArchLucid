@@ -8,7 +8,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 ## Executive Summary
 
 ### (A) Overall Headline Readiness (84.94%)
-ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, and operational script hardening—significantly strengthen the GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting), broader automated Azure cost estimations, and default `ui-e2e-smoke` mock-heavy coverage.
+ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, the internal Policy Pack Hub (catalog + clone), and operational script hardening—significantly strengthen the GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting), broader automated Azure cost estimations, and default `ui-e2e-smoke` mock-heavy coverage.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. The full automated tenant erasure quarantine pipeline is a V2 engineering commitment and is not scored as an `(A)` defect. V1 relies on operator-driven and trial/offboarding deletion paths.
@@ -328,13 +328,14 @@ Update `scripts/azure/ArchLucid.RetailPrices.helpers.ps1` and `Get-ArchLucidAzur
 - Impact: Directly improves Cost-Effectiveness (+8-10 pts) and Proof-of-ROI Readiness (+3-5 pts). Weighted readiness impact: +0.2-0.3%.
 ```
 
-### 3. Internal Policy Pack Hub (catalog read model + admin-only promotion)
+### 3. Internal Policy Pack Hub (catalog read model + admin-only promotion) — **complete**
 - **Why it matters:** Tenants need discoverable, trustworthy starter packs without emailing JSON.
 - **Expected impact:** Stickiness (+15 pts), Template and Accelerator Richness (+10 pts).
 - **Affected qualities:** Stickiness, Template and Accelerator Richness.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (`PolicyPackCatalogEntry` / migration 171, `GET/POST /v1/policy-packs/catalog/*`, operator **Catalog** tab on `/policy-packs`, `docs/library/API_CONTRACTS.md` Policy packs table; clone remains tenant-owned; no multi-tenant write sharing).
 ```text
 Implement an internal Policy Pack Hub: a read-only catalog of platform-curated policy packs that any tenant can browse and clone, with admin-only promotion.
+- Status: COMPLETE — acceptance criteria met (table, tenant-authenticated catalog GETs, admin promote/demote, UI Catalog tab; OpenAPI/clients per Http-Surface-Docs-And-Clients).
 - Acceptance criteria: Add a `PolicyPackCatalogEntry` table. Add GET list/detail for catalog (tenant-authenticated). Add POST promote/demote (admin-only). Update UI to show a "Catalog" tab under `/policy-packs`.
 - Constraints: Follow `Http-Surface-Docs-And-Clients.mdc` for new endpoints.
 - What not to change: Do not open multi-tenant write sharing.
