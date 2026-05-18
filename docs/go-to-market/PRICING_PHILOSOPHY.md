@@ -35,10 +35,10 @@
 | Model | Pros | Cons | Fit for ArchLucid |
 |-------|------|------|-------------------|
 | **Per-seat (architect)** | Simple, predictable, easy to quote | Caps adoption — customers may limit seats to control cost; penalizes broader team usage | **Good base** — aligns with buyer's architect headcount; simple to explain |
-| **Per-run (usage)** | Aligns with value delivered; high-volume users pay more | Unpredictable costs; discourages experimentation; complex metering needed | **Poor as primary** — buyers dislike variable cost; good as an overage mechanism |
-| **Platform fee + consumption** | Predictable base with usage upside; expansion-friendly | More complex to explain; requires metering infrastructure | **Best hybrid** — predictable base per workspace/team, with run allowances per tier |
+| **Per-review (usage)** | Aligns with value delivered; high-volume users pay more | Unpredictable costs; discourages experimentation; complex metering needed | **Poor as primary** — buyers dislike variable cost; good as an overage mechanism |
+| **Platform fee + consumption** | Predictable base with usage upside; expansion-friendly | More complex to explain; requires metering infrastructure | **Best hybrid** — predictable base per workspace/team, with **review** allowances per tier |
 
-**Recommendation:** **Platform fee per workspace + included run allowance** with per-seat pricing for named architects. This gives buyers predictability (platform fee + seats) while allowing expansion via additional workspaces, seats, and run overages.
+**Recommendation:** **Platform fee per workspace + included review allowance** with per-seat pricing for named architects. This gives buyers predictability (platform fee + seats) while allowing expansion via additional workspaces, seats, and **review** overages.
 
 ---
 
@@ -54,7 +54,7 @@
 | **Seats included** | Up to 5 architects | Up to 20 architects | Unlimited (named) |
 | **Seat price** | $79 / architect / month | $179 / architect / month | Included in annual contract |
 | **Workspaces** | 1 | Up to 5 | Unlimited |
-| **Runs / month** | 20 included; $10 / run overage | 100 included; $8 / run overage | Unlimited (2,000 run/mo fair-use soft cap) |
+| **Reviews / month** | 20 included; $10 / **review** overage | 100 included; $8 / **review** overage | Unlimited (2,000 **reviews**/mo fair-use soft cap) |
 | **Annual prepay** | 2 months free | 2 months free | Custom |
 | **Finding engines** | All 10 | All 10 | All 10 + custom engine support |
 | **Governance** | Basic (pre-commit gate) | Full (approval workflows, policy packs, segregation of duties) | Full + custom policy packs |
@@ -217,7 +217,7 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
 | Professional review overage | $8 / review |
 | Enterprise annual floor | $60,000 / year |
 | Enterprise land range | $60,000–$250,000 / year |
-| Enterprise run model | Unlimited in fair-use (2,000 / month soft cap) |
+| Enterprise **review** metering | Unlimited in fair-use (2,000 / month soft cap) |
 | Guided pilot | $15,000 flat (fully credited on conversion) |
 | Design partner discount | 50% off Professional list, 12 months, first 3 customers only |
 

@@ -40,7 +40,7 @@ Use these where the buyer is evaluating **a review and report**, not self-serve 
 
 **Live deep link in the staging funnel:**
 
-The unauthenticated proof route **`/demo/explain`** (operator shell) renders the **provenance graph and the citations-bound aggregate explanation side-by-side**, sourced from the seeded Contoso Retail Modernization run. The route is hard-blocked from non-`Demo:Enabled=true` deployments by the `[FeatureGate(FeatureGateKey.DemoEnabled)]` filter — production hosts return `404` so the demo surface cannot leak. Sponsors and pilot evaluators can hit the staging URL directly:
+The unauthenticated proof route **`/demo/explain`** (operator shell) renders the **provenance graph and the citations-bound aggregate explanation side-by-side**, sourced from the seeded Contoso Retail Modernization **review**. The route is hard-blocked from non-`Demo:Enabled=true` deployments by the `[FeatureGate(FeatureGateKey.DemoEnabled)]` filter — production hosts return `404` so the demo surface cannot leak. Sponsors and pilot evaluators can hit the staging URL directly:
 
 - Staging deep link: `https://staging.archlucid.example.com/demo/explain` (replace host with the active staging deployment)
 - Backing API: `GET /v1/demo/explain` — server-side `DemoReadModelClient` composes the same application services as `/v1/explain` and `/v1/provenance`, but **hard-pinned to the demo tenant scope** (the underlying authenticated routes are unchanged)
@@ -70,7 +70,7 @@ The unauthenticated proof route **`/demo/explain`** (operator shell) renders the
 
 These are factual claims grounded in what the repository ships today.
 
-> **See it live, not on a slide:** the operator shell ships a built-in proof page at **`/why-archlucid`** (Core Pilot tier, no extra authority required). It calls `GET /v1/pilots/why-archlucid-snapshot`, `GET /v1/pilots/runs/{runId}/first-value-report`, and `GET /v1/explain/runs/{runId}/aggregate` against the seeded **Contoso Retail Modernization** demo tenant and renders live `ArchLucidInstrumentation` counters, the sponsor first-value report, and the run explanation + citations. Every claim in the table below should reconcile against what shows on that page after `pilot up` (or `POST /v1/demo/seed`).
+> **See it live, not on a slide:** the operator shell ships a built-in proof page at **`/why-archlucid`** (Core Pilot tier, no extra authority required). It calls `GET /v1/pilots/why-archlucid-snapshot`, `GET /v1/pilots/runs/{runId}/first-value-report`, and `GET /v1/explain/runs/{runId}/aggregate` against the seeded **Contoso Retail Modernization** demo tenant and renders live `ArchLucidInstrumentation` counters, the sponsor first-value report, and the **review** explanation + citations. Every claim in the table below should reconcile against what shows on that page after `pilot up` (or `POST /v1/demo/seed`).
 
 > **Anonymous buyer self-qualification:** the public marketing site page **`/why`** links to **`GET /v1/marketing/why-archlucid-pack.pdf`** (via Next.js `/api/proxy/...`), which returns a single PDF sourced only from the same cached anonymous demo bundle as `GET /v1/demo/preview` — deterministic, no tenant data, and **404** (not 403) when `Demo:Enabled` is false. The PDF repeats the incumbent comparison with every competitive cell tied to `docs/go-to-market/COMPETITIVE_LANDSCAPE.md` §2.1.
 
@@ -84,10 +84,10 @@ These are factual claims grounded in what the repository ships today.
 | Pre-commit governance gate | `PreCommitGovernanceGate` with `BlockCommitMinimumSeverity` and warning-only mode |
 | Approval SLA with escalation | `ApprovalSlaMonitor`, `SlaDeadlineUtc`, HMAC-signed webhook notifications |
 | Provenance graph | `ProvenanceBuilder`, `ProvenanceNode`, `ProvenanceEdge`, `ProvenanceCompletenessAnalyzer` |
-| Two-run comparison with drift detection | Structured golden-manifest deltas, comparison replay with verify mode (422 on drift) |
+| Two-**review** comparison with drift detection | Structured golden-manifest deltas, comparison replay with verify mode (422 on drift) |
 | Multi-vendor LLM with fallback | `ILlmProvider`, `LlmProviderDescriptor`, `FallbackAgentCompletionClient` |
 | 30+ custom OTel metrics | `ArchLucidInstrumentation`, histograms/counters/gauges |
-| Grafana dashboards committed in repo | Authority, SLO, LLM usage, container apps, run lifecycle dashboards |
+| Grafana dashboards committed in repo | Authority, SLO, LLM usage, container apps, **review** lifecycle dashboards |
 | Policy packs with effective governance | `PolicyPackContentDocument`, scope assignments, `IEffectiveGovernanceResolver` |
 | Compliance drift trend | `ComplianceDriftTrendService`, `ComplianceDriftChart` in operator UI |
 | DOCX export with embedded diagrams | Consulting-grade report via `IDocxExportService`, Mermaid → PNG rendering |
@@ -157,7 +157,7 @@ Used as the homepage H1, lead promise, and one-sentence positioning tagline acro
 | Do | Don't |
 |----|-------|
 | Lead with the **buyer outcome**: "architecture risk review in minutes, findings your CTO can act on" | Lead with implementation: "multi-agent pipeline" or "10 finding engines" |
-| Use buyer vocabulary: **risk, finding, recommended action, evidence, confidence, readiness** | Use internal vocabulary as first-impression words: "manifest", "run", "commit", "coordinator" |
+| Use buyer vocabulary: **risk, finding, recommended action, evidence, confidence, readiness** | Use internal vocabulary as first-impression words: "manifest", "run" (CLI/API noun only), "commit", "coordinator" |
 | Say "**Architecture Proof Engine**" when explaining the **category** | Say "AI-powered" as the headline — every tool says this now |
 | Emphasize **evidence linkage**: every finding cites what it used | Claim "fully autonomous architecture design" — agents are orchestrated, not autonomous |
 | Lead with **architecture review** — AI is the engine, not the promise | Over-promise on AI accuracy — frame findings as decision support, not legal attestation |

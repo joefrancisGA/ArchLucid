@@ -78,12 +78,12 @@ ArchLucid operates at the intersection of two established markets and one emergi
 | **Provenance graph** | `ProvenanceBuilder`, `ProvenanceNode`, `ProvenanceEdge`, graph algorithms. UI visualization with layered SVG. Decision → evidence → artifact lineage. |
 | **Governance workflow** | Approval requests, manifest promotions, environment activation. Segregation of duties (self-approval blocked). Pre-commit governance gate with configurable severity. Approval SLA with escalation webhooks. Compliance drift trending. |
 | **Durable audit** | 78 typed audit event constants. SQL append-only enforcement (`DENY UPDATE/DELETE`). Paginated search, bulk export (JSON/CSV). CI guard on event count. |
-| **Comparison and drift detection** | Two-run comparison with structured deltas. Comparison replay (regenerate, verify, artifact modes). Drift analysis between stored and regenerated outputs. |
+| **Comparison and drift detection** | Two-**review** comparison with structured deltas. Comparison replay (regenerate, verify, artifact modes). Drift analysis between stored and regenerated outputs. |
 | **Policy packs** | Versioned policy documents with scope assignments. Effective governance resolution (tenant → workspace → project precedence). Coverage engines. Applicability engines. |
 | **Enterprise security** | Entra ID JWT, API key, RBAC (Admin/Operator/Reader/Auditor). SQL RLS for multi-tenant isolation. Private endpoints for SQL and blob. WAF via Front Door. STRIDE threat model. OWASP ZAP and Schemathesis in CI. |
 | **Export and reporting** | Markdown, DOCX (consulting-grade with embedded diagrams), ZIP bundles. Replay from persisted export records. |
 | **Knowledge graph** | Typed nodes and edges from context snapshots. Edge inference. Multiple visualization modes in operator UI. |
-| **Observability** | 30+ custom OTel metrics. 8 activity sources. Grafana dashboards committed in repo. Business KPI metrics (runs, findings, LLM usage, cache hit ratio). |
+| **Observability** | 30+ custom OTel metrics. 8 activity sources. Grafana dashboards committed in repo. Business KPI metrics (**reviews**, findings, LLM usage, cache hit ratio). |
 
 ---
 
@@ -114,9 +114,9 @@ ArchLucid operates at the intersection of two established markets and one emergi
 
 | ArchLucid does better | ChatGPT/Copilot does better |
 |-----------------------|----------------------------|
-| **Structured, repeatable pipeline:** Every run produces a versioned manifest, findings, provenance graph, and audit trail. Chat conversations are ephemeral and non-repeatable. | **Zero setup, immediate value:** Type a question, get an answer. No infrastructure, no configuration, no SQL Server. |
+| **Structured, repeatable pipeline:** Every **review** produces a versioned manifest, findings, provenance graph, and audit trail. Chat conversations are ephemeral and non-repeatable. | **Zero setup, immediate value:** Type a question, get an answer. No infrastructure, no configuration, no SQL Server. |
 | **Governance and accountability:** Findings are traced, decisions are auditable, approvals are enforced. Chat has no governance concept. | **Breadth of knowledge:** General-purpose LLMs have broader training data than ArchLucid's focused agent prompts. |
-| **Drift detection and comparison:** Compare two architecture iterations with structured deltas. Chat cannot compare its own previous outputs systematically. | **Cost per interaction:** $20/mo for unlimited queries. ArchLucid has infrastructure costs + LLM consumption per run. |
+| **Drift detection and comparison:** Compare two architecture iterations with structured deltas. Chat cannot compare its own previous outputs systematically. | **Cost per interaction:** $20/mo for unlimited queries. ArchLucid has infrastructure costs + LLM consumption per **review**. |
 
 ### 4.5 ArchLucid vs. Structurizr
 

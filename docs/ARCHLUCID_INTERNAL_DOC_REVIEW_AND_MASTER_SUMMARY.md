@@ -1,6 +1,6 @@
-> **Scope:** Internal working synthesis from a docs inventory ZIP pass; organisational navigation aid only — not authoritative over individual source markdown.
+> **Scope:** Historical navigation-only synthesis from a docs inventory ZIP pass — not authoritative over source markdown; superseded by **`START_HERE.md`**, **`library/REPO_DIGEST.md`**, and **`assessments/LATEST.md`** for current truth.
 >
-> **Status:** historical
+> **Status:** deprecated
 
 # ArchLucid Internal Documentation Review and Master Summary
 

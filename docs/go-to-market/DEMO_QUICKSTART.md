@@ -36,12 +36,12 @@ The script waits up to **120 seconds** for `http://localhost:5000/health/ready`,
 
 ## Your first five minutes
 
-1. **Wizard** — Browser should open to `/runs/new`. Pick **Greenfield web app** (or another preset) and walk the seven steps; submit a new run if you want live pipeline tracking, or explore existing data from the seeded demo.
-2. **Runs** — Open **Runs** and select a run to see status, findings, and manifest linkage. The seed creates baseline and hardened Contoso runs when startup seed completes ([demo-quickstart.md](../library/demo-quickstart.md) §3).
+1. **Wizard** — Browser should open to **`/runs/new`** (legacy path; product copy: **New review**). Pick **Greenfield web app** (or another preset) and walk the seven steps; start a **new review** if you want live pipeline tracking, or explore existing data from the seeded demo.
+2. **Reviews** — Open **Reviews** (sidebar may still say *Runs*) and select a **review** to see status, findings, and manifest linkage. The seed creates baseline and hardened Contoso **reviews** when startup seed completes ([demo-quickstart.md](../library/demo-quickstart.md) §3).
 3. **Explainability** — Open a finding and review the structured explainability trace (what was examined, rules, decisions).
-4. **Compare** — Use **Compare runs** with two runs (seeded IDs are documented in [demo-quickstart.md](../library/demo-quickstart.md)) to see structured deltas.
-5. **Graph** — Open the **Graph** view for a run to see provenance-style exploration.
-6. **Export** — From a run or export flow, generate Markdown/DOCX/ZIP as exposed in your build (consulting templates may require optional configuration).
+4. **Compare** — Use **Compare** with two **reviews** (seeded IDs are documented in [demo-quickstart.md](../library/demo-quickstart.md)) to see structured deltas.
+5. **Graph** — Open the **Graph** view for a **review** to see provenance-style exploration.
+6. **Export** — From **review** detail or the export flow, generate Markdown/DOCX/ZIP as exposed in your build (consulting templates may require optional configuration).
 
 Adjust the path if you prefer to start from the home dashboard at `http://localhost:3000/`.
 
