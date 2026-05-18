@@ -171,7 +171,8 @@ public sealed class DocxExportControllerAuditTests
             Mock.Of<IExplanationService>(),
             Mock.Of<IProvenanceSnapshotRepository>(),
             scope.Object,
-            audit.Object) { ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext() };
+            audit.Object,
+            NullLogger<DocxExportController>.Instance) { ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext() };
 
         IActionResult result = await sut.ExportRunDocx(runId, compareWith, false, false, CancellationToken.None);
 

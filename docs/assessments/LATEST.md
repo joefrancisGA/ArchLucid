@@ -630,16 +630,19 @@ Modify the findings list endpoints in `ArchLucid.Api` to emit structured applica
 ```
 
 ### 19. Implement auto-scaling rules for the worker pool based on SQL authority outbox depth
+- **Status:** Completed (2026-05-17)
 - **Why it matters:** Scaling on Azure queue depth alone risks backlog accumulation for SQL-driven workloads.
 - **Expected impact:** Scalability (+15 pts), Reliability (+5 pts).
 - **Affected qualities:** Scalability, Reliability.
-- **Actionable:** Yes
+- **Actionable:** No
+- **Completion evidence:** `infra/terraform-container-apps/main.tf` and `infra/terraform-container-apps/secondary_region.tf` — additive KEDA **`custom_scale_rule`** `authority-sql-outbox-depth-prometheus` (`prometheus` scaler; default PromQL **`scalar(sum(archlucid_authority_pipeline_work_pending))`**, configurable threshold vars). Optional secret **`authority-outbox-prom-bearer`** for Prometheus API bearer auth. Existing **`azure-queue`** rule unchanged when enabled. Inputs and validation: `infra/terraform-container-apps/variables.tf` (`worker_enable_authority_outbox_prom_scale`, `worker_authority_outbox_prom_*`), `infra/terraform-container-apps/checks.tf` (`worker_authority_prom_scale_requires_server_and_query`). Operator docs: `infra/terraform-container-apps/README.md`, `terraform.tfvars.example`.
 ```text
 Update the KEDA configuration in `infra/terraform-container-apps` to include a scaler based on the SQL authority outbox depth (`archlucid_authority_pipeline_work_pending` metric).
 - Acceptance criteria: The worker pool scales up when the SQL outbox depth exceeds a configured threshold.
 - Constraints: Ensure the scaler uses a read-only SQL principal or Prometheus metric endpoint.
 - What not to change: Do not remove the existing Azure Queue scaler.
 - Impact: Directly improves Scalability (+10-15 pts) and Reliability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- **Shipped (2026-05-17):** Optional Prometheus-based KEDA rule on worker (primary + secondary region app); **`azure-queue`** scaler retained; enable via **`worker_enable_authority_outbox_prom_scale`** + **`worker_authority_outbox_prom_server_address`** (see **Completion evidence**).
 ```
 
 ### 20. Add at least three new architecture boundary rules in `ArchLucid.Architecture.Tests`
@@ -729,7 +732,7 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 1 (Observability & Reliability):** 2, 18, 21, 22, 23
 - **Batch 2 (Testing & CI Hygiene):** ~~5~~ completed 2026-05-17, 12, ~~14, 15, 16~~ **V1.1** backlog (2026-05-17), 24
 - **Batch 3 (Integrations & Extractor):** ~~6~~ completed 2026-05-17, ~~13~~ **V1.1** backlog (2026-05-17), 25
-- **Batch 4 (Architecture, infrastructure, tenant lifecycle):** ~~3~~ (**V2** — [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**), ~~7~~ completed 2026-05-17, 11, ~~17~~ completed 2026-05-17, 19, 20
+- **Batch 4 (Architecture, infrastructure, tenant lifecycle):** ~~3~~ (**V2** — [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**), ~~7~~ completed 2026-05-17, 11, ~~17~~ completed 2026-05-17, ~~19~~ completed 2026-05-17, 20
 - **Batch 5 (UX & Dashboards):** ~~4~~ completed 2026-05-17, 8, 9, 10
 - **Batch 6 (Internal cross-tenant rollups):** ~~1~~ completed 2026-05-17
 
