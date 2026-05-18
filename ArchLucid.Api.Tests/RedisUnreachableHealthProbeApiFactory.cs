@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Sockets;
 
 using ArchLucid.Persistence.Coordination.Caching;
 
@@ -63,7 +62,7 @@ public sealed class RedisUnreachableHealthProbeApiFactory : ArchLucidApiFactory
 
     private static string AllocateThenReleaseUnreachableRedisLoopbackEndpoint()
     {
-        TcpListener listener = new(IPAddress.Loopback, port: 0);
+        System.Net.Sockets.TcpListener listener = new(IPAddress.Loopback, port: 0);
 
         listener.Start();
 
