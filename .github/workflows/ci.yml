@@ -15,6 +15,7 @@
 #   Tier 3a — Operator UI unit (Vitest / jsdom) + CycloneDX npm SBOM artifact; lint/typecheck/build (`ui-static-quality`); mock journeys (`ui-playwright-mock-smoke`);
 #             axe WCAG 2.1 A/AA (`ui-playwright-accessibility`, mock-backed); optional full-page screenshot goldens via `npm run test:e2e:mock:visual` locally when updating baselines
 #   Tier 3b — Operator UI e2e (Playwright live API + SQL; extended live-a11y route matrix via workflow_dispatch input / nightly)
+#   Terraform advisory: mock manifest → emit comment-only snippets → terraform fmt -check / validate (`terraform-advisory-snippets-validate`)
 #
 # Re-run failed jobs from the Actions tab. Local equivalents: test-fast-core.*, test-full.*,
 # archlucid-ui: npm test / npm run test:axe-components / Playwright (default live config; mock via playwright.mock.config.ts).
@@ -574,6 +575,32 @@ jobs:
           exit-code: "1"
           cache: false
 
+  terraform-advisory-snippets-validate:
+    name: "Terraform: advisory snippets from mock manifest (fmt + validate)"
+    needs:
+      - gitleaks
+      - doc-markdown-links
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Advisory snippets guard unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_terraform_advisory_snippets_validate.py"
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_wrapper: false
+
+      - name: Emit advisory snippets + terraform fmt/validate
+        run: |
+          set -euo pipefail
+          python3 scripts/ci/terraform_advisory_snippets_validate.py
+
   openapi-contract-snapshot:
     name: ".NET: OpenAPI v1 contract snapshot (fail-fast)"
     needs:
@@ -692,6 +719,7 @@ jobs:
       - doc-markdown-links
       - demo-workspaces-fixture-parity
       - openapi-contract-snapshot
+      - terraform-advisory-snippets-validate
       - terraform-validate-private
       - terraform-validate-public-stacks
     runs-on: ubuntu-latest
@@ -3169,6 +3197,7 @@ jobs:
       - terraform-validate-private
       - terraform-validate-public-stacks
       - openapi-contract-snapshot
+      - terraform-advisory-snippets-validate
       - ci-agent-prompt-injection-regression
       - ci-agent-offline-regression
       - demo-workspaces-fixture-parity

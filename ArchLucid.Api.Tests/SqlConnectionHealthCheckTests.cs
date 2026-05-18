@@ -24,10 +24,11 @@ public sealed class SqlConnectionHealthCheckTests
     public async Task Healthy_WhenConnectionOpensSuccessfully()
     {
         Mock<DbConnection> mockConnection = new();
-        mockConnection.Setup(c => c.OpenAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         Mock<IDbConnectionFactory> factory = new();
-        factory.Setup(f => f.CreateConnection()).Returns(mockConnection.Object);
+        factory
+            .Setup(f => f.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mockConnection.Object);
 
         SqlConnectionHealthCheck sut = new(factory.Object,
             Options.Create(new ArchLucidOptions { StorageProvider = "Sql" }));
@@ -40,7 +41,8 @@ public sealed class SqlConnectionHealthCheckTests
     public async Task Healthy_WhenInMemoryStorage_SkipsDatabaseOpen()
     {
         Mock<IDbConnectionFactory> factory = new();
-        factory.Setup(f => f.CreateConnection()).Throws(new InvalidOperationException("should not open SQL"));
+        factory.Setup(f => f.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("should not open SQL"));
 
         SqlConnectionHealthCheck sut = new(factory.Object,
             Options.Create(new ArchLucidOptions { StorageProvider = "InMemory" }));
@@ -54,8 +56,8 @@ public sealed class SqlConnectionHealthCheckTests
     public async Task Degraded_WhenTimeoutExceptionThrown()
     {
         Mock<IDbConnectionFactory> factory = new();
-        factory.Setup(f => f.CreateConnection())
-            .Throws(new TimeoutException("Connection timed out"));
+        factory.Setup(f => f.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new TimeoutException("Connection timed out"));
 
         SqlConnectionHealthCheck sut = new(factory.Object,
             Options.Create(new ArchLucidOptions { StorageProvider = "Sql" }));
@@ -69,8 +71,8 @@ public sealed class SqlConnectionHealthCheckTests
     public async Task Unhealthy_WhenGenericExceptionThrown()
     {
         Mock<IDbConnectionFactory> factory = new();
-        factory.Setup(f => f.CreateConnection())
-            .Throws(new InvalidOperationException("Connection string missing"));
+        factory.Setup(f => f.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Connection string missing"));
 
         SqlConnectionHealthCheck sut = new(factory.Object,
             Options.Create(new ArchLucidOptions { StorageProvider = "Sql" }));

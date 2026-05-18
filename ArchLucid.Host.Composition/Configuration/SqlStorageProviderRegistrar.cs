@@ -94,6 +94,7 @@ using Microsoft.DurableTask.Client;
 using Microsoft.DurableTask.Worker;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Composition.Configuration;
@@ -146,8 +147,16 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         string connectionString,
         string effectiveSystemConnectionString)
     {
-        services.AddSingleton<ISystemSqlConnectionFactory>(_ =>
-            new DedicatedSystemSqlConnectionFactory(effectiveSystemConnectionString));
+        services.AddSingleton<ISystemSqlConnectionFactory>(sp =>
+        {
+            SqlOpenResilienceOptions sqlOpenOpts = sp.GetRequiredService<IOptions<SqlOpenResilienceOptions>>().Value;
+            ResiliencePipeline pipeline = SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(
+                sp.GetRequiredService<ILogger<DedicatedSystemSqlConnectionFactory>>(),
+                sqlOpenOpts.MaxRetryAttempts,
+                TimeSpan.FromMilliseconds(sqlOpenOpts.BaseDelayMilliseconds));
+
+            return new DedicatedSystemSqlConnectionFactory(effectiveSystemConnectionString, pipeline);
+        });
 
         services.AddScoped<ITenantDatabaseBindingRepository, DapperTenantDatabaseBindingRepository>();
         services.AddScoped<ITenantDatabaseResolver>(sp =>

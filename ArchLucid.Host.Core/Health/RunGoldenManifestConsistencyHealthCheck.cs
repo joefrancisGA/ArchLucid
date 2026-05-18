@@ -41,9 +41,8 @@ public sealed class RunGoldenManifestConsistencyHealthCheck(
 
         try
         {
-            DbConnection connection = (DbConnection)connectionFactory.CreateConnection();
+            DbConnection connection = (DbConnection)await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
             await using DbConnection _ = connection;
-            await connection.OpenAsync(cancellationToken);
 
             await using DbCommand command = connection.CreateCommand();
             command.CommandText = SqlText;
