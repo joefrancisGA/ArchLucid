@@ -101,7 +101,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Authority/RunQueryController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Authority/RunsController.cs` | `/v1/architecture` | none | ReadAuthority | /reviews?projectId=default |  |
 | `Authority/TemplatesController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
-| `Billing/BillingCheckoutController.cs` | `/v1/tenant/billing` | none | Authorize | /settings/tenant |  |
+| `Billing/BillingCheckoutController.cs` | `/v1/tenant/billing` | none | AdminAuthority | /settings/tenant |  |
 | `Billing/BillingMarketplaceWebhookController.cs` | `/v1/billing/webhooks` | none | AllowAnonymous |  | partner_webhook_ingest |
 | `Billing/BillingStripeWebhookController.cs` | `/v1/billing/webhooks` | none | AllowAnonymous |  | partner_webhook_ingest |
 | `Demo/DemoCommitPagePreviewController.cs` | `/v1/demo` | none | AllowAnonymous |  | demo_tooling |
@@ -135,7 +135,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Marketing/SponsorBriefMarketingController.cs` | `/v1/marketing` | none | AllowAnonymous |  | marketing_public_api |
 | `Marketing/TrustCenterEvidencePackController.cs` | `/v1/marketing/trust-center` | none | AllowAnonymous |  | marketing_public_api |
 | `Marketing/WhyArchlucidMarketingPackController.cs` | `/v1/marketing` | none | AllowAnonymous |  | marketing_public_api |
-| `Notifications/CustomerNotificationChannelPreferencesController.cs` | `/v1/notifications` | standard | ReadAuthority |  |  |
+| `Notifications/CustomerNotificationChannelPreferencesController.cs` | `/v1/notifications` | standard | AuthenticatedUserOnly |  |  |
 | `Notifications/ExecDigestUnsubscribeController.cs` | `/v1/notifications/exec-digest` | none | AllowAnonymous |  | signed_token_unsubscribe |
 | `Pilots/PilotsBoardPackController.cs` | `/v1/pilots` | standard | ExecuteAuthority | /scorecard |  |
 | `Pilots/PilotsController.cs` | `/v1/pilots` | none | ReadAuthority | /reviews?projectId=default |  |

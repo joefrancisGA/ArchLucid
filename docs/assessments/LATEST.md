@@ -8,7 +8,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 ## Executive Summary
 
 ### (A) Overall Headline Readiness (84.94%)
-ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, the internal Policy Pack Hub (catalog + clone), operational script hardening, merge-blocking OpenAPI v1 snapshot drift checks in CI, Azure Retail Prices coverage for VMs and Storage Accounts in the extractor package, tenant-fair dequeue for the deferred authority pipeline SQL outbox, Terraform plan validation of declared Azure SQL backup redundancy (Geo/Zone) in CD, SAML SP certificate nearing-expiry email notifications, and a dedicated configurable rate limit (`evidenceBulkUpload`) on multipart bulk evidence upload—significantly strengthen the GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting), Azure Cost Management actuals / Advisor parity versus retail estimates, and default `ui-e2e-smoke` mock-heavy coverage.
+ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, the internal Policy Pack Hub (catalog + clone), operational script hardening, merge-blocking OpenAPI v1 snapshot drift checks in CI, Azure Retail Prices coverage for VMs and Storage Accounts in the extractor package, tenant-fair dequeue for the deferred authority pipeline SQL outbox, Terraform plan validation of declared Azure SQL backup redundancy (Geo/Zone) in CD, SAML SP certificate nearing-expiry email notifications, structured application logging for policy pack assign and archive (telemetry fields include `PolicyPackId`, `TenantId`, `WorkspaceId`), soft-delete for architecture projects on `dbo.Projects` (`IsDeleted`, `DeletedUtc`) with leader-elected retention hard-purge after the configured window (default 30 days via `ArchitectureProjectRetention`), an Azure Monitor managed Prometheus SLO rule for integration event outbox dead-letter (`ArchLucidIntegrationOutboxDeadLetterNonZeroTf` in `infra/terraform-monitoring/prometheus_slo_rules.tf`, with CI regression coverage), and a dedicated configurable rate limit (`evidenceBulkUpload`) on multipart bulk evidence upload—significantly strengthen the GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting), Azure Cost Management actuals / Advisor parity versus retail estimates, and default `ui-e2e-smoke` mock-heavy coverage.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. The full automated tenant erasure quarantine pipeline is a V2 engineering commitment and is not scored as an `(A)` defect. V1 relies on operator-driven and trial/offboarding deletion paths.
@@ -17,7 +17,7 @@ Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 
 The commercial posture is strongly aligned for a sales-led, service-led motion. The inclusion of consultant whitelabeling on architecture review exports enables boutique consulting firms to use ArchLucid as a delivery engine. Curated demo workspaces, default policy packs, and the ZIP-first baseline wizard accelerate Time-to-Value and Proof-of-ROI. The deferred live commerce correctly prioritizes validated purchasing motions over premature self-serve availability.
 
 ### Enterprise Picture
-ArchLucid provides strong enterprise integration points, including Jira, ServiceNow, Slack, and Confluence. Tenant isolation is robustly handled via database-per-tenant and RLS. Tenant custom governance packs support form-based authoring for curated-rules-shaped documents. SAML SP nearing-expiry email notifications for tenant admins, tenant-fair authority pipeline outbox dequeue in the worker, CD-time Terraform checks for declared Azure SQL backup redundancy, configurable per-tenant rate limits on bulk architecture evidence multipart uploads, and data residency verification in Terraform CI further enhance enterprise readiness.
+ArchLucid provides strong enterprise integration points, including Jira, ServiceNow, Slack, and Confluence. Tenant isolation is robustly handled via database-per-tenant and RLS. Tenant custom governance packs support form-based authoring for curated-rules-shaped documents. SAML SP nearing-expiry email notifications for tenant admins, tenant-fair authority pipeline outbox dequeue in the worker, CD-time Terraform checks for declared Azure SQL backup redundancy, configurable per-tenant rate limits on bulk architecture evidence multipart uploads, structured logging for policy pack assignment assign and archive, architecture project soft-delete with retention-based hard purge (default 30 days), optional Azure Monitor Prometheus alerting for integration outbox dead-letter rows when the SLO rule group is enabled, and data residency verification in Terraform CI further enhance enterprise readiness.
 
 ### Engineering Picture
 The engineering foundation is highly rigorous, with strong architectural invariants, NetArchTest boundary rules, and a durable audit trail. The agent orchestration pipeline is resilient, and producer-side OpenTelemetry GenAI instrumentation records token aggregates, latency, and deployment identifiers. Curating operator dashboards and alerts on those signals remains a gap. The heavy reliance on mocked `/api/proxy` in `ui-e2e-smoke` remains a testability risk.
@@ -95,7 +95,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted impact on readiness:** 45
 - **Why this score was assigned:** The operator UI is functional. Bounded bulk evidence upload is supported. Finding confidence is surfaced via badges.
 - **Key tradeoffs:** The 30-file ceiling avoids abuse but may annoy heavy dossier pilots.
-- **Specific improvement recommendations:** Implement rate limiting for bulk evidence upload.
+- **Specific improvement recommendations:** Tune bulk evidence quotas and operator visibility (`evidenceBulkUpload` ships in API; watch near-cap tenants and integration partners).
 - **Fixability:** Fixable in V1.
 
 ### 9. Decision Velocity
@@ -140,7 +140,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted impact on readiness:** 26
 - **Why this score was assigned:** The `AuthorityRunOrchestrator` handles long-running analysis. Worker pool auto-scaling based on SQL outbox depth exists.
 - **Key tradeoffs:** Background workers may lack comprehensive retry policies.
-- **Specific improvement recommendations:** Implement tenant-fairness queuing in the Authority Pipeline.
+- **Specific improvement recommendations:** Continue hardening Polly-backed SQL retries on remaining ancillary background workers now that tenant-fair authority outbox dequeue is shipped.
 - **Fixability:** Fixable in V1.
 
 ### 14. Maintainability
@@ -212,7 +212,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted impact on readiness:** 18
 - **Why this score was assigned:** Governance workflows and compliance drift tracking provide ongoing value. Azure Policy compliance states are collected.
 - **Key tradeoffs:** Thin starter packs risk one-and-done pilots.
-- **Specific improvement recommendations:** Add telemetry for policy pack assignments.
+- **Specific improvement recommendations:** Operationalize dashboards or saved searches on policy pack assignment logs (structured fields include `PolicyPackId`, `TenantId`, `WorkspaceId`).
 - **Fixability:** Fixable in V1.
 
 ### 22. Scalability
@@ -255,9 +255,9 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 7. **SAML SP operational burden:** Managing certificate rotation and metadata drift for SAML SP adds operational overhead.
 8. **Thin starter packs:** AI governance and security baseline packs exist, but risk "one-and-done" pilots without a cost optimization pack.
 9. **Noisy neighbor posture in orchestration:** Buyers will diligence steady-state parallelism and multi-region fairness.
-10. **Rate limiting missing for bulk evidence upload:** The 30-file ceiling avoids abuse, but API rate limiting is needed.
-11. **Lack of soft delete for architecture projects:** Accidental deletion of projects cannot be easily recovered.
-12. **Missing telemetry for policy pack assignments:** Lack of visibility into which policy packs are assigned to which workspaces.
+10. **`evidenceBulkUpload` follow-up:** Dedicated rate limiting ships (`ASP.NET Core` policy `evidenceBulkUpload`, tenant/IP partitions); perimeter defense and dashboards for dossier-heavy or abusive callers still need curator attention.
+11. **Architecture project recovery is not self-service:** `DELETE /v1/tenant/workspaces/.../projects/...` soft-deletes (`IsDeleted`, `DeletedUtc`); hard purge runs after retention (default 30 days). In-product undo/restore is still absent—recovery depends on operational backup or direct data plane work during the retention window.
+12. **Policy pack assignment visibility (follow-up):** Assign and archive paths emit structured application logs, but Grafana/Loki dashboards and alert rules keyed on those events are not yet curated.
 
 ---
 
@@ -279,7 +279,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 3. **Noisy neighbor posture in orchestration:** Buyers will diligence steady-state parallelism and multi-region fairness.
 4. **SAML SP operational burden:** Managing certificate rotation and metadata drift for SAML SP adds operational overhead for enterprise IT.
 5. **Automated tenant erasure:** Not a V1 headline blocker, but buyers may still request a productized erasure narrative (deferred to V2).
-6. **Lack of soft delete for architecture projects:** Accidental deletion of projects cannot be easily recovered, causing data loss concerns for enterprise IT.
+6. **Architecture project recovery is not self-service:** Soft-delete plus retention purge is implemented; productized undelete UX and guardrails messaging for admins are still limited compared to buyer expectations for “recycle bin” workflows.
 
 ---
 
@@ -288,8 +288,8 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 1. **LLM observability consumption gaps:** Operators still need curated dashboards, SLOs, and alerting on GenAI signals for day-2 operations.
 2. **E2E test mock reliance:** Heavy reliance on mocks in `ui-e2e-smoke` risks missing integration regressions.
 3. **Background job transient fault handling:** Incomplete retry policies for SQL connections in background workers risk silent failures.
-4. **Rate limiting missing for bulk evidence upload:** Without rate limiting, the bulk upload endpoint could be abused.
-5. **Lack of soft delete for architecture projects:** Accidental deletion of projects could lead to data loss.
+4. **`evidenceBulkUpload` observability:** Fixed-window ASP.NET Core rate limiting is implemented for multipart bulk architecture evidence uploads; anomaly detection, WAF-aligned quotas, and operator dashboards for abusive tenants remain uneven.
+5. **Architecture project retention vs. UX:** Deleted projects linger for the purge window—operators need clarity on timelines and escalation if a mistaken delete must be reversed without a restore UI.
 6. **Missing health check endpoint for Redis:** If Redis is configured, a health check endpoint is needed to verify connectivity.
 
 ---
@@ -439,11 +439,11 @@ Add a `GET /v1/architecture/run/{runId}/findings/export/csv` endpoint to export 
 - Impact: Directly improves Decision Velocity (+8-10 pts) and Usability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 11. Add Telemetry for Policy Pack Assignments
+### 11. Add Telemetry for Policy Pack Assignments — **complete**
 - **Why it matters:** Provides visibility into which policy packs are actively used by tenants.
 - **Expected impact:** Stickiness (+10 pts), Observability (+5 pts).
 - **Affected qualities:** Stickiness, Observability.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (`PolicyPackAssignmentRepository`: structured Information logs after `CreateAsync` and successful `ArchiveAsync` in SQL and in-memory implementations; helper methods on `SanitizedLoggerInformationExtensions` with EventIds 3014–3015; fields `PolicyPackId`, `TenantId`, `WorkspaceId`; no new `IAuditService` emission.)
 ```text
 Add application-level logging in `PolicyPackAssignmentRepository` when a policy pack is assigned or unassigned.
 - Status: COMPLETE — acceptance criteria met (structured Information logs via `SanitizedLoggerInformationExtensions`: assign after `CreateAsync`, unassign after successful `ArchiveAsync` with SQL `OUTPUT` preserving single-update semantics; includes `PolicyPackId`, `TenantId`, `WorkspaceId`; no new `IAuditService` hooks.)
@@ -453,13 +453,14 @@ Add application-level logging in `PolicyPackAssignmentRepository` when a policy 
 - Impact: Directly improves Stickiness (+8-10 pts) and Observability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 12. Implement Soft Delete for Architecture Projects
+### 12. Implement Soft Delete for Architecture Projects — **complete**
 - **Why it matters:** Allows accidental deletions to be recovered before permanent data loss.
 - **Expected impact:** Reliability (+10 pts), Usability (+5 pts).
 - **Affected qualities:** Reliability, Usability.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (`dbo.Projects.IsDeleted`, `DeletedUtc`; `IArchitectureProjectRepository.TrySoftDeleteAsync` + `ListActiveByTenantAsync` excludes deleted; `ArchitectureProjectRetentionPurgeHostedService` / API `RetentionPurgeWorker` + `SqlArchitectureProjectRetentionPurgeService` hard-delete past `ArchitectureProjectRetention:RetentionDays`, default **30**, excluding rows still referenced as `TenantWorkspaces.DefaultProjectId`; `TenantWorkspacesController` soft-delete + `ArchitectureProjectSoftDeleted` audit; `SqlTenantHardPurgeService` untouched for tenant-level purge.)
 ```text
-Modify the `ArchitectureProject` entity to include an `IsDeleted` flag and `DeletedUtc` timestamp.
+**Delivered (V1):** `dbo.Projects` includes `IsDeleted` and `DeletedUtc`; workspace project `DELETE` is a soft-delete; leader-elected retention (`ArchitectureProjectRetentionPurgeHostedService` / `RetentionPurgeWorker`) permanently removes rows past **`ArchitectureProjectRetention:RetentionDays`** (default **30**).
+- Status: COMPLETE — acceptance criteria met (persistent columns on `dbo.Projects`; API delete performs soft-delete; leader-elected retention job hard-deletes expired soft-deleted rows; list reads filter `IsDeleted = 0`.)
 - Acceptance criteria: Deleting a project sets the flag instead of hard-deleting the row. A background job hard-deletes projects after 30 days.
 - Constraints: Update all read queries to filter out soft-deleted projects.
 - What not to change: Do not modify the tenant deletion service.
@@ -479,13 +480,14 @@ Add a Redis health check to the ASP.NET Core Health Checks pipeline in `ArchLuci
 - Impact: Directly improves Supportability (+8-10 pts) and Performance (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 14. Add Prometheus Alert for Integration Event Outbox Dead Letters
-- **Why it matters:** When an integration event exhausts all publish retries it is moved to the dead-letter slot (`archlucid_integration_event_outbox_dead_letter` gauge, emitted by `OutboxOperationalMetricsHostedService`). The dead-letter transition is logged at Error level but no Prometheus alert rule fires, so operators are only alerted if they manually inspect dashboards. A missed dead-letter means an integration event (Jira ticket, Slack notification, etc.) silently never delivered.
+### 14. Add Prometheus Alert for Integration Event Outbox Dead Letters — **complete**
+- **Why it matters:** When an integration event exhausts all publish retries it is moved to the dead-letter slot (`archlucid_integration_event_outbox_dead_letter` gauge, emitted by `OutboxOperationalMetricsHostedService`). Self-hosted Prometheus already had `ArchLucidIntegrationEventOutboxDeadLetter` in `infra/prometheus/archlucid-alerts.yml`; aligning Azure Monitor managed rules closes the TF-managed alerting gap when `enable_prometheus_slo_rule_group` is on.
 - **Expected impact:** Reliability (+12 pts), Observability (+8 pts).
 - **Affected qualities:** Reliability, Observability.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (`ArchLucidIntegrationOutboxDeadLetterNonZeroTf` in `infra/terraform-monitoring/prometheus_slo_rules.tf`; severity **2**, `for = PT5M`, ops action group; `scripts/ci/tests/test_prometheus_slo_dead_letter_alert_rule_tf.py`; CI wired in **`doc-markdown-links`**. Existing three `rule` blocks unchanged.)
 ```text
-Add a new Prometheus alert rule to `infra/terraform-monitoring/prometheus_slo_rules.tf` inside the existing `azurerm_monitor_alert_prometheus_rule_group.archlucid_slo` resource.
+**Delivered (V1 IaC):** Fourth `rule` in `azurerm_monitor_alert_prometheus_rule_group.archlucid_slo` — Azure Monitor Prometheus mirror for integration outbox dead-letter gauge (self-hosted parity: `infra/prometheus/archlucid-alerts.yml` `ArchLucidIntegrationEventOutboxDeadLetter`).
+- Status: COMPLETE — acceptance criteria met (rule in `prometheus_slo_rules.tf`; static unit test asserts alert name, expression, `PT5M`, annotation summary + runbook pointer; run `terraform validate` in `infra/terraform-monitoring` after `terraform init -backend=false` for local/provider verification.)
 - Rule name: `ArchLucidIntegrationOutboxDeadLetterNonZeroTf`
 - Expression: `archlucid_integration_event_outbox_dead_letter > 0`
 - Severity: 2, `for = "PT5M"`, action group: `azurerm_monitor_action_group.ops[0].id`.
@@ -516,7 +518,7 @@ Two-part change.
 ```
 
 ### 16. Add `runbook_url` Annotations to All Existing Prometheus SLO Alert Rules
-- **Why it matters:** The three existing alert rules in `prometheus_slo_rules.tf` (`ArchLucidSloHttpP99HighTf`, `ArchLucidSloHttp5xxRatioElevatedTf`, `ArchLucidSloOutboxDepthCriticalTf`) have only a `summary` annotation. Alertmanager and PagerDuty surface the `runbook_url` annotation as a clickable link. Without it, on-call engineers must manually search for the correct runbook in a high-stress incident.
+- **Why it matters:** The three **original** Azure Monitor mirror rules in `prometheus_slo_rules.tf` (`ArchLucidSloHttpP99HighTf`, `ArchLucidSloHttp5xxRatioElevatedTf`, `ArchLucidSloOutboxDepthCriticalTf`) — not the separate dead-letter rule added in §14 — have only a `summary` annotation. Alertmanager and PagerDuty surface the `runbook_url` annotation as a clickable link. Without it, on-call engineers must manually search for the correct runbook in a high-stress incident.
 - **Expected impact:** Observability (+8 pts), Reliability (+4 pts).
 - **Affected qualities:** Observability, Reliability.
 - **Actionable:** Yes
@@ -624,10 +626,10 @@ Add merge-blocking OpenAPI snapshot drift detection to CI.
 
 To optimize context window usage and cost-effectiveness, batch the actionable prompts as follows:
 
-- **Batch 1 (Observability & Monitoring):** 1, 11, 13, 16, 17
-- **Batch 2 (Alerting & SLO):** 14, 15
+- **Batch 1 (Observability & Monitoring):** 1, 13, 16, 17
+- **Batch 2 (Alerting & SLO):** 15
 - **Batch 3 (Cost & Policy Packs):** 2, 3, 4, 19
-- **Batch 4 (Reliability & Scalability):** 6, 9, 12
+- **Batch 4 (Reliability & Scalability):** 6, 9
 - **Batch 5 (Security & Compliance):** 5, 8
 - **Batch 6 (Testing & CI):** 7, 18
 - **Batch 7 (UX & Conversion):** 10, 20

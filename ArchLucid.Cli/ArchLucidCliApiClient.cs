@@ -694,7 +694,7 @@ public sealed class ArchLucidApiClient
     {
         try
         {
-            string uri = "/v1/architecture/comparisons/replay/batch";
+            const string uri = "/v1/architecture/comparisons/replay/batch";
             var body = new
             {
                 comparisonRecordIds,
@@ -821,7 +821,7 @@ public sealed class ArchLucidApiClient
         return JsonSerializer.Deserialize<TOut>(json, ContractEnumAwareJson);
     }
 
-    private Gen.ArchitectureRequest? MapToGenerated(ArchitectureRequest request)
+    private static Gen.ArchitectureRequest? MapToGenerated(ArchitectureRequest request)
     {
         string json = JsonSerializer.Serialize(request, GenNumericEnumBridgeJson);
 

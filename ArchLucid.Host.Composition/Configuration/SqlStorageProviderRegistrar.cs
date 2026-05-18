@@ -382,6 +382,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IFirstSessionLifecycleHook, SqlFirstSessionLifecycleHook>();
 
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
+        services.AddHostedService<LlmTenantBudgetUtilizationMetricsHostedService>();
 
         services.AddSingleton<DataConsistencyOrphanProbeExecutor>();
         services.AddSingleton<IDataConsistencyOrphanProbeExecutor>(

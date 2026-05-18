@@ -50,6 +50,7 @@ public static class ArchLucidInstrumentation
 
     private static int _circuitBreakerStateObservableGaugeRegistered;
 
+    private static int _llmTenantBudgetUtilizationObservableGaugeRegistered;
     private static long _llmCompletionCacheHitsAggregate;
 
     private static long _llmCompletionCacheMissesAggregate;
@@ -758,6 +759,9 @@ public static class ArchLucidInstrumentation
             "USD",
             "Estimated LLM USD from token counts × AgentExecution:LlmCostEstimation rates (label tenant).");
 
+    /// <summary>Latest cached LLM monthly budget utilization gauges (dimensions: <c>tenant_id</c>).</summary>
+    public static LlmTenantBudgetUtilizationGaugeState LlmTenantBudgetUtilizationGauge { get; } = new();
+
     /// <summary>Latest outbox depths for <see cref="EnsureOutboxDepthObservableGaugesRegistered" />.</summary>
     public static OutboxDepthGaugeState OutboxDepthGauges
     {
@@ -904,6 +908,21 @@ public static class ArchLucidInstrumentation
             },
             description:
             "Circuit breaker state per gate (0=Closed,1=HalfOpen,2=Open) with string state tag (OpenAI gates).");
+    }
+
+    /// <summary>Registers observable per-tenant UTC-month LLM budget utilization fractions (collector updates snapshots on a ≥5 min cadence).</summary>
+    public static void EnsureLlmTenantBudgetUtilizationObservableGaugeRegistered()
+    {
+        if (Interlocked.Exchange(ref _llmTenantBudgetUtilizationObservableGaugeRegistered, 1) != 0)
+            return;
+
+        LlmTenantBudgetUtilizationGaugeState utilizationState = LlmTenantBudgetUtilizationGauge;
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_llm_budget_utilization_fraction",
+            () => utilizationState.SnapshotMeasurements(),
+            description:
+            "UTC-month LLM dollar utilization (CommittedUsd+ReservedUsd over configured hard cutoff + purchased bump; label tenant_id).");
     }
 
     /// <summary>Updates the cached value read by <c>archlucid_trial_active_tenants</c> (background metrics collector).</summary>

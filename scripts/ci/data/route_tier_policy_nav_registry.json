@@ -587,7 +587,7 @@
       "route_template": "v{version:apiVersion}/tenant/billing",
       "normalized_prefix": "/v1/tenant/billing",
       "commercial_tier": "none",
-      "class_policy": "Authorize",
+      "class_policy": "AdminAuthority",
       "exemption": null,
       "nav_operator_href": "/settings/tenant"
     },
@@ -927,7 +927,7 @@
       "route_template": "v{version:apiVersion}/notifications",
       "normalized_prefix": "/v1/notifications",
       "commercial_tier": "standard",
-      "class_policy": "ReadAuthority",
+      "class_policy": "AuthenticatedUserOnly",
       "exemption": null,
       "nav_operator_href": null
     },

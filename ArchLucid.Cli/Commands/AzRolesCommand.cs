@@ -213,7 +213,7 @@ internal static class AzRolesCommand
 
         index++;
 
-        value = args[index]?.Trim();
+        value = args[index].Trim();
 
         return !string.IsNullOrEmpty(value);
 
@@ -349,17 +349,10 @@ internal static class AzRolesCommand
             EmitPlainSection("PowerShell", BuildPowerShell(opts));
 
             return;
-
+\
         }
 
-        if (opts.ShellKind == AzRolesShellKind.Bash)
-
-            Console.Write(BuildBash(opts));
-
-        else
-
-            Console.Write(BuildPowerShell(opts));
-
+        Console.Write(opts.ShellKind == AzRolesShellKind.Bash ? BuildBash(opts) : BuildPowerShell(opts));
     }
 
     private static JsonSerializerOptions JsonWriteOptions()
@@ -443,7 +436,7 @@ internal static class AzRolesCommand
 
         ArgumentNullException.ThrowIfNull(value);
 
-        string escape = "'" + "\"" + "'" + "\"" + "'";
+        const string escape = "'" + "\"" + "'" + "\"" + "'";
 
         return "'" + string.Join(escape, value.Split('\'')) + "'";
     }

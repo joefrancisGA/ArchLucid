@@ -194,6 +194,9 @@ jobs:
       - name: Terraform SQL backup redundancy guard (unit tests)
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_sql_backup_regions.py"
 
+      - name: Prometheus SLO Terraform LLM budget warn rule (unit tests)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_prometheus_slo_llm_budget_warn_alert_rule_tf.py"
+
       - uses: actions/setup-node@v6
         with:
           node-version: "22"

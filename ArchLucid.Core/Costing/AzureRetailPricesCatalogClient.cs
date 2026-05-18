@@ -31,7 +31,7 @@ public sealed class AzureRetailPricesCatalogClient
 
     /// <summary>Uses the public Retail Prices API (consumption meters) with outbound HTTP wired by callers.</summary>
     /// <param name="httpClientFactory">Produces <see cref="HttpClient"/> instances rooted at Retail Prices.</param>
-    public AzureRetailPricesCatalogClient(Func<HttpClient> httpClientFactory, TimeProvider clock, ILogger<AzureRetailPricesCatalogClient> logger)
+    public AzureRetailPricesCatalogClient(Func<HttpClient> httpClientFactory, TimeProvider clock, ILogger<AzureRetailPricesCatalogClient>? logger)
     {
         ArgumentNullException.ThrowIfNull(httpClientFactory);
         ArgumentNullException.ThrowIfNull(clock);
@@ -153,7 +153,7 @@ public sealed class AzureRetailPricesCatalogClient
                     continue;
 
 
-                if (!string.Equals(dto.serviceName ?? string.Empty,
+                if (!string.Equals(dto.ServiceName ?? string.Empty,
 
                         retailServiceName,
                         StringComparison.OrdinalIgnoreCase))
@@ -161,7 +161,7 @@ public sealed class AzureRetailPricesCatalogClient
                     continue;
 
 
-                if (!string.Equals((dto.armRegionName ?? string.Empty).Trim(),
+                if (!string.Equals((dto.ArmRegionName ?? string.Empty).Trim(),
 
 
                         armRegionName.Trim(),
@@ -271,7 +271,7 @@ public sealed class AzureRetailPricesCatalogClient
     {
 
 
-        if (!string.Equals(row.currencyCode ?? string.Empty,
+        if (!string.Equals(row.CurrencyCode ?? string.Empty,
 
 
                 "USD",
@@ -279,7 +279,7 @@ public sealed class AzureRetailPricesCatalogClient
 
             return false;
 
-        if ((row.type ?? string.Empty)
+        if ((row.Type ?? string.Empty)
 
 
                 .
@@ -328,7 +328,7 @@ public sealed class AzureRetailPricesCatalogClient
 
 
 
-        monthly = default;
+        monthly = 0;
 
 
 
@@ -356,24 +356,13 @@ public sealed class AzureRetailPricesCatalogClient
 
         }
 
+        if (!IsMonthlyMeter(raw)) return false;
+        monthly = decimal.Multiply(unit, quantity);
 
 
-        if (IsMonthlyMeter(raw))
+        return true;
 
 
-        {
-
-
-            monthly = decimal.Multiply(unit, quantity);
-
-
-            return true;
-
-        }
-
-
-
-        return false;
 
     }
 
@@ -381,11 +370,11 @@ public sealed class AzureRetailPricesCatalogClient
 
     internal static decimal PreferUnit(RetailPriceDto dto)
         =>
-            dto.unitPrice is decimal up && up > 0 ?
+            dto.UnitPrice is { } up && up > 0 ?
                 up
                 :
 
-                dto.retailPrice ?? 0m;
+                dto.RetailPrice ?? 0m;
 
 
 
@@ -432,7 +421,7 @@ public sealed class AzureRetailPricesCatalogClient
                 throw
 
 
-                    new InvalidOperationException($"{nameof(Func<HttpClient>)} resolver returned null."));
+                    new InvalidOperationException($"{nameof(Func<>)} resolver returned null."));
 
     private static HttpClient BindBase(HttpClient http)
         =>
@@ -563,7 +552,7 @@ public sealed class AzureRetailPricesCatalogClient
     {
 
 
-        public string? currencyCode
+        public string? CurrencyCode
 
 
         {
@@ -577,7 +566,7 @@ public sealed class AzureRetailPricesCatalogClient
 
 
 
-        public decimal? unitPrice
+        public decimal? UnitPrice
 
         {
 
@@ -592,7 +581,7 @@ public sealed class AzureRetailPricesCatalogClient
 
 
 
-        public decimal? retailPrice
+        public decimal? RetailPrice
 
         {
 
@@ -639,7 +628,7 @@ public sealed class AzureRetailPricesCatalogClient
 
 
 
-        public string? serviceName
+        public string? ServiceName
 
         {
 
@@ -655,7 +644,7 @@ public sealed class AzureRetailPricesCatalogClient
 
 
 
-        public string? armRegionName
+        public string? ArmRegionName
 
 
         {
@@ -704,7 +693,7 @@ public sealed class AzureRetailPricesCatalogClient
 
 
 
-        public string? type
+        public string? Type
 
 
         {

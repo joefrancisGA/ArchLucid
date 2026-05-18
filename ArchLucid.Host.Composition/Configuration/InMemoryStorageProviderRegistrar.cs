@@ -218,6 +218,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IFirstSessionLifecycleHook>(NoOpFirstSessionLifecycleHook.Instance);
 
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
+        services.AddHostedService<LlmTenantBudgetUtilizationMetricsHostedService>();
 
         // Parity with Sql path: orphan probe resolves but no-ops when storage is InMemory (see DataConsistencyOrphanProbeExecutor).
         // IDbConnectionFactory stays UnsupportedRelationalDbConnectionFactory so DAST/ZAP containers need no SQL connection string.

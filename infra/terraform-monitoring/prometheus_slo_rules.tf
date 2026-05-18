@@ -1,5 +1,6 @@
 # Optional Azure Monitor managed Prometheus rule group — mirrors key PromQL from
-# ../prometheus/archlucid-slo-rules.yml (p99 latency, 5xx ratio, outbox depth).
+# ../prometheus/archlucid-slo-rules.yml (p99 latency, 5xx ratio, outbox depth)
+# and ../prometheus/archlucid-alerts.yml (integration event outbox dead-letter gauge).
 # Requires an Azure Monitor workspace (scopes) scraped with the same metric names as self-hosted Prometheus.
 
 locals {
@@ -69,6 +70,40 @@ EOT
 EOT
     annotations = {
       summary = "SQL outbox depth SLO breach (any queue > 500 pending)."
+    }
+
+    action {
+      action_group_id = azurerm_monitor_action_group.ops[0].id
+    }
+  }
+
+  rule {
+    enabled    = true
+    alert      = "ArchLucidIntegrationOutboxDeadLetterNonZeroTf"
+    severity   = 2
+    for        = "PT5M"
+    expression = <<-EOT
+archlucid_integration_event_outbox_dead_letter > 0
+EOT
+    annotations = {
+      summary = "Integration event outbox dead-letter queue is non-zero. See docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md."
+    }
+
+    action {
+      action_group_id = azurerm_monitor_action_group.ops[0].id
+    }
+  }
+
+  rule {
+    enabled    = true
+    alert      = "ArchLucidLlmBudgetWarnFractionBreachedTf"
+    severity   = 3
+    for        = "PT5M"
+    expression = <<-EOT
+max by (tenant_id) (archlucid_llm_budget_utilization_fraction) > 0.75
+EOT
+    annotations = {
+      summary = "Tenant LLM budget utilisation exceeded 75%. Review infra/terraform-monitoring."
     }
 
     action {

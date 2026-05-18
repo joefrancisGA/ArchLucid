@@ -25,7 +25,7 @@ internal static class ConfigBootstrapCommand
         if (!TryParseArgs(args, out string? outputPath, out bool force, out string? parseError))
         {
             if (!string.IsNullOrEmpty(parseError))
-                Console.Error.WriteLine(parseError);
+                await Console.Error.WriteLineAsync(parseError);
 
             Console.WriteLine("Usage: archlucid config bootstrap [--out <path>] [--force]");
 
@@ -137,7 +137,7 @@ internal static class ConfigBootstrapCommand
                 httpClient.Dispose();
         }
 
-        if (!AnsiConsole.Confirm("Write appsettings JSON?", true))
+        if (!AnsiConsole.Confirm("Write appsettings JSON?"))
         {
             AnsiConsole.MarkupLine("[yellow]Cancelled — no files written.[/]");
 
@@ -154,7 +154,7 @@ internal static class ConfigBootstrapCommand
             }
         }
 
-        string? existing = File.Exists(outputPath) ? File.ReadAllText(outputPath) : null;
+        string? existing = File.Exists(outputPath) ? await File.ReadAllTextAsync(outputPath) : null;
 
         string json;
         try
@@ -169,7 +169,7 @@ internal static class ConfigBootstrapCommand
         }
 
         UTF8Encoding utf8NoBom = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
-        File.WriteAllText(outputPath, json, utf8NoBom);
+        await File.WriteAllTextAsync(outputPath, json, utf8NoBom);
 
         AnsiConsole.MarkupLine($"[green]Wrote[/] {Markup.Escape(outputPath)}");
 
