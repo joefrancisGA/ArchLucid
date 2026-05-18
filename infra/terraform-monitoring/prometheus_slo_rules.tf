@@ -1,10 +1,13 @@
 # Optional Azure Monitor managed Prometheus rule group — mirrors key PromQL from
 # ../prometheus/archlucid-slo-rules.yml (p99 latency, 5xx ratio, outbox depth)
-# and ../prometheus/archlucid-alerts.yml (integration event outbox dead-letter gauge).
+# and ../prometheus/archlucid-alerts.yml (integration event outbox dead-letter gauge,
+# plus LLM monthly budget utilization fraction by tenant).
 # Requires an Azure Monitor workspace (scopes) scraped with the same metric names as self-hosted Prometheus.
 
 locals {
   prometheus_slo_rule_group_enabled = var.enable_monitoring_stack && var.enable_prometheus_slo_rule_group && length(trimspace(var.azure_monitor_workspace_id)) > 0
+
+  archlucid_authority_observability_runbook_url = "https://github.com/ArchLucid/ArchLucid/blob/main/docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md"
 }
 
 data "azurerm_resource_group" "prometheus_slo" {
@@ -31,7 +34,8 @@ resource "azurerm_monitor_alert_prometheus_rule_group" "archlucid_slo" {
 (histogram_quantile(0.99, sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le)) or histogram_quantile(0.99, sum(rate(http_server_duration_milliseconds_bucket[5m])) by (le)) / 1000) > 5
 EOT
     annotations = {
-      summary = "HTTP p99 latency above 5s (see infra/prometheus/archlucid-slo-rules.yml ArchLucidSloHttpP99High)."
+      summary     = "HTTP p99 latency above 5s (see infra/prometheus/archlucid-slo-rules.yml ArchLucidSloHttpP99High)."
+      runbook_url = local.archlucid_authority_observability_runbook_url
     }
 
     action {
@@ -52,7 +56,8 @@ EOT
 ) > 0.02
 EOT
     annotations = {
-      summary = "HTTP 5xx ratio above 2% over 10m (see ArchLucidSloHttp5xxRatioElevated)."
+      summary     = "HTTP 5xx ratio above 2% over 10m (see ArchLucidSloHttp5xxRatioElevated)."
+      runbook_url = local.archlucid_authority_observability_runbook_url
     }
 
     action {
@@ -69,7 +74,8 @@ EOT
 (archlucid_authority_pipeline_work_pending > 500) or (archlucid_retrieval_indexing_outbox_pending > 500) or (archlucid_integration_event_outbox_publish_pending > 500)
 EOT
     annotations = {
-      summary = "SQL outbox depth SLO breach (any queue > 500 pending)."
+      summary     = "SQL outbox depth SLO breach (any queue > 500 pending)."
+      runbook_url = local.archlucid_authority_observability_runbook_url
     }
 
     action {

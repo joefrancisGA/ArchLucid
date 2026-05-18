@@ -5,15 +5,19 @@ using Microsoft.OpenApi;
 namespace ArchLucid.Api.OpenApi;
 
 /// <summary>
-///     Ensures <c>POST /v1/architecture/run/{runId}/evidence/bulk</c> documents a
-///     <c>multipart/form-data</c> body (<c>files</c> → <c>IFormFileCollection</c>). Microsoft OpenAPI generation can omit this
-///     shape for <c>IFormFileCollection</c> even though the action uses <c>[Consumes("multipart/form-data")]</c>.
+///     Ensures <c>POST /v1/architecture/run/{runId}/evidence/bulk</c> documents
+///     <c>multipart/form-data</c> and <c>application/x-www-form-urlencoded</c> bodies with an inline
+///     <c>files</c> schema (array of binary). Framework generation can omit or emit a dangling
+///     <c>#/components/schemas/IFormFileCollection</c> ref; inlined shapes match <c>OpenApiContractBackwardCompatibilityChecker</c>
+///     resolution of the committed snapshot.
 /// </summary>
 public sealed class MicrosoftOpenApiEvidenceBulkUploadOperationTransformer : IOpenApiOperationTransformer
 {
     private const string EvidenceBulkRelativePath = "v1/architecture/run/{runId}/evidence/bulk";
 
     private const string MultipartFormData = "multipart/form-data";
+
+    private const string UrlEncodedForm = "application/x-www-form-urlencoded";
 
     public Task TransformAsync(
         OpenApiOperation operation,
@@ -30,11 +34,11 @@ public sealed class MicrosoftOpenApiEvidenceBulkUploadOperationTransformer : IOp
         if (!string.Equals(path, EvidenceBulkRelativePath, StringComparison.OrdinalIgnoreCase))
             return Task.CompletedTask;
 
-        EnsureMultipartEvidenceBulkRequestBody(operation);
+        EnsureEvidenceBulkRequestBody(operation);
         return Task.CompletedTask;
     }
 
-    private static void EnsureMultipartEvidenceBulkRequestBody(OpenApiOperation operation)
+    private static void EnsureEvidenceBulkRequestBody(OpenApiOperation operation)
     {
         if (operation.RequestBody is not OpenApiRequestBody body)
         {
@@ -45,18 +49,35 @@ public sealed class MicrosoftOpenApiEvidenceBulkUploadOperationTransformer : IOp
         body.Required = true;
         body.Content ??= new Dictionary<string, OpenApiMediaType>(StringComparer.Ordinal);
 
-        if (body.Content.TryGetValue(MultipartFormData, out OpenApiMediaType? existing) && existing?.Schema is not null)
-            return;
+        body.Content[MultipartFormData] = new OpenApiMediaType { Schema = CreateEvidenceBulkRequestBodySchema() };
+        body.Content[UrlEncodedForm] = new OpenApiMediaType { Schema = CreateEvidenceBulkRequestBodySchema() };
+    }
 
-        OpenApiSchema formSchema = new()
+    private static OpenApiSchema CreateEvidenceBulkRequestBodySchema()
+    {
+        return new OpenApiSchema
         {
             Type = JsonSchemaType.Object,
             Properties = new Dictionary<string, IOpenApiSchema>(StringComparer.Ordinal)
             {
-                ["files"] = new OpenApiSchemaReference("IFormFileCollection")
+                ["files"] = CreateEvidenceBulkFilesPropertySchema()
             }
         };
+    }
 
-        body.Content[MultipartFormData] = new OpenApiMediaType { Schema = formSchema };
+    /// <summary>
+    ///     Matches resolved <c>IFormFileCollection</c> in <c>openapi-v1.contract.snapshot.json</c> (array of <c>IFormFile</c> / binary strings).
+    /// </summary>
+    private static OpenApiSchema CreateEvidenceBulkFilesPropertySchema()
+    {
+        return new OpenApiSchema
+        {
+            Type = JsonSchemaType.Array,
+            Items = new OpenApiSchema
+            {
+                Type = JsonSchemaType.String,
+                Format = "binary"
+            }
+        };
     }
 }

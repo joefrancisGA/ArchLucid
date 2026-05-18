@@ -8,7 +8,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 ## Executive Summary
 
 ### (A) Overall Headline Readiness (84.94%)
-ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, the internal Policy Pack Hub (catalog + clone), operational script hardening, merge-blocking OpenAPI v1 snapshot drift checks in CI, Azure Retail Prices coverage for VMs and Storage Accounts in the extractor package, tenant-fair dequeue for the deferred authority pipeline SQL outbox, Terraform plan validation of declared Azure SQL backup redundancy (Geo/Zone) in CD, SAML SP certificate nearing-expiry email notifications, structured application logging for policy pack assign and archive (telemetry fields include `PolicyPackId`, `TenantId`, `WorkspaceId`), soft-delete for architecture projects on `dbo.Projects` (`IsDeleted`, `DeletedUtc`) with leader-elected retention hard-purge after the configured window (default 30 days via `ArchitectureProjectRetention`), an Azure Monitor managed Prometheus SLO rule for integration event outbox dead-letter (`ArchLucidIntegrationOutboxDeadLetterNonZeroTf` in `infra/terraform-monitoring/prometheus_slo_rules.tf`, with CI regression coverage), and a dedicated configurable rate limit (`evidenceBulkUpload`) on multipart bulk evidence upload—significantly strengthen the GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting), Azure Cost Management actuals / Advisor parity versus retail estimates, and default `ui-e2e-smoke` mock-heavy coverage.
+ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, the internal Policy Pack Hub (catalog + clone), operational script hardening, merge-blocking OpenAPI v1 snapshot drift checks in CI, Azure Retail Prices coverage for VMs and Storage Accounts in the extractor package, tenant-fair dequeue for the deferred authority pipeline SQL outbox, Terraform plan validation of declared Azure SQL backup redundancy (Geo/Zone) in CD, SAML SP certificate nearing-expiry email notifications, structured application logging for policy pack assign and archive (telemetry fields include `PolicyPackId`, `TenantId`, `WorkspaceId`), soft-delete for architecture projects on `dbo.Projects` (`IsDeleted`, `DeletedUtc`) with leader-elected retention hard-purge after the configured window (default 30 days via `ArchitectureProjectRetention`), Azure Monitor managed Prometheus alerting for integration event outbox dead-letter (`ArchLucidIntegrationOutboxDeadLetterNonZeroTf`) and for per-tenant LLM monthly dollar budget utilization over 75% (`ArchLucidLlmBudgetWarnFractionBreachedTf`; product gauge `archlucid_llm_budget_utilization_fraction`, both in `infra/terraform-monitoring/prometheus_slo_rules.tf` with CI regression coverage), and a dedicated configurable rate limit (`evidenceBulkUpload`) on multipart bulk evidence upload—significantly strengthen the GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting), Azure Cost Management actuals / Advisor parity versus retail estimates, and default `ui-e2e-smoke` mock-heavy coverage.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. The full automated tenant erasure quarantine pipeline is a V2 engineering commitment and is not scored as an `(A)` defect. V1 relies on operator-driven and trial/offboarding deletion paths.
@@ -17,7 +17,7 @@ Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 
 The commercial posture is strongly aligned for a sales-led, service-led motion. The inclusion of consultant whitelabeling on architecture review exports enables boutique consulting firms to use ArchLucid as a delivery engine. Curated demo workspaces, default policy packs, and the ZIP-first baseline wizard accelerate Time-to-Value and Proof-of-ROI. The deferred live commerce correctly prioritizes validated purchasing motions over premature self-serve availability.
 
 ### Enterprise Picture
-ArchLucid provides strong enterprise integration points, including Jira, ServiceNow, Slack, and Confluence. Tenant isolation is robustly handled via database-per-tenant and RLS. Tenant custom governance packs support form-based authoring for curated-rules-shaped documents. SAML SP nearing-expiry email notifications for tenant admins, tenant-fair authority pipeline outbox dequeue in the worker, CD-time Terraform checks for declared Azure SQL backup redundancy, configurable per-tenant rate limits on bulk architecture evidence multipart uploads, structured logging for policy pack assignment assign and archive, architecture project soft-delete with retention-based hard purge (default 30 days), optional Azure Monitor Prometheus alerting for integration outbox dead-letter rows when the SLO rule group is enabled, and data residency verification in Terraform CI further enhance enterprise readiness.
+ArchLucid provides strong enterprise integration points, including Jira, ServiceNow, Slack, and Confluence. Tenant isolation is robustly handled via database-per-tenant and RLS. Tenant custom governance packs support form-based authoring for curated-rules-shaped documents. SAML SP nearing-expiry email notifications for tenant admins, tenant-fair authority pipeline outbox dequeue in the worker, CD-time Terraform checks for declared Azure SQL backup redundancy, configurable per-tenant rate limits on bulk architecture evidence multipart uploads, structured logging for policy pack assignment assign and archive, architecture project soft-delete with retention-based hard purge (default 30 days), optional Azure Monitor Prometheus alerting for integration outbox dead-letter rows and for LLM monthly tenant-dollar budget utilization (warn-fraction breach per `tenant_id`) when the managed SLO/rule group is enabled, and data residency verification in Terraform CI further enhance enterprise readiness.
 
 ### Engineering Picture
 The engineering foundation is highly rigorous, with strong architectural invariants, NetArchTest boundary rules, and a durable audit trail. The agent orchestration pipeline is resilient, and producer-side OpenTelemetry GenAI instrumentation records token aggregates, latency, and deployment identifiers. Curating operator dashboards and alerts on those signals remains a gap. The heavy reliance on mocked `/api/proxy` in `ui-e2e-smoke` remains a testability risk.
@@ -498,23 +498,18 @@ Add a Redis health check to the ASP.NET Core Health Checks pipeline in `ArchLuci
 - Impact: Directly improves Reliability (+10-12 pts) and Observability (+6-8 pts). Weighted readiness impact: +0.15-0.25%.
 ```
 
-### 15. Add Prometheus Alert for LLM Tenant Budget Approaching Warn Fraction
-- **Why it matters:** `LlmMonthlyTenantDollarBudgetOptions` has a `WarnFraction` (default 0.75) that gates pre-call reservations, but no Prometheus alert fires when aggregate per-tenant spend approaches the cap. Operators learn of budget pressure only when tenants start receiving budget-exceeded errors, not before.
+### 15. Add Prometheus Alert for LLM Tenant Budget Approaching Warn Fraction — **complete**
+- **Why it mattered:** `LlmMonthlyTenantDollarBudgetOptions` warns at `WarnFraction` (default **0.75**), yet operators lacked a Prometheus alert tied to utilization before tenants hit hard cutoffs—the gap this item closed.
 - **Expected impact:** AI/Agent Readiness (+8 pts), Observability (+6 pts).
 - **Affected qualities:** AI/Agent Readiness, Observability.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (`ArchLucidLlmBudgetWarnFractionBreachedTf` in `prometheus_slo_rules.tf`; `archlucid_llm_budget_utilization_fraction` observable gauge plus `LlmTenantBudgetUtilizationMetricsHostedService` on a 5‑minute cadence; severity **3**, `for = PT5M`, ops action group; `scripts/ci/tests/test_prometheus_slo_llm_budget_warn_alert_rule_tf.py`; CI step next to the existing Prometheus SLO TF unit test.)
 ```text
-Two-part change.
-(1) In `ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs` (or the nearest telemetry file), add an observable up-down counter gauge named `archlucid_llm_budget_utilization_fraction` (dimensioned by `tenant_id`) that reads from `ILlmTenantBudgetRepository.GetOrCreateAsync` for the current period and emits `consumed / hard_cutoff`.
-(2) Add a Prometheus alert rule to `infra/terraform-monitoring/prometheus_slo_rules.tf` inside the existing rule group:
-- Rule name: `ArchLucidLlmBudgetWarnFractionBreachedTf`
-- Expression: `max by (tenant_id) (archlucid_llm_budget_utilization_fraction) > 0.75`
-- Severity: 3, `for = "PT5M"`, action group ops.
-- Annotation summary: "Tenant LLM budget utilisation exceeded 75%. Review infra/terraform-monitoring."
-- Acceptance criteria: (a) Gauge appears in Prometheus `/metrics` output. (b) Alert rule validates in Terraform plan.
-- Constraints: Gauge collection must not trigger a SQL query more frequently than every 5 minutes; use a cached/last-known value if the repository is slow.
-- What not to change: Do not alter the budget reserve/settle logic.
-- Impact: Directly improves AI/Agent Readiness (+6-8 pts) and Observability (+4-6 pts). Weighted readiness impact: +0.1-0.2%.
+**Delivered (V1 IaC + product telemetry):**
+(1) `EnsureLlmTenantBudgetUtilizationObservableGaugeRegistered` publishes `archlucid_llm_budget_utilization_fraction` (`tenant_id`) from snapshots refreshed only by `LlmTenantBudgetUtilizationMetricsHostedService` (bounded SQL / repository reads: at most once per tenant per 5 minutes; Prometheus scrape reads cached values — failures retain last-known series).
+(2) Fifth `rule` in `azurerm_monitor_alert_prometheus_rule_group.archlucid_slo` — `ArchLucidLlmBudgetWarnFractionBreachedTf`, expression `max by (tenant_id) (archlucid_llm_budget_utilization_fraction) > 0.75`.
+- Utilization aligns with enforcement: `TotalUsdPressure / (HardCutoffUsdPerUtcMonth + PurchasedCapBumpUsd)` via `LlmBudgetTelemetry` (reserve/settle path unchanged).
+- Status: COMPLETE — `terraform validate` for `infra/terraform-monitoring`; static unit test asserts rule name, expression, severity **3**, `PT5M`, annotation summary, ops action group; manual `/metrics` shows the gauge whenever monthly dollar budget is enabled and tenants exist.
+- Original constraints / impact text retained for scoring reference: Acceptance (a)-(b); do not alter budget reserve/settle logic; weighted readiness impact +0.1-0.2%.
 ```
 
 ### 16. Add `runbook_url` Annotations to All Existing Prometheus SLO Alert Rules
@@ -533,8 +528,8 @@ Update each of the three existing `rule` blocks in `infra/terraform-monitoring/p
 - Impact: Directly improves Observability (+6-8 pts). Weighted readiness impact: +0.05-0.1%.
 ```
 
-### 17. Export LLM Tenant Budget Utilization as a Prometheus Observable Gauge
-- **Why it matters:** The `dashboard-archlucid-llm-usage.json` Grafana dashboard exists, but it has no budget-headroom panel because `ILlmTenantBudgetRepository` state is not surfaced via Prometheus. Operators cannot tell at a glance whether any tenant is within 20% of their hard cutoff. This is a distinct instrumentation gap from the alert rule in task 15.
+### 17. Export LLM Tenant Budget **Remaining (USD)** as a Prometheus Observable Gauge
+- **Why it matters:** The `dashboard-archlucid-llm-usage.json` Grafana dashboard exists, but it has no budget-headroom panel because repository dollars-remaining are not surfaced via Prometheus. §15 added **utilization fraction** per tenant; operators still lack a direct **remaining USD** series and dashboard panel for headroom at a glance.
 - **Expected impact:** Observability (+10 pts), AI/Agent Readiness (+5 pts).
 - **Affected qualities:** Observability, AI/Agent Readiness.
 - **Actionable:** Yes
@@ -627,7 +622,7 @@ Add merge-blocking OpenAPI snapshot drift detection to CI.
 To optimize context window usage and cost-effectiveness, batch the actionable prompts as follows:
 
 - **Batch 1 (Observability & Monitoring):** 1, 13, 16, 17
-- **Batch 2 (Alerting & SLO):** 15
+- **Batch 2 (Alerting & SLO):** **complete** — §14 (integration outbox dead-letter TF rule) + §15 (LLM budget utilization gauge + warn-fraction TF rule); no numbered backlog items left in this batch.
 - **Batch 3 (Cost & Policy Packs):** 2, 3, 4, 19
 - **Batch 4 (Reliability & Scalability):** 6, 9
 - **Batch 5 (Security & Compliance):** 5, 8
