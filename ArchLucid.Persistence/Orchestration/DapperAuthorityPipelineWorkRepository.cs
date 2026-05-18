@@ -56,16 +56,26 @@ public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory 
         int take = Math.Clamp(maxBatch, 1, 100);
         int lease = Math.Clamp(leaseDurationSeconds, 60, 7200);
 
+        // Fair dequeue: ROW_NUMBER per TenantId (FIFO within tenant); global sort takes round k from each tenant before any k+1.
         const string sql = """
-                           ;WITH cte AS (
-                               SELECT TOP (@Take)
-                                   o.OutboxId
+                           ;WITH numbered AS (
+                               SELECT
+                                   o.OutboxId,
+                                   o.TenantId,
+                                   o.CreatedUtc,
+                                   ROW_NUMBER() OVER (
+                                       PARTITION BY o.TenantId
+                                       ORDER BY o.CreatedUtc ASC, o.OutboxId ASC) AS TenantSeq
                                FROM dbo.AuthorityPipelineWorkOutbox AS o WITH (READPAST, UPDLOCK, ROWLOCK)
                                WHERE o.ProcessedUtc IS NULL
                                  AND o.DeadLetteredUtc IS NULL
                                  AND (o.NextAttemptUtc IS NULL OR o.NextAttemptUtc <= SYSUTCDATETIME())
-                                 AND (o.LockedUntilUtc IS NULL OR o.LockedUntilUtc <= SYSUTCDATETIME())
-                               ORDER BY o.CreatedUtc ASC)
+                                 AND (o.LockedUntilUtc IS NULL OR o.LockedUntilUtc <= SYSUTCDATETIME())),
+                           cte AS (
+                               SELECT TOP (@Take)
+                                   n.OutboxId
+                               FROM numbered AS n
+                               ORDER BY n.TenantSeq ASC, n.TenantId ASC, n.CreatedUtc ASC, n.OutboxId ASC)
                            UPDATE o
                                SET LockedUntilUtc = DATEADD(second, @LeaseSeconds, SYSUTCDATETIME())
                            OUTPUT inserted.OutboxId,

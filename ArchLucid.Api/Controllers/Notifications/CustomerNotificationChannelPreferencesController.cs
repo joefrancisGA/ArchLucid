@@ -26,7 +26,6 @@ namespace ArchLucid.Api.Controllers.Notifications;
 ///     <see cref="TenantNotificationChannelPreferencesResponse.IsConfigured" /> false.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/notifications")]
 [EnableRateLimiting("fixed")]
@@ -46,6 +45,7 @@ public sealed class CustomerNotificationChannelPreferencesController(
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     /// <summary>Gets channel toggles for <c>tenantId</c> from the caller’s scope (Logic Apps HTTP action).</summary>
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [HttpGet("customer-channel-preferences")]
     [ProducesResponseType(typeof(TenantNotificationChannelPreferencesResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -1,3 +1,5 @@
+using System.Threading;
+
 using ArchLucid.ContextIngestion.Models;
 
 namespace ArchLucid.Persistence.Tests.Orchestration;
@@ -115,5 +117,40 @@ public sealed class InMemoryAuthorityPipelineWorkRepositoryLeaseAndRetryTests
         utc = resumeAt.AddSeconds(1);
 
         (await sut.CountActionablePendingAsync()).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task DequeuePendingAsync_interleaves_tenants_before_draining_one_tenant_fifo()
+    {
+        Guid tenantA = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        Guid tenantB = Guid.Parse("00000000-0000-0000-0000-000000000002");
+        long seq = 0;
+        DateTime baseUtc = new DateTime(2026, 5, 2, 17, 0, 0, DateTimeKind.Utc);
+        InMemoryAuthorityPipelineWorkRepository sut = new(() => baseUtc.AddTicks(Interlocked.Increment(ref seq)));
+
+        for (int index = 0; index < 5; index++)
+        {
+            Guid runId = Guid.NewGuid();
+
+            await sut.EnqueueAsync(runId, tenantA, Guid.NewGuid(), Guid.NewGuid(), ValidPayload(runId));
+        }
+
+        for (int index = 0; index < 2; index++)
+        {
+            Guid runId = Guid.NewGuid();
+
+            await sut.EnqueueAsync(runId, tenantB, Guid.NewGuid(), Guid.NewGuid(), ValidPayload(runId));
+        }
+
+        IReadOnlyList<AuthorityPipelineWorkOutboxEntry> batch =
+            await sut.DequeuePendingAsync(5, 60, CancellationToken.None);
+
+        Guid[] tenants = batch.Select(e => e.TenantId).ToArray();
+        tenants.Should().HaveCount(5);
+        tenants[0].Should().Be(tenantA);
+        tenants[1].Should().Be(tenantB);
+        tenants[2].Should().Be(tenantA);
+        tenants[3].Should().Be(tenantB);
+        tenants[4].Should().Be(tenantA);
     }
 }

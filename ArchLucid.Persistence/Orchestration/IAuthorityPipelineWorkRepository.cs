@@ -13,6 +13,7 @@ public interface IAuthorityPipelineWorkRepository
 
     /// <summary>
     ///     Claims up to <paramref name="maxBatch" /> actionable rows under an exclusive <paramref name="leaseDurationSeconds"/> lease.
+    ///     Selection is tenant-fair round-robin: the oldest actionable row per tenant is interleaved ahead of draining one tenant FIFO.
     /// </summary>
     Task<IReadOnlyList<AuthorityPipelineWorkOutboxEntry>> DequeuePendingAsync(
         int maxBatch,

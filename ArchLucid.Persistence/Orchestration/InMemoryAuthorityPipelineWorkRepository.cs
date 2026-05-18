@@ -78,7 +78,7 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
 
         lock (_sync)
         {
-            List<Stored> batch = EligibleRows(now).OrderBy(x => x.CreatedUtc).Take(take).ToList();
+            List<Stored> batch = TenantRoundRobinEligibleBatch(EligibleRows(now), take);
 
             foreach (Stored row in batch)
                 row.LockedUntilUtc = now + leaseSpan;
@@ -172,6 +172,30 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
         lock (_sync)
 
             return Task.FromResult((long)_rows.Count(r => r.DeadLetteredUtc is not null && r.ProcessedUtc is null));
+    }
+
+    /// <summary>
+    ///     Mirrors <see cref="DapperAuthorityPipelineWorkRepository.DequeuePendingAsync" /> ordering: interleave tenants by
+    ///     per-tenant FIFO rank, then TenantId, then CreatedUtc, then OutboxId.
+    /// </summary>
+    private static List<Stored> TenantRoundRobinEligibleBatch(IEnumerable<Stored> eligibleEnumerable, int take)
+    {
+        List<Stored> eligible = eligibleEnumerable.ToList();
+
+        return eligible
+            .GroupBy(row => row.TenantId)
+            .SelectMany(
+                grp => grp
+                    .OrderBy(row => row.CreatedUtc)
+                    .ThenBy(row => row.OutboxId)
+                    .Select((row, index) => (Row: row, TenantSeq: index + 1)))
+            .OrderBy(x => x.TenantSeq)
+            .ThenBy(x => x.Row.TenantId)
+            .ThenBy(x => x.Row.CreatedUtc)
+            .ThenBy(x => x.Row.OutboxId)
+            .Take(take)
+            .Select(x => x.Row)
+            .ToList();
     }
 
     private IEnumerable<Stored> EligibleRows(DateTime nowUtc)
