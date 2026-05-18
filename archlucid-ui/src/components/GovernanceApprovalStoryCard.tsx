@@ -54,7 +54,7 @@ export function GovernanceApprovalStoryCard(props: {
       className={cn(
         "mb-8 border-teal-200 bg-teal-50/40 dark:border-teal-900 dark:bg-teal-950/25",
         emphasizeComplete && promoteReady
-          ? "border-2 border-teal-600 shadow-md ring-1 ring-teal-500/25 dark:border-teal-500"
+          ? "mb-8 border-2 border-teal-600 shadow-xl ring-1 ring-teal-500/25 dark:border-teal-500"
           : null,
       )}
     >
@@ -64,10 +64,10 @@ export function GovernanceApprovalStoryCard(props: {
         </CardTitle>
         <div className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
           <p className="m-0 leading-relaxed">
-            <span className="font-semibold text-neutral-900 dark:text-neutral-100">Approval record:</span> Finalized signed
-            manifest version <span className="font-semibold">{row.manifestVersion}</span> received governance approval for use as
-            the architecture record and may be cited in diligence, architecture review, implementation planning, and audit
-            narratives anchored to this review package.
+            <span className="font-semibold text-neutral-900 dark:text-neutral-100">Recorded package:</span> finalized manifest
+            version <span className="font-semibold">{row.manifestVersion}</span> — approved for governed use as the architecture
+            record for this review package. Use the audit trail for timestamps and actor identifiers when you need evidence
+            detail.
           </p>
           {reviewed ? (
             <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">

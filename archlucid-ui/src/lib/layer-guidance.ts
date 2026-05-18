@@ -272,7 +272,7 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
   "governance-workflow": {
     headline: "Governance approval completed for this review package.",
     useWhen:
-      "Review the recorded approval path and how this package is approved as the governed architecture record for the next stage of review and implementation planning.",
+      "Review approvers, the recorded decision, and monitoring hooks before citing this package.",
     firstPilotNote: null,
     enterpriseFootnote:
       "This page records who reviewed the package, what approval was granted, and what monitoring remains.",

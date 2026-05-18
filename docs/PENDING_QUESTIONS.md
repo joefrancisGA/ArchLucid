@@ -176,7 +176,7 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 
 | Sub-decision | Decision | Affects |
 |---|---|---|
-| **Build order (V1)** | **ServiceNow** first (§2.13). Then **Atlassian pair**: **Confluence** documentation publish **before** **Jira** issue sync — engineer **Confluence** and **Jira** as **one workstream** / **same release tranche** (shared tenant configuration, credentials discipline, rollout). **Jira** is **not** a prerequisite for **Confluence**. **Supersedes** prior **ServiceNow → Jira → Confluence** ordering from *Resolved 2026-04-27* / **2026-05-05** Confluence-promotion rows for **Atlassian** only. | [`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13 / §2.15, [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6, [`INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md), [`ITSM_BRIDGE_V1_RECIPES.md`](library/ITSM_BRIDGE_V1_RECIPES.md) |
+| **Build order (V1.1)** | **ServiceNow** first (§2.13). Then **Atlassian pair**: **Confluence** documentation publish **before** **Jira** issue sync — engineer **Confluence** and **Jira** as **one workstream** / **same release tranche** (shared tenant configuration, credentials discipline, rollout). **Jira** is **not** a prerequisite for **Confluence**. **Supersedes** prior **ServiceNow → Jira → Confluence** ordering from *Resolved 2026-04-27* / **2026-05-05** Confluence-promotion rows for **Atlassian** only. | [`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13 / §2.15, [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6, [`INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md), [`ITSM_BRIDGE_V1_RECIPES.md`](library/ITSM_BRIDGE_V1_RECIPES.md) |
 
 ---
 

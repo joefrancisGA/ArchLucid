@@ -457,6 +457,9 @@ export function GovernanceWorkflowPageContent() {
     }
   }
 
+  const showBuyerApprovalStory =
+    buyerPolishedShell && approvals.length > 0 && activeRunId !== null;
+
   return (
     <MutationErrorBoundary title="Governance workflow failed to render">
     <TooltipProvider delayDuration={300}>
@@ -466,17 +469,25 @@ export function GovernanceWorkflowPageContent() {
         title={buyerPolishedShell ? "Governance approval" : "Governance workflow"}
         docsPageKey="/governance"
         subtitle={
-          buyerPolishedShell && approvals.length > 0 && activeRunId !== null
-            ? "Signed governance approval confirms this Claims Intake review package was approved for governed use as the architecture record (details below)."
+          showBuyerApprovalStory
+            ? "Approval record: governed-use approval for this package’s finalized manifest is summarized in the card below."
             : buyerPolishedShell
-              ? "Governance stores the approval decision and audit linkage for this review package. Production deployments remain under your enterprise change process (see related links below)."
+              ? "Governance holds the approval decision and audit linkage for this review package."
               : canMutateWorkflow
                 ? governanceWorkflowPageLeadOperator
                 : governanceWorkflowPageLeadReader
         }
+        metadata={
+          buyerPolishedShell && !showBuyerApprovalStory ? (
+            <span className="text-xs text-neutral-500 dark:text-neutral-500">
+              Production deployments and change-managed releases follow your enterprise process—this page does not configure
+              releases.
+            </span>
+          ) : null
+        }
         helpKey="governance-workflow"
       />
-      {buyerPolishedShell && !(approvals.length > 0 && activeRunId !== null) ? (
+      {buyerPolishedShell && !showBuyerApprovalStory ? (
         <p
           className="mb-4 max-w-prose rounded-md border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-sm text-neutral-800 dark:border-teal-900/60 dark:bg-teal-950/30 dark:text-neutral-200"
           data-testid="governance-buyer-why-matters"
@@ -485,20 +496,20 @@ export function GovernanceWorkflowPageContent() {
           decision support, review-board readouts, and audit inquiries.
         </p>
       ) : null}
-      {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (
+      {showBuyerApprovalStory ? (
         <GovernanceApprovalStoryCard
           row={approvals[0]!}
           auditTrailHref={`/audit?runId=${encodeURIComponent(activeRunId)}`}
           emphasizeComplete
         />
       ) : null}
-      {!(buyerPolishedShell && approvals.length > 0 && activeRunId !== null) ? (
-      <p
-        className="mb-4 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
-        data-testid="governance-workflow-outcome-banner"
-      >
-        {governanceWorkflowOutcomeBannerLine}
-      </p>
+      {!showBuyerApprovalStory ? (
+        <p
+          className="mb-4 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
+          data-testid="governance-workflow-outcome-banner"
+        >
+          {governanceWorkflowOutcomeBannerLine}
+        </p>
       ) : null}
 
       {buyerPolishedShell ? (

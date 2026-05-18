@@ -91,6 +91,18 @@ export function ContextualHelp({ helpKey, placement = "bottom", className }: Con
   }
 
   const { text, learnMoreUrl } = entry;
+  const helpSummary =
+    text.trim().length === 0
+      ? helpKey.replace(/-/g, " ")
+      : (() => {
+          const dot = text.indexOf(".");
+
+          if (dot >= 0) {
+            return text.slice(0, dot + 1).trim();
+          }
+
+          return text.slice(0, 120).trim();
+        })();
   const moreHref = learnMoreUrl != null ? toDocsBlobUrl(learnMoreUrl) : null;
 
   return (
@@ -110,7 +122,7 @@ export function ContextualHelp({ helpKey, placement = "bottom", className }: Con
         aria-expanded={visible}
         aria-controls={visible ? tooltipId : undefined}
         aria-describedby={visible ? tooltipId : undefined}
-        aria-label={`More information: ${helpKey}`}
+        aria-label={`Contextual help: ${helpSummary}`}
         onClick={() => {
           setOpen((o) => !o);
         }}

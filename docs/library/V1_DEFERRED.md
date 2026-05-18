@@ -71,11 +71,11 @@ Docs describe **templates and gaps** that depend on **customer subscription and 
 
 ---
 
-## 6. First-party ITSM, Confluence, and Slack — **V1.1** window (*Resolved 2026-05-18*)
+## 6. First-party ITSM, Confluence, Slack, Teams, webhooks, and recipes — **V1.1** window (*Resolved 2026-05-18*)
 
-**Jira**, **ServiceNow**, **Confluence**, and **Slack** first-party surfaces are **in scope for V1.1** per [V1_SCOPE.md](V1_SCOPE.md) **§2.13–§2.15** — **owner scope update 2026-05-18**, superseding *Resolved 2026-05-05 / 2026-05-06* **V1 GA** pinning for those connectors. **`(A)` headline assessments** treat absence of these first-party connectors as **non-deduction** for V1 GA (same pattern as other deferred program items); **`V1`** integration posture remains **Microsoft Teams**, **webhooks**, **REST**, and **customer-operated** recipes.
+**Jira**, **ServiceNow**, **Confluence**, and **Slack** first-party surfaces are **in scope for V1.1** per [V1_SCOPE.md](V1_SCOPE.md) **§2.13–§2.15** — **owner scope update 2026-05-18**, superseding *Resolved 2026-05-05 / 2026-05-06* **V1 GA** pinning for those connectors. **Microsoft Teams** incoming-webhook chat-ops, **CloudEvents** outbound **HTTPS webhooks**, and **customer-operated** bridges under **[`docs/integrations/recipes/README.md`](../integrations/recipes/README.md)** are **in scope for V1.1** as **buyer-contract** integration paths per **V1_SCOPE.md** **§2.8**, **§2.14**, and **§3** — **not** V1 GA commitments (implementation may ship earlier). **`(A)` headline assessments** treat absence of these program surfaces as **non-deduction** for V1 GA (same pattern as other deferred program items); **`V1`** integration posture for scoring remains **REST**, **CLI**, **operator UI**, **SCIM**, **Azure DevOps** / **GitHub** CI surfaces, and **§2.16+** HTTP paths per **V1_SCOPE.md**.
 
-**V1 customer-owned bridges (optional):** Power Automate and Logic Apps walkthroughs under **[`docs/integrations/recipes/README.md`](../integrations/recipes/README.md)** — primary path for tenants until first-party connectors ship in **V1.1**. Summary hub: [ITSM_BRIDGE_V1_RECIPES.md](ITSM_BRIDGE_V1_RECIPES.md).
+**V1.1 customer-owned bridges (optional):** Power Automate and Logic Apps walkthroughs under **[`docs/integrations/recipes/README.md`](../integrations/recipes/README.md)** — align with the **V1.1** buyer contract alongside first-party connectors. Summary hub: [ITSM_BRIDGE_V1_RECIPES.md](ITSM_BRIDGE_V1_RECIPES.md).
 
 **Rules:**
 
