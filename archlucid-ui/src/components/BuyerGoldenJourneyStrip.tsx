@@ -10,6 +10,7 @@ export function BuyerGoldenJourneyStrip() {
 
   return (
     <section
+      role="region"
       id="buyer-review-journey"
       aria-label="Recommended review journey"
       className="rounded-lg border border-teal-200/80 bg-teal-50/50 px-3 py-3 dark:border-teal-900/60 dark:bg-teal-950/25"
