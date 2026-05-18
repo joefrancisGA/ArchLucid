@@ -52,7 +52,8 @@ public sealed class BillingCheckoutControllerTests(JwtLocalSigningWebAppFactory 
                 CancelUrl = "https://app.example.com/cancel"
             });
 
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden, "response body: {0}", responseBody);
     }
 
     [SkippableFact]

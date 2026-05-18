@@ -3,11 +3,9 @@ using System.Text;
 
 using ArchLucid.TestSupport;
 
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.Tests;
 
@@ -17,6 +15,13 @@ namespace ArchLucid.Api.Tests;
 ///     subclass once and combine <see cref="Microsoft.AspNetCore.TestHost.WebHostBuilderExtensions.ConfigureTestServices" />
 ///     with the same PEM-backed signing key pair.
 /// </summary>
+/// <remarks>
+///     Uses <see cref="IWebHostBuilder.UseConfiguration" /> plus late
+///     <see cref="IConfigurationBuilder" /> overrides (same pattern as
+///     <see cref="HealthEndpointSecurityApiFactory" />) so minimal-hosting
+///     <c>Program</c> sees PEM/Jwt settings before <c>AddArchLucidAuth</c> — <c>UseSetting</c> alone can lose to
+///     <c>appsettings.Development.json</c> and yield <c>401</c> on otherwise valid Bearer tokens.
+/// </remarks>
 public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
 {
     /// <summary>
@@ -62,59 +67,49 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
     {
         builder.UseEnvironment("Development");
 
-        // UseSetting merges into host config early so Program's AddArchLucidAuth sees JwtBearer (not appsettings.json DevelopmentBypass).
-        builder.UseSetting("ArchLucidAuth:Mode", "JwtBearer");
-        builder.UseSetting("ArchLucidAuth:Authority", "");
-        builder.UseSetting("ArchLucidAuth:Audience", "");
-        builder.UseSetting("ArchLucidAuth:JwtSigningPublicKeyPemPath", _publicPemPath);
-        builder.UseSetting("ArchLucidAuth:JwtLocalIssuer", JwtLocalTestIssuer);
-        builder.UseSetting("ArchLucidAuth:JwtLocalAudience", JwtLocalTestAudience);
-        builder.UseSetting("Authentication:ApiKey:DevelopmentBypassAll", "false");
+        Dictionary<string, string?> settings = BuildHostConfigurationOverrides();
 
-        // http-only URLs disable HTTPS redirection so TestServer clients keep Authorization headers on redirects
-        // (matches ArchLucid.Api.Tests.ArchLucidApiFactory — see AspNetCoreHostingUrls.ShouldUseHttpsRedirection).
-        builder.UseSetting("ASPNETCORE_URLS", "http://127.0.0.1:0");
+        IConfiguration bootstrap = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
+        builder.UseConfiguration(bootstrap);
 
         builder.ConfigureAppConfiguration((_, config) =>
         {
-            Dictionary<string, string?> settings = new()
-            {
-                ["ArchLucid:StorageProvider"] = "InMemory",
-                ["ConnectionStrings:ArchLucid"] = InMemoryStartupSqlConnectionStringSentinel.Value,
-                ["AgentExecution:Mode"] = "Simulator",
-                ["AzureOpenAI:Endpoint"] = "",
-                ["AzureOpenAI:ApiKey"] = "",
-                ["AzureOpenAI:DeploymentName"] = "",
-                ["AzureOpenAI:EmbeddingDeploymentName"] = "",
-                ["RateLimiting:FixedWindow:PermitLimit"] = "100000",
-                ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
-                ["RateLimiting:Expensive:PermitLimit"] = "100000",
-                ["RateLimiting:Expensive:WindowMinutes"] = "1",
-                ["RateLimiting:Replay:Light:PermitLimit"] = "100000",
-                ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
-                ["ArchLucidAuth:Mode"] = "JwtBearer",
-                ["ArchLucidAuth:Authority"] = "",
-                ["ArchLucidAuth:Audience"] = "",
-                ["ArchLucidAuth:JwtSigningPublicKeyPemPath"] = _publicPemPath,
-                ["ArchLucidAuth:JwtLocalIssuer"] = JwtLocalTestIssuer,
-                ["ArchLucidAuth:JwtLocalAudience"] = JwtLocalTestAudience,
-                ["Authentication:ApiKey:DevelopmentBypassAll"] = "false",
-                ["Billing:Provider"] = "Noop",
-                ["ASPNETCORE_URLS"] = "http://127.0.0.1:0"
-            };
-
-            ApiTestWebHostLogging.AddQuietDefaultLogLevel(settings);
             config.AddInMemoryCollection(settings);
         });
+    }
 
-        builder.ConfigureServices(services =>
+    /// <summary>Host overrides shared by bootstrap and late configuration providers.</summary>
+    protected virtual Dictionary<string, string?> BuildHostConfigurationOverrides()
+    {
+        Dictionary<string, string?> settings = new()
         {
-            // WebApplicationFactory hosts can skew vs the test process; widen validation beyond production PEM defaults.
-            services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
-            {
-                options.TokenValidationParameters.ClockSkew = TimeSpan.FromMinutes(30);
-            });
-        });
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ConnectionStrings:ArchLucid"] = InMemoryStartupSqlConnectionStringSentinel.Value,
+            ["AgentExecution:Mode"] = "Simulator",
+            ["AzureOpenAI:Endpoint"] = "",
+            ["AzureOpenAI:ApiKey"] = "",
+            ["AzureOpenAI:DeploymentName"] = "",
+            ["AzureOpenAI:EmbeddingDeploymentName"] = "",
+            ["RateLimiting:FixedWindow:PermitLimit"] = "100000",
+            ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
+            ["RateLimiting:Expensive:PermitLimit"] = "100000",
+            ["RateLimiting:Expensive:WindowMinutes"] = "1",
+            ["RateLimiting:Replay:Light:PermitLimit"] = "100000",
+            ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "",
+            ["ArchLucidAuth:Audience"] = "",
+            ["ArchLucidAuth:JwtSigningPublicKeyPemPath"] = _publicPemPath,
+            ["ArchLucidAuth:JwtLocalIssuer"] = JwtLocalTestIssuer,
+            ["ArchLucidAuth:JwtLocalAudience"] = JwtLocalTestAudience,
+            ["Authentication:ApiKey:DevelopmentBypassAll"] = "false",
+            ["Billing:Provider"] = "Noop",
+            ["ASPNETCORE_URLS"] = "http://127.0.0.1:0"
+        };
+
+        ApiTestWebHostLogging.AddQuietDefaultLogLevel(settings);
+
+        return settings;
     }
 
     protected override void Dispose(bool disposing)

@@ -15106,39 +15106,14 @@
         },
         "type": "object"
       },
-      "TenantErasureLegalHoldRequest": {
+      "TenantDeletionQueuedResponse": {
         "properties": {
-          "reason": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "untilUtc": {
-            "format": "date-time",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "TenantErasureOffboardAcceptedResponse": {
-        "properties": {
-          "erasureEligibleUtc": {
-            "format": "date-time",
-            "type": "string"
-          },
           "jobId": {
-            "type": "string"
-          },
-          "offboardedUtc": {
-            "format": "date-time",
             "type": "string"
           }
         },
         "required": [
-          "erasureEligibleUtc",
-          "jobId",
-          "offboardedUtc"
+          "jobId"
         ],
         "type": "object"
       },
@@ -15432,13 +15407,6 @@
               "string"
             ]
           },
-          "erasureEligibleUtc": {
-            "format": "date-time",
-            "type": [
-              "null",
-              "string"
-            ]
-          },
           "id": {
             "format": "uuid",
             "type": "string"
@@ -15455,41 +15423,8 @@
               "string"
             ]
           },
-          "legalHoldReason": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "legalHoldSetByUserId": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "legalHoldSetUtc": {
-            "format": "date-time",
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "legalHoldUntilUtc": {
-            "format": "date-time",
-            "type": [
-              "null",
-              "string"
-            ]
-          },
           "name": {
             "type": "string"
-          },
-          "offboardedUtc": {
-            "format": "date-time",
-            "type": [
-              "null",
-              "string"
-            ]
           },
           "slug": {
             "type": "string"
@@ -15807,28 +15742,6 @@
         },
         "type": "object"
       },
-      "TenantWorkspaceDeletedProjectApiDto": {
-        "properties": {
-          "deletedUtc": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "displayName": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "name": {
-            "type": "string"
-          },
-          "projectId": {
-            "format": "uuid",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "TenantWorkspaceProjectApiDto": {
         "properties": {
           "displayName": {
@@ -15847,46 +15760,11 @@
         },
         "type": "object"
       },
-      "TenantWorkspaceRecycleBinApiDto": {
-        "properties": {
-          "deletedProjects": {
-            "items": {
-              "$ref": "#/components/schemas/TenantWorkspaceDeletedProjectApiDto"
-            },
-            "type": "array"
-          },
-          "displayName": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "name": {
-            "type": "string"
-          },
-          "workspaceId": {
-            "format": "uuid",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "TenantWorkspacesListResponse": {
         "properties": {
           "workspaces": {
             "items": {
               "$ref": "#/components/schemas/TenantWorkspaceApiDto"
-            },
-            "type": "array"
-          }
-        },
-        "type": "object"
-      },
-      "TenantWorkspacesRecycleBinResponse": {
-        "properties": {
-          "workspaces": {
-            "items": {
-              "$ref": "#/components/schemas/TenantWorkspaceRecycleBinApiDto"
             },
             "type": "array"
           }
@@ -18463,17 +18341,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TenantErasureOffboardAcceptedResponse"
+                  "$ref": "#/components/schemas/TenantDeletionQueuedResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TenantErasureOffboardAcceptedResponse"
+                  "$ref": "#/components/schemas/TenantDeletionQueuedResponse"
                 }
               },
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/TenantErasureOffboardAcceptedResponse"
+                  "$ref": "#/components/schemas/TenantDeletionQueuedResponse"
                 }
               }
             },
@@ -18498,233 +18376,6 @@
               }
             },
             "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Conflict"
-          }
-        },
-        "tags": [
-          "AdminTenants"
-        ]
-      }
-    },
-    "/v1/admin/tenants/{id}/erasure/legal-hold": {
-      "delete": {
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Conflict"
-          }
-        },
-        "tags": [
-          "AdminTenants"
-        ]
-      },
-      "post": {
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/*\u002Bjson": {
-              "schema": {
-                "$ref": "#/components/schemas/TenantErasureLegalHoldRequest"
-              }
-            },
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TenantErasureLegalHoldRequest"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TenantErasureLegalHoldRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Conflict"
-          }
-        },
-        "tags": [
-          "AdminTenants"
-        ]
-      }
-    },
-    "/v1/admin/tenants/{id}/erasure/restore": {
-      "post": {
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Conflict"
           }
         },
         "tags": [
@@ -46769,78 +46420,6 @@
         ]
       }
     },
-    "/v1/tenant/erasure/legal-hold": {
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/*\u002Bjson": {
-              "schema": {
-                "$ref": "#/components/schemas/TenantErasureLegalHoldRequest"
-              }
-            },
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TenantErasureLegalHoldRequest"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TenantErasureLegalHoldRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Conflict"
-          }
-        },
-        "tags": [
-          "TenantErasureLegalHold"
-        ]
-      }
-    },
     "/v1/tenant/exec-digest-preferences": {
       "get": {
         "responses": {
@@ -47301,55 +46880,6 @@
         ]
       }
     },
-    "/v1/tenant/workspaces/recycle-bin": {
-      "get": {
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantWorkspacesRecycleBinResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantWorkspacesRecycleBinResponse"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantWorkspacesRecycleBinResponse"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Not Found"
-          }
-        },
-        "tags": [
-          "TenantWorkspaces"
-        ]
-      }
-    },
     "/v1/tenant/workspaces/{workspaceId}/projects/{projectId}": {
       "delete": {
         "parameters": [
@@ -47415,98 +46945,6 @@
               }
             },
             "description": "Not Found"
-          }
-        },
-        "tags": [
-          "TenantWorkspaces"
-        ]
-      }
-    },
-    "/v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore": {
-      "post": {
-        "parameters": [
-          {
-            "in": "path",
-            "name": "workspaceId",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "projectId",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Conflict"
           }
         },
         "tags": [
@@ -48247,9 +47685,6 @@
     },
     {
       "name": "TenantCustomerSuccess"
-    },
-    {
-      "name": "TenantErasureLegalHold"
     },
     {
       "name": "TenantExecDigestPreferences"
