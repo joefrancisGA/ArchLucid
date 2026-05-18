@@ -33,7 +33,7 @@ export const WHY_MARKET_LANDSCAPE_MARKETING_ROWS: readonly WhyMarketLandscapeMar
     archlucid:
       "Committed manifests, segregation-of-duty gates, typed audit envelopes, and replay/export paths aligned to architecture review packs.",
     githubCopilotAdHocArchitecture: "Typical fit: developer workflow tooling — not an architecture-evidence catalogue product.",
-    manualChatgptClaude: "Typical fit: interactive Q&A — not a governed package with sealed manifest lineage by default.",
+    manualChatgptClaude: "Typical fit: interactive Q&A — not a governed package with finalized signed manifest lineage by default.",
     structurizrWithAssist:
       "Typical fit: documenting system context — governance promotion workflows differ from packaged review records.",
   },

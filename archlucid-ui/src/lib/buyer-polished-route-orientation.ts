@@ -1,4 +1,4 @@
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -73,7 +73,7 @@ export function buyerPolishedRouteOrientation(
   if (path.startsWith("/manifests/")) {
     return {
       label: "Architecture review manifest",
-      line: "Sealed manifest record — decisions, findings counts, artifacts, and download bundle.",
+      line: `${BUYER_SURFACE_VOCABULARY.finalizedSignedManifestRecord} — decisions, findings counts, artifacts, and download bundle.`,
     };
   }
 
@@ -94,7 +94,7 @@ export function buyerPolishedRouteOrientation(
   if (path.startsWith("/audit")) {
     return {
       label: "Audit Trail",
-      line: `Immutable lifecycle events correlated to reviews such as ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`,
+      line: `Immutable audit events correlated to reviews such as ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`,
     };
   }
 

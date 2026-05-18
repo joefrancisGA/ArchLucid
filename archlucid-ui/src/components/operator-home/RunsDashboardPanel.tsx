@@ -241,7 +241,7 @@ export function RunsDashboardPanel() {
             {tab === "recent" ? "Showing the latest reviews for this workspace." : null}
             {tab === "attention"
               ? buyerPolishedShell
-                ? "Architecture reviews still moving toward a sealed manifest before sponsor sign-off."
+                ? "Architecture reviews still moving toward a finalized signed manifest before sponsor sign-off."
                 : "Reviews with findings awaiting a finalized manifest."
               : null}
             {tab === "outcomes"

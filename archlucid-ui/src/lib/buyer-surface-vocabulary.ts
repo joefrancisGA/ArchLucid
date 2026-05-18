@@ -12,6 +12,8 @@ export const BUYER_SURFACE_VOCABULARY = {
   /** Surface term: a persisted “finding” is presented as a risk observation to buyers. */
   riskObservation: "Risk observation",
   phiMinimizationRisk: "PHI minimization risk",
+  /** Golden / signed manifest artifact in buyer copy — avoid informal “sealed”. */
+  finalizedSignedManifestRecord: "Finalized signed manifest record",
 } as const;
 
 /**

@@ -1,6 +1,6 @@
 namespace ArchLucid.Core.Tenancy;
 
-/// <summary>Row from <c>dbo.Projects</c> for non-deleted architecture projects (API scope metadata).</summary>
+/// <summary>Row from <c>dbo.Projects</c> (API scope metadata). <see cref="DeletedUtc" /> is set only when <c>IsDeleted = 1</c>.</summary>
 public sealed class ArchitectureProjectRecord
 {
     public Guid Id
@@ -28,6 +28,13 @@ public sealed class ArchitectureProjectRecord
     } = string.Empty;
 
     public DateTimeOffset CreatedUtc
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Populated only for recycle-bin projections (soft-deleted rows).</summary>
+    public DateTimeOffset? DeletedUtc
     {
         get;
         init;

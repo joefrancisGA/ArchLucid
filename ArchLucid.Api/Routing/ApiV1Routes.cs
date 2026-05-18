@@ -37,6 +37,9 @@ public static class ApiV1Routes
     /// <summary>Workspaces + architecture projects for scope switcher (<c>GET /v1/tenant/workspaces</c>).</summary>
     public const string TenantWorkspaces = "v1/tenant/workspaces";
 
+    /// <summary>Soft-deleted architecture projects by workspace (<c>GET /v1/tenant/workspaces/recycle-bin</c>).</summary>
+    public const string TenantWorkspacesRecycleBin = "v1/tenant/workspaces/recycle-bin";
+
     /// <summary>Mocked executive ROI aggregates until analytics persistence is wired.</summary>
     public const string AnalyticsRoi = "v1/analytics/roi";
 

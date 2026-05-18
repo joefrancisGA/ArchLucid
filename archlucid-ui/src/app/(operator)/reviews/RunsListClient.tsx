@@ -663,7 +663,7 @@ export function RunsListClient({
           <TooltipContent side="top" className="max-w-xs">
             {buyerPolished ? (
               <>
-                Packaging status from snapshots: finalized review package, pre-final while findings await a sealed manifest,
+                Packaging status from snapshots: finalized review package, pre-final while findings await a finalized signed manifest,
                 or early pipeline before findings are ready.
               </>
             ) : (

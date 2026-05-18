@@ -76,7 +76,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
           <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
             {`3 · ${BUYER_SURFACE_VOCABULARY.evidenceGraphNav}`}
           </span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">See summarized posture on the sealed manifest view</span>
+          <span className="text-xs text-neutral-600 dark:text-neutral-400">See summarized posture on the finalized signed manifest</span>
         </Link>
       ) : (
         <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
@@ -95,7 +95,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
       ) : hasManifest ? (
         <Link className={cardClass} href={`/manifests/${encManifest}`}>
           <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">4 · Governance approval</span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">Deliverables list on the sealed manifest</span>
+          <span className="text-xs text-neutral-600 dark:text-neutral-400">Deliverables on the finalized signed manifest</span>
         </Link>
       ) : (
         <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>

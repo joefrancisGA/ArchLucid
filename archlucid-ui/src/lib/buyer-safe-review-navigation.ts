@@ -40,7 +40,7 @@ export function isBuyerSafePrimaryReviewNavigationPreferred(runId: string): bool
 
 /**
  * Primary authenticated next step on the reviews table: open the full review package on `/reviews/...`.
- * Pair with {@link getBuyerSafeSignedManifestTableLink} for sealed manifest access without losing the package context.
+ * Pair with {@link getBuyerSafeSignedManifestTableLink} for finalized signed manifest access without losing the package context.
  */
 export function getBuyerSafeReviewsTableLink(runId: string): PrimaryReviewExploreLink {
   const id = canonicalizeDemoRunId(runId.trim());

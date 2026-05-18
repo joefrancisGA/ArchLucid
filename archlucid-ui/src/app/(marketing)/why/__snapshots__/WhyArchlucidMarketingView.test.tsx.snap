@@ -176,7 +176,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              Typical fit: interactive Q&A — not a governed package with sealed manifest lineage by default.
+              Typical fit: interactive Q&A — not a governed package with finalized signed manifest lineage by default.
             </td>
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"

@@ -83,6 +83,74 @@ public sealed class TenantWorkspacesController(
         return Ok(body);
     }
 
+    /// <summary>Lists soft-deleted architecture projects grouped by workspace for the recycle-bin UI.</summary>
+    [HttpGet("recycle-bin")]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [ProducesResponseType(typeof(TenantWorkspacesRecycleBinResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ListRecycleBinAsync(CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
+        IReadOnlyList<TenantWorkspaceListItem> workspaces =
+            await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken);
+
+        IReadOnlyList<ArchitectureProjectRecord> deleted =
+            await _architectureProjectRepository.ListSoftDeletedByTenantAsync(scope.TenantId, cancellationToken);
+
+        HashSet<Guid> candidateIds = [];
+
+        foreach (ArchitectureProjectRecord row in deleted)
+            candidateIds.Add(row.WorkspaceId);
+
+        Dictionary<Guid, TenantWorkspaceListItem> byId =
+            workspaces.ToDictionary(static w => w.WorkspaceId);
+
+        List<TenantWorkspaceRecycleBinApiDto> items = [];
+
+        foreach (Guid workspaceIdKey in candidateIds.OrderBy(static id => id))
+        {
+            if (!byId.TryGetValue(workspaceIdKey, out TenantWorkspaceListItem? w))
+                continue;
+
+            IEnumerable<ArchitectureProjectRecord> wsDeleted =
+                deleted.Where(p => p.WorkspaceId == workspaceIdKey)
+                    .OrderBy(static p => p.Name, StringComparer.OrdinalIgnoreCase);
+
+            TenantWorkspaceRecycleBinApiDto dto = new()
+            {
+                WorkspaceId = w.WorkspaceId,
+                Name = w.Name,
+                DisplayName = w.Name,
+                DeletedProjects = wsDeleted
+                    .Select(
+                        static p =>
+                        {
+                            DateTimeOffset deletedUtc = p.DeletedUtc ?? p.CreatedUtc;
+
+                            return new TenantWorkspaceDeletedProjectApiDto
+                            {
+                                ProjectId = p.Id,
+                                Name = p.Name,
+                                DisplayName = p.Name,
+                                DeletedUtc = deletedUtc
+                            };
+                        })
+                    .ToList()
+            };
+
+            items.Add(dto);
+        }
+
+        TenantWorkspacesRecycleBinResponse body = new() { Workspaces = items };
+
+        return Ok(body);
+    }
+
     /// <summary>Soft-deletes an architecture project (<c>IsDeleted = 1</c>); not allowed for the workspace default project.</summary>
     [HttpDelete("{workspaceId:guid}/projects/{projectId:guid}")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -134,6 +202,66 @@ public sealed class TenantWorkspacesController(
                         workspaceId,
                         projectId
                     })
+            },
+            cancellationToken);
+
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Restores a soft-deleted architecture project when no active project in the workspace already uses the same
+    /// name.
+    /// </summary>
+    [HttpPost("{workspaceId:guid}/projects/{projectId:guid}/restore")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> RestoreProjectAsync(
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
+        IReadOnlyList<TenantWorkspaceListItem> workspaces =
+            await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken);
+
+        TenantWorkspaceListItem? workspace = workspaces.SingleOrDefault(w => w.WorkspaceId == workspaceId);
+
+        if (workspace is null)
+            return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
+
+        ArchitectureProjectRestoreResult outcome =
+            await _architectureProjectRepository.TryRestoreAsync(
+                scope.TenantId,
+                workspaceId,
+                projectId,
+                cancellationToken);
+
+        if (outcome == ArchitectureProjectRestoreResult.NotFoundOrNotDeleted)
+            return this.NotFoundProblem("Architecture project was not found or is not soft-deleted.", ProblemTypes.ResourceNotFound);
+
+        if (outcome == ArchitectureProjectRestoreResult.ActiveProjectNameCollision)
+        {
+            return this.ConflictProblem(
+                "Another active architecture project in this workspace already uses this name; rename or remove it before restoring.",
+                ProblemTypes.Conflict);
+        }
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ArchitectureProjectRestored,
+                TenantId = scope.TenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                DataJson = JsonSerializer.Serialize(new { workspaceId, projectId })
             },
             cancellationToken);
 

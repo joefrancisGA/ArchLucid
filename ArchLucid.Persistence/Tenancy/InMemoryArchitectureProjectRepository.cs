@@ -54,6 +54,32 @@ public sealed class InMemoryArchitectureProjectRepository : IArchitectureProject
     }
 
     /// <inheritdoc />
+    public Task<IReadOnlyList<ArchitectureProjectRecord>> ListSoftDeletedByTenantAsync(Guid tenantId, CancellationToken ct)
+    {
+        _ = ct;
+
+        IReadOnlyList<ArchitectureProjectRecord> list =
+        [
+            .. _byId.Values
+                .Where(r => r.IsDeleted && r.TenantId == tenantId)
+                .OrderBy(static r => r.WorkspaceId)
+                .ThenByDescending(static r => r.DeletedUtc)
+                .ThenBy(static r => r.Name, StringComparer.OrdinalIgnoreCase)
+                .Select(static r => new ArchitectureProjectRecord
+                {
+                    Id = r.Id,
+                    TenantId = r.TenantId,
+                    WorkspaceId = r.WorkspaceId,
+                    Name = r.Name,
+                    CreatedUtc = r.CreatedUtc,
+                    DeletedUtc = r.DeletedUtc
+                }),
+        ];
+
+        return Task.FromResult<IReadOnlyList<ArchitectureProjectRecord>>(list);
+    }
+
+    /// <inheritdoc />
     public Task<bool> TrySoftDeleteAsync(Guid tenantId, Guid workspaceId, Guid projectId, CancellationToken ct)
     {
         _ = ct;
@@ -65,6 +91,36 @@ public sealed class InMemoryArchitectureProjectRepository : IArchitectureProject
         row.DeletedUtc = TimeProvider.System.GetUtcNow();
 
         return Task.FromResult(true);
+    }
+
+    /// <inheritdoc />
+    public Task<ArchitectureProjectRestoreResult> TryRestoreAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
+    {
+        _ = ct;
+
+        if (!_byId.TryGetValue(projectId, out ProjectRow? row))
+            return Task.FromResult(ArchitectureProjectRestoreResult.NotFoundOrNotDeleted);
+
+        if (row.TenantId != tenantId || row.WorkspaceId != workspaceId || !row.IsDeleted)
+            return Task.FromResult(ArchitectureProjectRestoreResult.NotFoundOrNotDeleted);
+
+        bool clash = _byId.Values.Any(o =>
+            o.WorkspaceId == workspaceId &&
+            !o.IsDeleted &&
+            !o.Id.Equals(projectId) &&
+            string.Equals(o.Name, row.Name, StringComparison.OrdinalIgnoreCase));
+
+        if (clash)
+            return Task.FromResult(ArchitectureProjectRestoreResult.ActiveProjectNameCollision);
+
+        row.IsDeleted = false;
+        row.DeletedUtc = null;
+
+        return Task.FromResult(ArchitectureProjectRestoreResult.Restored);
     }
 
     private sealed class ProjectRow
