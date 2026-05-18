@@ -100,6 +100,7 @@ flowchart LR
 The governance model uses **Policy Packs** as its adaptive "brain", completely decoupling the core evaluation engine from domain-specific knowledge (compliance frameworks, cloud provider rules, AI standards).
 - **Future-proofing:** Rules, alerts, and advisory defaults are injected as JSON/YAML, allowing rapid adaptation to new technologies without binary updates.
 - **Hierarchical Merging:** Packs are assigned at Tenant, Workspace, or Project scopes and merged dynamically. This allows a central security team to enforce global baselines while squads layer on project-specific rules.
+- **Content velocity:** Curated packs follow an **LLM draft → critic review → human SME** playbook; prioritized backlog in [`library/POLICY_PACK_CONTENT_BACKLOG.md`](library/POLICY_PACK_CONTENT_BACKLOG.md).
 
 ## 5. Component breakdown
 

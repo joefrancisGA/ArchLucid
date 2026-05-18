@@ -61,3 +61,9 @@ Pilot validation path: finalize a manifest with Azure / architecture evidence in
 ## 5. Security / tenancy posture (non-regression assertion)
 
 Bundles are **`PlatformDefault`** rows **scoped per tenant/workspace/project**, not silently shared writable globals. Operators **cannot republish** them through the shipped HTTP surface (UI disables **Publish**, API rejects `PublishVersion`). Read paths obey existing repository scoping; **tenant A cannot mutate tenant B packs** regardless of labeling.
+
+---
+
+## 6. Content roadmap and authoring
+
+**Prioritized next 20 packs**, LLM-assisted drafting pipeline (generator → critic → human curator), and promotion paths (sample → catalog → GA seed): **[`POLICY_PACK_CONTENT_BACKLOG.md`](../library/POLICY_PACK_CONTENT_BACKLOG.md)**.

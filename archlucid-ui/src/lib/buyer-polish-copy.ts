@@ -29,3 +29,5 @@ export const BUYER_COMPARE_SECONDARY_PAGE_LEAD =
   "Review change comparison is a secondary diligence view. Start from the finalized review package, then load a prior vs later pair when you need an explicit delta.";
 
 export const BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY = "Download consolidated review package (ZIP)";
+
+export const BUYER_COMPARE_OPEN_FULL_LINK_LABEL = "View review change comparison";

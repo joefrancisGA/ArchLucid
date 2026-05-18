@@ -2,7 +2,9 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import type { ChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
+import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer-polish-copy";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 export type ChangesSinceLastReviewBannerProps = {
   readonly priorReviewDateLabel: string;
@@ -14,6 +16,9 @@ export type ChangesSinceLastReviewBannerProps = {
 /** Collapsible read-only delta banner vs the prior committed review on the same project. */
 export function ChangesSinceLastReviewBanner(props: ChangesSinceLastReviewBannerProps): ReactElement {
   const compareHref = comparePageHrefAdaptive(props.priorRunId, props.currentRunId);
+  const compareLinkLabel = isBuyerPolishedOperatorShellEnv()
+    ? BUYER_COMPARE_OPEN_FULL_LINK_LABEL
+    : "Open full comparison";
 
   return (
     <details
@@ -35,7 +40,7 @@ export function ChangesSinceLastReviewBanner(props: ChangesSinceLastReviewBanner
             href={compareHref}
             className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
           >
-            Open full comparison
+            {compareLinkLabel}
           </Link>
         </p>
       </div>

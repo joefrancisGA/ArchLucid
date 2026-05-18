@@ -29,6 +29,10 @@ import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation } from "@/types/explanation";
 import type { RunComparison, RunSummary } from "@/types/authority";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import {
+  SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
+  SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
+} from "@/lib/showcase-static-demo";
 
 /**
  * Compare form: two review IDs; structured manifest diff and optional legacy diff on Compare; optional AI explanation.
@@ -161,8 +165,8 @@ export function CompareForm() {
     }
 
     demoComparePrefillDoneRef.current = true;
-    setLeftRunId("claims-intake-run-v1");
-    setRightRunId("claims-intake-run-v2");
+    setLeftRunId(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID);
+    setRightRunId(SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID);
   }, [searchParams, leftRunId, rightRunId]);
 
   useEffect(() => {
@@ -216,8 +220,8 @@ export function CompareForm() {
   const rightFootnote = comparePickerFootnote(rightTrim, rightPickedSummary);
   const isDemoClaimsIntakeComparePair =
     isStaticDemoPayloadFallbackEnabled() &&
-    leftTrim === "claims-intake-run-v1" &&
-    rightTrim === "claims-intake-run-v2";
+    leftTrim === SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID &&
+    rightTrim === SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID;
   const pairAligned =
     lastComparedPair !== null && lastComparedPair.left === leftTrim && lastComparedPair.right === rightTrim;
   const showStaleInputsWarning =
@@ -316,8 +320,8 @@ export function CompareForm() {
       : "Updated review";
 
   const pickClaimsIntakePair = () => {
-    setLeftRunId("claims-intake-run-v1");
-    setRightRunId("claims-intake-run-v2");
+    setLeftRunId(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID);
+    setRightRunId(SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID);
   };
 
   const urlComparePair = readCompareRunIdsFromSearchParams(searchParams);
@@ -334,7 +338,7 @@ export function CompareForm() {
     pickClaimsIntakePair();
 
     if (isStaticDemoPayloadFallbackEnabled()) {
-      void runCompareForPair("claims-intake-run-v1", "claims-intake-run-v2");
+      void runCompareForPair(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID, SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID);
     }
   };
 

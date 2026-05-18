@@ -11,7 +11,9 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
 import { GRAPH_IDLE } from "@/lib/empty-state-presets";
 import {
   getArchitectureGraph,
@@ -69,6 +71,13 @@ export function GraphPageContent() {
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const graphMainColumnMaxClass = buyerPolishedShell ? "max-w-6xl" : "max-w-4xl";
+  const defaultSelectedGraphNodeId =
+    urlGraphNodeId.length > 0
+      ? urlGraphNodeId
+      : buyerPolishedShell &&
+          canonicalizeDemoRunId(runId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
+        ? SHOWCASE_PHI_FINDING_GRAPH_NODE_ID
+        : undefined;
 
   const handleGraphInteractiveSurfaceReady = useCallback(() => {
     setGraphInteractiveReady(true);
@@ -435,7 +444,7 @@ export function GraphPageContent() {
           onGraphInteractiveSurfaceReady={handleGraphInteractiveSurfaceReady}
           controls={controls}
           leadIntro={leadIntro}
-          defaultSelectedGraphNodeId={urlGraphNodeId.length > 0 ? urlGraphNodeId : undefined}
+          defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
         />
       ) : null}
     </div>

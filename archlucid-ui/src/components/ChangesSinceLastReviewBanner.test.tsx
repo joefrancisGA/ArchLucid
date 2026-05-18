@@ -1,12 +1,23 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { axe, toHaveNoViolations } from "jest-axe";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const BACKUP_ENV = process.env;
 
 import { ChangesSinceLastReviewBanner } from "./ChangesSinceLastReviewBanner";
 
 expect.extend(toHaveNoViolations);
 
 describe("ChangesSinceLastReviewBanner", () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    process.env = { ...BACKUP_ENV };
+    vi.restoreAllMocks();
+  });
+
   it("renders comparison link with baseline and target run ids", () => {
     render(
       <ChangesSinceLastReviewBanner
@@ -30,6 +41,33 @@ describe("ChangesSinceLastReviewBanner", () => {
     expect(link).toHaveAttribute(
       "href",
       "/compare?leftRunId=prior-run&rightRunId=current-run",
+    );
+  });
+
+  it("uses buyer-polished compare link label and friendly query keys when demo chrome is enabled", async () => {
+    process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "true", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false" };
+
+    const { ChangesSinceLastReviewBanner: Banner } = await import("./ChangesSinceLastReviewBanner");
+
+    render(
+      <Banner
+        priorReviewDateLabel="May 9, 2026"
+        priorRunId="claims-intake-run-v1"
+        currentRunId="claims-intake-modernization"
+        copy={{
+          netChangeLine: "+1 new findings",
+          severityShiftLine: null,
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByText(/Compared to your previous review/i));
+
+    const link = screen.getByRole("link", { name: /view review change comparison/i });
+
+    expect(link).toHaveAttribute(
+      "href",
+      "/compare?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-modernization",
     );
   });
 

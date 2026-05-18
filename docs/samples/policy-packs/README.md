@@ -4,8 +4,14 @@
 
 These files match the persisted shape described in **`ArchLucid.Decisioning.Governance.PolicyPacks.PolicyPackContentDocument`**: `complianceRuleIds`, `complianceRuleKeys`, `alertRuleIds`, `compositeAlertRuleIds`, `advisoryDefaults`, `metadata` (all **`metadata` / `advisoryDefaults` values are strings**).
 
+**Curated-rules corpora** (full rule bodies with `evidenceHints` and `frameworkMappings`) use the `archlucid.policyPack.curatedRules.v1` shape — see **`ai-governance-responsible-ai-rules-v1.json`** and **`security-architecture-baseline-rules-v1.json`**. **Roadmap, LLM authoring pipeline, and prioritized next 20 packs:** **[`docs/library/POLICY_PACK_CONTENT_BACKLOG.md`](../../library/POLICY_PACK_CONTENT_BACKLOG.md)**.
+
 | File | Intent |
 |------|--------|
+| [ai-governance-responsible-ai-rules-v1.json](./ai-governance-responsible-ai-rules-v1.json) | **V1 GA bundled default** — 20 curated AI governance rules (NIST AI RMF / EU AI Act thematic mapping). |
+| [security-architecture-baseline-rules-v1.json](./security-architecture-baseline-rules-v1.json) | **V1 GA bundled default** — 30 curated security architecture rules. |
+| [azure-waf-rules-v1.json](./azure-waf-rules-v1.json) | **Curated sample** — 12 Azure Well-Architected pillar rules (not a third GA bundle). |
+| [cost-optimization-rules-v1.json](./cost-optimization-rules-v1.json) | FinOps / cost themes (sample; see backlog for full corpus expansion). |
 | [soc2-compliance-baseline.json](./soc2-compliance-baseline.json) | **Severity gate** (Warning+) via `governance.blockCommitMinimumSeverity`, plus checklist strings for classification / encryption citations / least-privilege wording. Selects logging, encryption, and access catalog rules (`saas-ctrl-001` … `003`). |
 | [cloud-migration-readiness.json](./cloud-migration-readiness.json) | **Content-pattern checklist** metadata for cost bands, RTO/RPO mentions, and external-service enumeration; enables encryption, third-party, segmentation, and DR rules (`saas-ctrl-002`, `004`, `005`, `006`). |
 | [architecture-review-governance.json](./architecture-review-governance.json) | **Critical-only blocking intent** for dry-run (`governance.blockCommitOnCritical`), **count threshold** and **recommendation specificity** expectations as documented metadata (not enforced by the pre-commit engine for counts). |

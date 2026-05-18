@@ -67,6 +67,15 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     expect(audit?.next).toBeNull();
   });
 
+  it("treats compare as optional secondary route between manifest and evidence trail", () => {
+    const compare = resolveBuyerGoldenJourneyNav("/compare");
+
+    expect(compare?.summaryLine).toContain("Optional review change comparison");
+    expect(compare?.currentStepIndex).toBeNull();
+    expect(compare?.prev?.label).toBe("Signed manifest");
+    expect(compare?.next?.label).toBe("View evidence trail");
+  });
+
   it("treats showcase review workspace as hub between executive and manifest", () => {
     const nav = resolveBuyerGoldenJourneyNav(`/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`);
 

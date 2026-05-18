@@ -539,6 +539,7 @@ Add a progress bar or gauge to the operator UI (e.g., in the settings or dashboa
 ```
 
 ### 20. Create a curated policy pack for GDPR compliance baseline
+- **Roadmap:** Rank **#2** in [`docs/library/POLICY_PACK_CONTENT_BACKLOG.md`](../library/POLICY_PACK_CONTENT_BACKLOG.md) (LLM-assisted authoring playbook).
 - **Why it matters:** Helps European and global customers quickly assess GDPR readiness.
 - **Expected impact:** Template and Accelerator Richness (+10 pts).
 - **Affected qualities:** Template and Accelerator Richness.

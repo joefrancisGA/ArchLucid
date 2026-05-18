@@ -13,7 +13,6 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -31,19 +30,21 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
     /// </summary>
     private sealed class ValueReportJwtWebAppFactory : JwtLocalSigningWebAppFactory
     {
+        protected override Dictionary<string, string?> BuildHostConfigurationOverrides()
+        {
+            Dictionary<string, string?> settings = base.BuildHostConfigurationOverrides();
+            settings["ValueReport:Computation:AsyncJobWhenWindowDaysExceeds"] = "5000";
+            settings["Demo:Enabled"] = "false";
+            settings["Demo:SeedOnStartup"] = "false";
+            settings["DataConsistency:InitialDelaySeconds"] = "0";
+            settings["HostLeaderElection:Enabled"] = "false";
+
+            return settings;
+        }
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             base.ConfigureWebHost(builder);
-
-            builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["ValueReport:Computation:AsyncJobWhenWindowDaysExceeds"] = "5000",
-                    ["Demo:Enabled"] = "false",
-                    ["Demo:SeedOnStartup"] = "false",
-                    ["DataConsistency:InitialDelaySeconds"] = "0",
-                    ["HostLeaderElection:Enabled"] = "false"
-                }));
 
             builder.ConfigureTestServices(services =>
             {
@@ -92,11 +93,16 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
 
         using HttpResponseMessage res = await client.PostAsync(url, null);
 
-        string responseBody = await res.Content.ReadAsStringAsync();
-        res.StatusCode.Should().Be(HttpStatusCode.OK, "response body: {0}", responseBody);
+        byte[] body = await res.Content.ReadAsByteArrayAsync();
+
+        if (res.StatusCode != HttpStatusCode.OK)
+        {
+            string responseBody = System.Text.Encoding.UTF8.GetString(body);
+            res.StatusCode.Should().Be(HttpStatusCode.OK, "response body: {0}", responseBody);
+        }
+
         res.Content.Headers.ContentType?.MediaType.Should()
             .Be("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-        byte[] body = await res.Content.ReadAsByteArrayAsync();
         body.Should().NotBeEmpty();
     }
 

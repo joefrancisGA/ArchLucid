@@ -82,6 +82,13 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
     stepIdx = 1;
   } else if (path.startsWith("/graph")) {
     stepIdx = 2;
+  } else if (path.startsWith("/compare")) {
+    return {
+      summaryLine: "Optional review change comparison — secondary diligence view",
+      prev: { label: defs[1].label, href: defs[1].href },
+      next: { label: defs[2].label, href: defs[2].href },
+      currentStepIndex: null,
+    };
   } else if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
     return {
       summaryLine: `Review records and dispositions — linked from governance approval`,

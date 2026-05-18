@@ -92,7 +92,7 @@
 | # | Task | Milestone | Reason deferred |
 |---|------|-----------|-----------------|
 | M-29 | Publish LinkedIn post on ServiceNow integration ("ArchLucid writes architecture findings back to your ServiceNow workflow") | **V1.1** | Waits on first-party ServiceNow program ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13), **Improvement #25**, and **P10** (developer instance) |
-| M-30 | Publish CAF / Azure landing-zone use case claim with bundled curated policy pack | V1.1 | CAF pack deferred to V1.1 per **`V1_DEFERRED.md`** / **`V1_SCOPE.md`** §3 |
+| M-30 | Publish CAF / Azure landing-zone use case claim with bundled curated policy pack | V1.1 | CAF pack deferred to V1.1 per **`V1_DEFERRED.md`** / **`V1_SCOPE.md`** §3; content roadmap rank **#1** in **[`POLICY_PACK_CONTENT_BACKLOG.md`](../library/POLICY_PACK_CONTENT_BACKLOG.md)** |
 | M-31 | Solo architect self-serve SaaS pricing page (monthly tier bands per [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) **section 5**) and public self-serve checkout | V2 | Stripe live keys deferred to V1.1; self-serve funnel deferred to V2; no public $ band in first 90 days per **[PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md)** (**Marketing alignment Q7**); prefer **demand signal** from service-led engagements before positioning self-serve as primary motion |
 | M-32 | Reference customer / design partner case study publication | V1.1 | Depends on signed pilot and `reference-customers/PUBLICATION_CHECKLIST.md` clearance |
 | M-33 | Cross-tenant portfolio ROI analytics marketing claim | V2 | Cross-tenant analytics deferred to V2 per `V1_DEFERRED.md` |
