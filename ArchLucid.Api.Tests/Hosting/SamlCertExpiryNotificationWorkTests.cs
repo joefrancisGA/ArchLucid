@@ -25,6 +25,14 @@ public sealed class SamlCertExpiryNotificationWorkTests
         public override DateTimeOffset GetUtcNow() => utcNow;
     }
 
+    private static IOptionsMonitor<EmailNotificationOptions> OptionsMonitorFrom(EmailNotificationOptions options)
+    {
+        Mock<IOptionsMonitor<EmailNotificationOptions>> monitor = new();
+        monitor.Setup(m => m.CurrentValue).Returns(options);
+
+        return monitor.Object;
+    }
+
     [Fact]
     public async Task RunDailyPassAsync_when_saml_disabled_does_not_touch_tenants()
     {
@@ -40,7 +48,7 @@ public sealed class SamlCertExpiryNotificationWorkTests
             Mock.Of<ITenantTrialEmailContactLookup>(),
             Mock.Of<ISentEmailLedger>(),
             Mock.Of<IEmailProvider>(),
-            Options.Create(new EmailNotificationOptions()),
+            OptionsMonitorFrom(new EmailNotificationOptions()),
             new FakeTimeProvider(FixedUtc),
             NullLogger.Instance,
             CancellationToken.None);
@@ -69,7 +77,7 @@ public sealed class SamlCertExpiryNotificationWorkTests
             Mock.Of<ITenantTrialEmailContactLookup>(),
             Mock.Of<ISentEmailLedger>(),
             email.Object,
-            Options.Create(new EmailNotificationOptions()),
+            OptionsMonitorFrom(new EmailNotificationOptions()),
             new FakeTimeProvider(FixedUtc),
             NullLogger.Instance,
             CancellationToken.None);
@@ -105,7 +113,7 @@ public sealed class SamlCertExpiryNotificationWorkTests
             ]);
 
         Mock<ITenantTrialEmailContactLookup> lookup = new();
-        lookup.Setup(static l => l.TryResolveAdminEmailAsync(tenantId, It.IsAny<CancellationToken>()))
+        lookup.Setup(l => l.TryResolveAdminEmailAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync("admin@contoso.example");
 
         Mock<ISentEmailLedger> ledger = new();
@@ -121,7 +129,7 @@ public sealed class SamlCertExpiryNotificationWorkTests
             lookup.Object,
             ledger.Object,
             email.Object,
-            Options.Create(new EmailNotificationOptions { OperatorBaseUrl = "https://app.example.com" }),
+            OptionsMonitorFrom(new EmailNotificationOptions { OperatorBaseUrl = "https://app.example.com" }),
             new FakeTimeProvider(FixedUtc),
             NullLogger.Instance,
             CancellationToken.None);
@@ -159,7 +167,7 @@ public sealed class SamlCertExpiryNotificationWorkTests
             ]);
 
         Mock<ITenantTrialEmailContactLookup> lookup = new();
-        lookup.Setup(static l => l.TryResolveAdminEmailAsync(tenantId, It.IsAny<CancellationToken>()))
+        lookup.Setup(l => l.TryResolveAdminEmailAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync("ops@fabrikam.example");
 
         Mock<ISentEmailLedger> ledger = new();
@@ -175,7 +183,7 @@ public sealed class SamlCertExpiryNotificationWorkTests
             lookup.Object,
             ledger.Object,
             email.Object,
-            Options.Create(new EmailNotificationOptions()),
+            OptionsMonitorFrom(new EmailNotificationOptions()),
             new FakeTimeProvider(FixedUtc),
             NullLogger.Instance,
             CancellationToken.None);
@@ -220,9 +228,9 @@ public sealed class SamlCertExpiryNotificationWorkTests
             ]);
 
         Mock<ITenantTrialEmailContactLookup> lookup = new();
-        lookup.Setup(static l => l.TryResolveAdminEmailAsync(activeId, It.IsAny<CancellationToken>()))
+        lookup.Setup(l => l.TryResolveAdminEmailAsync(activeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync("a@active.example");
-        lookup.Setup(static l => l.TryResolveAdminEmailAsync(suspendedId, It.IsAny<CancellationToken>()))
+        lookup.Setup(l => l.TryResolveAdminEmailAsync(suspendedId, It.IsAny<CancellationToken>()))
             .ReturnsAsync("s@suspended.example");
 
         Mock<ISentEmailLedger> ledger = new();
@@ -238,12 +246,12 @@ public sealed class SamlCertExpiryNotificationWorkTests
             lookup.Object,
             ledger.Object,
             email.Object,
-            Options.Create(new EmailNotificationOptions()),
+            OptionsMonitorFrom(new EmailNotificationOptions()),
             new FakeTimeProvider(FixedUtc),
             NullLogger.Instance,
             CancellationToken.None);
 
-        lookup.Verify(static l => l.TryResolveAdminEmailAsync(suspendedId, It.IsAny<CancellationToken>()), Times.Never);
+        lookup.Verify(l => l.TryResolveAdminEmailAsync(suspendedId, It.IsAny<CancellationToken>()), Times.Never);
         email.Verify(
             static e => e.SendAsync(It.Is<EmailMessage>(m => m.To == "a@active.example"), It.IsAny<CancellationToken>()),
             Times.Once);

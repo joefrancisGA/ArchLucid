@@ -125,7 +125,7 @@ internal static class SamlCertExpiryNotificationWork
 
             string html =
                 "<p>"
-                + $"{safeProduct} SAML service-provider signing certificate is nearing expiry or has expired.</p>"
+                + $"{safeProduct}: SAML service-provider signing certificate is nearing expiry or has expired.</p>"
                 + "<ul>"
                 + $"<li><strong>Certificate expires (UTC):</strong> {safeNotAfter}</li>"
                 + $"<li><strong>Approx. days remaining:</strong> {safeDays}</li>"

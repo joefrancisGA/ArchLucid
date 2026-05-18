@@ -361,9 +361,10 @@ Create a new curated policy pack `docs/samples/policy-packs/cost-optimization-ru
 - **Why it matters:** Proactively alerts admins before SAML SP certificates expire, reducing support load.
 - **Expected impact:** Supportability (+10 pts), Adoption Friction (+5 pts).
 - **Affected qualities:** Supportability, Adoption Friction.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (`ArchLucid.Api/Hosting/SamlCertExpiryNotificationHostedService.cs`, `SamlCertExpiryNotificationWork.cs`; leader lease `hosted:saml-cert-expiry-notification`; unit tests `ArchLucid.Api.Tests/Hosting/SamlCertExpiryNotificationWorkTests.cs`.)
 ```text
 Create a background hosted service `SamlCertExpiryNotificationHostedService` that runs daily to check SAML SP certificate expiry.
+- Status: COMPLETE — acceptance criteria met (daily leader-elected loop; `ISamlOperationalDiagnosticsService.BuildAsync` for SP `NotAfter`; email to resolved tenant admins when ≤30 days remain; `ISentEmailLedger` idempotency per tenant/cert-day/UTC-day; SAML login paths unchanged).
 - Acceptance criteria: Sends an email notification to tenant admins if the cert is within 30 days of expiry.
 - Constraints: Use the existing `SamlOperationalDiagnosticsService` to check expiry.
 - What not to change: Do not modify SAML login paths.
