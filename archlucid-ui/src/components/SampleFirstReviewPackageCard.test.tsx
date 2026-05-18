@@ -35,6 +35,9 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+import { BUYER_HOME_SAMPLE_PACKAGE_LEAD } from "@/lib/buyer-polish-copy";
+import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE } from "@/lib/showcase-static-demo";
+
 import { SampleFirstReviewPackageCard } from "./SampleFirstReviewPackageCard";
 
 describe("SampleFirstReviewPackageCard", () => {
@@ -76,14 +79,10 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
     render(<SampleFirstReviewPackageCard />);
 
     expect(
-      screen.getByRole("heading", { name: /Claims Intake Modernization Review Package/i }),
+      screen.getByRole("heading", { name: SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE }),
     ).toBeInTheDocument();
 
-    expect(
-      screen.getByText(
-        /Illustrative Claims Intake package — start at the executive summary, or open the full review package to explore manifest, evidence trail, governance, and audit from one workspace view/,
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByText(BUYER_HOME_SAMPLE_PACKAGE_LEAD)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start executive review" })).toHaveAttribute(
       "href",
       "/executive/reviews/claims-intake-modernization",
