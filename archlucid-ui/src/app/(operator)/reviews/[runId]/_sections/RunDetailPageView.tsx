@@ -99,18 +99,6 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       {m.savingsSummary !== null ? <RunSavingsSummary model={m.savingsSummary} /> : null}
 
-      <div className="flex flex-wrap items-center gap-2">
-        <GenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={m.buyerPolishedArtifactTable} />
-      </div>
-
-      <CompareToBaselineCta currentRunId={m.resolvedDetail.run.runId} />
-
-      {m.usedStaticDemoRun && !m.buyerPolishedArtifactTable ? sampleReviewPackageSummaryEl : null}
-
-      {m.buyerPolishedArtifactTable && m.manifestId ? (
-        <RunDetailExecutiveSummaryCtaCard runId={m.resolvedDetail.run.runId} />
-      ) : null}
-
       <RunDetailOutcomeCards
         runId={m.resolvedDetail.run.runId}
         manifestId={m.manifestId}
@@ -133,6 +121,18 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         }
       />
 
+      <div className="flex flex-wrap items-center gap-2">
+        <GenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={m.buyerPolishedArtifactTable} />
+      </div>
+
+      <CompareToBaselineCta currentRunId={m.resolvedDetail.run.runId} />
+
+      {m.usedStaticDemoRun && !m.buyerPolishedArtifactTable ? sampleReviewPackageSummaryEl : null}
+
+      {m.buyerPolishedArtifactTable && m.manifestId ? (
+        <RunDetailExecutiveSummaryCtaCard runId={m.resolvedDetail.run.runId} />
+      ) : null}
+
       {changesSinceLastReviewBannerEl}
 
       <RunEstimatedLlmCostCard estimate={m.resolvedDetail.agentExecutionLlmCostEstimate} />
@@ -146,7 +146,10 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       <RunDetailSectionNav sections={m.runDetailNavSections} />
 
       {m.manifestId && m.resolvedDetail.trustEvidenceCard ? (
-        <RunTrustEvidenceCardSection card={m.resolvedDetail.trustEvidenceCard} />
+        <RunTrustEvidenceCardSection
+          card={m.resolvedDetail.trustEvidenceCard}
+          evidenceAskRunId={m.buyerPolishedArtifactTable ? m.resolvedDetail.run.runId : null}
+        />
       ) : null}
 
       {!m.manifestId ? (

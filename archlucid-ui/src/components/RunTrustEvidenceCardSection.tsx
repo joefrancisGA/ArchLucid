@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { RunTrustEvidenceCard } from "@/types/authority";
@@ -61,9 +62,15 @@ function FieldRow(props: {
 }
 
 /** Committed-run evidence summary: manifest/audit/traces/export posture (no CPA / pen-test / legal claims). */
-export function RunTrustEvidenceCardSection(props: { readonly card: RunTrustEvidenceCard }): ReactElement {
-  const { card } = props;
+export function RunTrustEvidenceCardSection(props: {
+  readonly card: RunTrustEvidenceCard;
+  readonly evidenceAskRunId?: string | null;
+}): ReactElement {
+  const { card, evidenceAskRunId } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
+  const trimmedAskRun =
+    buyerPolishedShell && typeof evidenceAskRunId === "string" ? evidenceAskRunId.trim() : "";
 
   const rows: ReactElement[] = [
     <FieldRow
@@ -124,6 +131,26 @@ export function RunTrustEvidenceCardSection(props: { readonly card: RunTrustEvid
         <CardContent className="space-y-4">
           <div className="grid gap-3 md:grid-cols-2">{rows}</div>
 
+          {trimmedAskRun.length > 0 ? (
+            <div
+              className="rounded-lg border border-blue-200/80 bg-blue-50/50 p-4 dark:border-blue-950/55 dark:bg-blue-950/25"
+              data-testid="trust-evidence-ask-promotion"
+            >
+              <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                Ask evidence-backed questions about this review
+              </p>
+              <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                Answers reference this review&apos;s persisted summary, manifest, and evidence anchors where your workspace
+                allows.
+              </p>
+              <div className="mt-3">
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/ask?runId=${encodeURIComponent(trimmedAskRun)}`}>Open Ask for this package</Link>
+                </Button>
+              </div>
+            </div>
+          ) : null}
+
           {card.topFinding ? (
             <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/50">
               <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
@@ -146,32 +173,4 @@ export function RunTrustEvidenceCardSection(props: { readonly card: RunTrustEvid
             {buyerPolishedShell ? (
               <CollapsibleSection title="Evidence API endpoints (advanced)" defaultOpen={false}>
                 <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-teal-800 dark:text-teal-300">
-                  {card.links.map((l) => (
-                    <li key={l.rel}>
-                      <Link className="underline" href={proxyApiPath(l.path)}>
-                        {l.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </CollapsibleSection>
-            ) : (
-              <>
-                <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">Evidence routes</div>
-                <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-teal-800 dark:text-teal-300">
-                  {card.links.map((l) => (
-                    <li key={l.rel}>
-                      <Link className="underline" href={proxyApiPath(l.path)}>
-                        {l.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </section>
-  );
-}
+      
