@@ -1,14 +1,14 @@
 ﻿> **Scope:** Independent, first-principles assessment of ArchLucid readiness.
 > **Status:** current
 
-# ArchLucid Assessment – (A) Headline Readiness: 85.03%
+# ArchLucid Assessment – (A) Headline Readiness: 84.94%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., automated tenant erasure, SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold, and V1.1-scoped integration suites).
 
 ## Executive Summary
 
-### (A) Overall Headline Readiness (85.03%)
-ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (85.03% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, and operational script hardening—significantly strengthen the GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting), broader automated Azure cost estimations, and default `ui-e2e-smoke` mock-heavy coverage.
+### (A) Overall Headline Readiness (84.94%)
+ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, and operational script hardening—significantly strengthen the GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting), broader automated Azure cost estimations, and default `ui-e2e-smoke` mock-heavy coverage.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. The full automated tenant erasure quarantine pipeline is a V2 engineering commitment and is not scored as an `(A)` defect. V1 relies on operator-driven and trial/offboarding deletion paths.
@@ -107,16 +107,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Specific improvement recommendations:** Add export to CSV for findings for offline analysis.
 - **Fixability:** Fixable in V1.
 
-### 10. Workflow Embeddedness
-- **Score:** 90
-- **Weight:** 3
-- **Weighted impact on readiness:** 30
-- **Why this score was assigned:** Inclusion of first-party ITSM connectors and Slack/Confluence integrations in V1 GA is a strong positive.
-- **Key tradeoffs:** Building first-party connectors takes resources away from core platform features.
-- **Specific improvement recommendations:** Ship bi-directional ServiceNow status sync.
-- **Fixability:** Better suited for V1.1.
-
-### 11. Compliance Readiness
+### 10. Compliance Readiness
 - **Score:** 85
 - **Weight:** 2
 - **Weighted impact on readiness:** 30
@@ -125,7 +116,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Specific improvement recommendations:** Add a SQL backup region verification script.
 - **Fixability:** Fixable in V1.
 
-### 12. Commercial Packaging Readiness
+### 11. Commercial Packaging Readiness
 - **Score:** 85
 - **Weight:** 2
 - **Weighted impact on readiness:** 30
@@ -134,7 +125,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Specific improvement recommendations:** Flip Stripe live keys and publish Marketplace listing.
 - **Fixability:** Better suited for V1.1 (blocked on user input).
 
-### 13. Explainability
+### 12. Explainability
 - **Score:** 85
 - **Weight:** 2
 - **Weighted impact on readiness:** 30
@@ -143,7 +134,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Specific improvement recommendations:** Enhance documentation for single-process projection limitations.
 - **Fixability:** Fixable in V1.
 
-### 14. Reliability
+### 13. Reliability
 - **Score:** 87
 - **Weight:** 2
 - **Weighted impact on readiness:** 26
@@ -152,7 +143,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Specific improvement recommendations:** Implement tenant-fairness queuing in the Authority Pipeline.
 - **Fixability:** Fixable in V1.
 
-### 15. Maintainability
+### 14. Maintainability
 - **Score:** 87
 - **Weight:** 2
 - **Weighted impact on readiness:** 26
@@ -161,7 +152,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Specific improvement recommendations:** Implement a Dependency Injection Analyzer NetArchTest rule.
 - **Fixability:** Fixable in V1.
 
-### 16. Observability
+### 15. Observability
 - **Score:** 78
 - **Weight:** 1
 - **Weighted impact on readiness:** 22
@@ -170,7 +161,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Specific improvement recommendations:** Curate Grafana dashboards for LLM spans and token counters.
 - **Fixability:** Fixable in V1.
 
-### 17. Interoperability
+### 16. Interoperability
 - **Score:** 90
 - **Weight:** 2
 - **Weighted impact on readiness:** 20
@@ -179,7 +170,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Specific improvement recommendations:** Inbound MCP server (membrane).
 - **Fixability:** Better suited for V1.1.
 
-### 18. Performance
+### 17. Performance
 - **Score:** 80
 - **Weight:** 1
 - **Weighted impact on readiness:** 20
@@ -188,7 +179,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Specific improvement recommendations:** Add a health check endpoint for Redis.
 - **Fixability:** Fixable in V1.
 
-### 19. Template and Accelerator Richness
+### 18. Template and Accelerator Richness
 - **Score:** 80
 - **Weight:** 1
 - **Weighted impact on readiness:** 20
@@ -197,7 +188,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Specific improvement recommendations:** Develop an internal Policy Pack Hub.
 - **Fixability:** Fixable in V1.
 
-### 20. Cognitive Load
+### 19. Cognitive Load
 - **Score:** 80
 - **Weight:** 1
 - **Weighted impact on readiness:** 20
@@ -206,7 +197,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Specific improvement recommendations:** Use telemetry to refine operator UI once patterns are stable.
 - **Fixability:** Fixable in V1.
 
-### 21. Cost-Effectiveness
+### 20. Cost-Effectiveness
 - **Score:** 80
 - **Weight:** 1
 - **Weighted impact on readiness:** 20
@@ -215,7 +206,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Specific improvement recommendations:** Extend automated Azure cost narratives to VMs and Storage.
 - **Fixability:** Fixable in V1.
 
-### 22. Stickiness
+### 21. Stickiness
 - **Score:** 82
 - **Weight:** 1
 - **Weighted impact on readiness:** 18
@@ -224,7 +215,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Specific improvement recommendations:** Add telemetry for policy pack assignments.
 - **Fixability:** Fixable in V1.
 
-### 23. Scalability
+### 22. Scalability
 - **Score:** 85
 - **Weight:** 1
 - **Weighted impact on readiness:** 15
@@ -233,7 +224,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Specific improvement recommendations:** Redis as the default production substrate for scaled API fleets.
 - **Fixability:** Better suited for V2.
 
-### 24. Supportability
+### 23. Supportability
 - **Score:** 85
 - **Weight:** 1
 - **Weighted impact on readiness:** 15
@@ -242,7 +233,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Specific improvement recommendations:** Create a runbook for handling rate limit exceeded errors.
 - **Fixability:** Fixable in V1.
 
-### 25. Testability
+### 24. Testability
 - **Score:** 87
 - **Weight:** 1
 - **Weighted impact on readiness:** 13
@@ -288,7 +279,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 3. **Noisy neighbor posture in orchestration:** Buyers will diligence steady-state parallelism and multi-region fairness.
 4. **SAML SP operational burden:** Managing certificate rotation and metadata drift for SAML SP adds operational overhead for enterprise IT.
 5. **Automated tenant erasure:** Not a V1 headline blocker, but buyers may still request a productized erasure narrative (deferred to V2).
-6. **Inbound ServiceNow incident status reconciliation:** Closes an ITSM loop for enterprises reconciling incidents back into governed findings (deferred to V1.1).
+6. **Lack of soft delete for architecture projects:** Accidental deletion of projects cannot be easily recovered, causing data loss concerns for enterprise IT.
 
 ---
 
@@ -480,51 +471,35 @@ Add a Redis health check to the ASP.NET Core Health Checks pipeline in `ArchLuci
 - Impact: Directly improves Supportability (+8-10 pts) and Performance (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 14. DEFERRED: Inbound ServiceNow incident status reconciliation
-- **Reason:** Requires user input to confirm the mapping logic between ServiceNow statuses and ArchLucid finding states.
-- **Needed from me:** Please provide the desired status mapping configuration (e.g., New -> Open, Resolved -> Resolved).
-
-### 15. DEFERRED: Playwright smoke tests for the Jira bidirectional status sync
-- **Reason:** Requires user input to confirm the test webhook endpoint strategy.
-- **Needed from me:** Please confirm whether to use a mocked `/api/proxy` or a dedicated test webhook endpoint for Jira payload simulation.
-
-### 16. DEFERRED: Playwright smoke tests for the Slack chat-ops integration
-- **Reason:** Requires user input to confirm the test webhook endpoint strategy.
-- **Needed from me:** Please confirm how to intercept the outbound HTTP request to Slack during the Playwright test.
-
-### 17. DEFERRED: Playwright smoke tests for the Confluence documentation publish integration
-- **Reason:** Requires user input to confirm the test webhook endpoint strategy.
-- **Needed from me:** Please confirm how to intercept the outbound HTTP request to Confluence during the Playwright test.
-
-### 18. DEFERRED: Automated tenant erasure (30-day quarantine, legal-hold flag, blob + SQL purge)
+### 14. DEFERRED: Automated tenant erasure (30-day quarantine, legal-hold flag, blob + SQL purge)
 - **Reason:** Deferred to V2. Requires user input to confirm the legal hold schema and RBAC roles allowed to clear the hold.
 - **Needed from me:** Please provide the exact schema for `LegalHoldUntilUtc` and confirm the RBAC roles for clearing the hold.
 
-### 19. DEFERRED: First named, public reference customer
+### 15. DEFERRED: First named, public reference customer
 - **Reason:** Deferred to V1.1. Requires user input to provide the customer name and case study details.
 - **Needed from me:** Please provide the customer name, logo, and case study content when ready.
 
-### 20. DEFERRED: Signed design partner engagement
+### 16. DEFERRED: Signed design partner engagement
 - **Reason:** Deferred to V1.1. Requires user input to confirm the partner details.
 - **Needed from me:** Please provide the design partner agreement details when signed.
 
-### 21. DEFERRED: Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
+### 17. DEFERRED: Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
 - **Reason:** Deferred to V1.1. Requires user input to provide the live Stripe keys and confirm Marketplace publication.
 - **Needed from me:** Please provide the `sk_live_` Stripe keys and confirm the Marketplace offer is `Published`.
 
-### 22. DEFERRED: PGP key drop for security@archlucid.net
+### 18. DEFERRED: PGP key drop for security@archlucid.net
 - **Reason:** Deferred to V1.1. Requires user input to generate and provide the PGP keypair.
 - **Needed from me:** Please provide the public PGP key block to be placed at `archlucid-ui/public/.well-known/pgp-key.txt`.
 
-### 23. DEFERRED: Inbound MCP server (membrane)
+### 19. DEFERRED: Inbound MCP server (membrane)
 - **Reason:** Deferred to V1.1. Requires user input to confirm the final list of read-only tools.
 - **Needed from me:** Please confirm the 7 read-only tools listed in the backlog are final.
 
-### 24. DEFERRED: Redis as the default production substrate for scaled API fleets
+### 20. DEFERRED: Redis as the default production substrate for scaled API fleets
 - **Reason:** Deferred to V2. Requires user input to confirm the recommended Azure Cache for Redis SKU.
 - **Needed from me:** Please provide the recommended Redis SKU and private connectivity Terraform configuration.
 
-### 25. DEFERRED: Azure Container Apps Jobs + Durable Task Framework
+### 21. DEFERRED: Azure Container Apps Jobs + Durable Task Framework
 - **Reason:** Deferred to V2. Requires user input to confirm the migration strategy for existing background jobs.
 - **Needed from me:** Please confirm which specific background jobs should be migrated to Container Apps Jobs.
 
@@ -543,18 +518,6 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 ---
 
 ## Pending Questions for Later
-
-### DEFERRED: Inbound ServiceNow incident status reconciliation
-- What is the desired status mapping configuration between ServiceNow and ArchLucid finding states?
-
-### DEFERRED: Playwright smoke tests for the Jira bidirectional status sync
-- Should we use a mocked `/api/proxy` or a dedicated test webhook endpoint for Jira payload simulation?
-
-### DEFERRED: Playwright smoke tests for the Slack chat-ops integration
-- How should we intercept the outbound HTTP request to Slack during the Playwright test?
-
-### DEFERRED: Playwright smoke tests for the Confluence documentation publish integration
-- How should we intercept the outbound HTTP request to Confluence during the Playwright test?
 
 ### DEFERRED: Automated tenant erasure (30-day quarantine, legal-hold flag, blob + SQL purge)
 - What is the exact schema for `LegalHoldUntilUtc` and which RBAC roles are allowed to clear the hold?
