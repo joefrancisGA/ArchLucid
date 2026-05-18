@@ -64,11 +64,25 @@ function stageChipLabel(stage: StageDef, buyerPolished: boolean): string {
 }
 
 function stagesForRun(run: RunSummary, buyerPolished: boolean): StageDef[] {
-  const graphTooltip = buyerPolished
-    ? "Evidence graph — structured decision trace for this review (provenance and relationships). " +
-      (run.hasGraphSnapshot === true ? "Present." : "Not yet generated.")
-    : "Graph — structured architecture / linkage snapshot. " +
-      (run.hasGraphSnapshot === true ? "Present." : "Not yet generated.");
+  const graphPresentShowcaseFallback =
+    buyerPolished === true && canonicalizeDemoRunId(run.runId) === SHOWCASE_STATIC_DEMO_RUN_ID;
+
+  const graphSnapshotsOk =
+    run.hasGraphSnapshot === true ||
+    graphPresentShowcaseFallback === true;
+
+  const graphTooltip =
+    buyerPolished === true
+      ? `Evidence graph — structured decision trace for this review (provenance and relationships). ${
+          graphSnapshotsOk === true
+            ? run.hasGraphSnapshot === true
+              ? "Snapshot recorded."
+              : "Buyer walkthrough ships a seeded traceability viewer for this sample package."
+            : "Not yet generated."
+        }`
+      : `Graph — structured architecture / linkage snapshot. ${
+          run.hasGraphSnapshot === true ? "Present." : "Not yet generated."
+        }`;
 
   const findingsTooltip = buyerPolished
     ? "Evidence-linked findings — monitored risks and decisions anchor to retrieved sources for auditability in this package. " +
@@ -90,7 +104,7 @@ function stagesForRun(run: RunSummary, buyerPolished: boolean): StageDef[] {
       label: "Graph",
       present:
         run.hasGraphSnapshot === true ||
-        (buyerPolished && canonicalizeDemoRunId(run.runId) === SHOWCASE_STATIC_DEMO_RUN_ID),
+        graphPresentShowcaseFallback === true,
       tooltip: graphTooltip,
     },
     {
