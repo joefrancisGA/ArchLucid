@@ -163,5 +163,5 @@ If Copilot review becomes a problem:
 - `.github/copilot-instructions.md` — what Copilot reads
 - `.github/CODEOWNERS` — human reviewer routing
 - [`.github/BRANCH_PROTECTION.md`](../../.github/BRANCH_PROTECTION.md) — required status checks (unchanged by this runbook)
-- [`docs/ARCHLUCID_RENAME_CHECKLIST.md`](../ARCHLUCID_RENAME_CHECKLIST.md) — rename phasing; see Phase 7.6 for repo rename
+- [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §3 — rename / Terraform brownfield pointers
 - [`docs/runbooks/README.md`](./README.md) — runbook index

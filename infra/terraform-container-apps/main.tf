@@ -1,6 +1,6 @@
 # Container Apps (API / Worker / UI) — Terraform resource labels use `archlucid` naming (greenfield IaC).
 # Rename via `terraform state mv` during a planned maintenance window.
-# Tracked in docs/ARCHLUCID_RENAME_CHECKLIST.md Phase 7.5.
+# Tracked in docs/library/V1_DEFERRED.md §3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
 
 locals {
   enabled = var.enable_container_apps

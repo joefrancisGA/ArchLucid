@@ -23,7 +23,7 @@
 
 ## Historical context
 
-Earlier phases documented merge behavior under `ArchLucidConfigurationBridge` / auth binding. That documentation applied before Phase 7; see `docs/ARCHLUCID_RENAME_CHECKLIST.md` and git history for the retired behavior.
+Earlier phases documented merge behavior under `ArchLucidConfigurationBridge` / auth binding. That documentation applied before Phase 7; see [V1_DEFERRED.md](V1_DEFERRED.md) §3, [CHANGELOG.md](../CHANGELOG.md), and git history for the retired behavior.
 
 ## Security model
 
@@ -31,5 +31,5 @@ Removing silent fallbacks avoids the case where operators believe the system is 
 
 ## References
 
-- `docs/ARCHLUCID_RENAME_CHECKLIST.md` — Phase 7 items and deferred infrastructure renames (Terraform state mv, repo rename, Entra, workspace path).
+- [V1_DEFERRED.md](V1_DEFERRED.md) §3 — Phase 7 items and deferred infrastructure renames (Terraform state mv, repo rename, Entra, workspace path).
 - `docs/CONFIGURATION_KEY_VAULT.md` — secret and key naming for deployments.

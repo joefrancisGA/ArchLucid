@@ -1,6 +1,6 @@
 > **Scope:** Canonical operator pipeline — request through commit; links to deeper architecture docs below.
 
-# Canonical run pipeline (operator view)
+# Canonical review pipeline (operator view)
 
 **Objective:** Give operators and sponsors a single mental model for how work flows from request to committed manifest and artifacts, without implementation seam vocabulary.
 
@@ -14,26 +14,26 @@
 
 ```mermaid
 flowchart LR
-  A[Create run] --> B[Execute stages]
+  A[Create review] --> B[Execute stages]
   B --> C[Review outputs]
   C --> D[Commit golden manifest]
   D --> E[Artifacts and exports]
 ```
 
-1. **Create run** — Guided wizard or API creates a scoped run with evidence and tasks.
-2. **Execute stages** — The host runs ingestion, graph, findings, decisioning, and artifact synthesis where applicable; OpenTelemetry spans carry `archlucid.stage.name` for support correlation (see `docs/BACKGROUND_JOB_CORRELATION.md`).
+1. **Create review** — Guided wizard or API creates a scoped **review** session (`runId` in APIs/storage) with evidence and tasks.
+2. **Execute stages** — The host runs ingestion, graph, findings, decisioning, and artifact synthesis where applicable; OpenTelemetry spans carry `archlucid.stage.name` for support correlation (see [`BACKGROUND_JOB_CORRELATION.md`](BACKGROUND_JOB_CORRELATION.md)).
 3. **Review** — Inspect tasks, findings, and previews before commit.
 4. **Commit** — Produce the golden manifest and durable traces for your scope.
-5. **Artifacts** — Download bundles, exports, and sponsor-facing summaries from the run detail surface.
+5. **Artifacts** — Download bundles, exports, and sponsor-facing summaries from the **review detail** surface (legacy UI routes may still use **run detail**).
 
 ---
 
 ## Where to read next
 
-- `docs/ARCHITECTURE_FLOWS.md` — narrative lifecycle and API touchpoints.
-- `docs/library/FIRST_RUN_WALKTHROUGH.md` — operator UI checklist for first successful run; HTTP-level parity in `docs/library/LIVE_E2E_HAPPY_PATH.md`.
-- `docs/OPERATOR_ATLAS.md` — task → UI map.
-- `docs/API_CONTRACTS.md` — stable HTTP contracts.
+- [`ARCHITECTURE_FLOWS.md`](ARCHITECTURE_FLOWS.md) — narrative lifecycle and API touchpoints.
+- [`FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md) — operator UI checklist for first successful review; HTTP-level parity in [`LIVE_E2E_HAPPY_PATH.md`](LIVE_E2E_HAPPY_PATH.md).
+- [`OPERATOR_ATLAS.md`](OPERATOR_ATLAS.md) — task → UI map.
+- [`API_CONTRACTS.md`](API_CONTRACTS.md) — stable HTTP contracts.
 
 ---
 

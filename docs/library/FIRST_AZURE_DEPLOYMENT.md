@@ -100,4 +100,4 @@ Pre-production: destroying stacks is acceptable — `terraform destroy` per root
 - [`DEPLOYMENT_TERRAFORM.md`](DEPLOYMENT_TERRAFORM.md) — full Terraform map and constraints.
 - [`AZURE_SUBSCRIPTIONS.md`](AZURE_SUBSCRIPTIONS.md) — canonical subscription IDs, regions, and CD secret mapping.
 - [`runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`](../runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md) — stub; greenfield uses `archlucid` IaC only. Brownfield **state mv** archive: [`archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`](../archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md).
-- [`ARCHLUCID_RENAME_CHECKLIST.md`](../ARCHLUCID_RENAME_CHECKLIST.md) — Phase 7 items still deferred: GitHub repo rename (7.6), local workspace path (7.8).
+- [V1_DEFERRED.md](V1_DEFERRED.md) §3 — Phase 7 items still deferred: GitHub repo rename (7.6), local workspace path (7.8); brownfield Terraform: [TERRAFORM_STATE_MV_PHASE_7_5.md](../runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md).

@@ -49,10 +49,9 @@ ArchLucid.sql                           @joefrancisGA
 # CodeQL custom queries (log-sanitizer barrier — guards against secret leaks).
 /.github/codeql/                        @joefrancisGA
 
-# Rename checklist + runbooks (operational guardrails).
-/docs/ARCHLUCID_RENAME_CHECKLIST.md     @joefrancisGA
-/docs/runbooks/                         @joefrancisGA
-
-# Cursor rules — these shape AI behavior across the team.
+# V1 Deferred + Terraform brownfield (rename closure)
+/docs/library/V1_DEFERRED.md                       @joefrancisGA
+/docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md    @joefrancisGA
+/docs/runbooks/                                   @joefrancisGA
 /.cursor/rules/                         @joefrancisGA
 /.github/copilot-instructions.md        @joefrancisGA

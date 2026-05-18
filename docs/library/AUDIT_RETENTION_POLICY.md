@@ -67,7 +67,7 @@ Append-only semantics for `dbo.AuditEvents` are enforced at the database for the
 
 ### Example: periodic CSV export (`curl`)
 
-Replace placeholders for base URL and scope header values. Add authentication the same way as for other ArchLucid API calls (**`X-Api-Key`** when using API-key mode, or **`Authorization`** with a bearer token when using JWT); see [`docs/API_CONTRACTS.md`](./API_CONTRACTS.md) and [`docs/BUILD.md`](./BUILD.md). Do not commit real secrets into scripts or repos.
+Replace placeholders for base URL and scope header values. Add authentication the same way as for other ArchLucid API calls (**`X-Api-Key`** when using API-key mode, or **`Authorization`** with a bearer token when using JWT); see [`API_CONTRACTS.md`](./API_CONTRACTS.md) and [`engineering/BUILD.md`](../engineering/BUILD.md). Do not commit real secrets into scripts or repos.
 
 **CSV** (supply your own auth headers before or after the `Accept` line, e.g. from a secrets manager or env var):
 

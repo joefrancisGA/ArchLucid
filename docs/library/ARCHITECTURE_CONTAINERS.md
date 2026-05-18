@@ -7,7 +7,7 @@
 
 **Canonical poster:** [ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md) · **Operator atlas:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)
 
-**Product name:** **ArchLucid**. **`ArchLucid.*`** below refers to deployable projects and libraries until the bulk rename phases in `docs/ARCHLUCID_RENAME_CHECKLIST.md`.
+**Product name:** **ArchLucid**. **`ArchLucid.*`** below refers to deployable projects and libraries until the bulk rename phases in **[V1_DEFERRED.md](V1_DEFERRED.md) §3** complete.
 
 This is a pragmatic C4 “containers” view: **deployable processes** and major libraries, with their responsibilities and relationships.
 
@@ -206,7 +206,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 ### Where to go next
 
-- Components: `docs/ARCHITECTURE_COMPONENTS.md`
-- Flows: `docs/ARCHITECTURE_FLOWS.md`
-- Data model: `docs/DATA_MODEL.md`
+- Components: [`ARCHITECTURE_COMPONENTS.md`](ARCHITECTURE_COMPONENTS.md)
+- Flows: [`ARCHITECTURE_FLOWS.md`](ARCHITECTURE_FLOWS.md)
+- Data model: [`DATA_MODEL.md`](DATA_MODEL.md)
 

@@ -7,9 +7,9 @@
 
 **Canonical poster:** [ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md) · **Operator atlas:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)
 
-**Product name:** **ArchLucid**. Solution/projects use **`ArchLucid.*`**; configuration may still show legacy **`ArchLucid:*`** / **`ArchLucidAuth`** keys until Phase 7 (`docs/ARCHLUCID_RENAME_CHECKLIST.md`).
+**Product name:** **ArchLucid**. Solution/projects use **`ArchLucid.*`**; configuration may still show legacy **`ArchLucid:*`** / **`ArchLucidAuth`** keys until Phase 7 (see **[V1_DEFERRED.md](V1_DEFERRED.md) §3**).
 
-This document zooms into the most important components inside each container/library. It is not exhaustive; it focuses on the pieces engineers tend to touch when extending “run → export → compare → replay”.
+This document zooms into the most important components inside each container/library. It is not exhaustive; it focuses on the pieces engineers tend to touch when extending **review → export → compare → replay** (API/storage still uses **`run` / `runId`**).
 
 ---
 

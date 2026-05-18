@@ -1,6 +1,6 @@
 # Entra app registrations — Terraform resource labels use `archlucid` naming; first `terraform apply` creates tenant objects.
 # Rename via `terraform state mv` during a planned maintenance window.
-# Tracked in docs/ARCHLUCID_RENAME_CHECKLIST.md Phase 7.5.
+# Tracked in docs/library/V1_DEFERRED.md §3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
 
 data "azuread_client_config" "current" {}
 

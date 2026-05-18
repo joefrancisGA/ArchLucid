@@ -30,7 +30,7 @@
 
 The **seven-step guided wizard** walks you from a **starting template** (or scratch defaults) through **identity**, **requirements**, **constraints**, optional **advanced context**, **review**, and **live pipeline tracking**. It exists so you do not have to hand-craft JSON or guess which fields matter for agents and the authority chain.
 
-Use it when you want a **repeatable first run** in a new tenant, workspace, or pilot environment, or when you are **demoing** ArchLucid to stakeholders who should not touch the API directly.
+Use it when you want a **repeatable first review** in a new tenant, workspace, or pilot environment, or when you are **demoing** ArchLucid to stakeholders who should not touch the API directly.
 
 ---
 
@@ -46,7 +46,7 @@ flowchart LR
     S5[5 Advanced]
     S6[6 Review]
     S7[7 Track]
-    S1 --> S2 --> S3 --> S4 --> S5 --> S6 -->|Create run| S7
+    S1 --> S2 --> S3 --> S4 --> S5 --> S6 -->|Create review| S7
   end
 
   subgraph api [API]
@@ -133,7 +133,7 @@ Omitted empty sections are not sent (or sent as empty arrays only where required
 ### Step 6 — Review & submit
 
 - **What:** Read-only summary + inline validation messages from the form schema.
-- **Why:** Catch mistakes before **`Create run`** calls the API.
+- **Why:** Catch mistakes before **`Create review`** calls the API.
 - **Also shown:** `requestId` (client-generated idempotency-style key, 32-char hex without dashes).
 
 ### Step 7 — Track pipeline

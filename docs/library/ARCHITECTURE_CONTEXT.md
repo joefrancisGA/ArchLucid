@@ -7,7 +7,7 @@
 
 **Canonical poster:** [ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md) · **Operator atlas:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)
 
-**Product name:** **ArchLucid**. Legacy identifiers may still read **ArchLucid** in code and configuration (incremental rename; see `docs/ARCHLUCID_RENAME_CHECKLIST.md`). Project and namespace names below use **`ArchLucid.*`** until Phase 5–6 of that checklist.
+**Product name:** **ArchLucid**. Legacy identifiers may still read **ArchLucid** in code and configuration (incremental rename; see **[V1_DEFERRED.md](V1_DEFERRED.md) §3**). Project and namespace names below use **`ArchLucid.*`** until bulk rename phases there complete.
 
 ### Purpose
 
@@ -90,15 +90,15 @@ This document is written for **internal engineers** and is intentionally pragmat
 
 ### Context ingestion
 
-Multi-source inputs (description, inline requirements, pasted documents, policy/topology/security hints) are normalized through **`ArchLucid.ContextIngestion`** into **`CanonicalObject`** records, deduplicated, and persisted as **`ContextSnapshot`** for the knowledge graph. See **`docs/CONTEXT_INGESTION.md`** for connector order, parsers (`REQ:` / `POL:` / … line prefixes), dedupe rules, and the mapping from **`ArchitectureRequest`** to **`ContextIngestionRequest`**.
+Multi-source inputs (description, inline requirements, pasted documents, policy/topology/security hints) are normalized through **`ArchLucid.ContextIngestion`** into **`CanonicalObject`** records, deduplicated, and persisted as **`ContextSnapshot`** for the knowledge graph. See **[CONTEXT_INGESTION.md](CONTEXT_INGESTION.md)** for connector order, parsers (`REQ:` / `POL:` / … line prefixes), dedupe rules, and the mapping from **`ArchitectureRequest`** to **`ContextIngestionRequest`**.
 
 ---
 
 ### Where to go next
 
-- Containers: `docs/ARCHITECTURE_CONTAINERS.md`
-- Components: `docs/ARCHITECTURE_COMPONENTS.md`
-- Key flows: `docs/ARCHITECTURE_FLOWS.md`
-- Data model: `docs/DATA_MODEL.md`
-- Context ingestion: `docs/CONTEXT_INGESTION.md`
+- Containers: [`ARCHITECTURE_CONTAINERS.md`](ARCHITECTURE_CONTAINERS.md)
+- Components: [`ARCHITECTURE_COMPONENTS.md`](ARCHITECTURE_COMPONENTS.md)
+- Key flows: [`ARCHITECTURE_FLOWS.md`](ARCHITECTURE_FLOWS.md)
+- Data model: [`DATA_MODEL.md`](DATA_MODEL.md)
+- Context ingestion: [`CONTEXT_INGESTION.md`](CONTEXT_INGESTION.md)
 

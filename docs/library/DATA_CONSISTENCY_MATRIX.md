@@ -23,7 +23,7 @@ Make explicit which paths are **strongly consistent** (read-your-writes within a
 
 | Aggregate / flow | Consistency | Mechanism | Notes |
 |------------------|------------|-----------|--------|
-| Create run + authority pipeline | Per-connection transactional | SQL transactions in orchestrator | Committed rows visible after successful commit. |
+| Create architecture request (review) + authority pipeline | Per-connection transactional | SQL transactions in orchestrator | Committed rows visible after successful commit. |
 | Run optimistic concurrency | Row-level | `ROWVERSION` on `dbo.Runs` (and selected tables) | Conflicting updates → `409` with conflict problem type. |
 | Retrieval indexing after commit | Eventual | Transactional enqueue + worker processing | Enqueue is tied to commit transaction where configured; indexer may lag. |
 | Idempotency key on create run | Scoped replay-safe | Hash of body + scope keys | Treat as **best-effort** under extreme duplicate-key races; authority **`dbo.Runs`** is the durable header. |

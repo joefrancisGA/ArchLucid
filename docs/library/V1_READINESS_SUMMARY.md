@@ -13,7 +13,7 @@
 
 ## One-paragraph verdict
 
-The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (DbUp), operator UI, CLI, health/version, support bundle, compare/replay/export surfaces, and documented pilot paths. **Self-serve SaaS trial** is covered by a **merge-blocking** live spec ([`archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts`(../../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts), runbook [TRIAL_END_TO_END.md](../runbooks/TRIAL_END_TO_END.md)) in **`ui-e2e-live`**. **Operational completeness** (your deploy, auth, SQL, and recovery drills) is **your checklist**, not something the repo can sign for you. Remaining gaps are mostly **platform hygiene** (Terraform **`state mv`** only when remote state still lists legacy **`archiforge`** addresses — **Phase 7.6–7.7 rename + Entra alignment closed 2026-04-19**, see [ARCHLUCID_RENAME_CHECKLIST.md](../archive/ARCHLUCID_RENAME_CHECKLIST.md)), **compliance/audit coverage** in specific flows, and **staging validation** beyond CI: **`ui-axe-components`** runs fast **Vitest + jest-axe** on shell components, while **`ui-e2e-live`** is the **merge-blocking** **browser** gate running the full **`live-api-*.spec.ts`** suite (including the trial acceptance spec above, plus happy path, conflict, governance rejection, negative paths, advisory/replay/compare/policy packs, alerts, search/graph, digest subscriptions, concurrency, archival smoke, **live axe**) against **real API + SQL** (see [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md))—still not a substitute for your own staging validation.
+The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (DbUp), operator UI, CLI, health/version, support bundle, compare/replay/export surfaces, and documented pilot paths. **Self-serve SaaS trial** is covered by a **merge-blocking** live spec ([`archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts`(../../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts), runbook [TRIAL_END_TO_END.md](../runbooks/TRIAL_END_TO_END.md)) in **`ui-e2e-live`**. **Operational completeness** (your deploy, auth, SQL, and recovery drills) is **your checklist**, not something the repo can sign for you. Remaining gaps are mostly **platform hygiene** (Terraform **`state mv`** only when remote state still lists legacy **`archiforge`** addresses — **Phase 7.6–7.7 rename + Entra alignment closed 2026-04-19**, see [V1_DEFERRED.md](V1_DEFERRED.md) §3), **compliance/audit coverage** in specific flows, and **staging validation** beyond CI: **`ui-axe-components`** runs fast **Vitest + jest-axe** on shell components, while **`ui-e2e-live`** is the **merge-blocking** **browser** gate running the full **`live-api-*.spec.ts`** suite (including the trial acceptance spec above, plus happy path, conflict, governance rejection, negative paths, advisory/replay/compare/policy packs, alerts, search/graph, digest subscriptions, concurrency, archival smoke, **live axe**) against **real API + SQL** (see [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md))—still not a substitute for your own staging validation.
 
 ---
 
@@ -35,11 +35,11 @@ The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (D
 
 ## What is intentionally deferred
 
-*Phase **7.6–7.7** (GitHub repo + Entra alignment) is **not** deferred — **closed 2026-04-19**; **7.8** waived. See [ARCHLUCID_RENAME_CHECKLIST.md](../archive/ARCHLUCID_RENAME_CHECKLIST.md).*
+*Phase **7.6–7.7** (GitHub repo + Entra alignment) is **not** deferred — **closed 2026-04-19**; **7.8** waived. See [V1_DEFERRED.md](V1_DEFERRED.md) §3.*
 
 | Item | Why / pointer |
 |------|----------------|
-| **Terraform `state mv`** (Phase **7.5**) | Resource **addresses** may still contain **`archiforge`** in **remote state** for applied stacks; **`main` IaC** uses **`archlucid`** labels — coordinate `state mv` + deploy window ([TERRAFORM_STATE_MV_PHASE_7_5.md](../runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md), [ARCHLUCID_RENAME_CHECKLIST.md](../archive/ARCHLUCID_RENAME_CHECKLIST.md)). |
+| **Terraform `state mv`** (Phase **7.5**) | Resource **addresses** may still contain **`archiforge`** in **remote state** for applied stacks; **`main` IaC** uses **`archlucid`** labels — coordinate `state mv` + deploy window ([TERRAFORM_STATE_MV_PHASE_7_5.md](../runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md), [V1_DEFERRED.md](V1_DEFERRED.md) §3). |
 | **Full audit parity** | Some mutating flows do not emit `dbo.AuditEvents`; documented as **known gaps** ([AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md), [V1_DEFERRED.md](V1_DEFERRED.md) §2). |
 | **Multi-region SaaS guarantees** | Docs describe targets; not a boxed V1 product promise ([V1_SCOPE.md](V1_SCOPE.md) §3). |
 | **Enterprise integration catalog** | Optional events/webhooks exist; custom consumers are customer-owned ([V1_SCOPE.md](V1_SCOPE.md) §3). |
@@ -78,7 +78,7 @@ If those pass **in the environment you hand off**, the repo is **aligned** with 
 
 Ordered by **typical leverage**, not mandatory roadmap:
 
-1. **Terraform brownfield hygiene** — run **`terraform plan` / `state list`** per [TERRAFORM_STATE_MV_PHASE_7_5.md](../runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md) when remote state may still list **`archiforge`** addresses; **Phase 7.6–7.7** GitHub + Entra rename work already **closed** **2026-04-19** ([ARCHLUCID_RENAME_CHECKLIST.md](../archive/ARCHLUCID_RENAME_CHECKLIST.md)).
+1. **Terraform brownfield hygiene** — run **`terraform plan` / `state list`** per [TERRAFORM_STATE_MV_PHASE_7_5.md](../runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md) when remote state may still list **`archiforge`** addresses; **Phase 7.6–7.7** GitHub + Entra rename work already **closed** **2026-04-19** ([V1_DEFERRED.md](V1_DEFERRED.md) §3).
 2. **Live API + operator UI** validation pass where Playwright mocks are insufficient (record outcome in release notes).
 3. **Audit coverage** closes you care about for compliance ([AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md)).
 4. **Maintainer backlog** ([NEXT_REFACTORINGS.md](NEXT_REFACTORINGS.md))—engineering hygiene, not pilot-blocking by default.

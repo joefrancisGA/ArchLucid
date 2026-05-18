@@ -199,7 +199,7 @@ Every pilot starts here. The operator UI presents this layer by default with no 
 
 Sidebar group label: **Pilot** (`pilot` — always visible — no disclosure toggle required).
 
-Default links in the **Pilot** sidebar group: Home · Onboarding · New run · Runs. The **Alerts** inbox lives under **Operate · governance** (`operate-governance`; same tier/authority rules as other governance links).
+Default links in the **Pilot** sidebar group: Home · Onboarding · **New review** · Runs (legacy nav may still say **New run**). The **Alerts** inbox lives under **Operate · governance** (`operate-governance`; same tier/authority rules as other governance links).
 
 ### How to judge success
 

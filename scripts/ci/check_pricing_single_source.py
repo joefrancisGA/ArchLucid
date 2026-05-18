@@ -37,8 +37,6 @@ ALLOWED_PATHS_REL = {
     os.path.normpath("docs/go-to-market/ROI_MODEL.md"),
     os.path.normpath("docs/go-to-market/TRIAL_AND_SIGNUP.md"),
     os.path.normpath("docs/CHANGELOG.md"),
-    # Rename checklist is a historical append-only log (like CHANGELOG) so it may record prices in entries.
-    os.path.normpath("docs/ARCHLUCID_RENAME_CHECKLIST.md"),
     os.path.normpath("scripts/ci/check_pricing_single_source.py"),
 }
 
@@ -144,7 +142,6 @@ def main() -> int:
         "  docs/go-to-market/ROI_MODEL.md\n"
         "  docs/go-to-market/TRIAL_AND_SIGNUP.md\n"
         "  docs/CHANGELOG.md\n"
-        "  docs/ARCHLUCID_RENAME_CHECKLIST.md\n"
         "  scripts/ci/check_pricing_single_source.py\n"
         "\nViolations:"
     )

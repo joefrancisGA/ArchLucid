@@ -26,7 +26,9 @@ Promote a row to § 1.1 only after ripgrep on `docs/` (excluding `docs/archive/`
 
 | # | Use this (canonical) | Don't use (rejected) | Rationale |
 |---|----------------------|----------------------|-----------|
-| 1 | **review** (noun — the product session) | "run" when used as the product noun for a governed architecture review session (e.g. "create a run", "the run's findings", "run ID") | ArchLucid's primary product concept is an architecture *review*, not a pipeline *run*. Buyer-facing copy, docs, and UI labels must use **review**. Legitimate uses of "run" (CI run, test run, script run, dry run, **run** the pipeline as a verb, API paths **`/run/...`**, **`runId`**) are **not** rejected — only uses where "run" names the ArchLucid review session itself in **buyer** prose. **2026-05-18:** Spine docs in `docs/` onboarding, `go-to-market/`, and `onboarding/` favor **review**; tightening **CI** rejection for remaining `run`-as-product-noun phrases is a separate change to **`scripts/ci/check_concept_vocabulary.py`** when the repo is ready. |
+| 1 | **review** (noun — the product session) | "run" when used as the product noun for a governed architecture review session (e.g. "create a run", "the run's findings", "run ID") | ArchLucid's primary product concept is an architecture *review*, not a pipeline *run*. Buyer-facing copy, docs, and UI labels must use **review**. Legitimate uses of "run" (CI run, test run, script run, dry run, **run** the pipeline as a verb, API paths **`/run/...`**, **`runId`**) are **not** rejected — only uses where "run" names the ArchLucid review session itself in **buyer** prose. |
+
+**2026-05-18 note:** Spine docs in `docs/` onboarding, `go-to-market/`, and `onboarding/` favor **review**; tightening **CI** rejection for remaining `run`-as-product-noun phrases is a separate change to **`scripts/ci/check_concept_vocabulary.py`** when the repo is ready.
 
 ---
 

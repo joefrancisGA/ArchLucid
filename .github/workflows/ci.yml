@@ -51,7 +51,7 @@ on:
 # `contrib/install.sh` (godownloader) which scrapes `GET https://github.com/.../releases/<tag>` as JSON.
 # **v0.70.0** can fail on that path (`crit unable to find 'v0.70.0'`) even when the tag exists; pin **v0.69.3**
 # for a reliable binary install until Aqua bumps the install script ref in setup-trivy. Ref: repo
-# `docs/archive/.../ARCHLUCID_RENAME_CHECKLIST.md` (Trivy install fix); aquasecurity/trivy discussions #10265+.
+# `docs/CHANGELOG.md` (Trivy install fix note, rename-era docs); aquasecurity/trivy discussions #10265+.
 # Set `cache: false` where we skip nested cache noise.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
