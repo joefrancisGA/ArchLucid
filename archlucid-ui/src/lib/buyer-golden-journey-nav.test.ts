@@ -44,7 +44,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
   it("treats governance findings as secondary to the numbered spine", () => {
     const findings = resolveBuyerGoldenJourneyNav("/governance/findings");
 
-    expect(findings?.summaryLine).toContain("Governance findings");
+    expect(findings?.summaryLine).toContain("Review records and dispositions");
     expect(findings?.currentStepIndex).toBeNull();
     expect(findings?.prev?.label).toBe("Governance approval");
     expect(findings?.next?.label).toBe(BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[4].label);
