@@ -31,7 +31,6 @@ import { fetchProvenanceNodeExplanationViaProxy } from "@/lib/fetch-provenance-n
 import {
   findingIdForGraphDeepLink,
   graphFindingDetailHref,
-  graphFindingInspectHref,
 } from "@/lib/graph-finding-deep-links";
 import { graphBuyerTrailDispositionLine, graphBuyerTrailMetadataLines } from "@/lib/graph-buyer-node-detail";
 import { ReasoningTraceReadMore } from "@/components/ReasoningTraceReadMore";
@@ -168,8 +167,8 @@ export function GraphViewer({
 
   const buyerTrailPanel = flowPresentation === "buyerTrail";
 
-  const fitPadding = buyerTrailPanel ? 0.06 : 0.08;
-  const fitMaxZoom = buyerTrailPanel ? 2.92 : 1.52;
+  const fitPadding = buyerTrailPanel ? 0.05 : 0.08;
+  const fitMaxZoom = buyerTrailPanel ? 4.1 : 1.52;
 
   useEffect(() => {
     if (filtered.nodes.length === 0) {
@@ -452,7 +451,7 @@ export function GraphViewer({
               ) : null}
 
               <p>
-                <strong>{buyerTrailPanel ? (selectedNode.type === "Finding" ? "Risk finding" : "Node") : "Label"}:</strong>{" "}
+                <strong>{buyerTrailPanel ? (selectedNode.type === "Finding" ? "Finding" : "Node") : "Label"}:</strong>{" "}
                 {selectedNode.label}
               </p>
 
@@ -463,7 +462,33 @@ export function GraphViewer({
               ) : (
                 <p className="text-xs text-neutral-600 dark:text-neutral-400">
                   <span className="font-medium text-neutral-700 dark:text-neutral-300">Record type:</span>{" "}
-                  {selectedNode.type === "Finding" ? "Risk finding" : selectedNode.type}
+                  {selectedNode.type === "Finding" ? "Finding" : selectedNode.type}
+                  {selectedNode.type === "Finding" ? (
+                    <>
+                      {" "}
+                      ·{" "}
+                      <span className="font-medium text-neutral-700 dark:text-neutral-300">Severity:</span>{" "}
+                      {(() => {
+                        const meta = selectedNode.metadata;
+
+                        if (meta === undefined) {
+                          return "—";
+                        }
+
+                        for (const [rawKey, rawVal] of Object.entries(meta)) {
+                          const key = rawKey.trim().toLowerCase();
+
+                          if (key === "severity" || key.endsWith("severity")) {
+                            const value = String(rawVal).trim();
+
+                            return value.length > 0 ? value : "—";
+                          }
+                        }
+
+                        return "—";
+                      })()}
+                    </>
+                  ) : null}
                 </p>
               )}
 
@@ -528,9 +553,6 @@ export function GraphViewer({
                       <>
                         <Button type="button" variant="default" size="sm" className="h-9 w-full justify-center" asChild>
                           <Link href={graphFindingDetailHref(rid, fid)}>View finding detail</Link>
-                        </Button>
-                        <Button type="button" variant="outline" size="sm" className="h-9 w-full justify-center" asChild>
-                          <Link href={graphFindingInspectHref(rid, fid)}>Open full trace record</Link>
                         </Button>
                       </>
                     );

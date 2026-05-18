@@ -411,6 +411,18 @@ public static class AuditEventTypes
     /// </summary>
     public const string TenantDataDeleted = "TenantDataDeleted";
 
+    /// <summary>Platform audit: tenant entered scheduled erasure quarantine (<c>dbo.Tenants.OffboardedUtc</c> set).</summary>
+    public const string TenantErasureOffboarded = "TenantErasureOffboarded";
+
+    /// <summary>Platform audit: quarantine cleared before hard purge (break-glass restore).</summary>
+    public const string TenantErasureQuarantineRestored = "TenantErasureQuarantineRestored";
+
+    /// <summary>Platform audit: legal/regulatory hold placed or extended on a tenant.</summary>
+    public const string TenantErasureLegalHoldSet = "TenantErasureLegalHoldSet";
+
+    /// <summary>Platform audit: legal hold cleared by a platform operator.</summary>
+    public const string TenantErasureLegalHoldCleared = "TenantErasureLegalHoldCleared";
+
     /// <summary>Architecture project soft-deleted (<c>dbo.Projects.IsDeleted = 1</c>) via tenant API.</summary>
     public const string ArchitectureProjectSoftDeleted = "ArchitectureProjectSoftDeleted";
 

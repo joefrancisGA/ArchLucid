@@ -17,6 +17,22 @@ function formatMoney(amount: number, currency: string): string {
   }).format(amount);
 }
 
+function pricingPackageGridOrder(id: string): number {
+  if (id === "professional") {
+    return 0;
+  }
+
+  if (id === "enterprise") {
+    return 1;
+  }
+
+  if (id === "team") {
+    return 2;
+  }
+
+  return 99;
+}
+
 export type MarketingTierPricingSectionProps = {
   /** Element id for the section heading (accessibility). */
   sectionHeadingId: string;
@@ -102,17 +118,26 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
       {pricing && !pricingError ? (
         <>
           <ul className="grid gap-6 md:grid-cols-3">
-            {pricing.packages.map((pkg) => (
+            {[...pricing.packages]
+              .sort((a, b) => pricingPackageGridOrder(a.id) - pricingPackageGridOrder(b.id))
+              .map((pkg) => (
               <li
                 key={pkg.id}
                 data-testid={pkg.id === "team" ? "pricing-tier-team" : undefined}
                 className={
                   pkg.id === "professional"
                     ? "flex flex-col rounded-lg border-2 border-teal-600 bg-white p-5 shadow-md ring-1 ring-teal-600/20 dark:border-teal-500 dark:bg-neutral-900 dark:ring-teal-500/25"
-                    : "flex flex-col rounded-lg border border-neutral-200 bg-white p-5 shadow-sm opacity-[0.97] dark:border-neutral-800 dark:bg-neutral-900"
+                    : pkg.id === "enterprise"
+                      ? "flex flex-col rounded-lg border border-teal-300 bg-white p-5 shadow-sm dark:border-teal-800 dark:bg-neutral-900"
+                      : "flex flex-col rounded-lg border border-neutral-200 bg-white p-5 shadow-sm opacity-[0.97] dark:border-neutral-800 dark:bg-neutral-900"
                 }
               >
                 <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{pkg.title}</h3>
+                {pkg.id === "team" ? (
+                  <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                    For small architecture teams and evaluation workspaces.
+                  </p>
+                ) : null}
                 <p className="mt-2 flex-1 text-sm text-neutral-700 dark:text-neutral-300">{pkg.summary}</p>
                 {BILLING_TIER_FEATURE_BULLETS[pkg.id] !== undefined ? (
                   <ul className="mt-3 list-disc space-y-1 pl-5 text-xs leading-snug text-neutral-700 dark:text-neutral-300">
@@ -141,6 +166,11 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                     </div>
                   ) : null}
                 </dl>
+                {pkg.id === "enterprise" ? (
+                  <p className="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
+                    Deployment model and terms are finalized through procurement.
+                  </p>
+                ) : null}
                 <div className="mt-4 flex flex-col gap-2">
                   {pkg.id === "team" ? (
                     <>
@@ -179,17 +209,17 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
               </li>
             ))}
           </ul>
-          <div className="mt-10 rounded-lg border border-dashed border-neutral-300 bg-neutral-50 p-5 dark:border-neutral-700 dark:bg-neutral-950/70">
-            <h3 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-              Planned enterprise capabilities
-            </h3>
-            <p className="m-0 mt-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-              Not committed in today&apos;s packaged tier cards — surfaced for roadmap and diligence conversations only.
+          <details className="mt-10 rounded-lg border border-dashed border-neutral-300 bg-neutral-50 p-5 dark:border-neutral-700 dark:bg-neutral-950/70">
+            <summary className="cursor-pointer text-base font-semibold text-neutral-900 dark:text-neutral-100">
+              Roadmap notes for diligence (optional read)
+            </summary>
+            <p className="m-0 mt-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+              Not committed in today&apos;s packaged tier cards — request detail during procurement conversations.
             </p>
             <ul className="m-0 mt-3 list-disc space-y-1 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
               <li>SCIM provisioning for directory-synchronized lifecycle</li>
             </ul>
-          </div>
+          </details>
           {props.showSignupCallToAction !== false ? (
             <div className="mt-8 flex justify-center">
               <Button asChild variant="primary" size="lg">

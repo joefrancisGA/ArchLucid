@@ -96,7 +96,10 @@ public partial class Program
         builder.Services.AddArchLucidApplicationServices(builder.Configuration, hostingRole);
 
         if (hostingRole == ArchLucidHostingRole.Api)
+        {
             builder.Services.AddHostedService<RetentionPurgeWorker>();
+            builder.Services.AddHostedService<TenantErasurePurgeWorker>();
+        }
 
         if (hostingRole != ArchLucidHostingRole.Worker)
             builder.Services.AddHostedService<SamlCertExpiryNotificationHostedService>();

@@ -355,6 +355,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
             sp.GetService<ITenantRegionalArtifactBlobClients>(),
             sp.GetService<BlobServiceClient>()));
         services.AddScoped<ITenantDeletionService, TenantDeletionService>();
+        services.AddScoped<ITenantErasureCommandService, TenantErasureCommandService>();
         services.AddScoped<IBillingLedger, SqlBillingLedger>();
         services.AddScoped<ITrialIdentityUserRepository, SqlTrialIdentityUserRepository>();
         services.AddScoped<IUsageEventRepository, DapperUsageEventRepository>();

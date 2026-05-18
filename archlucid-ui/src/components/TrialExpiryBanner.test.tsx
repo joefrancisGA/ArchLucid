@@ -17,6 +17,7 @@ import { TrialExpiryBanner } from "@/components/TrialExpiryBanner";
 
 describe("TrialExpiryBanner", () => {
   beforeEach(() => {
+    vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "operator");
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => {
@@ -33,7 +34,19 @@ describe("TrialExpiryBanner", () => {
   afterEach(() => {
     cleanup();
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
     sessionStorage.clear();
+  });
+
+  it("does not render in buyer-polished shell (default operator experience)", async () => {
+    vi.unstubAllEnvs();
+    render(<TrialExpiryBanner />);
+
+    await waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalled();
+    });
+
+    expect(screen.queryByTestId("trial-expiry-banner")).not.toBeInTheDocument();
   });
 
   it("renders when trial is active and days remaining is within urgent window", async () => {

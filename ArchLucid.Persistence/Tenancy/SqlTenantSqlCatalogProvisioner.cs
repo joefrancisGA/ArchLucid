@@ -83,6 +83,7 @@ public sealed class SqlTenantSqlCatalogProvisioner(
 
         const string selectSql = """
                                  SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
+                                        OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
                                         TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                         TrialStatus, TrialSampleRunId,
                                         TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
@@ -111,6 +112,7 @@ public sealed class SqlTenantSqlCatalogProvisioner(
                                  BEGIN
                                      INSERT INTO dbo.Tenants (
                                          Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
+                                         OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
                                          TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                          TrialStatus, TrialSampleRunId,
                                          TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
@@ -120,6 +122,7 @@ public sealed class SqlTenantSqlCatalogProvisioner(
                                          EnterpriseSeatsLimit, EnterpriseSeatsUsed)
                                      VALUES (
                                          @Id, @Name, @Slug, @Tier, @EntraTenantId, @DataRegion, @CreatedUtc, @SuspendedUtc,
+                                         @OffboardedUtc, @ErasureEligibleUtc, @LegalHoldUntilUtc, @LegalHoldReason, @LegalHoldSetByUserId, @LegalHoldSetUtc,
                                          @TrialStartUtc, @TrialExpiresUtc, @TrialRunsLimit, @TrialRunsUsed, @TrialSeatsLimit, @TrialSeatsUsed,
                                          @TrialStatus, @TrialSampleRunId,
                                          @TrialArchitecturePreseedEnqueuedUtc, @TrialWelcomeRunId, @TrialFirstManifestCommittedUtc,
@@ -180,6 +183,42 @@ public sealed class SqlTenantSqlCatalogProvisioner(
         }
 
         public DateTimeOffset? SuspendedUtc
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? OffboardedUtc
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? ErasureEligibleUtc
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? LegalHoldUntilUtc
+        {
+            get;
+            init;
+        }
+
+        public string? LegalHoldReason
+        {
+            get;
+            init;
+        }
+
+        public string? LegalHoldSetByUserId
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? LegalHoldSetUtc
         {
             get;
             init;

@@ -47,14 +47,11 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           defaultVisibleInCollapsedSidebar: true,
         },
         {
-          href: "/graph",
-          label: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
-          title: this.shortcutTitle(
-            `${BUYER_SURFACE_VOCABULARY.evidenceGraphNav} — decision traceability graph for one review`,
-            "alt+y",
-          ),
-          keyShortcut: "alt+y",
-          icon: GitGraph,
+          href: "/dashboard",
+          label: "Executive summary",
+          title:
+            "Executive summary — sponsor-facing ROI snapshot and package overview (illustrative metrics until API lands)",
+          icon: LayoutDashboard,
           tier: "essential",
           defaultVisibleInCollapsedSidebar: true,
         },
@@ -71,11 +68,14 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           defaultVisibleInCollapsedSidebar: true,
         },
         {
-          href: "/dashboard",
-          label: "Executive summary",
-          title:
-            "Executive summary — sponsor-facing ROI snapshot and package overview (illustrative metrics until API lands)",
-          icon: LayoutDashboard,
+          href: "/graph",
+          label: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
+          title: this.shortcutTitle(
+            `${BUYER_SURFACE_VOCABULARY.evidenceGraphNav} — decision traceability graph for one review`,
+            "alt+y",
+          ),
+          keyShortcut: "alt+y",
+          icon: GitGraph,
           tier: "essential",
           defaultVisibleInCollapsedSidebar: true,
         },

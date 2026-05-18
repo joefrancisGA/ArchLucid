@@ -130,6 +130,7 @@ internal static class PipelineExtensions
         app.UseRateLimiter();
         app.UseMiddleware<ArchLucidRateLimitTelemetryHeadersMiddleware>();
         app.UseMiddleware<TrialSeatReservationMiddleware>();
+        app.UseMiddleware<TenantErasureQuarantineMiddleware>();
         app.UseAuthorization();
         app.UseMiddleware<ApiRequestMeteringMiddleware>();
         app.MapHealthChecks("/health/live",

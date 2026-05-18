@@ -38,4 +38,6 @@ public static class HostElectionLeaseNames
     public const string InternalCrossTenantRollup = "hosted:internal-cross-tenant-rollup";
 
     public const string SamlCertExpiryNotification = "hosted:saml-cert-expiry-notification";
+
+    public const string TenantErasureEligiblePurge = "hosted:tenant-erasure-eligible-purge";
 }

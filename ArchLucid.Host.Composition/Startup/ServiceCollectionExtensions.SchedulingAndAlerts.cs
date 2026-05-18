@@ -64,6 +64,17 @@ public static partial class ServiceCollectionExtensions
         services.AddHostedService<ArchitectureProjectRetentionPurgeHostedService>();
     }
 
+    private static void RegisterTenantErasureEligiblePurgeHostedService(
+        IServiceCollection services,
+        ArchLucidHostingRole hostingRole)
+    {
+        // Api-only hosts register ArchLucid.Api.Workers.TenantErasurePurgeWorker in Program (same lease + purge logic).
+        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
+            return;
+
+        services.AddHostedService<TenantErasureEligiblePurgeHostedService>();
+    }
+
     private static void RegisterAzureExtractorAutoPullHostedService(
         IServiceCollection services,
         ArchLucidHostingRole hostingRole)

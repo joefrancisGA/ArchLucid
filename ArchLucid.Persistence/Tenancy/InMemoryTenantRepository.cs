@@ -185,51 +185,12 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     {
         _ = ct;
 
-        TenantRecord? existing;
-
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out existing))
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
                 return Task.CompletedTask;
-        }
 
-        TenantRecord updated = new()
-        {
-            Id = existing.Id,
-            Name = existing.Name,
-            Slug = existing.Slug,
-            Tier = existing.Tier,
-            EntraTenantId = existing.EntraTenantId,
-            CreatedUtc = existing.CreatedUtc,
-            SuspendedUtc = TimeProvider.System.GetUtcNow(),
-            TrialStartUtc = existing.TrialStartUtc,
-            TrialExpiresUtc = existing.TrialExpiresUtc,
-            TrialRunsLimit = existing.TrialRunsLimit,
-            TrialRunsUsed = existing.TrialRunsUsed,
-            TrialSeatsLimit = existing.TrialSeatsLimit,
-            TrialSeatsUsed = existing.TrialSeatsUsed,
-            TrialStatus = existing.TrialStatus,
-            TrialSampleRunId = existing.TrialSampleRunId,
-            TrialArchitecturePreseedEnqueuedUtc = existing.TrialArchitecturePreseedEnqueuedUtc,
-            TrialWelcomeRunId = existing.TrialWelcomeRunId,
-            TrialFirstManifestCommittedUtc = existing.TrialFirstManifestCommittedUtc,
-            BaselineReviewCycleHours = existing.BaselineReviewCycleHours,
-            BaselineReviewCycleSource = existing.BaselineReviewCycleSource,
-            BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc,
-            BaselineManualPrepHoursPerReview = existing.BaselineManualPrepHoursPerReview,
-            BaselinePeoplePerReview = existing.BaselinePeoplePerReview,
-            BaselineManualPrepCapturedUtc = existing.BaselineManualPrepCapturedUtc,
-            CompanySize = existing.CompanySize,
-            ArchitectureTeamSize = existing.ArchitectureTeamSize,
-            IndustryVertical = existing.IndustryVertical,
-            IndustryVerticalOther = existing.IndustryVerticalOther,
-            EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
-            EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
-        };
-
-        lock (_trialGate)
-        {
-            _byId[tenantId] = updated;
+            _byId[tenantId] = CopyTenant(existing, suspendedUtcOverride: TimeProvider.System.GetUtcNow());
         }
 
         return Task.CompletedTask;
@@ -743,6 +704,112 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     }
 
     /// <inheritdoc />
+    public Task<bool> TryStartTenantErasureOffboardAsync(
+        Guid tenantId,
+        DateTimeOffset offboardedUtc,
+        DateTimeOffset erasureEligibleUtc,
+        CancellationToken ct)
+    {
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing) || existing.OffboardedUtc is not null)
+                return Task.FromResult(false);
+
+            _byId[tenantId] = CopyTenant(existing, offboardedUtc: offboardedUtc, erasureEligibleUtc: erasureEligibleUtc);
+        }
+
+        return Task.FromResult(true);
+    }
+
+    /// <inheritdoc />
+    public Task<bool> TryRestoreTenantErasureQuarantineAsync(Guid tenantId, CancellationToken ct)
+    {
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing) || existing.OffboardedUtc is null)
+                return Task.FromResult(false);
+
+            _byId[tenantId] = CopyTenant(existing, clearErasureQuarantine: true);
+        }
+
+        return Task.FromResult(true);
+    }
+
+    /// <inheritdoc />
+    public Task<bool> TrySetTenantErasureLegalHoldAsync(
+        Guid tenantId,
+        DateTimeOffset legalHoldUntilUtc,
+        DateTimeOffset utcNow,
+        string? reason,
+        string legalHoldSetByUserId,
+        CancellationToken ct)
+    {
+        _ = ct;
+
+        if (legalHoldUntilUtc <= utcNow)
+            return Task.FromResult(false);
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
+                return Task.FromResult(false);
+
+            DateTimeOffset setUtc = TimeProvider.System.GetUtcNow();
+            _byId[tenantId] = CopyTenant(
+                existing,
+                legalHoldUntilUtc: legalHoldUntilUtc,
+                legalHoldReason: reason,
+                legalHoldSetByUserId: legalHoldSetByUserId,
+                legalHoldSetUtc: setUtc);
+        }
+
+        return Task.FromResult(true);
+    }
+
+    /// <inheritdoc />
+    public Task<bool> TryClearTenantErasureLegalHoldAsync(Guid tenantId, CancellationToken ct)
+    {
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing) || existing.LegalHoldUntilUtc is null)
+                return Task.FromResult(false);
+
+            _byId[tenantId] = CopyTenant(existing, clearLegalHold: true);
+        }
+
+        return Task.FromResult(true);
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<Guid>> ListTenantIdsEligibleForScheduledHardPurgeAsync(
+        DateTimeOffset utcNow,
+        int take,
+        CancellationToken ct)
+    {
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            int clamped = Math.Clamp(take, 1, 100);
+
+            List<Guid> ids = _byId.Values
+                .Where(t => TenantErasureEligibility.IsEligibleForScheduledHardPurge(t, utcNow))
+                .OrderBy(static t => t.ErasureEligibleUtc)
+                .Take(clamped)
+                .Select(static t => t.Id)
+                .ToList();
+
+            return Task.FromResult<IReadOnlyList<Guid>>(ids);
+        }
+    }
+
+    /// <inheritdoc />
     public Task EnqueueTrialArchitecturePreseedAsync(Guid tenantId, CancellationToken ct)
     {
         _ = ct;
@@ -924,7 +991,16 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         DateTimeOffset? trialArchitecturePreseedEnqueuedUtc = null,
         Guid? trialWelcomeRunId = null,
         DateTimeOffset? trialFirstManifestCommittedUtc = null,
-        int? enterpriseSeatsUsedOverride = null)
+        int? enterpriseSeatsUsedOverride = null,
+        DateTimeOffset? suspendedUtcOverride = null,
+        DateTimeOffset? offboardedUtc = null,
+        DateTimeOffset? erasureEligibleUtc = null,
+        bool clearErasureQuarantine = false,
+        DateTimeOffset? legalHoldUntilUtc = null,
+        string? legalHoldReason = null,
+        string? legalHoldSetByUserId = null,
+        DateTimeOffset? legalHoldSetUtc = null,
+        bool clearLegalHold = false)
     {
         return new TenantRecord
         {
@@ -935,7 +1011,13 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             EntraTenantId = source.EntraTenantId,
             DataRegion = source.DataRegion,
             CreatedUtc = source.CreatedUtc,
-            SuspendedUtc = source.SuspendedUtc,
+            SuspendedUtc = clearErasureQuarantine ? null : suspendedUtcOverride ?? source.SuspendedUtc,
+            OffboardedUtc = clearErasureQuarantine ? null : offboardedUtc ?? source.OffboardedUtc,
+            ErasureEligibleUtc = clearErasureQuarantine ? null : erasureEligibleUtc ?? source.ErasureEligibleUtc,
+            LegalHoldUntilUtc = clearLegalHold ? null : legalHoldUntilUtc ?? source.LegalHoldUntilUtc,
+            LegalHoldReason = clearLegalHold ? null : legalHoldReason ?? source.LegalHoldReason,
+            LegalHoldSetByUserId = clearLegalHold ? null : legalHoldSetByUserId ?? source.LegalHoldSetByUserId,
+            LegalHoldSetUtc = clearLegalHold ? null : legalHoldSetUtc ?? source.LegalHoldSetUtc,
             TrialStartUtc = source.TrialStartUtc,
             TrialExpiresUtc = trialExpiresUtc ?? source.TrialExpiresUtc,
             TrialRunsLimit = source.TrialRunsLimit,

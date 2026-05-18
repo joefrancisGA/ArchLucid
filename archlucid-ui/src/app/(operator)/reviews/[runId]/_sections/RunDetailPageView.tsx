@@ -27,7 +27,6 @@ import { RunDetailArchitectureGraphSection } from "./RunDetailArchitectureGraphS
 import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
 import { RunDetailAuthorityChainSection } from "./RunDetailAuthorityChainSection";
 import { RunDetailBreadcrumb } from "./RunDetailBreadcrumb";
-import { RunDetailExecutiveSummaryCtaCard } from "./RunDetailExecutiveSummaryCtaCard";
 import { RunDetailManifestSummaryAlerts } from "./RunDetailManifestSummaryAlerts";
 import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySection";
 import { RunDetailOperatorPipelineToolsCollapsible } from "./RunDetailOperatorPipelineToolsCollapsible";
@@ -129,11 +128,6 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       {m.usedStaticDemoRun && !m.buyerPolishedArtifactTable ? sampleReviewPackageSummaryEl : null}
 
-      {m.buyerPolishedArtifactTable && m.manifestId ? (
-        <RunDetailExecutiveSummaryCtaCard runId={m.resolvedDetail.run.runId} />
-      ) : null}
-
-      {changesSinceLastReviewBannerEl}
 
       <RunEstimatedLlmCostCard estimate={m.resolvedDetail.agentExecutionLlmCostEstimate} />
 

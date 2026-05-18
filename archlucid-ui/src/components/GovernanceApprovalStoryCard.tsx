@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
+import { cn } from "@/lib/utils";
 
 /**
  * Buyer-walkthrough summary: one card that narrates submit → review → approve → governed package readiness
@@ -40,7 +41,7 @@ export function GovernanceApprovalStoryCard(props: {
       label: "Approved for governed use",
       done: promoteReady,
       detail: promoteReady
-        ? "Citation-ready governance record sealed for the next stage of review and implementation planning."
+        ? "Governance record ready for diligence, architecture review, and implementation planning."
         : "Complete approval before citing this package in the next stage of review and implementation planning.",
     },
   ];
@@ -54,8 +55,9 @@ export function GovernanceApprovalStoryCard(props: {
         <div className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
           <p className="m-0 leading-relaxed">
             <span className="font-semibold text-neutral-900 dark:text-neutral-100">Approval record:</span> Sealed manifest
-            version <span className="font-semibold">{row.manifestVersion}</span> reached an authorize-for-use decision and may be
-            cited in diligence, architecture review, implementation planning, and audit narratives anchored to this review package.
+            version <span className="font-semibold">{row.manifestVersion}</span> received governance approval for use as the
+            architecture record and may be cited in diligence, architecture review, implementation planning, and audit narratives
+            anchored to this review package.
           </p>
           {reviewed ? (
             <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
@@ -66,10 +68,6 @@ export function GovernanceApprovalStoryCard(props: {
               weekly exception-volume sampling applies while monitored PHI posture stays open.
             </p>
           ) : null}
-          <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-            Production deployments and environment promotions remain with your enterprise change board — ArchLucid records
-            governed architecture evidence; operations teams gate execution separately.
-          </p>
         </div>
       </CardHeader>
       <CardContent className="pt-0">
@@ -85,7 +83,14 @@ export function GovernanceApprovalStoryCard(props: {
                   className="me-2 hidden w-px shrink-0 self-stretch bg-neutral-300 sm:block dark:bg-neutral-600"
                 />
               ) : null}
-              <div className="min-w-0 flex-1 rounded-md border border-neutral-200 bg-white/90 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-950/40">
+              <div
+                className={cn(
+                  "min-w-0 flex-1 rounded-md border px-3 py-2 text-sm",
+                  s.label === "Approved for governed use" && promoteReady
+                    ? "border-teal-600 bg-teal-50/95 ring-2 ring-teal-500/30 dark:border-teal-500 dark:bg-teal-950/55"
+                    : "border-neutral-200 bg-white/90 dark:border-neutral-700 dark:bg-neutral-950/40",
+                )}
+              >
                 <p className="m-0 flex items-center gap-2 font-semibold text-neutral-900 dark:text-neutral-50">
                   <span aria-hidden className={s.done ? "text-teal-700 dark:text-teal-300" : "text-neutral-400"}>
                     {s.done ? "✓" : "○"}
@@ -97,6 +102,10 @@ export function GovernanceApprovalStoryCard(props: {
             </li>
           ))}
         </ol>
+        <p className="m-0 mt-4 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+          Production deployments and environment promotions remain with your enterprise change board — ArchLucid records governed
+          architecture evidence; operations teams gate execution separately.
+        </p>
       </CardContent>
       {auditTrailHref.length > 0 ? (
         <CardFooter className="flex flex-col items-stretch gap-2 border-t border-teal-200/70 pt-4 dark:border-teal-900/60">

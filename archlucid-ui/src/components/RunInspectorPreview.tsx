@@ -177,7 +177,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
 
       <div>
         <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          {buyerPolished ? "Review progress detail" : "Pipeline output"}
+          {buyerPolished ? "Evidence status" : "Pipeline output"}
         </p>
         <p className="m-0 mt-1 text-xs text-neutral-700 dark:text-neutral-200">{artifactNote}</p>
         <ul className="m-0 mt-2 list-none space-y-1 p-0 text-xs">

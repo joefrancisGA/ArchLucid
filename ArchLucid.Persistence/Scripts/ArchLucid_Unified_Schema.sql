@@ -5286,6 +5286,20 @@ END;
 
 GO
 
+/* 172: Tenant scheduled erasure quarantine + legal hold (see Migrations/172_Tenants_TenantErasureQuarantine.sql). */
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Tenants', N'OffboardedUtc') IS NULL
+BEGIN
+    ALTER TABLE dbo.Tenants ADD
+        OffboardedUtc           DATETIMEOFFSET NULL,
+        ErasureEligibleUtc      DATETIMEOFFSET NULL,
+        LegalHoldUntilUtc       DATETIMEOFFSET NULL,
+        LegalHoldReason         NVARCHAR(500) NULL,
+        LegalHoldSetByUserId    NVARCHAR(256) NULL,
+        LegalHoldSetUtc         DATETIMEOFFSET NULL;
+END;
+
+GO
+
 /* 171: Global policy pack catalog hub (see Migrations/171_PolicyPackCatalogEntry.sql). */
 IF OBJECT_ID(N'dbo.PolicyPackCatalogEntry', N'U') IS NULL
 BEGIN

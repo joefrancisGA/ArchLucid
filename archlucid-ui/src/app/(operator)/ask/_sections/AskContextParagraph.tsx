@@ -10,25 +10,34 @@ export function AskContextParagraph(props: AskContextParagraphProps) {
   const { buyerPolishedShell, runId } = props;
 
   return (
-    <p className="mb-4 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
+    <div className="mb-4 max-w-3xl space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
       {buyerPolishedShell ? (
         <>
-          In demo and sample workspaces, assistant replies use curated evidence for illustration — validate conclusions
-          against your sealed manifest before approvals. Otherwise, answers follow evidence from the review you attach.
-          Finalized packages pair best with manifest, findings, evidence graph, and audit trail checks.
+          <p className="m-0">
+            Example answers are illustrative. In connected workspaces, answers are scoped to selected review evidence and
+            source anchors.
+          </p>
+          <details className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40">
+            <summary className="cursor-pointer text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+              Validation note (approvals)
+            </summary>
+            <p className="m-0 mt-2 text-xs leading-relaxed">
+              Validate conclusions against your finalized signed manifest before approvals.
+            </p>
+          </details>
           {canonicalizeDemoRunId(runId.trim()) === SHOWCASE_STATIC_DEMO_RUN_ID ? (
-            <>
-              {" "}
-              On the Claims Intake sample review, assistant replies include quick links to those anchors.
-            </>
+            <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+              On the Claims Intake sample review, replies include quick links to manifest, evidence trail, governance, and audit
+              anchors where available.
+            </p>
           ) : null}
         </>
       ) : (
-        <>
-          Answers use the review context you select (finalized manifest and findings when available; reviews in progress may
-          omit late-stage outputs until the pipeline completes).
-        </>
+        <p className="m-0">
+          Answers use the review context you select (finalized manifest and findings when available; reviews in progress may omit
+          late-stage outputs until the pipeline completes).
+        </p>
       )}
-    </p>
+    </div>
   );
 }

@@ -36,7 +36,7 @@ export function OperatorDemoStaticBanner(): ReactElement {
             data-demo-static="true"
           >
             <span className="font-medium">Example workspace</span>
-            <span className="text-neutral-600 dark:text-neutral-400">{": sample data"}</span>
+            <span className="sr-only"> — Example workspace using illustrative sample data only.</span>
           </div>
         </TooltipTrigger>
         <TooltipContent sideOffset={6}>{EXAMPLE_SAMPLE_TOOLTIP}</TooltipContent>

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { AUTH_MODE } from "@/lib/auth-config";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 /** Session-only: dismiss hides the banner until the browser tab/session ends. */
@@ -70,6 +71,10 @@ export function TrialExpiryBanner() {
   }, [refresh]);
 
   if (!hydrated || dismissed) {
+    return null;
+  }
+
+  if (isBuyerPolishedOperatorShellEnv()) {
     return null;
   }
 

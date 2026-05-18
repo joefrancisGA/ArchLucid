@@ -341,7 +341,7 @@ export function GraphPageContent() {
 
   const leadIntro =
     demoUi || buyerPolishedShell
-      ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. Emphasis: evidence → prioritized risk findings → mitigation decisions → sealed manifest outputs for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`
+      ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. Shows reviewed context, policy basis, architecture analysis, prioritized findings, mitigation decisions, sealed manifest outputs, and deliverables for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`
       : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
 
   const pageTitle = buyerPolishedShell ? "Decision traceability graph" : BUYER_SURFACE_VOCABULARY.evidenceGraph;

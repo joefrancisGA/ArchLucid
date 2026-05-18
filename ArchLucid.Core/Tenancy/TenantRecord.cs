@@ -53,6 +53,45 @@ public sealed class TenantRecord
         init;
     }
 
+    /// <summary>When set, the tenant is in platform-scheduled erasure quarantine (API deny middleware).</summary>
+    public DateTimeOffset? OffboardedUtc
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Earliest UTC instant hard purge may run (typically <see cref="OffboardedUtc" /> + retention).</summary>
+    public DateTimeOffset? ErasureEligibleUtc
+    {
+        get;
+        init;
+    }
+
+    /// <summary>While in the future, hard purge must not run even when <see cref="ErasureEligibleUtc" /> has passed.</summary>
+    public DateTimeOffset? LegalHoldUntilUtc
+    {
+        get;
+        init;
+    }
+
+    public string? LegalHoldReason
+    {
+        get;
+        init;
+    }
+
+    public string? LegalHoldSetByUserId
+    {
+        get;
+        init;
+    }
+
+    public DateTimeOffset? LegalHoldSetUtc
+    {
+        get;
+        init;
+    }
+
     public DateTimeOffset? TrialStartUtc
     {
         get;

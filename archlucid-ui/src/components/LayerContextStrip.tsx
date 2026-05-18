@@ -146,6 +146,7 @@ export function LayerContextStrip({
                 <span className="shrink-0 text-neutral-600 dark:text-neutral-400">End →</span>
               )}
               </div>
+              {buyerGoldenJourneyNav.currentStepIndex !== null ? (
               <ol
                 className="m-0 flex list-none flex-wrap gap-1.5 p-0"
                 aria-label="Review journey step indicators"
@@ -176,7 +177,7 @@ export function LayerContextStrip({
                           aria-current="step"
                           title={def.chipTooltip}
                           className={cn(
-                            "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition",
+                            "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium transition",
                             chipClass,
                           )}
                         >
@@ -187,7 +188,7 @@ export function LayerContextStrip({
                           href={def.href}
                           title={def.chipTooltip}
                           className={cn(
-                            "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium no-underline transition hover:opacity-95",
+                            "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium no-underline transition hover:opacity-95",
                             chipClass,
                           )}
                         >
@@ -198,6 +199,7 @@ export function LayerContextStrip({
                   );
                 })}
               </ol>
+              ) : null}
             </nav>
           ) : null}
         </div>

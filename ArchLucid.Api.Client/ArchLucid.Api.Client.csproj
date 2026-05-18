@@ -35,7 +35,6 @@
   <ItemGroup>
     <Compile Include="ArchLucidApiClientPackage.cs" />
     <Compile Include="ArchLucidApiClientSerializerSettings.cs" />
-    <Compile Include="FileParameter.cs" />
     <Compile Include="ProblemDetails.cs" />
     <!-- Committed NSwag output; list here so design-time / IDE analyzers merge partials with hand-written extensions (e.g. UpdateJsonSerializerSettings). -->
     <Compile Include="Generated\ArchLucidApiClient.g.cs" />

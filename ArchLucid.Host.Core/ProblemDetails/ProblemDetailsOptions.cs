@@ -73,6 +73,9 @@ public static class ProblemTypes
     /// <summary>Tenant self-service trial expired or trial quota (runs/seats) exhausted; mutating authority operations are blocked.</summary>
     public const string TrialExpired = "https://archlucid.dev/problem/trial-expired";
 
+    /// <summary>Tenant is in scheduled erasure quarantine; tenant-scoped APIs are blocked.</summary>
+    public const string TenantErasureQuarantine = Base + "#tenant-erasure-quarantine";
+
     /// <summary>Optional baseline review-cycle hours at signup is outside the allowed range.</summary>
     public const string TrialBaselineOutOfRange = Base + "#trial-baseline-out-of-range";
 

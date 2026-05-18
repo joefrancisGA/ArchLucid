@@ -467,7 +467,7 @@ export function GovernanceWorkflowPageContent() {
         docsPageKey="/governance"
         subtitle={
           buyerPolishedShell && approvals.length > 0 && activeRunId !== null
-            ? "Signed governance approval confirms this Claims Intake review package reached an authorize-for-use decision (details below)."
+            ? "Signed governance approval confirms this Claims Intake review package was approved for governed use as the architecture record (details below)."
             : buyerPolishedShell
               ? "The approval path records whether a finalized review package is authorized for governed use — ArchLucid persists the record with audit correlation; deployments follow your enterprise change process."
               : canMutateWorkflow

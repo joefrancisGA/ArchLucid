@@ -35,8 +35,8 @@ export function buyerPolishedRouteOrientation(
 
   if (riskFinding !== null) {
     return {
-      label: "Risk finding",
-      line: "Severity, impact, mitigation, and trace links into the finalized review package.",
+      label: "Finding",
+      line: "Severity, disposition, mitigation, and trace links into the finalized review package.",
     };
   }
 
@@ -80,14 +80,14 @@ export function buyerPolishedRouteOrientation(
   if (path.startsWith("/graph")) {
     return {
       label: "Evidence trail",
-      line: "Decision traceability graph — trace how reviewed context and policy checks feed prioritized findings, decisions, the signed manifest, and deliverables.",
+      line: "Decision traceability graph — reviewed context, policy basis, architecture analysis, prioritized findings, decisions, signed manifest, and deliverables.",
     };
   }
 
   if (path.startsWith("/governance")) {
     return {
       label: "Governance approval record",
-      line: "Signed approval record for this workspace — records reviewers, approval outcome, and remaining monitoring; production deployments remain with enterprise change management.",
+      line: "Approved for governed use — reviewers, outcome, and monitored controls where applicable. Production deployments remain governed by enterprise change management.",
     };
   }
 

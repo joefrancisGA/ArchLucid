@@ -40,6 +40,7 @@ public sealed class DapperTenantRepository(
 
         const string sql = """
                            SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
+                                  OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
                                   TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                   TrialStatus, TrialSampleRunId,
                                   TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
@@ -68,6 +69,7 @@ public sealed class DapperTenantRepository(
 
         const string sql = """
                            SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
+                                  OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
                                   TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                   TrialStatus, TrialSampleRunId,
                                   TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
@@ -94,6 +96,7 @@ public sealed class DapperTenantRepository(
 
         const string sql = """
                            SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
+                                  OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
                                   TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                   TrialStatus, TrialSampleRunId,
                                   TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
@@ -120,6 +123,7 @@ public sealed class DapperTenantRepository(
 
         const string sql = """
                            SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
+                                  OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
                                   TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                   TrialStatus, TrialSampleRunId,
                                   TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
@@ -906,6 +910,164 @@ public sealed class DapperTenantRepository(
         }, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
+    public async Task<bool> TryStartTenantErasureOffboardAsync(
+        Guid tenantId,
+        DateTimeOffset offboardedUtc,
+        DateTimeOffset erasureEligibleUtc,
+        CancellationToken ct)
+    {
+        const string sql = """
+                           UPDATE dbo.Tenants
+                           SET OffboardedUtc = @OffboardedUtc,
+                               ErasureEligibleUtc = @ErasureEligibleUtc
+                           WHERE Id = @Id AND OffboardedUtc IS NULL;
+                           """;
+
+        object args = new
+        {
+            Id = tenantId,
+            OffboardedUtc = offboardedUtc,
+            ErasureEligibleUtc = erasureEligibleUtc
+        };
+
+        if (_topologyOptions.CurrentValue.Mode == SqlTopologyMode.SystemWithPerTenantCatalogs)
+        {
+            await using SqlConnection catalog = await _catalogConnectionFactory.CreateOpenConnectionAsync(ct);
+
+            await catalog.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+        }
+
+        await using SqlConnection tenantConn = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
+
+        int tenantRows = await tenantConn.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+
+        return tenantRows == 1;
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> TryRestoreTenantErasureQuarantineAsync(Guid tenantId, CancellationToken ct)
+    {
+        const string sql = """
+                           UPDATE dbo.Tenants
+                           SET OffboardedUtc = NULL,
+                               ErasureEligibleUtc = NULL,
+                               SuspendedUtc = NULL
+                           WHERE Id = @Id AND OffboardedUtc IS NOT NULL;
+                           """;
+
+        object args = new { Id = tenantId };
+
+        if (_topologyOptions.CurrentValue.Mode == SqlTopologyMode.SystemWithPerTenantCatalogs)
+        {
+            await using SqlConnection catalog = await _catalogConnectionFactory.CreateOpenConnectionAsync(ct);
+
+            await catalog.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+        }
+
+        await using SqlConnection tenantConn = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
+
+        int tenantRows = await tenantConn.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+
+        return tenantRows == 1;
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> TrySetTenantErasureLegalHoldAsync(
+        Guid tenantId,
+        DateTimeOffset legalHoldUntilUtc,
+        DateTimeOffset utcNow,
+        string? reason,
+        string legalHoldSetByUserId,
+        CancellationToken ct)
+    {
+        const string sql = """
+                           UPDATE dbo.Tenants
+                           SET LegalHoldUntilUtc = @LegalHoldUntilUtc,
+                               LegalHoldReason = @LegalHoldReason,
+                               LegalHoldSetByUserId = @LegalHoldSetByUserId,
+                               LegalHoldSetUtc = SYSUTCDATETIME()
+                           WHERE Id = @Id AND @LegalHoldUntilUtc > @UtcNow;
+                           """;
+
+        object args = new
+        {
+            Id = tenantId,
+            LegalHoldUntilUtc = legalHoldUntilUtc,
+            UtcNow = utcNow,
+            LegalHoldReason = reason,
+            LegalHoldSetByUserId = legalHoldSetByUserId
+        };
+
+        if (_topologyOptions.CurrentValue.Mode == SqlTopologyMode.SystemWithPerTenantCatalogs)
+        {
+            await using SqlConnection catalog = await _catalogConnectionFactory.CreateOpenConnectionAsync(ct);
+
+            await catalog.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+        }
+
+        await using SqlConnection tenantConn = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
+
+        int tenantRows = await tenantConn.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+
+        return tenantRows == 1;
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> TryClearTenantErasureLegalHoldAsync(Guid tenantId, CancellationToken ct)
+    {
+        const string sql = """
+                           UPDATE dbo.Tenants
+                           SET LegalHoldUntilUtc = NULL,
+                               LegalHoldReason = NULL,
+                               LegalHoldSetByUserId = NULL,
+                               LegalHoldSetUtc = NULL
+                           WHERE Id = @Id AND LegalHoldUntilUtc IS NOT NULL;
+                           """;
+
+        object args = new { Id = tenantId };
+
+        if (_topologyOptions.CurrentValue.Mode == SqlTopologyMode.SystemWithPerTenantCatalogs)
+        {
+            await using SqlConnection catalog = await _catalogConnectionFactory.CreateOpenConnectionAsync(ct);
+
+            await catalog.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+        }
+
+        await using SqlConnection tenantConn = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
+
+        int tenantRows = await tenantConn.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+
+        return tenantRows == 1;
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Guid>> ListTenantIdsEligibleForScheduledHardPurgeAsync(
+        DateTimeOffset utcNow,
+        int take,
+        CancellationToken ct)
+    {
+        await using SqlConnection connection = await OpenDirectoryMetadataConnectionAsync(ct);
+
+        const string sql = """
+                           SELECT TOP (@Take) Id
+                           FROM dbo.Tenants
+                           WHERE OffboardedUtc IS NOT NULL
+                             AND ErasureEligibleUtc IS NOT NULL AND ErasureEligibleUtc <= @UtcNow
+                             AND (LegalHoldUntilUtc IS NULL OR LegalHoldUntilUtc <= @UtcNow)
+                           ORDER BY ErasureEligibleUtc ASC;
+                           """;
+
+        IEnumerable<Guid> ids =
+            await connection.QueryAsync<Guid>(new CommandDefinition(sql, new
+            {
+                Take = take,
+                UtcNow = utcNow
+            }, cancellationToken: ct));
+
+        return ids.ToList();
+    }
+
     private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc)
     {
         if (trialExpiresUtc is null)
@@ -1151,6 +1313,42 @@ public sealed class DapperTenantRepository(
             init;
         }
 
+        public DateTimeOffset? OffboardedUtc
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? ErasureEligibleUtc
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? LegalHoldUntilUtc
+        {
+            get;
+            init;
+        }
+
+        public string? LegalHoldReason
+        {
+            get;
+            init;
+        }
+
+        public string? LegalHoldSetByUserId
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? LegalHoldSetUtc
+        {
+            get;
+            init;
+        }
+
         public DateTimeOffset? TrialStartUtc
         {
             get;
@@ -1301,6 +1499,12 @@ public sealed class DapperTenantRepository(
                 DataRegion = TenantDataRegions.NormalizeOptional(DataRegion),
                 CreatedUtc = CreatedUtc,
                 SuspendedUtc = SuspendedUtc,
+                OffboardedUtc = OffboardedUtc,
+                ErasureEligibleUtc = ErasureEligibleUtc,
+                LegalHoldUntilUtc = LegalHoldUntilUtc,
+                LegalHoldReason = LegalHoldReason,
+                LegalHoldSetByUserId = LegalHoldSetByUserId,
+                LegalHoldSetUtc = LegalHoldSetUtc,
                 TrialStartUtc = TrialStartUtc,
                 TrialExpiresUtc = TrialExpiresUtc,
                 TrialRunsLimit = TrialRunsLimit,

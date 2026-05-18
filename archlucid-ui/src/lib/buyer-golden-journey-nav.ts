@@ -84,7 +84,7 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
     stepIdx = 2;
   } else if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
     return {
-      summaryLine: `Governance findings — between ${defs[3].label} and ${defs[4].label}`,
+      summaryLine: `Review records and dispositions — linked from governance approval`,
       prev: { label: defs[3].label, href: defs[3].href },
       next: { label: defs[4].label, href: defs[4].href },
       currentStepIndex: null,

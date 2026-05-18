@@ -41,12 +41,6 @@ public sealed class FileParameterTests
     }
 
     [Fact]
-    public void Constructor_null_stream_throws()
-    {
-        Assert.Throws<ArgumentNullException>(() => new FileParameter(null!));
-    }
-
-    [Fact]
     public void Properties_expose_live_stream_reference_without_disposing_it()
     {
         MemoryStream data = new MemoryStream(Encoding.UTF8.GetBytes("payload"));

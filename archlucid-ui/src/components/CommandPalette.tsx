@@ -36,6 +36,10 @@ function buyerPolishedCommandPaletteLabel(pathname: string): string {
     return "Search evidence trail";
   }
 
+  if (path.startsWith("/ask")) {
+    return "Search review evidence";
+  }
+
   if (path.startsWith("/audit")) {
     return "Search audit trail";
   }

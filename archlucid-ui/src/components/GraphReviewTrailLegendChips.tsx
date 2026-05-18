@@ -40,7 +40,7 @@ const REVIEW_TRAIL_KINDS_BUYER: ReadonlyArray<{ k: string; role: string; c: stri
     c: "bg-sky-100 text-sky-950 dark:bg-sky-950/50 dark:text-sky-100",
   },
   {
-    k: "Risk finding",
+    k: "Finding",
     role: "Anchors manifest decisions",
     c: "bg-amber-100 text-amber-950 dark:bg-amber-950/40 dark:text-amber-100",
   },
