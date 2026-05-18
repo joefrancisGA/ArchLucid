@@ -33,6 +33,7 @@ Tags are **guidance for paging and training**; they do not replace your org’s 
 | **P2** | [ALERT_DELIVERY_FAILURES.md](./ALERT_DELIVERY_FAILURES.md) | Alert routing subscriptions fire but destinations do not receive notifications. |
 | **P2** | [ADVISORY_SCAN_FAILURES.md](./ADVISORY_SCAN_FAILURES.md) | Advisory scans fail or schedules do not fire. |
 | **P2** | [COMPARISON_REPLAY_RATE_LIMITS.md](./COMPARISON_REPLAY_RATE_LIMITS.md) | Replay throttling, 429s, or batch replay partial failures. |
+| **P2** | [RATE_LIMIT_EXCEEDED.md](./RATE_LIMIT_EXCEEDED.md) | **429** on **`POST …/evidence/bulk`** (`evidenceBulkUpload` policy): identify tenant, inspect limits, tune config. |
 | **P2** | [COMPARISON_RECORD_ORPHAN_REMEDIATION.md](./COMPARISON_RECORD_ORPHAN_REMEDIATION.md) | Orphan `ComparisonRecords` / golden manifests / findings snapshots vs `dbo.Runs` (dry-run then delete). |
 | **P2** | [DATA_CONSISTENCY_ENFORCEMENT.md](./DATA_CONSISTENCY_ENFORCEMENT.md) | Orphan probe **Warn / Alert / Quarantine** modes, Prometheus counters, quarantine (**insert-only** staging). |
 | **P2** | [DATA_ARCHIVAL_HEALTH.md](./DATA_ARCHIVAL_HEALTH.md) | `data_archival` health degraded or archival host errors. |

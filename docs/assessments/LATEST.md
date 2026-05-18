@@ -203,7 +203,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted deficiency signal:** 8
 - **Why this score was assigned:** Good logging, OpenTelemetry, and CLI diagnostics. Automated SAML cert expiry email notifications are added. **First-party** ITSM/Slack/Confluence, **Teams**/webhook/recipe buyer-contract depth (**V1.1** per §2.8, §2.13–§2.15, §3) is **not** an `(A)` V1 deduction.
 - **Key tradeoffs:** New HTTP utilities must reuse auth headers.
-- **Specific improvement recommendations:** Create a runbook for handling rate limit exceeded errors.
+- **Specific improvement recommendations:** Rate-limit 429 triage runbook shipped (`docs/runbooks/RATE_LIMIT_EXCEEDED.md` for `evidenceBulkUpload`; P2 index in `docs/runbooks/README.md`).
 - **Fixability:** Fixable in V1.
 
 ### 21. Testability
@@ -349,17 +349,18 @@ Add a "Restore" button to the UI for soft-deleted architecture projects and a co
 - Deliverable: `ArchLucid.Api/Controllers/Tenancy/TenantWorkspacesController.cs` (recycle + restore); `ArchLucid.Core/Tenancy/IArchitectureProjectRepository.cs` + `ArchLucid.Persistence/Tenancy/DapperArchitectureProjectRepository.cs` (+ in-memory parity); `archlucid-ui/.../settings/tenant/recycle-bin/` (`ProjectsRecycleBinPage`); `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json` + `npm run generate:api-types`; `ArchLucid.Api.Client` regen.
 ```
 
-### 6. Create a runbook for handling rate limit exceeded errors
+### 6. COMPLETED: Create a runbook for handling rate limit exceeded errors
 - **Why it matters:** Provides operators with clear steps to diagnose and mitigate 429 errors.
 - **Expected impact:** Supportability (+10 pts), Cognitive Load (+5 pts).
 - **Affected qualities:** Supportability, Cognitive Load.
-- **Actionable:** Yes
+- **Actionable:** No — delivered as `docs/runbooks/RATE_LIMIT_EXCEEDED.md` (`evidenceBulkUpload` policy on `POST …/evidence/bulk`): tenant identification (`tenant_id` / correlation / audit), effective limit inspection (`RateLimiting:EvidenceBulkUpload:*`, role multipliers), configuration tuning without code changes; 429 vs 400 file-count limit distinction; indexed in `docs/runbooks/README.md` (P2).
 ```text
-Create a runbook `docs/runbooks/RATE_LIMIT_EXCEEDED.md` detailing how to handle 429 Too Many Requests errors, specifically for `evidenceBulkUpload`.
+Create a runbook `docs/runbooks/RATE_LIMIT_EXCEEDED.md` detailing how to handle 429 Too Many Requests errors, specifically for `evidenceBulkUpload`. [COMPLETED]
 - Acceptance criteria: Runbook includes steps to identify the affected tenant, check current limits, and adjust configuration if necessary.
 - Constraints: Follow existing runbook formatting guidelines.
 - What not to change: Do not modify the rate limiting logic.
 - Impact: Directly improves Supportability (+8-10 pts) and Cognitive Load (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- Deliverable: `docs/runbooks/RATE_LIMIT_EXCEEDED.md`; `docs/runbooks/README.md` (P2 index row).
 ```
 
 ### 7. Implement a Dependency Injection Analyzer NetArchTest rule
