@@ -9,7 +9,7 @@ import {
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 
 /**
- * Canonical five-step buyer demo spine — keep in sync with {@link BuyerGoldenJourneyStrip} home card.
+ * Canonical five-step buyer demo spine — keep in sync with {@link LayerContextStrip} journey chips and home CTAs.
  */
 export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
   {

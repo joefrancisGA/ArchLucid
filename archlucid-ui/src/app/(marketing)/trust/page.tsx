@@ -38,7 +38,7 @@ export default function MarketingTrustCenterPage(): ReactNode {
               · Last reviewed {lastReviewedUtc}
             </>
           ) : null}
-          <span> · Public-safe excerpt for questionnaires (not a customer-specific evidence pack)</span>
+          <span> · Public-safe excerpt for questionnaires — suitable for initial diligence intake</span>
         </p>
         <a
           className="mt-2 inline-flex items-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:bg-blue-600 dark:hover:bg-blue-700"

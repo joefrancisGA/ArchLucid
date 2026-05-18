@@ -83,7 +83,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         </p>
         <p className="m-0 mt-2 text-xs leading-snug text-neutral-600 dark:text-neutral-400">
           {isCuratedDemo
-            ? "Sample healthcare claims pack for this walkthrough — defines referenced checks for diligence; approvals stay human-governed and do not bypass deployment authority."
+            ? "Sample healthcare claims pack for this walkthrough — defines checks referenced in diligence. Human approvals do not replace your change-management authority."
             : "Defines referenced checks used in diligence; approvals stay human-governed and do not bypass deployment authority."}
         </p>
         {buyerPolicyPackHref !== null ? (
@@ -308,9 +308,9 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
     return (
       <>
         {operatorSummary}
+        {buyerRecordedOutcomes}
         {buyerPolicyPackCallout}
         {relatedFinding}
-        {buyerRecordedOutcomes}
         {!isCuratedDemo ? countsGrid : null}
         {auditIdentifiers}
       </>

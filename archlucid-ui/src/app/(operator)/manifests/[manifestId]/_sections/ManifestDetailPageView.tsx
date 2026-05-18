@@ -182,10 +182,10 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
 
       {buyerPolishedLayout ? (
         <>
-          {overviewSummaryCard}
           <div id="manifest-decisions" className="scroll-mt-24 space-y-6">
             {decisionsLeadCard}
           </div>
+          {overviewSummaryCard}
         </>
       ) : (
         <>

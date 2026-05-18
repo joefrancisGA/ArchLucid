@@ -1721,7 +1721,7 @@ Per Cobertura **class** aggregate `<lines>` rows. **Line coverage %** is **(cove
 | Rank | Class | File | Line coverage % | Uncovered lines | Prior attempt? |
 |------|-------|------|-----------------|-----------------|----------------|
 | 1 | `ArchLucid.Api.Client.Generated.ArchLucidApiClient` | `ArchLucid.Api.Client\ArchLucidApiClientSerializerSettings.cs` | 100.00 | 0 | No |
-| 2 | `ArchLucid.Api.Client.Generated.FileParameter` | `ArchLucid.Api.Client\FileParameter.cs` | 100.00 | 0 | No |
+| 2 | `ArchLucid.Api.Client.Generated.FileParameter` | `ArchLucid.Api.Client\Generated\ArchLucidApiClient.g.cs` | 100.00 | 0 | No |
 | 3 | `ArchLucid.Api.Client.Generated.ProblemDetails` | `ArchLucid.Api.Client\ProblemDetails.cs` | 100.00 | 0 | No |
 
 #### All classes below 95% line coverage

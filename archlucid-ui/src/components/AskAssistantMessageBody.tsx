@@ -137,7 +137,7 @@ export function AskAssistantMessageBody(props: {
 
     if (executiveLead === null || executiveLead.length === 0) {
       executiveLead =
-        "Executive read: Risk framing, anchored evidence hooks, mitigation commitments, and validation notes for this package are organized in the sections below.";
+        "The sections below summarize risk framing, evidence anchors, mitigation commitments, and validation checks for this package.";
     }
 
     const bodyClass = "m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200";
@@ -145,6 +145,9 @@ export function AskAssistantMessageBody(props: {
     return (
       <div className="space-y-4">
         <p className="m-0 text-sm font-semibold leading-snug text-neutral-900 dark:text-neutral-100">{executiveLead}</p>
+        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          Citations align to the signed manifest, evidence trail, and audit trail listed under Sources when available.
+        </p>
         {preambleForRender.length > 0 ? (
           <p className={bodyClass}>{renderTextWithUuidReviewLinks(preambleForRender, buyerPolishedLinks)}</p>
         ) : null}

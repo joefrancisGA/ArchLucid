@@ -15,6 +15,7 @@ import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/dem
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { tryStaticDemoConversationMessages } from "@/lib/ask-static-demo-messages";
 import { formatConversationListDate, formatConversationListDatePolished } from "@/lib/locale-datetime";
+import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 import { AskContextParagraph } from "@/app/(operator)/ask/_sections/AskContextParagraph";
@@ -324,11 +325,17 @@ export function AskPageContent() {
         title="Ask about a review"
         helpKey="ask-archlucid"
         subtitle={
-          buyerPolishedShell
-            ? "Example answers are illustrative. In connected workspaces, answers are scoped to selected review evidence and source anchors."
-            : "Conversations stay in your workspace. Select an architecture review for a new conversation; follow-ups stay on the same conversation without picking the review again."
+          buyerPolishedShell ? undefined : "Conversations stay in your workspace. Select an architecture review for a new conversation; follow-ups stay on the same conversation without picking the review again."
         }
       />
+      {buyerPolishedShell ? (
+        <p
+          className="mb-2 rounded-md border border-teal-200/80 bg-teal-50/70 px-3 py-2 text-sm font-medium text-teal-950 dark:border-teal-900 dark:bg-teal-950/35 dark:text-teal-50"
+          data-testid="ask-buyer-scope-banner"
+        >
+          Scoped to {buyerFacingReviewLinkLabelFromRunId(runId.trim())}
+        </p>
+      ) : null}
       <AskContextParagraph buyerPolishedShell={buyerPolishedShell} runId={runId} />
 
       {listFailure !== null ? (

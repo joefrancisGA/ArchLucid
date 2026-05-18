@@ -38,8 +38,10 @@ describe("TrialExpiryBanner", () => {
     sessionStorage.clear();
   });
 
-  it("does not render in buyer-polished shell (default operator experience)", async () => {
-    vi.unstubAllEnvs();
+  it("does not render in buyer-polished shell when not in full-operator mode", async () => {
+    vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "");
+    vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "");
+    vi.stubEnv("NEXT_PUBLIC_DEMO_STATIC_OPERATOR", "");
     render(<TrialExpiryBanner />);
 
     await waitFor(() => {

@@ -115,15 +115,23 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
               security@archlucid.net
             </a>
           </li>
-          <li>
-            Coordinated disclosure — encrypt to the published key at{" "}
-            <Link
-              className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
-              href="/.well-known/pgp-key.txt"
-            >
-              /.well-known/pgp-key.txt
-            </Link>{" "}
-            (see repository <span className="font-mono text-xs">SECURITY.md</span> for fingerprint)
+          <li>Coordinated secure disclosure and encrypted intake — details available through published security contact instructions.</li>
+          <li className="mt-2 list-none pl-0">
+            <details className="rounded-md border border-neutral-200 bg-white/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40">
+              <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                Encryption key reference
+              </summary>
+              <p className="m-0 mt-2 text-xs text-neutral-700 dark:text-neutral-300">
+                Published OpenPGP material:{" "}
+                <Link
+                  className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+                  href="/.well-known/pgp-key.txt"
+                >
+                  /.well-known/pgp-key.txt
+                </Link>{" "}
+                (see repository <span className="font-mono text-xs">SECURITY.md</span> for fingerprint).
+              </p>
+            </details>
           </li>
         </ul>
       </section>

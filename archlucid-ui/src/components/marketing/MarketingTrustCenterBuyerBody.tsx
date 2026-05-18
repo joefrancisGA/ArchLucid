@@ -160,7 +160,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         <ul className="mt-3 max-w-3xl list-disc space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
           <li>
             <span className="font-medium text-neutral-900 dark:text-neutral-100">SOC&nbsp;2 program:</span> readiness mapping
-            and control baselines continue on a published cadence. Formal attestations and third-party reports are
+            and control baselines continue on a published cadence. Planned attestations and third-party reports are
             distributed only after completion, approval, and release through the appropriate procurement channel.
           </li>
           <li>

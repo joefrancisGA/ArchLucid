@@ -98,27 +98,29 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       {m.savingsSummary !== null ? <RunSavingsSummary model={m.savingsSummary} /> : null}
 
-      <RunDetailOutcomeCards
-        runId={m.resolvedDetail.run.runId}
-        manifestId={m.manifestId}
-        artifactCount={m.artifacts.length}
-        findingCountDisplay={m.findingCountDisplay}
-        warningCountDisplay={m.warningCountDisplay}
-        hasGoldenManifest={Boolean(m.manifestId)}
-        unresolvedIssueCountDisplay={m.manifestSummary?.unresolvedIssueCount ?? null}
-        aggregateRiskPosture={m.explanationSummary?.riskPosture ?? null}
-        governanceGateLabel={m.governanceGateLabel}
-        showcasePolicyPackStrip={
-          m.buyerPolishedArtifactTable &&
-          m.manifestSummaryForUi !== null &&
-          isShowcaseStaticDemoRunId(m.resolvedDetail.run.runId)
-            ? {
-                href: SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
-                label: policyPackBuyerLabel(m.manifestSummaryForUi.ruleSetId, m.manifestSummaryForUi.ruleSetVersion),
-              }
-            : null
-        }
-      />
+      {!m.buyerPolishedArtifactTable || !m.manifestId ? (
+        <RunDetailOutcomeCards
+          runId={m.resolvedDetail.run.runId}
+          manifestId={m.manifestId}
+          artifactCount={m.artifacts.length}
+          findingCountDisplay={m.findingCountDisplay}
+          warningCountDisplay={m.warningCountDisplay}
+          hasGoldenManifest={Boolean(m.manifestId)}
+          unresolvedIssueCountDisplay={m.manifestSummary?.unresolvedIssueCount ?? null}
+          aggregateRiskPosture={m.explanationSummary?.riskPosture ?? null}
+          governanceGateLabel={m.governanceGateLabel}
+          showcasePolicyPackStrip={
+            m.buyerPolishedArtifactTable &&
+            m.manifestSummaryForUi !== null &&
+            isShowcaseStaticDemoRunId(m.resolvedDetail.run.runId)
+              ? {
+                  href: SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
+                  label: policyPackBuyerLabel(m.manifestSummaryForUi.ruleSetId, m.manifestSummaryForUi.ruleSetVersion),
+                }
+              : null
+          }
+        />
+      ) : null}
 
       <div className="flex flex-wrap items-center gap-2">
         <GenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={m.buyerPolishedArtifactTable} />
@@ -129,7 +131,9 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       {m.usedStaticDemoRun && !m.buyerPolishedArtifactTable ? sampleReviewPackageSummaryEl : null}
 
 
-      <RunEstimatedLlmCostCard estimate={m.resolvedDetail.agentExecutionLlmCostEstimate} />
+      {!m.buyerPolishedArtifactTable || !m.manifestId ? (
+        <RunEstimatedLlmCostCard estimate={m.resolvedDetail.agentExecutionLlmCostEstimate} />
+      ) : null}
 
       {m.usedStaticDemoRun && m.buyerPolishedArtifactTable ? sampleReviewPackageSummaryEl : null}
 
@@ -175,6 +179,33 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           explanationSummary={m.explanationSummary}
           explanationFailure={m.explanationFailure}
         />
+      ) : null}
+
+      {m.buyerPolishedArtifactTable && m.manifestId ? (
+        <>
+          <RunDetailOutcomeCards
+            runId={m.resolvedDetail.run.runId}
+            manifestId={m.manifestId}
+            artifactCount={m.artifacts.length}
+            findingCountDisplay={m.findingCountDisplay}
+            warningCountDisplay={m.warningCountDisplay}
+            hasGoldenManifest={Boolean(m.manifestId)}
+            unresolvedIssueCountDisplay={m.manifestSummary?.unresolvedIssueCount ?? null}
+            aggregateRiskPosture={m.explanationSummary?.riskPosture ?? null}
+            governanceGateLabel={m.governanceGateLabel}
+            showcasePolicyPackStrip={
+              m.buyerPolishedArtifactTable &&
+              m.manifestSummaryForUi !== null &&
+              isShowcaseStaticDemoRunId(m.resolvedDetail.run.runId)
+                ? {
+                    href: SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
+                    label: policyPackBuyerLabel(m.manifestSummaryForUi.ruleSetId, m.manifestSummaryForUi.ruleSetVersion),
+                  }
+                : null
+            }
+          />
+          <RunEstimatedLlmCostCard estimate={m.resolvedDetail.agentExecutionLlmCostEstimate} />
+        </>
       ) : null}
 
       {!m.buyerPolishedArtifactTable ? (
