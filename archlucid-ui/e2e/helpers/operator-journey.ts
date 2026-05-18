@@ -117,6 +117,21 @@ export async function expandCompareTechnicalDetails(page: Page): Promise<void> {
 }
 
 /**
+ * Opens the structured "Decision changes" fold under `#compare-structured`.
+ * Buyer-polished / demo builds collapse these `<details>` by default (`buyerCompareUi`), so material rows stay hidden until expanded.
+ */
+export async function expandCompareStructuredDecisionChanges(page: Page): Promise<void> {
+  const fold = page.locator("#compare-structured").locator("details").filter({ hasText: "Decision changes" }).first();
+
+  await expect(fold).toBeVisible();
+  const isOpen: boolean = await fold.evaluate((el) => (el as HTMLDetailsElement).open);
+
+  if (!isOpen) {
+    await fold.locator(":scope > summary").click();
+  }
+}
+
+/**
  * Sponsor callout under structured manifest compare (`#compare-structured`).
  * Uses `data-testid` — buyer-polished shells rewrite fixture highlight prose (see
  * {@link applyBuyerPolishedGoldenManifestSummaryHighlights}), so asserting raw fixture copy flakes in mock CI.

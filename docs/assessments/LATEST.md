@@ -662,16 +662,19 @@ Add three new NetArchTest rules in `ArchLucid.Architecture.Tests/DependencyConst
 ```
 
 ### 21. Add dashboards and alerting in Grafana for wait times and dead letters
+- **Status:** Completed (2026-05-17)
 - **Why it matters:** Provides visibility into worker bursts and orchestration bottlenecks.
 - **Expected impact:** Observability (+10 pts), Performance (+5 pts).
 - **Affected qualities:** Observability, Performance.
-- **Actionable:** Yes
+- **Actionable:** No
+- **Completion evidence:** `infra/grafana/dashboard-archlucid-authority.json` — timeseries panels for **`archlucid_authority_pipeline_work_pending`** (backlog), **`archlucid_authority_pipeline_work_dead_letter`**, **`archlucid_authority_pipeline_work_oldest_pending_age_seconds`** (single row layout); intro markdown documents alert names. Matching rules in **`infra/prometheus/archlucid-alerts.yml`**: **`ArchLucidAuthorityPipelineWorkBacklog`**, **`ArchLucidAuthorityPipelineWorkStale`**, **`ArchLucidAuthorityPipelineWorkDeadLetters`** (authority group); application metric emission unchanged.
 ```text
 Create or update a Grafana dashboard JSON file in `infra/grafana/` to visualize `archlucid_authority_pipeline_work_dead_letter` and `archlucid_authority_pipeline_work_oldest_pending_age_seconds`.
 - Acceptance criteria: The dashboard includes panels for dead letters, backlog depth, and oldest pending age, with corresponding Prometheus alert rules.
 - Constraints: Use standard Prometheus PromQL syntax.
 - What not to change: Do not modify the application metric emission logic.
 - Impact: Directly improves Observability (+8-10 pts) and Performance (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- **Shipped (2026-05-17):** Authority Grafana JSON (`infra/grafana/dashboard-archlucid-authority.json`) — backlog / dead-letter / oldest-pending gauges; Prometheus alert bundle already wired — see **Completion evidence**.
 ```
 
 ### 22. Audit and update background jobs to ensure Polly-based retry policies are uniformly applied
@@ -732,7 +735,7 @@ Update `Get-ArchLucidAzurePackage.ps1` to query Azure Policy compliance states (
 
 To optimize context window usage and cost-effectiveness, batch the actionable prompts as follows:
 
-- **Batch 1 (Observability & Reliability):** 2, 18, 21, 22, 23
+- **Batch 1 (Observability & Reliability):** 2, 18, ~~21~~ completed 2026-05-17, 22, 23
 - **Batch 2 (Testing & CI Hygiene):** ~~5~~ completed 2026-05-17, 12, ~~14, 15, 16~~ **V1.1** backlog (2026-05-17), 24
 - **Batch 3 (Integrations & Extractor):** ~~6~~ completed 2026-05-17, ~~13~~ **V1.1** backlog (2026-05-17), 25
 - **Batch 4 (Architecture, infrastructure, tenant lifecycle):** ~~3~~ (**V2** — [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**), ~~7~~ completed 2026-05-17, 11, ~~17~~ completed 2026-05-17, ~~19~~ completed 2026-05-17, ~~20~~ completed 2026-05-17

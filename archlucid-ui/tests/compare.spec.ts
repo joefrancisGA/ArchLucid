@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 import {
   comparePageMainHeading,
   comparePageSubmitButton,
+  expandCompareStructuredDecisionChanges,
   expandCompareTechnicalDetails,
   gotoComparePageWithFixturePair,
   structuredCompareSponsorRecommendationParagraph,
@@ -27,6 +28,7 @@ test.describe("Compare view — mocked manifest delta", () => {
 
     await expect(structuredCompareSponsorRecommendationParagraph(page)).toBeVisible();
 
+    await expandCompareStructuredDecisionChanges(page);
     await expect(page.locator("#compare-structured").getByText("claims.intake.boundary", { exact: true })).toBeVisible();
 
     await expandCompareTechnicalDetails(page);
