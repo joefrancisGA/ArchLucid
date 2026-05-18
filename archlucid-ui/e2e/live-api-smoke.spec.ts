@@ -2,6 +2,9 @@
  * Narrow live staging smoke: seeded demo tenant scope, baseline-first wizard upload of a minimal ArchLucid packager ZIP,
  * real browser traffic through `/api/proxy/**` (no `page.route` stubs), backend execute, then canonical review findings UI.
  *
+ * Additional operator slices (still real API via {@link helpers/live-api-client}): policy pack assignment (effective packs + `/policy-packs`),
+ * and authority compare + `/compare` hydrate against seeded workspace A baseline.
+ *
  * **Auth / env**
  * - **DevelopmentBypass:** default CI — no browser login form; scope comes from {@link injectDemoWorkspaceOperatorScope}.
  * - **JWT:** set **`LIVE_JWT_TOKEN`** (API) and **`ARCHLUCID_PROXY_BEARER_TOKEN`** (same token for Next standalone proxy).
@@ -73,10 +76,6 @@ async function throwIfAuthorityCompareRunsNotOk(res: APIResponse, label: string)
   const text = await res.text();
 
   throw new Error(`${label} failed ${res.status()}: ${text.slice(0, 500)}`);
-}
-
-async function skipIfJwtProxyBearerMissing(page: typeof test extends (a: infer A, b: infer B) => void ? never : unknown): Promise<void> {
-  void page;
 }
 
 async function waitForSealedFindings(
@@ -195,5 +194,110 @@ test.describe("live-api-smoke", () => {
     await page.locator("#run-explanation").scrollIntoViewIfNeeded();
 
     await expect(page.getByTestId("quick-decision-summary")).toBeVisible({ timeout: 90_000 });
+  });
+
+  test("operator flow: policy pack assignment (API effective set + operator policy packs page)", async ({
+    page,
+    request,
+  }) => {
+    test.setTimeout(180_000);
+
+    if (resolveLiveJwtMode()) {
+      const bearer = process.env.ARCHLUCID_PROXY_BEARER_TOKEN?.trim() ?? "";
+
+      test.skip(
+        bearer.length === 0,
+        "JWT mode requires ARCHLUCID_PROXY_BEARER_TOKEN on the UI process so /api/proxy forwards Authorization (typically the same value as LIVE_JWT_TOKEN).",
+      );
+    }
+
+    const scope = DEMO_WORKSPACE_A_LIVE_IDS;
+    const complianceKey = `e2e-live-smoke-${Date.now()}`;
+    const contentJson = minimalPolicyPackContentJson(complianceKey);
+    const packName = `E2E Live Smoke Pack ${Date.now()}`;
+
+    const { policyPackId } = await createPolicyPack(request, {
+      name: packName,
+      description: "live-api-smoke policy pack assignment coverage",
+      packType: "ProjectCustom",
+      initialContentJson: contentJson,
+    });
+
+    await assignPolicyPack(request, policyPackId, { version: "1.0.0" });
+
+    const effective = await getEffectivePolicyPacks(request);
+    const match = effective.packs?.find((p) => p.policyPackId === policyPackId);
+
+    expect(match, "assigned policy pack should appear in GET /v1/policy-packs/effective").toBeTruthy();
+    expect(match?.version).toBe("1.0.0");
+
+    await injectDemoWorkspaceOperatorScope(page, scope);
+
+    await page.goto("/policy-packs", { waitUntil: "domcontentloaded" });
+
+    await expect(page.getByRole("heading", { name: /policy packs/i }).first()).toBeVisible({ timeout: 60_000 });
+
+    await expect.soft(page.getByText(packName, { exact: false }).first()).toBeVisible({ timeout: 30_000 });
+  });
+
+  test("operator flow: authority comparison + compare page hydrate (scoped run vs seeded demo workspace A baseline)", async ({
+    page,
+    request,
+  }) => {
+    test.setTimeout(300_000);
+
+    if (resolveLiveJwtMode()) {
+      const bearer = process.env.ARCHLUCID_PROXY_BEARER_TOKEN?.trim() ?? "";
+
+      test.skip(
+        bearer.length === 0,
+        "JWT mode requires ARCHLUCID_PROXY_BEARER_TOKEN on the UI process so /api/proxy forwards Authorization (typically the same value as LIVE_JWT_TOKEN).",
+      );
+    }
+
+    const scope = DEMO_WORKSPACE_A_LIVE_IDS;
+
+    const { runId } = await createRun(request, buildLiveSmokeScopedRunCreateBody("A"), scope);
+
+    await executeRun(request, runId, scope);
+    await waitForSealedFindings(request, runId, scope, 180_000);
+
+    const seededBaselineRunId = DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID;
+    const compareRes = await compareAuthorityRuns(request, runId, seededBaselineRunId, scope);
+
+    if (compareRes.status() === 404) {
+      test.skip(
+        true,
+        "Seed demo workspace product tour baseline run absent in this API slice — rerun with demo fixtures seeded.",
+      );
+      return;
+    }
+
+    await throwIfAuthorityCompareRunsNotOk(compareRes, "GET /v1/authority/compare/runs");
+
+    const compared = (await compareRes.json()) as {
+      leftRunId?: string;
+      rightRunId?: string;
+      runLevelDiffCount?: number;
+    };
+
+    expect(compared.leftRunId).toBeTruthy();
+    expect(compared.rightRunId).toBeTruthy();
+    expect(typeof compared.runLevelDiffCount).toBe("number");
+
+    await injectDemoWorkspaceOperatorScope(page, scope);
+
+    await page.goto(
+      `/compare?leftRunId=${encodeURIComponent(runId)}&rightRunId=${encodeURIComponent(seededBaselineRunId)}`,
+      {
+        waitUntil: "domcontentloaded",
+      },
+    );
+
+    await expect(comparePageMainHeading(page).first()).toBeVisible({ timeout: 60_000 });
+
+    await expect(page.locator("#compare-structured")).toBeVisible({ timeout: 120_000 });
+
+    await expect(comparisonRequestOutcomePanel(page)).toBeVisible({ timeout: 60_000 });
   });
 });

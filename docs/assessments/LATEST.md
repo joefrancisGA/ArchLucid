@@ -321,17 +321,18 @@ Create Loki alert rules for policy pack assignments. [COMPLETED]
 - Deliverable: `infra/loki/archlucid-policy-pack-assignment-alerts.yml`
 ```
 
-### 4. Expand `live-api-*` matrices to cover more operator flows without mocks
+### 4. COMPLETED: Expand live API smoke for additional operator flows (no mocks)
 - **Why it matters:** Reduces reliance on mocks and ensures real integration surfaces are tested.
 - **Expected impact:** Testability (+15 pts), Correctness (+10 pts).
 - **Affected qualities:** Testability, Correctness.
-- **Actionable:** Yes
+- **Actionable:** No — delivered in `archlucid-ui/e2e/live-api-smoke.spec.ts` (policy pack assignment + authority compare hydrated through `/compare`, both via `archlucid-ui/e2e/helpers/live-api-client.ts`, no `page.route` mocks); helper updates add optional tenant scope on `compareAuthorityRuns` and align `postReplayRunRaw` with POST `/v1/architecture/run/{runId}/replay`.
 ```text
-Expand `archlucid-ui/e2e/live-api-smoke.spec.ts` to include additional operator flows (e.g., policy pack assignment, comparison replay) without using `page.route` mocks.
+Expand `archlucid-ui/e2e/live-api-smoke.spec.ts` to include additional operator flows (e.g., policy pack assignment, comparison replay) without using `page.route` mocks. [COMPLETED]
 - Acceptance criteria: At least two new operator flows are covered in the live API smoke test suite.
 - Constraints: Reuse existing `live-api-client` utilities.
 - What not to change: Do not modify the application code.
 - Impact: Directly improves Testability (+10-15 pts) and Correctness (+8-10 pts). Weighted readiness impact: +0.2-0.3%.
+- Deliverable: `archlucid-ui/e2e/live-api-smoke.spec.ts` (operator flows); `archlucid-ui/e2e/helpers/live-api-client.ts` (optional tenant scope on `compareAuthorityRuns`; `postReplayRunRaw` targets POST `/v1/architecture/run/{runId}/replay`).
 ```
 
 ### 5. Add in-product undo/restore UX for soft-deleted architecture projects
