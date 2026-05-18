@@ -3,6 +3,7 @@ import { axe, toHaveNoViolations } from "jest-axe";
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { ContextualHelp } from "@/components/ContextualHelp";
+import { contextualHelpTriggerAriaLabel } from "@/lib/contextual-help-content";
 import { HelpSearchPanel } from "@/components/HelpSearchPanel";
 import { SectionCard } from "@/components/SectionCard";
 import { ShortcutHint } from "@/components/ShortcutHint";
@@ -46,7 +47,7 @@ describe("operator shell components — axe (Vitest)", () => {
     const { container, getByLabelText } = render(<ContextualHelp helpKey="commit-manifest" />);
 
     act(() => {
-      fireEvent.click(getByLabelText(/more information: commit-manifest/i));
+      fireEvent.click(getByLabelText(contextualHelpTriggerAriaLabel("commit-manifest")!));
     });
 
     expect(await axe(container)).toHaveNoViolations();
@@ -56,7 +57,7 @@ describe("operator shell components — axe (Vitest)", () => {
     const { container, getByLabelText } = render(<ContextualHelp helpKey="semantic-search" />);
 
     act(() => {
-      fireEvent.click(getByLabelText(/more information: semantic-search/i));
+      fireEvent.click(getByLabelText(contextualHelpTriggerAriaLabel("semantic-search")!));
     });
 
     expect(await axe(container)).toHaveNoViolations();
@@ -66,7 +67,7 @@ describe("operator shell components — axe (Vitest)", () => {
     const { container, getByLabelText } = render(<ContextualHelp helpKey="ask-archlucid" />);
 
     act(() => {
-      fireEvent.click(getByLabelText(/more information: ask-archlucid/i));
+      fireEvent.click(getByLabelText(contextualHelpTriggerAriaLabel("ask-archlucid")!));
     });
 
     expect(await axe(container)).toHaveNoViolations();

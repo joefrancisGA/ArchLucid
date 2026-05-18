@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
@@ -28,6 +32,8 @@
     <ProjectReference Include="..\ArchLucid.ContextIngestion\ArchLucid.ContextIngestion.csproj" />
     <ProjectReference Include="..\ArchLucid.AgentRuntime\ArchLucid.AgentRuntime.csproj" />
     <ProjectReference Include="..\ArchLucid.Api\ArchLucid.Api.csproj" />
+    <ProjectReference Include="..\ArchLucid.Host.Composition\ArchLucid.Host.Composition.csproj" />
+    <ProjectReference Include="..\ArchLucid.Host.Core\ArchLucid.Host.Core.csproj" />
     <ProjectReference Include="..\ArchLucid.Application\ArchLucid.Application.csproj" />
     <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />
     <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />

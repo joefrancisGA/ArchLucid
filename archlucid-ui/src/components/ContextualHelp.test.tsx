@@ -1,6 +1,8 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { contextualHelpTriggerAriaLabel } from "@/lib/contextual-help-content";
+
 import { ContextualHelp } from "./ContextualHelp";
 
 describe("ContextualHelp", () => {
@@ -13,7 +15,7 @@ describe("ContextualHelp", () => {
       <ContextualHelp helpKey="new-run-wizard" />,
     );
 
-    const button = getByLabelText(/more information: new-run-wizard/i);
+    const button = getByLabelText(contextualHelpTriggerAriaLabel("new-run-wizard")!);
     expect(queryByRole("tooltip")).toBeNull();
 
     act(() => {
@@ -36,7 +38,7 @@ describe("ContextualHelp", () => {
     vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE", "https://example.com/prefix");
 
     render(<ContextualHelp helpKey="commit-manifest" />);
-    const button = screen.getByLabelText(/more information: commit-manifest/i);
+    const button = screen.getByLabelText(contextualHelpTriggerAriaLabel("commit-manifest")!);
 
     act(() => {
       fireEvent.click(button);
@@ -49,7 +51,7 @@ describe("ContextualHelp", () => {
 
   it("associates the trigger with the tooltip for assistive technology when open", () => {
     const { getByLabelText, getByRole } = render(<ContextualHelp helpKey="manifest-review" />);
-    const button = getByLabelText(/more information: manifest-review/i);
+    const button = getByLabelText(contextualHelpTriggerAriaLabel("manifest-review")!);
 
     act(() => {
       fireEvent.click(button);
@@ -66,7 +68,7 @@ describe("ContextualHelp", () => {
 
   it("is keyboard accessible: Enter and Space toggle", () => {
     const { getByLabelText, queryByRole } = render(<ContextualHelp helpKey="governance-gate" />);
-    const button = getByLabelText(/more information: governance-gate/i) as HTMLButtonElement;
+    const button = getByLabelText(contextualHelpTriggerAriaLabel("governance-gate")!) as HTMLButtonElement;
 
     act(() => {
       button.focus();

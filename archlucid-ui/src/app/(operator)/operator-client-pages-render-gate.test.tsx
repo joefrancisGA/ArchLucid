@@ -7,6 +7,7 @@ import { AlertSimulationContent } from "@/components/alerts/AlertSimulationConte
 import { AlertTuningContent } from "@/components/alerts/AlertTuningContent";
 import { AlertsInboxContent } from "@/components/alerts/AlertsInboxContent";
 import { CompositeAlertRulesContent } from "@/components/alerts/CompositeAlertRulesContent";
+import { contextualHelpTriggerAriaLabel } from "@/lib/contextual-help-content";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -257,13 +258,13 @@ describe("operator client pages — render gate", () => {
     const page = await SearchPage();
     render(page);
     expect(screen.getByRole("heading", { level: 2, name: "Semantic Search" })).toBeInTheDocument();
-    expect(screen.getByLabelText(/more information: semantic-search/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(contextualHelpTriggerAriaLabel("semantic-search")!)).toBeInTheDocument();
   });
 
   it("AskPage renders primary heading and contextual help", () => {
     render(<AskPage />);
     expect(screen.getByRole("heading", { level: 2, name: "Ask about a review" })).toBeInTheDocument();
-    expect(screen.getByLabelText(/more information: ask-archlucid/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(contextualHelpTriggerAriaLabel("ask-archlucid")!)).toBeInTheDocument();
   });
 
   it("OnboardingPage renders primary heading", async () => {

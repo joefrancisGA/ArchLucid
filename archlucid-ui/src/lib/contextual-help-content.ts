@@ -111,6 +111,34 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   },
 };
 
+/** First sentence (or short excerpt) of help copy — used for the trigger’s accessible name. */
+export function contextualHelpTriggerSummary(text: string, helpKey: string): string {
+  if (text.trim().length === 0) {
+    return helpKey.replace(/-/g, " ");
+  }
+
+  const dot = text.indexOf(".");
+
+  if (dot >= 0) {
+    return text.slice(0, dot + 1).trim();
+  }
+
+  return text.slice(0, 120).trim();
+}
+
+/** Accessible name for the ContextualHelp trigger button; `null` when `helpKey` is unknown. */
+export function contextualHelpTriggerAriaLabel(helpKey: string): string | null {
+  const entry = contextualHelpByKey[helpKey];
+
+  if (entry == null) {
+    return null;
+  }
+
+  const summary = contextualHelpTriggerSummary(entry.text, helpKey);
+
+  return `Contextual help: ${summary}`;
+}
+
 /**
  * Resolves a relative in-repo docs path (e.g. `/docs/CORE_PILOT.md#h`) to a `blob` URL for “Learn more”.
  * Override with <code>NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE</code> when the default branch or fork differs;

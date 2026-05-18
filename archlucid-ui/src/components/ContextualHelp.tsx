@@ -10,7 +10,11 @@ import {
 
 import { Info } from "lucide-react";
 
-import { contextualHelpByKey, toDocsBlobUrl } from "@/lib/contextual-help-content";
+import {
+  contextualHelpByKey,
+  contextualHelpTriggerAriaLabel,
+  toDocsBlobUrl,
+} from "@/lib/contextual-help-content";
 import { cn } from "@/lib/utils";
 
 export type ContextualHelpPlacement = "top" | "right" | "bottom" | "left";
@@ -91,18 +95,7 @@ export function ContextualHelp({ helpKey, placement = "bottom", className }: Con
   }
 
   const { text, learnMoreUrl } = entry;
-  const helpSummary =
-    text.trim().length === 0
-      ? helpKey.replace(/-/g, " ")
-      : (() => {
-          const dot = text.indexOf(".");
-
-          if (dot >= 0) {
-            return text.slice(0, dot + 1).trim();
-          }
-
-          return text.slice(0, 120).trim();
-        })();
+  const triggerAriaLabel = contextualHelpTriggerAriaLabel(helpKey);
   const moreHref = learnMoreUrl != null ? toDocsBlobUrl(learnMoreUrl) : null;
 
   return (
@@ -122,7 +115,7 @@ export function ContextualHelp({ helpKey, placement = "bottom", className }: Con
         aria-expanded={visible}
         aria-controls={visible ? tooltipId : undefined}
         aria-describedby={visible ? tooltipId : undefined}
-        aria-label={`Contextual help: ${helpSummary}`}
+        aria-label={triggerAriaLabel ?? undefined}
         onClick={() => {
           setOpen((o) => !o);
         }}
