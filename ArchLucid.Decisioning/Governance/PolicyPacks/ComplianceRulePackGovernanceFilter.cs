@@ -8,10 +8,10 @@ namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 /// </summary>
 /// <remarks>
 ///     <para>
-///         <strong>Semantics:</strong> If both <see cref="PolicyPackContentDocument.ComplianceRuleIds" /> and
-///         <see cref="PolicyPackContentDocument.ComplianceRuleKeys" /> are empty, returns <paramref name="source" />
-///         unchanged (full pack).
-///         Otherwise, keeps rules whose <see cref="ComplianceRule.RuleId" /> matches a key or parses as a listed GUID.
+///         <strong>Semantics:</strong> Narrows by <see cref="PolicyPackContentDocument.ComplianceRuleKeys" /> /
+///         <see cref="PolicyPackContentDocument.ComplianceRuleIds" /> when configured; then applies
+///         <c>priorityFloor</c> from <see cref="PolicyPackContentDocument.AdvisoryDefaults" /> via
+///         <see cref="PolicyPackPriorityFloor" /> (unset floor = <c>P2</c>, all tiers).
 ///     </para>
 ///     <para>
 ///         <strong>Caller:</strong> <c>ArchLucid.Persistence.Compliance.PolicyFilteredComplianceRulePackProvider</c> when
