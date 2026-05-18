@@ -75,10 +75,11 @@ export function RunDetailArtifactsExportsSection(
                 </p>
               ) : null}
               <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-                Rows are organized by sponsor versus review-board consumers. Use{" "}
-                <strong className="text-neutral-800 dark:text-neutral-200">Download evidence package</strong> for the diligence ZIP.
-                Use <strong className="text-neutral-800 dark:text-neutral-200">Download review summary</strong> for a lightweight narrative export.
-                Additional enterprise export formats are available after workspace configuration — not simulated in this sample.
+                Rows are grouped by sponsor and review-board consumers.{" "}
+                <strong className="text-neutral-800 dark:text-neutral-200">Download evidence package</strong> is the
+                diligence ZIP.{" "}
+                <strong className="text-neutral-800 dark:text-neutral-200">Download review summary</strong> captures a concise
+                narrative handoff aligned to this manifest. Enterprise-only export formats remain off in this sample.
               </p>
             </div>
           ) : null}
@@ -198,13 +199,7 @@ export function RunDetailArtifactsExportsSection(
                 <ExportTerraformAdvisoryButton runId={runId} />
               </div>
             )}
-            {buyerPolishedArtifactTable ? (
-              <div className="flex flex-wrap items-center gap-3">
-                <Button variant="ghost" size="sm" className="text-teal-800 dark:text-teal-300" asChild>
-                  <Link href={`/ask?runId=${encodeURIComponent(runId)}`}>Ask about this review package</Link>
-                </Button>
-              </div>
-            ) : (
+            {buyerPolishedArtifactTable ? null : (
               <div className="flex flex-wrap items-center gap-3">
                 <Button variant="outline" size="sm" asChild>
                   <FunnelTelemetryExportAnchor href={getRunExportDownloadUrl(runId)}>

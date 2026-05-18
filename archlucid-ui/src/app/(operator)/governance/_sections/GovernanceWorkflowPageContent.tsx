@@ -469,21 +469,15 @@ export function GovernanceWorkflowPageContent() {
         docsPageKey="/governance"
         subtitle={
           buyerPolishedShell && approvals.length > 0 && activeRunId !== null
-            ? "Governance approval is recorded for this review package — monitored PHI minimization is the open, non-blocking control posture for citation and steering."
+            ? "Signed governance approval confirms this Claims Intake review package reached an authorize-for-use decision (details below)."
             : buyerPolishedShell
-              ? "The approval path records whether a finalized review package is authorized for governed use. ArchLucid stores approvals and audit context; your enterprise change process governs any environment movement."
+              ? "The approval path records whether a finalized review package is authorized for governed use — ArchLucid persists the record with audit correlation; deployments follow your enterprise change process."
               : canMutateWorkflow
                 ? governanceWorkflowPageLeadOperator
                 : governanceWorkflowPageLeadReader
         }
         helpKey="governance-workflow"
       />
-      {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (
-        <p className="mb-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-          Production deployments and environment promotions still follow your enterprise change-management process — ArchLucid
-          records the governed architecture evidence; operations teams gate execution separately.
-        </p>
-      ) : null}
       {buyerPolishedShell && !(approvals.length > 0 && activeRunId !== null) ? (
         <p
           className="mb-4 max-w-prose rounded-md border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-sm text-neutral-800 dark:border-teal-900/60 dark:bg-teal-950/30 dark:text-neutral-200"
@@ -492,24 +486,6 @@ export function GovernanceWorkflowPageContent() {
           This confirms the review package has passed the required approval sequence before being used for architecture
           decision support, review-board readouts, and audit inquiries.
         </p>
-      ) : null}
-      {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (
-        <div
-          className="mb-4 max-w-prose rounded-md border border-emerald-200/80 bg-emerald-50/50 px-3 py-3 text-sm leading-relaxed text-neutral-900 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-50"
-          data-testid="governance-buyer-decision-summary"
-        >
-          <p className="m-0 font-semibold text-neutral-900 dark:text-neutral-50">Executive decision recap</p>
-          <p className="m-0 mt-2 text-neutral-800 dark:text-neutral-100">
-            Approved for governed use with a monitored PHI minimization control. Reviewer:&nbsp;
-            <span className="font-medium">{approvals[0]!.reviewedBy ?? "Jordan Lee"}</span>
-            {" · "}Review owner:&nbsp;
-            <span className="font-medium">{approvals[0]!.requestedBy ?? "Taylor Morgan"}</span>
-            .
-          </p>
-          <p className="m-0 mt-2 text-neutral-700 dark:text-neutral-200">
-            Remaining cadence: weekly exception-volume sampling while this monitored posture stays open.
-          </p>
-        </div>
       ) : null}
       {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (
         <GovernanceApprovalStoryCard row={approvals[0]!} />

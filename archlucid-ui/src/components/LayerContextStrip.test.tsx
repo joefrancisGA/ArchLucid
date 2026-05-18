@@ -84,8 +84,13 @@ describe("LayerContextStrip", () => {
     expect(getByTestId("buyer-journey-prev")).toHaveAttribute("href", "/reviews/x/manifest");
     expect(getByTestId("buyer-journey-next")).toHaveAttribute("href", "/governance");
 
-    const evidenceTrailChip = screen.getByRole("link", { name: /View evidence trail/ });
-    expect(evidenceTrailChip).toHaveAttribute("title", BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[2].chipTooltip);
+    const indicators = getByTestId("buyer-golden-journey-step-indicators");
+    const currentChip = indicators.querySelector("[aria-current='step']");
+
+    expect(currentChip).not.toBeNull();
+    expect(currentChip?.textContent ?? "").toMatch(/View evidence trail/);
+    expect(currentChip).toHaveAttribute("title", BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[2].chipTooltip);
+    expect(screen.queryByRole("link", { name: /3\.\s*View evidence trail/i })).toBeNull();
 
     unmount();
   });

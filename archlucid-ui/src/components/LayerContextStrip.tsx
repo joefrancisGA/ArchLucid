@@ -162,19 +162,38 @@ export function LayerContextStrip({
                       ? "border-teal-600 bg-white font-semibold text-teal-950 shadow-sm ring-2 ring-teal-500/40 dark:border-teal-500 dark:bg-neutral-950 dark:text-teal-50"
                       : "border-neutral-200 bg-white/75 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-950/55 dark:text-neutral-400";
 
+                  const chipInner = (
+                    <>
+                      <span className="tabular-nums text-neutral-500 dark:text-neutral-400">{def.step}.</span>
+                      <span>{def.label}</span>
+                    </>
+                  );
+
                   return (
                     <li key={`${def.step}-${def.href}`}>
-                      <Link
-                        href={def.href}
-                        title={def.chipTooltip}
-                        className={cn(
-                          "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium no-underline transition hover:opacity-95",
-                          chipClass,
-                        )}
-                      >
-                        <span className="tabular-nums text-neutral-500 dark:text-neutral-400">{def.step}.</span>
-                        <span>{def.label}</span>
-                      </Link>
+                      {current ? (
+                        <span
+                          aria-current="step"
+                          title={def.chipTooltip}
+                          className={cn(
+                            "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition",
+                            chipClass,
+                          )}
+                        >
+                          {chipInner}
+                        </span>
+                      ) : (
+                        <Link
+                          href={def.href}
+                          title={def.chipTooltip}
+                          className={cn(
+                            "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium no-underline transition hover:opacity-95",
+                            chipClass,
+                          )}
+                        >
+                          {chipInner}
+                        </Link>
+                      )}
                     </li>
                   );
                 })}

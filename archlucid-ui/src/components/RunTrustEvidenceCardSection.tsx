@@ -173,4 +173,32 @@ export function RunTrustEvidenceCardSection(props: {
             {buyerPolishedShell ? (
               <CollapsibleSection title="Evidence API endpoints (advanced)" defaultOpen={false}>
                 <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-teal-800 dark:text-teal-300">
-      
+                  {card.links.map((l) => (
+                    <li key={l.rel}>
+                      <Link className="underline" href={proxyApiPath(l.path)}>
+                        {l.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </CollapsibleSection>
+            ) : (
+              <>
+                <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">Evidence routes</div>
+                <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-teal-800 dark:text-teal-300">
+                  {card.links.map((l) => (
+                    <li key={l.rel}>
+                      <Link className="underline" href={proxyApiPath(l.path)}>
+                        {l.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </section>
+  );
+}

@@ -11,7 +11,7 @@ Copy-paste from the **repository root** unless noted. **Windows:** use `.cmd`; *
 
 ## What ArchLucid does (one paragraph)
 
-ArchLucid is an **HTTP API** (and optional **operator UI**) that turns a structured **architecture request** into a **run**, **agent results** (after **execute**), and a versioned **golden manifest** plus **artifacts** (after **commit**). Local pilots often use **`AgentExecution:Mode=Simulator`** so you do not need cloud AI keys to complete a flow. **V1 scope and gates:** [V1_SCOPE.md](V1_SCOPE.md).
+ArchLucid is an **HTTP API** (and optional **operator UI**) that turns a structured **architecture request** into a **review**, **agent results** (after **execute**), and a versioned **golden manifest** plus **artifacts** (after **commit**). API paths and CLI commands still use the word **run** for backward compatibility — see [CONCEPT_VOCABULARY.md](CONCEPT_VOCABULARY.md) §1.2. Local pilots often use **`AgentExecution:Mode=Simulator`** so you do not need cloud AI keys to complete a flow. **V1 scope and gates:** [V1_SCOPE.md](V1_SCOPE.md).
 
 **After the demo (`archlucid try`) → your own inputs:** [SECOND_RUN.md](SECOND_RUN.md) — `archlucid second-run SECOND_RUN.toml` (or paste the same file on **New run → Starting point** in the operator UI).
 
@@ -133,7 +133,7 @@ npm ci
 npm run dev
 ```
 
-Open **http://localhost:3000** → **Runs** → open run → **Artifacts**.
+Open **http://localhost:3000** → **Reviews** (legacy nav: **Runs**) → open review → **Artifacts**.
 
 **Pilot feedback (58R):** Nav **Pilot feedback** → scoped dashboard, opportunities, triage queue, and export links. Details: [PRODUCT_LEARNING.md](PRODUCT_LEARNING.md).
 

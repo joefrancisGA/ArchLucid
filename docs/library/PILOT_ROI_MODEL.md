@@ -77,7 +77,7 @@ Do not create a giant measurement program. For most pilots, a simple baseline is
 
 Use the Core Pilot path as the default evaluation lane:
 
-**Create request → Execute run → Commit → Review artifacts**
+**Create review → Execute → Commit → Review artifacts**
 
 ### 4.1 Primary pilot metrics
 
@@ -93,7 +93,7 @@ These are the most useful V1 measures.
 | **Time to reviewable artifact package** | Measures how quickly stakeholders can review something concrete | Faster package preparation with less manual assembly | No — operator-filled (qualitative). |
 | **Manual preparation effort reduced** | Measures architect/admin time saved | Fewer hand-built documents, fewer manual stitching steps | No — operator-filled (qualitative). |
 | **Decision traceability completeness** | Measures whether decisions and evidence are easier to explain | More complete, easier-to-follow review narrative | No — operator-filled (qualitative). |
-| **Change visibility between runs** | Measures whether review of revisions is clearer | Stakeholders can see what changed and why more quickly | No — operator-filled (qualitative). |
+| **Change visibility between reviews** | Measures whether review of revisions is clearer | Stakeholders can see what changed and why more quickly | No — operator-filled (qualitative). |
 | **Governance evidence readiness** | Measures whether approvals/reviews have better support material | Less reconstruction during review or approval prep | No — operator-filled (qualitative). |
 
 ### 4.1.1 How to read the demo numbers

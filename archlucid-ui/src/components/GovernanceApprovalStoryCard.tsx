@@ -31,7 +31,9 @@ export function GovernanceApprovalStoryCard(props: { readonly row: GovernanceApp
     {
       label: "Approved for governed use",
       done: promoteReady,
-      detail: promoteReady ? "Citation-ready governance record sealed for downstream planning checkpoints." : "Complete approval before citing this package in downstream decisions.",
+      detail: promoteReady
+        ? "Citation-ready governance record sealed for the next stage of review and implementation planning."
+        : "Complete approval before citing this package in the next stage of review and implementation planning.",
     },
   ];
 
@@ -42,15 +44,24 @@ export function GovernanceApprovalStoryCard(props: { readonly row: GovernanceApp
           {approved ? "This package completed the approval path" : "Approval status for this review"}
         </CardTitle>
         <div className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
-            <p className="m-0 leading-relaxed">
-              <span className="font-semibold text-neutral-900 dark:text-neutral-100">Approval outcome:</span> Sealed manifest
-              version <span className="font-semibold">{row.manifestVersion}</span> is approved for citation in diligence,
-              steering, and audit narratives anchored to this review package.
-            </p>
+          <p className="m-0 leading-relaxed">
+            <span className="font-semibold text-neutral-900 dark:text-neutral-100">Approval record:</span> Sealed manifest
+            version <span className="font-semibold">{row.manifestVersion}</span> reached an authorize-for-use decision and may be
+            cited in diligence, architecture review, implementation planning, and audit narratives anchored to this review package.
+          </p>
+          {reviewed ? (
             <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-              Production deployments and downstream change windows still follow your enterprise change board — ArchLucid carries
-              the governed architecture evidence; operations teams gate execution separately.
+              Reviewer <span className="font-medium text-neutral-800 dark:text-neutral-200">{row.reviewedBy ?? "—"}</span>
+              {" · "}
+              Request owner <span className="font-medium text-neutral-800 dark:text-neutral-200">{row.requestedBy ?? "—"}</span>
+              {" — "}
+              weekly exception-volume sampling applies while monitored PHI posture stays open.
             </p>
+          ) : null}
+          <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+            Production deployments and environment promotions remain with your enterprise change board — ArchLucid records
+            governed architecture evidence; operations teams gate execution separately.
+          </p>
         </div>
       </CardHeader>
       <CardContent className="pt-0">
