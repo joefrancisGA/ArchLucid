@@ -6,7 +6,7 @@ These files were **`docs/*.md`** and are **archived here** so `docs/` stays alig
 
 | File | Notes |
 |------|---------|
-| `ARCHLUCID_RENAME_CHECKLIST.md` | Full rename initiative log (closed 2026-04-19). Stub remains at `docs/ARCHLUCID_RENAME_CHECKLIST.md`. |
+| `ARCHLUCID_RENAME_CHECKLIST.md` | **Removed 2026-05-18** — canonical rename / Terraform brownfield: [V1_DEFERRED.md](../../library/V1_DEFERRED.md) §3 · [TERRAFORM_STATE_MV_PHASE_7_5.md](../../runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md) · [CHANGELOG.md](../../CHANGELOG.md) |
 | `QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md` | Point-in-time assessment snapshot. |
 | `CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md` | Paired paste-ready prompts for that assessment. |
 | `CURSOR_PROMPTS_USABILITY_ASSESSMENT_2026_04_25_69_52.md` | Usability-assessment prompts snapshot. |

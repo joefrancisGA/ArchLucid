@@ -84,4 +84,4 @@ Use this matrix during **`terraform plan` / `state mv`** rehearsals. Subscriptio
 | First subscription deploy | [`docs/library/FIRST_AZURE_DEPLOYMENT.md`](../library/FIRST_AZURE_DEPLOYMENT.md) |
 | Apply order | [`docs/library/REFERENCE_SAAS_STACK_ORDER.md`](../library/REFERENCE_SAAS_STACK_ORDER.md) |
 | Terraform roots map | [`docs/library/DEPLOYMENT_TERRAFORM.md`](../library/DEPLOYMENT_TERRAFORM.md) |
-| Phase 7.5 checklist pointer | [`docs/ARCHLUCID_RENAME_CHECKLIST.md`](../ARCHLUCID_RENAME_CHECKLIST.md) |
+| Phase 7.5 deferred-work pointer | [`docs/library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) §3 |

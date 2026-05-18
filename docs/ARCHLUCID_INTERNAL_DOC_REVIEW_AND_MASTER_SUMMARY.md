@@ -262,7 +262,7 @@ Secondary paths such as finding detail, Ask, compare, advanced technical traceab
 ### `library/ARCHITECTURE_CONTEXT.md`
 - **Scope:** ArchLucid architecture (Context) - full detail, tables, and links in the sections below.
 - Title: **Architecture Context**
-- Summary: **Canonical poster:** [ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md) · **Operator atlas:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md) **Product name:** **ArchLucid**. Legacy identifiers may still read **ArchLucid** in code and configuration (incremental rename; see `docs/library/V1_DEFERRED.md`). Project and namespace names below use **`ArchLucid.*`** until Phase 5–6 of that checklist. ArchLucid is a .NET API that orchestrates AI-assisted architecture design. It accepts an `ArchitectureRequest`, coordinates agent tasks/results, merges results into a versioned manifest, and produces exports, comparisons, and replayable artifacts. This document is written for **internal engineers** and is intentionally pragmatic: it prioritizes “how the system actually behaves” over strict diagram formalism. - **Run lifecycle** - Create a run from an `ArchitectureRequest` - Generate agent
+- Summary: **Canonical poster:** [ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md) · **Operator atlas:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md) **Product name:** **ArchLucid**. Legacy identifiers may still read **ArchLucid** in code and configuration (incremental rename; see `docs/library/V1_DEFERRED.md`). Project and namespace names below use **`ArchLucid.*`** until bulk rename phases in V1_DEFERRED §3 complete. ArchLucid is a .NET API that orchestrates AI-assisted architecture design. It accepts an `ArchitectureRequest`, coordinates agent tasks/results, merges results into a versioned manifest, and produces exports, comparisons, and replayable artifacts. This document is written for **internal engineers** and is intentionally pragmatic: it prioritizes “how the system actually behaves” over strict diagram formalism. - **Run lifecycle** - Create a run from an `ArchitectureRequest` - Generate agent
 - Main headings:
   -   ArchLucid architecture (Context)
   -     Purpose
@@ -568,7 +568,7 @@ Secondary paths such as finding detail, Ask, compare, advanced technical traceab
 ### Architecture model
 
 #### `library/ARCHITECTURE_CONTEXT.md`
-**Canonical poster:** [ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md) · **Operator atlas:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md) **Product name:** **ArchLucid**. Legacy identifiers may still read **ArchLucid** in code and configuration (incremental rename; see `docs/library/V1_DEFERRED.md`). Project and namespace names below use **`ArchLucid.*`** until Phase 5–6 of that checklist. ArchLucid is a .NET API that orchestrates AI-assisted architecture design. It accepts an `ArchitectureRequest`, coordinates agent tasks/results, merges results into a versioned manifest, and produces exports, comparisons, and replayable artifacts. This document is written for **internal engineers** and is intentionally pragmatic: it prioritizes “how the system actually behaves” over strict diagram formalism. - **Run lifecycle** - Create a run from an `ArchitectureRequest` - Generate agent tasks (topology/cost/compliance/critic) - Accept agent results - Commit a run to produce a **versioned manifest** - **Artifacts and exports** - Fetch manifests and summaries - Export analysis reports
+**Canonical poster:** [ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md) · **Operator atlas:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md) **Product name:** **ArchLucid**. Legacy identifiers may still read **ArchLucid** in code and configuration (incremental rename; see `docs/library/V1_DEFERRED.md`). Project and namespace names below use **`ArchLucid.*`** until bulk rename phases in V1_DEFERRED §3 complete. ArchLucid is a .NET API that orchestrates AI-assisted architecture design. It accepts an `ArchitectureRequest`, coordinates agent tasks/results, merges results into a versioned manifest, and produces exports, comparisons, and replayable artifacts. This document is written for **internal engineers** and is intentionally pragmatic: it prioritizes “how the system actually behaves” over strict diagram formalism. - **Run lifecycle** - Create a run from an `ArchitectureRequest` - Generate agent tasks (topology/cost/compliance/critic) - Accept agent results - Commit a run to produce a **versioned manifest** - **Artifacts and exports** - Fetch manifests and summaries - Export analysis reports
 
 Key topics:
 - Purpose
@@ -2551,7 +2551,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 #### `library/ARCHITECTURE_CONTEXT.md`
 **Scope:** **Scope:** ArchLucid architecture (Context) - full detail, tables, and links in the sections below.
 **Title:** Architecture Context
-**Summary:** **Canonical poster:** [ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md) · **Operator atlas:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md) **Product name:** **ArchLucid**. Legacy identifiers may still read **ArchLucid** in code and configuration (incremental rename; see `docs/library/V1_DEFERRED.md`). Project and namespace names below use **`ArchLucid.*`** until Phase 5–6 of that checklist. ArchLucid is a .NET API that orchestrates AI-assisted architecture design. It accepts an `ArchitectureRequest`, coordinates agent tasks/results, merges results into a versioned manifest, and produces exports, comparisons, and replayable artifacts. This document is written for **internal engin
+**Summary:** **Canonical poster:** [ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md) · **Operator atlas:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md) **Product name:** **ArchLucid**. Legacy identifiers may still read **ArchLucid** in code and configuration (incremental rename; see `docs/library/V1_DEFERRED.md`). Project and namespace names below use **`ArchLucid.*`** until bulk rename phases in V1_DEFERRED §3 complete. ArchLucid is a .NET API that orchestrates AI-assisted architecture design. It accepts an `ArchitectureRequest`, coordinates agent tasks/results, merges results into a versioned manifest, and produces exports, comparisons, and replayable artifacts. This document is written for **internal engin
 **Headings:** ArchLucid architecture (Context); Purpose; Primary capabilities; System boundary and actors; External dependencies (runtime); Key quality attributes (what we optimize for); Context ingestion; Where to go next
 
 #### `library/ARCHITECTURE_FLOWS.md`
@@ -3361,7 +3361,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 #### `library/PROJECT_CONSOLIDATION_PROPOSAL_PERSISTENCE.md`
 **Scope:** **Scope:** Persistence project fan-in consolidation (proposal) - full detail, tables, and links in the sections below.
 **Title:** Persistence project fan-in consolidation (proposal)
-**Summary:** **Status:** Proposal (2026-04-20) **Predecessors:** [PERSISTENCE_SPLIT.md](PERSISTENCE_SPLIT.md) (April 2026 split narrative), [PROJECT_CONSOLIDATION_PROPOSAL.md](PROJECT_CONSOLIDATION_PROPOSAL.md) (documentation spine). Reduce **six** shipping persistence assemblies (`ArchLucid.Persistence` + five `ArchLucid.Persistence.*` satellites, excluding tests) to **two** logical packages — **`ArchLucid.Persistence.Read`** and **`ArchLucid.Persistence.Write`** — while keeping **DbUp migrations**, **`ArchLucid.sql`**, and **RLS object names** untouched (rename checklist owns those). - Consolidation is **structural** (project boundaries + namespaces), not a rewrite of SQL or repository semantics. - Dow
+**Summary:** **Status:** Proposal (2026-04-20) **Predecessors:** [PERSISTENCE_SPLIT.md](PERSISTENCE_SPLIT.md) (April 2026 split narrative), [PROJECT_CONSOLIDATION_PROPOSAL.md](PROJECT_CONSOLIDATION_PROPOSAL.md) (documentation spine). Reduce **six** shipping persistence assemblies (`ArchLucid.Persistence` + five `ArchLucid.Persistence.*` satellites, excluding tests) to **two** logical packages — **`ArchLucid.Persistence.Read`** and **`ArchLucid.Persistence.Write`** — while keeping **DbUp migrations**, **`ArchLucid.sql`**, and **RLS object names** untouched (**migrations/** policy + **V1_DEFERRED** §3 own those). - Consolidation is **structural** (project boundaries + namespaces), not a rewrite of SQL or repository semantics. - Dow
 **Headings:** Persistence project fan-in consolidation (proposal); 1. Objective; 2. Assumptions; 3. Constraints; 4. Current inventory (2026-04-20); 5. Proposed mapping (high level); 6. Downstream impact (initial); 7. Migration sequence (keep CI green)
 
 #### `library/PROJECT_COUNT_LIABILITY_ANALYSIS_2026_04_29.md`
@@ -4558,14 +4558,13 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 
 ## Part 7 — Archive summary
 
-Archive content is valuable but should be treated as historical evidence, not canonical documentation. The archive contains assessments, prompts, superseded onboarding material, previous refactoring notes, rename checklists, and dated quality reports. It should have one index and be excluded from ordinary onboarding search paths.
+Archive content is valuable but should be treated as historical evidence, not canonical documentation. The archive contains assessments, prompts, superseded onboarding material, previous refactoring notes, historical rename logs, and dated quality reports. It should have one index and be excluded from ordinary onboarding search paths.
 
 ### Largest archive documents
 
 | File | Size KB |
 |---|---:|
 | `archive/assessments/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_06_INDEPENDENT__docs_library.md` | 40599.9 |
-| `archive/root-superseded-2026-05-01/ARCHLUCID_RENAME_CHECKLIST.md` | 169.2 |
 | `archive/NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md` | 142.3 |
 | `archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_10_Independent_First_Principles_70_28.md` | 141.3 |
 | `archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_10_Independent_First_Principles_69_95.md` | 133.7 |
@@ -4619,10 +4618,9 @@ Archive content is valuable but should be treated as historical evidence, not ca
 
 - `assessments`: 83 files
 - `quality`: 34 files
-- `root-superseded-2026-05-01`: 6 files
+- `root-superseded-2026-05-01`: 5 files
 - `agent-prompts`: 3 files
 - `artifacts-phase3-2026-04-23`: 2 files
-- `ARCHLUCID_RENAME_CHECKLIST.md`: 1 files
 - `CHANGE_SET_55R_SUMMARY.md`: 1 files
 - `CHANGE_SET_56R.md`: 1 files
 - `CHANGE_SET_57R.md`: 1 files
@@ -4712,4 +4710,3 @@ Archive content is valuable but should be treated as historical evidence, not ca
 | replay | audit review / evidence trail | Replay sounds like test harness language. |
 | connected workspace | configured enterprise workspace | Connected workspace can imply demo incompleteness. |
 | fixture | sample / illustrative data | Fixture is test-data language. |
-                         

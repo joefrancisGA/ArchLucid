@@ -620,7 +620,7 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 **Quality-assessment cadence pinned weekly.** [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) Quality-assessment cadence section records the next pass scheduled **2026-04-28**.
 
-**Explicitly deferred to a separate change set.** ArchLucid rename — RLS object-name SQL migration: approved but landed in a dedicated next session so the DDL change set is reviewable on its own (per `ArchLucid-Rename.mdc` rule's explicit RLS-rename note).
+**Explicitly deferred to a separate change set.** ArchLucid rename — RLS object-name SQL migration: approved but landed in a dedicated next session so the DDL change set is reviewable on its own (per **Navigation.mdc** Product rename / historical rename policy).
 
 ---
 
@@ -878,7 +878,7 @@ Added **`GET /v1/demo/preview`** and the marketing **`/demo/preview`** page so s
 
 ## 2026-04-20 — Workspace-root cleanup + dual-pipeline strangler hardening (Quality Assessment 2026-04-20 § Improvement 3)
 
-**Removed:** Empty legacy `ArchiForge.*` workspace-root directories (28 of them, build-artifact-only, never tracked by git) deleted as workspace-cleanup follow-up to the ArchLucid rename initiative (Phase 8; history in this file and **[V1_DEFERRED.md](library/V1_DEFERRED.md)** §3). A blocking CI guard (`scripts/ci/check_no_legacy_archiforge_dirs.py` + unittest) later prevented reintroduction; that guard was **retired 2026-04-25** (see changelog section above) while **`archiforge`** string scans remain. Background guidance: [`.cursor/rules/ArchLucid-Rename.mdc`](../.cursor/rules/ArchLucid-Rename.mdc).
+**Removed:** Empty legacy `ArchiForge.*` workspace-root directories (28 of them, build-artifact-only, never tracked by git) deleted as workspace-cleanup follow-up to the ArchLucid rename initiative (Phase 8; history in this file and **[V1_DEFERRED.md](library/V1_DEFERRED.md)** §3). A blocking CI guard (`scripts/ci/check_no_legacy_archiforge_dirs.py` + unittest) later prevented reintroduction; that guard was **retired 2026-04-25** (see changelog section above) while **`archiforge`** string scans remain. Background guidance: **[Navigation.mdc](../.cursor/rules/Navigation.mdc)** (Product rename section).
 
 **Added:** Audit-event-type collision regression suite — `ArchLucid.Core.Tests/Audit/AuditEventTypes_DoNotCollideAcrossPipelinesTests.cs` pins the invariant from [`docs/AUDIT_COVERAGE_MATRIX.md`](library/AUDIT_COVERAGE_MATRIX.md) that `CoordinatorRun*` and authority `RunStarted` / `RunCompleted` constants stay distinct as the catalog grows. Four reflection-driven tests cover (1) coordinator-vs-authority value disjointness, (2) baseline-vs-top-level value disjointness, (3) catalog-wide value uniqueness, and (4) every `CoordinatorRun*` constant has either an authority counterpart or an explicit "coordinator-only" allow-list entry.
 

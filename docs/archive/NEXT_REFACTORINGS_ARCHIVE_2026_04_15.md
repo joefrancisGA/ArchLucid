@@ -6,7 +6,7 @@
 
 **Last updated (historical note):** 7 April 2026 (Persistence split into Persistence + Persistence.Coordination delivered).
 
-**ArchLucid rename:** Solution is **`ArchLucid.sln`**; product assemblies live under **`ArchLucid.*`** with aligned type names (`ArchLucidConfigurationBridge`, `IArchLucidUnitOfWork`, `AddArchLucid*` host extensions, NSwag **`ArchLucidApiClient`** / **`ArchLucidApiException`**). Use **`ConnectionStrings:ArchLucid`**, CORS policy **`ArchLucid`**, and comparison replay headers **`X-ArchLucid-*`**. Phase 7 removed legacy **`ArchLucid*`** configuration keys and env-var bridges; see `docs/ARCHLUCID_RENAME_CHECKLIST.md` for deferred work (Terraform `state mv`, repo folder rename).
+**ArchLucid rename:** Solution is **`ArchLucid.sln`**; product assemblies live under **`ArchLucid.*`** with aligned type names (`ArchLucidConfigurationBridge`, `IArchLucidUnitOfWork`, `AddArchLucid*` host extensions, NSwag **`ArchLucidApiClient`** / **`ArchLucidApiException`**). Use **`ConnectionStrings:ArchLucid`**, CORS policy **`ArchLucid`**, and comparison replay headers **`X-ArchLucid-*`**. Phase 7 removed legacy **`ArchLucid*`** configuration keys and env-var bridges; see **`docs/library/V1_DEFERRED.md`** §3 for deferred work (Terraform `state mv`, repo folder rename).
 
 Early items **1–7** (JSON test options, `ComparisonReplayTestFixture`, comparison facade decision, health and replay validation docs, fixture reuse, Api.Tests JSON audit) are **done**. Their original write-ups are preserved under [Archive (completed items 1–7)](#archive-completed-items-17) near the bottom of this file (immediately before batch §88).
 

@@ -177,7 +177,7 @@ Every pilot starts here. The operator UI presents this layer by default with no 
 | Capability | API surface | UI surface | CLI surface |
 |------------|-------------|------------|-------------|
 | Public demo commit page (read-only) | `GET /v1/demo/preview` | Marketing `/demo/preview` | — |
-| Create architecture request | `POST /v1/architecture/request` | New run wizard (7-step) | `archlucid run create` |
+| Create architecture request | `POST /v1/architecture/request` | New **review** wizard (7-step; legacy label **New run**) | `archlucid run create` |
 | Execute run (coordinator or authority path) | `POST /v1/architecture/run/{runId}/execute` | Pipeline timeline (auto-poll) | `archlucid run execute` |
 | Commit golden manifest | `POST /v1/architecture/run/{runId}/commit` | Commit run button on run detail | `archlucid run commit` |
 | List runs | `GET /v1/architecture/runs` | Runs list (`/runs`) | `archlucid runs list` |

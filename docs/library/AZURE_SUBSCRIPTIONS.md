@@ -34,7 +34,7 @@ This file replaces the prior "ask a person" pattern and resolves item 1 of [`PEN
 ## 3. Constraints
 
 - Per the workspace rule **`Security-Default-Rule-Port-445-Alignment.mdc`**: SMB / port 445 must not be exposed in either subscription.
-- Per the rename rule **`ArchLucid-Rename.mdc`**: `infra/**/*.tf` may not contain the substring `archiforge` (CI guard). Subscription configuration in Terraform must use the `archlucid_*` resource label set.
+- Per **`.cursor/rules/Navigation.mdc`** (Product rename section): `infra/**/*.tf` may not contain the substring `archiforge` (CI guard). Subscription configuration in Terraform must use the `archlucid_*` resource label set.
 - Per **`Agent-Execution-Policy.mdc`** and **"All infrastructure must be representable in Terraform"** (user rule): when the production stack is wired, the subscription ID is consumed by Terraform via the standard `azurerm` provider `subscription_id` attribute (or the `ARM_SUBSCRIPTION_ID` env var that the CD pipeline already exports through `azure/login@v2`). It is **not** committed to a checked-in tfvars file.
 - Each CD target must have its own GitHub Environment in the repository settings (`dev`, `staging`, `production` as needed) with **required reviewers** for **production** (and typically staging). **`dev`** may omit reviewers. Subscription IDs live as **environment-scoped secrets**, not repository-wide secrets.
 

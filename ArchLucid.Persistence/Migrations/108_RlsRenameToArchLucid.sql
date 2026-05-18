@@ -2,10 +2,9 @@
   108: Rename RLS objects from legacy "Archiforge" / "archiforge_*" / "af_*" to ArchLucid.
 
   Closes the historical SQL-object leftover from the ArchLucid product rename
-  (docs/ARCHLUCID_RENAME_CHECKLIST.md §7.9 — committed as "still expected by design"
-  pre-rename initiative close). Decision recorded in PENDING_QUESTIONS.md item 32 Part B
-  (Resolved 2026-04-21): atomic cutover to al_* SESSION_CONTEXT keys + ArchLucid* SQL object
-  names, single deploy, no dual-read backwards-compatibility shim. RlsSessionContextApplicator
+  (see **`docs/library/V1_DEFERRED.md`** §3, **`docs/CHANGELOG.md`** Part B, and
+  **`docs/PENDING_QUESTIONS.md`** item 32 Part B — Resolved 2026-04-21): atomic cutover to al_* SESSION_CONTEXT keys + ArchLucid* SQL object
+  names, single deploy, no dual-read backwards-compatibility shim. `RlsSessionContextApplicator`
   is updated in the same change so the new policy reads the new keys at the same moment.
 
   Strategy

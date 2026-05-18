@@ -88,7 +88,6 @@ def main() -> int:
         "ARCHITECTURE_ON_ONE_PAGE.md",
         "PENDING_QUESTIONS.md",
         "CHANGELOG.md",
-        "ARCHLUCID_RENAME_CHECKLIST.md",
         "AZURE_MARKETPLACE_SAAS_OFFER.md",
         "START_HERE.md",
         "EXECUTIVE_SPONSOR_BRIEF.md",

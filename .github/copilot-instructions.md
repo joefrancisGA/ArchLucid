@@ -11,10 +11,10 @@
 Read these in order if you need product context before reviewing:
 
 1. `docs/START_HERE.md` — single onboarding hub (buyer, contributor, security routing)
-2. `docs/SYSTEM_MAP.md` — Mermaid system flows
-3. `docs/ARCHITECTURE_COMPONENTS.md`
-4. `docs/API_CONTRACTS.md`
-5. `docs/ARCHLUCID_RENAME_CHECKLIST.md` — what is allowed to still say `ArchiForge`
+2. `docs/library/SYSTEM_MAP.md` — Mermaid system flows
+3. `docs/library/ARCHITECTURE_COMPONENTS.md`
+4. `docs/library/API_CONTRACTS.md`
+5. `docs/library/V1_DEFERRED.md` §3 — brownfield rename / Terraform `state mv`; allowed `ArchiForge` literals per `.cursor/rules/Navigation.mdc` (Product rename section)
 
 ## What to focus on in reviews (in priority order)
 
@@ -58,7 +58,7 @@ Before approving a new helper, search the repo and the change description for an
 ### Infrastructure
 
 - **All infrastructure must be representable in Terraform** (`infra/terraform-*/`). Reject PRs that introduce Azure resources via portal-only steps, ARM templates, or one-off scripts without a corresponding Terraform change.
-- **Greenfield IaC** uses `archlucid` Terraform resource labels; do not reintroduce the substring `archiforge` in `infra/**/*.tf` (run `rg "archiforge" infra --glob "*.tf"` on Terraform PRs — merge-blocking grep job retired). Brownfield state migration (if any) is documented in `docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`.
+- **Greenfield IaC** uses `archlucid` Terraform resource labels; do not reintroduce the substring `archiforge` in `infra/**/*.tf` (run `rg "archiforge" infra --glob "*.tf"` on Terraform PRs — merge-blocking grep job retired). Brownfield state migration (if any) is documented in `docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md` and `docs/library/V1_DEFERRED.md` §3.
 
 ### Data / DDL
 
@@ -72,7 +72,7 @@ Before approving a new helper, search the repo and the change description for an
 
 ### Allowed legacy literals (do **not** flag these)
 
-- `docs/ARCHLUCID_RENAME_CHECKLIST.md` itself
+- `docs/library/V1_DEFERRED.md` §3 / `docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md` (brownfield rename narrative)
 - `docs/BREAKING_CHANGES.md` rows documenting **removed** legacy spellings
 - `docs/MULTI_TENANT_RLS.md` SQL object names: `rls.ArchiforgeTenantScope`, `rls.archiforge_scope_predicate`, migration file `036_RlsArchiforgeTenantScope.sql`
 - `.gitleaks.toml` dev-password allowlist entries

@@ -1,6 +1,6 @@
 # Start here — ArchLucid for new contributors
 
-**Shipped product name:** **ArchLucid** (repository folders and some .NET assemblies may still say **ArchLucid** during rename — see [ARCHLUCID_RENAME_CHECKLIST.md](ARCHLUCID_RENAME_CHECKLIST.md)).
+**Shipped product name:** **ArchLucid** (repository folders and some .NET assemblies may still say **ArchLucid** during rename — see [V1_DEFERRED.md](../../library/V1_DEFERRED.md) §3).
 
 Use **this page** as the single front door. It orients you in a few minutes, then points to role-specific checklists and deeper architecture docs.
 
