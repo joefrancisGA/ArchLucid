@@ -1,7 +1,11 @@
 import { expect, test } from "@playwright/test";
 
-import { FIXTURE_LEFT_RUN_ID, FIXTURE_RIGHT_RUN_ID } from "./fixtures";
-import { FIXTURE_COMPARE_STALE_PRIMARY_LABEL_LEFT_ALT, FIXTURE_COMPARE_STALE_PRIMARY_LABEL_LEFT_BASELINE } from "./fixtures/compare-picker-runs-page";
+import {
+  FIXTURE_COMPARE_STALE_PRIMARY_LABEL_LEFT_ALT,
+  FIXTURE_COMPARE_STALE_PRIMARY_LABEL_LEFT_BASELINE,
+  FIXTURE_LEFT_RUN_ID,
+  FIXTURE_RIGHT_RUN_ID,
+} from "./fixtures";
 import {
   comparePageSubmitButton,
   expectComparisonRequestOutcomeVisible,
