@@ -604,15 +604,11 @@ Add a CI step to `.github/workflows/ci.yml` in the .NET test job that:
 - **Reason:** Deferred to V2. Requires user input to confirm the legal hold schema and RBAC roles allowed to clear the hold.
 - **Needed from me:** Please provide the exact schema for `LegalHoldUntilUtc` and confirm the RBAC roles for clearing the hold.
 
-### 23. DEFERRED: First named, public reference customer
-- **Reason:** Deferred to V1.1. Requires user input to provide the customer name and case study details.
-- **Needed from me:** Please provide the customer name, logo, and case study content when ready.
-
-### 24. DEFERRED: Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
+### 23. DEFERRED: Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
 - **Reason:** Deferred to V1.1. Requires user input to provide the live Stripe keys and confirm Marketplace publication.
 - **Needed from me:** Please provide the `sk_live_` Stripe keys and confirm the Marketplace offer is `Published`.
 
-### 25. DEFERRED: PGP key drop for security@archlucid.net
+### 24. DEFERRED: PGP key drop for security@archlucid.net
 - **Reason:** Deferred to V1.1. Requires user input to generate and provide the PGP keypair.
 - **Needed from me:** Please provide the public PGP key block to be placed at `archlucid-ui/public/.well-known/pgp-key.txt`.
 
@@ -637,11 +633,8 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 ### DEFERRED (22): Automated tenant erasure (30-day quarantine, legal-hold flag, blob + SQL purge)
 - What is the exact schema for `LegalHoldUntilUtc` and which RBAC roles are allowed to clear the hold?
 
-### DEFERRED (23): First named, public reference customer
-- What is the customer name, logo, and case study content?
-
-### DEFERRED (24): Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
+### DEFERRED (23): Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
 - What are the `sk_live_` Stripe keys and is the Marketplace offer `Published`?
 
-### DEFERRED (25): PGP key drop for security@archlucid.net
+### DEFERRED (24): PGP key drop for security@archlucid.net
 - What is the public PGP key block to be placed at `archlucid-ui/public/.well-known/pgp-key.txt`?
