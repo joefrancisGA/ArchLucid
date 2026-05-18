@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace ArchLucid.Cli.Commands;
 
-/// <summary><c>archlucid graph export</c> — fetches provenance graph JSON and emits Mermaid.</summary>
+/// <summary><c>archlucid graph export</c> — fetches provenance graph JSON and emits Mermaid or GraphML.</summary>
 [ExcludeFromCodeCoverage(
     Justification = "HTTP + env auth against live API.")]
 internal static class GraphExportCommand
@@ -53,7 +53,7 @@ internal static class GraphExportCommand
             }
 
             await Console.Error.WriteLineAsync(
-                "Usage: archlucid graph export <runId> [--format mermaid] [--decision <key>] [--out <path>]");
+                "Usage: archlucid graph export <runId> [--format mermaid|graphml] [--decision <key>] [--out <path>]");
 
             return CliExitCode.UsageError;
         }
@@ -62,14 +62,14 @@ internal static class GraphExportCommand
 
         {
             await Console.Error.WriteLineAsync(
-                "Usage: archlucid graph export <runId> [--format mermaid] [--decision <key>] [--out <path>]");
+                "Usage: archlucid graph export <runId> [--format mermaid|graphml] [--decision <key>] [--out <path>]");
 
             return CliExitCode.UsageError;
         }
 
-        if (format != "mermaid")
+        if (format != "mermaid" && format != "graphml")
         {
-            await Console.Error.WriteLineAsync("Only --format mermaid is supported.");
+            await Console.Error.WriteLineAsync("Supported formats: mermaid, graphml.");
 
             return CliExitCode.UsageError;
         }
@@ -110,18 +110,33 @@ internal static class GraphExportCommand
             graph = DeserializeGraph(bodyJson, response);
         }
 
-        string mermaid = GraphWireMermaidFormatter.ToFlowchart(graph);
+        string exportBody = format == "mermaid"
+            ? GraphWireMermaidFormatter.ToFlowchart(graph)
+            : GraphWireGraphMlFormatter.ToGraphMl(graph);
+
+        string formatLabel = format == "mermaid" ? "Mermaid" : "GraphML";
 
         if (!string.IsNullOrWhiteSpace(outPath))
         {
-            await File.WriteAllTextAsync(Path.GetFullPath(outPath.Trim()), mermaid + Environment.NewLine);
+            string absolutePath = Path.GetFullPath(outPath.Trim());
+            string filePayload = format == "mermaid"
+                ? exportBody + Environment.NewLine
+                : exportBody.EndsWith('\n')
+                    ? exportBody
+                    : exportBody + Environment.NewLine;
 
-            Console.WriteLine($"Wrote Mermaid ({graph.Nodes.Count} nodes, {graph.Edges.Count} edges) → {outPath}");
+            await File.WriteAllTextAsync(absolutePath, filePayload);
+
+            Console.WriteLine($"Wrote {formatLabel} ({graph.Nodes.Count} nodes, {graph.Edges.Count} edges) → {outPath}");
         }
+
+        else if (format == "mermaid")
+
+            Console.WriteLine(exportBody);
 
         else
 
-            Console.WriteLine(mermaid);
+            await Console.Out.WriteAsync(exportBody);
 
         return CliExitCode.Success;
     }

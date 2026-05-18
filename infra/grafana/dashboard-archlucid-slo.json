@@ -61,6 +61,23 @@
       ],
       "title": "LLM token throughput (cost / SLO companion)",
       "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Observable gauge `archlucid_integration_event_outbox_dead_letter` — integration outbox rows in dead-letter state (pairs with Prometheus alert when count > 0).",
+      "fieldConfig": { "defaults": { "decimals": 0, "min": 0 }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "id": 4,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } },
+      "targets": [
+        {
+          "expr": "archlucid_integration_event_outbox_dead_letter",
+          "legendFormat": "dead-letter rows",
+          "refId": "A"
+        }
+      ],
+      "title": "Integration event outbox dead letters",
+      "type": "timeseries"
     }
   ],
   "refresh": "30s",
@@ -86,6 +103,6 @@
   "timezone": "browser",
   "title": "ArchLucid — SLO signals (HTTP + LLM)",
   "uid": "archlucid-slo",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
