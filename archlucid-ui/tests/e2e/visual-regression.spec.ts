@@ -6,6 +6,7 @@ import {
   RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN,
 } from "../../e2e/fixtures";
 import {
+  comparePageMainHeading,
   expandCompareTechnicalDetails,
   gotoComparePageWithFixturePair,
   gotoRunDetailForMockFixtureRun,
@@ -51,7 +52,7 @@ test.describe("visual regression — operator UI", () => {
     await registerDefaultPairLegacyStructuredCompare(page);
     await gotoComparePageWithFixturePair(page);
 
-    await expect(page.getByRole("heading", { name: "Compare reviews", level: 2 })).toBeVisible();
+    await expect(comparePageMainHeading(page)).toBeVisible();
     await expect(page.locator("#compare-left-run-id")).toHaveValue(FIXTURE_LEFT_RUN_ID);
     await expect(page.locator("#compare-right-run-id")).toHaveValue(FIXTURE_RIGHT_RUN_ID);
 

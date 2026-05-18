@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import {
+  comparePageMainHeading,
   comparePageSubmitButton,
   expandCompareTechnicalDetails,
   gotoComparePageWithFixturePair,
@@ -17,7 +18,7 @@ test.describe("Compare view — mocked manifest delta", () => {
     await registerDefaultPairLegacyStructuredCompare(page);
     await gotoComparePageWithFixturePair(page);
 
-    await expect(page.getByRole("heading", { name: "Compare reviews", level: 2 })).toBeVisible();
+    await expect(comparePageMainHeading(page)).toBeVisible();
 
     await comparePageSubmitButton(page).click();
 

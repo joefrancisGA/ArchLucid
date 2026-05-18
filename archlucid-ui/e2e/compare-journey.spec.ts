@@ -3,8 +3,10 @@ import { expect, test } from "@playwright/test";
 import { FIXTURE_LEFT_RUN_ID, FIXTURE_RIGHT_RUN_ID } from "./fixtures";
 import {
   comparePageLeftRunInput,
+  comparePageMainHeading,
   comparePageRightRunInput,
   comparePageSubmitButton,
+  comparePageSummarizeNarrativeButton,
   comparisonRequestOutcomePanel,
   expandComparisonRequestOutcome,
   expandCompareTechnicalDetails,
@@ -24,11 +26,11 @@ test.describe("operator journey — compare query prefill and review order", () 
     await expect(comparePageLeftRunInput(page)).toHaveValue(FIXTURE_LEFT_RUN_ID);
     await expect(comparePageRightRunInput(page)).toHaveValue(FIXTURE_RIGHT_RUN_ID);
 
-    await expect(page.getByRole("heading", { name: "Compare reviews", level: 2 })).toBeVisible();
+    await expect(comparePageMainHeading(page)).toBeVisible();
     await expect(
       page.getByText(/review the structured summary first|The structured summary below is the authoritative/i),
     ).toBeVisible();
-    await expect(page.getByRole("button", { name: "Summarize for sponsor" })).toBeVisible();
+    await expect(comparePageSummarizeNarrativeButton(page)).toBeVisible();
 
     await expect(comparePageSubmitButton(page)).toBeEnabled();
     await comparePageSubmitButton(page).click();

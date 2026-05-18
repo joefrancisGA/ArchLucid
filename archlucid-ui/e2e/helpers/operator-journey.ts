@@ -26,6 +26,23 @@ export async function gotoComparePageWithFixturePair(
   await page.goto(`/compare?${comparePairSearchParams(leftRunId, rightRunId)}`);
 }
 
+/**
+ * Primary `/compare` H2 from {@link OperatorPageHeader}. Mock E2E sets demo env flags, so
+ * `isBuyerPolishedOperatorShellEnv()` is true and the title is **Review change comparison**; full-operator
+ * builds use **Compare reviews**.
+ */
+export function comparePageMainHeading(page: Page): Locator {
+  return page.getByRole("heading", { level: 2, name: /Compare reviews|Review change comparison/i });
+}
+
+/**
+ * Optional narrative action on `/compare` — buyer-polished shell labels this **Summarize for leadership**;
+ * full-operator shell uses **Summarize for sponsor**.
+ */
+export function comparePageSummarizeNarrativeButton(page: Page): Locator {
+  return page.getByRole("button", { name: /Summarize for (sponsor|leadership)/i });
+}
+
 /** Stable combobox inputs on `/compare` (`inputId` on the left `RunIdPicker`). */
 export function comparePageLeftRunInput(page: Page) {
   return page.locator("#compare-left-run-id");
