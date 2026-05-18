@@ -156,8 +156,8 @@ describe("mapGraphToReactFlow", () => {
     const phiPos = nodes.find((n) => n.id === "n-phi")?.position;
     const centerIdx = Math.floor(graph.nodes.length / 2);
     const columnCount = 4;
-    const cellW = 340;
-    const cellH = 220;
+    const cellW = 360;
+    const cellH = 240;
 
     expect(phiPos).toEqual({
       x: (centerIdx % columnCount) * cellW,
