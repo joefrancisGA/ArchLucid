@@ -38,7 +38,11 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
             builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["ValueReport:Computation:AsyncJobWhenWindowDaysExceeds"] = "5000"
+                    ["ValueReport:Computation:AsyncJobWhenWindowDaysExceeds"] = "5000",
+                    ["Demo:Enabled"] = "false",
+                    ["Demo:SeedOnStartup"] = "false",
+                    ["DataConsistency:InitialDelaySeconds"] = "0",
+                    ["HostLeaderElection:Enabled"] = "false"
                 }));
 
             builder.ConfigureTestServices(services =>
@@ -88,7 +92,8 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
 
         using HttpResponseMessage res = await client.PostAsync(url, null);
 
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
+        string responseBody = await res.Content.ReadAsStringAsync();
+        res.StatusCode.Should().Be(HttpStatusCode.OK, "response body: {0}", responseBody);
         res.Content.Headers.ContentType?.MediaType.Should()
             .Be("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
         byte[] body = await res.Content.ReadAsByteArrayAsync();
