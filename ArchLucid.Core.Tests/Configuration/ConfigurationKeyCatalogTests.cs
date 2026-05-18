@@ -32,26 +32,6 @@ public sealed class ConfigurationKeyCatalogTests
     {
         string p = Path.Combine(
           AppContext.BaseDirectory, "docs", "library", "CONFIGURATION_REFERENCE.md");
-
-        #region agent log
-        const string AgentDebugLogPath = @"c:\ArchLucid\ArchLucid\debug-4db9ad.log";
-        static void AgentLog(string hypothesisId, string message, object data)
-        {
-            string line = System.Text.Json.JsonSerializer.Serialize(
-                new Dictionary<string, object?>
-                {
-                    ["sessionId"] = "4db9ad",
-                    ["hypothesisId"] = hypothesisId,
-                    ["location"] =
-                        "ConfigurationKeyCatalogTests.ReferenceDoc_ListsEveryCatalogPathInBackticks",
-                    ["message"] = message,
-                    ["data"] = data,
-                    ["timestamp"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                });
-            File.AppendAllText(AgentDebugLogPath, line + Environment.NewLine);
-        }
-        #endregion
-
         File.Exists(p)
           .Should()
           .BeTrue($"expected {p} (copy from project)");
@@ -68,24 +48,6 @@ public sealed class ConfigurationKeyCatalogTests
                 missingBacktickPaths.Add(e.ConfigPath);
             }
         }
-
-        #region agent log
-        AgentLog(
-            "H1",
-            "catalog paths missing as exact backtick substring from doc",
-            new
-            {
-                docPath = p,
-                baseDirectory = AppContext.BaseDirectory,
-                docLength = doc.Length,
-                missingCount = missingBacktickPaths.Count,
-                missingBacktickPaths,
-            });
-        AgentLog(
-            "H3",
-            "doc file resolution",
-            new { exists = File.Exists(p), copyFromProjectRelative = "docs/library/CONFIGURATION_REFERENCE.md" });
-        #endregion
 
         missingBacktickPaths
           .Should()
