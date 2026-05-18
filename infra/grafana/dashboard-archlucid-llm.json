@@ -1,0 +1,126 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Histogram **archlucid_llm_gen_ai_operation_duration_ms** (OpenTelemetry scrape exposes ***_bucket** / **_sum** / **_count**). Labels are emitted as **gen_ai.operation.name** (**chat**, **embeddings**) and **status** (**ok** / **error**); Prometheus exposition typically maps dotted keys to **gen_ai_operation_name**. If legends are empty, inspect **/metrics** for the exact label name on **_bucket** lines.",
+      "fieldConfig": { "defaults": { "decimals": 1, "unit": "ms" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "options": { "legend": { "displayMode": "table", "placement": "right" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(archlucid_llm_gen_ai_operation_duration_ms_bucket[5m])) by (le, gen_ai_operation_name, status))",
+          "legendFormat": "{{gen_ai_operation_name}} {{status}} p50",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(archlucid_llm_gen_ai_operation_duration_ms_bucket[5m])) by (le, gen_ai_operation_name, status))",
+          "legendFormat": "{{gen_ai_operation_name}} {{status}} p95",
+          "refId": "B"
+        }
+      ],
+      "title": "GenAI operation latency (p50 / p95 by operation + status)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Average wall time from **archlucid_llm_gen_ai_operation_duration_ms_sum** / **count** (complements histogram quantiles when bucket layout is sparse).",
+      "fieldConfig": { "defaults": { "decimals": 1, "unit": "ms" }, "overrides": [] },
+      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 8 },
+      "id": 2,
+      "options": { "legend": { "displayMode": "table", "placement": "right" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "expr": "sum(rate(archlucid_llm_gen_ai_operation_duration_ms_sum[5m])) by (gen_ai_operation_name, status) / sum(rate(archlucid_llm_gen_ai_operation_duration_ms_count[5m])) by (gen_ai_operation_name, status)",
+          "legendFormat": "{{gen_ai_operation_name}} {{status}} mean",
+          "refId": "A"
+        }
+      ],
+      "title": "GenAI operation mean latency (sum/count)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Counter **archlucid_llm_embedding_input_tokens_total** — embedding-only token volume (not double-counted with chat prompt tokens). Label **llm_deployment** when set.",
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 15 },
+      "id": 3,
+      "options": { "legend": { "displayMode": "table", "placement": "right" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "expr": "sum by (llm_deployment) (rate(archlucid_llm_embedding_input_tokens_total[5m]))",
+          "legendFormat": "{{llm_deployment}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Embedding input tokens / s (by deployment)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Counter **archlucid_llm_prompt_tokens_total** — chat completion input tokens (**llm_provider** / **llm_deployment** when present).",
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 15 },
+      "id": 4,
+      "options": { "legend": { "displayMode": "table", "placement": "right" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "expr": "sum by (llm_provider, llm_deployment) (rate(archlucid_llm_prompt_tokens_total[5m]))",
+          "legendFormat": "{{llm_provider}} / {{llm_deployment}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Prompt (chat) tokens / s",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Counter **archlucid_llm_completion_tokens_total** — chat completion output tokens.",
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 15 },
+      "id": 5,
+      "options": { "legend": { "displayMode": "table", "placement": "right" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "expr": "sum by (llm_provider, llm_deployment) (rate(archlucid_llm_completion_tokens_total[5m]))",
+          "legendFormat": "{{llm_provider}} / {{llm_deployment}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Completion tokens / s",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": ["archlucid", "llm", "genai", "prometheus"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": false, "text": "Prometheus", "value": "prometheus" },
+        "hide": 0,
+        "label": "Datasource",
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "title": "ArchLucid — LLM GenAI telemetry",
+  "uid": "archlucid-llm",
+  "version": 1,
+  "weekStart": ""
+}

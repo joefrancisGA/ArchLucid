@@ -26,7 +26,7 @@ Promote a row to § 1.1 only after ripgrep on `docs/` (excluding `docs/archive/`
 
 | # | Use this (canonical) | Don't use (rejected) | Rationale |
 |---|----------------------|----------------------|-----------|
-| — | *(none yet)* | — | Add rows here before wiring new `RULES` entries in the script. |
+| 1 | **review** (noun — the product session) | "run" when used as the product noun for a governed architecture review session (e.g. "create a run", "the run's findings", "run ID") | ArchLucid's primary product concept is an architecture *review*, not a pipeline *run*. Buyer-facing copy, docs, and UI labels must use **review**. Legitimate uses of "run" (CI run, test run, script run, dry run) are **not** rejected — only uses where "run" names the ArchLucid review session itself. **Fix volume is high**; promotion to § 1.1 requires a focused cleanup PR scoped to buyer-facing and canonical docs. |
 
 ---
 

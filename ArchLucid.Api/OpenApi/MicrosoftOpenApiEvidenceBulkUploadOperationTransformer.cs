@@ -66,7 +66,7 @@ public sealed class MicrosoftOpenApiEvidenceBulkUploadOperationTransformer : IOp
     }
 
     /// <summary>
-    ///     Matches resolved <c>IFormFileCollection</c> in <c>openapi-v1.contract.snapshot.json</c> (array of <c>IFormFile</c> / binary strings).
+    ///     Matches resolved <c>IFormFileCollection</c> in the OpenAPI snapshot: array items are binary strings (<c>IFormFile</c>).
     /// </summary>
     private static OpenApiSchema CreateEvidenceBulkFilesPropertySchema()
     {

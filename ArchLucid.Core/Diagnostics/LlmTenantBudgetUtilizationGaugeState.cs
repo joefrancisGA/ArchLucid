@@ -2,7 +2,7 @@ using System.Diagnostics.Metrics;
 
 namespace ArchLucid.Core.Diagnostics;
 
-/// <summary>Latest per-tenant LLM UT-month budget utilization (read on Prometheus scrape).</summary>
+/// <summary>Latest per-tenant LLM UTC-month budget utilization (read on Prometheus scrape).</summary>
 public sealed class LlmTenantBudgetUtilizationGaugeState
 {
     private readonly Lock _gate = new();

@@ -8,7 +8,7 @@ Use these meanings in buyer-facing narratives, **`docs/`**, and **`archlucid-ui`
 
 | Term | Definition |
 |------|------------|
-| **Review** | A structured examination of architecture change or design intent tied to **runs**, **artifacts**, and **policies**. In product copy, prefer **architecture review** when the reader might confuse “review” with code review alone. |
+| **Review** | A structured examination of architecture change or design intent tied to **artifacts** and **policies**. In product copy, prefer **architecture review** when the reader might confuse “review” with code review alone. |
 | **Review package** | The cohesive set of **review** outputs the product assembles for stakeholders: summaries, manifests, explanations, diagrams, findings, and links to underlying **evidence**. Exportable variants are still review packages unless the doc distinguishes **bundle** packaging. |
 | **Signed manifest** | The cryptographic or provenance-backed record that closes the **authority** ledger for committed work (what was decided, bound to lineage). Treat “manifest” alone as ambiguous until provenance/signing semantics are stated. |
 | **Finding** | A machine- or assisted-generated observation from **decisioning** (risk, drift, conformance, duplication, etc.). **Finding** severity and policy mapping live in packs and workflows; distinguish from informal “comments” outside the ledger. |
@@ -19,7 +19,68 @@ Use these meanings in buyer-facing narratives, **`docs/`**, and **`archlucid-ui`
 | **Governance approval** | A committed **decision** in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled “Approve” unless they write to governance state. |
 | **Audit trail** | The persisted, replayable ledger of authenticated actions across **reviews**, merges, approvals, retention, notifications, exports, and integrations — narrower than informal logging; wider than SIEM payloads alone. Audit trail retention norms are posture-specific. |
 
+---
+
+## Record-type field taxonomy
+
+These tables define the canonical fields on each authoritative record type. They govern buyer-facing labels, API response shapes, and internal doc descriptions. A field not listed here is implementation-internal until promoted into this table.
+
+### Finding
+
+| Field | Values / type | Notes |
+|-------|---------------|-------|
+| **Severity** | `Critical` · `High` · `Medium` · `Low` · `Informational` | Set by the decisioning engine; may be overridden by a reviewer with rationale. |
+| **Confidence** | `High` · `Medium` · `Low` | Model confidence in the finding. Low confidence findings require explicit reviewer disposition before blocking. |
+| **Risk area** | `Security` · `Reliability` · `Cost` · `Compliance` · `Performance` · `Operational` | Primary category; a finding may carry secondary risk areas as tags. |
+| **Evidence basis** | Citation references, artifact links, trace IDs | Links the finding to the evidence trail. A finding without evidence basis is advisory only. |
+| **Disposition** | `Open` · `Accepted` · `Waived` · `Remediated` · `Deferred` | Owner-set. Waived and deferred dispositions require a rationale field. |
+| **Blocking status** | `Blocking` · `Non-blocking` | Determines whether the finding gates governance approval. Set by policy pack; overridable with reviewer authority. |
+| **Owner** | Role or team identifier | Accountable party for remediation or monitoring. |
+| **Recommended action** | Free text | Specific suggested change. Should reference evidence. |
+| **Monitoring cadence** | `One-time` · `Recurring` · `On-change` | When `Recurring` or `On-change`, the finding re-opens on the next review unless remediated or waived. |
+
+### Decision
+
+| Field | Values / type | Notes |
+|-------|---------------|-------|
+| **Title** | Short label | Summarises the choice made. |
+| **Context** | Free text | What constraint, finding, or review prompted this decision. |
+| **Chosen option** | Free text | The option selected and why it was preferred. |
+| **Alternatives considered** | Free text | Must name at least one alternative to distinguish a decision from a default. |
+| **Rationale** | Free text | Evidence-grounded reasoning. Rationale referencing only opinion ("we prefer X") is weaker posture. |
+| **Evidence links** | Artifact, finding, or trace references | Links decision to the evidence trail. |
+| **Consequences** | Free text | Accepted trade-offs and downstream effects. |
+| **Owner** | Role or team identifier | Accountable for monitoring and revisiting. |
+| **Review status** | `Open` · `Committed` · `Superseded` | `Superseded` decisions must link to their replacement. |
+
+### Risk
+
+| Field | Values / type | Notes |
+|-------|---------------|-------|
+| **Risk area** | `Security` · `Reliability` · `Cost` · `Compliance` · `Performance` · `Operational` | Aligns with finding risk areas for cross-reference. |
+| **Severity** | `Critical` · `High` · `Medium` · `Low` | Inherent severity before mitigations. |
+| **Likelihood** | `High` · `Medium` · `Low` | Estimated probability of the adverse outcome. |
+| **Impact** | Free text | Concrete description of what the adverse outcome means for the tenant or platform. |
+| **Mitigation** | Free text | Controls or actions that reduce severity or likelihood. |
+| **Disposition** | `Open` · `Mitigated` · `Accepted` · `Deferred` | Accepted risks require owner sign-off and a review cadence. |
+| **Monitoring cadence** | `Continuous` · `Quarterly` · `On-change` · `None` | Required when disposition is `Accepted`. |
+| **Evidence links** | Finding, control, or artifact references | Risks without evidence links are informational only. |
+
+### Control
+
+| Field | Values / type | Notes |
+|-------|---------------|-------|
+| **Control objective** | Free text | The specific adverse outcome the control prevents or detects. |
+| **Control owner** | `Platform` · `Customer` · `Shared` | Platform controls are ArchLucid-operated. Customer controls are operator-obligations. Shared controls have split responsibilities documented in the control body. |
+| **Evidence source** | Artifact, audit event, or external attestation | What demonstrates the control is operating. A control without an evidence source is asserted but unverified. |
+| **Validation method** | `Automated test` · `Audit log review` · `Manual inspection` · `Third-party attestation` | How the evidence source is checked. |
+| **Control status** | `Active` · `Planned` · `Deferred` · `Not applicable` | Planned and deferred controls must carry a target date or milestone. |
+| **Related risks** | Risk identifiers | Controls not linked to a risk are orphaned — they consume cost without traceable justification. |
+
+---
+
 ### Related canonical reads
 
 - **UI term mapping:** [`../go-to-market/UI_GLOSSARY_V1.md`](../go-to-market/UI_GLOSSARY_V1.md) — label-level alignment for public shell copy.
 - **Authority and traces:** [`../architecture/README.md`](../architecture/README.md) · ADR **`0012`**, **`0010`**.
+- **Audit event model:** [`AUDIT_EVENT_MODEL.md`](AUDIT_EVENT_MODEL.md) — canonical audit event fields and immutability rules.
