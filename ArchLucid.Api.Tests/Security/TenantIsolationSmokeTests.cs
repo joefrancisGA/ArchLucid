@@ -193,10 +193,12 @@ public sealed class TenantIsolationSmokeTests
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
         await using GreenfieldSqlApiFactory factory = new();
+        // Full POST warmup: this test creates two runs (tenant A and B). Skipping warmup reproduced CI failures where
+        // cold create-run + idempotency/SQL settled only after three 65-minute attempt budgets (~3h25m outer wall).
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await WarmSqlAuthorityPipelineAsync(primer, includePostCreateRunWarmup: false);
+            await WarmSqlAuthorityPipelineAsync(primer);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);

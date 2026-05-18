@@ -1,5 +1,9 @@
 using System.Security.Cryptography;
 
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Auth.Services;
+
+using FluentAssertions;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

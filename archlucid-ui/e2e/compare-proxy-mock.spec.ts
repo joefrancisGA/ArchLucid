@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 import { FIXTURE_LEFT_RUN_ID, FIXTURE_RIGHT_RUN_ID, fixtureComparisonExplanation } from "./fixtures";
 import {
   comparePageSubmitButton,
+  comparePageSummarizeNarrativeButton,
   structuredCompareSponsorRecommendationParagraph,
 } from "./helpers/operator-journey";
 import { registerCompareAndExplainRoutes } from "./helpers/register-operator-api-routes";
@@ -24,7 +25,7 @@ test.describe("operator journey — compare proxy mocks", () => {
     await compareSubmit.click();
     await expect(structuredCompareSponsorRecommendationParagraph(page)).toBeVisible();
 
-    await page.getByRole("button", { name: "Summarize for sponsor", exact: true }).click();
+    await comparePageSummarizeNarrativeButton(page).click();
     await page.locator("#compare-ai summary").click();
     await expect(page.getByText(explainFixture.highLevelSummary)).toBeVisible();
   });

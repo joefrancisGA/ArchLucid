@@ -12,6 +12,13 @@ export {
   fixtureCompareRightRunManifestDocument,
 } from "./compare-manifest-documents";
 export {
+  fixtureComparePickerRunsPageForStaleInputWarning,
+  FIXTURE_COMPARE_STALE_PRIMARY_LABEL_LEFT_ALT,
+  FIXTURE_COMPARE_STALE_PRIMARY_LABEL_LEFT_BASELINE,
+  FIXTURE_COMPARE_STALE_PRIMARY_LABEL_RIGHT,
+} from "./compare-picker-runs-page";
+export {
+  FIXTURE_COMPARE_STALE_ALT_LEFT_RUN_ID,
   FIXTURE_FINDING_ID,
   FIXTURE_LEFT_RUN_ID,
   FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID,

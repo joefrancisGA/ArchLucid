@@ -13,6 +13,9 @@ export const FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID = "f0000002-0000-4000-8000-0000
 export const FIXTURE_LEFT_RUN_ID = "e2e-fixture-left-run";
 export const FIXTURE_RIGHT_RUN_ID = "e2e-fixture-right-run";
 
+/** Extra run id for compare stale-input Playwright: selectable alternate left after a successful compare. */
+export const FIXTURE_COMPARE_STALE_ALT_LEFT_RUN_ID = "e2e-fixture-compare-stale-alt-left";
+
 /** Human slug for screenshot + marketing URLs — avoids `e2e-fixture-*` in showcase PNG filenames. */
 export const SHOWCASE_DEMO_RUN_ID = "claims-intake-modernization";
 

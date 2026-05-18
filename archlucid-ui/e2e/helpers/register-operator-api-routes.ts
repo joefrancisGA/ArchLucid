@@ -21,10 +21,12 @@ import {
   FIXTURE_RIGHT_RUN_ID,
   FIXTURE_RUN_ID,
 } from "../fixtures";
+import { fixtureComparePickerRunsPageForStaleInputWarning } from "../fixtures/compare-picker-runs-page";
 import {
   backendApiPath,
   matchesArtifactBundleGet,
   matchesArtifactListGet,
+  matchesAuthorityProjectRunsPagedGet,
   matchesAuthorityRunManifestGet,
   matchesCompareExplainGet,
   matchesLegacyCompareRunsGet,
@@ -85,6 +87,8 @@ export type OperatorJourneyRouteConfig = {
   authorityRunManifests?: readonly AuthorityRunManifestRouteSpec[] | null;
   compareExplanation?: CompareExplanationRouteSpec | null;
   artifactBundle?: ArtifactBundleRouteSpec | null;
+  /** Stubs `GET /v1/authority/projects/{projectId}/runs` (Compare {@link RunIdPicker} loads rows on focus). */
+  projectRunsPaged?: { projectId: string; body: unknown } | null;
 };
 
 async function fulfillJson(route: Route, status: number, body: unknown): Promise<void> {
@@ -110,6 +114,15 @@ export async function registerOperatorJourneyApiRoutes(
     }
 
     const tryFulfill = async (): Promise<boolean> => {
+      if (
+        config.projectRunsPaged &&
+        method === "GET" &&
+        matchesAuthorityProjectRunsPagedGet(url, config.projectRunsPaged.projectId)
+      ) {
+        await fulfillJson(route, 200, config.projectRunsPaged.body);
+        return true;
+      }
+
       if (config.runDetail && method === "GET" && matchesRunDetailGet(url, config.runDetail.runId)) {
         await fulfillJson(route, 200, config.runDetail.body);
         return true;
@@ -197,7 +210,7 @@ export async function registerOperatorJourneyApiRoutes(
 }
 
 /** Legacy + structured compare for the default E2E left/right run IDs (no AI explain route). */
-function defaultFixturePairLegacyStructuredConfig(): Pick<
+export function defaultFixturePairLegacyStructuredCompareConfig(): Pick<
   OperatorJourneyRouteConfig,
   "legacyCompare" | "structuredCompare" | "authorityRunManifests"
 > {
@@ -221,7 +234,18 @@ function defaultFixturePairLegacyStructuredConfig(): Pick<
 
 /** Client compare page: mock legacy + structured GETs for the standard fixture pair. */
 export async function registerDefaultPairLegacyStructuredCompare(page: Page): Promise<void> {
-  await registerOperatorJourneyApiRoutes(page, defaultFixturePairLegacyStructuredConfig());
+  await registerOperatorJourneyApiRoutes(page, defaultFixturePairLegacyStructuredCompareConfig());
+}
+
+/**
+ * Compare stale-input warning journey: fixture pair mocks **plus** a non-empty runs list so buyer-polished readonly
+ * comboboxes can switch selection via dropdown options (typing is disabled).
+ */
+export async function registerCompareStaleInputWarningRoutes(page: Page): Promise<void> {
+  await registerOperatorJourneyApiRoutes(page, {
+    ...defaultFixturePairLegacyStructuredCompareConfig(),
+    projectRunsPaged: { projectId: "default", body: fixtureComparePickerRunsPageForStaleInputWarning() },
+  });
 }
 
 /** Default fixture pair: run + manifest + artifacts + bundle (for future run/manifest journey tests from the browser). */
@@ -237,7 +261,7 @@ export async function registerDefaultRunManifestArtifactRoutes(page: Page): Prom
 /** Compare page (client): legacy + structured + optional AI explanation GETs. */
 export async function registerCompareAndExplainRoutes(page: Page): Promise<void> {
   await registerOperatorJourneyApiRoutes(page, {
-    ...defaultFixturePairLegacyStructuredConfig(),
+    ...defaultFixturePairLegacyStructuredCompareConfig(),
     compareExplanation: {
       baseRunId: FIXTURE_LEFT_RUN_ID,
       targetRunId: FIXTURE_RIGHT_RUN_ID,

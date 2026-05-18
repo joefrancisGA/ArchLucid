@@ -48,6 +48,20 @@ export function comparePageLeftRunInput(page: Page) {
   return page.locator("#compare-left-run-id");
 }
 
+/**
+ * Buyer-polished Compare: left run picker is readonly — change selection by opening the list and activating an option.
+ * Requires a mocked non-empty `GET /v1/authority/projects/default/runs` (see {@link registerCompareStaleInputWarningRoutes}).
+ */
+export async function selectCompareLeftRunOptionByPrimaryLabel(page: Page, primaryLabel: string): Promise<void> {
+  const input = comparePageLeftRunInput(page);
+
+  await input.click();
+  const listbox = page.locator("#compare-left-run-id-listbox");
+
+  await expect(listbox).toBeVisible();
+  await listbox.getByRole("option", { name: primaryLabel }).click();
+}
+
 /** Right-hand run combobox on `/compare`. */
 export function comparePageRightRunInput(page: Page) {
   return page.locator("#compare-right-run-id");
