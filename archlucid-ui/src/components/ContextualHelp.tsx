@@ -37,17 +37,19 @@ const placementClasses: Record<
 };
 
 /**
- * In-context info (not global Help): click or keyboard toggles; hover does not (avoids clashing with long-press readers).
- * Uses an info icon so the header’s Help control remains the only question-mark affordance.
- * Dismiss with Escape or pointer outside. Content comes from `contextualHelpByKey` in
- * `src/lib/contextual-help-content.ts`.
+ * In-context info (not global Help). Pointer hover may preview the panel; click or Space/Enter toggles
+ * a persistent open state until Escape or an outside pointer event. Keyboard users rely on the trigger
+ * button only (no hover-only path). Uses an info icon so the header Help control stays the sole
+ * question-mark affordance. Panel uses `role="region"` (not `tooltip`) because copy may include a
+ * focusable Learn more link. Content from `contextualHelpByKey` in `src/lib/contextual-help-content.ts`;
+ * trigger `aria-label` from {@link contextualHelpTriggerAriaLabel}.
  */
 export function ContextualHelp({ helpKey, placement = "bottom", className }: ContextualHelpProps) {
   const [open, setOpen] = useState(false);
   const [hover, setHover] = useState(false);
   const visible = open || hover;
   const rootId = useId();
-  const tooltipId = `${rootId}-tooltip`;
+  const panelId = `${rootId}-panel`;
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const entry = contextualHelpByKey[helpKey];
@@ -113,8 +115,8 @@ export function ContextualHelp({ helpKey, placement = "bottom", className }: Con
         type="button"
         className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-neutral-400 bg-white text-neutral-600 shadow-sm hover:border-teal-600 hover:text-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-teal-600 dark:border-neutral-500 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-teal-500 dark:hover:text-teal-200"
         aria-expanded={visible}
-        aria-controls={visible ? tooltipId : undefined}
-        aria-describedby={visible ? tooltipId : undefined}
+        aria-controls={visible ? panelId : undefined}
+        aria-describedby={visible ? panelId : undefined}
         aria-label={triggerAriaLabel ?? undefined}
         onClick={() => {
           setOpen((o) => !o);
@@ -132,8 +134,9 @@ export function ContextualHelp({ helpKey, placement = "bottom", className }: Con
       {visible && (
         <div
           ref={panelRef}
-          id={tooltipId}
-          role="tooltip"
+          id={panelId}
+          role="region"
+          aria-label="Contextual help"
           className={cn(
             "absolute z-50 w-64 max-w-[min(18rem,calc(100vw-2rem))] rounded-md border border-neutral-200 bg-white px-3 py-2 text-left text-sm leading-snug text-neutral-800 shadow-md dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100",
             place.panel,

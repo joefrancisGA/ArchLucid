@@ -1,3 +1,4 @@
+/** Open panels via {@link contextualHelpTriggerAriaLabel} — never hardcode legacy `more information: {key}` labels. CI: `npm run test:axe-components` (`ui-axe-components` on full workflow_dispatch). */
 import { act, fireEvent, render } from "@testing-library/react";
 import { axe, toHaveNoViolations } from "jest-axe";
 import { beforeAll, describe, expect, it } from "vitest";

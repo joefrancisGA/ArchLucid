@@ -75,6 +75,12 @@ describe("contextualHelpTriggerAriaLabel", () => {
   it("returns null for unknown keys", () => {
     expect(contextualHelpTriggerAriaLabel("not-a-real-key")).toBeNull();
   });
+
+  it("builds ask-archlucid label from first sentence (axe/regression)", () => {
+    expect(contextualHelpTriggerAriaLabel("ask-archlucid")).toBe(
+      "Contextual help: Multi-turn conversations about an architecture review.",
+    );
+  });
 });
 
 describe("toDocsBlobUrl", () => {

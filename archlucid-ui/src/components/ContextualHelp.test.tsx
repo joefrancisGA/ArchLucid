@@ -16,13 +16,13 @@ describe("ContextualHelp", () => {
     );
 
     const button = getByLabelText(contextualHelpTriggerAriaLabel("new-run-wizard")!);
-    expect(queryByRole("tooltip")).toBeNull();
+    expect(queryByRole("region", { name: /contextual help/i })).toBeNull();
 
     act(() => {
       fireEvent.click(button);
     });
 
-    expect(await screen.findByRole("tooltip")).toBeInTheDocument();
+    expect(await screen.findByRole("region", { name: /contextual help/i })).toBeInTheDocument();
     expect(getByText(/create an architecture request/i)).toBeInTheDocument();
 
     act(() => {
@@ -30,8 +30,20 @@ describe("ContextualHelp", () => {
     });
 
     await waitFor(() => {
-      expect(screen.queryByRole("tooltip")).toBeNull();
+      expect(screen.queryByRole("region", { name: /contextual help/i })).toBeNull();
     });
+  });
+
+  it("uses role=region (not tooltip) when learn-more link is present", () => {
+    render(<ContextualHelp helpKey="commit-manifest" />);
+    const button = screen.getByLabelText(contextualHelpTriggerAriaLabel("commit-manifest")!);
+
+    act(() => {
+      fireEvent.click(button);
+    });
+
+    expect(screen.getByRole("region", { name: /contextual help/i })).toBeInTheDocument();
+    expect(screen.queryByRole("tooltip")).toBeNull();
   });
 
   it("renders learn-more link when the entry defines learnMoreUrl", () => {
@@ -49,7 +61,7 @@ describe("ContextualHelp", () => {
     expect(more).toHaveAttribute("target", "_blank");
   });
 
-  it("associates the trigger with the tooltip for assistive technology when open", () => {
+  it("associates the trigger with the help panel for assistive technology when open", () => {
     const { getByLabelText, getByRole } = render(<ContextualHelp helpKey="manifest-review" />);
     const button = getByLabelText(contextualHelpTriggerAriaLabel("manifest-review")!);
 
@@ -57,8 +69,8 @@ describe("ContextualHelp", () => {
       fireEvent.click(button);
     });
 
-    const tooltip = getByRole("tooltip");
-    const tid = tooltip.getAttribute("id");
+    const panel = getByRole("region", { name: /contextual help/i });
+    const tid = panel.getAttribute("id");
 
     expect(tid).toBeTruthy();
     expect(button).toHaveAttribute("aria-describedby", tid as string);
@@ -75,12 +87,12 @@ describe("ContextualHelp", () => {
       fireEvent.keyDown(button, { key: " ", code: "Space" });
     });
 
-    expect(queryByRole("tooltip")).toBeInTheDocument();
+    expect(queryByRole("region", { name: /contextual help/i })).toBeInTheDocument();
 
     act(() => {
       fireEvent.keyDown(button, { key: " ", code: "Space" });
     });
 
-    expect(queryByRole("tooltip")).toBeNull();
+    expect(queryByRole("region", { name: /contextual help/i })).toBeNull();
   });
 });
