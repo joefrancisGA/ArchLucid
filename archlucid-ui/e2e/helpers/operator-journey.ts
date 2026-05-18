@@ -56,10 +56,13 @@ export async function selectCompareLeftRunOptionByPrimaryLabel(page: Page, prima
   const input = comparePageLeftRunInput(page);
 
   await input.click();
-  const listbox = page.locator("#compare-left-run-id-listbox");
+  const listPopup = page.locator("#compare-left-run-id-listbox");
 
-  await expect(listbox).toBeVisible();
-  await listbox.getByRole("option", { name: primaryLabel }).click();
+  await expect(listPopup).toBeVisible();
+  const option = listPopup.getByRole("option", { name: primaryLabel });
+
+  await expect(option).toBeVisible({ timeout: 15_000 });
+  await option.click();
 }
 
 /** Right-hand run combobox on `/compare`. */
