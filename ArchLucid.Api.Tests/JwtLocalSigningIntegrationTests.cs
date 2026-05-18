@@ -56,8 +56,9 @@ public sealed class JwtLocalSigningIntegrationTests(JwtLocalSigningWebAppFactory
         HttpResponseMessage response =
             await client.GetAsync(new Uri("/v1/jobs/00000000-0000-0000-0000-000000000001", UriKind.Relative));
 
-        response.StatusCode.Should().NotBe(HttpStatusCode.Unauthorized);
-        response.StatusCode.Should().NotBe(HttpStatusCode.Forbidden);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        response.StatusCode.Should().NotBe(HttpStatusCode.Unauthorized, "response body: {0}", responseBody);
+        response.StatusCode.Should().NotBe(HttpStatusCode.Forbidden, "response body: {0}", responseBody);
     }
 
     /// <summary>

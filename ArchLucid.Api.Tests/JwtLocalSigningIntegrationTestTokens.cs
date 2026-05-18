@@ -58,10 +58,11 @@ internal static class JwtLocalSigningIntegrationTestTokens
 
         claims.AddRange(roles.Select(r => new Claim("roles", r)));
 
-        // Match JwtBearer ClockSkew for local PEM signing (ArchLucidJwtBearerConfiguration.ApplyWithLocalPublicKey) and
-        // LocalTrialJwtIssuer notBefore skew — avoids intermittent "not yet valid" on skewed runners (401 before controllers).
+        // Start validity well in the past so GitHub-hosted runners / TestServer VMs with multi-minute UTC skew cannot
+        // reject the token at JwtBearer authentication (401 before controllers). Pair with PostConfigure ClockSkew on
+        // JwtLocalSigningWebAppFactory (30 min) — wider than production PEM defaults (5 min).
         DateTime utcNow = TimeProvider.System.GetUtcNow().UtcDateTime;
-        DateTime notBefore = utcNow.AddMinutes(-12);
+        DateTime notBefore = utcNow.AddMinutes(-30);
         DateTime expires = utcNow.AddHours(1);
 
         JwtSecurityTokenHandler handler = new();

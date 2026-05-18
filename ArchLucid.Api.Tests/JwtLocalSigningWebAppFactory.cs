@@ -3,9 +3,11 @@ using System.Text;
 
 using ArchLucid.TestSupport;
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.Tests;
 
@@ -75,6 +77,15 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
         builder.ConfigureAppConfiguration((_, config) =>
         {
             config.AddInMemoryCollection(settings);
+        });
+
+        // WebApplicationFactory / GitHub-hosted runners can skew vs the test process; widen beyond production PEM defaults.
+        builder.ConfigureServices(services =>
+        {
+            services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                options.TokenValidationParameters.ClockSkew = TimeSpan.FromMinutes(30);
+            });
         });
     }
 
