@@ -29,7 +29,7 @@ Ship a credible, defensible **ARC-AMPE architecture-review pack** as part of V1 
 | A5 | **Enterprise Risk Management (ERM)** integration (NIST 800-37 RMF cycle) is an explicit ARC-AMPE differentiator and gets its own sub-corpus. | ARC-AMPE Appendices B and C. |
 | A6 | The pack uses ArchLucid’s **P0/P1/P2** priority tiers; **P0** mirrors CMS "High Priority Subcategories" (Table 7) plus mandatory ARC-AMPE differentiators; **P1** mirrors "Moderate Priority" (Table 8); **P2** covers the remaining CSF Subcategories and Volume II depth. | [`POLICY_PACK_RULE_PRIORITY_MODEL.md`](POLICY_PACK_RULE_PRIORITY_MODEL.md) + ARC-AMPE §D.2.1.3. |
 | A7 | Bundled pack defaults to **`priorityFloor: P0`** so pilots see CMS-graded must-haves first; operators widen to `P1` / `P2` once SSPP work is underway. | Project pattern; matches §4 of priority model. |
-| A8 | The pack is **seeded `PlatformDefault`** at tenant provisioning (V1 manifest entry #24) but is **opt-in by assignment** for non-healthcare tenants. Default seeding does **not** silently apply CMS-graded enforcement to unrelated workloads. | See §7 below. |
+| A8 | The pack is **seeded `PlatformDefault` enabled-for-all** at tenant provisioning (V1 manifest entry #24), like every other bundled pack. Scope is communicated by **disclaimer + appendix + UI Inspect**; operators disable the assignment for non-healthcare tenants if irrelevant. | See §7 below (Resolved decisions §11.Q1). |
 | A9 | Disclaimer language is **per-rule** (via `frameworkMappings.note` style) **and** in pack `metadata.frameworkMappingDisclaimer`. | Same buyer-safe pattern as AI Governance and HIPAA packs. |
 | A10 | Authoring uses the LLM generator → critic → human SME pipeline; ArchLucid does **not** ship a CMS-employed reviewer. Pack carries `metadata.authoringMode = "llm-critic-human"`. | [`POLICY_PACK_CONTENT_BACKLOG.md`](POLICY_PACK_CONTENT_BACKLOG.md) §2. |
 
@@ -208,7 +208,7 @@ Each rule uses the existing `CuratedRulesRuleEntry` shape, with `priority` alrea
 ## 6. Data Flow
 
 1. **Provisioning** — `DefaultPolicyPackSeeder` reads `bundled-policy-packs-v1.manifest.json` (now 24 entries) and creates `PlatformDefault` rows per tenant.
-2. **Assignment** — Operator (or vertical-seed hook, §7) assigns ARC-AMPE at tenant / workspace / project scope. **Default seed leaves the assignment disabled** for non-healthcare tenants; healthcare-vertical tenants get it enabled (one extra row in the seeder, no schema change).
+2. **Assignment** — Seeded enabled at tenant scope (same path as every other bundled pack). Operators can disable the assignment via the operator UI for tenants where ARC-AMPE is out of scope. `priorityFloor: P0` keeps the active rule count to the must-have anchors (~15–20 of ~80) until the operator widens.
 3. **Effective merge** — `PolicyPackResolver` merges `advisoryDefaults` (including `priorityFloor: P0`) and `complianceRuleKeys` (the ~80 `arc-ampe-*` ids).
 4. **Compliance evaluation** — `TenantCuratedComplianceRulePackMerger` injects the curated rule bodies; `ComplianceRulePackGovernanceFilter` narrows to the merged key set; `PolicyPackPriorityFloor` enforces `P0` until widened.
 5. **Findings UI** — `/governance/findings` shows ARC-AMPE rule rows with chips: **Pillar**, **CSF function**, **800-53 family**.
@@ -220,7 +220,7 @@ Each rule uses the existing `CuratedRulesRuleEntry` shape, with `priority` alrea
 
 | Concern | Mitigation |
 |---------|------------|
-| **Over-broad seeding** — a non-healthcare tenant getting CMS-graded enforcement noise | Bundle is provisioned but **assignment defaults to disabled** outside `us-healthcare-exchange` vertical tenants. Implementation: extend `DefaultPolicyPackSeeder` to read `metadata.seedScopeRecommendation` and set `PolicyPackAssignment.IsEnabled` accordingly. **Small, additive change**; no new tables. |
+| **Over-broad seeding** — a non-healthcare tenant getting CMS-graded enforcement noise | Pack is seeded enabled-for-all in V1 (same path as every other bundled pack), but **`priorityFloor: P0`** keeps the active rule count to ~15–20 anchor rules (Pillars + ERM + data-residency + a small must-have CSF slice) until an operator widens. Scope is communicated by disclaimer + appendix + UI Inspect; operators disable the assignment for irrelevant tenants. **No special seeder code path** is introduced for V1. |
 | **Misuse as a certification claim** | Disclaimer in **pack metadata**, **each rule’s `frameworkMappings`**, the **appendix doc**, the **landing page row**, and the **operator Inspect tab**. Pack name suffix **"Architecture Themes"** signals scope. |
 | **Auto-classification of customer** | Pack carries **no** rule that asserts "customer is an ACA AE" / "is a Partner Entity". Rules ask whether the **architecture** supports the obligation **if** the customer is in scope. |
 | **Authoritative-control republication risk** | Citations only — control id + brief intent, never full 800-53 control text. |
@@ -237,7 +237,9 @@ Each rule uses the existing `CuratedRulesRuleEntry` shape, with `priority` alrea
 | **CI / count tests** | Bump expected manifest size from **23 → 24** in `DefaultPolicyPackBundledManifestTests` and the corresponding seeder test. |
 | **GA stub generation** | `scripts/generate_v1_bundled_policy_packs.py` extended to recognize `existing_rules: true` for `arc-ampe-architecture-themes`; stub rows propagate `priority` per §5.2. |
 | **Pack count claim in landing page** | Update M-09 copy: "**24** curated policy packs" once content is authored. Hold copy change until JSON is merged. |
-| **Operator UI** | No new code; Inspect tab already renders `metadata` keys. Add appendix link button if not present in `metadata.appendixDoc`. |
+| **Operator UI** | No new code; Inspect tab already renders `metadata` keys. Add appendix link button if not present in `metadata.appendixDoc`. **No new vertical-filter chip** at V1 (see §11.Q4). |
+| **Procurement export** | Reuse the existing **Inspect → DOCX** export shipped under #28; **no dedicated ARC-AMPE PDF** at V1 (see §11.Q2). |
+| **Pre-commit blocking** | **No rule ships at `Critical`** in V1 — ARC-AMPE is an architecture-review pack, not a deterministic gate (see §11.Q3). Customers can promote individual rules at the assignment level if desired. |
 | **Pricing / SKUs** | None. Pack is bundled `PlatformDefault`; no separate add-on SKU at V1 (revisit at V1.1 if buyers ask for paid "Healthcare exchange" tier). |
 | **Versioning** | First publish = `1.0.0`. SemVer bumps follow `POLICY_PACK_CONTENT_BACKLOG.md` rules — minor for new rules, major for breaking id renames. |
 | **Continuous-monitoring claim** | Appendix must explicitly say ArchLucid is **not** the continuous-monitoring system required by Volume II §4.2 — it surfaces architecture-evidence gaps that should feed the customer's CM program. |
@@ -259,8 +261,10 @@ The pack is **publishable as V1 GA #24** when **all** of the following are true.
 6. `ga-starter-compliance.rules.json` contains a stub for every `arc-ampe-*` id.
 7. `DefaultPolicyPackBundledManifestTests` (count) and `DefaultPolicyPackSeederTests` pass for **24** packs.
 8. New test: `ArcAmpePackDisclaimerTests` asserts the disclaimer invariants in #5.
-9. **[`POLICY_PACK_APPENDIX_ARC_AMPE_V1.md`](POLICY_PACK_APPENDIX_ARC_AMPE_V1.md)** ships with Pillars / CSF / 800-53 family rollup tables and the FAQ in §10 below.
-10. **[`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md)** lists pack #24 (this change is **included in this design pass**).
+9. **No rule ships with `severity: "Critical"`** (§11.Q3); test asserts this.
+10. **No code change to `DefaultPolicyPackSeeder`** — pack is seeded enabled-for-all via the existing manifest path (§11.Q1).
+11. **[`POLICY_PACK_APPENDIX_ARC_AMPE_V1.md`](POLICY_PACK_APPENDIX_ARC_AMPE_V1.md)** ships with Pillars / CSF / 800-53 family rollup tables and the FAQ in §10 below.
+12. **[`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md)** lists pack #24 (this change is **included in this design pass**).
 
 ---
 
@@ -279,14 +283,16 @@ A: ArchLucid can accelerate **architecture-review evidence** against the ACA AE 
 
 ---
 
-## 11. Open questions for the build pass
+## 11. Resolved decisions (build pass directives)
 
-| # | Question | Default if unanswered |
-|---|----------|------------------------|
-| Q1 | Do we ship the **opt-in vertical seed** in V1, or seed enabled-for-all (operator disables for non-healthcare tenants)? | Default: **seed enabled for all** in V1 (simpler; matches existing 23 packs). Adjust at V1.1 if pilots complain. |
-| Q2 | Does the appendix get a dedicated **PDF export** for procurement decks? | Default: **no in V1**; reuse the Inspect → DOCX path already shipped. |
-| Q3 | Do we add a **"Healthcare exchange"** vertical tag to the operator UI filter chips? | Default: **no in V1**; advisory metadata only. Revisit when 2+ vertical packs exist. |
-| Q4 | Do we tag any rule **Critical** instead of **High** for the pre-commit gate? | Default: **none in V1**; ARC-AMPE pilots can opt in via `governance.blockCommitOnCritical`. |
+These were originally open questions; resolved **2026-05-18**. They are now binding for the M-35 build pass.
+
+| # | Decision | Reasoning |
+|---|----------|-----------|
+| **Q1** | **Seed enabled-for-all in V1.** No special seeder code path; no `seedScopeRecommendation` enforcement at V1. | Matches every other bundled pack. `priorityFloor: P0` already narrows the active rule count to ~15–20 anchor rules; further scope clarity comes from the **disclaimer + appendix + UI Inspect**. Cheaper to ship; operators have a single off-switch (disable assignment) for irrelevant tenants. Revisit at V1.1 only if pilots report noise. |
+| **Q2** | **No dedicated ARC-AMPE PDF.** Reuse the existing **Inspect → DOCX** export (shipped under improvement #28). | Sellers can produce a per-tenant artifact on demand; a static PDF would drift from rule content. Revisit at V1.1 if a procurement RFP requires a fixed-form deliverable. |
+| **Q3** | **No `Critical` rules at V1.** Severities are **High** / **Medium** only. | The pack is an **architecture-review** corpus, not a deterministic pre-commit gate. Promoting rules to `Critical` is a customer policy decision at the assignment / workspace level via `governance.blockCommitOnCritical`. Shipping `Critical` by default would risk blocking commits on rules that are inherently interpretive ("Pillar 5 — Maintain compliance with federal laws…"). |
+| **Q4** | **No "Healthcare exchange" UI filter chip at V1.** `metadata.verticalScope` remains an advisory string. | Only two vertical-leaning packs today (HIPAA, ARC-AMPE) — not enough to justify a filter UI surface. Revisit when ≥ 3 vertical packs exist (e.g. adding a state-Medicaid or public-sector pack at V1.1). |
 
 ---
 
