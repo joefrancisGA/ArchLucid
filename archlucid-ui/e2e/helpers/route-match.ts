@@ -83,8 +83,3 @@ export function matchesCompareExplainGet(url: URL, baseRunId: string, targetRunI
 export function matchesAuthorityProjectRunsPagedGet(url: URL, projectId: string): boolean {
   return backendApiPath(url) === `/v1/authority/projects/${encodeURIComponent(projectId)}/runs`;
 }
-
-/** Paged runs list for a project (`GET /v1/authority/projects/{projectId}/runs`) — query string varies (`page`/`pageSize` vs `cursor`/`take`). */
-export function matchesAuthorityProjectRunsPagedGet(url: URL, projectId: string): boolean {
-  return backendApiPath(url) === `/v1/authority/projects/${encodeURIComponent(projectId)}/runs`;
-}
