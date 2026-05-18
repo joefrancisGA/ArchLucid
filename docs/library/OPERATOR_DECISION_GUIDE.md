@@ -33,7 +33,7 @@ That keeps the product easier to operate, keeps the first-value story clearer, a
 |---|---|---|---|
 | You need a reviewable architecture package from a request | Yes | No | No |
 | You need to compare two architecture outputs | No | Yes | No |
-| You need to explain what changed between runs | No | Yes | No |
+| You need to explain what changed between reviews | No | Yes | No |
 | You need a provenance or architecture graph | No | Yes | No |
 | You need approval workflow, policy control, or audit evidence | No | No | Yes |
 | You need alert routing, governance dashboard, or audit log export | No | No | Yes |
@@ -50,8 +50,8 @@ Use **Core Pilot** when the question is:
 
 ### Use Core Pilot when you need to:
 
-- create a run,
-- execute a run,
+- create a review,
+- execute a review,
 - commit a manifest,
 - review artifacts,
 - export a package,
@@ -84,15 +84,15 @@ Use **Operate (analysis workloads)** when the question is:
 
 ### Move to Operate (analysis workloads) when you need to:
 
-- compare two runs,
-- replay a run or comparison,
+- compare two reviews,
+- replay a review or comparison,
 - inspect provenance or architecture graph views,
 - ask follow-up questions against architecture context,
 - collect richer product-learning signals.
 
 ### Do not move here just because it looks interesting
 
-Operate (analysis workloads) is useful when there is a real review, debugging, or architecture-learning question.
+Operate (analysis workloads) is useful when there is a real architectural investigation, debugging, or architecture-learning question.
 
 If your real goal is still simply to prove that ArchLucid speeds up architecture packaging and review, you can usually ignore this layer for the first pass.
 

@@ -2,7 +2,7 @@
 
 # UI Glossary V1
 
-**Single source of truth:** Linked from [`docs/library/operator-shell.md`](../library/operator-shell.md). Cross-reference **improvement #27** in [`docs/assessments/LATEST.md`](../assessments/LATEST.md).
+**Single source of truth:** Linked from [`docs/library/operator-shell.md`](../library/operator-shell.md). Naming rules for writers: [`docs/library/CONCEPT_VOCABULARY.md`](../library/CONCEPT_VOCABULARY.md).
 
 ## Glossary table (verbatim — owner Q&A 2026-05-15)
 

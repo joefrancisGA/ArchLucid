@@ -46,7 +46,7 @@ Commercial philosophy and packaging context: **[../go-to-market/PRICING_PHILOSOP
 ## Product
 
 **What is an architecture review?**  
-A **review** ingests your request and context, executes agents (topology, cost, compliance, critic, etc.), and can produce/commit a golden manifest with governance controls. **API paths and CLI commands** still use **`run`** / **`runId`** for backward compatibility — see **[`CONCEPT_VOCABULARY.md`](CONCEPT_VOCABULARY.md)** §1.2.
+A **review** ingests your request and context, executes agents (topology, cost, compliance, critic, etc.), and can produce/commit a golden manifest with governance controls. **API paths and CLI commands** still use **`run`** / **`runId`** for backward compatibility — see **[`CONCEPT_VOCABULARY.md`](CONCEPT_VOCABULARY.md)** (review vs. `run` as product noun; **Reviewer-enforced rules** subsection).
 
 **What is a golden manifest?**  
 A durable, versioned architecture artifact (manifest) produced after successful authority pipeline stages and optional governance approval.

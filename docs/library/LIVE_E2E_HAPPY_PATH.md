@@ -77,6 +77,8 @@
 
 ## Sequence diagram
 
+UI steps **`/runs/...`** reflect **legacy routes**; product language is **review** / **review detail** (see **[`UI_GLOSSARY_V1.md`](../go-to-market/UI_GLOSSARY_V1.md)**).
+
 ```mermaid
 sequenceDiagram
   participant T as Playwright test

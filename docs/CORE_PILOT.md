@@ -3,7 +3,7 @@
 
 # Core Pilot
 
-Use this page when you need the **four-step Core Pilot** narrative without scrolling the full evaluator guide. **Buyer / hosted path** (no install) stays in **Part 1** of **`[onboarding/EVALUATION_GUIDE.md`](onboarding/EVALUATION_GUIDE.md)**; Core Pilot specifics are expanded in **Part 2** of that guide.
+Use this page when you need the **four-step Core Pilot** narrative without scrolling the full evaluator guide. **Buyer / hosted path** (no install) stays in **Part 1** of [**onboarding/EVALUATION_GUIDE.md**](onboarding/EVALUATION_GUIDE.md); Core Pilot specifics are expanded in **Part 2** of that guide.
 
 ---
 
@@ -25,7 +25,7 @@ Do not mistake the Core Pilot checklist for full product scope — advanced Oper
 
 ## First session checklist
 
-Four steps — same sequence as **`[onboarding/EVALUATION_GUIDE.md`](onboarding/EVALUATION_GUIDE.md)** Part 2:
+Four steps — same sequence as [**onboarding/EVALUATION_GUIDE.md**](onboarding/EVALUATION_GUIDE.md) Part 2:
 
 ### Step-by-step walkthrough
 

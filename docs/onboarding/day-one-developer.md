@@ -17,7 +17,7 @@
 
 ## Scope (3–5 outcomes — check off by end of week one)
 
-- [ ] **1. Toolchain done** — You finished the **Local dev** column in the canonical one-pager (see [../START_HERE.md](../START_HERE.md) first table row) — SDK, Docker/`dev up`, connection string, API **`/health/ready`**, optional UI `npm ci`.
+- [ ] **1. Toolchain done** — You finished the **Local dev** column in the canonical one-pager (see [START_HERE.md](../START_HERE.md) first table row) — SDK, Docker/`dev up`, connection string, API **`/health/ready`**, optional UI `npm ci`.
 - [ ] **2. Fast tests** — Run the Core corset (matches CI fast job):  
   `dotnet test --filter "Suite=Core&Category!=Slow&Category!=Integration"` ([TEST_EXECUTION_MODEL.md](../library/TEST_EXECUTION_MODEL.md)).
 - [ ] **3. One contract** — Skim [API_CONTRACTS.md](../library/API_CONTRACTS.md) (versioning `/v1`, correlation ID, one status code you will handle).
@@ -61,7 +61,7 @@ npm run dev
 | SQL / migrations | [SQL_SCRIPTS.md](../library/SQL_SCRIPTS.md) |
 | Auth locally | [API_CONTRACTS.md](../library/API_CONTRACTS.md#security-schemes-swashbuckle) |
 
-**Last reviewed:** 2026-04-17
+**Last reviewed:** 2026-05-18
 
 ---
 

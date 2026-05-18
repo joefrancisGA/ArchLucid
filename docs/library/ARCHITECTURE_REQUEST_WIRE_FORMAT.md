@@ -20,7 +20,7 @@ The HTTP body is **`ArchLucid.Contracts.Requests.ArchitectureRequest`** ([`Archi
 | Narrative | **`description`** (required, min length 10), **`inlineRequirements`** |
 | Target | **`cloudProvider`** (defaults to Azure in the contract) |
 | Lists | **`constraints`**, **`requiredCapabilities`**, **`assumptions`** |
-| Baseline | **`priorManifestVersion`** — optional manifest version for incremental runs |
+| Baseline | **`priorManifestVersion`** — optional manifest version for incremental reviews (successive architecture reviews against a prior golden manifest) |
 | Context | **`documents`** (`ContextDocumentRequest`), **`policyReferences`**, **`topologyHints`**, **`securityBaselineHints`**, **`infrastructureDeclarations`** |
 
 Cardinality and string length limits are defined on the C# type via data annotations; the OpenAPI document reflects the same constraints for generated clients.
@@ -32,5 +32,5 @@ Copy-paste examples aligned with this shape live under **[`templates/reference-a
 ## Related
 
 - **`ArchLucid.Api/Contracts/README.md`** — short HTTP note for the same binding.
-- **`docs/CONTEXT_INGESTION.md`** — how attached documents and ingestion limits behave.
-- **`docs/library/API_CONTRACTS.md`** — contract artifacts and PR checklist when schemas change.
+- **[`CONTEXT_INGESTION.md`](CONTEXT_INGESTION.md)** — how attached documents and ingestion limits behave.
+- **[`API_CONTRACTS.md`](API_CONTRACTS.md)** — contract artifacts and PR checklist when schemas change.
