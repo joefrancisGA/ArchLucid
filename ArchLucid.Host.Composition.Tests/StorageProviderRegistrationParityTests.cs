@@ -43,13 +43,12 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(ITenantOnboardingStateRepository),
         typeof(SqlAuthorityPipelineTenantExecutionLeaseRepository),
         typeof(SqlConnectionFactory),
-        typeof(ResilientSqlConnectionFactory)
+        typeof(ResilientSqlConnectionFactory),
+        typeof(IBackgroundWorkerSqlConnectionFactory),
+        typeof(SqlResilientOperationExecutor)
     ];
 
-    private static readonly HashSet<Type> InMemoryOnlyServiceTypes =
-    [
-        typeof(IOutboxOperationalMetricsReader)
-    ];
+    private static readonly HashSet<Type> InMemoryOnlyServiceTypes = [];
 
     [Fact]
     public void AddArchLucidStorage_InMemory_and_Sql_register_same_service_types_except_allowlisted()
@@ -68,16 +67,6 @@ public sealed class StorageProviderRegistrationParityTests
 
         unexpectedSql.Should().BeEmpty(
             "every service type registered only for Sql should be allowlisted (or added to both paths)");
-    }
-
-    [Fact]
-    public void AddArchLucidApplicationServices_after_storage_maintains_expected_InMemory_only_metrics_reader()
-    {
-        HashSet<Type> inMemoryTypes = CollectServiceTypesAfterFullComposition(CreateInMemoryConfiguration());
-        HashSet<Type> sqlTypes = CollectServiceTypesAfterFullComposition(CreateSqlConfiguration());
-
-        inMemoryTypes.Should().Contain(typeof(IOutboxOperationalMetricsReader));
-        sqlTypes.Should().NotContain(typeof(IOutboxOperationalMetricsReader));
     }
 
     private static HashSet<Type> CollectServiceTypesAfterStorage(IConfiguration configuration)

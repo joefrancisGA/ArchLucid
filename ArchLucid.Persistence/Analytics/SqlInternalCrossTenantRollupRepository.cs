@@ -10,19 +10,31 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Analytics;
 
 [ExcludeFromCodeCoverage(Justification = "Azure SQL integration; validated via repository contract tests and operator endpoints.")]
-public sealed class SqlInternalCrossTenantRollupRepository : IInternalCrossTenantRollupRepository
+public sealed class SqlInternalCrossTenantRollupRepository(
+    IBackgroundWorkerSqlConnectionFactory connectionFactory,
+    SqlResilientOperationExecutor sqlOperations) : IInternalCrossTenantRollupRepository
 {
-    private readonly SqlConnectionFactory _connectionFactory;
+    private readonly IBackgroundWorkerSqlConnectionFactory _connectionFactory =
+        connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
-    public SqlInternalCrossTenantRollupRepository(SqlConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-    }
+    private readonly SqlResilientOperationExecutor _sqlOperations =
+        sqlOperations ?? throw new ArgumentNullException(nameof(sqlOperations));
 
     /// <inheritdoc />
-    public async Task UpsertDailyRowsAsync(
+    public Task UpsertDailyRowsAsync(
         IReadOnlyList<InternalCrossTenantRollupDailyRow> rows,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        _sqlOperations.ExecuteAsync(ct => UpsertDailyRowsCoreAsync(rows, ct), cancellationToken);
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<InternalCrossTenantRollupDailyRow>> ListDailyRowsAsync(
+        DateOnly rollupDate,
+        CancellationToken cancellationToken = default) =>
+        _sqlOperations.ExecuteAsync(ct => ListDailyRowsCoreAsync(rollupDate, ct), cancellationToken);
+
+    private async Task UpsertDailyRowsCoreAsync(
+        IReadOnlyList<InternalCrossTenantRollupDailyRow> rows,
+        CancellationToken cancellationToken)
     {
         if (rows.Count == 0)
             return;
@@ -82,10 +94,9 @@ public sealed class SqlInternalCrossTenantRollupRepository : IInternalCrossTenan
         }
     }
 
-    /// <inheritdoc />
-    public async Task<IReadOnlyList<InternalCrossTenantRollupDailyRow>> ListDailyRowsAsync(
+    private async Task<IReadOnlyList<InternalCrossTenantRollupDailyRow>> ListDailyRowsCoreAsync(
         DateOnly rollupDate,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 

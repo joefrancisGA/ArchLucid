@@ -110,6 +110,17 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
           .
         </p>
       ) : null}
+      {buyerPolishedShell && events.length > 0 ? (
+        <p
+          className="m-0 mb-3 max-w-2xl text-xs text-neutral-600 dark:text-neutral-400"
+          data-testid="audit-buyer-actor-legend"
+        >
+          <span className="font-medium text-neutral-800 dark:text-neutral-200">Named reviewers</span> appear with role
+          labels (for example architecture reviewer or approver).{" "}
+          <span className="font-medium text-neutral-800 dark:text-neutral-200">Automatically recorded</span> events are
+          lifecycle milestones logged by ArchLucid when no named human actor is attached to the row.
+        </p>
+      ) : null}
 
       <div className="mt-3">
         {events.length === 0 ? (

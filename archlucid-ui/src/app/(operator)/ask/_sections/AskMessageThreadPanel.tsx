@@ -19,6 +19,18 @@ export type AskMessageThreadPanelProps = {
   onMergePromptLine: (line: string) => void;
 };
 
+function askMessageRoleLabel(role: string, buyerPolishedShell: boolean): string {
+  if (!buyerPolishedShell) {
+    return role;
+  }
+
+  if (role.toLowerCase() === "user") {
+    return "You";
+  }
+
+  return "Assistant";
+}
+
 export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
   const {
     buyerPolishedShell,
@@ -59,7 +71,9 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
             )}
           >
             <CardContent className="space-y-1 p-3">
-              <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{message.role}</div>
+              <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                {askMessageRoleLabel(message.role, buyerPolishedShell)}
+              </div>
               {message.role.toLowerCase() === "assistant" ? (
                 <AskAssistantMessageBody
                   buyerPolishedLinks={buyerPolishedShell}

@@ -49,3 +49,8 @@ export const ASK_DEEP_LINK_RUN_PROMPTS: readonly string[] = [
   "List open issues blocking sign-off for this package.",
   "What evidence supports the top finding in this review?",
 ];
+
+/** Flat list of buyer starter prompts — used to hide duplicates when post-reply follow-ups are shown. */
+export function buyerAskStarterPromptLines(): readonly string[] {
+  return ASK_BUYER_PROMPT_GROUPS.flatMap((group) => group.prompts);
+}

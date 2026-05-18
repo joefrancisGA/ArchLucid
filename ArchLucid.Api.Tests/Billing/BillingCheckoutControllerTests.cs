@@ -36,12 +36,7 @@ public sealed class BillingCheckoutControllerTests(JwtLocalSigningWebAppFactory 
     [SkippableFact]
     public async Task Checkout_with_reader_jwt_returns_403()
     {
-        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
-            factory.PrivatePemForTests,
-            "https://test.archlucid.local",
-            "api://archlucid-jwt-local-test",
-            "ReaderUser",
-            [ArchLucidRoles.Reader]);
+        string token = MintBearerJwtForCheckoutPolicyTests("ReaderUser", [ArchLucidRoles.Reader]);
 
         HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -63,7 +58,7 @@ public sealed class BillingCheckoutControllerTests(JwtLocalSigningWebAppFactory 
     [SkippableFact]
     public async Task Checkout_with_admin_jwt_returns_200()
     {
-        string token = factory.MintLocalBearerJwt("AdminUser", [ArchLucidRoles.Admin]);
+        string token = MintBearerJwtForCheckoutPolicyTests("AdminUser", [ArchLucidRoles.Admin]);
 
         HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -80,14 +75,23 @@ public sealed class BillingCheckoutControllerTests(JwtLocalSigningWebAppFactory 
                 CancelUrl = "https://app.example.com/cancel"
             });
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        response.StatusCode.Should().Be(HttpStatusCode.OK, "response body: {0}", responseBody);
 
-        BillingCheckoutResponseDto? dto =
-            await response.Content.ReadFromJsonAsync<BillingCheckoutResponseDto>(
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        BillingCheckoutResponseDto? dto = JsonSerializer.Deserialize<BillingCheckoutResponseDto>(
+            responseBody,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         dto.Should().NotBeNull();
         dto.CheckoutUrl.Should().NotBeNullOrWhiteSpace();
         dto.ProviderSessionId.Should().NotBeNullOrWhiteSpace();
     }
+
+    private string MintBearerJwtForCheckoutPolicyTests(string name, IReadOnlyList<string> roles) =>
+        JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
+            factory.PrivatePemForTests,
+            JwtLocalSigningWebAppFactory.JwtLocalTestIssuer,
+            JwtLocalSigningWebAppFactory.JwtLocalTestAudience,
+            name,
+            roles);
 }

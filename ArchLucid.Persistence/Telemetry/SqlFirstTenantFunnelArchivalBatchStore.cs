@@ -9,14 +9,32 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Telemetry;
 
 [ExcludeFromCodeCoverage(Justification = "SQL integration; archival exercised operationally.")]
-public sealed class SqlFirstTenantFunnelArchivalBatchStore(SqlConnectionFactory connectionFactory)
-    : IFirstTenantFunnelArchivalBatchStore
+public sealed class SqlFirstTenantFunnelArchivalBatchStore(
+    IBackgroundWorkerSqlConnectionFactory connectionFactory,
+    SqlResilientOperationExecutor sqlOperations) : IFirstTenantFunnelArchivalBatchStore
 {
-    private readonly SqlConnectionFactory _connectionFactory =
+    private readonly IBackgroundWorkerSqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
+    private readonly SqlResilientOperationExecutor _sqlOperations =
+        sqlOperations ?? throw new ArgumentNullException(nameof(sqlOperations));
+
     /// <inheritdoc />
-    public async Task<IReadOnlyList<FirstTenantFunnelArchiveRow>> TakeRowsOlderThanAsync(
+    public Task<IReadOnlyList<FirstTenantFunnelArchiveRow>> TakeRowsOlderThanAsync(
+        int retentionDays,
+        int maxRows,
+        CancellationToken ct) =>
+        _sqlOperations.ExecuteAsync(
+            cancellationToken => TakeRowsOlderThanCoreAsync(retentionDays, maxRows, cancellationToken),
+            ct);
+
+    /// <inheritdoc />
+    public Task DeleteByEventIdsAsync(IReadOnlyList<long> eventIds, CancellationToken ct) =>
+        _sqlOperations.ExecuteAsync(
+            cancellationToken => DeleteByEventIdsCoreAsync(eventIds, cancellationToken),
+            ct);
+
+    private async Task<IReadOnlyList<FirstTenantFunnelArchiveRow>> TakeRowsOlderThanCoreAsync(
         int retentionDays,
         int maxRows,
         CancellationToken ct)
@@ -49,8 +67,7 @@ public sealed class SqlFirstTenantFunnelArchivalBatchStore(SqlConnectionFactory 
         return rows;
     }
 
-    /// <inheritdoc />
-    public async Task DeleteByEventIdsAsync(IReadOnlyList<long> eventIds, CancellationToken ct)
+    private async Task DeleteByEventIdsCoreAsync(IReadOnlyList<long> eventIds, CancellationToken ct)
     {
         if (eventIds is null) throw new ArgumentNullException(nameof(eventIds));
 

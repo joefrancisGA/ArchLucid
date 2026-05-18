@@ -13,14 +13,68 @@ namespace ArchLucid.Persistence.Integrations;
 ///     scope).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL integration; exercised via API integration tests.")]
-public sealed class SqlItsmFindingCorrelationRepository(SqlConnectionFactory connectionFactory)
-    : IItsmFindingCorrelationRepository
+public sealed class SqlItsmFindingCorrelationRepository(
+    IBackgroundWorkerSqlConnectionFactory connectionFactory,
+    SqlResilientOperationExecutor sqlOperations) : IItsmFindingCorrelationRepository
 {
-    private readonly SqlConnectionFactory _connectionFactory =
+    private readonly IBackgroundWorkerSqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
+    private readonly SqlResilientOperationExecutor _sqlOperations =
+        sqlOperations ?? throw new ArgumentNullException(nameof(sqlOperations));
+
     /// <inheritdoc />
-    public async Task<ItsmFindingCorrelationRecord?> TryGetByExternalKeyAsync(
+    public Task<ItsmFindingCorrelationRecord?> TryGetByExternalKeyAsync(
+        string provider,
+        string externalKey,
+        CancellationToken ct) =>
+        _sqlOperations.ExecuteAsync(
+            cancellationToken => TryGetByExternalKeyCoreAsync(provider, externalKey, cancellationToken),
+            ct);
+
+    /// <inheritdoc />
+    public Task RegisterAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string findingId,
+        string provider,
+        string externalKey,
+        string? externalSysId,
+        CancellationToken ct) =>
+        _sqlOperations.ExecuteAsync(
+            cancellationToken => RegisterCoreAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                findingId,
+                provider,
+                externalKey,
+                externalSysId,
+                cancellationToken),
+            ct);
+
+    /// <inheritdoc />
+    public Task<int> UpdateHumanReviewStatusForFindingAsync(
+        Guid tenantId,
+        string findingId,
+        string humanReviewStatus,
+        CancellationToken ct) =>
+        _sqlOperations.ExecuteAsync(
+            cancellationToken => UpdateHumanReviewStatusForFindingCoreAsync(
+                tenantId,
+                findingId,
+                humanReviewStatus,
+                cancellationToken),
+            ct);
+
+    /// <inheritdoc />
+    public Task<bool> FindingRecordExistsAsync(Guid tenantId, string findingId, CancellationToken ct) =>
+        _sqlOperations.ExecuteAsync(
+            cancellationToken => FindingRecordExistsCoreAsync(tenantId, findingId, cancellationToken),
+            ct);
+
+    private async Task<ItsmFindingCorrelationRecord?> TryGetByExternalKeyCoreAsync(
         string provider,
         string externalKey,
         CancellationToken ct)
@@ -47,8 +101,7 @@ public sealed class SqlItsmFindingCorrelationRepository(SqlConnectionFactory con
         return await connection.QuerySingleOrDefaultAsync<ItsmFindingCorrelationRecord>(cmd);
     }
 
-    /// <inheritdoc />
-    public async Task RegisterAsync(
+    private async Task RegisterCoreAsync(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
@@ -94,8 +147,7 @@ public sealed class SqlItsmFindingCorrelationRepository(SqlConnectionFactory con
         await connection.ExecuteAsync(cmd);
     }
 
-    /// <inheritdoc />
-    public async Task<int> UpdateHumanReviewStatusForFindingAsync(
+    private async Task<int> UpdateHumanReviewStatusForFindingCoreAsync(
         Guid tenantId,
         string findingId,
         string humanReviewStatus,
@@ -124,8 +176,7 @@ public sealed class SqlItsmFindingCorrelationRepository(SqlConnectionFactory con
         return await connection.ExecuteAsync(cmd);
     }
 
-    /// <inheritdoc />
-    public async Task<bool> FindingRecordExistsAsync(Guid tenantId, string findingId, CancellationToken ct)
+    private async Task<bool> FindingRecordExistsCoreAsync(Guid tenantId, string findingId, CancellationToken ct)
     {
         if (tenantId == Guid.Empty) throw new ArgumentException("tenantId is required.", nameof(tenantId));
         if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("findingId is required.", nameof(findingId));

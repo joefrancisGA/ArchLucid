@@ -12,31 +12,37 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Persistence.Analytics;
 
 [ExcludeFromCodeCoverage(Justification = "Azure SQL integration; covered by unit tests on deriver/export and integration hosts.")]
-public sealed class SqlInternalCrossTenantMetricsCollector : IInternalCrossTenantMetricsCollector
+public sealed class SqlInternalCrossTenantMetricsCollector(
+    IBackgroundWorkerSqlConnectionFactory connectionFactory,
+    SqlResilientOperationExecutor sqlOperations,
+    IOptionsMonitor<SqlTopologyOptions> topologyOptions,
+    ITenantDatabaseBindingRepository tenantDatabaseBindingRepository,
+    ITenantDatabaseResolver tenantDatabaseResolver) : IInternalCrossTenantMetricsCollector
 {
-    private readonly SqlConnectionFactory _connectionFactory;
-    private readonly IOptionsMonitor<SqlTopologyOptions> _topologyOptions;
-    private readonly ITenantDatabaseBindingRepository _tenantDatabaseBindingRepository;
-    private readonly ITenantDatabaseResolver _tenantDatabaseResolver;
+    private readonly IBackgroundWorkerSqlConnectionFactory _connectionFactory =
+        connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
-    public SqlInternalCrossTenantMetricsCollector(
-        SqlConnectionFactory connectionFactory,
-        IOptionsMonitor<SqlTopologyOptions> topologyOptions,
-        ITenantDatabaseBindingRepository tenantDatabaseBindingRepository,
-        ITenantDatabaseResolver tenantDatabaseResolver)
-    {
-        _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-        _topologyOptions = topologyOptions ?? throw new ArgumentNullException(nameof(topologyOptions));
-        _tenantDatabaseBindingRepository =
-            tenantDatabaseBindingRepository ?? throw new ArgumentNullException(nameof(tenantDatabaseBindingRepository));
-        _tenantDatabaseResolver =
-            tenantDatabaseResolver ?? throw new ArgumentNullException(nameof(tenantDatabaseResolver));
-    }
+    private readonly SqlResilientOperationExecutor _sqlOperations =
+        sqlOperations ?? throw new ArgumentNullException(nameof(sqlOperations));
+
+    private readonly IOptionsMonitor<SqlTopologyOptions> _topologyOptions =
+        topologyOptions ?? throw new ArgumentNullException(nameof(topologyOptions));
+
+    private readonly ITenantDatabaseBindingRepository _tenantDatabaseBindingRepository =
+        tenantDatabaseBindingRepository ?? throw new ArgumentNullException(nameof(tenantDatabaseBindingRepository));
+
+    private readonly ITenantDatabaseResolver _tenantDatabaseResolver =
+        tenantDatabaseResolver ?? throw new ArgumentNullException(nameof(tenantDatabaseResolver));
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<InternalCrossTenantTenantRunMetrics>> CollectTenantMetricsAsync(
+    public Task<IReadOnlyList<InternalCrossTenantTenantRunMetrics>> CollectTenantMetricsAsync(
         DateOnly rollupDate,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        _sqlOperations.ExecuteAsync(ct => CollectTenantMetricsCoreAsync(rollupDate, ct), cancellationToken);
+
+    private async Task<IReadOnlyList<InternalCrossTenantTenantRunMetrics>> CollectTenantMetricsCoreAsync(
+        DateOnly rollupDate,
+        CancellationToken cancellationToken)
     {
         SqlTopologyOptions snapshot = _topologyOptions.CurrentValue;
 
@@ -102,41 +108,52 @@ public sealed class SqlInternalCrossTenantMetricsCollector : IInternalCrossTenan
 
         foreach (TenantDatabaseBindingRecord binding in bindings)
         {
-            string tenantConnectionString =
-                await _tenantDatabaseResolver.ResolveTenantConnectionStringAsync(binding.TenantId, cancellationToken);
+            InternalCrossTenantTenantRunMetrics part = await _sqlOperations.ExecuteAsync(
+                ct => CollectPerTenantCatalogBindingAsync(binding, rollupDate, ct),
+                cancellationToken);
 
-            await using SqlConnection tenantConnection = new(tenantConnectionString);
-            await tenantConnection.OpenAsync(cancellationToken);
-            await InternalCrossTenantSqlMetricsQueries.ApplyRowLevelSecurityBypassAsync(tenantConnection, cancellationToken);
-
-            InternalCrossTenantSqlMetricsQueries.CatalogRunTotalsRow totals =
-                await InternalCrossTenantSqlMetricsQueries.QueryCatalogRunTotalsAsync(tenantConnection, cancellationToken);
-
-            decimal hoursSaved =
-                await InternalCrossTenantSqlMetricsQueries.QueryEngineeringHoursSavedAsync(
-                    tenantConnection,
-                    null,
-                    cancellationToken);
-
-            long? tokens =
-                await InternalCrossTenantSqlMetricsQueries.QueryCatalogLlmTokensAsync(
-                    tenantConnection,
-                    binding.TenantId,
-                    rollupDate,
-                    cancellationToken);
-
-            metrics.Add(
-                new InternalCrossTenantTenantRunMetrics
-                {
-                    TenantId = binding.TenantId,
-                    TotalRunsNonArchived = totals.TotalRunsNonArchived,
-                    TotalCompletedRuns = totals.TotalCompletedRuns,
-                    SumCompletionSeconds = totals.SumCompletionSeconds,
-                    EstimatedEngineeringHoursSaved = hoursSaved,
-                    LlmTokensUsed = tokens,
-                });
+            metrics.Add(part);
         }
 
         return metrics;
+    }
+
+    private async Task<InternalCrossTenantTenantRunMetrics> CollectPerTenantCatalogBindingAsync(
+        TenantDatabaseBindingRecord binding,
+        DateOnly rollupDate,
+        CancellationToken cancellationToken)
+    {
+        string tenantConnectionString =
+            await _tenantDatabaseResolver.ResolveTenantConnectionStringAsync(binding.TenantId, cancellationToken);
+
+        await using SqlConnection tenantConnection = new(tenantConnectionString);
+        await tenantConnection.OpenAsync(cancellationToken);
+        await InternalCrossTenantSqlMetricsQueries.ApplyRowLevelSecurityBypassAsync(tenantConnection, cancellationToken);
+
+        InternalCrossTenantSqlMetricsQueries.CatalogRunTotalsRow totals =
+            await InternalCrossTenantSqlMetricsQueries.QueryCatalogRunTotalsAsync(tenantConnection, cancellationToken);
+
+        decimal hoursSaved =
+            await InternalCrossTenantSqlMetricsQueries.QueryEngineeringHoursSavedAsync(
+                tenantConnection,
+                null,
+                cancellationToken);
+
+        long? tokens =
+            await InternalCrossTenantSqlMetricsQueries.QueryCatalogLlmTokensAsync(
+                tenantConnection,
+                binding.TenantId,
+                rollupDate,
+                cancellationToken);
+
+        return new InternalCrossTenantTenantRunMetrics
+        {
+            TenantId = binding.TenantId,
+            TotalRunsNonArchived = totals.TotalRunsNonArchived,
+            TotalCompletedRuns = totals.TotalCompletedRuns,
+            SumCompletionSeconds = totals.SumCompletionSeconds,
+            EstimatedEngineeringHoursSaved = hoursSaved,
+            LlmTokensUsed = tokens,
+        };
     }
 }

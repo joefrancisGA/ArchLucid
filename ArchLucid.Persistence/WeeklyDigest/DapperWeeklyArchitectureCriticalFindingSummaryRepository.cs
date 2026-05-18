@@ -8,17 +8,30 @@ namespace ArchLucid.Persistence.WeeklyDigest;
 
 /// <inheritdoc cref="IWeeklyArchitectureCriticalFindingSummaryRepository"/>
 /// <remarks>
-///     Uses primary <see cref="SqlConnectionFactory"/> (singleton) so scheduling jobs do not require an HTTP-bound
+///     Uses primary <see cref="IBackgroundWorkerSqlConnectionFactory"/> (singleton) so scheduling jobs do not require an HTTP-bound
 ///     <see cref="ArchLucid.Core.Scoping.ScopeContext"/>.
 /// </remarks>
-public sealed class DapperWeeklyArchitectureCriticalFindingSummaryRepository(SqlConnectionFactory sqlConnectionFactory)
-    : IWeeklyArchitectureCriticalFindingSummaryRepository
+public sealed class DapperWeeklyArchitectureCriticalFindingSummaryRepository(
+    IBackgroundWorkerSqlConnectionFactory sqlConnectionFactory,
+    SqlResilientOperationExecutor sqlOperations) : IWeeklyArchitectureCriticalFindingSummaryRepository
 {
-    private readonly SqlConnectionFactory _sqlConnectionFactory =
+    private readonly IBackgroundWorkerSqlConnectionFactory _sqlConnectionFactory =
         sqlConnectionFactory ?? throw new ArgumentNullException(nameof(sqlConnectionFactory));
 
+    private readonly SqlResilientOperationExecutor _sqlOperations =
+        sqlOperations ?? throw new ArgumentNullException(nameof(sqlOperations));
+
     /// <inheritdoc />
-    public async Task<WeeklyArchitectureCriticalFindingsSlice> ListRecentCriticalAsync(
+    public Task<WeeklyArchitectureCriticalFindingsSlice> ListRecentCriticalAsync(
+        DateTime cutoffUtc,
+        string criticalSeverityLiteral,
+        int maxSampleRows,
+        CancellationToken cancellationToken) =>
+        _sqlOperations.ExecuteAsync(
+            ct => ListRecentCriticalCoreAsync(cutoffUtc, criticalSeverityLiteral, maxSampleRows, ct),
+            cancellationToken);
+
+    private async Task<WeeklyArchitectureCriticalFindingsSlice> ListRecentCriticalCoreAsync(
         DateTime cutoffUtc,
         string criticalSeverityLiteral,
         int maxSampleRows,
@@ -30,7 +43,6 @@ public sealed class DapperWeeklyArchitectureCriticalFindingSummaryRepository(Sql
 
         await using SqlConnection connection =
             await _sqlConnectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
 
         CommandDefinition countCommand = new(
             """

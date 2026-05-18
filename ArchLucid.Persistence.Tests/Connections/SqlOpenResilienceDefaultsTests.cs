@@ -25,6 +25,20 @@ public sealed class SqlOpenResilienceDefaultsTests
     }
 
     [SkippableFact]
+    public async Task BuildSqlOperationRetryPipeline_PositiveMax_BuildsAndRunsHappyPath()
+    {
+        ResiliencePipeline pipeline = SqlOpenResilienceDefaults.BuildSqlOperationRetryPipeline(maxRetryAttempts: 1);
+
+        int result = await pipeline.ExecuteAsync(static async _ =>
+        {
+            await Task.Yield();
+            return 7;
+        });
+
+        result.Should().Be(7);
+    }
+
+    [SkippableFact]
     public async Task BuildSqlOpenRetryPipeline_PositiveMax_BuildsAndRunsHappyPath()
     {
         ResiliencePipeline pipeline = SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(maxRetryAttempts: 1);

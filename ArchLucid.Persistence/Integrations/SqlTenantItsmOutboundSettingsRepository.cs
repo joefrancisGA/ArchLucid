@@ -9,13 +9,20 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Integrations;
 
 [ExcludeFromCodeCoverage(Justification = "SQL integration; covered via API integration tests.")]
-public sealed class SqlTenantItsmOutboundSettingsRepository(SqlConnectionFactory connectionFactory)
-    : ITenantItsmOutboundSettingsRepository
+public sealed class SqlTenantItsmOutboundSettingsRepository(
+    IBackgroundWorkerSqlConnectionFactory connectionFactory,
+    SqlResilientOperationExecutor sqlOperations) : ITenantItsmOutboundSettingsRepository
 {
-    private readonly SqlConnectionFactory _connectionFactory =
+    private readonly IBackgroundWorkerSqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
-    public async Task<TenantItsmOutboundSettings?> TryGetAsync(Guid tenantId, CancellationToken ct)
+    private readonly SqlResilientOperationExecutor _sqlOperations =
+        sqlOperations ?? throw new ArgumentNullException(nameof(sqlOperations));
+
+    public Task<TenantItsmOutboundSettings?> TryGetAsync(Guid tenantId, CancellationToken ct) =>
+        _sqlOperations.ExecuteAsync(cancellationToken => TryGetCoreAsync(tenantId, cancellationToken), ct);
+
+    private async Task<TenantItsmOutboundSettings?> TryGetCoreAsync(Guid tenantId, CancellationToken ct)
     {
         if (tenantId == Guid.Empty)
             throw new ArgumentException("tenantId is required.", nameof(tenantId));

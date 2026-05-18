@@ -66,6 +66,18 @@ export function AskMainPanel(props: AskMainPanelProps) {
     showPostAssistantFollowUps,
   } = props;
 
+  const messageThreadPanel = (
+    <AskMessageThreadPanel
+      buyerPolishedShell={buyerPolishedShell}
+      selectedThreadId={selectedThreadId}
+      messages={messages}
+      askAssistantGroundingLinks={askAssistantGroundingLinks}
+      showPostAssistantFollowUps={showPostAssistantFollowUps}
+      runMissing={runMissing}
+      onMergePromptLine={onMergePromptLine}
+    />
+  );
+
   return (
     <Card className="border-neutral-200 dark:border-neutral-700">
       <CardContent className="space-y-4 p-4">
@@ -89,18 +101,6 @@ export function AskMainPanel(props: AskMainPanelProps) {
               onTargetRunIdChange={onTargetRunIdChange}
             />
           )}
-          <AskQuestionForm
-            questionRef={questionRef}
-            question={question}
-            onQuestionChange={onQuestionChange}
-            buyerPolishedShell={buyerPolishedShell}
-            showRunDeepLinkPrompts={showRunDeepLinkPrompts}
-            runMissing={runMissing}
-            onMergePromptLine={onMergePromptLine}
-            loading={loading}
-            askDisabled={askDisabled}
-            onAsk={onAsk}
-          />
         </div>
 
         {actionFailure !== null ? (
@@ -113,15 +113,23 @@ export function AskMainPanel(props: AskMainPanelProps) {
           </div>
         ) : null}
 
-        <AskMessageThreadPanel
+        {buyerPolishedShell ? messageThreadPanel : null}
+
+        <AskQuestionForm
+          questionRef={questionRef}
+          question={question}
+          onQuestionChange={onQuestionChange}
           buyerPolishedShell={buyerPolishedShell}
-          selectedThreadId={selectedThreadId}
-          messages={messages}
-          askAssistantGroundingLinks={askAssistantGroundingLinks}
-          showPostAssistantFollowUps={showPostAssistantFollowUps}
+          showRunDeepLinkPrompts={showRunDeepLinkPrompts}
           runMissing={runMissing}
           onMergePromptLine={onMergePromptLine}
+          loading={loading}
+          askDisabled={askDisabled}
+          onAsk={onAsk}
+          hideBuyerStarterPromptGroups={showPostAssistantFollowUps}
         />
+
+        {!buyerPolishedShell ? messageThreadPanel : null}
       </CardContent>
     </Card>
   );

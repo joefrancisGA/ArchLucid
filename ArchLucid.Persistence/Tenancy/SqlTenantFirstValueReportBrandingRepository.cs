@@ -9,13 +9,22 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tenancy;
 
 [ExcludeFromCodeCoverage(Justification = "SQL integration; covered via higher-level API tests.")]
-public sealed class SqlTenantFirstValueReportBrandingRepository(SqlConnectionFactory connectionFactory)
-    : ITenantFirstValueReportBrandingRepository
+public sealed class SqlTenantFirstValueReportBrandingRepository(
+    IBackgroundWorkerSqlConnectionFactory connectionFactory,
+    SqlResilientOperationExecutor sqlOperations) : ITenantFirstValueReportBrandingRepository
 {
-    private readonly SqlConnectionFactory _connectionFactory =
+    private readonly IBackgroundWorkerSqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
-    public async Task<TenantFirstValueReportBrandingRow?> TryGetAsync(Guid tenantId, CancellationToken cancellationToken)
+    private readonly SqlResilientOperationExecutor _sqlOperations =
+        sqlOperations ?? throw new ArgumentNullException(nameof(sqlOperations));
+
+    public Task<TenantFirstValueReportBrandingRow?> TryGetAsync(Guid tenantId, CancellationToken cancellationToken) =>
+        _sqlOperations.ExecuteAsync(ct => TryGetCoreAsync(tenantId, ct), cancellationToken);
+
+    private async Task<TenantFirstValueReportBrandingRow?> TryGetCoreAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken)
     {
         if (tenantId == Guid.Empty)
             throw new ArgumentException("tenantId is required.", nameof(tenantId));

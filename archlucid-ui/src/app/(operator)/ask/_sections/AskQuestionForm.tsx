@@ -21,6 +21,8 @@ export type AskQuestionFormProps = {
   loading: boolean;
   askDisabled: boolean;
   onAsk: () => void;
+  /** When true, hides grouped starter chips (shown instead under the latest assistant reply). */
+  hideBuyerStarterPromptGroups?: boolean;
 };
 
 export function AskQuestionForm(props: AskQuestionFormProps) {
@@ -35,6 +37,7 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
     loading,
     askDisabled,
     onAsk,
+    hideBuyerStarterPromptGroups = false,
   } = props;
 
   return (
@@ -80,7 +83,7 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
               </div>
             </div>
           ) : null}
-          {buyerPolishedShell
+          {buyerPolishedShell && !hideBuyerStarterPromptGroups
             ? ASK_BUYER_PROMPT_GROUPS.map((group) => (
                 <div key={group.heading} className="space-y-1.5">
                   <p className="m-0 text-xs font-semibold text-neutral-600 dark:text-neutral-400">{group.heading}</p>

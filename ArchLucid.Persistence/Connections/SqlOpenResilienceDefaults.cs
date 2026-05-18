@@ -17,7 +17,35 @@ public static class SqlOpenResilienceDefaults
         ILogger? logger = null,
         int maxRetryAttempts = 3,
         TimeSpan? baseDelay = null,
-        Func<long>? getElapsedMillisecondsSinceOpenStarted = null)
+        Func<long>? getElapsedMillisecondsSinceOpenStarted = null) =>
+        BuildSqlTransientRetryPipeline(
+            logger,
+            maxRetryAttempts,
+            baseDelay,
+            getElapsedMillisecondsSinceOpenStarted,
+            operationPhase: "connection open");
+
+    /// <summary>
+    ///     Same policy as <see cref="BuildSqlOpenRetryPipeline" /> for full SQL operations (open + Dapper/commands).
+    /// </summary>
+    public static ResiliencePipeline BuildSqlOperationRetryPipeline(
+        ILogger? logger = null,
+        int maxRetryAttempts = 3,
+        TimeSpan? baseDelay = null,
+        Func<long>? getElapsedMillisecondsSinceOperationStarted = null) =>
+        BuildSqlTransientRetryPipeline(
+            logger,
+            maxRetryAttempts,
+            baseDelay,
+            getElapsedMillisecondsSinceOperationStarted,
+            operationPhase: "SQL operation");
+
+    private static ResiliencePipeline BuildSqlTransientRetryPipeline(
+        ILogger? logger,
+        int maxRetryAttempts,
+        TimeSpan? baseDelay,
+        Func<long>? getElapsedMilliseconds,
+        string operationPhase)
     {
         // Polly.Retry.RetryStrategyOptions.MaxRetryAttempts must be >= 1; callers use 0 to mean "no retries".
         if (maxRetryAttempts <= 0)
@@ -38,14 +66,15 @@ public static class SqlOpenResilienceDefaults
                     if (logger is null)
                         return ValueTask.CompletedTask;
 
-                    long elapsedMs = getElapsedMillisecondsSinceOpenStarted?.Invoke() ?? 0;
+                    long elapsedMs = getElapsedMilliseconds?.Invoke() ?? 0;
 
                     if (args.Outcome.Exception is not { } ex)
                         return ValueTask.CompletedTask;
 
                     logger.LogWarning(
                         ex,
-                        "Transient SQL error on connection open after {ElapsedMs}ms; scheduling retry {RetryAttempt} (max attempts {MaxRetryAttempts}).",
+                        "Transient SQL error on {OperationPhase} after {ElapsedMs}ms; scheduling retry {RetryAttempt} (max attempts {MaxRetryAttempts}).",
+                        operationPhase,
                         elapsedMs,
                         args.AttemptNumber,
                         maxRetryAttempts);

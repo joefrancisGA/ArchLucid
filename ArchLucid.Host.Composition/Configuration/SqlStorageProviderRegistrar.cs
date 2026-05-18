@@ -54,6 +54,7 @@ using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Conversation;
 using ArchLucid.Persistence.Coordination.Compare;
+using ArchLucid.Persistence.Coordination.Diagnostics;
 using ArchLucid.Persistence.Coordination.Evolution;
 using ArchLucid.Persistence.Coordination.ProductLearning;
 using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
@@ -177,6 +178,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
     {
         services.AddSingleton<SqlConnectionFactory>(
             _ => new SqlConnectionFactory(connectionString));
+
+        RegisterBackgroundWorkerSqlResilience(services);
 
         services.AddSingleton<IWeeklyArchitectureCriticalFindingSummaryRepository,
             DapperWeeklyArchitectureCriticalFindingSummaryRepository>();
@@ -363,6 +366,35 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IReferenceEvidenceRunLookup, SqlReferenceEvidenceRunLookup>();
     }
 
+    private static void RegisterBackgroundWorkerSqlResilience(IServiceCollection services)
+    {
+        services.AddSingleton<SqlResilientOperationExecutor>(sp =>
+        {
+            SqlOpenResilienceOptions sqlOpenOpts = sp.GetRequiredService<IOptions<SqlOpenResilienceOptions>>().Value;
+
+            ResiliencePipeline operationPipeline = SqlOpenResilienceDefaults.BuildSqlOperationRetryPipeline(
+                sp.GetRequiredService<ILogger<SqlResilientOperationExecutor>>(),
+                sqlOpenOpts.MaxRetryAttempts,
+                TimeSpan.FromMilliseconds(sqlOpenOpts.BaseDelayMilliseconds));
+
+            return new SqlResilientOperationExecutor(operationPipeline);
+        });
+
+        services.AddSingleton<IBackgroundWorkerSqlConnectionFactory>(sp =>
+        {
+            SqlOpenResilienceOptions sqlOpenOpts = sp.GetRequiredService<IOptions<SqlOpenResilienceOptions>>().Value;
+
+            ResiliencePipeline openPipeline = SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(
+                sp.GetRequiredService<ILogger<IBackgroundWorkerSqlConnectionFactory>>(),
+                sqlOpenOpts.MaxRetryAttempts,
+                TimeSpan.FromMilliseconds(sqlOpenOpts.BaseDelayMilliseconds));
+
+            return new BackgroundWorkerResilientSqlConnectionFactory(
+                sp.GetRequiredService<SqlConnectionFactory>(),
+                openPipeline);
+        });
+    }
+
     private static void RegisterSqlOperationalSingletons(
         IServiceCollection services,
         IConfiguration configuration,
@@ -382,6 +414,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ITenantOnboardingStateRepository, SqlTenantOnboardingStateRepository>();
         services.AddScoped<IFirstSessionLifecycleHook, SqlFirstSessionLifecycleHook>();
 
+        services.AddScoped<IOutboxOperationalMetricsReader, DapperOutboxOperationalMetricsReader>();
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
         services.AddHostedService<LlmTenantBudgetUtilizationMetricsHostedService>();
 

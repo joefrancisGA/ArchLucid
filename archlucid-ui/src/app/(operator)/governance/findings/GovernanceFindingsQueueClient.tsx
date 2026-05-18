@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactElement } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, type KeyboardEvent, type ReactElement } from "react";
 
+import { BuyerGoldenJourneyStrip } from "@/components/BuyerGoldenJourneyStrip";
 import { EmptyState } from "@/components/EmptyState";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -185,78 +187,51 @@ function governanceQueueSeverityCell(row: GovernanceFindingQueueRow, buyerPolish
   return <span className="text-neutral-800 dark:text-neutral-200">{row.severity}</span>;
 }
 
-function GovernanceFindingsBuyerDesktopRow(props: { readonly row: GovernanceFindingQueueRow }): ReactElement {
-  const row = props.row;
-  const graphHref = governanceQueueGraphEvidenceHref(row);
+function navigateGovernanceRowDetail(
+  router: ReturnType<typeof useRouter>,
+  runId: string,
+  findingId: string,
+): void {
+  router.push(inspectHref(runId, findingId));
+}
 
-  return (
-    <tr className="border-t border-neutral-200 dark:border-neutral-800">
-      <td className="px-3 py-2 align-top font-medium text-neutral-900 dark:text-neutral-100">
-        <Link
-          className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-          href={inspectHref(row.runId, row.findingId)}
-        >
-          {row.title}
-        </Link>
-        {row.recordKind === "finding" ? (
-          <details className="mt-1.5 text-xs text-neutral-600 dark:text-neutral-400">
-            <summary className="cursor-pointer select-none font-medium text-neutral-700 dark:text-neutral-300">
-              Severity, confidence, and review
-            </summary>
-            <p className="m-0 mt-1">
-              <span className="font-medium text-neutral-800 dark:text-neutral-200">Severity</span> {row.severity}
-            </p>
-            <p className="m-0 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-              <span className="font-medium text-neutral-800 dark:text-neutral-200">Confidence</span>
-              {row.traceConfidenceLevel === "High" ||
-              row.traceConfidenceLevel === "Medium" ||
-              row.traceConfidenceLevel === "Low" ? (
-                <FindingConfidenceBadge level={row.traceConfidenceLevel} />
-              ) : (
-                <span className="text-neutral-500">—</span>
-              )}
-            </p>
-            <p className="m-0 mt-1">
-              <span className="font-medium text-neutral-800 dark:text-neutral-200">Review</span>{" "}
-              <Link
-                className="text-teal-800 underline dark:text-teal-300"
-                href={`/reviews/${encodeURIComponent(row.runId)}`}
-              >
-                {row.runLabel}
-              </Link>
-            </p>
-          </details>
-        ) : null}
-      </td>
-      <td className="px-3 py-2 align-top text-neutral-800 dark:text-neutral-200">
-        {formatGovernanceQueueRecordKind(row.recordKind, true)}
-      </td>
-      <td className="px-3 py-2 align-top">{row.status}</td>
-      <td className="px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400">{row.recommended}</td>
-      <td className="px-3 py-2 align-top">
-        <div className="flex flex-col gap-2">
-          <Button asChild variant="outline" size="sm" className="h-8 border-teal-300 dark:border-teal-700">
-            <Link href={inspectHref(row.runId, row.findingId)}>
-              {row.recordKind === "decision" ? "View decision" : "View finding and evidence"}
-            </Link>
-          </Button>
-          {graphHref !== null ? (
-            <Button asChild variant="outline" size="sm" className="h-8 border-neutral-300 dark:border-neutral-600">
-              <Link href={graphHref}>View evidence</Link>
-            </Button>
-          ) : null}
-        </div>
-      </td>
-    </tr>
-  );
+function governanceRowDetailKeyboardActivate(
+  event: KeyboardEvent,
+  router: ReturnType<typeof useRouter>,
+  runId: string,
+  findingId: string,
+): void {
+  if (event.key !== "Enter" && event.key !== " ") {
+    return;
+  }
+
+  event.preventDefault();
+  navigateGovernanceRowDetail(router, runId, findingId);
 }
 
 function GovernanceFindingsBuyerMobileRow(props: { readonly row: GovernanceFindingQueueRow }): ReactElement {
   const row = props.row;
   const graphHref = governanceQueueGraphEvidenceHref(row);
+  const router = useRouter();
+  const rowIsDecision = row.recordKind === "decision";
 
   return (
-    <Card className="border border-neutral-200 shadow-sm dark:border-neutral-800">
+    <Card
+      className={
+        rowIsDecision
+          ? "cursor-pointer border border-neutral-200 shadow-sm transition-colors hover:border-teal-300 hover:bg-teal-50/30 dark:border-neutral-800 dark:hover:border-teal-800 dark:hover:bg-teal-950/20"
+          : "border border-neutral-200 shadow-sm dark:border-neutral-800"
+      }
+      onClick={rowIsDecision ? () => navigateGovernanceRowDetail(router, row.runId, row.findingId) : undefined}
+      onKeyDown={
+        rowIsDecision
+          ? (event) => governanceRowDetailKeyboardActivate(event, router, row.runId, row.findingId)
+          : undefined
+      }
+      tabIndex={rowIsDecision ? 0 : undefined}
+      role={rowIsDecision ? "button" : undefined}
+      aria-label={rowIsDecision ? `Open decision: ${row.title}` : undefined}
+    >
       <CardHeader className="space-y-1 pb-2">
         <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
           <Link
@@ -440,6 +415,11 @@ export default function GovernanceFindingsQueueClient() {
           </span>
         </nav>
       ) : null}
+      {buyerPolishedShell ? (
+        <div className="mt-4">
+          <BuyerGoldenJourneyStrip />
+        </div>
+      ) : null}
       <OperatorPageHeader title={buyerPolishedShell ? "Review records and dispositions" : "Findings"} />
 
         <div className="mt-4 space-y-4">
@@ -482,25 +462,7 @@ export default function GovernanceFindingsQueueClient() {
                   >
                     Findings and monitored risks
                   </h2>
-                  <div className="hidden overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800 md:block">
-                    <table className="w-full min-w-[520px] border-collapse text-left text-sm">
-                      <thead className="bg-neutral-100 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
-                        <tr>
-                          <th className="px-3 py-2">Record summary</th>
-                          <th className="px-3 py-2">Record type</th>
-                          <th className="px-3 py-2">Status</th>
-                          <th className="px-3 py-2">Recommended action</th>
-                          <th className="px-3 py-2">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {findingRows.map((row) => (
-                          <GovernanceFindingsBuyerDesktopRow key={`${row.runId}:${row.findingId}:find`} row={row} />
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  <div className="space-y-3 md:hidden">
+                  <div className="space-y-3">
                     {findingRows.map((row) => (
                       <GovernanceFindingsBuyerMobileRow key={`${row.runId}:${row.findingId}:mfind`} row={row} />
                     ))}
@@ -515,25 +477,7 @@ export default function GovernanceFindingsQueueClient() {
                   >
                     Recorded decisions
                   </h2>
-                  <div className="hidden overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800 md:block">
-                    <table className="w-full min-w-[520px] border-collapse text-left text-sm">
-                      <thead className="bg-neutral-100 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
-                        <tr>
-                          <th className="px-3 py-2">Record summary</th>
-                          <th className="px-3 py-2">Record type</th>
-                          <th className="px-3 py-2">Status</th>
-                          <th className="px-3 py-2">Recommended action</th>
-                          <th className="px-3 py-2">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {decisionRows.map((row) => (
-                          <GovernanceFindingsBuyerDesktopRow key={`${row.runId}:${row.findingId}:dec`} row={row} />
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  <div className="space-y-3 md:hidden">
+                  <div className="space-y-3">
                     {decisionRows.map((row) => (
                       <GovernanceFindingsBuyerMobileRow key={`${row.runId}:${row.findingId}:mdec`} row={row} />
                     ))}
