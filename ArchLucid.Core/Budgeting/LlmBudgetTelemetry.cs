@@ -41,4 +41,27 @@ public static class LlmBudgetTelemetry
 
         return (double)ratio;
     }
+
+    /// <summary>
+    ///     Estimated USD remaining under the UTC-month effective hard cap (<c>max(0, cap - TotalUsdPressure)</c>;
+    ///     <c>cap = HardCutoff + PurchasedCapBump</c>).
+    /// </summary>
+    public static double MonthlyHardCapRemainingUsd(
+        decimal totalUsdPressure,
+        decimal configuredHardCutoffUsdPerUtcMonth,
+        decimal purchasedCapBumpUsd)
+    {
+        decimal pressure = totalUsdPressure < 0m ? 0m : totalUsdPressure;
+        decimal effectiveCap = configuredHardCutoffUsdPerUtcMonth + purchasedCapBumpUsd;
+
+        if (effectiveCap <= 0m)
+            return 0;
+
+        decimal headroom = effectiveCap - pressure;
+
+        if (headroom <= 0m)
+            return 0;
+
+        return (double)headroom;
+    }
 }

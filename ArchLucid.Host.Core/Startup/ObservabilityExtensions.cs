@@ -90,8 +90,7 @@ public static class ObservabilityExtensions
         ArchLucidInstrumentation.EnsureTrialFunnelObservableGaugesRegistered();
         ArchLucidInstrumentation.EnsureCircuitBreakerStateObservableGaugesRegistered();
         ArchLucidInstrumentation.EnsureLlmTenantBudgetUtilizationObservableGaugeRegistered();
-
-        services.Configure<ObservabilityHostOptions>(
+        ArchLucidInstrumentation.EnsureLlmTenantBudgetRemainingUsdObservableGaugeRegistered();
             configuration.GetSection(ObservabilityHostOptions.SectionName));
 
         services.AddOpenTelemetry()

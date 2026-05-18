@@ -40,10 +40,30 @@
       ],
       "title": "LLM completion tokens / s (by provider)",
       "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "UTC-month USD headroom under tenant hard cutoff + TB-014 bump; from archlucid_llm_budget_remaining_usd (background refresh; not scraped from SQL directly).",
+      "fieldConfig": {
+        "defaults": { "unit": "currencyUSD", "decimals": 2, "color": { "mode": "palette-classic" } },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "id": 3,
+      "options": { "legend": { "displayMode": "table", "placement": "right" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "expr": "archlucid_llm_budget_remaining_usd",
+          "legendFormat": "{{tenant_id}}",
+          "refId": "A"
+        }
+      ],
+      "title": "LLM Budget Remaining (USD) by Tenant",
+      "type": "timeseries"
     }
   ],
   "refresh": "30s",
-  "schemaVersion": 38,
+  "schemaVersion": 39,
   "style": "dark",
   "tags": ["archlucid", "llm", "finops"],
   "templating": {
@@ -65,6 +85,6 @@
   "timezone": "browser",
   "title": "ArchLucid — LLM usage",
   "uid": "archlucid-llm-usage",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

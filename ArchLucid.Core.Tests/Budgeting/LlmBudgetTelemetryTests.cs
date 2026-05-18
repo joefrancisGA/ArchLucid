@@ -55,4 +55,41 @@ public sealed class LlmBudgetTelemetryTests
 
         LlmBudgetTelemetry.MonthlyPeriodKey(utc).Should().Be("2026-03");
     }
+
+    [Fact]
+    public void MonthlyHardCapRemainingUsd_subtractsPressureFromEffectiveCap()
+    {
+        double remaining =
+            LlmBudgetTelemetry.MonthlyHardCapRemainingUsd(12.5m, 50m, 10m); // Effective cap $60 → $47.50 headroom.
+
+        remaining.Should().BeApproximately(47.5, precision: 1e-8);
+    }
+
+    [Fact]
+    public void MonthlyHardCapRemainingUsd_whenAtOrOverEffectiveCap_returnsZeroAndIsNeverNegative()
+    {
+        double atCap = LlmBudgetTelemetry.MonthlyHardCapRemainingUsd(75m, 50m, 25m);
+
+        atCap.Should().Be(0);
+
+        double exhausted = LlmBudgetTelemetry.MonthlyHardCapRemainingUsd(900m, 50m, 0m);
+
+        exhausted.Should().Be(0);
+    }
+
+    [Fact]
+    public void MonthlyHardCapRemainingUsd_whenCapNotPositive_returnsZero()
+    {
+        LlmBudgetTelemetry.MonthlyHardCapRemainingUsd(5m, 0m, 0m).Should().Be(0);
+        LlmBudgetTelemetry.MonthlyHardCapRemainingUsd(5m, -6m, 5m).Should().Be(0);
+    }
+
+    [Fact]
+    public void MonthlyHardCapRemainingUsd_whenPressureNegative_treatsPressureAsZeroAndIsNonNegative()
+    {
+        double remaining = LlmBudgetTelemetry.MonthlyHardCapRemainingUsd(-4m, 30m, 5m); // Effective cap $35.
+
+        remaining.Should().BeApproximately(35d, precision: 1e-8);
+        remaining.Should().BeGreaterThanOrEqualTo(0);
+    }
 }

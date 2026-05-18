@@ -51,6 +51,8 @@ public static class ArchLucidInstrumentation
     private static int _circuitBreakerStateObservableGaugeRegistered;
 
     private static int _llmTenantBudgetUtilizationObservableGaugeRegistered;
+
+    private static int _llmTenantBudgetRemainingObservableGaugeRegistered;
     private static long _llmCompletionCacheHitsAggregate;
 
     private static long _llmCompletionCacheMissesAggregate;
@@ -762,6 +764,9 @@ public static class ArchLucidInstrumentation
     /// <summary>Latest cached LLM monthly budget utilization gauges (dimensions: <c>tenant_id</c>).</summary>
     public static LlmTenantBudgetUtilizationGaugeState LlmTenantBudgetUtilizationGauge { get; } = new();
 
+    /// <summary>Latest cached LLM monthly budget remaining USD gauges (dimensions: <c>tenant_id</c>).</summary>
+    public static LlmTenantBudgetRemainingGaugeState LlmTenantBudgetRemainingGauge { get; } = new();
+
     /// <summary>Latest outbox depths for <see cref="EnsureOutboxDepthObservableGaugesRegistered" />.</summary>
     public static OutboxDepthGaugeState OutboxDepthGauges
     {
@@ -923,6 +928,21 @@ public static class ArchLucidInstrumentation
             () => utilizationState.SnapshotMeasurements(),
             description:
             "UTC-month LLM dollar utilization (CommittedUsd+ReservedUsd over configured hard cutoff + purchased bump; label tenant_id).");
+    }
+
+    /// <summary>Registers observable per-tenant UTC-month LLM budget USD remaining under the effective hard cap (collector updates alongside utilization).</summary>
+    public static void EnsureLlmTenantBudgetRemainingUsdObservableGaugeRegistered()
+    {
+        if (Interlocked.Exchange(ref _llmTenantBudgetRemainingObservableGaugeRegistered, 1) != 0)
+            return;
+
+        LlmTenantBudgetRemainingGaugeState remainingState = LlmTenantBudgetRemainingGauge;
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_llm_budget_remaining_usd",
+            () => remainingState.SnapshotMeasurements(),
+            "USD",
+            "UTC-month LLM dollar headroom remaining under hard cutoff + purchased bump (non-negative; label tenant_id).");
     }
 
     /// <summary>Updates the cached value read by <c>archlucid_trial_active_tenants</c> (background metrics collector).</summary>

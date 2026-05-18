@@ -8,7 +8,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 ## Executive Summary
 
 ### (A) Overall Headline Readiness (84.94%)
-ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, the internal Policy Pack Hub (catalog + clone), operational script hardening, merge-blocking OpenAPI v1 snapshot drift checks in CI, Azure Retail Prices coverage for VMs and Storage Accounts in the extractor package, tenant-fair dequeue for the deferred authority pipeline SQL outbox, Terraform plan validation of declared Azure SQL backup redundancy (Geo/Zone) in CD, SAML SP certificate nearing-expiry email notifications, structured application logging for policy pack assign and archive (telemetry fields include `PolicyPackId`, `TenantId`, `WorkspaceId`), soft-delete for architecture projects on `dbo.Projects` (`IsDeleted`, `DeletedUtc`) with leader-elected retention hard-purge after the configured window (default 30 days via `ArchitectureProjectRetention`), Azure Monitor managed Prometheus alerting for integration event outbox dead-letter (`ArchLucidIntegrationOutboxDeadLetterNonZeroTf`) and for per-tenant LLM monthly dollar budget utilization over 75% (`ArchLucidLlmBudgetWarnFractionBreachedTf`; product gauge `archlucid_llm_budget_utilization_fraction`, both in `infra/terraform-monitoring/prometheus_slo_rules.tf` with CI regression coverage), and a dedicated configurable rate limit (`evidenceBulkUpload`) on multipart bulk evidence upload—significantly strengthen the GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting), Azure Cost Management actuals / Advisor parity versus retail estimates, and default `ui-e2e-smoke` mock-heavy coverage.
+ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, the internal Policy Pack Hub (catalog + clone), operational script hardening, merge-blocking OpenAPI v1 snapshot drift checks in CI, Azure Retail Prices coverage for VMs and Storage Accounts in the extractor package, tenant-fair dequeue for the deferred authority pipeline SQL outbox, Terraform plan validation of declared Azure SQL backup redundancy (Geo/Zone) in CD, SAML SP certificate nearing-expiry email notifications, structured application logging for policy pack assign and archive (telemetry fields include `PolicyPackId`, `TenantId`, `WorkspaceId`), soft-delete for architecture projects on `dbo.Projects` (`IsDeleted`, `DeletedUtc`) with leader-elected retention hard-purge after the configured window (default 30 days via `ArchitectureProjectRetention`), Azure Monitor managed Prometheus alerting for integration event outbox dead-letter (`ArchLucidIntegrationOutboxDeadLetterNonZeroTf`) and for per-tenant LLM monthly dollar budget utilization over 75% (`ArchLucidLlmBudgetWarnFractionBreachedTf`; product gauge `archlucid_llm_budget_utilization_fraction`, both in `infra/terraform-monitoring/prometheus_slo_rules.tf` with CI regression coverage), LLM Grafana usage dashboard **budget headroom** panel backed by Prometheus gauge **`archlucid_llm_budget_remaining_usd`** (paired with **`archlucid_llm_budget_utilization_fraction`** from §15), **`runbook_url` annotations on the three legacy HTTP / outbox-depth SLO mirror rules** (Authority Pipeline observability runbook via `local.archlucid_authority_observability_runbook_url`), and a dedicated configurable rate limit (`evidenceBulkUpload`) on multipart bulk evidence upload—significantly strengthen the GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting), Azure Cost Management actuals / Advisor parity versus retail estimates, and default `ui-e2e-smoke` mock-heavy coverage.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. The full automated tenant erasure quarantine pipeline is a V2 engineering commitment and is not scored as an `(A)` defect. V1 relies on operator-driven and trial/offboarding deletion paths.
@@ -17,9 +17,7 @@ Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 
 The commercial posture is strongly aligned for a sales-led, service-led motion. The inclusion of consultant whitelabeling on architecture review exports enables boutique consulting firms to use ArchLucid as a delivery engine. Curated demo workspaces, default policy packs, and the ZIP-first baseline wizard accelerate Time-to-Value and Proof-of-ROI. The deferred live commerce correctly prioritizes validated purchasing motions over premature self-serve availability.
 
 ### Enterprise Picture
-ArchLucid provides strong enterprise integration points, including Jira, ServiceNow, Slack, and Confluence. Tenant isolation is robustly handled via database-per-tenant and RLS. Tenant custom governance packs support form-based authoring for curated-rules-shaped documents. SAML SP nearing-expiry email notifications for tenant admins, tenant-fair authority pipeline outbox dequeue in the worker, CD-time Terraform checks for declared Azure SQL backup redundancy, configurable per-tenant rate limits on bulk architecture evidence multipart uploads, structured logging for policy pack assignment assign and archive, architecture project soft-delete with retention-based hard purge (default 30 days), optional Azure Monitor Prometheus alerting for integration outbox dead-letter rows and for LLM monthly tenant-dollar budget utilization (warn-fraction breach per `tenant_id`) when the managed SLO/rule group is enabled, and data residency verification in Terraform CI further enhance enterprise readiness.
-
-### Engineering Picture
+ArchLucid provides strong enterprise integration points, including Jira, ServiceNow, Slack, and Confluence. Tenant isolation is robustly handled via database-per-tenant and RLS. Tenant custom governance packs support form-based authoring for curated-rules-shaped documents. SAML SP nearing-expiry email notifications for tenant admins, tenant-fair authority pipeline outbox dequeue in the worker, CD-time Terraform checks for declared Azure SQL backup redundancy, configurable per-tenant rate limits on bulk architecture evidence multipart uploads, structured logging for policy pack assignment assign and archive, architecture project soft-delete with retention-based hard purge (default 30 days), optional Azure Monitor Prometheus alerting for integration outbox dead-letter rows and for LLM monthly tenant-dollar budget utilization (warn-fraction breach per `tenant_id`) when the managed SLO/rule group is enabled, **`runbook_url`-linked triage paths on the legacy HTTP latency, 5xx ratio, and outbox-depth Prometheus SLO mirror rules**, **direct Prometheus LLM monthly budget USD headroom** (`archlucid_llm_budget_remaining_usd` for Grafana `dashboard-archlucid-llm-usage` when **`LlmMonthlyTenantDollarBudget:Enabled`**), and data residency verification in Terraform CI further enhance enterprise readiness.
 The engineering foundation is highly rigorous, with strong architectural invariants, NetArchTest boundary rules, and a durable audit trail. The agent orchestration pipeline is resilient, and producer-side OpenTelemetry GenAI instrumentation records token aggregates, latency, and deployment identifiers. Curating operator dashboards and alerts on those signals remains a gap. The heavy reliance on mocked `/api/proxy` in `ui-e2e-smoke` remains a testability risk.
 
 ---
@@ -512,33 +510,30 @@ Add a Redis health check to the ASP.NET Core Health Checks pipeline in `ArchLuci
 - Original constraints / impact text retained for scoring reference: Acceptance (a)-(b); do not alter budget reserve/settle logic; weighted readiness impact +0.1-0.2%.
 ```
 
-### 16. Add `runbook_url` Annotations to All Existing Prometheus SLO Alert Rules
-- **Why it matters:** The three **original** Azure Monitor mirror rules in `prometheus_slo_rules.tf` (`ArchLucidSloHttpP99HighTf`, `ArchLucidSloHttp5xxRatioElevatedTf`, `ArchLucidSloOutboxDepthCriticalTf`) — not the separate dead-letter rule added in §14 — have only a `summary` annotation. Alertmanager and PagerDuty surface the `runbook_url` annotation as a clickable link. Without it, on-call engineers must manually search for the correct runbook in a high-stress incident.
+### 16. Add `runbook_url` Annotations to All Existing Prometheus SLO Alert Rules — **complete**
+- **Why it mattered:** The three **original** Azure Monitor mirror rules in `prometheus_slo_rules.tf` (`ArchLucidSloHttpP99HighTf`, `ArchLucidSloHttp5xxRatioElevatedTf`, `ArchLucidSloOutboxDepthCriticalTf`) had only `summary`. On-call tooling surfaces `runbook_url`; this gap is closed without changing §14+/§15+ rules.
 - **Expected impact:** Observability (+8 pts), Reliability (+4 pts).
 - **Affected qualities:** Observability, Reliability.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (`local.archlucid_authority_observability_runbook_url` in `prometheus_slo_rules.tf`; `runbook_url` on the three legacy SLO `rule` blocks only; expressions / severity / `for` unchanged.)
 ```text
-Update each of the three existing `rule` blocks in `infra/terraform-monitoring/prometheus_slo_rules.tf` to add a `runbook_url` key to their `annotations` map.
-- `ArchLucidSloHttpP99HighTf` → `runbook_url = "https://github.com/ArchLucid/ArchLucid/blob/main/docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md"`
-- `ArchLucidSloHttp5xxRatioElevatedTf` → same runbook URL.
-- `ArchLucidSloOutboxDepthCriticalTf` → same runbook URL.
-- Acceptance criteria: `terraform validate` passes; all three rules contain `runbook_url` in their annotations maps.
-- Constraints: Use the existing `docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md` path. Do not create new runbook files.
-- What not to change: Do not alter expression, severity, or for duration on any existing rule.
-- Impact: Directly improves Observability (+6-8 pts). Weighted readiness impact: +0.05-0.1%.
+**Delivered (V1 IaC):** Each of the three original mirror rules carries `annotations.runbook_url` → GitHub-rendered path for `docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`.
+- Alerts: `ArchLucidSloHttpP99HighTf`, `ArchLucidSloHttp5xxRatioElevatedTf`, `ArchLucidSloOutboxDepthCriticalTf` (dead-letter §14 and LLM budget §15 rules unchanged aside from unrelated prior work).
+- Status: **COMPLETE** — `terraform validate` for `infra/terraform-monitoring` after `terraform init -backend=false` (or reuse prior init).
+- Original acceptance: all three annotations maps include `runbook_url`; no new runbook file; expressions, severity, and `for` duration untouched.
 ```
 
-### 17. Export LLM Tenant Budget **Remaining (USD)** as a Prometheus Observable Gauge
-- **Why it matters:** The `dashboard-archlucid-llm-usage.json` Grafana dashboard exists, but it has no budget-headroom panel because repository dollars-remaining are not surfaced via Prometheus. §15 added **utilization fraction** per tenant; operators still lack a direct **remaining USD** series and dashboard panel for headroom at a glance.
+### 17. Export LLM Tenant Budget **Remaining (USD)** as a Prometheus Observable Gauge — **complete**
+- **Why it mattered:** Grafana `dashboard-archlucid-llm-usage` lacked a **budget headroom** series; utilization fraction §15 stops short of a direct **USD remaining** cue for ops.
 - **Expected impact:** Observability (+10 pts), AI/Agent Readiness (+5 pts).
 - **Affected qualities:** Observability, AI/Agent Readiness.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (`EnsureLlmTenantBudgetRemainingUsdObservableGaugeRegistered`; `archlucid_llm_budget_remaining_usd`; `LlmTenantBudgetRemainingGaugeState`; same `LlmTenantBudgetUtilizationMetricsHostedService` loop with tenant-id cache TTL **60 s**, **5 min** `GetOrCreateAsync` snapshots; panel **LLM Budget Remaining (USD) by Tenant** in `infra/grafana/dashboard-archlucid-llm-usage.json`; **`LlmBudgetTelemetry.MonthlyHardCapRemainingUsd`** + assertions in **`LlmBudgetTelemetryTests`** that remaining is ≥ **0**.)
 ```text
-Add a background periodic reader that calls `ILlmTenantBudgetRepository.GetOrCreateAsync` for every active tenant every 5 minutes and publishes an observable gauge `archlucid_llm_budget_remaining_usd` (dimensioned by `tenant_id`) to `ArchLucidInstrumentation`.
-- Acceptance criteria: (a) Metric appears in `/metrics` scrape. (b) A new panel "LLM Budget Remaining (USD) by Tenant" is added to `infra/grafana/dashboard-archlucid-llm-usage.json` using this metric. (c) Unit test asserts the gauge is non-negative.
-- Constraints: Limit to tenants with `LlmMonthlyTenantDollarBudget:Enabled = true`. Cache the tenant list; refresh every 60 s to avoid N+1 SQL per scrape.
-- What not to change: Do not modify the reserve/settle path or the budget enforcement logic.
-- Impact: Directly improves Observability (+8-10 pts) and AI/Agent Readiness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+**Delivered:**
+- Gauge `archlucid_llm_budget_remaining_usd` (`tenant_id`); headroom `max(0, effectiveCap - TotalUsdPressure)` matching tracker cap math (`LlmBudgetTelemetry`).
+- `LlmTenantBudgetUtilizationMetricsHostedService`: tenant GUID list refreshed at most every 60 seconds; repo reads bounded to the configured five-minute collector interval when enabled.
+- Grafana: panel id **3**, title **LLM Budget Remaining (USD) by Tenant**.
+- Tests: **`MonthlyHardCapRemainingUsd`** non-negative / cap-edge cases (**`ArchLucid.Core.Tests/Budgeting/LlmBudgetTelemetryTests.cs`**).
+- Status: **COMPLETE** — acceptance (a)-(c); reserve/settle path unchanged.
 ```
 
 ### 18. Raise Merged-Line Coverage Floor in CI from 0 to 75
@@ -621,8 +616,8 @@ Add merge-blocking OpenAPI snapshot drift detection to CI.
 
 To optimize context window usage and cost-effectiveness, batch the actionable prompts as follows:
 
-- **Batch 1 (Observability & Monitoring):** 1, 13, 16, 17
-- **Batch 2 (Alerting & SLO):** **complete** — §14 (integration outbox dead-letter TF rule) + §15 (LLM budget utilization gauge + warn-fraction TF rule); no numbered backlog items left in this batch.
+- **Batch 1 (Observability & Monitoring):** 1, 13
+- **Batch 2 (Alerting & SLO):** **complete** — §14 (integration outbox dead-letter TF rule) + §15 (LLM budget utilization gauge + warn-fraction TF rule) + §16 (`runbook_url` on legacy HTTP / outbox Prometheus SLO mirror rules); no numbered backlog items left in this batch.
 - **Batch 3 (Cost & Policy Packs):** 2, 3, 4, 19
 - **Batch 4 (Reliability & Scalability):** 6, 9
 - **Batch 5 (Security & Compliance):** 5, 8
