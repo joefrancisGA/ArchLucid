@@ -47,6 +47,7 @@ public sealed class CustomerNotificationChannelPreferencesController(
 
     /// <summary>Gets channel toggles for <c>tenantId</c> from the caller’s scope (Logic Apps HTTP action).</summary>
     [HttpGet("customer-channel-preferences")]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(TenantNotificationChannelPreferencesResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
