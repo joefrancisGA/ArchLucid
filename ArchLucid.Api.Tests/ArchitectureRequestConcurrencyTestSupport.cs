@@ -14,8 +14,10 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     ///     Default <see cref="HttpClient.Timeout" /> is 100s; create-run idempotency uses <c>sp_getapplock</c> with a
     ///     wait budget up to configured <c>ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds</c>
     ///     (≤1 hour clamp; greenfield SQL tests configure ~25 minutes so waiters survive a ~20-minute pipeline winner).
-    ///     A single <see cref="PostSingleArchitectureRequestAsync" /> call can wait on the lock and then run the authority
-    ///     pipeline (seconds for Simulator in practice; bounded by host <c>AuthorityPipeline:PipelineTimeout</c>).
+    ///     <see cref="PostSingleArchitectureRequestAsync" /> does not raise <see cref="HttpClient.Timeout" /> (callers align via
+    ///     <see cref="AlignHttpClientTimeoutForSqlIdempotencyLockChain" /> before first HTTP when needed).
+    ///     A single POST can wait on the lock and then run the authority pipeline (seconds for Simulator in practice; bounded by host
+    ///     <c>AuthorityPipeline:PipelineTimeout</c>).
     ///     <see cref="ArchLucidApiFactory" /> sets <see cref="HttpClient.Timeout" /> around <strong>65</strong> minutes.
     ///     <see cref="GreenfieldSqlApiFactory" /> uses a tighter ceiling (~28 minutes) aligned to its simulator budgets.
     ///     Any per-operation CTS (e.g. transient 503 retry loops in integration tests) must meet or exceed that ceiling
