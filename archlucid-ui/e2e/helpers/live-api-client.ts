@@ -952,10 +952,11 @@ export async function compareAuthorityRuns(
   request: APIRequestContext,
   leftRunId: string,
   rightRunId: string,
+  tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
   return request.get(`${resolveLiveApiBase()}/v1/authority/compare/runs`, {
     params: { leftRunId, rightRunId },
-    headers: liveAcceptHeaders(),
+    headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
   });
 }
 
@@ -970,10 +971,17 @@ export async function postAdvisoryScanRaw(
   });
 }
 
-/** POST `/v1/replay/run/{runId}` — authority replay (raw for 404 skip in live E2E). */
-export async function postReplayRunRaw(request: APIRequestContext, runId: string): Promise<APIResponse> {
-  return request.post(`${resolveLiveApiBase()}/v1/replay/run/${runId}`, {
-    headers: liveAcceptHeaders(),
+/** POST `/v1/architecture/run/{runId}/replay` — architecture replay (`ReplayRunRequest` accepts `{}`). */
+export async function postReplayRunRaw(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<APIResponse> {
+  const encoded = encodeURIComponent(runId);
+
+  return request.post(`${resolveLiveApiBase()}/v1/architecture/run/${encoded}/replay`, {
+    data: {},
+    headers: mergeTenantScope(liveJsonHeaders(), tenantScope),
   });
 }
 

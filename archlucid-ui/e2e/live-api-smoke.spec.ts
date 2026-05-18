@@ -9,21 +9,29 @@
  *
  * **`LIVE_API_URL`** selects the upstream API (`playwright.config.ts` → **`e2e/start-e2e-live-api.ts`**).
  */
-import type { APIRequestContext } from "@playwright/test";
+import type { APIRequestContext, APIResponse } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 import { strToU8, zipSync } from "fflate";
 
 import {
   DEMO_WORKSPACE_A_LIVE_IDS,
+  DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
   injectDemoWorkspaceOperatorScope,
 } from "./helpers/demo-workspace-live-scope";
 import {
+  assignPolicyPack,
+  compareAuthorityRuns,
   countFindingsInAuthorityRunDetailPayload,
+  createPolicyPack,
+  createRun,
   executeRun,
   getAuthorityRunDetailRaw,
+  getEffectivePolicyPacks,
   liveApiBase,
+  minimalPolicyPackContentJson,
   resolveLiveJwtMode,
 } from "./helpers/live-api-client";
+import { comparisonRequestOutcomePanel, comparePageMainHeading } from "./helpers/operator-journey";
 
 function makeLiveSmokeArchLucidZipForInput(): { name: string; mimeType: string; buffer: Buffer } {
   const manifest = {
@@ -40,6 +48,35 @@ function makeLiveSmokeArchLucidZipForInput(): { name: string; mimeType: string; 
     mimeType: "application/zip",
     buffer: Buffer.from(zipped),
   };
+}
+
+function buildLiveSmokeScopedRunCreateBody(suffix: string): Record<string, unknown> {
+  return {
+    requestId: `E2E-LIVE-SMOKE-SCOPE-${suffix}-${Date.now()}`,
+    description:
+      "Live smoke scoped run for authority compare alongside seeded demo workspace A product tour baseline.",
+    systemName: `LiveSmokeCmp${suffix}`,
+    environment: "prod",
+    cloudProvider: 1,
+    constraints: [] as string[],
+    requiredCapabilities: ["SQL"],
+    assumptions: [] as string[],
+    priorManifestVersion: null as string | null,
+  };
+}
+
+async function throwIfAuthorityCompareRunsNotOk(res: APIResponse, label: string): Promise<void> {
+  if (res.ok()) {
+    return;
+  }
+
+  const text = await res.text();
+
+  throw new Error(`${label} failed ${res.status()}: ${text.slice(0, 500)}`);
+}
+
+async function skipIfJwtProxyBearerMissing(page: typeof test extends (a: infer A, b: infer B) => void ? never : unknown): Promise<void> {
+  void page;
 }
 
 async function waitForSealedFindings(
