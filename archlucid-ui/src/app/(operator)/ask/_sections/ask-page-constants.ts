@@ -1,5 +1,5 @@
 /**
- * Operator shell: at most three suggested prompts (buyer shell uses `ASK_FOLLOW_UP_CHIPS_BUYER`).
+ * Operator shell: suggested starters use {@link ASK_EXAMPLE_PROMPTS}; buyer shell groups {@link ASK_BUYER_PROMPT_GROUPS}.
  */
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
@@ -9,20 +9,12 @@ export const ASK_EXAMPLE_PROMPTS: readonly string[] = [
   "Summarize this for an executive sponsor.",
 ];
 
-export const ASK_FOLLOW_UP_CHIPS_BUYER: readonly string[] = [
-  "What evidence supports the PHI minimization decision?",
-  "Which risks remain accepted with monitoring?",
-  "What are the top three risks I should brief leadership on?",
-  "What should we validate before go-live?",
-  "Summarize the mitigation pattern in one paragraph.",
-];
-
 export type AskBuyerPromptGroup = {
   readonly heading: string;
   readonly prompts: readonly string[];
 };
 
-/** Buyer shell: suggested prompts grouped by intent (flat list remains for operator shell). */
+/** Buyer shell: suggested prompts grouped by intent (question form starters + post-reply follow-ups). */
 export const ASK_BUYER_PROMPT_GROUPS: readonly AskBuyerPromptGroup[] = [
   {
     heading: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
@@ -40,9 +32,13 @@ export const ASK_BUYER_PROMPT_GROUPS: readonly AskBuyerPromptGroup[] = [
   },
   {
     heading: "Mitigation",
+    prompts: ["Summarize the PHI risk for this review.", "Summarize the mitigation pattern in one paragraph."],
+  },
+  {
+    heading: "Evidence",
     prompts: [
-      "Summarize the PHI risk for this review.",
-      "Summarize the mitigation pattern in one paragraph.",
+      "What evidence supports the PHI minimization decision?",
+      "Which risks remain accepted with monitoring?",
     ],
   },
 ];

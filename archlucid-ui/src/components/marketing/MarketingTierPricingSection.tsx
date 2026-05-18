@@ -209,17 +209,13 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
               </li>
             ))}
           </ul>
-          <details className="mt-10 rounded-lg border border-dashed border-neutral-300 bg-neutral-50 p-5 dark:border-neutral-700 dark:bg-neutral-950/70">
-            <summary className="cursor-pointer text-base font-semibold text-neutral-900 dark:text-neutral-100">
-              Roadmap notes for diligence (optional read)
-            </summary>
-            <p className="m-0 mt-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-              Not committed in today&apos;s packaged tier cards — request detail during procurement conversations.
-            </p>
-            <ul className="m-0 mt-3 list-disc space-y-1 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
-              <li>SCIM provisioning for directory-synchronized lifecycle</li>
-            </ul>
-          </details>
+          <p className="mt-8 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+            Roadmap-oriented diligence topics (for example enterprise directory lifecycle) are summarized in the{" "}
+            <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/faq#pricing-roadmap-notes">
+              product FAQ
+            </Link>
+            .
+          </p>
           {props.showSignupCallToAction !== false ? (
             <div className="mt-8 flex justify-center">
               <Button asChild variant="primary" size="lg">

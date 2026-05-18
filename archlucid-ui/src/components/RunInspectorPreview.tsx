@@ -165,7 +165,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Decision: Package finalized</p>
           <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Governance approval: Approved with monitoring</p>
           <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">
-            Remaining monitored risk: {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} (tracked in sealed manifest)
+            Remaining monitored risk: {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} (tracked in finalized signed manifest)
           </p>
           <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Evidence trail: Ready</p>
           <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Audit trail: Complete</p>

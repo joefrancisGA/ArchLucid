@@ -87,6 +87,15 @@ export function GraphPageContent() {
       return;
     }
 
+    if (
+      buyerPolishedShell &&
+      (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled())
+    ) {
+      setRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
+
+      return;
+    }
+
     const fromWorkspace = workspaceRun?.activeRunId?.trim() ?? "";
 
     if (fromWorkspace.length === 0) {
@@ -94,7 +103,7 @@ export function GraphPageContent() {
     }
 
     setRunId(fromWorkspace);
-  }, [workspaceRun?.activeRunId, urlRunId]);
+  }, [workspaceRun?.activeRunId, urlRunId, buyerPolishedShell]);
 
   useLayoutEffect(() => {
     setGraph(null);
@@ -341,7 +350,7 @@ export function GraphPageContent() {
 
   const leadIntro =
     demoUi || buyerPolishedShell
-      ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. Shows reviewed context, policy basis, architecture analysis, prioritized findings, mitigation decisions, sealed manifest outputs, and deliverables for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`
+      ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. Shows reviewed context, policy basis, architecture analysis, prioritized findings, mitigation decisions, finalized signed manifest outputs, and deliverables for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`
       : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
 
   const pageTitle = buyerPolishedShell ? "Decision traceability graph" : BUYER_SURFACE_VOCABULARY.evidenceGraph;

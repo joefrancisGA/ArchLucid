@@ -46,6 +46,17 @@ export default function MarketingFaqPage(): ReactNode {
           committed synthetic review run for the same purpose — not customer data.
         </p>
       </section>
+
+      <section id="pricing-roadmap-notes" className="mt-10 scroll-mt-20">
+        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Pricing roadmap notes (diligence)</h2>
+        <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          Items below are not committed ship dates on today&apos;s packaged tier cards — request specifics during procurement
+          conversations.
+        </p>
+        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+          <li>SCIM provisioning for directory-synchronized lifecycle</li>
+        </ul>
+      </section>
     </main>
   );
 }

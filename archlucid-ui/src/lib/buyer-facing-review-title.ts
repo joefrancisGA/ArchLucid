@@ -1,6 +1,6 @@
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
-import { SHOWCASE_BUYER_REVIEW_TITLE } from "@/lib/showcase-static-demo";
+import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_BUYER_REVIEW_TITLE } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 /**
@@ -8,7 +8,7 @@ import type { RunSummary } from "@/types/authority";
  */
 export function buyerFacingReviewLinkLabelFromRunId(runId: string): string {
   if (isShowcaseStaticDemoRunId(runId)) {
-    return SHOWCASE_BUYER_REVIEW_TITLE;
+    return SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;
   }
 
   const trimmed = runId.trim();

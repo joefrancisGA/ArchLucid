@@ -2,7 +2,7 @@ import type { NavLinkItem } from "@/lib/nav-config";
 
 /**
  * Sidebar/palette narrowing before the first committed golden-manifest review (`CurrentPrincipal.hasCommittedArchitectureReview`).
- * Allowed: the **pilot path** (Capture → Evidence → Review → Report) plus help/onboarding, reviews list/new, and
+ * Allowed: executive summary, review package hub, evidence graph, capture for net-new reviews, plus help/onboarding,
  * active review detail under `/reviews/...`. Operate destinations such as Alerts, Planning, Digests, and Advisory stay
  * out until **`hasCommittedArchitectureReview`** (tier/disclosure still applies after unlock); deep links remain valid.
  */

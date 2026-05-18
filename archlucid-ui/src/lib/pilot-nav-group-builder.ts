@@ -23,7 +23,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: "Review work",
       surface: "review-workflow",
       caption:
-        "Pilot path: Capture → Evidence → Review → Executive summary; then onboarding, findings, help, and scorecard as you expand.",
+        "Buyer-first path: Executive summary → Review package → Evidence trail → Capture for net-new input; then onboarding, findings, help, and scorecard.",
       links: [
         {
           href: "/",
@@ -31,18 +31,6 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           title: this.shortcutTitle("Home — V1 checklist and quick links", "alt+h"),
           keyShortcut: "alt+h",
           icon: Home,
-          tier: "essential",
-          defaultVisibleInCollapsedSidebar: true,
-        },
-        {
-          href: "/reviews/new",
-          label: "Capture",
-          title: this.shortcutTitle(
-            "Capture — start a new architecture review (guided wizard through pipeline tracking)",
-            "alt+n",
-          ),
-          keyShortcut: "alt+n",
-          icon: Rocket,
           tier: "essential",
           defaultVisibleInCollapsedSidebar: true,
         },
@@ -76,6 +64,18 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           ),
           keyShortcut: "alt+y",
           icon: GitGraph,
+          tier: "essential",
+          defaultVisibleInCollapsedSidebar: true,
+        },
+        {
+          href: "/reviews/new",
+          label: "Capture",
+          title: this.shortcutTitle(
+            "Capture — start a new architecture review (guided wizard through pipeline tracking)",
+            "alt+n",
+          ),
+          keyShortcut: "alt+n",
+          icon: Rocket,
           tier: "essential",
           defaultVisibleInCollapsedSidebar: true,
         },

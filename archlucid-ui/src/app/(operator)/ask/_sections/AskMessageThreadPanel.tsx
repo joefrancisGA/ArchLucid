@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import { tryStaticDemoConversationMessages } from "@/lib/ask-static-demo-messages";
 import { cn } from "@/lib/utils";
-import { ASK_FOLLOW_UP_CHIPS_BUYER } from "@/app/(operator)/ask/_sections/ask-page-constants";
+import { ASK_BUYER_PROMPT_GROUPS } from "@/app/(operator)/ask/_sections/ask-page-constants";
 import type { ConversationMessage } from "@/types/conversation";
 
 export type AskMessageThreadPanelProps = {
@@ -74,21 +74,30 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
         ))}
       </div>
       {showPostAssistantFollowUps ? (
-        <div className="space-y-2 pt-1">
+        <div className="space-y-4 pt-1">
           <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">Suggested follow-ups</p>
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Suggested follow-ups">
-            {ASK_FOLLOW_UP_CHIPS_BUYER.map((line) => (
-              <Button
-                key={`follow-${line}`}
-                type="button"
-                variant="outline"
-                size="sm"
-                className="h-auto max-w-full whitespace-normal py-1.5 text-left text-xs font-normal"
-                disabled={runMissing}
-                onClick={() => onMergePromptLine(line)}
-              >
-                {line}
-              </Button>
+          <div className="space-y-3" role="region" aria-label="Suggested follow-ups by topic">
+            {ASK_BUYER_PROMPT_GROUPS.map((group) => (
+              <div key={group.heading} className="space-y-2">
+                <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                  {group.heading}
+                </p>
+                <div className="flex flex-wrap gap-2" role="group" aria-label={group.heading}>
+                  {group.prompts.map((line) => (
+                    <Button
+                      key={`follow-${group.heading}-${line}`}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-auto max-w-full whitespace-normal py-1.5 text-left text-xs font-normal"
+                      disabled={runMissing}
+                      onClick={() => onMergePromptLine(line)}
+                    >
+                      {line}
+                    </Button>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </div>
