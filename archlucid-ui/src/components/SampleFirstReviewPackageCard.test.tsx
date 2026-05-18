@@ -81,7 +81,7 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
 
     expect(
       screen.getByText(
-        /Illustrative Claims Intake package — start at the executive summary, or open the full review record to explore manifest, evidence trail, governance, and audit from one workspace view/,
+        /Illustrative Claims Intake package — start at the executive summary, or open the full review package to explore manifest, evidence trail, governance, and audit from one workspace view/,
       ),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start executive review" })).toHaveAttribute(

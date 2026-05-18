@@ -3,7 +3,7 @@
 
 # ArchLucid Assessment – (A) Headline Readiness: 84.94%
 
-This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., automated tenant erasure, SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold, and V1.1-scoped integration suites).
+This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold, and V1.1-scoped integration suites). **§22** defines automated tenant erasure as actionable V2 backlog; it remains outside headline `(A)` scoring until implemented.
 
 ## Executive Summary
 
@@ -11,7 +11,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, the internal Policy Pack Hub (catalog + clone), operational script hardening, merge-blocking OpenAPI v1 snapshot drift checks in CI, Azure Retail Prices coverage for VMs and Storage Accounts in the extractor package, tenant-fair dequeue for the deferred authority pipeline SQL outbox, Terraform plan validation of declared Azure SQL backup redundancy (Geo/Zone) in CD, SAML SP certificate nearing-expiry email notifications, structured application logging for policy pack assign and archive (telemetry fields include `PolicyPackId`, `TenantId`, `WorkspaceId`), soft-delete for architecture projects on `dbo.Projects` (`IsDeleted`, `DeletedUtc`) with leader-elected retention hard-purge after the configured window (default 30 days via `ArchitectureProjectRetention`), Azure Monitor managed Prometheus alerting for integration event outbox dead-letter (`ArchLucidIntegrationOutboxDeadLetterNonZeroTf`) and for per-tenant LLM monthly dollar budget utilization over 75% (`ArchLucidLlmBudgetWarnFractionBreachedTf`; product gauge `archlucid_llm_budget_utilization_fraction`, both in `infra/terraform-monitoring/prometheus_slo_rules.tf` with CI regression coverage), Grafana **LLM GenAI telemetry** (`infra/grafana/dashboard-archlucid-llm.json`: **`archlucid_llm_gen_ai_operation_duration_ms`**, token counters incl. **`archlucid_llm_embedding_input_tokens_total`**) paired with **`dashboard-archlucid-llm-usage`** (**budget headroom** **`archlucid_llm_budget_remaining_usd`**, **`archlucid_llm_budget_utilization_fraction`** from §15), **`runbook_url` annotations on the three legacy HTTP / outbox-depth SLO mirror rules** (Authority Pipeline observability runbook via `local.archlucid_authority_observability_runbook_url`), and a dedicated configurable rate limit (`evidenceBulkUpload`) on multipart bulk evidence upload, **`archlucid-ui/e2e/live-api-smoke.spec.ts`** (baseline extractor ZIP wizard + sealed findings UI on **`LIVE_API_URL`**; no Playwright **`page.route`** stubs)—significantly strengthen the GA offering. The primary remaining gaps include observability follow-through (**Loki** alerting on structured logs, composite GenAI / cross-service SLO coherence, optional **`grafana_dashboard`** Terraform for **`dashboard-archlucid-llm`** when teams rely on dashboards-as-code), Azure Cost Management actuals / Advisor parity versus retail estimates, and **PR UI skew** (mock-forward **`ui-e2e-smoke`** vs narrower real-integration **`live-api-*`** matrices).
 
 ### (B) Procurement/Market-Motion Realism
-Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. The full automated tenant erasure quarantine pipeline is a V2 engineering commitment and is not scored as an `(A)` defect. V1 relies on operator-driven and trial/offboarding deletion paths.
+Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. Automated tenant erasure is specified as actionable backlog in **§22** (V2 delivery); until shipped it is not scored as an `(A)` defect. V1 relies on operator-driven and trial/offboarding deletion paths.
 
 ### Commercial Picture
 The commercial posture is strongly aligned for a sales-led, service-led motion. The inclusion of consultant whitelabeling on architecture review exports enables boutique consulting firms to use ArchLucid as a delivery engine. Curated demo workspaces, default policy packs, and the ZIP-first baseline wizard accelerate Time-to-Value and Proof-of-ROI. The deferred live commerce correctly prioritizes validated purchasing motions over premature self-serve availability.
@@ -278,7 +278,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 2. **Data residency diligence depth:** Buyers require verifiable proof that SQL topology and backups match their geography.
 3. **Noisy neighbor posture in orchestration:** Buyers will diligence steady-state parallelism and multi-region fairness.
 4. **SAML SP operational burden:** Managing certificate rotation and metadata drift for SAML SP adds operational overhead for enterprise IT.
-5. **Automated tenant erasure:** Not a V1 headline blocker, but buyers may still request a productized erasure narrative (deferred to V2).
+5. **Automated tenant erasure:** Not a V1 headline blocker, but buyers may still request a productized erasure narrative—**§22** is the concrete V2 backlog spec (quarantine, legal hold, blob + SQL purge).
 6. **Architecture project recovery is not self-service:** Soft-delete plus retention purge is implemented; productized undelete UX and guardrails messaging for admins are still limited compared to buyer expectations for “recycle bin” workflows.
 
 ---
@@ -599,9 +599,47 @@ Add merge-blocking OpenAPI snapshot drift detection to CI.
 - Impact: Directly improves Correctness (+8-10 pts) and Testability (+4-6 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 22. DEFERRED: Automated tenant erasure (30-day quarantine, legal-hold flag, blob + SQL purge)
-- **Reason:** Deferred to V2. Requires user input to confirm the legal hold schema and RBAC roles allowed to clear the hold.
-- **Needed from me:** Please provide the exact schema for `LegalHoldUntilUtc` and confirm the RBAC roles for clearing the hold.
+### 22. Automated tenant erasure (30-day quarantine, legal hold, blob + SQL purge)
+- **Why it matters:** Buyers expect a defensible right-to-erasure story: cooling-off period, legal/regulatory hold, deterministic purge of tenant SQL + tenant-prefixed blobs, and immutable operator audit. Today **`TenantDeletionService`** (`ArchLucid.Application/Tenancy/TenantDeletionService.cs`) performs immediate orchestration (blobs via **`TenantBlobPrefixDeletionService`**, SQL via **`SqlTenantHardPurgeService`**) without a first-class quarantine or hold gate.
+- **Expected impact:** Security (+12 pts), Reliability (+6 pts), Compliance narrative (+variable).
+- **Affected qualities:** Security, Reliability, Supportability.
+- **Actionable:** Yes — **V2 delivery**; assumptions below lock schema and RBAC so implementation is unblocked.
+```text
+Implement automated tenant erasure with quarantine and legal hold, reusing existing purge orchestration.
+
+**Schema (`dbo.Tenants`, single DDL migration file per DB policy — extend unified schema + DbUp migration):**
+- `OffboardedUtc DATETIMEOFFSET NULL` — non-null means tenant is in offboarding quarantine.
+- `ErasureEligibleUtc DATETIMEOFFSET NULL` — earliest UTC when hard purge may run (set at offboard to `OffboardedUtc + retention`, default **30 days**, configurable to match `ArchitectureProjectRetention:RetentionDays` semantics unless product dictates a separate option).
+- `LegalHoldUntilUtc DATETIMEOFFSET NULL` — while non-null and `UtcNow < LegalHoldUntilUtc`, hard purge must not run regardless of `ErasureEligibleUtc`.
+- `LegalHoldReason NVARCHAR(500) NULL`
+- `LegalHoldSetByUserId NVARCHAR(256) NULL`
+- `LegalHoldSetUtc DATETIMEOFFSET NULL`
+
+**Eligibility rule:** Invoke hard purge only when `OffboardedUtc IS NOT NULL` AND `UtcNow >= ErasureEligibleUtc` AND (`LegalHoldUntilUtc IS NULL` OR `UtcNow >= LegalHoldUntilUtc`).
+
+**Orchestration:**
+1. Offboard API (platform-only): sets `OffboardedUtc` / `ErasureEligibleUtc`; tenant access Denied as today for suspended/offboarded semantics (align with existing `SuspendedUtc` behavior — document chosen UX).
+2. Background scanner (leader-elected hosted job, mirror `ArchitectureProjectRetentionPurgeHostedService` patterns): for each eligible tenant, call existing **`ITenantDeletionService.DeleteTenantAsync`** — preserve today's order (**tenant-prefixed blobs first**, then **`SqlTenantHardPurgeService`**) unless an ADR documents reordering; keep **`TenantDeletionService`** as the single purge seam.
+3. **Restore during quarantine:** `PlatformOperator` may null `OffboardedUtc` / `ErasureEligibleUtc` before purge runs; document as break-glass only.
+
+**RBAC (JWT `roles` / `ArchLucidRoles`):**
+- Start offboarding quarantine: **`PlatformOperator`** only (`PlatformTenantDeletionAuthority` / `platform:tenant-delete`).
+- Set or extend legal hold: **`PlatformOperator`** or **`Admin`**.
+- Clear legal hold (`LegalHoldUntilUtc` → NULL): **`PlatformOperator`** only (tenant **`Admin`** must not clear holds).
+
+**Audit:** Emit **`PlatformAuditRepository`** events (or equivalent) for offboard, hold set/extend/clear, restore-from-quarantine, and completed purge — include prior/new column values in `DataJson`.
+
+**Tests:** Integration tests for eligibility (hold blocks past `ErasureEligibleUtc`), purge invocation once eligible, and RBAC on mutation endpoints.
+
+**Follow-ups (explicit non-blockers for first slice):** Redis tenant keys, search indexes, Stripe customer archival — enumerate in runbook if not purged in SQL/blob path.
+
+**Assumption:** Default quarantine **30 days** matches architecture-project retention narrative unless superseded by configuration.
+
+- Acceptance criteria: (a) Migration adds columns; no purge until eligibility rule passes. (b) Legal hold blocks purge past eligible date until hold expires or PlatformOperator clears it. (c) Completed purge still produces **`TenantDataDeleted`**-style platform audit with SQL row counts + blobs-by-container summary. (d) RBAC matches table above.
+- Constraints: Do not bypass **`ITenantDeletionService`** for final purge; extend **`TenantBlobPrefixDeletionService`** container list only if new tenant-isolated containers exist (today: `golden-manifests`, `artifact-bundles`, `agent-traces`).
+- What not to change: Leave content-addressed shared dedup containers untouched (existing deletion service already skips them).
+- Impact: Security (+10-14 pts), Reliability (+4-8 pts). Weighted readiness impact: material on buyer diligence once shipped (V2).
+```
 
 ### 23. DEFERRED: Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
 - **Reason:** Deferred to V1.1. Requires user input to provide the live Stripe keys and confirm Marketplace publication.
@@ -621,16 +659,13 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 2 (Alerting & SLO):** **complete** — §14 (integration outbox dead-letter TF rule) + §15 (LLM budget utilization gauge + warn-fraction TF rule) + §16 (`runbook_url` on legacy HTTP / outbox Prometheus SLO mirror rules); no numbered backlog items left in this batch.
 - **Batch 3 (Cost & Policy Packs):** 2, 3, 4, 19
 - **Batch 4 (Reliability & Scalability):** 6, 9
-- **Batch 5 (Security & Compliance):** 5, 8
+- **Batch 5 (Security & Compliance):** 5, 8, 22
 - **Batch 6 (Testing & CI):** 18 (**§7 complete:** `archlucid-ui/e2e/live-api-smoke.spec.ts` — seeded scope, baseline ZIP wizard, **`executeRun`**, **`quick-decision-summary`**, no **`page.route`** mocks.)
 - **Batch 7 (UX & Conversion):** 10, 20
 
 ---
 
 ## Pending Questions for Later
-
-### DEFERRED (22): Automated tenant erasure (30-day quarantine, legal-hold flag, blob + SQL purge)
-- What is the exact schema for `LegalHoldUntilUtc` and which RBAC roles are allowed to clear the hold?
 
 ### DEFERRED (23): Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
 - What are the `sk_live_` Stripe keys and is the Marketplace offer `Published`?

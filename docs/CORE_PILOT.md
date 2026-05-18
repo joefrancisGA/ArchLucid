@@ -27,8 +27,13 @@ Do not mistake the Core Pilot checklist for full product scope — advanced Oper
 
 Four steps — same sequence as **`[onboarding/EVALUATION_GUIDE.md`](onboarding/EVALUATION_GUIDE.md)** Part 2:
 
+### Step-by-step walkthrough
+
 1. **Create** an architecture review (operator **New review** wizard or **`archlucid run`** CLI with project inputs — the CLI verb remains `run` for backward compatibility).
 2. **Execute** the **review** (pipeline) and let the coordinator complete the work (timeline on the **review detail** page — legacy routes may still use `/runs/`).
+
+### Review manifest and artifacts
+
 3. **Commit** the manifest (produces golden manifest + synthesized artifacts — nothing exportable before this step).
 4. **Open** the review package — manifest summary, artifacts table, and bundle export on the **review detail** page.
 

@@ -53,7 +53,7 @@ Commit produces the **golden manifest** and synthesizes **artifacts**. Nothing i
 **Operator UI:** Review detail (after commit) shows Manifest summary, Artifacts table, and Bundle ZIP.
 
 ### Step 5 — Same four steps with **your** inputs
-After `archlucid try`, the lowest-friction real second **review** is a **one-page** `SECOND_RUN.toml` file plus a single CLI command.
+After `archlucid try`, the lowest-friction real second **review** is a **one-page** `SECOND_RUN.toml` file plus a single CLI command — see **[`SECOND_RUN.md`](../library/SECOND_RUN.md)** for the full template, limits, and auth notes.
 
 ## What to evaluate in a Core Pilot
 At the end of the four steps, answer:

@@ -76,7 +76,7 @@ describe("SidebarNav (primary navigation)", () => {
       expect(screen.getByRole("link", { name: "Evidence trail" })).toHaveAttribute("href", "/graph");
       expect(screen.getByRole("link", { name: "Evidence trail" })).toHaveAttribute(
         "title",
-        "Evidence trail — decision traceability graph for one review (Alt+Y)", // Evidence trail shortcut title unchanged — graph terminology in tooltip stays aligned with glossary.
+        "Evidence trail — decision traceability graph for one review (Alt+Y)",
       );
       expect(screen.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
       expect(screen.getByRole("link", { name: "Replay a review" })).toHaveAttribute("href", "/replay");

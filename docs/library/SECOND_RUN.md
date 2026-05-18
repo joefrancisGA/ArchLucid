@@ -3,11 +3,13 @@
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# Second run with your own data (`SECOND_RUN`)
+# Second review with your own data (`SECOND_RUN`)
 
-**Audience:** Pilot operators who already ran **`archlucid try`** (or the operator UI demo) and want a **real** `POST /v1/architecture/request` from their own vocabulary in under five minutes.
+**Audience:** Pilot operators who already completed a first **review** via **`archlucid try`** (or the operator UI demo) and want a **real** `POST /v1/architecture/request` from their own vocabulary in under five minutes.
 
-**Goal:** One small file (TOML **or** JSON) → CLI creates the run → executes → polls → commits → prints the **first-value report URL**.
+**Goal:** One small file (TOML **or** JSON) → CLI (**`archlucid second-run`**) creates the review session → executes → polls → commits → prints the **first-value report URL**.
+
+**Naming:** Product language is **review**; the CLI command remains **`second-run`**, and API paths still use **`run`** / **`runId`** (see below).
 
 ## 60-second path
 
@@ -71,7 +73,7 @@ Same keys in **snake_case** or **camelCase** (the CLI uses case-insensitive JSON
 }
 ```
 
-## Vertical starter proof packs (sample second runs)
+## Vertical starter proof packs (sample second reviews)
 
 The repo folder [`templates/starter-proof-packs/`](../../templates/starter-proof-packs/README.md) ships four **fictional** buyer-category starters (regulated SaaS with SOC-oriented procurement language, healthcare data workflow, Azure cost-and-governance, **AI/LLM copilot/RAG**). Each pack contains `second-run.json` (this file’s shape), a full `architecture-request.json` for API or automation, `policy-context.json` (which vertical policy-pack folder aligns), per-pack README (when to use, what not to claim), and a proof-package checklist.
 

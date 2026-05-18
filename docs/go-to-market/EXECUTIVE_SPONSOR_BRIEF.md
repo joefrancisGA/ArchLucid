@@ -48,14 +48,14 @@ At a practical level, ArchLucid is an AI-assisted architecture workflow system t
 
 In many organizations, architecture work slows down because teams must manually assemble review packages, explain design reasoning, reconcile revisions, and prepare governance evidence.
 
-**Security and procurement reviewers** should start from the consolidated Trust Center index — **[`trust-center.md`](trust-center.md)** (public marketing route **`/trust`**) — which links the same self-assessment, questionnaire, and deferral evidence the repository ships to CI.
-
 That creates four common problems:
 
 - too much manual preparation before review,
 - unclear visibility into design changes,
 - weak or reconstructed evidence trails,
 - and slow movement from request to decision-ready output.
+
+**Security and procurement reviewers** should start from the consolidated Trust Center index — **[`trust-center.md`](trust-center.md)** (public marketing route **`/trust`**) — which links the same self-assessment, questionnaire, and deferral evidence the repository ships to CI.
 
 ArchLucid is designed to reduce those problems.
 
@@ -118,12 +118,12 @@ A credible pilot should show improvement in a few concrete areas:
 - **time to reviewable artifact package,**
 - **manual preparation effort,**
 - **decision traceability,**
-- **change visibility between runs,**
+- **change visibility between reviews,**
 - **governance evidence readiness.**
 
 For the scorecard and measurement model, see [PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md).
 
-**Automated sponsor package:** operators on a Standard-tier tenant can generate a **per-tenant value report DOCX** from the operator UI (`/value-report` or “Generate sponsor report” on run detail after commit). The document summarizes committed manifests, governance and drift audit activity, ROI_MODEL-aligned hour and LLM estimates, and annualized ROI vs the model baseline — see [go-to-market/ROI_MODEL.md](go-to-market/ROI_MODEL.md).
+**Automated sponsor package:** operators on a Standard-tier tenant can generate a **per-tenant value report DOCX** from the operator UI (`/value-report` or “Generate sponsor report” on review detail after commit; legacy copy may say *run*). The document summarizes committed manifests, governance and drift audit activity, ROI_MODEL-aligned hour and LLM estimates, and annualized ROI vs the model baseline — see [go-to-market/ROI_MODEL.md](go-to-market/ROI_MODEL.md).
 
 ---
 
@@ -131,7 +131,7 @@ For the scorecard and measurement model, see [PILOT_ROI_MODEL.md](library/PILOT_
 
 After **Pilot** is proven, **Operate** is the second buyer-facing layer. It combines everything that helps teams go deeper after the first committed manifest:
 
-**Analysis and investigation** — answer questions such as what changed between two runs, why the change matters, how to replay and inspect architecture decisions, and how to view provenance or architecture graph representations.
+**Analysis and investigation** — answer questions such as what changed between two architecture reviews, why the change matters, how to replay and inspect architecture decisions, and how to view provenance or architecture graph representations.
 
 **Governance and trust** — when the organization is ready to operationalize architecture decision workflows more broadly: governance approvals, policy packs, auditability, compliance drift visibility, alerts, and operational control surfaces. That half of Operate is where ArchLucid becomes more directly relevant to governance, audit, security, and compliance stakeholders.
 
