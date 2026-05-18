@@ -4,9 +4,10 @@
 
 .NOTES
     - No ArchLucid credentials run in this tenant. Output is uploaded by you to ArchLucid.
-    - This script performs **read-only** Azure Resource Manager queries (Get-AzResource and related).
+    - This script performs **read-only** Azure Resource Manager inventory (Get-AzResource) and Policy Insights policy state queries (Invoke-AzRestMethod POST on PolicyStates/latest/queryResults, the same read surface as Get-AzPolicyState).
     - **Never collected:** Key Vault secret values, connection strings, certificates/private keys, arbitrary user PII beyond resource tags.
     - `-IncludeRetailPrices` emits `retail-prices.json` by calling the **public** HTTPS Retail Prices API (`https://prices.azure.com`) for App Service plans and SQL databases inventoried in `resources.json`; no extra RBAC beyond ARM read access.
+    - Every run emits `policy-compliance.json` via Azure Policy Insights PolicyStates/latest/queryResults (same read plane as `Get-AzPolicyState`); pagination and throttling backoff are handled in the collector. Reader at subscription or resource-group scope is sufficient for typical tenants.
     - Optional Cost Management / Advisor packages (`-IncludeCost`, `-IncludeAdvisor`) remain backlog; see docs/library/V1_SCOPE.md §2.16.
     - Verify script integrity (code signing / checksum) per your change-management policy before executing in production subscriptions.
 #>
@@ -42,18 +43,25 @@ function Write-Utf8NoBom([string] $Path, [string] $Content)
 }
 
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.RetailPrices.helpers.ps1')
+. (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.PolicyCompliance.helpers.ps1')
 
 if (-not (Get-Module -ListAvailable -Name Az.Resources))
 {
     throw "Az.Resources module is required. Install: Install-Module Az -Scope CurrentUser"
 }
 
+if (-not (Get-Module -ListAvailable -Name Az.Accounts))
+{
+    throw "Az.Accounts module is required for policy compliance REST calls. Install: Install-Module Az -Scope CurrentUser"
+}
+
 Import-Module Az.Resources -ErrorAction Stop
+Import-Module Az.Accounts -ErrorAction Stop
 
 $null = Get-AzSubscription -SubscriptionId $SubscriptionId -ErrorAction Stop
 Set-AzContext -SubscriptionId $SubscriptionId | Out-Null
 
-$scriptVersion = "0.2.0"
+$scriptVersion = "0.3.0"
 $schemaVersion = 1
 $collectionTimestamp = (Get-Date).ToUniversalTime().ToString("o")
 $azProfile = Get-Module Az.Resources
@@ -132,6 +140,17 @@ try
     Write-Utf8NoBom $manifestPath ($manifest | ConvertTo-Json -Depth 10)
     Write-Utf8NoBom $resourcesPath ($resources | ConvertTo-Json -Depth 10)
 
+    $policyCompliance = New-ArchLucidPolicyComplianceDocument `
+        -SubscriptionId $SubscriptionId `
+        -ScopeDescriptor $scopeDescriptor `
+        -CollectionTimestampUtc $collectionTimestamp `
+        -ResourceGroupScope $ResourceGroupScope `
+        -PolicyComplianceSchemaVersion 1 `
+        -PageSize 450
+
+    $policyCompliancePath = Join-Path $staging "policy-compliance.json"
+    Write-Utf8NoBom $policyCompliancePath ($policyCompliance | ConvertTo-Json -Depth 12)
+
     $retailReadmeTail = ""
 
     if ($IncludeRetailPrices)
@@ -167,7 +186,7 @@ ArchLucid Azure extractor output (read-only inventory).
 Schema version: $schemaVersion
 Collection UTC: $collectionTimestamp
 $readmeExtra
-When not using `-IncludeRetailPrices`, no live retail catalog JSON is written. Cost Management / Advisor exports require future implementations of `-IncludeCost` / `-IncludeAdvisor` — see docs/library/V1_SCOPE.md §2.16 and docs/library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md.
+Each ZIP includes `policy-compliance.json` (Policy Insights latest states, Reader-scoped). When not using `-IncludeRetailPrices`, no live retail catalog JSON is written. Cost Management / Advisor exports require future implementations of `-IncludeCost` / `-IncludeAdvisor` — see docs/library/V1_SCOPE.md §2.16 and docs/library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md.
 Upload via POST /v1/azure-extractor/upload (ExecuteAuthority). Trust stance: docs/go-to-market/TRUST_CENTER.md.
 "@
 
