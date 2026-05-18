@@ -255,6 +255,14 @@ export function RunIdPicker({
           setOpen(true);
           void loadRuns();
         }}
+        /**
+         * Options use `onMouseDown` + `preventDefault` so the input keeps focus while picking. That means another
+         * click on the input does not refire `onFocus`, so the list would stay closed — reopen on click as well.
+         */
+        onClick={() => {
+          setOpen(true);
+          void loadRuns();
+        }}
         onBlur={() => {
           window.setTimeout(() => {
             setOpen(false);

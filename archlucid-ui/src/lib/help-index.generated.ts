@@ -59,7 +59,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Pilot guide (redirect)",
     "sectionSlug": "post-commit-sponsor-banner-first-commit-clock",
     "sectionHeading": "Post-commit sponsor banner (first commit clock)",
-    "excerpt": "After the first golden manifest commit, the operator-shell run detail page (`/runs/[runId]`) shows the “Email this run to your sponsor” banner when the run has a manifest. The banner may add a small “Day N since first commit” badge (UTC full days since this tenant’s first committed manifest, from `GET /v1/tenant/tri…"
+    "excerpt": "After the first golden manifest commit, the operator-shell review detail page (`/runs/[runId]` — legacy URL; may redirect to `/reviews/…`) shows the “Email this review to your sponsor” banner when the review has a manifest (exact banner text may still say run until label-only UI updates land). The banner may add a s…"
   },
   {
     "docPath": "docs/library/PILOT_GUIDE.md",
