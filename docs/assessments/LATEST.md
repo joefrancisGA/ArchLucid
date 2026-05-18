@@ -1,20 +1,20 @@
 ﻿> **Scope:** Independent, first-principles assessment of ArchLucid readiness.
 > **Status:** current
 
-# ArchLucid Assessment – (A) Headline Readiness: 87.09%
+# ArchLucid Assessment – (A) Headline Readiness: 87.55%
 
-This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold, and V1.1-scoped integration suites). Deferred items do not reduce this headline score.
+This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold, first **published** reference customer, and V1.1-scoped integration suites). Deferred items do not reduce this headline score.
 
 ## Executive Summary
 
-### (A) Overall Headline Readiness (87.09%)
-ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (87.09% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. The system has robust AI/Agent readiness, strong correctness, and excellent interoperability. The primary remaining gaps include observability follow-through (Loki alerting on structured logs), E2E test mock reliance, and cognitive load for new operators due to the large product surface.
+### (A) Overall Headline Readiness (87.55%)
+ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (87.55% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. The system has robust AI/Agent readiness, strong correctness, and excellent interoperability. **Proof-of-ROI Readiness** and **Differentiability** are not reduced for absence of a **published** reference customer — that obligation is **V1.1** per [`docs/library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6b. The primary remaining gaps include observability follow-through (Loki alerting on structured logs), E2E test mock reliance, and cognitive load for new operators due to the large product surface.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. Automated tenant erasure is specified as actionable backlog for V2; until shipped, it is not scored as an `(A)` defect.
 
 ### Commercial Picture
-The commercial posture is strongly aligned for a sales-led, service-led motion. Curated demo workspaces, default policy packs, and the ZIP-first baseline wizard accelerate Time-to-Value and Proof-of-ROI. The deferred live commerce correctly prioritizes validated purchasing motions over premature self-serve availability.
+The commercial posture is strongly aligned for a sales-led, service-led motion. Curated demo workspaces, default policy packs, and the ZIP-first baseline wizard accelerate Time-to-Value and Proof-of-ROI. A **published** reference customer + case study is a **V1.1** commercial milestone ([`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6b) and is **not** an `(A)` V1 gate. The deferred live commerce correctly prioritizes validated purchasing motions over premature self-serve availability.
 
 ### Enterprise Picture
 ArchLucid provides strong enterprise integration points, including Jira, ServiceNow, Slack, and Confluence. Tenant isolation is robustly handled via database-per-tenant and RLS. SAML SP nearing-expiry email notifications, tenant-fair authority pipeline outbox dequeue, and configurable per-tenant rate limits enhance enterprise readiness.
@@ -90,10 +90,10 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Fixability:** Fixable in V1.
 
 ### 8. Differentiability
-- **Score:** 86
+- **Score:** 90
 - **Weight:** 4
-- **Weighted deficiency signal:** 56
-- **Why this score was assigned:** Evidence-linked findings and governed decision trails differentiate the product from generic LLM wrappers.
+- **Weighted deficiency signal:** 40
+- **Why this score was assigned:** Evidence-linked findings and governed decision trails differentiate the product from generic LLM wrappers. Absence of a **published** named reference customer is **V1.1** scope ([`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6b) and **does not** reduce this `(A)` score.
 - **Key tradeoffs:** Broad proof surface helps defensibility but requires concise buyer framing.
 - **Specific improvement recommendations:** Create a curated policy pack for GDPR compliance baseline.
 - **Fixability:** Fixable in V1.
@@ -135,10 +135,10 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Fixability:** Fixable in V1.
 
 ### 13. Proof-of-ROI Readiness
-- **Score:** 88
+- **Score:** 91
 - **Weight:** 5
-- **Weighted deficiency signal:** 60
-- **Why this score was assigned:** The Azure extractor appends Retail Prices for App Service, SQL, Virtual Machines, and Storage Accounts. Azure Cost Management Actual-Spend ingestion is added.
+- **Weighted deficiency signal:** 45
+- **Why this score was assigned:** The Azure extractor appends Retail Prices for App Service, SQL, Virtual Machines, and Storage Accounts. Azure Cost Management Actual-Spend ingestion is added. Lack of a **published** reference customer / measured **ROI** story is **V1.1** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6b and is **excluded** from `(A)` deductions here.
 - **Key tradeoffs:** Broader Cost Management / Advisor parity and estimate-vs-actual spend narratives remain manual for some SKUs.
 - **Specific improvement recommendations:** Implement a dashboard panel for integration event outbox dead letters.
 - **Fixability:** Fixable in V1.
@@ -254,7 +254,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 
 ## Top 6 Monetization Blockers
 
-1. **Lack of a published reference customer:** Slows early momentum and trust generation (deferred to V1.1).
+1. **Lack of a published reference customer (`(B)` / V1.1):** Still dampens **buyer trust and cycle speed** in real GTM; tracked as **V1.1** in [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6b — **does not reduce `(A)` headline readiness**.
 2. **Lack of self-serve transactability:** Stripe live keys and Marketplace publication are deferred, forcing a high-touch sales motion.
 3. **Named productized offers packaging:** Velocity to cash depends on a buyable review SKU and SOW alignment.
 4. **Thin starter packs:** Risk "one-and-done" pilots if tenants do not extend them.
@@ -300,11 +300,11 @@ ArchLucid is a functionally complete, highly rigorous V1 product ready for sales
 - **Actionable:** DEFERRED
 - **Needed from me:** Please provide the `sk_live_` Stripe keys and confirm the Marketplace offer is `Published`.
 
-### 2. DEFERRED: Publish first named reference customer
-- **Why it matters:** Generates trust and accelerates sales cycles.
-- **Expected impact:** Proof-of-ROI Readiness (+10 pts), Differentiability (+5 pts).
-- **Affected qualities:** Proof-of-ROI Readiness, Differentiability.
-- **Actionable:** DEFERRED
+### 2. V1.1 / DEFERRED (out of `(A)`): Publish first named reference customer
+- **Why it matters:** Generates trust and accelerates sales cycles in **`(B)`** market motion; **V1.1** commitment per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6b.
+- **Expected impact:** **`(A)` — none** (not a V1 headline gate). Optional future uplift to Proof-of-ROI / Differentiability narratives when scored under a **V1.1** or blended model.
+- **Affected qualities:** **`(B)`** commercial realism only — not weighted into this document’s `(A)` composite.
+- **Actionable:** DEFERRED (V1.1)
 - **Needed from me:** Please provide the customer name, logo permission, and case study text.
 
 ### 3. DEFERRED: PGP key drop for `security@archlucid.net`
@@ -312,7 +312,7 @@ ArchLucid is a functionally complete, highly rigorous V1 product ready for sales
 - **Expected impact:** Supportability (+5 pts).
 - **Affected qualities:** Supportability.
 - **Actionable:** DEFERRED
-- **Needed from me:** Please provide the public key block and confirmation of domain acquisition.
+- **Needed from me:** **Domain acquisition — confirmed (owner 2026-05-18).** Please provide or authorize generation of the **public** key block (`archlucid-ui/public/.well-known/pgp-key.txt`) and custodian/fingerprint for `SECURITY.md` + marketing `/security` in the same PR per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c.
 
 ### 4. Implement Loki alert rules for policy pack assignments
 - **Why it matters:** Provides actionable alerts when policy packs are assigned or unassigned, improving observability.
@@ -620,8 +620,8 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 ### DEFERRED: Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
 - What are the `sk_live_` Stripe keys and is the Marketplace offer `Published`?
 
-### DEFERRED: Publish first named reference customer
+### V1.1 / DEFERRED: Publish first named reference customer
 - What is the customer name, do we have logo permission, and what is the case study text?
 
 ### DEFERRED: PGP key drop for `security@archlucid.net`
-- What is the public key block and has the domain acquisition been confirmed?
+- Domain acquisition is **confirmed** (2026-05-18). What is the **public** key material (or approval to generate per [`docs/security/PGP_KEY_GENERATION_RECIPE.md`](../security/PGP_KEY_GENERATION_RECIPE.md)), and who is named custodian for rotation?
