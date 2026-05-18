@@ -68,6 +68,7 @@ const PILLARS: readonly WelcomePillar[] = [
     body: "ArchLucid is not an architecture documentation tool with AI bolted on. It was built from day one around a multi-agent pipeline — specialized agents analyze architecture requests through a structured flow from intake to evidence graph, findings, decisioning, and artifact synthesis. The result is a versioned, finalized architecture manifest with structured findings, not a chat conversation that disappears.",
     verify: [
       { label: "See it in 30 seconds", href: "/see-it" },
+      { label: "Security & trust", href: "/security-trust" },
       { label: "Demo preview", href: "/demo/preview" },
       { label: "Product scope overview", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/V1_SCOPE.md` },
     ],

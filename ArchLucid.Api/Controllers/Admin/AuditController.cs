@@ -212,7 +212,7 @@ public sealed class AuditController(
             filter,
             ct);
 
-        DateTime nameFrom = effectiveFrom ?? DateTime.UtcNow;
+        DateTime nameFrom = effectiveFrom ?? TimeProvider.System.GetUtcNow().UtcDateTime;
         DateTime nameTo = effectiveTo ?? nameFrom;
         string attachmentName = exportFormatter.BuildAuditExportCsvFileName(nameFrom, nameTo);
         HttpContext.Items[AuditEventCsvFormatter.CsvAttachmentFileNameItemKey] = attachmentName;

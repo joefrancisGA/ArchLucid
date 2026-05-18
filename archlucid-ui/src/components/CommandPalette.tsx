@@ -17,6 +17,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
+import { BUYER_COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-buyer-curated-tasks";
 import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
 import { DOCUMENTATION_SEARCH_ITEMS, documentationSearchOpenUrl } from "@/lib/docs-search-index";
 import { NAV_GROUPS } from "@/lib/nav-config";
@@ -42,6 +43,10 @@ function buyerPolishedCommandPaletteLabel(pathname: string): string {
 
   if (path.startsWith("/audit")) {
     return "Search audit trail";
+  }
+
+  if (path.startsWith("/compare")) {
+    return "Search review change comparison";
   }
 
   if (path.startsWith("/governance")) {
@@ -98,11 +103,13 @@ function CommandPaletteCuratedTasks({
   buyerPolishedShell: boolean;
   onNavigate: (href: string) => void;
 }) {
-  const curated = useMemo(
-    () =>
-      COMMAND_PALETTE_CURATED_TASKS.filter((task) => visibleHrefs.has(curatedPaletteVisibilityHref(task.href))),
-    [visibleHrefs],
-  );
+  const curated = useMemo(() => {
+    if (buyerPolishedShell) {
+      return [...BUYER_COMMAND_PALETTE_CURATED_TASKS];
+    }
+
+    return COMMAND_PALETTE_CURATED_TASKS.filter((task) => visibleHrefs.has(curatedPaletteVisibilityHref(task.href)));
+  }, [buyerPolishedShell, visibleHrefs]);
 
   if (curated.length === 0) {
     return null;
@@ -327,6 +334,14 @@ export function CommandPalette() {
 
     if (path.startsWith("/graph")) {
       return "Jump to audit, manifest, governance, or type another destination…";
+    }
+
+    if (path.startsWith("/ask")) {
+      return "Jump to executive summary, manifest, evidence trail, or governance…";
+    }
+
+    if (path.startsWith("/compare")) {
+      return "Jump to review package, signed manifest, or evidence trail…";
     }
 
     if (path.startsWith("/audit")) {
