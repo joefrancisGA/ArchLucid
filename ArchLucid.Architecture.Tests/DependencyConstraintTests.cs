@@ -513,6 +513,65 @@ public sealed class DependencyConstraintTests
             FormatFailingTypeNames(result));
     }
 
+    // ── Tier 7 — Internal implementation namespaces (INV-001 host seam, hexagonal persistence) ──
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Application_must_not_depend_on_Persistence_Repositories_implementation_namespace()
+    {
+        Assembly application = typeof(ArchitectureRunCreateOrchestrator).Assembly;
+
+        TestResult result = Types
+            .InAssembly(application)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Persistence.Repositories")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Application depends on persistence ports (Interfaces, Models, Data.Repositories contracts); "
+                     + "Sql*/Caching* repository implementations belong in ArchLucid.Persistence.Repositories and composition only. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void AgentRuntime_must_not_depend_on_Persistence_Repositories_implementation_namespace()
+    {
+        Assembly agentRuntime = typeof(RealAgentExecutor).Assembly;
+
+        TestResult result = Types
+            .InAssembly(agentRuntime)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Persistence.Repositories")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "AgentRuntime may use persistence query/trace ports but must not reference concrete repository types "
+                     + "under ArchLucid.Persistence.Repositories (host registers those adapters). Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Application_must_not_depend_on_Api_Middleware_namespace()
+    {
+        Assembly application = typeof(ArchitectureRunCreateOrchestrator).Assembly;
+
+        TestResult result = Types
+            .InAssembly(application)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Api.Middleware")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "HTTP middleware is composed only in ArchLucid.Api (see INV-001 tenant/host boundary sketch); "
+                     + "Application must not take a dependency on ArchLucid.Api.Middleware types. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
     [Fact]
     [Trait("Suite", "Core")]
     [Trait("Category", "Unit")]
