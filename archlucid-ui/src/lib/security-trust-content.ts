@@ -61,7 +61,7 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
     vendor: "ArchLucid internal security program",
     scope:
       "Application data-handling paths, administrative interfaces, HTTPS API behaviors, with a documented control review process",
-    completedUtc: "Summary available during diligence (in progress)",
+    completedUtc: "Interim summary available during diligence; final internal assessment summary to follow",
     summaryAccess: {
       kind: "nda",
       description: "Summary available during due diligence.",
@@ -74,7 +74,7 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
     vendor: "ArchLucid platform operations",
     scope:
       "Staging-only fault-injection exercises for operator practices. Broader production resilience follows customer deployment architecture and contractual operating model.",
-    completedUtc: "Scheduled — summary available during diligence",
+    completedUtc: "Exercise scheduled — interim exercise log available; facilitation summary after the run",
     summaryAccess: {
       kind: "public",
       description: "Resilience exercise summary",

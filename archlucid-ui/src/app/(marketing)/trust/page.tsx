@@ -49,8 +49,8 @@ export default function MarketingTrustCenterPage(): ReactNode {
           Request evidence summary
         </a>
         <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-          Email triggers procurement-safe routing — we send the current public bundle or confirm diligence intake (same
-          materials summarized above).
+          Email security review to request the current public evidence summary — we send the excerpt above or confirm
+          diligence intake.
         </p>
       </div>
     </main>

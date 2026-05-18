@@ -92,6 +92,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const hasFindingsLink = run.hasFindingsSnapshot === true || showcaseStory;
   const hasArtifactsLink = run.hasArtifactBundle === true || showcaseStory;
   const showEvidenceGraphCta = showcaseStory || run.hasGraphSnapshot === true;
+  const graphTrailReady = showcaseStory || run.hasGraphSnapshot === true;
   const findingsQuickHref = showcaseStory
     ? showcaseUseWorkspaceQuickLinks
       ? `${workspaceHref}#run-explanation`
@@ -156,9 +157,27 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         <RunStatusBadge run={run} />
       </div>
 
+      {buyerPolished && showcaseStory ? (
+        <section
+          aria-label="Review package outcome summary"
+          className="space-y-2 rounded-lg border border-teal-200 bg-teal-50/40 p-3 dark:border-teal-800 dark:bg-teal-950/30"
+        >
+          <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Decision: Package finalized</p>
+          <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Governance approval: Approved with monitoring</p>
+          <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">
+            Remaining monitored risk: {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} (tracked in sealed manifest)
+          </p>
+          <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Evidence trail: Ready</p>
+          <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Audit trail: Complete</p>
+          <Button variant="primary" size="sm" className="mt-1 w-full" asChild>
+            <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
+          </Button>
+        </section>
+      ) : null}
+
       <div>
         <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          {buyerPolished ? "Review progress" : "Pipeline output"}
+          {buyerPolished ? "Review progress detail" : "Pipeline output"}
         </p>
         <p className="m-0 mt-1 text-xs text-neutral-700 dark:text-neutral-200">{artifactNote}</p>
         <ul className="m-0 mt-2 list-none space-y-1 p-0 text-xs">
@@ -170,8 +189,12 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           </li>
           <li className="flex justify-between gap-2">
             <span>{buyerPolished ? BUYER_SURFACE_VOCABULARY.evidenceGraph : "Graph generated"}</span>
-            <span aria-label={run.hasGraphSnapshot ? "Graph snapshot present" : "Graph snapshot missing"}>
-              {snapshotLabel(run.hasGraphSnapshot)}
+            <span
+              aria-label={
+                graphTrailReady ? "Decision traceability graph ready for this package" : "Graph snapshot missing"
+              }
+            >
+              {snapshotLabel(graphTrailReady)}
             </span>
           </li>
           <li className="flex justify-between gap-2">
@@ -193,9 +216,11 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
       <div className="space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         {buyerPolished ? (
           <div className="flex flex-col gap-2">
-            <Button variant="primary" size="sm" className="w-full" asChild>
-              <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
-            </Button>
+            {!showcaseStory ? (
+              <Button variant="primary" size="sm" className="w-full" asChild>
+                <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
+              </Button>
+            ) : null}
             <div className="flex flex-col gap-2 sm:flex-row">
               <Button variant="outline" size="sm" className="w-full sm:flex-1" asChild>
                 <Link href={signedManifestExplore.href}>{signedManifestExplore.label}</Link>

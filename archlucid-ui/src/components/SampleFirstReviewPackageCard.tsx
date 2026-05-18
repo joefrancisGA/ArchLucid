@@ -63,7 +63,7 @@ export function SampleFirstReviewPackageCard() {
           <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
             {buyerPolished === true ? (
               <>
-                Illustrative Claims Intake package — start at the executive summary, or open the full review record to
+                Illustrative Claims Intake package — start at the executive summary, or open the full review package to
                 explore manifest, evidence trail, governance, and audit from one workspace view.
               </>
             ) : (

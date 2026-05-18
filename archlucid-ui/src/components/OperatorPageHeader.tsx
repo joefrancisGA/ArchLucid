@@ -3,6 +3,10 @@ import type { ReactNode } from "react";
 import { BuyerTitleHint } from "@/components/BuyerTitleHint";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { HelpButton } from "@/components/ui/help-button";
+import {
+  isBuyerPolishedOperatorShellEnv,
+  isBuyerSafeDemoMarketingChromeEnv,
+} from "@/lib/demo-ui-env";
 
 export type OperatorPageHeaderProps = {
   title: string;
@@ -27,6 +31,9 @@ export function OperatorPageHeader({
   actions,
   children,
 }: OperatorPageHeaderProps) {
+  const omitDenseTitleHelpChrome =
+    isBuyerPolishedOperatorShellEnv() && isBuyerSafeDemoMarketingChromeEnv();
+
   return (
     <header className="mb-6 border-b border-neutral-200 pb-4 dark:border-neutral-800">
       <div className="flex flex-wrap items-center gap-2">
@@ -34,8 +41,8 @@ export function OperatorPageHeader({
         {buyerTitleHint !== undefined && buyerTitleHint.trim().length > 0 ? (
           <BuyerTitleHint text={buyerTitleHint.trim()} />
         ) : null}
-        {helpKey != null && <ContextualHelp helpKey={helpKey} />}
-        {docsPageKey != null && <HelpButton pageKey={docsPageKey} />}
+        {helpKey != null && !omitDenseTitleHelpChrome ? <ContextualHelp helpKey={helpKey} /> : null}
+        {docsPageKey != null && !omitDenseTitleHelpChrome ? <HelpButton pageKey={docsPageKey} /> : null}
         {actions != null && (
           <div className="ml-auto flex flex-wrap items-center gap-2">{actions}</div>
         )}

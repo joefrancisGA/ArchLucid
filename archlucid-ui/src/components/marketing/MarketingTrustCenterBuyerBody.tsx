@@ -79,8 +79,8 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
               </p>
               <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
                 <li>
-                  Roadmap attestations and third-party tests follow your procurement calendar — we do not pre-release
-                  unfinished formal reports.
+                  Formal reports are distributed after completion, approval, and controlled release — aligned with your
+                  procurement calendar.
                 </li>
               </ul>
             </div>
@@ -146,7 +146,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           >
             Security review contact
           </Link>{" "}
-          so we align the artefact bundle to your process.
+          so we align the diligence package to your process.
         </p>
       </section>
 

@@ -325,7 +325,7 @@ export function AskPageContent() {
         helpKey="ask-archlucid"
         subtitle={
           buyerPolishedShell
-            ? "Questions and answers are scoped to the selected review package. Ask after you pick a review; when the workspace active review matches the list, it is used automatically. Illustrative replies in demo mode echo sample evidence — confirm against your finalized export."
+            ? "Example answers are illustrative. In connected workspaces, answers are scoped to selected review evidence and source anchors."
             : "Conversations stay in your workspace. Select an architecture review for a new conversation; follow-ups stay on the same conversation without picking the review again."
         }
       />

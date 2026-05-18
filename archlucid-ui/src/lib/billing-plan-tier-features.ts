@@ -6,7 +6,7 @@ export const BILLING_TIER_FEATURE_BULLETS: Readonly<Record<string, readonly stri
   team: [
     "1 workspace · up to 5 architect seats",
     "20 architecture reviews / month included ($10 / review overage)",
-    "Golden manifests, comparison reviews, all 10 finding engines",
+    "Golden manifests, comparison reviews — core architecture finding coverage",
     "Basic governance checkpoint for configured high-risk changes",
     "90-day audit retention · Entra ID · community / email support",
   ],
@@ -20,8 +20,8 @@ export const BILLING_TIER_FEATURE_BULLETS: Readonly<Record<string, readonly stri
   enterprise: [
     "Unlimited workspaces and named architects (annual contract)",
     "Unlimited reviews — 2,000 / month fair-use soft cap",
-    "Full governance + custom policy pack support · Service Bus",
-    "Custom audit retention + export · Entra ID + generic OIDC (roadmap)",
+    "Full governance + custom policy pack support · Enterprise workflow integrations",
+    "Custom audit retention + export · Entra ID and OIDC federation (roadmap)",
     "Dedicated CSM · priority response · custom SLA terms",
   ],
 };

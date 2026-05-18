@@ -19,7 +19,7 @@ export function BuyerGoldenJourneyStrip() {
         Review journey
       </p>
       <p className="m-0 mt-2 max-w-prose text-xs leading-snug text-neutral-600 dark:text-neutral-400">
-        Follow the finalized review record from executive decision through signed manifest, evidence graph, governance
+        Follow the finalized review package from executive decision through signed manifest, evidence graph, governance
         approval, and audit trail.
       </p>
       <ol className="m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-2 p-0 text-sm">

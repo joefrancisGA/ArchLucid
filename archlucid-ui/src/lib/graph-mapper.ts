@@ -180,12 +180,12 @@ export function mapGraphToReactFlow(
   const heroId = isBuyerTrail ? layoutNodes.find((n) => isBuyerTrailPhiHeroNode(n))?.id : undefined;
 
   const columnCount = isBuyerTrail ? 4 : 5;
-  const cellW = isBuyerTrail ? 340 : 240;
-  const cellH = isBuyerTrail ? 220 : 140;
-  const nodeWidth = isBuyerTrail ? 300 : 180;
-  const heroNodeWidth = isBuyerTrail ? 336 : nodeWidth;
-  const fontSize = isBuyerTrail ? 19 : 12;
-  const heroFontSize = isBuyerTrail ? 22 : fontSize;
+  const cellW = isBuyerTrail ? 360 : 240;
+  const cellH = isBuyerTrail ? 240 : 140;
+  const nodeWidth = isBuyerTrail ? 320 : 180;
+  const heroNodeWidth = isBuyerTrail ? 356 : nodeWidth;
+  const fontSize = isBuyerTrail ? 22 : 12;
+  const heroFontSize = isBuyerTrail ? 26 : fontSize;
 
   const nodes: Node[] = layoutNodes.map((node, index) => {
     const hero = isBuyerTrail && isBuyerTrailPhiHeroNode(node);
@@ -244,7 +244,7 @@ export function mapGraphToReactFlow(
           }
         : { stroke: "#94a3b8", strokeWidth: 1.25 },
       labelStyle: isBuyerTrail
-        ? { fill: touchesHero ? "#9a3412" : "#0f172a", fontWeight: 700, fontSize: touchesHero ? 19 : 18 }
+        ? { fill: touchesHero ? "#9a3412" : "#0f172a", fontWeight: 700, fontSize: touchesHero ? 21 : 20 }
         : { fill: "#64748b", fontSize: 11 },
       labelBgStyle:
         isBuyerTrail
