@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Validate relative markdown links in docs/, archlucid-ui/docs/, and root README.md.
+With one or more path arguments (repo-relative), scan only those .md files or directories.
 External https?://, mailto:, tel:, and fragment-only (#anchor) targets are skipped.
 Exit 1 if any target file is missing.
 """
@@ -75,17 +76,57 @@ def resolve_target(md_file: Path, target: str) -> Path | None:
     return resolved
 
 
-def main() -> int:
-    root = repo_root()
+def collect_markdown_files(root: Path, paths: list[str] | None) -> list[Path]:
+    """All repo markdown under docs/ + UI docs + README, or only given paths."""
+    if paths:
+        files: list[Path] = []
+
+        for arg in paths:
+            candidate = Path(arg)
+
+            if not candidate.is_absolute():
+                candidate = root / candidate
+
+            candidate = candidate.resolve()
+
+            if not candidate.is_file() and not candidate.is_dir():
+                continue
+
+            if candidate.is_file() and candidate.suffix.lower() == ".md":
+                files.append(candidate)
+
+            if candidate.is_dir():
+                files.extend(sorted(candidate.rglob("*.md")))
+
+        deduped: dict[str, Path] = {}
+
+        for md in files:
+            try:
+                key = md.resolve().relative_to(root).as_posix()
+            except ValueError:
+                continue
+
+            deduped[key] = md.resolve()
+
+        return list(deduped.values())
+
     scan_dirs = [
         root / "docs",
         root / "archlucid-ui" / "docs",
     ]
-    files: list[Path] = [root / "README.md"]
+    all_files: list[Path] = [root / "README.md"]
 
-    for d in scan_dirs:
-        if d.is_dir():
-            files.extend(sorted(d.rglob("*.md")))
+    for directory in scan_dirs:
+        if directory.is_dir():
+            all_files.extend(sorted(directory.rglob("*.md")))
+
+    return all_files
+
+
+def main() -> int:
+    root = repo_root()
+    argv_paths = sys.argv[1:] if len(sys.argv) > 1 else None
+    files = collect_markdown_files(root, argv_paths)
 
     broken: list[str] = []
 

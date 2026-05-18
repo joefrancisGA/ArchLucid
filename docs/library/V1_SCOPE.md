@@ -18,7 +18,7 @@ This scope document lists in-scope capabilities, explicit out-of-scope items, th
 - **[README.md](../REPOSITORY_README.md)** — repo overview and install spine
 - **[GLOSSARY.md](GLOSSARY.md)** — terms and naming
 - **[BREAKING_CHANGES.md](../../BREAKING_CHANGES.md)** — breaking change trail
-- **[ARCHLUCID_RENAME_CHECKLIST.md](../ARCHLUCID_RENAME_CHECKLIST.md)** — remaining rename phases
+- **[ARCHLUCID_RENAME_CHECKLIST.md](../archive/ARCHLUCID_RENAME_CHECKLIST.md)** — remaining rename phases
 - **[ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md)** — architecture poster
 - **[OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)** — operator atlas
 
