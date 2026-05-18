@@ -21,6 +21,7 @@ public static class ArchitectureRunFindingsCsvFormatter
         ArgumentNullException.ThrowIfNull(detail);
 
         StringBuilder sb = new();
+
         sb.Append(HeaderLine).Append('\n');
 
         if (detail.Results is null)
@@ -47,7 +48,9 @@ public static class ArchitectureRunFindingsCsvFormatter
         foreach (AgentResult result in detail.Results)
         {
             if (result?.Findings is null || result.Findings.Count == 0)
+            {
                 continue;
+            }
 
             foreach (ArchitectureFinding finding in result.Findings)
             {

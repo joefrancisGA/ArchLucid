@@ -1,4 +1,7 @@
 using System.Globalization;
+using System.IO;
+using System.Text;
+using System.Text.Json;
 
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
@@ -9,6 +12,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Findings;
+using ArchLucid.Application.Reporting;
 using ArchLucid.Application.Traceability;
 using ArchLucid.Application.Trust;
 using ArchLucid.Contracts.Agents;
@@ -16,6 +20,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Pagination;
@@ -24,6 +29,7 @@ using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
 
@@ -60,7 +66,9 @@ public sealed class RunQueryController(
     IRunTrustEvidenceCardBuilder trustEvidenceCardBuilder,
     ILlmCostEstimator llmCostEstimator,
     IAuthorityQueryService authorityQueryService,
-    IConfiguration configuration) : ControllerBase
+    IConfiguration configuration,
+    IAuditService auditService,
+    ExportFormatterService exportFormatter) : ControllerBase
 {
     /// <summary>
     ///     Returns the canonical run aggregate (tasks, results, manifest, decision traces) for <paramref name="runId" />.
@@ -128,6 +136,59 @@ public sealed class RunQueryController(
         RunRoiScorecardDto estimate = runRoiEstimator.Estimate(detail);
 
         return Ok(estimate);
+    }
+
+    /// <summary>
+    ///     Bulk export of flattened architecture findings for <paramref name="runId" /> as <c>text/csv</c> (one row per
+    ///     finding across agent results).
+    /// </summary>
+    [HttpGet("run/{runId}/findings/export/csv")]
+    [Produces("text/csv")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExportRunFindingsCsv(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (!string.IsNullOrWhiteSpace(detail.Run.CurrentManifestVersion) && detail.Manifest is null)
+            return this.NotFoundProblem(
+                $"Manifest referenced by run '{runId}' could not be found.",
+                ProblemTypes.ResourceNotFound);
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
+        int findingCount = ArchitectureRunFindingsCsvFormatter.CountFindingsInDetail(detail);
+
+        Guid? auditRunId = TryParseRunId(runId, out Guid runGuidForAudit) ? runGuidForAudit : null;
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.FindingsListAccessed,
+                RunId = auditRunId,
+                DataJson = JsonSerializer.Serialize(
+                    new { format = "csv", findingCount },
+                    AuditJsonSerializationOptions.Instance),
+            },
+            cancellationToken);
+
+        DateTime utcStamp = TimeProvider.System.GetUtcNow().UtcDateTime;
+        string timeSegment = exportFormatter.FormatAttachmentSegmentUtc(utcStamp);
+        string safeRunStem = auditRunId.HasValue
+            ? runGuidForAudit.ToString("N", CultureInfo.InvariantCulture)
+            : SanitizeRunIdForFindingExport(runId);
+
+        string downloadName =
+            $"architecture-run-{safeRunStem}-findings-{timeSegment}.csv";
+
+        return File(
+            Encoding.UTF8.GetBytes(csv),
+            "text/csv; charset=utf-8",
+            downloadName);
     }
 
     /// <summary>Knowledge-graph snapshot packaged for interactive Cytoscape.js renders.</summary>
@@ -524,6 +585,29 @@ public sealed class RunQueryController(
     private static bool TryParseRunId(string runId, out Guid runGuid)
     {
         return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
+    }
+
+    private static string SanitizeRunIdForFindingExport(string runId)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return "unknown-run";
+
+        string trimmed = runId.Trim();
+        ReadOnlySpan<char> invalidChars = Path.GetInvalidFileNameChars();
+
+        StringBuilder stem = new(trimmed.Length);
+
+        foreach (char c in trimmed)
+        {
+            if (invalidChars.Contains(c))
+                stem.Append('_');
+            else
+                stem.Append(c);
+        }
+
+        string built = stem.ToString();
+
+        return string.IsNullOrWhiteSpace(built) ? "unknown-run" : built;
     }
 
     /// <summary>Hyphen/format-insensitive GUID comparison (aligned with UI <c>sameAuthorityRunId</c>).</summary>
