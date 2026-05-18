@@ -41,9 +41,12 @@ test.describe("operator journey — manifest empty artifact list", () => {
     await expect(emptyRegion.getByText(/valid empty result/)).toBeVisible();
     await expect(emptyRegion.getByText(/Bundle ZIP may return 404/)).toBeVisible();
 
+    // Buyer-polished shell: primary bundle CTA is "Download finalized review package" (`ManifestDetailPageView`).
+    // Full-operator shell: header "Export manifest bundle" and card "Download bundle (ZIP)".
     const bundleLink = page
       .getByRole("link", {
-        name: /^(Download bundle \(ZIP\)|Download evidence package \(ZIP\)|Download all files \(ZIP\)|Download full package \(ZIP\))$/,
+        name:
+          /^(Download bundle \(ZIP\)|Download evidence package \(ZIP\)|Download all files \(ZIP\)|Download full package \(ZIP\)|Download finalized review package|Export manifest bundle)$/,
       })
       .first();
     await expect(bundleLink).toBeVisible();

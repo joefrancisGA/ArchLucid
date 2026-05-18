@@ -2,6 +2,8 @@ using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
+using ArchLucid.Core.Diagnostics;
+
 using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Data.Infrastructure;
@@ -209,6 +211,22 @@ public static partial class GreenfieldBaselineMigrationRunner
                 connection,
                 tx);
             stamp.Parameters.AddWithValue("@ScriptName", resourceName);
+
+            if (resourceName.Contains("108_RlsRenameToArchLucid", StringComparison.OrdinalIgnoreCase))
+            {
+                bool hadRow = SchemaVersionRowExistsForScript(connection, tx, resourceName);
+                stamp.ExecuteNonQuery();
+
+                if (!hadRow)
+                {
+                    string scope = string.IsNullOrWhiteSpace(connection.Database) ? "unknown" : connection.Database;
+
+                    ArchLucidInstrumentation.RecordCatalogMigrationRls108ReplayNote("108", scope, "journal_stamp_repair");
+                }
+
+                continue;
+            }
+
             stamp.ExecuteNonQuery();
         }
     }
@@ -239,6 +257,28 @@ public static partial class GreenfieldBaselineMigrationRunner
                            """;
 
         using SqlCommand command = new(sql, connection);
+        object? scalar = command.ExecuteScalar();
+
+        if (scalar is null or DBNull)
+            return false;
+
+        if (scalar is bool asBool)
+            return asBool;
+
+        return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
+    }
+
+    private static bool SchemaVersionRowExistsForScript(SqlConnection connection, SqlTransaction? tx, string scriptName)
+    {
+        const string sql = """
+                           SELECT CASE WHEN EXISTS (
+                               SELECT 1
+                               FROM dbo.SchemaVersions
+                               WHERE ScriptName = @ScriptName) THEN 1 ELSE 0 END;
+                           """;
+
+        using SqlCommand command = new(sql, connection, tx);
+        command.Parameters.AddWithValue("@ScriptName", scriptName);
         object? scalar = command.ExecuteScalar();
 
         if (scalar is null or DBNull)

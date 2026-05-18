@@ -7,6 +7,7 @@ import {
   SCREENSHOT_FINDING_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "./fixtures";
+import { comparePageMainHeading } from "./helpers/operator-journey";
 test.describe("operator shell smoke", () => {
   test("home renders shell headings", async ({ page }) => {
     await page.goto("/");
@@ -113,7 +114,8 @@ test.describe("operator shell smoke — advanced surface path", () => {
     await expect(page.getByRole("main").first().getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/compare");
-    await expect(page.getByRole("heading", { name: /Compare reviews/i })).toBeVisible();
+    // Buyer-polished demo shell uses "Review change comparison"; full operator shell uses "Compare reviews".
+    await expect(comparePageMainHeading(page)).toBeVisible();
     await expect(page.getByRole("main").first().getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/governance");

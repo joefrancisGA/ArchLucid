@@ -5,6 +5,8 @@ using DbUp.Engine;
 
 using Microsoft.Data.SqlClient;
 
+using ArchLucid.Core.Diagnostics;
+
 namespace ArchLucid.Persistence.Data.Infrastructure;
 
 /// <summary>
@@ -131,6 +133,7 @@ public static class DatabaseMigrator
     private static void RunWithScriptFilter(string connectionString, Func<string, bool> includeScript)
     {
         Assembly assembly = Assembly.GetExecutingAssembly();
+        string catalogScopeLabel = CatalogScopeLabelFromConnectionString(connectionString);
 
         List<SqlScript> scripts = assembly.GetManifestResourceNames()
             .Where(static n =>
@@ -139,7 +142,7 @@ public static class DatabaseMigrator
                 !n.Contains(".Migrations.Baseline.", StringComparison.OrdinalIgnoreCase))
             .Where(includeScript)
             .OrderBy(static n => n, StringComparer.OrdinalIgnoreCase)
-            .Select(name => new SqlScript(name, ReadEmbeddedScript(assembly, name)))
+            .Select(name => CreateSqlScriptForMigration(assembly, name, catalogScopeLabel))
             .ToList();
 
         // Per-script transactions: a single transaction across all embedded scripts breaks SQL Server when later
@@ -164,6 +167,38 @@ public static class DatabaseMigrator
         throw new InvalidOperationException(
             "Database migration failed. See inner exception for the SQL Server error. DbUp message: " + detail,
             result.Error);
+    }
+
+    /// <summary>SQL catalog name for migration telemetry (<c>tenant_scope</c> on <see cref="ArchLucidInstrumentation" /> counters).</summary>
+    private static string CatalogScopeLabelFromConnectionString(string connectionString)
+    {
+        if (string.IsNullOrWhiteSpace(connectionString))
+            return "unknown";
+
+        try
+        {
+            SqlConnectionStringBuilder builder = new(
+                SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString));
+
+            return string.IsNullOrWhiteSpace(builder.InitialCatalog) ? "unknown" : builder.InitialCatalog;
+        }
+        catch (ArgumentException)
+        {
+            return "unknown";
+        }
+    }
+
+    private static SqlScript CreateSqlScriptForMigration(
+        Assembly assembly,
+        string resourceName,
+        string catalogScopeLabel)
+    {
+        string body = ReadEmbeddedScript(assembly, resourceName);
+
+        if (resourceName.Contains("108_RlsRenameToArchLucid", StringComparison.OrdinalIgnoreCase))
+            return new CatalogMigration108ReplayNoteSqlScript(resourceName, body, catalogScopeLabel);
+
+        return new SqlScript(resourceName, body);
     }
 
     /// <summary>

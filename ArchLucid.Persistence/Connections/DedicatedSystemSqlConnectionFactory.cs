@@ -29,9 +29,9 @@ public sealed class DedicatedSystemSqlConnectionFactory : ISystemSqlConnectionFa
     }
 
     /// <inheritdoc />
-    public Task<SqlConnection> CreateOpenConnectionAsync(CancellationToken cancellationToken)
+    public async Task<SqlConnection> CreateOpenConnectionAsync(CancellationToken cancellationToken)
     {
-        return _sqlOpenRetryPipeline.ExecuteAsync(
+        SqlConnection opened = await _sqlOpenRetryPipeline.ExecuteAsync(
             async ct =>
             {
                 SqlConnection connection = new(_connectionString);
@@ -41,5 +41,7 @@ public sealed class DedicatedSystemSqlConnectionFactory : ISystemSqlConnectionFa
                 return connection;
             },
             cancellationToken);
+
+        return opened;
     }
 }

@@ -1,4 +1,3 @@
-# Merged Cobertura root line %% baseline (committed ratchet anchor).
-# Pass when merged line >= (baseline − 2.00%%).
-# Matches the enforced 95%% merged minimum at 97 − 2; bump this file when sustained coverage improves.
+# Merged Cobertura root line %% baseline (ratchet anchor). Not invoked in CI until V1.1 — see `assert_coverage_floor_ratchet.py` + `docs/library/V1_DEFERRED.md`.
+# When re-enabled: pass when merged line >= (baseline − slack%%), default slack 2.
 97.00

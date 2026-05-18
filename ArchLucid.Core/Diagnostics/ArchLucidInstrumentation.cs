@@ -649,6 +649,16 @@ public static class ArchLucidInstrumentation
             description:
             "Orphan rows quarantined (inserted into dbo.DataConsistencyQuarantine; labels table, column).");
 
+    /// <summary>
+    ///     DbUp or journal-repair path touched RLS rename migration <c>108_RlsRenameToArchLucid.sql</c> (labels
+    ///     <c>migration_id</c>, <c>tenant_scope</c> SQL catalog name, <c>encounter_kind</c>).
+    /// </summary>
+    public static readonly Counter<long> CatalogMigrationRls108ReplayNotesTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_catalog_migration_rls_108_replay_notes_total",
+            description:
+            "RLS migration 108 (ArchLucid tenant-scope rename) noted during catalog migration (labels migration_id, tenant_scope, encounter_kind).");
+
     /// <summary>Wall time for scheduled read-only data consistency reconciliation (full pass).</summary>
     public static readonly Histogram<double> DataConsistencyReconciliationDurationMilliseconds =
         AppMeter.CreateHistogram<double>(
@@ -1175,6 +1185,29 @@ public static class ArchLucidInstrumentation
     {
         string r = string.IsNullOrWhiteSpace(ruleName) ? "unknown" : ruleName.Trim();
         StartupConfigWarningsTotal.Add(1, new TagList { { "rule_name", r } });
+    }
+
+    /// <summary>
+    ///     Increments <see cref="CatalogMigrationRls108ReplayNotesTotal" />. <paramref name="tenantScope" /> should be
+    ///     the SQL catalog name (e.g. <see cref="Microsoft.Data.SqlClient.SqlConnection.Database" />).
+    /// </summary>
+    public static void RecordCatalogMigrationRls108ReplayNote(
+        string migrationId,
+        string tenantScope,
+        string encounterKind)
+    {
+        string m = string.IsNullOrWhiteSpace(migrationId) ? "unknown" : migrationId.Trim();
+        string scope = string.IsNullOrWhiteSpace(tenantScope) ? "unknown" : tenantScope.Trim();
+        string k = string.IsNullOrWhiteSpace(encounterKind) ? "unknown" : encounterKind.Trim();
+
+        TagList tags = new()
+        {
+            { "migration_id", m },
+            { "tenant_scope", scope },
+            { "encounter_kind", k },
+        };
+
+        CatalogMigrationRls108ReplayNotesTotal.Add(1, tags);
     }
 
     /// <summary>Records a latency observation for TB-003 allowlisted queries (production or CI ingest).</summary>
