@@ -8,7 +8,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 ## Executive Summary
 
 ### (A) Overall Headline Readiness (84.94%)
-ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, the internal Policy Pack Hub (catalog + clone), operational script hardening, and Azure Retail Prices coverage for VMs and Storage Accounts in the extractor package—significantly strengthen the GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting), Azure Cost Management actuals / Advisor parity versus retail estimates, and default `ui-e2e-smoke` mock-heavy coverage.
+ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, the internal Policy Pack Hub (catalog + clone), operational script hardening, merge-blocking OpenAPI v1 snapshot drift checks in CI, and Azure Retail Prices coverage for VMs and Storage Accounts in the extractor package—significantly strengthen the GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting), Azure Cost Management actuals / Advisor parity versus retail estimates, and default `ui-e2e-smoke` mock-heavy coverage.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. The full automated tenant erasure quarantine pipeline is a V2 engineering commitment and is not scored as an `(A)` defect. V1 relies on operator-driven and trial/offboarding deletion paths.
@@ -588,19 +588,17 @@ Add a `TrialExpiryBanner` React component in `archlucid-ui/src/components/` that
 - Impact: Directly improves Stickiness (+8-10 pts) and Time-to-Value (+4-6 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 21. Add OpenAPI Snapshot Staleness Check to CI
-- **Why it matters:** `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json` exists as the canonical API contract, and `.cursor/rules/Http-Surface-Docs-And-Clients.mdc` requires it to be regenerated and committed in the same PR when routes change. However, CI has no step that fails a PR when the snapshot is stale, so the constraint is documentation-only and regularly bypassed under deadline pressure.
+### 21. Add OpenAPI Snapshot Staleness Check to CI — **complete**
+- **Why it matters:** `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json` is the canonical API contract; merge-blocking enforcement keeps it aligned with the live OpenAPI document so route changes cannot ship without updating the snapshot (and thus generated clients/docs workflows tied to it).
 - **Expected impact:** Correctness (+10 pts), Testability (+6 pts).
 - **Affected qualities:** Correctness, Testability.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (Tier **0.x** job `openapi-contract-snapshot` in `.github/workflows/ci.yml` runs `bash scripts/ci/check_openapi_contract_snapshot.sh`, which builds `ArchLucid.Api.Tests` and runs `OpenApiContractSnapshotTests`; stale snapshot fails CI; local regen documented on `OpenApiContractSnapshotTests` and in the script header via `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1`.)
 ```text
-Add a CI step to `.github/workflows/ci.yml` in the .NET test job that:
-1. Runs the `OpenApiContractSnapshotTests` project with `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1` to regenerate the snapshot in-place.
-2. Runs `git diff --exit-code ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json` to detect drift.
-3. Fails the step with a clear message ("OpenAPI snapshot is out of date. Regenerate with ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 and commit the result.") if drift is detected.
-- Acceptance criteria: (a) A PR that adds a new API route without committing an updated snapshot fails CI at this step. (b) A PR with a committed, up-to-date snapshot passes.
-- Constraints: The regeneration step must not commit to the branch; it is read-only for comparison only. Use the existing test project; do not add new tooling.
-- What not to change: Do not alter the `OpenApiContractSnapshotTests` test logic.
+Add merge-blocking OpenAPI snapshot drift detection to CI.
+- Status: COMPLETE — acceptance criteria met (dedicated fail-fast job parallel with early-tier gates; intentional API changes require regenerating `openapi-v1.contract.snapshot.json` and committing it in the same PR).
+- Acceptance criteria: (a) A PR that changes routes without updating the committed snapshot fails CI. (b) A PR with an up-to-date snapshot passes.
+- Constraints: Regeneration is local/developer-only (`ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1`); CI compares via existing `OpenApiContractSnapshotTests` (no auto-commit on the runner).
+- What not to change: Do not weaken the test’s contract without replacing it with an equivalent drift gate.
 - Impact: Directly improves Correctness (+8-10 pts) and Testability (+4-6 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
@@ -627,7 +625,7 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 3 (Cost & Policy Packs):** 2, 3, 4, 19
 - **Batch 4 (Reliability & Scalability):** 6, 9, 12
 - **Batch 5 (Security & Compliance):** 5, 8
-- **Batch 6 (Testing & CI):** 7, 18, 21
+- **Batch 6 (Testing & CI):** 7, 18
 - **Batch 7 (UX & Conversion):** 10, 20
 
 ---
