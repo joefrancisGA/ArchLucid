@@ -499,10 +499,6 @@ Add a Redis health check to the ASP.NET Core Health Checks pipeline in `ArchLuci
 - **Reason:** Deferred to V2. Requires user input to confirm the recommended Azure Cache for Redis SKU.
 - **Needed from me:** Please provide the recommended Redis SKU and private connectivity Terraform configuration.
 
-### 21. DEFERRED: Azure Container Apps Jobs + Durable Task Framework
-- **Reason:** Deferred to V2. Requires user input to confirm the migration strategy for existing background jobs.
-- **Needed from me:** Please confirm which specific background jobs should be migrated to Container Apps Jobs.
-
 ---
 
 ## Prompt Batching Guidance
@@ -539,6 +535,3 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 
 ### DEFERRED: Redis as the default production substrate for scaled API fleets
 - What is the recommended Redis SKU and private connectivity Terraform configuration?
-
-### DEFERRED: Azure Container Apps Jobs + Durable Task Framework
-- Which specific background jobs should be migrated to Container Apps Jobs?
