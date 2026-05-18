@@ -77,12 +77,7 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
     [SkippableFact]
     public async Task Post_generate_returns_docx_when_operator_jwt_and_standard_tier()
     {
-        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
-            _factory.PrivatePemForTests,
-            "https://test.archlucid.local",
-            "api://archlucid-jwt-local-test",
-            "OperatorUser",
-            [ArchLucidRoles.Operator]);
+        string token = _factory.MintLocalBearerJwt("OperatorUser", [ArchLucidRoles.Operator]);
 
         HttpClient client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);

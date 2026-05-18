@@ -36,4 +36,6 @@ public static class HostElectionLeaseNames
     public const string AzureExtractorAutoPull = "hosted:azure-extractor-auto-pull";
 
     public const string InternalCrossTenantRollup = "hosted:internal-cross-tenant-rollup";
+
+    public const string SamlCertExpiryNotification = "hosted:saml-cert-expiry-notification";
 }

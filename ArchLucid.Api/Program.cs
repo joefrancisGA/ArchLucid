@@ -98,6 +98,9 @@ public partial class Program
         if (hostingRole == ArchLucidHostingRole.Api)
             builder.Services.AddHostedService<RetentionPurgeWorker>();
 
+        if (hostingRole != ArchLucidHostingRole.Worker)
+            builder.Services.AddHostedService<SamlCertExpiryNotificationHostedService>();
+
         builder.Services.AddArchLucidApiWebLayerServices(builder.Configuration);
         builder.Services.AddScoped<IGovernancePreviewService, GovernancePreviewService>();
         builder.Services.AddScoped<QuickStartService>();
