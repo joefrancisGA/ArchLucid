@@ -1,0 +1,31 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "iso27001-001",
+    "iso27001-002",
+    "iso27001-003",
+    "iso27001-004",
+    "iso27001-005",
+    "iso27001-006",
+    "iso27001-007",
+    "iso27001-008",
+    "iso27001-009",
+    "iso27001-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "iso27001-architecture-v1",
+    "pack.displayName": "ISO/IEC 27001 ISMS (Architecture Slice)",
+    "pack.category": "Compliance",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "ISMS control themes for architecture evidence. Not ISO 27001 certification.",
+    "frameworkMappingDisclaimer": "ISO mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/iso27001-architecture-rules-v1.json"
+  }
+}

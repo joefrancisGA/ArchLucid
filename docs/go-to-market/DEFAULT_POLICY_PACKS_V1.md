@@ -4,7 +4,7 @@
 
 **Audience:** pilots, procurement, CS, and sellers explaining what governance content ships **in-tenant by default**.
 
-**Objective:** Declare exactly **four** first-party curated categories bundled with every net-new tenant provisioning (see `IDefaultPolicyPackSeeder` / `DEFAULT_POLICY_PACKS_V1`).
+**Objective:** Declare **23** first-party curated categories bundled with every net-new tenant provisioning (see `IDefaultPolicyPackSeeder` / embedded manifest `ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled/bundled-policy-packs-v1.manifest.json`).
 
 ## The "Brain" of the Governance Model
 
@@ -15,18 +15,41 @@ ArchLucid's policy packs act as the active "brain" of the governance engine. By 
 
 This design enables deep customization via hierarchical scoping (Tenant, Workspace, Project) where multiple packs are dynamically merged, allowing central security teams and individual project squads to combine their distinct governance requirements seamlessly.
 
-**Content velocity:** Curated packs are drafted with an **LLM generator → critic model → human SME** pipeline; see **[`POLICY_PACK_CONTENT_BACKLOG.md`](../library/POLICY_PACK_CONTENT_BACKLOG.md)**.
+**Content velocity:** Curated packs are drafted with an **LLM generator → critic model → human SME** pipeline; regenerate samples with **`python scripts/generate_v1_bundled_policy_packs.py`**. Authoring playbook: **[`POLICY_PACK_CONTENT_BACKLOG.md`](../library/POLICY_PACK_CONTENT_BACKLOG.md)**.
 
 ---
 
 ## 1. What ships for V1 GA
 
-| Bundled GA category | Display name | Pack type in UI/API | Stable rule references | Canonical narrative |
-|--------------------|--------------|---------------------|-----------------------|-----------------------|
-| **AI Governance** | **AI Governance / Responsible AI** | `PlatformDefault` (shown as **Bundled default (platform)** in Operator UI) | **20** curated keys (`ai-gov-001` … `ai-gov-020`) | Appendix: **[`POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md`](../library/POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md)** • JSON: [`ai-governance-responsible-ai-rules-v1.json`](../samples/policy-packs/ai-governance-responsible-ai-rules-v1.json) |
-| **Security baseline** | **Security Architecture Baseline** | Same | **30** curated keys (`sec-base-001` … `sec-base-030`) | Appendix: **[`POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md`](../library/POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md)** • JSON: [`security-architecture-baseline-rules-v1.json`](../samples/policy-packs/security-architecture-baseline-rules-v1.json) |
-| **Azure WAF** | **Azure Well-Architected Framework** | Same | **12** curated keys (`waf-az-001` … `waf-az-012`) | JSON: [`azure-waf-rules-v1.json`](../samples/policy-packs/azure-waf-rules-v1.json) • content doc: [`azure-waf.json`](../samples/policy-packs/azure-waf.json) |
-| **Azure CAF / LZ** | **Azure Landing Zone / Cloud Adoption Framework** | Same | **12** curated keys (`lz-caf-001` … `lz-caf-012`) | JSON: [`azure-caf-landing-zone-rules-v1.json`](../samples/policy-packs/azure-caf-landing-zone-rules-v1.json) • content doc: [`azure-caf-landing-zone.json`](../samples/policy-packs/azure-caf-landing-zone.json) |
+All rows below are seeded as **`PlatformDefault`** (Operator UI: **Bundled default (platform)**). Curated rule narratives live in **`docs/samples/policy-packs/*-rules-v1.json`**; provisioning copies are embedded under **`ArchLucid.Application/.../Bundled/`**.
+
+| # | Bundled category | Display name | Rule key prefix (examples) |
+|---|------------------|--------------|----------------------------|
+| 1 | AI Governance | AI Governance / Responsible AI | `ai-gov-001` … `020` |
+| 2 | Security baseline | Security Architecture Baseline | `sec-base-001` … `030` |
+| 3 | Azure WAF | Azure Well-Architected Framework | `waf-az-001` … `012` |
+| 4 | Azure CAF / LZ | Azure Landing Zone / Cloud Adoption Framework | `lz-caf-001` … `012` |
+| 5 | Privacy | GDPR Compliance Baseline | `gdpr-001` … `010` |
+| 6 | Compliance | SOC 2 Type II (Architecture Themes) | `soc2-001` … `010` |
+| 7 | Cost | FinOps & Cloud Cost Optimization | `cost-opt-001` … `006` |
+| 8 | Application security | OWASP API Security Top 10 | `owasp-api-001` … `010` |
+| 9 | Compliance | ISO/IEC 27001 ISMS (Architecture Slice) | `iso27001-001` … `010` |
+| 10 | Security | CIS Microsoft Azure Foundations Benchmark | `cis-az-001` … `010` |
+| 11 | Healthcare | HIPAA / HITECH Safeguards | `hipaa-001` … `010` |
+| 12 | Payments | PCI-DSS (Architecture / Segmentation) | `pci-001` … `010` |
+| 13 | Security | Zero Trust Architecture | `zta-001` … `010` |
+| 14 | Reliability | Azure Resiliency & Disaster Recovery | `az-dr-001` … `010` |
+| 15 | Platform | AKS Production Baseline | `aks-001` … `010` |
+| 16 | Data governance | Data Classification & Lineage | `data-class-001` … `010` |
+| 17 | Identity | Entra ID / IAM Architecture Baseline | `entra-iam-001` … `010` |
+| 18 | Application platform | Serverless & PaaS Security (Azure) | `az-paas-001` … `010` |
+| 19 | Compliance | NIST Cybersecurity Framework 2.0 | `nist-csf-001` … `010` |
+| 20 | DevSecOps | Software Supply Chain & SBOM | `supply-chain-001` … `010` |
+| 21 | Engineering | DORA / DevSecOps Delivery Posture | `dora-001` … `010` |
+| 22 | Operations | Observability & OpenTelemetry Baseline | `otel-001` … `010` |
+| 23 | Data platform | Azure SQL / Cosmos DB Data-Layer Security | `az-data-001` … `010` |
+
+**Appendices (selected):** **[`POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md`](../library/POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md)** · **[`POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md`](../library/POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md)**
 
 Assignments are seeded **enabled** (`PolicyPackAssignments.IsEnabled = true`); merges participate in **`PolicyPackResolver`** like any other activated assignment.
 
@@ -34,30 +57,26 @@ Assignments are seeded **enabled** (`PolicyPackAssignments.IsEnabled = true`); m
 
 ## 2. Framework & jurisdiction disclaimers (all bundled rules)
 
-Starter corpora use **informative thematic mapping** (`frameworkMappings`) to accelerate architecture review—they **do not** constitute statutory legal classification, Annex III conformity assessment, CIS benchmark pass/fail automation, OWASP certification, **or Microsoft Well-Architected / CAF / landing-zone attestation.**
+Starter corpora use **informative thematic mapping** (`frameworkMappings`) to accelerate architecture review—they **do not** constitute statutory legal classification, conformity assessment, CIS/OWASP/PCI/HIPAA/SOC 2 pass-fail automation, **or** Microsoft Well-Architected / CAF / landing-zone **certification**.
 
 **Operational truth:** Buyers remain responsible for jurisdictional applicability, contractual obligations, auditor evidence breadth, and any certification claims.
-
-Canonical pack metadata repeats this posture in seeded JSON `description`/`metadata.disclaimer`-style strings.
 
 ---
 
 ## 3. Operator UI — where bundles appear
 
 - **Registered list & effective merge:** **`/policy-packs`** surfaces packs returned by **`GET`** list + effective merges; seeded rows show **Bundled default (platform)**.
-- **Rule key inspection:** Expanded **Inspect** accordion lists merged **`complianceRuleKeys`** plus pointers to appendix JSON.
-- **Findings UX:** Rows in **`/governance/findings`** link to Inspect; **`/reviews/{runId}/findings/{id}/inspect`** surfaces titles, rationales (description), inferred severity traces, remediation blocks, reasoning payload (operator deep view), consistent with seeded compliance rule metadata mirrored into evaluation outputs where the Authority pipeline emits them against evidence.
-
-Pilot validation path: finalize a manifest with Azure / architecture evidence intersecting seeded keys → open finding inspect for rule-backed rows.
+- **Rule key inspection:** Expanded **Inspect** accordion lists merged **`complianceRuleKeys`** plus pointers to appendix / sample JSON.
+- **Findings UX:** Rows in **`/governance/findings`** link to Inspect on review detail.
 
 ---
 
 ## 4. Security / tenancy posture (non-regression assertion)
 
-Bundles are **`PlatformDefault`** rows **scoped per tenant/workspace/project**, not silently shared writable globals. Operators **cannot republish** them through the shipped HTTP surface (UI disables **Publish**, API rejects `PublishVersion`). Read paths obey existing repository scoping; **tenant A cannot mutate tenant B packs** regardless of labeling.
+Bundles are **`PlatformDefault`** rows **scoped per tenant/workspace/project**, not silently shared writable globals. Operators **cannot republish** them through the shipped HTTP surface (UI disables **Publish**, API rejects `PublishVersion`).
 
 ---
 
-## 5. Content roadmap and authoring
+## 5. Content roadmap
 
-**Prioritized packs beyond GA**, LLM-assisted drafting pipeline, and promotion paths: **[`POLICY_PACK_CONTENT_BACKLOG.md`](../library/POLICY_PACK_CONTENT_BACKLOG.md)**.
+The prioritized **top-20 commercial backlog** from **[`POLICY_PACK_CONTENT_BACKLOG.md`](../library/POLICY_PACK_CONTENT_BACKLOG.md)** is **included in V1 GA** (plus AI Governance and Security baseline as core corpora). Future packs expand depth (more rules per framework) via content revisions, not binary releases.

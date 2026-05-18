@@ -1,0 +1,31 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "owasp-api-001",
+    "owasp-api-002",
+    "owasp-api-003",
+    "owasp-api-004",
+    "owasp-api-005",
+    "owasp-api-006",
+    "owasp-api-007",
+    "owasp-api-008",
+    "owasp-api-009",
+    "owasp-api-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "owasp-api-top10-v1",
+    "pack.displayName": "OWASP API Security Top 10",
+    "pack.category": "Application Security",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "API architecture security themes aligned to OWASP API Top 10 motifs. Not OWASP certification.",
+    "frameworkMappingDisclaimer": "OWASP references are thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/owasp-api-top10-rules-v1.json"
+  }
+}

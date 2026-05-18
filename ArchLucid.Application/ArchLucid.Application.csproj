@@ -32,6 +32,11 @@
     <EmbeddedResource Include="Templates\*.json" />
   </ItemGroup>
 
+  <!-- V1 GA default policy packs (tenant provisioning seeder). -->
+  <ItemGroup>
+    <EmbeddedResource Include="Governance\DefaultPolicyPacks\Bundled\*.json" />
+  </ItemGroup>
+
   <!--
     Trust Center evidence-pack source files.
     Embedded so the ZIP endpoint works in WebApplicationFactory integration tests

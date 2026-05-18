@@ -1,0 +1,31 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "gdpr-001",
+    "gdpr-002",
+    "gdpr-003",
+    "gdpr-004",
+    "gdpr-005",
+    "gdpr-006",
+    "gdpr-007",
+    "gdpr-008",
+    "gdpr-009",
+    "gdpr-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "gdpr-baseline-v1",
+    "pack.displayName": "GDPR Compliance Baseline",
+    "pack.category": "Privacy",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Privacy and data-protection architecture themes (encryption, minimization, region constraints). Not legal GDPR certification.",
+    "frameworkMappingDisclaimer": "GDPR mapping is informative only; counsel determines applicability.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/gdpr-baseline-rules-v1.json"
+  }
+}

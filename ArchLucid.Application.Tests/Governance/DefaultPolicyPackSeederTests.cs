@@ -14,7 +14,7 @@ namespace ArchLucid.Application.Tests.Governance;
 public sealed class DefaultPolicyPackSeederTests
 {
     [Fact]
-    public async Task EnsureDefaultPolicyPacksAsync_creates_four_platform_packs_when_empty()
+    public async Task EnsureDefaultPolicyPacksAsync_creates_all_bundled_platform_packs_when_empty()
     {
         InMemoryPolicyPackRepository packs = new();
         InMemoryPolicyPackVersionRepository versions = new();
@@ -35,10 +35,12 @@ public sealed class DefaultPolicyPackSeederTests
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
 
+        int expectedCount = DefaultPolicyPackBundledManifest.LoadBundles().Count;
+
         await sut.EnsureDefaultPolicyPacksAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
         IReadOnlyList<PolicyPack> scopePacks = await packs.ListByScopeAsync(tenantId, workspaceId, projectId, CancellationToken.None);
-        scopePacks.Should().HaveCount(4);
+        scopePacks.Should().HaveCount(expectedCount);
         scopePacks.Should().OnlyContain(p => p.PackType == PolicyPackType.PlatformDefault);
         scopePacks.Should().Contain(p => p.Name == DefaultPolicyPackCatalog.AiGovernanceDisplayName);
         scopePacks.Should().Contain(p => p.Name == DefaultPolicyPackCatalog.SecurityBaselineDisplayName);
@@ -47,7 +49,7 @@ public sealed class DefaultPolicyPackSeederTests
 
         IReadOnlyList<PolicyPackAssignment> assigns =
             await assignments.ListByScopeAsync(tenantId, workspaceId, projectId, CancellationToken.None);
-        assigns.Should().HaveCount(4);
+        assigns.Should().HaveCount(expectedCount);
     }
 
     [Fact]
@@ -72,10 +74,12 @@ public sealed class DefaultPolicyPackSeederTests
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
 
+        int expectedCount = DefaultPolicyPackBundledManifest.LoadBundles().Count;
+
         await sut.EnsureDefaultPolicyPacksAsync(tenantId, workspaceId, projectId, CancellationToken.None);
         await sut.EnsureDefaultPolicyPacksAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
         IReadOnlyList<PolicyPack> scopePacks = await packs.ListByScopeAsync(tenantId, workspaceId, projectId, CancellationToken.None);
-        scopePacks.Should().HaveCount(4);
+        scopePacks.Should().HaveCount(expectedCount);
     }
 }

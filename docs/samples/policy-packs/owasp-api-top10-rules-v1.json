@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "OWASP API Security Top 10",
+    "description": "API architecture security themes aligned to OWASP API Top 10 motifs. Not OWASP certification.",
+    "version": "1.0.0",
+    "category": "Application Security",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/owasp-api-top10.json"
+  },
+  "rules": [
+    {
+      "id": "owasp-api-001",
+      "title": "OWASP API Security Top 10 \u2014 control theme 1",
+      "description": "Architecture manifest and Azure extractor evidence should support: owasp api security top 10 \u2014 control theme 1. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "Broken object authorization"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-002",
+      "title": "OWASP API Security Top 10 \u2014 control theme 2",
+      "description": "Architecture manifest and Azure extractor evidence should support: owasp api security top 10 \u2014 control theme 2. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "Unsafe consumption"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-003",
+      "title": "OWASP API Security Top 10 \u2014 control theme 3",
+      "description": "Architecture manifest and Azure extractor evidence should support: owasp api security top 10 \u2014 control theme 3. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "Rate limiting"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-004",
+      "title": "OWASP API Security Top 10 \u2014 control theme 4",
+      "description": "Architecture manifest and Azure extractor evidence should support: owasp api security top 10 \u2014 control theme 4. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "Broken object authorization"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-005",
+      "title": "OWASP API Security Top 10 \u2014 control theme 5",
+      "description": "Architecture manifest and Azure extractor evidence should support: owasp api security top 10 \u2014 control theme 5. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "Unsafe consumption"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-006",
+      "title": "OWASP API Security Top 10 \u2014 control theme 6",
+      "description": "Architecture manifest and Azure extractor evidence should support: owasp api security top 10 \u2014 control theme 6. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "Rate limiting"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-007",
+      "title": "OWASP API Security Top 10 \u2014 control theme 7",
+      "description": "Architecture manifest and Azure extractor evidence should support: owasp api security top 10 \u2014 control theme 7. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "Broken object authorization"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-008",
+      "title": "OWASP API Security Top 10 \u2014 control theme 8",
+      "description": "Architecture manifest and Azure extractor evidence should support: owasp api security top 10 \u2014 control theme 8. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "Unsafe consumption"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-009",
+      "title": "OWASP API Security Top 10 \u2014 control theme 9",
+      "description": "Architecture manifest and Azure extractor evidence should support: owasp api security top 10 \u2014 control theme 9. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "Rate limiting"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-010",
+      "title": "OWASP API Security Top 10 \u2014 control theme 10",
+      "description": "Architecture manifest and Azure extractor evidence should support: owasp api security top 10 \u2014 control theme 10. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "Broken object authorization"
+        }
+      ]
+    }
+  ]
+}

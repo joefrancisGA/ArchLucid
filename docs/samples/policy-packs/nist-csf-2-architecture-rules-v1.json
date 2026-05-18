@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "NIST Cybersecurity Framework 2.0",
+    "description": "CSF 2.0 function themes for architecture evidence (Govern, Identify, Protect, Detect, Respond, Recover).",
+    "version": "1.0.0",
+    "category": "Compliance",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/nist-csf-2-architecture.json"
+  },
+  "rules": [
+    {
+      "id": "nist-csf-001",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 1",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 1. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "NIST CSF 2.0",
+          "theme": "Govern"
+        }
+      ]
+    },
+    {
+      "id": "nist-csf-002",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 2",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 2. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "NIST CSF 2.0",
+          "theme": "Identify"
+        }
+      ]
+    },
+    {
+      "id": "nist-csf-003",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 3",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 3. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "NIST CSF 2.0",
+          "theme": "Protect"
+        }
+      ]
+    },
+    {
+      "id": "nist-csf-004",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 4",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 4. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "NIST CSF 2.0",
+          "theme": "Detect"
+        }
+      ]
+    },
+    {
+      "id": "nist-csf-005",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 5",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 5. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "NIST CSF 2.0",
+          "theme": "Govern"
+        }
+      ]
+    },
+    {
+      "id": "nist-csf-006",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 6",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 6. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "NIST CSF 2.0",
+          "theme": "Identify"
+        }
+      ]
+    },
+    {
+      "id": "nist-csf-007",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 7",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 7. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "NIST CSF 2.0",
+          "theme": "Protect"
+        }
+      ]
+    },
+    {
+      "id": "nist-csf-008",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 8",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 8. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "NIST CSF 2.0",
+          "theme": "Detect"
+        }
+      ]
+    },
+    {
+      "id": "nist-csf-009",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 9",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 9. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "NIST CSF 2.0",
+          "theme": "Govern"
+        }
+      ]
+    },
+    {
+      "id": "nist-csf-010",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 10",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 10. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "NIST CSF 2.0",
+          "theme": "Identify"
+        }
+      ]
+    }
+  ]
+}

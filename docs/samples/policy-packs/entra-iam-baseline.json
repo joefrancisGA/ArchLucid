@@ -1,0 +1,31 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "entra-iam-001",
+    "entra-iam-002",
+    "entra-iam-003",
+    "entra-iam-004",
+    "entra-iam-005",
+    "entra-iam-006",
+    "entra-iam-007",
+    "entra-iam-008",
+    "entra-iam-009",
+    "entra-iam-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "entra-iam-baseline-v1",
+    "pack.displayName": "Entra ID / IAM Architecture Baseline",
+    "pack.category": "Identity",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Entra ID, RBAC, managed identity, and conditional access themes for Azure architectures.",
+    "frameworkMappingDisclaimer": "Identity mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/entra-iam-baseline-rules-v1.json"
+  }
+}

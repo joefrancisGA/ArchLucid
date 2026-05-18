@@ -25,45 +25,20 @@ public sealed class DefaultPolicyPackSeeder(
         IReadOnlyList<PolicyPack> existing =
             await _packRepository.ListByScopeAsync(tenantId, workspaceId, projectId, ct);
 
-        await EnsureOnePackAsync(
-            tenantId,
-            workspaceId,
-            projectId,
-            existing,
-            DefaultPolicyPackCatalog.AiGovernanceDisplayName,
-            DefaultPolicyPackCatalog.AiGovernanceDescription,
-            DefaultPolicyPackTemplates.AiGovernanceResponsibleAiV1Json,
-            ct);
+        IReadOnlyList<DefaultPolicyPackBundleDefinition> bundles = DefaultPolicyPackBundledManifest.LoadBundles();
 
-        await EnsureOnePackAsync(
-            tenantId,
-            workspaceId,
-            projectId,
-            existing,
-            DefaultPolicyPackCatalog.SecurityBaselineDisplayName,
-            DefaultPolicyPackCatalog.SecurityBaselineDescription,
-            DefaultPolicyPackTemplates.SecurityArchitectureBaselineV1Json,
-            ct);
-
-        await EnsureOnePackAsync(
-            tenantId,
-            workspaceId,
-            projectId,
-            existing,
-            DefaultPolicyPackCatalog.AzureWellArchitectedDisplayName,
-            DefaultPolicyPackCatalog.AzureWellArchitectedDescription,
-            DefaultPolicyPackTemplates.AzureWellArchitectedFrameworkV1Json,
-            ct);
-
-        await EnsureOnePackAsync(
-            tenantId,
-            workspaceId,
-            projectId,
-            existing,
-            DefaultPolicyPackCatalog.AzureCafLandingZoneDisplayName,
-            DefaultPolicyPackCatalog.AzureCafLandingZoneDescription,
-            DefaultPolicyPackTemplates.AzureCafLandingZoneV1Json,
-            ct);
+        foreach (DefaultPolicyPackBundleDefinition bundle in bundles)
+        {
+            await EnsureOnePackAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                existing,
+                bundle.DisplayName,
+                bundle.Description,
+                bundle.ContentJson,
+                ct);
+        }
     }
 
     private async Task EnsureOnePackAsync(

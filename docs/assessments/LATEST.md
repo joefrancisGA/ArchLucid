@@ -538,19 +538,11 @@ Add a progress bar or gauge to the operator UI (e.g., in the settings or dashboa
 - Impact: Directly improves Usability (+8-10 pts) and Cost-Effectiveness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 20. Create a curated policy pack for GDPR compliance baseline
-- **Roadmap:** Rank **#2** in [`docs/library/POLICY_PACK_CONTENT_BACKLOG.md`](../library/POLICY_PACK_CONTENT_BACKLOG.md) (LLM-assisted authoring playbook).
+### 20. COMPLETED: Create a curated policy pack for GDPR compliance baseline
 - **Why it matters:** Helps European and global customers quickly assess GDPR readiness.
 - **Expected impact:** Template and Accelerator Richness (+10 pts).
 - **Affected qualities:** Template and Accelerator Richness.
-- **Actionable:** Yes
-```text
-Create a new curated policy pack `docs/samples/policy-packs/gdpr-baseline-rules-v1.json` focused on GDPR compliance (e.g., data encryption, region constraints).
-- Acceptance criteria: The pack is valid JSON matching the curated-rules schema and includes at least 5 GDPR-aligned rules.
-- Constraints: Ensure the rules map to data collected by the Azure extractor.
-- What not to change: Do not modify the policy engine.
-- Impact: Directly improves Template and Accelerator Richness (+8-10 pts). Weighted readiness impact: +0.15-0.25%.
-```
+- **Actionable:** No — delivered as V1 GA bundled default `gdpr-baseline` (`docs/samples/policy-packs/gdpr-baseline-rules-v1.json`); see [`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md).
 
 ### 21. Implement a CLI command to export the knowledge graph to GraphML
 - **Why it matters:** Allows advanced users to analyze the knowledge graph in external tools like Gephi.

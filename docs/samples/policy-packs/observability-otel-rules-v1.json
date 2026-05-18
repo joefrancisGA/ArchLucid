@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "Observability & OpenTelemetry Baseline",
+    "description": "Distributed tracing, metrics, and centralized logging themes before production approval.",
+    "version": "1.0.0",
+    "category": "Operations",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/observability-otel.json"
+  },
+  "rules": [
+    {
+      "id": "otel-001",
+      "title": "Observability & OpenTelemetry Baseline \u2014 control theme 1",
+      "description": "Architecture manifest and Azure extractor evidence should support: observability & opentelemetry baseline \u2014 control theme 1. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "Traces"
+        }
+      ]
+    },
+    {
+      "id": "otel-002",
+      "title": "Observability & OpenTelemetry Baseline \u2014 control theme 2",
+      "description": "Architecture manifest and Azure extractor evidence should support: observability & opentelemetry baseline \u2014 control theme 2. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "Metrics"
+        }
+      ]
+    },
+    {
+      "id": "otel-003",
+      "title": "Observability & OpenTelemetry Baseline \u2014 control theme 3",
+      "description": "Architecture manifest and Azure extractor evidence should support: observability & opentelemetry baseline \u2014 control theme 3. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "Logs"
+        }
+      ]
+    },
+    {
+      "id": "otel-004",
+      "title": "Observability & OpenTelemetry Baseline \u2014 control theme 4",
+      "description": "Architecture manifest and Azure extractor evidence should support: observability & opentelemetry baseline \u2014 control theme 4. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "Traces"
+        }
+      ]
+    },
+    {
+      "id": "otel-005",
+      "title": "Observability & OpenTelemetry Baseline \u2014 control theme 5",
+      "description": "Architecture manifest and Azure extractor evidence should support: observability & opentelemetry baseline \u2014 control theme 5. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "Metrics"
+        }
+      ]
+    },
+    {
+      "id": "otel-006",
+      "title": "Observability & OpenTelemetry Baseline \u2014 control theme 6",
+      "description": "Architecture manifest and Azure extractor evidence should support: observability & opentelemetry baseline \u2014 control theme 6. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "Logs"
+        }
+      ]
+    },
+    {
+      "id": "otel-007",
+      "title": "Observability & OpenTelemetry Baseline \u2014 control theme 7",
+      "description": "Architecture manifest and Azure extractor evidence should support: observability & opentelemetry baseline \u2014 control theme 7. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "Traces"
+        }
+      ]
+    },
+    {
+      "id": "otel-008",
+      "title": "Observability & OpenTelemetry Baseline \u2014 control theme 8",
+      "description": "Architecture manifest and Azure extractor evidence should support: observability & opentelemetry baseline \u2014 control theme 8. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "Metrics"
+        }
+      ]
+    },
+    {
+      "id": "otel-009",
+      "title": "Observability & OpenTelemetry Baseline \u2014 control theme 9",
+      "description": "Architecture manifest and Azure extractor evidence should support: observability & opentelemetry baseline \u2014 control theme 9. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "Logs"
+        }
+      ]
+    },
+    {
+      "id": "otel-010",
+      "title": "Observability & OpenTelemetry Baseline \u2014 control theme 10",
+      "description": "Architecture manifest and Azure extractor evidence should support: observability & opentelemetry baseline \u2014 control theme 10. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "Traces"
+        }
+      ]
+    }
+  ]
+}

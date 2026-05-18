@@ -6,8 +6,8 @@
     "description": "FinOps-oriented review prompts grounded in read-only Azure extractor inventory (ARM resources, optional retail estimates, Policy Insights compliance states). Highlights common waste vectors such as orphaned addressing, oversized compute SKUs, and unattached disks where the ZIP supports reasoning. Does not replace Azure Cost Management actuals.",
     "version": "1.0.0",
     "category": "Cost",
-    "isDefault": false,
-    "suggestedPackType": "ProjectCustom",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
     "policyPackContentDocumentPath": "docs/samples/policy-packs/cost-optimization.json"
   },
   "rules": [
@@ -25,8 +25,14 @@
         "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
-        { "framework": "Microsoft Azure Well-Architected", "requirement": "Cost Optimization — Right-size compute resources (pillar theme)" },
-        { "framework": "FinOps Framework", "control": "Forecasting & planning — utilization-aware sizing narratives" }
+        {
+          "framework": "Microsoft Azure Well-Architected",
+          "requirement": "Cost Optimization \u2014 Right-size compute resources (pillar theme)"
+        },
+        {
+          "framework": "FinOps Framework",
+          "control": "Forecasting & planning \u2014 utilization-aware sizing narratives"
+        }
       ]
     },
     {
@@ -43,8 +49,14 @@
         "services[].Tags"
       ],
       "frameworkMappings": [
-        { "framework": "Microsoft Azure Well-Architected", "requirement": "Cost Optimization — Eliminate unused resources (pillar theme)" },
-        { "framework": "FinOps Framework", "control": "Workload optimization — storage waste elimination" }
+        {
+          "framework": "Microsoft Azure Well-Architected",
+          "requirement": "Cost Optimization \u2014 Eliminate unused resources (pillar theme)"
+        },
+        {
+          "framework": "FinOps Framework",
+          "control": "Workload optimization \u2014 storage waste elimination"
+        }
       ]
     },
     {
@@ -52,7 +64,7 @@
       "title": "Retail price overlay captured when cost estimates matter",
       "description": "When reviewers rely on extractor-backed unit pricing, manifests should show IncludeRetailPrices in switchesUsed so retail-prices.json exists for VMs, Storage Accounts, SQL resources, and App Service plans surfaced in inventory.",
       "severity": "Low",
-      "remediationGuidance": "Confirm azureExtractor.manifest.SwitchesUsed mentions IncludeRetailPrices for runs where financial narrative is required; if absent, flag that only inventory counts—not catalog-priced estimates—are available until re-collection.",
+      "remediationGuidance": "Confirm azureExtractor.manifest.SwitchesUsed mentions IncludeRetailPrices for runs where financial narrative is required; if absent, flag that only inventory counts\u2014not catalog-priced estimates\u2014are available until re-collection.",
       "evidenceHints": [
         "azureExtractor.manifest.SwitchesUsed",
         "azureExtractor.manifest.ScriptVersion",
@@ -60,8 +72,14 @@
         "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
-        { "framework": "Microsoft Azure Well-Architected", "requirement": "Cost Optimization — Use cost modeling (pillar theme)" },
-        { "framework": "FinOps Framework", "control": "Forecasting — unit economics inputs" }
+        {
+          "framework": "Microsoft Azure Well-Architected",
+          "requirement": "Cost Optimization \u2014 Use cost modeling (pillar theme)"
+        },
+        {
+          "framework": "FinOps Framework",
+          "control": "Forecasting \u2014 unit economics inputs"
+        }
       ]
     },
     {
@@ -77,8 +95,14 @@
         "services[].Purpose"
       ],
       "frameworkMappings": [
-        { "framework": "Microsoft Azure Well-Architected", "requirement": "Cost Optimization — Identify idle network resources (pillar theme)" },
-        { "framework": "FinOps Framework", "control": "Workload optimization — network asset hygiene" }
+        {
+          "framework": "Microsoft Azure Well-Architected",
+          "requirement": "Cost Optimization \u2014 Identify idle network resources (pillar theme)"
+        },
+        {
+          "framework": "FinOps Framework",
+          "control": "Workload optimization \u2014 network asset hygiene"
+        }
       ]
     },
     {
@@ -94,8 +118,14 @@
         "governance.PolicyConstraints"
       ],
       "frameworkMappings": [
-        { "framework": "Microsoft Azure Well-Architected", "requirement": "Cost Optimization — Evaluate pricing models for PaaS (pillar theme)" },
-        { "framework": "FinOps Framework", "control": "Rate optimization — PaaS tier discipline" }
+        {
+          "framework": "Microsoft Azure Well-Architected",
+          "requirement": "Cost Optimization \u2014 Evaluate pricing models for PaaS (pillar theme)"
+        },
+        {
+          "framework": "FinOps Framework",
+          "control": "Rate optimization \u2014 PaaS tier discipline"
+        }
       ]
     },
     {
@@ -110,8 +140,14 @@
         "governance.PolicyConstraints"
       ],
       "frameworkMappings": [
-        { "framework": "Microsoft Azure Well-Architected", "requirement": "Cost Optimization — Manage data lifecycle (pillar theme)" },
-        { "framework": "FinOps Framework", "control": "Cloud financial management — storage lifecycle governance" }
+        {
+          "framework": "Microsoft Azure Well-Architected",
+          "requirement": "Cost Optimization \u2014 Manage data lifecycle (pillar theme)"
+        },
+        {
+          "framework": "FinOps Framework",
+          "control": "Cloud financial management \u2014 storage lifecycle governance"
+        }
       ]
     }
   ]

@@ -1,0 +1,31 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "az-paas-001",
+    "az-paas-002",
+    "az-paas-003",
+    "az-paas-004",
+    "az-paas-005",
+    "az-paas-006",
+    "az-paas-007",
+    "az-paas-008",
+    "az-paas-009",
+    "az-paas-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "azure-paas-security-v1",
+    "pack.displayName": "Serverless & PaaS Security (Azure)",
+    "pack.category": "Application Platform",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Functions, Container Apps, and App Service private networking and identity themes.",
+    "frameworkMappingDisclaimer": "PaaS mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/azure-paas-security-rules-v1.json"
+  }
+}

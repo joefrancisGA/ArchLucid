@@ -1,0 +1,31 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "aks-001",
+    "aks-002",
+    "aks-003",
+    "aks-004",
+    "aks-005",
+    "aks-006",
+    "aks-007",
+    "aks-008",
+    "aks-009",
+    "aks-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "aks-production-baseline-v1",
+    "pack.displayName": "AKS Production Baseline",
+    "pack.category": "Platform",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Kubernetes on Azure production hardening themes (private API, network policy, identity).",
+    "frameworkMappingDisclaimer": "AKS mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/aks-production-baseline-rules-v1.json"
+  }
+}

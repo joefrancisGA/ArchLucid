@@ -22,6 +22,15 @@ export const BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD =
 export const BUYER_GOVERNANCE_GOVERNED_USE_SCOPE =
   "Approved as the governed architecture record for diligence, architecture review, and implementation planning.";
 
+export const BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD =
+  "Review records and dispositions — monitored risks, recorded decisions, and follow-up monitors tied to the selected review package. Open a row for evidence and rationale.";
+
+export const BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE = "Monitored risks and observations";
+
+export const BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA = "View risk observation and evidence";
+
+export const BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA = "View evidence trail";
+
 export const BUYER_ASK_GROUNDING_ONCE =
   "Example answers are illustrative. In connected workspaces, answers are scoped to selected review evidence and source anchors.";
 

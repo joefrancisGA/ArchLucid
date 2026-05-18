@@ -1,0 +1,31 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "supply-chain-001",
+    "supply-chain-002",
+    "supply-chain-003",
+    "supply-chain-004",
+    "supply-chain-005",
+    "supply-chain-006",
+    "supply-chain-007",
+    "supply-chain-008",
+    "supply-chain-009",
+    "supply-chain-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "supply-chain-sbom-v1",
+    "pack.displayName": "Software Supply Chain & SBOM",
+    "pack.category": "DevSecOps",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "SBOM, artifact signing, and dependency scanning themes for delivery pipelines.",
+    "frameworkMappingDisclaimer": "Supply-chain mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/supply-chain-sbom-rules-v1.json"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "zta-001",
+    "zta-002",
+    "zta-003",
+    "zta-004",
+    "zta-005",
+    "zta-006",
+    "zta-007",
+    "zta-008",
+    "zta-009",
+    "zta-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "zero-trust-architecture-v1",
+    "pack.displayName": "Zero Trust Architecture",
+    "pack.category": "Security",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Continuous verification, identity perimeter, and micro-segmentation themes. Not a ZTA maturity certification.",
+    "frameworkMappingDisclaimer": "ZTA mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/zero-trust-architecture-rules-v1.json"
+  }
+}

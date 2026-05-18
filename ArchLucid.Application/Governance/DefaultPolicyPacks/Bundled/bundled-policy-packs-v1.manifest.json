@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "contentFiles": [
+    "ai-governance-responsible-ai.json",
+    "security-architecture-baseline.json",
+    "azure-waf.json",
+    "azure-caf-landing-zone.json",
+    "gdpr-baseline.json",
+    "soc2-tsc-architecture.json",
+    "cost-optimization.json",
+    "owasp-api-top10.json",
+    "iso27001-architecture.json",
+    "cis-azure-foundations.json",
+    "hipaa-architecture.json",
+    "pci-dss-architecture.json",
+    "zero-trust-architecture.json",
+    "azure-resiliency-dr.json",
+    "aks-production-baseline.json",
+    "data-classification-lineage.json",
+    "entra-iam-baseline.json",
+    "azure-paas-security.json",
+    "nist-csf-2-architecture.json",
+    "supply-chain-sbom.json",
+    "dora-devsecops.json",
+    "observability-otel.json",
+    "azure-data-layer-security.json"
+  ]
+}

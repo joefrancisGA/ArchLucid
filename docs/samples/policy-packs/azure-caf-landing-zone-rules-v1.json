@@ -3,7 +3,7 @@
   "kind": "archlucid.policyPack.curatedRules.v1",
   "pack": {
     "name": "Azure Landing Zone / Cloud Adoption Framework",
-    "description": "Starter architecture-review prompts for enterprise Azure landing zones — management hierarchy, hub-spoke networking, policy initiatives, platform identity, and centralized observability. Thematic mapping to Microsoft Cloud Adoption Framework and Azure landing zone design areas. Not a CAF or LZ conformance assessment or certification.",
+    "description": "Starter architecture-review prompts for enterprise Azure landing zones \u2014 management hierarchy, hub-spoke networking, policy initiatives, platform identity, and centralized observability. Thematic mapping to Microsoft Cloud Adoption Framework and Azure landing zone design areas. Not a CAF or LZ conformance assessment or certification.",
     "version": "1.0.0",
     "category": "Platform",
     "isDefault": true,
@@ -24,7 +24,10 @@
         "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
-        { "framework": "Microsoft Cloud Adoption Framework", "theme": "Ready — Govern (management group design)" }
+        {
+          "framework": "Microsoft Cloud Adoption Framework",
+          "theme": "Ready \u2014 Govern (management group design)"
+        }
       ]
     },
     {
@@ -40,7 +43,10 @@
         "azureExtractor.manifest.SubscriptionId"
       ],
       "frameworkMappings": [
-        { "framework": "Microsoft Cloud Adoption Framework", "theme": "Ready — Plan (subscription design)" }
+        {
+          "framework": "Microsoft Cloud Adoption Framework",
+          "theme": "Ready \u2014 Plan (subscription design)"
+        }
       ]
     },
     {
@@ -56,7 +62,10 @@
         "azureExtractor.manifest.SwitchesUsed"
       ],
       "frameworkMappings": [
-        { "framework": "Azure Landing Zone", "designArea": "Networking — Hub-spoke or vWAN" }
+        {
+          "framework": "Azure Landing Zone",
+          "designArea": "Networking \u2014 Hub-spoke or vWAN"
+        }
       ]
     },
     {
@@ -72,7 +81,10 @@
         "azureExtractor.manifest.SubscriptionId"
       ],
       "frameworkMappings": [
-        { "framework": "Azure Landing Zone", "designArea": "Governance — Policy and compliance" }
+        {
+          "framework": "Azure Landing Zone",
+          "designArea": "Governance \u2014 Policy and compliance"
+        }
       ]
     },
     {
@@ -88,7 +100,10 @@
         "governance.PolicyConstraints"
       ],
       "frameworkMappings": [
-        { "framework": "Azure Landing Zone", "designArea": "Identity — Entra ID and RBAC" }
+        {
+          "framework": "Azure Landing Zone",
+          "designArea": "Identity \u2014 Entra ID and RBAC"
+        }
       ]
     },
     {
@@ -104,7 +119,10 @@
         "azureExtractor.manifest.RawJson"
       ],
       "frameworkMappings": [
-        { "framework": "Azure Landing Zone", "designArea": "Management — Monitoring and diagnostics" }
+        {
+          "framework": "Azure Landing Zone",
+          "designArea": "Management \u2014 Monitoring and diagnostics"
+        }
       ]
     },
     {
@@ -120,7 +138,10 @@
         "azureExtractor.manifest.RawJson"
       ],
       "frameworkMappings": [
-        { "framework": "Azure Landing Zone", "designArea": "Networking — Private DNS" }
+        {
+          "framework": "Azure Landing Zone",
+          "designArea": "Networking \u2014 Private DNS"
+        }
       ]
     },
     {
@@ -135,7 +156,10 @@
         "governance.RiskClassification"
       ],
       "frameworkMappings": [
-        { "framework": "Azure Landing Zone", "designArea": "Security — Defender for Cloud" }
+        {
+          "framework": "Azure Landing Zone",
+          "designArea": "Security \u2014 Defender for Cloud"
+        }
       ]
     },
     {
@@ -150,7 +174,10 @@
         "azureExtractor.manifest.RawJson"
       ],
       "frameworkMappings": [
-        { "framework": "Microsoft Cloud Adoption Framework", "theme": "Manage — Cost management" }
+        {
+          "framework": "Microsoft Cloud Adoption Framework",
+          "theme": "Manage \u2014 Cost management"
+        }
       ]
     },
     {
@@ -165,7 +192,10 @@
         "metadata.DecisionTraceIds"
       ],
       "frameworkMappings": [
-        { "framework": "Microsoft Cloud Adoption Framework", "theme": "Ready — Govern (access control)" }
+        {
+          "framework": "Microsoft Cloud Adoption Framework",
+          "theme": "Ready \u2014 Govern (access control)"
+        }
       ]
     },
     {
@@ -181,7 +211,10 @@
         "azureExtractor.manifest.ScopeDescriptor"
       ],
       "frameworkMappings": [
-        { "framework": "Azure Landing Zone", "designArea": "Networking — Shared services" }
+        {
+          "framework": "Azure Landing Zone",
+          "designArea": "Networking \u2014 Shared services"
+        }
       ]
     },
     {
@@ -197,7 +230,10 @@
         "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
-        { "framework": "Azure Landing Zone", "designArea": "Management — Evidence hygiene" }
+        {
+          "framework": "Azure Landing Zone",
+          "designArea": "Management \u2014 Evidence hygiene"
+        }
       ]
     }
   ]

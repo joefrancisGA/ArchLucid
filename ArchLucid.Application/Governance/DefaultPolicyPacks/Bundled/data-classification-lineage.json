@@ -1,0 +1,31 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "data-class-001",
+    "data-class-002",
+    "data-class-003",
+    "data-class-004",
+    "data-class-005",
+    "data-class-006",
+    "data-class-007",
+    "data-class-008",
+    "data-class-009",
+    "data-class-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "data-classification-lineage-v1",
+    "pack.displayName": "Data Classification & Lineage",
+    "pack.category": "Data Governance",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Classification tiers and cross-boundary data-flow documentation themes.",
+    "frameworkMappingDisclaimer": "Classification mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/data-classification-lineage-rules-v1.json"
+  }
+}

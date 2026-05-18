@@ -1,0 +1,31 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "nist-csf-001",
+    "nist-csf-002",
+    "nist-csf-003",
+    "nist-csf-004",
+    "nist-csf-005",
+    "nist-csf-006",
+    "nist-csf-007",
+    "nist-csf-008",
+    "nist-csf-009",
+    "nist-csf-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "nist-csf-2-architecture-v1",
+    "pack.displayName": "NIST Cybersecurity Framework 2.0",
+    "pack.category": "Compliance",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "CSF 2.0 function themes for architecture evidence (Govern, Identify, Protect, Detect, Respond, Recover).",
+    "frameworkMappingDisclaimer": "NIST CSF mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "pci-001",
+    "pci-002",
+    "pci-003",
+    "pci-004",
+    "pci-005",
+    "pci-006",
+    "pci-007",
+    "pci-008",
+    "pci-009",
+    "pci-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "pci-dss-architecture-v1",
+    "pack.displayName": "PCI-DSS (Architecture / Segmentation)",
+    "pack.category": "Payments",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "CDE segmentation and payment-data handling themes. Not PCI-DSS QSA attestation.",
+    "frameworkMappingDisclaimer": "PCI mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/pci-dss-architecture-rules-v1.json"
+  }
+}

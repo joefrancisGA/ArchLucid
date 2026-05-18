@@ -742,6 +742,1866 @@
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
       "description": "Stub for lz-caf-012; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-001",
+      "controlId": "GDPR-001",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for gdpr-001; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-002",
+      "controlId": "GDPR-002",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for gdpr-002; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-003",
+      "controlId": "GDPR-003",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for gdpr-003; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-004",
+      "controlId": "GDPR-004",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for gdpr-004; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-005",
+      "controlId": "GDPR-005",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for gdpr-005; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-006",
+      "controlId": "GDPR-006",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for gdpr-006; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-007",
+      "controlId": "GDPR-007",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for gdpr-007; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-008",
+      "controlId": "GDPR-008",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for gdpr-008; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-009",
+      "controlId": "GDPR-009",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for gdpr-009; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "gdpr-010",
+      "controlId": "GDPR-010",
+      "controlName": "GA Privacy starter rule (catalog stub)",
+      "appliesToCategory": "privacy",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for gdpr-010; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-001",
+      "controlId": "SOC2-001",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for soc2-001; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-002",
+      "controlId": "SOC2-002",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for soc2-002; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-003",
+      "controlId": "SOC2-003",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for soc2-003; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-004",
+      "controlId": "SOC2-004",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for soc2-004; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-005",
+      "controlId": "SOC2-005",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for soc2-005; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-006",
+      "controlId": "SOC2-006",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for soc2-006; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-007",
+      "controlId": "SOC2-007",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for soc2-007; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-008",
+      "controlId": "SOC2-008",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for soc2-008; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-009",
+      "controlId": "SOC2-009",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for soc2-009; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "soc2-010",
+      "controlId": "SOC2-010",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for soc2-010; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "cost-opt-001",
+      "controlId": "COST-OPT-001",
+      "controlName": "GA Cost starter rule (catalog stub)",
+      "appliesToCategory": "cost",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for cost-opt-001; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "cost-opt-002",
+      "controlId": "COST-OPT-002",
+      "controlName": "GA Cost starter rule (catalog stub)",
+      "appliesToCategory": "cost",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for cost-opt-002; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "cost-opt-003",
+      "controlId": "COST-OPT-003",
+      "controlName": "GA Cost starter rule (catalog stub)",
+      "appliesToCategory": "cost",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for cost-opt-003; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "cost-opt-004",
+      "controlId": "COST-OPT-004",
+      "controlName": "GA Cost starter rule (catalog stub)",
+      "appliesToCategory": "cost",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for cost-opt-004; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "cost-opt-005",
+      "controlId": "COST-OPT-005",
+      "controlName": "GA Cost starter rule (catalog stub)",
+      "appliesToCategory": "cost",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for cost-opt-005; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "cost-opt-006",
+      "controlId": "COST-OPT-006",
+      "controlName": "GA Cost starter rule (catalog stub)",
+      "appliesToCategory": "cost",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for cost-opt-006; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "owasp-api-001",
+      "controlId": "OWASP-API-001",
+      "controlName": "GA Application Security starter rule (catalog stub)",
+      "appliesToCategory": "application",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for owasp-api-001; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "owasp-api-002",
+      "controlId": "OWASP-API-002",
+      "controlName": "GA Application Security starter rule (catalog stub)",
+      "appliesToCategory": "application",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for owasp-api-002; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "owasp-api-003",
+      "controlId": "OWASP-API-003",
+      "controlName": "GA Application Security starter rule (catalog stub)",
+      "appliesToCategory": "application",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for owasp-api-003; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "owasp-api-004",
+      "controlId": "OWASP-API-004",
+      "controlName": "GA Application Security starter rule (catalog stub)",
+      "appliesToCategory": "application",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for owasp-api-004; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "owasp-api-005",
+      "controlId": "OWASP-API-005",
+      "controlName": "GA Application Security starter rule (catalog stub)",
+      "appliesToCategory": "application",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for owasp-api-005; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "owasp-api-006",
+      "controlId": "OWASP-API-006",
+      "controlName": "GA Application Security starter rule (catalog stub)",
+      "appliesToCategory": "application",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for owasp-api-006; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "owasp-api-007",
+      "controlId": "OWASP-API-007",
+      "controlName": "GA Application Security starter rule (catalog stub)",
+      "appliesToCategory": "application",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for owasp-api-007; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "owasp-api-008",
+      "controlId": "OWASP-API-008",
+      "controlName": "GA Application Security starter rule (catalog stub)",
+      "appliesToCategory": "application",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for owasp-api-008; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "owasp-api-009",
+      "controlId": "OWASP-API-009",
+      "controlName": "GA Application Security starter rule (catalog stub)",
+      "appliesToCategory": "application",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for owasp-api-009; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "owasp-api-010",
+      "controlId": "OWASP-API-010",
+      "controlName": "GA Application Security starter rule (catalog stub)",
+      "appliesToCategory": "application",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for owasp-api-010; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iso27001-001",
+      "controlId": "ISO27001-001",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for iso27001-001; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iso27001-002",
+      "controlId": "ISO27001-002",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for iso27001-002; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iso27001-003",
+      "controlId": "ISO27001-003",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for iso27001-003; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iso27001-004",
+      "controlId": "ISO27001-004",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for iso27001-004; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iso27001-005",
+      "controlId": "ISO27001-005",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for iso27001-005; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iso27001-006",
+      "controlId": "ISO27001-006",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for iso27001-006; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iso27001-007",
+      "controlId": "ISO27001-007",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for iso27001-007; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iso27001-008",
+      "controlId": "ISO27001-008",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for iso27001-008; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iso27001-009",
+      "controlId": "ISO27001-009",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for iso27001-009; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "iso27001-010",
+      "controlId": "ISO27001-010",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for iso27001-010; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "cis-az-001",
+      "controlId": "CIS-AZ-001",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for cis-az-001; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "cis-az-002",
+      "controlId": "CIS-AZ-002",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for cis-az-002; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "cis-az-003",
+      "controlId": "CIS-AZ-003",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for cis-az-003; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "cis-az-004",
+      "controlId": "CIS-AZ-004",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for cis-az-004; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "cis-az-005",
+      "controlId": "CIS-AZ-005",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for cis-az-005; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "cis-az-006",
+      "controlId": "CIS-AZ-006",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for cis-az-006; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "cis-az-007",
+      "controlId": "CIS-AZ-007",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for cis-az-007; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "cis-az-008",
+      "controlId": "CIS-AZ-008",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for cis-az-008; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "cis-az-009",
+      "controlId": "CIS-AZ-009",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for cis-az-009; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "cis-az-010",
+      "controlId": "CIS-AZ-010",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for cis-az-010; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "hipaa-001",
+      "controlId": "HIPAA-001",
+      "controlName": "GA Healthcare starter rule (catalog stub)",
+      "appliesToCategory": "healthcare",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for hipaa-001; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "hipaa-002",
+      "controlId": "HIPAA-002",
+      "controlName": "GA Healthcare starter rule (catalog stub)",
+      "appliesToCategory": "healthcare",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for hipaa-002; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "hipaa-003",
+      "controlId": "HIPAA-003",
+      "controlName": "GA Healthcare starter rule (catalog stub)",
+      "appliesToCategory": "healthcare",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for hipaa-003; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "hipaa-004",
+      "controlId": "HIPAA-004",
+      "controlName": "GA Healthcare starter rule (catalog stub)",
+      "appliesToCategory": "healthcare",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for hipaa-004; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "hipaa-005",
+      "controlId": "HIPAA-005",
+      "controlName": "GA Healthcare starter rule (catalog stub)",
+      "appliesToCategory": "healthcare",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for hipaa-005; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "hipaa-006",
+      "controlId": "HIPAA-006",
+      "controlName": "GA Healthcare starter rule (catalog stub)",
+      "appliesToCategory": "healthcare",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for hipaa-006; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "hipaa-007",
+      "controlId": "HIPAA-007",
+      "controlName": "GA Healthcare starter rule (catalog stub)",
+      "appliesToCategory": "healthcare",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for hipaa-007; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "hipaa-008",
+      "controlId": "HIPAA-008",
+      "controlName": "GA Healthcare starter rule (catalog stub)",
+      "appliesToCategory": "healthcare",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for hipaa-008; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "hipaa-009",
+      "controlId": "HIPAA-009",
+      "controlName": "GA Healthcare starter rule (catalog stub)",
+      "appliesToCategory": "healthcare",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for hipaa-009; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "hipaa-010",
+      "controlId": "HIPAA-010",
+      "controlName": "GA Healthcare starter rule (catalog stub)",
+      "appliesToCategory": "healthcare",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for hipaa-010; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "pci-001",
+      "controlId": "PCI-001",
+      "controlName": "GA Payments starter rule (catalog stub)",
+      "appliesToCategory": "payments",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for pci-001; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "pci-002",
+      "controlId": "PCI-002",
+      "controlName": "GA Payments starter rule (catalog stub)",
+      "appliesToCategory": "payments",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for pci-002; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "pci-003",
+      "controlId": "PCI-003",
+      "controlName": "GA Payments starter rule (catalog stub)",
+      "appliesToCategory": "payments",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for pci-003; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "pci-004",
+      "controlId": "PCI-004",
+      "controlName": "GA Payments starter rule (catalog stub)",
+      "appliesToCategory": "payments",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for pci-004; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "pci-005",
+      "controlId": "PCI-005",
+      "controlName": "GA Payments starter rule (catalog stub)",
+      "appliesToCategory": "payments",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for pci-005; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "pci-006",
+      "controlId": "PCI-006",
+      "controlName": "GA Payments starter rule (catalog stub)",
+      "appliesToCategory": "payments",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for pci-006; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "pci-007",
+      "controlId": "PCI-007",
+      "controlName": "GA Payments starter rule (catalog stub)",
+      "appliesToCategory": "payments",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for pci-007; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "pci-008",
+      "controlId": "PCI-008",
+      "controlName": "GA Payments starter rule (catalog stub)",
+      "appliesToCategory": "payments",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for pci-008; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "pci-009",
+      "controlId": "PCI-009",
+      "controlName": "GA Payments starter rule (catalog stub)",
+      "appliesToCategory": "payments",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for pci-009; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "pci-010",
+      "controlId": "PCI-010",
+      "controlName": "GA Payments starter rule (catalog stub)",
+      "appliesToCategory": "payments",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for pci-010; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "zta-001",
+      "controlId": "ZTA-001",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for zta-001; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "zta-002",
+      "controlId": "ZTA-002",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for zta-002; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "zta-003",
+      "controlId": "ZTA-003",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for zta-003; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "zta-004",
+      "controlId": "ZTA-004",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for zta-004; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "zta-005",
+      "controlId": "ZTA-005",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for zta-005; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "zta-006",
+      "controlId": "ZTA-006",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for zta-006; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "zta-007",
+      "controlId": "ZTA-007",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for zta-007; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "zta-008",
+      "controlId": "ZTA-008",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for zta-008; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "zta-009",
+      "controlId": "ZTA-009",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for zta-009; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "zta-010",
+      "controlId": "ZTA-010",
+      "controlName": "GA Security starter rule (catalog stub)",
+      "appliesToCategory": "security",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for zta-010; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-dr-001",
+      "controlId": "AZ-DR-001",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-dr-001; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-dr-002",
+      "controlId": "AZ-DR-002",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-dr-002; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-dr-003",
+      "controlId": "AZ-DR-003",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-dr-003; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-dr-004",
+      "controlId": "AZ-DR-004",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-dr-004; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-dr-005",
+      "controlId": "AZ-DR-005",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-dr-005; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-dr-006",
+      "controlId": "AZ-DR-006",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-dr-006; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-dr-007",
+      "controlId": "AZ-DR-007",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-dr-007; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-dr-008",
+      "controlId": "AZ-DR-008",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-dr-008; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-dr-009",
+      "controlId": "AZ-DR-009",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-dr-009; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-dr-010",
+      "controlId": "AZ-DR-010",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-dr-010; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aks-001",
+      "controlId": "AKS-001",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for aks-001; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aks-002",
+      "controlId": "AKS-002",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for aks-002; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aks-003",
+      "controlId": "AKS-003",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for aks-003; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aks-004",
+      "controlId": "AKS-004",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for aks-004; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aks-005",
+      "controlId": "AKS-005",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for aks-005; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aks-006",
+      "controlId": "AKS-006",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for aks-006; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aks-007",
+      "controlId": "AKS-007",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for aks-007; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aks-008",
+      "controlId": "AKS-008",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for aks-008; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aks-009",
+      "controlId": "AKS-009",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for aks-009; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "aks-010",
+      "controlId": "AKS-010",
+      "controlName": "GA Platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for aks-010; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "data-class-001",
+      "controlId": "DATA-CLASS-001",
+      "controlName": "GA Data Governance starter rule (catalog stub)",
+      "appliesToCategory": "data-governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for data-class-001; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "data-class-002",
+      "controlId": "DATA-CLASS-002",
+      "controlName": "GA Data Governance starter rule (catalog stub)",
+      "appliesToCategory": "data-governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for data-class-002; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "data-class-003",
+      "controlId": "DATA-CLASS-003",
+      "controlName": "GA Data Governance starter rule (catalog stub)",
+      "appliesToCategory": "data-governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for data-class-003; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "data-class-004",
+      "controlId": "DATA-CLASS-004",
+      "controlName": "GA Data Governance starter rule (catalog stub)",
+      "appliesToCategory": "data-governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for data-class-004; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "data-class-005",
+      "controlId": "DATA-CLASS-005",
+      "controlName": "GA Data Governance starter rule (catalog stub)",
+      "appliesToCategory": "data-governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for data-class-005; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "data-class-006",
+      "controlId": "DATA-CLASS-006",
+      "controlName": "GA Data Governance starter rule (catalog stub)",
+      "appliesToCategory": "data-governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for data-class-006; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "data-class-007",
+      "controlId": "DATA-CLASS-007",
+      "controlName": "GA Data Governance starter rule (catalog stub)",
+      "appliesToCategory": "data-governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for data-class-007; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "data-class-008",
+      "controlId": "DATA-CLASS-008",
+      "controlName": "GA Data Governance starter rule (catalog stub)",
+      "appliesToCategory": "data-governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for data-class-008; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "data-class-009",
+      "controlId": "DATA-CLASS-009",
+      "controlName": "GA Data Governance starter rule (catalog stub)",
+      "appliesToCategory": "data-governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for data-class-009; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "data-class-010",
+      "controlId": "DATA-CLASS-010",
+      "controlName": "GA Data Governance starter rule (catalog stub)",
+      "appliesToCategory": "data-governance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for data-class-010; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "entra-iam-001",
+      "controlId": "ENTRA-IAM-001",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for entra-iam-001; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "entra-iam-002",
+      "controlId": "ENTRA-IAM-002",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for entra-iam-002; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "entra-iam-003",
+      "controlId": "ENTRA-IAM-003",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for entra-iam-003; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "entra-iam-004",
+      "controlId": "ENTRA-IAM-004",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for entra-iam-004; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "entra-iam-005",
+      "controlId": "ENTRA-IAM-005",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for entra-iam-005; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "entra-iam-006",
+      "controlId": "ENTRA-IAM-006",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for entra-iam-006; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "entra-iam-007",
+      "controlId": "ENTRA-IAM-007",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for entra-iam-007; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "entra-iam-008",
+      "controlId": "ENTRA-IAM-008",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for entra-iam-008; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "entra-iam-009",
+      "controlId": "ENTRA-IAM-009",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for entra-iam-009; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "entra-iam-010",
+      "controlId": "ENTRA-IAM-010",
+      "controlName": "GA Identity starter rule (catalog stub)",
+      "appliesToCategory": "identity",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for entra-iam-010; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-paas-001",
+      "controlId": "AZ-PAAS-001",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-paas-001; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-paas-002",
+      "controlId": "AZ-PAAS-002",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-paas-002; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-paas-003",
+      "controlId": "AZ-PAAS-003",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-paas-003; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-paas-004",
+      "controlId": "AZ-PAAS-004",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-paas-004; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-paas-005",
+      "controlId": "AZ-PAAS-005",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-paas-005; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-paas-006",
+      "controlId": "AZ-PAAS-006",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-paas-006; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-paas-007",
+      "controlId": "AZ-PAAS-007",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-paas-007; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-paas-008",
+      "controlId": "AZ-PAAS-008",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-paas-008; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-paas-009",
+      "controlId": "AZ-PAAS-009",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-paas-009; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-paas-010",
+      "controlId": "AZ-PAAS-010",
+      "controlName": "GA Application Platform starter rule (catalog stub)",
+      "appliesToCategory": "application-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-paas-010; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "nist-csf-001",
+      "controlId": "NIST-CSF-001",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for nist-csf-001; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "nist-csf-002",
+      "controlId": "NIST-CSF-002",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for nist-csf-002; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "nist-csf-003",
+      "controlId": "NIST-CSF-003",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for nist-csf-003; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "nist-csf-004",
+      "controlId": "NIST-CSF-004",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for nist-csf-004; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "nist-csf-005",
+      "controlId": "NIST-CSF-005",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for nist-csf-005; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "nist-csf-006",
+      "controlId": "NIST-CSF-006",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for nist-csf-006; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "nist-csf-007",
+      "controlId": "NIST-CSF-007",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for nist-csf-007; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "nist-csf-008",
+      "controlId": "NIST-CSF-008",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for nist-csf-008; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "nist-csf-009",
+      "controlId": "NIST-CSF-009",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for nist-csf-009; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "nist-csf-010",
+      "controlId": "NIST-CSF-010",
+      "controlName": "GA Compliance starter rule (catalog stub)",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for nist-csf-010; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "supply-chain-001",
+      "controlId": "SUPPLY-CHAIN-001",
+      "controlName": "GA DevSecOps starter rule (catalog stub)",
+      "appliesToCategory": "devsecops",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for supply-chain-001; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "supply-chain-002",
+      "controlId": "SUPPLY-CHAIN-002",
+      "controlName": "GA DevSecOps starter rule (catalog stub)",
+      "appliesToCategory": "devsecops",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for supply-chain-002; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "supply-chain-003",
+      "controlId": "SUPPLY-CHAIN-003",
+      "controlName": "GA DevSecOps starter rule (catalog stub)",
+      "appliesToCategory": "devsecops",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for supply-chain-003; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "supply-chain-004",
+      "controlId": "SUPPLY-CHAIN-004",
+      "controlName": "GA DevSecOps starter rule (catalog stub)",
+      "appliesToCategory": "devsecops",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for supply-chain-004; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "supply-chain-005",
+      "controlId": "SUPPLY-CHAIN-005",
+      "controlName": "GA DevSecOps starter rule (catalog stub)",
+      "appliesToCategory": "devsecops",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for supply-chain-005; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "supply-chain-006",
+      "controlId": "SUPPLY-CHAIN-006",
+      "controlName": "GA DevSecOps starter rule (catalog stub)",
+      "appliesToCategory": "devsecops",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for supply-chain-006; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "supply-chain-007",
+      "controlId": "SUPPLY-CHAIN-007",
+      "controlName": "GA DevSecOps starter rule (catalog stub)",
+      "appliesToCategory": "devsecops",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for supply-chain-007; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "supply-chain-008",
+      "controlId": "SUPPLY-CHAIN-008",
+      "controlName": "GA DevSecOps starter rule (catalog stub)",
+      "appliesToCategory": "devsecops",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for supply-chain-008; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "supply-chain-009",
+      "controlId": "SUPPLY-CHAIN-009",
+      "controlName": "GA DevSecOps starter rule (catalog stub)",
+      "appliesToCategory": "devsecops",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for supply-chain-009; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "supply-chain-010",
+      "controlId": "SUPPLY-CHAIN-010",
+      "controlName": "GA DevSecOps starter rule (catalog stub)",
+      "appliesToCategory": "devsecops",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for supply-chain-010; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "dora-001",
+      "controlId": "DORA-001",
+      "controlName": "GA Engineering starter rule (catalog stub)",
+      "appliesToCategory": "engineering",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for dora-001; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "dora-002",
+      "controlId": "DORA-002",
+      "controlName": "GA Engineering starter rule (catalog stub)",
+      "appliesToCategory": "engineering",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for dora-002; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "dora-003",
+      "controlId": "DORA-003",
+      "controlName": "GA Engineering starter rule (catalog stub)",
+      "appliesToCategory": "engineering",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for dora-003; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "dora-004",
+      "controlId": "DORA-004",
+      "controlName": "GA Engineering starter rule (catalog stub)",
+      "appliesToCategory": "engineering",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for dora-004; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "dora-005",
+      "controlId": "DORA-005",
+      "controlName": "GA Engineering starter rule (catalog stub)",
+      "appliesToCategory": "engineering",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for dora-005; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "dora-006",
+      "controlId": "DORA-006",
+      "controlName": "GA Engineering starter rule (catalog stub)",
+      "appliesToCategory": "engineering",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for dora-006; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "dora-007",
+      "controlId": "DORA-007",
+      "controlName": "GA Engineering starter rule (catalog stub)",
+      "appliesToCategory": "engineering",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for dora-007; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "dora-008",
+      "controlId": "DORA-008",
+      "controlName": "GA Engineering starter rule (catalog stub)",
+      "appliesToCategory": "engineering",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for dora-008; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "dora-009",
+      "controlId": "DORA-009",
+      "controlName": "GA Engineering starter rule (catalog stub)",
+      "appliesToCategory": "engineering",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for dora-009; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "dora-010",
+      "controlId": "DORA-010",
+      "controlName": "GA Engineering starter rule (catalog stub)",
+      "appliesToCategory": "engineering",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for dora-010; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "otel-001",
+      "controlId": "OTEL-001",
+      "controlName": "GA Operations starter rule (catalog stub)",
+      "appliesToCategory": "operations",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for otel-001; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "otel-002",
+      "controlId": "OTEL-002",
+      "controlName": "GA Operations starter rule (catalog stub)",
+      "appliesToCategory": "operations",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for otel-002; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "otel-003",
+      "controlId": "OTEL-003",
+      "controlName": "GA Operations starter rule (catalog stub)",
+      "appliesToCategory": "operations",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for otel-003; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "otel-004",
+      "controlId": "OTEL-004",
+      "controlName": "GA Operations starter rule (catalog stub)",
+      "appliesToCategory": "operations",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for otel-004; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "otel-005",
+      "controlId": "OTEL-005",
+      "controlName": "GA Operations starter rule (catalog stub)",
+      "appliesToCategory": "operations",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for otel-005; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "otel-006",
+      "controlId": "OTEL-006",
+      "controlName": "GA Operations starter rule (catalog stub)",
+      "appliesToCategory": "operations",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for otel-006; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "otel-007",
+      "controlId": "OTEL-007",
+      "controlName": "GA Operations starter rule (catalog stub)",
+      "appliesToCategory": "operations",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for otel-007; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "otel-008",
+      "controlId": "OTEL-008",
+      "controlName": "GA Operations starter rule (catalog stub)",
+      "appliesToCategory": "operations",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for otel-008; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "otel-009",
+      "controlId": "OTEL-009",
+      "controlName": "GA Operations starter rule (catalog stub)",
+      "appliesToCategory": "operations",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for otel-009; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "otel-010",
+      "controlId": "OTEL-010",
+      "controlName": "GA Operations starter rule (catalog stub)",
+      "appliesToCategory": "operations",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for otel-010; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-data-001",
+      "controlId": "AZ-DATA-001",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-data-001; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-data-002",
+      "controlId": "AZ-DATA-002",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-data-002; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-data-003",
+      "controlId": "AZ-DATA-003",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-data-003; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-data-004",
+      "controlId": "AZ-DATA-004",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-data-004; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-data-005",
+      "controlId": "AZ-DATA-005",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-data-005; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-data-006",
+      "controlId": "AZ-DATA-006",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-data-006; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-data-007",
+      "controlId": "AZ-DATA-007",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-data-007; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-data-008",
+      "controlId": "AZ-DATA-008",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-data-008; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-data-009",
+      "controlId": "AZ-DATA-009",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-data-009; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-data-010",
+      "controlId": "AZ-DATA-010",
+      "controlName": "GA Data Platform starter rule (catalog stub)",
+      "appliesToCategory": "data-platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for az-data-010; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
     }
   ]
 }

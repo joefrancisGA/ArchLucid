@@ -1,0 +1,31 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "hipaa-001",
+    "hipaa-002",
+    "hipaa-003",
+    "hipaa-004",
+    "hipaa-005",
+    "hipaa-006",
+    "hipaa-007",
+    "hipaa-008",
+    "hipaa-009",
+    "hipaa-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "hipaa-architecture-v1",
+    "pack.displayName": "HIPAA / HITECH Safeguards",
+    "pack.category": "Healthcare",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "PHI handling, audit, and encryption themes for healthcare architectures. Not HIPAA certification.",
+    "frameworkMappingDisclaimer": "HIPAA mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/hipaa-architecture-rules-v1.json"
+  }
+}

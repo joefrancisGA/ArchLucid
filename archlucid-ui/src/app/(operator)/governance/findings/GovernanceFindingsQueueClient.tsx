@@ -17,7 +17,14 @@ import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import { isStaticDemoPayloadFallbackActiveForRun, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
+import {
+  BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD,
+  BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE,
+  BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA,
+  BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA,
+} from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
   SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -62,7 +69,7 @@ function formatGovernanceQueueRecordKind(kind: GovernanceFindingQueueRecordKind,
     return buyerPolishedShell ? "Decision" : "Architecture decision";
   }
 
-  return "Finding";
+  return buyerPolishedShell ? BUYER_SURFACE_VOCABULARY.riskObservation : "Finding";
 }
 
 function demoPhiRow(): GovernanceFindingQueueRow {
@@ -289,12 +296,12 @@ function GovernanceFindingsBuyerMobileRow(props: { readonly row: GovernanceFindi
         <div className="flex flex-col gap-2">
           <Button asChild variant="outline" size="sm" className="h-9 border-teal-300 dark:border-teal-700">
             <Link href={inspectHref(row.runId, row.findingId)}>
-              {row.recordKind === "decision" ? "View decision" : "View finding and evidence"}
+              {row.recordKind === "decision" ? "View decision" : BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA}
             </Link>
           </Button>
           {graphHref !== null ? (
             <Button asChild variant="outline" size="sm" className="h-9 border-neutral-300 dark:border-neutral-600">
-              <Link href={graphHref}>View evidence</Link>
+              <Link href={graphHref}>{BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA}</Link>
             </Button>
           ) : null}
         </div>
@@ -435,10 +442,12 @@ export default function GovernanceFindingsQueueClient() {
         <p className="m-0 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
           {buyerPolishedShell ? (
             <>
-              Review records and dispositions — monitored risks, recorded decisions, and follow-up monitors tied to the
-              selected review package. Open a row for evidence and rationale.{" "}
-              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/governance">
-                Governance workflow overview
+              {BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD}{" "}
+              <Link
+                className="font-medium text-teal-800 underline dark:text-teal-300"
+                href={`/governance?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+              >
+                Governance approval
               </Link>
               .
             </>
@@ -460,7 +469,7 @@ export default function GovernanceFindingsQueueClient() {
                     id="governance-findings-risks"
                     className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
                   >
-                    Findings and monitored risks
+                    {BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE}
                   </h2>
                   <div className="space-y-3">
                     {findingRows.map((row) => (
@@ -575,7 +584,7 @@ export default function GovernanceFindingsQueueClient() {
                               {buyerPolishedShell
                                 ? row.recordKind === "decision"
                                   ? "View decision"
-                                  : "View finding and evidence"
+                                  : BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA
                                 : "Open"}
                             </Link>
                           </Button>
@@ -584,7 +593,7 @@ export default function GovernanceFindingsQueueClient() {
 
                             return graphHref !== null ? (
                               <Button asChild variant="outline" size="sm" className="h-8 border-neutral-300 dark:border-neutral-600">
-                                <Link href={graphHref}>View evidence</Link>
+                                <Link href={graphHref}>{BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA}</Link>
                               </Button>
                             ) : null;
                           })()}
@@ -701,7 +710,7 @@ export default function GovernanceFindingsQueueClient() {
                         {buyerPolishedShell
                           ? row.recordKind === "decision"
                             ? "View decision"
-                            : "View finding and evidence"
+                            : BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA
                           : "Open finding"}
                       </Link>
                     </Button>
@@ -710,7 +719,7 @@ export default function GovernanceFindingsQueueClient() {
 
                       return graphHref !== null ? (
                         <Button asChild variant="outline" size="sm" className="h-9 border-neutral-300 dark:border-neutral-600">
-                          <Link href={graphHref}>View evidence</Link>
+                          <Link href={graphHref}>{BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA}</Link>
                         </Button>
                       ) : null;
                     })()}

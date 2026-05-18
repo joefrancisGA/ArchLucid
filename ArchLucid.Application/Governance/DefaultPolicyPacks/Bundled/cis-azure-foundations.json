@@ -1,0 +1,31 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "cis-az-001",
+    "cis-az-002",
+    "cis-az-003",
+    "cis-az-004",
+    "cis-az-005",
+    "cis-az-006",
+    "cis-az-007",
+    "cis-az-008",
+    "cis-az-009",
+    "cis-az-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "cis-azure-foundations-v1",
+    "pack.displayName": "CIS Microsoft Azure Foundations Benchmark",
+    "pack.category": "Security",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "CIS-aligned Azure hardening themes for architecture review. Not CIS benchmark pass/fail.",
+    "frameworkMappingDisclaimer": "CIS mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/cis-azure-foundations-rules-v1.json"
+  }
+}

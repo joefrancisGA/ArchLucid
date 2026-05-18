@@ -1,0 +1,31 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "dora-001",
+    "dora-002",
+    "dora-003",
+    "dora-004",
+    "dora-005",
+    "dora-006",
+    "dora-007",
+    "dora-008",
+    "dora-009",
+    "dora-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "dora-devsecops-v1",
+    "pack.displayName": "DORA / DevSecOps Delivery Posture",
+    "pack.category": "Engineering",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Delivery automation, rollback, and change-lead-time themes for architecture gates.",
+    "frameworkMappingDisclaimer": "DORA mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/dora-devsecops-rules-v1.json"
+  }
+}

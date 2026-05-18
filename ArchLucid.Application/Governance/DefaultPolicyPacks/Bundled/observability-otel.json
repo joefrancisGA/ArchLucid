@@ -1,0 +1,31 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "otel-001",
+    "otel-002",
+    "otel-003",
+    "otel-004",
+    "otel-005",
+    "otel-006",
+    "otel-007",
+    "otel-008",
+    "otel-009",
+    "otel-010"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "observability-otel-v1",
+    "pack.displayName": "Observability & OpenTelemetry Baseline",
+    "pack.category": "Operations",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Distributed tracing, metrics, and centralized logging themes before production approval.",
+    "frameworkMappingDisclaimer": "Observability mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/observability-otel-rules-v1.json"
+  }
+}

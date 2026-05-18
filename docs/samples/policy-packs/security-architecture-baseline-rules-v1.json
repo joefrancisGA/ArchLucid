@@ -3,11 +3,11 @@
   "kind": "archlucid.policyPack.curatedRules.v1",
   "pack": {
     "name": "Security Architecture Baseline",
-    "description": "Starter security posture checks for cloud architecture reviews — identity, network, encryption, logging, and secure SDLC. Aligned to CIS Azure Foundations and OWASP ASVS themes. Not an exhaustive compliance assessment.",
+    "description": "Starter security posture checks for cloud architecture reviews \u2014 identity, network, encryption, logging, and secure SDLC. Aligned to CIS Azure Foundations and OWASP ASVS themes. Not an exhaustive compliance assessment.",
     "version": "1.1.0",
     "category": "Security",
     "isDefault": true,
-    "suggestedPackType": "ProjectCustom",
+    "suggestedPackType": "PlatformDefault",
     "policyPackContentDocumentPath": "docs/samples/policy-packs/security-architecture-baseline.json"
   },
   "rules": [
@@ -24,8 +24,14 @@
         "governance.RequiredControls"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "1 Identity and Access Management — MFA enforcement themes" },
-        { "framework": "OWASP ASVS", "requirement": "V2 Authentication — multi-factor controls for privileged accounts (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "1 Identity and Access Management \u2014 MFA enforcement themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V2 Authentication \u2014 multi-factor controls for privileged accounts (thematic)"
+        }
       ]
     },
     {
@@ -41,8 +47,14 @@
         "datastores[].RuntimePlatform"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "1. Ensure use of IAM-managed credentials / MI patterns" },
-        { "framework": "OWASP ASVS", "requirement": "V2.10 — Service authentication (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "1. Ensure use of IAM-managed credentials / MI patterns"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V2.10 \u2014 Service authentication (thematic)"
+        }
       ]
     },
     {
@@ -58,8 +70,14 @@
         "azureExtractor.manifest.RawJson"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "8 Container / workload secrets hygiene themes" },
-        { "framework": "OWASP ASVS", "requirement": "V13 — API / secret storage configuration (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "8 Container / workload secrets hygiene themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V13 \u2014 API / secret storage configuration (thematic)"
+        }
       ]
     },
     {
@@ -75,8 +93,14 @@
         "azureExtractor.manifest.ScopeDescriptor"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "1 RBAC assignment hygiene themes" },
-        { "framework": "OWASP ASVS", "requirement": "V4 Access Control — authorization granularity (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "1 RBAC assignment hygiene themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V4 Access Control \u2014 authorization granularity (thematic)"
+        }
       ]
     },
     {
@@ -91,8 +115,14 @@
         "azureExtractor.manifest.CollectionTimestamp"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "1 Strong identity policy documentation themes" },
-        { "framework": "OWASP ASVS", "requirement": "V2 Session / policy documentation (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "1 Strong identity policy documentation themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V2 Session / policy documentation (thematic)"
+        }
       ]
     },
     {
@@ -108,8 +138,14 @@
         "azureExtractor.manifest.RawJson"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "7 Networking — restrict public access themes" },
-        { "framework": "OWASP ASVS", "requirement": "V13 Transport layer protection adjacency (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "7 Networking \u2014 restrict public access themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V13 Transport layer protection adjacency (thematic)"
+        }
       ]
     },
     {
@@ -124,8 +160,14 @@
         "governance.ComplianceTags"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "7 Private Endpoint adoption themes" },
-        { "framework": "OWASP ASVS", "requirement": "V1 Architecture — trusted zones (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "7 Private Endpoint adoption themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V1 Architecture \u2014 trusted zones (thematic)"
+        }
       ]
     },
     {
@@ -140,8 +182,14 @@
         "azureExtractor.manifest.RawJson"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "7 Network security groups themes" },
-        { "framework": "OWASP ASVS", "requirement": "V13 Network segmentation expectations (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "7 Network security groups themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V13 Network segmentation expectations (thematic)"
+        }
       ]
     },
     {
@@ -156,8 +204,14 @@
         "governance.RequiredControls"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "7 Segmentation themes" },
-        { "framework": "OWASP ASVS", "requirement": "V1 Trusted boundaries (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "7 Segmentation themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V1 Trusted boundaries (thematic)"
+        }
       ]
     },
     {
@@ -172,8 +226,14 @@
         "azureExtractor.manifest.ScopeDescriptor"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "7 DNS integration with Private Link themes" },
-        { "framework": "OWASP ASVS", "requirement": "V13 Secure configuration defaults (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "7 DNS integration with Private Link themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V13 Secure configuration defaults (thematic)"
+        }
       ]
     },
     {
@@ -188,8 +248,14 @@
         "governance.RequiredControls"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "8 Encryption at rest themes" },
-        { "framework": "OWASP ASVS", "requirement": "V8 Data protection — stored secrets/data (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "8 Encryption at rest themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V8 Data protection \u2014 stored secrets/data (thematic)"
+        }
       ]
     },
     {
@@ -205,8 +271,14 @@
         "relationships"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "8 Encryption in transit themes" },
-        { "framework": "OWASP ASVS", "requirement": "V9 Communications security — TLS baseline (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "8 Encryption in transit themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V9 Communications security \u2014 TLS baseline (thematic)"
+        }
       ]
     },
     {
@@ -221,8 +293,14 @@
         "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "8 Key management lifecycle themes" },
-        { "framework": "OWASP ASVS", "requirement": "V10 Cryptographic practices — key lifecycle (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "8 Key management lifecycle themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V10 Cryptographic practices \u2014 key lifecycle (thematic)"
+        }
       ]
     },
     {
@@ -237,8 +315,14 @@
         "governance.PolicyConstraints"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "8 Certificate lifecycle automation themes" },
-        { "framework": "OWASP ASVS", "requirement": "V9 TLS certificate lifecycle (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "8 Certificate lifecycle automation themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V9 TLS certificate lifecycle (thematic)"
+        }
       ]
     },
     {
@@ -254,8 +338,14 @@
         "governance.RequiredControls"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "5 Logging and Monitoring — centralized sinks themes" },
-        { "framework": "OWASP ASVS", "requirement": "V7 Errors / logging integrity (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "5 Logging and Monitoring \u2014 centralized sinks themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V7 Errors / logging integrity (thematic)"
+        }
       ]
     },
     {
@@ -270,8 +360,14 @@
         "azureExtractor.manifest.SwitchesUsed"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "5 Forward security telemetry themes" },
-        { "framework": "OWASP ASVS", "requirement": "V7 Security event pipeline (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "5 Forward security telemetry themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V7 Security event pipeline (thematic)"
+        }
       ]
     },
     {
@@ -286,8 +382,14 @@
         "services[].Tags"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "5 Alerting / anomaly themes" },
-        { "framework": "OWASP ASVS", "requirement": "V7 Intrusion detection adjacency (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "5 Alerting / anomaly themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V7 Intrusion detection adjacency (thematic)"
+        }
       ]
     },
     {
@@ -302,14 +404,20 @@
         "azureExtractor.manifest.SubscriptionId"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "5 Audit logging completeness themes" },
-        { "framework": "OWASP ASVS", "requirement": "V7 Logging coverage for privileged actions (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "5 Audit logging completeness themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V7 Logging coverage for privileged actions (thematic)"
+        }
       ]
     },
     {
       "id": "sec-base-019",
       "title": "Log retention meets minimum enterprise baseline",
-      "description": "Retention targets (≥90 days for security-relevant logs) should appear as documented policy even when storage tier choices vary.",
+      "description": "Retention targets (\u226590 days for security-relevant logs) should appear as documented policy even when storage tier choices vary.",
       "severity": "Low",
       "remediationGuidance": "Encode retention commitments in governance.PolicyConstraints referencing centralized logging sinks.",
       "evidenceHints": [
@@ -318,8 +426,14 @@
         "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "5 Retention themes" },
-        { "framework": "OWASP ASVS", "requirement": "V7 Log retention (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "5 Retention themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V7 Log retention (thematic)"
+        }
       ]
     },
     {
@@ -334,8 +448,14 @@
         "services[].Purpose"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "9 Change / DevOps hygiene themes" },
-        { "framework": "OWASP ASVS", "requirement": "V15 Secure coding lifecycle — SCM protections (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "9 Change / DevOps hygiene themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V15 Secure coding lifecycle \u2014 SCM protections (thematic)"
+        }
       ]
     },
     {
@@ -350,8 +470,14 @@
         "metadata.DecisionTraceIds"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "9 Peer review themes" },
-        { "framework": "OWASP ASVS", "requirement": "V15 Review enforcement (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "9 Peer review themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V15 Review enforcement (thematic)"
+        }
       ]
     },
     {
@@ -366,8 +492,14 @@
         "services[].ServiceName"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "9 Dependency hygiene themes" },
-        { "framework": "OWASP ASVS", "requirement": "V14 Dependency management (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "9 Dependency hygiene themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V14 Dependency management (thematic)"
+        }
       ]
     },
     {
@@ -382,8 +514,14 @@
         "relationships"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "9 Container security scanning themes" },
-        { "framework": "OWASP ASVS", "requirement": "V14 Supply chain — container artifacts (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "9 Container security scanning themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V14 Supply chain \u2014 container artifacts (thematic)"
+        }
       ]
     },
     {
@@ -398,8 +536,14 @@
         "azureExtractor.manifest.AzModuleVersion"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "9 Secure IaC themes" },
-        { "framework": "OWASP ASVS", "requirement": "V5 Misconfiguration defenses — IaC checks (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "9 Secure IaC themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V5 Misconfiguration defenses \u2014 IaC checks (thematic)"
+        }
       ]
     },
     {
@@ -414,14 +558,20 @@
         "azureExtractor.manifest.ScriptVersion"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "9 Secret hygiene automation themes" },
-        { "framework": "OWASP ASVS", "requirement": "V13 Secrets leakage prevention — scanning (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "9 Secret hygiene automation themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V13 Secrets leakage prevention \u2014 scanning (thematic)"
+        }
       ]
     },
     {
       "id": "sec-base-026",
       "title": "Runtime secrets retrieved via Key Vault (or equivalent vault)",
-      "description": "Workload connection strings, certificates, and API keys should resolve through Azure Key Vault references or managed secret APIs—not persistent plaintext in App Settings, container env blocks, or CI-visible parameter files.",
+      "description": "Workload connection strings, certificates, and API keys should resolve through Azure Key Vault references or managed secret APIs\u2014not persistent plaintext in App Settings, container env blocks, or CI-visible parameter files.",
       "severity": "High",
       "remediationGuidance": "Model vault-backed retrieval on WritesTo/ReadsFrom edges and governance.RequiredControls; tag services with KeyVaultReference=true style hints where manifests capture deployment posture.",
       "evidenceHints": [
@@ -432,8 +582,14 @@
         "relationships[].relationshipType"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "8 Key Vault usage / secret store integration themes" },
-        { "framework": "OWASP ASVS", "requirement": "V13 Secret management — centralized retrieval (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "8 Key Vault usage / secret store integration themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V13 Secret management \u2014 centralized retrieval (thematic)"
+        }
       ]
     },
     {
@@ -449,8 +605,14 @@
         "azureExtractor.manifest.RawJson"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "8 Encryption in transit — protocol minimum themes" },
-        { "framework": "OWASP ASVS", "requirement": "V9 Communications — cipher and protocol minimums (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "8 Encryption in transit \u2014 protocol minimum themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V9 Communications \u2014 cipher and protocol minimums (thematic)"
+        }
       ]
     },
     {
@@ -466,8 +628,14 @@
         "relationships"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "7 Private Endpoint enforcement for sensitive data planes (thematic)" },
-        { "framework": "OWASP ASVS", "requirement": "V1 Architecture — regulated data enclave expectations (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "7 Private Endpoint enforcement for sensitive data planes (thematic)"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V1 Architecture \u2014 regulated data enclave expectations (thematic)"
+        }
       ]
     },
     {
@@ -483,8 +651,14 @@
         "governance.PolicyConstraints"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "7 Edge protection / application-layer filtering themes" },
-        { "framework": "OWASP ASVS", "requirement": "V13 Request handling protections at the perimeter (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "7 Edge protection / application-layer filtering themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V13 Request handling protections at the perimeter (thematic)"
+        }
       ]
     },
     {
@@ -500,8 +674,14 @@
         "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
-        { "framework": "CIS Azure Foundations", "control": "1 Privileged access lifecycle / JIT themes" },
-        { "framework": "OWASP ASVS", "requirement": "V4 Access Control — privileged session boundaries (thematic)" }
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "1 Privileged access lifecycle / JIT themes"
+        },
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V4 Access Control \u2014 privileged session boundaries (thematic)"
+        }
       ]
     }
   ]
