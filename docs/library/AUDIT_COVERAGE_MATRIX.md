@@ -57,6 +57,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Paginated audit (UI / API, newest first) | `GET /v1/audit` | Cap **500** rows per request. **Hot** tier (see retention doc). |
 | Filtered audit search | `GET /v1/audit/search` | Cap **500**; keyset and filters. **Hot** tier. |
 | Bulk export (compliance / archival) | `GET /v1/audit/export` | **`Accept: application/json`** or **`Accept: text/csv`**; UTC range **`fromUtc` / `toUtc`** (half-open); max **90 days** per request; **`maxRows`** clamped **1–10 000**; CSV sets **`Content-Disposition: attachment`**. **Warm** tier extraction to blob is **operator-scheduled** (see **`docs/AUDIT_RETENTION_POLICY.md`**). |
+| CSV export (usability / offline analysis) | `GET /v1/audit/export/csv` | Always responds `text/csv` with `Content-Disposition: attachment`; same optional filter params as `GET /v1/audit/search` (`eventType`, `fromUtc`, `toUtc`, `correlationId`, `actorUserId`, `runId`) plus `maxRows` clamped **1-10 000** (default 10 000); no mandatory date range; requires `RequireAuditor` role. |
 
 ---
 
