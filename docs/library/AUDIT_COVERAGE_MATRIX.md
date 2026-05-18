@@ -191,6 +191,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 **Open catalogued-only items: 0**
 
+Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_DenyUpdateDelete.sql`](../../ArchLucid.Persistence/Migrations/051_AuditEvents_DenyUpdateDelete.sql) / consolidated DDL).
+
 **Layered enforcement shipped 2026-04-29**
 
 | Layer | Mechanism |
