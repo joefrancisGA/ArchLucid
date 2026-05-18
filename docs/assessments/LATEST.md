@@ -48,9 +48,9 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Score:** 85
 - **Weight:** 1
 - **Weighted deficiency signal:** 15
-- **Why this score was assigned:** OpenTelemetry and Serilog provide good visibility, and GenAI instrumentation is shipped. However, Loki alerting on structured logs is only partially covered (policy pack assign/unassign ruler rules ship in `infra/loki/archlucid-policy-pack-assignment-alerts.yml`), and composite GenAI/cross-service SLO coherence are missing.
+- **Why this score was assigned:** OpenTelemetry and Serilog provide good visibility, and GenAI instrumentation is shipped. Policy pack assign/unassign Loki ruler rules and a curated Grafana dashboard ship in-repo (`infra/loki/archlucid-policy-pack-assignment-alerts.yml`, `infra/grafana/dashboard-archlucid-policy-packs.json`); broader Loki alerting on other structured-log surfaces and composite GenAI/cross-service SLO coherence are still missing.
 - **Key tradeoffs:** Standard observability tools require operator expertise to configure.
-- **Specific improvement recommendations:** Wire and tune the committed policy pack Loki rules per environment; extend Loki alerting and dashboards to other structured-log surfaces (see Top Improvement Opportunity §9).
+- **Specific improvement recommendations:** Wire and tune the committed policy pack Loki rules and Grafana dashboard per environment; extend Loki alerting and dashboards to other structured-log surfaces.
 - **Fixability:** Fixable in V1.
 
 ### 4. Performance
@@ -149,7 +149,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted deficiency signal:** 12
 - **Why this score was assigned:** Governance workflows and compliance drift tracking provide ongoing value. Telemetry for policy pack assignments is added.
 - **Key tradeoffs:** Thin starter packs risk one-and-done pilots.
-- **Specific improvement recommendations:** Curate Grafana/Loki dashboards keyed on policy pack assignment events.
+- **Specific improvement recommendations:** Wire the imported policy pack Grafana dashboard and Loki alert rules per environment.
 - **Fixability:** Fixable in V1.
 
 ### 15. Workflow Embeddedness
@@ -246,7 +246,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 7. **Executive Value Visibility without baselines:** Executive value can become abstract if real tenant baselines are missing.
 8. **Background job transient fault handling:** Incomplete retry policies for SQL connections in background workers risk silent failures.
 9. **Architecture project retention UX clarity:** Undo/restore is productized (`/settings/tenant/recycle-bin`, `POST /v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore`), but purge-window escalation and SLA-style messaging for operators remains uneven vs the retention worker.
-10. **Policy pack assignment visibility:** Assign and archive paths emit structured logs; Loki ruler rules for assign/unassign ship in `infra/loki/archlucid-policy-pack-assignment-alerts.yml`, but Grafana/Loki dashboards keyed on those events are not curated.
+10. **Policy pack assignment visibility (operator wiring):** Assign and archive paths emit structured logs; Loki ruler rules and a Grafana dashboard ship in-repo (`infra/loki/archlucid-policy-pack-assignment-alerts.yml`, `infra/grafana/dashboard-archlucid-policy-packs.json`); operators must import/bind Loki and tighten stream selectors per environment.
 11. **Data residency diligence depth:** Buyers require verifiable proof that SQL topology and backups match their geography.
 12. **SAML SP operational burden:** Managing certificate rotation and metadata drift adds operational overhead.
 
@@ -391,17 +391,18 @@ Add a widget to the executive dashboard that displays the verified SQL backup re
 - Deliverable: `scripts/ci/write_sql_backup_verification_artifact.py`; `archlucid-ui/public/sql-backup-region-verification.json`; `archlucid-ui/src/lib/sql-backup-region-verification.ts`; `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveSqlBackupRegionVerificationCard.tsx`; `.github/workflows/cd.yml` + `.github/workflows/ci.yml` (writer + drift check); `scripts/ci/fixtures/tfplan-sql-backup-verified.sample.json`.
 ```
 
-### 9. Curate Grafana/Loki dashboards keyed on policy pack assignment events
+### 9. COMPLETED: Curate Grafana/Loki dashboards keyed on policy pack assignment events
 - **Why it matters:** Provides visual insights into policy pack adoption and usage trends.
 - **Expected impact:** Observability (+10 pts), Stickiness (+5 pts).
 - **Affected qualities:** Observability, Stickiness.
-- **Actionable:** Yes
+- **Actionable:** No — delivered as `infra/grafana/dashboard-archlucid-policy-packs.json` (Loki LogQL on assign/unassign logs from `PolicyPackAssignmentRepository` / `SanitizedLoggerInformationExtensions` EventId 3014–3015): panels for total assignments over time, top assigned packs, and assignment churn. Optional Terraform import via `infra/terraform-monitoring/grafana_dashboards.tf` when `grafana_terraform_dashboards_enabled`. Operators must bind `${datasource}` to Loki and tighten `${stream_labels}` per environment (same guidance as `infra/loki/archlucid-policy-pack-assignment-alerts.yml`).
 ```text
-Create a Grafana dashboard `infra/grafana/dashboard-archlucid-policy-packs.json` to visualize policy pack assignments and unassignments using Loki logs.
+Create a Grafana dashboard `infra/grafana/dashboard-archlucid-policy-packs.json` to visualize policy pack assignments and unassignments using Loki logs. [COMPLETED]
 - Acceptance criteria: Dashboard includes panels for total assignments over time, top assigned packs, and assignment churn.
 - Constraints: Use existing Loki data sources.
 - What not to change: Do not modify the application logging logic.
 - Impact: Directly improves Observability (+8-10 pts) and Stickiness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- Deliverable: `infra/grafana/dashboard-archlucid-policy-packs.json`; `infra/terraform-monitoring/grafana_dashboards.tf` (`grafana_dashboard.policy_packs`).
 ```
 
 ### 10. Add export to CSV for audit logs
