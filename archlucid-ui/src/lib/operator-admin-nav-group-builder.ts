@@ -1,4 +1,5 @@
 import {
+  ArchiveRestore,
   BarChart3,
   Building2,
   CreditCard,
@@ -89,6 +90,15 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           icon: Building2,
           tier: "extended",
           requiredAuthority: "ExecuteAuthority",
+        },
+        {
+          href: "/settings/tenant/recycle-bin",
+          label: "Projects recycle bin",
+          title:
+            "Projects recycle bin — list soft-deleted architecture projects by workspace and restore when names do not collide",
+          icon: ArchiveRestore,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
         },
         {
           href: "/admin/support",

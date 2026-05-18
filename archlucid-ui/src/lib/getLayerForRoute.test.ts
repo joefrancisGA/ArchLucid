@@ -18,6 +18,7 @@ describe("getLayerForRoute", () => {
     expect(getLayerForRoute("/settings/billing")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/baseline")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/tenant")).toBe("operator-admin");
+    expect(getLayerForRoute("/settings/tenant/recycle-bin")).toBe("operator-admin");
     expect(getLayerForRoute("/admin/support")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/roles")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/cost-reporting")).toBe("operator-admin");

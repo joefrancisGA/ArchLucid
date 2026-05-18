@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:202 -->
+<!-- audit-core-const-count:203 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -355,6 +355,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantErasureLegalHoldSet` | `TenantErasureLegalHoldSet` | `TenantErasureCommandService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; `AdminTenantsController` `POST …/admin/tenants/{id}/erasure/legal-hold`; `TenantErasureLegalHoldController` `POST …/tenant/erasure/legal-hold`) |
 | `TenantErasureLegalHoldCleared` | `TenantErasureLegalHoldCleared` | `TenantErasureCommandService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; `AdminTenantsController` `DELETE …/admin/tenants/{id}/erasure/legal-hold`) |
 | `ArchitectureProjectSoftDeleted` | `ArchitectureProjectSoftDeleted` | `TenantWorkspacesController` (`DELETE /v1/tenant/workspaces/{workspaceId}/projects/{projectId}`) |
+| `ArchitectureProjectRestored` | `ArchitectureProjectRestored` | `TenantWorkspacesController` (`POST /v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore`) |
 | `ArchitectureProjectHardPurgedRetention` | `ArchitectureProjectHardPurgedRetention` | `ArchitectureProjectRetentionPurgeBackgroundWork` (`ArchitectureProjectRetentionPurgeHostedService`; API retention purge worker) |
 | `TrialProvisioned` | `TrialProvisioned` | `TrialTenantBootstrapService` |
 | `TrialSignupAttempted` | `TrialSignupAttempted` | `RegistrationController`, `TrialLocalIdentityAuthController` |

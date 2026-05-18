@@ -60,9 +60,15 @@ export function TenantSettingsPageView(props: Props) {
             . Change scope there to update what this session targets.
           </p>
 
-          <CollapsibleSection title="Technical details — routing scope" defaultOpen={false}>
+            <CollapsibleSection title="Technical details — routing scope" defaultOpen={false}>
             <p className="m-0 text-sm">
               Internal browser-to-API routing carries scope identifiers on proxied requests. Values below reflect your current selection.
+            </p>
+            <p className="m-0 mt-2 text-sm">
+              <Link className="text-teal-800 underline dark:text-teal-300" href="/settings/tenant/recycle-bin">
+                Open projects recycle bin
+              </Link>{" "}
+              to review or restore soft-deleted architecture projects.
             </p>
             <ul className="m-0 mt-2 list-inside list-disc">
               <li>
