@@ -4,7 +4,9 @@
 
 **Audience:** pilots, procurement, CS, and sellers explaining what governance content ships **in-tenant by default**.
 
-**Objective:** Declare **23** first-party curated categories bundled with every net-new tenant provisioning (see `IDefaultPolicyPackSeeder` / embedded manifest `ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled/bundled-policy-packs-v1.manifest.json`).
+**Objective:** Declare **24** first-party curated categories bundled with every net-new tenant provisioning (see `IDefaultPolicyPackSeeder` / embedded manifest `ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled/bundled-policy-packs-v1.manifest.json`).
+
+> **Note:** Pack **#24 — ARC-AMPE Architecture Themes** is **designed and queued for V1** ([`POLICY_PACK_ARC_AMPE_DESIGN.md`](../library/POLICY_PACK_ARC_AMPE_DESIGN.md)); JSON content is **not yet authored**. The manifest still ships **23** content files until the rule corpus lands; this row tracks scope so V1 GA copy and procurement responses are aligned.
 
 ## The "Brain" of the Governance Model
 
@@ -50,6 +52,7 @@ All rows below are seeded as **`PlatformDefault`** (Operator UI: **Bundled defau
 | 21 | Engineering | DORA / DevSecOps Delivery Posture | `dora-001` … | Small corpus OK |
 | 22 | Operations | Observability & OpenTelemetry Baseline | `otel-001` … | |
 | 23 | Data platform | Azure SQL / Cosmos DB Data-Layer Security | `az-data-001` … | |
+| **24** | **Compliance** | **ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities)** | `arc-ampe-pillar-*`, `arc-ampe-id-*`, `arc-ampe-pr-*`, `arc-ampe-de-*`, `arc-ampe-rs-*`, `arc-ampe-rc-*`, `arc-ampe-pf-*`, `arc-ampe-erm-*`, `arc-ampe-data-us-*`, `arc-ampe-vol2-*` | **V1 queued — content authoring next; spec: [`POLICY_PACK_ARC_AMPE_DESIGN.md`](../library/POLICY_PACK_ARC_AMPE_DESIGN.md). Architecture-review themes only — not CMS conformity, SSPP authoring, or attestation.** |
 
 **Appendices (selected):** **[`POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md`](../library/POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md)** · **[`POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md`](../library/POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md)**
 
@@ -59,7 +62,7 @@ Assignments are seeded **enabled** (`PolicyPackAssignments.IsEnabled = true`); m
 
 ## 2. Framework & jurisdiction disclaimers (all bundled rules)
 
-Starter corpora use **informative thematic mapping** (`frameworkMappings`) to accelerate architecture review—they **do not** constitute statutory legal classification, conformity assessment, CIS/OWASP/PCI/HIPAA/SOC 2 pass-fail automation, **or** Microsoft Well-Architected / CAF / landing-zone **certification**.
+Starter corpora use **informative thematic mapping** (`frameworkMappings`) to accelerate architecture review—they **do not** constitute statutory legal classification, conformity assessment, CIS/OWASP/PCI/HIPAA/SOC 2 pass-fail automation, Microsoft Well-Architected / CAF / landing-zone **certification**, **or** CMS ARC-AMPE conformity / SSPP authoring / ATO.
 
 **Operational truth:** Buyers remain responsible for jurisdictional applicability, contractual obligations, auditor evidence breadth, and any certification claims.
 

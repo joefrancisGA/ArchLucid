@@ -80,6 +80,7 @@ All **top-20** commercial packs plus **AI Governance** and **Security baseline**
 | 18 | DORA / DevSecOps delivery posture | **Shipped** |
 | 19 | Observability & OpenTelemetry baseline | **Shipped** |
 | 20 | Azure SQL / Cosmos DB data-layer security | **Shipped** |
+| 21 | **ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities)** | **V1 queued — content authoring next; spec: [`POLICY_PACK_ARC_AMPE_DESIGN.md`](POLICY_PACK_ARC_AMPE_DESIGN.md)** |
 | — | AI Governance / Responsible AI (core) | **Shipped** |
 | — | Security Architecture Baseline (core) | **Shipped** |
 | — | Azure Well-Architected Framework | **Shipped** |
@@ -106,3 +107,4 @@ All **top-20** commercial packs plus **AI Governance** and **Security baseline**
 | [`docs/samples/policy-packs/README.md`](../samples/policy-packs/README.md) | Import and validate |
 | [`V1_DEFERRED.md`](V1_DEFERRED.md) §6j | Governance deferrals (certification depth only) |
 | [`POLICY_PACK_RULE_PRIORITY_MODEL.md`](POLICY_PACK_RULE_PRIORITY_MODEL.md) | P0/P1/P2 tiers and `priorityFloor` |
+| [`POLICY_PACK_ARC_AMPE_DESIGN.md`](POLICY_PACK_ARC_AMPE_DESIGN.md) | Pack #24 design spec (V1 queued) |
