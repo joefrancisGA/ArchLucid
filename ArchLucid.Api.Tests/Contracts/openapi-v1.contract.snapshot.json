@@ -8346,12 +8346,6 @@
         "format": "binary",
         "type": "string"
       },
-      "IFormFileCollection": {
-        "items": {
-          "$ref": "#/components/schemas/IFormFile"
-        },
-        "type": "array"
-      },
       "ImprovementOpportunity": {
         "properties": {
           "affectedArtifactTypeOrWorkflowArea": {
@@ -27010,7 +27004,11 @@
               "schema": {
                 "properties": {
                   "files": {
-                    "$ref": "#/components/schemas/IFormFileCollection"
+                    "items": {
+                      "format": "binary",
+                      "type": "string"
+                    },
+                    "type": "array"
                   }
                 },
                 "type": "object"
@@ -27020,7 +27018,11 @@
               "schema": {
                 "properties": {
                   "files": {
-                    "$ref": "#/components/schemas/IFormFileCollection"
+                    "items": {
+                      "format": "binary",
+                      "type": "string"
+                    },
+                    "type": "array"
                   }
                 },
                 "type": "object"
@@ -27132,6 +27134,26 @@
               }
             },
             "description": "Payload Too Large"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
           }
         },
         "tags": [
@@ -27374,6 +27396,75 @@
         },
         "tags": [
           "Exports"
+        ]
+      }
+    },
+    "/v1/architecture/run/{runId}/findings/export/csv": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileContentResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "tags": [
+          "RunQuery"
         ]
       }
     },

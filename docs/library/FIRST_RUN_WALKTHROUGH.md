@@ -3,7 +3,7 @@
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# First-run walkthrough (operator UI)
+# First architecture review walkthrough (operator UI)
 
 ## Objective
 

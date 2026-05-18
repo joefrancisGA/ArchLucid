@@ -1,6 +1,6 @@
 > **Scope:** Evaluators who want the shipped `archlucid try` Docker stack to call their Azure OpenAI instead of the simulator; not production deployment architecture, cost governance beyond the noted token default, or ADR-level rationale (see the linked ADR).
 
-**V1 alignment:** Pilot happy path supports **simulator or real** execution ([`V1_SCOPE.md`](V1_SCOPE.md), run lifecycle). **`AgentExecution:Mode=Simulator`** remains the **default** in templates and is what **dev/CI** should use unless you are deliberately exercising Azure OpenAI ([`GLOSSARY.md`](GLOSSARY.md) — *Simulator mode / Real mode*). This page describes the **opt-in real** path only.
+**V1 alignment:** Pilot happy path supports **simulator or real** execution ([`V1_SCOPE.md`](V1_SCOPE.md), review lifecycle). **`AgentExecution:Mode=Simulator`** remains the **default** in templates and is what **dev/CI** should use unless you are deliberately exercising Azure OpenAI ([`GLOSSARY.md`](GLOSSARY.md) — *Simulator mode / Real mode*). This page describes the **opt-in real** path only.
 
 # First real value (`archlucid try --real`)
 

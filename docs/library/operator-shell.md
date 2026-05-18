@@ -32,7 +32,7 @@ Canonical buyer ↔ technical mapping (REST paths and type names unchanged): **[
 - **Architecture snapshot** / **Snapshot** ↔ manifest / `GoldenManifest`.
 - **Evidence graph** ↔ internal knowledge-graph projections; route **`/graph`** is unchanged.
 
-Related onboarding docs (**`docs/CORE_PILOT.md`**, **`docs/library/CORE_PILOT.md`**, **`docs/library/PILOT_GUIDE.md`**) may still use legacy “run / commit / manifest” phrasing — align them in a follow-up editorial pass to avoid drift from this glossary.
+Onboarding pointers: **[`CORE_PILOT.md`](../CORE_PILOT.md)** (also mirrored at **[`library/CORE_PILOT.md`](CORE_PILOT.md)**), **[`PILOT_GUIDE.md`](PILOT_GUIDE.md)**. Keep wording aligned with **[`CONCEPT_VOCABULARY.md`](CONCEPT_VOCABULARY.md)** and **[UI Glossary V1](../go-to-market/UI_GLOSSARY_V1.md)**.
 
 ### In-product layer hints (UI)
 
@@ -67,7 +67,7 @@ Short **Operate (governance and trust)** context lines (nav subtitle + `LayerHea
 
 These four steps cover the complete first-pilot journey. They map directly to the **Core Pilot checklist** on the Home page.
 
-1. **Start** — Open the app root (`/`). First-time users: use the **Core Pilot checklist** on Home for step-by-step links (start a review → pipeline → finalize → review artifacts); **Hide checklist** collapses it (preference in browser `localStorage`). The sidebar **Core Pilot** group shows **Home**, **Onboarding**, **New request** (wizard), and **Reviews** by default (labels in the live UI follow **[UI Glossary V1](../go-to-market/UI_GLOSSARY_V1.md)**). The wizard lives at **`/runs/new`** (same **`POST /v1/architecture/request`** body shape as the API — see **`docs/FIRST_RUN_WIZARD.md`**).
+1. **Start** — Open the app root (`/`). First-time users: use the **Core Pilot checklist** on Home for step-by-step links (start a review → pipeline → finalize → review artifacts); **Hide checklist** collapses it (preference in browser `localStorage`). The sidebar **Core Pilot** group shows **Home**, **Onboarding**, **New request** (wizard), and **Reviews** by default (labels in the live UI follow **[UI Glossary V1](../go-to-market/UI_GLOSSARY_V1.md)**). The wizard lives at **`/runs/new`** (same **`POST /v1/architecture/request`** body shape as the API — see **[`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md)**).
 2. **Reviews** — Open **Reviews** → pick a project (default `default`) → **Open review** on a row (empty list shows a create flow CTA).
 3. **Review detail** — **Pipeline timeline** lists review-scoped audit events (oldest first) from **`GET /v1/authority/runs/{runId}/pipeline-timeline`**. After you **finalize** the review, you see architecture snapshot summary, **Artifacts** (table with **Review** / **Download**).
 4. **Architecture snapshot / artifact** — From the architecture snapshot link or **Review**, you land on snapshot-scoped or artifact review pages: metadata, in-shell preview (when available), raw disclosure, sibling artifact list.

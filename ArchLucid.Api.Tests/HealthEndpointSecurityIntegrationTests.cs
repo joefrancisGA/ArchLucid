@@ -6,8 +6,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Regression: anonymous callers receive summary payloads on <c>/health/ready</c> and <c>/health</c> (SQL probe only).
-///     <c>/health/diagnostics</c> requires ReadAuthority.
+///     Regression: anonymous callers receive summary payloads on <c>/health/ready</c> and <c>/health</c>
+///     (deep SQL plus optional Redis summary when configured). <c>/health/diagnostics</c> requires ReadAuthority.
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class HealthEndpointSecurityIntegrationTests(HealthEndpointSecurityApiFactory factory)

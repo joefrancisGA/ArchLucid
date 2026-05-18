@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useSearchParams } from "next/navigation";
@@ -9,7 +8,6 @@ import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion"
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { GovernanceInteractiveQuickstartCard } from "@/components/GovernanceInteractiveQuickstartCard";
@@ -488,14 +486,10 @@ export function GovernanceWorkflowPageContent() {
         </p>
       ) : null}
       {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (
-        <GovernanceApprovalStoryCard row={approvals[0]!} />
-      ) : null}
-      {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (
-        <div className="mb-6">
-          <Button type="button" asChild variant="primary" size="lg" className="mt-2">
-            <Link href={`/audit?runId=${encodeURIComponent(activeRunId)}`}>Open audit trail</Link>
-          </Button>
-        </div>
+        <GovernanceApprovalStoryCard
+          row={approvals[0]!}
+          auditTrailHref={`/audit?runId=${encodeURIComponent(activeRunId)}`}
+        />
       ) : null}
       {!(buyerPolishedShell && approvals.length > 0 && activeRunId !== null) ? (
       <p

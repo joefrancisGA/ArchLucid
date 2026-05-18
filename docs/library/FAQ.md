@@ -45,8 +45,8 @@ Commercial philosophy and packaging context: **[../go-to-market/PRICING_PHILOSOP
 
 ## Product
 
-**What are architecture “runs”?**  
-A run ingests your request and context, executes agents (topology, cost, compliance, critic, etc.), and can produce/commit a golden manifest with governance controls.
+**What is an architecture review?**  
+A **review** ingests your request and context, executes agents (topology, cost, compliance, critic, etc.), and can produce/commit a golden manifest with governance controls. **API paths and CLI commands** still use **`run`** / **`runId`** for backward compatibility — see **[`CONCEPT_VOCABULARY.md`](CONCEPT_VOCABULARY.md)** §1.2.
 
 **What is a golden manifest?**  
 A durable, versioned architecture artifact (manifest) produced after successful authority pipeline stages and optional governance approval.

@@ -1,12 +1,20 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 
 /**
  * Buyer-walkthrough summary: one card that narrates submit → review → approve → governed package readiness
  * without surfacing internal approval IDs or environment-promotion framing.
  */
-export function GovernanceApprovalStoryCard(props: { readonly row: GovernanceApprovalRequest }) {
+export function GovernanceApprovalStoryCard(props: {
+  readonly row: GovernanceApprovalRequest;
+  /** Buyer shell: sealed primary next step beneath the milestone narrative */
+  readonly auditTrailHref?: string | null;
+}) {
   const row = props.row;
+  const auditTrailHref = props.auditTrailHref?.trim() ?? "";
   const submitted = row.requestedUtc.trim().length > 0;
   const reviewed = (row.reviewedBy?.trim().length ?? 0) > 0;
   const approved = row.status.trim().toLowerCase() === "approved";
@@ -90,6 +98,13 @@ export function GovernanceApprovalStoryCard(props: { readonly row: GovernanceApp
           ))}
         </ol>
       </CardContent>
+      {auditTrailHref.length > 0 ? (
+        <CardFooter className="flex flex-col items-stretch gap-2 border-t border-teal-200/70 pt-4 dark:border-teal-900/60">
+          <Button type="button" asChild variant="primary" size="lg" className="w-full sm:w-auto">
+            <Link href={auditTrailHref}>Open audit trail</Link>
+          </Button>
+        </CardFooter>
+      ) : null}
     </Card>
   );
 }

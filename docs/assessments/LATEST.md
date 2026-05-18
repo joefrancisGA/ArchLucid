@@ -470,13 +470,14 @@ Add application-level logging in `PolicyPackAssignmentRepository` when a policy 
 - Impact: Directly improves Reliability (+8-10 pts) and Usability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 13. Add Health Check Endpoint for Redis
+### 13. Add Health Check Endpoint for Redis — **complete**
 - **Why it matters:** Verifies connectivity to the optional Redis cache.
 - **Expected impact:** Supportability (+10 pts), Performance (+5 pts).
 - **Affected qualities:** Supportability, Performance.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (`RedisHealthProbeConnectionResolver` + optional `OptionalRedisConnectionHealthCheck`; registered in `RegisterArchLucidHealthChecks` when a Redis string is resolved; `/health` predicate includes `redis` alongside `database`.)
 ```text
-Add a Redis health check to the ASP.NET Core Health Checks pipeline in `ArchLucid.Api`.
+**Delivered (V1):** `RegisterArchLucidHealthChecks` adds `redis` (failure `Degraded`) when `RedisHealthProbeConnectionResolver` finds a non-empty string (projection → LLM completion cache → hot-path). `/health` exposes `database` + `redis` summaries when the check is registered.
+- Status: COMPLETE — acceptance criteria met (optional probe; does not mark the app Unhealthy when Redis is down; uses `Microsoft.Extensions.Diagnostics.HealthChecks`).
 - Acceptance criteria: The `/health` endpoint includes Redis status if Redis is configured.
 - Constraints: Use `Microsoft.Extensions.Diagnostics.HealthChecks`.
 - What not to change: Do not make the health check fail the entire app if Redis is optional.

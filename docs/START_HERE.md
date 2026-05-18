@@ -1,5 +1,5 @@
 > **Scope:** Single onboarding hub — buyer, contributor, and security routing.
-> **Spine doc:** [`architecture/README.md`](architecture/README.md).
+> **Spine:** This file is the **repo entry hub**; deep task lookup after your first review lives in [`architecture/README.md`](architecture/README.md).
 
 # Start here — ArchLucid
 

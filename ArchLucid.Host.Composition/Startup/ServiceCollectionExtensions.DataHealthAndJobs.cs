@@ -2,6 +2,7 @@ using ArchLucid.Application.DataConsistency;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Hosting;
+using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Hosted;
@@ -34,6 +35,17 @@ public static partial class ServiceCollectionExtensions
                 tags: [ReadinessTags.Live]);
 
         AddArchLucidSqlServerDatabaseHealthCheck(builder, configuration);
+
+        string? redisProbeConnection =
+            RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString(configuration);
+
+        if (!string.IsNullOrEmpty(redisProbeConnection))
+
+            builder.AddCheck(
+                "redis",
+                new OptionalRedisConnectionHealthCheck(redisProbeConnection),
+                failureStatus: HealthStatus.Degraded,
+                tags: [ReadinessTags.Ready]);
 
         builder
             .AddCheck<SqlSystemPlaneHealthCheck>(

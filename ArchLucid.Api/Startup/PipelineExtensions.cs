@@ -142,11 +142,12 @@ internal static class PipelineExtensions
                     DetailedHealthCheckResponseWriter.WriteAsync(ctx, r, HealthCheckResponseDetailLevel.Summary)
             })
             .AllowAnonymous();
-        // Anonymous deep probe: SQL reachability only (registration name "database"). Summary JSON omits exception text and data.
+        // Anonymous deep probe: SQL reachability (registration name "database") plus optional Redis when configured (name "redis"). Summary JSON omits exception text and data.
         app.MapHealthChecks("/health", new HealthCheckOptions
             {
                 Predicate = static registration =>
-                    string.Equals(registration.Name, "database", StringComparison.Ordinal),
+                    string.Equals(registration.Name, "database", StringComparison.Ordinal) ||
+                    string.Equals(registration.Name, "redis", StringComparison.Ordinal),
                 ResponseWriter = static (ctx, r) =>
                     DetailedHealthCheckResponseWriter.WriteAsync(ctx, r, HealthCheckResponseDetailLevel.Summary)
             })
