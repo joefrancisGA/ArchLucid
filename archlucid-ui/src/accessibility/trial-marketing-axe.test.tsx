@@ -71,7 +71,8 @@ describe("trial + marketing — axe (Vitest)", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => {
-        return new Response(JSON.stringify({ status: "Active", daysRemaining: 3 }), {
+        // Active + 0–7 days suppresses the strip in TrialBanner; use >7 so the region mounts for axe.
+        return new Response(JSON.stringify({ status: "Active", daysRemaining: 10 }), {
           status: 200,
           headers: { "Content-Type": "application/json" },
         });
