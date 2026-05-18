@@ -6,7 +6,7 @@
     "description": "Reviewer prompts mapped to Microsoft Azure Well-Architected Framework pillar themes. Grounded in read-only Azure extractor ZIP output (manifest.json, resources.json, optional policy-compliance.json and retail-prices.json) plus golden architecture manifest governance fields. Not an official Microsoft Well-Architected assessment or certification.",
     "version": "1.0.0",
     "category": "Architecture",
-    "isDefault": false,
+    "isDefault": true,
     "suggestedPackType": "ProjectCustom",
     "policyPackContentDocumentPath": "docs/samples/policy-packs/azure-waf.json"
   },

@@ -31,3 +31,9 @@ export const BUYER_COMPARE_SECONDARY_PAGE_LEAD =
 export const BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY = "Download consolidated review package (ZIP)";
 
 export const BUYER_COMPARE_OPEN_FULL_LINK_LABEL = "View review change comparison";
+
+export const BUYER_MARKETING_PRICING_PAGE_INTRO =
+  "Compare Team, Professional, and Enterprise packaging. Professional is the typical procurement path; detailed terms and diligence artifacts are finalized through your vendor review process.";
+
+export const BUYER_ASK_UNSTRUCTURED_EXECUTIVE_FALLBACK_LEAD =
+  "The answer below is scoped to this review package's indexed evidence.";

@@ -1,0 +1,34 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "waf-az-001",
+    "waf-az-002",
+    "waf-az-003",
+    "waf-az-004",
+    "waf-az-005",
+    "waf-az-006",
+    "waf-az-007",
+    "waf-az-008",
+    "waf-az-009",
+    "waf-az-010",
+    "waf-az-011",
+    "waf-az-012"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "azure-waf-extractor-aligned-v1",
+    "pack.displayName": "Azure Well-Architected Framework",
+    "pack.category": "Architecture",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Reviewer prompts mapped to Microsoft Azure Well-Architected Framework pillar themes. Grounded in read-only Azure extractor ZIP output plus golden manifest governance fields. Not an official Microsoft Well-Architected assessment.",
+    "frameworkMappingDisclaimer": "WAF references are thematic mapping for reviewers only; they do not constitute a Microsoft Well-Architected Review or certification.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/azure-waf-rules-v1.json",
+    "azureExtractor.normalizedManifest.fields": "SchemaVersion, ScriptVersion, CollectionTimestamp, SubscriptionId, ScopeDescriptor, SwitchesUsed, AzModuleVersion"
+  }
+}

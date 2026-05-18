@@ -53,7 +53,7 @@
 
 | # | Task | Type | Priority | Status | Depends on (technical) |
 |---|------|------|----------|--------|------------------------|
-| M-09 | Landing page full content — hero copy, problem/solution sections, core workflow narrative, use cases (5 of 6; *exclude* CAF landing-zone pack claim until V1.1), proof section | Copy + UI | P1 | Not started | **Improvements #31 + #32 — COMPLETED (2026-05-17)** |
+| M-09 | Landing page full content — hero copy, problem/solution sections, core workflow narrative, use cases (include Azure WAF + CAF/LZ bundled packs with disclaimer), proof section | Copy + UI | P1 | Not started | **Improvements #31 + #32 — COMPLETED (2026-05-17)**; packs per **`DEFAULT_POLICY_PACKS_V1.md`** |
 | M-10 | LinkedIn post 1: "Architecture review is broken — diagrams are not evidence" | Content | P1 | Not started | None |
 | M-11 | LinkedIn post 2: "Architecture decisions need provenance — not just Confluence pages" | Content | P1 | Not started | None |
 | M-12 | LinkedIn post 3: "Why AI-assisted architecture review needs human signoff" | Content | P1 | Not started | None |
@@ -92,7 +92,7 @@
 | # | Task | Milestone | Reason deferred |
 |---|------|-----------|-----------------|
 | M-29 | Publish LinkedIn post on ServiceNow integration ("ArchLucid writes architecture findings back to your ServiceNow workflow") | **V1.1** | Waits on first-party ServiceNow program ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13), **Improvement #25**, and **P10** (developer instance) |
-| M-30 | Publish CAF / Azure landing-zone use case claim with bundled curated policy pack | V1.1 | CAF pack deferred to V1.1 per **`V1_DEFERRED.md`** / **`V1_SCOPE.md`** §3; content roadmap rank **#1** in **[`POLICY_PACK_CONTENT_BACKLOG.md`](../library/POLICY_PACK_CONTENT_BACKLOG.md)** |
+| M-30 | Publish CAF / Azure landing-zone use case claim with bundled curated policy pack | **V1 GA** | Pack ships seeded per **`DEFAULT_POLICY_PACKS_V1.md`** — marketing copy must keep **thematic mapping** disclaimer |
 | M-31 | Solo architect self-serve SaaS pricing page (monthly tier bands per [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) **section 5**) and public self-serve checkout | V2 | Stripe live keys deferred to V1.1; self-serve funnel deferred to V2; no public $ band in first 90 days per **[PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md)** (**Marketing alignment Q7**); prefer **demand signal** from service-led engagements before positioning self-serve as primary motion |
 | M-32 | Reference customer / design partner case study publication | V1.1 | Depends on signed pilot and `reference-customers/PUBLICATION_CHECKLIST.md` clearance |
 | M-33 | Cross-tenant portfolio ROI analytics marketing claim | V2 | Cross-tenant analytics deferred to V2 per `V1_DEFERRED.md` |

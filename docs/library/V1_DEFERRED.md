@@ -259,19 +259,19 @@ This section **promotes MCP from backlog-only text to the named V1.1 release win
 
 ---
 
-## 6j. Governance — default bundled policy packs vs Azure LZ / CAF curated pack (owner note 2026-05-16)
+## 6j. Governance — default bundled policy packs (owner note 2026-05-16; updated 2026-05-18)
 
-Two **first-party** starter bundles (AI Governance + Security baseline) ship as seeded **`PlatformDefault`** policy packs provisioned alongside net-new tenants. Buyer-facing summaries and disclaimers appear in **[`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md)**, with framework appendices **[`POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md`](POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md)** and **[`POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md`](POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md)**.
+Four **first-party** starter bundles ship as seeded **`PlatformDefault`** policy packs provisioned alongside net-new tenants: **AI Governance**, **Security baseline**, **Azure Well-Architected Framework**, and **Azure Landing Zone / CAF**. Buyer-facing summaries and disclaimers appear in **[`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md)**, with framework appendices for AI and security in **[`POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md`](POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md)** and **[`POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md`](POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md)**.
 
 | Deliverable | V1 GA posture | V1.1+ candidate |
 |-------------|----------------|----------------|
-| Bundled curated corpora (**AI gov** · **security baseline**) | **In scope.** Seeded packs, enabled assignments, operator UI readability, appendix tables tied to **`docs/samples/policy-packs/*.json`**. | Future catalog tuning / SemVer uplift via product migrations and release notes (not silent row mutation expectations). |
-| **Azure landing-zone / Cloud Adoption Framework (CAF)-aligned curated pack** — subscription-factory narratives, corp/online/connectivity landing-zone vending, policy-initiative mapping as authored rule text | **Out of bundled V1 GA corpus.** Explicit deferral prevents pilots from reading **`V1` GA seeded packs** as exhaustive CAF/LZ conformance automation. | **Named V1.1 curated-pack slice** — distinct corpus + UX + procurement guardrails whenever promoted. |
+| Bundled curated corpora (**AI gov** · **security baseline** · **Azure WAF** · **Azure CAF/LZ**) | **In scope.** Seeded packs, enabled assignments, operator UI readability; rule narratives in **`docs/samples/policy-packs/*-rules-v1.json`**. | Future catalog tuning / SemVer uplift via product migrations and release notes (not silent row mutation expectations). |
+| **Exhaustive** CAF/LZ conformance automation (subscription factory, policy-initiative parity, corp/online/connectivity vending at full Microsoft reference depth) | **Out of scope for V1 GA.** Starter **`lz-caf-*`** keys are architecture-review prompts, not attestation. | Deeper corpora and optional appendix tables when product promotes expanded LZ coverage. |
 
 **Rules:**
 
-- Marketing and assessments must **not** describe **`V1` GA seeded packs** as an Azure LZ / CAF conformance pack absent a separate shipped corpus — that slice pins here as **V1.1**.
-- Assessments gauging **`V1` GA completeness** anchor on exactly the **two bundles** enumerated in **`DEFAULT_POLICY_PACKS_V1.md`**.
+- Marketing and assessments must **not** describe **`V1` GA seeded packs** as exhaustive Microsoft CAF/LZ or Well-Architected **certification** — thematic mapping only.
+- Assessments gauging **`V1` GA completeness** anchor on the **four bundles** enumerated in **`DEFAULT_POLICY_PACKS_V1.md`**.
 
 ---
 

@@ -44,8 +44,6 @@ describe("AskAssistantMessageBody", () => {
       <AskAssistantMessageBody buyerPolishedLinks content={`Runs ${sampleId} and 22222222-2222-4222-8222-222222222222.`} />,
     );
 
-    expect(screen.getByText("Based on the evidence indexed for this review package:")).toBeInTheDocument();
-
     const links = screen.getAllByRole("link");
 
     expect(links).toHaveLength(2);
@@ -76,6 +74,21 @@ describe("AskAssistantMessageBody", () => {
     });
 
     expect(evidenceLink).toHaveAttribute("href", "/reviews/22222222-2222-4222-8222-222222222222");
+  });
+
+  it("surfaces an executive lead for unstructured buyer-polished plain text", () => {
+    const { container } = render(
+      <AskAssistantMessageBody
+        buyerPolishedLinks
+        content="Approved with monitoring. Evidence cites manifest section 4 and the PHI minimization control."
+      />,
+    );
+
+    const execLead = container.querySelector("div.space-y-4 > p.font-semibold");
+
+    expect(execLead?.textContent).toBe("Approved with monitoring.");
+    expect(screen.getByText(/Evidence cites manifest section 4/)).toBeInTheDocument();
+    expect(screen.queryByText("Based on the evidence indexed for this review package:")).not.toBeInTheDocument();
   });
 
   it("renders grounding links footer when provided", () => {

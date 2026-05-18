@@ -502,6 +502,246 @@
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
       "description": "Stub for sec-base-030; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "waf-az-001",
+      "controlId": "WAF-AZ-001",
+      "controlName": "GA architecture starter rule (catalog stub)",
+      "appliesToCategory": "architecture",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for waf-az-001; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "waf-az-002",
+      "controlId": "WAF-AZ-002",
+      "controlName": "GA architecture starter rule (catalog stub)",
+      "appliesToCategory": "architecture",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for waf-az-002; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "waf-az-003",
+      "controlId": "WAF-AZ-003",
+      "controlName": "GA architecture starter rule (catalog stub)",
+      "appliesToCategory": "architecture",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for waf-az-003; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "waf-az-004",
+      "controlId": "WAF-AZ-004",
+      "controlName": "GA architecture starter rule (catalog stub)",
+      "appliesToCategory": "architecture",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for waf-az-004; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "waf-az-005",
+      "controlId": "WAF-AZ-005",
+      "controlName": "GA architecture starter rule (catalog stub)",
+      "appliesToCategory": "architecture",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for waf-az-005; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "waf-az-006",
+      "controlId": "WAF-AZ-006",
+      "controlName": "GA architecture starter rule (catalog stub)",
+      "appliesToCategory": "architecture",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for waf-az-006; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "waf-az-007",
+      "controlId": "WAF-AZ-007",
+      "controlName": "GA architecture starter rule (catalog stub)",
+      "appliesToCategory": "architecture",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for waf-az-007; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "waf-az-008",
+      "controlId": "WAF-AZ-008",
+      "controlName": "GA architecture starter rule (catalog stub)",
+      "appliesToCategory": "architecture",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for waf-az-008; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "waf-az-009",
+      "controlId": "WAF-AZ-009",
+      "controlName": "GA architecture starter rule (catalog stub)",
+      "appliesToCategory": "architecture",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for waf-az-009; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "waf-az-010",
+      "controlId": "WAF-AZ-010",
+      "controlName": "GA architecture starter rule (catalog stub)",
+      "appliesToCategory": "architecture",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for waf-az-010; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "waf-az-011",
+      "controlId": "WAF-AZ-011",
+      "controlName": "GA architecture starter rule (catalog stub)",
+      "appliesToCategory": "architecture",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for waf-az-011; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "waf-az-012",
+      "controlId": "WAF-AZ-012",
+      "controlName": "GA architecture starter rule (catalog stub)",
+      "appliesToCategory": "architecture",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for waf-az-012; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "lz-caf-001",
+      "controlId": "LZ-CAF-001",
+      "controlName": "GA platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for lz-caf-001; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "lz-caf-002",
+      "controlId": "LZ-CAF-002",
+      "controlName": "GA platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for lz-caf-002; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "lz-caf-003",
+      "controlId": "LZ-CAF-003",
+      "controlName": "GA platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for lz-caf-003; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "lz-caf-004",
+      "controlId": "LZ-CAF-004",
+      "controlName": "GA platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for lz-caf-004; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "lz-caf-005",
+      "controlId": "LZ-CAF-005",
+      "controlName": "GA platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for lz-caf-005; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "lz-caf-006",
+      "controlId": "LZ-CAF-006",
+      "controlName": "GA platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for lz-caf-006; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "lz-caf-007",
+      "controlId": "LZ-CAF-007",
+      "controlName": "GA platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for lz-caf-007; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "lz-caf-008",
+      "controlId": "LZ-CAF-008",
+      "controlName": "GA platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for lz-caf-008; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "lz-caf-009",
+      "controlId": "LZ-CAF-009",
+      "controlName": "GA platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for lz-caf-009; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "lz-caf-010",
+      "controlId": "LZ-CAF-010",
+      "controlName": "GA platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for lz-caf-010; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "lz-caf-011",
+      "controlId": "LZ-CAF-011",
+      "controlName": "GA platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for lz-caf-011; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "lz-caf-012",
+      "controlId": "LZ-CAF-012",
+      "controlName": "GA platform starter rule (catalog stub)",
+      "appliesToCategory": "platform",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Stub for lz-caf-012; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
     }
   ]
 }

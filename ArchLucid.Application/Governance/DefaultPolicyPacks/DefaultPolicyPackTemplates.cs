@@ -183,4 +183,89 @@ public static class DefaultPolicyPackTemplates
           }
         }
         """;
+
+    /// <summary>
+    ///     Azure WAF curated pack referencing <c>waf-az-001</c>–<c>waf-az-012</c>; narrative in
+    ///     <c>docs/samples/policy-packs/azure-waf-rules-v1.json</c>.
+    /// </summary>
+    public const string AzureWellArchitectedFrameworkV1Json =
+        """
+        {
+          "complianceRuleIds": [],
+          "complianceRuleKeys": [
+            "waf-az-001",
+            "waf-az-002",
+            "waf-az-003",
+            "waf-az-004",
+            "waf-az-005",
+            "waf-az-006",
+            "waf-az-007",
+            "waf-az-008",
+            "waf-az-009",
+            "waf-az-010",
+            "waf-az-011",
+            "waf-az-012"
+          ],
+          "alertRuleIds": [],
+          "compositeAlertRuleIds": [],
+          "advisoryDefaults": {
+            "severityFloor": "warning",
+            "scanDepth": "standard"
+          },
+          "metadata": {
+            "templateId": "azure-waf-extractor-aligned-v1",
+            "pack.displayName": "Azure Well-Architected Framework",
+            "pack.category": "Architecture",
+            "pack.version": "1.0.0",
+            "pack.isDefault": "true",
+            "pack.description": "Reviewer prompts mapped to Microsoft Azure Well-Architected Framework pillar themes. Grounded in Azure extractor inventory and golden manifest governance fields. Not an official Microsoft Well-Architected assessment.",
+            "frameworkMappingDisclaimer": "WAF references are thematic mapping for reviewers only; they do not constitute a Microsoft Well-Architected Review or certification.",
+            "curatedRulesArtifact": "docs/samples/policy-packs/azure-waf-rules-v1.json",
+            "azureExtractor.normalizedManifest.fields": "SchemaVersion, ScriptVersion, CollectionTimestamp, SubscriptionId, ScopeDescriptor, SwitchesUsed, AzModuleVersion"
+          }
+        }
+        """;
+
+    /// <summary>
+    ///     Azure CAF / landing zone curated pack referencing <c>lz-caf-001</c>–<c>lz-caf-012</c>; narrative in
+    ///     <c>docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json</c>.
+    /// </summary>
+    public const string AzureCafLandingZoneV1Json =
+        """
+        {
+          "complianceRuleIds": [],
+          "complianceRuleKeys": [
+            "lz-caf-001",
+            "lz-caf-002",
+            "lz-caf-003",
+            "lz-caf-004",
+            "lz-caf-005",
+            "lz-caf-006",
+            "lz-caf-007",
+            "lz-caf-008",
+            "lz-caf-009",
+            "lz-caf-010",
+            "lz-caf-011",
+            "lz-caf-012"
+          ],
+          "alertRuleIds": [],
+          "compositeAlertRuleIds": [],
+          "advisoryDefaults": {
+            "severityFloor": "warning",
+            "scanDepth": "standard"
+          },
+          "metadata": {
+            "templateId": "azure-caf-landing-zone-v1",
+            "pack.displayName": "Azure Landing Zone / Cloud Adoption Framework",
+            "pack.category": "Platform",
+            "pack.version": "1.0.0",
+            "pack.isDefault": "true",
+            "pack.description": "Starter prompts for enterprise Azure landing zones — management hierarchy, hub-spoke networking, policy initiatives, platform identity, and centralized observability. Thematic CAF/LZ mapping only; not conformance certification.",
+            "frameworkMappingDisclaimer": "CAF and Azure landing zone references are thematic mapping for architecture review only; they are not Microsoft attestation or LZ conformance automation.",
+            "curatedRulesArtifact": "docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json",
+            "goldenManifest.governance.fields": "ComplianceTags, PolicyConstraints, RequiredControls, RiskClassification",
+            "azureExtractor.normalizedManifest.fields": "SchemaVersion, ScriptVersion, CollectionTimestamp, SubscriptionId, ScopeDescriptor, SwitchesUsed"
+          }
+        }
+        """;
 }

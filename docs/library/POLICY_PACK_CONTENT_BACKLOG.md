@@ -93,7 +93,7 @@ Ordered by **commercial unblock**, **assessment gaps**, and **Azure-first** alig
 
 | Rank | Pack name | Primary buyer / use case | Target milestone | Suggested artifact path | Status |
 |------|-----------|------------------------|------------------|-------------------------|--------|
-| 1 | **Azure CAF / Landing Zone** | Enterprise Azure platform teams; unblocks LZ vending narrative | **V1.1** | `docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json` | Planned — explicit deferral in **`DEFAULT_POLICY_PACKS_V1.md` §2** |
+| 1 | **Azure CAF / Landing Zone** | Enterprise Azure platform teams; unblocks LZ vending narrative | **V1 GA** (bundled) | `docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json` | **Shipped** — seeded **`PlatformDefault`** |
 | 2 | **GDPR compliance baseline** | EU + global privacy programs | V1.1 | `docs/samples/policy-packs/gdpr-baseline-rules-v1.json` | Planned — assessment improvement **#20** |
 | 3 | **SOC 2 Type II (TSC architecture themes)** | Mid-market selling to enterprises | V1.1 | `docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json` | Partial — metadata sample exists (`soc2-compliance-baseline.json`); curated-rules corpus TBD |
 | 4 | **FinOps & cloud cost optimization** | CFO / FinOps sponsors | V1.1 | Extend `cost-optimization-rules-v1.json` | Partial — sample exists; expand curated-rules parity |
@@ -120,7 +120,8 @@ Ordered by **commercial unblock**, **assessment gaps**, and **Azure-first** alig
 |------|------|----------|
 | **AI Governance / Responsible AI** | V1 GA bundled default | [`ai-governance-responsible-ai-rules-v1.json`](../samples/policy-packs/ai-governance-responsible-ai-rules-v1.json) |
 | **Security Architecture Baseline** | V1 GA bundled default | [`security-architecture-baseline-rules-v1.json`](../samples/policy-packs/security-architecture-baseline-rules-v1.json) |
-| **Azure Well-Architected Framework (sample)** | Curated sample (12 rules); not a third GA bundle | [`azure-waf-rules-v1.json`](../samples/policy-packs/azure-waf-rules-v1.json) |
+| **Azure Well-Architected Framework** | V1 GA bundled default | [`azure-waf-rules-v1.json`](../samples/policy-packs/azure-waf-rules-v1.json) |
+| **Azure Landing Zone / CAF** | V1 GA bundled default | [`azure-caf-landing-zone-rules-v1.json`](../samples/policy-packs/azure-caf-landing-zone-rules-v1.json) |
 
 ---
 
@@ -132,7 +133,7 @@ Ordered by **commercial unblock**, **assessment gaps**, and **Azure-first** alig
 | **Policy Pack Hub / catalog** | Repeatable import across tenants | `POST /v1/policy-packs/catalog` promotion flows (see API contracts) |
 | **GA bundled default** | Every net-new tenant seed | `IDefaultPolicyPackSeeder` — requires product + GTM sign-off per **`DEFAULT_POLICY_PACKS_V1.md`** |
 
-Do **not** market CAF/LZ **bundled GA** coverage until rank **#1** ships with appendix + pilot validation (**GTM M-30**).
+CAF/LZ and Azure WAF ship as **V1 GA bundled defaults**; deeper conformance corpora remain on the backlog ranks below.
 
 ---
 

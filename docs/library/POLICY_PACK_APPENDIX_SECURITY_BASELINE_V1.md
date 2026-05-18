@@ -92,4 +92,4 @@ Each rule exposes **`severity`**, **`remediationGuidance`**, **`evidenceHints`**
 ## Operational notes
 
 - **Rule counts:** **Thirty** curated keys populate the seeded **`complianceRuleKeys`** array shipped with provisioning templates (`DefaultPolicyPackTemplates.SecurityArchitectureBaselineV1Json`). Pack narrative artifact version **1.1.0** adds five controls (**`sec-base-026`**–**`sec-base-030`**) focused on Key Vault retrieval, TLS protocol minimums at ingress, regulated datastore Private Link enforcement, perimeter WAF posture, and JIT-style privileged access documentation — **mapping only**, not certification.
-- **Azure landing-zone / CAF specificity:** Dedicated subscription-factory/LZ vending narrative pack is pinned to **V1.1** (see **[`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md)** and **`V1_DEFERRED.md` §6j**).
+- **Azure landing-zone / CAF specificity:** Starter **`lz-caf-*`** bundled pack ships at **V1 GA** (see **[`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md)**); exhaustive subscription-factory conformance remains out of scope.

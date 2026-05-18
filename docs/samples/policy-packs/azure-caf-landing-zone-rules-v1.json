@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "Azure Landing Zone / Cloud Adoption Framework",
+    "description": "Starter architecture-review prompts for enterprise Azure landing zones — management hierarchy, hub-spoke networking, policy initiatives, platform identity, and centralized observability. Thematic mapping to Microsoft Cloud Adoption Framework and Azure landing zone design areas. Not a CAF or LZ conformance assessment or certification.",
+    "version": "1.0.0",
+    "category": "Platform",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/azure-caf-landing-zone.json"
+  },
+  "rules": [
+    {
+      "id": "lz-caf-001",
+      "title": "Management group hierarchy documented",
+      "description": "Platform scope should describe how subscriptions roll up through management groups (corp, landing zone, workload) so policy inheritance and access boundaries are reviewable.",
+      "severity": "High",
+      "remediationGuidance": "Document hierarchy intent in governance.PolicyConstraints; cite SubscriptionId and ScopeDescriptor from azureExtractor.manifest when inventory is present.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "azureExtractor.manifest.SubscriptionId",
+        "azureExtractor.manifest.ScopeDescriptor",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        { "framework": "Microsoft Cloud Adoption Framework", "theme": "Ready — Govern (management group design)" }
+      ]
+    },
+    {
+      "id": "lz-caf-002",
+      "title": "Subscription vending and workload placement explained",
+      "description": "Each workload subscription should have a documented purpose, environment class, and owning team when landing-zone vending is in scope.",
+      "severity": "Medium",
+      "remediationGuidance": "Mirror subscription purpose in metadata.ChangeDescription and governance.ComplianceTags; align services[].Tags with environment and cost-center keys.",
+      "evidenceHints": [
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.SubscriptionId"
+      ],
+      "frameworkMappings": [
+        { "framework": "Microsoft Cloud Adoption Framework", "theme": "Ready — Plan (subscription design)" }
+      ]
+    },
+    {
+      "id": "lz-caf-003",
+      "title": "Hub-spoke or virtual WAN topology described",
+      "description": "Connectivity between hub and spoke networks (or Virtual WAN hubs) must be understandable from architecture relationships and governance narrative.",
+      "severity": "High",
+      "remediationGuidance": "Model hub/spoke edges in relationships with AuthenticatesWith/ReadsFrom semantics where applicable; document peering or vWAN attachment in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "relationships",
+        "governance.PolicyConstraints",
+        "azureExtractor.manifest.RawJson",
+        "azureExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        { "framework": "Azure Landing Zone", "designArea": "Networking — Hub-spoke or vWAN" }
+      ]
+    },
+    {
+      "id": "lz-caf-004",
+      "title": "Azure Policy initiative alignment stated",
+      "description": "When policy-compliance.json or governance metadata references Azure Policy, non-compliance themes should be dispositioned or risk-accepted with traceable narrative.",
+      "severity": "High",
+      "remediationGuidance": "Summarize initiative gaps in governance.PolicyConstraints; tie SubscriptionId scope to reviewer sign-off in metadata.DecisionTraceIds.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RiskClassification",
+        "azureExtractor.manifest.RawJson",
+        "azureExtractor.manifest.SubscriptionId"
+      ],
+      "frameworkMappings": [
+        { "framework": "Azure Landing Zone", "designArea": "Governance — Policy and compliance" }
+      ]
+    },
+    {
+      "id": "lz-caf-005",
+      "title": "Platform identity baseline (Entra ID) documented",
+      "description": "Landing-zone identity posture should describe privileged access, break-glass, and workload identity patterns (managed identities over long-lived secrets).",
+      "severity": "High",
+      "remediationGuidance": "Encode identity commitments in governance.RequiredControls; tag platform services with identity:* keys on services[].Tags.",
+      "evidenceHints": [
+        "governance.RequiredControls",
+        "services[].Tags",
+        "services[].RequiredControls",
+        "governance.PolicyConstraints"
+      ],
+      "frameworkMappings": [
+        { "framework": "Azure Landing Zone", "designArea": "Identity — Entra ID and RBAC" }
+      ]
+    },
+    {
+      "id": "lz-caf-006",
+      "title": "Centralized logging and monitoring landing zone",
+      "description": "Diagnostic and audit logs from platform and workload subscriptions should converge to a documented Log Analytics or equivalent sink.",
+      "severity": "High",
+      "remediationGuidance": "Declare observability sink ownership in governance.PolicyConstraints; reference azureExtractor.manifest.ScriptVersion when diagnostic exports accompany the package.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "services[].Tags",
+        "azureExtractor.manifest.ScriptVersion",
+        "azureExtractor.manifest.RawJson"
+      ],
+      "frameworkMappings": [
+        { "framework": "Azure Landing Zone", "designArea": "Management — Monitoring and diagnostics" }
+      ]
+    },
+    {
+      "id": "lz-caf-007",
+      "title": "Private DNS and name resolution for PaaS",
+      "description": "Private endpoints and internal DNS zones for PaaS services should be documented when landing-zone standards require private connectivity.",
+      "severity": "Medium",
+      "remediationGuidance": "Set PrivateEndpointRequired on sensitive datastores[]; document private DNS linkage in relationships and governance.PolicyConstraints.",
+      "evidenceHints": [
+        "datastores[].PrivateEndpointRequired",
+        "relationships",
+        "governance.PolicyConstraints",
+        "azureExtractor.manifest.RawJson"
+      ],
+      "frameworkMappings": [
+        { "framework": "Azure Landing Zone", "designArea": "Networking — Private DNS" }
+      ]
+    },
+    {
+      "id": "lz-caf-008",
+      "title": "Microsoft Defender for Cloud posture referenced",
+      "description": "Platform security baseline should mention Defender plans or secure score themes when regulated workloads are in scope.",
+      "severity": "Medium",
+      "remediationGuidance": "Capture defender/secure-score commitments in governance.ComplianceTags and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.ComplianceTags",
+        "governance.RequiredControls",
+        "governance.RiskClassification"
+      ],
+      "frameworkMappings": [
+        { "framework": "Azure Landing Zone", "designArea": "Security — Defender for Cloud" }
+      ]
+    },
+    {
+      "id": "lz-caf-009",
+      "title": "Mandatory resource tagging for FinOps allocation",
+      "description": "Landing-zone tagging standards (environment, cost center, owner) should be visible on manifest services and reflected in ARM inventory when exported.",
+      "severity": "Low",
+      "remediationGuidance": "Audit services[].Tags and governance.ComplianceTags against mandatory tag policy; correlate with resources.json tag columns when extractor output is available.",
+      "evidenceHints": [
+        "services[].Tags",
+        "governance.ComplianceTags",
+        "azureExtractor.manifest.RawJson"
+      ],
+      "frameworkMappings": [
+        { "framework": "Microsoft Cloud Adoption Framework", "theme": "Manage — Cost management" }
+      ]
+    },
+    {
+      "id": "lz-caf-010",
+      "title": "Segregation of duties for platform operations",
+      "description": "Platform team roles (network, security, identity, workload) should show separation in governance metadata when SOX or regulated controls apply.",
+      "severity": "Medium",
+      "remediationGuidance": "Document RACI or SoD statements in governance.PolicyConstraints and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "metadata.DecisionTraceIds"
+      ],
+      "frameworkMappings": [
+        { "framework": "Microsoft Cloud Adoption Framework", "theme": "Ready — Govern (access control)" }
+      ]
+    },
+    {
+      "id": "lz-caf-011",
+      "title": "Connectivity subscription boundaries for shared services",
+      "description": "Shared services (firewall, DNS, bastion, ACR) should declare which subscription hosts them and how spokes consume them.",
+      "severity": "Medium",
+      "remediationGuidance": "Describe shared-service placement in governance.PolicyConstraints; link consuming workloads via relationships.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "relationships",
+        "services[].Purpose",
+        "azureExtractor.manifest.ScopeDescriptor"
+      ],
+      "frameworkMappings": [
+        { "framework": "Azure Landing Zone", "designArea": "Networking — Shared services" }
+      ]
+    },
+    {
+      "id": "lz-caf-012",
+      "title": "Evidence freshness for landing-zone reviews",
+      "description": "Reviews citing Azure inventory must record collection timestamp and extractor switches so landing-zone drift is auditable.",
+      "severity": "Medium",
+      "remediationGuidance": "Cite azureExtractor.manifest.CollectionTimestamp, SchemaVersion, and SwitchesUsed in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "azureExtractor.manifest.CollectionTimestamp",
+        "azureExtractor.manifest.SchemaVersion",
+        "azureExtractor.manifest.SwitchesUsed",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        { "framework": "Azure Landing Zone", "designArea": "Management — Evidence hygiene" }
+      ]
+    }
+  ]
+}

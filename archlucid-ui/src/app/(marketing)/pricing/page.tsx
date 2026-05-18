@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { MarketingPricingPublicCutoverNotice } from "@/components/marketing/MarketingPricingPublicCutoverNotice";
 import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
+import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
 import { buildPricingSignupHref } from "@/lib/marketing/pricing-signup-href";
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
 
@@ -27,7 +28,7 @@ export default async function PricingPage(props: PricingPageProps) {
       <MarketingTierPricingSection
         sectionHeadingId="pricing-page-heading"
         sectionTitle="Pricing"
-        sectionIntro="Compare Team, Professional, and Enterprise plans. Tier summaries reflect the current published price list."
+        sectionIntro={BUYER_MARKETING_PRICING_PAGE_INTRO}
         signupHref={signupHref}
         signupCallToActionLabel="Request evaluation workspace"
         showSignupCallToAction={false}

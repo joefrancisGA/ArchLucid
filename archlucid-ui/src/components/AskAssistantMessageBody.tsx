@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 
+import { BUYER_ASK_UNSTRUCTURED_EXECUTIVE_FALLBACK_LEAD } from "@/lib/buyer-polish-copy";
 import { splitBuyerAskExecutiveLead } from "@/lib/ask-executive-lead";
 import { parseAskAssistantStructuredSections } from "@/lib/ask-assistant-section-parser";
 
@@ -185,6 +186,28 @@ export function AskAssistantMessageBody(props: {
             </div>
           </section>
         ))}
+        {footer}
+      </div>
+    );
+  }
+
+  if (buyerPolishedLinks) {
+    const trimmed = content.trim();
+    const split = splitBuyerAskExecutiveLead(trimmed);
+    const executiveLead =
+      split.sentence.length > 0 ? split.sentence : BUYER_ASK_UNSTRUCTURED_EXECUTIVE_FALLBACK_LEAD;
+    const bodyText = split.rest.trim().length > 0 ? split.rest.trim() : split.sentence.length > 0 ? "" : trimmed;
+
+    return (
+      <div className="space-y-4">
+        <p className="m-0 text-sm font-semibold leading-snug text-neutral-900 dark:text-neutral-100">
+          {renderTextWithUuidReviewLinks(executiveLead, buyerPolishedLinks)}
+        </p>
+        {bodyText.length > 0 ? (
+          <p className="m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200">
+            {renderTextWithUuidReviewLinks(bodyText, buyerPolishedLinks)}
+          </p>
+        ) : null}
         {footer}
       </div>
     );

@@ -67,6 +67,15 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     expect(audit?.next).toBeNull();
   });
 
+  it("treats ask as optional satellite between evidence trail and governance", () => {
+    const ask = resolveBuyerGoldenJourneyNav("/ask");
+
+    expect(ask?.summaryLine).toContain("Evidence Q&A");
+    expect(ask?.currentStepIndex).toBeNull();
+    expect(ask?.prev?.label).toBe("View evidence trail");
+    expect(ask?.next?.label).toBe("Governance approval");
+  });
+
   it("treats compare as optional secondary route between manifest and evidence trail", () => {
     const compare = resolveBuyerGoldenJourneyNav("/compare");
 

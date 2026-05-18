@@ -14,7 +14,7 @@ namespace ArchLucid.Application.Tests.Governance;
 public sealed class DefaultPolicyPackSeederTests
 {
     [Fact]
-    public async Task EnsureDefaultPolicyPacksAsync_creates_two_platform_packs_when_empty()
+    public async Task EnsureDefaultPolicyPacksAsync_creates_four_platform_packs_when_empty()
     {
         InMemoryPolicyPackRepository packs = new();
         InMemoryPolicyPackVersionRepository versions = new();
@@ -38,14 +38,16 @@ public sealed class DefaultPolicyPackSeederTests
         await sut.EnsureDefaultPolicyPacksAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
         IReadOnlyList<PolicyPack> scopePacks = await packs.ListByScopeAsync(tenantId, workspaceId, projectId, CancellationToken.None);
-        scopePacks.Should().HaveCount(2);
+        scopePacks.Should().HaveCount(4);
         scopePacks.Should().OnlyContain(p => p.PackType == PolicyPackType.PlatformDefault);
         scopePacks.Should().Contain(p => p.Name == DefaultPolicyPackCatalog.AiGovernanceDisplayName);
         scopePacks.Should().Contain(p => p.Name == DefaultPolicyPackCatalog.SecurityBaselineDisplayName);
+        scopePacks.Should().Contain(p => p.Name == DefaultPolicyPackCatalog.AzureWellArchitectedDisplayName);
+        scopePacks.Should().Contain(p => p.Name == DefaultPolicyPackCatalog.AzureCafLandingZoneDisplayName);
 
         IReadOnlyList<PolicyPackAssignment> assigns =
             await assignments.ListByScopeAsync(tenantId, workspaceId, projectId, CancellationToken.None);
-        assigns.Should().HaveCount(2);
+        assigns.Should().HaveCount(4);
     }
 
     [Fact]
@@ -74,6 +76,6 @@ public sealed class DefaultPolicyPackSeederTests
         await sut.EnsureDefaultPolicyPacksAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
         IReadOnlyList<PolicyPack> scopePacks = await packs.ListByScopeAsync(tenantId, workspaceId, projectId, CancellationToken.None);
-        scopePacks.Should().HaveCount(2);
+        scopePacks.Should().HaveCount(4);
     }
 }

@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { getShowcaseCompareHref } from "@/lib/buyer-safe-review-navigation";
+import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -27,12 +29,17 @@ export function AskBuyerRunAnchors(props: AskBuyerRunAnchorsProps) {
         Open review package
       </Link>
       {canonical === SHOWCASE_STATIC_DEMO_RUN_ID ? (
-        <Link
-          className="font-medium text-teal-800 underline dark:text-teal-300"
-          href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}
-        >
-          Open signed manifest
-        </Link>
+        <>
+          <Link
+            className="font-medium text-teal-800 underline dark:text-teal-300"
+            href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}
+          >
+            Open signed manifest
+          </Link>
+          <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={getShowcaseCompareHref()}>
+            {BUYER_COMPARE_OPEN_FULL_LINK_LABEL}
+          </Link>
+        </>
       ) : null}
     </p>
   );

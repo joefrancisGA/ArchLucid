@@ -44,6 +44,26 @@ public sealed class DefaultPolicyPackSeeder(
             DefaultPolicyPackCatalog.SecurityBaselineDescription,
             DefaultPolicyPackTemplates.SecurityArchitectureBaselineV1Json,
             ct);
+
+        await EnsureOnePackAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            existing,
+            DefaultPolicyPackCatalog.AzureWellArchitectedDisplayName,
+            DefaultPolicyPackCatalog.AzureWellArchitectedDescription,
+            DefaultPolicyPackTemplates.AzureWellArchitectedFrameworkV1Json,
+            ct);
+
+        await EnsureOnePackAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            existing,
+            DefaultPolicyPackCatalog.AzureCafLandingZoneDisplayName,
+            DefaultPolicyPackCatalog.AzureCafLandingZoneDescription,
+            DefaultPolicyPackTemplates.AzureCafLandingZoneV1Json,
+            ct);
     }
 
     private async Task EnsureOnePackAsync(

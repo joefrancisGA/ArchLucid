@@ -10,7 +10,10 @@ These files match the persisted shape described in **`ArchLucid.Decisioning.Gove
 |------|--------|
 | [ai-governance-responsible-ai-rules-v1.json](./ai-governance-responsible-ai-rules-v1.json) | **V1 GA bundled default** — 20 curated AI governance rules (NIST AI RMF / EU AI Act thematic mapping). |
 | [security-architecture-baseline-rules-v1.json](./security-architecture-baseline-rules-v1.json) | **V1 GA bundled default** — 30 curated security architecture rules. |
-| [azure-waf-rules-v1.json](./azure-waf-rules-v1.json) | **Curated sample** — 12 Azure Well-Architected pillar rules (not a third GA bundle). |
+| [azure-waf-rules-v1.json](./azure-waf-rules-v1.json) | **V1 GA bundled default** — 12 Azure Well-Architected pillar rules. |
+| [azure-waf.json](./azure-waf.json) | Policy pack content document for WAF bundle. |
+| [azure-caf-landing-zone-rules-v1.json](./azure-caf-landing-zone-rules-v1.json) | **V1 GA bundled default** — 12 CAF / landing zone rules. |
+| [azure-caf-landing-zone.json](./azure-caf-landing-zone.json) | Policy pack content document for CAF/LZ bundle. |
 | [cost-optimization-rules-v1.json](./cost-optimization-rules-v1.json) | FinOps / cost themes (sample; see backlog for full corpus expansion). |
 | [soc2-compliance-baseline.json](./soc2-compliance-baseline.json) | **Severity gate** (Warning+) via `governance.blockCommitMinimumSeverity`, plus checklist strings for classification / encryption citations / least-privilege wording. Selects logging, encryption, and access catalog rules (`saas-ctrl-001` … `003`). |
 | [cloud-migration-readiness.json](./cloud-migration-readiness.json) | **Content-pattern checklist** metadata for cost bands, RTO/RPO mentions, and external-service enumeration; enables encryption, third-party, segmentation, and DR rules (`saas-ctrl-002`, `004`, `005`, `006`). |

@@ -1,0 +1,35 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "lz-caf-001",
+    "lz-caf-002",
+    "lz-caf-003",
+    "lz-caf-004",
+    "lz-caf-005",
+    "lz-caf-006",
+    "lz-caf-007",
+    "lz-caf-008",
+    "lz-caf-009",
+    "lz-caf-010",
+    "lz-caf-011",
+    "lz-caf-012"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "azure-caf-landing-zone-v1",
+    "pack.displayName": "Azure Landing Zone / Cloud Adoption Framework",
+    "pack.category": "Platform",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Starter prompts for enterprise Azure landing zones — management hierarchy, hub-spoke networking, policy initiatives, platform identity, and centralized observability. Thematic CAF/LZ mapping only; not conformance certification.",
+    "frameworkMappingDisclaimer": "CAF and Azure landing zone references are thematic mapping for architecture review only; they are not Microsoft attestation or LZ conformance automation.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json",
+    "goldenManifest.governance.fields": "ComplianceTags, PolicyConstraints, RequiredControls, RiskClassification",
+    "azureExtractor.normalizedManifest.fields": "SchemaVersion, ScriptVersion, CollectionTimestamp, SubscriptionId, ScopeDescriptor, SwitchesUsed"
+  }
+}
