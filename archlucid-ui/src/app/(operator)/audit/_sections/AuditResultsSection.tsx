@@ -5,10 +5,13 @@ import { Button } from "@/components/ui/button";
 import type { AuditEvent } from "@/lib/api";
 import { formatAuditSummaryHeading } from "@/app/(operator)/audit/audit-ui-helpers";
 import {
+  auditBuyerUtilitiesDetailsSummary,
   auditExportControlDisabledTitle,
+  auditExportExecuteRankAuditorRoleNote,
   auditExportCsvButtonLabelRoleRestricted,
   auditExportCsvButtonLabelWindowIncomplete,
   auditExportSampleWorkspaceCsvHintBuyerPolished,
+  auditExportSectionSupportingLineBuyerPolished,
   auditLoadMoreButtonTitleOperator,
   auditLoadMoreButtonTitleReader,
   auditResultsSectionHeadingBuyerPolished,
@@ -18,6 +21,7 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
+import { cn } from "@/lib/utils";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { AuditTimelineEventCard } from "./AuditTimelineEventCard";
 import { BuyerAuditEventsTechnicalAppendix } from "./BuyerAuditEventsTechnicalAppendix";
@@ -92,11 +96,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
       ) : null}
       <p role="status" aria-live="polite" aria-atomic="true" className="text-neutral-600 dark:text-neutral-400 text-sm mt-0">
         {formatAuditSummaryHeading(events.length, hasMoreResults)}.
-        {buyerPolishedShell
-          ? displayEventGroups !== null
-            ? " Showing the full lifecycle from review start through packaged deliverables, grouped by stage."
-            : " Showing the full lifecycle from review start through packaged deliverables."
-          : " Newest first; use Load more for older entries."}
+        {buyerPolishedShell ? null : " Newest first; use Load more for older entries."}
       </p>
       {buyerPolishedShell && uniformRunIdForDisplay !== null ? (
         <p className="mb-2 mt-1 max-w-2xl text-sm text-neutral-700 dark:text-neutral-300">
@@ -173,46 +173,62 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
               </div>
             ) : null}
             {buyerPolishedShell && events.length > 0 ? (
-              <div className="mt-6 border-t border-neutral-200 pt-4 dark:border-neutral-700">
-                {isNextPublicDemoMode() && !csvExportUiAllowed ? (
-                  <p
-                    className="mb-2 max-w-prose text-xs text-neutral-500 dark:text-neutral-400"
-                    data-testid="audit-buyer-sample-csv-hint"
-                  >
-                    {auditExportSampleWorkspaceCsvHintBuyerPolished}
+              <details
+                className="mt-6 border-t border-neutral-200 pt-2 dark:border-neutral-700"
+                data-testid="audit-buyer-utilities-details"
+              >
+                <summary className="cursor-pointer pt-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                  {auditBuyerUtilitiesDetailsSummary}
+                </summary>
+                <div className="mt-4 space-y-3 pb-2">
+                  <p className="m-0 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
+                    {auditExportSectionSupportingLineBuyerPolished}
                   </p>
-                ) : null}
-                <Button
-                  type="button"
-                  variant={
-                    csvExportUiAllowed
-                      ? "primary"
-                      : isNextPublicDemoMode()
-                        ? "secondary"
-                        : "outline"
-                  }
-                  size="sm"
-                  onClick={() => void onExportCsv()}
-                  disabled={!csvExportUiAllowed || exporting || searching}
-                  title={
-                    !exportDateRangeReady
-                      ? "Set From and To to enable export"
-                      : !exportRoleOk
-                        ? auditExportControlDisabledTitle
-                        : "Download audit trail as CSV using the current filters"
-                  }
-                >
-                  {exporting
-                    ? "Exporting…"
-                    : csvExportUiAllowed
-                      ? "Download audit trail (CSV)"
-                      : !exportDateRangeReady
-                        ? auditExportCsvButtonLabelWindowIncomplete
+                  {!exportRoleOk ? (
+                    <p className="m-0 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
+                      {auditExportExecuteRankAuditorRoleNote}
+                    </p>
+                  ) : null}
+                  {isNextPublicDemoMode() && !csvExportUiAllowed ? (
+                    <p
+                      className="m-0 max-w-prose text-xs text-neutral-600 dark:text-neutral-400"
+                      data-testid="audit-buyer-sample-csv-hint"
+                    >
+                      {auditExportSampleWorkspaceCsvHintBuyerPolished}
+                    </p>
+                  ) : null}
+                  <Button
+                    type="button"
+                    variant={csvExportUiAllowed ? "primary" : "outline"}
+                    size="sm"
+                    className={cn(
+                      !csvExportUiAllowed &&
+                        isNextPublicDemoMode() &&
+                        "border-2 border-teal-700/80 text-neutral-900 shadow-sm hover:bg-teal-50 dark:border-teal-500/70 dark:text-neutral-50 dark:hover:bg-teal-950/40",
+                      !csvExportUiAllowed && !exporting && "disabled:opacity-80 dark:disabled:opacity-80",
+                    )}
+                    onClick={() => void onExportCsv()}
+                    disabled={!csvExportUiAllowed || exporting || searching}
+                    title={
+                      !exportDateRangeReady
+                        ? "Set From and To to enable export"
                         : !exportRoleOk
-                          ? auditExportCsvButtonLabelRoleRestricted
-                          : "Download audit trail (CSV)"}
-                </Button>
-              </div>
+                          ? auditExportControlDisabledTitle
+                          : "Download audit trail as CSV using the current filters"
+                    }
+                  >
+                    {exporting
+                      ? "Exporting…"
+                      : csvExportUiAllowed
+                        ? "Download audit trail (CSV)"
+                        : !exportDateRangeReady
+                          ? auditExportCsvButtonLabelWindowIncomplete
+                          : !exportRoleOk
+                            ? auditExportCsvButtonLabelRoleRestricted
+                            : "Download audit trail (CSV)"}
+                  </Button>
+                </div>
+              </details>
             ) : null}
             {buyerPolishedShell ? <BuyerAuditEventsTechnicalAppendix events={displayEvents} /> : null}
           </>

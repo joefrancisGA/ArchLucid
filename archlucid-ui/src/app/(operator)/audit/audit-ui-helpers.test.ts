@@ -39,6 +39,7 @@ describe("formatBuyerAuditTrailSummaryLine", () => {
 
     expect(line).toContain("This audit trail shows the lifecycle from review creation through governance approval");
     expect(line).toContain("Claims Intake Modernization Review");
+    expect(line).toContain("named human actors");
   });
 
   it("returns null for an empty list", () => {

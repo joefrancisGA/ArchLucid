@@ -1,9 +1,3 @@
-import {
-  auditExportExecuteRankAuditorRoleNote,
-  auditExportSectionSupportingLineBuyerPolished,
-  auditSearchSectionLeadBuyerPolishedLine,
-  auditTrailBuyerProofNarrativeLead,
-} from "@/lib/enterprise-controls-context-copy";
 type BuyerAuditTrailMetrics = {
   eventCount: number;
   humanActorCount: number;
@@ -13,36 +7,20 @@ type BuyerAuditTrailMetrics = {
 type AuditBuyerHeaderMetricsProps = {
   buyerAuditTrailSummaryLine: string | null;
   buyerAuditTrailMetrics: BuyerAuditTrailMetrics | null;
-  displayEventCount: number;
-  exportRoleOk: boolean;
 };
 
 export function AuditBuyerHeaderMetrics(props: AuditBuyerHeaderMetricsProps) {
-  const {
-    buyerAuditTrailSummaryLine,
-    buyerAuditTrailMetrics,
-    displayEventCount,
-    exportRoleOk,
-  } = props;
+  const { buyerAuditTrailSummaryLine, buyerAuditTrailMetrics } = props;
 
   return (
     <>
-      <p className="mb-3 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
-        {auditSearchSectionLeadBuyerPolishedLine}
-      </p>
-      <div
-        className="mb-3 max-w-prose rounded-md border border-teal-200/70 bg-teal-50/50 px-3 py-3 text-sm text-neutral-800 dark:border-teal-900 dark:bg-teal-950/30 dark:text-neutral-100"
-        data-testid="audit-buyer-proof-narrative"
-      >
-        {auditTrailBuyerProofNarrativeLead}
-      </div>
       {buyerAuditTrailSummaryLine !== null ? (
-        <p
-          className="mb-3 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-sm font-medium text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100"
-          data-testid="audit-buyer-summary-line"
+        <div
+          className="mb-3 max-w-prose rounded-md border border-teal-200/70 bg-teal-50/50 px-3 py-3 text-sm text-neutral-800 dark:border-teal-900 dark:bg-teal-950/30 dark:text-neutral-100"
+          data-testid="audit-buyer-proof-narrative"
         >
           {buyerAuditTrailSummaryLine}
-        </p>
+        </div>
       ) : null}
       {buyerAuditTrailMetrics !== null ? (
         <div
@@ -77,15 +55,6 @@ export function AuditBuyerHeaderMetrics(props: AuditBuyerHeaderMetricsProps) {
             </p>
           </div>
         </div>
-      ) : null}
-      {displayEventCount > 0 ? (
-        <p
-          className="mb-3 max-w-prose text-xs text-neutral-600 dark:text-neutral-400"
-          data-testid="audit-buyer-csv-eligibility-line"
-        >
-          <span>{auditExportSectionSupportingLineBuyerPolished}</span>{" "}
-          {!exportRoleOk ? <span>{auditExportExecuteRankAuditorRoleNote}</span> : null}
-        </p>
       ) : null}
     </>
   );

@@ -92,6 +92,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Artifact / bundle / run / Terraform advisory export download | `ArtifactExportController` | `ArtifactDownloaded`, `BundleDownloaded`, `RunExported`, `TerraformAdvisoryExportDownloaded` | RunId (+ artifact when applicable) | format, byte counts, etc. |
 | Run export ZIP push to customer Azure Blob (SAS) | `RunExportBlobPushService` (queued from `ArtifactExportController`) | `RunExportBlobPushSucceeded`, `RunExportBlobPushFailed` | RunId | `statusCode`, `bytes` on HTTP outcome; `{ error }` on thrown exception |
 | Architecture analysis report (primary JSON build) | `AnalysisReportsController` | `ArchitectureAnalysisReportGenerated` | RunId when parseable | section flags, `manifestVersion`, `warningCount` |
+| Bulk findings CSV export | `RunQueryController` (`GET …/architecture/run/{runId}/findings/export/csv`) | `FindingsListAccessed` | RunId when route id parses as GUID | `{ format: csv, findingCount }` |
 | Architecture DOCX exports (package download; consulting analysis metadata row; async DOCX jobs) | `DocxExportController`; `RunExportAuditService` (sync consulting path; not export-replay persist); `BackgroundJobWorkUnitExecutor` | `ArchitectureDocxExportGenerated` | RunId, ManifestId when known | `runId`, `compareWithRunId` / `exportRecordId` / `exportChannel`, `byteCount` |
 | Architecture request file import (TOML/JSON draft) | `ImportRequestFileService` (`POST …/architecture/request/import`, `ImportRequestFileController`) | `RequestFileImported` | Tenant/Workspace/Project from ambient scope | `importId`, `requestId`, `format`, `sourceFileName` (JSON payload); correlation id when HTTP trace present |
 | Azure extractor ZIP ingest | `AzureExtractorIngestService` (`POST …/azure-extractor/upload`, `AzureExtractorUploadController`) | `AzureExtractorPackageUploaded`, `AzureExtractorPackageParseFailed`, `AzureExtractorPackageSchemaRejected`, `AzureExtractorPackageIngestSucceeded` | Tenant/Workspace/Project; optional `RunId` on success event | `originalFileName`, `sizeBytes` on upload; `reason` on failures; `packageId` plus citation summary on success |
@@ -171,7 +172,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 ## Known gaps (mutating behavior without durable `IAuditService` event)
 
-**Last reviewed:** 2026-05-15.
+**Last reviewed:** 2026-05-18.
 
 ### Mutating / lifecycle — verified
 
@@ -179,11 +180,11 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 ### Read-path / reserved observability (not an append-only weakness)
 
-| Item | Provable state | Policy |
-|------|----------------|--------|
-| **`FindingsListAccessed`** | Core constant exists; **no** `IAuditService.LogAsync` call site. Public read APIs expose **per-finding** inspect/evidence routes (see OpenAPI: `/v1/architecture/run/{runId}/findings/{findingId}/…`, `/v1/findings/{findingId}/inspect`), not a dedicated bulk “list findings” route tied to this name. | **Deferred** — add durable audit only when a stable list endpoint is defined; until then, rely on run/manifest lifecycle audits and per-finding reads. |
+**None** (as of **2026-05-18**). `FindingsListAccessed` is emitted when operators call **`GET /v1/architecture/run/{runId}/findings/export/csv`** (see durable table; `DataJson` carries `format` and `findingCount`).
 
-**Open catalogued-only items: 1** (`FindingsListAccessed` read-path deferral only — table below). Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_DenyUpdateDelete.sql`](../../ArchLucid.Persistence/Migrations/051_AuditEvents_DenyUpdateDelete.sql) / consolidated DDL).
+**Open catalogued-only items: 0**
+
+Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_DenyUpdateDelete.sql`](../../ArchLucid.Persistence/Migrations/051_AuditEvents_DenyUpdateDelete.sql) / consolidated DDL).
 
 **Layered enforcement shipped 2026-04-29**
 
@@ -210,9 +211,9 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Metric | Approximate value |
 |--------|-------------------|
 | **Core `AuditEventTypes` `public const string` rows** | 154 (see CI marker above; includes nested `Baseline` and nested `Run`) |
-| **`await *auditService.LogAsync` production call sites** | ~46 (excluding tests; includes bridge) |
+| **`await *auditService.LogAsync` production call sites** | ~47 (excluding tests; includes bridge) |
 | **`IBaselineMutationAuditService.RecordAsync` call sites** | Orchestrators + `GovernanceWorkflowService` (log-only) |
-| **Known-gap catalogued-only items** | 1 — `FindingsListAccessed` (no bulk list route wiring) — see **Known gaps** |
+| **Known-gap catalogued-only items** | **0** — none open (see **Known gaps**) |
 
 ---
 
@@ -228,7 +229,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `ManifestViewed` | `ManifestViewed` | `AuthorityQueryController` (`GET …/manifest` / `GET /v1/runs/{runId}/manifest`) |
 | `ReviewTrailAccessed` | `ReviewTrailAccessed` | `AuthorityQueryController` (`GET …/pipeline-timeline`, `GET /v1/runs/{runId}/review-trail`) |
 | `ProvenanceAccessed` | `ProvenanceAccessed` | `AuthorityQueryController` (`GET …/provenance`, `GET /v1/runs/{runId}/review-trail/provenance`) |
-| `FindingsListAccessed` | `FindingsListAccessed` | — (constant reserved; no bulk list route + no `LogAsync` yet — see **Known gaps**) |
+| `FindingsListAccessed` | `FindingsListAccessed` | `RunQueryController` (`GET …/architecture/run/{runId}/findings/export/csv`; `{ format, findingCount }` in `DataJson`) |
 | `GovernanceApprovalRequested` | `GovernanceApprovalRequested` | `GovernanceController` (`POST /v1/governance/approval-requests`) |
 | `GovernanceSlackInteractivityDispatched` | `GovernanceSlackInteractivityDispatched` | `SlackInteractivityController` (`POST …/integrations/webhooks/slack/interactivity`; signature-verified dispatch) |
 | `ArtifactsGenerated` | `ArtifactsGenerated` | `AuthorityPipelineStagesExecutor` |

@@ -3,7 +3,7 @@
 
 # ArchLucid Assessment – (A) Headline Readiness: 84.94%
 
-This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold, and V1.1-scoped integration suites). **§22** defines automated tenant erasure as actionable V2 backlog; it remains outside headline `(A)` scoring until implemented.
+This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold, and V1.1-scoped integration suites). **§22** defines automated tenant erasure as actionable V2 backlog; it remains outside headline `(A)` scoring until implemented. **[V1.1 backlog](../library/V1_DEFERRED.md)** items (commercial un-hold, security publication milestones, and similar) do not reduce this headline score while deferred.
 
 ## Executive Summary
 
@@ -428,13 +428,14 @@ Add API rate limiting to the bulk evidence upload endpoint in `ArchLucid.Api`.
 - Impact: Directly improves Reliability (+8-10 pts) and Usability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 10. Add Export to CSV for Findings
+### 10. Add Export to CSV for Findings — **complete**
 - **Why it matters:** Allows operators to perform offline analysis of architecture findings.
 - **Expected impact:** Decision Velocity (+10 pts), Usability (+5 pts).
 - **Affected qualities:** Decision Velocity, Usability.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (`RunQueryController` `GET …/run/{runId}/findings/export/csv`; `ArchitectureRunFindingsCsvFormatter` + RFC 4180 escaping via `ExportFormatterService`; audit `FindingsListAccessed` with `{ format: csv, findingCount }`; `RunFindingsCsvExportEndpointTests` 404 harness; formatter unit tests; OpenAPI snapshot + regenerated `ArchLucid.Api.Client` + `npm run generate:api-types`.)
 ```text
 Add a `GET /v1/architecture/run/{runId}/findings/export/csv` endpoint to export findings as a CSV file.
+- Status: COMPLETE — acceptance criteria met (`text/csv` download with flattened finding rows: id, correlating agent result/task, severity, category, message, **status** muted/active, mute reason, optional confidence; durable audit per matrix.)
 - Acceptance criteria: The endpoint returns a well-formatted CSV containing finding details, severity, and status.
 - Constraints: Ensure the endpoint is covered by the audit matrix.
 - What not to change: Do not modify the existing JSON findings endpoints.
@@ -645,10 +646,6 @@ Implement automated tenant erasure with quarantine and legal hold, reusing exist
 - **Reason:** Deferred to V1.1. Requires user input to provide the live Stripe keys and confirm Marketplace publication.
 - **Needed from me:** Please provide the `sk_live_` Stripe keys and confirm the Marketplace offer is `Published`.
 
-### 24. DEFERRED: PGP key drop for security@archlucid.net
-- **Reason:** Deferred to V1.1. Requires user input to generate and provide the PGP keypair.
-- **Needed from me:** Please provide the public PGP key block to be placed at `archlucid-ui/public/.well-known/pgp-key.txt`.
-
 ---
 
 ## Prompt Batching Guidance
@@ -669,6 +666,3 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 
 ### DEFERRED (23): Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
 - What are the `sk_live_` Stripe keys and is the Marketplace offer `Published`?
-
-### DEFERRED (24): PGP key drop for security@archlucid.net
-- What is the public PGP key block to be placed at `archlucid-ui/public/.well-known/pgp-key.txt`?

@@ -349,7 +349,7 @@ internal static class AzRolesCommand
             EmitPlainSection("PowerShell", BuildPowerShell(opts));
 
             return;
-\
+
         }
 
         Console.Write(opts.ShellKind == AzRolesShellKind.Bash ? BuildBash(opts) : BuildPowerShell(opts));

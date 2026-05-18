@@ -279,23 +279,6 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       ) : null}
 
       {buyerPolishedLayout ? (
-        <div
-          id="manifest-bundle-zip"
-          className="scroll-mt-24 rounded-lg border border-teal-200/80 bg-teal-50/50 p-4 text-sm shadow-sm dark:border-teal-900/50 dark:bg-teal-950/20"
-        >
-          <p className="m-0 max-w-prose text-neutral-800 dark:text-neutral-200">
-            Prefer the consolidated bundle for diligence and archiving — it seals the downloadable outputs that align to the
-            decisions and posture summarized above.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Button variant="primary" size="sm" asChild>
-              <a href={getBundleDownloadUrl(manifestId)}>Download finalized review package</a>
-            </Button>
-          </div>
-        </div>
-      ) : null}
-
-      {buyerPolishedLayout ? (
         <Card id="manifest-ask" className="scroll-mt-24 border border-blue-200/80 bg-blue-50/50 shadow-sm dark:border-blue-950/60 dark:bg-blue-950/25">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-50">Questions during diligence?</CardTitle>

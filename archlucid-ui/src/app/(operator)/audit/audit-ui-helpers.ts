@@ -222,7 +222,7 @@ export function formatBuyerAuditTrailSummaryLine(
     uniformRunId ?? (filterRunId.trim().length > 0 ? filterRunId.trim() : SHOWCASE_STATIC_DEMO_RUN_ID);
   const reviewTitle = buyerFacingReviewLinkLabelFromRunId(runKey);
 
-  return `This audit trail shows the lifecycle from review creation through governance approval and packaged deliverables for ${reviewTitle}.`;
+  return `This audit trail shows the lifecycle from review creation through governance approval and packaged deliverables for ${reviewTitle}, with named human actors and automatically recorded lifecycle events.`;
 }
 
 /** Metric tiles for buyer-polished audit header — same actor classification as {@link formatBuyerAuditTrailSummaryLine}. */

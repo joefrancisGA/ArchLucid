@@ -25,7 +25,7 @@ export function AuditPageView(props: AuditPageViewProps) {
     buyerPolishedShell &&
     !props.searching &&
     props.displayEvents.length > 0 &&
-    props.displayEvents.length <= 12;
+    props.displayEvents.length <= 10;
 
   return (
     <div className={buyerPolishedShell ? "max-w-6xl" : "max-w-4xl"}>
@@ -50,8 +50,6 @@ export function AuditPageView(props: AuditPageViewProps) {
         <AuditBuyerHeaderMetrics
           buyerAuditTrailSummaryLine={props.buyerAuditTrailSummaryLine}
           buyerAuditTrailMetrics={props.buyerAuditTrailMetrics}
-          displayEventCount={props.displayEvents.length}
-          exportRoleOk={props.exportRoleOk}
         />
       ) : null}
 

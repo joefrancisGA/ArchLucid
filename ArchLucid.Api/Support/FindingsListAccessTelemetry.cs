@@ -7,7 +7,7 @@ namespace ArchLucid.Api.Support;
 /// <summary>
 ///     Structured application logging for HTTP surfaces that hydrate <see cref="ArchLucid.Persistence.Queries.RunDetailDto.FindingsSnapshot" />.
 ///     Used by run detail, explain summaries, provenance graph, advisory improvements, DOCX export, etc.
-///     Complements deferred durable <c>FindingsListAccessed</c> audit events (see audit matrix).
+///     Complements durable <c>FindingsListAccessed</c> on the CSV export route and other snapshot-bearing reads (see audit matrix).
 /// </summary>
 internal static class FindingsListAccessTelemetry
 {

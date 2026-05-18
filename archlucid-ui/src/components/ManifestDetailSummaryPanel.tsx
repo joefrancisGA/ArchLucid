@@ -3,6 +3,8 @@ import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { Button } from "@/components/ui/button";
+import { getBundleDownloadUrl } from "@/lib/api";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerGovernanceDetailHref, policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
@@ -79,14 +81,10 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         <p className="m-0 mt-2 text-base font-medium leading-snug text-neutral-900 dark:text-neutral-100">
           {policyPackBuyerLabel(summary.ruleSetId, summary.ruleSetVersion)}
         </p>
-        {isCuratedDemo ? (
-          <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-            Sample healthcare claims policy pack used for this illustrative review.
-          </p>
-        ) : null}
-        <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          Defines the checks referenced during this review. Policy posture informs approvals — it does not replace deployment
-          or change-management authority.
+        <p className="m-0 mt-2 text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+          {isCuratedDemo
+            ? "Sample healthcare claims pack for this walkthrough — defines referenced checks for diligence; approvals stay human-governed and do not bypass deployment authority."
+            : "Defines referenced checks used in diligence; approvals stay human-governed and do not bypass deployment authority."}
         </p>
         {buyerPolicyPackHref !== null ? (
           <p className="m-0 mt-3 text-sm">
@@ -241,6 +239,21 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
           Package summary
         </h3>
         {buyerManifestProvesCallout}
+        <div
+          id="manifest-bundle-zip"
+          className="scroll-mt-24 rounded-lg border border-teal-200/80 bg-teal-50/50 p-4 text-sm shadow-sm dark:border-teal-900/50 dark:bg-teal-950/20"
+          data-testid="manifest-buyer-bundle-download"
+        >
+          <p className="m-0 max-w-prose text-neutral-800 dark:text-neutral-200">
+            Prefer the consolidated bundle for diligence and archiving — it seals the downloadable outputs that align to the
+            decisions and posture summarized above.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button variant="primary" size="sm" asChild>
+              <a href={getBundleDownloadUrl(summary.manifestId)}>Download finalized review package</a>
+            </Button>
+          </div>
+        </div>
         {isCuratedDemo ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5" data-testid="manifest-buyer-pack-summary-cards">
             <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">

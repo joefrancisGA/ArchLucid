@@ -14,13 +14,14 @@ export function OperatorDemoStaticBanner(): ReactElement {
   if (!demoMode) {
     return (
       <div
-        className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
+        className="rounded-md border border-amber-200/85 bg-amber-50/80 px-2.5 py-1 text-xs leading-snug text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
         role="status"
         data-demo-static="true"
       >
-        <strong className="font-medium">Demonstration content</strong>
-        {" — "}
-        You are viewing an example review package aligned with the completed showcase — connect a workspace for live data.
+        <span className="font-medium">Demonstration content</span>
+        <span className="text-amber-900/95 dark:text-amber-200/95">
+          {" — "}Example review aligned with the showcase; connect a workspace for live data.
+        </span>
       </div>
     );
   }

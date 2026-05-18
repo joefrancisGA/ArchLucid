@@ -516,10 +516,6 @@ export const auditSearchNoResultsBuyerPolishedLine =
 
 export const auditSearchNoResultsOperatorLine = "No audit events match your filters.";
 
-/** Audit log — buyer-polished shell: business promise under search (`audit/page.tsx`). */
-export const auditSearchSectionLeadBuyerPolishedLine =
-  "See who approved what, when, and why.";
-
 /** Audit log — under “Search audit events” for read tier (LayerHeader already frames export roles). */
 export const auditSearchSectionLeadReaderLine =
   "Bulk CSV downloads need Auditor or Admin (search above stays available).";
@@ -538,17 +534,16 @@ export const auditExportCsvButtonLabelWindowIncomplete = "Export audit trail (se
 /** Audit CSV — button label when window is valid but principal lacks Auditor/Admin for bulk export (API). */
 export const auditExportCsvButtonLabelRoleRestricted = "Download audit trail";
 
-/** Audit log — buyer-polished shell: narrative promise before event list. */
-export const auditTrailBuyerProofNarrativeLead =
-  "This audit trail demonstrates how the review progressed from captured context through architecture snapshot finalization, governance approval, and packaged deliverables with named human actors and lifecycle events recorded by the product.";
-
-/** Audit log — buyer-polished: intro under results heading (complements `auditTrailBuyerProofNarrativeLead`; avoid repeating the lifecycle story). */
+/** Audit log — buyer-polished: intro under results heading (single summary lives in the ribbon above). */
 export const auditResultsSectionIntroBuyerPolished =
-  "The grouped timeline below shows actors and timing by stage. Expand the technical appendix when your team needs raw event metadata.";
+  "The timeline below lists events by lifecycle stage. Expand a row for structured details, or open the technical appendix for raw metadata.";
 
 /** Audit log — buyer-polished public sample: short note when bulk CSV is not enabled (date window and/or role). */
 export const auditExportSampleWorkspaceCsvHintBuyerPolished =
   "In the public sample, bulk CSV export follows the same role and date-window rules as production.";
+
+/** Audit log — buyer-polished: collapsible region for export and related operator actions (after the timeline). */
+export const auditBuyerUtilitiesDetailsSummary = "Audit utilities";
 
 /** Policy packs — intro under “Compare versions” when caller can mutate (Execute+ in shell). */
 export const policyPacksCompareVersionsIntroOperator =
