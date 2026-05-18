@@ -184,8 +184,8 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weight:** 2
 - **Weighted deficiency signal:** 24
 - **Why this score was assigned:** Tenant-fairness queuing in authority pipeline is added. Rate limiting for bulk evidence upload is implemented.
-- **Key tradeoffs:** Background workers may lack comprehensive retry policies.
-- **Specific improvement recommendations:** Implement Polly-backed SQL retries on remaining ancillary background workers.
+- **Key tradeoffs:** Application-level job retries and outbox semantics remain separate from SQL transient retries on worker paths.
+- **Specific improvement recommendations:** Polly-backed SQL retries on ancillary background workers — **shipped** (`IBackgroundWorkerSqlConnectionFactory`, `SqlResilientOperationExecutor`, `SqlOpenResilienceDefaults.BuildSqlOperationRetryPipeline`; primary-catalog repos and `RegisterBackgroundWorkerSqlResilience` in `SqlStorageProviderRegistrar`; tests in `SqlResilientOperationExecutorTests`).
 - **Fixability:** Fixable in V1.
 
 ### 19. Scalability
@@ -418,17 +418,18 @@ Add a `GET /v1/audit/export/csv` endpoint to export audit logs as a CSV file. [C
 - Impact: Directly improves Usability (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
 ```
 
-### 11. Implement Polly-backed SQL retries on remaining ancillary background workers
+### 11. COMPLETED: Implement Polly-backed SQL retries on remaining ancillary background workers
 - **Why it matters:** Prevents silent failures due to transient database connectivity issues.
 - **Expected impact:** Reliability (+15 pts), Correctness (+5 pts).
 - **Affected qualities:** Reliability, Correctness.
-- **Actionable:** Yes
+- **Actionable:** No — ancillary primary-catalog SQL paths now use `IBackgroundWorkerSqlConnectionFactory` (Polly on open via `BackgroundWorkerResilientSqlConnectionFactory`) and `SqlResilientOperationExecutor` (full operation retry via `SqlOpenResilienceDefaults.BuildSqlOperationRetryPipeline` / `SqlTransientDetector`, configured from `Persistence:SqlOpenResilience`). Updated repos: weekly digest critical-findings summary, internal cross-tenant rollup/analytics/metrics, first-tenant funnel archival batch store, ITSM correlation/outbound settings, first-value report branding. SQL hosts register `DapperOutboxOperationalMetricsReader` for `OutboxOperationalMetricsHostedService`. Tests: `ArchLucid.Persistence.Tests/Connections/SqlResilientOperationExecutorTests.cs`.
 ```text
-Identify all background workers interacting with SQL that lack Polly retry policies and implement `SqlTransientException` retries.
+Identify all background workers interacting with SQL that lack Polly retry policies and implement `SqlTransientException` retries. [COMPLETED]
 - Acceptance criteria: All identified workers use a standard Polly retry policy for SQL operations.
 - Constraints: Use the existing `ArchLucid.Persistence` retry configurations.
 - What not to change: Do not alter the business logic of the workers.
 - Impact: Directly improves Reliability (+10-15 pts) and Correctness (+3-5 pts). Weighted readiness impact: +0.2-0.3%.
+- Deliverable: `ArchLucid.Persistence/Connections/` (`IBackgroundWorkerSqlConnectionFactory`, `BackgroundWorkerResilientSqlConnectionFactory`, `SqlResilientOperationExecutor`); `SqlStorageProviderRegistrar.RegisterBackgroundWorkerSqlResilience`; updated analytics/weekly-digest/telemetry/integration/tenancy SQL repos listed above.
 ```
 
 ### 12. Add a health check endpoint for the Azure OpenAI connection
@@ -621,7 +622,7 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 
 - **Batch 1 (Observability & Dashboards):** 3, 9, 18, 22, 25
 - **Batch 2 (UI & UX Enhancements):** 5, 8, 14, 19, 23
-- **Batch 3 (Reliability & Health Checks):** 11, 12, 15
+- **Batch 3 (Reliability & Health Checks):** 12, 15 *(11 completed)*
 - **Batch 4 (CLI & Export Features):** 10, 16, 21
 - **Batch 5 (Policy Packs & Runbooks):** 6, 13, 17, 20
 - **Batch 6 (Testing & Code Quality):** 4, 7, 24

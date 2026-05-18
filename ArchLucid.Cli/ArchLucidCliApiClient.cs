@@ -828,7 +828,7 @@ public sealed class ArchLucidApiClient
         return JsonSerializer.Deserialize<Gen.ArchitectureRequest>(json, GenNumericEnumBridgeJson);
     }
 
-    private Gen.AgentResult? MapToGenerated(AgentResult result)
+    private static Gen.AgentResult? MapToGenerated(AgentResult result)
     {
         string json = JsonSerializer.Serialize(result, GenNumericEnumBridgeJson);
 
