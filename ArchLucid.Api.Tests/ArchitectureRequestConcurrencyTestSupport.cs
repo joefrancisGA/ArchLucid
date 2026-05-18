@@ -73,8 +73,6 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         string idempotencyKey,
         CancellationToken cancellationToken)
     {
-        AlignHttpClientTimeoutForSqlIdempotencyLockChain(client);
-
         return PostArchitectureRequestAndBufferAsync(client, body, idempotencyKey, cancellationToken);
     }
 
@@ -211,13 +209,25 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     }
 
     /// <summary>
-    ///     Must run before the first HTTP request on <paramref name="client" /> when that client will later call
-    ///     <see cref="PostSingleArchitectureRequestAsync" /> — .NET forbids changing <see cref="HttpClient.Timeout" /> after
-    ///     any request has started (warmup GETs then POST hits <see cref="InvalidOperationException" />).
+    ///     Raises <see cref="HttpClient.Timeout" /> when it is below <see cref="ArchitectureRequestBurstHttpTimeout" />.
+    ///     Safe to call after traffic has started: .NET forbids mutating <see cref="HttpClient.Timeout" /> then, so we no-op
+    ///     when the setter throws (timeout should already be adequate if callers aligned before the first request).
     /// </summary>
     internal static void AlignHttpClientTimeoutForSqlIdempotencyLockChain(HttpClient client)
     {
-        if (client.Timeout < ArchitectureRequestBurstHttpTimeout)
+        if (client is null)
+            throw new ArgumentNullException(nameof(client));
+
+        if (client.Timeout >= ArchitectureRequestBurstHttpTimeout)
+            return;
+
+        try
+        {
             client.Timeout = ArchitectureRequestBurstHttpTimeout;
+        }
+        catch (InvalidOperationException)
+        {
+            // HttpClient disallows Timeout changes after SendAsync has started (warm GETs, parallel retries).
+        }
     }
 }
