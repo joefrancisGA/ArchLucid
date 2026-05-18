@@ -1,5 +1,6 @@
 # Trims wsl/bash (keep 10 newest), dotnet (keep 5 newest), PowerShell hosts (keep 10), conhost (keep 20);
-# reports other exes with >3 instances. Never terminates a process younger than 3 minutes.
+# reports other exes with >3 instances. Never terminates a process younger than 3 minutes or with a
+# visible/foreground window (including this script's process).
 # Keep this window open.
 #
 # Usage (repo root):
@@ -19,6 +20,96 @@ $minProcessAgeMinutes = 3
 $powerShellProcessNames = @('powershell', 'pwsh')
 $reportExcludeNames = @('wsl', 'bash', 'dotnet', 'powershell', 'pwsh', 'conhost')
 $reportMinInstances = 3
+$script:WindowProtectionInitialized = $false
+
+function Initialize-WindowProtection {
+
+    if ($script:WindowProtectionInitialized) {
+        return
+    }
+
+    Add-Type @'
+using System;
+using System.Runtime.InteropServices;
+public static class BashBasherWindowApi
+{
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetForegroundWindow();
+
+    [DllImport("user32.dll")]
+    public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+    [DllImport("user32.dll")]
+    public static extern bool IsWindowVisible(IntPtr hWnd);
+}
+'@
+
+    $script:WindowProtectionInitialized = $true
+}
+
+function Add-RelatedProcessIds {
+    param(
+        [int] $ProcessId,
+        [System.Collections.Generic.HashSet[int]] $Protected
+    )
+
+    $proc = Get-CimInstance Win32_Process -Filter "ProcessId=$ProcessId" -ErrorAction SilentlyContinue
+
+    if ($null -eq $proc) {
+        return
+    }
+
+    if ($proc.ParentProcessId -gt 0) {
+        [void]$Protected.Add([int]$proc.ParentProcessId)
+    }
+
+    $children = @(
+        Get-CimInstance Win32_Process -Filter "ParentProcessId=$ProcessId" -ErrorAction SilentlyContinue
+    )
+
+    foreach ($child in $children) {
+        [void]$Protected.Add([int]$child.ProcessId)
+    }
+}
+
+function Get-ProtectedProcessIds {
+    param(
+        [System.Diagnostics.Process[]] $CandidateProcesses
+    )
+
+    Initialize-WindowProtection
+
+    $protected = [System.Collections.Generic.HashSet[int]]::new()
+    [void]$protected.Add($PID)
+
+    $foregroundHwnd = [BashBasherWindowApi]::GetForegroundWindow()
+
+    if ($foregroundHwnd -ne [IntPtr]::Zero) {
+        $foregroundPid = [uint32]0
+        [void][BashBasherWindowApi]::GetWindowThreadProcessId($foregroundHwnd, [ref]$foregroundPid)
+
+        if ($foregroundPid -gt 0) {
+            [void]$protected.Add([int]$foregroundPid)
+            Add-RelatedProcessIds -ProcessId ([int]$foregroundPid) -Protected $protected
+        }
+    }
+
+    foreach ($proc in $CandidateProcesses) {
+
+        if ($proc.MainWindowHandle -eq [IntPtr]::Zero) {
+            continue
+        }
+
+        if (-not [BashBasherWindowApi]::IsWindowVisible($proc.MainWindowHandle)) {
+            continue
+        }
+
+        [void]$protected.Add($proc.Id)
+        Add-RelatedProcessIds -ProcessId $proc.Id -Protected $protected
+    }
+
+    return $protected
+}
 
 function Stop-ExcessProcesses {
     param(
@@ -42,16 +133,22 @@ function Stop-ExcessProcesses {
     $label = ($Names -join ', ')
     $excessCount = $processes.Count - $KeepCount
     $minStartTime = (Get-Date).AddMinutes(-$MinAgeMinutes)
+    $protectedIds = Get-ProtectedProcessIds -CandidateProcesses $processes
     $candidates = @(
         $processes |
             Sort-Object StartTime, Id |
             Select-Object -First $excessCount
     )
-    $toTerminate = @(
+    $eligible = @(
         $candidates |
-            Where-Object { $_.StartTime -and $_.StartTime -le $minStartTime }
+            Where-Object { $_.StartTime -and $_.StartTime -le $minStartTime -and -not $protectedIds.Contains($_.Id) }
     )
-    $skippedYoung = $candidates.Count - $toTerminate.Count
+    $toTerminate = $eligible
+    $skippedYoung = @(
+        $candidates |
+            Where-Object { -not $_.StartTime -or $_.StartTime -gt $minStartTime }
+    ).Count
+    $skippedProtected = $candidates.Count - $skippedYoung - $toTerminate.Count
     $terminatedCount = 0
 
     foreach ($proc in $toTerminate) {
@@ -70,6 +167,10 @@ function Stop-ExcessProcesses {
 
     if ($skippedYoung -gt 0) {
         $summary += " Skipped $skippedYoung excess younger than $MinAgeMinutes minute(s)."
+    }
+
+    if ($skippedProtected -gt 0) {
+        $summary += " Skipped $skippedProtected excess with foreground/visible window."
     }
 
     Write-Host $summary
