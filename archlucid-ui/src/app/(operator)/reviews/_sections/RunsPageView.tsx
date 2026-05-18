@@ -11,6 +11,7 @@ import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboardin
 import { RunsIndexBeforeAfterPanel } from "@/components/RunsIndexBeforeAfterPanel";
 import { RunsListAggregateErrorBoundary } from "@/components/RunsListAggregateErrorBoundary";
 import { RunsListProofHeadline } from "@/components/RunsListProofHeadline";
+import { RunsPageBuyerHelpTip } from "@/components/RunsPageBuyerHelpTip";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { Button } from "@/components/ui/button";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
@@ -47,14 +48,18 @@ export function RunsPageView(props: Props) {
         {isBuyerPolishedOperatorShellEnv() ? (
           m.totalCount === 1 && m.runs[0]?.hasGoldenManifest === true ? (
             <>
-              One finalized review package is available in this example workspace.
+              <span className="inline-flex flex-wrap items-center gap-x-1">
+                One finalized review package is available in this example workspace.
+                <RunsPageBuyerHelpTip variant="sample-workspace" />
+              </span>
             </>
           ) : (
             <>
-              Open an <GlossaryTooltip termKey="run">architecture review</GlossaryTooltip> to review its manifest,
-              evidence, findings, and deliverables. Use{" "}
-              <strong className="font-medium text-neutral-800 dark:text-neutral-100">Search reviews</strong> below to
-              narrow by title or description.
+              <span className="inline-flex flex-wrap items-center gap-x-1">
+                Open an <GlossaryTooltip termKey="run">architecture review</GlossaryTooltip> for manifest, evidence,
+                findings, and deliverables.
+                <RunsPageBuyerHelpTip variant="search" />
+              </span>
             </>
           )
         ) : (
