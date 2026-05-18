@@ -19,13 +19,13 @@ describe("policyPackBuyerLabel", () => {
 describe("policyPackBuyerGovernanceDetailHref", () => {
   it("resolves healthcare claims pack to governance narrative route", () => {
     expect(policyPackBuyerGovernanceDetailHref("healthcare-claims-v3")).toBe(
-      "/governance/policy-packs/healthcare-claims-v3-pack",
+      "/governance/policy-packs/demo-healthcare-claims-pack",
     );
   });
 
   it("trims rule set id", () => {
     expect(policyPackBuyerGovernanceDetailHref("  healthcare-claims-v3  ")).toBe(
-      "/governance/policy-packs/healthcare-claims-v3-pack",
+      "/governance/policy-packs/demo-healthcare-claims-pack",
     );
   });
 

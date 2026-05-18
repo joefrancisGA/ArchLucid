@@ -25,6 +25,9 @@ export const BUYER_GOVERNANCE_GOVERNED_USE_SCOPE =
 export const BUYER_ASK_GROUNDING_ONCE =
   "Example answers are illustrative. In connected workspaces, answers are scoped to selected review evidence and source anchors.";
 
+export const BUYER_ASK_SHOWCASE_ANCHORS_LINE =
+  "On the Claims Intake sample review, replies include quick links to executive summary, manifest, policy basis, evidence trail, optional review change comparison, and audit anchors where available.";
+
 export const BUYER_COMPARE_SECONDARY_PAGE_LEAD =
   "Review change comparison is a secondary diligence view. Start from the finalized review package, then load a prior vs later pair when you need an explicit delta.";
 

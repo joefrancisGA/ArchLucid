@@ -8,7 +8,7 @@ describe("buyerAskGroundingLinksForRun", () => {
     const links = buyerAskGroundingLinksForRun(SHOWCASE_STATIC_DEMO_RUN_ID);
 
     expect(links).not.toBeNull();
-    expect(links!.length).toBe(6);
+    expect(links!.length).toBe(7);
     expect(links![0]?.label).toBe("Executive summary");
     expect(links![0]?.href).toContain("/executive/reviews/");
     expect(links![1]?.href).toContain("/manifest");
@@ -16,6 +16,7 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(links!.some((l) => l.href.includes("/graph?"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/audit?"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/compare?"))).toBe(true);
+    expect(links!.some((l) => l.href.includes("/governance/policy-packs/"))).toBe(true);
   });
 
   it("returns null for unrelated reviews", () => {

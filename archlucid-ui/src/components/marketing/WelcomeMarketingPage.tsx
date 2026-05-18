@@ -8,6 +8,7 @@ import { MarketingTierPricingSection } from "@/components/marketing/MarketingTie
 import { SelfDemoRequestCta } from "@/components/marketing/SelfDemoRequestCta";
 import { WalkthroughRequestCta } from "@/components/marketing/WalkthroughRequestCta";
 import { Button } from "@/components/ui/button";
+import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
 import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
 
@@ -294,7 +295,7 @@ export function WelcomeMarketingPage() {
       <MarketingTierPricingSection
         sectionHeadingId="pricing-heading"
         sectionTitle="Packaging overview"
-        sectionIntro="Tier summaries reflect the current published price list. Your account team can confirm licensing and any volume discounts."
+        sectionIntro={BUYER_MARKETING_PRICING_PAGE_INTRO}
         signupHref="/signup"
         showSignupCallToAction={false}
       />

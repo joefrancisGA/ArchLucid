@@ -1,3 +1,5 @@
+import { SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF } from "@/lib/showcase-static-demo";
+
 /**
  * Buyer-facing policy pack line for healthcare claims demo and generic rule-set ids.
  */
@@ -27,7 +29,7 @@ export function policyPackBuyerGovernanceDetailHref(ruleSetId: string): string |
   const id = ruleSetId.trim();
 
   if (id === "healthcare-claims-v3") {
-    return "/governance/policy-packs/healthcare-claims-v3-pack";
+    return SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF;
   }
 
   return null;

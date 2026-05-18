@@ -67,6 +67,15 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     expect(audit?.next).toBeNull();
   });
 
+  it("treats governance policy pack detail as satellite between manifest and evidence trail", () => {
+    const pack = resolveBuyerGoldenJourneyNav("/governance/policy-packs/demo-healthcare-claims-pack");
+
+    expect(pack?.summaryLine).toContain("Policy pack basis");
+    expect(pack?.currentStepIndex).toBeNull();
+    expect(pack?.prev?.label).toBe("Signed manifest");
+    expect(pack?.next?.label).toBe("View evidence trail");
+  });
+
   it("treats ask as optional satellite between evidence trail and governance", () => {
     const ask = resolveBuyerGoldenJourneyNav("/ask");
 

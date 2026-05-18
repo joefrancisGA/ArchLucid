@@ -7,6 +7,7 @@ import {
 import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
+  SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
@@ -35,6 +36,10 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
     {
       label: "Finalized manifest package",
       href: getShowcaseManifestHref(),
+    },
+    {
+      label: "Policy pack basis",
+      href: SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
     },
     {
       label: BUYER_SURFACE_VOCABULARY.phiMinimizationRisk,
