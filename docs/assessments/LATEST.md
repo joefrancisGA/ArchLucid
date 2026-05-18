@@ -3,12 +3,12 @@
 
 # ArchLucid Assessment – (A) Headline Readiness: 88.19%
 
-This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold, first **published** reference customer, **first-party** **Jira** / **ServiceNow** / **Confluence** / **Slack** managed connectors ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13–§2.15 → **V1.1**), and V1.1-scoped integration / ops collateral). Deferred items do not reduce this headline score.
+This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold, first **published** reference customer, **first-party** **Jira** / **ServiceNow** / **Confluence** / **Slack** managed connectors ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13–§2.15 → **V1.1**), **Microsoft Teams** / **CloudEvents webhooks** / **customer-operated recipes** as **buyer-contract** paths ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.14, §3 → **V1.1**), and V1.1-scoped integration / ops collateral). Deferred items do not reduce this headline score.
 
 ## Executive Summary
 
 ### (A) Overall Headline Readiness (88.19%)
-ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (88.19% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. The system has robust AI/Agent readiness, strong correctness, and excellent interoperability. **Proof-of-ROI Readiness** and **Differentiability** are not reduced for absence of a **published** reference customer — that obligation is **V1.1** per [`docs/library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6b. **Workflow Embeddedness**, **Interoperability**, **Adoption Friction**, and **Supportability** are **not** reduced for absence of **first-party** **Jira** / **ServiceNow** / **Confluence** / **Slack** (**V1.1** per [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13–§2.15) or for residual **V1.1** connector ops work: **`(A)`** treats the **V1** integration contract as **Teams**, **webhooks**, **REST**, and **recipes**. The primary remaining gaps include observability follow-through (Loki alerting on structured logs), E2E test mock reliance, and cognitive load for new operators due to the large product surface.
+ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (88.19% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. The system has robust AI/Agent readiness, strong correctness, and excellent interoperability. **Proof-of-ROI Readiness** and **Differentiability** are not reduced for absence of a **published** reference customer — that obligation is **V1.1** per [`docs/library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6b. **Workflow Embeddedness**, **Interoperability**, **Adoption Friction**, and **Supportability** are **not** reduced for absence of **first-party** **Jira** / **ServiceNow** / **Confluence** / **Slack**, **Microsoft Teams** webhook delivery, **CloudEvents** outbound webhooks, or **recipe** bridges (**V1.1** per [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3) or for residual **V1.1** connector ops work: **`(A)`** treats the **V1** integration contract as **REST**, **CLI**, **operator UI**, **SCIM**, **Azure DevOps** / **GitHub** CI surfaces, and **§2.16+** HTTP paths — not Teams / webhook / recipe **buyer commitments**. The primary remaining gaps include observability follow-through (broad Loki alerting on structured logs and curated dashboards beyond the shipped policy pack assignment ruler rules), E2E test mock reliance, and cognitive load for new operators due to the large product surface.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. Automated tenant erasure is specified as actionable backlog for V2; until shipped, it is not scored as an `(A)` defect.
@@ -17,7 +17,7 @@ Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 
 The commercial posture is strongly aligned for a sales-led, service-led motion. Curated demo workspaces, default policy packs, and the ZIP-first baseline wizard accelerate Time-to-Value and Proof-of-ROI. A **published** reference customer + case study is a **V1.1** commercial milestone ([`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6b) and is **not** an `(A)` V1 gate. The deferred live commerce correctly prioritizes validated purchasing motions over premature self-serve availability.
 
 ### Enterprise Picture
-ArchLucid provides strong enterprise integration points for **V1** through **Microsoft Teams**, **CloudEvents webhooks**, **REST**, and **customer-operated** recipes; **first-party** **Jira**, **ServiceNow**, **Confluence**, and **Slack** are **V1.1** per [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13–§2.15 (*Resolved 2026-05-18*). **`(A)`** does **not** lower headline readiness for **V1.1**-scoped connector ops depth. Tenant isolation is robustly handled via database-per-tenant and RLS. SAML SP nearing-expiry email notifications, tenant-fair authority pipeline outbox dequeue, and configurable per-tenant rate limits enhance enterprise readiness.
+ArchLucid provides strong enterprise integration points for **V1** through **REST**, **CLI**, **operator UI**, **SCIM**, **Azure DevOps** / **GitHub** PR and manifest decoration, and **§2.16+** surfaces; **Microsoft Teams**, **CloudEvents webhooks**, **customer-operated** recipes, and **first-party** **Jira**, **ServiceNow**, **Confluence**, and **Slack** are **V1.1 buyer-contract** paths per [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3 (*Resolved 2026-05-18*). **`(A)`** does **not** lower headline readiness for **V1.1**-scoped connector / integration depth. Tenant isolation is robustly handled via database-per-tenant and RLS. SAML SP nearing-expiry email notifications, tenant-fair authority pipeline outbox dequeue, and configurable per-tenant rate limits enhance enterprise readiness.
 
 ### Engineering Picture
 The engineering foundation is highly rigorous, with strong architectural invariants, NetArchTest boundary rules, and a durable audit trail. The agent orchestration pipeline is resilient, and producer-side OpenTelemetry GenAI instrumentation records token aggregates, latency, and deployment identifiers. Mock-heavy `ui-e2e-smoke` release gates keep testability breadth uneven vs full live route coverage.
@@ -48,9 +48,9 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Score:** 85
 - **Weight:** 1
 - **Weighted deficiency signal:** 15
-- **Why this score was assigned:** OpenTelemetry and Serilog provide good visibility, and GenAI instrumentation is shipped. However, Loki alerting on structured logs and composite GenAI/cross-service SLO coherence are missing.
+- **Why this score was assigned:** OpenTelemetry and Serilog provide good visibility, and GenAI instrumentation is shipped. However, Loki alerting on structured logs is only partially covered (policy pack assign/unassign ruler rules ship in `infra/loki/archlucid-policy-pack-assignment-alerts.yml`), and composite GenAI/cross-service SLO coherence are missing.
 - **Key tradeoffs:** Standard observability tools require operator expertise to configure.
-- **Specific improvement recommendations:** Implement Loki alert rules for policy pack assignments.
+- **Specific improvement recommendations:** Wire and tune the committed policy pack Loki rules per environment; extend Loki alerting and dashboards to other structured-log surfaces (see Top Improvement Opportunity §9).
 - **Fixability:** Fixable in V1.
 
 ### 4. Performance
@@ -84,7 +84,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Score:** 88
 - **Weight:** 6
 - **Weighted deficiency signal:** 72
-- **Why this score was assigned:** Operator shell labels are aligned with marketing vocabulary. **V1** leans on **Teams**, **webhooks**, **REST**, and **recipes** for ITSM/docs/chat-shaped workflows; **first-party** **Jira** / **ServiceNow** / **Confluence** / **Slack** are **V1.1** ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13–§2.15). Residual **V1.1** connector program work is **not** an `(A)` V1 deduction.
+- **Why this score was assigned:** Operator shell labels are aligned with marketing vocabulary. **V1** leans on **REST**, **CLI**, **operator UI**, **ADO**/**GitHub** CI hooks, and **§2.16+** for workflow-shaped coverage; **Teams**, **webhooks**, **recipes**, and **first-party** **Jira** / **ServiceNow** / **Confluence** / **Slack** are **V1.1** ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3). Residual **V1.1** connector program work is **not** an `(A)` V1 deduction.
 - **Key tradeoffs:** Governance authoring UX depth may still lag specialist policy-studio expectations.
 - **Specific improvement recommendations:** Add a CLI command to test SAML SP configuration.
 - **Fixability:** Fixable in V1.
@@ -156,10 +156,10 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Score:** 95
 - **Weight:** 3
 - **Weighted deficiency signal:** 15
-- **Why this score was assigned:** **V1** workflow embedding is anchored on **Teams**, webhooks, GitHub/ADO CI surfaces, and recipes. **First-party** **Jira** / **ServiceNow** / **Confluence** / **Slack** are **V1.1** ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13–§2.15). **`(A)`** does **not** deduct for **V1.1** connector program depth.
+- **Why this score was assigned:** **V1** workflow embedding is anchored on **GitHub/ADO** CI surfaces and **REST**/**CLI**/operator UI. **Teams**, **webhooks**, **recipes**, and **first-party** **Jira** / **ServiceNow** / **Confluence** / **Slack** are **V1.1** ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3). **`(A)`** does **not** deduct for **V1.1** connector program depth.
 - **Key tradeoffs:** Custom integrations still require webhook handling when tenants bypass first-party connectors.
-- **Specific improvement recommendations:** **V1.1:** first-party connectors per [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13–§2.15.
-- **Fixability:** **V1** Teams/webhooks/recipes; **V1.1** first-party ITSM/Slack/Confluence per scope.
+- **Specific improvement recommendations:** **V1.1:** first-party connectors, Teams/webhooks/recipes per [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3.
+- **Fixability:** **V1** REST/CLI/CI/**§2.16+**; **V1.1** Teams/webhooks/recipes + first-party ITSM/Slack/Confluence per scope.
 
 ### 16. Correctness
 - **Score:** 88
@@ -201,7 +201,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Score:** 92
 - **Weight:** 1
 - **Weighted deficiency signal:** 8
-- **Why this score was assigned:** Good logging, OpenTelemetry, and CLI diagnostics. Automated SAML cert expiry email notifications are added. **First-party** ITSM/Slack/Confluence depth (**V1.1** per §2.13–§2.15) is **not** an `(A)` V1 deduction.
+- **Why this score was assigned:** Good logging, OpenTelemetry, and CLI diagnostics. Automated SAML cert expiry email notifications are added. **First-party** ITSM/Slack/Confluence, **Teams**/webhook/recipe buyer-contract depth (**V1.1** per §2.8, §2.13–§2.15, §3) is **not** an `(A)` V1 deduction.
 - **Key tradeoffs:** New HTTP utilities must reuse auth headers.
 - **Specific improvement recommendations:** Create a runbook for handling rate limit exceeded errors.
 - **Fixability:** Fixable in V1.
@@ -228,7 +228,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Score:** 94
 - **Weight:** 2
 - **Weighted deficiency signal:** 12
-- **Why this score was assigned:** REST API, CLI, webhooks, **Microsoft Teams** chat-ops parity, SAML 2.0 SP, and OIDC provide excellent interoperability. **First-party** **Jira** / **ServiceNow** / **Confluence** / **Slack** are **V1.1** ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13–§2.15); **`(A)`** does **not** penalize their absence for V1.
+- **Why this score was assigned:** REST API, CLI, **operator UI**, SAML 2.0 SP, and OIDC provide strong **V1** interoperability. **CloudEvents webhooks**, **Microsoft Teams** chat-ops, **recipe** bridges, and **first-party** **Jira** / **ServiceNow** / **Confluence** / **Slack** are **V1.1** buyer-contract surfaces ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3); **`(A)`** does **not** penalize their absence for V1.
 - **Key tradeoffs:** SAML SP adds dual auth-surface operational burden.
 - **Specific improvement recommendations:** Create a runbook for SAML SP certificate rotation.
 - **Fixability:** Fixable in V1.
@@ -237,7 +237,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 
 ## Top 12 Most Important Weaknesses
 
-1. **Observability alerting gaps:** While Grafana dashboards and some Prometheus alerts exist, Loki alerting on structured logs and composite GenAI/cross-service SLO coherence are missing.
+1. **Observability alerting gaps:** While Grafana dashboards and some Prometheus alerts exist, broader Loki alerting on structured logs (beyond the committed policy pack assignment rules in `infra/loki/archlucid-policy-pack-assignment-alerts.yml`) and composite GenAI/cross-service SLO coherence are missing.
 2. **E2E test mock reliance:** `ui-e2e-smoke` relies on mocks, creating a coverage skew compared to `live-api-*` tests.
 3. **Cognitive Load:** The product surface is large and complex, which can overwhelm new operators despite marketing-aligned vocabulary.
 4. **Explainability of single-process projection limitations:** Default in-process projection cache caps multi-replica coherence, needing better documentation.
@@ -246,7 +246,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 7. **Executive Value Visibility without baselines:** Executive value can become abstract if real tenant baselines are missing.
 8. **Background job transient fault handling:** Incomplete retry policies for SQL connections in background workers risk silent failures.
 9. **Architecture project recovery UX:** Soft-delete is implemented, but in-product undo/restore UX is absent.
-10. **Policy pack assignment visibility:** Assign and archive paths emit structured logs, but Grafana/Loki dashboards keyed on those events are not curated.
+10. **Policy pack assignment visibility:** Assign and archive paths emit structured logs; Loki ruler rules for assign/unassign ship in `infra/loki/archlucid-policy-pack-assignment-alerts.yml`, but Grafana/Loki dashboards keyed on those events are not curated.
 11. **Data residency diligence depth:** Buyers require verifiable proof that SQL topology and backups match their geography.
 12. **SAML SP operational burden:** Managing certificate rotation and metadata drift adds operational overhead.
 
@@ -307,17 +307,18 @@ ArchLucid is a functionally complete, highly rigorous V1 product ready for sales
 - **Actionable:** DEFERRED
 - **Needed from me:** **Domain acquisition — confirmed (owner 2026-05-18).** Please provide or authorize generation of the **public** key block (`archlucid-ui/public/.well-known/pgp-key.txt`) and custodian/fingerprint for `SECURITY.md` + marketing `/security` in the same PR per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c.
 
-### 3. Implement Loki alert rules for policy pack assignments
+### 3. COMPLETED: Loki alert rules for policy pack assignments
 - **Why it matters:** Provides actionable alerts when policy packs are assigned or unassigned, improving observability.
 - **Expected impact:** Observability (+10 pts), Stickiness (+5 pts).
 - **Affected qualities:** Observability, Stickiness.
-- **Actionable:** Yes
+- **Actionable:** No — delivered as `infra/loki/archlucid-policy-pack-assignment-alerts.yml` (LogQL on logs from `PolicyPackAssignmentRepository` / `SanitizedLoggerInformationExtensions` EventId 3014–3015). Operators must mount/sync the file to Loki ruler or Grafana Alerting and tighten stream selectors per environment.
 ```text
-Create Loki alert rules for policy pack assignments.
+Create Loki alert rules for policy pack assignments. [COMPLETED]
 - Acceptance criteria: Alert rules trigger when a policy pack is assigned or unassigned, using the structured logs emitted by `PolicyPackAssignmentRepository`.
 - Constraints: Use existing Loki configuration patterns.
 - What not to change: Do not modify the application logging logic.
 - Impact: Directly improves Observability (+8-10 pts) and Stickiness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- Deliverable: `infra/loki/archlucid-policy-pack-assignment-alerts.yml`
 ```
 
 ### 4. Expand `live-api-*` matrices to cover more operator flows without mocks

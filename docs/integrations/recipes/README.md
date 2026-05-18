@@ -1,10 +1,10 @@
-> **Scope:** Integrator entry for **OpenAPI**-aligned REST clients and **webhook** configuration, plus an index of **customer-owned** no-code recipes (Power Automate / Logic Apps) — **primary V1 path** for Jira / ServiceNow / Confluence–shaped workflows until **V1.1** first-party connectors ship ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13–§2.15).
+> **Scope:** Integrator entry for **OpenAPI**-aligned REST clients and **webhook** configuration, plus an index of **customer-owned** no-code recipes (Power Automate / Logic Apps) — **V1.1 buyer-contract** bridges for Jira / ServiceNow / Confluence–shaped workflows alongside first-party connectors ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3).
 
 **Audience:** Integration engineers building **REST clients**, configuring **webhooks** (inbound or outbound), or preferring **customer-operated** Microsoft automation for ITSM/documentation bridges.
 
-**Customer-owned means:** Step-by-step automation docs here are **reference recipes only**. They are **not** marketplace listings, vendor-certified apps, or ArchLucid-managed integrations. ArchLucid publishes CloudEvents (or Service Bus messages); **your** tenant wires webhooks and calls third-party REST APIs under **your** contracts with Microsoft, Atlassian, and ServiceNow.
+**Customer-owned means:** Step-by-step automation docs here are **reference recipes only**. They are **not** marketplace listings, vendor-certified apps, or ArchLucid-managed integrations. When **V1.1** webhook or Service Bus commitments apply to your program, ArchLucid publishes CloudEvents (or Service Bus messages); **your** tenant wires webhooks and calls third-party REST APIs under **your** contracts with Microsoft, Atlassian, and ServiceNow.
 
-**Why this folder?** **First-party** **Jira**, **ServiceNow**, **Slack**, and **Confluence** are **V1.1** product commitments ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13–§2.15, [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)). Recipes below use the same [event catalog](../../../schemas/integration-events/catalog.json) and [webhook / HMAC contracts](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) as any subscriber.
+**Why this folder?** **First-party** **Jira**, **ServiceNow**, **Slack**, **Microsoft Teams**, and **Confluence** — plus **buyer-contract** outbound webhooks — are **V1.1** product commitments ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3, [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)). Recipes below use the same [event catalog](../../../schemas/integration-events/catalog.json) and [webhook / HMAC contracts](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) as any subscriber.
 
 **Roadmap truth check:** Connector SKU status and “planned vs shipped” remain authoritative in [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md).
 
@@ -91,9 +91,9 @@ The [`templates/integrations/`](../../../templates/integrations/) folder contain
 
 ## First-party roadmap vs these recipes
 
-When you adopt **managed** ArchLucid connectors, prefer **[INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)** §1 (**V1.1** first-party program). **V1** tenants rely on these recipes (and **Teams** / **webhooks**) as the **primary** path:
+When you adopt **managed** ArchLucid connectors, prefer **[INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)** §1 (**V1.1** first-party program). These **customer-owned** recipes align with the **V1.1** buyer contract for event-driven ITSM/docs automation ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.8, §3) — **V1 GA** emphasizes **REST** / **CLI** / **operator UI** / **§2.16+** per scope.
 
-- **Jira** + **ServiceNow** + **Confluence** — **V1.1** first-party ships per [`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13–§2.15 (**ServiceNow** → **Confluence** → **Jira**, **Atlassian paired**); recipes cover **V1** and hybrid topologies.
+- **Jira** + **ServiceNow** + **Confluence** + **Teams** / **Slack** + outbound **webhooks** — **V1.1** committed surfaces per [`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.8, §2.13–§2.15; recipes support **customer-operated** and hybrid topologies.
 
 See [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md) for connector SKU status.
 

@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { BuyerTitleHint } from "@/components/BuyerTitleHint";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { HelpButton } from "@/components/ui/help-button";
+import { isBuyerPolishedHeaderContextualHelpAllowed } from "@/lib/buyer-polished-header-help";
 import {
   isBuyerPolishedOperatorShellEnv,
   isBuyerSafeDemoMarketingChromeEnv,
@@ -14,6 +15,11 @@ export type OperatorPageHeaderProps = {
   helpKey?: string;
   /** Buyer shell: one-line tooltip beside the title (graph, heavy explanation surfaces). */
   buyerTitleHint?: string;
+  /**
+   * Buyer-polished shell: show the docs link (?) in the title row. Default omit — sponsor demos stay minimal;
+   * operator-heavy pages can opt in.
+   */
+  buyerAllowHeaderDocsLink?: boolean;
   /** Page key for contextual docs link (see `getHelpUrl` in `contextual-help.ts`). */
   docsPageKey?: string;
   metadata?: ReactNode;
@@ -26,13 +32,28 @@ export function OperatorPageHeader({
   subtitle,
   helpKey,
   buyerTitleHint,
+  buyerAllowHeaderDocsLink,
   docsPageKey,
   metadata,
   actions,
   children,
 }: OperatorPageHeaderProps) {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const hasBuyerTitleHint = buyerTitleHint !== undefined && buyerTitleHint.trim().length > 0;
   const omitDenseTitleHelpChrome =
-    isBuyerPolishedOperatorShellEnv() && isBuyerSafeDemoMarketingChromeEnv();
+    buyerPolishedShell && isBuyerSafeDemoMarketingChromeEnv();
+
+  const showContextualHelp =
+    helpKey != null &&
+    !omitDenseTitleHelpChrome &&
+    (!buyerPolishedShell ||
+      hasBuyerTitleHint ||
+      isBuyerPolishedHeaderContextualHelpAllowed(helpKey));
+
+  const showDocsHelp =
+    docsPageKey != null &&
+    !omitDenseTitleHelpChrome &&
+    (!buyerPolishedShell || buyerAllowHeaderDocsLink === true);
 
   return (
     <header className="mb-6 border-b border-neutral-200 pb-4 dark:border-neutral-800">
@@ -41,8 +62,8 @@ export function OperatorPageHeader({
         {buyerTitleHint !== undefined && buyerTitleHint.trim().length > 0 ? (
           <BuyerTitleHint text={buyerTitleHint.trim()} />
         ) : null}
-        {helpKey != null && !omitDenseTitleHelpChrome ? <ContextualHelp helpKey={helpKey} /> : null}
-        {docsPageKey != null && !omitDenseTitleHelpChrome ? <HelpButton pageKey={docsPageKey} /> : null}
+        {showContextualHelp ? <ContextualHelp helpKey={helpKey!} /> : null}
+        {showDocsHelp ? <HelpButton pageKey={docsPageKey!} /> : null}
         {actions != null && (
           <div className="ml-auto flex flex-wrap items-center gap-2">{actions}</div>
         )}

@@ -58,7 +58,8 @@ public sealed class AdminTenantsController(ITenantRepository tenantRepository, I
                 "Tenant is already in erasure quarantine or could not be offboarded.",
                 ProblemTypes.Conflict);
 
-        return Accepted(new TenantErasureOffboardAcceptedResponse(result.OffboardedUtc, result.ErasureEligibleUtc));
+        return Accepted(
+            new TenantErasureOffboardAcceptedResponse(id.ToString("D"), result.OffboardedUtc, result.ErasureEligibleUtc));
     }
 
     /// <summary>Clears erasure quarantine before eligible hard purge (break-glass).</summary>

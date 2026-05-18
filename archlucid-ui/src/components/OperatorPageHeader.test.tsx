@@ -1,5 +1,15 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const demoUiEnv = vi.hoisted(() => ({
+  buyerPolishedShell: false,
+  buyerSafeMarketingChrome: false,
+}));
+
+vi.mock("@/lib/demo-ui-env", () => ({
+  isBuyerPolishedOperatorShellEnv: () => demoUiEnv.buyerPolishedShell,
+  isBuyerSafeDemoMarketingChromeEnv: () => demoUiEnv.buyerSafeMarketingChrome,
+}));
 
 vi.mock("@/components/ContextualHelp", () => ({
   ContextualHelp: ({ helpKey }: { helpKey: string }) => (
@@ -22,6 +32,11 @@ vi.mock("@/components/ui/help-button", () => ({
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 
 describe("OperatorPageHeader", () => {
+  afterEach(() => {
+    demoUiEnv.buyerPolishedShell = false;
+    demoUiEnv.buyerSafeMarketingChrome = false;
+  });
+
   it("renders title as h2", () => {
     render(<OperatorPageHeader title="Test Title" />);
     const heading = screen.getByRole("heading", { level: 2 });
@@ -63,6 +78,33 @@ describe("OperatorPageHeader", () => {
   it("renders HelpButton when docsPageKey provided", () => {
     render(<OperatorPageHeader title="T" docsPageKey="/compare" />);
     expect(screen.getByTestId("docs-help-button")).toHaveTextContent("/compare");
+  });
+
+  it("in buyer-polished shell omits ContextualHelp for non-allowlisted helpKey when no buyerTitleHint", () => {
+    demoUiEnv.buyerPolishedShell = true;
+    render(<OperatorPageHeader title="T" helpKey="policy-packs" />);
+    expect(screen.queryByTestId("contextual-help")).toBeNull();
+  });
+
+  it("in buyer-polished shell keeps ContextualHelp for allowlisted helpKey", () => {
+    demoUiEnv.buyerPolishedShell = true;
+    render(<OperatorPageHeader title="T" helpKey="ask-archlucid" />);
+    expect(screen.getByTestId("contextual-help")).toHaveTextContent("ask-archlucid");
+  });
+
+  it("in buyer-polished shell keeps ContextualHelp when buyerTitleHint is present", () => {
+    demoUiEnv.buyerPolishedShell = true;
+    render(<OperatorPageHeader title="T" helpKey="policy-packs" buyerTitleHint="Purpose." />);
+    expect(screen.getByTestId("contextual-help")).toHaveTextContent("policy-packs");
+  });
+
+  it("in buyer-polished shell omits HelpButton unless buyerAllowHeaderDocsLink", () => {
+    demoUiEnv.buyerPolishedShell = true;
+    render(<OperatorPageHeader title="T" docsPageKey="/governance" />);
+    expect(screen.queryByTestId("docs-help-button")).toBeNull();
+
+    render(<OperatorPageHeader title="T2" docsPageKey="/governance" buyerAllowHeaderDocsLink />);
+    expect(screen.getByTestId("docs-help-button")).toHaveTextContent("/governance");
   });
 
   it("omits HelpButton when docsPageKey not provided", () => {

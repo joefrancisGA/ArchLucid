@@ -86,9 +86,9 @@ Docs describe **templates and gaps** that depend on **customer subscription and 
 
 ---
 
-## 6a. Chat-ops — Slack scope note (*Resolved 2026-05-18*)
+## 6a. Chat-ops — Microsoft Teams and Slack (*Resolved 2026-05-18*)
 
-**Slack** first-party **outbound** chat-ops (notification sink parity with **Microsoft Teams** — same **`EnabledTriggersJson`** / trigger catalog, **Key Vault** secret-name references, Authority-shaped payloads) is **in scope for V1.1** per [`V1_SCOPE.md`](V1_SCOPE.md) **§2.14** — **owner scope update 2026-05-18**, superseding the *Resolved 2026-05-05* **V1 GA** promotion for Slack.
+**Microsoft Teams** incoming-webhook delivery and **Slack** first-party **outbound** chat-ops (**`EnabledTriggersJson`** / trigger catalog parity, **Key Vault** secret-name references, Authority-shaped payloads) are **in scope for V1.1** per [`V1_SCOPE.md`](V1_SCOPE.md) **§2.14** — **owner scope updates 2026-05-18**, superseding prior **V1 GA** buyer-contract posture for Teams-shaped delivery.
 
 **V1.1+ / follow-on candidate (not separately promoted without owner row):** **In-Slack interactive** approvals / acknowledgements (**approve / ack** buttons on Slack messages surfaced by ArchLucid).
 
