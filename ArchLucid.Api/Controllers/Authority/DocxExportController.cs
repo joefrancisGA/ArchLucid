@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application.Explanation;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
@@ -24,6 +25,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Api.Controllers.Authority;
 
@@ -49,9 +51,13 @@ public sealed class DocxExportController(
     IExplanationService explanationService,
     IProvenanceSnapshotRepository provenanceSnapshotRepository,
     IScopeContextProvider scopeProvider,
-    IAuditService auditService)
+    IAuditService auditService,
+    ILogger<DocxExportController> logger)
     : ControllerBase
 {
+    private readonly ILogger<DocxExportController> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
     /// <summary>Streams a DOCX architecture package for <paramref name="runId" />.</summary>
     /// <param name="runId">Primary run (must have golden manifest).</param>
     /// <param name="compareWithRunId">When set, embeds manifest comparison (and optional comparison narrative) vs this run.</param>
@@ -108,6 +114,7 @@ public sealed class DocxExportController(
             comparisonNarrative = await explanationService.ExplainComparisonAsync(manifestComparison, ct);
 
         ExplanationResult? runNarrative = null;
+
         if (explainRun)
         {
             DecisionProvenanceSnapshot? snapshot = await provenanceSnapshotRepository.GetByRunIdAsync(scope, runId, ct);
@@ -115,6 +122,14 @@ public sealed class DocxExportController(
                 snapshot is null ? null : ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
             runNarrative = await explanationService.ExplainRunAsync(manifest, graph, ct);
         }
+
+        int docxFindingCount = runDetail.FindingsSnapshot?.Findings?.Count ?? 0;
+        FindingsListAccessTelemetry.LogFindingSnapshotExpose(
+            _logger,
+            scope,
+            runId,
+            nameof(ExportRunDocx),
+            docxFindingCount);
 
         DocxExportResult result = await docxExportService.ExportAsync(
             DocxExportRequest.ForArchitecturePackage(

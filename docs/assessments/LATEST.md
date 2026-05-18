@@ -194,7 +194,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted deficiency signal:** 20
 - **Justification:** Marketing-aligned vocabulary helps, but the product surface is large for a first-pilot motion.
 - **Tradeoffs:** Breadth is valuable for expansion but increases first-session confusion.
-- **Improvement recommendations:** Add explicit application-level logging to the findings list API endpoints to evaluate read-access patterns and simplify the UI.
+- **Improvement recommendations:** Application-level logging for findings read surfaces is **shipped** (2026-05-17 — improvement **#18**, `FindingsListAccessTelemetry`). Follow-on: use telemetry to refine operator UI once patterns are stable.
 
 ### 22. Cost-Effectiveness
 - **Score:** 80
@@ -614,16 +614,19 @@ Ship **read-only** SAML 2.0 SP **operational health** signals for tenants with `
 ```
 
 ### 18. Add explicit application-level logging to the findings list API endpoints
+- **Status:** Completed (2026-05-17)
 - **Why it matters:** Allows evaluation of read-access patterns before committing them to the durable audit matrix.
 - **Expected impact:** Observability (+10 pts), Compliance Readiness (+5 pts).
 - **Affected qualities:** Observability, Compliance Readiness.
-- **Actionable:** Yes
+- **Actionable:** No
+- **Completion evidence:** `ArchLucid.Api/Support/FindingsListAccessTelemetry.cs` (`LogFindingSnapshotExpose`: `FindingCount`, tenant/workspace/project scope, `RunId`, surface name); wired on `AuthorityQueryController` (`GetRunDetail`, `GetRunProvenance`), `ExplanationController` (`ExplainRun`, `AggregateRunExplanation`), `AdvisoryController` (`GetImprovements`), `DocxExportController` (`ExportRunDocx`). Application `ILogger` / Serilog only — no durable `IAuditService` event for this signal; API response schemas unchanged.
 ```text
 Modify the findings list endpoints in `ArchLucid.Api` to emit structured application logs (e.g., via Serilog) containing the `FindingCount`, scope IDs, and run ID.
 - Acceptance criteria: Read access to findings lists generates a structured log entry.
 - Constraints: Do not emit a durable `IAuditService` event yet; this is for application telemetry only.
 - What not to change: Do not alter the response schema of the findings list API.
 - Impact: Directly improves Observability (+8-10 pts) and Compliance Readiness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- **Shipped (2026-05-17):** Structured `Information` logs via `FindingsListAccessTelemetry` on the surfaces listed in **Completion evidence** above.
 ```
 
 ### 19. Implement auto-scaling rules for the worker pool based on SQL authority outbox depth

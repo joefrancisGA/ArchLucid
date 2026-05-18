@@ -297,6 +297,14 @@ public sealed class AuthorityQueryController(
             detail.AuthorityTrace,
             artifacts);
 
+        int provenanceFindingCount = detail.FindingsSnapshot.Findings?.Count ?? 0;
+        FindingsListAccessTelemetry.LogFindingSnapshotExpose(
+            _logger,
+            scope,
+            runId,
+            nameof(GetRunProvenance),
+            provenanceFindingCount);
+
         ProvenanceCompletenessResult completeness = ProvenanceCompletenessAnalyzer.Analyze(graph);
 
         ArchLucidInstrumentation.ProvenanceCompleteness.Record(

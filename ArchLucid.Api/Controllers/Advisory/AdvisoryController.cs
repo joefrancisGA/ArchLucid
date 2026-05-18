@@ -4,6 +4,7 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
@@ -21,6 +22,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Api.Controllers.Advisory;
 
@@ -47,9 +49,13 @@ public sealed class AdvisoryController(
     IScopeContextProvider scopeProvider,
     IRecommendationWorkflowService recommendationWorkflowService,
     IRecommendationRepository recommendationRepository,
-    IAuditService auditService)
+    IAuditService auditService,
+    ILogger<AdvisoryController> logger)
     : ControllerBase
 {
+    private readonly ILogger<AdvisoryController> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
     /// <summary>
     ///     Builds an <see cref="ImprovementPlan" /> from the run�s golden manifest and findings, optionally compared to
     ///     another run, then persists recommendations for the scope.
@@ -82,6 +88,14 @@ public sealed class AdvisoryController(
                 ProblemTypes.ManifestNotFound);
 
         FindingsSnapshot findings = run.FindingsSnapshot ?? CreateEmptyFindings(run.GoldenManifest);
+
+        int advisoryFindingCount = findings.Findings?.Count ?? 0;
+        FindingsListAccessTelemetry.LogFindingSnapshotExpose(
+            _logger,
+            scope,
+            runId,
+            nameof(GetImprovements),
+            advisoryFindingCount);
 
         ImprovementPlan plan;
         if (compareToRunId.HasValue)
