@@ -68,7 +68,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted deficiency signal:** 15
 - **Why this score was assigned:** Three curated default policy packs provide a good starting point, and the Internal Policy Pack Hub is available.
 - **Key tradeoffs:** The library is currently small for a broad enterprise audience.
-- **Specific improvement recommendations:** Create a curated policy pack for Azure Well-Architected Framework (WAF) alignment.
+- **Specific improvement recommendations:** Delivered — curated Azure WAF policy pack at `docs/samples/policy-packs/azure-waf-rules-v1.json` (12 extractor-aligned rules across all five pillars).
 - **Fixability:** Fixable in V1.
 
 ### 6. Executive Value Visibility
@@ -446,17 +446,18 @@ Add a health check for the Azure OpenAI connection to `RegisterArchLucidHealthCh
 - Deliverable: `ArchLucid.Host.Core/Health/AzureOpenAiHealthCheck.cs`; registration in `ServiceCollectionExtensions.DataHealthAndJobs.cs`.
 ```
 
-### 13. Create a curated policy pack for Azure Well-Architected Framework (WAF) alignment
+### 13. COMPLETED: Create a curated policy pack for Azure Well-Architected Framework (WAF) alignment
 - **Why it matters:** Provides immediate value for Azure customers looking to align with best practices.
 - **Expected impact:** Template and Accelerator Richness (+15 pts), Time-to-Value (+10 pts).
 - **Affected qualities:** Template and Accelerator Richness, Time-to-Value.
-- **Actionable:** Yes
+- **Actionable:** No — delivered as `docs/samples/policy-packs/azure-waf-rules-v1.json` (curated-rules V1; 12 WAF pillar rules with `azureExtractor.manifest.*` and bundle evidence hints).
 ```text
-Create a new curated policy pack `docs/samples/policy-packs/azure-waf-rules-v1.json` focused on Azure WAF alignment.
+Create a new curated policy pack `docs/samples/policy-packs/azure-waf-rules-v1.json` focused on Azure WAF alignment. [COMPLETED]
 - Acceptance criteria: The pack is valid JSON matching the curated-rules schema and includes at least 10 WAF-aligned rules.
 - Constraints: Ensure the rules map to data collected by the Azure extractor.
 - What not to change: Do not modify the policy engine.
 - Impact: Directly improves Template and Accelerator Richness (+10-15 pts) and Time-to-Value (+8-10 pts). Weighted readiness impact: +0.2-0.3%.
+- Deliverable: `docs/samples/policy-packs/azure-waf-rules-v1.json`
 ```
 
 ### 14. Add a UI warning when tenant baselines are missing on the executive dashboard
@@ -625,7 +626,7 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 2 (UI & UX Enhancements):** 5, 8, 14, 19, 23
 - **Batch 3 (Reliability & Health Checks):** 15 *(12 completed)*
 - **Batch 4 (CLI & Export Features):** 10, 16, 21
-- **Batch 5 (Policy Packs & Runbooks):** 6, 13, 17, 20
+- **Batch 5 (Policy Packs & Runbooks):** 6, 17, 20 *(13 completed)*
 - **Batch 6 (Testing & Code Quality):** 4, 7, 24
 
 ---
