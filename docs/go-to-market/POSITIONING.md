@@ -38,13 +38,15 @@ Use these where the buyer is evaluating **a review and report**, not self-serve 
 
 *The core value pillars (AI-native architecture analysis, Auditable decision trail, Enterprise governance) have been consolidated into the [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md#3-core-value-pillars). Use the brief as the single source of truth for value claims.*
 
+**Pillar 3 proof points on this page:** The narrative for Enterprise governance lives in the brief; the **bullet list under §2 / Pillar 3 below** remains here as a **ship-backed proof reference** for datasheets and sales engineering (implementation anchors, not duplicate buyer story).
+
 **Live deep link in the staging funnel:**
 
-The unauthenticated proof route **`/demo/explain`** (operator shell) renders the **provenance graph and the citations-bound aggregate explanation side-by-side**, sourced from the seeded Contoso Retail Modernization **review**. The route is hard-blocked from non-`Demo:Enabled=true` deployments by the `[FeatureGate(FeatureGateKey.DemoEnabled)]` filter — production hosts return `404` so the demo surface cannot leak. Sponsors and pilot evaluators can hit the staging URL directly:
+The unauthenticated proof route **`/demo/explain`** (operator shell) renders the **provenance graph and the citations-bound aggregate explanation side-by-side**, sourced from the seeded Contoso Retail Modernization **review**. When **`Demo:Enabled`** is false, hosts return **`404`** for this route (demo surfaces do not leak to production). Sponsors and pilot evaluators can hit the staging URL directly:
 
 - Staging deep link: `https://staging.archlucid.example.com/demo/explain` (replace host with the active staging deployment)
-- Backing API: `GET /v1/demo/explain` — server-side `DemoReadModelClient` composes the same application services as `/v1/explain` and `/v1/provenance`, but **hard-pinned to the demo tenant scope** (the underlying authenticated routes are unchanged)
-- Always returns `IsDemoData=true` and a "demo tenant — replace before publishing" status banner so screenshots cannot be quoted as production telemetry
+- Backing API: **`GET /v1/demo/explain`** — same demo-tenant scope as other anonymous demo reads; response includes **`IsDemoData=true`** and a **demo tenant — replace before publishing** banner so screenshots are not quoted as production telemetry
+- Wiring, rate limits, and feature gates: **[`SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md)** · demo payload patterns: **[`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md)**
 
 ### Pillar 3: Enterprise governance
 
