@@ -67,6 +67,10 @@ public static partial class ServiceCollectionExtensions
             .AddCheck<DemoViewerDataHealthCheck>(
                 "demo_viewer_data",
                 failureStatus: HealthStatus.Degraded,
+                tags: [ReadinessTags.Ready])
+            .AddCheck<AzureOpenAiHealthCheck>(
+                "openai",
+                failureStatus: HealthStatus.Unhealthy,
                 tags: [ReadinessTags.Ready]);
 
         if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)

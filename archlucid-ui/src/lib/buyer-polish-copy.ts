@@ -24,3 +24,8 @@ export const BUYER_GOVERNANCE_GOVERNED_USE_SCOPE =
 
 export const BUYER_ASK_GROUNDING_ONCE =
   "Example answers are illustrative. In connected workspaces, answers are scoped to selected review evidence and source anchors.";
+
+export const BUYER_COMPARE_SECONDARY_PAGE_LEAD =
+  "Review change comparison is a secondary diligence view. Start from the finalized review package, then load a prior vs later pair when you need an explicit delta.";
+
+export const BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY = "Download consolidated review package (ZIP)";

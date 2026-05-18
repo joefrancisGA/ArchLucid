@@ -432,17 +432,18 @@ Identify all background workers interacting with SQL that lack Polly retry polic
 - Deliverable: `ArchLucid.Persistence/Connections/` (`IBackgroundWorkerSqlConnectionFactory`, `BackgroundWorkerResilientSqlConnectionFactory`, `SqlResilientOperationExecutor`); `SqlStorageProviderRegistrar.RegisterBackgroundWorkerSqlResilience`; updated analytics/weekly-digest/telemetry/integration/tenancy SQL repos listed above.
 ```
 
-### 12. Add a health check endpoint for the Azure OpenAI connection
+### 12. COMPLETED: Add a health check endpoint for the Azure OpenAI connection
 - **Why it matters:** Verifies connectivity to the critical LLM infrastructure.
 - **Expected impact:** Supportability (+10 pts), AI/Agent Readiness (+5 pts).
 - **Affected qualities:** Supportability, AI/Agent Readiness.
-- **Actionable:** Yes
+- **Actionable:** No — `AzureOpenAiHealthCheck` registered as `openai` in `RegisterArchLucidHealthChecks` (`ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.DataHealthAndJobs.cs`); probes only when `AzureOpenAiExecutionProbePolicy.ShouldProbeConfiguredEndpoint` (Real mode, non-Echo client); uses bounded TCP connect via `AzureOpenAiEndpointConnectivitySocketProbe` (no chat/embedding calls — zero model quota). Surfaces on `/health`, `/health/ready`, and summary responses. Tests: `ArchLucid.Host.Core.Tests/Health/AzureOpenAiHealthCheckTests.cs`.
 ```text
-Add a health check for the Azure OpenAI connection to `RegisterArchLucidHealthChecks`.
+Add a health check for the Azure OpenAI connection to `RegisterArchLucidHealthChecks`. [COMPLETED]
 - Acceptance criteria: The `/health` endpoint includes an `openai` status, performing a lightweight ping to the Azure OpenAI endpoint.
 - Constraints: Ensure the ping does not consume significant quota or incur high costs.
 - What not to change: Do not modify the core LLM execution logic.
 - Impact: Directly improves Supportability (+8-10 pts) and AI/Agent Readiness (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
+- Deliverable: `ArchLucid.Host.Core/Health/AzureOpenAiHealthCheck.cs`; registration in `ServiceCollectionExtensions.DataHealthAndJobs.cs`.
 ```
 
 ### 13. Create a curated policy pack for Azure Well-Architected Framework (WAF) alignment
@@ -622,7 +623,7 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 
 - **Batch 1 (Observability & Dashboards):** 3, 9, 18, 22, 25
 - **Batch 2 (UI & UX Enhancements):** 5, 8, 14, 19, 23
-- **Batch 3 (Reliability & Health Checks):** 12, 15 *(11 completed)*
+- **Batch 3 (Reliability & Health Checks):** 15 *(12 completed)*
 - **Batch 4 (CLI & Export Features):** 10, 16, 21
 - **Batch 5 (Policy Packs & Runbooks):** 6, 13, 17, 20
 - **Batch 6 (Testing & Code Quality):** 4, 7, 24

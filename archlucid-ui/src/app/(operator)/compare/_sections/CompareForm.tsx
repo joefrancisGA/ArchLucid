@@ -17,6 +17,7 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { cn } from "@/lib/utils";
+import { CompareBuyerScopedGate } from "@/app/(operator)/compare/_sections/CompareBuyerScopedGate";
 import { CompareDemoQuickPick } from "@/app/(operator)/compare/_sections/CompareDemoQuickPick";
 import { CompareLastRequestOutcomeDetails } from "@/app/(operator)/compare/_sections/CompareLastRequestOutcomeDetails";
 import { ComparePageIntro } from "@/app/(operator)/compare/_sections/ComparePageIntro";
@@ -319,6 +320,24 @@ export function CompareForm() {
     setRightRunId("claims-intake-run-v2");
   };
 
+  const urlComparePair = readCompareRunIdsFromSearchParams(searchParams);
+  const buyerCompareHasUrlPair =
+    urlComparePair.prior.trim().length > 0 && urlComparePair.later.trim().length > 0;
+  const showBuyerCompareScopedGate =
+    buyerPolished &&
+    !buyerCompareHasUrlPair &&
+    !compareHasRenderableOutcome &&
+    leftTrim.length === 0 &&
+    rightTrim.length === 0;
+
+  const loadBuyerSampleComparison = () => {
+    pickClaimsIntakePair();
+
+    if (isStaticDemoPayloadFallbackEnabled()) {
+      void runCompareForPair("claims-intake-run-v1", "claims-intake-run-v2");
+    }
+  };
+
   return (
     <div>
       <LayerHeader pageKey="compare" />
@@ -333,10 +352,16 @@ export function CompareForm() {
         }
       />
       <ComparePageIntro buyerPolished={buyerPolished} />
-      {isStaticDemoPayloadFallbackEnabled() ? <CompareDemoQuickPick onPickClaimsIntake={pickClaimsIntakePair} /> : null}
+      {showBuyerCompareScopedGate ? (
+        <CompareBuyerScopedGate onLoadSampleComparison={loadBuyerSampleComparison} />
+      ) : null}
+      {isStaticDemoPayloadFallbackEnabled() && !buyerPolished ? (
+        <CompareDemoQuickPick onPickClaimsIntake={pickClaimsIntakePair} />
+      ) : null}
       <div
         className={cn("flex max-w-3xl flex-col gap-8", compareInsightFirstLayout ? "flex-col-reverse" : null)}
       >
+        {showBuyerCompareScopedGate ? null : (
         <CompareRunPickersSection
           leftPickerLabel={leftPickerLabel}
           rightPickerLabel={rightPickerLabel}
@@ -360,7 +385,9 @@ export function CompareForm() {
           summarizeButtonLabel={buyerPolished ? "Summarize for leadership" : "Summarize for sponsor"}
           collapseBelowResults={compareInsightFirstLayout && buyerPolished}
         />
+        )}
 
+        {showBuyerCompareScopedGate ? null : (
         <CompareResultsPanel
           showStaleInputsWarning={showStaleInputsWarning}
           lastComparedPair={lastComparedPair}
@@ -382,8 +409,10 @@ export function CompareForm() {
           aiExplanation={aiExplanation}
           buyerPolished={buyerPolished}
         />
+        )}
       </div>
 
+      {showBuyerCompareScopedGate ? null : (
       <CompareLastRequestOutcomeDetails
         pairAligned={pairAligned}
         loading={loading}
@@ -399,6 +428,7 @@ export function CompareForm() {
         legacyMalformed={legacyMalformed}
         buyerPolished={buyerPolished}
       />
+      )}
     </div>
   );
 }
