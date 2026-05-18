@@ -224,8 +224,9 @@ export function RunExplanationSection({
           {riskPostureLabel}
         </span>
         <span className="ml-3 text-[13px] text-neutral-500 dark:text-neutral-400">
-          {summary.decisionCount} decisions · {findingCountForStats} findings · {summary.unresolvedIssueCount}{" "}
-          unresolved · {summary.complianceGapCount} compliance gaps
+          {buyerPolishedShell
+            ? `${summary.decisionCount} governance decisions · ${findingCountForStats} risk findings · ${summary.unresolvedIssueCount} open items`
+            : `${summary.decisionCount} decisions · ${findingCountForStats} findings · ${summary.unresolvedIssueCount} unresolved · ${summary.complianceGapCount} compliance gaps`}
         </span>
         {deterministicFallback ? (
           <span

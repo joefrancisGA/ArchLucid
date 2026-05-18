@@ -405,13 +405,13 @@ Create a Grafana dashboard `infra/grafana/dashboard-archlucid-policy-packs.json`
 - Deliverable: `infra/grafana/dashboard-archlucid-policy-packs.json`; `infra/terraform-monitoring/grafana_dashboards.tf` (`grafana_dashboard.policy_packs`).
 ```
 
-### 10. Add export to CSV for audit logs
+### 10. COMPLETED: Add export to CSV for audit logs
 - **Why it matters:** Facilitates offline analysis and compliance reporting for audit events.
 - **Expected impact:** Usability (+5 pts).
 - **Affected qualities:** Usability.
-- **Actionable:** Yes
+- **Actionable:** No — delivered as `GET /v1/audit/export/csv` on `AuditController` (`ArchLucid.Api/Controllers/Admin/AuditController.cs`); accepts the same optional filter params as the search endpoint (`eventType`, `fromUtc`, `toUtc`, `correlationId`, `actorUserId`, `runId`) plus `maxRows` clamped 1–10 000; always responds `text/csv` with `Content-Disposition: attachment`; uses `GetFilteredExportAsync`; requires `RequireAuditor` role; rate-limited under the `expensive` policy. Audit coverage matrix updated (`docs/library/AUDIT_COVERAGE_MATRIX.md`). Tests in `ArchLucid.Api.Tests/AuditExportCsvControllerTests.cs`. OpenAPI snapshot regeneration required before merge.
 ```text
-Add a `GET /v1/audit/export/csv` endpoint to export audit logs as a CSV file.
+Add a `GET /v1/audit/export/csv` endpoint to export audit logs as a CSV file. [COMPLETED]
 - Acceptance criteria: The endpoint returns a well-formatted CSV containing audit event details, filtered by the same parameters as the search endpoint.
 - Constraints: Ensure the endpoint is covered by the audit matrix.
 - What not to change: Do not modify the existing JSON audit endpoints.

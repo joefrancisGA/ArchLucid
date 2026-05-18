@@ -99,7 +99,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         ) : null}
       </nav>
 
-      {model.usedStaticDemoManifest ? <OperatorDemoStaticBanner /> : null}
+      {model.usedStaticDemoManifest && buyerPolishedLayout !== true ? <OperatorDemoStaticBanner /> : null}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div>

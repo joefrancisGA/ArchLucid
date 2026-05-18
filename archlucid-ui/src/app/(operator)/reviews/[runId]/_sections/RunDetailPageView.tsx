@@ -38,6 +38,7 @@ import { RunDetailRunExplanationCollapsible } from "./RunDetailRunExplanationCol
 import { RunDetailRunMetadataSection } from "./RunDetailRunMetadataSection";
 import { RunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSection";
+import { RunDetailExecutiveSummaryCtaCard } from "./RunDetailExecutiveSummaryCtaCard";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 
 /** Server component: renders the main run detail chrome from a preloaded `RunDetailPageModel`. */
@@ -65,13 +66,41 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       />
     ) : null;
 
+  const showcasePolicyPackStrip =
+    m.buyerPolishedArtifactTable &&
+    m.manifestSummaryForUi !== null &&
+    isShowcaseStaticDemoRunId(m.resolvedDetail.run.runId)
+      ? {
+          href: SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
+          label: policyPackBuyerLabel(m.manifestSummaryForUi.ruleSetId, m.manifestSummaryForUi.ruleSetVersion),
+        }
+      : null;
+
+  const outcomeCardsEl = (
+    <RunDetailOutcomeCards
+      runId={m.resolvedDetail.run.runId}
+      manifestId={m.manifestId}
+      artifactCount={m.artifacts.length}
+      findingCountDisplay={m.findingCountDisplay}
+      warningCountDisplay={m.warningCountDisplay}
+      hasGoldenManifest={Boolean(m.manifestId)}
+      unresolvedIssueCountDisplay={m.manifestSummary?.unresolvedIssueCount ?? null}
+      aggregateRiskPosture={m.explanationSummary?.riskPosture ?? null}
+      governanceGateLabel={m.governanceGateLabel}
+      showcasePolicyPackStrip={showcasePolicyPackStrip}
+    />
+  );
+
+  const buyerFinalizedPackage =
+    m.buyerPolishedArtifactTable === true && Boolean(m.manifestId);
+
   return (
     <div
       className={`mx-auto space-y-6 px-1 py-2 sm:px-0 ${m.buyerPolishedArtifactTable ? "max-w-6xl" : "max-w-4xl"}`}
     >
       <RunDetailBreadcrumb headline={m.headline} />
 
-      {m.usedStaticDemoRun ? <OperatorDemoStaticBanner /> : null}
+      {m.usedStaticDemoRun && !m.buyerPolishedArtifactTable ? <OperatorDemoStaticBanner /> : null}
 
       <RunDetailPageHeader
         runSummary={runSummaryForBadge}
@@ -98,44 +127,28 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       {m.savingsSummary !== null ? <RunSavingsSummary model={m.savingsSummary} /> : null}
 
-      {!m.buyerPolishedArtifactTable || !m.manifestId ? (
-        <RunDetailOutcomeCards
-          runId={m.resolvedDetail.run.runId}
-          manifestId={m.manifestId}
-          artifactCount={m.artifacts.length}
-          findingCountDisplay={m.findingCountDisplay}
-          warningCountDisplay={m.warningCountDisplay}
-          hasGoldenManifest={Boolean(m.manifestId)}
-          unresolvedIssueCountDisplay={m.manifestSummary?.unresolvedIssueCount ?? null}
-          aggregateRiskPosture={m.explanationSummary?.riskPosture ?? null}
-          governanceGateLabel={m.governanceGateLabel}
-          showcasePolicyPackStrip={
-            m.buyerPolishedArtifactTable &&
-            m.manifestSummaryForUi !== null &&
-            isShowcaseStaticDemoRunId(m.resolvedDetail.run.runId)
-              ? {
-                  href: SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
-                  label: policyPackBuyerLabel(m.manifestSummaryForUi.ruleSetId, m.manifestSummaryForUi.ruleSetVersion),
-                }
-              : null
-          }
-        />
+      {outcomeCardsEl}
+
+      {buyerFinalizedPackage ? (
+        <RunDetailExecutiveSummaryCtaCard runId={m.resolvedDetail.run.runId} />
       ) : null}
 
-      <div className="flex flex-wrap items-center gap-2">
-        <GenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={m.buyerPolishedArtifactTable} />
-      </div>
+      {!m.buyerPolishedArtifactTable ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <GenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={false} />
+        </div>
+      ) : null}
 
-      <CompareToBaselineCta currentRunId={m.resolvedDetail.run.runId} />
+      {!m.buyerPolishedArtifactTable ? (
+        <CompareToBaselineCta currentRunId={m.resolvedDetail.run.runId} />
+      ) : null}
 
       {m.usedStaticDemoRun && !m.buyerPolishedArtifactTable ? sampleReviewPackageSummaryEl : null}
 
 
-      {!m.buyerPolishedArtifactTable || !m.manifestId ? (
+      {!m.buyerPolishedArtifactTable ? (
         <RunEstimatedLlmCostCard estimate={m.resolvedDetail.agentExecutionLlmCostEstimate} />
       ) : null}
-
-      {m.usedStaticDemoRun && m.buyerPolishedArtifactTable ? sampleReviewPackageSummaryEl : null}
 
       {m.showProgressTracker ? (
         <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
@@ -179,33 +192,6 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           explanationSummary={m.explanationSummary}
           explanationFailure={m.explanationFailure}
         />
-      ) : null}
-
-      {m.buyerPolishedArtifactTable && m.manifestId ? (
-        <>
-          <RunDetailOutcomeCards
-            runId={m.resolvedDetail.run.runId}
-            manifestId={m.manifestId}
-            artifactCount={m.artifacts.length}
-            findingCountDisplay={m.findingCountDisplay}
-            warningCountDisplay={m.warningCountDisplay}
-            hasGoldenManifest={Boolean(m.manifestId)}
-            unresolvedIssueCountDisplay={m.manifestSummary?.unresolvedIssueCount ?? null}
-            aggregateRiskPosture={m.explanationSummary?.riskPosture ?? null}
-            governanceGateLabel={m.governanceGateLabel}
-            showcasePolicyPackStrip={
-              m.buyerPolishedArtifactTable &&
-              m.manifestSummaryForUi !== null &&
-              isShowcaseStaticDemoRunId(m.resolvedDetail.run.runId)
-                ? {
-                    href: SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
-                    label: policyPackBuyerLabel(m.manifestSummaryForUi.ruleSetId, m.manifestSummaryForUi.ruleSetVersion),
-                  }
-                : null
-            }
-          />
-          <RunEstimatedLlmCostCard estimate={m.resolvedDetail.agentExecutionLlmCostEstimate} />
-        </>
       ) : null}
 
       {!m.buyerPolishedArtifactTable ? (
@@ -289,7 +275,9 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         />
       ) : null}
 
-      {m.manifestId ? <BeforeAfterDeltaPanel variant="inline" runId={m.routeRunId} /> : null}
+      {m.manifestId && !m.buyerPolishedArtifactTable ? (
+        <BeforeAfterDeltaPanel variant="inline" runId={m.routeRunId} />
+      ) : null}
 
       {m.manifestId ? (
         <RunDetailAdvancedAnalysisSection
