@@ -59,13 +59,17 @@ describe("AskAssistantMessageBody", () => {
       "Risk:\n\nFirst line.\n\nEvidence:\n\nSecond line with " +
       "22222222-2222-4222-8222-222222222222.\n\nMitigation:\n\nThird.\n\nValidation:\n\nFourth.";
 
-    render(<AskAssistantMessageBody buyerPolishedLinks content={structured} />);
+    const { container } = render(<AskAssistantMessageBody buyerPolishedLinks content={structured} />);
 
-    expect(screen.getByText("Based on the evidence indexed for this review package:")).toBeInTheDocument();
+    expect(screen.queryByText("Based on the evidence indexed for this review package:")).not.toBeInTheDocument();
+
+    const execLead = container.querySelector("div.space-y-4 > p.font-semibold");
+
+    expect(execLead).not.toBeNull();
+    expect(execLead?.textContent).toBe("First line.");
 
     expect(screen.getByRole("heading", { name: "Risk" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Evidence" })).toBeInTheDocument();
-    expect(screen.getByText("First line.", { exact: false })).toBeInTheDocument();
 
     const evidenceLink = screen.getByRole("link", {
       name: `Open linked review 22222222-2222-4222-8222-222222222222`,

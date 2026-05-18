@@ -71,3 +71,27 @@ export function isDemoStrictNavigationRedirectsBypassedForE2E(): boolean {
 
   return raw === "1" || raw === "true";
 }
+
+/**
+ * Packaged demos (public demo mode or static-operator) hide `/compare` for buyer-safe navigation unless explicitly allowed.
+ * **`NEXT_PUBLIC_DEMO_ALLOW_COMPARE_ROUTE`:** set `"true"` or `"1"` to keep Compare reachable in strict demo redirects.
+ *
+ * Bypassed when {@link isDemoStrictNavigationRedirectsBypassedForE2E} is true so Playwright can reach advanced routes.
+ */
+export function isCompareRouteBlockedUnderDemoStrictShell(): boolean {
+  if (!isDemoStrictNavigationRedirectsActive()) {
+    return false;
+  }
+
+  if (isDemoStrictNavigationRedirectsBypassedForE2E()) {
+    return false;
+  }
+
+  const allowCompare = (process.env.NEXT_PUBLIC_DEMO_ALLOW_COMPARE_ROUTE ?? "").trim().toLowerCase();
+
+  if (allowCompare === "1" || allowCompare === "true") {
+    return false;
+  }
+
+  return true;
+}

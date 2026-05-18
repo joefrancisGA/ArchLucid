@@ -103,6 +103,8 @@
 
 All V1 marketing gate improvements are now COMPLETED. The only remaining blocker is P10 (ServiceNow developer instance).
 
+> **Note on item numbers:** Items #19–#33 below reference a prior LATEST.md numbering scheme (improvements were consolidated/renumbered during the 2026-05-17 sprint). The current [`LATEST.md`](../assessments/LATEST.md) numbers improvements 1–22; the "open" rows below (#19 Progressive disclosure, #24 Finding confidence, #25 ServiceNow) correspond to items that may have been renamed or renumbered — verify against the current LATEST.md before treating them as live action items.
+
 | LATEST.md item | Status | Marketing tasks unblocked |
 |---|---|---|
 | **#26** — Operator UI vocabulary alignment | **COMPLETED (2026-05-17)** | All in-app copy and demo scripts use aligned vocabulary |
@@ -113,6 +115,6 @@ All V1 marketing gate improvements are now COMPLETED. The only remaining blocker
 | **#31** — Landing CTA stack (walkthrough / self-demo / early access) | **COMPLETED (2026-05-17)** | M-09 |
 | **#32** — Marketing landing page content | **COMPLETED (2026-05-17)** | M-09 (fully unblocked) |
 | **#33** — Superseded by #32 | **COMPLETED (2026-05-17)** | — |
-| **#24** — Surface finding confidence + evidence links in review UI | Actionable (open) | Supports differentiability messaging for M-08 |
-| **#19** — Progressive disclosure for advanced governance routes | Actionable (open) | Reduces demo cognitive-load risk during M-19 |
+| **#24** — Surface finding confidence + evidence links in review UI | Actionable (open) — *verify current item number in LATEST.md* | Supports differentiability messaging for M-08 |
+| **#19** — Progressive disclosure for advanced governance routes | Actionable (open) — *verify current item number in LATEST.md* | Reduces demo cognitive-load risk during M-19 |
 | **#25** — ServiceNow bi-directional sync | **Blocked on P10** | M-29 — do not publish until developer instance provisioned |

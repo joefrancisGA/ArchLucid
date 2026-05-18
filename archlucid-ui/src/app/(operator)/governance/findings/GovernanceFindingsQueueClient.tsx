@@ -540,18 +540,6 @@ export default function GovernanceFindingsQueueClient() {
                   </div>
                 </section>
               ) : null}
-              <section className="space-y-2" aria-labelledby="governance-findings-validated">
-                <h2
-                  id="governance-findings-validated"
-                  className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
-                >
-                  Validated controls
-                </h2>
-                <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-                  No separate validated-control attestations are listed in this sample workspace. Control effectiveness evidence is
-                  still reflected in the governance approval and monitored-risk rows above.
-                </p>
-              </section>
             </div>
           ) : (
           <>

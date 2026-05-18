@@ -70,7 +70,7 @@ The operator shell will gain a signup form for these fields in a follow-up UI PR
 
 ## Post-commit sponsor banner (first commit clock)
 
-After the first golden manifest commit, the operator-shell run detail page (`/runs/[runId]`) shows the **“Email this run to your sponsor”** banner when the run has a manifest. The banner may add a small **“Day N since first commit”** badge (UTC full days since this tenant’s first committed manifest, from **`GET /v1/tenant/trial-status`** field **`firstCommitUtc`**) so the sponsor pitch is anchored in the tenant’s own clock. Details: **[`SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`](SPONSOR_BANNER_FIRST_COMMIT_BADGE.md)**.
+After the first golden manifest commit, the operator-shell **review detail** page (`/runs/[runId]` — legacy URL; may redirect to `/reviews/…`) shows the **“Email this review to your sponsor”** banner when the review has a manifest (exact banner text may still say *run* until label-only UI updates land). The banner may add a small **“Day N since first commit”** badge (UTC full days since this tenant’s first committed manifest, from **`GET /v1/tenant/trial-status`** field **`firstCommitUtc`**) so the sponsor pitch is anchored in the tenant’s own clock. Details: **[`SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`](SPONSOR_BANNER_FIRST_COMMIT_BADGE.md)**.
 
 Sponsors who do not have an operator install can preview a real commit page at **`/demo/preview`** on your marketing host (URL as deployed); the data is the **ArchLucid demo seed**, not your tenant. See **`docs/DEMO_PREVIEW.md`**.
 

@@ -4,6 +4,7 @@ import { useLayoutEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import {
+  isCompareRouteBlockedUnderDemoStrictShell,
   isDemoStrictNavigationRedirectsActive,
   isDemoStrictNavigationRedirectsBypassedForE2E,
 } from "@/lib/demo-ui-env";
@@ -43,6 +44,12 @@ export function DemoStrictNavigationGate() {
     }
 
     if (pathname.startsWith("/auth/")) {
+      return;
+    }
+
+    if (isCompareRouteBlockedUnderDemoStrictShell() && (pathname === "/compare" || pathname.startsWith("/compare/"))) {
+      router.replace("/");
+
       return;
     }
 

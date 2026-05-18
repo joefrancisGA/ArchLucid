@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 
+import { splitBuyerAskExecutiveLead } from "@/lib/ask-executive-lead";
 import { parseAskAssistantStructuredSections } from "@/lib/ask-assistant-section-parser";
 
 export type AskAssistantGroundingLink = {
@@ -100,11 +101,65 @@ export function AskAssistantMessageBody(props: {
       <GroundingLinksFooter links={groundingLinks} />
     ) : null;
 
-  const buyerAnswerLead = buyerPolishedLinks ? (
+  const buyerAnswerLeadPlain = buyerPolishedLinks ? (
     <p className="m-0 mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
       Based on the evidence indexed for this review package:
     </p>
   ) : null;
+
+  if (structured !== null && buyerPolishedLinks) {
+    const preambleTrim = structured.preamble.trim();
+    let executiveLead: string | null = null;
+    let preambleForRender = preambleTrim;
+    let sectionsForRender = structured.sections;
+
+    if (preambleTrim.length > 0) {
+      const sp = splitBuyerAskExecutiveLead(preambleTrim);
+
+      executiveLead = sp.sentence.length > 0 ? sp.sentence : null;
+      preambleForRender = sp.rest.trim();
+    } else {
+      const riskIx = structured.sections.findIndex((section) => section.key === "risk");
+
+      if (riskIx >= 0) {
+        const rawRisk = structured.sections[riskIx]?.body.trim() ?? "";
+
+        if (rawRisk.length > 0) {
+          const sp = splitBuyerAskExecutiveLead(rawRisk);
+
+          executiveLead = sp.sentence.length > 0 ? sp.sentence : null;
+          sectionsForRender = structured.sections.map((s, i) =>
+            i === riskIx ? { ...s, body: sp.rest.trim().length > 0 ? sp.rest.trim() : rawRisk } : s,
+          );
+        }
+      }
+    }
+
+    if (executiveLead === null || executiveLead.length === 0) {
+      executiveLead =
+        "Executive read: Risk framing, anchored evidence hooks, mitigation commitments, and validation notes for this package are organized in the sections below.";
+    }
+
+    const bodyClass = "m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200";
+
+    return (
+      <div className="space-y-4">
+        <p className="m-0 text-sm font-semibold leading-snug text-neutral-900 dark:text-neutral-100">{executiveLead}</p>
+        {preambleForRender.length > 0 ? (
+          <p className={bodyClass}>{renderTextWithUuidReviewLinks(preambleForRender, buyerPolishedLinks)}</p>
+        ) : null}
+        {sectionsForRender.map((section, index) => (
+          <section key={`${section.key}-${index}`} aria-label={section.title}>
+            <h4 className="m-0 text-xs font-semibold text-neutral-600 dark:text-neutral-400">{section.title}</h4>
+            <div className={`${bodyClass} mt-1.5`}>
+              {section.body.length > 0 ? renderTextWithUuidReviewLinks(section.body, buyerPolishedLinks) : "—"}
+            </div>
+          </section>
+        ))}
+        {footer}
+      </div>
+    );
+  }
 
   if (structured !== null) {
     const bodyClass =
@@ -112,7 +167,6 @@ export function AskAssistantMessageBody(props: {
 
     return (
       <div className="space-y-4">
-        {buyerAnswerLead}
         {structured.preamble.length > 0 ? (
           <p className={bodyClass}>{renderTextWithUuidReviewLinks(structured.preamble, buyerPolishedLinks)}</p>
         ) : null}
@@ -135,7 +189,7 @@ export function AskAssistantMessageBody(props: {
 
   return (
     <div className="space-y-0">
-      {buyerAnswerLead}
+      {buyerAnswerLeadPlain}
       <p className="m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200">
         {renderTextWithUuidReviewLinks(content, buyerPolishedLinks)}
       </p>
