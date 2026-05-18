@@ -46,10 +46,10 @@ V1 capabilities map to **two** product layers (**Pilot** and **Operate**). See [
 
 The minimum set every pilot must complete. Delivered by default; no additional configuration beyond API + SQL.
 
-#### 2.1 Run lifecycle: request → execute → commit
+#### 2.1 Review lifecycle: request → execute → commit
 
-- Create a **run** from a structured **architecture request** (`POST /v1/architecture/request`).
-- Drive the run through **execution** so agent work completes under the configured **simulator or real** execution mode.
+- Create a **review** from a structured **architecture request** (`POST /v1/architecture/request`).
+- Drive the **review** through **execution** so agent work completes under the configured **simulator or real** execution mode.
 - **Commit** a **golden manifest** (`POST /v1/architecture/run/{runId}/commit`), with documented state and conflict behavior ([API_CONTRACTS.md](API_CONTRACTS.md)).
 - End-to-end request → execute → commit behavior, including convergence on manifests and artifacts, is described in [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md).
 
@@ -57,12 +57,12 @@ The minimum set every pilot must complete. Delivered by default; no additional c
 
 - **API:** list and download manifest-scoped artifacts; export-related endpoints per OpenAPI/Swagger.
 - **CLI:** `artifacts`, `status` per [CLI_USAGE.md](CLI_USAGE.md).
-- **Operator UI:** runs list, run detail, manifest summary, artifact review, and download ([operator-shell.md](operator-shell.md)).
+- **Operator UI:** reviews list, review detail (legacy labels may still say *Runs*), manifest summary, artifact review, and download ([operator-shell.md](operator-shell.md)).
 
 #### 2.3 Export and package generation
 
 - **Markdown/DOCX** exports and **replay** from persisted export records ([ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md)).
-- **ZIP** downloads (bundle and run-export) from run detail.
+- **ZIP** downloads (bundle and run-export) from **review** detail.
 
 #### 2.4 Deployability and supportability
 
@@ -78,21 +78,21 @@ The minimum set every pilot must complete. Delivered by default; no additional c
 
 ### Layer 2 — Operate
 
-**Operate** is the second buyer-facing layer. It includes deeper investigation and comparison tools (available once you have at least one committed run; in the operator UI, enable via **Show more links** in the sidebar) **and** governance, auditability, and compliance tooling (configuration-driven; most features require explicit enablement; full surface visible after enabling extended/advanced links in the sidebar).
+**Operate** is the second buyer-facing layer. It includes deeper investigation and comparison tools (available once you have at least one committed **review**; in the operator UI, enable via **Show more links** in the sidebar) **and** governance, auditability, and compliance tooling (configuration-driven; most features require explicit enablement; full surface visible after enabling extended/advanced links in the sidebar).
 
 #### 2.5 Compare
 
-- **Two-run** comparison: structured golden-manifest deltas + legacy diff + optional AI explanation ([COMPARISON_REPLAY.md](COMPARISON_REPLAY.md)).
-- Operator UI: **Compare runs** workflow ([operator-shell.md](operator-shell.md)).
+- **Two-review** comparison: structured golden-manifest deltas + legacy diff + optional AI explanation ([COMPARISON_REPLAY.md](COMPARISON_REPLAY.md)).
+- Operator UI: **Compare reviews** workflow ([operator-shell.md](operator-shell.md)).
 
 #### 2.6 Replay
 
 - **Comparison replay** (artifact vs regenerate vs verify modes) for persisted comparison records.
-- **Run replay** (authority chain re-validation) with validation flags surfaced in the operator shell.
+- **Authority replay** (authority chain re-validation; UI may still label *Run replay*) with validation flags surfaced in the operator shell.
 
 #### 2.7 Graph
 
-- **Knowledge / provenance / architecture graph** for a single run in the operator UI ([KNOWLEDGE_GRAPH.md](KNOWLEDGE_GRAPH.md)).
+- **Knowledge / provenance / architecture graph** for a single **review** in the operator UI ([KNOWLEDGE_GRAPH.md](KNOWLEDGE_GRAPH.md)).
 
 #### 2.8 Advisory, Q&A, and pilot signals
 
@@ -100,17 +100,17 @@ The minimum set every pilot must complete. Delivered by default; no additional c
 - **Advisory scans** — architecture digests and scheduled scans.
 - **Pilot feedback** — rollup and triage of product learning signals.
 - **Planning materialization (59R)** — bounded, deterministic drafting of improvement **themes** and **plans** from ranked pilot-feedback opportunities via **`POST /v1/learning/planning/materialize`** (**ExecuteAuthority**); operator-triggered; ties evidence with **pilot signal** links only; does **not** mutate prompts, agents, or governance packs ([`PRODUCT_LEARNING.md`](PRODUCT_LEARNING.md) §4.1–§4.2, [`LearningController.cs`](../../ArchLucid.Api/Controllers/Advisory/LearningController.cs)). **Planning bridge UX (V1 GA)** — dedicated in-shell flow on **`/product-learning`** ( **`PlanningBridgePanel`**) to align **`since`** / **`maxPlansToMaterialize`** with the dashboard, invoke **`POST /v1/learning/planning/materialize`**, surface **`ProductLearningPlanningMaterializeResult`**, and deep-link operators to **`/planning`** ([`PRODUCT_LEARNING.md`](PRODUCT_LEARNING.md) §4.2).
-- **Recommendation learning** — learning profiles per run.
+- **Recommendation learning** — learning profiles per **review**.
 - **Integration events** (optional Azure Service Bus, CloudEvents envelope, webhooks) ([INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md)).
 
-Use these surfaces when the next question is analytical: what changed, why it changed, what the architecture or provenance graph shows, or how two runs differ.
+Use these surfaces when the next question is analytical: what changed, why it changed, what the architecture or provenance graph shows, or how two **reviews** differ.
 
 #### 2.9 Governance workflows
 
 - **Approval workflow** with segregation of duties (self-approval blocked), SLA tracking, and webhook escalation on breach.
 - **Pre-commit governance gate** — `ArchLucid:Governance:PreCommitGateEnabled` blocks manifest commit when findings exceed configured severity thresholds ([PRE_COMMIT_GOVERNANCE_GATE.md](PRE_COMMIT_GOVERNANCE_GATE.md)).
 - **Policy packs** — versioned rule sets with scope assignments and effective governance resolution.
-- **Governance dashboard** — cross-run pending approvals and policy change summary.
+- **Governance dashboard** — cross-review pending approvals and policy change summary.
 
 #### 2.10 Audit and compliance
 
@@ -122,7 +122,7 @@ Use these surfaces when the next question is analytical: what changed, why it ch
 #### 2.11 Alerts
 
 - **Alert rules, routing, composite rules, tuning** — configurable alert pipeline.
-- **Alert inbox** — open and acknowledged alerts with correlation to runs and manifests.
+- **Alert inbox** — open and acknowledged alerts with correlation to **reviews** and manifests.
 - **Alert simulation** — evaluate rules against synthetic payloads.
 
 #### 2.12 Trust and access
@@ -157,7 +157,7 @@ Until these connectors are enabled in a given environment, customers may still u
 
 #### 2.15 Confluence (first-party documentation publish)
 
-**In scope for V1 GA** — first-party **Confluence Cloud** connector to **publish** architecture findings or run summaries as pages in a customer space. **Minimum viable shape** (per historical Improvement 3 design intent, now promoted from V1.1 to V1): **one-way** publish to a **single fixed `Confluence:DefaultSpaceKey`** per tenant configuration (**3a** — no multi-space or dynamic routing in the initial shipped shape unless an owner decision extends it). **Authentication** (**3b**): **Confluence API token** with **basic auth** for the V1 MVP; **OAuth 2.0** is a **follow-on** within the V1 delivery window if a buyer requires it. **Implementation sequencing:** Same as §2.13 — **ServiceNow** first; then **Confluence** **before** **Jira** inside the **paired Atlassian** workstream (*Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)* in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)). Atlassian Marketplace listing **may trail** a usable connector.
+**In scope for V1 GA** — first-party **Confluence Cloud** connector to **publish** architecture findings or **review** summaries as pages in a customer space. **Minimum viable shape** (per historical Improvement 3 design intent, now promoted from V1.1 to V1): **one-way** publish to a **single fixed `Confluence:DefaultSpaceKey`** per tenant configuration (**3a** — no multi-space or dynamic routing in the initial shipped shape unless an owner decision extends it). **Authentication** (**3b**): **Confluence API token** with **basic auth** for the V1 MVP; **OAuth 2.0** is a **follow-on** within the V1 delivery window if a buyer requires it. **Implementation sequencing:** Same as §2.13 — **ServiceNow** first; then **Confluence** **before** **Jira** inside the **paired Atlassian** workstream (*Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)* in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)). Atlassian Marketplace listing **may trail** a usable connector.
 
 #### 2.16 Customer-controlled Azure extractor (PowerShell + ZIP) and ingest
 
@@ -165,7 +165,7 @@ Until these connectors are enabled in a given environment, customers may still u
 
 - **`Get-ArchLucidAzurePackage.ps1`** — signed, auditable PowerShell script customers download, review, and run inside their own Azure environment. Collects ARM resource inventory (`-SubscriptionId`, optional `-ResourceGroupScope`), and optionally Azure Cost Management actual/amortized costs, Advisor cost recommendations, and orphan candidates (`-IncludeCost` switch). Appends public Azure Retail Prices API rows for collected SKUs for Retail-rate scenario citation. Never collects secrets, Key Vault contents, or certificate private keys.
 - **Schema-versioned ZIP output** — `manifest.json` (schema version, script version, collection timestamp UTC, subscription id, switches used), `resources.json`, `cost-actual.json` / `cost-amortized.json` / `advisor-cost.json` / `orphan-candidates.json` (when cost enabled), `retail-prices.json`, `README.txt`.
-- **Ingest endpoint** — `POST /v1/azure-extractor/upload`: validates schema version (rejects unknowns), stores the package, associates it with an architecture review run, emits durable audit events. Requires ExecuteAuthority.
+- **Ingest endpoint** — `POST /v1/azure-extractor/upload`: validates schema version (rejects unknowns), stores the package, associates it with a **review** (`runId` in API/SQL), emits durable audit events. Requires ExecuteAuthority.
 - **Citation contract** — cost or savings lines in the evidence bundle that derive from an uploaded ZIP must cite the `manifest.json` `collectionTimestamp` and schema version as the proof point, satisfying the exact + citation-backed cost doctrine.
 - **Access posture** (document in trust center and extractor README):
   - **Tier 1 (default):** No vendor access to customer cloud whatsoever.
@@ -225,10 +225,10 @@ The **Pilot** path is the minimum journey every pilot must complete. It maps 1:1
 
 1. **Configure** storage (typically **Sql**), connection string, and auth for the environment ([PILOT_GUIDE.md](PILOT_GUIDE.md)).
 2. **Start** the API; confirm **live/ready** and note **version** for any ticket.
-3. **Create a run** from a structured request (`POST /v1/architecture/request`) — use the seven-step wizard in the operator UI or the CLI.
-4. **Execute** the run and wait until it is ready to commit (watch the pipeline timeline in the UI or poll the API).
+3. **Create a review** from a structured request (`POST /v1/architecture/request`) — use the seven-step wizard in the operator UI or the CLI.
+4. **Execute** the **review** and wait until it is ready to commit (watch the pipeline timeline in the UI or poll the API).
 5. **Commit** (`POST /v1/architecture/run/{runId}/commit`) to produce a **golden manifest** and **artifacts**.
-6. **Review** the manifest and artifacts in the operator UI (run detail → Artifacts table) or via API/CLI ([operator-shell.md](operator-shell.md)).
+6. **Review** the manifest and artifacts in the operator UI (**review** detail → Artifacts table) or via API/CLI ([operator-shell.md](operator-shell.md)).
 
 This is the complete first-pilot deliverable. Nothing beyond step 6 is required to call a pilot successful.
 
@@ -238,12 +238,12 @@ This is the complete first-pilot deliverable. Nothing beyond step 6 is required 
 
 #### Analysis (Show more links)
 
-Enable these once you have at least one committed run. In the operator UI, click **Show more links** in the sidebar.
+Enable these once you have at least one committed **review**. In the operator UI, click **Show more links** in the sidebar.
 
-- **Compare** two runs (`/compare`) — structured manifest deltas + legacy diff.
-- **Replay** a run (`/replay`) — re-validate the authority chain and surface drift flags.
-- **Graph** (`/graph`) — visual provenance or architecture graph for a single run ID.
-- **Export** — download bundle ZIP and run-export ZIP from run detail → Artifacts.
+- **Compare** two **reviews** (`/compare`) — structured manifest deltas + legacy diff.
+- **Replay** a **review** (`/replay`) — re-validate the authority chain and surface drift flags.
+- **Graph** (`/graph`) — visual provenance or architecture graph for a single **`runId`**.
+- **Export** — download bundle ZIP and run-export ZIP from **review** detail → Artifacts.
 
 Use these when the next question is analytical rather than operational: what changed, why it changed, or how to inspect the result more deeply.
 

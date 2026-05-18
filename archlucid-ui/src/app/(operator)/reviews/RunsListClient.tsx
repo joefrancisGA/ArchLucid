@@ -722,7 +722,7 @@ export function RunsListClient({
                                     >
                                       {primaryExplore.label}
                                     </Link>
-                                    {signedManifestExplore !== null ? (
+                                    {!buyerPolished && signedManifestExplore !== null ? (
                                       <Link
                                         href={signedManifestExplore.href}
                                         className="font-medium text-teal-800 underline dark:text-teal-300"
@@ -733,7 +733,7 @@ export function RunsListClient({
                                         {signedManifestExplore.label}
                                       </Link>
                                     ) : null}
-                                    {isRunCommittedForBaseline(run) ? (
+                                    {!buyerPolished && isRunCommittedForBaseline(run) ? (
                                       <RunsRowBaselineMenu runId={run.runId} />
                                     ) : null}
                                   </div>

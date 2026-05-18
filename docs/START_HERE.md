@@ -19,11 +19,10 @@ START_HERE.md (you are here)
 │   ├─ onboarding/day-one-developer.md         (canonical developer onboarding)
 │   ├─ onboarding/day-one-sre.md               (canonical SRE onboarding)
 │   ├─ onboarding/EVALUATION_GUIDE.md          (first pilot / operator motion)
-│   ├─ architecture/README.md                  (poster + ownership)
+│   ├─ architecture/README.md                  (poster + ownership; map after first **review**)
 │   ├─ PENDING_QUESTIONS.md                    (owner decisions + gates)
 │   ├─ library/CONTRIBUTOR_CODE_MAP.md         (1-page decision tree for where to change code)
-│   ├─ library/GLOSSARY.md                     (canonical product / governance vocabulary)
-│   └─ architecture/README.md                  (maps after first **review**)
+│   └─ library/GLOSSARY.md                     (canonical product / governance vocabulary)
 │
 └─ Security / GRC — trust pack (hosted UI /trust mirrors narrative)
     ├─ onboarding/day-one-security.md          (canonical security onboarding)
@@ -33,3 +32,5 @@ START_HERE.md (you are here)
 **Deep lookup (tasks, not personas):** [`architecture/README.md`](architecture/README.md).
 
 **Core Pilot — first session (four steps):** [CORE_PILOT.md](CORE_PILOT.md#first-session-checklist).
+
+**Writing and terminology:** [`library/CONCEPT_VOCABULARY.md`](library/CONCEPT_VOCABULARY.md) (canonical vs rejected phrasing) · [`library/GLOSSARY.md`](library/GLOSSARY.md) (definitions and record taxonomies).

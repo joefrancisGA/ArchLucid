@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import type { EmptyStateProps } from "@/components/EmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -70,24 +70,6 @@ export function GraphPageContent() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const graphMainColumnMaxClass = buyerPolishedShell ? "max-w-6xl" : "max-w-4xl";
 
-  const graphSurfaceKey = useMemo(() => {
-    if (graph === null) {
-      return "";
-    }
-
-    return `${runId.trim()}-${graph.nodes.length}-${graph.edges.length}`;
-  }, [graph, runId]);
-
-  useEffect(() => {
-    if (graphSurfaceKey.length === 0) {
-      setGraphInteractiveReady(false);
-
-      return;
-    }
-
-    setGraphInteractiveReady(false);
-  }, [graphSurfaceKey]);
-
   const handleGraphInteractiveSurfaceReady = useCallback(() => {
     setGraphInteractiveReady(true);
   }, []);
@@ -114,15 +96,59 @@ export function GraphPageContent() {
     setRunId(fromWorkspace);
   }, [workspaceRun?.activeRunId, urlRunId]);
 
+  useLayoutEffect(() => {
+    setGraph(null);
+  }, [runId]);
+
+  const seededProvenanceGraphVm = useMemo((): GraphViewModel | null => {
+    if (mode !== "provenance-full") {
+      return null;
+    }
+
+    const rid = runId.trim();
+
+    if (rid.length === 0) {
+      return null;
+    }
+
+    const prov = tryStaticDemoProvenanceGraph(rid);
+
+    if (prov === null) {
+      return null;
+    }
+
+    return applyProvenanceDemoPresentationIfEligible(provenanceLinkageToGraphViewModel(prov), mode, rid);
+  }, [mode, runId]);
+
+  const effectiveGraph = graph ?? seededProvenanceGraphVm;
+
+  const graphSurfaceKey = useMemo(() => {
+    if (effectiveGraph === null) {
+      return "";
+    }
+
+    return `${runId.trim()}-${effectiveGraph.nodes.length}-${effectiveGraph.edges.length}`;
+  }, [effectiveGraph, runId]);
+
+  useEffect(() => {
+    if (graphSurfaceKey.length === 0) {
+      setGraphInteractiveReady(false);
+
+      return;
+    }
+
+    setGraphInteractiveReady(false);
+  }, [graphSurfaceKey]);
+
   const nodeTypes = useMemo(() => {
-    if (!graph) {
+    if (effectiveGraph === null) {
       return [];
     }
 
-    const set = new Set(graph.nodes.map((n) => n.type));
+    const set = new Set(effectiveGraph.nodes.map((n) => n.type));
 
     return [...set].sort((a, b) => a.localeCompare(b));
-  }, [graph]);
+  }, [effectiveGraph]);
 
   const performGraphLoad = useCallback(async () => {
     const gen = ++loadGenRef.current;
@@ -277,7 +303,8 @@ export function GraphPageContent() {
     setGraph(applyProvenanceDemoPresentationIfEligible(provenanceLinkageToGraphViewModel(prov), mode, rid));
   }, [runId, mode]);
 
-  const showIdleCard = !graph && !loading && loadFailure === null && malformedMessage === null;
+  const showIdleCard =
+    effectiveGraph === null && !loading && loadFailure === null && malformedMessage === null;
 
   const demoUi =
     isBuyerPolishedOperatorShellEnv() ||
@@ -298,27 +325,19 @@ export function GraphPageContent() {
       const manifestHref = `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`;
       const auditHref = `/audit?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
-      if (buyerPolishedShell) {
-        return {
-          ...GRAPH_IDLE,
-          title: BUYER_SURFACE_VOCABULARY.evidenceGraph,
-          description: `Decision traceability graph unavailable in this sample view. Open the signed manifest or audit trail for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`,
-          actions: [
-            { label: "Open signed manifest", href: manifestHref },
-            { label: "Open audit trail", href: auditHref, variant: "outline" as const },
-          ],
-        };
-      }
-
       return {
         ...GRAPH_IDLE,
         title: BUYER_SURFACE_VOCABULARY.evidenceGraph,
-        description: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} traces evidence from captured context through monitored risks to the signed manifest and deliverables. Loading continues automatically when you open this page.`,
+        description: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} traces evidence from captured context through monitored risks to the signed manifest and deliverables. Choose Open signed manifest or Open audit trail if the canvas is taking longer than expected.`,
+        actions: [
+          { label: "Open signed manifest", href: manifestHref },
+          { label: "Open audit trail", href: auditHref, variant: "outline" as const },
+        ],
       };
     }
 
     return GRAPH_IDLE;
-  }, [demoUi, showIdleCard, buyerPolishedShell]);
+  }, [demoUi, showIdleCard]);
 
   const leadIntro =
     demoUi || buyerPolishedShell
@@ -330,7 +349,8 @@ export function GraphPageContent() {
   const loadButtonLabel = loading ? "Loading…" : "Load graph";
 
   const showLoadButton =
-    !(demoUi && mode === "provenance-full") && (!demoUi || mode !== "provenance-full" || graph === null);
+    !(demoUi && mode === "provenance-full") &&
+    (!demoUi || mode !== "provenance-full" || effectiveGraph === null);
 
   const controls = (
     <GraphPageControls
@@ -362,9 +382,11 @@ export function GraphPageContent() {
             : undefined
         }
       />
-      {graph === null ? <GraphPageIntroParagraph demoUi={demoUi} buyerPolishedShell={buyerPolishedShell} leadIntro={leadIntro} /> : null}
+      {effectiveGraph === null ? (
+        <GraphPageIntroParagraph demoUi={demoUi} buyerPolishedShell={buyerPolishedShell} leadIntro={leadIntro} />
+      ) : null}
 
-      {graph === null ? controls : null}
+      {effectiveGraph === null ? controls : null}
 
       <GraphModeAuxiliaryFields
         mode={mode}
@@ -387,11 +409,11 @@ export function GraphPageContent() {
         <GraphArchitectureNoteBanner graphMainColumnMaxClass={graphMainColumnMaxClass} architectureGraphNote={architectureGraphNote} />
       )}
 
-      {graph ? (
+      {effectiveGraph ? (
         <GraphLoadedExperience
           buyerPolishedShell={buyerPolishedShell}
           graphMainColumnMaxClass={graphMainColumnMaxClass}
-          graph={graph}
+          graph={effectiveGraph}
           demoUi={demoUi}
           graphSurfaceKey={graphSurfaceKey}
           typeFilter={typeFilter}

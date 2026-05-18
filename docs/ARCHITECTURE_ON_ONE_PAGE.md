@@ -32,8 +32,8 @@ Provide a **single page** that can be redrawn as C4 context/container views or a
 ```mermaid
 flowchart LR
   subgraph actors
-    OP[Operators reviewers]
-    SP[Sponsors evaluators]
+    OP[Operators / reviewers]
+    SP[Sponsors / evaluators]
     AUTO[CLI automation]
   end
   subgraph edge

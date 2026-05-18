@@ -1,24 +1,29 @@
 > **Scope:** Product and operations decisions the repo cannot resolve alone — consolidated pending list (supersedes scattered assessment §9 lists).
-> **Updated 2026-05-06:** **ITSM bidirectional sync** — **both** Jira (Jira → ArchLucid finding state) and **ServiceNow** (ServiceNow → ArchLucid finding state) **confirmed in scope for V1 GA**. Supersedes "not committed unless owner adds" for ServiceNow and "may fast-follow" qualification for Jira. *Resolved 2026-05-06 (ITSM bidirectional sync — both connectors)* below.
-> **Updated 2026-05-05 (k):** **Live commerce cutover sequence** (**item 22**): **Stripe production first**, then **Marketplace go-live**. **Rollback owner:** **Joseph Francis** (same path for both stages). Dates + comms remain open until un-held. *Resolved 2026-05-05 (commerce cutover sequencing — item 22 partial)* below.
-> **Updated 2026-05-05 (j):** **Next workflow-breadth bet** (after GitHub + ADO anchors) — **deeper Microsoft-native** (Teams / Logic Apps / [ADR 0019](architecture/adrs/0019-logic-apps-standard-edge-orchestration.md)); **not** “ITSM polish first” as the primary follow-on theme. *Resolved 2026-05-05 (next workflow breadth — item 4)* below. **Unchanged:** ServiceNow + Jira + **Confluence** + Slack **V1 GA** (see [`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13–§2.15).
-> **Updated 2026-05-05 (i):** **VPAT vs WCAG self-attestation** — **stay on WCAG self-attestation** (`ACCESSIBILITY.md` + marketing `/accessibility`); **no** formal VPAT on Trust Center for now — reassess later (e.g. large public-sector pipeline). *Resolved 2026-05-05 (VPAT posture)* below.
-> **Updated 2026-05-05 (h):** **Public marketing pricing** — show **locked list prices** for **all paid tiers except Enterprise**; **Enterprise** remains **quote / contact sales**. *Resolved 2026-05-05 (public pricing surface)* below.
-> **Updated 2026-05-05 (g):** **Reference-customer `Published` graduation** — **owner solo** watches trial-to-paid, validates case study with customer, flips [`reference-customers/README.md`](go-to-market/reference-customers/README.md) row. *Resolved 2026-05-05 (reference publication owner)* below.
-> **Updated 2026-05-05 (f):** **SOC 2 Type I trigger** — **$250K ARR** or **first binding procurement requirement**, whichever is earlier. Trust Center row updated. *Resolved 2026-05-05 (SOC 2 ARR trigger)* below.
-> **Updated 2026-05-05 (e):** **Paid-proposal readiness** — **preferred** signal: committed **Golden Manifest** on **real customer architecture context**; **not** a hard gate — **revenue remains discretionary**. *Resolved 2026-05-05 (paid proposal bar)* below.
-> **Updated 2026-05-05 (d):** **Quote-request follow-up** — **owner solo** (inbox + SQL persist) until team scale. **HubSpot** (or similar CRM) **product integration** → **V2** (not V1/V1.1). *Resolved 2026-05-05 (quote CRM routing)* below.
-> **Updated 2026-05-05 (c):** **H1 GTM** — **design-partner–led** primary; **in parallel** pursue **independent paid or trial** users. *Resolved 2026-05-05 (H1 GTM motion)* below.
-> **Updated 2026-05-05 (b):** **Custom SIEM outbound mapping** → **JQ**; **guided sandbox onboarding** → **client-side UI mock only**. **SaaS posture:** **no** tenant- or buyer-facing Docker Compose local stack — compose remains **developers-maintaining-this-repo only**. *Resolved 2026-05-05 (SIEM + guided sandbox)* below.
-> **Updated 2026-05-05:** **Jira**, **ServiceNow**, **Slack**, and **Confluence** first-party connectors / chat-ops / documentation publish in **V1 GA** — [`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13–§2.15; *Resolved 2026-05-05* and *Confluence promoted 2026-05-05* below.
-> **Updated 2026-05-03 (commercial entity migration):** Phased playbook to move seller-of-record and related posture to **Francis Architecture, LLC** — [`runbooks/FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md`](runbooks/FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md). Until that runbook is executed and **`CHANGELOG.md`** records completion, **Joseph Francis (Sole Proprietorship)** (Partner Center) and **Joseph Francis** (Stripe webhook operational owner) resolutions below remain in force.
-> **Updated 2026-05-03:** **Design partner** (signed commercial engagement) → **V1.1** commercial motion, **not** a V1 GA gate; **`(A)` headline assessments must not** penalize or foreground absence — see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6b and *Resolved 2026-05-03* below.
-> **Updated 2026-05-01:** External **third-party** pen test release window → **V2**; **V1** = owner-conducted pen test; **no** vendor committed; V1 quality assessments **must not** penalize lack of third-party pen test — see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c.
-> **Updated 2026-04-27:** Resolved two long-standing deferred items:
-> 1. Authentication Strategy for SaaS/On-Prem default: Require Entra ID or explicit API keys (Resolved).
-> 2. Unified Error Responses for Hidden UI Features: 404 Not Found (Resolved).
+>
+> **Status:** current
 
 # Pending questions (product and operations)
+
+## Resolution preamble (moved out of `Scope` header 2026-05-18)
+
+*The bullets below were formerly in the opening blockquote; substance is unchanged — only relocated so the **`Scope`** line stays one sentence per CI.*
+
+- **2026-05-06 — ITSM bidirectional sync:** **both** Jira (Jira → ArchLucid finding state) and **ServiceNow** (ServiceNow → ArchLucid finding state) **confirmed in scope for V1 GA**. Supersedes "not committed unless owner adds" for ServiceNow and "may fast-follow" qualification for Jira. *Resolved 2026-05-06 (ITSM bidirectional sync — both connectors)* below.
+- **2026-05-05 (k) — Live commerce cutover** (**item 22**): **Stripe production first**, then **Marketplace go-live**. **Rollback owner:** **Joseph Francis**. Dates + comms remain open until un-held. *Resolved 2026-05-05 (commerce cutover sequencing — item 22 partial)* below.
+- **2026-05-05 (j) — Next workflow-breadth bet:** **deeper Microsoft-native** (Teams / Logic Apps / [ADR 0019](architecture/adrs/0019-logic-apps-standard-edge-orchestration.md)); **not** “ITSM polish first.” *Resolved 2026-05-05 (next workflow breadth — item 4)* below. **Unchanged:** ServiceNow + Jira + **Confluence** + Slack **V1 GA** (see [`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13–§2.15).
+- **2026-05-05 (i) — VPAT vs WCAG:** stay on WCAG self-attestation (`ACCESSIBILITY.md` + marketing `/accessibility`); **no** formal VPAT on Trust Center for now. *Resolved 2026-05-05 (VPAT posture)* below.
+- **2026-05-05 (h) — Public marketing pricing:** locked list prices for **all paid tiers except Enterprise**; Enterprise **quote / contact sales**. *Resolved 2026-05-05 (public pricing surface)* below.
+- **2026-05-05 (g) — Reference-customer `Published`:** **owner solo** watches trial-to-paid, validates case study, flips [`reference-customers/README.md`](go-to-market/reference-customers/README.md) row. *Resolved 2026-05-05 (reference publication owner)* below.
+- **2026-05-05 (f) — SOC 2 Type I trigger:** **$250K ARR** or **first binding procurement requirement**, whichever is earlier. *Resolved 2026-05-05 (SOC 2 ARR trigger)* below.
+- **2026-05-05 (e) — Paid-proposal readiness:** preferred signal: committed **Golden Manifest** on **real customer architecture context**; **not** a hard gate. *Resolved 2026-05-05 (paid proposal bar)* below.
+- **2026-05-05 (d) — Quote-request follow-up:** **owner solo** until team scale; **HubSpot** (or similar) product integration → **V2**. *Resolved 2026-05-05 (quote CRM routing)* below.
+- **2026-05-05 (c) — H1 GTM:** design-partner–led primary; **in parallel** independent paid or trial users. *Resolved 2026-05-05 (H1 GTM motion)* below.
+- **2026-05-05 (b) — SIEM + sandbox:** custom SIEM outbound mapping → **JQ**; guided sandbox → **client-side UI mock only**. **SaaS posture:** **no** tenant-facing Docker Compose — compose **developers-maintaining-this-repo only**. *Resolved 2026-05-05 (SIEM + guided sandbox)* below.
+- **2026-05-05 — Connectors V1 GA:** **Jira**, **ServiceNow**, **Slack**, **Confluence** first-party connectors / chat-ops / doc publish in **V1 GA** — [`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13–§2.15; *Resolved 2026-05-05* and *Confluence promoted 2026-05-05* below.
+- **2026-05-03 (commercial entity):** phased playbook **Francis Architecture, LLC** — [`runbooks/FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md`](runbooks/FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md). Until **`CHANGELOG.md`** records completion, sole-prop / Stripe owner resolutions below stay in force.
+- **2026-05-03 — Design partner:** signed commercial engagement → **V1.1** motion, **not** V1 GA gate; **`(A)` assessments must not** penalize absence — [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6b.
+- **2026-05-01 — Third-party pen test:** **V2** window; **V1** = owner-conducted; see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c.
+- **2026-04-27:** (1) Auth default: Entra ID or explicit API keys (Resolved). (2) Hidden UI features: **404** (Resolved).
 
 **Last updated:** 2026-05-05 — **Commerce:** **Stripe → Marketplace**; rollback **Joseph Francis** (**partial item 22**). **Breadth:** Microsoft-native (item **4**). **WCAG** (no VPAT). **Pricing / SOC2 / CRM / sandbox / SIEM / ITSM** prior same-day resolves. Dates for live flip still owner-held.
 

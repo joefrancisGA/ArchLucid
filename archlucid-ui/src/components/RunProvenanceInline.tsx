@@ -3,6 +3,8 @@
 import type { RunSummary } from "@/types/authority";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
 type StageKey = "context" | "graph" | "findings" | "manifest";
@@ -86,7 +88,9 @@ function stagesForRun(run: RunSummary, buyerPolished: boolean): StageDef[] {
     {
       key: "graph",
       label: "Graph",
-      present: run.hasGraphSnapshot === true,
+      present:
+        run.hasGraphSnapshot === true ||
+        (buyerPolished && canonicalizeDemoRunId(run.runId) === SHOWCASE_STATIC_DEMO_RUN_ID),
       tooltip: graphTooltip,
     },
     {
