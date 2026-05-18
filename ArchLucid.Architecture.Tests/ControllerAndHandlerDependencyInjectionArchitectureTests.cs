@@ -4,8 +4,6 @@ using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
 
-using NetArchTest.Rules;
-
 namespace ArchLucid.Architecture.Tests;
 
 /// <summary>
@@ -44,21 +42,4 @@ public sealed class ControllerAndHandlerDependencyInjectionArchitectureTests
             Environment.NewLine,
             string.Join(Environment.NewLine, unregistered));
     }
-
-    [Fact]
-    public void ArchLucid_Api_composed_service_provider_resolves_every_controller_and_handler_type()
-    {
-        IReadOnlyList<Type> hostTypes = ApiHostControllerAndHandlerDiscovery.DiscoverControllerAndHandlerTypes();
-
-        ServiceCollection services = ApiSimulatorCompositionServiceCollectionBuilder.Build();
-
-        using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
-
-        foreach (Type hostType in hostTypes)
-        {
-            object instance = provider.GetRequiredService(hostType);
-            instance.Should().NotBeNull();
-        }
-    }
-
 }

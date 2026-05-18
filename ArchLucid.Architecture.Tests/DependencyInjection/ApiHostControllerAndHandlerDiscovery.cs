@@ -17,17 +17,21 @@ internal static class ApiHostControllerAndHandlerDiscovery
 {
     private static readonly Assembly ApiAssembly = typeof(RunsController).Assembly;
 
-    public static IReadOnlyList<Type> DiscoverControllerAndHandlerTypes()
+    public static IReadOnlyList<Type> DiscoverControllerTypes()
     {
-        List<Type> controllers = Types
+        return Types
             .InAssembly(ApiAssembly)
             .That()
             .Inherit(typeof(ControllerBase))
             .And()
             .AreNotAbstract()
             .GetTypes()
+            .OrderBy(static type => type.FullName, StringComparer.Ordinal)
             .ToList();
+    }
 
+    public static IReadOnlyList<Type> DiscoverAuthHandlerTypes()
+    {
         List<Type> handlerCandidates = Types
             .InAssembly(ApiAssembly)
             .That()
@@ -35,10 +39,16 @@ internal static class ApiHostControllerAndHandlerDiscovery
             .GetTypes()
             .ToList();
 
-        List<Type> handlers = handlerCandidates.Where(IsAuthPipelineHandler).ToList();
+        return handlerCandidates
+            .Where(IsAuthPipelineHandler)
+            .OrderBy(static type => type.FullName, StringComparer.Ordinal)
+            .ToList();
+    }
 
-        return controllers
-            .Concat(handlers)
+    public static IReadOnlyList<Type> DiscoverControllerAndHandlerTypes()
+    {
+        return DiscoverControllerTypes()
+            .Concat(DiscoverAuthHandlerTypes())
             .Distinct()
             .OrderBy(static type => type.FullName, StringComparer.Ordinal)
             .ToList();

@@ -122,7 +122,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted deficiency signal:** 26
 - **Why this score was assigned:** Clean code architecture. NetArchTest boundary rules enforce layering.
 - **Key tradeoffs:** The large surface area increases maintenance overhead.
-- **Specific improvement recommendations:** Implement a Dependency Injection Analyzer NetArchTest rule.
+- **Specific improvement recommendations:** Dependency Injection Analyzer NetArchTest rule — **shipped** (`ControllerAndHandlerDependencyInjectionArchitectureTests`; missing `IExecutiveSummaryService` / Confluence publisher registrations fixed in `ServiceCollectionExtensions.ApplicationPipeline.cs`).
 - **Fixability:** Fixable in V1.
 
 ### 12. Time-to-Value
@@ -363,17 +363,18 @@ Create a runbook `docs/runbooks/RATE_LIMIT_EXCEEDED.md` detailing how to handle 
 - Deliverable: `docs/runbooks/RATE_LIMIT_EXCEEDED.md`; `docs/runbooks/README.md` (P2 index row).
 ```
 
-### 7. Implement a Dependency Injection Analyzer NetArchTest rule
+### 7. COMPLETED: Dependency Injection Analyzer NetArchTest rule
 - **Why it matters:** Prevents DI configuration errors from causing runtime failures.
 - **Expected impact:** Maintainability (+10 pts), Correctness (+5 pts).
 - **Affected qualities:** Maintainability, Correctness.
-- **Actionable:** Yes
+- **Actionable:** No — delivered as `ArchLucid.Architecture.Tests/ControllerAndHandlerDependencyInjectionArchitectureTests.cs` with NetArchTest discovery (`ApiHostControllerAndHandlerDiscovery`) over `ArchLucid.Api` `ControllerBase` types and auth `*Handler` types; constructor-injected interfaces are checked against the simulator API composition built by `ApiSimulatorCompositionServiceCollectionBuilder`. CI fails on unregistered dependencies. Bugfix registrations added in `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.ApplicationPipeline.cs` for `IExecutiveSummaryService`, `IPublisherConnector` / `ConfluenceCloudPublisherConnector`, and `IConfluenceFirstValueReportPublisher` (surfaced by the new test).
 ```text
-Add a NetArchTest rule to verify that all interfaces injected into controllers and handlers are registered in the DI container.
+Add a NetArchTest rule to verify that all interfaces injected into controllers and handlers are registered in the DI container. [COMPLETED]
 - Acceptance criteria: The test suite fails if an unregistered dependency is detected.
 - Constraints: Use the existing NetArchTest framework.
 - What not to change: Do not modify existing DI registrations unless fixing a bug.
 - Impact: Directly improves Maintainability (+8-10 pts) and Correctness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- Deliverable: `ArchLucid.Architecture.Tests/ControllerAndHandlerDependencyInjectionArchitectureTests.cs`; `ArchLucid.Architecture.Tests/DependencyInjection/*`; `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.ApplicationPipeline.cs` (missing service registrations); `ArchLucid.Api/ArchLucid.Api.csproj` (`InternalsVisibleTo` for `ArchLucid.Architecture.Tests`).
 ```
 
 ### 8. Add automated SQL backup region verification to the executive dashboard
