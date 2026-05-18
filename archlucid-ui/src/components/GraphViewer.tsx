@@ -315,8 +315,8 @@ export function GraphViewer({
           <div className="rounded-md border border-slate-200 bg-slate-50/90 p-3 text-sm dark:border-slate-700 dark:bg-slate-900/40">
             <p className="m-0 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Legend</p>
             <p className="m-0 mt-1 leading-snug text-slate-800 dark:text-slate-200">
-              Evidence-to-decision trail: each item in the graph represents source context, analysis, risk, decision, or
-              deliverable evidence; the highlighted finding anchors the signed manifest and deliverables bundle.
+              Evidence-to-decision trail: each item in the graph represents source context, analysis, findings, decisions,
+              or deliverable evidence; the highlighted finding anchors the signed manifest and deliverables bundle.
             </p>
           </div>
         ) : null}

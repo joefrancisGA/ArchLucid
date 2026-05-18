@@ -125,17 +125,16 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                 key={pkg.id}
                 data-testid={pkg.id === "team" ? "pricing-tier-team" : undefined}
                 className={
-                  pkg.id === "professional"
+                  pkg.id === "professional" || pkg.id === "enterprise"
                     ? "flex flex-col rounded-lg border-2 border-teal-600 bg-white p-5 shadow-md ring-1 ring-teal-600/20 dark:border-teal-500 dark:bg-neutral-900 dark:ring-teal-500/25"
-                    : pkg.id === "enterprise"
-                      ? "flex flex-col rounded-lg border border-teal-300 bg-white p-5 shadow-sm dark:border-teal-800 dark:bg-neutral-900"
-                      : "flex flex-col rounded-lg border border-neutral-200 bg-white p-5 shadow-sm opacity-[0.97] dark:border-neutral-800 dark:bg-neutral-900"
+                    : "flex flex-col rounded-lg border border-neutral-200 bg-white p-5 shadow-sm opacity-[0.97] dark:border-neutral-800 dark:bg-neutral-900"
                 }
               >
                 <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{pkg.title}</h3>
                 {pkg.id === "team" ? (
                   <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-                    For small architecture teams and evaluation workspaces.
+                    <span className="font-medium text-neutral-700 dark:text-neutral-300">Evaluation tier</span>
+                    {" — "}small teams and pilot workspaces (not the primary procurement path).
                   </p>
                 ) : null}
                 <p className="mt-2 flex-1 text-sm text-neutral-700 dark:text-neutral-300">{pkg.summary}</p>

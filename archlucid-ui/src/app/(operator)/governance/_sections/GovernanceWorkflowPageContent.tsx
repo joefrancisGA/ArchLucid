@@ -469,7 +469,7 @@ export function GovernanceWorkflowPageContent() {
           buyerPolishedShell && approvals.length > 0 && activeRunId !== null
             ? "Signed governance approval confirms this Claims Intake review package was approved for governed use as the architecture record (details below)."
             : buyerPolishedShell
-              ? "The approval path records whether a finalized review package is authorized for governed use — ArchLucid persists the record with audit correlation; deployments follow your enterprise change process."
+              ? "Governance stores the approval decision and audit linkage for this review package. Production deployments remain under your enterprise change process (see related links below)."
               : canMutateWorkflow
                 ? governanceWorkflowPageLeadOperator
                 : governanceWorkflowPageLeadReader
@@ -489,6 +489,7 @@ export function GovernanceWorkflowPageContent() {
         <GovernanceApprovalStoryCard
           row={approvals[0]!}
           auditTrailHref={`/audit?runId=${encodeURIComponent(activeRunId)}`}
+          emphasizeComplete
         />
       ) : null}
       {!(buyerPolishedShell && approvals.length > 0 && activeRunId !== null) ? (

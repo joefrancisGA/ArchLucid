@@ -205,43 +205,34 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
                           : "rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-950/40"
                       }
                     >
-                      <div className="flex flex-wrap items-start justify-between gap-2">
-                        <h4
-                          className={
-                            isPlanned
-                              ? "m-0 text-sm font-semibold text-neutral-800 dark:text-neutral-200"
-                              : "m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
-                          }
-                        >
-                          {row.engagement}
-                        </h4>
-                        <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
-                          <span
-                            className="inline-flex rounded-full border border-neutral-300 bg-neutral-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200"
-                            data-testid="assurance-maturity-badge"
-                          >
-                            {assuranceTierBadgeLabel(row.maturityTier)}
-                          </span>
-                          <span
-                            className={
-                              row.summaryAccess.kind === "nda"
-                                ? "inline-flex rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-950 dark:border-amber-700 dark:bg-amber-950/60 dark:text-amber-100"
-                                : "inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-100"
-                            }
-                            data-testid="assurance-access-badge"
-                          >
-                            {assuranceAccessBadgeLabel(row.summaryAccess.kind)}
-                          </span>
-                        </div>
-                      </div>
-                      <dl className="m-0 mt-3 grid gap-2 text-sm text-neutral-800 dark:text-neutral-200">
+                      <h4
+                        className={
+                          isPlanned
+                            ? "m-0 text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+                            : "m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
+                        }
+                      >
+                        {row.engagement}
+                      </h4>
+                      <dl className="m-0 mt-3 grid gap-3 text-sm text-neutral-800 dark:text-neutral-200 sm:grid-cols-2">
                         <div className="flex flex-col gap-0.5">
                           <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                            Responsible party
+                            Status
                           </dt>
-                          <dd className="m-0">{row.vendor}</dd>
+                          <dd className="m-0">
+                            <span
+                              className="font-medium text-neutral-900 dark:text-neutral-100"
+                              data-testid="assurance-maturity-badge"
+                            >
+                              {assuranceTierBadgeLabel(row.maturityTier)}
+                            </span>
+                            <span className="text-neutral-600 dark:text-neutral-400">
+                              {" · "}
+                              <span data-testid="assurance-vendor">{row.vendor}</span>
+                            </span>
+                          </dd>
                         </div>
-                        <div className="flex flex-col gap-0.5">
+                        <div className="flex flex-col gap-0.5 sm:col-span-2">
                           <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                             Scope
                           </dt>
@@ -249,15 +240,17 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
                         </div>
                         <div className="flex flex-col gap-0.5">
                           <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                            Timeline / completion
+                            Availability
+                          </dt>
+                          <dd className="m-0" data-testid="assurance-access-badge">
+                            {renderSummaryAccess(row)}
+                          </dd>
+                        </div>
+                        <div className="flex flex-col gap-0.5 sm:col-span-2">
+                          <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                            Next step
                           </dt>
                           <dd className="m-0 text-neutral-700 dark:text-neutral-300">{row.completedUtc}</dd>
-                        </div>
-                        <div className="flex flex-col gap-0.5">
-                          <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                            Summary access
-                          </dt>
-                          <dd className="m-0">{renderSummaryAccess(row)}</dd>
                         </div>
                       </dl>
                       {row.id === "owner-security-self-assessment-2026" ? (

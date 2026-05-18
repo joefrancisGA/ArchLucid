@@ -96,7 +96,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "governance-findings": {
     layerBadge: "Governance",
-    headline: "Findings from architecture reviews and policy checks.",
+    headline: "Findings from architecture reviews — policy basis, analysis, and recorded dispositions.",
     useWhen: "Open a review for snapshot and explainability; use the governance dashboard for portfolio-level review context.",
     firstPilotNote:
       "After Pilot proof, use review detail for drill-down; dashboard queues portfolio governance findings.",

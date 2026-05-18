@@ -1142,6 +1142,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Tenancy/TenantErasureLegalHoldController.cs",
+      "class_name": "TenantErasureLegalHoldController",
+      "route_template": "v{version:apiVersion}/tenant/erasure",
+      "normalized_prefix": "/v1/tenant/erasure",
+      "commercial_tier": "none",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Tenancy/TenantExecDigestPreferencesController.cs",
       "class_name": "TenantExecDigestPreferencesController",
       "route_template": "v{version:apiVersion}/tenant",

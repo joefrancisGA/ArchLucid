@@ -13,8 +13,11 @@ export function GovernanceApprovalStoryCard(props: {
   readonly row: GovernanceApprovalRequest;
   /** Buyer shell: sealed primary next step beneath the milestone narrative */
   readonly auditTrailHref?: string | null;
+  /** When the approval path is complete, emphasize the card for sponsor-first scanning. */
+  readonly emphasizeComplete?: boolean;
 }) {
   const row = props.row;
+  const emphasizeComplete = props.emphasizeComplete === true;
   const auditTrailHref = props.auditTrailHref?.trim() ?? "";
   const submitted = row.requestedUtc.trim().length > 0;
   const reviewed = (row.reviewedBy?.trim().length ?? 0) > 0;
@@ -47,17 +50,24 @@ export function GovernanceApprovalStoryCard(props: {
   ];
 
   return (
-    <Card className="mb-8 border-teal-200 bg-teal-50/40 dark:border-teal-900 dark:bg-teal-950/25">
+    <Card
+      className={cn(
+        "mb-8 border-teal-200 bg-teal-50/40 dark:border-teal-900 dark:bg-teal-950/25",
+        emphasizeComplete && promoteReady
+          ? "border-2 border-teal-600 shadow-md ring-1 ring-teal-500/25 dark:border-teal-500"
+          : null,
+      )}
+    >
       <CardHeader className="pb-2">
         <CardTitle className="text-base text-neutral-900 dark:text-neutral-50">
           {approved ? "This package completed the approval path" : "Approval status for this review"}
         </CardTitle>
         <div className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
           <p className="m-0 leading-relaxed">
-            <span className="font-semibold text-neutral-900 dark:text-neutral-100">Approval record:</span> Sealed manifest
-            version <span className="font-semibold">{row.manifestVersion}</span> received governance approval for use as the
-            architecture record and may be cited in diligence, architecture review, implementation planning, and audit narratives
-            anchored to this review package.
+            <span className="font-semibold text-neutral-900 dark:text-neutral-100">Approval record:</span> Finalized signed
+            manifest version <span className="font-semibold">{row.manifestVersion}</span> received governance approval for use as
+            the architecture record and may be cited in diligence, architecture review, implementation planning, and audit
+            narratives anchored to this review package.
           </p>
           {reviewed ? (
             <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">

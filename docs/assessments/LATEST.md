@@ -1,14 +1,14 @@
 ﻿> **Scope:** Independent, first-principles assessment of ArchLucid readiness.
 > **Status:** current
 
-# ArchLucid Assessment – (A) Headline Readiness: 87.25%
+# ArchLucid Assessment – (A) Headline Readiness: 87.09%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold, and V1.1-scoped integration suites). Deferred items do not reduce this headline score.
 
 ## Executive Summary
 
-### (A) Overall Headline Readiness (87.25%)
-ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (87.25% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. The system has robust AI/Agent readiness, strong correctness, and excellent interoperability. The primary remaining gaps include observability follow-through (Loki alerting on structured logs), E2E test mock reliance, and cognitive load for new operators due to the large product surface.
+### (A) Overall Headline Readiness (87.09%)
+ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (87.09% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. The system has robust AI/Agent readiness, strong correctness, and excellent interoperability. The primary remaining gaps include observability follow-through (Loki alerting on structured logs), E2E test mock reliance, and cognitive load for new operators due to the large product surface.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. Automated tenant erasure is specified as actionable backlog for V2; until shipped, it is not scored as an `(A)` defect.
@@ -224,25 +224,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Specific improvement recommendations:** Add export to CSV for audit logs to facilitate offline cost analysis.
 - **Fixability:** Fixable in V1.
 
-### 23. Commercial Packaging Readiness
-- **Score:** 90
-- **Weight:** 2
-- **Weighted deficiency signal:** 20
-- **Why this score was assigned:** Sales-led pilot ready. Trial expiry countdown banner added. Live commerce un-hold is explicitly deferred to V1.1.
-- **Key tradeoffs:** Deferring live commerce delays self-serve revenue.
-- **Specific improvement recommendations:** None for V1 GA.
-- **Fixability:** Better suited for V1.1.
-
-### 24. Compliance Readiness
-- **Score:** 90
-- **Weight:** 2
-- **Weighted deficiency signal:** 20
-- **Why this score was assigned:** A durable audit trail exists. RLS provides tenant isolation. SQL backup region verification script added.
-- **Key tradeoffs:** Absence of a fully automated GDPR/CCPA quarantine-and-purge pipeline (deferred to V2).
-- **Specific improvement recommendations:** None for V1 GA.
-- **Fixability:** Better suited for V2.
-
-### 25. Interoperability
+### 23. Interoperability
 - **Score:** 90
 - **Weight:** 2
 - **Weighted deficiency signal:** 20
@@ -313,8 +295,8 @@ ArchLucid is a functionally complete, highly rigorous V1 product ready for sales
 
 ### 1. DEFERRED: Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
 - **Why it matters:** Enables self-serve revenue and frictionless purchasing.
-- **Expected impact:** Commercial Packaging Readiness (+10 pts), Adoption Friction (+5 pts).
-- **Affected qualities:** Commercial Packaging Readiness, Adoption Friction.
+- **Expected impact:** Adoption Friction (+5 pts).
+- **Affected qualities:** Adoption Friction.
 - **Actionable:** DEFERRED
 - **Needed from me:** Please provide the `sk_live_` Stripe keys and confirm the Marketplace offer is `Published`.
 
@@ -327,8 +309,8 @@ ArchLucid is a functionally complete, highly rigorous V1 product ready for sales
 
 ### 3. DEFERRED: PGP key drop for `security@archlucid.net`
 - **Why it matters:** Fulfills coordinated disclosure requirements for security researchers.
-- **Expected impact:** Compliance Readiness (+5 pts), Supportability (+5 pts).
-- **Affected qualities:** Compliance Readiness, Supportability.
+- **Expected impact:** Supportability (+5 pts).
+- **Affected qualities:** Supportability.
 - **Actionable:** DEFERRED
 - **Needed from me:** Please provide the public key block and confirmation of domain acquisition.
 
@@ -399,15 +381,15 @@ Add a NetArchTest rule to verify that all interfaces injected into controllers a
 
 ### 9. Add automated SQL backup region verification to the executive dashboard
 - **Why it matters:** Provides executives with immediate visibility into data residency compliance.
-- **Expected impact:** Compliance Readiness (+10 pts), Executive Value Visibility (+5 pts).
-- **Affected qualities:** Compliance Readiness, Executive Value Visibility.
+- **Expected impact:** Executive Value Visibility (+5 pts).
+- **Affected qualities:** Executive Value Visibility.
 - **Actionable:** Yes
 ```text
 Add a widget to the executive dashboard that displays the verified SQL backup region, reading from the artifact generated by `assert_sql_backup_regions.py`.
 - Acceptance criteria: The dashboard shows a green checkmark and the region name if verified, or a warning if unverified.
 - Constraints: Read the verification status from a persisted configuration or artifact.
 - What not to change: Do not modify the Python verification script.
-- Impact: Directly improves Compliance Readiness (+8-10 pts) and Executive Value Visibility (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
+- Impact: Directly improves Executive Value Visibility (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
 ```
 
 ### 10. Curate Grafana/Loki dashboards keyed on policy pack assignment events
@@ -425,15 +407,15 @@ Create a Grafana dashboard `infra/grafana/dashboard-archlucid-policy-packs.json`
 
 ### 11. Add export to CSV for audit logs
 - **Why it matters:** Facilitates offline analysis and compliance reporting for audit events.
-- **Expected impact:** Compliance Readiness (+10 pts), Usability (+5 pts).
-- **Affected qualities:** Compliance Readiness, Usability.
+- **Expected impact:** Usability (+5 pts).
+- **Affected qualities:** Usability.
 - **Actionable:** Yes
 ```text
 Add a `GET /v1/audit/export/csv` endpoint to export audit logs as a CSV file.
 - Acceptance criteria: The endpoint returns a well-formatted CSV containing audit event details, filtered by the same parameters as the search endpoint.
 - Constraints: Ensure the endpoint is covered by the audit matrix.
 - What not to change: Do not modify the existing JSON audit endpoints.
-- Impact: Directly improves Compliance Readiness (+8-10 pts) and Usability (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
+- Impact: Directly improves Usability (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
 ```
 
 ### 12. Implement Polly-backed SQL retries on remaining ancillary background workers
@@ -555,15 +537,15 @@ Add a progress bar or gauge to the operator UI (e.g., in the settings or dashboa
 
 ### 21. Create a curated policy pack for GDPR compliance baseline
 - **Why it matters:** Helps European and global customers quickly assess GDPR readiness.
-- **Expected impact:** Template and Accelerator Richness (+10 pts), Compliance Readiness (+5 pts).
-- **Affected qualities:** Template and Accelerator Richness, Compliance Readiness.
+- **Expected impact:** Template and Accelerator Richness (+10 pts).
+- **Affected qualities:** Template and Accelerator Richness.
 - **Actionable:** Yes
 ```text
 Create a new curated policy pack `docs/samples/policy-packs/gdpr-baseline-rules-v1.json` focused on GDPR compliance (e.g., data encryption, region constraints).
 - Acceptance criteria: The pack is valid JSON matching the curated-rules schema and includes at least 5 GDPR-aligned rules.
 - Constraints: Ensure the rules map to data collected by the Azure extractor.
 - What not to change: Do not modify the policy engine.
-- Impact: Directly improves Template and Accelerator Richness (+8-10 pts) and Compliance Readiness (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
+- Impact: Directly improves Template and Accelerator Richness (+8-10 pts). Weighted readiness impact: +0.15-0.25%.
 ```
 
 ### 22. Implement a CLI command to export the knowledge graph to GraphML

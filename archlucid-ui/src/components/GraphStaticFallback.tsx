@@ -8,7 +8,7 @@ export function GraphStaticFallback() {
       className="flex min-h-[320px] w-full flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-teal-300/80 bg-gradient-to-b from-teal-50/90 to-white px-4 py-6 dark:border-teal-800/60 dark:from-teal-950/35 dark:to-neutral-950/80"
       data-testid="graph-static-fallback"
       role="img"
-      aria-label="Sample evidence trail preview: context, primary risk finding, decisions, and sealed package"
+      aria-label="Sample evidence trail preview: context, primary finding, decisions, and sealed package"
     >
       <svg
         viewBox="0 0 440 200"
@@ -63,7 +63,7 @@ export function GraphStaticFallback() {
           className="fill-neutral-800 text-[11px] font-semibold dark:fill-neutral-100"
           style={{ fontFamily: "system-ui, sans-serif" }}
         >
-          Primary risk
+          Finding
         </text>
         <text
           x="364"

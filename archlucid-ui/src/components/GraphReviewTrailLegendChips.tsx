@@ -12,7 +12,7 @@ const REVIEW_TRAIL_KINDS: ReadonlyArray<{ k: string; role: string; c: string }> 
     c: "bg-sky-100 text-sky-950 dark:bg-sky-950/50 dark:text-sky-100",
   },
   {
-    k: "Primary risk finding",
+    k: "Primary finding",
     role: "Drives package decisions",
     c: "bg-amber-100 text-amber-950 dark:bg-amber-950/40 dark:text-amber-100",
   },

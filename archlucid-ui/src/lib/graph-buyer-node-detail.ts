@@ -139,7 +139,7 @@ export function graphBuyerTrailMetadataLines(
     if (lower === "referenced" || lower === "findingref" || lower === "primaryrisk") {
       const friendly = KNOWN_REFERENCE_SLUGS[value] ?? titleCaseSlug(value);
 
-      summaryLines.push({ label: "Primary risk", value: friendly });
+      summaryLines.push({ label: "Risk area", value: friendly });
       technicalLines.push({ label: `Raw reference (${key})`, value: value.length > 0 ? value : "—" });
 
       continue;
