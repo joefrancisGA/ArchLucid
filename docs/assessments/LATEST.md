@@ -111,9 +111,9 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Score:** 86
 - **Weight:** 3
 - **Weighted deficiency signal:** 42
-- **Why this score was assigned:** The operator UI is functional. Bounded bulk evidence upload is supported. Soft delete for architecture projects is available.
+- **Why this score was assigned:** The operator UI is functional. Bounded bulk evidence upload is supported. Soft delete for architecture projects is available with in-product recycle listing and restore.
 - **Key tradeoffs:** The 30-file ceiling avoids abuse but may annoy heavy dossier pilots.
-- **Specific improvement recommendations:** Add in-product undo/restore UX for soft-deleted architecture projects.
+- **Specific improvement recommendations:** Surfacing purge-window / hard-delete timing in recycle bin copy and runbooks (in-product recycle list + restore shipped at `/settings/tenant/recycle-bin` via `GET /v1/tenant/workspaces/recycle-bin` and `POST /v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore`).
 - **Fixability:** Fixable in V1.
 
 ### 11. Maintainability
@@ -245,7 +245,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 6. **Template and Accelerator Richness:** While 3 packs exist, the library is still relatively small for a broad enterprise audience.
 7. **Executive Value Visibility without baselines:** Executive value can become abstract if real tenant baselines are missing.
 8. **Background job transient fault handling:** Incomplete retry policies for SQL connections in background workers risk silent failures.
-9. **Architecture project recovery UX:** Soft-delete is implemented, but in-product undo/restore UX is absent.
+9. **Architecture project retention UX clarity:** Undo/restore is productized (`/settings/tenant/recycle-bin`, `POST /v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore`), but purge-window escalation and SLA-style messaging for operators remains uneven vs the retention worker.
 10. **Policy pack assignment visibility:** Assign and archive paths emit structured logs; Loki ruler rules for assign/unassign ship in `infra/loki/archlucid-policy-pack-assignment-alerts.yml`, but Grafana/Loki dashboards keyed on those events are not curated.
 11. **Data residency diligence depth:** Buyers require verifiable proof that SQL topology and backups match their geography.
 12. **SAML SP operational burden:** Managing certificate rotation and metadata drift adds operational overhead.
@@ -269,7 +269,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 2. **Data residency diligence depth:** Buyers require verifiable proof that SQL topology and backups match their geography.
 3. **SAML SP operational burden:** Managing certificate rotation and metadata drift for SAML SP adds operational overhead for enterprise IT.
 4. **Automated tenant erasure:** Not a V1 headline blocker, but buyers may still request a productized erasure narrative (V2 backlog).
-5. **Architecture project recovery UX:** Soft-delete plus retention purge is implemented; productized undelete UX is missing.
+5. **Architecture project retention communication:** Soft-delete, retention purge, and in-product recycle bin + restore exist; buyer/operator narratives still need sharper hard-purge timeline and escalation guidance.
 6. **Noisy neighbor posture in orchestration:** Buyers will diligence steady-state parallelism and multi-region fairness.
 
 ---
@@ -279,7 +279,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 1. **E2E test mock reliance:** `ui-e2e-smoke` stays mock-forward, creating coverage skew unless `live-api-*` is expanded.
 2. **LLM observability consumption gaps:** Operators still need SLO depth, alerting, and Loki correlation for day-2 operations.
 3. **Background job transient fault handling:** Incomplete retry policies for SQL connections in background workers risk silent failures.
-4. **Architecture project retention vs. UX:** Deleted projects linger for the purge window—operators need clarity on timelines and escalation.
+4. **Architecture project retention vs UX:** Deleted projects linger for the purge window—recycle restore is available in-product, but timeline/escalation clarity for hard purge remains a documentation and UX-strip gap.
 5. **Single-tenant worker pool exhaustion risk:** Despite tenant-fairness queuing, heavy workloads from a single tenant could still impact others if not properly bounded.
 6. **`evidenceBulkUpload` observability:** Anomaly detection and WAF-aligned quotas remain uneven for abusive tenants.
 
@@ -335,17 +335,18 @@ Expand `archlucid-ui/e2e/live-api-smoke.spec.ts` to include additional operator 
 - Deliverable: `archlucid-ui/e2e/live-api-smoke.spec.ts` (operator flows); `archlucid-ui/e2e/helpers/live-api-client.ts` (optional tenant scope on `compareAuthorityRuns`; `postReplayRunRaw` targets POST `/v1/architecture/run/{runId}/replay`).
 ```
 
-### 5. Add in-product undo/restore UX for soft-deleted architecture projects
-- **Why it matters:** Allows operators to easily recover accidentally deleted projects without backend intervention.
+### 5. COMPLETED: In-product undo/restore UX for soft-deleted architecture projects
+- **Why it matters:** Allows operators to recover accidentally deleted projects without backend intervention.
 - **Expected impact:** Usability (+15 pts), Reliability (+5 pts).
 - **Affected qualities:** Usability, Reliability.
-- **Actionable:** Yes
+- **Actionable:** No — delivered as `GET /v1/tenant/workspaces/recycle-bin` and `POST /v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore` (`TenantWorkspacesController`), persistence on `IArchitectureProjectRepository.ListSoftDeletedByTenantAsync` / `TryRestoreAsync` (`DapperArchitectureProjectRepository` / `InMemoryArchitectureProjectRepository`), audit `ArchitectureProjectRestored`, operator UI `/settings/tenant/recycle-bin` (`ProjectsRecycleBinPage`), nav + OpenAPI snapshot + generated clients/types aligned per `Http-Surface-Docs-And-Clients.mdc`. Restore rejects active workspace/name collisions (`409`).
 ```text
-Add a "Restore" button to the UI for soft-deleted architecture projects and a corresponding `POST /v1/tenant/workspaces/.../projects/.../restore` endpoint.
+Add a "Restore" button to the UI for soft-deleted architecture projects and a corresponding `POST /v1/tenant/workspaces/.../projects/.../restore` endpoint. [COMPLETED]
 - Acceptance criteria: Operators can view soft-deleted projects in a "Recycle Bin" view and restore them, clearing the `IsDeleted` flag.
 - Constraints: Ensure restored projects do not violate unique constraints.
 - What not to change: Do not modify the hard-purge background job.
 - Impact: Directly improves Usability (+10-15 pts) and Reliability (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
+- Deliverable: `ArchLucid.Api/Controllers/Tenancy/TenantWorkspacesController.cs` (recycle + restore); `ArchLucid.Core/Tenancy/IArchitectureProjectRepository.cs` + `ArchLucid.Persistence/Tenancy/DapperArchitectureProjectRepository.cs` (+ in-memory parity); `archlucid-ui/.../settings/tenant/recycle-bin/` (`ProjectsRecycleBinPage`); `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json` + `npm run generate:api-types`; `ArchLucid.Api.Client` regen.
 ```
 
 ### 6. Create a runbook for handling rate limit exceeded errors
