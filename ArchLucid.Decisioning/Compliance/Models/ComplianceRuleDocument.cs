@@ -44,6 +44,12 @@ public class ComplianceRuleDocument
         set;
     } = "Warning";
 
+    public string? Priority
+    {
+        get;
+        set;
+    }
+
     public string Description
     {
         get;

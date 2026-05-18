@@ -33,14 +33,21 @@ public sealed class ComplianceRulePackGovernanceFilterTests
         };
 
     [Fact]
-    public void Filter_WhenNoComplianceRestrictions_ReturnsOriginalPack()
+    public void Filter_WhenNoComplianceRestrictions_AppliesPriorityFloorOnly()
     {
-        ComplianceRulePack source = Pack(Rule("a"), Rule("b"));
-        PolicyPackContentDocument effective = new();
+        ComplianceRule ruleA = Rule("a");
+        ruleA.Priority = PolicyPackRulePriority.P0;
+        ComplianceRule ruleB = Rule("b");
+        ruleB.Priority = PolicyPackRulePriority.P1;
+        ComplianceRulePack source = Pack(ruleA, ruleB);
+        PolicyPackContentDocument effective = new()
+        {
+            AdvisoryDefaults = { [PolicyPackRulePriority.AdvisoryDefaultsKey] = "P0" },
+        };
 
         ComplianceRulePack filtered = ComplianceRulePackGovernanceFilter.Filter(source, effective);
 
-        filtered.Rules.Should().HaveCount(2);
+        filtered.Rules.Should().ContainSingle(r => r.RuleId == "a");
         filtered.RulePackId.Should().Be(source.RulePackId);
     }
 

@@ -32,7 +32,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V2 Authentication \u2014 multi-factor controls for privileged accounts (thematic)"
         }
-      ]
+      ],
+      "priority": "P0"
     },
     {
       "id": "sec-base-002",
@@ -55,7 +56,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V2.10 \u2014 Service authentication (thematic)"
         }
-      ]
+      ],
+      "priority": "P0"
     },
     {
       "id": "sec-base-003",
@@ -78,7 +80,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V13 \u2014 API / secret storage configuration (thematic)"
         }
-      ]
+      ],
+      "priority": "P0"
     },
     {
       "id": "sec-base-004",
@@ -101,7 +104,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V4 Access Control \u2014 authorization granularity (thematic)"
         }
-      ]
+      ],
+      "priority": "P0"
     },
     {
       "id": "sec-base-005",
@@ -123,7 +127,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V2 Session / policy documentation (thematic)"
         }
-      ]
+      ],
+      "priority": "P0"
     },
     {
       "id": "sec-base-006",
@@ -146,7 +151,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V13 Transport layer protection adjacency (thematic)"
         }
-      ]
+      ],
+      "priority": "P0"
     },
     {
       "id": "sec-base-007",
@@ -168,7 +174,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V1 Architecture \u2014 trusted zones (thematic)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "sec-base-008",
@@ -190,7 +197,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V13 Network segmentation expectations (thematic)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "sec-base-009",
@@ -212,7 +220,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V1 Trusted boundaries (thematic)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "sec-base-010",
@@ -234,7 +243,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V13 Secure configuration defaults (thematic)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "sec-base-011",
@@ -256,7 +266,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V8 Data protection \u2014 stored secrets/data (thematic)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "sec-base-012",
@@ -279,7 +290,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V9 Communications security \u2014 TLS baseline (thematic)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "sec-base-013",
@@ -301,7 +313,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V10 Cryptographic practices \u2014 key lifecycle (thematic)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "sec-base-014",
@@ -323,7 +336,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V9 TLS certificate lifecycle (thematic)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "sec-base-015",
@@ -346,7 +360,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V7 Errors / logging integrity (thematic)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "sec-base-016",
@@ -368,7 +383,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V7 Security event pipeline (thematic)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "sec-base-017",
@@ -390,7 +406,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V7 Intrusion detection adjacency (thematic)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "sec-base-018",
@@ -412,7 +429,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V7 Logging coverage for privileged actions (thematic)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "sec-base-019",
@@ -434,7 +452,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V7 Log retention (thematic)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "sec-base-020",
@@ -456,7 +475,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V15 Secure coding lifecycle \u2014 SCM protections (thematic)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "sec-base-021",
@@ -478,7 +498,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V15 Review enforcement (thematic)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "sec-base-022",
@@ -500,7 +521,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V14 Dependency management (thematic)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "sec-base-023",
@@ -522,7 +544,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V14 Supply chain \u2014 container artifacts (thematic)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "sec-base-024",
@@ -544,7 +567,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V5 Misconfiguration defenses \u2014 IaC checks (thematic)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "sec-base-025",
@@ -566,7 +590,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V13 Secrets leakage prevention \u2014 scanning (thematic)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "sec-base-026",
@@ -590,7 +615,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V13 Secret management \u2014 centralized retrieval (thematic)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "sec-base-027",
@@ -613,7 +639,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V9 Communications \u2014 cipher and protocol minimums (thematic)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "sec-base-028",
@@ -636,7 +663,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V1 Architecture \u2014 regulated data enclave expectations (thematic)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "sec-base-029",
@@ -659,7 +687,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V13 Request handling protections at the perimeter (thematic)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "sec-base-030",
@@ -682,7 +711,8 @@
           "framework": "OWASP ASVS",
           "requirement": "V4 Access Control \u2014 privileged session boundaries (thematic)"
         }
-      ]
+      ],
+      "priority": "P2"
     }
   ]
 }

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Generate V1 GA bundled policy pack samples, embedded content, manifest, and GA compliance stubs."""
+"""Generate V1 GA bundled policy pack samples, embedded content, manifest, and GA compliance stubs.
+
+Rule counts are framework-driven (see docs/library/POLICY_PACK_RULE_PRIORITY_MODEL.md) — no fixed cap.
+Each rule receives priority P0/P1/P2; bundled packs default priorityFloor P0 for pilot posture.
+"""
 
 from __future__ import annotations
 
@@ -12,15 +16,43 @@ BUNDLED = REPO / "ArchLucid.Application" / "Governance" / "DefaultPolicyPacks" /
 GA_RULES = REPO / "ArchLucid.Decisioning" / "Compliance" / "RulePacks" / "ga-starter-compliance.rules.json"
 MANIFEST = BUNDLED / "bundled-policy-packs-v1.manifest.json"
 
-RULES_PER_PACK = 10
+DEFAULT_STARTER_RULE_COUNT = 10
 
 
-def rule_entry(rule_id: str, title: str, framework: str, theme: str, severity: str = "Medium") -> dict:
+def assign_rule_priority(index: int, total: int) -> str:
+    if total <= 0:
+        return "P1"
+    p0_count = max(1, total // 5)
+    p1_count = max(1, (total * 2) // 5)
+
+    if index <= p0_count:
+        return "P0"
+    if index <= p0_count + p1_count:
+        return "P1"
+    return "P2"
+
+
+def ensure_rule_priorities(rules: list[dict]) -> None:
+    total = len(rules)
+    for i, rule in enumerate(rules, start=1):
+        if not rule.get("priority"):
+            rule["priority"] = assign_rule_priority(i, total)
+
+
+def rule_entry(
+    rule_id: str,
+    title: str,
+    framework: str,
+    theme: str,
+    severity: str = "Medium",
+    priority: str = "P1",
+) -> dict:
     return {
         "id": rule_id,
         "title": title,
         "description": f"Architecture manifest and Azure extractor evidence should support: {title.lower()}. Thematic mapping only — not certification.",
         "severity": severity,
+        "priority": priority,
         "remediationGuidance": f"Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
         "evidenceHints": [
             "governance.PolicyConstraints",
@@ -58,7 +90,11 @@ def build_content(pack: dict, rule_ids: list[str]) -> dict:
         "complianceRuleKeys": rule_ids,
         "alertRuleIds": [],
         "compositeAlertRuleIds": [],
-        "advisoryDefaults": {"severityFloor": "warning", "scanDepth": "standard"},
+        "advisoryDefaults": {
+            "severityFloor": "warning",
+            "priorityFloor": "P0",
+            "scanDepth": "standard",
+        },
         "metadata": {
             "templateId": f"{slug}-v1",
             "pack.displayName": pack["displayName"],
@@ -317,7 +353,7 @@ PACKS: list[dict] = [
 
 
 def generate_rules(pack: dict) -> list[dict]:
-    count = pack.get("count", RULES_PER_PACK)
+    count = pack.get("count", DEFAULT_STARTER_RULE_COUNT)
     prefix = pack["prefix"]
     themes = pack["themes"]
     framework = pack["framework"]
@@ -327,7 +363,8 @@ def generate_rules(pack: dict) -> list[dict]:
         theme = themes[(i - 1) % len(themes)]
         title = f"{pack['displayName']} — control theme {i}"
         sev = "High" if i <= 3 else "Medium"
-        rules.append(rule_entry(rid, title, framework, theme, sev))
+        priority = assign_rule_priority(i, count)
+        rules.append(rule_entry(rid, title, framework, theme, sev, priority))
     return rules
 
 
@@ -344,6 +381,7 @@ def main() -> None:
 
         if pack.get("existing_rules") and rules_path.exists():
             curated = json.loads(rules_path.read_text(encoding="utf-8"))
+            ensure_rule_priorities(curated["rules"])
             rule_ids = [r["id"] for r in curated["rules"]]
             curated["pack"]["isDefault"] = True
             curated["pack"]["suggestedPackType"] = "PlatformDefault"
@@ -351,8 +389,11 @@ def main() -> None:
         else:
             rules = generate_rules(pack)
             curated = build_curated(pack, rules)
+            ensure_rule_priorities(curated["rules"])
             rules_path.write_text(json.dumps(curated, indent=2) + "\n", encoding="utf-8")
             rule_ids = [r["id"] for r in rules]
+
+        priority_by_id = {r["id"]: r.get("priority", "P1") for r in json.loads(rules_path.read_text(encoding="utf-8"))["rules"]}
 
         content = build_content(pack, rule_ids)
         text = json.dumps(content, indent=2) + "\n"
@@ -376,6 +417,7 @@ def main() -> None:
                     "requiredNodeType": "SecurityBaseline",
                     "requiredEdgeType": "PROTECTS",
                     "severity": "Warning",
+                    "priority": priority_by_id.get(rid, "P1"),
                     "description": f"Stub for {rid}; see docs/samples/policy-packs/{slug}-rules-v1.json for narrative.",
                 }
             )
@@ -386,9 +428,17 @@ def main() -> None:
     ga = json.loads(GA_RULES.read_text(encoding="utf-8"))
     existing_ids = {r["ruleId"] for r in ga["rules"]}
     for stub in new_stubs:
-        if stub["ruleId"] not in existing_ids:
+        rid = stub["ruleId"]
+        if rid not in existing_ids:
             ga["rules"].append(stub)
-            existing_ids.add(stub["ruleId"])
+            existing_ids.add(rid)
+            continue
+        for existing in ga["rules"]:
+            if existing.get("ruleId") != rid:
+                continue
+            if stub.get("priority") and not existing.get("priority"):
+                existing["priority"] = stub["priority"]
+            break
     GA_RULES.write_text(json.dumps(ga, indent=2) + "\n", encoding="utf-8")
 
     print(f"manifest: {len(manifest_entries)} packs")

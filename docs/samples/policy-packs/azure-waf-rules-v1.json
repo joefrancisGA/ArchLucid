@@ -28,7 +28,8 @@
           "framework": "Microsoft Azure Well-Architected",
           "requirement": "Reliability \u2014 Design for failure and redundancy (pillar theme)"
         }
-      ]
+      ],
+      "priority": "P0"
     },
     {
       "id": "waf-az-002",
@@ -47,7 +48,8 @@
           "framework": "Microsoft Azure Well-Architected",
           "requirement": "Reliability \u2014 Backup and disaster recovery (pillar theme)"
         }
-      ]
+      ],
+      "priority": "P0"
     },
     {
       "id": "waf-az-003",
@@ -67,7 +69,8 @@
           "framework": "Microsoft Azure Well-Architected",
           "requirement": "Reliability \u2014 Monitoring and health models (pillar theme)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "waf-az-004",
@@ -86,7 +89,8 @@
           "framework": "Microsoft Azure Well-Architected",
           "requirement": "Security \u2014 Secure networking and private access (pillar theme)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "waf-az-005",
@@ -105,7 +109,8 @@
           "framework": "Microsoft Azure Well-Architected",
           "requirement": "Security \u2014 Protect data at rest (pillar theme)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "waf-az-006",
@@ -125,7 +130,8 @@
           "framework": "Microsoft Azure Well-Architected",
           "requirement": "Security \u2014 Governance and regulatory compliance (pillar theme)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "waf-az-007",
@@ -144,7 +150,8 @@
           "framework": "Microsoft Azure Well-Architected",
           "requirement": "Cost Optimization \u2014 Right-size resources (pillar theme)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "waf-az-008",
@@ -163,7 +170,8 @@
           "framework": "Microsoft Azure Well-Architected",
           "requirement": "Cost Optimization \u2014 Improve cost visibility (pillar theme)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "waf-az-009",
@@ -182,7 +190,8 @@
           "framework": "Microsoft Azure Well-Architected",
           "requirement": "Operational Excellence \u2014 Observability (pillar theme)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "waf-az-010",
@@ -202,7 +211,8 @@
           "framework": "Microsoft Azure Well-Architected",
           "requirement": "Operational Excellence \u2014 Operational procedures and evidence hygiene (pillar theme)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "waf-az-011",
@@ -221,7 +231,8 @@
           "framework": "Microsoft Azure Well-Architected",
           "requirement": "Performance Efficiency \u2014 Select appropriate compute and data services (pillar theme)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "waf-az-012",
@@ -240,7 +251,8 @@
           "framework": "Microsoft Azure Well-Architected",
           "requirement": "Performance Efficiency \u2014 Use caching and content delivery (pillar theme)"
         }
-      ]
+      ],
+      "priority": "P2"
     }
   ]
 }

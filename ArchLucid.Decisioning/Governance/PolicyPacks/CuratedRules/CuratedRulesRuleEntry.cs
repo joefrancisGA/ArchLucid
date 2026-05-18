@@ -32,6 +32,13 @@ internal sealed class CuratedRulesRuleEntry
         set;
     }
 
+    [JsonPropertyName("priority")]
+    public string? Priority
+    {
+        get;
+        set;
+    }
+
     [JsonPropertyName("remediationGuidance")]
     public string? RemediationGuidance
     {

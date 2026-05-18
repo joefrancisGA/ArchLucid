@@ -1,4 +1,5 @@
 using ArchLucid.Decisioning.Compliance.Models;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.PolicyPacks.CuratedRules;
 
 using FluentAssertions;
@@ -38,8 +39,25 @@ public sealed class CuratedComplianceRuleMapperTests
         mapped.Description.Should().Be("Body");
         mapped.Severity.Should().Be("Critical");
         mapped.AppliesToCategory.Should().Be(CuratedComplianceRuleMapper.TenantCuratedCategory);
+        mapped.Priority.Should().Be(PolicyPackRulePriority.P1);
         mapped.RequiredNodeType.Should().BeEmpty();
         mapped.RequiredEdgeType.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TryMapToComplianceRule_MapsExplicitPriority()
+    {
+        CuratedRulesRuleEntry entry = new()
+        {
+            Id = "tenant-p0",
+            Title = "t",
+            Severity = "High",
+            Priority = "P0",
+        };
+
+        ComplianceRule? mapped = CuratedComplianceRuleMapper.TryMapToComplianceRule(entry);
+
+        mapped!.Priority.Should().Be(PolicyPackRulePriority.P0);
     }
 
     [Fact]

@@ -28,7 +28,8 @@
           "framework": "Microsoft Cloud Adoption Framework",
           "theme": "Ready \u2014 Govern (management group design)"
         }
-      ]
+      ],
+      "priority": "P0"
     },
     {
       "id": "lz-caf-002",
@@ -47,7 +48,8 @@
           "framework": "Microsoft Cloud Adoption Framework",
           "theme": "Ready \u2014 Plan (subscription design)"
         }
-      ]
+      ],
+      "priority": "P0"
     },
     {
       "id": "lz-caf-003",
@@ -66,7 +68,8 @@
           "framework": "Azure Landing Zone",
           "designArea": "Networking \u2014 Hub-spoke or vWAN"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "lz-caf-004",
@@ -85,7 +88,8 @@
           "framework": "Azure Landing Zone",
           "designArea": "Governance \u2014 Policy and compliance"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "lz-caf-005",
@@ -104,7 +108,8 @@
           "framework": "Azure Landing Zone",
           "designArea": "Identity \u2014 Entra ID and RBAC"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "lz-caf-006",
@@ -123,7 +128,8 @@
           "framework": "Azure Landing Zone",
           "designArea": "Management \u2014 Monitoring and diagnostics"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "lz-caf-007",
@@ -142,7 +148,8 @@
           "framework": "Azure Landing Zone",
           "designArea": "Networking \u2014 Private DNS"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "lz-caf-008",
@@ -160,7 +167,8 @@
           "framework": "Azure Landing Zone",
           "designArea": "Security \u2014 Defender for Cloud"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "lz-caf-009",
@@ -178,7 +186,8 @@
           "framework": "Microsoft Cloud Adoption Framework",
           "theme": "Manage \u2014 Cost management"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "lz-caf-010",
@@ -196,7 +205,8 @@
           "framework": "Microsoft Cloud Adoption Framework",
           "theme": "Ready \u2014 Govern (access control)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "lz-caf-011",
@@ -215,7 +225,8 @@
           "framework": "Azure Landing Zone",
           "designArea": "Networking \u2014 Shared services"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "lz-caf-012",
@@ -234,7 +245,8 @@
           "framework": "Azure Landing Zone",
           "designArea": "Management \u2014 Evidence hygiene"
         }
-      ]
+      ],
+      "priority": "P2"
     }
   ]
 }

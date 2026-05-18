@@ -44,6 +44,13 @@ public class ComplianceRule
         set;
     } = "Warning";
 
+    /// <summary>Coverage tier: <c>P0</c>, <c>P1</c>, or <c>P2</c> (see governance policy pack priority model).</summary>
+    public string Priority
+    {
+        get;
+        set;
+    } = "P1";
+
     public string Description
     {
         get;

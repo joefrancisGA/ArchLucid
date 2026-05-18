@@ -17,37 +17,39 @@ This design enables deep customization via hierarchical scoping (Tenant, Workspa
 
 **Content velocity:** Curated packs are drafted with an **LLM generator → critic model → human SME** pipeline; regenerate samples with **`python scripts/generate_v1_bundled_policy_packs.py`**. Authoring playbook: **[`POLICY_PACK_CONTENT_BACKLOG.md`](../library/POLICY_PACK_CONTENT_BACKLOG.md)**.
 
+**Rule count and priorities:** Bundled packs are **not** limited to a fixed number of rules per framework. Each pack should grow to cover its standard as content matures. Rules carry **`priority`** (`P0` must-have, `P1` should-have, `P2` nice-to-have). Net-new seeds default to **`priorityFloor: P0`** in `advisoryDefaults` so pilots enforce the must-have subset first; operators widen to `P1` / `P2` as governance matures. Details: **[`POLICY_PACK_RULE_PRIORITY_MODEL.md`](../library/POLICY_PACK_RULE_PRIORITY_MODEL.md)**.
+
 ---
 
 ## 1. What ships for V1 GA
 
 All rows below are seeded as **`PlatformDefault`** (Operator UI: **Bundled default (platform)**). Curated rule narratives live in **`docs/samples/policy-packs/*-rules-v1.json`**; provisioning copies are embedded under **`ArchLucid.Application/.../Bundled/`**.
 
-| # | Bundled category | Display name | Rule key prefix (examples) |
+| # | Bundled category | Display name | Rule key prefix (examples) | Notes |
 |---|------------------|--------------|----------------------------|
-| 1 | AI Governance | AI Governance / Responsible AI | `ai-gov-001` … `020` |
-| 2 | Security baseline | Security Architecture Baseline | `sec-base-001` … `030` |
-| 3 | Azure WAF | Azure Well-Architected Framework | `waf-az-001` … `012` |
-| 4 | Azure CAF / LZ | Azure Landing Zone / Cloud Adoption Framework | `lz-caf-001` … `012` |
-| 5 | Privacy | GDPR Compliance Baseline | `gdpr-001` … `010` |
-| 6 | Compliance | SOC 2 Type II (Architecture Themes) | `soc2-001` … `010` |
-| 7 | Cost | FinOps & Cloud Cost Optimization | `cost-opt-001` … `006` |
-| 8 | Application security | OWASP API Security Top 10 | `owasp-api-001` … `010` |
-| 9 | Compliance | ISO/IEC 27001 ISMS (Architecture Slice) | `iso27001-001` … `010` |
-| 10 | Security | CIS Microsoft Azure Foundations Benchmark | `cis-az-001` … `010` |
-| 11 | Healthcare | HIPAA / HITECH Safeguards | `hipaa-001` … `010` |
-| 12 | Payments | PCI-DSS (Architecture / Segmentation) | `pci-001` … `010` |
-| 13 | Security | Zero Trust Architecture | `zta-001` … `010` |
-| 14 | Reliability | Azure Resiliency & Disaster Recovery | `az-dr-001` … `010` |
-| 15 | Platform | AKS Production Baseline | `aks-001` … `010` |
-| 16 | Data governance | Data Classification & Lineage | `data-class-001` … `010` |
-| 17 | Identity | Entra ID / IAM Architecture Baseline | `entra-iam-001` … `010` |
-| 18 | Application platform | Serverless & PaaS Security (Azure) | `az-paas-001` … `010` |
-| 19 | Compliance | NIST Cybersecurity Framework 2.0 | `nist-csf-001` … `010` |
-| 20 | DevSecOps | Software Supply Chain & SBOM | `supply-chain-001` … `010` |
-| 21 | Engineering | DORA / DevSecOps Delivery Posture | `dora-001` … `010` |
-| 22 | Operations | Observability & OpenTelemetry Baseline | `otel-001` … `010` |
-| 23 | Data platform | Azure SQL / Cosmos DB Data-Layer Security | `az-data-001` … `010` |
+| 1 | AI Governance | AI Governance / Responsible AI | `ai-gov-001` … `020` | Full curated corpus |
+| 2 | Security baseline | Security Architecture Baseline | `sec-base-001` … `030` | Full curated corpus |
+| 3 | Azure WAF | Azure Well-Architected Framework | `waf-az-001` … `012` | Full curated corpus |
+| 4 | Azure CAF / LZ | Azure Landing Zone / Cloud Adoption Framework | `lz-caf-001` … `012` | Full curated corpus |
+| 5 | Privacy | GDPR Compliance Baseline | `gdpr-001` … | Expand per GDPR themes |
+| 6 | Compliance | SOC 2 Type II (Architecture Themes) | `soc2-001` … | Expand per TSC |
+| 7 | Cost | FinOps & Cloud Cost Optimization | `cost-opt-001` … `006` | Extractor-aligned |
+| 8 | Application security | OWASP API Security Top 10 | `owasp-api-001` … | ~10 categories + depth |
+| 9 | Compliance | ISO/IEC 27001 ISMS (Architecture Slice) | `iso27001-001` … | Expand per Annex A slice |
+| 10 | Security | CIS Microsoft Azure Foundations Benchmark | `cis-az-001` … | Prefer `cis-az-l1-*` / `l2-*` ids |
+| 11 | Healthcare | HIPAA / HITECH Safeguards | `hipaa-001` … | Expand per safeguard |
+| 12 | Payments | PCI-DSS (Architecture / Segmentation) | `pci-001` … | Expand per DSS area |
+| 13 | Security | Zero Trust Architecture | `zta-001` … | NIST 800-207 themes |
+| 14 | Reliability | Azure Resiliency & Disaster Recovery | `az-dr-001` … | |
+| 15 | Platform | AKS Production Baseline | `aks-001` … | |
+| 16 | Data governance | Data Classification & Lineage | `data-class-001` … | |
+| 17 | Identity | Entra ID / IAM Architecture Baseline | `entra-iam-001` … | |
+| 18 | Application platform | Serverless & PaaS Security (Azure) | `az-paas-001` … | |
+| 19 | Compliance | NIST Cybersecurity Framework 2.0 | `nist-csf-001` … | CSF functions |
+| 20 | DevSecOps | Software Supply Chain & SBOM | `supply-chain-001` … | |
+| 21 | Engineering | DORA / DevSecOps Delivery Posture | `dora-001` … | Small corpus OK |
+| 22 | Operations | Observability & OpenTelemetry Baseline | `otel-001` … | |
+| 23 | Data platform | Azure SQL / Cosmos DB Data-Layer Security | `az-data-001` … | |
 
 **Appendices (selected):** **[`POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md`](../library/POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md)** · **[`POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md`](../library/POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md)**
 
@@ -79,4 +81,4 @@ Bundles are **`PlatformDefault`** rows **scoped per tenant/workspace/project**, 
 
 ## 5. Content roadmap
 
-The prioritized **top-20 commercial backlog** from **[`POLICY_PACK_CONTENT_BACKLOG.md`](../library/POLICY_PACK_CONTENT_BACKLOG.md)** is **included in V1 GA** (plus AI Governance and Security baseline as core corpora). Future packs expand depth (more rules per framework) via content revisions, not binary releases.
+The prioritized **top-20 commercial backlog** from **[`POLICY_PACK_CONTENT_BACKLOG.md`](../library/POLICY_PACK_CONTENT_BACKLOG.md)** is **included in V1 GA** (plus AI Governance and Security baseline as core corpora). Future work **expands rule count and priority tagging** per framework via content revisions, not binary releases — see **[`POLICY_PACK_RULE_PRIORITY_MODEL.md`](../library/POLICY_PACK_RULE_PRIORITY_MODEL.md)**.

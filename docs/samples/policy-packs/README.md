@@ -4,7 +4,7 @@
 
 These files match the persisted shape described in **`ArchLucid.Decisioning.Governance.PolicyPacks.PolicyPackContentDocument`**: `complianceRuleIds`, `complianceRuleKeys`, `alertRuleIds`, `compositeAlertRuleIds`, `advisoryDefaults`, `metadata` (all **`metadata` / `advisoryDefaults` values are strings**).
 
-**Curated-rules corpora** (full rule bodies with `evidenceHints` and `frameworkMappings`) use the `archlucid.policyPack.curatedRules.v1` shape — see **`ai-governance-responsible-ai-rules-v1.json`** and **`security-architecture-baseline-rules-v1.json`**. **Roadmap, LLM authoring pipeline, and prioritized next 20 packs:** **[`docs/library/POLICY_PACK_CONTENT_BACKLOG.md`](../../library/POLICY_PACK_CONTENT_BACKLOG.md)**.
+**Curated-rules corpora** (full rule bodies with `evidenceHints` and `frameworkMappings`) use the `archlucid.policyPack.curatedRules.v1` shape — see **`ai-governance-responsible-ai-rules-v1.json`** and **`security-architecture-baseline-rules-v1.json`**. Each rule may include **`priority`** (`P0` / `P1` / `P2`); pack `advisoryDefaults` may set **`priorityFloor`** (bundled defaults use **`P0`** for pilots). **Priority model:** **[`docs/library/POLICY_PACK_RULE_PRIORITY_MODEL.md`](../../library/POLICY_PACK_RULE_PRIORITY_MODEL.md)**. **Roadmap and LLM pipeline:** **[`docs/library/POLICY_PACK_CONTENT_BACKLOG.md`](../../library/POLICY_PACK_CONTENT_BACKLOG.md)**.
 
 | File | Intent |
 |------|--------|

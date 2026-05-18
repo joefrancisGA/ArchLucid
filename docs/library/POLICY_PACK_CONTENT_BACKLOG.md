@@ -22,6 +22,8 @@ Policy packs are the **adaptive brain** of ArchLucid governance: versioned JSON 
 
 **Effort profile:** Authoring is **content work**. Use the LLM pipeline below; deepen rule narratives over time without recompiling the product.
 
+**Rule sizing and priorities:** There is **no fixed rule count per pack**. Each corpus should reflect its source standard (CIS, SOC 2, HIPAA, etc.). Use **`priority`** (`P0` / `P1` / `P2`) on each rule and **`priorityFloor`** in pack `advisoryDefaults` so pilots can start with must-have coverage only. Canonical assumptions: **[`POLICY_PACK_RULE_PRIORITY_MODEL.md`](POLICY_PACK_RULE_PRIORITY_MODEL.md)**.
+
 ---
 
 ## 2. Recommended authoring pipeline (LLM + critic + human)
@@ -54,7 +56,7 @@ flowchart LR
 
 ## 3. Prioritized commercial backlog — status (2026-05-18)
 
-All **top-20** commercial packs plus **AI Governance** and **Security baseline** ship as **V1 GA `PlatformDefault`** seeds. Rule counts vary (6–30 keys per pack); starter narratives for newer packs use thematic templates suitable for LLM refinement.
+All **top-20** commercial packs plus **AI Governance** and **Security baseline** ship as **V1 GA `PlatformDefault`** seeds. Rule counts vary by framework (6–30 keys today; **no cap** — see priority model). Newer packs use starter templates until the LLM pipeline replaces them with full framework depth.
 
 | Rank | Pack name | V1 GA status |
 |------|-----------|--------------|
@@ -82,7 +84,7 @@ All **top-20** commercial packs plus **AI Governance** and **Security baseline**
 | — | Security Architecture Baseline (core) | **Shipped** |
 | — | Azure Well-Architected Framework | **Shipped** |
 
-**Next content work (not new GA bundles):** deepen rule narratives, add framework appendices, and tune severities per pilot feedback — without expanding the seeded bundle count unless product explicitly adds a 24th manifest entry.
+**Next content work (not new GA bundles):** expand rule counts to match each standard, tag **`priority`** tiers, deepen narratives via LLM → critic → human review, and add framework appendices — without expanding the seeded bundle count unless product adds a 24th manifest entry.
 
 ---
 
@@ -103,3 +105,4 @@ All **top-20** commercial packs plus **AI Governance** and **Security baseline**
 | [`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md) | Buyer-facing GA list |
 | [`docs/samples/policy-packs/README.md`](../samples/policy-packs/README.md) | Import and validate |
 | [`V1_DEFERRED.md`](V1_DEFERRED.md) §6j | Governance deferrals (certification depth only) |
+| [`POLICY_PACK_RULE_PRIORITY_MODEL.md`](POLICY_PACK_RULE_PRIORITY_MODEL.md) | P0/P1/P2 tiers and `priorityFloor` |

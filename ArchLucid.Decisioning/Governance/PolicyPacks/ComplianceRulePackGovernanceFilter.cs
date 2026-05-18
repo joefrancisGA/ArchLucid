@@ -30,7 +30,7 @@ public static class ComplianceRulePackGovernanceFilter
     public static ComplianceRulePack Filter(ComplianceRulePack source, PolicyPackContentDocument effective)
     {
         if (effective.ComplianceRuleIds.Count == 0 && effective.ComplianceRuleKeys.Count == 0)
-            return source;
+            return WithPriorityFloor(source, source.Rules, effective);
 
         HashSet<string> keySet = effective.ComplianceRuleKeys.ToHashSet(StringComparer.OrdinalIgnoreCase);
         HashSet<Guid> guidSet = effective.ComplianceRuleIds.ToHashSet();
@@ -40,6 +40,17 @@ public static class ComplianceRulePackGovernanceFilter
                         (Guid.TryParse(r.RuleId, out Guid g) && guidSet.Contains(g)))
             .ToList();
 
+        return WithPriorityFloor(source, rules, effective);
+    }
+
+    private static ComplianceRulePack WithPriorityFloor(
+        ComplianceRulePack source,
+        List<ComplianceRule> rules,
+        PolicyPackContentDocument effective)
+    {
+        string floor = PolicyPackPriorityFloor.ResolveFloor(effective);
+        IReadOnlyList<ComplianceRule> tierFiltered = PolicyPackPriorityFloor.FilterRules(rules, floor);
+
         return new ComplianceRulePack
         {
             RulePackId = source.RulePackId,
@@ -47,7 +58,8 @@ public static class ComplianceRulePackGovernanceFilter
             Version = source.Version,
             RulePackHash = source.RulePackHash,
             SourcePath = source.SourcePath,
-            Rules = rules
+            Rules = tierFiltered.ToList(),
         };
     }
+
 }

@@ -11,7 +11,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-001; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-001; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "ai-gov-002",
@@ -21,7 +22,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-002; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-002; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "ai-gov-003",
@@ -31,7 +33,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-003; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-003; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "ai-gov-004",
@@ -41,7 +44,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-004; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-004; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "ai-gov-005",
@@ -51,7 +55,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-005; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-005; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "ai-gov-006",
@@ -61,7 +66,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-006; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-006; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "ai-gov-007",
@@ -71,7 +77,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-007; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-007; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "ai-gov-008",
@@ -81,7 +88,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-008; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-008; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "ai-gov-009",
@@ -91,7 +99,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-009; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-009; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "ai-gov-010",
@@ -101,7 +110,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-010; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-010; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "ai-gov-011",
@@ -111,7 +121,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-011; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-011; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "ai-gov-012",
@@ -121,7 +132,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-012; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-012; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "ai-gov-013",
@@ -131,7 +143,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-013; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-013; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "ai-gov-014",
@@ -141,7 +154,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-014; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-014; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "ai-gov-015",
@@ -151,7 +165,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-015; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-015; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "ai-gov-016",
@@ -161,7 +176,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-016; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-016; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "ai-gov-017",
@@ -171,7 +187,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-017; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-017; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "ai-gov-018",
@@ -181,7 +198,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-018; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-018; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "ai-gov-019",
@@ -191,7 +209,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-019; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-019; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "ai-gov-020",
@@ -201,7 +220,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for ai-gov-020; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative."
+      "description": "Stub for ai-gov-020; see docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "sec-base-001",
@@ -211,7 +231,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-001; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-001; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "sec-base-002",
@@ -221,7 +242,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-002; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-002; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "sec-base-003",
@@ -231,7 +253,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-003; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-003; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "sec-base-004",
@@ -241,7 +264,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-004; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-004; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "sec-base-005",
@@ -251,7 +275,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-005; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-005; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "sec-base-006",
@@ -261,7 +286,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-006; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-006; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "sec-base-007",
@@ -271,7 +297,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-007; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-007; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "sec-base-008",
@@ -281,7 +308,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-008; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-008; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "sec-base-009",
@@ -291,7 +319,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-009; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-009; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "sec-base-010",
@@ -301,7 +330,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-010; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-010; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "sec-base-011",
@@ -311,7 +341,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-011; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-011; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "sec-base-012",
@@ -321,7 +352,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-012; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-012; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "sec-base-013",
@@ -331,7 +363,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-013; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-013; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "sec-base-014",
@@ -341,7 +374,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-014; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-014; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "sec-base-015",
@@ -351,7 +385,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-015; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-015; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "sec-base-016",
@@ -361,7 +396,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-016; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-016; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "sec-base-017",
@@ -371,7 +407,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-017; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-017; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "sec-base-018",
@@ -381,7 +418,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-018; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-018; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "sec-base-019",
@@ -391,7 +429,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-019; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-019; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "sec-base-020",
@@ -401,7 +440,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-020; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-020; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "sec-base-021",
@@ -411,7 +451,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-021; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-021; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "sec-base-022",
@@ -421,7 +462,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-022; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-022; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "sec-base-023",
@@ -431,7 +473,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-023; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-023; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "sec-base-024",
@@ -441,7 +484,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-024; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-024; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "sec-base-025",
@@ -451,7 +495,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-025; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-025; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "sec-base-026",
@@ -461,7 +506,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-026; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-026; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "sec-base-027",
@@ -471,7 +517,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-027; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-027; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "sec-base-028",
@@ -481,7 +528,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-028; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-028; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "sec-base-029",
@@ -491,7 +539,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-029; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-029; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "sec-base-030",
@@ -501,7 +550,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for sec-base-030; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative."
+      "description": "Stub for sec-base-030; see docs/samples/policy-packs/security-architecture-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "waf-az-001",
@@ -511,7 +561,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for waf-az-001; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+      "description": "Stub for waf-az-001; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "waf-az-002",
@@ -521,7 +572,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for waf-az-002; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+      "description": "Stub for waf-az-002; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "waf-az-003",
@@ -531,7 +583,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for waf-az-003; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+      "description": "Stub for waf-az-003; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "waf-az-004",
@@ -541,7 +594,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for waf-az-004; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+      "description": "Stub for waf-az-004; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "waf-az-005",
@@ -551,7 +605,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for waf-az-005; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+      "description": "Stub for waf-az-005; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "waf-az-006",
@@ -561,7 +616,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for waf-az-006; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+      "description": "Stub for waf-az-006; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "waf-az-007",
@@ -571,7 +627,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for waf-az-007; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+      "description": "Stub for waf-az-007; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "waf-az-008",
@@ -581,7 +638,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for waf-az-008; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+      "description": "Stub for waf-az-008; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "waf-az-009",
@@ -591,7 +649,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for waf-az-009; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+      "description": "Stub for waf-az-009; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "waf-az-010",
@@ -601,7 +660,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for waf-az-010; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+      "description": "Stub for waf-az-010; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "waf-az-011",
@@ -611,7 +671,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for waf-az-011; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+      "description": "Stub for waf-az-011; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "waf-az-012",
@@ -621,7 +682,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for waf-az-012; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative."
+      "description": "Stub for waf-az-012; see docs/samples/policy-packs/azure-waf-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "lz-caf-001",
@@ -631,7 +693,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for lz-caf-001; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+      "description": "Stub for lz-caf-001; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "lz-caf-002",
@@ -641,7 +704,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for lz-caf-002; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+      "description": "Stub for lz-caf-002; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "lz-caf-003",
@@ -651,7 +715,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for lz-caf-003; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+      "description": "Stub for lz-caf-003; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "lz-caf-004",
@@ -661,7 +726,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for lz-caf-004; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+      "description": "Stub for lz-caf-004; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "lz-caf-005",
@@ -671,7 +737,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for lz-caf-005; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+      "description": "Stub for lz-caf-005; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "lz-caf-006",
@@ -681,7 +748,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for lz-caf-006; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+      "description": "Stub for lz-caf-006; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "lz-caf-007",
@@ -691,7 +759,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for lz-caf-007; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+      "description": "Stub for lz-caf-007; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "lz-caf-008",
@@ -701,7 +770,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for lz-caf-008; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+      "description": "Stub for lz-caf-008; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "lz-caf-009",
@@ -711,7 +781,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for lz-caf-009; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+      "description": "Stub for lz-caf-009; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "lz-caf-010",
@@ -721,7 +792,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for lz-caf-010; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+      "description": "Stub for lz-caf-010; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "lz-caf-011",
@@ -731,7 +803,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for lz-caf-011; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+      "description": "Stub for lz-caf-011; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "lz-caf-012",
@@ -741,7 +814,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for lz-caf-012; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative."
+      "description": "Stub for lz-caf-012; see docs/samples/policy-packs/azure-caf-landing-zone-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "gdpr-001",
@@ -751,7 +825,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for gdpr-001; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+      "description": "Stub for gdpr-001; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "gdpr-002",
@@ -761,7 +836,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for gdpr-002; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+      "description": "Stub for gdpr-002; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "gdpr-003",
@@ -771,7 +847,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for gdpr-003; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+      "description": "Stub for gdpr-003; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "gdpr-004",
@@ -781,7 +858,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for gdpr-004; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+      "description": "Stub for gdpr-004; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "gdpr-005",
@@ -791,7 +869,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for gdpr-005; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+      "description": "Stub for gdpr-005; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "gdpr-006",
@@ -801,7 +880,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for gdpr-006; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+      "description": "Stub for gdpr-006; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "gdpr-007",
@@ -811,7 +891,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for gdpr-007; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+      "description": "Stub for gdpr-007; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "gdpr-008",
@@ -821,7 +902,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for gdpr-008; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+      "description": "Stub for gdpr-008; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "gdpr-009",
@@ -831,7 +913,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for gdpr-009; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+      "description": "Stub for gdpr-009; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "gdpr-010",
@@ -841,7 +924,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for gdpr-010; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative."
+      "description": "Stub for gdpr-010; see docs/samples/policy-packs/gdpr-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "soc2-001",
@@ -851,7 +935,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for soc2-001; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+      "description": "Stub for soc2-001; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "soc2-002",
@@ -861,7 +946,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for soc2-002; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+      "description": "Stub for soc2-002; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "soc2-003",
@@ -871,7 +957,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for soc2-003; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+      "description": "Stub for soc2-003; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "soc2-004",
@@ -881,7 +968,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for soc2-004; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+      "description": "Stub for soc2-004; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "soc2-005",
@@ -891,7 +979,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for soc2-005; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+      "description": "Stub for soc2-005; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "soc2-006",
@@ -901,7 +990,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for soc2-006; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+      "description": "Stub for soc2-006; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "soc2-007",
@@ -911,7 +1001,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for soc2-007; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+      "description": "Stub for soc2-007; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "soc2-008",
@@ -921,7 +1012,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for soc2-008; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+      "description": "Stub for soc2-008; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "soc2-009",
@@ -931,7 +1023,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for soc2-009; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+      "description": "Stub for soc2-009; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "soc2-010",
@@ -941,7 +1034,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for soc2-010; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative."
+      "description": "Stub for soc2-010; see docs/samples/policy-packs/soc2-tsc-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "cost-opt-001",
@@ -951,7 +1045,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for cost-opt-001; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative."
+      "description": "Stub for cost-opt-001; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "cost-opt-002",
@@ -961,7 +1056,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for cost-opt-002; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative."
+      "description": "Stub for cost-opt-002; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "cost-opt-003",
@@ -971,7 +1067,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for cost-opt-003; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative."
+      "description": "Stub for cost-opt-003; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "cost-opt-004",
@@ -981,7 +1078,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for cost-opt-004; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative."
+      "description": "Stub for cost-opt-004; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "cost-opt-005",
@@ -991,7 +1089,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for cost-opt-005; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative."
+      "description": "Stub for cost-opt-005; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "cost-opt-006",
@@ -1001,7 +1100,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for cost-opt-006; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative."
+      "description": "Stub for cost-opt-006; see docs/samples/policy-packs/cost-optimization-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "owasp-api-001",
@@ -1011,7 +1111,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for owasp-api-001; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+      "description": "Stub for owasp-api-001; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "owasp-api-002",
@@ -1021,7 +1122,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for owasp-api-002; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+      "description": "Stub for owasp-api-002; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "owasp-api-003",
@@ -1031,7 +1133,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for owasp-api-003; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+      "description": "Stub for owasp-api-003; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "owasp-api-004",
@@ -1041,7 +1144,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for owasp-api-004; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+      "description": "Stub for owasp-api-004; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "owasp-api-005",
@@ -1051,7 +1155,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for owasp-api-005; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+      "description": "Stub for owasp-api-005; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "owasp-api-006",
@@ -1061,7 +1166,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for owasp-api-006; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+      "description": "Stub for owasp-api-006; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "owasp-api-007",
@@ -1071,7 +1177,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for owasp-api-007; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+      "description": "Stub for owasp-api-007; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "owasp-api-008",
@@ -1081,7 +1188,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for owasp-api-008; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+      "description": "Stub for owasp-api-008; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "owasp-api-009",
@@ -1091,7 +1199,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for owasp-api-009; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+      "description": "Stub for owasp-api-009; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "owasp-api-010",
@@ -1101,7 +1210,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for owasp-api-010; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative."
+      "description": "Stub for owasp-api-010; see docs/samples/policy-packs/owasp-api-top10-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "iso27001-001",
@@ -1111,7 +1221,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for iso27001-001; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+      "description": "Stub for iso27001-001; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "iso27001-002",
@@ -1121,7 +1232,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for iso27001-002; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+      "description": "Stub for iso27001-002; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "iso27001-003",
@@ -1131,7 +1243,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for iso27001-003; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+      "description": "Stub for iso27001-003; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "iso27001-004",
@@ -1141,7 +1254,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for iso27001-004; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+      "description": "Stub for iso27001-004; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "iso27001-005",
@@ -1151,7 +1265,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for iso27001-005; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+      "description": "Stub for iso27001-005; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "iso27001-006",
@@ -1161,7 +1276,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for iso27001-006; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+      "description": "Stub for iso27001-006; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "iso27001-007",
@@ -1171,7 +1287,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for iso27001-007; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+      "description": "Stub for iso27001-007; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "iso27001-008",
@@ -1181,7 +1298,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for iso27001-008; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+      "description": "Stub for iso27001-008; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "iso27001-009",
@@ -1191,7 +1309,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for iso27001-009; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+      "description": "Stub for iso27001-009; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "iso27001-010",
@@ -1201,7 +1320,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for iso27001-010; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative."
+      "description": "Stub for iso27001-010; see docs/samples/policy-packs/iso27001-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "cis-az-001",
@@ -1211,7 +1331,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for cis-az-001; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+      "description": "Stub for cis-az-001; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "cis-az-002",
@@ -1221,7 +1342,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for cis-az-002; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+      "description": "Stub for cis-az-002; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "cis-az-003",
@@ -1231,7 +1353,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for cis-az-003; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+      "description": "Stub for cis-az-003; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "cis-az-004",
@@ -1241,7 +1364,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for cis-az-004; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+      "description": "Stub for cis-az-004; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "cis-az-005",
@@ -1251,7 +1375,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for cis-az-005; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+      "description": "Stub for cis-az-005; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "cis-az-006",
@@ -1261,7 +1386,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for cis-az-006; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+      "description": "Stub for cis-az-006; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "cis-az-007",
@@ -1271,7 +1397,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for cis-az-007; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+      "description": "Stub for cis-az-007; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "cis-az-008",
@@ -1281,7 +1408,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for cis-az-008; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+      "description": "Stub for cis-az-008; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "cis-az-009",
@@ -1291,7 +1419,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for cis-az-009; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+      "description": "Stub for cis-az-009; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "cis-az-010",
@@ -1301,7 +1430,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for cis-az-010; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative."
+      "description": "Stub for cis-az-010; see docs/samples/policy-packs/cis-azure-foundations-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "hipaa-001",
@@ -1311,7 +1441,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for hipaa-001; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+      "description": "Stub for hipaa-001; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "hipaa-002",
@@ -1321,7 +1452,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for hipaa-002; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+      "description": "Stub for hipaa-002; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "hipaa-003",
@@ -1331,7 +1463,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for hipaa-003; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+      "description": "Stub for hipaa-003; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "hipaa-004",
@@ -1341,7 +1474,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for hipaa-004; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+      "description": "Stub for hipaa-004; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "hipaa-005",
@@ -1351,7 +1485,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for hipaa-005; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+      "description": "Stub for hipaa-005; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "hipaa-006",
@@ -1361,7 +1496,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for hipaa-006; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+      "description": "Stub for hipaa-006; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "hipaa-007",
@@ -1371,7 +1507,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for hipaa-007; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+      "description": "Stub for hipaa-007; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "hipaa-008",
@@ -1381,7 +1518,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for hipaa-008; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+      "description": "Stub for hipaa-008; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "hipaa-009",
@@ -1391,7 +1529,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for hipaa-009; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+      "description": "Stub for hipaa-009; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "hipaa-010",
@@ -1401,7 +1540,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for hipaa-010; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative."
+      "description": "Stub for hipaa-010; see docs/samples/policy-packs/hipaa-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "pci-001",
@@ -1411,7 +1551,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for pci-001; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+      "description": "Stub for pci-001; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "pci-002",
@@ -1421,7 +1562,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for pci-002; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+      "description": "Stub for pci-002; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "pci-003",
@@ -1431,7 +1573,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for pci-003; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+      "description": "Stub for pci-003; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "pci-004",
@@ -1441,7 +1584,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for pci-004; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+      "description": "Stub for pci-004; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "pci-005",
@@ -1451,7 +1595,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for pci-005; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+      "description": "Stub for pci-005; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "pci-006",
@@ -1461,7 +1606,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for pci-006; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+      "description": "Stub for pci-006; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "pci-007",
@@ -1471,7 +1617,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for pci-007; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+      "description": "Stub for pci-007; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "pci-008",
@@ -1481,7 +1628,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for pci-008; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+      "description": "Stub for pci-008; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "pci-009",
@@ -1491,7 +1639,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for pci-009; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+      "description": "Stub for pci-009; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "pci-010",
@@ -1501,7 +1650,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for pci-010; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative."
+      "description": "Stub for pci-010; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "zta-001",
@@ -1511,7 +1661,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for zta-001; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+      "description": "Stub for zta-001; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "zta-002",
@@ -1521,7 +1672,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for zta-002; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+      "description": "Stub for zta-002; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "zta-003",
@@ -1531,7 +1683,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for zta-003; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+      "description": "Stub for zta-003; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "zta-004",
@@ -1541,7 +1694,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for zta-004; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+      "description": "Stub for zta-004; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "zta-005",
@@ -1551,7 +1705,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for zta-005; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+      "description": "Stub for zta-005; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "zta-006",
@@ -1561,7 +1716,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for zta-006; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+      "description": "Stub for zta-006; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "zta-007",
@@ -1571,7 +1727,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for zta-007; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+      "description": "Stub for zta-007; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "zta-008",
@@ -1581,7 +1738,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for zta-008; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+      "description": "Stub for zta-008; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "zta-009",
@@ -1591,7 +1749,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for zta-009; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+      "description": "Stub for zta-009; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "zta-010",
@@ -1601,7 +1760,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for zta-010; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative."
+      "description": "Stub for zta-010; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "az-dr-001",
@@ -1611,7 +1771,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-dr-001; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+      "description": "Stub for az-dr-001; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "az-dr-002",
@@ -1621,7 +1782,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-dr-002; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+      "description": "Stub for az-dr-002; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "az-dr-003",
@@ -1631,7 +1793,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-dr-003; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+      "description": "Stub for az-dr-003; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "az-dr-004",
@@ -1641,7 +1804,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-dr-004; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+      "description": "Stub for az-dr-004; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "az-dr-005",
@@ -1651,7 +1815,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-dr-005; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+      "description": "Stub for az-dr-005; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "az-dr-006",
@@ -1661,7 +1826,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-dr-006; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+      "description": "Stub for az-dr-006; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "az-dr-007",
@@ -1671,7 +1837,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-dr-007; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+      "description": "Stub for az-dr-007; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "az-dr-008",
@@ -1681,7 +1848,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-dr-008; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+      "description": "Stub for az-dr-008; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "az-dr-009",
@@ -1691,7 +1859,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-dr-009; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+      "description": "Stub for az-dr-009; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "az-dr-010",
@@ -1701,7 +1870,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-dr-010; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+      "description": "Stub for az-dr-010; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "aks-001",
@@ -1711,7 +1881,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for aks-001; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+      "description": "Stub for aks-001; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "aks-002",
@@ -1721,7 +1892,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for aks-002; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+      "description": "Stub for aks-002; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "aks-003",
@@ -1731,7 +1903,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for aks-003; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+      "description": "Stub for aks-003; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "aks-004",
@@ -1741,7 +1914,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for aks-004; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+      "description": "Stub for aks-004; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "aks-005",
@@ -1751,7 +1925,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for aks-005; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+      "description": "Stub for aks-005; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "aks-006",
@@ -1761,7 +1936,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for aks-006; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+      "description": "Stub for aks-006; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "aks-007",
@@ -1771,7 +1947,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for aks-007; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+      "description": "Stub for aks-007; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "aks-008",
@@ -1781,7 +1958,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for aks-008; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+      "description": "Stub for aks-008; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "aks-009",
@@ -1791,7 +1969,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for aks-009; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+      "description": "Stub for aks-009; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "aks-010",
@@ -1801,7 +1980,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for aks-010; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative."
+      "description": "Stub for aks-010; see docs/samples/policy-packs/aks-production-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "data-class-001",
@@ -1811,7 +1991,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for data-class-001; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+      "description": "Stub for data-class-001; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "data-class-002",
@@ -1821,7 +2002,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for data-class-002; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+      "description": "Stub for data-class-002; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "data-class-003",
@@ -1831,7 +2013,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for data-class-003; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+      "description": "Stub for data-class-003; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "data-class-004",
@@ -1841,7 +2024,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for data-class-004; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+      "description": "Stub for data-class-004; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "data-class-005",
@@ -1851,7 +2035,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for data-class-005; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+      "description": "Stub for data-class-005; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "data-class-006",
@@ -1861,7 +2046,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for data-class-006; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+      "description": "Stub for data-class-006; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "data-class-007",
@@ -1871,7 +2057,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for data-class-007; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+      "description": "Stub for data-class-007; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "data-class-008",
@@ -1881,7 +2068,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for data-class-008; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+      "description": "Stub for data-class-008; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "data-class-009",
@@ -1891,7 +2079,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for data-class-009; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+      "description": "Stub for data-class-009; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "data-class-010",
@@ -1901,7 +2090,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for data-class-010; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative."
+      "description": "Stub for data-class-010; see docs/samples/policy-packs/data-classification-lineage-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "entra-iam-001",
@@ -1911,7 +2101,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for entra-iam-001; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+      "description": "Stub for entra-iam-001; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "entra-iam-002",
@@ -1921,7 +2112,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for entra-iam-002; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+      "description": "Stub for entra-iam-002; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "entra-iam-003",
@@ -1931,7 +2123,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for entra-iam-003; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+      "description": "Stub for entra-iam-003; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "entra-iam-004",
@@ -1941,7 +2134,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for entra-iam-004; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+      "description": "Stub for entra-iam-004; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "entra-iam-005",
@@ -1951,7 +2145,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for entra-iam-005; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+      "description": "Stub for entra-iam-005; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "entra-iam-006",
@@ -1961,7 +2156,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for entra-iam-006; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+      "description": "Stub for entra-iam-006; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "entra-iam-007",
@@ -1971,7 +2167,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for entra-iam-007; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+      "description": "Stub for entra-iam-007; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "entra-iam-008",
@@ -1981,7 +2178,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for entra-iam-008; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+      "description": "Stub for entra-iam-008; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "entra-iam-009",
@@ -1991,7 +2189,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for entra-iam-009; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+      "description": "Stub for entra-iam-009; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "entra-iam-010",
@@ -2001,7 +2200,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for entra-iam-010; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative."
+      "description": "Stub for entra-iam-010; see docs/samples/policy-packs/entra-iam-baseline-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "az-paas-001",
@@ -2011,7 +2211,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-paas-001; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+      "description": "Stub for az-paas-001; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "az-paas-002",
@@ -2021,7 +2222,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-paas-002; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+      "description": "Stub for az-paas-002; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "az-paas-003",
@@ -2031,7 +2233,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-paas-003; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+      "description": "Stub for az-paas-003; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "az-paas-004",
@@ -2041,7 +2244,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-paas-004; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+      "description": "Stub for az-paas-004; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "az-paas-005",
@@ -2051,7 +2255,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-paas-005; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+      "description": "Stub for az-paas-005; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "az-paas-006",
@@ -2061,7 +2266,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-paas-006; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+      "description": "Stub for az-paas-006; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "az-paas-007",
@@ -2071,7 +2277,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-paas-007; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+      "description": "Stub for az-paas-007; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "az-paas-008",
@@ -2081,7 +2288,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-paas-008; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+      "description": "Stub for az-paas-008; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "az-paas-009",
@@ -2091,7 +2299,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-paas-009; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+      "description": "Stub for az-paas-009; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "az-paas-010",
@@ -2101,7 +2310,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-paas-010; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative."
+      "description": "Stub for az-paas-010; see docs/samples/policy-packs/azure-paas-security-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "nist-csf-001",
@@ -2111,7 +2321,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for nist-csf-001; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+      "description": "Stub for nist-csf-001; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "nist-csf-002",
@@ -2121,7 +2332,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for nist-csf-002; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+      "description": "Stub for nist-csf-002; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "nist-csf-003",
@@ -2131,7 +2343,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for nist-csf-003; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+      "description": "Stub for nist-csf-003; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "nist-csf-004",
@@ -2141,7 +2354,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for nist-csf-004; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+      "description": "Stub for nist-csf-004; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "nist-csf-005",
@@ -2151,7 +2365,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for nist-csf-005; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+      "description": "Stub for nist-csf-005; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "nist-csf-006",
@@ -2161,7 +2376,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for nist-csf-006; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+      "description": "Stub for nist-csf-006; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "nist-csf-007",
@@ -2171,7 +2387,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for nist-csf-007; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+      "description": "Stub for nist-csf-007; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "nist-csf-008",
@@ -2181,7 +2398,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for nist-csf-008; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+      "description": "Stub for nist-csf-008; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "nist-csf-009",
@@ -2191,7 +2409,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for nist-csf-009; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+      "description": "Stub for nist-csf-009; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "nist-csf-010",
@@ -2201,7 +2420,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for nist-csf-010; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative."
+      "description": "Stub for nist-csf-010; see docs/samples/policy-packs/nist-csf-2-architecture-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "supply-chain-001",
@@ -2211,7 +2431,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for supply-chain-001; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+      "description": "Stub for supply-chain-001; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "supply-chain-002",
@@ -2221,7 +2442,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for supply-chain-002; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+      "description": "Stub for supply-chain-002; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "supply-chain-003",
@@ -2231,7 +2453,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for supply-chain-003; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+      "description": "Stub for supply-chain-003; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "supply-chain-004",
@@ -2241,7 +2464,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for supply-chain-004; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+      "description": "Stub for supply-chain-004; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "supply-chain-005",
@@ -2251,7 +2475,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for supply-chain-005; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+      "description": "Stub for supply-chain-005; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "supply-chain-006",
@@ -2261,7 +2486,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for supply-chain-006; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+      "description": "Stub for supply-chain-006; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "supply-chain-007",
@@ -2271,7 +2497,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for supply-chain-007; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+      "description": "Stub for supply-chain-007; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "supply-chain-008",
@@ -2281,7 +2508,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for supply-chain-008; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+      "description": "Stub for supply-chain-008; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "supply-chain-009",
@@ -2291,7 +2519,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for supply-chain-009; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+      "description": "Stub for supply-chain-009; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "supply-chain-010",
@@ -2301,7 +2530,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for supply-chain-010; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative."
+      "description": "Stub for supply-chain-010; see docs/samples/policy-packs/supply-chain-sbom-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "dora-001",
@@ -2311,7 +2541,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for dora-001; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+      "description": "Stub for dora-001; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "dora-002",
@@ -2321,7 +2552,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for dora-002; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+      "description": "Stub for dora-002; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "dora-003",
@@ -2331,7 +2563,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for dora-003; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+      "description": "Stub for dora-003; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "dora-004",
@@ -2341,7 +2574,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for dora-004; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+      "description": "Stub for dora-004; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "dora-005",
@@ -2351,7 +2585,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for dora-005; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+      "description": "Stub for dora-005; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "dora-006",
@@ -2361,7 +2596,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for dora-006; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+      "description": "Stub for dora-006; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "dora-007",
@@ -2371,7 +2607,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for dora-007; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+      "description": "Stub for dora-007; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "dora-008",
@@ -2381,7 +2618,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for dora-008; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+      "description": "Stub for dora-008; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "dora-009",
@@ -2391,7 +2629,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for dora-009; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+      "description": "Stub for dora-009; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "dora-010",
@@ -2401,7 +2640,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for dora-010; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative."
+      "description": "Stub for dora-010; see docs/samples/policy-packs/dora-devsecops-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "otel-001",
@@ -2411,7 +2651,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for otel-001; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+      "description": "Stub for otel-001; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "otel-002",
@@ -2421,7 +2662,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for otel-002; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+      "description": "Stub for otel-002; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "otel-003",
@@ -2431,7 +2673,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for otel-003; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+      "description": "Stub for otel-003; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "otel-004",
@@ -2441,7 +2684,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for otel-004; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+      "description": "Stub for otel-004; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "otel-005",
@@ -2451,7 +2695,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for otel-005; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+      "description": "Stub for otel-005; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "otel-006",
@@ -2461,7 +2706,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for otel-006; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+      "description": "Stub for otel-006; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "otel-007",
@@ -2471,7 +2717,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for otel-007; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+      "description": "Stub for otel-007; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "otel-008",
@@ -2481,7 +2728,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for otel-008; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+      "description": "Stub for otel-008; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "otel-009",
@@ -2491,7 +2739,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for otel-009; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+      "description": "Stub for otel-009; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "otel-010",
@@ -2501,7 +2750,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for otel-010; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative."
+      "description": "Stub for otel-010; see docs/samples/policy-packs/observability-otel-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "az-data-001",
@@ -2511,7 +2761,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-data-001; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+      "description": "Stub for az-data-001; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "az-data-002",
@@ -2521,7 +2772,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-data-002; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+      "description": "Stub for az-data-002; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative.",
+      "priority": "P0"
     },
     {
       "ruleId": "az-data-003",
@@ -2531,7 +2783,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-data-003; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+      "description": "Stub for az-data-003; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "az-data-004",
@@ -2541,7 +2794,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-data-004; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+      "description": "Stub for az-data-004; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "az-data-005",
@@ -2551,7 +2805,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-data-005; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+      "description": "Stub for az-data-005; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "az-data-006",
@@ -2561,7 +2816,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-data-006; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+      "description": "Stub for az-data-006; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative.",
+      "priority": "P1"
     },
     {
       "ruleId": "az-data-007",
@@ -2571,7 +2827,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-data-007; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+      "description": "Stub for az-data-007; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "az-data-008",
@@ -2581,7 +2838,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-data-008; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+      "description": "Stub for az-data-008; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "az-data-009",
@@ -2591,7 +2849,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-data-009; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+      "description": "Stub for az-data-009; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative.",
+      "priority": "P2"
     },
     {
       "ruleId": "az-data-010",
@@ -2601,7 +2860,8 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "description": "Stub for az-data-010; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative."
+      "description": "Stub for az-data-010; see docs/samples/policy-packs/azure-data-layer-security-rules-v1.json for narrative.",
+      "priority": "P2"
     }
   ]
 }

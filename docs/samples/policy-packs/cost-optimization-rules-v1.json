@@ -33,7 +33,8 @@
           "framework": "FinOps Framework",
           "control": "Forecasting & planning \u2014 utilization-aware sizing narratives"
         }
-      ]
+      ],
+      "priority": "P0"
     },
     {
       "id": "cost-opt-002",
@@ -57,7 +58,8 @@
           "framework": "FinOps Framework",
           "control": "Workload optimization \u2014 storage waste elimination"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "cost-opt-003",
@@ -80,7 +82,8 @@
           "framework": "FinOps Framework",
           "control": "Forecasting \u2014 unit economics inputs"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "cost-opt-004",
@@ -103,7 +106,8 @@
           "framework": "FinOps Framework",
           "control": "Workload optimization \u2014 network asset hygiene"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "cost-opt-005",
@@ -126,7 +130,8 @@
           "framework": "FinOps Framework",
           "control": "Rate optimization \u2014 PaaS tier discipline"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "cost-opt-006",
@@ -148,7 +153,8 @@
           "framework": "FinOps Framework",
           "control": "Cloud financial management \u2014 storage lifecycle governance"
         }
-      ]
+      ],
+      "priority": "P2"
     }
   ]
 }

@@ -33,7 +33,8 @@
           "framework": "EU AI Act",
           "category": "Annex III \u2014 AI systems intended for critical infrastructure / safety-related contexts (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P0"
     },
     {
       "id": "ai-gov-002",
@@ -56,7 +57,8 @@
           "framework": "EU AI Act",
           "category": "Annex III \u2014 High-risk administrative / operational reliance (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P0"
     },
     {
       "id": "ai-gov-003",
@@ -79,7 +81,8 @@
           "framework": "EU AI Act",
           "category": "Documentation & traceability themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P0"
     },
     {
       "id": "ai-gov-004",
@@ -103,7 +106,8 @@
           "framework": "EU AI Act",
           "category": "Risk management system themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P0"
     },
     {
       "id": "ai-gov-005",
@@ -126,7 +130,8 @@
           "framework": "EU AI Act",
           "category": "Data governance & fundamental rights themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "ai-gov-006",
@@ -149,7 +154,8 @@
           "framework": "EU AI Act",
           "category": "Transparency & logging adjacent themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "ai-gov-007",
@@ -172,7 +178,8 @@
           "framework": "EU AI Act",
           "category": "Cybersecurity & resilience themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "ai-gov-008",
@@ -195,7 +202,8 @@
           "framework": "EU AI Act",
           "category": "Human oversight themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "ai-gov-009",
@@ -218,7 +226,8 @@
           "framework": "EU AI Act",
           "category": "Annex III \u2014 Access to essential services / automated decision themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "ai-gov-010",
@@ -240,7 +249,8 @@
           "framework": "EU AI Act",
           "category": "Monitoring & incident response themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "ai-gov-011",
@@ -262,7 +272,8 @@
           "framework": "EU AI Act",
           "category": "Post-market monitoring themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "ai-gov-012",
@@ -284,7 +295,8 @@
           "framework": "EU AI Act",
           "category": "Quality & performance themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P1"
     },
     {
       "id": "ai-gov-013",
@@ -306,7 +318,8 @@
           "framework": "EU AI Act",
           "category": "Post-market monitoring themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "ai-gov-014",
@@ -328,7 +341,8 @@
           "framework": "EU AI Act",
           "category": "Risk management system themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "ai-gov-015",
@@ -351,7 +365,8 @@
           "framework": "EU AI Act",
           "category": "Record-keeping themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "ai-gov-016",
@@ -373,7 +388,8 @@
           "framework": "EU AI Act",
           "category": "Data minimization themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "ai-gov-017",
@@ -397,7 +413,8 @@
           "framework": "EU AI Act",
           "category": "Transparency & logging themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "ai-gov-018",
@@ -420,7 +437,8 @@
           "framework": "EU AI Act",
           "category": "Third-party reliance themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "ai-gov-019",
@@ -443,7 +461,8 @@
           "framework": "EU AI Act",
           "category": "Operational resilience themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P2"
     },
     {
       "id": "ai-gov-020",
@@ -466,7 +485,8 @@
           "framework": "EU AI Act",
           "category": "High reliability / critical service themes (thematic mapping)"
         }
-      ]
+      ],
+      "priority": "P2"
     }
   ]
 }

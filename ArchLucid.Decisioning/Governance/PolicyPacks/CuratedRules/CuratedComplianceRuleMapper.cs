@@ -37,6 +37,9 @@ internal static class CuratedComplianceRuleMapper
         string title = string.IsNullOrWhiteSpace(entry.Title) ? ruleId : entry.Title.Trim();
         string descriptionBase = entry.Description?.Trim() ?? string.Empty;
         string severity = string.IsNullOrWhiteSpace(entry.Severity) ? "Medium" : entry.Severity.Trim();
+        string priority = string.IsNullOrWhiteSpace(entry.Priority)
+            ? PolicyPackRulePriority.Default
+            : PolicyPackPriorityFloor.NormalizeTier(entry.Priority);
         StringBuilder description = new(descriptionBase);
 
         if (!string.IsNullOrWhiteSpace(entry.RemediationGuidance))
@@ -87,6 +90,7 @@ internal static class CuratedComplianceRuleMapper
             RequiredNodeType = string.Empty,
             RequiredEdgeType = string.Empty,
             Severity = severity,
+            Priority = priority,
             Description = description.ToString(),
         };
     }

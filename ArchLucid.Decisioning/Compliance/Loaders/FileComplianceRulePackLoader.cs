@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Decisioning.Compliance.Models;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 namespace ArchLucid.Decisioning.Compliance.Loaders;
 
@@ -50,6 +51,9 @@ public sealed class FileComplianceRulePackLoader(string filePath) : IComplianceR
                     RequiredNodeType = x.RequiredNodeType,
                     RequiredEdgeType = x.RequiredEdgeType,
                     Severity = x.Severity,
+                    Priority = string.IsNullOrWhiteSpace(x.Priority)
+                        ? PolicyPackRulePriority.Default
+                        : PolicyPackPriorityFloor.NormalizeTier(x.Priority),
                     Description = x.Description
                 }).ToList()
             };
