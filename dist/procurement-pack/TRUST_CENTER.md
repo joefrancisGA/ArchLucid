@@ -183,7 +183,7 @@ Full text: [ORDER_FORM_TEMPLATE.md § 9](ORDER_FORM_TEMPLATE.md).
 
 - **Security inquiries:** `security@archlucid.net` (canonical mailbox — confirmed 2026-04-21; aligns `SECURITY.md`, this Trust Center, and the eventual PGP UID).
 - **Accessibility barriers (non-security):** `accessibility@archlucid.net` — same operational custodian as `security@archlucid.net` (decision 2026-04-22); see [../security/ACCESSIBILITY_MAILBOX.md](../security/ACCESSIBILITY_MAILBOX.md) and the public marketing route **`/accessibility`**.
-- **Coordinated disclosure key:** generation procedure: [../security/PGP_KEY_GENERATION_RECIPE.md](../security/PGP_KEY_GENERATION_RECIPE.md) (key publication pending). When published, the public material is served at **`/.well-known/pgp-key.txt`** on the marketing site (see [../SECURITY.md](../library/SECURITY.md) PGP). Until that file exists, use plain email.
+- **Coordinated disclosure key:** public OpenPGP material is at **`/.well-known/pgp-key.txt`** on the marketing site (committed in-repo at [`../../archlucid-ui/public/.well-known/pgp-key.txt`](../../archlucid-ui/public/.well-known/pgp-key.txt)). Custodian procedure and rotation: [../security/PGP_KEY_GENERATION_RECIPE.md](../security/PGP_KEY_GENERATION_RECIPE.md) — see repository **[`SECURITY.md`](../../SECURITY.md)** (PGP section) for fingerprint.
 
 For support alignment during incidents, clients should include **`X-Correlation-ID`** on API requests where possible ([../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) §8).
 

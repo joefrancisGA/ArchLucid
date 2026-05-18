@@ -23,6 +23,16 @@ This document is an **executable recipe** for the **owner-self custodian** (deci
 
 2. Prepare a **strong passphrase** in the owner password manager (**1Password** or equivalent). You will paste it only into the GnuPG prompt (or passphrase file for batch mode)—never into Slack, email, or the repo.
 
+## Node.js fallback (RSA-4096, no GnuPG)
+
+When **`gpg`** is not installed (common on locked-down workstations), the repository ships a **one-off** generator based on **OpenPGP.js** (dev dependency under **`archlucid-ui/`**):
+
+1. From **`archlucid-ui/`**: `npm ci` (or `npm install`) so **`openpgp`** is present.
+2. Run **`npm run security:coordinated-disclosure-pgp`**. This writes the **public** armored block to **`public/.well-known/pgp-key.txt`** and writes the **private** key, **revocation certificate**, and a **one-time passphrase file** only under the **OS temp directory** (paths printed on stderr — **never commit** those files).
+3. Custodian: import the private key into your keyring / hardware token, store the revocation cert and passphrase in the vault, **delete** the temp files, then commit **only** `pgp-key.txt` plus doc fingerprint updates (**`SECURITY.md`**, Trust Center) in the **same PR**.
+
+**Trade-off:** this path generates **RSA 4096** (broad reporter compatibility) rather than **ECC Curve25519**; either is acceptable per [Choose algorithm](#choose-algorithm). Prefer **GnuPG ECC** when available.
+
 ## Choose algorithm
 
 | Choice | When to use |
@@ -179,8 +189,8 @@ You must see **`-----BEGIN PGP PUBLIC KEY BLOCK-----`** at the top and **`-----E
 | Field | Value |
 | ----- | ----- |
 | **UID** | `ArchLucid Security <security@archlucid.net>` |
-| **Algorithm** | *(owner: ECC Curve25519 or RSA 4096)* |
-| **Full fingerprint** | *(owner: paste 40 hex chars after generation)* |
-| **Expiration choice** | *(owner: `none` or date from `gpg -K`)* |
-| **Revocation cert location** | *(owner: vault path / reference only—no secret contents here)* |
-| **Date first published to repo** | *(owner: ISO date when `pgp-key.txt` merged)* |
+| **Algorithm** | RSA 4096 (OpenPGP.js one-off, 2026-05-18) — successor keys may use ECC via GnuPG |
+| **Full fingerprint** | `982C C022 D91D 3C09 FE9B F4E0 A97C AFF5 332C B516` |
+| **Expiration choice** | none (primary key) |
+| **Revocation cert location** | *(custodian vault — generated alongside key)* |
+| **Date first published to repo** | 2026-05-18 |

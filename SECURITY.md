@@ -54,8 +54,10 @@ Security patches are applied to the **latest release branch / current default br
 
 ## PGP / encrypted email
 
-**Public key publication procedure:** follow [`docs/security/PGP_KEY_GENERATION_RECIPE.md`](docs/security/PGP_KEY_GENERATION_RECIPE.md) (owner-self custodian, decision **2026-04-22** — [`docs/PENDING_QUESTIONS.md`](docs/PENDING_QUESTIONS.md) items **10**, **21**). Until the public key file exists at [`archlucid-ui/public/.well-known/pgp-key.txt`](../archlucid-ui/public/.well-known/pgp-key.txt) and is served at **`/.well-known/pgp-key.txt`** on the marketing site, use **plain email** to **`security@archlucid.net`** for coordinated disclosure.
+**Public key (committed):** [`archlucid-ui/public/.well-known/pgp-key.txt`](archlucid-ui/public/.well-known/pgp-key.txt) — served at **`/.well-known/pgp-key.txt`** on the marketing site (e.g. **`https://archlucid.net/.well-known/pgp-key.txt`** when that host is live).
 
-**After publication:** add the **short fingerprint** (16 hex chars) from `gpg -K security@archlucid.net` on a line here for humans scanning `SECURITY.md` only — **Key ID:** *(owner completes)*.
+**Key ID (`ArchLucid Security <security@archlucid.net>`, RSA-4096):** **`A97CAFF5332CB516`** (16 hex). **Full fingerprint:** **`982C C022 D91D 3C09 FE9B F4E0 A97C AFF5 332C B516`**.
 
-**Contact file:** [`archlucid-ui/public/.well-known/security.txt`](../archlucid-ui/public/.well-known/security.txt) is published at `https://archlucid.net/.well-known/security.txt` when the marketing site is live.
+**Custodian procedure / rotation:** [`docs/security/PGP_KEY_GENERATION_RECIPE.md`](docs/security/PGP_KEY_GENERATION_RECIPE.md) (GnuPG preferred). **Node one-off** (fallback when `gpg` is unavailable): from **`archlucid-ui/`**, run **`npm run security:coordinated-disclosure-pgp`** — private material is written **only** under the OS temp directory, never in git.
+
+**Contact file:** [`archlucid-ui/public/.well-known/security.txt`](archlucid-ui/public/.well-known/security.txt) is published at `https://archlucid.net/.well-known/security.txt` when the marketing site is live.
