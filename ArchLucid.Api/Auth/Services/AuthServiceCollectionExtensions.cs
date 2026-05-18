@@ -41,7 +41,18 @@ public static class AuthServiceCollectionExtensions
         services.Configure<ArchLucidSamlAuthOptions>(
             configuration.GetSection(ArchLucidSamlAuthOptions.ConfigurationSectionPath));
 
-        if (string.Equals(authOptions.Mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
+        // WebApplicationFactory / layered config: appsettings.Development.json sets DevelopmentBypass while CI hosts add
+        // ArchLucidAuth:JwtSigningPublicKeyPemPath later. Branch on the raw PEM key too so JwtBearer is registered even
+        // when the first Resolve snapshot still shows DevelopmentBypass, and re-Resolve IConfiguration when applying
+        // JwtBearer options so PEM path and iss/aud are never stale.
+        string pemPathFromConfiguration = configuration["ArchLucidAuth:JwtSigningPublicKeyPemPath"]?.Trim() ?? string.Empty;
+
+        bool jwtByMode = string.Equals(authOptions.Mode, "JwtBearer", StringComparison.OrdinalIgnoreCase);
+        bool jwtByLocalPem =
+            pemPathFromConfiguration.Length > 0
+            && !string.Equals(authOptions.Mode, "ApiKey", StringComparison.OrdinalIgnoreCase);
+
+        if (jwtByMode || jwtByLocalPem)
         {
             services
                 .AddAuthentication(options =>
@@ -58,9 +69,12 @@ public static class AuthServiceCollectionExtensions
 
             // Last: JwtBearerConfigureOptions (framework) runs before ArchLucid so Authentication:Schemes:Bearer
             // cannot overwrite Authority/Audience bound from ArchLucidAuth.
-            services.Configure<JwtBearerOptions>(
-                JwtBearerDefaults.AuthenticationScheme,
-                options => ArchLucidJwtBearerConfiguration.Apply(options, authOptions, configuration));
+            services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+                .Configure<IConfiguration>((options, cfg) =>
+                {
+                    ArchLucidAuthOptions resolved = ArchLucidAuthConfigurationBridge.Resolve(cfg);
+                    ArchLucidJwtBearerConfiguration.Apply(options, resolved, cfg);
+                });
         }
 
         else if (string.Equals(authOptions.Mode, "ApiKey", StringComparison.OrdinalIgnoreCase))

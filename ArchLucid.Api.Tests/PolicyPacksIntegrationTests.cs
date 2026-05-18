@@ -646,6 +646,107 @@ public sealed class PolicyPacksIntegrationTests
         }
     }
 
+    [SkippableFact]
+    public async Task PolicyPackCatalog_Promote_list_detail_demote_roundtrip()
+    {
+        await WithIsolatedFactory(async client =>
+        {
+            const string contentJson = """
+                                       {
+                                         "complianceRuleIds": [],
+                                         "complianceRuleKeys": [ "catalog-probe" ],
+                                         "alertRuleIds": [],
+                                         "compositeAlertRuleIds": [],
+                                         "advisoryDefaults": {},
+                                         "metadata": { "catalog": "yes" }
+                                       }
+                                       """;
+
+            HttpResponseMessage createResponse = await client.PostAsync(
+                "/v1/policy-packs",
+                JsonContent(
+                    new
+                    {
+                        name = "Catalog probe pack",
+                        description = "promotion probe",
+                        packType = "ProjectCustom",
+                        initialContentJson = contentJson
+                    }));
+
+            createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            PolicyPackResponse? created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+            created.Should().NotBeNull();
+            Guid packId = created!.PolicyPackId;
+
+            HttpResponseMessage promoteResponse = await client.PostAsync(
+                "/v1/policy-packs/catalog/promote",
+                JsonContent(new { sourcePolicyPackId = packId, version = "1.0.0" }));
+
+            promoteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            PolicyPackCatalogEntryDetailResponse? promoted =
+                await promoteResponse.Content.ReadFromJsonAsync<PolicyPackCatalogEntryDetailResponse>(JsonOptions);
+            promoted.Should().NotBeNull();
+            Guid catalogId = promoted!.PolicyPackCatalogEntryId;
+            promoted.SnapshotContentJson.Should().Contain("catalog-probe");
+
+            HttpResponseMessage listResponse = await client.GetAsync("/v1/policy-packs/catalog");
+            listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            List<PolicyPackCatalogListItemResponse>? list =
+                await listResponse.Content.ReadFromJsonAsync<List<PolicyPackCatalogListItemResponse>>(JsonOptions);
+            list.Should().NotBeNull();
+            list!.Should().ContainSingle(x => x.PolicyPackCatalogEntryId == catalogId);
+
+            HttpResponseMessage getResponse = await client.GetAsync($"/v1/policy-packs/catalog/{catalogId:D}");
+            getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            HttpResponseMessage demoteResponse = await client.PostAsync(
+                "/v1/policy-packs/catalog/demote",
+                JsonContent(new { policyPackCatalogEntryId = catalogId }));
+
+            demoteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+            HttpResponseMessage listAfter = await client.GetAsync("/v1/policy-packs/catalog");
+            listAfter.StatusCode.Should().Be(HttpStatusCode.OK);
+            List<PolicyPackCatalogListItemResponse>? after =
+                await listAfter.Content.ReadFromJsonAsync<List<PolicyPackCatalogListItemResponse>>(JsonOptions);
+            after.Should().NotBeNull();
+            after!.Should().BeEmpty();
+
+            HttpResponseMessage getAfterDemote = await client.GetAsync($"/v1/policy-packs/catalog/{catalogId:D}");
+            getAfterDemote.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        });
+    }
+
+    private sealed class PolicyPackCatalogListItemResponse
+    {
+        public Guid PolicyPackCatalogEntryId
+        {
+            get;
+            init;
+        }
+
+        public string DisplayName
+        {
+            get;
+            init;
+        } = "";
+    }
+
+    private sealed class PolicyPackCatalogEntryDetailResponse
+    {
+        public Guid PolicyPackCatalogEntryId
+        {
+            get;
+            init;
+        }
+
+        public string SnapshotContentJson
+        {
+            get;
+            init;
+        } = "";
+    }
+
     private sealed class PolicyPackResponse
     {
         public Guid PolicyPackId

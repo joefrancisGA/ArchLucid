@@ -165,6 +165,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IPolicyPackVersionRepository, InMemoryPolicyPackVersionRepository>();
         services.AddSingleton<IPolicyPackAssignmentRepository, InMemoryPolicyPackAssignmentRepository>();
         services.AddSingleton<IPolicyPackChangeLogRepository, InMemoryPolicyPackChangeLogRepository>();
+        services.AddSingleton<IPolicyPackCatalogRepository, InMemoryPolicyPackCatalogRepository>();
         services.AddSingleton<IArchLucidUnitOfWorkFactory, InMemoryArchLucidUnitOfWorkFactory>();
         services.AddSingleton<IDistributedCreateRunIdempotencyLock, InProcessCreateRunIdempotencyLock>();
         services.AddSingleton<IRetrievalIndexingOutboxRepository, InMemoryRetrievalIndexingOutboxRepository>();

@@ -219,6 +219,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IEffectiveGovernanceLoader>(static sp =>
             new RequestScopedCachingEffectiveGovernanceLoader(sp.GetRequiredService<EffectiveGovernanceLoader>()));
         services.AddScoped<IPolicyPacksAppService, PolicyPacksAppService>();
+        services.AddScoped<IPolicyPackCatalogAdminService, PolicyPackCatalogAdminService>();
     }
 
     private static void RegisterIntegrationEventPublishing(IServiceCollection services, IConfiguration configuration)

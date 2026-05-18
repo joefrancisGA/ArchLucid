@@ -1,11 +1,16 @@
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Configuration;
 using ArchLucid.TestSupport;
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.Tests;
 
@@ -104,6 +109,90 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
             ApiTestWebHostLogging.AddQuietDefaultLogLevel(settings);
             config.AddInMemoryCollection(settings);
         });
+
+        builder.ConfigureServices((ctx, services) =>
+        {
+            // #region agent log
+            ArchLucidAuthOptions resolvedForLog = ArchLucidAuthConfigurationBridge.Resolve(ctx.Configuration);
+
+            AppendAgentDebugNdjson(
+                hypothesisId: "H2",
+                location: $"{nameof(JwtLocalSigningWebAppFactory)}.ConfigureServices",
+                message: "merged configuration at host build",
+                data: new
+                {
+                    archLucidAuthMode = ctx.Configuration["ArchLucidAuth:Mode"],
+                    pemPathLength = (ctx.Configuration["ArchLucidAuth:JwtSigningPublicKeyPemPath"] ?? "").Length,
+                    resolvedMode = resolvedForLog.Mode,
+                    resolvedPemPathLength = (resolvedForLog.JwtSigningPublicKeyPemPath ?? "").Length
+                });
+            // #endregion
+
+            services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                JwtBearerEvents prior = options.Events ?? new JwtBearerEvents();
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = async context =>
+                    {
+                        // #region agent log
+                        AppendAgentDebugNdjson(
+                            hypothesisId: "H3",
+                            location: "JwtBearer.OnAuthenticationFailed",
+                            message: context.Exception?.Message ?? "no-exception",
+                            data: new { exceptionType = context.Exception?.GetType().Name });
+                        // #endregion
+
+                        if (prior.OnAuthenticationFailed is not null)
+                            await prior.OnAuthenticationFailed(context);
+                    },
+                    OnTokenValidated = async context =>
+                    {
+                        // #region agent log
+                        AppendAgentDebugNdjson(
+                            hypothesisId: "H4",
+                            location: "JwtBearer.OnTokenValidated",
+                            message: "token validated",
+                            data: new { sub = context.Principal?.FindFirst("sub")?.Value });
+                        // #endregion
+
+                        if (prior.OnTokenValidated is not null)
+                            await prior.OnTokenValidated(context);
+                    }
+                };
+            });
+        });
+    }
+
+    /// <summary>Debug-mode NDJSON line (session be41f5) — fold regions in editor; remove after investigation.</summary>
+    private static void AppendAgentDebugNdjson(
+        string hypothesisId,
+        string location,
+        string message,
+        object? data)
+    {
+        try
+        {
+            string logPath =
+                Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "debug-be41f5.log"));
+
+            Dictionary<string, object?> payload = new(StringComparer.Ordinal)
+            {
+                ["sessionId"] = "be41f5",
+                ["hypothesisId"] = hypothesisId,
+                ["location"] = location,
+                ["message"] = message,
+                ["data"] = data,
+                ["timestamp"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+            };
+
+            File.AppendAllText(logPath, JsonSerializer.Serialize(payload) + Environment.NewLine, Encoding.UTF8);
+        }
+        catch
+        {
+            // best-effort — never fail the test host
+        }
     }
 
     protected override void Dispose(bool disposing)

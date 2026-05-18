@@ -50,13 +50,21 @@ public sealed class PolicyPacksController(
     IScopeContextProvider scopeProvider,
     IPolicyPackRepository packRepository,
     IPolicyPackVersionRepository versionRepository,
+    IPolicyPackCatalogRepository policyPackCatalogRepository,
     IPolicyPackResolver resolver,
     IEffectiveGovernanceLoader governanceLoader,
     IPolicyPacksAppService policyPacksApp,
+    IPolicyPackCatalogAdminService policyPackCatalogAdminService,
     IPolicyPackGovernanceDryRunService policyPackGovernanceDryRunService,
     PolicyPackMarkdownExplainService policyPackMarkdownExplainService)
     : ControllerBase
 {
+    private readonly IPolicyPackCatalogRepository _policyPackCatalogRepository =
+        policyPackCatalogRepository ?? throw new ArgumentNullException(nameof(policyPackCatalogRepository));
+
+    private readonly IPolicyPackCatalogAdminService _policyPackCatalogAdminService =
+        policyPackCatalogAdminService ?? throw new ArgumentNullException(nameof(policyPackCatalogAdminService));
+
     private readonly PolicyPackMarkdownExplainService _policyPackMarkdownExplainService =
         policyPackMarkdownExplainService ?? throw new ArgumentNullException(nameof(policyPackMarkdownExplainService));
 
@@ -187,6 +195,82 @@ public sealed class PolicyPacksController(
             ct);
 
         return Ok(packs);
+    }
+
+    /// <summary>Lists platform-promoted policy pack snapshots available to clone into the current tenant.</summary>
+    [HttpGet("catalog")]
+    [ProducesResponseType(typeof(IReadOnlyList<PolicyPackCatalogListItem>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<PolicyPackCatalogListItem>>> ListCatalog(CancellationToken ct = default)
+    {
+        IReadOnlyList<PolicyPackCatalogListItem> rows = await _policyPackCatalogRepository.ListPromotedAsync(ct);
+        return Ok(rows);
+    }
+
+    /// <summary>Reads one promoted catalog entry including snapshot JSON for cloning.</summary>
+    /// <returns>404 when the entry is missing or not promoted.</returns>
+    [HttpGet("catalog/{policyPackCatalogEntryId:guid}")]
+    [ProducesResponseType(typeof(PolicyPackCatalogEntryDetail), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCatalogEntry(Guid policyPackCatalogEntryId, CancellationToken ct = default)
+    {
+        PolicyPackCatalogEntryDetail? row =
+            await _policyPackCatalogRepository.GetPromotedDetailByIdAsync(policyPackCatalogEntryId, ct);
+
+        if (row is null)
+            return this.NotFoundProblem(
+                $"Policy pack catalog entry '{policyPackCatalogEntryId}' was not found or is not promoted.",
+                ProblemTypes.ResourceNotFound);
+
+        return Ok(row);
+    }
+
+    /// <summary>Snapshots a pack from the caller&apos;s authoring scope into the global catalog and promotes it.</summary>
+    [HttpPost("catalog/promote")]
+    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+    [ProducesResponseType(typeof(PolicyPackCatalogEntryDetail), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> PromoteCatalogEntry(
+        [FromBody] PromotePolicyPackCatalogEntryRequest? request,
+        CancellationToken ct = default)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        PolicyPackCatalogEntryDetail? row = await _policyPackCatalogAdminService.TryPromoteFromSourcePackAsync(
+            scope,
+            request.SourcePolicyPackId,
+            request.Version,
+            ct);
+
+        if (row is null)
+            return this.NotFoundProblem(
+                $"Policy pack '{request.SourcePolicyPackId}' was not found in the current scope or has no content for the requested version.",
+                ProblemTypes.ResourceNotFound);
+
+        return Ok(row);
+    }
+
+    /// <summary>Removes a catalog entry from the buyer-visible catalog (row retained).</summary>
+    [HttpPost("catalog/demote")]
+    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DemoteCatalogEntry(
+        [FromBody] DemotePolicyPackCatalogEntryRequest? request,
+        CancellationToken ct = default)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        bool ok = await _policyPackCatalogAdminService.TryDemoteAsync(request.PolicyPackCatalogEntryId, ct);
+
+        if (!ok)
+            return this.NotFoundProblem(
+                $"Policy pack catalog entry '{request.PolicyPackCatalogEntryId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+
+        return NoContent();
     }
 
     /// <summary>Lists all version rows for a pack (newest first by repository ordering).</summary>
