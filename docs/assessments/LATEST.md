@@ -471,19 +471,148 @@ Add a Redis health check to the ASP.NET Core Health Checks pipeline in `ArchLuci
 - Impact: Directly improves Supportability (+8-10 pts) and Performance (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 14. DEFERRED: Automated tenant erasure (30-day quarantine, legal-hold flag, blob + SQL purge)
+### 14. Add Prometheus Alert for Integration Event Outbox Dead Letters
+- **Why it matters:** When an integration event exhausts all publish retries it is moved to the dead-letter slot (`archlucid_integration_event_outbox_dead_letter` gauge, emitted by `OutboxOperationalMetricsHostedService`). The dead-letter transition is logged at Error level but no Prometheus alert rule fires, so operators are only alerted if they manually inspect dashboards. A missed dead-letter means an integration event (Jira ticket, Slack notification, etc.) silently never delivered.
+- **Expected impact:** Reliability (+12 pts), Observability (+8 pts).
+- **Affected qualities:** Reliability, Observability.
+- **Actionable:** Yes
+```text
+Add a new Prometheus alert rule to `infra/terraform-monitoring/prometheus_slo_rules.tf` inside the existing `azurerm_monitor_alert_prometheus_rule_group.archlucid_slo` resource.
+- Rule name: `ArchLucidIntegrationOutboxDeadLetterNonZeroTf`
+- Expression: `archlucid_integration_event_outbox_dead_letter > 0`
+- Severity: 2, `for = "PT5M"`, action group: `azurerm_monitor_action_group.ops[0].id`.
+- Annotation summary: "Integration event outbox dead-letter queue is non-zero. See docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md."
+- Acceptance criteria: (a) Rule appears in `terraform plan` output. (b) Unit test asserts the rule is present in a Terraform JSON plan or the rule group locals list. (c) `terraform validate` passes.
+- Constraints: Stay inside the existing `count = local.prometheus_slo_rule_group_enabled ? 1 : 0` guard. Do not add a new resource.
+- What not to change: Do not alter the three existing SLO alert rules.
+- Impact: Directly improves Reliability (+10-12 pts) and Observability (+6-8 pts). Weighted readiness impact: +0.15-0.25%.
+```
+
+### 15. Add Prometheus Alert for LLM Tenant Budget Approaching Warn Fraction
+- **Why it matters:** `LlmMonthlyTenantDollarBudgetOptions` has a `WarnFraction` (default 0.75) that gates pre-call reservations, but no Prometheus alert fires when aggregate per-tenant spend approaches the cap. Operators learn of budget pressure only when tenants start receiving budget-exceeded errors, not before.
+- **Expected impact:** AI/Agent Readiness (+8 pts), Observability (+6 pts).
+- **Affected qualities:** AI/Agent Readiness, Observability.
+- **Actionable:** Yes
+```text
+Two-part change.
+(1) In `ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs` (or the nearest telemetry file), add an observable up-down counter gauge named `archlucid_llm_budget_utilization_fraction` (dimensioned by `tenant_id`) that reads from `ILlmTenantBudgetRepository.GetOrCreateAsync` for the current period and emits `consumed / hard_cutoff`.
+(2) Add a Prometheus alert rule to `infra/terraform-monitoring/prometheus_slo_rules.tf` inside the existing rule group:
+- Rule name: `ArchLucidLlmBudgetWarnFractionBreachedTf`
+- Expression: `max by (tenant_id) (archlucid_llm_budget_utilization_fraction) > 0.75`
+- Severity: 3, `for = "PT5M"`, action group ops.
+- Annotation summary: "Tenant LLM budget utilisation exceeded 75%. Review infra/terraform-monitoring."
+- Acceptance criteria: (a) Gauge appears in Prometheus `/metrics` output. (b) Alert rule validates in Terraform plan.
+- Constraints: Gauge collection must not trigger a SQL query more frequently than every 5 minutes; use a cached/last-known value if the repository is slow.
+- What not to change: Do not alter the budget reserve/settle logic.
+- Impact: Directly improves AI/Agent Readiness (+6-8 pts) and Observability (+4-6 pts). Weighted readiness impact: +0.1-0.2%.
+```
+
+### 16. Add `runbook_url` Annotations to All Existing Prometheus SLO Alert Rules
+- **Why it matters:** The three existing alert rules in `prometheus_slo_rules.tf` (`ArchLucidSloHttpP99HighTf`, `ArchLucidSloHttp5xxRatioElevatedTf`, `ArchLucidSloOutboxDepthCriticalTf`) have only a `summary` annotation. Alertmanager and PagerDuty surface the `runbook_url` annotation as a clickable link. Without it, on-call engineers must manually search for the correct runbook in a high-stress incident.
+- **Expected impact:** Observability (+8 pts), Reliability (+4 pts).
+- **Affected qualities:** Observability, Reliability.
+- **Actionable:** Yes
+```text
+Update each of the three existing `rule` blocks in `infra/terraform-monitoring/prometheus_slo_rules.tf` to add a `runbook_url` key to their `annotations` map.
+- `ArchLucidSloHttpP99HighTf` → `runbook_url = "https://github.com/ArchLucid/ArchLucid/blob/main/docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md"`
+- `ArchLucidSloHttp5xxRatioElevatedTf` → same runbook URL.
+- `ArchLucidSloOutboxDepthCriticalTf` → same runbook URL.
+- Acceptance criteria: `terraform validate` passes; all three rules contain `runbook_url` in their annotations maps.
+- Constraints: Use the existing `docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md` path. Do not create new runbook files.
+- What not to change: Do not alter expression, severity, or for duration on any existing rule.
+- Impact: Directly improves Observability (+6-8 pts). Weighted readiness impact: +0.05-0.1%.
+```
+
+### 17. Export LLM Tenant Budget Utilization as a Prometheus Observable Gauge
+- **Why it matters:** The `dashboard-archlucid-llm-usage.json` Grafana dashboard exists, but it has no budget-headroom panel because `ILlmTenantBudgetRepository` state is not surfaced via Prometheus. Operators cannot tell at a glance whether any tenant is within 20% of their hard cutoff. This is a distinct instrumentation gap from the alert rule in task 15.
+- **Expected impact:** Observability (+10 pts), AI/Agent Readiness (+5 pts).
+- **Affected qualities:** Observability, AI/Agent Readiness.
+- **Actionable:** Yes
+```text
+Add a background periodic reader that calls `ILlmTenantBudgetRepository.GetOrCreateAsync` for every active tenant every 5 minutes and publishes an observable gauge `archlucid_llm_budget_remaining_usd` (dimensioned by `tenant_id`) to `ArchLucidInstrumentation`.
+- Acceptance criteria: (a) Metric appears in `/metrics` scrape. (b) A new panel "LLM Budget Remaining (USD) by Tenant" is added to `infra/grafana/dashboard-archlucid-llm-usage.json` using this metric. (c) Unit test asserts the gauge is non-negative.
+- Constraints: Limit to tenants with `LlmMonthlyTenantDollarBudget:Enabled = true`. Cache the tenant list; refresh every 60 s to avoid N+1 SQL per scrape.
+- What not to change: Do not modify the reserve/settle path or the budget enforcement logic.
+- Impact: Directly improves Observability (+8-10 pts) and AI/Agent Readiness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+```
+
+### 18. Raise Merged-Line Coverage Floor in CI from 0 to 75
+- **Why it matters:** `ci.yml` line 1742 explicitly passes `0` as the merged-line minimum, with a comment stating the 95% ratchet is deferred to V1.1. This means test coverage can regress freely from its current level until V1.1. Raising the floor to 75 is a safe intermediate gate that preserves the current coverage bar without requiring the full ratchet mechanism.
+- **Expected impact:** Testability (+12 pts), Correctness (+5 pts).
+- **Affected qualities:** Testability, Correctness.
+- **Actionable:** Yes
+```text
+In `.github/workflows/ci.yml`, change the merged-line minimum argument to `assert_merged_line_coverage_min.py` from `0` to `75`.
+- Current line (approx. 1742): `python3 scripts/ci/assert_merged_line_coverage_min.py "${OUT}/Cobertura.xml" 0 \`
+- Change to: `python3 scripts/ci/assert_merged_line_coverage_min.py "${OUT}/Cobertura.xml" 75 \`
+- Also update the inline comment from "Merged line minimum is 0 here" to "Merged line minimum is 75; full ratchet (.coverage-floor) is V1.1."
+- Acceptance criteria: (a) A PR that drops merged line coverage below 75 fails CI. (b) The current main branch passes the new threshold. (c) No other CI steps are modified.
+- Constraints: Verify the current merged-line coverage value from the most recent CI run artifact before choosing 75; if it is below 75, use the current value minus 1 as a safe floor instead.
+- What not to change: Do not change the branch coverage minimum (63) or the per-package minimums.
+- Impact: Directly improves Testability (+10-12 pts) and Correctness (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
+```
+
+### 19. Add Azure Cost Management Actual-Spend Ingestion to the Extractor
+- **Why it matters:** `scripts/azure/ArchLucid.RetailPrices.helpers.ps1` estimates unit costs from retail price lists, but the extractor (`Get-ArchLucidAzurePackage.ps1`) never calls the Azure Cost Management API to retrieve actual monthly spend. Architecture review reports currently show "estimated" cost without a "vs. actual" comparison, which reduces commercial credibility with FinOps-aware buyers.
+- **Expected impact:** Decision Velocity (+12 pts), Time-to-Value (+6 pts).
+- **Affected qualities:** Decision Velocity, Time-to-Value.
+- **Actionable:** Yes
+```text
+Add a new helper function `Get-ArchLucidActualCostSummary` to a new file `scripts/azure/ArchLucid.CostManagement.helpers.ps1` that:
+1. Calls `az costmanagement query` with `--type ActualCost` scoped to the subscription.
+2. Returns a summary object with `TotalActualCostUsd`, `CurrencyCode`, `BillingPeriod`, and a per-service-name breakdown.
+3. Is called from `Get-ArchLucidAzurePackage.ps1` and its output merged into the JSON package under a new top-level key `"actualCostSummary"`.
+- Acceptance criteria: (a) Running the script against a subscription with Cost Management Reader role returns a non-null `actualCostSummary`. (b) Script gracefully handles insufficient permissions (Cost Management Reader not assigned) by setting `"actualCostSummary": null` and logging a warning. (c) A Pester or integration test validates the helper returns the expected shape.
+- Constraints: The `az` CLI must be the only dependency; do not add PowerShell modules. Scope to the current subscription only.
+- What not to change: Do not alter existing `RetailPrices` logic or the existing JSON package structure keys.
+- Impact: Directly improves Decision Velocity (+10-12 pts) and Time-to-Value (+4-6 pts). Weighted readiness impact: +0.15-0.25%.
+```
+
+### 20. Add Trial Expiry Countdown Banner to the UI
+- **Why it matters:** `TrialLifecycleEmailScanHostedService` sends email notifications on trial lifecycle events, but there is no in-app UI component that shows "N days remaining in your trial." Without a visible countdown, users approaching the trial end have no in-session nudge to convert. This is a direct conversion-funnel gap.
+- **Expected impact:** Stickiness (+10 pts), Time-to-Value (+6 pts).
+- **Affected qualities:** Stickiness, Time-to-Value.
+- **Actionable:** Yes
+```text
+Add a `TrialExpiryBanner` React component in `archlucid-ui/src/components/` that:
+1. Reads trial expiry state from a new API endpoint `GET /v1/trial/status` (or an existing tenant-profile endpoint if one already surfaces `TrialEndsUtc`).
+2. Renders a dismissible info banner when the trial has 7 or fewer days remaining, showing the exact number of days and a "Talk to us" CTA linking to the configured contact/sales URL.
+3. Is mounted in the root layout so it appears on every authenticated page.
+- Acceptance criteria: (a) Banner appears in Storybook and a Playwright smoke test confirms it renders when `daysRemaining <= 7`. (b) Banner does not render when the tenant is not on a trial. (c) Banner is dismissible per session (localStorage flag).
+- Constraints: Read `TrialEndsUtc` from the existing profile/context store; do not introduce a new polling call unless the value is absent from the existing context.
+- What not to change: Do not modify `TrialLifecycleEmailScanHostedService` or any backend trial lifecycle logic.
+- Impact: Directly improves Stickiness (+8-10 pts) and Time-to-Value (+4-6 pts). Weighted readiness impact: +0.1-0.2%.
+```
+
+### 21. Add OpenAPI Snapshot Staleness Check to CI
+- **Why it matters:** `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json` exists as the canonical API contract, and `.cursor/rules/Http-Surface-Docs-And-Clients.mdc` requires it to be regenerated and committed in the same PR when routes change. However, CI has no step that fails a PR when the snapshot is stale, so the constraint is documentation-only and regularly bypassed under deadline pressure.
+- **Expected impact:** Correctness (+10 pts), Testability (+6 pts).
+- **Affected qualities:** Correctness, Testability.
+- **Actionable:** Yes
+```text
+Add a CI step to `.github/workflows/ci.yml` in the .NET test job that:
+1. Runs the `OpenApiContractSnapshotTests` project with `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1` to regenerate the snapshot in-place.
+2. Runs `git diff --exit-code ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json` to detect drift.
+3. Fails the step with a clear message ("OpenAPI snapshot is out of date. Regenerate with ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 and commit the result.") if drift is detected.
+- Acceptance criteria: (a) A PR that adds a new API route without committing an updated snapshot fails CI at this step. (b) A PR with a committed, up-to-date snapshot passes.
+- Constraints: The regeneration step must not commit to the branch; it is read-only for comparison only. Use the existing test project; do not add new tooling.
+- What not to change: Do not alter the `OpenApiContractSnapshotTests` test logic.
+- Impact: Directly improves Correctness (+8-10 pts) and Testability (+4-6 pts). Weighted readiness impact: +0.1-0.2%.
+```
+
+### 22. DEFERRED: Automated tenant erasure (30-day quarantine, legal-hold flag, blob + SQL purge)
 - **Reason:** Deferred to V2. Requires user input to confirm the legal hold schema and RBAC roles allowed to clear the hold.
 - **Needed from me:** Please provide the exact schema for `LegalHoldUntilUtc` and confirm the RBAC roles for clearing the hold.
 
-### 15. DEFERRED: First named, public reference customer
+### 23. DEFERRED: First named, public reference customer
 - **Reason:** Deferred to V1.1. Requires user input to provide the customer name and case study details.
 - **Needed from me:** Please provide the customer name, logo, and case study content when ready.
 
-### 16. DEFERRED: Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
+### 24. DEFERRED: Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
 - **Reason:** Deferred to V1.1. Requires user input to provide the live Stripe keys and confirm Marketplace publication.
 - **Needed from me:** Please provide the `sk_live_` Stripe keys and confirm the Marketplace offer is `Published`.
 
-### 17. DEFERRED: PGP key drop for security@archlucid.net
+### 25. DEFERRED: PGP key drop for security@archlucid.net
 - **Reason:** Deferred to V1.1. Requires user input to generate and provide the PGP keypair.
 - **Needed from me:** Please provide the public PGP key block to be placed at `archlucid-ui/public/.well-known/pgp-key.txt`.
 
@@ -493,24 +622,26 @@ Add a Redis health check to the ASP.NET Core Health Checks pipeline in `ArchLuci
 
 To optimize context window usage and cost-effectiveness, batch the actionable prompts as follows:
 
-- **Batch 1 (Observability & Monitoring):** 1, 11, 13
-- **Batch 2 (Cost & Policy Packs):** 2, 3, 4
-- **Batch 3 (Reliability & Scalability):** 6, 9, 12
-- **Batch 4 (Security & Compliance):** 5, 8
-- **Batch 5 (Testing & UX):** 7, 10
+- **Batch 1 (Observability & Monitoring):** 1, 11, 13, 16, 17
+- **Batch 2 (Alerting & SLO):** 14, 15
+- **Batch 3 (Cost & Policy Packs):** 2, 3, 4, 19
+- **Batch 4 (Reliability & Scalability):** 6, 9, 12
+- **Batch 5 (Security & Compliance):** 5, 8
+- **Batch 6 (Testing & CI):** 7, 18, 21
+- **Batch 7 (UX & Conversion):** 10, 20
 
 ---
 
 ## Pending Questions for Later
 
-### DEFERRED: Automated tenant erasure (30-day quarantine, legal-hold flag, blob + SQL purge)
+### DEFERRED (22): Automated tenant erasure (30-day quarantine, legal-hold flag, blob + SQL purge)
 - What is the exact schema for `LegalHoldUntilUtc` and which RBAC roles are allowed to clear the hold?
 
-### DEFERRED: First named, public reference customer
+### DEFERRED (23): First named, public reference customer
 - What is the customer name, logo, and case study content?
 
-### DEFERRED: Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
+### DEFERRED (24): Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
 - What are the `sk_live_` Stripe keys and is the Marketplace offer `Published`?
 
-### DEFERRED: PGP key drop for security@archlucid.net
+### DEFERRED (25): PGP key drop for security@archlucid.net
 - What is the public PGP key block to be placed at `archlucid-ui/public/.well-known/pgp-key.txt`?
