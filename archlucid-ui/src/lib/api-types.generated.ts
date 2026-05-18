@@ -7484,10 +7484,10 @@ export interface paths {
             requestBody: {
                 content: {
                     "application/x-www-form-urlencoded": {
-                        files?: components["schemas"]["IFormFileCollection"];
+                        files?: string[];
                     };
                     "multipart/form-data": {
-                        files?: components["schemas"]["IFormFileCollection"];
+                        files?: string[];
                     };
                 };
             };
@@ -7545,6 +7545,17 @@ export interface paths {
                 };
                 /** @description Payload Too Large */
                 413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -7716,6 +7727,79 @@ export interface paths {
                         "application/json": components["schemas"]["ProblemDetails"];
                         "text/json": components["schemas"]["ProblemDetails"];
                         "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/run/{runId}/findings/export/csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["FileContentResult"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": components["schemas"]["ProblemDetails"];
                     };
                 };
             };
@@ -21948,6 +22032,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/tenant/workspaces/recycle-bin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantWorkspacesRecycleBinResponse"];
+                        "text/json": components["schemas"]["TenantWorkspacesRecycleBinResponse"];
+                        "text/plain": components["schemas"]["TenantWorkspacesRecycleBinResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/tenant/workspaces/{workspaceId}/projects/{projectId}": {
         parameters: {
             query?: never;
@@ -22001,6 +22133,75 @@ export interface paths {
                 };
             };
         };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    workspaceId: string;
+                    projectId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -24658,7 +24859,6 @@ export interface components {
         };
         /** Format: binary */
         IFormFile: string;
-        IFormFileCollection: components["schemas"]["IFormFile"][];
         ImprovementOpportunity: {
             affectedArtifactTypeOrWorkflowArea?: string;
             /** Format: double */
@@ -26931,14 +27131,32 @@ export interface components {
             /** Format: uuid */
             workspaceId?: string;
         };
+        TenantWorkspaceDeletedProjectApiDto: {
+            /** Format: date-time */
+            deletedUtc?: string;
+            displayName?: null | string;
+            name?: string;
+            /** Format: uuid */
+            projectId?: string;
+        };
         TenantWorkspaceProjectApiDto: {
             displayName?: null | string;
             name?: string;
             /** Format: uuid */
             projectId?: string;
         };
+        TenantWorkspaceRecycleBinApiDto: {
+            deletedProjects?: components["schemas"]["TenantWorkspaceDeletedProjectApiDto"][];
+            displayName?: null | string;
+            name?: string;
+            /** Format: uuid */
+            workspaceId?: string;
+        };
         TenantWorkspacesListResponse: {
             workspaces?: components["schemas"]["TenantWorkspaceApiDto"][];
+        };
+        TenantWorkspacesRecycleBinResponse: {
+            workspaces?: components["schemas"]["TenantWorkspaceRecycleBinApiDto"][];
         };
         TerraformPrCreatedResponse: {
             branchName?: string;

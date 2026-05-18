@@ -43,11 +43,11 @@ class TestAssertV1ConnectorCatalogAlignment(unittest.TestCase):
     def test_scope_commits_detection_positive(self):
         scope_snippet = (
             "**ServiceNow** — … **Two-way status sync** (ServiceNow → ArchLucid finding state) "
-            "is **committed for V1 GA** …"
+            "is **committed for V1.1** …"
         )
         jira_snippet = (
             "**Jira** — … **bi-directional status sync** (Jira → ArchLucid finding state) "
-            "is **committed for V1 GA** …"
+            "is **committed for V1.1** …"
         )
 
         snow, jira = G.scope_commits_inbound_itsm_sync(scope_snippet + jira_snippet)
@@ -58,8 +58,8 @@ class TestAssertV1ConnectorCatalogAlignment(unittest.TestCase):
     def test_catalog_row_patterns_detect_good_catalog_fragment(self):
         catalog_frag = (
             "| **ServiceNow** | … **Two-way** ServiceNow → ArchLucid **status-only** sync is "
-            "**committed for V1 GA** (…) |\n"
-            "| **Jira** | … **bi-directional** Jira → ArchLucid status sync is **committed for V1 GA** (…) |"
+            "**committed for V1.1** (…) |\n"
+            "| **Jira** | … **bi-directional** Jira → ArchLucid status sync is **committed for V1.1** (…) |"
         )
 
         snow_c, jira_c = G.catalog_committed_row_patterns_present(catalog_frag)
@@ -77,11 +77,11 @@ class TestAssertV1ConnectorCatalogAlignment(unittest.TestCase):
     def test_validate_catalog_reports_missing_servicenow_row(self):
         scope_ok = (
             "**ServiceNow** foo **Two-way status sync** (ServiceNow → ArchLucid finding state) "
-            "is **committed for V1 GA** "
+            "is **committed for V1.1** "
             "**Jira** bar **bi-directional status sync** (Jira → ArchLucid finding state) "
-            "is **committed for V1 GA**"
+            "is **committed for V1.1**"
         )
-        bad_catalog = "| **Jira** | **bi-directional** Jira → ArchLucid status sync is **committed for V1 GA** |"
+        bad_catalog = "| **Jira** | **bi-directional** Jira → ArchLucid status sync is **committed for V1.1** |"
 
         errs = G.validate_catalog_against_scope(scope_ok, bad_catalog, "synthetic.md")
 

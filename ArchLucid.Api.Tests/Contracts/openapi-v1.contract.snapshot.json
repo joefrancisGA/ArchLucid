@@ -15742,6 +15742,28 @@
         },
         "type": "object"
       },
+      "TenantWorkspaceDeletedProjectApiDto": {
+        "properties": {
+          "deletedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "TenantWorkspaceProjectApiDto": {
         "properties": {
           "displayName": {
@@ -15760,11 +15782,46 @@
         },
         "type": "object"
       },
+      "TenantWorkspaceRecycleBinApiDto": {
+        "properties": {
+          "deletedProjects": {
+            "items": {
+              "$ref": "#/components/schemas/TenantWorkspaceDeletedProjectApiDto"
+            },
+            "type": "array"
+          },
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "TenantWorkspacesListResponse": {
         "properties": {
           "workspaces": {
             "items": {
               "$ref": "#/components/schemas/TenantWorkspaceApiDto"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "TenantWorkspacesRecycleBinResponse": {
+        "properties": {
+          "workspaces": {
+            "items": {
+              "$ref": "#/components/schemas/TenantWorkspaceRecycleBinApiDto"
             },
             "type": "array"
           }
@@ -46880,6 +46937,55 @@
         ]
       }
     },
+    "/v1/tenant/workspaces/recycle-bin": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantWorkspacesRecycleBinResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantWorkspacesRecycleBinResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantWorkspacesRecycleBinResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "TenantWorkspaces"
+        ]
+      }
+    },
     "/v1/tenant/workspaces/{workspaceId}/projects/{projectId}": {
       "delete": {
         "parameters": [
@@ -46945,6 +47051,98 @@
               }
             },
             "description": "Not Found"
+          }
+        },
+        "tags": [
+          "TenantWorkspaces"
+        ]
+      }
+    },
+    "/v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict"
           }
         },
         "tags": [

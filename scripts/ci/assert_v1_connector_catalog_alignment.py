@@ -46,22 +46,22 @@ HIGH_RISK_DOC_RELS: tuple[Path, ...] = (
 
 ITSM_INBOUND_SERVICE_REL = Path("ArchLucid.Application/Integrations/Itsm/ItsmInboundWebhookSyncService.cs")
 
-# Catalog table rows must echo scope wording when scope commits both connectors.
+# Catalog table rows must echo scope wording when scope commits both connectors (V1.1 window).
 _RE_SERVICENOW_ROW_COMMITTED = re.compile(
-    r"\*\*Two-way\*\*\s+ServiceNow\s+→\s+ArchLucid\s+\*\*status-only\*\*\s+sync\s+is\s+\*\*committed\s+for\s+V1\s+GA\*\*",
+    r"\*\*Two-way\*\*\s+ServiceNow\s+→\s+ArchLucid\s+\*\*status-only\*\*\s+sync\s+is\s+\*\*committed\s+for\s+V1\.1\*\*",
     flags=re.IGNORECASE,
 )
 _RE_JIRA_ROW_COMMITTED = re.compile(
-    r"\*\*bi-directional\*\*\s+Jira\s+→\s+ArchLucid\s+status\s+sync\s+is\s+\*\*committed\s+for\s+V1\s+GA\*\*",
+    r"\*\*bi-directional\*\*\s+Jira\s+→\s+ArchLucid\s+status\s+sync\s+is\s+\*\*committed\s+for\s+V1\.1\*\*",
     flags=re.IGNORECASE,
 )
 
 _RE_SCOPE_SERVICENOW_COMMITTED = re.compile(
-    r"ServiceNow.*two-way\s+status\s+sync.*committed\s+for\s+V1\s+GA",
+    r"ServiceNow.*two-way\s+status\s+sync.*committed\s+for\s+V1\.1",
     flags=re.IGNORECASE | re.DOTALL,
 )
 _RE_SCOPE_JIRA_COMMITTED = re.compile(
-    r"Jira.*bi-?directional\s+status\s+sync.*committed\s+for\s+V1\s+GA",
+    r"Jira.*bi-?directional\s+status\s+sync.*committed\s+for\s+V1\.1",
     flags=re.IGNORECASE | re.DOTALL,
 )
 
@@ -112,7 +112,7 @@ def validate_catalog_against_scope(scope_text: str, catalog_text: str, catalog_l
 
     if not (snow_scope and jira_scope):
         errors.append(
-            "V1_SCOPE.md no longer documents committed V1 GA ITSM inbound sync for ServiceNow/Jira — "
+            "V1_SCOPE.md no longer documents committed V1.1 ITSM inbound sync for ServiceNow/Jira — "
             "update this guard's expectations or restore §2.13 wording.",
         )
 
@@ -123,13 +123,13 @@ def validate_catalog_against_scope(scope_text: str, catalog_text: str, catalog_l
     if not snow_cat:
         errors.append(
             f"{catalog_label}: missing required ServiceNow row wording "
-            "(**Two-way** ServiceNow → ArchLucid **status-only** sync is **committed for V1 GA**).",
+            "(**Two-way** ServiceNow → ArchLucid **status-only** sync is **committed for V1.1**).",
         )
 
     if not jira_cat:
         errors.append(
             f"{catalog_label}: missing required Jira row wording "
-            "(**bi-directional** Jira → ArchLucid status sync is **committed for V1 GA**).",
+            "(**bi-directional** Jira → ArchLucid status sync is **committed for V1.1**).",
         )
 
     return errors
@@ -190,7 +190,7 @@ def run_alignment_checks(repo_root: Path, emit_doc_code: bool) -> tuple[int, lis
         return (
             2,
             [
-                "ERROR: V1_SCOPE.md no longer documents committed V1 GA ITSM inbound sync for "
+                "ERROR: V1_SCOPE.md no longer documents committed V1.1 ITSM inbound sync for "
                 "ServiceNow/Jira — update guard expectations or restore §2.13 text.",
             ],
         )
