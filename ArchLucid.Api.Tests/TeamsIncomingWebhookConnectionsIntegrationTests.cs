@@ -75,7 +75,8 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSign
 
         HttpResponseMessage get0 =
             await client.GetAsync(new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative));
-        get0.StatusCode.Should().Be(HttpStatusCode.OK);
+        string get0Body = await get0.Content.ReadAsStringAsync();
+        get0.StatusCode.Should().Be(HttpStatusCode.OK, "response body: {0}", get0Body);
         TeamsIncomingWebhookConnectionResponse? parsed0 =
             await get0.Content.ReadFromJsonAsync<TeamsIncomingWebhookConnectionResponse>(JsonOptions);
         parsed0.Should().NotBeNull();

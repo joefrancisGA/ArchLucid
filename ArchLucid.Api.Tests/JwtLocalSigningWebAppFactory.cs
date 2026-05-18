@@ -18,11 +18,11 @@ namespace ArchLucid.Api.Tests;
 ///     with the same PEM-backed signing key pair.
 /// </summary>
 /// <remarks>
-///     Uses <see cref="IWebHostBuilder.UseConfiguration" /> plus late
-///     <see cref="IConfigurationBuilder" /> overrides (same pattern as
-///     <see cref="HealthEndpointSecurityApiFactory" />) so minimal-hosting
-///     <c>Program</c> sees PEM/Jwt settings before <c>AddArchLucidAuth</c> — <c>UseSetting</c> alone can lose to
-///     <c>appsettings.Development.json</c> and yield <c>401</c> on otherwise valid Bearer tokens.
+///     Applies auth overrides via <see cref="IWebHostBuilder.UseSetting" /> (early host merge),
+///     <see cref="IWebHostBuilder.UseConfiguration" />, and late <see cref="IConfigurationBuilder" /> in-memory collection
+///     (same belt-and-suspenders pattern as <see cref="Billing.BillingCheckoutEndToEndSqlJwtFactoryBase" />) so minimal-hosting
+///     <c>Program</c> registers JwtBearer before <c>appsettings.Development.json</c> <c>DevelopmentBypass</c> can win and
+///     yield <c>401</c> on otherwise valid Bearer tokens.
 /// </remarks>
 public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
 {
@@ -70,6 +70,14 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
         builder.UseEnvironment("Development");
 
         Dictionary<string, string?> settings = BuildHostConfigurationOverrides();
+
+        foreach (KeyValuePair<string, string?> pair in settings)
+        {
+            if (pair.Value is null)
+                continue;
+
+            builder.UseSetting(pair.Key, pair.Value);
+        }
 
         IConfiguration bootstrap = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
         builder.UseConfiguration(bootstrap);
