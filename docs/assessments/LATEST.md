@@ -479,19 +479,15 @@ Add a Redis health check to the ASP.NET Core Health Checks pipeline in `ArchLuci
 - **Reason:** Deferred to V1.1. Requires user input to provide the customer name and case study details.
 - **Needed from me:** Please provide the customer name, logo, and case study content when ready.
 
-### 16. DEFERRED: Signed design partner engagement
-- **Reason:** Deferred to V1.1. Requires user input to confirm the partner details.
-- **Needed from me:** Please provide the design partner agreement details when signed.
-
-### 17. DEFERRED: Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
+### 16. DEFERRED: Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
 - **Reason:** Deferred to V1.1. Requires user input to provide the live Stripe keys and confirm Marketplace publication.
 - **Needed from me:** Please provide the `sk_live_` Stripe keys and confirm the Marketplace offer is `Published`.
 
-### 18. DEFERRED: PGP key drop for security@archlucid.net
+### 17. DEFERRED: PGP key drop for security@archlucid.net
 - **Reason:** Deferred to V1.1. Requires user input to generate and provide the PGP keypair.
 - **Needed from me:** Please provide the public PGP key block to be placed at `archlucid-ui/public/.well-known/pgp-key.txt`.
 
-### 19. DEFERRED: Inbound MCP server (membrane)
+### 18. DEFERRED: Inbound MCP server (membrane)
 - **Reason:** Deferred to V1.1. Requires user input to confirm the final list of read-only tools.
 - **Needed from me:** Please confirm the 7 read-only tools listed in the backlog are final.
 
@@ -516,9 +512,6 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 
 ### DEFERRED: First named, public reference customer
 - What is the customer name, logo, and case study content?
-
-### DEFERRED: Signed design partner engagement
-- What are the design partner agreement details?
 
 ### DEFERRED: Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
 - What are the `sk_live_` Stripe keys and is the Marketplace offer `Published`?
