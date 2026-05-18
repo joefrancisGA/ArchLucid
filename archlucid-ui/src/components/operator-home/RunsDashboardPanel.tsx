@@ -17,6 +17,7 @@ import {
   OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN,
 } from "@/lib/operator-home-example-request";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
+import { BUYER_RUNS_DASHBOARD_RECENT_LABEL } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
@@ -229,7 +230,7 @@ export function RunsDashboardPanel() {
             ))}
           </div>
           <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-            {tab === "recent" ? "Latest in workspace" : null}
+            {tab === "recent" && buyerPolishedShell ? BUYER_RUNS_DASHBOARD_RECENT_LABEL : tab === "recent" ? "Latest in workspace" : null}
             {tab === "attention"
               ? buyerPolishedShell
                 ? "Packaging and pre-final posture"

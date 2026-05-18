@@ -44,6 +44,10 @@ function buyerPolishedCommandPaletteLabel(pathname: string): string {
     return "Search audit trail";
   }
 
+  if (path.startsWith("/governance")) {
+    return "Search governance record";
+  }
+
   const reviewPackageSubtree =
     /^\/reviews\/[^/]+(?:\/|$)/u.test(path) ||
     /^\/manifests\/[^/]/u.test(path) ||

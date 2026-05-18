@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { InspectorPanel } from "@/components/InspectorPanel";
+import { RunsListBuyerFeaturedCard } from "@/components/RunsListBuyerFeaturedCard";
 import { RunInspectorPreview } from "@/components/RunInspectorPreview";
 import { RunProvenanceInline } from "@/components/RunProvenanceInline";
 import { RunsRowBaselineMenu } from "@/components/RunsRowBaselineMenu";
@@ -371,6 +372,12 @@ export function RunsListClient({
   const listNarrowingActive =
     filterText.trim().length > 0 || (buyerPolished === true && buyerPackageScope !== "all");
   const soleVisibleRun = filteredSorted.length === 1 ? filteredSorted[0] ?? null : null;
+  const showBuyerFeaturedCard =
+    buyerPolished === true &&
+    pages === 1 &&
+    totalCount === 1 &&
+    soleVisibleRun !== null &&
+    !listNarrowingActive;
 
   const filterStatusLine = runsListPageFilterStatusLine(
     filteredSorted.length,
@@ -565,7 +572,11 @@ export function RunsListClient({
       <div className={cn(!viewportNarrow && "lg:flex lg:items-stretch lg:gap-4")}>
         <div className={cn("min-w-0 flex-1 space-y-4", !viewportNarrow && "lg:min-w-0")}>
           <div className="space-y-8">
-            {filteredSorted.length === 0 ? (
+            {showBuyerFeaturedCard && soleVisibleRun !== null ? (
+              <RunsListBuyerFeaturedCard run={soleVisibleRun} />
+            ) : null}
+
+            {showBuyerFeaturedCard ? null : filteredSorted.length === 0 ? (
               <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
                 <table className="w-full border-collapse text-sm">
                   <thead>
@@ -592,7 +603,7 @@ export function RunsListClient({
               </div>
             ) : null}
 
-            {workQueueSections.map((section) => {
+            {showBuyerFeaturedCard ? null : workQueueSections.map((section) => {
               const headingId = `runs-queue-${section.groupId}`;
 
               return (
@@ -753,7 +764,7 @@ export function RunsListClient({
           <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
             {paginationAnnouncement}
           </div>
-          {buyerPolished && pages === 1 && totalCount === 1 ? (
+          {showBuyerFeaturedCard ? null : buyerPolished && pages === 1 && totalCount === 1 ? (
             <p className="m-0 mt-5 text-sm text-neutral-600 dark:text-neutral-400">1 finalized review package</p>
           ) : (
             <nav

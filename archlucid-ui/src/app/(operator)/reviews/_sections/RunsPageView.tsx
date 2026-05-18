@@ -91,7 +91,7 @@ export function RunsPageView(props: Props) {
         ) : null}
       </div>
 
-      {m.usedStaticRunsFallback ? (
+      {m.usedStaticRunsFallback && !isBuyerPolishedOperatorShellEnv() ? (
         <div className="mt-4 max-w-3xl">
           <OperatorDemoStaticBanner />
         </div>

@@ -87,7 +87,7 @@ export function buyerPolishedRouteOrientation(
   if (path.startsWith("/governance")) {
     return {
       label: "Governance approval record",
-      line: "Approved for governed use — reviewers, outcome, and monitored controls where applicable. Production deployments remain governed by enterprise change management.",
+      line: "Governance approval record — approved for governed use with monitored PHI minimization control. Approved as the governed architecture record for diligence, architecture review, and implementation planning. Production deployments remain governed by enterprise change management.",
     };
   }
 

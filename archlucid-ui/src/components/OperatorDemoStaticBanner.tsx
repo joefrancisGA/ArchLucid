@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-const EXAMPLE_SAMPLE_TOOLTIP = "Example workspace using illustrative sample data only.";
+import { BUYER_EXAMPLE_WORKSPACE_TOOLTIP } from "@/lib/buyer-polish-copy";
 
 /**
  * Inline notice when operator run/manifest content is served from the curated showcase bundle
@@ -36,10 +36,10 @@ export function OperatorDemoStaticBanner(): ReactElement {
             data-demo-static="true"
           >
             <span className="font-medium">Example workspace</span>
-            <span className="sr-only"> — Example workspace using illustrative sample data only.</span>
+            <span className="sr-only"> — {BUYER_EXAMPLE_WORKSPACE_TOOLTIP}</span>
           </div>
         </TooltipTrigger>
-        <TooltipContent sideOffset={6}>{EXAMPLE_SAMPLE_TOOLTIP}</TooltipContent>
+        <TooltipContent sideOffset={6}>{BUYER_EXAMPLE_WORKSPACE_TOOLTIP}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );

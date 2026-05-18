@@ -113,8 +113,8 @@ export function GovernanceApprovalStoryCard(props: {
           ))}
         </ol>
         <p className="m-0 mt-4 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-          Production deployments and environment promotions remain with your enterprise change board — ArchLucid records governed
-          architecture evidence; operations teams gate execution separately.
+          ArchLucid records governed architecture evidence for diligence and review. Production execution remains controlled
+          by the customer&apos;s enterprise change-management process.
         </p>
       </CardContent>
       {auditTrailHref.length > 0 ? (

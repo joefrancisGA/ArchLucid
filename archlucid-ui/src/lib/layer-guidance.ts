@@ -263,7 +263,7 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
       "Scan dispositions alongside the governance approval — findings, recorded decisions, and follow-up monitors in one ledger.",
     firstPilotNote: null,
     enterpriseFootnote:
-      "Portfolio operators still use review detail for deep inspection; governance approval remains the authoritative checkpoint.",
+      "Review administrators and governance reviewers use review detail for deep inspection; governance approval remains the authoritative checkpoint.",
   },
   "policy-packs": {
     useWhen: "See which governance packs apply in this workspace and how they combine.",

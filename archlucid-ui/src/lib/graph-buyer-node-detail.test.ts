@@ -1,51 +1,34 @@
 import { describe, expect, it } from "vitest";
 
-import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
+import { graphBuyerTrailRecordTypeLine } from "./graph-buyer-node-detail";
+import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "./showcase-static-demo";
+import type { GraphNodeVm } from "@/types/graph";
 
-import { graphBuyerTrailDispositionLine, graphBuyerTrailMetadataLines } from "@/lib/graph-buyer-node-detail";
+describe("graphBuyerTrailRecordTypeLine", () => {
+  it("labels PHI hero finding as risk finding with risk area", () => {
+    const node: GraphNodeVm = {
+      id: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+      type: "Finding",
+      label: "PHI minimization risk",
+      metadata: { referenced: "phi-minimization-risk" },
+    };
 
-describe("graphBuyerTrailDispositionLine", () => {
-  it("returns curated disposition copy for the showcase PHI finding reference id", () => {
-    expect(
-      graphBuyerTrailDispositionLine("Finding", {
-        referenceId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
-      }),
-    ).toContain("Accepted with monitoring");
-  });
-
-  it("returns API disposition field when present", () => {
-    expect(
-      graphBuyerTrailDispositionLine("Finding", {
-        disposition: "Hold — blocking until remediation",
-      }),
-    ).toBe("Hold — blocking until remediation");
-  });
-
-  it("returns null for non-finding nodes", () => {
-    expect(graphBuyerTrailDispositionLine("GoldenManifest", { disposition: "x" })).toBeNull();
-  });
-});
-
-describe("graphBuyerTrailMetadataLines", () => {
-  it("maps referenced slug to risk area and preserves raw reference as technical", () => {
-    const { summaryLines, technicalLines } = graphBuyerTrailMetadataLines({
-      referenced: "phi-minimization-risk",
+    expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
+      primary: "Risk finding",
+      secondary: "Risk area: PHI minimization",
     });
-
-    expect(summaryLines.some((l) => l.label === "Risk area" && l.value === "PHI Minimization Risk")).toBe(true);
-    expect(technicalLines.some((l) => l.label.includes("Raw reference"))).toBe(true);
   });
 
-  it("adds risk area and why it matters when referenceId is the showcase PHI finding", () => {
-    const { summaryLines, technicalLines } = graphBuyerTrailMetadataLines({
-      referenceId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
-    });
+  it("labels generic finding nodes as Finding", () => {
+    const node: GraphNodeVm = {
+      id: "finding-other",
+      type: "Finding",
+      label: "Other finding",
+    };
 
-    expect(summaryLines.some((l) => l.label === "Risk area")).toBe(true);
-    expect(summaryLines.some((l) => l.label === "Why it matters")).toBe(true);
-    expect(summaryLines.some((l) => l.label === "Severity" && l.value === "High")).toBe(true);
-    expect(summaryLines.some((l) => l.label === "Blocking status")).toBe(true);
-    expect(summaryLines.some((l) => l.label === "Monitoring cadence")).toBe(true);
-    expect(technicalLines.some((l) => l.label === "Reference ID")).toBe(true);
+    expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
+      primary: "Finding",
+      secondary: null,
+    });
   });
 });

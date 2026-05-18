@@ -78,21 +78,26 @@ describe("ContextualHelp", () => {
     expect(button).toHaveAttribute("aria-controls", tid as string);
   });
 
-  it("is keyboard accessible: Enter and Space toggle", () => {
-    const { getByLabelText, queryByRole } = render(<ContextualHelp helpKey="governance-gate" />);
-    const button = getByLabelText(contextualHelpTriggerAriaLabel("governance-gate")!) as HTMLButtonElement;
+  it.each([" ", "Enter"] as const)("is keyboard accessible: %s toggles the help panel", (key) => {
+    const { getByLabelText, queryByRole, unmount } = render(<ContextualHelp helpKey="governance-gate" />);
+    const label = contextualHelpTriggerAriaLabel("governance-gate");
+
+    expect(label).not.toBeNull();
+
+    const button = getByLabelText(label!) as HTMLButtonElement;
 
     act(() => {
       button.focus();
-      fireEvent.keyDown(button, { key: " ", code: "Space" });
+      fireEvent.keyDown(button, { key, code: key === " " ? "Space" : "Enter" });
     });
 
     expect(queryByRole("region", { name: /contextual help/i })).toBeInTheDocument();
 
     act(() => {
-      fireEvent.keyDown(button, { key: " ", code: "Space" });
+      fireEvent.keyDown(button, { key, code: key === " " ? "Space" : "Enter" });
     });
 
     expect(queryByRole("region", { name: /contextual help/i })).toBeNull();
+    unmount();
   });
 });

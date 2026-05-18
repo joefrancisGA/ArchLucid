@@ -145,6 +145,10 @@ export function CompareForm() {
       return;
     }
 
+    if (isBuyerPolishedOperatorShellEnv()) {
+      return;
+    }
+
     const { prior: priorQ, later: laterQ } = readCompareRunIdsFromSearchParams(searchParams);
 
     if (priorQ.length > 0 || laterQ.length > 0) {
@@ -354,6 +358,7 @@ export function CompareForm() {
           onRightRunPicked={setRightPickedSummary}
           useBuyerFacingRunLabels={buyerPolished}
           summarizeButtonLabel={buyerPolished ? "Summarize for leadership" : "Summarize for sponsor"}
+          collapseBelowResults={compareInsightFirstLayout && buyerPolished}
         />
 
         <CompareResultsPanel

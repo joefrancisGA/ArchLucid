@@ -18,6 +18,7 @@ export function buyerPolishedOperateBackLink(pathnameWithSearch: string): {
     path.startsWith("/graph") ||
     path.startsWith("/governance") ||
     path.startsWith("/audit") ||
+    path.startsWith("/compare") ||
     path.startsWith("/manifests/") ||
     path.startsWith("/showcase/") ||
     path.startsWith("/ask")

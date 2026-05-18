@@ -1,5 +1,6 @@
 import { EmptyState } from "@/components/EmptyState";
 import { RunIdPicker } from "@/components/RunIdPicker";
+import { BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY } from "@/lib/buyer-polish-copy";
 import { COMPARE_WAITING } from "@/lib/empty-state-presets";
 import type { RunSummary } from "@/types/authority";
 
@@ -26,6 +27,8 @@ export type CompareRunPickersSectionProps = {
   useBuyerFacingRunLabels?: boolean;
   /** Buyer shell: replaces “Summarize for sponsor” with procurement-oriented language. */
   summarizeButtonLabel?: string;
+  /** Buyer shell: collapse pickers below results when comparison is on screen. */
+  collapseBelowResults?: boolean;
 };
 
 export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
@@ -50,10 +53,11 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
     onRightRunPicked,
     useBuyerFacingRunLabels = false,
     summarizeButtonLabel = "Summarize for sponsor",
+    collapseBelowResults = false,
   } = props;
 
-  return (
-    <section className="scroll-mt-8 space-y-4" aria-labelledby="compare-select-heading">
+  const pickerFields = (
+    <>
       <h2 id="compare-select-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
         Select reviews to compare
       </h2>
@@ -124,6 +128,25 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
       </div>
 
       {(!leftTrim || !rightTrim) && <EmptyState {...COMPARE_WAITING} />}
+    </>
+  );
+
+  if (collapseBelowResults) {
+    return (
+      <details className="scroll-mt-8 max-w-3xl rounded-lg border border-neutral-200 bg-neutral-50/50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30">
+        <summary className="cursor-pointer text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+          {BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY}
+        </summary>
+        <section className="mt-3 space-y-4" aria-labelledby="compare-select-heading">
+          {pickerFields}
+        </section>
+      </details>
+    );
+  }
+
+  return (
+    <section className="scroll-mt-8 space-y-4" aria-labelledby="compare-select-heading">
+      {pickerFields}
     </section>
   );
 }

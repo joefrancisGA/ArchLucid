@@ -1,4 +1,6 @@
+import { isBuyerTrailPhiHeroNode } from "@/lib/graph-mapper";
 import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
+import type { GraphNodeVm } from "@/types/graph";
 
 export type BuyerTrailMetadataLine = {
   readonly label: string;
@@ -57,6 +59,25 @@ export function graphBuyerTrailDispositionLine(
   }
 
   return null;
+}
+
+/** Buyer trail panel: human record type line (Finding vs risk finding vs other node types). */
+export function graphBuyerTrailRecordTypeLine(node: GraphNodeVm): {
+  readonly primary: string;
+  readonly secondary: string | null;
+} {
+  if (isBuyerTrailPhiHeroNode(node)) {
+    return {
+      primary: "Risk finding",
+      secondary: "Risk area: PHI minimization",
+    };
+  }
+
+  if (node.type === "Finding") {
+    return { primary: "Finding", secondary: null };
+  }
+
+  return { primary: node.type, secondary: null };
 }
 
 /** Splits graph node metadata into sponsor-facing lines vs. technical key–value pairs (buyer trail panel). */

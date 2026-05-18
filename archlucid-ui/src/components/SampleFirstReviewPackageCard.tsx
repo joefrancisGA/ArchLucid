@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
+import { BUYER_HOME_SAMPLE_PACKAGE_LEAD } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
@@ -62,10 +63,7 @@ export function SampleFirstReviewPackageCard() {
 
           <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
             {buyerPolished === true ? (
-              <>
-                Illustrative Claims Intake package — start at the executive summary, or open the full review package to
-                explore manifest, evidence trail, governance, and audit from one workspace view.
-              </>
+              <>{BUYER_HOME_SAMPLE_PACKAGE_LEAD}</>
             ) : (
               "Open the Claims Intake sample to see the reviewed manifest, evidence trail, findings, and artifacts before filling out the real-input wizard."
             )}

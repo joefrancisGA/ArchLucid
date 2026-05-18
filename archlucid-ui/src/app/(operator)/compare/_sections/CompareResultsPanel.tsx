@@ -241,6 +241,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             updatedRunId={golden.targetRunId}
             baselinePickedSummary={leftPickedSummary}
             updatedPickedSummary={rightPickedSummary}
+            buyerPolished={buyerPolished}
           />
         ) : null}
 

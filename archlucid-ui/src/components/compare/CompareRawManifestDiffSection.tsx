@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { ArchitectureManifestUnifiedDiffView } from "@/components/compare/ArchitectureManifestUnifiedDiffView";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL } from "@/lib/buyer-polish-copy";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import {
   formatArchitectureManifestJsonForDiff,
@@ -19,6 +20,7 @@ export type CompareRawManifestDiffSectionProps = {
   updatedRunId: string;
   baselinePickedSummary?: RunSummary | null;
   updatedPickedSummary?: RunSummary | null;
+  buyerPolished?: boolean;
 };
 
 /**
@@ -89,7 +91,7 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
       onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
     >
       <summary className="cursor-pointer list-none text-[15px] font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden">
-        Manifest diff appendix
+        {props.buyerPolished === true ? BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL : "Manifest diff appendix"}
       </summary>
       <div className="mt-3 space-y-3">
         <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">

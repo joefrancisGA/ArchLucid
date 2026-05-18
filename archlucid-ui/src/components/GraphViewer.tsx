@@ -32,7 +32,12 @@ import {
   findingIdForGraphDeepLink,
   graphFindingDetailHref,
 } from "@/lib/graph-finding-deep-links";
-import { graphBuyerTrailDispositionLine, graphBuyerTrailMetadataLines } from "@/lib/graph-buyer-node-detail";
+import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import {
+  graphBuyerTrailDispositionLine,
+  graphBuyerTrailMetadataLines,
+  graphBuyerTrailRecordTypeLine,
+} from "@/lib/graph-buyer-node-detail";
 import { ReasoningTraceReadMore } from "@/components/ReasoningTraceReadMore";
 import Link from "next/link";
 
@@ -167,8 +172,8 @@ export function GraphViewer({
 
   const buyerTrailPanel = flowPresentation === "buyerTrail";
 
-  const fitPadding = buyerTrailPanel ? 0.05 : 0.08;
-  const fitMaxZoom = buyerTrailPanel ? 4.1 : 1.52;
+  const fitPadding = buyerTrailPanel ? 0.02 : 0.08;
+  const fitMaxZoom = buyerTrailPanel ? 4.8 : 1.52;
 
   useEffect(() => {
     if (filtered.nodes.length === 0) {
@@ -460,36 +465,51 @@ export function GraphViewer({
                   <strong>Type:</strong> {selectedNode.type}
                 </p>
               ) : (
-                <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                  <span className="font-medium text-neutral-700 dark:text-neutral-300">Record type:</span>{" "}
-                  {selectedNode.type === "Finding" ? "Finding" : selectedNode.type}
-                  {selectedNode.type === "Finding" ? (
-                    <>
-                      {" "}
-                      ·{" "}
-                      <span className="font-medium text-neutral-700 dark:text-neutral-300">Severity:</span>{" "}
-                      {(() => {
-                        const meta = selectedNode.metadata;
+                (() => {
+                  const recordType = graphBuyerTrailRecordTypeLine(selectedNode);
 
-                        if (meta === undefined) {
-                          return "—";
-                        }
+                  return (
+                    <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                      <span className="font-medium text-neutral-700 dark:text-neutral-300">Record type:</span>{" "}
+                      {recordType.primary}
+                      {recordType.secondary !== null ? (
+                        <>
+                          {" "}
+                          ·{" "}
+                          <span className="font-medium text-neutral-700 dark:text-neutral-300">
+                            {recordType.secondary}
+                          </span>
+                        </>
+                      ) : null}
+                      {selectedNode.type === "Finding" && recordType.secondary === null ? (
+                        <>
+                          {" "}
+                          ·{" "}
+                          <span className="font-medium text-neutral-700 dark:text-neutral-300">Severity:</span>{" "}
+                          {(() => {
+                            const meta = selectedNode.metadata;
 
-                        for (const [rawKey, rawVal] of Object.entries(meta)) {
-                          const key = rawKey.trim().toLowerCase();
+                            if (meta === undefined) {
+                              return "—";
+                            }
 
-                          if (key === "severity" || key.endsWith("severity")) {
-                            const value = String(rawVal).trim();
+                            for (const [rawKey, rawVal] of Object.entries(meta)) {
+                              const key = rawKey.trim().toLowerCase();
 
-                            return value.length > 0 ? value : "—";
-                          }
-                        }
+                              if (key === "severity" || key.endsWith("severity")) {
+                                const value = String(rawVal).trim();
 
-                        return "—";
-                      })()}
-                    </>
-                  ) : null}
-                </p>
+                                return value.length > 0 ? value : "—";
+                              }
+                            }
+
+                            return "—";
+                          })()}
+                        </>
+                      ) : null}
+                    </p>
+                  );
+                })()
               )}
 
               {buyerTrailPanel
@@ -553,6 +573,9 @@ export function GraphViewer({
                       <>
                         <Button type="button" variant="default" size="sm" className="h-9 w-full justify-center" asChild>
                           <Link href={graphFindingDetailHref(rid, fid)}>View finding detail</Link>
+                        </Button>
+                        <Button type="button" variant="outline" size="sm" className="h-9 w-full justify-center" asChild>
+                          <Link href={getShowcaseManifestHref()}>View signed manifest</Link>
                         </Button>
                       </>
                     );

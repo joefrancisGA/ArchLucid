@@ -81,6 +81,12 @@ describe("contextualHelpTriggerAriaLabel", () => {
       "Contextual help: Multi-turn conversations about an architecture review.",
     );
   });
+
+  it("builds governance-gate label from help copy (ContextualHelp keyboard test)", () => {
+    expect(contextualHelpTriggerAriaLabel("governance-gate")).toBe(
+      "Contextual help: When enabled, governance approval rules check findings against severity thresholds before allowing finalization.",
+    );
+  });
 });
 
 describe("toDocsBlobUrl", () => {

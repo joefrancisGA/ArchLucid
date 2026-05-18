@@ -14,7 +14,7 @@ export function AskContextParagraph(props: AskContextParagraphProps) {
       {buyerPolishedShell ? (
         <>
           <p className="m-0">
-            Example answers are illustrative; tenant-backed workspaces anchor replies to persisted review evidence and source
+            Example answers are illustrative. In connected workspaces, answers are scoped to selected review evidence and source
             links.
           </p>
           <details className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40">
