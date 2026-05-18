@@ -18,10 +18,11 @@ namespace ArchLucid.Api.Controllers.Authority;
 /// Handles bulk uploading of evidence files for architecture review runs.
 /// </summary>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture/run/{runId:guid}/evidence")]
-[EnableRateLimiting("fixed")]
+[EnableRateLimiting("evidenceBulkUpload")]
+[ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class EvidenceBulkUploadController(
@@ -32,7 +33,6 @@ public sealed class EvidenceBulkUploadController(
     /// Bulk uploads evidence files for a given review run, up to <see cref="EvidenceBulkUploadOptions.EvidenceBulkUploadMaxFiles" />.
     /// </summary>
     [HttpPost("bulk")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Consumes("multipart/form-data")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -41,9 +41,13 @@ public sealed class EvidenceBulkUploadController(
     [RequestSizeLimit(100 * 1024 * 1024)] // 100MB batch limit
     public async Task<IActionResult> UploadBulkEvidenceAsync(
         Guid runId,
-        [FromForm] IFormFileCollection files,
         CancellationToken cancellationToken)
     {
+        // Bind files from the parsed form: [FromForm] IFormFileCollection can surface as empty for multi-part
+        // multipart/integration clients even when parts are present (ReadFormAsync is authoritative).
+        IFormCollection form = await Request.ReadFormAsync(cancellationToken);
+        IFormFileCollection files = form.Files;
+
         BulkEvidenceUploadResult result = await uploadService.UploadBulkEvidenceAsync(
             runId,
             files,

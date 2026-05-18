@@ -477,7 +477,7 @@
       "route_template": "v{version:apiVersion}/architecture/run/{runId:guid}/evidence",
       "normalized_prefix": "/v1/architecture/run/{runId:guid}/evidence",
       "commercial_tier": "none",
-      "class_policy": "ReadAuthority",
+      "class_policy": "ExecuteAuthority",
       "exemption": null,
       "nav_operator_href": null
     },

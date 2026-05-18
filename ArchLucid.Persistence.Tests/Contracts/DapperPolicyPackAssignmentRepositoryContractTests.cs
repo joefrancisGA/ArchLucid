@@ -2,6 +2,8 @@
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Governance;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
@@ -22,6 +24,7 @@ public sealed class DapperPolicyPackAssignmentRepositoryContractTests(SqlServerP
     {
         SqlConnectionFactory sql = new(fixture.ConnectionString);
         SqlPrimaryMirroredReadReplicaConnectionFactory readMirror = new(sql);
-        return new DapperPolicyPackAssignmentRepository(sql, readMirror);
+        return new DapperPolicyPackAssignmentRepository(sql, readMirror,
+            NullLogger<DapperPolicyPackAssignmentRepository>.Instance);
     }
 }

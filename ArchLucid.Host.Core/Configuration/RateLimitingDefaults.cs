@@ -12,4 +12,11 @@ public static class RateLimitingDefaults
     ///     <c>NameIdentifier</c> claim).
     /// </summary>
     public const int GovernancePolicyPackDryRunPermitLimit = 12;
+
+    /// <summary>
+    ///     Default requests per window for <c>POST /v1/architecture/run/{{runId}}/evidence/bulk</c> (
+    ///     <c>evidenceBulkUpload</c> policy); partitioned per <c>tenant_id</c> claim when authenticated, else remote IP,
+    ///     with role-based multipliers identical to the general <c>fixed</c> window policy.
+    /// </summary>
+    public const int EvidenceBulkUploadPermitLimit = 20;
 }

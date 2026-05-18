@@ -176,6 +176,9 @@ All other keys are optional unless **When required** in the detailed table says 
 | RateLimiting | `RateLimiting:Registration:WindowMinutes` | appsettings, env | 60 | Optional (not mode-gated) | Api, Combined | Registration throttling window. |
 | RateLimiting | `RateLimiting:FixedWindow:PermitLimit` | appsettings, env | 60 | Optional (not mode-gated) | Api, Combined | Default fixed window permit cap. |
 | RateLimiting | `RateLimiting:FixedWindow:WindowMinutes` | appsettings, env | 1 | Optional (not mode-gated) | Api, Combined | Fixed window length in minutes. |
+| RateLimiting | `RateLimiting:EvidenceBulkUpload:PermitLimit` | appsettings, env | 20 | Optional (not mode-gated) | Api, Combined | `POST …/evidence/bulk` per-tenant/per-window cap (policy `evidenceBulkUpload`; role multipliers apply). |
+| RateLimiting | `RateLimiting:EvidenceBulkUpload:WindowMinutes` | appsettings, env | 1 | Optional (not mode-gated) | Api, Combined | Window for bulk evidence upload throttling. |
+| RateLimiting | `RateLimiting:EvidenceBulkUpload:QueueLimit` | appsettings, env | 0 | Optional (not mode-gated) | Api, Combined | Queued uploads after permit exhaustion (usually 0). |
 | RateLimiting | `RateLimiting:Replay:Light:PermitLimit` | appsettings, env | 60 | Optional (not mode-gated) | Api, Combined | Light replay throttling (see policies). |
 | RateLimiting | `RateLimiting:Replay:Light:WindowMinutes` | appsettings, env | 1 | Optional (not mode-gated) | Api, Combined | Window for light replay throttling. |
 | RateLimiting | `RateLimiting:Replay:Heavy:PermitLimit` | appsettings, env | 15 | Optional (not mode-gated) | Api, Combined | Heavy replay throttling (expensive paths). |

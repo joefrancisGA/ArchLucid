@@ -170,4 +170,20 @@ public static partial class SanitizedLoggerInformationExtensions
         string nextState,
         string taskIds,
         string outboxId);
+
+    [LoggerMessage(
+        EventId = 3014,
+        Level = LogLevel.Information,
+        Message =
+            "Policy pack assignment assigned: PolicyPackId={PolicyPackId}, TenantId={TenantId}, WorkspaceId={WorkspaceId}")]
+    private static partial void EmitPolicyPackAssignmentAssigned(ILogger logger, Guid policyPackId, Guid tenantId,
+        Guid workspaceId);
+
+    [LoggerMessage(
+        EventId = 3015,
+        Level = LogLevel.Information,
+        Message =
+            "Policy pack assignment unassigned: PolicyPackId={PolicyPackId}, TenantId={TenantId}, WorkspaceId={WorkspaceId}")]
+    private static partial void EmitPolicyPackAssignmentUnassigned(ILogger logger, Guid policyPackId, Guid tenantId,
+        Guid workspaceId);
 }

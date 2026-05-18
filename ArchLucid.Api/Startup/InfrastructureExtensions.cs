@@ -173,6 +173,23 @@ internal static class InfrastructureExtensions
                             QueueLimit = governancePolicyPackDryRunQueueLimit
                         });
                 });
+
+            int evidenceBulkPermitLimit = configuration.GetValue(
+                "RateLimiting:EvidenceBulkUpload:PermitLimit",
+                RateLimitingDefaults.EvidenceBulkUploadPermitLimit);
+            int evidenceBulkWindowMinutes =
+                configuration.GetValue("RateLimiting:EvidenceBulkUpload:WindowMinutes", 1);
+            int evidenceBulkQueueLimit =
+                configuration.GetValue("RateLimiting:EvidenceBulkUpload:QueueLimit", 0);
+
+            options.AddPolicy(
+                "evidenceBulkUpload",
+                httpContext => RateLimitingRolePartitionBuilder.CreateFixedWindow(
+                    httpContext,
+                    evidenceBulkPermitLimit,
+                    evidenceBulkWindowMinutes,
+                    evidenceBulkQueueLimit,
+                    "evidenceBulkUpload"));
         });
         return services;
     }

@@ -24,6 +24,7 @@ public sealed class ArchLucidAuthorizationPoliciesRegistrationTests
     {
         AuthorizationOptions authorizationOptions = BuildAuthorizationOptions();
 
+        authorizationOptions.GetPolicy(ArchLucidPolicies.AuthenticatedUserOnly).Should().NotBeNull();
         authorizationOptions.GetPolicy(ArchLucidPolicies.ReadAuthority).Should().NotBeNull();
         authorizationOptions.GetPolicy(ArchLucidPolicies.ExecuteAuthority).Should().NotBeNull();
         authorizationOptions.GetPolicy(ArchLucidPolicies.AdminAuthority).Should().NotBeNull();

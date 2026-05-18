@@ -26,7 +26,7 @@ namespace ArchLucid.Api.Controllers.Notifications;
 ///     <see cref="TenantNotificationChannelPreferencesResponse.IsConfigured" /> false.
 /// </remarks>
 [ApiController]
-[Authorize]
+[Authorize(Policy = ArchLucidPolicies.AuthenticatedUserOnly)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/notifications")]
 [EnableRateLimiting("fixed")]

@@ -6,6 +6,13 @@ namespace ArchLucid.Core.Authorization;
 /// </summary>
 public static class ArchLucidPolicies
 {
+    /// <summary>
+    ///     Requires only an authenticated principal (no capability / trial checks). Use at controller scope together with
+    ///     per-action <see cref="ReadAuthority" /> / <see cref="ExecuteAuthority" /> so AL0001 is satisfied without stacking
+    ///     read capability onto execute-only actions.
+    /// </summary>
+    public const string AuthenticatedUserOnly = "AuthenticatedUserOnly";
+
     /// <summary>Required for read-only authority, manifest, governance query, and similar endpoints.</summary>
     public const string ReadAuthority = "ReadAuthority";
 

@@ -63,12 +63,7 @@ public sealed class BillingCheckoutControllerTests(JwtLocalSigningWebAppFactory 
     [SkippableFact]
     public async Task Checkout_with_admin_jwt_returns_200()
     {
-        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
-            factory.PrivatePemForTests,
-            "https://test.archlucid.local",
-            "api://archlucid-jwt-local-test",
-            "AdminUser",
-            [ArchLucidRoles.Admin]);
+        string token = factory.MintLocalBearerJwt("AdminUser", [ArchLucidRoles.Admin]);
 
         HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);

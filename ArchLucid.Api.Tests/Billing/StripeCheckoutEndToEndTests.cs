@@ -1,14 +1,12 @@
 using System.Data;
-using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Api.Models.Billing;
+using ArchLucid.Api.Tests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Tenancy;
@@ -16,7 +14,6 @@ using ArchLucid.Core.Tenancy;
 using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
-using Microsoft.IdentityModel.Tokens;
 
 namespace ArchLucid.Api.Tests.Billing;
 
@@ -217,43 +214,21 @@ public sealed class StripeCheckoutEndToEndTests
         Guid workspaceId,
         Guid projectId)
     {
-        // Mint from the same PKCS#8 path as ArchLucidAuth public PEM validation — avoids IOptions<TrialAuthOptions>
-        // drift vs in-memory billing overrides (401 on checkout when issuer/audience/key path disagree).
+        // Use the same mint helper as other JwtLocal PEM integration tests (-12 min nbf skew) so CI clock drift
+        // cannot yield 401 on checkout after registration.
         string pkcs8Pem = File.ReadAllText(fixture.PrivatePemPath, Encoding.UTF8);
 
-        using RSA rsa = RSA.Create();
-
-        rsa.ImportFromPem(pkcs8Pem);
-        RsaSecurityKey signingKey = new(rsa.ExportParameters(true));
-        SigningCredentials creds = new(signingKey, SecurityAlgorithms.RsaSha256);
-        DateTimeOffset now = TimeProvider.System.GetUtcNow();
-        DateTimeOffset expires = now.AddMinutes(60);
-        DateTimeOffset notBefore = now.AddMinutes(-2);
-        Guid userId = Guid.NewGuid();
-
-        Claim[] claims =
-        [
-            new(JwtRegisteredClaimNames.Sub, userId.ToString("D")),
-            new(JwtRegisteredClaimNames.Email, adminEmail),
-            new("name", adminEmail),
-            new(ClaimTypes.Role, ArchLucidRoles.Admin),
-            new("roles", ArchLucidRoles.Admin),
-            new("tenant_id", tenantId.ToString("D")),
-            new("workspace_id", workspaceId.ToString("D")),
-            new("project_id", projectId.ToString("D"))
-        ];
-
-        JwtSecurityToken token = new(
+        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
+            pkcs8Pem,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
-            claims,
-            notBefore.UtcDateTime,
-            expires.UtcDateTime,
-            creds);
+            adminEmail,
+            [ArchLucidRoles.Admin],
+            tenantId,
+            workspaceId,
+            projectId);
 
-        JwtSecurityTokenHandler handler = new() { MapInboundClaims = false };
-
-        return Task.FromResult(handler.WriteToken(token));
+        return Task.FromResult(token);
     }
 
     private static async Task AssertSqlPaidStandardAsync(string connectionString, Guid tenantId)

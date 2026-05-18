@@ -34,4 +34,22 @@ public sealed class RateLimitingFixedWindowDefaultTests
     {
         RateLimitingDefaults.GovernancePolicyPackDryRunPermitLimit.Should().Be(12);
     }
+
+    [Fact]
+    public void RateLimitingDefaults_EvidenceBulkUploadPermitLimit_is_20()
+    {
+        RateLimitingDefaults.EvidenceBulkUploadPermitLimit.Should().Be(20);
+    }
+
+    [Fact]
+    public void Configuration_GetValue_for_evidence_bulk_permit_matches_product_default_when_key_absent()
+    {
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
+
+        int permit = configuration.GetValue(
+            "RateLimiting:EvidenceBulkUpload:PermitLimit",
+            RateLimitingDefaults.EvidenceBulkUploadPermitLimit);
+
+        permit.Should().Be(20);
+    }
 }

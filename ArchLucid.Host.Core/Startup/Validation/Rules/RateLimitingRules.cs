@@ -50,9 +50,7 @@ internal static class RateLimitingRules
 
         IConfigurationSection governanceDryRun = configuration.GetSection("RateLimiting:GovernancePolicyPackDryRun");
 
-        if (!governanceDryRun.Exists())
-            return;
-
+        if (governanceDryRun.Exists())
         {
             int permit = configuration.GetValue(
                 "RateLimiting:GovernancePolicyPackDryRun:PermitLimit",
@@ -60,6 +58,18 @@ internal static class RateLimitingRules
             int window = configuration.GetValue("RateLimiting:GovernancePolicyPackDryRun:WindowMinutes", 1);
             int queue = configuration.GetValue("RateLimiting:GovernancePolicyPackDryRun:QueueLimit", 0);
             AddIfInvalid(errors, "RateLimiting:GovernancePolicyPackDryRun", permit, window, queue);
+        }
+
+        IConfigurationSection evidenceBulk = configuration.GetSection("RateLimiting:EvidenceBulkUpload");
+
+        if (evidenceBulk.Exists())
+        {
+            int permit = configuration.GetValue(
+                "RateLimiting:EvidenceBulkUpload:PermitLimit",
+                RateLimitingDefaults.EvidenceBulkUploadPermitLimit);
+            int window = configuration.GetValue("RateLimiting:EvidenceBulkUpload:WindowMinutes", 1);
+            int queue = configuration.GetValue("RateLimiting:EvidenceBulkUpload:QueueLimit", 0);
+            AddIfInvalid(errors, "RateLimiting:EvidenceBulkUpload", permit, window, queue);
         }
     }
 

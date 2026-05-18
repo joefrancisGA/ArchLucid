@@ -18,7 +18,7 @@ namespace ArchLucid.Api.Controllers.Billing;
 
 /// <summary>Hosted checkout for trial conversion (provider selected via <c>Billing:Provider</c>).</summary>
 [ApiController]
-[Authorize]
+[Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/tenant/billing")]
 public sealed class BillingCheckoutController(
@@ -41,7 +41,6 @@ public sealed class BillingCheckoutController(
 
     [HttpPost("checkout")]
     [SkipTrialWriteLimit]
-    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [ProducesResponseType(typeof(BillingCheckoutResponseDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> CheckoutAsync(
         [FromBody] BillingCheckoutPostRequest? body,

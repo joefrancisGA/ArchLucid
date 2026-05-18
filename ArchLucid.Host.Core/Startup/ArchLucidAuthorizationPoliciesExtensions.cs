@@ -19,6 +19,10 @@ public static class ArchLucidAuthorizationPoliciesExtensions
                 new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
                     .Build())
+            .AddPolicy(ArchLucidPolicies.AuthenticatedUserOnly, static policy =>
+            {
+                policy.RequireAuthenticatedUser();
+            })
             .AddPolicy(ArchLucidPolicies.ReadAuthority, policy =>
             {
                 policy.RequireAuthenticatedUser();

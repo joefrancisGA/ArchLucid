@@ -8,7 +8,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 ## Executive Summary
 
 ### (A) Overall Headline Readiness (84.94%)
-ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, the internal Policy Pack Hub (catalog + clone), operational script hardening, merge-blocking OpenAPI v1 snapshot drift checks in CI, and Azure Retail Prices coverage for VMs and Storage Accounts in the extractor package—significantly strengthen the GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting), Azure Cost Management actuals / Advisor parity versus retail estimates, and default `ui-e2e-smoke` mock-heavy coverage.
+ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, the internal Policy Pack Hub (catalog + clone), operational script hardening, merge-blocking OpenAPI v1 snapshot drift checks in CI, Azure Retail Prices coverage for VMs and Storage Accounts in the extractor package, tenant-fair dequeue for the deferred authority pipeline SQL outbox, Terraform plan validation of declared Azure SQL backup redundancy (Geo/Zone) in CD, SAML SP certificate nearing-expiry email notifications, and a dedicated configurable rate limit (`evidenceBulkUpload`) on multipart bulk evidence upload—significantly strengthen the GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting), Azure Cost Management actuals / Advisor parity versus retail estimates, and default `ui-e2e-smoke` mock-heavy coverage.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. The full automated tenant erasure quarantine pipeline is a V2 engineering commitment and is not scored as an `(A)` defect. V1 relies on operator-driven and trial/offboarding deletion paths.
@@ -17,7 +17,7 @@ Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 
 The commercial posture is strongly aligned for a sales-led, service-led motion. The inclusion of consultant whitelabeling on architecture review exports enables boutique consulting firms to use ArchLucid as a delivery engine. Curated demo workspaces, default policy packs, and the ZIP-first baseline wizard accelerate Time-to-Value and Proof-of-ROI. The deferred live commerce correctly prioritizes validated purchasing motions over premature self-serve availability.
 
 ### Enterprise Picture
-ArchLucid provides strong enterprise integration points, including Jira, ServiceNow, Slack, and Confluence. Tenant isolation is robustly handled via database-per-tenant and RLS. Tenant custom governance packs support form-based authoring for curated-rules-shaped documents. SAML SP expiry warnings and data residency verification in Terraform CI further enhance enterprise readiness.
+ArchLucid provides strong enterprise integration points, including Jira, ServiceNow, Slack, and Confluence. Tenant isolation is robustly handled via database-per-tenant and RLS. Tenant custom governance packs support form-based authoring for curated-rules-shaped documents. SAML SP nearing-expiry email notifications for tenant admins, tenant-fair authority pipeline outbox dequeue in the worker, CD-time Terraform checks for declared Azure SQL backup redundancy, configurable per-tenant rate limits on bulk architecture evidence multipart uploads, and data residency verification in Terraform CI further enhance enterprise readiness.
 
 ### Engineering Picture
 The engineering foundation is highly rigorous, with strong architectural invariants, NetArchTest boundary rules, and a durable audit trail. The agent orchestration pipeline is resilient, and producer-side OpenTelemetry GenAI instrumentation records token aggregates, latency, and deployment identifiers. Curating operator dashboards and alerts on those signals remains a gap. The heavy reliance on mocked `/api/proxy` in `ui-e2e-smoke` remains a testability risk.
@@ -357,7 +357,7 @@ Create a new curated policy pack `docs/samples/policy-packs/cost-optimization-ru
 - Impact: Directly improves Time-to-Value (+8-10 pts) and Stickiness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 5. Add Automated SAML Cert Expiry Email Notifications
+### 5. Add Automated SAML Cert Expiry Email Notifications — **complete**
 - **Why it matters:** Proactively alerts admins before SAML SP certificates expire, reducing support load.
 - **Expected impact:** Supportability (+10 pts), Adoption Friction (+5 pts).
 - **Affected qualities:** Supportability, Adoption Friction.
@@ -371,13 +371,14 @@ Create a background hosted service `SamlCertExpiryNotificationHostedService` tha
 - Impact: Directly improves Supportability (+8-10 pts) and Adoption Friction (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 6. Implement Tenant-Fairness Queuing in Authority Pipeline
+### 6. Implement Tenant-Fairness Queuing in Authority Pipeline — **complete**
 - **Why it matters:** Prevents noisy neighbor issues by ensuring one tenant cannot monopolize the worker pool.
 - **Expected impact:** Reliability (+10 pts), Scalability (+5 pts).
 - **Affected qualities:** Reliability, Scalability.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (`ArchLucid.Persistence/Orchestration/DapperAuthorityPipelineWorkRepository.cs`, `InMemoryAuthorityPipelineWorkRepository.cs`; unit coverage `ArchLucid.Persistence.Tests/Orchestration/AuthorityPipelineWorkOutboxRecoverabilityTests.cs`. Worker-hosted `AuthorityPipelineWorkProcessor` unchanged aside from dequeue ordering via repository.)
 ```text
 Modify the SQL outbox processor in `ArchLucid.Worker` to round-robin across tenants instead of strict FIFO.
+- Status: COMPLETE — acceptance criteria met (eligible rows ranked per-tenant FIFO via `ROW_NUMBER() OVER (PARTITION BY TenantId ORDER BY CreatedUtc, OutboxId)` then globally ordered for fair interleaving before `TOP (@Take)`; in-memory repo matches SQL ordering; pipeline stage execution logic unchanged.)
 - Acceptance criteria: The processor fetches work items fairly across active tenants.
 - Constraints: Ensure the query remains performant under load.
 - What not to change: Do not alter the core execution logic of the pipeline stages.
@@ -397,26 +398,28 @@ Create a new Playwright test suite `archlucid-ui/e2e/live-api-smoke.spec.ts` tha
 - Impact: Directly improves Testability (+10-15 pts) and Correctness (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
 ```
 
-### 8. Add SQL Backup Region Verification Script
+### 8. Add SQL Backup Region Verification Script — **complete**
 - **Why it matters:** Provides verifiable proof that SQL automated backups are stored in the expected geography.
 - **Expected impact:** Compliance Readiness (+10 pts), Reliability (+5 pts).
 - **Affected qualities:** Compliance Readiness, Reliability.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (`scripts/ci/assert_sql_backup_regions.py`; unit tests `scripts/ci/tests/test_assert_sql_backup_regions.py`; CD runs the script on the same `terraform show -json` artifact as the data-region guard; CI runs the unit tests in `doc-markdown-links`.)
 ```text
 Create a Python script `scripts/ci/assert_sql_backup_regions.py` to verify Azure SQL backup storage redundancy configurations in Terraform.
+- Status: COMPLETE — acceptance criteria met (parses Terraform plan JSON from `terraform show -json`; when `requested_backup_storage_redundancy` is set on planned `azurerm_mssql_database`, it must satisfy default allowlist Geo/Zone; omitted values pass unless `--require-explicit-redundancy`; optional `--allowed` extends policy e.g. for `GeoZone`.)
 - Acceptance criteria: The script parses `terraform show -json` and fails if `requested_backup_storage_redundancy` is not `Geo` or `Zone` as expected.
 - Constraints: Run this script in the existing CD pipeline.
 - What not to change: Do not modify the Terraform resource definitions.
 - Impact: Directly improves Compliance Readiness (+8-10 pts) and Reliability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 9. Implement Rate Limiting for Bulk Evidence Upload
+### 9. Implement Rate Limiting for Bulk Evidence Upload — **complete**
 - **Why it matters:** Prevents abuse of the bulk upload endpoint.
 - **Expected impact:** Reliability (+10 pts), Usability (+5 pts).
 - **Affected qualities:** Reliability, Usability.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (`RateLimiting:EvidenceBulkUpload:*` defaults + policy `evidenceBulkUpload` in `InfrastructureExtensions`; `EvidenceBulkUploadController` uses tenant/IP partitions via `RateLimitingRolePartitionBuilder`; 429 surfaced in OpenAPI; integration tests relaxed via `ArchLucidApiFactory`. Files-per-upload cap unchanged at 30.)
 ```text
 Add API rate limiting to the bulk evidence upload endpoint in `ArchLucid.Api`.
+- Status: COMPLETE — acceptance criteria met (`Microsoft.AspNetCore.RateLimiting` policy `evidenceBulkUpload`; fixed window keyed by tenant_id claim or IP with same role multipliers as `fixed`; default 20 permits per `WindowMinutes`; `RateLimiter` middleware returns 429 with Problem Details and Retry-After; `EvidenceBulkUploadMaxFiles` unchanged.)
 - Acceptance criteria: The endpoint returns 429 Too Many Requests if a tenant exceeds the configured upload rate.
 - Constraints: Use `AspNetCore.RateLimiting`.
 - What not to change: Do not alter the 30-file ceiling logic.
@@ -443,6 +446,7 @@ Add a `GET /v1/architecture/run/{runId}/findings/export/csv` endpoint to export 
 - **Actionable:** Yes
 ```text
 Add application-level logging in `PolicyPackAssignmentRepository` when a policy pack is assigned or unassigned.
+- Status: COMPLETE — acceptance criteria met (structured Information logs via `SanitizedLoggerInformationExtensions`: assign after `CreateAsync`, unassign after successful `ArchiveAsync` with SQL `OUTPUT` preserving single-update semantics; includes `PolicyPackId`, `TenantId`, `WorkspaceId`; no new `IAuditService` hooks.)
 - Acceptance criteria: A structured log entry is emitted containing the `PolicyPackId`, `TenantId`, and `WorkspaceId`.
 - Constraints: Do not emit a durable `IAuditService` event unless required by the audit matrix.
 - What not to change: Do not alter the assignment logic.

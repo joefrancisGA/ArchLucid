@@ -92,6 +92,8 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
                 ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
                 ["RateLimiting:Registration:PermitLimit"] = "100000",
                 ["RateLimiting:Registration:WindowMinutes"] = "1",
+                ["RateLimiting:EvidenceBulkUpload:PermitLimit"] = "100000",
+                ["RateLimiting:EvidenceBulkUpload:WindowMinutes"] = "1",
                 ["Billing:Provider"] = "Noop",
                 ["ASPNETCORE_URLS"] = "http://127.0.0.1:0",
                 ["ArchLucidAuth:AllowTestActorHeaders"] = "true",

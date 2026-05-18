@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
 using ArchLucid.Persistence.Connections;
@@ -7,6 +8,8 @@ using ArchLucid.Persistence.Connections;
 using Dapper;
 
 using Microsoft.Data.SqlClient;
+
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Persistence.Governance;
 
@@ -30,7 +33,8 @@ namespace ArchLucid.Persistence.Governance;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperPolicyPackAssignmentRepository(
     ISqlConnectionFactory connectionFactory,
-    IGovernanceResolutionReadConnectionFactory governanceResolutionReadConnectionFactory)
+    IGovernanceResolutionReadConnectionFactory governanceResolutionReadConnectionFactory,
+    ILogger<DapperPolicyPackAssignmentRepository> logger)
     : IPolicyPackAssignmentRepository
 {
     /// <inheritdoc />
@@ -56,6 +60,9 @@ public sealed class DapperPolicyPackAssignmentRepository(
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, assignment, cancellationToken: ct));
+
+        logger.LogInformationPolicyPackAssignmentAssigned(assignment.PolicyPackId, assignment.TenantId,
+            assignment.WorkspaceId);
     }
 
     /// <inheritdoc />
@@ -140,15 +147,26 @@ public sealed class DapperPolicyPackAssignmentRepository(
         const string sql = """
                            UPDATE dbo.PolicyPackAssignments
                            SET ArchivedUtc = SYSUTCDATETIME()
+                           OUTPUT deleted.PolicyPackId, deleted.TenantId, deleted.WorkspaceId
                            WHERE AssignmentId = @AssignmentId
                              AND TenantId = @TenantId
                              AND ArchivedUtc IS NULL;
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        int affected = await connection.ExecuteAsync(
-            new CommandDefinition(sql, new { AssignmentId = assignmentId, TenantId = tenantId },
-                cancellationToken: ct));
-        return affected > 0;
+        IReadOnlyList<(Guid PolicyPackId, Guid TenantId, Guid WorkspaceId)> archived =
+            (await connection
+                .QueryAsync<(Guid PolicyPackId, Guid TenantId, Guid WorkspaceId)>(
+                    new CommandDefinition(sql, new { AssignmentId = assignmentId, TenantId = tenantId },
+                        cancellationToken: ct))).AsList();
+
+        if (archived.Count == 0)
+            return false;
+
+        (Guid policyPackId, Guid tid, Guid workspaceId) = archived[0];
+
+        logger.LogInformationPolicyPackAssignmentUnassigned(policyPackId, tid, workspaceId);
+
+        return true;
     }
 }

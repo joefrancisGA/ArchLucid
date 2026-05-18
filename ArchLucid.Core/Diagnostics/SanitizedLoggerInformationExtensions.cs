@@ -297,4 +297,22 @@ public static partial class SanitizedLoggerInformationExtensions
             safeTaskIds,
             safeOutboxId);
     }
+
+    /// <summary>Logs persistence of a new policy pack assignment row (assign).</summary>
+    public static void LogInformationPolicyPackAssignmentAssigned(this ILogger logger, Guid policyPackId, Guid tenantId,
+        Guid workspaceId)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        EmitPolicyPackAssignmentAssigned(logger, policyPackId, tenantId, workspaceId);
+    }
+
+    /// <summary>Logs archival of a policy pack assignment (soft unassign).</summary>
+    public static void LogInformationPolicyPackAssignmentUnassigned(this ILogger logger, Guid policyPackId, Guid tenantId,
+        Guid workspaceId)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        EmitPolicyPackAssignmentUnassigned(logger, policyPackId, tenantId, workspaceId);
+    }
 }

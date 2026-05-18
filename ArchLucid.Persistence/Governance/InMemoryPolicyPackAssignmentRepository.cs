@@ -1,5 +1,9 @@
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
+
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchLucid.Persistence.Governance;
 
@@ -20,6 +24,20 @@ namespace ArchLucid.Persistence.Governance;
 /// </remarks>
 public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignmentRepository
 {
+    private readonly ILogger<InMemoryPolicyPackAssignmentRepository> _logger;
+
+    /// <summary>Initializes the store without logging (tests / direct construction).</summary>
+    public InMemoryPolicyPackAssignmentRepository()
+        : this(NullLogger<InMemoryPolicyPackAssignmentRepository>.Instance)
+    {
+    }
+
+    public InMemoryPolicyPackAssignmentRepository(ILogger<InMemoryPolicyPackAssignmentRepository> logger)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+        _logger = logger;
+    }
+
     private const int MaxEntries = 2_000;
     private readonly Lock _gate = new();
 
@@ -37,6 +55,9 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
 
             _items.Add(assignment);
         }
+
+        _logger.LogInformationPolicyPackAssignmentAssigned(assignment.PolicyPackId, assignment.TenantId,
+            assignment.WorkspaceId);
 
         return Task.CompletedTask;
     }
@@ -100,6 +121,11 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
     public Task<bool> ArchiveAsync(Guid tenantId, Guid assignmentId, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
+        Guid policyPackIdCaptured = Guid.Empty;
+        Guid tenantCaptured = Guid.Empty;
+        Guid workspaceCaptured = Guid.Empty;
+        bool mutated = false;
+
         lock (_gate)
         {
             PolicyPackAssignment? row = _items.FirstOrDefault(x =>
@@ -107,8 +133,17 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
             if (row is null)
                 return Task.FromResult(false);
 
+            policyPackIdCaptured = row.PolicyPackId;
+            tenantCaptured = row.TenantId;
+            workspaceCaptured = row.WorkspaceId;
             row.ArchivedUtc = TimeProvider.System.UtcNowDateTime();
-            return Task.FromResult(true);
+            mutated = true;
         }
+
+        if (mutated)
+            _logger.LogInformationPolicyPackAssignmentUnassigned(policyPackIdCaptured, tenantCaptured,
+                workspaceCaptured);
+
+        return Task.FromResult(true);
     }
 }
