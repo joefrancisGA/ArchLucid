@@ -4,6 +4,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RunDetailSectionNav } from "@/components/RunDetailSectionNav";
 
 describe("RunDetailSectionNav", () => {
+  /** Pinned in `vitest.setup.ts` so tests default to full-operator shell (`top-16`). */
+  const pinnedOperatorExperience = process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
+
   beforeEach(() => {
     vi.stubGlobal(
       "IntersectionObserver",
@@ -23,6 +26,7 @@ describe("RunDetailSectionNav", () => {
   });
 
   afterEach(() => {
+    process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = pinnedOperatorExperience;
     vi.unstubAllGlobals();
   });
 
@@ -53,5 +57,43 @@ describe("RunDetailSectionNav", () => {
     );
 
     expect(container.firstChild).toBeNull();
+  });
+
+  it("uses top-16 sticky offset when full-operator experience is active", () => {
+    process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
+
+    const { getByRole } = render(
+      <RunDetailSectionNav
+        sections={[
+          { id: "run-metadata", label: "Run", available: true },
+          { id: "pipeline-timeline", label: "Timeline", available: true },
+          { id: "run-actions", label: "Actions", available: true },
+        ]}
+      />,
+    );
+
+    const nav = getByRole("navigation", { name: "Review detail sections" });
+
+    expect(nav.className).toContain("top-16");
+    expect(nav.className).not.toContain("top-40");
+  });
+
+  it("uses taller sticky offset when buyer-polished shell is active", () => {
+    delete process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
+
+    const { getByRole } = render(
+      <RunDetailSectionNav
+        sections={[
+          { id: "run-metadata", label: "Run", available: true },
+          { id: "pipeline-timeline", label: "Timeline", available: true },
+          { id: "run-actions", label: "Actions", available: true },
+        ]}
+      />,
+    );
+
+    const nav = getByRole("navigation", { name: "Review detail sections" });
+
+    expect(nav.className).toContain("top-40");
+    expect(nav.className).toContain("lg:top-44");
   });
 });

@@ -46,7 +46,8 @@ type AppShellClientProps = {
 };
 
 /**
- * Operator shell: sticky header (logo, auth/environment, scope, command palette, help, theme), breadcrumbs,
+ * Operator shell: sticky header rail (logo, auth/environment, scope, command palette, help, theme) plus layer-context /
+ * buyer journey strip pinned together under one sticky stack; breadcrumbs inside header; collapsible sidebar nav landmark (lg+),
  * collapsible sidebar nav landmark (lg+), mobile drawer, keyboard shortcuts, primary <main> landmark.
  */
 export function AppShellClient({ children }: AppShellClientProps) {
@@ -116,54 +117,56 @@ function AppShellInner({ children }: AppShellClientProps) {
               data-testid="app-shell-minimal-root"
               className="flex min-h-screen flex-col bg-neutral-50 dark:bg-neutral-950"
             >
-              <header
-                data-testid="app-shell-minimal-topbar"
-                className="sticky top-0 z-30 border-b border-neutral-200 bg-neutral-50/95 backdrop-blur print:hidden dark:border-neutral-700 dark:bg-neutral-950/95"
-              >
-                <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3 px-4 py-2.5 lg:px-6">
-                  <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
-                    <h1 className="m-0">
-                      <Button variant="ghost" className="h-auto p-0" asChild>
-                        <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to operator home" variant="operator" />
-                      </Button>
-                    </h1>
-                    <Link
-                      href="/reviews?projectId=default"
-                      className="text-sm font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-300"
-                    >
-                      Reviews
-                    </Link>
-                    <Link
-                      href="/"
-                      className="text-sm font-medium text-neutral-700 underline-offset-2 hover:underline dark:text-neutral-300"
-                    >
-                      Home
-                    </Link>
-                  </div>
-                  <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-                    <AuthPanel />
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          aria-label="Documentation and product help search"
-                          onClick={() => {
-                            setHelpDocSearchOpen(true);
-                          }}
-                        >
-                          <HelpCircle className="h-4 w-4" aria-hidden />
+              <div className="sticky top-0 z-30 print:hidden">
+                <header
+                  data-testid="app-shell-minimal-topbar"
+                  className="border-b border-neutral-200 bg-neutral-50/95 backdrop-blur dark:border-neutral-700 dark:bg-neutral-950/95"
+                >
+                  <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3 px-4 py-2.5 lg:px-6">
+                    <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
+                      <h1 className="m-0">
+                        <Button variant="ghost" className="h-auto p-0" asChild>
+                          <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to operator home" variant="operator" />
                         </Button>
-                      </TooltipTrigger>
-                      <TooltipContent sideOffset={6}>Documentation and product help search</TooltipContent>
-                    </Tooltip>
-                    <ColorModeToggle />
+                      </h1>
+                      <Link
+                        href="/reviews?projectId=default"
+                        className="text-sm font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                      >
+                        Reviews
+                      </Link>
+                      <Link
+                        href="/"
+                        className="text-sm font-medium text-neutral-700 underline-offset-2 hover:underline dark:text-neutral-300"
+                      >
+                        Home
+                      </Link>
+                    </div>
+                    <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                      <AuthPanel />
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            aria-label="Documentation and product help search"
+                            onClick={() => {
+                              setHelpDocSearchOpen(true);
+                            }}
+                          >
+                            <HelpCircle className="h-4 w-4" aria-hidden />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent sideOffset={6}>Documentation and product help search</TooltipContent>
+                      </Tooltip>
+                      <ColorModeToggle />
+                    </div>
                   </div>
-                </div>
-              </header>
-              <LayerContextFromRoute />
+                </header>
+                <LayerContextFromRoute />
+              </div>
               <div data-testid="app-shell-main" className="mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 py-4 lg:px-6 lg:py-6">
                 <SimulatorExecutionModeBanner />
                 <TrialExpiryBanner />
@@ -208,45 +211,50 @@ function AppShellInner({ children }: AppShellClientProps) {
           Skip to main content
         </a>
         <div ref={shellRootRef} className="flex min-h-screen flex-col bg-neutral-50 dark:bg-neutral-950">
-          <header data-testid="app-shell-topbar" className="sticky top-0 z-30 border-b border-neutral-200 bg-neutral-50/95 backdrop-blur print:hidden dark:border-neutral-700 dark:bg-neutral-950/95">
-            <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-2.5 lg:px-6">
-              <div className="flex min-w-0 flex-1 items-center gap-3">
-                <MobileNavDrawer />
-                <h1 className="m-0">
-                  <Button variant="ghost" className="h-auto p-0" asChild>
-                    <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to operator home" variant="operator" />
-                  </Button>
-                </h1>
-                <div className="hidden min-w-0 flex-1 items-center gap-1.5 pl-2 lg:flex">
-                  <Breadcrumbs />
+          <div className="sticky top-0 z-30 print:hidden">
+            <header
+              data-testid="app-shell-topbar"
+              className="border-b border-neutral-200 bg-neutral-50/95 backdrop-blur dark:border-neutral-700 dark:bg-neutral-950/95"
+            >
+              <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-2.5 lg:px-6">
+                <div className="flex min-w-0 flex-1 items-center gap-3">
+                  <MobileNavDrawer />
+                  <h1 className="m-0">
+                    <Button variant="ghost" className="h-auto p-0" asChild>
+                      <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to operator home" variant="operator" />
+                    </Button>
+                  </h1>
+                  <div className="hidden min-w-0 flex-1 items-center gap-1.5 pl-2 lg:flex">
+                    <Breadcrumbs />
+                  </div>
+                </div>
+                <div className="flex max-w-[min(100%,42rem)] shrink-0 flex-wrap items-center justify-end gap-2">
+                  <AuthPanel />
+                  <ScopeSwitcher />
+                  <CommandPalette />
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        aria-label="Documentation and product help search"
+                        onClick={() => {
+                          setHelpDocSearchOpen(true);
+                        }}
+                      >
+                        <HelpCircle className="h-4 w-4" aria-hidden />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent sideOffset={6}>Documentation and product help search</TooltipContent>
+                  </Tooltip>
+                  <ColorModeToggle />
                 </div>
               </div>
-              <div className="flex max-w-[min(100%,42rem)] shrink-0 flex-wrap items-center justify-end gap-2">
-                <AuthPanel />
-                <ScopeSwitcher />
-                <CommandPalette />
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      aria-label="Documentation and product help search"
-                      onClick={() => {
-                        setHelpDocSearchOpen(true);
-                      }}
-                    >
-                      <HelpCircle className="h-4 w-4" aria-hidden />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent sideOffset={6}>Documentation and product help search</TooltipContent>
-                </Tooltip>
-                <ColorModeToggle />
-              </div>
-            </div>
-          </header>
-          <LayerContextFromRoute />
+            </header>
+            <LayerContextFromRoute />
+          </div>
           <div className="mx-auto flex w-full max-w-[1600px] flex-1">
             <nav
               data-testid="sidebar-nav"

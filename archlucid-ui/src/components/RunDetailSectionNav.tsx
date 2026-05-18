@@ -2,6 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { cn } from "@/lib/utils";
+
 export type RunDetailSection = {
   id: string;
   label: string;
@@ -69,10 +72,15 @@ export function RunDetailSectionNav({ sections }: RunDetailSectionNavProps) {
     return null;
   }
 
+  const buyerStickyChrome = isBuyerPolishedOperatorShellEnv();
+
   return (
     <nav
       aria-label="Review detail sections"
-      className="sticky top-16 z-20 mb-4 max-w-3xl rounded-lg border border-neutral-200 bg-white/95 px-2 py-2 backdrop-blur dark:border-neutral-700 dark:bg-neutral-950/95"
+      className={cn(
+        "sticky z-20 mb-4 max-w-3xl rounded-lg border border-neutral-200 bg-white/95 px-2 py-2 backdrop-blur dark:border-neutral-700 dark:bg-neutral-950/95",
+        buyerStickyChrome ? "top-40 lg:top-44" : "top-16",
+      )}
     >
       <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
         On this page
