@@ -37,4 +37,8 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
     title: "Compliance posture score",
     description: "Aggregate posture (mock)",
   },
+  sqlBackupRegionVerificationMetric: {
+    title: "SQL backup region verification",
+    description: "Terraform plan guard (CI/CD artifact)",
+  },
 } as const;

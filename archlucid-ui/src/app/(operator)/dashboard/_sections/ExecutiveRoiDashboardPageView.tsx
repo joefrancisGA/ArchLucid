@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 import { ExecutiveDashboardBaselineWarningBanner } from "./ExecutiveDashboardBaselineWarningBanner";
+import { ExecutiveSqlBackupRegionVerificationCard } from "./ExecutiveSqlBackupRegionVerificationCard";
 import { executiveRoiDashboardMockKpis } from "./executive-roi-dashboard-mock-kpis";
 export function ExecutiveRoiDashboardPageView() {
   const k = executiveRoiDashboardMockKpis;
@@ -56,6 +57,8 @@ export function ExecutiveRoiDashboardPageView() {
               </p>
             </CardContent>
           </Card>
+
+          <ExecutiveSqlBackupRegionVerificationCard />
 
           <Card className="sm:col-span-2 lg:col-span-1">
             <CardHeader className="pb-2">

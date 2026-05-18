@@ -247,6 +247,9 @@ jobs:
           terraform show -json tfplan > "$RUNNER_TEMP/tfplan.json"
           python3 "$GITHUB_WORKSPACE/scripts/ci/assert_terraform_plan_data_regions.py" "$RUNNER_TEMP/tfplan.json"
           python3 "$GITHUB_WORKSPACE/scripts/ci/assert_sql_backup_regions.py" "$RUNNER_TEMP/tfplan.json"
+          python3 "$GITHUB_WORKSPACE/scripts/ci/write_sql_backup_verification_artifact.py" \
+            "$RUNNER_TEMP/tfplan.json" \
+            "$GITHUB_WORKSPACE/archlucid-ui/public/sql-backup-region-verification.json"
 
       - name: Stage Terraform plan for artifact upload
         if: steps.plan_gate.outputs.plan_created == 'true'

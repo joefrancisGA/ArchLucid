@@ -194,6 +194,18 @@ jobs:
       - name: Terraform SQL backup redundancy guard (unit tests)
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_sql_backup_regions.py"
 
+      - name: SQL backup verification artifact writer (unit tests)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_write_sql_backup_verification_artifact.py"
+
+      - name: SQL backup verification artifact matches sample fixture
+        run: |
+          python scripts/ci/write_sql_backup_verification_artifact.py \
+            scripts/ci/fixtures/tfplan-sql-backup-verified.sample.json \
+            /tmp/sql-backup-region-verification.json \
+            --generated-at-utc 2026-05-18T00:00:00Z
+          diff -u archlucid-ui/public/sql-backup-region-verification.json /tmp/sql-backup-region-verification.json \
+            || (echo "Regenerate: python scripts/ci/write_sql_backup_verification_artifact.py scripts/ci/fixtures/tfplan-sql-backup-verified.sample.json archlucid-ui/public/sql-backup-region-verification.json --generated-at-utc 2026-05-18T00:00:00Z" && exit 1)
+
       - name: Prometheus SLO Terraform LLM budget warn rule (unit tests)
         run: python -m unittest discover -s scripts/ci/tests -p "test_prometheus_slo_llm_budget_warn_alert_rule_tf.py"
 
