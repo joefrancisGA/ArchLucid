@@ -76,6 +76,16 @@ check "worker_queue_scale_requires_connection_string" {
   }
 }
 
+check "worker_authority_prom_scale_requires_server_and_query" {
+  assert {
+    condition = !var.enable_container_apps || !var.worker_enable_authority_outbox_prom_scale || (
+      length(trimspace(var.worker_authority_outbox_prom_server_address)) > 0 &&
+      length(trimspace(var.worker_authority_outbox_prom_query)) > 0
+    )
+    error_message = "worker_enable_authority_outbox_prom_scale = true requires worker_authority_outbox_prom_server_address and a non-empty worker_authority_outbox_prom_query."
+  }
+}
+
 check "container_apps_consumption_budget_requires_stack" {
   assert {
     condition     = !var.enable_container_apps_consumption_budget || var.enable_container_apps

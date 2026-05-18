@@ -202,6 +202,14 @@ resource "azurerm_container_app" "worker_secondary" {
     }
   }
 
+  dynamic "secret" {
+    for_each = local.worker_authority_prom_scale_enabled && local.worker_authority_prom_bearer_configured ? [1] : []
+    content {
+      name  = "authority-outbox-prom-bearer"
+      value = var.worker_authority_outbox_prom_bearer_token
+    }
+  }
+
   identity {
     type = "SystemAssigned"
   }
@@ -292,6 +300,32 @@ resource "azurerm_container_app" "worker_secondary" {
         authentication {
           secret_name       = "queue-scale-connection"
           trigger_parameter = "connection"
+        }
+      }
+    }
+
+    dynamic "custom_scale_rule" {
+      for_each = local.worker_authority_prom_scale_enabled ? [1] : []
+      content {
+        name             = "authority-sql-outbox-depth-prometheus"
+        custom_rule_type = "prometheus"
+        metadata = merge(
+          {
+            serverAddress       = trimspace(var.worker_authority_outbox_prom_server_address)
+            query               = trimspace(var.worker_authority_outbox_prom_query)
+            threshold           = tostring(var.worker_authority_outbox_prom_pending_scale_threshold)
+            activationThreshold = tostring(var.worker_authority_outbox_prom_activation_threshold)
+            ignoreNullValues    = "false"
+          },
+          local.worker_authority_prom_bearer_configured ? { authModes = "bearer" } : {}
+        )
+
+        dynamic "authentication" {
+          for_each = local.worker_authority_prom_bearer_configured ? [1] : []
+          content {
+            secret_name       = "authority-outbox-prom-bearer"
+            trigger_parameter = "bearerToken"
+          }
         }
       }
     }

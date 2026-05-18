@@ -36,6 +36,12 @@ worker_max_replicas = 20
 # worker_queue_scale_connection_string           = "DefaultEndpointsProtocol=..." # sensitive; prefer TF_VAR_ or Key Vault–backed pipeline secret
 # worker_queue_depth_target_messages_per_revision = 10
 
+# Optional: KEDA prometheus scaler for authority SQL outbox depth (archlucid_authority_pipeline_work_pending).
+# worker_enable_authority_outbox_prom_scale        = true
+# worker_authority_outbox_prom_server_address      = "https://<workspace>.<region>.prometheus.monitor.azure.com"
+# worker_authority_outbox_prom_bearer_token        = "<read-scoped-token>" # sensitive; omit if your Prometheus API is reachable without auth inside the environment
+# worker_authority_outbox_prom_pending_scale_threshold = 50
+
 api_scale_concurrent_requests = 10
 ui_scale_concurrent_requests  = 20
 

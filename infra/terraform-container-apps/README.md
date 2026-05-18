@@ -5,7 +5,7 @@ Optional root that deploys:
 - **Log Analytics** workspace (required by Container Apps Environment)
 - **Container Apps Environment** (consumption; optional **VNet integration** + internal load balancer)
 - **`azurerm_container_app`** for **ArchLucid.Api** (port **8080**, **`Hosting__Role=Api`**, liveness `/health/live`, readiness `/health/ready`, `ASPNETCORE_URLS`)
-- **`azurerm_container_app`** for **ArchLucid.Worker** (same image by default, **`command` = `dotnet ArchLucid.Worker.dll`**, **`Hosting__Role=Worker`**, configurable **min/max replicas**, health probes on **8080**; optional **azure-queue** scale rule when **`worker_enable_queue_depth_scaling`** and a **queue connection string** secret are set)
+- **`azurerm_container_app`** for **ArchLucid.Worker** (same image by default, **`command` = `dotnet ArchLucid.Worker.dll`**, **`Hosting__Role=Worker`**, configurable **min/max replicas**, health probes on **8080**; optional **`azure-queue`** scale rule when **`worker_enable_queue_depth_scaling`** and a **queue connection string** secret are set; optional **`prometheus`** scale rule when **`worker_enable_authority_outbox_prom_scale`** — see **Background services**)
 - **`azurerm_container_app`** for **archlucid-ui** (port **3000**, probes on `/`)
 
 HTTP **KEDA-style** scale rules scale each app between **min/max replicas** using **concurrent request** targets.
@@ -55,7 +55,9 @@ The UI calls the backend via same-origin **`/api/proxy`** in dev. In Container A
 
 **Queue-depth scaling (KEDA in Container Apps):** set **`worker_enable_queue_depth_scaling = true`**, **`worker_queue_scale_connection_string`** (sensitive; same storage account as the jobs queue), and optionally **`worker_queue_depth_target_messages_per_revision`**. Terraform adds a **`custom_scale_rule`** of type **`azure-queue`** on the worker. **Managed identity** is used for runtime queue access; the connection string is **only** for the scaler secret as required by the platform.
 
-**Authority pipeline backlog vs Azure queue metrics:** Grafana / Prometheus **`archlucid_authority_pipeline_work_pending`** reflects **SQL** rows in **`AuthorityPipelineWorkOutbox`**. The **`azure-queue`** scaler watches **`background_jobs_queue_name`** depth (durable **export** dequeue), not SQL outbox length. Operators still scale authority throughput by **`worker_*_replicas`**, concurrency options under **`ArchLucid:AuthorityPipeline:Concurrency`**, and healthy SQL; bridging **SQL depth → KEDA** would require an additional scaler (for example Prometheus or external metrics) beyond this module’s defaults.
+**Authority SQL outbox depth scaling (KEDA Prometheus):** Grafana / Prometheus **`archlucid_authority_pipeline_work_pending`** reflects **SQL** rows in **`AuthorityPipelineWorkOutbox`**. Set **`worker_enable_authority_outbox_prom_scale = true`**, **`worker_authority_outbox_prom_server_address`** (Prometheus HTTPS API base URL, e.g. Azure Monitor workspace query endpoint), and tune **`worker_authority_outbox_prom_pending_scale_threshold`** (default **50**, consistent with **`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`**). Optional **`worker_authority_outbox_prom_bearer_token`** enables **bearer** authentication to the metrics API. **`worker_authority_outbox_prom_query`** defaults to **`scalar(sum(archlucid_authority_pipeline_work_pending))`**; override when your scrape labels require a different aggregation. This rule is **additive**: it does **not** remove **`azure-queue`** when that scaler is enabled — Container Apps considers multiple **custom** triggers together with **min/max** replica bounds.
+
+**Authority pipeline backlog vs Azure queue metrics:** The **`azure-queue`** scaler still tracks **`background_jobs_queue_name`** depth (durable **export** dequeue), not SQL row count. **`prometheus`** backlog scaling addresses authority outbox pressure when metrics are available in your Prometheus-compatible API.
 
 ## Hot-path cache (SQL mode)
 

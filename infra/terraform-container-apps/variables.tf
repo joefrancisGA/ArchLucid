@@ -267,6 +267,53 @@ variable "worker_queue_depth_target_messages_per_revision" {
   }
 }
 
+variable "worker_enable_authority_outbox_prom_scale" {
+  type        = bool
+  description = "When true, add a KEDA prometheus custom scale rule on the worker using worker_authority_outbox_prom_query (default: archlucid_authority_pipeline_work_pending). Does not remove the optional azure-queue scaler. Requires a reachable Prometheus HTTP API (e.g. Azure Monitor managed Prometheus query endpoint); optional bearer token via worker_authority_outbox_prom_bearer_token."
+  default     = false
+}
+
+variable "worker_authority_outbox_prom_server_address" {
+  type        = string
+  description = "Prometheus server base URL for the KEDA prometheus scaler (e.g. https://{workspace}.eastus2.prometheus.monitor.azure.com for Azure Monitor managed Prometheus)."
+  default     = ""
+}
+
+variable "worker_authority_outbox_prom_query" {
+  type        = string
+  description = "Instant PromQL returning a single scalar/vector element; default sums archlucid_authority_pipeline_work_pending across series for total SQL authority outbox depth."
+  default     = "scalar(sum(archlucid_authority_pipeline_work_pending))"
+}
+
+variable "worker_authority_outbox_prom_pending_scale_threshold" {
+  type        = number
+  description = "KEDA prometheus rule: scale-out threshold against the query result (pending rows per effective replica target; aligned with ops guidance in docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md)."
+  default     = 50
+
+  validation {
+    condition     = var.worker_authority_outbox_prom_pending_scale_threshold >= 1
+    error_message = "worker_authority_outbox_prom_pending_scale_threshold must be at least 1."
+  }
+}
+
+variable "worker_authority_outbox_prom_activation_threshold" {
+  type        = number
+  description = "KEDA prometheus activationThreshold (see KEDA docs); backlog must exceed this before the prometheus scaler participates in scale-from-zero behavior."
+  default     = 0
+
+  validation {
+    condition     = var.worker_authority_outbox_prom_activation_threshold >= 0
+    error_message = "worker_authority_outbox_prom_activation_threshold must be non-negative."
+  }
+}
+
+variable "worker_authority_outbox_prom_bearer_token" {
+  type        = string
+  description = "Optional bearer token for Prometheus API queries (sensitive). When non-empty, KEDA authModes=bearer is set. For Azure Monitor managed Prometheus prefer a read-scoped token or workload-identity patterns per your platform team."
+  default     = ""
+  sensitive   = true
+}
+
 variable "enable_container_apps_consumption_budget" {
   type        = bool
   description = "When true and enable_container_apps is true, create an azurerm_consumption_budget_resource_group filtered to Microsoft.App/containerApps and managedEnvironments in the stack resource group."

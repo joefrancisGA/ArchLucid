@@ -25,6 +25,13 @@ locals {
     trimspace(var.worker_queue_scale_connection_string)
   ) > 0
 
+  # KEDA Prometheus scaler: authority SQL outbox depth as reported by scraped worker metrics (`archlucid_authority_pipeline_work_pending`).
+  worker_authority_prom_scale_enabled = local.enabled && var.worker_enable_authority_outbox_prom_scale && length(
+    trimspace(var.worker_authority_outbox_prom_server_address)
+  ) > 0
+
+  worker_authority_prom_bearer_configured = length(trimspace(var.worker_authority_outbox_prom_bearer_token)) > 0
+
   # Parse storage account name from blob endpoint (https://{acct}.blob.core.windows.net) for queue resource + RBAC scope alignment.
   artifact_storage_account_name_from_blob = local.enabled && length(trimspace(var.artifact_blob_service_uri)) > 0 && can(
     regex("^https://([^.]+)\\.blob\\.core\\.windows\\.net/?$", var.artifact_blob_service_uri)
@@ -275,6 +282,14 @@ resource "azurerm_container_app" "worker" {
     }
   }
 
+  dynamic "secret" {
+    for_each = local.worker_authority_prom_scale_enabled && local.worker_authority_prom_bearer_configured ? [1] : []
+    content {
+      name  = "authority-outbox-prom-bearer"
+      value = var.worker_authority_outbox_prom_bearer_token
+    }
+  }
+
   identity {
     type = local.acr_pull_enabled ? "SystemAssigned, UserAssigned" : "SystemAssigned"
 
@@ -375,6 +390,32 @@ resource "azurerm_container_app" "worker" {
         authentication {
           secret_name       = "queue-scale-connection"
           trigger_parameter = "connection"
+        }
+      }
+    }
+
+    dynamic "custom_scale_rule" {
+      for_each = local.worker_authority_prom_scale_enabled ? [1] : []
+      content {
+        name             = "authority-sql-outbox-depth-prometheus"
+        custom_rule_type = "prometheus"
+        metadata = merge(
+          {
+            serverAddress       = trimspace(var.worker_authority_outbox_prom_server_address)
+            query               = trimspace(var.worker_authority_outbox_prom_query)
+            threshold           = tostring(var.worker_authority_outbox_prom_pending_scale_threshold)
+            activationThreshold = tostring(var.worker_authority_outbox_prom_activation_threshold)
+            ignoreNullValues    = "false"
+          },
+          local.worker_authority_prom_bearer_configured ? { authModes = "bearer" } : {}
+        )
+
+        dynamic "authentication" {
+          for_each = local.worker_authority_prom_bearer_configured ? [1] : []
+          content {
+            secret_name       = "authority-outbox-prom-bearer"
+            trigger_parameter = "bearerToken"
+          }
         }
       }
     }
