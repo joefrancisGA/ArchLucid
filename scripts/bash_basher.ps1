@@ -1,4 +1,5 @@
-# Trims wsl/bash (keep 10 newest), dotnet (keep 5 newest); reports other exes with >3 instances.
+# Trims wsl/bash (keep 10 newest), dotnet (keep 5 newest), PowerShell hosts (keep 10), conhost (keep 20);
+# reports other exes with >3 instances. Never terminates a process younger than 3 minutes.
 # Keep this window open.
 #
 # Usage (repo root):
@@ -12,40 +13,66 @@ $intervalSeconds = $intervalMinutes * 60
 $maxWslInstances = 10
 $maxBashInstances = 10
 $maxDotnetInstances = 5
-$reportExcludeNames = @('wsl', 'bash', 'dotnet')
+$maxPowerShellInstances = 10
+$maxConhostInstances = 20
+$minProcessAgeMinutes = 3
+$powerShellProcessNames = @('powershell', 'pwsh')
+$reportExcludeNames = @('wsl', 'bash', 'dotnet', 'powershell', 'pwsh', 'conhost')
 $reportMinInstances = 3
 
 function Stop-ExcessProcesses {
     param(
-        [string] $Name,
-        [int] $KeepCount
+        [string[]] $Names,
+        [int] $KeepCount,
+        [int] $MinAgeMinutes = $minProcessAgeMinutes
     )
 
-    $processes = @(Get-Process -Name $Name -ErrorAction SilentlyContinue)
+    $processes = @(
+        foreach ($name in $Names) {
+            Get-Process -Name $name -ErrorAction SilentlyContinue
+        }
+    )
+
+    $processes = @($processes | Sort-Object Id -Unique)
 
     if ($processes.Count -le $KeepCount) {
         return
     }
 
+    $label = ($Names -join ', ')
     $excessCount = $processes.Count - $KeepCount
-    $toTerminate = @(
+    $minStartTime = (Get-Date).AddMinutes(-$MinAgeMinutes)
+    $candidates = @(
         $processes |
             Sort-Object StartTime, Id |
             Select-Object -First $excessCount
     )
+    $toTerminate = @(
+        $candidates |
+            Where-Object { $_.StartTime -and $_.StartTime -le $minStartTime }
+    )
+    $skippedYoung = $candidates.Count - $toTerminate.Count
+    $terminatedCount = 0
 
     foreach ($proc in $toTerminate) {
 
         try {
             Stop-Process -Id $proc.Id -Force -ErrorAction Stop
-            Write-Host "Terminated $Name.exe (PID $($proc.Id), started $($proc.StartTime))."
+            $terminatedCount++
+            Write-Host "Terminated $($proc.ProcessName).exe (PID $($proc.Id), started $($proc.StartTime))."
         }
         catch {
-            Write-Warning "Failed to terminate $Name.exe (PID $($proc.Id)): $($_.Exception.Message)"
+            Write-Warning "Failed to terminate $($proc.ProcessName).exe (PID $($proc.Id)): $($_.Exception.Message)"
         }
     }
 
-    Write-Host "$Name.exe: kept $KeepCount newest of $($processes.Count); terminated $excessCount."
+    $summary = "${label}: kept $KeepCount newest of $($processes.Count); terminated $terminatedCount."
+
+    if ($skippedYoung -gt 0) {
+        $summary += " Skipped $skippedYoung excess younger than $MinAgeMinutes minute(s)."
+    }
+
+    Write-Host $summary
 }
 
 function Write-HighInstanceProcessReport {
@@ -85,9 +112,11 @@ Write-Host "bash_basher started. Interval: $intervalMinutes minutes. Press Ctrl+
 
 while ($true) {
 
-    Stop-ExcessProcesses -Name 'wsl' -KeepCount $maxWslInstances
-    Stop-ExcessProcesses -Name 'bash' -KeepCount $maxBashInstances
-    Stop-ExcessProcesses -Name 'dotnet' -KeepCount $maxDotnetInstances
+    Stop-ExcessProcesses -Names @('wsl') -KeepCount $maxWslInstances
+    Stop-ExcessProcesses -Names @('bash') -KeepCount $maxBashInstances
+    Stop-ExcessProcesses -Names @('dotnet') -KeepCount $maxDotnetInstances
+    Stop-ExcessProcesses -Names $powerShellProcessNames -KeepCount $maxPowerShellInstances
+    Stop-ExcessProcesses -Names @('conhost') -KeepCount $maxConhostInstances
 
     Write-HighInstanceProcessReport -MoreThanInstanceCount $reportMinInstances -ExcludeNames $reportExcludeNames
 
