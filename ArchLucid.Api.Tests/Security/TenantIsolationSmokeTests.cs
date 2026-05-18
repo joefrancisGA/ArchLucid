@@ -315,6 +315,8 @@ public sealed class TenantIsolationSmokeTests
     /// </summary>
     private static async Task WarmSqlAuthorityPipelineAsync(HttpClient client, bool includePostCreateRunWarmup = true)
     {
+        ArchitectureRequestConcurrencyTestSupport.AlignHttpClientTimeoutForSqlIdempotencyLockChain(client);
+
         await WarmHealthReadyPathAsync(client);
         await WarmListRunsPathAsync(client);
 

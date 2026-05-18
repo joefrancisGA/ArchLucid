@@ -43,12 +43,10 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
         // authentication (401 before controllers run).
         DateTimeOffset notBefore = now.AddMinutes(-12);
 
-        // Emit roles like JwtLocalSigningIntegrationTests: TokenValidationParameters.RoleClaimType is "roles";
-        // omit ClaimTypes.Role to avoid duplicate app-role payloads that confuse some JwtBearer validations.
+        // Align claim shape with JwtLocalSigningIntegrationTestTokens (tests): RoleClaimType is "roles"; short JWT names only.
         Claim[] claims =
         [
             new(JwtRegisteredClaimNames.Sub, userId.ToString("D")),
-            new(JwtRegisteredClaimNames.Email, email),
             new("name", email),
             new("roles", role),
             new("tenant_id", tenantId.ToString("D")),
@@ -64,7 +62,7 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
             expires.UtcDateTime,
             creds);
 
-        JwtSecurityTokenHandler handler = new() { MapInboundClaims = false };
+        JwtSecurityTokenHandler handler = new();
 
         return handler.WriteToken(token);
     }

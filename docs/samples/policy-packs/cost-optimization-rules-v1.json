@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "Azure Cost Optimization (extractor-aligned)",
+    "description": "FinOps-oriented review prompts grounded in read-only Azure extractor inventory (ARM resources, optional retail estimates, Policy Insights compliance states). Highlights common waste vectors such as orphaned addressing, oversized compute SKUs, and unattached disks where the ZIP supports reasoning. Does not replace Azure Cost Management actuals.",
+    "version": "1.0.0",
+    "category": "Cost",
+    "isDefault": false,
+    "suggestedPackType": "ProjectCustom",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/cost-optimization.json"
+  },
+  "rules": [
+    {
+      "id": "cost-opt-001",
+      "title": "Virtual machine SKUs justified against workload class",
+      "description": "Each Microsoft.Compute/virtualMachines row in resources.json should map to an explicit workload tier; vmSize values must be defensible when retail-prices.json is present (IncludeRetailPrices) so estimates are not optimistic fiction.",
+      "severity": "Medium",
+      "remediationGuidance": "Correlate resources.json entries where resourceType is Microsoft.Compute/virtualMachines with properties.vmSize; when retail-prices.json exists, compare unit list signals to right-sizing expectations documented in governance.PolicyConstraints or metadata.ChangeDescription.",
+      "evidenceHints": [
+        "azureExtractor.manifest.SwitchesUsed",
+        "azureExtractor.manifest.CollectionTimestamp",
+        "azureExtractor.manifest.RawJson",
+        "governance.PolicyConstraints",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        { "framework": "Microsoft Azure Well-Architected", "requirement": "Cost Optimization — Right-size compute resources (pillar theme)" },
+        { "framework": "FinOps Framework", "control": "Forecasting & planning — utilization-aware sizing narratives" }
+      ]
+    },
+    {
+      "id": "cost-opt-002",
+      "title": "Managed disks reviewed for unattached or consolidate-able volumes",
+      "description": "Microsoft.Compute/disks inventory from resources.json must be reconciled against active VM attachments in the same package; unexplained disks are common unattached-disk spend leaks.",
+      "severity": "High",
+      "remediationGuidance": "Enumerate disks via resources.json (resourceType Microsoft.Compute/disks) and correlate resourceId/name to VM disks using VM properties or companion architecture manifest services; disposition or archive disks that lack an owning workload.",
+      "evidenceHints": [
+        "azureExtractor.manifest.SubscriptionId",
+        "azureExtractor.manifest.ScopeDescriptor",
+        "azureExtractor.manifest.RawJson",
+        "governance.PolicyConstraints",
+        "services[].Tags"
+      ],
+      "frameworkMappings": [
+        { "framework": "Microsoft Azure Well-Architected", "requirement": "Cost Optimization — Eliminate unused resources (pillar theme)" },
+        { "framework": "FinOps Framework", "control": "Workload optimization — storage waste elimination" }
+      ]
+    },
+    {
+      "id": "cost-opt-003",
+      "title": "Retail price overlay captured when cost estimates matter",
+      "description": "When reviewers rely on extractor-backed unit pricing, manifests should show IncludeRetailPrices in switchesUsed so retail-prices.json exists for VMs, Storage Accounts, SQL resources, and App Service plans surfaced in inventory.",
+      "severity": "Low",
+      "remediationGuidance": "Confirm azureExtractor.manifest.SwitchesUsed mentions IncludeRetailPrices for runs where financial narrative is required; if absent, flag that only inventory counts—not catalog-priced estimates—are available until re-collection.",
+      "evidenceHints": [
+        "azureExtractor.manifest.SwitchesUsed",
+        "azureExtractor.manifest.ScriptVersion",
+        "azureExtractor.manifest.RawJson",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        { "framework": "Microsoft Azure Well-Architected", "requirement": "Cost Optimization — Use cost modeling (pillar theme)" },
+        { "framework": "FinOps Framework", "control": "Forecasting — unit economics inputs" }
+      ]
+    },
+    {
+      "id": "cost-opt-004",
+      "title": "Public IP inventory explains every standalone address",
+      "description": "Microsoft.Network/publicIPAddresses rows should have an architectural consumer; orphaned PIPs incur idle charge cadences that bypass application-level metrics.",
+      "severity": "Medium",
+      "remediationGuidance": "Audit resources.json for resourceType Microsoft.Network/publicIPAddresses and document attachment intent in governance.RequiredControls or service relationships referencing load balancers, NAT gateways, or VMs.",
+      "evidenceHints": [
+        "azureExtractor.manifest.RawJson",
+        "governance.RequiredControls",
+        "relationships",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        { "framework": "Microsoft Azure Well-Architected", "requirement": "Cost Optimization — Identify idle network resources (pillar theme)" },
+        { "framework": "FinOps Framework", "control": "Workload optimization — network asset hygiene" }
+      ]
+    },
+    {
+      "id": "cost-opt-005",
+      "title": "SQL and App Service assets tie list pricing context to SKU choices",
+      "description": "When retail-prices.json is emitted, relational and web surfaces inventoried via resources.json should reconcile observed SKUs/service tiers against catalog rows reviewers cite in change narratives.",
+      "severity": "Medium",
+      "remediationGuidance": "Match Microsoft.Sql/*/databases or Microsoft.Web/sites and Microsoft.Web/server Farms entries in inventory to retail-prices.json metadata; summarize tier decisions in governance.PolicyConstraints when estimates influence approvals.",
+      "evidenceHints": [
+        "azureExtractor.manifest.SwitchesUsed",
+        "azureExtractor.manifest.CollectionTimestamp",
+        "azureExtractor.manifest.RawJson",
+        "governance.PolicyConstraints"
+      ],
+      "frameworkMappings": [
+        { "framework": "Microsoft Azure Well-Architected", "requirement": "Cost Optimization — Evaluate pricing models for PaaS (pillar theme)" },
+        { "framework": "FinOps Framework", "control": "Rate optimization — PaaS tier discipline" }
+      ]
+    },
+    {
+      "id": "cost-opt-006",
+      "title": "Snapshots and dormant compute images flagged for lifecycle",
+      "description": "Long-lived Microsoft.Compute/snapshots and stale image-gallery artifacts appear in ARM inventory and often reflect forgotten backup or release pipelines that accumulate incremental storage charges.",
+      "severity": "Low",
+      "remediationGuidance": "Enumerate Microsoft.Compute/snapshots (and image resources when present) in resources.json, assign retention owners via governance tags, and align deletion guardrails with policy-compliance.json non-compliance themes when policies enforce lifecycle.",
+      "evidenceHints": [
+        "azureExtractor.manifest.RawJson",
+        "governance.ComplianceTags",
+        "governance.PolicyConstraints"
+      ],
+      "frameworkMappings": [
+        { "framework": "Microsoft Azure Well-Architected", "requirement": "Cost Optimization — Manage data lifecycle (pillar theme)" },
+        { "framework": "FinOps Framework", "control": "Cloud financial management — storage lifecycle governance" }
+      ]
+    }
+  ]
+}

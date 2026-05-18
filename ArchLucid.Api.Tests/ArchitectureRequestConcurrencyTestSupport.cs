@@ -210,7 +210,12 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         }
     }
 
-    private static void AlignHttpClientTimeoutForSqlIdempotencyLockChain(HttpClient client)
+    /// <summary>
+    ///     Must run before the first HTTP request on <paramref name="client" /> when that client will later call
+    ///     <see cref="PostSingleArchitectureRequestAsync" /> — .NET forbids changing <see cref="HttpClient.Timeout" /> after
+    ///     any request has started (warmup GETs then POST hits <see cref="InvalidOperationException" />).
+    /// </summary>
+    internal static void AlignHttpClientTimeoutForSqlIdempotencyLockChain(HttpClient client)
     {
         if (client.Timeout < ArchitectureRequestBurstHttpTimeout)
             client.Timeout = ArchitectureRequestBurstHttpTimeout;

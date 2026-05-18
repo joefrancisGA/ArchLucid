@@ -41,7 +41,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted impact on readiness:** 105
 - **Why this score was assigned:** Curated demo workspaces, default policy packs, and a guided baseline collection wizard (ZIP-first) accelerate initial value.
 - **Key tradeoffs:** Real-mode value requires tenant baseline data, which can take time to gather.
-- **Specific improvement recommendations:** Create a cost optimization policy pack to provide immediate, tangible value.
+- **Specific improvement recommendations:** Cost optimization curated sample policy pack shipped (`docs/samples/policy-packs/cost-optimization-rules-v1.json`, `cost-optimization.json`); optional follow-up is catalog/default seeding for first-run visibility.
 - **Fixability:** Fixable in V1.
 
 ### 3. Correctness
@@ -343,13 +343,14 @@ Implement an internal Policy Pack Hub: a read-only catalog of platform-curated p
 - Impact: Directly improves Stickiness (+10-15 pts) and Template and Accelerator Richness (+6-10 pts). Weighted readiness impact: +0.15-0.25%.
 ```
 
-### 4. Create Cost Optimization Policy Pack
+### 4. Create Cost Optimization Policy Pack — **complete**
 - **Why it matters:** Provides immediate, tangible value by identifying over-provisioned resources.
 - **Expected impact:** Time-to-Value (+10 pts), Stickiness (+5 pts).
 - **Affected qualities:** Time-to-Value, Stickiness.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (`docs/samples/policy-packs/cost-optimization-rules-v1.json` — `archlucid.policyPack.curatedRules.v1` with **6** extractor-aligned cost rules; companion `docs/samples/policy-packs/cost-optimization.json` for `complianceRuleKeys` **`cost-opt-001`**–**`cost-opt-006`** and `curatedRulesArtifact` pointer; policy engine unchanged.)
 ```text
 Create a new curated policy pack `docs/samples/policy-packs/cost-optimization-rules-v1.json` focused on cost savings (e.g., unattached disks, idle VMs).
+- Status: COMPLETE — acceptance criteria met (valid curated-rules v1 JSON; ≥5 cost-focused rules; evidence maps to extractor `resources.json`, `manifest.json`, optional `retail-prices.json`, `policy-compliance.json`).
 - Acceptance criteria: The pack is valid JSON matching the curated-rules schema and includes at least 5 cost-focused rules.
 - Constraints: Ensure the rules map to data collected by the Azure extractor.
 - What not to change: Do not modify the policy engine.

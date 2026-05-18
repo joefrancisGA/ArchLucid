@@ -1,0 +1,34 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "cost-opt-001",
+    "cost-opt-002",
+    "cost-opt-003",
+    "cost-opt-004",
+    "cost-opt-005",
+    "cost-opt-006"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "cost-optimization-v1",
+    "pack.displayName": "Azure Cost Optimization (extractor-aligned)",
+    "pack.category": "Cost",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "false",
+    "pack.description": "FinOps-oriented prompts tied to extractor ZIP inventories (resources.json, policy-compliance.json, optional retail-prices.json). Unit pricing is indicative only; Azure Cost Management actuals remain backlog per V1_SCOPE.",
+    "frameworkMappingDisclaimer": "Well-Architected and FinOps references are thematic reviewer guidance—not certification or authoritative spend reporting.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/cost-optimization-rules-v1.json",
+    "azureExtractor.normalizedManifest.fields": "SchemaVersion, ScriptVersion, CollectionTimestamp, SubscriptionId, ScopeDescriptor, SwitchesUsed, AzModuleVersion",
+    "azureExtractor.bundle.inventory": "resources.json (ARM rows: resourceType, resourceId, name, location, sku, tags, properties.provisioningState, properties.vmSize for VMs)",
+    "azureExtractor.bundle.optionalRetailPrices": "retail-prices.json when switchesUsed includes IncludeRetailPrices",
+    "azureExtractor.bundle.policyStates": "policy-compliance.json Policy Insights latest states",
+    "goldenManifest.governance.fields": "ComplianceTags, PolicyConstraints, RequiredControls, RiskClassification",
+    "goldenManifest.service.fields": "ServiceId, ServiceName, RuntimePlatform, Purpose, Tags, RequiredControls",
+    "goldenManifest.metadata.fields": "ChangeDescription"
+  }
+}
