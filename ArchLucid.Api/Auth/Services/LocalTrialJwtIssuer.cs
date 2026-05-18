@@ -38,9 +38,10 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
         DateTimeOffset expires = now.AddMinutes(Math.Clamp(local.AccessTokenLifetimeMinutes, 5, 24 * 60));
 
-        // Align with CI/local PEM JWT integration tests: start validity slightly in the past so small host/vm clock
-        // skew cannot reject the token at Authentication (401) while identical Reader tokens still validate.
-        DateTimeOffset notBefore = now.AddMinutes(-2);
+        // Align with JwtLocalSigningIntegrationTestTokens (ArchLucid.Api.Tests): start validity well in the past so
+        // GitHub-hosted runners / TestServer VMs with multi-minute UTC skew cannot reject the token at JwtBearer
+        // authentication (401 before controllers run).
+        DateTimeOffset notBefore = now.AddMinutes(-12);
 
         // Emit roles like JwtLocalSigningIntegrationTests: TokenValidationParameters.RoleClaimType is "roles";
         // omit ClaimTypes.Role to avoid duplicate app-role payloads that confuse some JwtBearer validations.
