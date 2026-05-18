@@ -646,16 +646,19 @@ Update the KEDA configuration in `infra/terraform-container-apps` to include a s
 ```
 
 ### 20. Add at least three new architecture boundary rules in `ArchLucid.Architecture.Tests`
+- **Status:** Completed (2026-05-17)
 - **Why it matters:** Protects maintainability by tightening public surfaces using the `internal` modifier.
 - **Expected impact:** Maintainability (+10 pts), Correctness (+5 pts).
 - **Affected qualities:** Maintainability, Correctness.
-- **Actionable:** Yes
+- **Actionable:** No
+- **Completion evidence:** `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` — Tier **7** NetArchTest facts: `Application_must_not_depend_on_Persistence_Repositories_implementation_namespace`, `AgentRuntime_must_not_depend_on_Persistence_Repositories_implementation_namespace`, `Application_must_not_depend_on_Api_Middleware_namespace` (aligned with [`ARCHITECTURE_INVARIANTS.md`](../library/ARCHITECTURE_INVARIANTS.md) **INV-001** host-boundary sketch for middleware; persistence hexagon for `ArchLucid.Persistence.Repositories`).
 ```text
 Add three new NetArchTest rules in `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` to enforce that specific internal modules (e.g., specific persistence repositories or API middleware) are not referenced outside their designated boundaries.
 - Acceptance criteria: The tests pass and correctly fail if the boundary is violated.
 - Constraints: Ensure the rules align with the architecture invariants in `ARCHITECTURE_INVARIANTS.md`.
 - What not to change: Do not refactor existing code unless it violates the new rules.
 - Impact: Directly improves Maintainability (+8-10 pts) and Correctness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- **Shipped (2026-05-17):** Three NetArchTest rules in **Tier 7** of `DependencyConstraintTests.cs` — see **Completion evidence**; invariant alignment noted in [`ARCHITECTURE_INVARIANTS.md`](../library/ARCHITECTURE_INVARIANTS.md) (**INV-001**).
 ```
 
 ### 21. Add dashboards and alerting in Grafana for wait times and dead letters
@@ -732,7 +735,7 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 1 (Observability & Reliability):** 2, 18, 21, 22, 23
 - **Batch 2 (Testing & CI Hygiene):** ~~5~~ completed 2026-05-17, 12, ~~14, 15, 16~~ **V1.1** backlog (2026-05-17), 24
 - **Batch 3 (Integrations & Extractor):** ~~6~~ completed 2026-05-17, ~~13~~ **V1.1** backlog (2026-05-17), 25
-- **Batch 4 (Architecture, infrastructure, tenant lifecycle):** ~~3~~ (**V2** — [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**), ~~7~~ completed 2026-05-17, 11, ~~17~~ completed 2026-05-17, ~~19~~ completed 2026-05-17, 20
+- **Batch 4 (Architecture, infrastructure, tenant lifecycle):** ~~3~~ (**V2** — [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**), ~~7~~ completed 2026-05-17, 11, ~~17~~ completed 2026-05-17, ~~19~~ completed 2026-05-17, ~~20~~ completed 2026-05-17
 - **Batch 5 (UX & Dashboards):** ~~4~~ completed 2026-05-17, 8, 9, 10
 - **Batch 6 (Internal cross-tenant rollups):** ~~1~~ completed 2026-05-17
 
