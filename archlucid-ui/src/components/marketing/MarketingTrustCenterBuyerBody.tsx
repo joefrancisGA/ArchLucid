@@ -40,7 +40,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         <div className="mt-6 rounded-lg border border-blue-100 bg-blue-50/70 px-4 py-4 dark:border-blue-950 dark:bg-blue-950/35">
           <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Assurance at a glance</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div>
+            <div className="rounded-md border border-blue-200/70 bg-white/80 p-3 dark:border-blue-900/60 dark:bg-neutral-950/40">
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                 Available now
               </p>
@@ -56,7 +56,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
                 <li>Published procurement artifacts mapped to common security-questionnaire structures.</li>
               </ul>
             </div>
-            <div>
+            <div className="rounded-md border border-blue-200/70 bg-white/80 p-3 dark:border-blue-900/60 dark:bg-neutral-950/40">
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                 Shared during diligence
               </p>
@@ -73,7 +73,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
                 </li>
               </ul>
             </div>
-            <div>
+            <div className="rounded-md border border-blue-200/70 bg-white/80 p-3 dark:border-blue-900/60 dark:bg-neutral-950/40">
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                 Planned assurance
               </p>
@@ -88,67 +88,81 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         </div>
       </header>
 
-      <section aria-labelledby="trust-security-posture">
-        <h2 id="trust-security-posture" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
-          Security posture summary
-        </h2>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          ArchLucid is built for regulated buyers: tenant isolation, scope-filtered APIs, immutable audit instrumentation for
-          material changes, and evidence packs suitable for questionnaires. Detailed control narratives and questionnaire
-          responses are shared during diligence.
-        </p>
-      </section>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <section
+          aria-labelledby="trust-security-posture"
+          className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/40"
+        >
+          <h2 id="trust-security-posture" className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+            Security posture summary
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+            ArchLucid is built for regulated buyers: tenant isolation, scope-filtered APIs, immutable audit instrumentation for
+            material changes, and evidence packs suitable for questionnaires. Detailed control narratives and questionnaire
+            responses are shared during diligence.
+          </p>
+        </section>
 
-      <section aria-labelledby="trust-assurance-artifacts">
-        <h2 id="trust-assurance-artifacts" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
-          Assurance artifacts
-        </h2>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          Request the current procurement-ready bundle containing questionnaire pre-fills (for example CAIQ-lite and SIG
-          oriented summaries), tenancy and subprocessors overview, SLA summary excerpts, incident response placeholders, and
-          security contact references. Detailed reports referenced in questionnaires are commonly shared under confidentiality.
-        </p>
-      </section>
+        <section
+          aria-labelledby="trust-assurance-artifacts"
+          className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/40"
+        >
+          <h2 id="trust-assurance-artifacts" className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+            Assurance artifacts
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+            Request the current procurement-ready bundle containing questionnaire pre-fills (for example CAIQ-lite and SIG
+            oriented summaries), tenancy and subprocessors overview, SLA summary excerpts, incident response placeholders, and
+            security contact references. Detailed reports referenced in questionnaires are commonly shared under confidentiality.
+          </p>
+        </section>
 
-      <section aria-labelledby="trust-data-handling">
-        <h2 id="trust-data-handling" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
-          Data handling &amp; privacy
-        </h2>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          ArchLucid stores architecture review evidence and governance metadata about systems customers describe — not a clinical
-          record system or patient-care record store.{" "}
-          The public demo uses illustrative data only and is not intended for regulated health data. Production deployments are
-          configured under contractual data-processing terms. Coordinate via the{" "}
-          <Link
-            href="#trust-contact-review"
-            className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
-          >
-            Security review contact
-          </Link>{" "}
-          for privacy agreements. Plain-language disclosures live on the{" "}
-          <Link href="/privacy" className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300">
-            Privacy
-          </Link>{" "}
-          page.
-        </p>
-      </section>
+        <section
+          aria-labelledby="trust-data-handling"
+          className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/40"
+        >
+          <h2 id="trust-data-handling" className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+            Data handling &amp; privacy
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+            ArchLucid stores architecture review evidence and governance metadata about systems customers describe — not a clinical
+            record system or patient-care record store.{" "}
+            The public demo uses illustrative data only and is not intended for regulated health data. Production deployments are
+            configured under contractual data-processing terms. Coordinate via the{" "}
+            <Link
+              href="#trust-contact-review"
+              className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+            >
+              Security review contact
+            </Link>{" "}
+            for privacy agreements. Plain-language disclosures live on the{" "}
+            <Link href="/privacy" className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300">
+              Privacy
+            </Link>{" "}
+            page.
+          </p>
+        </section>
 
-      <section aria-labelledby="trust-procurement">
-        <h2 id="trust-procurement" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
-          Procurement questionnaire response package
-        </h2>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          Procurement teams reuse structured answers mapped to ArchLucid&rsquo;s reusable procurement evidence catalogue. Submit
-          your intake form requirements and stakeholder list via the{" "}
-          <Link
-            href="#trust-contact-review"
-            className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
-          >
-            Security review contact
-          </Link>{" "}
-          so we align the diligence package to your process.
-        </p>
-      </section>
+        <section
+          aria-labelledby="trust-procurement"
+          className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/40"
+        >
+          <h2 id="trust-procurement" className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+            Procurement questionnaire response package
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+            Procurement teams reuse structured answers mapped to ArchLucid&rsquo;s reusable procurement evidence catalogue. Submit
+            your intake form requirements and stakeholder list via the{" "}
+            <Link
+              href="#trust-contact-review"
+              className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+            >
+              Security review contact
+            </Link>{" "}
+            so we align the diligence package to your process.
+          </p>
+        </section>
+      </div>
 
       <section aria-labelledby="trust-planned-assurance">
         <h2 id="trust-planned-assurance" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">

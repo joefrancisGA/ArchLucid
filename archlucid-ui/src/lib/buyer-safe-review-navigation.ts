@@ -1,7 +1,10 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
+import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import {
+  SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
+  SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 
@@ -23,6 +26,11 @@ export function getShowcaseManifestHref(): string {
 /** Executive view (concise risk summary and outcomes) for the Claims Intake static spine. */
 export function getShowcaseExecutiveHref(): string {
   return `/executive/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+}
+
+/** Baseline vs updated Claims Intake comparison for the static buyer spine. */
+export function getShowcaseCompareHref(): string {
+  return comparePageHrefAdaptive(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID, SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID);
 }
 
 /**

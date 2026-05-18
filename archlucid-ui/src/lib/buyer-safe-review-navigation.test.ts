@@ -68,6 +68,16 @@ describe("buyer-safe-review-navigation", () => {
     expect(mod.getShowcaseManifestHref()).toBe("/reviews/claims-intake-modernization/manifest");
   });
 
+  it("builds showcase compare href with v1 and v2 static spine run ids", async () => {
+    process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "true", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false" };
+
+    const mod = await import("./buyer-safe-review-navigation");
+
+    expect(mod.getShowcaseCompareHref()).toBe(
+      "/compare?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-run-v2",
+    );
+  });
+
   it("resolves signed manifest table link for curated static spine IDs", async () => {
     process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "true", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false" };
 

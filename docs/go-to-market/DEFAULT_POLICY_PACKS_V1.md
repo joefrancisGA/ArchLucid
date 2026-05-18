@@ -6,6 +6,15 @@
 
 **Objective:** Declare exactly **two** first-party curated categories bundled with every net-new tenant provisioning (see `IDefaultPolicyPackSeeder` / `DEFAULT_POLICY_PACKS_V1`). Everything else—including **Azure Landing Zone / CAF-style** packs—falls under **explicit V1.1** messaging below.
 
+## The "Brain" of the Governance Model
+
+ArchLucid's policy packs act as the active "brain" of the governance engine. By decoupling the core evaluation engine from domain-specific knowledge, policy packs future-proof the system against rapid technology shifts. Rather than updating core binaries to support a new framework or compliance standard, new logic is injected via JSON/YAML documents containing:
+1. **Compliance Rules:** The actual gates that inspect architecture evidence.
+2. **Alert Rules:** Operational observability rules that trigger Loki/Grafana alerts.
+3. **Advisory Defaults:** Contextual guidance and remediation advice.
+
+This design enables deep customization via hierarchical scoping (Tenant, Workspace, Project) where multiple packs are dynamically merged, allowing central security teams and individual project squads to combine their distinct governance requirements seamlessly.
+
 ---
 
 ## 1. What ships for V1 GA

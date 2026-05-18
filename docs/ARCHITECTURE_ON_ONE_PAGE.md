@@ -95,6 +95,12 @@ flowchart LR
 
 **Orchestration:** HTTP API coordinates **authority runs**, **governance**, and **retrieval**; **Worker** drains queues, outboxes, and long-running jobs. **Interfaces** live in Contracts/Application; **services** implement use cases; **data models** map to SQL and DTOs.
 
+### 4.3 Governance Engine & Policy Packs
+
+The governance model uses **Policy Packs** as its adaptive "brain", completely decoupling the core evaluation engine from domain-specific knowledge (compliance frameworks, cloud provider rules, AI standards).
+- **Future-proofing:** Rules, alerts, and advisory defaults are injected as JSON/YAML, allowing rapid adaptation to new technologies without binary updates.
+- **Hierarchical Merging:** Packs are assigned at Tenant, Workspace, or Project scopes and merged dynamically. This allows a central security team to enforce global baselines while squads layer on project-specific rules.
+
 ## 5. Component breakdown
 
 | Node | Responsibility |

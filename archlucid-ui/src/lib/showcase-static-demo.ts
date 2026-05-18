@@ -3,6 +3,11 @@ import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 /** Public-marketing slug for demos and screenshots — no fixture-style token. */
 export const SHOWCASE_STATIC_DEMO_RUN_ID = "claims-intake-modernization";
 
+/** Prior vs later finalized reviews for the Claims Intake compare walkthrough. */
+export const SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID = "claims-intake-run-v1";
+
+export const SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID = "claims-intake-run-v2";
+
 /** Stable buyer-facing name for review detail H1s, pickers, and breadcrumbs (matches marketing short form). */
 export const SHOWCASE_BUYER_REVIEW_TITLE = "Claims Intake Modernization Review";
 

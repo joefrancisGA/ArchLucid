@@ -7,7 +7,7 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { getShowcaseCompareHref, getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
@@ -69,6 +69,11 @@ export function PostCommitRetentionRail({
                 >
                   View signed manifest
                 </Link>
+              </Button>
+            ) : null}
+            {showcaseSpine ? (
+              <Button type="button" asChild variant="outline" size="sm" className="justify-center sm:justify-start">
+                <Link href={getShowcaseCompareHref()}>View review change comparison</Link>
               </Button>
             ) : null}
           </>

@@ -5,8 +5,11 @@ import Link from "next/link";
 import { pickPriorForSameRequest } from "@/components/BeforeAfterDelta/pick-prior-for-same-request";
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 import { Button } from "@/components/ui/button";
+import { getShowcaseCompareHref } from "@/lib/buyer-safe-review-navigation";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 
 type PostCommitAdvancedAnalysisHintProps = {
@@ -37,6 +40,10 @@ export function PostCommitAdvancedAnalysisHint({
 
   const encoded = encodeURIComponent(runId);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const showcaseSpineRun =
+    buyerPolishedShell && canonicalizeDemoRunId(runId) === SHOWCASE_STATIC_DEMO_RUN_ID;
+  const showcaseCompareHref = showcaseSpineRun ? getShowcaseCompareHref() : null;
+  const compareHrefForLinks = compareWithPriorHref ?? showcaseCompareHref;
 
   const sidebarHint = buyerPolishedShell ? (
     <>Deeper passes below are optional—most sponsors consume exported deliverables first.</>
@@ -67,7 +74,7 @@ export function PostCommitAdvancedAnalysisHint({
           </>
         )}
       </p>
-      {compareWithPriorHref !== null ? (
+      {compareHrefForLinks !== null ? (
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Button
             asChild
@@ -79,20 +86,24 @@ export function PostCommitAdvancedAnalysisHint({
                 : "bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-600"
             }
           >
-            <Link href={compareWithPriorHref} data-testid="post-commit-compare-prior-cta">
-              Compare to prior finalization (same request)
+            <Link href={compareHrefForLinks} data-testid="post-commit-compare-prior-cta">
+              {showcaseCompareHref !== null && compareWithPriorHref === null
+                ? "View review change comparison"
+                : "Compare to prior finalization (same request)"}
             </Link>
           </Button>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">
-            Prior item is the most recent other finalization for the same request (recent activity window).
-          </span>
+          {compareWithPriorHref !== null ? (
+            <span className="text-xs text-neutral-600 dark:text-neutral-400">
+              Prior item is the most recent other finalization for the same request (recent activity window).
+            </span>
+          ) : null}
         </div>
       ) : null}
       <ul className="m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 text-sm">
         <li>
           <Link
             className="text-teal-800 underline dark:text-teal-300"
-            href={comparePageHrefAdaptive(runId)}
+            href={compareHrefForLinks ?? comparePageHrefAdaptive(runId)}
           >
             Compare
           </Link>

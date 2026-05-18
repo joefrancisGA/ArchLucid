@@ -73,7 +73,7 @@ Every architecture recommendation ArchLucid produces comes with a complete chain
 
 ### Pillar 3: Enterprise governance
 
-Architecture decisions in ArchLucid are not just analyzed — they are governed. Policy packs define compliance rules. Approval workflows enforce segregation of duties. Pre-commit gates block manifests when findings exceed severity thresholds. Approval SLAs track time-to-review and escalate breaches via webhooks. And 78 typed audit events in an append-only SQL store provide the evidence trail that regulators and auditors expect.
+Architecture decisions in ArchLucid are not just analyzed — they are governed. **Policy packs** act as the adaptive "brain" of this governance model. By decoupling the core evaluation engine from domain-specific knowledge, they future-proof the system against rapid technology shifts; new compliance frameworks or cloud standards are simply injected as JSON/YAML rules. Approval workflows enforce segregation of duties. Pre-commit gates block manifests when findings exceed severity thresholds. Approval SLAs track time-to-review and escalate breaches via webhooks. And 78 typed audit events in an append-only SQL store provide the evidence trail that regulators and auditors expect.
 
 ---
 

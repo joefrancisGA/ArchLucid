@@ -53,7 +53,7 @@ flowchart LR
   W --> Blob
 ```
 
-**Orchestration layer:** HTTP API coordinates **authority runs**, **governance**, and **retrieval**; **Worker** drains queues/outboxes and long-running jobs. **Interfaces** (repositories, connectors) sit in Contracts/Application; **services** implement use cases; **data models** map to SQL and DTOs.
+**Orchestration layer:** HTTP API coordinates **authority runs**, **governance**, and **retrieval**; **Worker** drains queues/outboxes and long-running jobs. **Interfaces** (repositories, connectors) sit in Contracts/Application; **services** implement use cases; **data models** map to SQL and DTOs. The governance engine relies on **Policy Packs** as its adaptive "brain"—decoupling core evaluation from domain-specific knowledge to future-proof the system against rapid technology shifts via hierarchical merging of JSON/YAML rule documents.
 
 ## 5. Component breakdown
 
