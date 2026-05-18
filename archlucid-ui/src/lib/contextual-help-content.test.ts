@@ -1,6 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { contextualHelpByKey, toDocsBlobUrl } from "./contextual-help-content";
+import {
+  contextualHelpByKey,
+  contextualHelpTriggerAriaLabel,
+  contextualHelpTriggerSummary,
+  toDocsBlobUrl,
+} from "./contextual-help-content";
 import { collectContextualHelpKeysFromSource, defaultArchlucidUiSrcRoot } from "./contextual-help-keys-from-source";
 
 describe("contextualHelpByKey", () => {
@@ -45,6 +50,30 @@ describe("contextualHelpByKey", () => {
 
     expect(url).toMatch(/^https:\/\/github\.com\//);
     expect(url).toContain("docs/CORE_PILOT.md#x");
+  });
+});
+
+describe("contextualHelpTriggerSummary", () => {
+  it("returns the first sentence when help copy contains a period", () => {
+    expect(contextualHelpTriggerSummary(contextualHelpByKey["new-run-wizard"].text, "new-run-wizard")).toBe(
+      "Create an architecture request for what ArchLucid should analyze.",
+    );
+  });
+
+  it("falls back to helpKey words when text is empty", () => {
+    expect(contextualHelpTriggerSummary("   ", "new-run-wizard")).toBe("new run wizard");
+  });
+});
+
+describe("contextualHelpTriggerAriaLabel", () => {
+  it("prefixes the summary with Contextual help for known keys", () => {
+    expect(contextualHelpTriggerAriaLabel("new-run-wizard")).toBe(
+      "Contextual help: Create an architecture request for what ArchLucid should analyze.",
+    );
+  });
+
+  it("returns null for unknown keys", () => {
+    expect(contextualHelpTriggerAriaLabel("not-a-real-key")).toBeNull();
   });
 });
 
