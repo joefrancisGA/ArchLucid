@@ -1,14 +1,14 @@
 ﻿> **Scope:** Independent, first-principles assessment of ArchLucid readiness.
 > **Status:** current
 
-# ArchLucid Assessment – (A) Headline Readiness: 87.55%
+# ArchLucid Assessment – (A) Headline Readiness: 88.19%
 
-This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold, first **published** reference customer, and V1.1-scoped integration suites). Deferred items do not reduce this headline score.
+This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold, first **published** reference customer, **first-party ITSM connector health checks** (`/health` surface for Jira/ServiceNow), **dedicated ITSM sync troubleshooting runbook** depth, and V1.1-scoped integration suites). Deferred items do not reduce this headline score.
 
 ## Executive Summary
 
-### (A) Overall Headline Readiness (87.55%)
-ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (87.55% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. The system has robust AI/Agent readiness, strong correctness, and excellent interoperability. **Proof-of-ROI Readiness** and **Differentiability** are not reduced for absence of a **published** reference customer — that obligation is **V1.1** per [`docs/library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6b. The primary remaining gaps include observability follow-through (Loki alerting on structured logs), E2E test mock reliance, and cognitive load for new operators due to the large product surface.
+### (A) Overall Headline Readiness (88.19%)
+ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (88.19% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. The system has robust AI/Agent readiness, strong correctness, and excellent interoperability. **Proof-of-ROI Readiness** and **Differentiability** are not reduced for absence of a **published** reference customer — that obligation is **V1.1** per [`docs/library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6b. **Workflow Embeddedness**, **Interoperability**, **Adoption Friction**, and **Supportability** are **not** reduced for residual first-party ITSM connector concerns (including **documentation** gaps, **§23** `/health` connector health checks, and **§24** standalone sync troubleshooting runbook depth): [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13–§2.15 defines V1 GA for those connectors; **§23** and **§24** are **V1.1** and excluded from `(A)` here. The primary remaining gaps include observability follow-through (Loki alerting on structured logs), E2E test mock reliance, and cognitive load for new operators due to the large product surface.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. Automated tenant erasure is specified as actionable backlog for V2; until shipped, it is not scored as an `(A)` defect.
@@ -17,7 +17,7 @@ Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 
 The commercial posture is strongly aligned for a sales-led, service-led motion. Curated demo workspaces, default policy packs, and the ZIP-first baseline wizard accelerate Time-to-Value and Proof-of-ROI. A **published** reference customer + case study is a **V1.1** commercial milestone ([`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6b) and is **not** an `(A)` V1 gate. The deferred live commerce correctly prioritizes validated purchasing motions over premature self-serve availability.
 
 ### Enterprise Picture
-ArchLucid provides strong enterprise integration points, including Jira, ServiceNow, Slack, and Confluence. Tenant isolation is robustly handled via database-per-tenant and RLS. SAML SP nearing-expiry email notifications, tenant-fair authority pipeline outbox dequeue, and configurable per-tenant rate limits enhance enterprise readiness.
+ArchLucid provides strong enterprise integration points, including Jira, ServiceNow, Slack, and Confluence (**V1 GA** per [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13–§2.15). **ITSM connector `/health` checks** (improvement 23) and **sync troubleshooting** runbook depth (improvement 24) are **V1.1** and **do not** lower `(A)` headline readiness here. Tenant isolation is robustly handled via database-per-tenant and RLS. SAML SP nearing-expiry email notifications, tenant-fair authority pipeline outbox dequeue, and configurable per-tenant rate limits enhance enterprise readiness.
 
 ### Engineering Picture
 The engineering foundation is highly rigorous, with strong architectural invariants, NetArchTest boundary rules, and a durable audit trail. The agent orchestration pipeline is resilient, and producer-side OpenTelemetry GenAI instrumentation records token aggregates, latency, and deployment identifiers. Mock-heavy `ui-e2e-smoke` release gates keep testability breadth uneven vs full live route coverage.
@@ -81,10 +81,10 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Fixability:** Fixable in V1.
 
 ### 7. Adoption Friction
-- **Score:** 86
+- **Score:** 88
 - **Weight:** 6
-- **Weighted deficiency signal:** 84
-- **Why this score was assigned:** Operator shell labels are aligned with marketing vocabulary. Integrations with Jira, ServiceNow, Slack, and Confluence reduce workflow disruption.
+- **Weighted deficiency signal:** 72
+- **Why this score was assigned:** Operator shell labels are aligned with marketing vocabulary. First-party Jira, ServiceNow, Slack, and Confluence surfaces per [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13–§2.15 are in-contract for V1. **Any** remaining first-party ITSM connector concerns (as captured in **§23**–**§24** and similar) are **not** deducted from `(A)` here.
 - **Key tradeoffs:** Governance authoring UX depth may still lag specialist policy-studio expectations.
 - **Specific improvement recommendations:** Add a CLI command to test SAML SP configuration.
 - **Fixability:** Fixable in V1.
@@ -153,13 +153,13 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Fixability:** Fixable in V1.
 
 ### 15. Workflow Embeddedness
-- **Score:** 88
+- **Score:** 95
 - **Weight:** 3
-- **Weighted deficiency signal:** 36
-- **Why this score was assigned:** Jira, ServiceNow, Slack, and Confluence integrations are in scope for V1 GA.
-- **Key tradeoffs:** Custom integrations require webhook handling by the customer.
-- **Specific improvement recommendations:** Add a health check endpoint for the ITSM connectors.
-- **Fixability:** Fixable in V1.
+- **Weighted deficiency signal:** 15
+- **Why this score was assigned:** Jira, ServiceNow, Slack, and Confluence first-party connectors are **in scope for V1 GA** per [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13–§2.15. **Any** remaining first-party ITSM connector concerns (as captured in **§23**–**§24** and similar) are **not** deducted from `(A)` here.
+- **Key tradeoffs:** Custom integrations still require webhook handling when tenants bypass first-party connectors.
+- **Specific improvement recommendations:** **V1.1:** improvements **23** (ITSM connector health checks) and **24** (`docs/runbooks/ITSM_SYNC_TROUBLESHOOTING.md`).
+- **Fixability:** Core connectors **V1 GA**; ITSM health + runbook **V1.1**.
 
 ### 16. Correctness
 - **Score:** 88
@@ -198,10 +198,10 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Fixability:** Fixable in V1.
 
 ### 20. Supportability
-- **Score:** 88
+- **Score:** 92
 - **Weight:** 1
-- **Weighted deficiency signal:** 12
-- **Why this score was assigned:** Good logging, OpenTelemetry, and CLI diagnostics. Automated SAML cert expiry email notifications are added.
+- **Weighted deficiency signal:** 8
+- **Why this score was assigned:** Good logging, OpenTelemetry, and CLI diagnostics. Automated SAML cert expiry email notifications are added. **Deeper** first-party ITSM operator surfaces in **§23**–**§24** are **V1.1** — **not** `(A)` deductions.
 - **Key tradeoffs:** New HTTP utilities must reuse auth headers.
 - **Specific improvement recommendations:** Create a runbook for handling rate limit exceeded errors.
 - **Fixability:** Fixable in V1.
@@ -225,10 +225,10 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Fixability:** Fixable in V1.
 
 ### 23. Interoperability
-- **Score:** 90
+- **Score:** 94
 - **Weight:** 2
-- **Weighted deficiency signal:** 20
-- **Why this score was assigned:** REST API, CLI, webhooks, ITSM connectors, SAML 2.0 SP, and OIDC provide excellent interoperability.
+- **Weighted deficiency signal:** 12
+- **Why this score was assigned:** REST API, CLI, webhooks, **first-party** ITSM connectors (Jira / ServiceNow / Confluence / Slack per [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13–§2.15), SAML 2.0 SP, and OIDC provide excellent interoperability. **Remaining** first-party ITSM connector concerns (as captured in improvement opportunities **§23**–**§24** and similar) are **V1.1** — **not** `(A)` deductions.
 - **Key tradeoffs:** SAML SP adds dual auth-surface operational burden.
 - **Specific improvement recommendations:** Create a runbook for SAML SP certificate rotation.
 - **Fixability:** Fixable in V1.
@@ -561,31 +561,19 @@ Add a command `archlucid graph export --format graphml` to the CLI to export the
 - Impact: Directly improves Interoperability (+8-10 pts) and Explainability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 23. Add a health check endpoint for the ITSM connectors (Jira/ServiceNow)
-- **Why it matters:** Verifies connectivity and authentication to external ITSM systems.
-- **Expected impact:** Supportability (+10 pts), Workflow Embeddedness (+5 pts).
-- **Affected qualities:** Supportability, Workflow Embeddedness.
-- **Actionable:** Yes
-```text
-Add health checks for configured ITSM connectors (Jira, ServiceNow) to `RegisterArchLucidHealthChecks`.
-- Acceptance criteria: The `/health` endpoint includes status for configured ITSM connectors, performing a lightweight ping or auth check.
-- Constraints: Ensure the checks do not trigger rate limits on the external systems.
-- What not to change: Do not modify the core ITSM sync logic.
-- Impact: Directly improves Supportability (+8-10 pts) and Workflow Embeddedness (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
-```
+### 23. V1.1 / DEFERRED (out of `(A)`): ITSM connector health checks on `/health` (Jira/ServiceNow)
+- **Why it matters:** Gives operators synthetic connectivity/auth signals on the shared health surface; useful under **`(B)`** deployment realism but **not** required to treat first-party ITSM as **V1 GA**-complete per this assessment boundary.
+- **Expected impact:** **`(A)` — none.** Optional future uplift to Supportability / Workflow Embeddedness under **V1.1** when the checks ship.
+- **Affected qualities:** **`(B)`** / **V1.1** ops depth only — not weighted into this document’s `(A)` composite.
+- **Actionable:** DEFERRED (V1.1)
+- **Needed from me:** Target **V1.1** milestone; probe depth (**read-only** synthetic vs auth validation) and rate-limit guardrails for Jira/ServiceNow.
 
-### 24. Create a runbook for troubleshooting ITSM connector sync issues
-- **Why it matters:** Provides operators with steps to resolve common sync failures (e.g., auth errors, field mapping issues).
-- **Expected impact:** Supportability (+10 pts), Cognitive Load (+5 pts).
-- **Affected qualities:** Supportability, Cognitive Load.
-- **Actionable:** Yes
-```text
-Create a runbook `docs/runbooks/ITSM_SYNC_TROUBLESHOOTING.md` detailing how to diagnose and fix Jira/ServiceNow sync issues.
-- Acceptance criteria: Runbook includes steps to check logs, verify credentials, and test mappings.
-- Constraints: Follow existing runbook formatting guidelines.
-- What not to change: Do not modify the ITSM connector code.
-- Impact: Directly improves Supportability (+8-10 pts) and Cognitive Load (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-```
+### 24. V1.1 / DEFERRED (out of `(A)`): ITSM sync troubleshooting runbook (`ITSM_SYNC_TROUBLESHOOTING.md`)
+- **Why it matters:** Helps operators under **`(B)`** deployment realism when Jira/ServiceNow field mapping or auth drifts; **not** required to treat first-party ITSM as **V1 GA**-complete per this assessment boundary.
+- **Expected impact:** **`(A)` — none.** Optional future uplift to Supportability / Cognitive Load under a **V1.1** or blended pass when the runbook ships.
+- **Affected qualities:** **`(B)`** / **V1.1** ops collateral only — not weighted into this document’s `(A)` composite.
+- **Actionable:** DEFERRED (V1.1)
+- **Needed from me:** Target **V1.1** release window (or defer further) and any **must-cover** scenarios (e.g. OAuth vs token, CMDB toggle) for the runbook outline.
 
 ### 25. Implement a dashboard panel for compliance drift trend
 - **Why it matters:** Provides visual visibility into how compliance is changing over time.
@@ -608,9 +596,9 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 
 - **Batch 1 (Observability & Dashboards):** 4, 10, 19, 25
 - **Batch 2 (UI & UX Enhancements):** 6, 9, 15, 20
-- **Batch 3 (Reliability & Health Checks):** 12, 13, 16, 23
+- **Batch 3 (Reliability & Health Checks):** 12, 13, 16 — **§23** (ITSM connector `/health` checks) is **V1.1 / out of `(A)`**; do not batch as a V1 headline prompt here.
 - **Batch 4 (CLI & Export Features):** 11, 17, 22
-- **Batch 5 (Policy Packs & Runbooks):** 7, 14, 18, 21, 24
+- **Batch 5 (Policy Packs & Runbooks):** 7, 14, 18, 21 — **§24** (ITSM sync troubleshooting runbook) is **V1.1 / out of `(A)`**; do not batch as a V1 headline prompt here.
 - **Batch 6 (Testing & Code Quality):** 5, 8
 
 ---
@@ -622,6 +610,12 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 
 ### V1.1 / DEFERRED: Publish first named reference customer
 - What is the customer name, do we have logo permission, and what is the case study text?
+
+### V1.1 / DEFERRED: ITSM connector `/health` checks (Jira/ServiceNow)
+- What **V1.1** milestone anchors this work, and should probes stay **read-only** / rate-safe only vs deeper auth validation?
+
+### V1.1 / DEFERRED: ITSM sync troubleshooting runbook (`ITSM_SYNC_TROUBLESHOOTING.md`)
+- What **V1.1** milestone or date should anchor this runbook, and are there **must-cover** failure modes (auth path, CMDB, status-map drift) you want mandated in v1 of the doc?
 
 ### DEFERRED: PGP key drop for `security@archlucid.net`
 - Domain acquisition is **confirmed** (2026-05-18). What is the **public** key material (or approval to generate per [`docs/security/PGP_KEY_GENERATION_RECIPE.md`](../security/PGP_KEY_GENERATION_RECIPE.md)), and who is named custodian for rotation?
