@@ -167,7 +167,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted impact on readiness:** 20
 - **Why this score was assigned:** REST API, CLI, webhooks, ITSM connectors, SAML 2.0 SP, and OIDC provide excellent interoperability.
 - **Key tradeoffs:** SAML SP adds dual auth-surface operational burden.
-- **Specific improvement recommendations:** Inbound MCP server (membrane).
+- **Specific improvement recommendations:** None for V1 GA.
 - **Fixability:** Better suited for V1.1.
 
 ### 17. Performance
@@ -487,10 +487,6 @@ Add a Redis health check to the ASP.NET Core Health Checks pipeline in `ArchLuci
 - **Reason:** Deferred to V1.1. Requires user input to generate and provide the PGP keypair.
 - **Needed from me:** Please provide the public PGP key block to be placed at `archlucid-ui/public/.well-known/pgp-key.txt`.
 
-### 18. DEFERRED: Inbound MCP server (membrane)
-- **Reason:** Deferred to V1.1. Requires user input to confirm the final list of read-only tools.
-- **Needed from me:** Please confirm the 7 read-only tools listed in the backlog are final.
-
 ---
 
 ## Prompt Batching Guidance
@@ -518,7 +514,3 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 
 ### DEFERRED: PGP key drop for security@archlucid.net
 - What is the public PGP key block to be placed at `archlucid-ui/public/.well-known/pgp-key.txt`?
-
-### DEFERRED: Inbound MCP server (membrane)
-- Are the 7 read-only tools listed in the backlog final?
-
