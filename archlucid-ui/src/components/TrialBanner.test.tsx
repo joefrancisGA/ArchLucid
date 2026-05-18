@@ -61,7 +61,7 @@ describe("TrialBanner", () => {
       const url = String(input);
 
       if (url.includes("trial-status")) {
-        return new Response(JSON.stringify({ status: "Active", daysRemaining: 7 }), {
+        return new Response(JSON.stringify({ status: "Active", daysRemaining: 10 }), {
           status: 200,
           headers: { "Content-Type": "application/json" },
         });
@@ -85,7 +85,7 @@ describe("TrialBanner", () => {
       expect(screen.getByRole("region", { name: /Trial subscription/i })).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/7 days remaining on trial/i)).toBeInTheDocument();
+    expect(screen.getByText(/10 days remaining on trial/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Convert to paid/i }));
 

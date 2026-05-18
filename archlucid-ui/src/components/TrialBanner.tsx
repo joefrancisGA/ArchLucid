@@ -59,6 +59,20 @@ export function TrialBanner() {
       const json = (await res.json()) as TrialStatusPayload;
       setPayload(json);
 
+      const days = json.daysRemaining;
+
+      if (
+        json.status === "Active" &&
+        typeof days === "number" &&
+        days >= 0 &&
+        days <= 7
+      )
+      {
+        setVisible(false);
+
+        return;
+      }
+
       setVisible(shouldShowTrialStrip(json.status));
     } catch {
       setVisible(false);

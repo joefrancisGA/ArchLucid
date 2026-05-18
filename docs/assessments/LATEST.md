@@ -570,16 +570,17 @@ Add a new helper function `Get-ArchLucidActualCostSummary` to a new file `script
 - Impact: Directly improves Decision Velocity (+10-12 pts) and Time-to-Value (+4-6 pts). Weighted readiness impact: +0.15-0.25%.
 ```
 
-### 20. Add Trial Expiry Countdown Banner to the UI
+### 20. Add Trial Expiry Countdown Banner to the UI — **complete**
 - **Why it matters:** `TrialLifecycleEmailScanHostedService` sends email notifications on trial lifecycle events, but there is no in-app UI component that shows "N days remaining in your trial." Without a visible countdown, users approaching the trial end have no in-session nudge to convert. This is a direct conversion-funnel gap.
 - **Expected impact:** Stickiness (+10 pts), Time-to-Value (+6 pts).
 - **Affected qualities:** Stickiness, Time-to-Value.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (`TrialExpiryBanner` in `archlucid-ui/src/components/TrialExpiryBanner.tsx`; mounted in `AppShellClient` for **all** operator routes (full + minimal chrome); reads existing `GET /v1/tenant/trial-status`; shows when `status === Active` and `daysRemaining` is **0–7**; **sessionStorage** dismiss; **Talk to us** → `/pricing#pricing-quote-request`. Home `TrialBanner` skips when `daysRemaining <= 7` to avoid duplicate CTAs. Vitest: `TrialExpiryBanner.test.tsx`.)
 ```text
 Add a `TrialExpiryBanner` React component in `archlucid-ui/src/components/` that:
 1. Reads trial expiry state from a new API endpoint `GET /v1/trial/status` (or an existing tenant-profile endpoint if one already surfaces `TrialEndsUtc`).
 2. Renders a dismissible info banner when the trial has 7 or fewer days remaining, showing the exact number of days and a "Talk to us" CTA linking to the configured contact/sales URL.
 3. Is mounted in the root layout so it appears on every authenticated page.
+- Status: **COMPLETE** — uses `GET /v1/tenant/trial-status`; all operator shell pages; session dismiss (`sessionStorage`). (a) Storybook / Playwright deferred; Vitest covers render, dismiss, day window.
 - Acceptance criteria: (a) Banner appears in Storybook and a Playwright smoke test confirms it renders when `daysRemaining <= 7`. (b) Banner does not render when the tenant is not on a trial. (c) Banner is dismissible per session (localStorage flag).
 - Constraints: Read `TrialEndsUtc` from the existing profile/context store; do not introduce a new polling call unless the value is absent from the existing context.
 - What not to change: Do not modify `TrialLifecycleEmailScanHostedService` or any backend trial lifecycle logic.
@@ -658,7 +659,7 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 4 (Reliability & Scalability):** 6, 9
 - **Batch 5 (Security & Compliance):** 5, 8, 22
 - **Batch 6 (Testing & CI):** 18 (**§7 complete:** `archlucid-ui/e2e/live-api-smoke.spec.ts` — seeded scope, baseline ZIP wizard, **`executeRun`**, **`quick-decision-summary`**, no **`page.route`** mocks.)
-- **Batch 7 (UX & Conversion):** 10, 20
+- **Batch 7 (UX & Conversion):** **complete** — §10 (findings CSV export) + §20 (`TrialExpiryBanner`, all operator pages, `daysRemaining` 0–7, session dismiss).
 
 ---
 
