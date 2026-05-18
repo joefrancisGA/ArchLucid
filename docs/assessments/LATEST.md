@@ -8,7 +8,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 ## Executive Summary
 
 ### (A) Overall Headline Readiness (84.94%)
-ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, the internal Policy Pack Hub (catalog + clone), and operational script hardening—significantly strengthen the GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting), broader automated Azure cost estimations, and default `ui-e2e-smoke` mock-heavy coverage.
+ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (84.94% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. Recent completions—such as internal cross-tenant analytics, form-based custom policy authoring, LLM telemetry, the internal Policy Pack Hub (catalog + clone), operational script hardening, and Azure Retail Prices coverage for VMs and Storage Accounts in the extractor package—significantly strengthen the GA offering. The primary remaining gaps are in observability operationalization for shipped GenAI signals (dashboards, SLO linkage, alerting), Azure Cost Management actuals / Advisor parity versus retail estimates, and default `ui-e2e-smoke` mock-heavy coverage.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. The full automated tenant erasure quarantine pipeline is a V2 engineering commitment and is not scored as an `(A)` defect. V1 relies on operator-driven and trial/offboarding deletion paths.
@@ -66,9 +66,9 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Score:** 82
 - **Weight:** 5
 - **Weighted impact on readiness:** 90
-- **Why this score was assigned:** The Azure extractor appends Retail Prices for App Service and SQL. Cross-tenant analytics rollups exist.
-- **Key tradeoffs:** Broader Cost Management / Advisor parity and wider SKU families remain manual.
-- **Specific improvement recommendations:** Add Azure VM and Storage Account Retail Prices to the extractor.
+- **Why this score was assigned:** The Azure extractor appends Retail Prices (consumption catalog rows) for App Service, SQL, Virtual Machines, and Storage Accounts when `-IncludeRetailPrices` is used. Cross-tenant analytics rollups exist.
+- **Key tradeoffs:** Broader Cost Management / Advisor parity and estimate-vs-actual spend narratives remain manual.
+- **Specific improvement recommendations:** Implement `-IncludeCost` / `-IncludeAdvisor` exports (or equivalent) so architecture reviews can contrast retail estimates with billed usage.
 - **Fixability:** Fixable in V1.
 
 ### 6. Executive Value Visibility
@@ -315,13 +315,14 @@ Create a new Grafana dashboard JSON file in `infra/grafana/dashboard-archlucid-l
 - Impact: Directly improves Observability (+10-15 pts) and AI/Agent Readiness (+3-5 pts). Weighted readiness impact: +0.2-0.3%.
 ```
 
-### 2. Add Azure VM and Storage Account Retail Prices to Extractor
+### 2. Add Azure VM and Storage Account Retail Prices to Extractor — **complete**
 - **Why it matters:** Extends automated cost narratives beyond App Service and SQL, proving ROI for more SKUs.
 - **Expected impact:** Cost-Effectiveness (+10 pts), Proof-of-ROI Readiness (+5 pts).
 - **Affected qualities:** Cost-Effectiveness, Proof-of-ROI Readiness.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (`Resolve-ArchLucidRetailCatalogServiceName` maps `Microsoft.Compute/virtualMachines` → **Virtual Machines** and `Microsoft.Storage/storageAccounts` → **Storage Accounts**; VM size hints via `properties.vmSize` and `Get-ArchLucidInventoryVmSizeHint`; `Get-ArchLucidAzurePackage.ps1` scriptVersion **0.3.1**; Retail HTTPS-only, no new RBAC).
 ```text
 Update `scripts/azure/ArchLucid.RetailPrices.helpers.ps1` and `Get-ArchLucidAzurePackage.ps1` to query the Azure Retail Prices API for Virtual Machines and Storage Accounts.
+- Status: COMPLETE — acceptance criteria met (`retail-prices.json` emits consumption-priced catalog rows for inventoried VMs and Storage Accounts; OData filter unchanged pattern `priceType eq 'Consumption'`).
 - Acceptance criteria: `retail-prices.json` includes consumption-priced catalog rows for VMs and Storage Accounts.
 - Constraints: Do not require any new Azure RBAC roles beyond `Reader` and `Cost Management Reader`.
 - What not to change: Do not alter the core ARM resource collection logic.

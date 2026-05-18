@@ -108,9 +108,63 @@ function Resolve-ArchLucidRetailCatalogServiceName([string]$ResourceType)
 
         }
 
+        # Aligns with InfrastructureCostPricingCatalog retail service name for VMs.
+        "microsoft.compute/virtualmachines" {
+
+            return "Virtual Machines"
+
+        }
+
+        # Aligns with InfrastructureCostPricingCatalog retail service name for blob-capable storage accounts.
+        "microsoft.storage/storageaccounts" {
+
+            return "Storage Accounts"
+
+        }
+
         Default { return "" }
 
     }
+
+}
+
+function Get-ArchLucidInventoryVmSizeHint([Collections.IDictionary]$Row)
+{
+    if ($null -eq $Row) { return "" }
+
+    if (-not ($Row.Contains("properties"))) { return "" }
+
+    $props = $Row["properties"]
+
+    if ($null -eq $props) { return "" }
+
+    if ($props -is [Collections.IDictionary])
+    {
+
+        [Collections.IDictionary]$pd = $props
+
+        if (-not ($pd.Contains("hardwareProfile"))) { return "" }
+
+        $hp = $pd["hardwareProfile"]
+
+        if ($null -eq $hp) { return "" }
+
+        if ($hp -is [Collections.IDictionary])
+        {
+
+            [Collections.IDictionary]$hd = $hp
+
+            if (-not ($hd.Contains("vmSize"))) { return "" }
+
+            return "$( $hd['vmSize'] )".Trim()
+
+        }
+
+        try { return "$( $hp.vmSize )".Trim() } catch { return "" }
+
+    }
+
+    try { return "$( $props.hardwareProfile.vmSize )".Trim() } catch { return "" }
 
 }
 
@@ -118,8 +172,29 @@ function Get-ArchLucidRetailInventorySkuHints([Collections.IDictionary]$Row)
 {
     $list = [Collections.Generic.List[string]]::new()
 
+    [string]$resourceType = ""
+
+    if (($null -ne $Row) -and ($Row.Contains("resourceType")))
+    {
+
+        $resourceType = "$( $Row['resourceType'] )".Trim()
+
+    }
+
     if (($null -eq $Row) -or (-not ($Row.Contains("sku"))))
     {
+
+        # VMs often omit top-level `sku`; size lives under `properties.hardwareProfile.vmSize` (see package collector).
+
+        if ([string]::Equals($resourceType, "Microsoft.Compute/virtualMachines",
+                [System.StringComparison]::OrdinalIgnoreCase))
+        {
+
+            [string]$vmHint = Get-ArchLucidInventoryVmSizeHint $Row
+
+            if (-not ([string]::IsNullOrWhiteSpace($vmHint))) { [void]$list.Add($vmHint) }
+
+        }
 
         return $list.ToArray()
 
@@ -127,67 +202,65 @@ function Get-ArchLucidRetailInventorySkuHints([Collections.IDictionary]$Row)
 
     $skuObj = $Row["sku"]
 
-    if ($null -eq $skuObj)
-    {
-
-        return $list.ToArray()
-
-    }
-
     $name = ""
 
     $tier = ""
 
     $cap = ""
 
-    if ($skuObj -is [Collections.IDictionary])
+    if ($null -ne $skuObj)
     {
 
-        [Collections.IDictionary]$d = $skuObj
-
-        foreach ($k in @("Name", "name"))
+        if ($skuObj -is [Collections.IDictionary])
         {
 
-            if (-not ($d.Contains($k))) { continue }
+            [Collections.IDictionary]$d = $skuObj
 
-            $name = "$( $d[$k] )".Trim()
+            foreach ($k in @("Name", "name"))
+            {
 
-            break
+                if (-not ($d.Contains($k))) { continue }
+
+                $name = "$( $d[$k] )".Trim()
+
+                break
+
+            }
+
+            foreach ($k in @("Tier", "tier"))
+            {
+
+                if (-not ($d.Contains($k))) { continue }
+
+                $tier = "$( $d[$k] )".Trim()
+
+                break
+
+            }
+
+            foreach ($k in @("Capacity", "capacity"))
+            {
+
+                if (-not ($d.Contains($k))) { continue }
+
+                $cap = "$( $d[$k] )".Trim()
+
+                break
+
+            }
 
         }
 
-        foreach ($k in @("Tier", "tier"))
+        else
         {
 
-            if (-not ($d.Contains($k))) { continue }
+            try { $name = "$( $skuObj.Name )".Trim() } catch {}
 
-            $tier = "$( $d[$k] )".Trim()
+            try { $tier = "$( $skuObj.Tier )".Trim() } catch {}
 
-            break
-
-        }
-
-        foreach ($k in @("Capacity", "capacity"))
-        {
-
-            if (-not ($d.Contains($k))) { continue }
-
-            $cap = "$( $d[$k] )".Trim()
-
-            break
+            try { $cap = "$( $skuObj.Capacity )".Trim() } catch {}
 
         }
-
-    }
-
-    else
-    {
-
-        try { $name = "$( $skuObj.Name )".Trim() } catch {}
-
-        try { $tier = "$( $skuObj.Tier )".Trim() } catch {}
-
-        try { $cap = "$( $skuObj.Capacity )".Trim() } catch {}
 
     }
 
@@ -216,6 +289,21 @@ function Get-ArchLucidRetailInventorySkuHints([Collections.IDictionary]$Row)
     {
 
         [void]$list.Add($tier)
+
+    }
+
+    if ([string]::Equals($resourceType, "Microsoft.Compute/virtualMachines",
+            [System.StringComparison]::OrdinalIgnoreCase))
+    {
+
+        [string]$vmHint = Get-ArchLucidInventoryVmSizeHint $Row
+
+        if ((-not ([string]::IsNullOrWhiteSpace($vmHint))) -and (-not ($list.Contains($vmHint))))
+        {
+
+            [void]$list.Add($vmHint)
+
+        }
 
     }
 

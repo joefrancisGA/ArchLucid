@@ -6,7 +6,7 @@
     - No ArchLucid credentials run in this tenant. Output is uploaded by you to ArchLucid.
     - This script performs **read-only** Azure Resource Manager inventory (Get-AzResource) and Policy Insights policy state queries (Invoke-AzRestMethod POST on PolicyStates/latest/queryResults, the same read surface as Get-AzPolicyState).
     - **Never collected:** Key Vault secret values, connection strings, certificates/private keys, arbitrary user PII beyond resource tags.
-    - `-IncludeRetailPrices` emits `retail-prices.json` by calling the **public** HTTPS Retail Prices API (`https://prices.azure.com`) for App Service plans and SQL databases inventoried in `resources.json`; no extra RBAC beyond ARM read access.
+    - `-IncludeRetailPrices` emits `retail-prices.json` by calling the **public** HTTPS Retail Prices API (`https://prices.azure.com`) for App Service plans, SQL databases, Virtual Machines, and Storage Accounts inventoried in `resources.json`; HTTPS GET only — no RBAC beyond Reader-style ARM read access (same as other catalog probes).
     - Every run emits `policy-compliance.json` via Azure Policy Insights PolicyStates/latest/queryResults (same read plane as `Get-AzPolicyState`); pagination and throttling backoff are handled in the collector. Reader at subscription or resource-group scope is sufficient for typical tenants.
     - Optional Cost Management / Advisor packages (`-IncludeCost`, `-IncludeAdvisor`) remain backlog; see docs/library/V1_SCOPE.md §2.16.
     - Verify script integrity (code signing / checksum) per your change-management policy before executing in production subscriptions.
@@ -42,6 +42,51 @@ function Write-Utf8NoBom([string] $Path, [string] $Content)
     [System.IO.File]::WriteAllText($Path, $Content, [System.Text.UTF8Encoding]::new($false))
 }
 
+function New-ArchLucidCollectedArmResourceRecord([object] $AzResource)
+{
+    if ($null -eq $AzResource) { throw [System.ArgumentNullException]::new("AzResource") }
+
+    $props = @{
+        provisioningState = $AzResource.Properties.provisioningState
+    }
+
+    if ([string]::Equals($AzResource.ResourceType, "Microsoft.Compute/virtualMachines",
+            [System.StringComparison]::OrdinalIgnoreCase))
+    {
+
+        try
+        {
+
+            [string]$vs = "$( $AzResource.Properties.hardwareProfile.vmSize )".Trim()
+
+            if (-not ([string]::IsNullOrWhiteSpace($vs)))
+            {
+
+                $props["vmSize"] = $vs
+
+            }
+
+        }
+
+        catch
+        {
+
+        }
+
+    }
+
+    return [ordered]@{
+        resourceType = $AzResource.ResourceType
+        resourceId = $AzResource.ResourceId
+        name = $AzResource.Name
+        location = $AzResource.Location
+        sku = $AzResource.Sku
+        tags = $AzResource.Tags
+        properties = $props
+    }
+
+}
+
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.RetailPrices.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.PolicyCompliance.helpers.ps1')
 
@@ -61,7 +106,7 @@ Import-Module Az.Accounts -ErrorAction Stop
 $null = Get-AzSubscription -SubscriptionId $SubscriptionId -ErrorAction Stop
 Set-AzContext -SubscriptionId $SubscriptionId | Out-Null
 
-$scriptVersion = "0.3.0"
+$scriptVersion = "0.3.1"
 $schemaVersion = 1
 $collectionTimestamp = (Get-Date).ToUniversalTime().ToString("o")
 $azProfile = Get-Module Az.Resources
@@ -94,35 +139,13 @@ try
 {
     if ([string]::IsNullOrWhiteSpace($ResourceGroupScope))
     {
-        $resources = Get-AzResource -Verbose:$false | ForEach-Object {
-            [ordered]@{
-                resourceType = $_.ResourceType
-                resourceId = $_.ResourceId
-                name = $_.Name
-                location = $_.Location
-                sku = $_.Sku
-                tags = $_.Tags
-                properties = @{
-                    provisioningState = $_.Properties.provisioningState
-                }
-            }
-        }
+        $resources = Get-AzResource -Verbose:$false | ForEach-Object { New-ArchLucidCollectedArmResourceRecord $_ }
     }
     else
     {
-        $resources = Get-AzResource -ResourceGroupName $ResourceGroupScope -Verbose:$false | ForEach-Object {
-            [ordered]@{
-                resourceType = $_.ResourceType
-                resourceId = $_.ResourceId
-                name = $_.Name
-                location = $_.Location
-                sku = $_.Sku
-                tags = $_.Tags
-                properties = @{
-                    provisioningState = $_.Properties.provisioningState
-                }
-            }
-        }
+        $resources =
+            Get-AzResource -ResourceGroupName $ResourceGroupScope -Verbose:$false |
+                ForEach-Object { New-ArchLucidCollectedArmResourceRecord $_ }
     }
 
     $manifest = [ordered]@{
@@ -169,7 +192,7 @@ try
 
         $retailReadmeTail = @"
 
-Retail pack: `retail-prices.json` was added for this run (USD consumption rows from https://prices.azure.com for App Service plans and SQL databases appearing in `resources.json`; HTTPS GET only, no extra Azure RBAC scopes).
+Retail pack: `retail-prices.json` was added for this run (USD consumption rows from https://prices.azure.com for App Service plans, SQL databases, Virtual Machines, and Storage Accounts appearing in `resources.json`; HTTPS GET only; no Azure RBAC beyond ARM Reader / typical Policy read surfaces used elsewhere in this package).
 "@
 
     }
