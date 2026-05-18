@@ -6,7 +6,7 @@ Each recipe under [smoke/](smoke/) is written so an operator can execute it **wi
 
 **Catalog entry point:** [go-to-market/INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md) · **Readiness matrix (status, tests, code):** [library/CONNECTOR_READINESS_MATRIX.md](../library/CONNECTOR_READINESS_MATRIX.md)
 
-**Scope contract (V1):** [library/V1_SCOPE.md](../library/V1_SCOPE.md) §2.13–§2.16 (ITSM, Slack, Confluence, Azure extractor).
+**Scope contract:** [library/V1_SCOPE.md](../library/V1_SCOPE.md) §2.16 (Azure extractor) is **V1**; **§2.13–§2.15** first-party ITSM / Slack / Confluence are **V1.1** — smoke here validates those surfaces when implemented.
 
 **Customer-owned bridges** (Logic Apps / Power Automate), **canonical OpenAPI (`/openapi/v1.json`)**, and **webhook configuration** entry tables: [integrations/recipes/README.md](recipes/README.md).
 

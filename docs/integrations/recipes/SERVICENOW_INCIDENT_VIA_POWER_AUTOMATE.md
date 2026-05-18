@@ -4,7 +4,7 @@
 
 **Audience:** V1 customers who need ServiceNow incidents from ArchLucid findings or alerts but do not want to write an Azure Function or custom webhook receiver.
 
-**Optional customer-owned bridge.** **First-party ServiceNow** is **in scope for V1 GA** ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13, [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)). Use this recipe when you prefer **Power Automate** or need automation **before** managed connector enablement.
+**Optional customer-owned bridge.** **First-party ServiceNow** is **in scope for V1.1** ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13, [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)). Use this recipe when you prefer **Power Automate** or need automation **before** managed connector enablement.
 
 > **Customer-owned:** This flow runs in **your** Microsoft 365 / Power Platform tenant and calls **your** ServiceNow Table API. It is **not** a ServiceNow Store or ArchLucid-certified integration pack. ArchLucid only delivers signed CloudEvents webhooks per [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md).
 
@@ -271,7 +271,7 @@ Power Automate does not have built-in deduplication. To prevent duplicate Servic
 
 | Limitation | First-party V1 connector ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13) |
 |------------|--------------------------------------------------------------------------|
-| **One-way only** — this recipe creates incidents but does not sync status back to ArchLucid. | First-party **V1 GA** commits **two-way** ServiceNow → ArchLucid **status-only** sync ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13; *Resolved 2026-05-06*). **This Power Automate flow does not** implement inbound sync — use the hosted connector + inbound webhook path when you need parity. |
+| **One-way only** — this recipe creates incidents but does not sync status back to ArchLucid. | First-party **V1.1** commits **two-way** ServiceNow → ArchLucid **status-only** sync ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13; *Resolved 2026-05-06 / 2026-05-18*). **This Power Automate flow does not** implement inbound sync — use the hosted connector + inbound webhook path when you need parity. |
 | **No native HMAC in Power Automate** — HMAC validation requires an Azure Function or API Management in front. | Managed connector handles authentication natively; no external HMAC layer for ArchLucid→ServiceNow traffic. |
 | **Manual severity mapping** — you maintain the severity-to-integer map in flow expressions. | Managed connector ships a configurable mapping with sensible defaults. |
 | **No deduplication** — you must build correlation_id-based dedup logic yourself. | Managed connector uses `deduplicationKey` / `runId` + `findingId` natively for idempotent incident creation. |

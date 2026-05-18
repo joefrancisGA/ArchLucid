@@ -12,7 +12,7 @@
 
 ## V1 scope boundary (ITSM / connectors)
 
-[`V1_SCOPE.md` §2.13](../../library/V1_SCOPE.md) commits **first-party** **Jira** and **ServiceNow** connectors for **V1 GA**. V1 customers may still integrate via **webhooks**, **Service Bus**, and **REST**, including customer-operated fan-out (**Event Grid**, Logic Apps, Functions). Event Grid is **your** enterprise relay — it does **not** replace the **V1** first-party connector obligation where you choose managed ArchLucid ITSM integration.
+[`V1_SCOPE.md` §2.13](../../library/V1_SCOPE.md) commits **first-party** **Jira** and **ServiceNow** connectors for **V1.1**. **`V1`** customers integrate via **Teams**, **webhooks**, **Service Bus**, **REST**, and customer-operated fan-out (**Event Grid**, Logic Apps, Functions). Event Grid is **your** enterprise relay — it does **not** replace **V1.1** first-party ITSM where you choose managed ArchLucid integration.
 
 ---
 

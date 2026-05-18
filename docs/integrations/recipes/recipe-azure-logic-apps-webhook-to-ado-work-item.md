@@ -14,7 +14,7 @@
 
 ## V1 scope boundary (ITSM / connectors)
 
-Per [V1_SCOPE.md §2.13](../../library/V1_SCOPE.md), **first-party** **Jira** and **ServiceNow** connectors are **in scope for V1 GA**. This recipe wires together **your** Logic App, **your** Azure DevOps organization/project, and optional **API Management** or **Azure Functions** for signature verification — an **ADO-side** pattern distinct from ArchLucid ITSM connectors.
+Per [V1_SCOPE.md §2.13](../../library/V1_SCOPE.md), **first-party** **Jira** and **ServiceNow** connectors are **V1.1** commitments. This recipe wires together **your** Logic App, **your** Azure DevOps organization/project, and optional **API Management** or **Azure Functions** for signature verification — an **ADO-side** pattern distinct from ArchLucid ITSM connectors.
 
 ---
 

@@ -1,22 +1,22 @@
-> **Scope:** Buyer-facing end-to-end recipes bridging ArchLucid to enterprise workflows (Azure DevOps PR review, CloudEvents consumers, customer-owned Power Automate / Logic Apps); not a SKU matrix, endpoint inventory, or substitute for **V1** first-party **Jira** / **ServiceNow** ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13), **Slack** chat-ops ([`V1_SCOPE.md`](V1_SCOPE.md) §2.14), or **Confluence** publish ([`V1_SCOPE.md`](V1_SCOPE.md) §2.15).
+> **Scope:** Buyer-facing end-to-end recipes bridging ArchLucid to enterprise workflows (Azure DevOps PR review, CloudEvents consumers, customer-owned Power Automate / Logic Apps); not a SKU matrix, endpoint inventory, or substitute for **V1.1** first-party **Jira** / **ServiceNow** ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13), **Slack** chat-ops ([`V1_SCOPE.md`](V1_SCOPE.md) §2.14), or **Confluence** publish ([`V1_SCOPE.md`](V1_SCOPE.md) §2.15).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # ITSM bridge — V1 recipe hub
 
-**Audience:** Platform engineers and integrators who need a **single map** from ArchLucid to PR decoration, event-driven automation, or no-code bridges — alongside **or instead of** first-party **Jira** / **ServiceNow** / **Slack** / **Confluence** capabilities committed for **V1**.
+**Audience:** Platform engineers and integrators who need a **single map** from ArchLucid to PR decoration, event-driven automation, or no-code bridges — alongside **or instead of** first-party **Jira** / **ServiceNow** / **Slack** / **Confluence** capabilities committed for **V1.1**.
 
-**Non-goals:** This page does not replace [INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md), [INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md), or the OpenAPI contract. **First-party** **Jira**, **ServiceNow**, **Slack** (outbound), and **Confluence** publish are **in V1 scope** ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13–§2.15). These recipes are **customer-operated** alternatives when you prefer Logic Apps / Power Automate or need coverage **before** connector enablement.
+**Non-goals:** This page does not replace [INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md), [INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md), or the OpenAPI contract. **First-party** **Jira**, **ServiceNow**, **Slack** (outbound), and **Confluence** publish are **V1.1** scope ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13–§2.15). **`V1`** relies on **Teams**, **webhooks**, **REST**, and these **customer-operated** recipes for ITSM/docs/chat-shaped workflows.
 
 **Platform sequencing (first-party):** **ServiceNow** is built **before** the **Atlassian** pair ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13–§2.15; [`INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md) **Sequencing and CMDB**). **Atlassian:** **Confluence** publish **before** **Jira** issue sync — **same** paired workstream (*Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)* in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)). The first-party ServiceNow connector will set incident **`cmdb_ci`** using a **`cmdb_ci_appl`** table lookup (**`SystemName`** → CMDB **`name`**). The copy-paste recipes on this hub do **not** implement that CMDB lookup.
 
 ---
 
-## Authorization — ArchLucid-owned Jira OAuth (first-party V1 bi-directional sync)
+## Authorization — ArchLucid-owned Jira OAuth (first-party V1.1 bi-directional sync)
 
 **Audience:** Security reviewers and tenant admins evaluating blast radius for **first-party Jira** connectivity ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13).
 
-**Model:** ArchLucid operates a **globally registered Atlassian OAuth 2.0 (3LO) application** used for **V1 bi-directional Jira sync**. Tenants **install / authorize** that marketplace-connected app against **their** Jira Cloud site; ArchLucid **never** asks customers to embed ArchLucid-owned **client secrets** in tenant-managed automation recipes on this hub.
+**Model:** ArchLucid operates a **globally registered Atlassian OAuth 2.0 (3LO) application** used for **V1.1 bi-directional Jira sync**. Tenants **install / authorize** that marketplace-connected app against **their** Jira Cloud site; ArchLucid **never** asks customers to embed ArchLucid-owned **client secrets** in tenant-managed automation recipes on this hub.
 
 **Scopes (representative — verify current marketplace submission before audits):**
 

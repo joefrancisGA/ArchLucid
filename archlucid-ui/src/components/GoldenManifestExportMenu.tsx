@@ -103,7 +103,9 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         <SelectValue placeholder={buyerPolishedShell ? "More formats" : "Export"} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="markdown-summary">Markdown summary</SelectItem>
+        <SelectItem value="markdown-summary">
+          {buyerPolishedShell ? "Download review summary" : "Markdown summary"}
+        </SelectItem>
       </SelectContent>
     </Select>
   );

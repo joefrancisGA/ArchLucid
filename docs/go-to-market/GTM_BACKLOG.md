@@ -84,7 +84,6 @@
 | M-26 | Create Upwork service listing: "Architecture Decision Record Cleanup" (capture + decisioning flow) | Business | P3 | Not started | **Improvement #30 — COMPLETED (2026-05-17)** |
 | M-27 | Run at least one paid pilot or Upwork engagement with ArchLucid as internal tool + demo asset | Business | P3 | Not started | M-22 or M-23; **`SERVICE_LED_OFFERS.md`** defines SKU names deliverables |
 | M-28 | Request testimonial from any non-NDA-conflicted early user or pilot participant | Relationship | P3 | Not started | M-27 |
-| M-29 | Publish LinkedIn post on ServiceNow integration ("ArchLucid writes architecture findings back to your ServiceNow workflow") | Content | P3 | Blocked | **Improvement #25** (ServiceNow bi-directional sync) and **P10** (developer instance not yet provisioned) |
 
 ---
 
@@ -92,6 +91,7 @@
 
 | # | Task | Milestone | Reason deferred |
 |---|------|-----------|-----------------|
+| M-29 | Publish LinkedIn post on ServiceNow integration ("ArchLucid writes architecture findings back to your ServiceNow workflow") | **V1.1** | Waits on first-party ServiceNow program ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13), **Improvement #25**, and **P10** (developer instance) |
 | M-30 | Publish CAF / Azure landing-zone use case claim with bundled curated policy pack | V1.1 | CAF pack deferred to V1.1 per **`V1_DEFERRED.md`** / **`V1_SCOPE.md`** §3 |
 | M-31 | Solo architect self-serve SaaS pricing page (monthly tier bands per [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) **section 5**) and public self-serve checkout | V2 | Stripe live keys deferred to V1.1; self-serve funnel deferred to V2; no public $ band in first 90 days per **[PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md)** (**Marketing alignment Q7**); prefer **demand signal** from service-led engagements before positioning self-serve as primary motion |
 | M-32 | Reference customer / design partner case study publication | V1.1 | Depends on signed pilot and `reference-customers/PUBLICATION_CHECKLIST.md` clearance |
@@ -101,7 +101,7 @@
 
 ## Technical dependency map (marketing ↔ legacy engineering batches)
 
-All V1 marketing gate improvements referenced below are **COMPLETED** as of **2026-05-17**. The only remaining **marketing** blocker called out here is **P10** (ServiceNow developer instance).
+All V1 marketing gate improvements referenced below are **COMPLETED** as of **2026-05-17**. **M-29** is deferred to **V1.1** (first-party ServiceNow per `V1_SCOPE.md` §2.13); **P10** (ServiceNow developer instance) remains a validation unblocker.
 
 > **Note on item numbers:** Rows use **legacy sprint improvement labels** (#19–#33) for team memory. **Shipping truth** is **`CHANGELOG`**, **`V1_SCOPE.md`**, and **`V1_DEFERRED.md`** — verify before treating a label as a live dependency.
 
@@ -117,4 +117,4 @@ All V1 marketing gate improvements referenced below are **COMPLETED** as of **20
 | **#33** — Superseded by #32 | **COMPLETED (2026-05-17)** | — |
 | **#24** — Surface finding confidence + evidence links in review UI | Actionable (open) — verify in engineering backlog / UI release notes | Supports differentiability messaging for M-08 |
 | **#19** — Progressive disclosure for advanced governance routes | Actionable (open) — verify in engineering backlog | Reduces demo cognitive-load risk during M-19 |
-| **#25** — ServiceNow bi-directional sync | **Blocked on P10** | M-29 — do not publish until developer instance provisioned |
+| **#25** — ServiceNow bi-directional sync (**V1.1** program) | **Blocked on P10** | M-29 — do not publish until **V1.1** connector milestone |

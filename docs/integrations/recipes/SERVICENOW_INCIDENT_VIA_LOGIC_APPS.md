@@ -4,7 +4,7 @@
 
 **Audience:** Teams standardized on **Azure Logic Apps Standard** (single-tenant) who want ServiceNow incidents from ArchLucid without Power Automate Premium HTTP connectors.
 
-**Optional customer-owned bridge.** Same posture as [SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md](SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md): **first-party ServiceNow** is **V1 GA** ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13).
+**Optional customer-owned bridge.** Same posture as [SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md](SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md): **first-party ServiceNow** is **V1.1** ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13).
 
 > **Customer-owned:** Workflow runs in **your** Azure subscription; calls **your** ServiceNow Table API. ArchLucid delivers signed webhooks per [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md).
 

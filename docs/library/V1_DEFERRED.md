@@ -71,28 +71,26 @@ Docs describe **templates and gaps** that depend on **customer subscription and 
 
 ---
 
-## 6. Atlassian documentation connector — Confluence in **V1 GA** (supersedes V1.1-only 2026-04-24 pinning)
+## 6. First-party ITSM, Confluence, and Slack — **V1.1** window (*Resolved 2026-05-18*)
 
-**Confluence** first-party connector (publish finding or run summary pages to Confluence Cloud) is **in scope for V1 GA** per [V1_SCOPE.md](V1_SCOPE.md) **§2.15** — **owner scope update 2026-05-05**, superseding the prior **out of V1 / V1.1-window** table row and Improvement 3 deferral wording.
+**Jira**, **ServiceNow**, **Confluence**, and **Slack** first-party surfaces are **in scope for V1.1** per [V1_SCOPE.md](V1_SCOPE.md) **§2.13–§2.15** — **owner scope update 2026-05-18**, superseding *Resolved 2026-05-05 / 2026-05-06* **V1 GA** pinning for those connectors. **`(A)` headline assessments** treat absence of these first-party connectors as **non-deduction** for V1 GA (same pattern as other deferred program items); **`V1`** integration posture remains **Microsoft Teams**, **webhooks**, **REST**, and **customer-operated** recipes.
 
-**Jira** and **ServiceNow** remain per [V1_SCOPE.md](V1_SCOPE.md) §2.13; **Slack** per §2.14.
-
-**V1 customer-owned bridges (optional):** Power Automate and Logic Apps walkthroughs under **[`docs/integrations/recipes/README.md`](../integrations/recipes/README.md)** — still valid for tenants that prefer Microsoft automation or interim coverage. Summary hub: [ITSM_BRIDGE_V1_RECIPES.md](ITSM_BRIDGE_V1_RECIPES.md).
+**V1 customer-owned bridges (optional):** Power Automate and Logic Apps walkthroughs under **[`docs/integrations/recipes/README.md`](../integrations/recipes/README.md)** — primary path for tenants until first-party connectors ship in **V1.1**. Summary hub: [ITSM_BRIDGE_V1_RECIPES.md](ITSM_BRIDGE_V1_RECIPES.md).
 
 **Rules:**
 
-- **First-party implementation priority:** **ServiceNow** → **Atlassian pair** — **Confluence** **before** **Jira**, engineered **together** in one workstream / release tranche (*Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)* in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)) unless an owner reorder is recorded.
+- **First-party implementation priority (V1.1):** **ServiceNow** → **Atlassian pair** — **Confluence** **before** **Jira**, engineered **together** in one workstream / release tranche (*Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)* in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)) unless an owner reorder is recorded.
 - **Release-window** calendar dates are **not** implied unless [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) pins one.
 - New ITSM/documentation connectors **must not** widen without their own owner decision — **Azure DevOps Work Items** stays `[Planned]` until separately promoted.
 - Each connector **must** consume the same Authority-shaped event payloads the existing webhooks ship; no parallel finding-projection schema per target.
 
 ---
 
-## 6a. Chat-ops — Slack scope note (supersedes 2026-04-23 V2-only row)
+## 6a. Chat-ops — Slack scope note (*Resolved 2026-05-18*)
 
-**Slack** first-party **outbound** chat-ops (notification sink parity with **Microsoft Teams** — same **`EnabledTriggersJson`** / trigger catalog, **Key Vault** secret-name references, Authority-shaped payloads) is **in scope for V1 GA** per [`V1_SCOPE.md`](V1_SCOPE.md) **§2.14** — **owner scope update 2026-05-05**, superseding the prior *Resolved 2026-04-23* posture that listed Slack as **V2-only**.
+**Slack** first-party **outbound** chat-ops (notification sink parity with **Microsoft Teams** — same **`EnabledTriggersJson`** / trigger catalog, **Key Vault** secret-name references, Authority-shaped payloads) is **in scope for V1.1** per [`V1_SCOPE.md`](V1_SCOPE.md) **§2.14** — **owner scope update 2026-05-18**, superseding the *Resolved 2026-05-05* **V1 GA** promotion for Slack.
 
-**V1.1 commitment:** **In-Slack interactive** approvals / acknowledgements (**approve / ack** buttons on Slack messages surfaced by ArchLucid) — scoped for **V1.1** so chat-ops can close governance loops without leaving Slack.
+**V1.1+ / follow-on candidate (not separately promoted without owner row):** **In-Slack interactive** approvals / acknowledgements (**approve / ack** buttons on Slack messages surfaced by ArchLucid).
 
 **Still open / unpinned without separate promotion (no calendar dates implied):** Slack **App Directory** listing and OAuth installation UX marketed as **first-class** product onboarding.
 

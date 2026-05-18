@@ -4,7 +4,7 @@
 
 **Audience:** V1 customers who need Jira issues from ArchLucid findings or alerts but do not want to write an Azure Function or custom webhook receiver.
 
-**Optional customer-owned bridge.** **First-party Jira** is **in scope for V1 GA** ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13, [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)). Use this recipe when you prefer **Power Automate** or need automation **before** managed connector enablement.
+**Optional customer-owned bridge.** **First-party Jira** is **in scope for V1.1** ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13, [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)). Use this recipe when you prefer **Power Automate** or need automation **before** managed connector enablement.
 
 > **Customer-owned:** This flow runs in **your** Microsoft tenant and calls **your** Jira Cloud REST API with **your** Atlassian identity. It is **not** the managed ArchLucid→Jira connector—see §7 for differences versus first-party delivery.
 
@@ -329,7 +329,7 @@ Power Automate does not have built-in deduplication. To prevent duplicate Jira i
 
 | Limitation | First-party V1 connector ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13) |
 |------------|--------------------------------------------------------------------------|
-| **One-way only** — this recipe creates Jira issues but does not sync status back to ArchLucid. | First-party **V1 GA** commits **bi-directional** Jira → ArchLucid status sync ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13; *Resolved 2026-05-06*). **This Power Automate flow does not** implement inbound sync — use the hosted connector + inbound webhook path when you need parity. |
+| **One-way only** — this recipe creates Jira issues but does not sync status back to ArchLucid. | First-party **V1.1** commits **bi-directional** Jira → ArchLucid status sync ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13; *Resolved 2026-05-06 / 2026-05-18*). **This Power Automate flow does not** implement inbound sync — use the hosted connector + inbound webhook path when you need parity. |
 | **No native HMAC in Power Automate** — HMAC validation requires an Azure Function or API Management in front. | Managed connector handles authentication natively; no external HMAC layer for ArchLucid→Jira traffic. |
 | **Manual severity mapping** — you maintain the severity-to-priority map in flow expressions. | Managed connector ships configurable mapping with sensible defaults. |
 | **No deduplication** — you must build JQL-based dedup logic yourself. | Managed connector uses `deduplicationKey` / `runId` + `findingId` natively for idempotent issue creation. |

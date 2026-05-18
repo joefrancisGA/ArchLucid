@@ -9,6 +9,10 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-05-18 — Scope: **First-party Jira / ServiceNow / Confluence / Slack** → **V1.1** window
+
+**Outcome.** Owner scope update (**2026-05-18**): first-party **ITSM** (**§2.13**), **Slack** (**§2.14**), and **Confluence** (**§2.15**) are **V1.1** product obligations — **not** V1 GA gatekeepers. **V1** integration posture: **Microsoft Teams**, **webhooks**, **REST**, **customer-operated** recipes. **No code changes** in this entry — doc alignment. *Resolved 2026-05-18 (First-party connectors — V1.1 window)* in [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md). Updated: [`docs/library/V1_SCOPE.md`](library/V1_SCOPE.md) §2.13–§2.15, [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §6–§6a, [`docs/go-to-market/INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md), [`docs/library/CONNECTOR_READINESS_MATRIX.md`](library/CONNECTOR_READINESS_MATRIX.md), [`docs/library/ITSM_BRIDGE_V1_RECIPES.md`](library/ITSM_BRIDGE_V1_RECIPES.md), assessment + recipe cross-links, **`dist/procurement-pack/INTEGRATION_CATALOG.md`**.
+
 ## 2026-05-09 — Startup: **Real-mode deployment fingerprint** (Production / Staging hard fail)
 
 **Outcome.** **`RealModeDeploymentFingerprintRules`** in **`ArchLucid.Host.Core`** rejects **`AzureOpenAI:DeploymentName`** that is blank or mirrors **`AgentExecutionTraceModelMetadata`** sentinels (plus the **`fallback:`** trace prefix) when **`AgentExecution:Mode=Real`** on Production- or Staging-like hosts, so execution traces remain forensically useful. Wired from **`ArchLucidConfigurationRules.CollectErrors`**. Tests: **`ArchLucid.Host.Composition.Tests/RealModeDeploymentFingerprintRulesTests`**, **`ArchLucid.Api.Tests`** (**`ArchLucidConfigurationRulesTests`**). Docs: **`docs/library/AGENT_TRACE_FORENSICS.md`**.
