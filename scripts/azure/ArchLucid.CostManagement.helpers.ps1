@@ -243,8 +243,7 @@ function Invoke-ArchLucidActualCostPagedQuery(
 
         try {
 
-            [ordered]$snippet =
-                Invoke-ArchLucidAzureCliAzRestCaptured -TailAfterRest @($tailArgs.ToArray())
+            $snippet = Invoke-ArchLucidAzureCliAzRestCaptured -TailAfterRest @($tailArgs.ToArray())
 
         }
 

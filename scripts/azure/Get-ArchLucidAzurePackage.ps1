@@ -8,7 +8,7 @@
     - **Never collected:** Key Vault secret values, connection strings, certificates/private keys, arbitrary user PII beyond resource tags.
     - `-IncludeRetailPrices` emits `retail-prices.json` by calling the **public** HTTPS Retail Prices API (`https://prices.azure.com`) for App Service plans, SQL databases, Virtual Machines, and Storage Accounts inventoried in `resources.json`; HTTPS GET only — no RBAC beyond Reader-style ARM read access (same as other catalog probes).
     - Every run emits `policy-compliance.json` via Azure Policy Insights PolicyStates/latest/queryResults (same read plane as `Get-AzPolicyState`); pagination and throttling backoff are handled in the collector. Reader at subscription or resource-group scope is sufficient for typical tenants.
-    - Optional Cost Management / Advisor packages (`-IncludeCost`, `-IncludeAdvisor`) remain backlog; see docs/library/V1_SCOPE.md §2.16.
+    - `-IncludeCost` merges subscription-scope **ActualCost** into **`manifest.json`** (`actualCostSummary`) via Azure CLI **`az rest`** calls to **`Microsoft.CostManagement/query`** (Cost Management Reader or equivalent RBAC plus `az` on PATH required; null + warning when access fails). Advisor (`-IncludeAdvisor`) remains backlog; see docs/library/V1_SCOPE.md §2.16 for remaining optional surfaces.
     - Verify script integrity (code signing / checksum) per your change-management policy before executing in production subscriptions.
 #>
 #Requires -Version 7.0
@@ -89,6 +89,7 @@ function New-ArchLucidCollectedArmResourceRecord([object] $AzResource)
 
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.RetailPrices.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.PolicyCompliance.helpers.ps1')
+. (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.CostManagement.helpers.ps1')
 
 if (-not (Get-Module -ListAvailable -Name Az.Resources))
 {
@@ -106,7 +107,7 @@ Import-Module Az.Accounts -ErrorAction Stop
 $null = Get-AzSubscription -SubscriptionId $SubscriptionId -ErrorAction Stop
 Set-AzContext -SubscriptionId $SubscriptionId | Out-Null
 
-$scriptVersion = "0.3.1"
+$scriptVersion = "0.3.2"
 $schemaVersion = 1
 $collectionTimestamp = (Get-Date).ToUniversalTime().ToString("o")
 $azProfile = Get-Module Az.Resources
@@ -158,6 +159,13 @@ try
         azModuleVersion = $azModuleVersion
     }
 
+    if ($IncludeCost)
+    {
+
+        $manifest["actualCostSummary"] =
+            $(Get-ArchLucidActualCostSummary -SubscriptionId $SubscriptionId)
+    }
+
     $manifestPath = Join-Path $staging "manifest.json"
     $resourcesPath = Join-Path $staging "resources.json"
     Write-Utf8NoBom $manifestPath ($manifest | ConvertTo-Json -Depth 10)
@@ -197,11 +205,30 @@ Retail pack: `retail-prices.json` was added for this run (USD consumption rows f
 
     }
 
+    $costReadmeTail = ""
+
+    if ($IncludeCost)
+    {
+
+        $costReadmeTail = @"
+
+Cost snapshot: when `-IncludeCost` was used, `manifest.json` includes `actualCostSummary` (**ActualCost** at subscription scope via Microsoft Cost Management / `az rest`). Assign **Cost Management Reader** (or equivalent) when you need spend rows; insufficient access yields `actualCostSummary: null` and a warning instead of failing the extractor.
+"@
+
+    }
+
     $readmeExtra = ""
 
     if (-not ([string]::IsNullOrWhiteSpace($retailReadmeTail)))
     {
+
         $readmeExtra = [Environment]::NewLine + $retailReadmeTail.TrimEnd() + [Environment]::NewLine
+    }
+
+    if (-not ([string]::IsNullOrWhiteSpace($costReadmeTail)))
+    {
+
+        $readmeExtra += [Environment]::NewLine + $costReadmeTail.TrimEnd() + [Environment]::NewLine
     }
 
     $readme = @"
@@ -209,16 +236,16 @@ ArchLucid Azure extractor output (read-only inventory).
 Schema version: $schemaVersion
 Collection UTC: $collectionTimestamp
 $readmeExtra
-Each ZIP includes `policy-compliance.json` (Policy Insights latest states, Reader-scoped). When not using `-IncludeRetailPrices`, no live retail catalog JSON is written. Cost Management / Advisor exports require future implementations of `-IncludeCost` / `-IncludeAdvisor` — see docs/library/V1_SCOPE.md §2.16 and docs/library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md.
+Each ZIP includes `policy-compliance.json` (Policy Insights latest states, Reader-scoped). When not using `-IncludeRetailPrices`, no live retail catalog JSON is written. Without `-IncludeCost`, `manifest.json` does not include `actualCostSummary`. Advisor export (`-IncludeAdvisor`) remains future work — see docs/library/V1_SCOPE.md §2.16 and docs/library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md.
 Upload via POST /v1/azure-extractor/upload (ExecuteAuthority). Trust stance: docs/go-to-market/TRUST_CENTER.md.
 "@
 
     Write-Utf8NoBom (Join-Path $staging "README.txt") $readme
 
-    if ($IncludeCost -or $IncludeAdvisor)
+    if ($IncludeAdvisor)
     {
 
-        Write-Warning "IncludeCost and IncludeAdvisor are not yet implemented — extend when Cost Management / Advisor exporters are wired."
+        Write-Warning "IncludeAdvisor is not yet implemented — extend when the Advisor exporter is wired."
 
     }
 
