@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Collects read-only Azure ARM inventory for ArchLucid ingestion (schema-versioned ZIP).
+    Collects read-only Azure ARM inventory and Azure Policy compliance states for ArchLucid ingestion (schema-versioned ZIP).
 
 .NOTES
     - No ArchLucid credentials run in this tenant. Output is uploaded by you to ArchLucid.
