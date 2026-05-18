@@ -495,10 +495,6 @@ Add a Redis health check to the ASP.NET Core Health Checks pipeline in `ArchLuci
 - **Reason:** Deferred to V1.1. Requires user input to confirm the final list of read-only tools.
 - **Needed from me:** Please confirm the 7 read-only tools listed in the backlog are final.
 
-### 20. DEFERRED: Redis as the default production substrate for scaled API fleets
-- **Reason:** Deferred to V2. Requires user input to confirm the recommended Azure Cache for Redis SKU.
-- **Needed from me:** Please provide the recommended Redis SKU and private connectivity Terraform configuration.
-
 ---
 
 ## Prompt Batching Guidance
@@ -533,5 +529,3 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 ### DEFERRED: Inbound MCP server (membrane)
 - Are the 7 read-only tools listed in the backlog final?
 
-### DEFERRED: Redis as the default production substrate for scaled API fleets
-- What is the recommended Redis SKU and private connectivity Terraform configuration?
