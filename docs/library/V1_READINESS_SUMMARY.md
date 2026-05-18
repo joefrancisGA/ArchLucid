@@ -23,7 +23,7 @@ The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (D
 |------|-----------|
 | **Core operator path** | Request → execute → commit → manifest/artifacts; documented in [V1_SCOPE.md](V1_SCOPE.md) §4, [PILOT_GUIDE.md](PILOT_GUIDE.md), [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md). |
 | **Automation gates** | `scripts/run-readiness-check.ps1` (build + fast core + UI unit/build), `scripts/release-smoke.ps1` (optional full path with SQL + CLI quick run), `scripts/package-release.ps1` ([RELEASE_LOCAL.md](RELEASE_LOCAL.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md)). |
-| **RC environment drill** | `scripts/v1-rc-drill.ps1` + [V1_RC_DRILL.md](V1_RC_DRILL.md): two runs, compare, authority replay, export ZIP, doctor, support bundle—against a **running** API. |
+| **RC environment drill** | `scripts/v1-rc-drill.ps1` + [V1_RC_DRILL.md](V1_RC_DRILL.md): two reviews (`runId`), compare, authority replay, export ZIP, doctor, support bundle—against a **running** API. |
 | **Diagnostics** | `GET /health/*`, `GET /version`, CLI `doctor`, `support-bundle` ([CLI_USAGE.md](CLI_USAGE.md), [TROUBLESHOOTING.md](../TROUBLESHOOTING.md)). |
 | **Breaking-change trail** | Phase 7 rename and config surface documented in [BREAKING_CHANGES.md](../../BREAKING_CHANGES.md); integration events **canonical `com.archlucid.*` only**. |
 | **Deploy artifacts** | Dockerfiles, compose profiles, Terraform modules under `infra/` ([CONTAINERIZATION.md](CONTAINERIZATION.md), [DEPLOYMENT_TERRAFORM.md](DEPLOYMENT_TERRAFORM.md)). |

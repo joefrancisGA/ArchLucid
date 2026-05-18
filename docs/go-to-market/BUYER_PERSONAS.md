@@ -153,10 +153,10 @@
 ### Demo priorities (what to show first)
 
 1. CLI `run --quick` → `artifacts` pipeline (30 seconds to a manifest)
-2. API flow: Swagger → create run → execute → commit → get manifest
+2. API flow: Swagger → create review → execute → commit → get manifest
 3. OTel metrics in Grafana (runs, findings, agent quality)
 4. Health checks and `doctor` command (operational readiness)
-5. Compare two runs to show drift detection
+5. Compare two reviews to show drift detection
 
 ---
 

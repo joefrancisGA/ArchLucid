@@ -12,14 +12,14 @@ All steps are numbered; skip steps that do not apply to your type.
 
 ## 1. Objective
 
-A "comparison type" in ArchLucid is an artifact produced by comparing two runs, two exports, or any two structured payloads.
+A "comparison type" in ArchLucid is an artifact produced by comparing two reviews (two `RunId` sessions in APIs/storage), two exports, or any two structured payloads.
 It is persisted as a `ComparisonRecord` and later replayed to a format (Markdown, HTML, DOCX, PDF) on demand.
 
 Examples already in the system:
 
 | Type constant | Description |
 |---|---|
-| `end-to-end` | Full run-to-run replay comparison |
+| `end-to-end` | Full end-to-end replay comparison (two `RunId` values) |
 | `export-record-diff` | Comparison between two `RunExportRecord` payloads |
 
 ---

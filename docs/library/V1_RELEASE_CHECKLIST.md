@@ -28,7 +28,7 @@
 - [ ] **Merge-blocking .NET full regression (SQL)** on default branch is green before declaring release-ready — job **`.NET: full regression (SQL)`** (`dotnet-full-regression`) in `.github/workflows/ci.yml`; merged Cobertura + package-line gates per [COVERAGE_GAP_ANALYSIS.md](../COVERAGE_GAP_ANALYSIS.md) and [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md). If CI is red, record the blocking failure; do not imply "clean regression" without that job.
 - [ ] **Readiness script** green for the agreed filter: `scripts/run-readiness-check.ps1` (Phase 2 now runs **`dotnet run … -- config lint`**; use `-SkipUi` only if UI is out of scope for this handoff).
 - [ ] **Smoke with SQL** (when V1 includes Sql persistence): `scripts/release-smoke.ps1` with **`ARCHLUCID_SMOKE_SQL`** (or **`ConnectionStrings__ArchLucid`**) or `-SqlConnectionString` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md).
-- [ ] **RC drill** (staged/prod-like API URL): run **`scripts/v1-rc-drill.ps1`** against the candidate deployment or run the manual steps in [V1_RC_DRILL.md](V1_RC_DRILL.md) (two runs, compare, authority replay, export ZIP, support bundle).
+- [ ] **RC drill** (staged/prod-like API URL): run **`scripts/v1-rc-drill.ps1`** against the candidate deployment or run the manual steps in [V1_RC_DRILL.md](V1_RC_DRILL.md) (two reviews / `runId`s, compare, authority replay, export ZIP, support bundle).
 - [ ] **Staging evidence artifact** captured: `.\scripts\capture-staging-readiness-evidence.ps1 -BaseUrl https://<staging-host> -AuthMode <mode>`; add `-RunDoctor` / `-RunRcDrill` when the target allows those checks. Store the generated `artifacts/staging-readiness/*.md` with release artifacts, not in git.
 - **Optional evidence bundle sweep:** `docs/library/RELEASE_EVIDENCE_SUMMARY.md` and `scripts/Invoke-ReleaseEvidenceSummary.ps1 -MarkdownOut <path>` (non-blocking collector; use `-FailOnError` only when you want local script failures to block the shell).
 - [ ] *(Optional SaaS fleets)* **Reliability drill** automation understood if you consume the scheduled workflow output — [RELIABILITY_DRILL_PACKAGE.md](../runbooks/RELIABILITY_DRILL_PACKAGE.md).
@@ -56,7 +56,7 @@
 
 Execute the **core path** from [V1_SCOPE.md](V1_SCOPE.md) §4 (or [PILOT_GUIDE.md](PILOT_GUIDE.md) Option A/B):
 
-- [ ] **Create run** — `POST /v1/architecture/request` (or CLI path) succeeds; **`runId`** captured.
+- [ ] **Create architecture request (review)** — `POST /v1/architecture/request` (or CLI path) succeeds; **`runId`** captured.
 - [ ] **Execute** — `POST /v1/architecture/run/{runId}/execute` (or environment’s equivalent) completes to a committable state.
 - [ ] **Commit** — `POST /v1/architecture/run/{runId}/commit` succeeds; **`409`** behavior understood if retried wrong state ([API_CONTRACTS.md](API_CONTRACTS.md)).
 - [ ] **Artifacts** — at least one artifact descriptor for committed **`goldenManifestId`** (API list or CLI `artifacts`).

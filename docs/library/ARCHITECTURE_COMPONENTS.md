@@ -111,7 +111,7 @@ This document zooms into the most important components inside each container/lib
 #### End-to-end replay comparison formatting/export
 
 - **`IEndToEndReplayComparisonService`**
-  - Builds a comparison report by comparing two runs.
+  - Builds a comparison report by comparing two reviews (two `RunId` records).
 
 - **`IEndToEndReplayComparisonSummaryFormatter`**
   - Produces a Markdown summary for the report.

@@ -33,7 +33,7 @@ flowchart LR
   GM --> PKG
 ```
 
-**After commit:** optional **Operate** flows (compare, replay, audit, alerts) consume the same run and manifest identifiers.
+**After commit:** optional **Operate** flows (compare, replay, audit, alerts) consume the same review session identifiers (**`runId`** / manifest ids in API and storage).
 
 ---
 
@@ -41,7 +41,7 @@ flowchart LR
 
 | Term | One-line meaning |
 |------|------------------|
-| **Run** | One end-to-end analysis session keyed by **`RunId`**, from **`ArchitectureRequest`** through execute to commit readiness. |
+| **Review** (product) / **run record** (technical) | One architecture **review** session — keyed by **`RunId`** in APIs and SQL — from **`ArchitectureRequest`** through execute to commit readiness. Prefer **review** in buyer copy; see **[CONCEPT_VOCABULARY.md](CONCEPT_VOCABULARY.md)**. |
 | **Agent pipeline** | Four bounded agents — Topology, Cost, Compliance, Critic — coordinated by **`IAuthorityRunOrchestrator`** (see [ARCHITECTURE_CONTEXT.md](ARCHITECTURE_CONTEXT.md)). |
 | **Findings** | Structured issues with severity, evidence payloads, and **ExplainabilityTrace** metadata for auditors. |
 | **Golden manifest** | Immutable merged architecture decision snapshot produced on **commit**. |
@@ -51,7 +51,7 @@ flowchart LR
 
 ---
 
-## What happens when I create a run?
+## What happens when I start a review?
 
 1. **Context ingestion** — Description, hints, docs, IaC snippets normalize into **`ContextSnapshot`**.
 2. **Graph** — Knowledge-graph structures support downstream reasoning (**[CONTEXT_INGESTION.md](CONTEXT_INGESTION.md)**).

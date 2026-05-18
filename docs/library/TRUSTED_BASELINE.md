@@ -18,7 +18,7 @@ This document defines what the repo treats as **intentionally complete and demo-
 - **Startup:** `Program.cs` — config load, optional `ISchemaBootstrapper` when `ArchLucid:StorageProvider` = `Sql`, **DbUp** over embedded `ArchLucid.Persistence/Migrations/*.sql`, optional demo seed, then the HTTP pipeline.
 - **DbUp:** `ArchLucid.Persistence/Data/Infrastructure/DatabaseMigrator.cs` — applies embedded **`ArchLucid.Persistence/Migrations/*.sql`** when `ConnectionStrings:ArchLucid` is set, with deterministic `NNN_Name.sql` ordering.
 - **Canonical run detail:** `IRunDetailQueryService` / `RunDetailQueryService` — single aggregate for run, tasks, results, manifest, traces.
-- **Compare (trusted):** Manifest compare by version (`ManifestsController`), agent result compare between runs (`RunComparisonController` + `IAgentResultDiffService`).
+- **Compare (trusted):** Manifest compare by version (`ManifestsController`), agent result compare between reviews (`RunComparisonController` + `IAgentResultDiffService`).
 - **Governance workflow (trusted for demo):** Tables from `017_GovernanceWorkflow.sql`; seed creates approval, promotion, environment activations used by **governance preview** (`IGovernancePreviewService`).
 - **Health:** `GET /health` — includes database connectivity when `IDbConnectionFactory` is configured.
 

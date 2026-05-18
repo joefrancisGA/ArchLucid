@@ -58,7 +58,7 @@ The operator UI remains developed from `archlucid-ui/` in the repo (or deploy vi
 2. **Package:** `scripts/package-release.cmd` (or `scripts/package-release.ps1`).
 3. **Hand off:** Share the **repository** (or archive) plus **`artifacts/release/`** (include **`PACKAGE-HANDOFF.txt`** and **`metadata.json`** for support). Verify file integrity with **`checksums-sha256.txt`** after copy when present.
 
-**After deploy:** For a **full V1 path** on the running API (health, two runs, compare, replay, export, support bundle), use [V1_RC_DRILL.md](V1_RC_DRILL.md) and **`scripts/v1-rc-drill.ps1`** from the repo root.
+**After deploy:** For a **full V1 path** on the running API (health, two reviews / `runId`s, compare, replay, export, support bundle), use [V1_RC_DRILL.md](V1_RC_DRILL.md) and **`scripts/v1-rc-drill.ps1`** from the repo root.
 
 ### Support-friendly handoff
 

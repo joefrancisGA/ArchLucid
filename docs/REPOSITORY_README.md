@@ -92,7 +92,7 @@ ArchLucid ships as **two** buyer-facing capability layers: **Pilot** and **Opera
 
 | Layer | What it covers | Why it matters | How to reach it |
 |-------|---------------|----------------|-----------------|
-| **Pilot** | Create run → execute → commit → review manifest and artifacts | Proves fast path from request to reviewable output with less manual packaging effort | Default sidebar and home page |
+| **Pilot** | Create review → execute → commit → review manifest and artifacts | Proves fast path from request to reviewable output with less manual packaging effort | Default sidebar and home page |
 | **Operate** | Compare, replay, graph, Ask, advisory, pilot feedback **and** governance, policy packs, audit log, compliance drift, alerts | Deeper design investigation plus governance and operational trust when the organization is ready | **Show more links** and extended/advanced sidebar disclosure; role-aware **UI shaping** (not entitlements) — see [docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](library/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) §4 and [archlucid-ui/README.md](../archlucid-ui/README.md#seam-maintenance-anti-drift) |
 
 Full capability inventory: **[docs/PRODUCT_PACKAGING.md](library/PRODUCT_PACKAGING.md)** (§3 *Two UI shaping surfaces* — **Visibility** via **`useNavSurface()`** (nav + **`LayerHeader`** / layer guidance) and **Capability** via **`useOperateCapability()`** (Execute+ mutation soft-enable + **`OperateCapabilityHints`**); *UI seam / drift guards* (**PRODUCT_PACKAGING** uses historical “Contributor” wording) + *Cross-surface lock* — keep **`nav-config.ts`**, **`nav-shell-visibility.ts`** (**tier → authority**), **`current-principal.ts`** (`/me` read-model), **`layer-guidance.ts` / `LayerHeader`**, **`operate-capability.ts`** / **`useOperateCapability()`**, **Vitest** seam tests including **`authority-seam-regression.test.ts`**, **`authority-execute-floor-regression.test.ts`**, and **`authority-shaped-ui-regression.test.ts`** (catalog **`ExecuteAuthority`** rows + mutation floor invariants), and **API** policies aligned). First-pilot walkthrough: **[docs/CORE_PILOT.md](CORE_PILOT.md)**. **Measurement companion:** **[docs/PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md)**. **Usage guidance:** **[docs/OPERATOR_DECISION_GUIDE.md](library/OPERATOR_DECISION_GUIDE.md)**. **Canonical buyer narrative:** **[docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md](go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)**. Future packaging map: **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](library/FUTURE_PACKAGING_ENFORCEMENT.md)**. **Operator UI shaping only:** [archlucid-ui/README.md](../archlucid-ui/README.md#seam-maintenance-anti-drift) — nav and soft-disable follow **`/me`**; **ArchLucid.Api** still returns **401/403**. **Page-level mutation + layout seams:** Vitest **`archlucid-ui/src/app/(operator)/operate-authority-ui-shaping.test.tsx`** (hook → **`disabled`** / **`readOnly`**), **`archlucid-ui/src/app/(operator)/authority-shaped-layout-regression.test.tsx`** (inspect-first layout when mutation is off).
@@ -258,8 +258,8 @@ cd archlucid-ui && npm ci && npm test
 
 ## API Flow
 
-1. **Create run** – `POST /v1/architecture/request`  
-   Submit an `ArchitectureRequest` (system name, environment, cloud provider, constraints). Returns a run and agent tasks.
+1. **Create review** – `POST /v1/architecture/request`  
+   Submit an `ArchitectureRequest` (system name, environment, cloud provider, constraints). Returns a **`runId`** and agent tasks.
 
 2. **Submit agent results** – `POST /v1/architecture/run/{runId}/result`  
    Submit results from topology, cost, and compliance agents.

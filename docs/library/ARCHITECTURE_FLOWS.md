@@ -19,7 +19,7 @@ This doc describes the main runtime flows in “sequence narrative” form. It�
 
 #### A0 — Authority pipeline (ingestion → graph → findings → artifacts)
 
-1. **Create run** — `POST /v1/architecture/request` with an `ArchitectureRequest`; API persists the request and **`dbo.Runs`** row.
+1. **Create review** — `POST /v1/architecture/request` with an `ArchitectureRequest`; API persists the request and **`dbo.Runs`** row (`runId` in responses).
 2. **Pipeline stages (server-side)** — After the run row exists, **`AuthorityPipelineStagesExecutor`** runs (or is **queued** — see async flag below): context ingestion, graph, findings, decisioning, artifacts. OpenTelemetry spans: `authority.context_ingestion`, `authority.graph`, `authority.findings`, `authority.decisioning`, `authority.artifacts` (tag **`archlucid.stage.name`**). See [BACKGROUND_JOB_CORRELATION.md](BACKGROUND_JOB_CORRELATION.md) and [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md).
 3. **Transactional finalize** — **`AuthorityRunOrchestrator`** commits the unit of work with golden manifest, decision trace, and related snapshots (`FinalizeCommittedPipelineAsync`); retrieval indexing and integration-event outbox participate when configured.
 4. **Async / queued variant** — When **`FeatureManagement:FeatureFlags:AsyncAuthorityPipeline`** is **enabled** and an evidence-bundle id is present, the host may **enqueue** pipeline work first; the run can temporarily lack **`ContextSnapshotId`** until **`CompleteQueuedAuthorityPipelineAsync`** finishes. **InMemory** storage uses a resolver that does **not** enable this async mode.
@@ -29,7 +29,7 @@ This doc describes the main runtime flows in “sequence narrative” form. It�
 
 Use when the run is intentionally driven by **coordinator agent tasks** and **`AgentResult`** persistence (simulator/real agent executor, trial preseed, QuickStart, custom integrations), **not** when authority has already finalized the run.
 
-1. **Create run** — Same `POST /v1/architecture/request` (authority coordination still creates the run row; starter tasks may exist for non-deferred creates).
+1. **Create review** — Same `POST /v1/architecture/request` (authority coordination still creates the run row; starter tasks may exist for non-deferred creates).
 2. **Tasks** — `AgentTask` rows for topology/cost/compliance/critic; statuses such as **`TasksGenerated`**, **`WaitingForResults`**.
 3. **Execute or submit results** — **`POST /v1/architecture/run/{runId}/execute`** (`IAgentExecutor`) and/or **`POST /v1/architecture/run/{runId}/result`** (external **`AgentResult`** per task).
 4. **Commit** — **`POST /v1/architecture/run/{runId}/commit`** when **ReadyForCommit**; merges coordinator results into a **`GoldenManifest`**.
@@ -83,7 +83,7 @@ flowchart TD
 
 #### C1: Create and persist an end-to-end run comparison
 
-1. Client compares two runs (end-to-end).
+1. Client compares two reviews end-to-end (`/compare`; APIs use `runId`).
 2. API generates:
    - `EndToEndReplayComparisonReport` (structured payload)
    - a Markdown summary

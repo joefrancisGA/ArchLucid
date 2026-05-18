@@ -1,4 +1,4 @@
-> **Scope:** Internal GTM execution backlog for V1 marketing activities — task owners, priorities, milestones, and technical dependencies; not a buyer-facing document and not a substitute for LATEST.md weighted readiness scoring.
+> **Scope:** Internal GTM execution backlog for V1 marketing activities — task owners, priorities, milestones, and technical dependencies; not a buyer-facing document. For weighted readiness **workflow**, see **[`docs/library/ASSESSMENT_INPUTS.md`](../library/ASSESSMENT_INPUTS.md)** (rolling summary under **`docs/assessments/`**). This file is **not** a scorecard.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -6,10 +6,10 @@
 
 **Audience:** Founder and any marketing/GTM collaborators. Engineering reads this to understand which marketing tasks create or depend on technical work.
 
-**How this file relates to [`docs/assessments/LATEST.md`](../assessments/LATEST.md):**
-- **Technical tasks** (engineering, product) stay in `LATEST.md` as numbered improvement items. They affect the weighted readiness score and release checklist.
-- **Marketing tasks** (content, copy, outreach, business) live here. They do not affect the readiness score.
-- The **"Depends on"** column links marketing tasks to `LATEST.md` improvement numbers where a marketing activity cannot start or complete until engineering delivers.
+**How this file relates to engineering work:**
+- **Technical tasks** (engineering, product) live in the issue tracker, **[`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)**, **[`docs/library/NEXT_REFACTORINGS.md`](../library/NEXT_REFACTORINGS.md)**, and related runbooks — and may be summarized in the rolling assessment under **`docs/assessments/`** per **`ASSESSMENT_INPUTS.md`**.
+- **Marketing tasks** (content, copy, outreach, business) live **here**. They do not **replace** **`(A)` / `(B)`** scoring rules in **`.cursor/rules/Assessment-Scope-V1_1.mdc`**.
+- The **"Depends on"** column links marketing tasks to **legacy engineering batch labels** (historical sprint numbering) where a marketing activity cannot start or complete until engineering delivers.
 
 **Priority definitions:**
 - **P0** — Blocks GA launch or must complete in days 1–15 (demo and messaging foundation)
@@ -24,12 +24,12 @@
 
 ## Service-led GTM baseline (planning)
 
-**Captured 2026-05-17** — complements technical readiness in [`LATEST.md`](../assessments/LATEST.md).
+**Captured 2026-05-17** — complements in-repo technical scope (**[`V1_SCOPE.md`](../library/V1_SCOPE.md)**, **`V1_DEFERRED.md`**, engineering backlog).
 
 - **Wedge:** Sell a **buyable architecture review outcome** (evidence-backed report), not “complete platform” breadth on first touch. V1 product scope stays **`V1_SCOPE.md`**; GTM copy and SOWs lead with **pain → outcome → report**.
 - **Named SKUs:** Canonical menu and indicative bands live in **[`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md)**. Upwork listings (M-24–M-26) and pilot drafts (M-22–M-23) should use those **names** and deliverables.
 - **ICP (first revenue):** Mid-market CTO, fractional CTO, cloud consultant, regulated startup — faster cycle than Fortune 50 unless a sponsor already exists.
-- **V1.1 commerce un-hold (Stripe live / Marketplace):** Engineering milestone remains **`V1_DEFERRED.md` §6b**; **calendar alone** does not force the flip — owner validates **repeatable purchasing motion** (see **`LATEST.md` P4**).
+- **V1.1 commerce un-hold (Stripe live / Marketplace):** Engineering milestone remains **`V1_DEFERRED.md` §6b**; **calendar alone** does not force the flip — owner validates **repeatable purchasing motion** (this file's service-led baseline notes).
 - **V2 roadmap:** Platform items in **`V1_DEFERRED.md`** (e.g. cross-tenant analytics, Redis baselines) stay **candidates** until paid engagements show which buyers actually pay for them.
 
 ---
@@ -47,7 +47,7 @@
 | M-05 | Verify synthetic regulated scenario workspace (Workspace B — AI governance + cloud posture) passes Playwright smoke | QA sign-off | P0 | Not started | **Improvement #30 — COMPLETED (2026-05-17)** |
 | M-06 | Download and review generated sample architecture review report from Workspace B; confirm section coverage matches landing-page narrative | Content review | P0 | Not started | **Improvement #28 — COMPLETED (2026-05-17)** |
 | M-07 | Capture 6–8 polished screenshots across the full operator workflow (Capture, Evidence, Review, Findings, Decisions, Report, whitelabeled export) | Production | P0 | Not started | **Improvement #30 — COMPLETED (2026-05-17)** |
-| M-08 | Review and align `POSITIONING.md` "audit chain / signed manifest" differentiator language; ensure it appears in the one-minute pitch and demo script | Copy | P0 | Not started | None — content only; references `LATEST.md` #24 framing |
+| M-08 | Review and align `POSITIONING.md` "audit chain / signed manifest" differentiator language; ensure it appears in the one-minute pitch and demo script | Copy | P0 | Not started | **Finding-confidence UX** in review UI (**engineering backlog**) — aligns differentiability copy |
 
 ### Phase 2 — Public credibility (Days 16–30)
 
@@ -92,20 +92,20 @@
 
 | # | Task | Milestone | Reason deferred |
 |---|------|-----------|-----------------|
-| M-30 | Publish CAF / Azure landing-zone use case claim with bundled curated policy pack | V1.1 | CAF pack deferred to V1.1 per `LATEST.md` and `V1_DEFERRED.md` |
-| M-31 | Solo architect self-serve SaaS pricing page (monthly tier bands per [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) §5) and public self-serve checkout | V2 | Stripe live keys deferred to V1.1; self-serve funnel deferred to V2; no public $ band in first 90 days per `LATEST.md` Marketing alignment Q7; prefer **demand signal** from service-led engagements before positioning self-serve as primary motion |
+| M-30 | Publish CAF / Azure landing-zone use case claim with bundled curated policy pack | V1.1 | CAF pack deferred to V1.1 per **`V1_DEFERRED.md`** / **`V1_SCOPE.md`** §3 |
+| M-31 | Solo architect self-serve SaaS pricing page (monthly tier bands per [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) **section 5**) and public self-serve checkout | V2 | Stripe live keys deferred to V1.1; self-serve funnel deferred to V2; no public $ band in first 90 days per **[PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md)** (**Marketing alignment Q7**); prefer **demand signal** from service-led engagements before positioning self-serve as primary motion |
 | M-32 | Reference customer / design partner case study publication | V1.1 | Depends on signed pilot and `reference-customers/PUBLICATION_CHECKLIST.md` clearance |
 | M-33 | Cross-tenant portfolio ROI analytics marketing claim | V2 | Cross-tenant analytics deferred to V2 per `V1_DEFERRED.md` |
 
 ---
 
-## Technical dependency map (marketing → LATEST.md improvements)
+## Technical dependency map (marketing ↔ legacy engineering batches)
 
-All V1 marketing gate improvements are now COMPLETED. The only remaining blocker is P10 (ServiceNow developer instance).
+All V1 marketing gate improvements referenced below are **COMPLETED** as of **2026-05-17**. The only remaining **marketing** blocker called out here is **P10** (ServiceNow developer instance).
 
-> **Note on item numbers:** Items #19–#33 below reference a prior LATEST.md numbering scheme (improvements were consolidated/renumbered during the 2026-05-17 sprint). The current [`LATEST.md`](../assessments/LATEST.md) numbers improvements 1–22; the "open" rows below (#19 Progressive disclosure, #24 Finding confidence, #25 ServiceNow) correspond to items that may have been renamed or renumbered — verify against the current LATEST.md before treating them as live action items.
+> **Note on item numbers:** Rows use **legacy sprint improvement labels** (#19–#33) for team memory. **Shipping truth** is **`CHANGELOG`**, **`V1_SCOPE.md`**, and **`V1_DEFERRED.md`** — verify before treating a label as a live dependency.
 
-| LATEST.md item | Status | Marketing tasks unblocked |
+| Legacy batch label | Status | Marketing tasks unblocked |
 |---|---|---|
 | **#26** — Operator UI vocabulary alignment | **COMPLETED (2026-05-17)** | All in-app copy and demo scripts use aligned vocabulary |
 | **#27** — Bulk evidence upload (≤30 files) | **COMPLETED (2026-05-17)** | Landing page copy may disclose cap; M-19 demos show bulk capture |
@@ -115,6 +115,6 @@ All V1 marketing gate improvements are now COMPLETED. The only remaining blocker
 | **#31** — Landing CTA stack (walkthrough / self-demo / early access) | **COMPLETED (2026-05-17)** | M-09 |
 | **#32** — Marketing landing page content | **COMPLETED (2026-05-17)** | M-09 (fully unblocked) |
 | **#33** — Superseded by #32 | **COMPLETED (2026-05-17)** | — |
-| **#24** — Surface finding confidence + evidence links in review UI | Actionable (open) — *verify current item number in LATEST.md* | Supports differentiability messaging for M-08 |
-| **#19** — Progressive disclosure for advanced governance routes | Actionable (open) — *verify current item number in LATEST.md* | Reduces demo cognitive-load risk during M-19 |
+| **#24** — Surface finding confidence + evidence links in review UI | Actionable (open) — verify in engineering backlog / UI release notes | Supports differentiability messaging for M-08 |
+| **#19** — Progressive disclosure for advanced governance routes | Actionable (open) — verify in engineering backlog | Reduces demo cognitive-load risk during M-19 |
 | **#25** — ServiceNow bi-directional sync | **Blocked on P10** | M-29 — do not publish until developer instance provisioned |

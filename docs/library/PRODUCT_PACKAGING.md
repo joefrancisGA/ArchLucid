@@ -227,11 +227,11 @@ Available immediately after a first committed run. Enabled by clicking **Show mo
 
 | Capability | API surface | UI surface |
 |------------|-------------|------------|
-| Compare two runs (structured manifest diff) | `POST /v1/architecture/compare` | Compare two runs (`/compare`) |
-| Compare two runs (legacy flat diff) | `GET /v1/architecture/compare/legacy` | Compare two runs — flat diff tab |
-| Optional AI explanation of diff | Requires AI provider config | Compare two runs — AI narrative section |
-| Comparison replay (artifact / regenerate / verify) | `POST /v1/architecture/compare/replay` | Replay a run (`/replay`) |
-| Run replay (authority chain re-validation) | `POST /v1/authority/replay` | Replay a run — authority mode |
+| Compare two reviews (structured manifest diff) | `POST /v1/architecture/compare` | Compare two reviews (`/compare`; APIs use `run` / `runId`) |
+| Compare two reviews (legacy flat diff) | `GET /v1/architecture/compare/legacy` | Compare two reviews — flat diff tab |
+| Optional AI explanation of diff | Requires AI provider config | Compare two reviews — AI narrative section |
+| Comparison replay (artifact / regenerate / verify) | `POST /v1/architecture/compare/replay` | Replay a review (`/replay`) |
+| Run replay (authority chain re-validation) | `POST /v1/authority/replay` | Replay — authority mode |
 | Provenance graph (full, decision subgraph, neighborhood) | `GET /v1/graph/runs/{runId}/provenance` | Graph (`/graph`) |
 | Architecture graph | `GET /v1/graph/runs/{runId}/architecture` | Graph — architecture mode |
 | Natural-language Ask | `POST /v1/ask/threads` | Ask (`/ask`) |
@@ -251,7 +251,7 @@ Available immediately after a first committed run. Enabled by clicking **Show mo
 
 Sidebar group label: **Operate** — analysis (`operate-analysis`; visible after **Show more links**).
 
-Extended-tier links: Graph · Compare two runs · Replay a run · Advisory · Recommendation learning · Pilot feedback.
+Extended-tier links: Graph · Compare two reviews · Replay · Advisory · Recommendation learning · Pilot feedback.
 
 Advanced-tier links: Search · Planning · Evolution candidates · Schedules · Digests · Subscriptions.
 

@@ -53,7 +53,7 @@ Operational cleanup is **scheduled and gated**, not “unfinished V1 product.”
 | Item | Doc source |
 |------|------------|
 | **Periodic manual accessibility review** — scheduled screen-reader / assistive-technology validation beyond merge-blocking **`@axe-core/playwright`** baselines | Assessment boundary: participant AT studies are not a V1 **`(A)`** gate per **Assessment-Scope-V1_1**; **V2** candidate for an explicit review cadence. |
-| **Baseline wizard — deferred enrichments (beyond ZIP-first V1)** | [`LATEST.md`](../assessments/LATEST.md) improvement **#8** (actionable): V1 ships **extractor ZIP first**, then **system name + environment + cloud provider (Azure default)**; optional existing wizard steps stay non-blocking. **V1.1 candidates:** wizard steps that **gate** or strongly nudge governance tags, compliance constraints, and risk classification when org policy requires it; guided **datastore/service** review when extractor coverage is known incomplete. **V2 candidates:** **portfolio** onboarding (multi-system / program-level baseline in one flow); deep **framework-mapping** steps tied to industry SKUs. |
+| **Baseline wizard — deferred enrichments (beyond ZIP-first V1)** | **[V1_SCOPE.md](V1_SCOPE.md)** baseline wizard / Azure extractor posture: V1 ships **extractor ZIP first**, then **system name + environment + cloud provider (Azure default)**; optional existing wizard steps stay non-blocking. **V1.1 candidates:** wizard steps that **gate** or strongly nudge governance tags, compliance constraints, and risk classification when org policy requires it; guided **datastore/service** review when extractor coverage is known incomplete. **V2 candidates:** **portfolio** onboarding (multi-system / program-level baseline in one flow); deep **framework-mapping** steps tied to industry SKUs. |
 | **Playwright** operator smoke may use **mocked** `/api/proxy`; it does not replace **SQL-backed** API + UI validation for a given release | [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [V1_SCOPE.md](V1_SCOPE.md) §3 |
 | **Audit search** keyset cursor uses **`OccurredUtc` with optional `EventId` tie-break** (`GET /v1/audit/search?beforeUtc=…&beforeEventId=…`); clients must pass both when continuing past same-second events | [AuditController.cs](../../ArchLucid.Api/Controllers/Admin/AuditController.cs), operator audit UI “Load more” |
 | **CI — merged line ≥ 95% + coverage ratchet** | **`.github/workflows/ci.yml`** (`dotnet-coverage-merge`): **`assert_merged_line_coverage_min.py`** enforces a **merge-blocking merged line ≥ 75%** (alongside branch **63%** and per-package line **63%**); **`assert_coverage_floor_ratchet.py`** + **`.coverage-floor`** are not invoked until **V1.1**. **V1.1:** raise merged line to **95%**, re-enable the ratchet step, and keep docs (**`docs/engineering/BUILD.md`**, **`docs/library/coverage-exclusions.md`**, **`docs/library/COVERAGE_GAP_ANALYSIS.md`**) in sync. |
@@ -122,7 +122,7 @@ These commercial milestones are **explicitly release-window-pinned to V1.1** so 
 - **Design partner (Resolved 2026-05-03):** the same rule applies — future assessments **must not** treat absence of a signed design partner as an **`(A)`** defect or premise repeated “you lack a design partner” narrative; see [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) *Resolved 2026-05-03*.
 - These decisions do **not** retract or downgrade other commercial / security milestones — **third-party** pen-test summary publication is **V2** per §6c (owner 2026-05-01); PGP key generation, board-pack PDF endpoint, etc. stay as documented unless a separate owner decision defers them.
 - A new commercial milestone **must not** be added to this table without its own owner decision recorded in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
-- **Commerce un-hold demand gate (planning 2026-05-17):** The **Stripe live / Marketplace `Published`** flip remains a **V1.1** engineering and owner obligation per the **Commerce un-hold** row above; **timing** should reflect **validated buyer motion** (e.g. repeated paid review or pilot pattern) in addition to finance readiness — see **`docs/assessments/LATEST.md` P4** and **`docs/go-to-market/GTM_BACKLOG.md`** service-led baseline. This does **not** remove the **`BillingProductionSafetyRules`** guard or TEST-mode trial obligations in **`V1`**.
+- **Commerce un-hold demand gate (planning 2026-05-17):** The **Stripe live / Marketplace `Published`** flip remains a **V1.1** engineering and owner obligation per the **Commerce un-hold** row above; **timing** should reflect **validated buyer motion** (e.g. repeated paid review or pilot pattern) in addition to finance readiness — see **`docs/go-to-market/GTM_BACKLOG.md`** service-led baseline. This does **not** remove the **`BillingProductionSafetyRules`** guard or TEST-mode trial obligations in **`V1`**.
 
 ---
 
@@ -221,7 +221,7 @@ This section **promotes MCP from backlog-only text to the named V1.1 release win
 **Rules:**
 
 - Quality assessments **must not** treat “no generic OIDC” as a V1 defect — it is a **committed V1 integration surface** alongside Entra.
-- **`(A)` V1 headline readiness** after **`V1_SCOPE.md` §2.12** SAML promotion (**owner 2026-05-15**) **must not** claim **broker-free SAML-direct GA** until SAML SP ships — track **`docs/assessments/LATEST.md`** improvement **#13** or equivalent engineering backlog identifier until closed.
+- **`(A)` V1 headline readiness** after **`V1_SCOPE.md` §2.12** SAML promotion (**owner 2026-05-15**) **must not** claim **broker-free SAML-direct GA** until SAML SP ships — track in **`PENDING_QUESTIONS.md`** / engineering backlog until closed.
 - Claim-mapping and issuer allowlisting discipline stays **documented operator responsibility** — capture buyer IdP specifics in questionnaires ([PROCUREMENT_FAQ.md](../go-to-market/PROCUREMENT_FAQ.md)).
 
 ---
@@ -304,7 +304,7 @@ The following bulk processing features are explicitly deferred to **V1.1**:
 
 ## 6m. Privacy — automated tenant erasure quarantine pipeline (**V2**) (product decision 2026-05-17)
 
-**Scope:** A **fully automated** tenant erasure product path: verified request → **quarantine** (`TenantErasureRequestedUtc` or equivalent) → **30-day** (or policy-configured) delay → **legal hold** gate → orchestrated **hard purge** (per-tenant SQL catalog, tenant-scoped blobs, control-plane bindings) with durable audit — as specified in [`LATEST.md`](../assessments/LATEST.md) improvement **#3** (spec block retained there).
+**Scope:** A **fully automated** tenant erasure product path: verified request → **quarantine** (`TenantErasureRequestedUtc` or equivalent) → **30-day** (or policy-configured) delay → **legal hold** gate → orchestrated **hard purge** (per-tenant SQL catalog, tenant-scoped blobs, control-plane bindings) with durable audit. **Normative intent is this section** — do not mirror lifecycle claims into rolling assessment drafts as if they were contractual API.
 
 **V1 GA / `(A)` headline posture:** This pipeline is **not** a V1 or V1.1 **weighted readiness** commitment. **Independent assessments must not** reduce **`(A)` Compliance Readiness** (or other pillars) solely because the **automated** quarantine/hold/purge product is absent. **V1** already ships **operator/trial offboarding** mechanics (`TenantDeletionService` — blobs + SQL hard purge + `PlatformAuditEvents`; trial lifecycle hard purge via `ITenantHardPurgeService`) — sufficient for honest pilot and sales-led motion when combined with process and documentation.
 
@@ -314,7 +314,7 @@ The following bulk processing features are explicitly deferred to **V1.1**:
 
 **Rules:**
 - Do not imply V1 lacks **any** tenant data removal capability — distinguish **automated product pipeline** (deferred) from **existing** purge/offboarding paths.
-- When **`LATEST.md`** is rescored, treat improvement **#3** as **`Actionable: No`** for V1 batching until promoted from this section.
+- **Scoring:** treat this entire **§6m** block as **`Actionable: No`** for V1 headline batching until the automated pipeline ships — **V2** scope; **V1** offboarding paths above remain sufficient for stated posture.
 
 ---
 

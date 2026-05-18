@@ -164,7 +164,7 @@ Use a simple 1–5 rating for each item.
 | **Speed** | Did we get to a committed manifest faster or more predictably? | |
 | **Artifact readiness** | Did we get to a reviewable package with less manual assembly? | |
 | **Traceability** | Were decisions and evidence easier to explain? | |
-| **Change clarity** | Was it easier to understand what changed between runs? | |
+| **Change clarity** | Was it easier to understand what changed between reviews? | |
 | **Governance readiness** | Did the pilot improve review or approval readiness? | |
 | **Operator usability** | Could operators complete the Core Pilot path without excessive friction? | |
 | **Stakeholder confidence** | Did reviewers trust the outputs enough to use them seriously? | |

@@ -21,8 +21,8 @@ This document is a **capture brief**: it describes exactly what to show on scree
 
 - ArchLucid API running against SQL with **demo seed data** (`Demo:Enabled=true`, `Demo:SeedOnStartup=true`, or `POST /v1.0/demo/seed`). Fastest path: **`scripts/demo-start.ps1`** / **`scripts/demo-start.sh`** with **`docker-compose.demo.yml`** — see **[DEMO_QUICKSTART.md](DEMO_QUICKSTART.md)**. Save captures under **`docs/go-to-market/screenshots/`** when committing assets.
 - Operator UI (`archlucid-ui`) running at `http://localhost:3000`.
-- At least **two completed runs** with committed golden manifests (use `archlucid run --quick` twice or Swagger).
-- At least **one comparison** between the two runs (use `/compare` in the UI or API).
+- At least **two completed reviews** (`runId`) with committed golden manifests (use `archlucid run --quick` twice or Swagger).
+- At least **one comparison** between those two reviews (use `/compare` in the UI or API).
 - **One governance approval request** submitted and one approved (if governance is enabled).
 - Browser at **1440×900** or **1920×1080** for consistent framing. Use **light mode** for primary set, capture **dark mode** variants for each.
 - Disable browser extensions that modify page appearance.
@@ -85,11 +85,11 @@ This document is a **capture brief**: it describes exactly what to show on scree
 
 | Attribute | Detail |
 |-----------|--------|
-| **Screen** | Compare two runs |
+| **Screen** | Compare two reviews |
 | **URL** | `/compare?leftRunId={id1}&rightRunId={id2}` |
-| **Data state** | Two committed runs compared. Structured manifest deltas visible with additions and changes highlighted. AI explanation section expanded (if available). |
+| **Data state** | Two committed reviews compared. Structured manifest deltas visible with additions and changes highlighted. AI explanation section expanded (if available). |
 | **Annotation callouts** | (A) "Structured architecture deltas between iterations" on the delta section. (B) "Detect drift before it reaches production" as a summary callout. |
-| **Caption** | "Compare any two architecture runs to see exactly what changed — structured manifest deltas highlight additions, removals, and modifications with full context." |
+| **Caption** | "Compare any two architecture reviews to see exactly what changed — structured manifest deltas highlight additions, removals, and modifications with full context." |
 | **Dark mode variant** | Yes |
 
 ---

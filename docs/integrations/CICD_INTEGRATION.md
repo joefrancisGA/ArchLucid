@@ -32,7 +32,7 @@ flowchart LR
 ## 2. Pattern
 
 1. **PR change detection:** Trigger the pipeline when architecture-relevant files change (e.g., `docs/architecture/**`, `*.dsl`, `*.archimate`, `infra/**/*.tf`). Customize the path filters to match your repository structure.
-2. **Create run:** `POST /v1/architecture/request` with a description referencing the PR. Include `X-Correlation-ID` for traceability.
+2. **Create review:** `POST /v1/architecture/request` with a description referencing the PR. Include `X-Correlation-ID` for traceability.
 3. **Poll for completion:** `GET /v1/runs/{runId}` until status is `Completed` or `Failed` (or timeout).
 4. **Fetch findings:** `GET /v1/runs/{runId}/findings` returns the structured findings array.
 5. **Report:** Post a summary table as a PR comment (GitHub) or publish as a build artifact (Azure DevOps).

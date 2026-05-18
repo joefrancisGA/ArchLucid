@@ -58,7 +58,7 @@ This playbook aligns with the 6-week pilot timeline in [PILOT_SUCCESS_SCORECARD.
 
 | Item | Owner | Definition of done |
 |------|-------|--------------------|
-| Comparison run executed (two runs compared) | Customer | Drift or evolution visible in comparison view |
+| Comparison run executed (two reviews compared) | Customer | Drift or evolution visible in comparison view |
 | Policy packs explored | Customer | At least one policy pack reviewed or configured |
 | Governance approvals used in production | Customer | Real approval request submitted and resolved |
 | Export features tested (DOCX, audit CSV) | Customer | Champion has a sample artifact for leadership |
@@ -78,7 +78,7 @@ This playbook aligns with the 6-week pilot timeline in [PILOT_SUCCESS_SCORECARD.
 | Timing | Type | Purpose |
 |--------|------|---------|
 | Week 0 | Kickoff call (60 min) | Introductions, goals, success criteria, technical setup review |
-| Week 1 | Check-in (30 min) | First run debrief, team readiness, early blockers |
+| Week 1 | Check-in (30 min) | First review debrief, team readiness, early blockers |
 | Week 3 | Mid-pilot review (45 min) | Adoption metrics, governance setup, course correction |
 | Week 6 | Scorecard review (60 min) | Results, ROI calculation, renewal/expansion conversation |
 | Ad hoc | Support / Slack / email | As needed for technical issues |
@@ -89,7 +89,7 @@ This playbook aligns with the 6-week pilot timeline in [PILOT_SUCCESS_SCORECARD.
 
 | Signal | Green | Yellow | Red |
 |--------|-------|--------|-----|
-| **Run frequency** | Increasing week-over-week | Flat after week 2 | No runs after week 2 |
+| **Review frequency** | Increasing week-over-week | Flat after week 2 | No reviews after week 2 |
 | **Active operators** | 3+ unique users | 1 user only | Zero logins after week 1 |
 | **Governance** | Approval workflow active | Configured but unused | Not configured by week 4 |
 | **Support** | No critical tickets | Questions but engaged | Unresolved tickets, disengaged |

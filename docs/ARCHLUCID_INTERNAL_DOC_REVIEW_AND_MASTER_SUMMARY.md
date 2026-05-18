@@ -1,10 +1,10 @@
-> **Scope:** Historical navigation-only synthesis from a docs inventory ZIP pass — not authoritative over source markdown; superseded by **`START_HERE.md`**, **`library/REPO_DIGEST.md`**, and **`assessments/LATEST.md`** for current truth.
+> **Scope:** Historical navigation-only synthesis from a docs inventory ZIP pass — **not authoritative** over source markdown. For routing use **[`START_HERE.md`](START_HERE.md)** and **[`library/REPO_DIGEST.md`](library/REPO_DIGEST.md)**. For assessment workflow (rolling pass under **`docs/assessments/`**), use **[`library/ASSESSMENT_INPUTS.md`](library/ASSESSMENT_INPUTS.md)** — **do not cite this file or a single assessment filename as durable product truth.**
 >
-> **Status:** deprecated
+> **Status:** deprecated — superseded by the spine docs above.
 
 # ArchLucid Internal Documentation Review and Master Summary
 
-**Do not treat this file as current product truth.** It is a **navigation and inventory aid** from a point-in-time ZIP review. For authoritative entry and routing, use **[`START_HERE.md`](START_HERE.md)**; for engineering skim and anchors, **[`library/REPO_DIGEST.md`](library/REPO_DIGEST.md)**; for weighted readiness, **[`assessments/LATEST.md`](assessments/LATEST.md)** only.
+**Do not treat this file as current product truth.** It is a **navigation and inventory aid** from a point-in-time ZIP review. For authoritative entry and routing, use **[`START_HERE.md`](START_HERE.md)**; for engineering skim and anchors, **[`library/REPO_DIGEST.md`](library/REPO_DIGEST.md)**; for weighted readiness **workflow**, **[`library/ASSESSMENT_INPUTS.md`](library/ASSESSMENT_INPUTS.md)**.
 
 Generated: 2026-05-17
 
@@ -2581,7 +2581,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 #### `library/ASSESSMENT_INPUTS.md`
 **Scope:** **Scope:** Minimal read list for LLM-driven weighted readiness / first-principles assessments; audience is coding agents and the owner; not a customer or operator deliverable. Expand beyond this list only when the user asks a scoped question (for example UI-only or billing-only).
 **Title:** Assessment inputs (canonical read list)
-**Summary:** Use this sequence so **headline readiness** never mixes with **historical narrative**: 1. **Inputs** — This file’s table is the **evaluation contract** (what evidence counts before broad repo scans). 2. **Boundary** — **`(A)` headline V1 readiness** vs **`(B)` procurement realism** follows **`Assessment-Scope-V1_1.mdc`** (**`@Assessment-Scope-V1_1`**) and the standing boundary bullets in **[`docs/assessments/LATEST.md`](../assessments/LATEST.md)**. 3. **Score** — **One current weighted outcome:** **[`docs/assessments/LATEST.md`](../assessments/LATEST.md)** only (executive summary + dimensions). Do not cite archived snapshots as today’s number. 4. **Backlog** — Action queue and improvement ID
+**Summary:** Use this sequence so **headline readiness** never mixes with **historical narrative**: 1. **Inputs** — This file’s table is the **evaluation contract** (what evidence counts before broad repo scans). 2. **Boundary** — **`(A)` headline V1 readiness** vs **`(B)` procurement realism** follows **`Assessment-Scope-V1_1.mdc`** (**`@Assessment-Scope-V1_1`**) and the standing boundary bullets in the **rolling weighted pass** under **`docs/assessments/`**. 3. **Score** — **One current weighted outcome:** that **rolling pass file** only (executive summary + dimensions). Do not cite archived snapshots as today’s number. 4. **Backlog** — Action queue and improvement ID
 **Headings:** Assessment inputs (canonical read list); One workflow (current score vs history)
 
 #### `library/AUDIT_COVERAGE_MATRIX.md`

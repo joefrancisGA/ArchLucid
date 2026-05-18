@@ -72,11 +72,11 @@ curl -s "$BASE/version"
 
 ---
 
-## Phase 2 — Create request → execute → commit (two runs)
+## Phase 2 — Create request → execute → commit (two reviews)
 
-You need **two committed runs** for compare and for authority run-level diff. Use **distinct** `requestId` values.
+You need **two committed reviews** (two **`runId`** values in the API) for compare and for authority run-level diff. Use **distinct** `requestId` values.
 
-**Goal:** Two runs, each **Created → executed → committed** with a **golden manifest** and **artifacts**.
+**Goal:** Two reviews, each **Created → executed → committed** with a **golden manifest** and **artifacts**.
 
 ### Run A
 
@@ -91,9 +91,9 @@ You need **two committed runs** for compare and for authority run-level diff. Us
 
 Repeat **2A.1–2A.4** with a **different** `requestId` and **`systemName`** (or description) so compare has meaningful deltas.
 
-**CLI alternative (Development, one run):** [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) **`new`** + **`run --quick`** creates one committed run quickly; still create a **second** run (HTTP or second CLI project) for compare.
+**CLI alternative (Development, one review):** [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) **`new`** + **`run --quick`** creates one committed review quickly; still create a **second** review (HTTP or second CLI project) for compare.
 
-**Pass criteria:** Both runs show **`goldenManifestId`**; no unexpected **5xx**; commit returns **200** (a second commit on an already-committed run is **200** idempotent per **`API_CONTRACTS.md`**).
+**Pass criteria:** Both reviews show **`goldenManifestId`**; no unexpected **5xx**; commit returns **200** (a second commit on an already-committed `runId` is **200** idempotent per **`API_CONTRACTS.md`**).
 
 ---
 
@@ -101,25 +101,25 @@ Repeat **2A.1–2A.4** with a **different** `requestId` and **`systemName`** (or
 
 | Step | Action | Pass criteria |
 |------|--------|----------------|
-| 3.1 | `GET /v1/artifacts/manifests/{goldenManifestId}` | **200**; JSON **array** with **≥ 1** descriptor for each run you care about (empty array is valid only if you explicitly expect no synthesized rows—usually **not** for RC) |
-| 3.2 | Open **operator UI** (optional): **Runs** → run → **Manifest** / **Artifacts** | List matches API; **Review** / download works ([operator-shell.md](operator-shell.md)) |
+| 3.1 | `GET /v1/artifacts/manifests/{goldenManifestId}` | **200**; JSON **array** with **≥ 1** descriptor for each review (`runId`) you care about (empty array is valid only if you explicitly expect no synthesized rows—usually **not** for RC) |
+| 3.2 | Open **operator UI** (optional): **Runs** (review list) → run → **Manifest** / **Artifacts** | List matches API; **Review** / download works ([operator-shell.md](operator-shell.md)) |
 | 3.3 | `GET /v1/artifacts/manifests/{goldenManifestId}/bundle` (optional) | **200** ZIP, or **404** with documented problem type when no bundle (distinct from unknown manifest—[API_CONTRACTS.md](API_CONTRACTS.md)) |
 
 ---
 
-## Phase 4 — Compare two runs
+## Phase 4 — Compare two reviews
 
 | Step | Action | Pass criteria |
 |------|--------|----------------|
 | 4.1 | `GET /v1/architecture/run/compare/end-to-end?leftRunId={A}&rightRunId={B}` | **200**; response contains comparison payload (structured + legacy surfaces per implementation) |
 | 4.2 | (Optional) `GET /v1/authority/compare/runs?leftRunId={A}&rightRunId={B}` | **200**; run-level + manifest comparison block as expected |
-| 4.3 | (Optional) **UI:** **Compare runs** workflow with same IDs ([operator-shell.md](operator-shell.md)) | Prefill and outcome match API |
+| 4.3 | (Optional) **UI:** **Compare** workflow with same `runId`s ([operator-shell.md](operator-shell.md); label may still say **Compare runs**) | Prefill and outcome match API |
 
 **Persist + CLI replay (optional, deeper):** `POST /v1/architecture/run/compare/end-to-end/summary` with **`persist: true`** records a comparison; then **`archlucid comparisons replay`** ([CLI_USAGE.md](CLI_USAGE.md)).
 
 ---
 
-## Phase 5 — Replay one run
+## Phase 5 — Replay one review (`runId`)
 
 V1 includes **two** replay concepts—exercise at least **one** for RC; **authority** replay below is the safest default (**read-mostly validation**).
 
