@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Models.Analytics;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Analytics;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -126,7 +127,7 @@ public sealed class InternalCrossTenantAnalyticsController(
             return Content(csv, "text/csv");
         }
 
-        return BadRequest("format must be csv or json.");
+        return this.BadRequestProblem("format must be csv or json.", ProblemTypes.ValidationFailed);
     }
 
     private static DateOnly ResolveRollupDate(DateOnly? rollupDate) =>

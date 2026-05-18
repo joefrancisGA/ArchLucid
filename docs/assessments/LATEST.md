@@ -587,10 +587,12 @@ Create a new Playwright test file `archlucid-ui/e2e/live-api-confluence-publish.
 ```
 
 ### 17. Surface SAML SP signing certificate (and IdP metadata) expiry warnings for operators
+- **Status:** Completed (2026-05-17)
 - **Why it matters:** Enterprise SAML SP deployments fail procurement and production reviews when cert or metadata rotation is discovered only after outages; proactive surfacing reduces support load and adoption friction.
 - **Expected impact:** Supportability (+10 pts), Adoption Friction (+5 pts).
 - **Affected qualities:** Supportability, Adoption Friction.
-- **Actionable:** Yes
+- **Actionable:** No
+- **Completion evidence:** `GET /v1/admin/auth/saml-operational-health` (`AdminAuthDiagnosticsController`, `AdminSamlOperationalHealthResponse`); `SamlOperationalDiagnosticsService` + `SamlMetadataValidUntilParser` (no secrets on the wire); tests `SamlOperationalDiagnosticsServiceTests`, `AdminSamlOperationalHealthEndpointTests`; UI `settings/identity-providers` + `SamlOperationalHealthStrip` + `evaluateSamlSigningCertExpiryBanner` / Vitest (`saml-signing-cert-expiry.test.ts`, `page.test.tsx`); runbook `docs/library/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md`; OpenAPI snapshot + `npm run generate:api-types` + `ArchLucid.Api.Client` regen per `Http-Surface-Docs-And-Clients.mdc`.
 ```text
 Ship **read-only** SAML 2.0 SP **operational health** signals for tenants with `ArchLucidAuth:Saml2:Enabled` so operators see rotation risk before IdP or SP certificates expire.
 
@@ -608,6 +610,7 @@ Ship **read-only** SAML 2.0 SP **operational health** signals for tenants with `
 - No behavior change to SAML login, assertion validation, or cookie issuance — **surfacing only**.
 
 **Impact:** Supportability (+6-10 pts), Adoption Friction (+3-5 pts). Weighted readiness impact: +0.1-0.15%.
+- **Shipped (2026-05-17):** `GET /v1/admin/auth/saml-operational-health`; Identity Providers settings card + dismissible banner (`SAML_SP_SIGNING_CERT_WARNING_DAYS` = 30) + GitHub runbook link; surfacing-only — SAML login paths unchanged.
 ```
 
 ### 18. Add explicit application-level logging to the findings list API endpoints
@@ -723,7 +726,7 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 1 (Observability & Reliability):** 2, 18, 21, 22, 23
 - **Batch 2 (Testing & CI Hygiene):** ~~5~~ completed 2026-05-17, 12, ~~14, 15, 16~~ **V1.1** backlog (2026-05-17), 24
 - **Batch 3 (Integrations & Extractor):** ~~6~~ completed 2026-05-17, ~~13~~ **V1.1** backlog (2026-05-17), 25
-- **Batch 4 (Architecture, infrastructure, tenant lifecycle):** ~~3~~ (**V2** — [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**), ~~7~~ completed 2026-05-17, 11, 17, 19, 20
+- **Batch 4 (Architecture, infrastructure, tenant lifecycle):** ~~3~~ (**V2** — [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m**), ~~7~~ completed 2026-05-17, 11, ~~17~~ completed 2026-05-17, 19, 20
 - **Batch 5 (UX & Dashboards):** ~~4~~ completed 2026-05-17, 8, 9, 10
 - **Batch 6 (Internal cross-tenant rollups):** ~~1~~ completed 2026-05-17
 

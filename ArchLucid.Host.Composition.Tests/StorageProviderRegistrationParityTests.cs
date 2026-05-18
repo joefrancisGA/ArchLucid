@@ -5,6 +5,7 @@ using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Coordination.Diagnostics;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Sql;
 using ArchLucid.TestSupport;
 
@@ -40,6 +41,7 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(IOptionsChangeTokenSource<SqlServerOptions>),
         typeof(IConfigureOptions<SqlServerOptions>),
         typeof(ITenantOnboardingStateRepository),
+        typeof(SqlAuthorityPipelineTenantExecutionLeaseRepository),
         typeof(SqlConnectionFactory),
         typeof(ResilientSqlConnectionFactory)
     ];

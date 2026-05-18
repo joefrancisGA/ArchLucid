@@ -153,8 +153,8 @@ export function SamlOperationalHealthStrip(props: SamlOperationalHealthStripProp
         ) : null}
 
         {payload.saml2Enabled ? (
-          <dl className="m-0 grid gap-3 text-sm text-neutral-800 dark:text-neutral-100">
-            <div>
+          <div className="grid gap-3 text-sm text-neutral-800 dark:text-neutral-100">
+            <dl className="m-0 space-y-1">
               <dt className="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                 SP signing certificate NotAfter (UTC)
               </dt>
@@ -166,8 +166,8 @@ export function SamlOperationalHealthStrip(props: SamlOperationalHealthStripProp
                   {payload.spSigningCertificateDiagnosticSummary}
                 </dd>
               ) : null}
-            </div>
-            <div>
+            </dl>
+            <dl className="m-0 space-y-1">
               <dt className="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                 IdP metadata validUntil (UTC)
               </dt>
@@ -179,8 +179,8 @@ export function SamlOperationalHealthStrip(props: SamlOperationalHealthStripProp
                   {payload.idpMetadataDiagnosticSummary}
                 </dd>
               ) : null}
-            </div>
-          </dl>
+            </dl>
+          </div>
         ) : (
           <p className="m-0 text-sm text-neutral-700 dark:text-neutral-200">
             SAML 2.0 SP integration is disabled (<span className="font-mono text-xs">ArchLucidAuth:Saml2:Enabled</span>{" "}
