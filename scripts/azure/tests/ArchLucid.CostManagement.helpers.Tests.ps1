@@ -55,39 +55,18 @@ Describe 'ArchLucid.CostManagement.helpers' {
 
     It 'aggregates overlapping ServiceName rows across paged payloads' {
 
-        # Minimal column descriptor list (ordering is resolved via column **name**, not ordinal here).
-        [object]$colsWrapper =
-            ('{"columns":[{"name":"ServiceName"},{"name":"PreTaxCost"},{"name":"Currency"}],"rows":[]}' |
-                    ConvertFrom-Json)
+        [string]$page1Json =
+            '{"properties":{"columns":[{"name":"ServiceName"},{"name":"PreTaxCost"},{"name":"Currency"}],"rows":[["Storage",2,"USD"]]}}'
 
 
-        [object]$colTemplate = $colsWrapper.columns
+        [string]$page2Json =
+            '{"properties":{"columns":[{"name":"ServiceName"},{"name":"PreTaxCost"},{"name":"Currency"}],"rows":[["storage",3,"USD"],["SQL Database",1,"USD"]]}}'
 
 
-        [object]$props1 =
-            New-Object PSObject -Property @{
-                columns = $colTemplate
-                rows =
-                    @( @('Storage', [double]'2', 'USD'))
-            }
+        [object]$wrap1 = $page1Json | ConvertFrom-Json
 
 
-
-        [object]$wrap1 =
-            New-Object PSObject -Property @{ properties = $props1 }
-
-
-        [object]$props2 =
-            New-Object PSObject -Property @{
-                columns = $colTemplate
-                rows =
-                    @( @('storage', [double]'3', 'USD'); @('SQL Database', [double]'1', 'USD'))
-            }
-
-
-
-        [object]$wrap2 =
-            New-Object PSObject -Property @{ properties = $props2 }
+        [object]$wrap2 = $page2Json | ConvertFrom-Json
 
 
 

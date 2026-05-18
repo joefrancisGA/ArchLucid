@@ -555,20 +555,17 @@ Add application-level logging in `PolicyPackAssignmentRepository` when a policy 
 - Status: **COMPLETE** — **`docs/library/coverage-exclusions.md`**, **`docs/engineering/BUILD.md`**, **`docs/library/COVERAGE_GAP_ANALYSIS.md`**, **`docs/library/V1_DEFERRED.md`**, and **`scripts/ci/coverage_gap_analysis.py`** narration synced so operators are not pointed at **`0`**.
 ```
 
-### 19. Add Azure Cost Management Actual-Spend Ingestion to the Extractor
-- **Why it matters:** `scripts/azure/ArchLucid.RetailPrices.helpers.ps1` estimates unit costs from retail price lists, but the extractor (`Get-ArchLucidAzurePackage.ps1`) never calls the Azure Cost Management API to retrieve actual monthly spend. Architecture review reports currently show "estimated" cost without a "vs. actual" comparison, which reduces commercial credibility with FinOps-aware buyers.
+### 19. Add Azure Cost Management Actual-Spend Ingestion to the Extractor — **complete**
+- **Why it matters:** `scripts/azure/ArchLucid.RetailPrices.helpers.ps1` estimates unit costs from retail price lists, but the extractor (`Get-ArchLucidAzurePackage.ps1`) never called the Azure Cost Management API for actual subscription spend, so reviewers lacked a credible **estimated vs actual** signal.
 - **Expected impact:** Decision Velocity (+12 pts), Time-to-Value (+6 pts).
 - **Affected qualities:** Decision Velocity, Time-to-Value.
-- **Actionable:** Yes
+- **Actionable:** No — delivered (**`scripts/azure/ArchLucid.CostManagement.helpers.ps1`**: **`Get-ArchLucidActualCostSummary`** (**ActualCost** / subscription scope via **`az rest`** to **`Microsoft.CostManagement/query`**, paging **`nextLink`**; **RetailPrices unchanged**); **`-IncludeCost`** merges **`actualCostSummary`** into **`manifest.json`** in **`scripts/azure/Get-ArchLucidAzurePackage.ps1`** (scriptVersion **0.3.2**); failures / missing RBAC / missing **`az`** → **`null`** + warning; Pester: **`scripts/azure/tests/ArchLucid.CostManagement.helpers.Tests.ps1`** + fixture **`scripts/azure/tests/fixtures/ArchLucid.actual-cost.sample.json`**.)
 ```text
-Add a new helper function `Get-ArchLucidActualCostSummary` to a new file `scripts/azure/ArchLucid.CostManagement.helpers.ps1` that:
-1. Calls `az costmanagement query` with `--type ActualCost` scoped to the subscription.
-2. Returns a summary object with `TotalActualCostUsd`, `CurrencyCode`, `BillingPeriod`, and a per-service-name breakdown.
-3. Is called from `Get-ArchLucidAzurePackage.ps1` and its output merged into the JSON package under a new top-level key `"actualCostSummary"`.
-- Acceptance criteria: (a) Running the script against a subscription with Cost Management Reader role returns a non-null `actualCostSummary`. (b) Script gracefully handles insufficient permissions (Cost Management Reader not assigned) by setting `"actualCostSummary": null` and logging a warning. (c) A Pester or integration test validates the helper returns the expected shape.
-- Constraints: The `az` CLI must be the only dependency; do not add PowerShell modules. Scope to the current subscription only.
-- What not to change: Do not alter existing `RetailPrices` logic or the existing JSON package structure keys.
-- Impact: Directly improves Decision Velocity (+10-12 pts) and Time-to-Value (+4-6 pts). Weighted readiness impact: +0.15-0.25%.
+**Delivered:**
+- Helper: subscription POST to `/subscriptions/{id}/providers/Microsoft.CostManagement/query?api-version=2023-03-01` with body **type ActualCost** (equivalent to the removed **`az costmanagement query --type ActualCost`** path; **`az rest`** used because **`costmanagement` extension dropped `query`** in extension v0.2.1+).
+- **`manifest.json`**: **`actualCostSummary`** only when **`-IncludeCost`** (**`BreakdownByServiceName`**, **`TotalActualCostUsd`**, **`CurrencyCode`**, **`BillingPeriod`**); omitted when flag unset.
+- Acceptance: **(b)** permissive degrade — **`null`** + **`Write-Warning`**; **(c)** **`Invoke-Pester`** on converters/merge (**no live Azure dependency**).
+- Tests: **`scripts/azure/tests/ArchLucid.CostManagement.helpers.Tests.ps1`** (**`fixtures/ArchLucid.actual-cost.sample.json`**).
 ```
 
 ### 20. Add Trial Expiry Countdown Banner to the UI — **complete**

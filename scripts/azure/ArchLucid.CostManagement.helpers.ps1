@@ -597,10 +597,12 @@ function ConvertFrom-ArchLucidActualCostManagementJsonResponse(
 
         1 {
 
-            [string]$onlyRaw = @( $currencyAccumulator.ToArray())[0]
+            # HashSet traversal: avoid @(...) [0] parsing edge cases tied to .ToArray().
+            [object]$singularCurrencyEntry =
+                @( $currencyAccumulator | Select-Object -First 1 )
 
 
-            $billingCurrencyCodeFragment = "$( $onlyRaw )"
+            $billingCurrencyCodeFragment = "$( $singularCurrencyEntry[0] )"
 
 
 
@@ -620,7 +622,8 @@ function ConvertFrom-ArchLucidActualCostManagementJsonResponse(
 
 
 
-            $billingCurrencyCodeFragment = @($currencyAccumulator.ToArray()) -join '|'
+            $billingCurrencyCodeFragment =
+                (($currencyAccumulator | ForEach-Object { "$( $_ )" }) -join '|')
 
 
 
