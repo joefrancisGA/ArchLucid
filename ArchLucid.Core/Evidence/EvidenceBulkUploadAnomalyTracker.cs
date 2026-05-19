@@ -42,13 +42,11 @@ public sealed class EvidenceBulkUploadAnomalyTracker(
             IncrementMinuteBucketLocked(state, minuteStart, fileCount);
             PruneOldBucketsLocked(state, utcNow, opts);
 
-            if (!TryDetectSpikeLocked(state, utcNow, opts, out double observed, out double threshold))
+            if (!TryDetectSpikeLocked(state, utcNow, opts))
                 return false;
 
             TimeSpan throttleDuration = TimeSpan.FromMinutes(Math.Clamp(opts.ThrottleDurationMinutes, 1, 1440));
             state.ThrottleUntilUtc = utcNow.Add(throttleDuration);
-            state.LastAnomalyObservedRequests = observed;
-            state.LastAnomalyThresholdRequests = threshold;
 
             return true;
         }
@@ -130,13 +128,8 @@ public sealed class EvidenceBulkUploadAnomalyTracker(
     private static bool TryDetectSpikeLocked(
         PartitionState state,
         DateTime utcNow,
-        EvidenceBulkUploadAnomalyOptions opts,
-        out double observedRequests,
-        out double thresholdRequests)
+        EvidenceBulkUploadAnomalyOptions opts)
     {
-        observedRequests = 0;
-        thresholdRequests = 0;
-
         int observationMinutes = Math.Clamp(opts.ObservationWindowMinutes, 1, 60);
         int minBaselineBuckets = Math.Max(1, opts.MinBaselineMinuteBuckets);
         int minObservationRequests = Math.Max(1, opts.MinRequestsInObservationWindow);
@@ -157,8 +150,6 @@ public sealed class EvidenceBulkUploadAnomalyTracker(
             baselinePerMinute.Add(bucket.RequestCount);
         }
 
-        observedRequests = observationSum;
-
         if (observationSum < minObservationRequests)
             return false;
 
@@ -174,16 +165,16 @@ public sealed class EvidenceBulkUploadAnomalyTracker(
         if (stdDev < double.Epsilon)
         {
             double fallbackMult = Math.Max(1.0, opts.FallbackSpikeMultiplier);
-            thresholdRequests = mean > double.Epsilon
+            double threshold = mean > double.Epsilon
                 ? mean * n * fallbackMult
                 : minObservationRequests;
 
-            return observationSum > thresholdRequests;
+            return observationSum > threshold;
         }
 
-        thresholdRequests = mean * n + z * stdDev * Math.Sqrt(n);
+        double zThreshold = mean * n + z * stdDev * Math.Sqrt(n);
 
-        return observationSum > thresholdRequests;
+        return observationSum > zThreshold;
     }
 
     private sealed class PartitionState
@@ -193,10 +184,6 @@ public sealed class EvidenceBulkUploadAnomalyTracker(
         public List<MinuteBucket> MinuteBuckets { get; } = [];
 
         public DateTime? ThrottleUntilUtc { get; set; }
-
-        public double LastAnomalyObservedRequests { get; set; }
-
-        public double LastAnomalyThresholdRequests { get; set; }
     }
 
     private readonly record struct MinuteBucket(DateTime MinuteStartUtc, int RequestCount, int FileCount);

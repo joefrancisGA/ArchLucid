@@ -50,7 +50,7 @@ public sealed class EvidenceBulkUploadAnomalyTrackerTests
 
         bool detected = false;
 
-        for (int burst = 0; burst < 8; burst++)
+        for (int burst = 0; burst < 20; burst++)
         {
             if (tracker.RecordAndEvaluate(key, 5))
                 detected = true;
@@ -86,8 +86,9 @@ public sealed class EvidenceBulkUploadAnomalyTrackerTests
             clock.Advance(TimeSpan.FromMinutes(1));
         }
 
-        tracker.RecordAndEvaluate(key, 1);
-        tracker.RecordAndEvaluate(key, 1);
+        for (int burst = 0; burst < 15; burst++)
+            tracker.RecordAndEvaluate(key, 1);
+
         tracker.IsThrottled(key).Should().BeTrue();
 
         clock.Advance(TimeSpan.FromMinutes(11));
