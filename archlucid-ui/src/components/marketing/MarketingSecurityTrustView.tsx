@@ -77,21 +77,10 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
       </p>
 
       <section
-        aria-label="Current assurance posture summary"
-        className="mt-4 rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-800 shadow-sm dark:border-neutral-700 dark:bg-neutral-950/40 dark:text-neutral-200"
-      >
-        <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">At a glance</p>
-        <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          Current posture: public procurement evidence is available now; detailed security summaries are shared during
-          diligence; independent third-party testing is planned for the next assurance cycle.
-        </p>
-      </section>
-
-      <section
         aria-labelledby="security-trust-buyer-proof-strip"
-        className="mt-6 rounded-lg border-2 border-emerald-300 bg-emerald-50/80 px-4 py-4 shadow-sm dark:border-emerald-800 dark:bg-emerald-950/40"
+        className="mt-6 rounded-xl border-2 border-emerald-400 bg-emerald-50/90 px-5 py-5 shadow-md dark:border-emerald-700 dark:bg-emerald-950/50"
       >
-        <h2 id="security-trust-buyer-proof-strip" className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+        <h2 id="security-trust-buyer-proof-strip" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
           Available for diligence today
         </h2>
         <ul className="m-0 mt-3 list-disc space-y-1 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
@@ -127,8 +116,19 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
       </section>
 
       <section
+        aria-label="Current assurance posture summary"
+        className="mt-6 rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-800 shadow-sm dark:border-neutral-700 dark:bg-neutral-950/40 dark:text-neutral-200"
+      >
+        <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">At a glance</p>
+        <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          Public procurement evidence is available now; detailed security summaries are shared during diligence;
+          independent third-party testing is planned for the next assurance cycle.
+        </p>
+      </section>
+
+      <section
         aria-label="Third-party assurance and NDA"
-        className="mt-6 rounded-lg border border-sky-200 bg-sky-50/80 px-4 py-3 dark:border-sky-900 dark:bg-sky-950/40"
+        className="mt-8 rounded-lg border border-sky-200 bg-sky-50/80 px-4 py-3 dark:border-sky-900 dark:bg-sky-950/40"
       >
         <p className="m-0 text-sm font-semibold text-sky-950 dark:text-sky-100">Sensitive reports under NDA</p>
         <p className="m-0 mt-2 text-sm text-sky-950/90 dark:text-sky-100/90">{SECURITY_TRUST_NDA_NOTICE}</p>
@@ -204,6 +204,11 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
                       >
                         {row.engagement}
                       </h4>
+                      {row.id === "owner-security-self-assessment-2026" ? (
+                        <p className="m-0 mt-3 text-sm font-medium leading-snug text-neutral-900 dark:text-neutral-100">
+                          Control mapping aligned to SOC 2 criteria.
+                        </p>
+                      ) : null}
                       <dl className="m-0 mt-3 grid gap-3 text-sm text-neutral-800 dark:text-neutral-200 sm:grid-cols-2">
                         <div className="flex flex-col gap-0.5">
                           <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
@@ -216,9 +221,8 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
                             >
                               {assuranceTierBadgeLabel(row.maturityTier)}
                             </span>
-                            <span className="text-neutral-600 dark:text-neutral-400">
-                              {" · "}
-                              <span data-testid="assurance-vendor">{row.vendor}</span>
+                            <span className="sr-only" data-testid="assurance-vendor">
+                              {row.vendor}
                             </span>
                           </dd>
                         </div>
@@ -230,7 +234,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
                         </div>
                         <div className="flex flex-col gap-0.5">
                           <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                            Availability
+                            Available artifact
                           </dt>
                           <dd className="m-0" data-testid="assurance-access-badge">
                             {renderSummaryAccess(row)}

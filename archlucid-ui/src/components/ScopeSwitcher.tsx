@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Label } from "@/components/ui/label";
+import { BUYER_EXAMPLE_WORKSPACE_TOOLTIP } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -25,9 +26,6 @@ import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 
 const WORKSPACES_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspaces}`;
-
-/** Hover / accessible description for the buyer-polished curated workspace strip + Example badge. */
-const BUYER_CURATED_SCOPE_TOOLTIP = "Example workspace using illustrative sample data only.";
 
 type ProjectOption = { projectId: string; name: string };
 type WorkspaceOption = { workspaceId: string; name: string; projects: ProjectOption[] };
@@ -193,8 +191,8 @@ export function ScopeSwitcher() {
             <span
               data-testid="operator-scope-switcher-trigger"
               className="inline-flex min-w-0 max-w-[min(18rem,38vw)] shrink truncate rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
-              title={BUYER_CURATED_SCOPE_TOOLTIP}
-              aria-label={`Active workspace — ${BUYER_CURATED_SCOPE_TOOLTIP}`}
+              title={BUYER_EXAMPLE_WORKSPACE_TOOLTIP}
+              aria-label={`Active workspace — ${BUYER_EXAMPLE_WORKSPACE_TOOLTIP}`}
             >
               {workspaceLabel}
             </span>
@@ -203,7 +201,7 @@ export function ScopeSwitcher() {
             </span>
           </span>
         </TooltipTrigger>
-        <TooltipContent sideOffset={6}>{BUYER_CURATED_SCOPE_TOOLTIP}</TooltipContent>
+        <TooltipContent sideOffset={6}>{BUYER_EXAMPLE_WORKSPACE_TOOLTIP}</TooltipContent>
       </Tooltip>
     );
   }

@@ -234,23 +234,25 @@ function AppShellInner({ children }: AppShellClientProps) {
                   <AuthPanel />
                   <ScopeSwitcher />
                   <CommandPalette />
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        aria-label="Documentation and product help search"
-                        onClick={() => {
-                          setHelpDocSearchOpen(true);
-                        }}
-                      >
-                        <HelpCircle className="h-4 w-4" aria-hidden />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent sideOffset={6}>Documentation and product help search</TooltipContent>
-                  </Tooltip>
+                  {!isBuyerPolishedOperatorShellEnv() ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          aria-label="Documentation and product help search"
+                          onClick={() => {
+                            setHelpDocSearchOpen(true);
+                          }}
+                        >
+                          <HelpCircle className="h-4 w-4" aria-hidden />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent sideOffset={6}>Documentation and product help search</TooltipContent>
+                    </Tooltip>
+                  ) : null}
                   <ColorModeToggle />
                 </div>
               </div>

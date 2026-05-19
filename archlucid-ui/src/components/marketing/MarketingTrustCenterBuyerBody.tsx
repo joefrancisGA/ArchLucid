@@ -40,8 +40,8 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         <div className="mt-6 rounded-lg border border-blue-100 bg-blue-50/70 px-4 py-4 dark:border-blue-950 dark:bg-blue-950/35">
           <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Assurance at a glance</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-md border border-blue-200/70 bg-white/80 p-3 dark:border-blue-900/60 dark:bg-neutral-950/40">
-              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            <motion.div className="rounded-lg border-2 border-blue-300/80 bg-white/90 p-4 shadow-sm dark:border-blue-800/70 dark:bg-neutral-950/50">
+              <p className="m-0 text-sm font-semibold uppercase tracking-wide text-neutral-800 dark:text-neutral-200">
                 Available now
               </p>
               <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm font-medium text-neutral-900 dark:text-neutral-100">
@@ -189,9 +189,13 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         </ul>
       </section>
 
-      <section id="trust-contact-review" aria-labelledby="trust-contact-review-heading">
+      <section
+        id="trust-contact-review"
+        aria-labelledby="trust-contact-review-heading"
+        className="rounded-xl border-2 border-neutral-200 bg-white px-5 py-5 shadow-md dark:border-neutral-700 dark:bg-neutral-900/50"
+      >
         <h2 id="trust-contact-review-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
-          Contact — security review
+          Security contact
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-neutral-700 dark:text-neutral-300">
           Email{" "}

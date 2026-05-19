@@ -71,6 +71,22 @@ function formatGovernanceQueueRecordKind(kind: GovernanceFindingQueueRecordKind,
   return buyerPolishedShell ? BUYER_SURFACE_VOCABULARY.riskObservation : "Finding";
 }
 
+function governanceBuyerRecordTypePrimary(row: GovernanceFindingQueueRow): string {
+  if (row.recordKind === "finding" && row.findingId === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID) {
+    return "Risk finding";
+  }
+
+  return formatGovernanceQueueRecordKind(row.recordKind, true);
+}
+
+function governanceBuyerRecordTypeSecondary(row: GovernanceFindingQueueRow): string | null {
+  if (row.recordKind === "finding" && row.findingId === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID) {
+    return "Risk area: PHI minimization · Disposition: Accepted with monitoring";
+  }
+
+  return null;
+}
+
 function demoPhiRow(): GovernanceFindingQueueRow {
   return {
     runId: SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -252,7 +268,13 @@ function GovernanceFindingsBuyerMobileRow(props: { readonly row: GovernanceFindi
         <div>
           <div className="font-medium text-neutral-700 dark:text-neutral-300">Record type</div>
           <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">
-            {formatGovernanceQueueRecordKind(row.recordKind, true)}
+            {governanceBuyerRecordTypePrimary(row)}
+            {governanceBuyerRecordTypeSecondary(row) !== null ? (
+              <>
+                <br />
+                <span className="text-neutral-700 dark:text-neutral-300">{governanceBuyerRecordTypeSecondary(row)}</span>
+              </>
+            ) : null}
           </p>
         </div>
         <div>

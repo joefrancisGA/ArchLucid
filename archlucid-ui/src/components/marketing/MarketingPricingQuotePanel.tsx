@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
@@ -60,6 +60,17 @@ export function MarketingPricingQuotePanel() {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (window.location.hash === "#pricing-quote-request") {
+      setPanelOpen(true);
+    }
+  }, []);
 
   async function onSubmit(e: React.FormEvent): Promise<void> {
     e.preventDefault();
@@ -126,6 +137,15 @@ export function MarketingPricingQuotePanel() {
         <p className="text-sm text-teal-800 dark:text-teal-200" role="status">
           Thanks — your request was received.
         </p>
+      ) : !panelOpen ? (
+        <div className="space-y-3">
+          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+            Share work email, company, tier interest, and optional deployment context. We respond with procurement next steps.
+          </p>
+          <Button type="button" variant="primary" onClick={() => setPanelOpen(true)}>
+            Request quote
+          </Button>
+        </div>
       ) : (
         <form className="space-y-4" onSubmit={(ev) => void onSubmit(ev)} noValidate>
           <div className="hidden" aria-hidden="true">
