@@ -647,7 +647,7 @@ public sealed class ArchitectureApplicationServiceTests
 
         result.Should().NotBeNull();
         result.Success.Should().BeFalse();
-        result.Error.Should().Contain("does not accept results").And.Contain("ReadyForCommit");
+        result.Error.Should().Contain("does not accept agent results").And.Contain("ReadyForCommit");
         _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
