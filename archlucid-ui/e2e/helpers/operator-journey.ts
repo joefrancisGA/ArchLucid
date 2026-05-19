@@ -1,5 +1,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
+import { BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY } from "@/lib/buyer-polish-copy";
+
 import {
   FIXTURE_LEFT_RUN_ID,
   FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID,
@@ -49,10 +51,38 @@ export function comparePageLeftRunInput(page: Page) {
 }
 
 /**
+ * Buyer-polished Compare collapses pickers below results after a successful compare (`CompareRunPickersSection` `collapseBelowResults`).
+ * Expands the fold when the left combobox is not yet visible.
+ */
+export async function expandCompareRunPickersIfCollapsed(page: Page): Promise<void> {
+  const leftInput = comparePageLeftRunInput(page);
+
+  if (await leftInput.isVisible()) {
+    return;
+  }
+
+  const collapsedPickers = page.locator("details").filter({ has: leftInput });
+  const summary = collapsedPickers.getByText(BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY, { exact: true });
+
+  if ((await summary.count()) === 0) {
+    return;
+  }
+
+  const isOpen: boolean = await collapsedPickers.evaluate((el) => (el as HTMLDetailsElement).open);
+
+  if (!isOpen) {
+    await summary.click();
+  }
+
+  await expect(leftInput).toBeVisible();
+}
+
+/**
  * Buyer-polished Compare: left run picker is readonly — change selection by opening the list and activating an option.
  * Requires a mocked non-empty `GET /v1/authority/projects/default/runs` (see {@link registerCompareStaleInputWarningRoutes}).
  */
 export async function selectCompareLeftRunOptionByPrimaryLabel(page: Page, primaryLabel: string): Promise<void> {
+  await expandCompareRunPickersIfCollapsed(page);
   const input = comparePageLeftRunInput(page);
 
   await input.click();

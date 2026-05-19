@@ -7,7 +7,6 @@ import {
   FIXTURE_RIGHT_RUN_ID,
 } from "./fixtures";
 import {
-  comparePageSubmitButton,
   expectComparisonRequestOutcomeVisible,
   gotoComparePageWithFixturePair,
   selectCompareLeftRunOptionByPrimaryLabel,
@@ -21,8 +20,7 @@ test.describe("operator journey — compare stale input warning", () => {
     await registerCompareStaleInputWarningRoutes(page);
     await gotoComparePageWithFixturePair(page);
 
-    await expect(comparePageSubmitButton(page)).toBeEnabled();
-    await comparePageSubmitButton(page).click();
+    // `CompareForm` auto-runs compare when both run ids are in the URL; the submit control stays disabled until that finishes.
     await expectComparisonRequestOutcomeVisible(page);
 
     await selectCompareLeftRunOptionByPrimaryLabel(page, FIXTURE_COMPARE_STALE_PRIMARY_LABEL_LEFT_ALT);
