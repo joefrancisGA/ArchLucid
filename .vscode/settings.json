@@ -1,12 +1,10 @@
 ﻿{
-  "[terraform]": {
-    "editor.defaultFormatter": "hashicorp.terraform",
-    "editor.formatOnSave": true,
-    "editor.formatOnSaveMode": "file"
-  },
-  "[terraform-vars]": {
-    "editor.defaultFormatter": "hashicorp.terraform",
-    "editor.formatOnSave": true,
-    "editor.formatOnSaveMode": "file"
-  }
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "terminal.integrated.useWslProfiles": false,
+    "terminal.integrated.automationProfile.windows": {
+        "source": "PowerShell"
+    },
+    "terminal.integrated.env.windows": {
+        "ARCHLUCID_DISABLE_AUTO_COMMIT": "1"
+    }
 }

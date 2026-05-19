@@ -43,6 +43,12 @@ Follow **`Agent-Local-Compile.mdc`**, but:
 - Do not start **background** agents or parallel Task workers unless the user explicitly approved (see **`Agent-Execution-Policy.mdc`** and `.cursor/hooks.json`).
 - The **`stop`** hook may run `git` after a completed agent turn via `auto-commit-push.mjs`. Users can set **`ARCHLUCID_DISABLE_AUTO_COMMIT=1`** in the environment to disable it.
 
+## Cursor IDE settings (workstation)
+
+User-level **`%APPDATA%\\Cursor\\User\\settings.json`** should keep **`terminal.integrated.defaultProfile.windows`** on **PowerShell**, **`terminal.integrated.useWslProfiles`** **false**, and **`cursor.composer.shouldAllowAutoRun`** **false**. This repo’s **`.vscode/settings.json`** mirrors terminal defaults and sets **`ARCHLUCID_DISABLE_AUTO_COMMIT=1`** for integrated terminals.
+
+**Manual (not fully exposed in `settings.json`):** **Cursor Settings → Agents → Auto-Run → Ask Every Time**; disable **Background / Cloud / Multitask** agents unless needed. On Windows, sandboxed Agent commands may still use **WSL2** per Cursor docs even when WSL terminal profiles are hidden.
+
 ## User overrides
 
 If the user says **no shell**, **read-only**, or **at most one command per turn**, treat that as stricter than this rule for the rest of the session.
