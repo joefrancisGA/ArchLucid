@@ -64,8 +64,8 @@ internal abstract class BillingCheckoutEndToEndSqlJwtFactoryBase : GreenfieldSql
                 {
                     Mode = "JwtBearer",
                     JwtSigningPublicKeyPemPath = _publicPemPath,
-                    JwtLocalIssuer = "https://test.archlucid.local",
-                    JwtLocalAudience = "api://archlucid-jwt-local-test"
+                    JwtLocalIssuer = JwtLocalSigningWebAppFactory.JwtLocalTestIssuer,
+                    JwtLocalAudience = JwtLocalSigningWebAppFactory.JwtLocalTestAudience
                 };
 
                 IConfiguration emptyConfiguration = new ConfigurationBuilder().Build();
@@ -103,13 +103,13 @@ internal abstract class BillingCheckoutEndToEndSqlJwtFactoryBase : GreenfieldSql
             ["ArchLucidAuth:Authority"] = "",
             ["ArchLucidAuth:Audience"] = "",
             ["ArchLucidAuth:JwtSigningPublicKeyPemPath"] = _publicPemPath,
-            ["ArchLucidAuth:JwtLocalIssuer"] = "https://test.archlucid.local",
-            ["ArchLucidAuth:JwtLocalAudience"] = "api://archlucid-jwt-local-test",
+            ["ArchLucidAuth:JwtLocalIssuer"] = JwtLocalSigningWebAppFactory.JwtLocalTestIssuer,
+            ["ArchLucidAuth:JwtLocalAudience"] = JwtLocalSigningWebAppFactory.JwtLocalTestAudience,
             ["Authentication:ApiKey:DevelopmentBypassAll"] = "false",
             ["Auth:Trial:Modes:0"] = "LocalIdentity",
             ["Auth:Trial:LocalIdentity:JwtPrivateKeyPemPath"] = _privatePemPath,
-            ["Auth:Trial:LocalIdentity:JwtIssuer"] = "https://test.archlucid.local",
-            ["Auth:Trial:LocalIdentity:JwtAudience"] = "api://archlucid-jwt-local-test"
+            ["Auth:Trial:LocalIdentity:JwtIssuer"] = JwtLocalSigningWebAppFactory.JwtLocalTestIssuer,
+            ["Auth:Trial:LocalIdentity:JwtAudience"] = JwtLocalSigningWebAppFactory.JwtLocalTestAudience
         };
 
         foreach (KeyValuePair<string, string?> pair in GetBillingConfiguration())

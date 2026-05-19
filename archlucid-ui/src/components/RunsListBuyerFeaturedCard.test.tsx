@@ -25,6 +25,8 @@ describe("RunsListBuyerFeaturedCard", () => {
     render(<RunsListBuyerFeaturedCard run={sampleRun} />);
 
     expect(screen.getByTestId("runs-list-buyer-featured-card")).toBeInTheDocument();
+    expect(screen.getByTestId(`runs-row-${SHOWCASE_STATIC_DEMO_RUN_ID}`)).toBeInTheDocument();
+    expect(screen.getByTestId(`runs-row-primary-explore-${SHOWCASE_STATIC_DEMO_RUN_ID}`)).toBeInTheDocument();
     expect(screen.getByText(/Decision: Approved with monitoring/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /view review package/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /signed manifest/i })).toBeInTheDocument();

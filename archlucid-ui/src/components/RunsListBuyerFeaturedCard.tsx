@@ -30,10 +30,11 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
   const counts = SHOWCASE_STATIC_DEMO_SPINE_COUNTS;
 
   return (
-    <Card
-      className="border-2 border-teal-600/80 shadow-md dark:border-teal-500/70"
-      data-testid="runs-list-buyer-featured-card"
-    >
+    <div data-testid={`runs-row-${run.runId}`}>
+      <Card
+        className="border-2 border-teal-600/80 shadow-md dark:border-teal-500/70"
+        data-testid="runs-list-buyer-featured-card"
+      >
       <CardHeader className="pb-2">
         <div className="flex flex-wrap items-center gap-2">
           <CardTitle className="m-0 text-lg">{title}</CardTitle>
@@ -65,7 +66,9 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
       </CardContent>
       <CardFooter className="flex flex-col items-stretch gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800 sm:flex-row sm:flex-wrap">
         <Button type="button" variant="primary" size="sm" asChild className="sm:flex-1">
-          <Link href={packageLink.href}>{packageLink.label}</Link>
+          <Link href={packageLink.href} data-testid={`runs-row-primary-explore-${run.runId}`}>
+            {packageLink.label}
+          </Link>
         </Button>
         <Button type="button" variant="outline" size="sm" asChild>
           <Link href={getShowcaseExecutiveHref()}>Executive summary</Link>
@@ -83,6 +86,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
           <Link href={`/audit?runId=${showcaseRunEnc}`}>{BUYER_SURFACE_VOCABULARY.auditTrail}</Link>
         </Button>
       </CardFooter>
-    </Card>
+      </Card>
+    </div>
   );
 }

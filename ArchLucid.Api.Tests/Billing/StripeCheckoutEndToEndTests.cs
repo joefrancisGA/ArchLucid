@@ -214,14 +214,14 @@ public sealed class StripeCheckoutEndToEndTests
         Guid workspaceId,
         Guid projectId)
     {
-        // Use the same mint helper as other JwtLocal PEM integration tests (-12 min nbf skew) so CI clock drift
+        // Use the same mint helper as other JwtLocal PEM integration tests (30 min nbf skew) so CI clock drift
         // cannot yield 401 on checkout after registration.
         string pkcs8Pem = File.ReadAllText(fixture.PrivatePemPath, Encoding.UTF8);
 
         string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
             pkcs8Pem,
-            "https://test.archlucid.local",
-            "api://archlucid-jwt-local-test",
+            JwtLocalSigningWebAppFactory.JwtLocalTestIssuer,
+            JwtLocalSigningWebAppFactory.JwtLocalTestAudience,
             adminEmail,
             [ArchLucidRoles.Admin],
             tenantId,
