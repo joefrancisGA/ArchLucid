@@ -140,7 +140,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IArtifactQueryService, InMemoryArtifactQueryService>();
         services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();
         services.AddScoped<IAuthorityReplayService, AuthorityReplayService>();
-        services.AddSingleton<IAuditRepository, InMemoryAuditRepository>();
+        services.AddSingleton<InMemoryAuditRepository>();
+        services.AddSingleton<IAuditRepository>(sp => sp.GetRequiredService<InMemoryAuditRepository>());
         services.AddSingleton<IPilotScorecardMetricsReader, NullPilotScorecardMetricsReader>();
         services.AddSingleton<IPilotReportCardMetricsReader, NullPilotReportCardMetricsReader>();
         services.AddSingleton<IPilotBaselineRepository, InMemoryPilotBaselineRepository>();

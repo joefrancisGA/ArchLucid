@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -30,6 +31,7 @@ import type {
   PolicyPackVersion,
 } from "@/types/policy-packs";
 
+import { POLICY_PACK_ID_QUERY_PARAM } from "@/lib/policy-packs-deep-link";
 import { isBundledPlatformDefaultPackType } from "@/lib/policy-pack-type-label";
 
 import { DEFAULT_CONTENT } from "./policy-packs-page-constants";
@@ -37,6 +39,8 @@ import type { PolicyPacksPageServerLoad } from "./load-policy-packs-page-data";
 import type { PolicyPacksPageTab, PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 
 export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): PolicyPacksPageViewModel {
+  const searchParams = useSearchParams();
+  const packIdFromUrl = searchParams.get(POLICY_PACK_ID_QUERY_PARAM)?.trim() ?? "";
   const canMutatePacks = useNavSurface("policy-packs").mutationCapability;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [packs, setPacks] = useState<PolicyPack[]>(serverLoad.packs);
@@ -172,6 +176,19 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
       setSelectedPackId(packs[0]!.policyPackId);
     }
   }, [packs, selectedPackId]);
+
+  useEffect(() => {
+    if (packIdFromUrl.length === 0) {
+      return;
+    }
+
+    if (!packs.some((p) => p.policyPackId === packIdFromUrl)) {
+      return;
+    }
+
+    setSelectedPackId(packIdFromUrl);
+    setPageTab("my-packs");
+  }, [packIdFromUrl, packs]);
 
   useEffect(() => {
     if (!selectedPackId) {

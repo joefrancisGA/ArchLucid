@@ -1,0 +1,15 @@
+/** Query param used by governance conflict links to pre-select a pack on `/policy-packs`. */
+export const POLICY_PACK_ID_QUERY_PARAM = "packId";
+
+export function policyPacksEditHref(policyPackId: string): string {
+  const id = policyPackId.trim();
+
+  if (id.length === 0) {
+    return "/policy-packs";
+  }
+
+  const params = new URLSearchParams();
+  params.set(POLICY_PACK_ID_QUERY_PARAM, id);
+
+  return `/policy-packs?${params.toString()}`;
+}

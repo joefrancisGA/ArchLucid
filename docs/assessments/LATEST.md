@@ -564,7 +564,7 @@ Constraints: Must be backward compatible with existing routing rules.
 - **Why it matters:** Helps operators understand why a policy was overridden.
 - **Expected impact:** Directly improves Usability (+5 pts) and Explainability (+3 pts). Weighted readiness impact: +0.2%.
 - **Affected qualities:** Usability, Explainability.
-- **Actionable now.**
+- **Completed.** `GovernanceConflictsTable` on `/governance-resolution` consumes `conflicts` and `notes`; loser links use `/policy-packs?packId=…`.
 ```text
 Add a conflict resolution view to the Governance Resolution UI.
 1. Consume the `conflicts` and `notes` arrays from `GET /v1/governance-resolution`.

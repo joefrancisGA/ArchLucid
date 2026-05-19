@@ -1,6 +1,7 @@
 "use client";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
+import { GovernanceConflictsTable } from "@/components/governance/GovernanceConflictsTable";
 import { GovernanceResolutionRankCue } from "@/components/EnterpriseControlsContextHints";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -48,6 +49,25 @@ export function GovernanceResolutionPageView(props: Props) {
         </div>
       ) : null}
 
+      <section className="mb-7" aria-labelledby="governance-conflicts-heading">
+        <h3 id="governance-conflicts-heading" className="text-lg font-semibold">
+          Policy pack conflicts ({m.data?.conflicts.length ?? 0})
+        </h3>
+        <p className="mt-1 mb-3 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
+          When multiple assigned packs define the same governance item, the higher-precedence pack wins. Use the table to see
+          which pack was selected, why, and open losing packs to change their assignment.
+        </p>
+        {(m.data?.conflicts ?? []).length === 0 ? (
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">No conflicts detected for the current scope.</p>
+        ) : (
+          <GovernanceConflictsTable
+            conflicts={m.data!.conflicts}
+            decisions={m.data!.decisions}
+            canEditPolicyPacks={canMutateEnterprisePolicySurfaces}
+          />
+        )}
+      </section>
+
       <section className="mb-7" aria-labelledby="governance-effective-heading">
         <h3 id="governance-effective-heading">
           <GlossaryTooltip termKey="effective_governance">
@@ -91,29 +111,7 @@ export function GovernanceResolutionPageView(props: Props) {
               ? governanceResolutionResolutionDetailsHeadingOperator
               : governanceResolutionResolutionDetailsHeadingReader}
           </h3>
-          <h4 className="mt-4 mb-2 text-base">Conflicts ({m.data?.conflicts.length ?? 0})</h4>
-          {(m.data?.conflicts ?? []).length === 0 ? (
-            <p className="text-neutral-500 dark:text-neutral-400 text-sm">No conflicts detected.</p>
-          ) : (
-            <ul className="list-none p-0 grid gap-3">
-              {m.data!.conflicts.map((c, i) => (
-                <li
-                  key={`${c.itemType}-${c.itemKey}-${i}`}
-                  className="border border-red-200 dark:border-red-900 rounded-lg p-3 bg-red-50/60 dark:bg-red-950/20"
-                >
-                  <div>
-                    <strong>{c.conflictType}</strong> — {c.itemType} <code>{c.itemKey}</code>
-                  </div>
-                  <div className="text-[13px] text-neutral-600 dark:text-neutral-400 mt-1.5">{c.description}</div>
-                  <details className="mt-2 text-xs">
-                    <summary>Candidates</summary>
-                    <pre className="overflow-auto max-h-[200px]">{JSON.stringify(c.candidates, null, 2)}</pre>
-                  </details>
-                </li>
-              ))}
-            </ul>
-          )}
-          <h4 className="mt-6 mb-2 text-base">Resolution decisions ({m.data?.decisions.length ?? 0})</h4>
+          <h4 className="mt-0 mb-2 text-base">Resolution decisions ({m.data?.decisions.length ?? 0})</h4>
           <div className="grid gap-2.5">
             {(m.data?.decisions ?? []).map((d, i) => (
               <article
