@@ -53,7 +53,7 @@ Operational cleanup is **scheduled and gated**, not “unfinished V1 product.”
 | Item | Doc source |
 |------|------------|
 | **Periodic manual accessibility review** — scheduled screen-reader / assistive-technology validation beyond merge-blocking **`@axe-core/playwright`** baselines | Assessment boundary: participant AT studies are not a V1 **`(A)`** gate per **Assessment-Scope-V1_1**; **V2** candidate for an explicit review cadence. |
-| **Baseline wizard — deferred enrichments (beyond ZIP-first V1)** | **[V1_SCOPE.md](V1_SCOPE.md)** baseline wizard / Azure extractor posture: V1 ships **extractor ZIP first**, then **system name + environment + cloud provider (Azure default)**; optional existing wizard steps stay non-blocking. **V1.1 candidates:** wizard steps that **gate** or strongly nudge governance tags, compliance constraints, and risk classification when org policy requires it; guided **datastore/service** review when extractor coverage is known incomplete. **V2 candidates:** **portfolio** onboarding (multi-system / program-level baseline in one flow); deep **framework-mapping** steps tied to industry SKUs. |
+| **Baseline wizard — deferred enrichments (beyond ZIP-first V1)** | **[V1_SCOPE.md](V1_SCOPE.md)** baseline wizard / Azure extractor posture: V1 ships **extractor ZIP first**, then **system name + environment + cloud provider (Azure default)**; optional existing wizard steps stay non-blocking. **V1.1 candidates:** **AWS/GCP** as selectable target providers ([MULTI_CLOUD_ANALYSIS_V1_1.md](MULTI_CLOUD_ANALYSIS_V1_1.md), **§6n**); wizard steps that **gate** or strongly nudge governance tags, compliance constraints, and risk classification when org policy requires it; guided **datastore/service** review when extractor coverage is known incomplete. **V2 candidates:** **portfolio** onboarding (multi-system / program-level baseline in one flow); deep **framework-mapping** steps tied to industry SKUs. |
 | **Playwright** operator smoke may use **mocked** `/api/proxy`; it does not replace **SQL-backed** API + UI validation for a given release | [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [V1_SCOPE.md](V1_SCOPE.md) §3 |
 | **Audit search** keyset cursor uses **`OccurredUtc` with optional `EventId` tie-break** (`GET /v1/audit/search?beforeUtc=…&beforeEventId=…`); clients must pass both when continuing past same-second events | [AuditController.cs](../../ArchLucid.Api/Controllers/Admin/AuditController.cs), operator audit UI “Load more” |
 | **CI — merged line ≥ 95% + coverage ratchet** | **`.github/workflows/ci.yml`** (`dotnet-coverage-merge`): **`assert_merged_line_coverage_min.py`** enforces a **merge-blocking merged line ≥ 75%** (alongside branch **63%** and per-package line **63%**); **`assert_coverage_floor_ratchet.py`** + **`.coverage-floor`** are not invoked until **V1.1**. **V1.1:** raise merged line to **95%**, re-enable the ratchet step, and keep docs (**`docs/engineering/BUILD.md`**, **`docs/library/coverage-exclusions.md`**, **`docs/library/COVERAGE_GAP_ANALYSIS.md`**) in sync. |
@@ -313,6 +313,28 @@ The following bulk processing features are explicitly deferred to **V1.1**:
 **Rules:**
 - Do not imply V1 lacks **any** tenant data removal capability — distinguish **automated product pipeline** (deferred) from **existing** purge/offboarding paths.
 - **Scoring:** treat this entire **§6m** block as **`Actionable: No`** for V1 headline batching until the automated pipeline ships — **V2** scope; **V1** offboarding paths above remain sufficient for stated posture.
+
+---
+
+## 6n. Multi-cloud architecture **analysis** — AWS and GCP targets (**V1.1**) (owner scope 2026-05-19)
+
+**Scope:** Analyze **customer** architectures on **AWS** or **GCP** while ArchLucid **stays hosted on Azure** ([ADR 0020](../architecture/adrs/0020-azure-primary-platform-permanent.md)). Distinct from **§6l** (multi-region **product** HA) and from re-hosting the control plane on another public cloud.
+
+| Milestone | V1 posture | V1.1 commitment |
+|-----------|------------|-----------------|
+| **`CloudProvider.Aws` / `CloudProvider.Gcp`** on architecture requests | **Out of V1.** Enum and CLI today accept only **Azure** (non-empty unknown CLI values still map to Azure). | **In scope for V1.1** — wire, CLI, UI per [V1_SCOPE.md](V1_SCOPE.md) **§2.19**. |
+| **Terraform ingest** for AWS/GCP (`terraform-show-json`, `simple-terraform`) | **Partial today:** parsers ingest any provider’s HCL/JSON but object-type resolution is Azure-skewed; cost copy assumes Azure. | **In scope for V1.1** — classification + illustrative AWS/GCP cost labels (Phases 1–2). |
+| **Customer-controlled AWS/GCP inventory ZIP** + upload | **Out of V1.** V1 GA ships Azure extractor only (**§2.16**). | **In scope for V1.1** — parity with Tier 1 (no vendor credentials in customer cloud) per [MULTI_CLOUD_ANALYSIS_V1_1.md](MULTI_CLOUD_ANALYSIS_V1_1.md) Phase 3. |
+| **Live AWS/GCP public pricing** in cost artifacts | **Out of V1.** Azure Retail API + illustrative fallback only. | **In scope for V1.1** Phase 4 — with illustrative fallback when probes fail. |
+| **Cloud-aware agent / finding context** | **Out of V1** for AWS/GCP targets. | **In scope for V1.1** Phase 4. |
+| **Re-host ArchLucid on AWS or GCP** | **Out of V1 and V1.1** per ADR 0020. | **Not committed** unless a future ADR supersedes. |
+
+**Rules:**
+
+- **V1 GA assessments** **must not** deduct **`(A)`** headline readiness solely because AWS/GCP **target** analysis is unavailable — same pattern as ITSM **§6** before V1.1 promotion.
+- **V1.1 assessments** may treat missing **§2.19** minimum (Phases 1–2) as product gap **after** the V1.1 window is declared active for scoring.
+- Engineering detail, phases, and acceptance criteria: **[MULTI_CLOUD_ANALYSIS_V1_1.md](MULTI_CLOUD_ANALYSIS_V1_1.md)**.
+- Historical note: [`PENDING_QUESTIONS_RESOLVED_HISTORY.md`](../archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md) — “AWS agents / multi-cloud deferred to V1.1”.
 
 ---
 

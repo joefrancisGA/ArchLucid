@@ -190,6 +190,29 @@ Until **V1.1** surfaces in **§2.8** (integration events), **§2.14** (Teams / S
 - **What this is:** guides and clarity — walkthrough quality bar consistent with other engineering-facing docs in `docs/library/` (exact filename is owner-chosen; link from [Navigation.mdc](../../.cursor/rules/Navigation.mdc) / onboarding spine when published).
 - **What this is not:** no **mandatory** third-party plugin SDK, marketplace listing, or new public HTTP contracts unless separately promoted (**speculative ecosystem** row in §3 below remains unchanged).
 
+#### 2.19 Multi-cloud architecture **analysis** (AWS and GCP targets; Azure-hosted product)
+
+**In scope for V1.1** — ArchLucid remains **hosted on Azure** per [ADR 0020](../architecture/adrs/0020-azure-primary-platform-permanent.md); **V1.1** adds the ability to **analyze customer architectures whose primary target cloud is AWS or GCP**, not only Azure.
+
+**Minimum V1.1 contract (Phases 1–2 in [MULTI_CLOUD_ANALYSIS_V1_1.md](MULTI_CLOUD_ANALYSIS_V1_1.md)):**
+
+- **`CloudProvider.Aws`** and **`CloudProvider.Gcp`** on **`ArchitectureRequest`** (API, CLI, operator UI when the baseline wizard exposes provider selection).
+- **Terraform ingestion** for AWS/GCP declarations (`simple-terraform`, `terraform-show-json`) with resource classification into existing **`CanonicalObject`** types (`TopologyResource`, `SecurityBaseline`, `PolicyControl`).
+- **Illustrative infrastructure cost** lines and human-readable service labels for AWS/GCP platforms (no false “Azure Retail” attribution when the request target is Aws/Gcp).
+
+**Full V1.1 contract (Phases 3–4):**
+
+- **Customer-controlled inventory ZIPs** for AWS and GCP (read-only scripts in customer accounts; upload + audit parity with **§2.16** Azure extractor posture — Tier 1 default: **no** ArchLucid credentials in customer AWS/GCP).
+- **Live public pricing** enrichment where AWS Price List / GCP Cloud Billing Catalog probes succeed, with illustrative fallback rows when they do not.
+- **Cloud-aware agent context** so findings and cost narratives reference the **target** provider when `CloudProvider` is Aws or Gcp.
+
+**Explicit non-goals for V1.1 (unchanged hosting posture):**
+
+- **Not in V1.1:** production hosting of ArchLucid on AWS or GCP; Entra ID replacement; Service Bus / Azure SQL / Blob / Azure AI Search replacement for the **product** control plane.
+- **Not in V1.1 unless separately promoted:** ArchLucid-held live inventory connectors (long-lived IAM into customer AWS/GCP); single review merging Azure + AWS + GCP graphs; AWS/GCP-native Well-Architected certification parity.
+
+**V1 GA posture:** **Azure-only** `CloudProvider` enum value and Azure-first extractor (**§2.16**) remain the shipped contract. AWS/GCP-primary buyers are a **V1.1** fit, not a V1 GA gap for headline readiness assessments once **§2.19** is authoritative (*owner scope 2026-05-19*).
+
 ---
 
 ## 3. Out of scope for V1 (explicit non-goals or V1.1+)
@@ -215,6 +238,7 @@ Until **V1.1** surfaces in **§2.8** (integration events), **§2.14** (Teams / S
 | **Hosted trial tenants — documented `V1` → `V1.1` migration path** | **V1.1 candidate** (product note 2026-05-10). **Not required for `(A)` V1 headline readiness:** a consolidated tenant-admin / buyer-visible narrative for how **existing hosted trial tenants** should expect to cross the **`V1` → `V1.1`** boundary does **not** gate **V1 GA**. **What is in V1:** vendor-applied DbUp-forward migrations within the **`V1` contract**, `CHANGELOG` / **`BREAKING_CHANGES`** discipline, and incremental runbooks. **`V1.1`** documents the migration outlook as described in [V1_DEFERRED.md §6i](V1_DEFERRED.md). **Independent quality assessments must not** treat absence of this guide as a **`(A)` V1 defect** against Evolvability, Documentation, Adoption Friction, or related pillars — it is **`V1.1` documentation scope**, not latent **`V1` debt**. **Owner scope clarification 2026-05-15:** artifact is **explicitly excluded from V1 GA** and scheduled with **V1.1** rollout documentation (see **[PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md)** when pinned).
 | **Distributed cache — Redis baseline for scaled fleets + distributed graph projection cache** | **V2 candidate** (engineering note 2026-05-06). **What is in V1:** Optional Redis via **`HotPathCache`** (**`Auto`** picks Redis when replica count > 1 and connection string is set), optional **`LlmCompletionCache:Provider=Distributed`**, and in-process **`GraphSnapshotProjectionMemoryCache`**. **What is not a V1 contract:** mandatory Azure Cache for Redis in single-replica setups, IaC/private-endpoint baseline as a GA gate, or a distributed **`IGraphSnapshotProjectionCache`**. **V2 enhancement:** elevated Redis posture for multi-replica production defaults, Terraform/runbook parity, optional distributed graph projection implementation, and operational hardening — see [V1_DEFERRED.md §6e](V1_DEFERRED.md). |
 | **Azure Container Apps Jobs + Durable Task Framework for worker orchestration** | **V2 backlog candidate, situational** (engineering note 2026-05-07). **What is in V1:** **`ArchLucid.Worker`** and **`AuthorityRunOrchestrator`** own long-running authority pipelines with retry, queuing, and state transitions. **What is not a V1 contract:** moving orchestration to **Durable Task Framework** (library orchestration with checkpoint/replay) or offloading bursty one-shot work to **Azure Container Apps Jobs**. **V2:** reconsider only if pipeline complexity (multi-step agents, approval/time-bound workflows, compensation) clearly outgrows the current pattern — see [V1_DEFERRED.md §6f](V1_DEFERRED.md). |
+| **AWS / GCP architecture analysis** (target-cloud reviews while product stays Azure-hosted) | **V1.1** ([V1_SCOPE.md](V1_SCOPE.md) **§2.19**, [MULTI_CLOUD_ANALYSIS_V1_1.md](MULTI_CLOUD_ANALYSIS_V1_1.md), [V1_DEFERRED.md §6n](V1_DEFERRED.md)). **V1:** `CloudProvider` is Azure-only; competitive docs may note AWS/GCP buyer friction — **do not** score **`(A)` V1 GA** solely for inability to analyze non-Azure target architectures. **V1.1:** committed analyze path (Terraform + inventory ZIP + costing + cloud-aware agents). **Still out of V1.1:** re-hosting ArchLucid on AWS/GCP ([ADR 0020](../architecture/adrs/0020-azure-primary-platform-permanent.md)). |
 
 ---
 
