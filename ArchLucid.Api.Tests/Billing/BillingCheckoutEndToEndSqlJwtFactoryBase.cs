@@ -22,8 +22,6 @@ internal abstract class BillingCheckoutEndToEndSqlJwtFactoryBase : GreenfieldSql
 
     private readonly string _publicPemPath;
 
-    private bool _jwtEnvironmentOverridesApplied;
-
     protected BillingCheckoutEndToEndSqlJwtFactoryBase()
     {
         using RSA rsa = RSA.Create(2048);
@@ -34,6 +32,8 @@ internal abstract class BillingCheckoutEndToEndSqlJwtFactoryBase : GreenfieldSql
         _publicPemPath = Path.Combine(Path.GetTempPath(), $"archlucid-billing-e2e-jwt-pub-{stamp}.pem");
         File.WriteAllText(_privatePemPath, privatePem, Encoding.UTF8);
         File.WriteAllText(_publicPemPath, publicPem, Encoding.UTF8);
+
+        ApplyJwtEnvironmentOverrides();
     }
 
     /// <summary>PKCS#8 private key PEM path configured for <c>Auth:Trial:LocalIdentity:JwtPrivateKeyPemPath</c>.</summary>
@@ -41,10 +41,6 @@ internal abstract class BillingCheckoutEndToEndSqlJwtFactoryBase : GreenfieldSql
 
     protected sealed override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        // Program.AddEnvironmentVariables() runs after appsettings; env must nominate JwtBearer + PEM before AddArchLucidAuth
-        // or layered ApiKey / DevelopmentBypass wins and Bearer checkout returns 401 (CI).
-        ApplyJwtEnvironmentOverrides();
-
         base.ConfigureWebHost(builder);
 
         Dictionary<string, string?> overrides = BuildJwtAndBillingConfigurationOverrides();
@@ -94,7 +90,6 @@ internal abstract class BillingCheckoutEndToEndSqlJwtFactoryBase : GreenfieldSql
     {
         if (disposing)
         {
-            ClearJwtEnvironmentOverrides();
             TryDeleteFile(_privatePemPath);
             TryDeleteFile(_publicPemPath);
         }
@@ -111,22 +106,6 @@ internal abstract class BillingCheckoutEndToEndSqlJwtFactoryBase : GreenfieldSql
         Environment.SetEnvironmentVariable("ArchLucidAuth__JwtLocalIssuer", JwtLocalSigningWebAppFactory.JwtLocalTestIssuer);
         Environment.SetEnvironmentVariable("ArchLucidAuth__JwtLocalAudience", JwtLocalSigningWebAppFactory.JwtLocalTestAudience);
         Environment.SetEnvironmentVariable("Authentication__ApiKey__DevelopmentBypassAll", "false");
-        _jwtEnvironmentOverridesApplied = true;
-    }
-
-    private void ClearJwtEnvironmentOverrides()
-    {
-        if (!_jwtEnvironmentOverridesApplied)
-            return;
-
-        Environment.SetEnvironmentVariable("ArchLucidAuth__Mode", null);
-        Environment.SetEnvironmentVariable("ArchLucidAuth__Authority", null);
-        Environment.SetEnvironmentVariable("ArchLucidAuth__Audience", null);
-        Environment.SetEnvironmentVariable("ArchLucidAuth__JwtSigningPublicKeyPemPath", null);
-        Environment.SetEnvironmentVariable("ArchLucidAuth__JwtLocalIssuer", null);
-        Environment.SetEnvironmentVariable("ArchLucidAuth__JwtLocalAudience", null);
-        Environment.SetEnvironmentVariable("Authentication__ApiKey__DevelopmentBypassAll", null);
-        _jwtEnvironmentOverridesApplied = false;
     }
 
     private Dictionary<string, string?> BuildJwtAndBillingConfigurationOverrides()

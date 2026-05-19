@@ -44,8 +44,6 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
 
     private readonly string _publicPemPath;
 
-    private bool _jwtEnvironmentOverridesApplied;
-
     public JwtLocalSigningWebAppFactory()
     {
         using RSA rsa = RSA.Create(2048);
@@ -53,6 +51,10 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
         string publicPem = rsa.ExportSubjectPublicKeyInfoPem();
         _publicPemPath = Path.Combine(Path.GetTempPath(), $"archlucid-jwt-local-{Guid.NewGuid():N}.pem");
         File.WriteAllText(_publicPemPath, publicPem, Encoding.UTF8);
+
+        // Set before the first host build so Program.AddEnvironmentVariables() and AddArchLucidAuth see PEM + JwtBearer
+        // (not appsettings.Development.json DevelopmentBypass). ConfigureWebHost repeats this for idempotency.
+        ApplyJwtEnvironmentOverrides();
     }
 
     /// <summary>PKCS#8 private key PEM used to mint JWTs in tests (never used by the API host).</summary>
@@ -73,8 +75,6 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
-
-        ApplyJwtEnvironmentOverrides();
 
         Dictionary<string, string?> settings = BuildHostConfigurationOverrides();
 
@@ -161,22 +161,6 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
         Environment.SetEnvironmentVariable("ArchLucidAuth__JwtLocalIssuer", JwtLocalTestIssuer);
         Environment.SetEnvironmentVariable("ArchLucidAuth__JwtLocalAudience", JwtLocalTestAudience);
         Environment.SetEnvironmentVariable("Authentication__ApiKey__DevelopmentBypassAll", "false");
-        _jwtEnvironmentOverridesApplied = true;
-    }
-
-    private void ClearJwtEnvironmentOverrides()
-    {
-        if (!_jwtEnvironmentOverridesApplied)
-            return;
-
-        Environment.SetEnvironmentVariable("ArchLucidAuth__Mode", null);
-        Environment.SetEnvironmentVariable("ArchLucidAuth__Authority", null);
-        Environment.SetEnvironmentVariable("ArchLucidAuth__Audience", null);
-        Environment.SetEnvironmentVariable("ArchLucidAuth__JwtSigningPublicKeyPemPath", null);
-        Environment.SetEnvironmentVariable("ArchLucidAuth__JwtLocalIssuer", null);
-        Environment.SetEnvironmentVariable("ArchLucidAuth__JwtLocalAudience", null);
-        Environment.SetEnvironmentVariable("Authentication__ApiKey__DevelopmentBypassAll", null);
-        _jwtEnvironmentOverridesApplied = false;
     }
 
     protected override void Dispose(bool disposing)
@@ -187,8 +171,6 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
         {
             return;
         }
-
-        ClearJwtEnvironmentOverrides();
 
         try
         {
