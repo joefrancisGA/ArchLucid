@@ -65,6 +65,8 @@ public static class ApiWebLayerServiceCollectionExtensions
             client.Timeout = TimeSpan.FromSeconds(30);
         });
 
+        services.AddScoped<IWebhookSubscriptionTestService, WebhookSubscriptionTestService>();
+
         services.AddHealthChecks().AddCheck<AzureServiceBusNamespaceHealthCheck>(
             "azure_service_bus",
             failureStatus: HealthStatus.Unhealthy,

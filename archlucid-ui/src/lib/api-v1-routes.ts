@@ -35,6 +35,7 @@ export const ApiV1Routes = {
   teamsIncomingWebhookConnections: "v1/integrations/teams/connections",
   teamsNotificationTriggerCatalog: "v1/integrations/teams/triggers",
   integrationWebhooks: "v1/integrations/webhooks",
+  webhookSubscriptions: "v1/webhooks/subscriptions",
   /** Pilot / product feedback rollups (58R). */
   productLearning: "v1/product-learning",
   /** 59R improvement themes and plans (read-only planning bridge). */

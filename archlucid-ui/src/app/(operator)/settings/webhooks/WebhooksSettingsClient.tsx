@@ -18,7 +18,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   createAlertRoutingSubscription,
   listAlertRoutingSubscriptions,
-  testIntegrationWebhook,
+  testWebhookSubscription,
   toggleAlertRoutingSubscription,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -31,7 +31,7 @@ import {
 import { summarizeMaskedWebhookSubscription, buildWebhookSubscriptionMetadata } from "@/lib/webhook-subscription-metadata";
 import { showError, showSuccess } from "@/lib/toast";
 
-import type { AlertRoutingSubscription } from "@/types/alert-routing";
+import type { AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
 
 function isOutboundWebhookChannel(channelType: string): boolean {
   return channelType === "TeamsWebhook" || channelType === "SlackWebhook" || channelType === "OnCallWebhook";
@@ -44,8 +44,10 @@ export function WebhooksSettingsClient() {
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
-  /** ID of subscription currently undergoing `POST .../integrations/webhooks/{id}/test`; null when idle. */
+  /** ID of subscription currently undergoing `POST .../webhooks/subscriptions/{id}/test`; null when idle. */
   const [testingId, setTestingId] = useState<string | null>(null);
+
+  const [testResults, setTestResults] = useState<Record<string, WebhookTestResponse>>({});
 
   const form = useForm<WebhookSettingsFormValues>({
     resolver: zodResolver(webhookSettingsFormSchema),
@@ -92,7 +94,9 @@ export function WebhooksSettingsClient() {
     setTestingId(routingSubscriptionId);
 
     try {
-      const result = await testIntegrationWebhook(routingSubscriptionId);
+      const result = await testWebhookSubscription(routingSubscriptionId);
+
+      setTestResults((prev) => ({ ...prev, [routingSubscriptionId]: result }));
 
       if (result.transportSucceeded && result.statusCode >= 200 && result.statusCode < 300) {
         showSuccess(`Test webhook ping succeeded — HTTP ${result.statusCode} ${result.reasonPhrase ?? ""}`.trimEnd());
@@ -105,6 +109,13 @@ export function WebhooksSettingsClient() {
         showError("Test webhook ping failed — could not reach destination", result.error ?? undefined);
       }
     } catch (e) {
+      setTestResults((prev) => {
+        const next = { ...prev };
+
+        delete next[routingSubscriptionId];
+
+        return next;
+      });
       showError("Webhook test failed", e instanceof Error ? e.message : String(e));
     } finally {
       setTestingId(null);
@@ -430,6 +441,43 @@ export function WebhooksSettingsClient() {
                           </dd>
                         </div>
                       </dl>
+                      {testResults[row.routingSubscriptionId] !== undefined ? (
+                        <div
+                          className="mt-4 rounded-md border border-neutral-200 bg-neutral-50 p-3 text-sm dark:border-neutral-700 dark:bg-neutral-900/60"
+                          data-testid={`webhook-test-result-${row.routingSubscriptionId}`}
+                        >
+                          <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Last test response</p>
+                          {testResults[row.routingSubscriptionId]!.transportSucceeded ? (
+                            <p className="m-0 mt-1 text-neutral-700 dark:text-neutral-300">
+                              HTTP <span className="font-mono">{testResults[row.routingSubscriptionId]!.statusCode}</span>
+                              {testResults[row.routingSubscriptionId]!.reasonPhrase !== null &&
+                              testResults[row.routingSubscriptionId]!.reasonPhrase !== undefined &&
+                              testResults[row.routingSubscriptionId]!.reasonPhrase!.length > 0 ? (
+                                <span> {testResults[row.routingSubscriptionId]!.reasonPhrase}</span>
+                              ) : null}
+                            </p>
+                          ) : (
+                            <p className="m-0 mt-1 text-rose-800 dark:text-rose-200" role="alert">
+                              Transport failed: {testResults[row.routingSubscriptionId]!.error ?? "Unknown error"}
+                            </p>
+                          )}
+                          {testResults[row.routingSubscriptionId]!.responseBodyPreview !== null &&
+                          testResults[row.routingSubscriptionId]!.responseBodyPreview !== undefined &&
+                          testResults[row.routingSubscriptionId]!.responseBodyPreview!.length > 0 ? (
+                            <>
+                              <p className="m-0 mt-2 text-xs uppercase text-neutral-500">Response body</p>
+                              <pre className="mt-1 max-h-48 overflow-auto rounded bg-neutral-100 p-2 text-xs text-neutral-800 dark:bg-neutral-950 dark:text-neutral-200">
+                                {testResults[row.routingSubscriptionId]!.responseBodyPreview}
+                              </pre>
+                              {testResults[row.routingSubscriptionId]!.responseBodyTruncated ? (
+                                <p className="m-0 mt-1 text-xs text-neutral-500">Response body truncated for display.</p>
+                              ) : null}
+                            </>
+                          ) : testResults[row.routingSubscriptionId]!.transportSucceeded ? (
+                            <p className="m-0 mt-2 text-xs text-neutral-500">No response body returned.</p>
+                          ) : null}
+                        </div>
+                      ) : null}
                     </li>
                   );
                 })}

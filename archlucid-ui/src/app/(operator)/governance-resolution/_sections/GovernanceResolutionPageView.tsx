@@ -19,6 +19,7 @@ import {
   governanceResolutionResolutionDetailsHeadingOperator,
   governanceResolutionResolutionDetailsHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
+import { triggerGovernanceResolutionMarkdownDownload } from "@/lib/governance-resolution-markdown";
 import { cn } from "@/lib/utils";
 
 import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
@@ -151,7 +152,7 @@ export function GovernanceResolutionPageView(props: Props) {
             {governanceResolutionChangeRelatedControlsReaderSupplement}
           </p>
         ) : null}
-        <div className="mb-0">
+        <div className="mb-0 flex flex-wrap gap-2">
           <Button
             type="button"
             variant="secondary"
@@ -161,6 +162,23 @@ export function GovernanceResolutionPageView(props: Props) {
             disabled={m.loading}
           >
             {m.loading ? "Loading…" : "Refresh"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            data-testid="governance-resolution-export-markdown"
+            title="Download a point-in-time Markdown snapshot of notes, conflicts, decisions, and effective content"
+            disabled={m.loading || m.data === null}
+            onClick={() => {
+              if (m.data === null) {
+                return;
+              }
+
+              triggerGovernanceResolutionMarkdownDownload(m.data);
+            }}
+          >
+            Export to Markdown
           </Button>
         </div>
       </section>

@@ -1543,6 +1543,29 @@
         },
         "type": "object"
       },
+      "AlertRoutingCriteria": {
+        "properties": {
+          "findingTypes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "severities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "AlertRoutingSubscription": {
         "properties": {
           "channelType": {
@@ -1589,6 +1612,42 @@
           "workspaceId": {
             "format": "uuid",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AlertRoutingSubscriptionCreatePayload": {
+        "properties": {
+          "channelType": {
+            "type": "string"
+          },
+          "destination": {
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "metadataJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "minimumSeverity": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "routingCriteria": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AlertRoutingCriteria"
+              }
+            ]
           }
         },
         "type": "object"
@@ -19428,7 +19487,7 @@
                     "type": "null"
                   },
                   {
-                    "$ref": "#/components/schemas/AlertRoutingSubscription"
+                    "$ref": "#/components/schemas/AlertRoutingSubscriptionCreatePayload"
                   }
                 ]
               }
@@ -19440,7 +19499,7 @@
                     "type": "null"
                   },
                   {
-                    "$ref": "#/components/schemas/AlertRoutingSubscription"
+                    "$ref": "#/components/schemas/AlertRoutingSubscriptionCreatePayload"
                   }
                 ]
               }
@@ -19452,7 +19511,7 @@
                     "type": "null"
                   },
                   {
-                    "$ref": "#/components/schemas/AlertRoutingSubscription"
+                    "$ref": "#/components/schemas/AlertRoutingSubscriptionCreatePayload"
                   }
                 ]
               }

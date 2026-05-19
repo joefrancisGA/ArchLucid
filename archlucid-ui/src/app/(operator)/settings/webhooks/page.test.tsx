@@ -25,6 +25,7 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
 vi.mock("@/lib/api", () => ({
   listAlertRoutingSubscriptions: apiMocks.list,
   createAlertRoutingSubscription: apiMocks.create,
+  testWebhookSubscription: apiMocks.test,
   testIntegrationWebhook: apiMocks.test,
   toggleAlertRoutingSubscription: apiMocks.toggle,
 }));
@@ -77,5 +78,46 @@ describe("WebhooksSettingsPage", () => {
     expect(parsedMeta.eventTypes).toEqual(
       expect.arrayContaining(["archlucid.alert.recorded", "archlucid.alert.acknowledged"]),
     );
+  });
+
+  it("shows HTTP status and response body after Test Webhook", async () => {
+    const subscriptionId = "11111111-1111-1111-1111-111111111111";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+    apiMocks.test.mockResolvedValue({
+      transportSucceeded: true,
+      statusCode: 202,
+      reasonPhrase: "Accepted",
+      responseBodyPreview: '{"ok":true}',
+      responseBodyTruncated: false,
+    });
+
+    render(<WebhooksSettingsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId(`webhook-test-${subscriptionId}`)).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId(`webhook-test-${subscriptionId}`));
+
+    await waitFor(() => {
+      expect(apiMocks.test).toHaveBeenCalledWith(subscriptionId);
+    });
+
+    expect(await screen.findByTestId(`webhook-test-result-${subscriptionId}`)).toHaveTextContent("HTTP 202");
+    expect(screen.getByTestId(`webhook-test-result-${subscriptionId}`)).toHaveTextContent('{"ok":true}');
   });
 });

@@ -118,12 +118,17 @@ export async function listAlertRoutingDeliveryAttempts(
   );
 }
 
-/** Sends a synthetic ping to the destination of a webhook routing subscription and returns the HTTP outcome. */
-export async function testIntegrationWebhook(routingSubscriptionId: string): Promise<WebhookTestResponse> {
+/** Sends a synthetic signed ping to a webhook routing subscription and returns the remote HTTP outcome. */
+export async function testWebhookSubscription(routingSubscriptionId: string): Promise<WebhookTestResponse> {
   return apiPostJson<WebhookTestResponse>(
-    `/${ApiV1Routes.integrationWebhooks}/${encodeURIComponent(routingSubscriptionId)}/test`,
+    `/${ApiV1Routes.webhookSubscriptions}/${encodeURIComponent(routingSubscriptionId)}/test`,
     {},
   );
+}
+
+/** @deprecated Prefer {@link testWebhookSubscription}. */
+export async function testIntegrationWebhook(routingSubscriptionId: string): Promise<WebhookTestResponse> {
+  return testWebhookSubscription(routingSubscriptionId);
 }
 
 
