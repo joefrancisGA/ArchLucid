@@ -1,0 +1,41 @@
+---
+description: Agent-local compile checks with 45s cap, temp output dir, and one retry on same scope
+alwaysApply: true
+---
+
+# Agent local compile policy
+
+Full **`dotnet build ArchLucid.sln`** and broad test runs are for **CI and explicit user request**, not routine agent verification after edits. Local builds on Windows often stall on **locked `bin/` DLLs**; CI runs on clean Linux agents.
+
+## When to verify
+
+After substantive **C#** or **`archlucid-ui/`** edits, run a **scoped** compile check before declaring the task done — unless the user explicitly defers verification.
+
+## Commands (from repo root)
+
+| Change scope | Command |
+|--------------|---------|
+| One or more `.csproj` under a library | `powershell -NoProfile -File scripts/ci/agent-compile-check.ps1 -ProjectPath <smallest-covering.csproj-or.slnf>` |
+| Prefer narrow filter when unsure | `ArchLucid.Core.slnf`, `ArchLucid.Backend.slnf`, or the touched `.csproj` — see **`docs/engineering/BUILD.md`** |
+| UI TypeScript only | `powershell -NoProfile -File scripts/ci/agent-compile-check.ps1 -Ui` |
+
+Do **not** run `dotnet build ArchLucid.sln` unless the user asks or CI parity is explicitly required.
+
+## Exit codes and agent behavior
+
+| Exit code | Meaning | Agent action |
+|-----------|---------|--------------|
+| **0** | Scoped compile/typecheck passed | Task verification satisfied for syntax/compile |
+| **1** | **CS####** / **TS####** (or other hard compile errors) in output | Fix errors, then **retry once** on the **same scope** (same `-ProjectPath` or `-Ui`). If still **1**, stop and report remaining errors |
+| **2** | **Timeout (45s)** or **file lock** (`MSB3021` / `MSB3027`) with **no CS/TS errors** in output | Treat compile verification as **sufficient**; note that **CI** will run the authoritative full build. Do **not** escalate to full-solution build in the same session |
+
+## Retry rule
+
+- **At most one retry** per task on the **same scope** (same script invocation arguments).
+- Do not widen scope (e.g. single `.csproj` → full `.sln`) on retry.
+- Do not loop on file-lock or timeout **2** exits.
+
+## What this does not replace
+
+- OpenAPI snapshot, client regen, and UI **`generate:api-types`** flows — follow **`.cursor/skills/archlucid-api-surface-change/SKILL.md`** when wire contracts change.
+- User-requested **`dotnet test`**, release scripts, or full regression — run only when asked or when the task explicitly requires tests.

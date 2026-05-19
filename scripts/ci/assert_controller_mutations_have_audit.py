@@ -2,8 +2,9 @@
 """CI guard: mutating controller actions should emit audit (IAuditService.LogAsync or IBaselineMutationAuditService).
 
 Scans ``ArchLucid.Api/Controllers/**/*.cs`` for ``[HttpPost|Put|Patch|Delete]`` action methods and asserts each
-method body contains ``LogAsync(`` (covers ``_auditService.LogAsync``, ``auditService.LogAsync``, ``_audit.LogAsync``)
-or is listed in ``scripts/ci/controller_action_audit_allowlist.txt`` (one ``FullyQualifiedClassName.MethodName`` per line).
+method body contains ``LogAsync(`` (covers ``_auditService.LogAsync``, ``auditService.LogAsync``, ``_audit.LogAsync``),
+is decorated with ``[MutatingAuditExcluded]`` (method or containing type), or is listed in
+``scripts/ci/controller_action_audit_allowlist.txt`` (one ``FullyQualifiedClassName.MethodName`` per line).
 
 Rationale: duplicate audit channels are discouraged, but *missing* audit on state-changing API surfaces is worse for
 enterprise readiness — this guard makes omissions visible at PR time.
@@ -24,6 +25,11 @@ from pathlib import Path
 
 MUTATING_ATTR = re.compile(
     r"\[\s*Http(Post|Put|Patch|Delete)\s*(?:\([^\]]*\))?\s*\]",
+    re.IGNORECASE,
+)
+
+MUTATING_AUDIT_EXCLUDED = re.compile(
+    r"\[\s*MutatingAuditExcluded\s*(?:\([^\]]*\))?\s*\]",
     re.IGNORECASE,
 )
 
@@ -75,6 +81,43 @@ def _extract_class_name(text: str) -> str | None:
     return m.group(1) if m else None
 
 
+def _class_line_index(lines: list[str], class_name: str) -> int | None:
+    class_decl = re.compile(
+        rf"^\s*(?:public\s+|internal\s+|sealed\s+|partial\s+)*class\s+{re.escape(class_name)}\s*(?:\(|:|\{{|where)",
+    )
+    for idx, line in enumerate(lines):
+        if class_decl.match(line):
+            return idx
+    return None
+
+
+def _type_has_mutating_audit_excluded(lines: list[str], class_line_idx: int) -> bool:
+    idx = class_line_idx - 1
+    while idx >= 0:
+        stripped = lines[idx].strip()
+        if not stripped:
+            idx -= 1
+            continue
+        if MUTATING_AUDIT_EXCLUDED.search(lines[idx]):
+            return True
+        if stripped.startswith("["):
+            idx -= 1
+            continue
+        break
+    return False
+
+
+def _method_attributes_have_mutating_audit_excluded(
+    lines: list[str],
+    attr_start_idx: int,
+    method_line_idx: int,
+) -> bool:
+    for idx in range(attr_start_idx, method_line_idx):
+        if MUTATING_AUDIT_EXCLUDED.search(lines[idx]):
+            return True
+    return False
+
+
 def _method_body_after_signature(lines: list[str], start_idx: int) -> tuple[str, int] | None:
     """From a line index at method signature, return (body text including braces) and end line index."""
     brace_depth = 0
@@ -111,6 +154,11 @@ def _scan_file(path: Path) -> list[tuple[str, str, int]]:
     fq_prefix = f"{ns}.{cls}"
     lines = text.splitlines()
     violations: list[tuple[str, str, int]] = []
+    class_line_idx = _class_line_index(lines, cls)
+    type_excluded = (
+        class_line_idx is not None
+        and _type_has_mutating_audit_excluded(lines, class_line_idx)
+    )
 
     i = 0
     while i < len(lines):
@@ -118,6 +166,7 @@ def _scan_file(path: Path) -> list[tuple[str, str, int]]:
             i += 1
             continue
 
+        attr_start = i
         j = i + 1
         while j < len(lines):
             stripped = lines[j].strip()
@@ -132,7 +181,12 @@ def _scan_file(path: Path) -> list[tuple[str, str, int]]:
                     break
                 body, end_line = body_tuple
                 fq = f"{fq_prefix}.{method_name}"
-                if "LogAsync(" not in body:
+                excluded = type_excluded or _method_attributes_have_mutating_audit_excluded(
+                    lines,
+                    attr_start,
+                    j,
+                )
+                if not excluded and "LogAsync(" not in body:
                     violations.append((fq, body.strip()[:200], j + 1))
                 i = end_line
                 break

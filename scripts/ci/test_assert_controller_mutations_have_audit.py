@@ -60,6 +60,31 @@ public sealed class SampleController
             violations = sut._scan_file(ctrl)
             self.assertEqual(violations, [])
 
+    def test_passes_when_mutating_audit_excluded_on_method(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            ctrl = root / "ArchLucid.Api" / "Controllers" / "Sample" / "SampleController.cs"
+            ctrl.parent.mkdir(parents=True)
+            ctrl.write_text(
+                """
+namespace ArchLucid.Api.Controllers.Sample;
+
+public sealed class SampleController
+{
+    [HttpPost("x")]
+    [MutatingAuditExcluded("service logs downstream")]
+    public Task<IActionResult> Mutate()
+    {
+        return Task.CompletedTask;
+    }
+}
+""",
+                encoding="utf-8",
+            )
+
+            violations = sut._scan_file(ctrl)
+            self.assertEqual(violations, [])
+
 
 if __name__ == "__main__":
     unittest.main()
