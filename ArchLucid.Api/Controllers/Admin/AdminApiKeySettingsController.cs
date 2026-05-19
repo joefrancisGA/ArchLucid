@@ -40,7 +40,7 @@ public sealed class AdminApiKeySettingsController(
     [ProducesResponseType(typeof(AdminApiKeyRotateResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RotateAsync(
-        [FromBody] AdminApiKeyRotateRequest? request,
+        [FromBody] AdminApiKeyRotateRequest request,
         CancellationToken cancellationToken)
     {
         if (request is null)
