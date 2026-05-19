@@ -99,7 +99,8 @@ public sealed class AuthorityRunOrchestrator(
             };
             ApplyScope(run, scope);
 
-            using Activity? runActivity = ArchLucidInstrumentation.AuthorityRun.StartActivity();
+            using Activity? runActivity = ArchLucidInstrumentation.AuthorityRun.StartActivity(
+                ArchLucidInstrumentation.AuthorityRunRootActivityName);
             runActivity?.SetTag("archlucid.run_id", run.RunId.ToString("D"));
 
             string logicalCorrelation =
@@ -343,7 +344,8 @@ public sealed class AuthorityRunOrchestrator(
                     pipelineCt);
 
 
-            using Activity? runActivity = ArchLucidInstrumentation.AuthorityRun.StartActivity();
+            using Activity? runActivity = ArchLucidInstrumentation.AuthorityRun.StartActivity(
+                ArchLucidInstrumentation.AuthorityRunRootActivityName);
             runActivity?.SetTag("archlucid.run_id", run.RunId.ToString("D"));
 
             string logicalCorrelation =

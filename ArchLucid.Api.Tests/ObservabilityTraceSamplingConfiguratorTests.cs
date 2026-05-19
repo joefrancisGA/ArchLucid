@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
 
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Startup;
+using ArchLucid.Host.Core.Startup.Tracing;
 
 using FluentAssertions;
 
@@ -31,7 +33,28 @@ public sealed class ObservabilityTraceSamplingConfiguratorTests
         Sampler sampler = GetTracerProviderSampler(provider);
 
         sampler.Should().BeOfType<ParentBasedSampler>();
-        GetRootSampler((ParentBasedSampler)sampler).Should().BeOfType<TraceIdRatioBasedSampler>();
+        ParentBasedSampler parentBased = (ParentBasedSampler)sampler;
+        GetRootSampler(parentBased).Should().BeOfType<AlwaysSampleActivitySourceSampler>();
+        GetLocalParentNotSampledSampler(parentBased).Should().BeOfType<AlwaysSampleActivitySourceSampler>();
+    }
+
+    [SkippableFact]
+    public void ConfigureTraceSampling_When_always_sample_sources_configured_wraps_ratio_with_activity_source_sampler()
+    {
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(
+            new Dictionary<string, string?>
+            {
+                ["Observability:Tracing:SamplingRatio"] = "0.1",
+                ["Observability:Tracing:AlwaysSampleActivitySources:0"] = ArchLucidInstrumentation.AuthorityRun.Name
+            }).Build();
+
+        TracerProviderBuilder builder = Sdk.CreateTracerProviderBuilder();
+        ObservabilityTraceSamplingConfigurator.ConfigureTraceSampling(builder, configuration);
+
+        using TracerProvider provider = builder.Build();
+        Sampler sampler = GetTracerProviderSampler(provider);
+
+        GetRootSampler((ParentBasedSampler)sampler).Should().BeOfType<AlwaysSampleActivitySourceSampler>();
     }
 
     [SkippableFact]
@@ -102,5 +125,20 @@ public sealed class ObservabilityTraceSamplingConfiguratorTests
         root.Should().BeAssignableTo<Sampler>();
 
         return (Sampler)root;
+    }
+
+    private static Sampler GetLocalParentNotSampledSampler(ParentBasedSampler parentBasedSampler)
+    {
+        FieldInfo? field = typeof(ParentBasedSampler).GetField(
+            "localParentNotSampled",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+
+        field.Should().NotBeNull();
+
+        object? value = field.GetValue(parentBasedSampler);
+
+        value.Should().BeAssignableTo<Sampler>();
+
+        return (Sampler)value;
     }
 }

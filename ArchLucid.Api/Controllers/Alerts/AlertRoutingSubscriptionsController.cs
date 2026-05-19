@@ -8,6 +8,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Delivery;
 
 using Asp.Versioning;

@@ -15,9 +15,8 @@ public sealed class ObservabilityTracingOptions
     } = 1.0;
 
     /// <summary>
-    /// Activity source names that should always be sampled at full fidelity. The OpenTelemetry .NET SDK does not expose
-    /// <see cref="System.Diagnostics.ActivitySource"/> name in <see cref="OpenTelemetry.Trace.SamplingParameters"/> yet,
-    /// so this list is reserved for documentation / future wiring; see <see cref="ArchLucid.Host.Core.Startup.ObservabilityTraceSamplingConfigurator"/>.
+    /// Activity source names that should always be sampled at full fidelity when <see cref="SamplingRatio"/> is below
+    /// <c>1.0</c>. ArchLucid maps <c>ArchLucid.AuthorityRun</c> to <c>authority.*</c> span names at head sampling time.
     /// </summary>
     public string[]? AlwaysSampleActivitySources
     {

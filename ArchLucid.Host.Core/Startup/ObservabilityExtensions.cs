@@ -22,9 +22,9 @@ public static class ObservabilityExtensions
     /// <see cref="OpenTelemetry.Trace.TraceIdRatioBasedSampler"/> for root spans when below <c>1.0</c>, wrapped in
     /// <see cref="OpenTelemetry.Trace.ParentBasedSampler"/> so remote parent decisions are respected. Unparseable values
     /// fall back to <c>1.0</c> so a typo does not fail startup.
-    /// Optional <c>Observability:Tracing:AlwaysSampleActivitySources</c> is bound for future use; per-source always-on
-    /// sampling in-process is not available until the SDK exposes source name on sampling parameters — use collector
-    /// tail sampling for high-value sources (see <c>ObservabilityTraceSamplingConfigurator</c>).
+    /// Optional <c>Observability:Tracing:AlwaysSampleActivitySources</c> keeps configured sources (for example
+    /// <c>ArchLucid.AuthorityRun</c>) at full fidelity when <c>SamplingRatio</c> is below <c>1.0</c>; see
+    /// <c>ObservabilityTraceSamplingConfigurator</c>. Use collector tail sampling for additional retention rules.
     /// </para>
     /// <para>
     /// <strong>OTLP:</strong> When <c>Observability:Otlp:Endpoint</c> is non-empty, trace and metric OTLP exporters

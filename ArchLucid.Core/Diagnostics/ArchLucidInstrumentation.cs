@@ -67,6 +67,9 @@ public static class ArchLucidInstrumentation
     /// <summary>Authority run orchestration (ingestion → manifest).</summary>
     public static readonly ActivitySource AuthorityRun = new("ArchLucid.AuthorityRun", "1.0.0");
 
+    /// <summary>Root span name for <see cref="AuthorityRun" /> (matches <c>authority.*</c> stage naming for trace sampling).</summary>
+    public const string AuthorityRunRootActivityName = "authority.run";
+
     /// <summary>Post-commit retrieval indexing of committed runs.</summary>
     public static readonly ActivitySource RetrievalIndex = new("ArchLucid.Retrieval.Index", "1.0.0");
 

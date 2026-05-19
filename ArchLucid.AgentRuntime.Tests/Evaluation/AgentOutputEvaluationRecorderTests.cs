@@ -2,6 +2,7 @@ using System.Diagnostics.Metrics;
 
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
+using ArchLucid.Application.Configuration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
@@ -66,12 +67,20 @@ public sealed class AgentOutputEvaluationRecorderTests
             new AgentOutputEvaluator(),
             semanticFacade,
             new AgentOutputQualityGate(Options.Create(opts)),
-            Options.Create(opts),
+            CreateGateOptionsResolver(opts),
             referenceEvaluator,
             archFindingConfidence.Object,
             new AgentResultEvidenceFaithfulnessChecker(),
             embeddingFaithfulness.Object,
             logger);
+    }
+
+    private static IAgentOutputQualityGateOptionsResolver CreateGateOptionsResolver(AgentOutputQualityGateOptions opts)
+    {
+        Mock<IAgentOutputQualityGateOptionsResolver> resolver = new();
+        resolver.Setup(r => r.Resolve(It.IsAny<CancellationToken>())).Returns(opts);
+
+        return resolver.Object;
     }
 
     [SkippableFact]

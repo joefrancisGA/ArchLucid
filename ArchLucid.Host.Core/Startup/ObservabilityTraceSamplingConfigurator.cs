@@ -1,6 +1,8 @@
 using System.Globalization;
 
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Startup.Tracing;
 
 using OpenTelemetry.Trace;
 
@@ -16,11 +18,11 @@ public static class ObservabilityTraceSamplingConfigurator
     /// </summary>
     /// <remarks>
     /// <para>
-    /// <c>Observability:Tracing:AlwaysSampleActivitySources</c> is read for operator documentation and options binding,
-    /// but per-source overrides are not implemented in-process: OpenTelemetry .NET does not pass ActivitySource name into
-    /// <see cref="Sampler.ShouldSample(OpenTelemetry.Trace.SamplingParameters@)"/> (see
-    /// https://github.com/open-telemetry/opentelemetry-dotnet/issues/4752). Use an OTLP collector tail-sampling policy
-    /// (or similar) to keep high-value sources such as <c>ArchLucid.AuthorityRun</c> at full fidelity in production.
+    /// <c>Observability:Tracing:AlwaysSampleActivitySources</c> lists ActivitySource names (for example
+    /// <c>ArchLucid.AuthorityRun</c>) that are always recorded when fractional <c>SamplingRatio</c> is in effect.
+    /// The .NET SDK does not pass ActivitySource on <see cref="Sampler.ShouldSample(OpenTelemetry.Trace.SamplingParameters@)"/>,
+    /// so ArchLucid matches known sources via span naming (<c>authority.*</c> for authority runs). Supplement with OTLP
+    /// collector tail sampling for other retention rules.
     /// </para>
     /// </remarks>
     public static void ConfigureTraceSampling(TracerProviderBuilder tracing, IConfiguration configuration)
@@ -28,16 +30,7 @@ public static class ObservabilityTraceSamplingConfigurator
         ArgumentNullException.ThrowIfNull(tracing);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        string[]? alwaysSampleActivitySources = configuration
-            .GetSection($"{ObservabilityHostOptions.SectionName}:Tracing:AlwaysSampleActivitySources")
-            .Get<string[]>();
-
-        if (alwaysSampleActivitySources is { Length: > 0 })
-        {
-            // TODO: Honor AlwaysSampleActivitySources in-process once OpenTelemetry .NET exposes ActivitySource (or
-            // equivalent) on SamplingParameters, or introduce a supported hook (see issue #4752 above). Until then,
-            // operators should enforce per-source retention via OTLP collector tail sampling or backend rules.
-        }
+        IReadOnlyList<string> alwaysSampleActivitySources = ResolveAlwaysSampleActivitySources(configuration);
 
         // Avoid ConfigurationBinder.GetValue<double> when the key exists but is not parseable — it throws and would
         // fail host startup on a typo in production config.
@@ -60,8 +53,41 @@ public static class ObservabilityTraceSamplingConfigurator
 
                 samplingRatio = Math.Clamp(parsed, 0.0, 1.0);
 
-        if (samplingRatio < 1.0)
+        if (samplingRatio >= 1.0 || alwaysSampleActivitySources.Count == 0)
+            return;
 
-            tracing.SetSampler(new ParentBasedSampler(new TraceIdRatioBasedSampler(samplingRatio)));
+        Sampler ratioSampler = new TraceIdRatioBasedSampler(samplingRatio);
+        Sampler alwaysSampleRoot = new AlwaysSampleActivitySourceSampler(alwaysSampleActivitySources, ratioSampler);
+        Sampler alwaysSampleUnderUnsampledParent =
+            new AlwaysSampleActivitySourceSampler(alwaysSampleActivitySources, new AlwaysOffSampler());
+
+        tracing.SetSampler(
+            new ParentBasedSampler(
+                alwaysSampleRoot,
+                localParentNotSampled: alwaysSampleUnderUnsampledParent,
+                remoteParentNotSampled: alwaysSampleUnderUnsampledParent));
+    }
+
+    private static IReadOnlyList<string> ResolveAlwaysSampleActivitySources(IConfiguration configuration)
+    {
+        string[]? configured = configuration
+            .GetSection($"{ObservabilityHostOptions.SectionName}:Tracing:AlwaysSampleActivitySources")
+            .Get<string[]>();
+
+        HashSet<string> names = new(StringComparer.Ordinal);
+
+        if (configured is { Length: > 0 })
+        {
+            foreach (string entry in configured)
+            {
+                if (!string.IsNullOrWhiteSpace(entry))
+                    names.Add(entry.Trim());
+            }
+        }
+
+        if (names.Count == 0)
+            names.Add(ArchLucidInstrumentation.AuthorityRun.Name);
+
+        return names.ToArray();
     }
 }
