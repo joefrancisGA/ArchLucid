@@ -453,14 +453,16 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
 
     if (pathname.includes("llm-monthly-dollar-budget-status")) {
       return {
-        monthlyBudgetMonitoringActive: false,
+        monthlyBudgetMonitoringActive: true,
         blocksAdditionalLlmExecution: false,
         utcMonth: "2026-05",
-        hardCutoffUsdPerUtcMonth: null,
-        effectiveHardCapUsd: null,
-        purchasedCapBumpUsd: null,
-        estimatedUsdPressure: null,
-        assumedNextCallReservationUsd: null,
+        hardCutoffUsdPerUtcMonth: 100,
+        effectiveHardCapUsd: 100,
+        purchasedCapBumpUsd: 0,
+        estimatedUsdPressure: 42,
+        assumedNextCallReservationUsd: 1,
+        hardCapUtilizationFraction: 0.42,
+        warnFraction: 0.75,
       } as unknown;
     }
 

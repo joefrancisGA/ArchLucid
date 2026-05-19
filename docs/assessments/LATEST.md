@@ -230,7 +230,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted deficiency signal:** 12
 - **Why this score was assigned:** REST API, CLI, **operator UI**, SAML 2.0 SP, and OIDC provide strong **V1** interoperability. **CloudEvents webhooks**, **Microsoft Teams** chat-ops, **recipe** bridges, and **first-party** **Jira** / **ServiceNow** / **Confluence** / **Slack** are **V1.1** buyer-contract surfaces ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3); **`(A)`** does **not** penalize their absence for V1.
 - **Key tradeoffs:** SAML SP adds dual auth-surface operational burden.
-- **Specific improvement recommendations:** SAML SP certificate rotation runbook — **shipped** ([`docs/runbooks/SAML_CERT_ROTATION.md`](../runbooks/SAML_CERT_ROTATION.md); see improvement **#17**).
+- **Specific improvement recommendations:** SAML SP certificate rotation runbook — **shipped** ([`docs/runbooks/SAML_CERT_ROTATION.md`](../runbooks/SAML_CERT_ROTATION.md); see improvement **#17**). Knowledge graph GraphML CLI export — **shipped** (`archlucid graph export … --format graphml`; see improvement **#21**).
 - **Fixability:** Fixable in V1.
 
 ---
@@ -515,30 +515,32 @@ Create a runbook `docs/runbooks/SAML_CERT_ROTATION.md` detailing the steps to ro
 - Deliverable: `docs/runbooks/SAML_CERT_ROTATION.md`; `docs/runbooks/README.md` index row.
 ```
 
-### 18. Implement a dashboard panel for integration event outbox dead letters
+### 18. COMPLETED: Implement a dashboard panel for integration event outbox dead letters
 - **Why it matters:** Provides visual visibility into dead-letter queues, complementing the existing alert.
 - **Expected impact:** Observability (+10 pts), Reliability (+5 pts).
 - **Affected qualities:** Observability, Reliability.
-- **Actionable:** Yes
+- **Actionable:** No — delivered as a **timeseries** panel on **`infra/grafana/dashboard-archlucid-slo.json`** (Terraform-provisioned via **`grafana_dashboard.slo`** when managed Grafana dashboards are enabled): PromQL **`archlucid_integration_event_outbox_dead_letter`**, `${datasource}` Prometheus template, green/red threshold at **≥1**; pairs with **`ArchLucidIntegrationEventOutboxDeadLetter`** in **`infra/prometheus/archlucid-alerts.yml`**. Metric emission unchanged (`ArchLucidInstrumentation.cs`).
 ```text
-Add a panel to an existing operational Grafana dashboard to visualize the `archlucid_integration_event_outbox_dead_letter` gauge.
+Add a panel to an existing operational Grafana dashboard to visualize the `archlucid_integration_event_outbox_dead_letter` gauge. [COMPLETED]
 - Acceptance criteria: The panel clearly shows the dead-letter count over time.
 - Constraints: Use existing Prometheus data sources.
 - What not to change: Do not modify the metric emission logic.
 - Impact: Directly improves Observability (+8-10 pts) and Reliability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- Deliverable: `infra/grafana/dashboard-archlucid-slo.json` (panel id **4**); `docs/library/API_SLOS.md` § Outbox convergence row; `docs/library/OBSERVABILITY.md` dashboard table.
 ```
 
-### 19. Add a UI component to display the current LLM budget utilization fraction
+### 19. COMPLETED: Add a UI component to display the current LLM budget utilization fraction
 - **Why it matters:** Gives operators real-time visibility into their LLM budget usage directly in the UI.
 - **Expected impact:** Usability (+10 pts), Cost-Effectiveness (+5 pts).
 - **Affected qualities:** Usability, Cost-Effectiveness.
-- **Actionable:** Yes
+- **Actionable:** No — delivered as **`LlmBudgetUtilizationMeter`** on **`/settings/cost-reporting`**: reads cached **`GET /v1/admin/llm-monthly-dollar-budget-status`** (60s client cache shared with run wizards); progress bar uses **`hardCapUtilizationFraction`** and **`warnFraction`** (read-model projection only; tracker math unchanged).
 ```text
-Add a progress bar or gauge to the operator UI (e.g., in the settings or dashboard) showing the current LLM budget utilization fraction.
+Add a progress bar or gauge to the operator UI (e.g., in the settings or dashboard) showing the current LLM budget utilization fraction. [COMPLETED]
 - Acceptance criteria: The component reads from an appropriate API endpoint and displays the fraction visually, turning yellow/red near the warn fraction.
 - Constraints: Ensure the API endpoint used is performant and cached.
 - What not to change: Do not modify the backend budget calculation logic.
 - Impact: Directly improves Usability (+8-10 pts) and Cost-Effectiveness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- Deliverable: `archlucid-ui/src/components/LlmBudgetUtilizationMeter.tsx`; `archlucid-ui/src/lib/llm-monthly-budget-status.ts`; `LlmMonthlyTenantDollarBudgetStatusResult` display fields; cost-reporting settings card.
 ```
 
 ### 20. COMPLETED: Create a curated policy pack for GDPR compliance baseline
@@ -547,17 +549,18 @@ Add a progress bar or gauge to the operator UI (e.g., in the settings or dashboa
 - **Affected qualities:** Template and Accelerator Richness.
 - **Actionable:** No — delivered as V1 GA bundled default `gdpr-baseline` (`docs/samples/policy-packs/gdpr-baseline-rules-v1.json`); see [`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md).
 
-### 21. Implement a CLI command to export the knowledge graph to GraphML
+### 21. COMPLETED: Implement a CLI command to export the knowledge graph to GraphML
 - **Why it matters:** Allows advanced users to analyze the knowledge graph in external tools like Gephi.
 - **Expected impact:** Interoperability (+10 pts), Explainability (+5 pts).
 - **Affected qualities:** Interoperability, Explainability.
-- **Actionable:** Yes
+- **Actionable:** No — delivered as `archlucid graph export <runId> [--format mermaid|graphml] [--decision <key>] [--out <path>]` (`GraphExportCommand`); GraphML serialization via `GraphWireGraphMlFormatter` (standard GraphML 1.0 namespace + `xsi:schemaLocation`); wire DTO `GraphWireModel` only (no changes to `GraphSnapshot` / knowledge-graph storage). Unit tests: `ArchLucid.Cli.Tests/GraphWireGraphMlFormatterTests.cs`. CLI reference: [`CLI_USAGE.md`](../library/CLI_USAGE.md).
 ```text
-Add a command `archlucid graph export --format graphml` to the CLI to export the knowledge graph for a specific run.
+Add a command `archlucid graph export --format graphml` to the CLI to export the knowledge graph for a specific run. [COMPLETED]
 - Acceptance criteria: The command outputs a valid GraphML XML file representing the nodes and edges.
 - Constraints: Use standard GraphML schema.
 - What not to change: Do not modify the internal graph representation.
 - Impact: Directly improves Interoperability (+8-10 pts) and Explainability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- Deliverable: `ArchLucid.Cli/Commands/GraphExportCommand.cs`; `ArchLucid.Cli/Commands/GraphWireGraphMlFormatter.cs`; `ArchLucid.Cli.Tests/GraphWireGraphMlFormatterTests.cs`.
 ```
 
 ### 22. Implement a dashboard panel for compliance drift trend
@@ -621,7 +624,7 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 1 (Observability & Dashboards):** 3, 9, 18, 22, 25
 - **Batch 2 (UI & UX Enhancements):** 5, 8, 19, 23 *(14 completed)*
 - **Batch 3 (Reliability & Health Checks):** 15 *(12 completed)*
-- **Batch 4 (CLI & Export Features):** 21 *(10, 16 completed)*
+- **Batch 4 (CLI & Export Features):** *(10, 16, 21 completed)*
 - **Batch 5 (Policy Packs & Runbooks):** *(6, 17, 20 completed)*
 - **Batch 6 (Testing & Code Quality):** 4, 7, 24
 

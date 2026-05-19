@@ -93,6 +93,58 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusServiceTests
         r.EstimatedUsdPressure.Should().Be(100m);
         r.AssumedNextCallReservationUsd.Should().Be(1m);
         r.EffectiveHardCapUsd.Should().Be(75m);
+        r.HardCapUtilizationFraction.Should().BeApproximately(100.0 / 75.0, 0.0001);
+        r.WarnFraction.Should().Be(0.75m);
+    }
+
+    [SkippableFact]
+    public async Task GetStatusAsync_WhenMonitoringActive_ExposesUtilizationAndWarnFraction()
+    {
+        Guid tenantId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        InMemoryLlmTenantBudgetRepository repo = new();
+        string periodKey = "2026-05";
+        LlmTenantBudgetStateReadModel row =
+            await repo.GetOrCreateAsync(tenantId, LlmBudgetPeriod.Monthly, periodKey, default);
+        LlmTenantBudgetSettleResult settled = await repo.SettleAsync(
+            new LlmTenantBudgetSettleRequest
+            {
+                TenantId = tenantId,
+                Period = LlmBudgetPeriod.Monthly,
+                PeriodKey = periodKey,
+                ActualUsd = 30m,
+                ReleaseReservedUsd = 0m,
+                WarnAtUsd = 999_999m,
+                ExpectedRowVersion = row.RowVersion
+            },
+            default);
+        settled.NewState.Should().NotBeNull();
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+        Mock<ILlmCostEstimator> cost = new();
+        cost.Setup(c => c.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(1m);
+        Mock<IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>> monitor = new();
+        monitor.Setup(m => m.CurrentValue).Returns(
+            new LlmMonthlyTenantDollarBudgetOptions
+            {
+                Enabled = true,
+                HardCutoffUsdPerUtcMonth = 100m,
+                WarnFraction = 0.8m,
+                AssumedMaxPromptTokensPerRequest = 100,
+                AssumedMaxCompletionTokensPerRequest = 100
+            });
+
+        LlmMonthlyTenantDollarBudgetStatusService sut = new(
+            new FixedUtcTimeProvider(new DateTime(2026, 5, 14, 12, 0, 0, DateTimeKind.Utc)),
+            monitor.Object,
+            cost.Object,
+            repo,
+            scope.Object);
+
+        LlmMonthlyTenantDollarBudgetStatusResult r = await sut.GetStatusAsync();
+
+        r.HardCapUtilizationFraction.Should().BeApproximately(0.3, 0.0001);
+        r.WarnFraction.Should().Be(0.8m);
     }
 
     [SkippableFact]

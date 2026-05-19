@@ -1,20 +1,11 @@
 import { useEffect, useState } from "react";
 
-import { apiGet } from "@/lib/api";
+import {
+  fetchLlmMonthlyDollarBudgetStatusCached,
+  type LlmMonthlyDollarBudgetStatus,
+} from "@/lib/llm-monthly-budget-status";
 
-const LLM_MONTHLY_DOLLAR_BUDGET_STATUS_PATH = "/v1/admin/llm-monthly-dollar-budget-status";
-
-/** Mirrors `GET /v1/admin/llm-monthly-dollar-budget-status` (camelCase JSON). */
-export type LlmMonthlyDollarBudgetStatus = {
-  monthlyBudgetMonitoringActive: boolean;
-  blocksAdditionalLlmExecution: boolean;
-  utcMonth: string;
-  hardCutoffUsdPerUtcMonth: number | null;
-  effectiveHardCapUsd: number | null;
-  purchasedCapBumpUsd: number | null;
-  estimatedUsdPressure: number | null;
-  assumedNextCallReservationUsd: number | null;
-};
+export type { LlmMonthlyDollarBudgetStatus };
 
 /**
  * Loads tenant LLM monthly dollar gate state for run creation. On fetch failure, fails open (does not block runs)
@@ -33,7 +24,7 @@ export function useLlmMonthlyBudgetExecutionGate(): {
 
     void (async () => {
       try {
-        const data = await apiGet<LlmMonthlyDollarBudgetStatus>(LLM_MONTHLY_DOLLAR_BUDGET_STATUS_PATH);
+        const data = await fetchLlmMonthlyDollarBudgetStatusCached();
 
         if (!cancelled) {
           setStatus(data);

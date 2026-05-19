@@ -65,6 +65,11 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusService(
 
         decimal effectiveMax = opts.HardCutoffUsdPerUtcMonth + state.PurchasedCapBumpUsd;
         decimal pressure = state.TotalUsdPressure;
+        decimal warnFraction = decimal.Clamp(opts.WarnFraction, 0.01m, 0.99m);
+        double utilizationFraction = LlmBudgetTelemetry.MonthlyHardCapUtilizationFraction(
+            pressure,
+            opts.HardCutoffUsdPerUtcMonth,
+            state.PurchasedCapBumpUsd);
 
         // Match LlmMonthlyTenantDollarBudgetTracker: no positive reservation → gate does not run.
         if (assumedUsd <= 0m)
@@ -78,7 +83,9 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusService(
                 EffectiveHardCapUsd = effectiveMax,
                 PurchasedCapBumpUsd = state.PurchasedCapBumpUsd,
                 EstimatedUsdPressure = pressure,
-                AssumedNextCallReservationUsd = null
+                AssumedNextCallReservationUsd = null,
+                HardCapUtilizationFraction = utilizationFraction,
+                WarnFraction = warnFraction
             };
         }
 
@@ -93,7 +100,9 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusService(
             EffectiveHardCapUsd = effectiveMax,
             PurchasedCapBumpUsd = state.PurchasedCapBumpUsd,
             EstimatedUsdPressure = pressure,
-            AssumedNextCallReservationUsd = assumedUsd
+            AssumedNextCallReservationUsd = assumedUsd,
+            HardCapUtilizationFraction = utilizationFraction,
+            WarnFraction = warnFraction
         };
     }
 
@@ -107,7 +116,9 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusService(
             EffectiveHardCapUsd = null,
             PurchasedCapBumpUsd = null,
             EstimatedUsdPressure = null,
-            AssumedNextCallReservationUsd = null
+            AssumedNextCallReservationUsd = null,
+            HardCapUtilizationFraction = null,
+            WarnFraction = null
         };
 
     private static string FormatUtcMonthKey(DateTime utc) =>

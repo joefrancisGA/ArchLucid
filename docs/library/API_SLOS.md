@@ -101,6 +101,7 @@ Endpoints are grouped so **synchronous health/metadata**, **standard API reads/w
 |-----|--------|-------------|----------------|
 | **Oldest actionable integration outbox row** | **p99 processing within 30 s** under steady state (aspirational) | Gauge `archlucid_integration_event_outbox_oldest_actionable_pending_age_seconds` (OTel meter **ArchLucid**) | Prometheus scrape; recording rule `archlucid:slo:integration_event_outbox_oldest_age_seconds` in `infra/prometheus/archlucid-slo-rules.yml` |
 | **Early warning** | Age **> 60 s** for **5 minutes** | Same gauge | `ArchLucidIntegrationEventOutboxConvergenceSlow` in `infra/prometheus/archlucid-alerts.yml` |
+| **Dead-letter rows** | **Zero** in steady state | Gauge `archlucid_integration_event_outbox_dead_letter` | `ArchLucidIntegrationEventOutboxDeadLetter` in `archlucid-alerts.yml`; Grafana panel on `infra/grafana/dashboard-archlucid-slo.json` |
 
 **Notes:** The **1 h** stale alert (`ArchLucidIntegrationEventOutboxPublishStale`) remains the **severe** signal; the **60 s** rule is a **tighter** guardrail for environments where publish latency must stay low. Tune or silence in noisy stacks.
 

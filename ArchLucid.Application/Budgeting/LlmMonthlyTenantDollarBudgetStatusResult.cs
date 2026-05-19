@@ -56,4 +56,21 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusResult
         get;
         init;
     }
+
+    /// <summary>
+    ///     <c>TotalUsdPressure / (HardCutoff + PurchasedCapBump)</c> when monitoring is active; same math as
+    ///     <see cref="ArchLucid.Core.Budgeting.LlmBudgetTelemetry.MonthlyHardCapUtilizationFraction" />.
+    /// </summary>
+    public double? HardCapUtilizationFraction
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Configured <c>LlmMonthlyTenantDollarBudget:WarnFraction</c> (clamped 0.01–0.99) for operator UI thresholds.</summary>
+    public decimal? WarnFraction
+    {
+        get;
+        init;
+    }
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { EstimatedLlmCostBarChart } from "@/components/EstimatedLlmCostBarChart";
+import { LlmBudgetUtilizationMeter } from "@/components/LlmBudgetUtilizationMeter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -79,6 +80,19 @@ export function CostReportingSettingsPageView(props: Props) {
           returns valid JSON.
         </p>
       ) : null}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">LLM budget utilization</CardTitle>
+          <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+            UTC-month hard cap usage from <span className="font-mono text-xs">GET /v1/admin/llm-monthly-dollar-budget-status</span>
+            . Bar turns amber near the configured warn fraction and red at the hard cap.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <LlmBudgetUtilizationMeter />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

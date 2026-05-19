@@ -43,7 +43,7 @@ The CLI talks to the ArchLucid API over HTTP. Resolution order:
 
 A trailing slash is trimmed (e.g. `http://localhost:5128/` → `http://localhost:5128`).
 
-The API must be running for `run`, `status`, `trace`, `run-support-packet`, `submit`, `commit`, `seed`, `artifacts`, `first-value-report`, `reference-evidence` (alias **`proof-pack`**), `health`, `doctor` / `check`, and **`support-bundle`**. Use `health` for a quick ping (`GET /health`); use **`doctor`** (alias **`check`**) for liveness + readiness JSON and local project checks (`GET /health/live`, `GET /health/ready`).
+The API must be running for `run`, `status`, `trace`, `run-support-packet`, `submit`, `commit`, `seed`, `artifacts`, `first-value-report`, `reference-evidence` (alias **`proof-pack`**), `graph export`, `health`, `doctor` / `check`, and **`support-bundle`**. Use `health` for a quick ping (`GET /health`); use **`doctor`** (alias **`check`**) for liveness + readiness JSON and local project checks (`GET /health/live`, `GET /health/ready`).
 
 **Quarterly board-pack PDF (`ExecuteAuthority`, Standard tier):** `POST /v1/pilots/board-pack.pdf` with JSON body `{ "year": 2026, "quarter": 1 }` returns `application/pdf`. Example (bash) with scope headers + API key:
 
@@ -94,6 +94,7 @@ curl -sS -X POST "$ARCHLUCID_API_URL/v1/pilots/board-pack.pdf" \
 | `comparisons drift <comparisonRecordId>` | Run drift analysis for a saved comparison record. |
 | `comparisons diagnostics` | Show recent replay activity (requires replay diagnostics permission). |
 | `comparisons tag <comparisonRecordId>` | Update label and tags on a comparison record. |
+| `graph export <runId> [--format mermaid\|graphml] [--decision <key>] [--out <path>]` | Fetch the provenance knowledge graph from **`GET /v1/authority/runs/{runId}/graph`** (or **`…/graph/decision/{decisionKey}`** when **`--decision`** is set) and emit **Mermaid** flowchart (default) or **GraphML** XML. GraphML uses the standard GraphML namespace and schema location for tools such as Gephi. Writes to stdout (GraphML is raw XML; Mermaid is a fenced-free diagram block) or **`--out`**. Requires **`ReadAuthority`** scope and a GUID **`runId`**. |
 | `completions bash` \| `zsh` \| `powershell` | Print a shell completion script to stdout (source from your profile). |
 
 **Before sending a support bundle:** open every generated file once; put **correlation** (**`X-Correlation-ID`** / **`correlationId`**) and **run id** in the ticket text; never attach raw **`.env`** or Key Vault dumps; expect **LLM prompt bodies to be truncated** in **`logs.json`** by design; if you used **`--zip`**, unzip and re-scan for literals your policy forbids. Full checklist: [TROUBLESHOOTING.md](../TROUBLESHOOTING.md#support-bundle-attach-to-tickets).

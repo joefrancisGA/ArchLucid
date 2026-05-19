@@ -259,7 +259,7 @@ Wiring: **`ObservabilityTraceSamplingConfigurator.ConfigureTraceSampling`** runs
 | File | Purpose |
 |------|---------|
 | `dashboard-archlucid-authority.json` | Authority pipeline spans and throughput. |
-| `dashboard-archlucid-slo.json` | HTTP SLO / burn-rate style panels. |
+| `dashboard-archlucid-slo.json` | HTTP SLO / burn-rate style panels; integration outbox dead-letter gauge (`archlucid_integration_event_outbox_dead_letter`). |
 | `dashboard-archlucid-llm-usage.json` | LLM token rates. |
 | `dashboards/archlucid-container-apps-overview.json` | Container Apps overview. |
 | **`dashboard-archlucid-run-lifecycle.json`** | Run-lifecycle / traceability: template variable **`runId`**, links to API audit search, authority stage histograms, circuit breaker rates — use with [runbooks/TRACE_A_RUN.md](../runbooks/TRACE_A_RUN.md). |

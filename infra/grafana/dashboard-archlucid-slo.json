@@ -64,8 +64,22 @@
     },
     {
       "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "description": "Observable gauge `archlucid_integration_event_outbox_dead_letter` — integration outbox rows in dead-letter state (pairs with Prometheus alert when count > 0).",
-      "fieldConfig": { "defaults": { "decimals": 0, "min": 0 }, "overrides": [] },
+      "description": "Observable gauge `archlucid_integration_event_outbox_dead_letter` — integration outbox rows in dead-letter state. Prometheus **`ArchLucidIntegrationEventOutboxDeadLetter`** fires when **`> 0`** for **10m**; panel marks **≥1** red.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
       "id": 4,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } },
@@ -103,6 +117,6 @@
   "timezone": "browser",
   "title": "ArchLucid — SLO signals (HTTP + LLM)",
   "uid": "archlucid-slo",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }

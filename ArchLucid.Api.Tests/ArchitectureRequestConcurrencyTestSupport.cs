@@ -323,7 +323,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
 
             if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
             {
-                await response.EnsureSuccessStatusCode();
+                response.EnsureSuccessStatusCode();
                 return;
             }
 
