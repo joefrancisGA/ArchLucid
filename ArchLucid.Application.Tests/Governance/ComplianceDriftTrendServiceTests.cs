@@ -1,5 +1,6 @@
 ﻿using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Decisioning.Governance.ComplianceDrift;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 using FluentAssertions;
@@ -12,6 +13,23 @@ public sealed class ComplianceDriftTrendServiceTests
 {
     private static readonly Guid TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
 
+    private static ComplianceDriftTrendService CreateSut(
+        Mock<IPolicyPackChangeLogRepository> repo,
+        IReadOnlyDictionary<DateTime, ComplianceDriftFindingsBucketCounts>? findingsBuckets = null)
+    {
+        Mock<IComplianceDriftFindingsTrendReader> findings = new();
+        findingsBuckets ??= new Dictionary<DateTime, ComplianceDriftFindingsBucketCounts>();
+        findings.Setup(f => f.GetBucketCountsAsync(
+                TenantId,
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<TimeSpan>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(findingsBuckets);
+
+        return new ComplianceDriftTrendService(repo.Object, findings.Object);
+    }
+
     [SkippableFact]
     public async Task GetTrendAsync_EmptyRange_ProducesZeroBuckets()
     {
@@ -21,7 +39,7 @@ public sealed class ComplianceDriftTrendServiceTests
         repo.Setup(r => r.GetByTenantInRangeAsync(TenantId, from, to, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        ComplianceDriftTrendService sut = new(repo.Object);
+        ComplianceDriftTrendService sut = CreateSut(repo);
 
         IReadOnlyList<ComplianceDriftTrendPoint> points = await sut.GetTrendAsync(
             TenantId,
@@ -78,7 +96,7 @@ public sealed class ComplianceDriftTrendServiceTests
         repo.Setup(r => r.GetByTenantInRangeAsync(TenantId, from, to, It.IsAny<CancellationToken>()))
             .ReturnsAsync([e1, e2, e3]);
 
-        ComplianceDriftTrendService sut = new(repo.Object);
+        ComplianceDriftTrendService sut = CreateSut(repo);
 
         IReadOnlyList<ComplianceDriftTrendPoint> points = await sut.GetTrendAsync(
             TenantId,
@@ -95,9 +113,37 @@ public sealed class ComplianceDriftTrendServiceTests
     }
 
     [SkippableFact]
+    public async Task GetTrendAsync_MergesFindingsBucketCounts()
+    {
+        Mock<IPolicyPackChangeLogRepository> repo = new();
+        DateTime from = new(2026, 5, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime to = from.AddDays(1);
+        repo.Setup(r => r.GetByTenantInRangeAsync(TenantId, from, to, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Dictionary<DateTime, ComplianceDriftFindingsBucketCounts> findingsBuckets = new()
+        {
+            [from] = new ComplianceDriftFindingsBucketCounts { OpenFindingsCount = 3, ResolvedFindingsCount = 1 },
+        };
+
+        ComplianceDriftTrendService sut = CreateSut(repo, findingsBuckets);
+
+        IReadOnlyList<ComplianceDriftTrendPoint> points = await sut.GetTrendAsync(
+            TenantId,
+            from,
+            to,
+            TimeSpan.FromDays(1),
+            CancellationToken.None);
+
+        points.Should().ContainSingle();
+        points[0].OpenFindingsCount.Should().Be(3);
+        points[0].ResolvedFindingsCount.Should().Be(1);
+    }
+
+    [SkippableFact]
     public async Task GetTrendAsync_InvalidTenant_Throws()
     {
-        ComplianceDriftTrendService sut = new(Mock.Of<IPolicyPackChangeLogRepository>());
+        ComplianceDriftTrendService sut = CreateSut(new Mock<IPolicyPackChangeLogRepository>());
         DateTime from = new(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc);
 
         Func<Task> act = () => sut.GetTrendAsync(

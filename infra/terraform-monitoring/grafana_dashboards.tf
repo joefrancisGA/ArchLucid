@@ -31,6 +31,13 @@ resource "grafana_dashboard" "llm_usage" {
   config_json = file("${path.module}/../grafana/dashboard-archlucid-llm-usage.json")
 }
 
+resource "grafana_dashboard" "llm_genai" {
+  count = local.grafana_dashboards_enabled ? 1 : 0
+
+  folder      = grafana_folder.archlucid[0].id
+  config_json = file("${path.module}/../grafana/dashboard-archlucid-llm.json")
+}
+
 resource "grafana_dashboard" "authority" {
   count = local.grafana_dashboards_enabled ? 1 : 0
 

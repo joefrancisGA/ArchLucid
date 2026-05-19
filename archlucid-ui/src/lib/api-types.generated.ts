@@ -23499,6 +23499,10 @@ export interface components {
             changesByType?: {
                 [key: string]: number;
             };
+            /** Format: int32 */
+            openFindingsCount?: number;
+            /** Format: int32 */
+            resolvedFindingsCount?: number;
         };
         CompliancePostureItem: {
             appliesToCategory?: string;

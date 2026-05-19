@@ -563,17 +563,18 @@ Add a command `archlucid graph export --format graphml` to the CLI to export the
 - Deliverable: `ArchLucid.Cli/Commands/GraphExportCommand.cs`; `ArchLucid.Cli/Commands/GraphWireGraphMlFormatter.cs`; `ArchLucid.Cli.Tests/GraphWireGraphMlFormatterTests.cs`.
 ```
 
-### 22. Implement a dashboard panel for compliance drift trend
+### 22. COMPLETED: Implement a dashboard panel for compliance drift trend
 - **Why it matters:** Provides visual visibility into how compliance is changing over time.
 - **Expected impact:** Executive Value Visibility (+10 pts), Stickiness (+5 pts).
 - **Affected qualities:** Executive Value Visibility, Stickiness.
-- **Actionable:** Yes
+- **Actionable:** No — delivered on **`/dashboard`** (`ExecutiveComplianceDriftTrendSection`, `ComplianceDriftOpenResolvedChart`): 30-day window, stacked daily bars for **opened** vs **resolved** findings. API: extended **`GET /v1/governance/compliance-drift-trend`** (`openFindingsCount`, `resolvedFindingsCount`) via audit bucketing (`IComplianceDriftFindingsTrendReader` / Dapper + in-memory); findings schema unchanged.
 ```text
-Add a panel to the executive dashboard to visualize the compliance drift trend over the last 30 days.
+Add a panel to the executive dashboard to visualize the compliance drift trend over the last 30 days. [COMPLETED]
 - Acceptance criteria: The panel clearly shows the trend of open vs. resolved findings.
 - Constraints: Read from existing aggregated data or perform an efficient query.
 - What not to change: Do not modify the underlying findings data model.
 - Impact: Directly improves Executive Value Visibility (+8-10 pts) and Stickiness (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
+- Deliverable: `ExecutiveComplianceDriftTrendSection.tsx`; `ComplianceDriftOpenResolvedChart.tsx`; `ComplianceDriftTrendPoint` + `ComplianceDriftTrendService` + `DapperComplianceDriftFindingsTrendReader`.
 ```
 
 ### 23. COMPLETED: Add operator-facing documentation for projection cache and multi-replica limitations
@@ -590,30 +591,32 @@ Add an operator-facing doc (e.g. `docs/operations/PROJECTION_CACHE_AND_REPLICAS.
 - Deliverable: `docs/operations/PROJECTION_CACHE_AND_REPLICAS.md`; `archlucid-ui/src/lib/contextual-help-content.ts`; `archlucid-ui/src/lib/help-topics.ts`; `archlucid-ui/src/app/(operator)/settings/tenant/_sections/TenantSettingsPageView.tsx`.
 ```
 
-### 24. Add automated tests that reject inbound webhooks with invalid HMAC signatures
+### 24. COMPLETED: Add automated tests that reject inbound webhooks with invalid HMAC signatures
 - **Why it matters:** CloudEvents subscribers must not accept **forged** deliveries; contract tests prevent regressions in verification middleware.
 - **Expected impact:** Correctness (+10 pts), Testability (+8 pts).
 - **Affected qualities:** Correctness, Testability.
-- **Actionable:** Yes
+- **Actionable:** No — delivered as `ArchLucid.Api.Tests/Integrations/InboundWebhookHmacSignatureIntegrationTests.cs` (missing / wrong / missing-token → **401**; valid `X-ArchLucid-Webhook-Signature` + token → passes HMAC gate → **400** for non-Jira canonical body); `WebhookSecrets.IsValidHmacSha256Signature` accepts `sha256=` prefix; `ItsmInboundWebhooksController` checks `X-ArchLucid-Webhook-Signature` then legacy `X-ArchLucid-Signature`. Unit tests: `ArchLucid.Core.Tests/Security/WebhookSecretsTests.cs`.
 ```text
-Add Core/API tests that POST representative webhook payloads with missing, wrong, and well-formed `X-ArchLucid-Webhook-Signature` values and assert 401/400 (per contract) — reuse `INTEGRATION_EVENTS_AND_WEBHOOKS.md` canonical examples.
+Add Core/API tests that POST representative webhook payloads with missing, wrong, and well-formed `X-ArchLucid-Webhook-Signature` values and assert 401/400 (per contract) — reuse `INTEGRATION_EVENTS_AND_WEBHOOKS.md` canonical examples. [COMPLETED]
 - Acceptance criteria: At least three negative cases + one positive case; no live vendor calls.
 - Constraints: Use existing test harness patterns; keep secrets out of tests.
 - What not to change: Do not weaken production verification logic to make tests pass.
 - Impact: Directly improves Correctness (+8-10 pts) and Testability (+5-8 pts). Weighted readiness impact: +0.15-0.25%.
+- Deliverable: `ArchLucid.Api.Tests/Integrations/InboundWebhookHmacSignatureIntegrationTests.cs`; `ArchLucid.Core/Security/WebhookSecrets.cs`; `ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs`.
 ```
 
-### 25. Add Grafana panel for GenAI request latency (p95) from existing OTel GenAI metrics
+### 25. COMPLETED: Add Grafana panel for GenAI request latency (p95) from existing OTel GenAI metrics
 - **Why it matters:** Operators still need **SLO depth** tying LLM spend to latency; complements token metrics already emitted.
 - **Expected impact:** Observability (+10 pts), AI/Agent Readiness (+5 pts).
 - **Affected qualities:** Observability, AI/Agent Readiness.
-- **Actionable:** Yes
+- **Actionable:** No — delivered on **`infra/grafana/dashboard-archlucid-llm-usage.json`** (Terraform **`grafana_dashboard.llm_usage`**) and **`dashboard-archlucid-llm.json`** (**`grafana_dashboard.llm_genai`**): **24h** default range, **p95** from **`archlucid_llm_gen_ai_operation_duration_ms`** (`RecordLlmGenAiOperationDurationMilliseconds`); panel descriptions document PromQL (Prometheus meter scrape, not Loki). **`llm_deployment`** on token-rate panels; **`tenant_id`** on budget gauges — duration histogram has **`gen_ai_operation_name`** + **`status`** only (no new metrics).
 ```text
-Extend `infra/grafana/` dashboards (or add a panel to an existing operational dashboard) charting p95 GenAI completion latency from OpenTelemetry GenAI metrics already produced by the host — document the PromQL/Loki source in the dashboard annotation.
+Extend `infra/grafana/` dashboards (or add a panel to an existing operational dashboard) charting p95 GenAI completion latency from OpenTelemetry GenAI metrics already produced by the host — document the PromQL/Loki source in the dashboard annotation. [COMPLETED]
 - Acceptance criteria: Panel shows p95 latency over 24h with tenant or deployment label where available.
 - Constraints: Do not add new custom metrics unless an existing series is truly absent — prefer `grep`/dashboard reuse from current exporters.
 - What not to change: Do not change LLM call paths; dashboard-only deliverable.
 - Impact: Directly improves Observability (+8-10 pts) and AI/Agent Readiness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- Deliverable: `infra/grafana/dashboard-archlucid-llm-usage.json`; `infra/grafana/dashboard-archlucid-llm.json`; `infra/terraform-monitoring/grafana_dashboards.tf`; `infra/grafana/dashboards/README.md`.
 ```
 
 ---
@@ -622,12 +625,12 @@ Extend `infra/grafana/` dashboards (or add a panel to an existing operational da
 
 To optimize context window usage and cost-effectiveness, batch the actionable prompts as follows:
 
-- **Batch 1 (Observability & Dashboards):** 3, 9, 18, 22, 25
+- **Batch 1 (Observability & Dashboards):** 3, 9, 18, 22 *(25 completed)*
 - **Batch 2 (UI & UX Enhancements):** 5, 8, 19 *(14, 23 completed)*
 - **Batch 3 (Reliability & Health Checks):** 15 *(12 completed)*
 - **Batch 4 (CLI & Export Features):** *(10, 16, 21 completed)*
 - **Batch 5 (Policy Packs & Runbooks):** *(6, 17, 20 completed)*
-- **Batch 6 (Testing & Code Quality):** 4, 7, 24
+- **Batch 6 (Testing & Code Quality):** 4, 7 *(24 completed)*
 
 ---
 

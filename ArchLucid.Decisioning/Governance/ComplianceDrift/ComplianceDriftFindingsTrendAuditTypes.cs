@@ -1,6 +1,6 @@
 using ArchLucid.Core.Audit;
 
-namespace ArchLucid.Application.Governance;
+namespace ArchLucid.Decisioning.Governance.ComplianceDrift;
 
 /// <summary>Audit event types mapped to compliance-drift findings trend buckets (no findings schema changes).</summary>
 public static class ComplianceDriftFindingsTrendAuditTypes

@@ -9,9 +9,43 @@
   "panels": [
     {
       "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "**PromQL (Prometheus meter `ArchLucid`, not Loki):** `histogram_quantile(0.95, sum(rate(archlucid_llm_gen_ai_operation_duration_ms_bucket{gen_ai_operation_name=\"chat\",status=\"ok\"}[15m])) by (le))`\n\n**Metric:** `archlucid_llm_gen_ai_operation_duration_ms` from `ArchLucidInstrumentation.RecordLlmGenAiOperationDurationMilliseconds` (OpenTelemetry histogram exported via `Observability:Prometheus:Enabled` scrape of `/metrics`).\n\n**Labels on this histogram:** `gen_ai_operation_name` (`chat` | `embeddings`), `status` (`ok` | `error`). **No `tenant_id` or `llm_deployment`** on duration — use the **Completion tokens / s** panel for deployment breakdown.\n\n**Dashboard time:** default **24h**; rate window **15m** for stable p95 over a day.",
+      "fieldConfig": { "defaults": { "decimals": 0, "unit": "ms" }, "overrides": [] },
+      "gridPos": { "h": 9, "w": 16, "x": 0, "y": 0 },
+      "id": 10,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(archlucid_llm_gen_ai_operation_duration_ms_bucket{gen_ai_operation_name=\"chat\",status=\"ok\"}[15m])) by (le))",
+          "legendFormat": "chat ok p95",
+          "refId": "A"
+        }
+      ],
+      "title": "GenAI chat completion latency p95 (24h)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "**PromQL:** `histogram_quantile(0.95, sum(rate(archlucid_llm_gen_ai_operation_duration_ms_bucket{gen_ai_operation_name=\"chat\"}[15m])) by (le, status))` — same histogram as the 24h panel; splits **ok** vs **error** chat completions.",
+      "fieldConfig": { "defaults": { "decimals": 0, "unit": "ms" }, "overrides": [] },
+      "gridPos": { "h": 9, "w": 8, "x": 16, "y": 0 },
+      "id": 11,
+      "options": { "legend": { "displayMode": "table", "placement": "right" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(archlucid_llm_gen_ai_operation_duration_ms_bucket{gen_ai_operation_name=\"chat\"}[15m])) by (le, status))",
+          "legendFormat": "chat {{status}} p95",
+          "refId": "A"
+        }
+      ],
+      "title": "GenAI chat p95 by status",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
       "description": "Cumulative LLM prompt (input) tokens from ArchLucid instrumentation; labels llm_provider / llm_deployment when set.",
       "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
       "id": 1,
       "options": { "legend": { "displayMode": "table", "placement": "right" }, "tooltip": { "mode": "multi" } },
       "targets": [
@@ -28,7 +62,7 @@
       "datasource": { "type": "prometheus", "uid": "${datasource}" },
       "description": "Cumulative LLM completion (output) tokens.",
       "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
       "id": 2,
       "options": { "legend": { "displayMode": "table", "placement": "right" }, "tooltip": { "mode": "multi" } },
       "targets": [
@@ -48,7 +82,7 @@
         "defaults": { "unit": "currencyUSD", "decimals": 2, "color": { "mode": "palette-classic" } },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 17 },
       "id": 3,
       "options": { "legend": { "displayMode": "table", "placement": "right" }, "tooltip": { "mode": "multi" } },
       "targets": [
@@ -81,10 +115,10 @@
       }
     ]
   },
-  "time": { "from": "now-6h", "to": "now" },
+  "time": { "from": "now-24h", "to": "now" },
   "timezone": "browser",
   "title": "ArchLucid — LLM usage",
   "uid": "archlucid-llm-usage",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }

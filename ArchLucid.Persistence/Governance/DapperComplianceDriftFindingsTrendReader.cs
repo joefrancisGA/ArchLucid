@@ -1,4 +1,4 @@
-using ArchLucid.Application.Governance;
+using ArchLucid.Decisioning.Governance.ComplianceDrift;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;

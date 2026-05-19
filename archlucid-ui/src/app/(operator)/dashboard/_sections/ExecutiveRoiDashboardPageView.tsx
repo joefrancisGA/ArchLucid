@@ -2,6 +2,7 @@ import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboardin
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
+import { ExecutiveComplianceDriftTrendSection } from "./ExecutiveComplianceDriftTrendSection";
 import { ExecutiveDashboardBaselineWarningBanner } from "./ExecutiveDashboardBaselineWarningBanner";
 import { ExecutiveSqlBackupRegionVerificationCard } from "./ExecutiveSqlBackupRegionVerificationCard";
 import { executiveRoiDashboardMockKpis } from "./executive-roi-dashboard-mock-kpis";
@@ -77,6 +78,8 @@ export function ExecutiveRoiDashboardPageView() {
           </Card>
         </div>
       </section>
+
+      <ExecutiveComplianceDriftTrendSection />
     </div>
   );
 }

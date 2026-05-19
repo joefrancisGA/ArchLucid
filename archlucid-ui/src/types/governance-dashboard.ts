@@ -29,6 +29,10 @@ export interface ComplianceDriftTrendPoint {
   bucketUtc: string;
   changeCount: number;
   changesByType: Record<string, number>;
+  /** Findings captured (`FindingsSnapshotSealed` audit events) in this bucket. */
+  openFindingsCount?: number;
+  /** Human review dispositions in this bucket. */
+  resolvedFindingsCount?: number;
 }
 
 /** GET /v1/governance/approval-requests/{id}/lineage */

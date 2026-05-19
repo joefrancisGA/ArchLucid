@@ -62,7 +62,22 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
   }
 
   if (pathname === "/v1/governance/compliance-drift-trend") {
-    return [];
+    return [
+      {
+        bucketUtc: "2026-04-10T00:00:00.000Z",
+        changeCount: 2,
+        changesByType: { Created: 2 },
+        openFindingsCount: 4,
+        resolvedFindingsCount: 1,
+      },
+      {
+        bucketUtc: "2026-04-11T00:00:00.000Z",
+        changeCount: 0,
+        changesByType: {},
+        openFindingsCount: 2,
+        resolvedFindingsCount: 3,
+      },
+    ];
   }
 
   if (pathname === "/v1/governance-resolution") {

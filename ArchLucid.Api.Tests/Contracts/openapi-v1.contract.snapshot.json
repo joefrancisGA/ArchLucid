@@ -3600,6 +3600,14 @@
               "type": "integer"
             },
             "type": "object"
+          },
+          "openFindingsCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "resolvedFindingsCount": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
