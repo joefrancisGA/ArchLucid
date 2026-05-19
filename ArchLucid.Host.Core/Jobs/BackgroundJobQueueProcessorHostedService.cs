@@ -156,7 +156,9 @@ public sealed class BackgroundJobQueueProcessorHostedService(
 
             await repository.MarkPendingRetryAsync(jobId, nextRetry, ex.Message, stoppingToken);
 
-            int delayMs = (int)Math.Min(1000 * Math.Pow(2, nextRetry - 1), 30_000);
+            int baseDelayMs = (int)Math.Min(1000 * Math.Pow(2, nextRetry - 1), 30_000);
+            int jitterSpan = baseDelayMs * 20 / 100;
+            int delayMs = baseDelayMs + Random.Shared.Next(-jitterSpan, jitterSpan + 1);
             await Task.Delay(delayMs, stoppingToken);
 
             int pending = await repository.CountNonTerminalAsync(stoppingToken);
