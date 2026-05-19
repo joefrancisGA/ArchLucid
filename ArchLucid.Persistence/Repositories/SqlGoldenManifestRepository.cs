@@ -206,6 +206,7 @@ public sealed class SqlGoldenManifestRepository(
                         scope.ProjectId,
                         ManifestId = manifestId
                     },
+                    flags: CommandFlags.None,
                     cancellationToken: ct));
 
             if (row is null)

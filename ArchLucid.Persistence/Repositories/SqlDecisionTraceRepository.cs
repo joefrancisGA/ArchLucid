@@ -95,6 +95,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
             new CommandDefinition(
                 sql,
                 new { scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId, DecisionTraceId = decisionTraceId },
+                flags: CommandFlags.None,
                 cancellationToken: ct));
 
         if (row is null)
