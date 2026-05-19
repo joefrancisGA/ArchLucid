@@ -188,7 +188,9 @@ describe("RunsDashboardPanel", () => {
     });
     fireEvent.click(screen.getByRole("tab", { name: /needs attention/i }));
 
-    expect(await screen.findByLabelText(/Run pipeline status: Ready to finalize/i)).toBeInTheDocument();
+    expect(
+      await screen.findByLabelText(/Architecture review pipeline status: Ready to finalize/i),
+    ).toBeInTheDocument();
   });
 
   it("buyer-polished showcase banner uses manifest primary, omits full-review CTA, and hides full list when only sample run", async () => {

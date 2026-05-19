@@ -10,16 +10,16 @@ export type GlossaryDefinitionEntry = {
 
 export const GLOSSARY_DEFINITIONS = {
   run: {
-    displayLabel: "Run",
-    shortDefinition: "A single architecture review work unit from intake through finalized outputs.",
+    displayLabel: "Architecture review",
+    shortDefinition: "The end-to-end work unit from intake through finalized outputs for one architecture question.",
     longDefinition:
-      "A run captures one architecture question end-to-end: ingested context, graph and findings, decisioning, and synthesized artifacts culminating in a versioned manifest you can govern and compare.",
+      "An architecture review captures one question end-to-end: ingested context, graph and findings, decisioning, and synthesized artifacts culminating in a golden manifest you can govern and compare.",
   },
   manifest: {
     displayLabel: "Golden manifest",
-    shortDefinition: "The finalized, reviewed architecture record treated as source of truth for a run.",
+    shortDefinition: "The finalized, signed architecture package treated as source of truth for a review.",
     longDefinition:
-      "The golden manifest is the immutable, versioned design package for a run—decisions, findings, and evidence together—used for approvals, exports, and diffs against other runs.",
+      "The golden manifest is the immutable, versioned design package for an architecture review—decisions, findings, and evidence together—used for approvals, exports, and diffs against other reviews.",
   },
   finding: {
     displayLabel: "Finding",

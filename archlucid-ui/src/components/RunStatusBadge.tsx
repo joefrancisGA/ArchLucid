@@ -1,4 +1,5 @@
 import { StatusPill } from "@/components/StatusPill";
+import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
@@ -64,7 +65,7 @@ export function RunStatusBadge({ run, className }: RunStatusBadgeProps) {
       status={displayLabel}
       domain="pipeline"
       className={cn("shrink-0", className)}
-      ariaLabel={`Run pipeline status: ${displayLabel}`}
+      ariaLabel={`${ARCHITECTURE_REVIEW_VOCABULARY.pipelineStatusAriaPrefix}: ${displayLabel}`}
     />
   );
 }

@@ -95,7 +95,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
   },
   {
     id: "execute",
-    title: "Run the pipeline and watch progress",
+    title: "Execute the architecture review pipeline",
     body: (
       <div className="space-y-2 leading-relaxed text-neutral-700 dark:text-neutral-200">
         <p className="m-0">

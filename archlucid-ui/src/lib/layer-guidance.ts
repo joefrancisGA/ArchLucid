@@ -13,6 +13,9 @@
  *
  * **`enterpriseFootnote`** on Enterprise keys complements **`nav-config.ts`** group **captions** — same buyer story, different surface.
  *
+ * **Vocabulary:** operator copy uses **architecture review** (not “run”) in headings and guidance; API `runId` paths are unchanged.
+ * Relationship copy for review / manifest / trace lives in **`architecture-review-vocabulary.ts`** and **`LayerHeader`**.
+ *
  * **Drift guard:** adding a key requires wiring **`LayerHeader`** on the page and, if the capability is listed for
  * buyers, updating **PRODUCT_PACKAGING.md** — see §3 *Contributor drift guard* (*Guidance strip* step).
  */

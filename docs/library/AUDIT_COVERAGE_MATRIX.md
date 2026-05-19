@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:203 -->
+<!-- audit-core-const-count:206 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -138,6 +138,9 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Authority committed manifest FK chain (replay commit) | `ReplayRunService` | `AuthorityCommittedChainPersisted` | RunId, ManifestId | `{ source: "replay-commit", projectSlug, richFindingsAndGraph: true, … }` — emitted only after `CommitAsync` succeeds. |
 | Billing checkout session (Noop / Stripe / Marketplace) | `BillingCheckoutController` | `BillingCheckoutInitiated`, `BillingCheckoutCompleted` | Tenant from ambient scope | `{ provider, tier, providerSessionId? }` |
 | Customer notification channel preferences upsert | `CustomerNotificationChannelPreferencesController` (`PUT …/customer-channel-preferences`) | `TenantNotificationChannelPreferencesUpdated` | Tenant + default workspace/project from scope | `{ email, teams, outboundWebhook }` booleans |
+| Tenant agent-output quality gate mode override | `SettingsController` (`PUT /v1/admin/settings/agent-output-quality-gate-mode`) | `TenantAgentOutputQualityGateModeUpdated` | Tenant + default workspace/project from scope | `{ effectiveMode }` (`WarnOnly` / `PilotStrict`) |
+| Tenant agent-output quality gate mode override cleared | `SettingsController` (`DELETE /v1/admin/settings/agent-output-quality-gate-mode`) | `TenantAgentOutputQualityGateModeOverrideCleared` | Tenant + default workspace/project from scope | `{ effectiveMode }` after revert to host default |
+| Host API key rotation material issued | `AdminApiKeySettingsController` (`POST /v1/admin/settings/api-keys/rotate`) | `AdminApiKeyRotationMaterialIssued` | Tenant + default workspace/project from scope | `{ slot, deploymentAction, configPath }` — **no** key material |
 | Microsoft Teams incoming-webhook connection upsert | `TeamsIncomingWebhookConnectionsController` (`POST /v1/integrations/teams/connections`) | `TenantTeamsIncomingWebhookConnectionUpserted` | Tenant + default workspace/project from scope | Key Vault reference metadata (no secret material) |
 | Microsoft Teams incoming-webhook connection remove | `TeamsIncomingWebhookConnectionsController` (`DELETE /v1/integrations/teams/connections`) | `TenantTeamsIncomingWebhookConnectionRemoved` | Tenant + default workspace/project from scope | connection id / scope fields |
 | ITSM outbound issue/incident create (Jira / ServiceNow) | `ItsmOutboundIssuesController` (`POST /v1/integrations/itsm/outbound/issues`) | `IntegrationJiraIssueCreateSucceeded`, `IntegrationJiraIssueCreateFailed`, `IntegrationJiraIssueCreateSkipped`, `IntegrationServiceNowIncidentCreateSucceeded`, `IntegrationServiceNowIncidentCreateFailed`, `IntegrationServiceNowIncidentCreateSkipped` | RunId / finding id when parseable | finding id, provider label, external key / skip reason — **no** secrets, tokens, or full external URLs with query strings |
@@ -370,6 +373,9 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `BillingCheckoutInitiated` | `BillingCheckoutInitiated` | `BillingCheckoutController` |
 | `BillingCheckoutCompleted` | `BillingCheckoutCompleted` | `BillingCheckoutController` |
 | `TenantNotificationChannelPreferencesUpdated` | `TenantNotificationChannelPreferencesUpdated` | `CustomerNotificationChannelPreferencesController` |
+| `TenantAgentOutputQualityGateModeUpdated` | `Tenant.AgentOutputQualityGateModeUpdated` | `SettingsController` (`PUT …/admin/settings/agent-output-quality-gate-mode`) |
+| `TenantAgentOutputQualityGateModeOverrideCleared` | `Tenant.AgentOutputQualityGateModeOverrideCleared` | `SettingsController` (`DELETE …/admin/settings/agent-output-quality-gate-mode`) |
+| `AdminApiKeyRotationMaterialIssued` | `Admin.ApiKeyRotationMaterialIssued` | `AdminApiKeySettingsController` (`POST …/admin/settings/api-keys/rotate`) |
 | `TenantTeamsIncomingWebhookConnectionUpserted` | `TenantTeamsIncomingWebhookConnectionUpserted` | `TeamsIncomingWebhookConnectionsController` |
 | `TenantTeamsIncomingWebhookConnectionRemoved` | `TenantTeamsIncomingWebhookConnectionRemoved` | `TeamsIncomingWebhookConnectionsController` |
 | `ExecDigestPreferencesUpdated` | `ExecDigestPreferencesUpdated` | `TenantExecDigestPreferencesController` |

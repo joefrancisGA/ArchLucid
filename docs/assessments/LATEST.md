@@ -466,7 +466,7 @@ Constraints: Do not break existing queries that rely on `OPENJSON`.
 - **Why it matters:** Reduces cognitive load for new users.
 - **Expected impact:** Directly improves Cognitive Load (+10 pts) and Usability (+5 pts). Weighted readiness impact: +0.3%.
 - **Affected qualities:** Cognitive Load, Usability.
-- **Actionable now.**
+- **Completed.** `architecture-review-vocabulary.ts` + `LayerHeader` Review/Manifest/Trace help; operator headings/CTAs and glossary use **Architecture review** (API `runId` unchanged).
 ```text
 Simplify the domain vocabulary in the operator UI.
 1. Ensure that "Architecture review" is used consistently instead of "Run" in primary headings and CTAs.

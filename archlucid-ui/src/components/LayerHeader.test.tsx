@@ -32,6 +32,13 @@ describe("LayerHeader", () => {
     expect(screen.getByText(/what changed between two finalized reviews/i)).toBeInTheDocument();
   });
 
+  it("explains Review, Manifest, and Trace relationship", () => {
+    render(<LayerHeader pageKey="compare" />);
+
+    expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/Review · Manifest · Trace/i);
+    expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/golden manifest/i);
+  });
+
   it("renders Governance responsibility footnote on audit", () => {
     render(<LayerHeader pageKey="audit" />);
 

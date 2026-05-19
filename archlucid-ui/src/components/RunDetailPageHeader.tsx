@@ -108,7 +108,7 @@ export function RunDetailPageHeader({
                   title={
                     runSummary.degradedExecutionAgents?.length
                       ? `Resource-level LLM fallback on: ${runSummary.degradedExecutionAgents.join(", ")}`
-                      : "Run used simulator substitution and/or degraded LLM execution path."
+                      : "This architecture review used simulator substitution and/or a degraded LLM execution path."
                   }
                 >
                   Degraded execution

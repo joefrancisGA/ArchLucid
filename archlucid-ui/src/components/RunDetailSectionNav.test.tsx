@@ -34,14 +34,14 @@ describe("RunDetailSectionNav", () => {
     render(
       <RunDetailSectionNav
         sections={[
-          { id: "run-metadata", label: "Run", available: true },
+          { id: "run-metadata", label: "Review", available: true },
           { id: "pipeline-timeline", label: "Timeline", available: true },
           { id: "run-actions", label: "Actions", available: true },
         ]}
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Run" })).toHaveAttribute("href", "#run-metadata");
+    expect(screen.getByRole("link", { name: "Review" })).toHaveAttribute("href", "#run-metadata");
     expect(screen.getByRole("link", { name: "Timeline" })).toHaveAttribute("href", "#pipeline-timeline");
   });
 
@@ -65,7 +65,7 @@ describe("RunDetailSectionNav", () => {
     const { getByRole } = render(
       <RunDetailSectionNav
         sections={[
-          { id: "run-metadata", label: "Run", available: true },
+          { id: "run-metadata", label: "Review", available: true },
           { id: "pipeline-timeline", label: "Timeline", available: true },
           { id: "run-actions", label: "Actions", available: true },
         ]}
@@ -84,7 +84,7 @@ describe("RunDetailSectionNav", () => {
     const { getByRole } = render(
       <RunDetailSectionNav
         sections={[
-          { id: "run-metadata", label: "Run", available: true },
+          { id: "run-metadata", label: "Review", available: true },
           { id: "pipeline-timeline", label: "Timeline", available: true },
           { id: "run-actions", label: "Actions", available: true },
         ]}

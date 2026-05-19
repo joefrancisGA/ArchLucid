@@ -151,7 +151,7 @@ export function RunsPageView(props: Props) {
             description={
               isBuyerPolishedOperatorShellEnv()
                 ? `Each review package is tracked in this workspace for manifest, evidence, findings, and deliverables.\n\n${RUNS_EMPTY.description}`
-                : `Each architecture review is tracked as a run in the system. Your Run ID appears in metadata for support and diagnostics.\n\n${RUNS_EMPTY.description}`
+                : `Each architecture review is tracked in this workspace. Your Review ID appears in metadata for support and diagnostics.\n\n${RUNS_EMPTY.description}`
             }
             actions={
               RUNS_EMPTY.actions === undefined

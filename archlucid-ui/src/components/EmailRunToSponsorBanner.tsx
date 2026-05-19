@@ -455,7 +455,7 @@ export function EmailRunToSponsorBanner({
             className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
             href={getRunExportDownloadUrl(runId)}
           >
-            {buyerPolishedShell ? "Audit-ready review export (ZIP)" : "Run export (ZIP)"}
+            {buyerPolishedShell ? "Audit-ready review export (ZIP)" : "Architecture review export (ZIP)"}
           </a>
           {" · "}
           {buyerPolishedShell ? null : (

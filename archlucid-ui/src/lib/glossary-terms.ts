@@ -11,13 +11,15 @@ export type GlossaryTermEntry = {
 
 export const GLOSSARY_TERMS = {
   run: {
-    term: "Architecture run",
-    definition: "The top-level work unit: a request that flows through ingestion, graph, findings, decisioning, and artifacts, ending in a finalized, reviewed manifest.",
+    term: "Architecture review",
+    definition:
+      "The top-level work unit: a request that flows through ingestion, graph, findings, decisioning, and artifacts, ending in a finalized golden manifest.",
     docLink: "/docs/library/GLOSSARY.md#architecture-run-run",
   },
   golden_manifest: {
-    term: "Reviewed manifest",
-    definition: "The versioned, finalized design record for a run—the source of truth for governance, comparison, and artifacts.",
+    term: "Golden manifest",
+    definition:
+      "The versioned, finalized design record for an architecture review—the source of truth for governance, comparison, and artifacts.",
     docLink: "/docs/library/GLOSSARY.md#golden-manifest",
   },
   findings: {
@@ -26,8 +28,9 @@ export const GLOSSARY_TERMS = {
     docLink: "/docs/library/GLOSSARY.md#finding",
   },
   authority_pipeline: {
-    term: "Run pipeline",
-    definition: "The in-process pipeline that runs ingestion → graph → findings → decisioning → artifact synthesis for one run, inside a SQL unit of work.",
+    term: "Review pipeline",
+    definition:
+      "The in-process pipeline that runs ingestion → graph → findings → decisioning → artifact synthesis for one architecture review, inside a SQL unit of work.",
     docLink: "/docs/library/GLOSSARY.md#authority-run-orchestrator",
   },
   context_snapshot: {

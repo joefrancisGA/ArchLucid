@@ -134,7 +134,7 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
         <Progress
           value={progressValue}
           className="h-2"
-          aria-label="Run pipeline stages completed"
+          aria-label="Architecture review pipeline stages completed"
         />
       </div>
 

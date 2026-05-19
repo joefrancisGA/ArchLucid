@@ -25,14 +25,14 @@ function StepBadge({ label }: { label: string }) {
   );
 }
 
-/** Run ID callout for support correlation. */
+/** Review ID callout for support correlation (API field remains runId). */
 function RunIdNote({ runId }: { runId: string }) {
   return (
     <p
       className="m-0 text-[11px] text-neutral-500 dark:text-neutral-400"
       data-testid="pilot-run-id"
     >
-      Run ID:{" "}
+      Review ID:{" "}
       <code className="font-mono">{runId}</code>
     </p>
   );
