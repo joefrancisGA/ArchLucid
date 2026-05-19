@@ -1,6 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
 
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Auth.Services;
 using ArchLucid.TestSupport;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -87,11 +89,21 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
             config.AddInMemoryCollection(settings);
         });
 
-        // WebApplicationFactory / GitHub-hosted runners can skew vs the test process; widen beyond production PEM defaults.
-        builder.ConfigureServices(services =>
+        // Re-apply PEM validation from this factory's public key file (guards DI/configuration ordering) and widen clock skew.
+        builder.ConfigureTestServices(services =>
         {
             services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
             {
+                ArchLucidAuthOptions authOptions = new()
+                {
+                    Mode = "JwtBearer",
+                    JwtSigningPublicKeyPemPath = _publicPemPath,
+                    JwtLocalIssuer = JwtLocalTestIssuer,
+                    JwtLocalAudience = JwtLocalTestAudience
+                };
+
+                IConfiguration emptyConfiguration = new ConfigurationBuilder().Build();
+                ArchLucidJwtBearerConfiguration.Apply(options, authOptions, emptyConfiguration);
                 options.TokenValidationParameters.ClockSkew = TimeSpan.FromMinutes(30);
             });
         });

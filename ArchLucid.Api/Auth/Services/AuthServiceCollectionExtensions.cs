@@ -71,11 +71,14 @@ public static class AuthServiceCollectionExtensions
 
             // Last: JwtBearerConfigureOptions (framework) runs before ArchLucid so Authentication:Schemes:Bearer
             // cannot overwrite Authority/Audience bound from ArchLucidAuth.
+            // Bind JwtBearer from the same IConfiguration snapshot used for jwtByLocalPem / jwtByMode above — not a separate
+            // IConfiguration from DI, which WebApplicationFactory can populate later than AddArchLucidAuth (401 on valid PEM tokens).
+            IConfiguration jwtBearerConfiguration = configuration;
             services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
-                .Configure<IConfiguration>((options, cfg) =>
+                .Configure(options =>
                 {
-                    ArchLucidAuthOptions resolved = ArchLucidAuthConfigurationBridge.Resolve(cfg);
-                    ArchLucidJwtBearerConfiguration.Apply(options, resolved, cfg);
+                    ArchLucidAuthOptions resolved = ArchLucidAuthConfigurationBridge.Resolve(jwtBearerConfiguration);
+                    ArchLucidJwtBearerConfiguration.Apply(options, resolved, jwtBearerConfiguration);
                 });
         }
 
