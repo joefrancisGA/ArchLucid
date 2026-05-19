@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.AgentRuntime.Tests.Support;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.ContextIngestion.Models;
@@ -285,6 +286,7 @@ public sealed class RealRuntimeMixedModeTests
             runRepo.Object,
             scopeProvider.Object,
             new NoOpAzureExtractorPackageRepository(),
+            new RunStateTransitionService(),
             NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
         CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 

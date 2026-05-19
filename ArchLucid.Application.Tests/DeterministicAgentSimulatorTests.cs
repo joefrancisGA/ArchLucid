@@ -1,6 +1,7 @@
 ﻿using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Tests.TestDoubles;
 using ArchLucid.Core.Scoping;
@@ -64,6 +65,7 @@ public sealed class DeterministicAgentSimulatorTests
             runRepo.Object,
             scopeProvider.Object,
             new NoOpAzureExtractorPackageRepository(),
+            new RunStateTransitionService(),
             NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
         CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 
@@ -125,6 +127,7 @@ public sealed class DeterministicAgentSimulatorTests
             runRepo.Object,
             scopeProvider.Object,
             new NoOpAzureExtractorPackageRepository(),
+            new RunStateTransitionService(),
             NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
         CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 

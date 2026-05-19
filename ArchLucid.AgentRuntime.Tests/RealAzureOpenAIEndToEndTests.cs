@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.ContextIngestion.Models;
@@ -157,6 +158,7 @@ public sealed class RealAzureOpenAIEndToEndTests
             runRepo.Object,
             scopeProvider.Object,
             new NoOpAzureExtractorPackageRepository(),
+            new RunStateTransitionService(),
             NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
 
         CoordinationResult coordination = await coordinator.CreateRunAsync(request, cancellationToken);
