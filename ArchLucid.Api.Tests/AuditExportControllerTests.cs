@@ -83,14 +83,7 @@ public sealed class AuditExportControllerTests
             DataJson = "{\"x\":1}"
         };
 
-        repo
-            .Setup(r => r.GetFilteredExportAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<AuditEventFilter>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([evt]);
+        AuditExportRepositoryTestDoubles.SetupStreamFilteredExport(repo, evt);
 
         client.DefaultRequestHeaders.Accept.Clear();
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/csv"));

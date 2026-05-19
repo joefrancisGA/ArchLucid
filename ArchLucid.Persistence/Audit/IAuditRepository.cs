@@ -81,4 +81,15 @@ public interface IAuditRepository
         Guid projectId,
         AuditEventFilter filter,
         CancellationToken ct);
+
+    /// <summary>
+    ///     Same predicates and ordering as <see cref="GetFilteredExportAsync" />, but rows are read incrementally for
+    ///     large CSV exports (SQL uses an unbuffered reader).
+    /// </summary>
+    IAsyncEnumerable<AuditEvent> StreamFilteredExportAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        AuditEventFilter filter,
+        CancellationToken ct);
 }

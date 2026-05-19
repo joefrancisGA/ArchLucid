@@ -16,6 +16,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Net.Http.Headers;
 
 namespace ArchLucid.Api.Controllers.Admin;
 
@@ -205,19 +206,20 @@ public sealed class AuditController(
             Take = exportMaxRows
         };
 
-        IReadOnlyList<AuditEvent> events = await repo.GetFilteredExportAsync(
+        DateTime nameFrom = effectiveFrom ?? TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime nameTo = effectiveTo ?? nameFrom;
+        string attachmentName = exportFormatter.BuildAuditExportCsvFileName(nameFrom, nameTo);
+
+        IAsyncEnumerable<AuditEvent> events = repo.StreamFilteredExportAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
             filter,
             ct);
 
-        DateTime nameFrom = effectiveFrom ?? TimeProvider.System.GetUtcNow().UtcDateTime;
-        DateTime nameTo = effectiveTo ?? nameFrom;
-        string attachmentName = exportFormatter.BuildAuditExportCsvFileName(nameFrom, nameTo);
-        HttpContext.Items[AuditEventCsvFormatter.CsvAttachmentFileNameItemKey] = attachmentName;
+        await AuditEventCsvResponseWriter.WriteAsync(Response, exportFormatter, events, attachmentName, ct);
 
-        return Ok(events);
+        return new EmptyResult();
     }
 
     /// <summary>Lists distinct Core <see cref="AuditEventTypes" /> string constants (dropdown support).</summary>
@@ -297,13 +299,6 @@ public sealed class AuditController(
             Take = exportMaxRows
         };
 
-        IReadOnlyList<AuditEvent> events = await repo.GetFilteredExportAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            exportFilter,
-            ct);
-
         if (!string.IsNullOrWhiteSpace(format))
         {
             string f = format.Trim().ToLowerInvariant();
@@ -315,6 +310,13 @@ public sealed class AuditController(
 
             if (f == "cef")
             {
+                IReadOnlyList<AuditEvent> events = await repo.GetFilteredExportAsync(
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    exportFilter,
+                    ct);
+
                 await using MemoryStream buffer = new();
                 await AuditCefLineWriter.WriteAllAsync(buffer, events, ct).ConfigureAwait(false);
                 byte[] utf8 = buffer.ToArray();
@@ -322,11 +324,67 @@ public sealed class AuditController(
 
                 return File(utf8, "text/plain", cefName);
             }
+
+            if (f == "csv")
+            {
+                string csvName = exportFormatter.BuildAuditExportCsvFileName(from, to);
+                IAsyncEnumerable<AuditEvent> csvStream = repo.StreamFilteredExportAsync(
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    exportFilter,
+                    ct);
+
+                await AuditEventCsvResponseWriter.WriteAsync(Response, exportFormatter, csvStream, csvName, ct);
+                return new EmptyResult();
+            }
         }
 
-        string attachmentName = exportFormatter.BuildAuditExportCsvFileName(from, to);
-        HttpContext.Items[AuditEventCsvFormatter.CsvAttachmentFileNameItemKey] = attachmentName;
+        if (PrefersCsvResponse(format))
+        {
+            string attachmentName = exportFormatter.BuildAuditExportCsvFileName(from, to);
+            IAsyncEnumerable<AuditEvent> csvStream = repo.StreamFilteredExportAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                exportFilter,
+                ct);
 
-        return Ok(events);
+            await AuditEventCsvResponseWriter.WriteAsync(Response, exportFormatter, csvStream, attachmentName, ct);
+            return new EmptyResult();
+        }
+
+        IReadOnlyList<AuditEvent> jsonEvents = await repo.GetFilteredExportAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            exportFilter,
+            ct);
+
+        return Ok(jsonEvents);
+    }
+
+    private bool PrefersCsvResponse(string? format)
+    {
+        if (!string.IsNullOrWhiteSpace(format))
+            return string.Equals(format.Trim(), "csv", StringComparison.OrdinalIgnoreCase);
+
+        IList<MediaTypeHeaderValue>? accept = Request.GetTypedHeaders().Accept;
+
+        if (accept is null || accept.Count == 0)
+            return false;
+
+        foreach (MediaTypeHeaderValue mediaType in accept.OrderByDescending(static header => header.Quality ?? 1.0))
+        {
+            string? media = mediaType.MediaType.Value;
+
+            if (string.Equals(media, "text/csv", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (string.Equals(media, "application/json", StringComparison.OrdinalIgnoreCase))
+                return false;
+        }
+
+        return false;
     }
 }

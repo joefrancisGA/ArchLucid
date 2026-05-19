@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 using ArchLucid.Core.Audit;
@@ -223,21 +224,23 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
         AuditEventFilter filter,
         CancellationToken ct)
     {
+        List<AuditEvent> rows = [];
+
+        await foreach (AuditEvent row in StreamFilteredExportAsync(tenantId, workspaceId, projectId, filter, ct))
+            rows.Add(row);
+
+        return rows;
+    }
+
+    public async IAsyncEnumerable<AuditEvent> StreamFilteredExportAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        AuditEventFilter filter,
+        [EnumeratorCancellation] CancellationToken ct)
+    {
         ArgumentNullException.ThrowIfNull(filter);
-
-        if (!filter.FromUtc.HasValue || !filter.ToUtc.HasValue)
-        {
-            throw new ArgumentException(
-                "FromUtc and ToUtc are required for filtered export.",
-                nameof(filter));
-        }
-
-        if (filter.BeforeUtc.HasValue || filter.BeforeEventId.HasValue)
-        {
-            throw new ArgumentException(
-                "Filtered export does not support keyset cursor fields.",
-                nameof(filter));
-        }
+        ValidateFilteredExportFilter(filter);
 
         int take = Math.Clamp(filter.Take <= 0 ? 10_000 : filter.Take, 1, 10_000);
         StringBuilder sql = new(HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScope);
@@ -254,16 +257,34 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
         try
         {
             await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-            IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
-                new CommandDefinition(sql.ToString(), parameters, cancellationToken: ct));
 
-            return rows.ToList();
+            await foreach (AuditEvent row in connection
+                               .QueryUnbufferedAsync<AuditEvent>(sql.ToString(), parameters)
+                               .WithCancellation(ct))
+                yield return row;
         }
         finally
         {
             ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
                 NamedQueryTelemetryNames.ListAuditEventsFiltered,
                 sw.Elapsed.TotalMilliseconds);
+        }
+    }
+
+    private static void ValidateFilteredExportFilter(AuditEventFilter filter)
+    {
+        if (!filter.FromUtc.HasValue || !filter.ToUtc.HasValue)
+        {
+            throw new ArgumentException(
+                "FromUtc and ToUtc are required for filtered export.",
+                nameof(filter));
+        }
+
+        if (filter.BeforeUtc.HasValue || filter.BeforeEventId.HasValue)
+        {
+            throw new ArgumentException(
+                "Filtered export does not support keyset cursor fields.",
+                nameof(filter));
         }
     }
 

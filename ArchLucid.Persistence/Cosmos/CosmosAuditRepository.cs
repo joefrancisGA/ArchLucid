@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Net;
 using System.Text;
 
@@ -215,6 +216,22 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
         AuditEventFilter filter,
         CancellationToken ct)
     {
+        List<AuditEvent> rows = [];
+
+        await foreach (AuditEvent row in StreamFilteredExportAsync(tenantId, workspaceId, projectId, filter, ct))
+            rows.Add(row);
+
+        return rows;
+    }
+
+    /// <inheritdoc />
+    public async IAsyncEnumerable<AuditEvent> StreamFilteredExportAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        AuditEventFilter filter,
+        [EnumeratorCancellation] CancellationToken ct)
+    {
         ArgumentNullException.ThrowIfNull(filter);
 
         if (!filter.FromUtc.HasValue || !filter.ToUtc.HasValue)
@@ -243,22 +260,21 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
             query,
             requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(tid), MaxItemCount = take });
 
-        List<AuditEvent> list = [];
+        int emitted = 0;
 
-        while (iterator.HasMoreResults && list.Count < take)
+        while (iterator.HasMoreResults && emitted < take)
         {
             FeedResponse<AuditEventDocument> page = await iterator.ReadNextAsync(ct);
 
             foreach (AuditEventDocument doc in page)
             {
-                list.Add(ToEvent(doc));
+                yield return ToEvent(doc);
+                emitted++;
 
-                if (list.Count >= take)
-                    break;
+                if (emitted >= take)
+                    yield break;
             }
         }
-
-        return list;
     }
 
     private static QueryDefinition BuildSelectFilteredQuery(string wid, string pid, AuditEventFilter filter)

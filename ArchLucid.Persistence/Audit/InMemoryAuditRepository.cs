@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 using ArchLucid.Core.Audit;
 
 namespace ArchLucid.Persistence.Audit;
@@ -130,12 +132,27 @@ public sealed class InMemoryAuditRepository : IAuditRepository
         return Task.FromResult<IReadOnlyList<AuditEvent>>(result);
     }
 
-    public Task<IReadOnlyList<AuditEvent>> GetFilteredExportAsync(
+    public async Task<IReadOnlyList<AuditEvent>> GetFilteredExportAsync(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
         AuditEventFilter filter,
         CancellationToken ct)
+    {
+        List<AuditEvent> rows = [];
+
+        await foreach (AuditEvent row in StreamFilteredExportAsync(tenantId, workspaceId, projectId, filter, ct))
+            rows.Add(row);
+
+        return rows;
+    }
+
+    public async IAsyncEnumerable<AuditEvent> StreamFilteredExportAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        AuditEventFilter filter,
+        [EnumeratorCancellation] CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(filter);
@@ -155,17 +172,21 @@ public sealed class InMemoryAuditRepository : IAuditRepository
         }
 
         int take = Math.Clamp(filter.Take <= 0 ? 10_000 : filter.Take, 1, 10_000);
-        List<AuditEvent> result;
+        List<AuditEvent> snapshot;
 
         lock (_gate)
 
-            result = AuditEventFilterEnumerable.WhereMatches(_events, tenantId, workspaceId, projectId, filter)
+            snapshot = AuditEventFilterEnumerable.WhereMatches(_events, tenantId, workspaceId, projectId, filter)
                 .OrderBy(x => x.OccurredUtc)
                 .ThenBy(x => x.EventId)
                 .Take(take)
                 .ToList();
 
-        return Task.FromResult<IReadOnlyList<AuditEvent>>(result);
+        foreach (AuditEvent auditEvent in snapshot)
+        {
+            ct.ThrowIfCancellationRequested();
+            yield return auditEvent;
+        }
     }
 
     /// <summary>Tenant-scoped range read for governance findings trend aggregation (in-memory / tests).</summary>

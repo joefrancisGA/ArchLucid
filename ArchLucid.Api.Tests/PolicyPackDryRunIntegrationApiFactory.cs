@@ -112,6 +112,17 @@ public sealed class CapturingAuditRepository : IAuditRepository
         return Task.FromResult<IReadOnlyList<AuditEvent>>([]);
     }
 
+    public async IAsyncEnumerable<AuditEvent> StreamFilteredExportAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        AuditEventFilter filter,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
+    {
+        await Task.CompletedTask;
+        yield break;
+    }
+
     public IReadOnlyList<AuditEvent> Snapshot()
     {
         lock (_gate) return [.._events];
