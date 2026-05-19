@@ -85,7 +85,7 @@ Authoritative sources: Microsoft Azure Storage documentation, Azure Well-Archite
 
 Key themes for rule authoring:
 - PUBLIC ACCESS: anonymous public access to blobs must be documented / prohibited unless explicitly justified; shared-access-signature (SAS) tokens should have expiry and least-privilege scope.
-- RBAC: storage accounts should use Azure AD / managed identity for access rather than storage access keys; access keys should be rotated and stored in Key Vault.
+- RBAC: storage accounts should use Microsoft Entra ID / managed identity for access rather than storage access keys; access keys should be rotated and stored in Key Vault.
 - ENCRYPTION: SSE with Microsoft-managed keys is default; CMK via Key Vault is the hardened path for regulated data; infrastructure encryption (double encryption) for highly sensitive workloads; HTTPS enforcement and minimum TLS 1.2.
 - PRIVATE ENDPOINTS / NETWORKING: sensitive storage accounts should restrict public network access via firewall rules; private endpoints + private DNS zones for ADLS Gen2 and critical blob accounts.
 - DATA PROTECTION: soft delete for blobs and containers; versioning enabled for regulated data; immutability (WORM) for compliance / legal-hold scenarios.
@@ -401,7 +401,7 @@ Authoritative sources: Microsoft Power Platform admin documentation, Microsoft P
 Key themes for rule authoring:
 - ENVIRONMENT STRATEGY: at minimum Production, UAT/Test, and Developer environments; default environment should be locked down (DLP applied, no sensitive connectors); dedicated environments for business-critical flows.
 - DLP POLICIES: DLP policies are the primary governance control; all connectors must be classified as Business (work data), Non-Business (personal), or Blocked; tenant-level DLP policy provides the baseline; environment-specific policies can be more restrictive.
-- HIGH-RISK CONNECTORS: HTTP, HTTP with Azure AD, Custom connectors, and connectors to regulated data sources must be in Business group or Blocked at minimum; SharePoint/Teams/Outlook connectors are Business by default.
+- HIGH-RISK CONNECTORS: HTTP, HTTP with Microsoft Entra ID, Custom connectors, and connectors to regulated data sources must be in Business group or Blocked at minimum; SharePoint/Teams/Outlook connectors are Business by default.
 - DATAVERSE SECURITY: business units should mirror organisational hierarchy; security roles should follow least-privilege; field-level security for sensitive Dataverse columns (e.g. Social Security Number, medical data); row-level security via predicate-based filters.
 - ALM: all production apps/flows should be packaged as solutions; publisher prefix prevents naming conflicts; source control integration (GitHub or Azure DevOps); automated deployment pipelines rather than manual export/import.
 - COE: CoE Starter Kit (free Microsoft tool) provides inventory, compliance assessment, and capacity management; manifest should document whether CoE is deployed and in scope.
@@ -411,7 +411,7 @@ DISCLAIMER TEXT:
 "Thematic architecture-review mapping; not Microsoft Power Platform certification or CoE maturity attestation."
 
 ADJACENT PACKS (do not duplicate — cross-link via frameworkMappings instead):
-- azure-rbac-architecture (#30): Dataverse admin roles use Azure AD groups; cross-reference RBAC design
+- azure-rbac-architecture (#30): Dataverse admin roles use Microsoft Entra ID groups; cross-reference RBAC design
 - purview-governance (#28): DLP and information protection themes overlap; cross-reference Purview DLP
 - powerbi-fabric-governance (#32): Power BI is part of the Power Platform family; share environment strategy themes
 - data-classification-lineage (#16): Dataverse data classification; cross-reference classification standards
