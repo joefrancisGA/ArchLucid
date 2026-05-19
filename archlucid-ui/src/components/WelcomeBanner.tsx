@@ -230,7 +230,7 @@ export function WelcomeBanner() {
   ) : buyerPolishedShell ? (
     <>
       Lead with <strong>executive view</strong> for a board-ready summary of this sample, then the{" "}
-      <strong>manifest summary</strong> (sealed package), <strong>audit trail</strong>, and prioritized{" "}
+      <strong>manifest summary</strong> (finalized signed package), <strong>audit trail</strong>, and prioritized{" "}
       <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
     </>
   ) : (
@@ -397,7 +397,7 @@ export function WelcomeBanner() {
             </ul>
             <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
               {buyerPolishedShell
-                ? "Executive view for sponsors; manifest summary for the sealed record; optional read-only walkthrough when you want a guided tour."
+                ? "Executive view for sponsors; manifest summary for the finalized signed record; optional read-only walkthrough when you want a guided tour."
                 : "One request produces everything needed for review."}
             </p>
           </div>

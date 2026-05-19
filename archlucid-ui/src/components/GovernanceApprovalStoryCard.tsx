@@ -116,6 +116,7 @@ export function GovernanceApprovalStoryCard(props: {
           ArchLucid records governed architecture evidence for diligence and review. Production execution remains controlled
           by the customer&apos;s enterprise change-management process.
         </p>
+      </CardContent>
       {auditTrailHref.length > 0 ? (
         <CardFooter className="flex flex-col items-stretch gap-2 border-t border-teal-200/70 pt-4 dark:border-teal-900/60">
           <Button type="button" asChild variant="primary" size="lg" className="w-full sm:w-auto">

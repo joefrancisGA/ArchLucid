@@ -23,7 +23,7 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
     step: 2,
     label: "Signed manifest",
     href: getShowcaseManifestHref(),
-    chipTooltip: "Versioned record of decisions, findings, and downloadable outputs sealed for this package.",
+    chipTooltip: "Versioned record of decisions, findings, and downloadable outputs in this finalized signed package.",
   },
   {
     step: 3,

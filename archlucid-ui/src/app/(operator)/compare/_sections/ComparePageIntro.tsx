@@ -13,8 +13,8 @@ export function ComparePageIntro(props: ComparePageIntroProps) {
         {buyerPolished ? (
           <>
             Most teams compare the <strong>prior</strong> and <strong>later</strong> finalization for the{" "}
-            <strong>same architecture request</strong> (N vs N+1). The structured summary below is the authoritative delta;
-            open <strong>Summarize for sponsor</strong> only when you want a short narrative on top.
+            <strong>same architecture request</strong> (N vs N+1). After you choose two packages, the structured summary is
+            the authoritative delta; open <strong>Summarize for leadership</strong> only when you want a short narrative on top.
           </>
         ) : (
           <>

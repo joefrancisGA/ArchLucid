@@ -322,7 +322,7 @@ export function AskPageContent() {
   return (
     <div className="max-w-5xl">
       <OperatorPageHeader
-        title="Ask about a review"
+        title={buyerPolishedShell ? "Evidence-backed review questions" : "Ask about a review"}
         helpKey="ask-archlucid"
         subtitle={
           buyerPolishedShell ? undefined : "Conversations stay in your workspace. Select an architecture review for a new conversation; follow-ups stay on the same conversation without picking the review again."

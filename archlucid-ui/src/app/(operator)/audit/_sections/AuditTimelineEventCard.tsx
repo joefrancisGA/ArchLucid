@@ -19,6 +19,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
     uniformRunId !== null &&
     runKey.length > 0 &&
     uniformRunId === runKey;
+  const systemRecorded = auditBuyerEventIsSystemRecordedActor(ev.actorUserName);
 
   return (
     <article
@@ -35,6 +36,17 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
         <span className="rounded-full border border-teal-300 bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-950 dark:border-teal-700 dark:bg-teal-950/55 dark:text-teal-100">
           {pipelineEventTypeFriendlyLabel(ev.eventType)}
         </span>
+        {buyerPolishedShell ? (
+          <span
+            className={
+              systemRecorded
+                ? "rounded-full border border-neutral-300 bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300"
+                : "rounded-full border border-violet-300 bg-violet-50 px-2 py-0.5 text-[11px] font-medium text-violet-950 dark:border-violet-800 dark:bg-violet-950/50 dark:text-violet-100"
+            }
+          >
+            {systemRecorded ? "Automatic" : "Human"}
+          </span>
+        ) : null}
       </div>
       {buyerPolishedShell ? (
         <p className="m-0 mt-2 text-[13px] leading-snug text-neutral-600 dark:text-neutral-400">

@@ -83,18 +83,55 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
         <h2 id="security-trust-buyer-proof-strip" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
           Available for diligence today
         </h2>
-        <ul className="m-0 mt-3 list-disc space-y-1 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
-          <li>Procurement-oriented evidence summary and questionnaire-ready excerpts</li>
-          <li>Security and architecture documentation suitable for vendor reviews</li>
-          <li>Control mapping aligned to common questionnaire structures</li>
-          <li>Published data-handling posture suitable for privacy reviews</li>
-          <li>Immutable audit instrumentation for material lifecycle changes</li>
-          <li>Diligence materials: request detailed diligence materials at{" "}
-            <a className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300" href="mailto:security@archlucid.net">
-              security@archlucid.net
-            </a>
+        <ul className="m-0 mt-3 list-none space-y-3 pl-0 text-sm text-neutral-800 dark:text-neutral-200">
+          <li>
+            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              Procurement evidence
+            </p>
+            <ul className="m-0 mt-1 list-disc space-y-1 pl-5">
+              <li>Procurement-oriented evidence summary</li>
+              <li>Security questionnaire responses and excerpts</li>
+            </ul>
           </li>
-          <li>Coordinated secure disclosure and encrypted intake — details available through published security contact instructions.</li>
+          <li>
+            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              Security documentation
+            </p>
+            <ul className="m-0 mt-1 list-disc space-y-1 pl-5">
+              <li>Security and architecture documentation suitable for vendor reviews</li>
+              <li>Control mapping aligned to common questionnaire structures</li>
+            </ul>
+          </li>
+          <li>
+            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              Data handling posture
+            </p>
+            <ul className="m-0 mt-1 list-disc space-y-1 pl-5">
+              <li>Published data-handling posture suitable for privacy reviews</li>
+            </ul>
+          </li>
+          <li>
+            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              Audit instrumentation
+            </p>
+            <ul className="m-0 mt-1 list-disc space-y-1 pl-5">
+              <li>Immutable audit instrumentation for material lifecycle changes</li>
+            </ul>
+          </li>
+          <li>
+            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              Diligence contact
+            </p>
+            <ul className="m-0 mt-1 list-disc space-y-1 pl-5">
+              <li>
+                Request detailed diligence materials at{" "}
+                <a className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300" href="mailto:security@archlucid.net">
+                  security@archlucid.net
+                </a>
+              </li>
+              <li>Coordinated secure disclosure and encrypted communication instructions — details available through published security contact instructions.</li>
+            </ul>
+          </li>
           <li className="mt-2 list-none pl-0">
             <details className="rounded-md border border-neutral-200 bg-white/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40">
               <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">

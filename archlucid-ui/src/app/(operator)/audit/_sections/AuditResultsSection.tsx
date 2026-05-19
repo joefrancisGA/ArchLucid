@@ -184,6 +184,21 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
               </div>
             ) : null}
             {buyerPolishedShell && events.length > 0 ? (
+              <section
+                aria-labelledby="audit-buyer-completion-heading"
+                className="mt-8 rounded-xl border-2 border-teal-600/60 bg-teal-50/55 p-4 shadow-sm dark:border-teal-500/40 dark:bg-teal-950/30"
+                data-testid="audit-buyer-completion-card"
+              >
+                <h3 id="audit-buyer-completion-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+                  Review package complete
+                </h3>
+                <p className="m-0 mt-2 max-w-prose text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+                  Decision, signed manifest, evidence trail, governance approval, and audit trail are available for this
+                  sample review package.
+                </p>
+              </section>
+            ) : null}
+            {buyerPolishedShell && events.length > 0 ? (
               <details
                 className="mt-6 border-t border-neutral-200 pt-2 dark:border-neutral-700"
                 data-testid="audit-buyer-utilities-details"

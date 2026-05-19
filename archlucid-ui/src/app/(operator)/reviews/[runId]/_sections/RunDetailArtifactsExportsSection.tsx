@@ -77,9 +77,9 @@ export function RunDetailArtifactsExportsSection(
               <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
                 Rows are grouped by sponsor and review-board consumers.{" "}
                 <strong className="text-neutral-800 dark:text-neutral-200">Download evidence package</strong> is the
-                diligence ZIP.{" "}
+                diligence bundle.{" "}
                 <strong className="text-neutral-800 dark:text-neutral-200">Download review summary</strong> captures a concise
-                narrative handoff aligned to this manifest. Enterprise-only export formats remain off in this sample.
+                narrative handoff aligned to this manifest.
               </p>
             </div>
           ) : null}

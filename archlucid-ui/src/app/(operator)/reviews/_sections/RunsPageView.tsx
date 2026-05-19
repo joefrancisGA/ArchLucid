@@ -48,7 +48,7 @@ export function RunsPageView(props: Props) {
         {isBuyerPolishedOperatorShellEnv() ? (
           m.totalCount === 1 && m.runs[0]?.hasGoldenManifest === true ? (
             <span className="inline-flex flex-wrap items-center gap-x-1">
-              One finalized review package is available in this example workspace.
+              One finalized review package is available.
               <RunsPageBuyerHelpTip variant="sample-workspace" />
             </span>
           ) : (

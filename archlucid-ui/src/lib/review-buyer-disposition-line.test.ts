@@ -88,8 +88,7 @@ describe("buildBuyerReviewPackageDispositionLine", () => {
 
     expect(line).toContain("Approved with monitoring");
     expect(line).toContain("governance gate Approved with monitoring");
-    expect(line).toContain("9 findings");
-    expect(line).toContain("non-blocking monitored risk");
+    expect(line).toContain("9 findings, including 1 non-blocking monitored risk");
   });
 
   it("surfaces unresolved manifest issues when present", () => {

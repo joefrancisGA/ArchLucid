@@ -250,7 +250,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           manifestSummary={m.manifestSummary}
           trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
           samplePolicyPackContextLine={
-            m.usedStaticDemoRun === true ? "Sample healthcare claims policy pack used for this review." : null
+            m.usedStaticDemoRun === true ? "Policy pack used for this sample review." : null
           }
         />
       ) : null}
