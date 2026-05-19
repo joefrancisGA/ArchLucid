@@ -32,7 +32,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted deficiency signal:** 18
 - **Why this score was assigned:** The product surface is large and complex, which can overwhelm new operators despite marketing-aligned vocabulary.
 - **Key tradeoffs:** Breadth is valuable for expansion but increases first-session confusion.
-- **Specific improvement recommendations:** Use telemetry to refine operator UI once patterns are stable. Add a UI warning when tenant baselines are missing to guide users.
+- **Specific improvement recommendations:** Use telemetry to refine operator UI once patterns are stable. Executive dashboard baseline-upload warning — **shipped** (`ExecutiveDashboardBaselineWarningBanner` on `/dashboard`; `GET /v1/tenant/workspace-baseline-artifacts`; CTA `/reviews/new?baseline=1`).
 - **Fixability:** Fixable in V1.
 
 ### 2. Explainability
@@ -77,7 +77,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted deficiency signal:** 60
 - **Why this score was assigned:** Architecture Review Report export with consultant whitelabeling provides immediate artifacts.
 - **Key tradeoffs:** Executive value can become abstract if real tenant baselines are missing.
-- **Specific improvement recommendations:** Add a UI warning when tenant baselines are missing on the executive dashboard.
+- **Specific improvement recommendations:** Executive dashboard baseline-upload warning — **shipped** (`ExecutiveDashboardBaselineWarningBanner`; workspace artifact probe via `GET /v1/tenant/workspace-baseline-artifacts`; links to `/reviews/new?baseline=1`).
 - **Fixability:** Fixable in V1.
 
 ### 7. Adoption Friction
@@ -113,7 +113,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted deficiency signal:** 42
 - **Why this score was assigned:** The operator UI is functional. Bounded bulk evidence upload is supported. Soft delete for architecture projects is available with in-product recycle listing and restore.
 - **Key tradeoffs:** The 30-file ceiling avoids abuse but may annoy heavy dossier pilots.
-- **Specific improvement recommendations:** Surfacing purge-window / hard-delete timing in recycle bin copy and runbooks (in-product recycle list + restore shipped at `/settings/tenant/recycle-bin` via `GET /v1/tenant/workspaces/recycle-bin` and `POST /v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore`).
+- **Specific improvement recommendations:** Surfacing purge-window / hard-delete timing in recycle bin copy and runbooks (in-product recycle list + restore shipped at `/settings/tenant/recycle-bin` via `GET /v1/tenant/workspaces/recycle-bin` and `POST /v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore`). Executive dashboard baseline-upload warning — **shipped** (`ExecutiveDashboardBaselineWarningBanner` on `/dashboard`).
 - **Fixability:** Fixable in V1.
 
 ### 11. Maintainability
@@ -243,7 +243,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 4. **Explainability of single-process projection limitations:** Default in-process projection cache caps multi-replica coherence, needing better documentation.
 5. **Performance edge cases:** Making Redis optional simplifies single-replica deployments but complicates scaled operations, and rate limiting needs WAF-aligned quotas.
 6. **Template and Accelerator Richness:** While 3 packs exist, the library is still relatively small for a broad enterprise audience.
-7. **Executive Value Visibility without baselines:** Executive value can become abstract if real tenant baselines are missing.
+7. **Executive Value Visibility without baselines:** Executive value can become abstract if real tenant baselines are missing — **partially mitigated** by the executive dashboard baseline-upload banner (`ExecutiveDashboardBaselineWarningBanner` on `/dashboard`).
 8. **Background job transient fault handling:** Incomplete retry policies for SQL connections in background workers risk silent failures.
 9. **Architecture project retention UX clarity:** Undo/restore is productized (`/settings/tenant/recycle-bin`, `POST /v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore`), but purge-window escalation and SLA-style messaging for operators remains uneven vs the retention worker.
 10. **Policy pack assignment visibility (operator wiring):** Assign and archive paths emit structured logs; Loki ruler rules and a Grafana dashboard ship in-repo (`infra/loki/archlucid-policy-pack-assignment-alerts.yml`, `infra/grafana/dashboard-archlucid-policy-packs.json`); operators must import/bind Loki and tighten stream selectors per environment.
@@ -258,7 +258,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 2. **Lack of self-serve transactability:** Stripe live keys and Marketplace publication are deferred, forcing a high-touch sales motion.
 3. **Named productized offers packaging:** Velocity to cash depends on a buyable review SKU and SOW alignment.
 4. **Thin starter packs:** Risk "one-and-done" pilots if tenants do not extend them.
-5. **Executive Value Visibility without baselines:** Reduces the impact of the executive dashboard during pilots.
+5. **Executive Value Visibility without baselines:** Reduces the impact of the executive dashboard during pilots — **partially mitigated** by the baseline-upload warning banner on `/dashboard`.
 6. **Manual Azure cost estimations for non-standard SKUs:** Limits the platform's ability to automatically prove hard infrastructure savings.
 
 ---
@@ -460,17 +460,18 @@ Create a new curated policy pack `docs/samples/policy-packs/azure-waf-rules-v1.j
 - Deliverable: `docs/samples/policy-packs/azure-waf-rules-v1.json`
 ```
 
-### 14. Add a UI warning when tenant baselines are missing on the executive dashboard
+### 14. COMPLETED: Add a UI warning when tenant baselines are missing on the executive dashboard
 - **Why it matters:** Guides users to upload baselines to unlock the full value of the dashboard.
 - **Expected impact:** Usability (+10 pts), Executive Value Visibility (+5 pts).
 - **Affected qualities:** Usability, Executive Value Visibility.
-- **Actionable:** Yes
+- **Actionable:** No — delivered as `ExecutiveDashboardBaselineWarningBanner` on `/dashboard` (`ExecutiveRoiDashboardPageView`): amber alert for Execute+ callers when `GET /v1/tenant/workspace-baseline-artifacts` reports no persisted Azure extractor ZIP rows for the active tenant/workspace (`IAzureExtractorPackageRepository.HasAnyInWorkspaceAsync` on `dbo.AzureExtractorPackages`); primary CTA links to `/reviews/new?baseline=1`; session-dismissible. KPI widgets unchanged. Tests: `ExecutiveDashboardBaselineWarningBanner.test.tsx`, `WorkspaceBaselineArtifactsEndpointTests.cs`. OpenAPI snapshot + `npm run generate:api-types` required before merge.
 ```text
-Add a warning banner to the executive dashboard if no baseline data (e.g., Azure extractor ZIP) has been uploaded for the tenant.
+Add a warning banner to the executive dashboard if no baseline data (e.g., Azure extractor ZIP) has been uploaded for the tenant. [COMPLETED]
 - Acceptance criteria: The banner is visible and links to the baseline upload wizard.
 - Constraints: Check for the existence of baseline artifacts in the tenant's workspace.
 - What not to change: Do not modify the dashboard's analytical widgets.
 - Impact: Directly improves Usability (+8-10 pts) and Executive Value Visibility (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- Deliverable: `GET /v1/tenant/workspace-baseline-artifacts` (`TenantWorkspaceBaselineArtifactsController`); `IAzureExtractorPackageRepository.HasAnyInWorkspaceAsync`; `archlucid-ui/src/hooks/use-workspace-baseline-artifacts.ts`; `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveDashboardBaselineWarningBanner.tsx`.
 ```
 
 ### 15. Implement anomaly detection for `evidenceBulkUpload`
@@ -616,7 +617,7 @@ Extend `infra/grafana/` dashboards (or add a panel to an existing operational da
 To optimize context window usage and cost-effectiveness, batch the actionable prompts as follows:
 
 - **Batch 1 (Observability & Dashboards):** 3, 9, 18, 22, 25
-- **Batch 2 (UI & UX Enhancements):** 5, 8, 14, 19, 23
+- **Batch 2 (UI & UX Enhancements):** 5, 8, 19, 23 *(14 completed)*
 - **Batch 3 (Reliability & Health Checks):** 15 *(12 completed)*
 - **Batch 4 (CLI & Export Features):** 10, 16, 21
 - **Batch 5 (Policy Packs & Runbooks):** 6, 17, 20 *(13 completed)*
