@@ -47,7 +47,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
             {`1 · ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle}`}
           </span>
           <span className="text-xs text-neutral-600 dark:text-neutral-400">
-            Sign in with a connected workspace to open the executive summary and sealed record.
+            Sign in with a connected workspace to open the executive summary and finalized signed record.
           </span>
         </div>
       )}
@@ -55,7 +55,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
       {hasManifest ? (
         <Link className={cardClass} href={`/manifests/${encManifest}`}>
           <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">2 · Signed manifest</span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">Sealed architecture record &amp; deliverables index</span>
+          <span className="text-xs text-neutral-600 dark:text-neutral-400">Signed architecture record and deliverables index</span>
         </Link>
       ) : (
         <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>

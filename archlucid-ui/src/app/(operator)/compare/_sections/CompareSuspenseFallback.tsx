@@ -11,15 +11,7 @@ export function CompareSuspenseFallback() {
         <strong>Loading compare.</strong>
         <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
           {buyerPolished ? (
-            <>
-              Reading shared link parameters (<code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">priorRunId</code> /{" "}
-              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">laterRunId</code>; also accepts{" "}
-              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">leftRunId</code> /{" "}
-              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">rightRunId</code>,{" "}
-              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">baselineRunId</code>,{" "}
-              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">targetRunId</code>) to prefill
-              selections…
-            </>
+            <>Preparing the review comparison…</>
           ) : (
             <>
               Reading <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">leftRunId</code> /{" "}

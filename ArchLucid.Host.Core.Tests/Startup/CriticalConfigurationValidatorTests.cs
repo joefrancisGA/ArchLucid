@@ -27,14 +27,33 @@ public sealed class CriticalConfigurationValidatorTests
     }
 
     [Fact]
-    public void CollectErrors_reports_missing_connection_string()
+    public void CollectErrors_reports_missing_connection_string_when_storage_is_sql()
     {
         IConfiguration configuration = BuildConfiguration(
-            new Dictionary<string, string?> { ["AgentExecution:Mode"] = "Simulator" });
+            new Dictionary<string, string?>
+            {
+                ["ArchLucid:StorageProvider"] = "Sql",
+                ["AgentExecution:Mode"] = "Simulator",
+            });
 
         IReadOnlyList<string> errors = CriticalConfigurationValidator.CollectErrors(configuration);
 
         errors.Should().ContainSingle(error => error.Contains("ConnectionStrings:ArchLucid", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void CollectErrors_skips_connection_string_when_storage_is_in_memory()
+    {
+        IConfiguration configuration = BuildConfiguration(
+            new Dictionary<string, string?>
+            {
+                ["ArchLucid:StorageProvider"] = "InMemory",
+                ["AgentExecution:Mode"] = "Simulator",
+            });
+
+        IReadOnlyList<string> errors = CriticalConfigurationValidator.CollectErrors(configuration);
+
+        errors.Should().BeEmpty();
     }
 
     [Fact]
@@ -78,7 +97,11 @@ public sealed class CriticalConfigurationValidatorTests
     public void StartAsync_throws_descriptive_invalid_operation_exception_when_configuration_invalid()
     {
         IConfiguration configuration = BuildConfiguration(
-            new Dictionary<string, string?> { ["AgentExecution:Mode"] = "Real" });
+            new Dictionary<string, string?>
+            {
+                ["ArchLucid:StorageProvider"] = "Sql",
+                ["AgentExecution:Mode"] = "Real",
+            });
 
         ConfigurationValidationHostedService hostedService = new(
             configuration,

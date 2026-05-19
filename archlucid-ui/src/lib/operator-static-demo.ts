@@ -325,7 +325,7 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
 
   return {
     executionFlavorBuyerSummary:
-      "Sealed review package with traceable evidence, governed outcomes, and audit-ready deliverables.",
+      "Finalized signed review package with traceable evidence, governed outcomes, and audit-ready deliverables.",
     agentExecutionLlmCostEstimate: {
       estimatedCostUsd: null,
       tokenCounts: { prompt: 0, completion: 0 },

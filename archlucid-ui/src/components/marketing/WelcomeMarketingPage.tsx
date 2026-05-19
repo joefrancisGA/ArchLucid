@@ -232,9 +232,12 @@ export function WelcomeMarketingPage() {
             <p className="m-0 mt-2 text-sm leading-snug text-neutral-600 dark:text-neutral-400">
               Published Trust Center materials and downloadable diligence anchors—know what to verify.
             </p>
-            <p className="m-0 mt-3 text-xs font-medium">
+            <p className="m-0 mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-medium">
               <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
                 Open Trust Center
+              </Link>
+              <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/security-trust">
+                Security and trust detail
               </Link>
             </p>
           </li>

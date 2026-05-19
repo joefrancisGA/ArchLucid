@@ -185,7 +185,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Review record</CardTitle>
             <CardDescription className="text-neutral-600 dark:text-neutral-400">
-              Jump to the sealed artifacts and governance checkpoints that anchor this narrative.
+              Jump to the finalized signed deliverables and governance checkpoints that anchor this narrative.
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">

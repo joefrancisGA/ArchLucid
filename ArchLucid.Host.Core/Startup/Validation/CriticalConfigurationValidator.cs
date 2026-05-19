@@ -3,7 +3,7 @@ using ArchLucid.Host.Core.Configuration;
 namespace ArchLucid.Host.Core.Startup.Validation;
 
 /// <summary>
-///     Fail-fast checks for connection string and Azure OpenAI settings required before the host accepts work.
+///     Fail-fast checks for SQL connection string (when storage is Sql) and Azure OpenAI settings required before the host accepts work.
 /// </summary>
 public static class CriticalConfigurationValidator
 {
@@ -24,6 +24,11 @@ public static class CriticalConfigurationValidator
 
     private static void CollectConnectionStringErrors(IConfiguration configuration, List<string> errors)
     {
+        ArchLucidOptions archLucid = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
+
+        if (ArchLucidOptions.EffectiveIsInMemory(archLucid.StorageProvider))
+            return;
+
         string? connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration);
 
         if (!string.IsNullOrWhiteSpace(connectionString))
@@ -32,7 +37,8 @@ public static class CriticalConfigurationValidator
         errors.Add(
             "ConnectionStrings:ArchLucid is missing or blank. "
             + "Set ConnectionStrings:ArchLucid in appsettings or the ConnectionStrings__ArchLucid environment variable "
-            + "to a valid SQL Server connection string before starting the host.");
+            + "to a valid SQL Server connection string before starting the host "
+            + "(not required when ArchLucid:StorageProvider is InMemory).");
     }
 
     private static void CollectAzureOpenAiErrorsWhenNotSimulator(IConfiguration configuration, List<string> errors)
