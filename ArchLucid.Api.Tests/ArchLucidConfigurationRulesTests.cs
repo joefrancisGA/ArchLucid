@@ -1553,6 +1553,61 @@ public sealed class ArchLucidConfigurationRulesTests
     }
 
     [SkippableFact]
+    public void CollectErrors_WhenHotPathCacheMemoryMultiReplicaInProduction_contains_coherency_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["HotPathCache:Enabled"] = "true",
+            ["HotPathCache:Provider"] = "Memory",
+            ["HotPathCache:ExpectedApiReplicaCount"] = "3"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e =>
+            e.Contains("effective provider resolves to Memory", StringComparison.OrdinalIgnoreCase)
+            && e.Contains("ExpectedApiReplicaCount", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenHotPathCacheMemorySingleReplicaInProduction_does_not_add_coherency_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["HotPathCache:Enabled"] = "true",
+            ["HotPathCache:Provider"] = "Memory",
+            ["HotPathCache:ExpectedApiReplicaCount"] = "1"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e =>
+            e.Contains("effective provider resolves to Memory", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
     public void CollectErrors_WhenHostLeaderElectionRenewNotLessThanLease_contains_error()
     {
         Dictionary<string, string?> data = new()
