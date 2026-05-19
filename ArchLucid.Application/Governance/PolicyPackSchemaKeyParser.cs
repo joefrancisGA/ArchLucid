@@ -44,8 +44,8 @@ internal static class PolicyPackSchemaKeyParser
             if (propertySchema is null)
                 continue;
 
-            keys.Add(BuildDescriptor(name, propertySchema));
-            tree.Add(BuildTreeNode(name, propertySchema));
+            keys.Add(BuildDescriptor(name, propertySchema, schemaRoot));
+            tree.Add(BuildTreeNode(name, propertySchema, schemaRoot));
         }
 
         keys.Sort(static (left, right) => string.Compare(left.Path, right.Path, StringComparison.Ordinal));
@@ -54,19 +54,20 @@ internal static class PolicyPackSchemaKeyParser
         return new PolicyPackSchemaKeysResponse { Keys = keys, Tree = tree };
     }
 
-    private static PolicyPackSchemaKeyDescriptor BuildDescriptor(string path, JsonNode propertySchema)
+    private static PolicyPackSchemaKeyDescriptor BuildDescriptor(string path, JsonNode propertySchema, JsonNode schemaRoot)
     {
-        string jsonType = ReadType(propertySchema);
-        JsonNode? itemsSchema = ReadItems(propertySchema);
-        JsonNode? additionalPropertiesSchema = ReadAdditionalProperties(propertySchema);
+        JsonNode resolvedSchema = ResolveRef(propertySchema, schemaRoot);
+        string jsonType = ReadType(resolvedSchema, schemaRoot);
+        JsonNode? itemsSchema = ReadItems(resolvedSchema, schemaRoot);
+        JsonNode? additionalPropertiesSchema = ReadAdditionalProperties(resolvedSchema, schemaRoot);
         bool allowsCustomKeys = additionalPropertiesSchema is not null;
 
         PolicyPackSchemaKeyDescriptor descriptor = new()
         {
             Path = path,
             JsonType = jsonType,
-            ValueType = ReadValueType(itemsSchema, additionalPropertiesSchema),
-            ValueFormat = ReadFormat(itemsSchema, additionalPropertiesSchema),
+            ValueType = ReadValueType(itemsSchema, additionalPropertiesSchema, schemaRoot),
+            ValueFormat = ReadFormat(itemsSchema, additionalPropertiesSchema, schemaRoot),
             AllowsCustomKeys = allowsCustomKeys,
             Description = KnownDescriptions.GetValueOrDefault(path)
         };
@@ -74,11 +75,12 @@ internal static class PolicyPackSchemaKeyParser
         return descriptor;
     }
 
-    private static PolicyPackSchemaKeyNode BuildTreeNode(string name, JsonNode propertySchema)
+    private static PolicyPackSchemaKeyNode BuildTreeNode(string name, JsonNode propertySchema, JsonNode schemaRoot)
     {
-        string jsonType = ReadType(propertySchema);
-        JsonNode? itemsSchema = ReadItems(propertySchema);
-        JsonNode? additionalPropertiesSchema = ReadAdditionalProperties(propertySchema);
+        JsonNode resolvedSchema = ResolveRef(propertySchema, schemaRoot);
+        string jsonType = ReadType(resolvedSchema, schemaRoot);
+        JsonNode? itemsSchema = ReadItems(resolvedSchema, schemaRoot);
+        JsonNode? additionalPropertiesSchema = ReadAdditionalProperties(resolvedSchema, schemaRoot);
         bool allowsCustomKeys = additionalPropertiesSchema is not null;
 
         List<PolicyPackSchemaKeyNode> children = [];
@@ -90,8 +92,8 @@ internal static class PolicyPackSchemaKeyParser
                 {
                     Name = CustomKeySegment,
                     JsonType = "string",
-                    ValueType = ReadType(additionalPropertiesSchema!),
-                    ValueFormat = ReadFormat(additionalPropertiesSchema, null),
+                    ValueType = ReadType(ResolveRef(additionalPropertiesSchema!, schemaRoot), schemaRoot),
+                    ValueFormat = ReadFormat(additionalPropertiesSchema, null, schemaRoot),
                     AllowsCustomKeys = false,
                     Description = $"Custom key under {name}."
                 });
@@ -100,17 +102,43 @@ internal static class PolicyPackSchemaKeyParser
         {
             Name = name,
             JsonType = jsonType,
-            ValueType = ReadValueType(itemsSchema, additionalPropertiesSchema),
-            ValueFormat = ReadFormat(itemsSchema, additionalPropertiesSchema),
+            ValueType = ReadValueType(itemsSchema, additionalPropertiesSchema, schemaRoot),
+            ValueFormat = ReadFormat(itemsSchema, additionalPropertiesSchema, schemaRoot),
             AllowsCustomKeys = allowsCustomKeys,
             Description = KnownDescriptions.GetValueOrDefault(name),
             Children = children
         };
     }
 
-    private static string ReadType(JsonNode schema)
+    private static JsonNode ResolveRef(JsonNode schema, JsonNode schemaRoot)
     {
-        if (schema.AsObject()?.TryGetPropertyValue("type", out JsonNode? typeNode) == true &&
+        JsonObject? schemaObject = schema.AsObject();
+
+        if (schemaObject is null ||
+            !schemaObject.TryGetPropertyValue("$ref", out JsonNode? refNode) ||
+            refNode is not JsonValue refValue ||
+            !refValue.TryGetValue<string>(out string? refPath) ||
+            !refPath.StartsWith("#/$defs/", StringComparison.Ordinal))
+            return schema;
+
+        string definitionName = refPath["#/$defs/".Length..];
+        JsonObject? definitions = schemaRoot.AsObject()?.TryGetPropertyValue("$defs", out JsonNode? defsNode) == true
+            ? defsNode?.AsObject()
+            : null;
+
+        if (definitions is not null &&
+            definitions.TryGetPropertyValue(definitionName, out JsonNode? definitionSchema) &&
+            definitionSchema is not null)
+            return definitionSchema;
+
+        return schema;
+    }
+
+    private static string ReadType(JsonNode schema, JsonNode schemaRoot)
+    {
+        JsonNode resolvedSchema = ResolveRef(schema, schemaRoot);
+
+        if (resolvedSchema.AsObject()?.TryGetPropertyValue("type", out JsonNode? typeNode) == true &&
             typeNode is JsonValue typeValue &&
             typeValue.TryGetValue<string>(out string? type) &&
             !string.IsNullOrWhiteSpace(type))
@@ -119,12 +147,19 @@ internal static class PolicyPackSchemaKeyParser
         return "object";
     }
 
-    private static JsonNode? ReadItems(JsonNode schema) =>
-        schema.AsObject()?.TryGetPropertyValue("items", out JsonNode? itemsNode) == true ? itemsNode : null;
-
-    private static JsonNode? ReadAdditionalProperties(JsonNode schema)
+    private static JsonNode? ReadItems(JsonNode schema, JsonNode schemaRoot)
     {
-        JsonObject? objectSchema = schema.AsObject();
+        JsonNode resolvedSchema = ResolveRef(schema, schemaRoot);
+
+        if (resolvedSchema.AsObject()?.TryGetPropertyValue("items", out JsonNode? itemsNode) != true)
+            return null;
+
+        return itemsNode is null ? null : ResolveRef(itemsNode, schemaRoot);
+    }
+
+    private static JsonNode? ReadAdditionalProperties(JsonNode schema, JsonNode schemaRoot)
+    {
+        JsonObject? objectSchema = ResolveRef(schema, schemaRoot).AsObject();
 
         if (objectSchema is null)
             return null;
@@ -137,33 +172,40 @@ internal static class PolicyPackSchemaKeyParser
             !allowed)
             return null;
 
-        return additionalPropertiesNode;
+        return additionalPropertiesNode is null
+            ? null
+            : ResolveRef(additionalPropertiesNode, schemaRoot);
     }
 
-    private static string? ReadValueType(JsonNode? itemsSchema, JsonNode? additionalPropertiesSchema)
+    private static string? ReadValueType(JsonNode? itemsSchema, JsonNode? additionalPropertiesSchema, JsonNode schemaRoot)
     {
         if (itemsSchema is not null)
-            return ReadType(itemsSchema);
+            return ReadType(itemsSchema, schemaRoot);
 
         if (additionalPropertiesSchema is not null)
-            return ReadType(additionalPropertiesSchema);
+            return ReadType(additionalPropertiesSchema, schemaRoot);
 
         return null;
     }
 
-    private static string? ReadFormat(JsonNode? primarySchema, JsonNode? secondarySchema)
+    private static string? ReadFormat(JsonNode? primarySchema, JsonNode? secondarySchema, JsonNode schemaRoot)
     {
-        string? format = ReadFormatFromSchema(primarySchema);
+        string? format = ReadFormatFromSchema(primarySchema, schemaRoot);
 
         if (!string.IsNullOrWhiteSpace(format))
             return format;
 
-        return ReadFormatFromSchema(secondarySchema);
+        return ReadFormatFromSchema(secondarySchema, schemaRoot);
     }
 
-    private static string? ReadFormatFromSchema(JsonNode? schema)
+    private static string? ReadFormatFromSchema(JsonNode? schema, JsonNode schemaRoot)
     {
-        if (schema?.AsObject()?.TryGetPropertyValue("format", out JsonNode? formatNode) != true)
+        if (schema is null)
+            return null;
+
+        JsonNode resolvedSchema = ResolveRef(schema, schemaRoot);
+
+        if (resolvedSchema.AsObject()?.TryGetPropertyValue("format", out JsonNode? formatNode) != true)
             return null;
 
         if (formatNode is JsonValue formatValue &&

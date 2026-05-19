@@ -4,6 +4,7 @@ import { FIXTURE_LEFT_RUN_ID, FIXTURE_RIGHT_RUN_ID, fixtureComparisonExplanation
 import {
   comparePageSubmitButton,
   comparePageSummarizeNarrativeButton,
+  expandCompareRunPickersIfCollapsed,
   structuredCompareSponsorRecommendationParagraph,
 } from "./helpers/operator-journey";
 import { registerCompareAndExplainRoutes } from "./helpers/register-operator-api-routes";
@@ -20,6 +21,7 @@ test.describe("operator journey — compare proxy mocks", () => {
     });
     await page.goto(`/compare?${q.toString()}`);
 
+    await expandCompareRunPickersIfCollapsed(page);
     const compareSubmit = comparePageSubmitButton(page);
     await expect(compareSubmit).toBeEnabled();
     await compareSubmit.click();
