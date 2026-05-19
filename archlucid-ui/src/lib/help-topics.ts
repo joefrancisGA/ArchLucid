@@ -121,7 +121,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["ready", "health", "circuit", "diagnostics", "metrics"],
     summary: "In-app readiness checks, circuit breaker gates, and onboarding funnel counters — same signals as CLI doctor without leaving the shell.",
     docPath: "docs/library/OBSERVABILITY.md",
-    routes: ["/admin/health"],
+    routes: ["/health", "/admin/health"],
   },
   {
     id: "admin-configuration",

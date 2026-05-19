@@ -34,5 +34,6 @@ public sealed class BuildInfoResponseTests
         r.FileVersion.Should().Be("1.2.3.4");
         r.CommitSha.Should().Be("sha");
         r.RuntimeFramework.Should().Be(".NET Test");
+        r.ProcessUptimeSeconds.Should().BeGreaterThanOrEqualTo(0);
     }
 }

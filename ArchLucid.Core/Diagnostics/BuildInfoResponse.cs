@@ -48,6 +48,13 @@ public sealed class BuildInfoResponse
         init;
     } = string.Empty;
 
+    /// <summary>Seconds since the API host process started (for operator health dashboards).</summary>
+    public long ProcessUptimeSeconds
+    {
+        get;
+        init;
+    }
+
     /// <summary>
     ///     Creates a <see cref="BuildInfoResponse" /> from <paramref name="provenance" />
     ///     and optional environment metadata.
@@ -55,7 +62,8 @@ public sealed class BuildInfoResponse
     public static BuildInfoResponse FromProvenance(
         BuildProvenance provenance,
         string applicationName,
-        string environmentName)
+        string environmentName,
+        long processUptimeSeconds = 0)
     {
         ArgumentNullException.ThrowIfNull(provenance);
 
@@ -67,7 +75,8 @@ public sealed class BuildInfoResponse
             FileVersion = provenance.FileVersion,
             CommitSha = provenance.CommitSha,
             RuntimeFramework = provenance.RuntimeFrameworkDescription,
-            Environment = environmentName
+            Environment = environmentName,
+            ProcessUptimeSeconds = processUptimeSeconds
         };
     }
 }

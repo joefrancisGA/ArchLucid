@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 using ArchLucid.Core.Diagnostics;
 
 using Asp.Versioning;
@@ -21,7 +23,7 @@ namespace ArchLucid.Api.Controllers;
 [AllowAnonymous]
 [ApiVersionNeutral]
 [EnableRateLimiting("fixed")]
-public sealed class VersionController(IHostEnvironment environment) : ControllerBase
+public sealed class VersionController(IHostEnvironment environment, TimeProvider timeProvider) : ControllerBase
 {
     private static readonly BuildProvenance Provenance =
         BuildProvenance.FromAssembly(typeof(VersionController).Assembly);
@@ -31,10 +33,14 @@ public sealed class VersionController(IHostEnvironment environment) : Controller
     [ProducesResponseType(typeof(BuildInfoResponse), StatusCodes.Status200OK)]
     public IActionResult Get()
     {
+        Process process = Process.GetCurrentProcess();
+        long processUptimeSeconds = (long)(timeProvider.GetUtcNow() - process.StartTime.ToUniversalTime()).TotalSeconds;
+
         BuildInfoResponse response = BuildInfoResponse.FromProvenance(
             Provenance,
             "ArchLucid.Api",
-            environment.EnvironmentName);
+            environment.EnvironmentName,
+            processUptimeSeconds);
 
         return Ok(response);
     }

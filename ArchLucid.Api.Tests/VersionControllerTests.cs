@@ -22,7 +22,7 @@ public sealed class VersionControllerTests
         Mock<IHostEnvironment> env = new();
         env.SetupGet(e => e.EnvironmentName).Returns("Staging");
 
-        VersionController controller = new(env.Object);
+        VersionController controller = new(env.Object, TimeProvider.System);
 
         IActionResult result = controller.Get();
 
@@ -34,6 +34,7 @@ public sealed class VersionControllerTests
         response.InformationalVersion.Should().NotBeNullOrWhiteSpace();
         response.AssemblyVersion.Should().NotBeNullOrWhiteSpace();
         response.RuntimeFramework.Should().Contain(".NET");
+        response.ProcessUptimeSeconds.Should().BeGreaterThanOrEqualTo(0);
     }
 
     [SkippableFact]
@@ -42,7 +43,7 @@ public sealed class VersionControllerTests
         Mock<IHostEnvironment> env = new();
         env.SetupGet(e => e.EnvironmentName).Returns("Production");
 
-        VersionController controller = new(env.Object);
+        VersionController controller = new(env.Object, TimeProvider.System);
 
         OkObjectResult ok = (OkObjectResult)controller.Get();
         string json = JsonSerializer.Serialize(ok.Value,
@@ -58,5 +59,6 @@ public sealed class VersionControllerTests
         root.TryGetProperty("environment", out _).Should().BeTrue();
         root.TryGetProperty("commitSha", out _).Should().BeTrue();
         root.TryGetProperty("fileVersion", out _).Should().BeTrue();
+        root.TryGetProperty("processUptimeSeconds", out _).Should().BeTrue();
     }
 }

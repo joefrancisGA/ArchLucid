@@ -36,6 +36,7 @@ export type VersionInfoResponse = {
   informationalVersion?: string;
   commitSha?: string | null;
   environment?: string;
+  processUptimeSeconds?: number;
 };
 
 export type CircuitGateRow = {
