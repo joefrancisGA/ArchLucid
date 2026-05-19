@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
@@ -16,6 +17,8 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
@@ -56,9 +59,13 @@ public sealed partial class RunsController(
     IAuditService auditService,
     ICommitSponsorEmailNotifier commitSponsorEmailNotifier,
     ICommitRunIdempotencyRepository commitRunIdempotencyRepository,
+    IRunRepository runRepository,
     ILogger<RunsController> logger)
     : ControllerBase
 {
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
     // Required by LoggerMessage source generator (SYSLIB1019): concrete ILogger field named _logger.
 
     /// <summary>
@@ -554,6 +561,44 @@ public sealed partial class RunsController(
     }
 
     /// <summary>
+    ///     Pins or unpins <paramref name="runId" /> for workspace curation. When the body omits
+    ///     <see cref="PinRunRequest.IsPinned" />, toggles the current stored value.
+    /// </summary>
+    [HttpPatch("run/{runId}/pin")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(PinRunResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> PinRun(
+        [FromRoute] string runId,
+        [FromBody] PinRunRequest? request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryParseRunGuidForAudit(runId, out Guid runGuid))
+            return this.BadRequestProblem("runId must be a valid GUID.", ProblemTypes.ValidationFailed);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        RunRecord? run = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (run is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        bool nextPinned = request?.IsPinned ?? !run.IsPinned;
+        run.IsPinned = nextPinned;
+
+        try
+        {
+            await _runRepository.UpdateAsync(run, cancellationToken);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+
+        return Ok(new PinRunResponse { RunId = run.RunId.ToString("N"), IsPinned = run.IsPinned });
+    }
+
+    /// <summary>
     ///     Accepts one <see cref="ArchLucid.Contracts.Agents.AgentResult" /> for an in-progress run (custom agent
     ///     integrations).
     /// </summary>
@@ -626,12 +671,17 @@ public sealed partial class RunsController(
             cancellationToken);
     }
 
+    private static bool TryParseRunGuidForAudit(string runId, out Guid runGuid)
+    {
+        if (Guid.TryParseExact(runId, "N", out runGuid))
+            return true;
+
+        return Guid.TryParse(runId, out runGuid);
+    }
+
     private static Guid? TryParseRunGuidForAudit(string runId)
     {
-        if (Guid.TryParseExact(runId, "N", out Guid g))
-            return g;
-
-        return Guid.TryParse(runId, out g) ? g : null;
+        return TryParseRunGuidForAudit(runId, out Guid g) ? g : null;
     }
 
     private IActionResult MapApplicationServiceFailure(string? error, ApplicationServiceFailureKind? kind,

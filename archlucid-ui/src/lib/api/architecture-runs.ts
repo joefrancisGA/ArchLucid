@@ -23,6 +23,7 @@ import {
   type ApiResponseWithTrace,
   apiGet,
   apiGetJsonWithTrace,
+  apiPatchJson,
   apiPostJson,
   ensureOidcBearerReady,
   resolveBinaryGetRequest,
@@ -75,6 +76,17 @@ export async function createArchitectureRun(
   body: CreateArchitectureRunRequestPayload,
 ): Promise<CreateArchitectureRunResponsePayload> {
   return apiPostJson<CreateArchitectureRunResponsePayload>("/v1/architecture/request", body);
+}
+
+/** Pins or unpins a run (PATCH /v1/architecture/run/{runId}/pin). Omit `isPinned` to toggle. */
+export async function pinArchitectureRun(
+  runId: string,
+  body: { readonly isPinned?: boolean } = {},
+): Promise<{ runId: string; isPinned: boolean }> {
+  return apiPatchJson<{ runId: string; isPinned: boolean }>(
+    `/v1/architecture/run/${encodeURIComponent(runId)}/pin`,
+    body,
+  );
 }
 
 /** Commits agent results into a golden manifest (POST /v1/architecture/run/{runId}/commit). */

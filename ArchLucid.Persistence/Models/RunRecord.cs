@@ -132,6 +132,13 @@ public sealed class RunRecord
         set;
     }
 
+    /// <summary>When <see langword="true" />, the operator pinned this run as a workspace reference architecture.</summary>
+    public bool IsPinned
+    {
+        get;
+        set;
+    }
+
     /// <summary>When set, the run is excluded from list/detail authority APIs (soft archival).</summary>
     public DateTime? ArchivedUtc
     {

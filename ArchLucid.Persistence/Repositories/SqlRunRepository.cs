@@ -48,7 +48,7 @@ public sealed class SqlRunRepository(
                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsDemoWelcomeRun, IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                               IsDemoWelcomeRun, IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                StructuralExecutionMode,
                                RetryCount, LastFailureReason
                            )
@@ -59,7 +59,7 @@ public sealed class SqlRunRepository(
                                @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId,
                                @GoldenManifestId, @DecisionTraceId, @ArtifactBundleId, @ArchivedUtc,
                                @ArchitectureRequestId, @LegacyRunStatus, @CompletedUtc, @CurrentManifestVersion, @OtelTraceId,
-                               @IsDemoWelcomeRun, @IsPublicShowcase, @RealModeFellBackToSimulator, @PilotAoaiDeploymentSnapshot,
+                               @IsDemoWelcomeRun, @IsPublicShowcase, @IsPinned, @RealModeFellBackToSimulator, @PilotAoaiDeploymentSnapshot,
                                @StructuralExecutionMode,
                                @RetryCount, @LastFailureReason
                            );
@@ -111,7 +111,7 @@ public sealed class SqlRunRepository(
                                    ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                    GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                    ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                   IsDemoWelcomeRun, IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                   IsDemoWelcomeRun, IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                    StructuralExecutionMode,
                                    RetryCount, LastFailureReason,
                                    RowVersionStamp AS RowVersion
@@ -157,7 +157,7 @@ public sealed class SqlRunRepository(
                                    ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                    GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                    ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                   IsDemoWelcomeRun, IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                   IsDemoWelcomeRun, IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                    StructuralExecutionMode,
                                    RetryCount, LastFailureReason,
                                    RowVersionStamp AS RowVersion
@@ -201,7 +201,7 @@ public sealed class SqlRunRepository(
                                    ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                    GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                    ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                   IsDemoWelcomeRun, IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                   IsDemoWelcomeRun, IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                    StructuralExecutionMode,
                                    RetryCount, LastFailureReason,
                                    RowVersionStamp AS RowVersion
@@ -444,6 +444,7 @@ public sealed class SqlRunRepository(
                                CurrentManifestVersion = @CurrentManifestVersion,
                                IsDemoWelcomeRun = @IsDemoWelcomeRun,
                                IsPublicShowcase = @IsPublicShowcase,
+                               IsPinned = @IsPinned,
                                RealModeFellBackToSimulator = @RealModeFellBackToSimulator,
                                PilotAoaiDeploymentSnapshot = @PilotAoaiDeploymentSnapshot,
                                StructuralExecutionMode = @StructuralExecutionMode,
@@ -910,6 +911,7 @@ public sealed class SqlRunRepository(
             run.OtelTraceId,
             run.IsDemoWelcomeRun,
             run.IsPublicShowcase,
+            run.IsPinned,
             run.RealModeFellBackToSimulator,
             run.PilotAoaiDeploymentSnapshot,
             StructuralExecutionMode = run.StructuralExecutionMode.ToString(),
@@ -949,6 +951,7 @@ public sealed class SqlRunRepository(
                     run.CurrentManifestVersion,
                     run.IsDemoWelcomeRun,
                     run.IsPublicShowcase,
+                    run.IsPinned,
                     run.RealModeFellBackToSimulator,
                     run.PilotAoaiDeploymentSnapshot,
                     StructuralExecutionMode = run.StructuralExecutionMode.ToString(),

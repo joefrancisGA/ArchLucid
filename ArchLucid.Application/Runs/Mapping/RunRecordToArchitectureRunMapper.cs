@@ -35,6 +35,7 @@ public static class RunRecordToArchitectureRunMapper
             ArtifactBundleId = record.ArtifactBundleId,
             OtelTraceId = record.OtelTraceId,
             TaskIds = [.. taskIds],
+            IsPinned = record.IsPinned,
             RealModeFellBackToSimulator = record.RealModeFellBackToSimulator,
             StructuralExecutionMode = record.StructuralExecutionMode,
             PilotAoaiDeploymentSnapshot = record.PilotAoaiDeploymentSnapshot,

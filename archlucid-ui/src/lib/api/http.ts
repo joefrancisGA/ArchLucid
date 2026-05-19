@@ -184,6 +184,27 @@ export async function apiPostJson<T>(path: string, body: unknown): Promise<T> {
   return JSON.parse(text) as T;
 }
 
+/** PATCHes a JSON body to the ArchLucid API and returns the parsed response. Throws on HTTP errors. */
+export async function apiPatchJson<T>(path: string, body: unknown): Promise<T> {
+  await ensureOidcBearerReady();
+  const { url, headers } = resolveRequest(path);
+  const h = withCorrelationHeaders(headers);
+  h.set("Content-Type", "application/json");
+  const response = await fetch(url, {
+    method: "PATCH",
+    headers: h,
+    cache: "no-store",
+    body: JSON.stringify(body),
+  });
+  const text = await response.text();
+
+  if (!response.ok) {
+    throwApiRequestError(response, text);
+  }
+
+  return JSON.parse(text) as T;
+}
+
 /** POSTs a JSON body to the ArchLucid API and expects no response body. Throws on HTTP errors. */
 export async function apiPostNoContent(path: string, body: unknown): Promise<void> {
   await ensureOidcBearerReady();

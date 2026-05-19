@@ -129,6 +129,13 @@ public sealed class ArchitectureRun
         set;
     } = [];
 
+    /// <summary>When <see langword="true" />, the operator pinned this run as a workspace reference architecture.</summary>
+    public bool IsPinned
+    {
+        get;
+        set;
+    }
+
     /// <summary>
     ///     When <see langword="true" />, real-mode pilot execution fell back to deterministic simulator output (
     ///     <c>archlucid try --real</c> path).

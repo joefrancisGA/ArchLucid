@@ -404,6 +404,7 @@ BEGIN
         OtelTraceId NVARCHAR(64) NULL,
         IsPublicShowcase BIT NOT NULL CONSTRAINT DF_Runs_IsPublicShowcase_Greenfield DEFAULT (0),
         IsDemoWelcomeRun BIT NOT NULL CONSTRAINT DF_Runs_IsDemoWelcomeRun_Greenfield DEFAULT (0),
+        IsPinned BIT NOT NULL CONSTRAINT DF_Runs_IsPinned_Greenfield DEFAULT (0),
         StructuralExecutionMode NVARCHAR(32) NOT NULL CONSTRAINT DF_Runs_StructuralExecutionMode_Greenfield DEFAULT (N'Simulator'),
         CONSTRAINT CK_Runs_StructuralExecutionMode_Greenfield CHECK (StructuralExecutionMode IN (N'Simulator', N'Real', N'Fallback', N'Mixed')),
         RowVersionStamp ROWVERSION,
@@ -449,6 +450,11 @@ GO
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.Runs', N'IsDemoWelcomeRun') IS NULL
     ALTER TABLE dbo.Runs ADD IsDemoWelcomeRun BIT NOT NULL CONSTRAINT DF_Runs_IsDemoWelcomeRun DEFAULT (0);
+GO
+
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'IsPinned') IS NULL
+    ALTER TABLE dbo.Runs ADD IsPinned BIT NOT NULL CONSTRAINT DF_Runs_IsPinned DEFAULT (0);
 GO
 
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL

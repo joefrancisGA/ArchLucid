@@ -47,6 +47,13 @@ public class RunSummaryResponse
         set;
     }
 
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.IsPinned" />
+    public bool IsPinned
+    {
+        get;
+        set;
+    }
+
     public DateTime CreatedUtc
     {
         get;

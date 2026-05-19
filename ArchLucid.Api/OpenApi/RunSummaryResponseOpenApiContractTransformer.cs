@@ -22,6 +22,7 @@ public sealed class RunSummaryResponseOpenApiContractTransformer : IOpenApiDocum
         mutable.Properties ??= new Dictionary<string, IOpenApiSchema>(StringComparer.Ordinal);
 
         AddBooleanIfMissing(mutable.Properties, "isDemoWelcomeRun");
+        AddBooleanIfMissing(mutable.Properties, "isPinned");
         AddBooleanIfMissing(mutable.Properties, "runDegradedExecution");
         AddStringArrayIfMissing(mutable.Properties, "degradedExecutionAgents");
 

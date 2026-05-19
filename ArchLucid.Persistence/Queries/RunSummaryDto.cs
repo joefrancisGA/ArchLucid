@@ -45,6 +45,13 @@ public class RunSummaryDto
         set;
     }
 
+    /// <summary>When <see langword="true" />, the operator pinned this run in the workspace run list.</summary>
+    public bool IsPinned
+    {
+        get;
+        set;
+    }
+
     /// <summary><see langword="true" /> when <see cref="ContextSnapshotId" /> is set.</summary>
     public bool HasContextSnapshot => ContextSnapshotId.HasValue;
 
