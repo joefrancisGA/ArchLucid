@@ -11,6 +11,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
 
+[Collection("ArchLucidEnvMutation")]
 [Trait("Category", "Integration")]
 public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
@@ -60,7 +61,9 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSign
             new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative),
             body);
 
-        res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        string responseBody = await res.Content.ReadAsStringAsync();
+        res.StatusCode.Should().Be(HttpStatusCode.BadRequest, "response body: {0}", responseBody);
+        responseBody.Should().Contain("raw webhook URLs are not stored");
     }
 
     [SkippableFact]

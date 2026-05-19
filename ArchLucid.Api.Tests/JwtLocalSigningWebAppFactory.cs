@@ -1,6 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
 
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Auth.Services;
 using ArchLucid.TestSupport;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,7 +11,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 
 namespace ArchLucid.Api.Tests;
 
@@ -43,13 +44,10 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
 
     private readonly string _publicPemPath;
 
-    private readonly RsaSecurityKey _validationSigningKey;
-
     public JwtLocalSigningWebAppFactory()
     {
         using RSA rsa = RSA.Create(2048);
         PrivatePemForTests = rsa.ExportPkcs8PrivateKeyPem();
-        _validationSigningKey = new RsaSecurityKey(rsa.ExportParameters(false));
         string publicPem = rsa.ExportSubjectPublicKeyInfoPem();
         _publicPemPath = Path.Combine(Path.GetTempPath(), $"archlucid-jwt-local-{Guid.NewGuid():N}.pem");
         File.WriteAllText(_publicPemPath, publicPem, Encoding.UTF8);
@@ -105,25 +103,20 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
 
     private void ApplyFactoryJwtValidation(JwtBearerOptions options)
     {
-        options.RequireHttpsMetadata = false;
-        options.MapInboundClaims = false;
-        options.Authority = string.Empty;
-        options.MetadataAddress = string.Empty;
-        // Drop OIDC metadata manager from earlier Configure passes so validation uses IssuerSigningKey only.
-        options.ConfigurationManager = null;
-        options.TokenValidationParameters = new TokenValidationParameters
+        // Reuse production PEM wiring so minted tokens and validation always read the same key material as this factory's
+        // _publicPemPath (avoids 401 when process env PEM paths race across WebApplicationFactory instances in CI).
+        ArchLucidAuthOptions authOptions = new()
         {
-            ValidateIssuer = true,
-            ValidIssuer = JwtLocalTestIssuer,
-            ValidateAudience = true,
-            ValidAudience = JwtLocalTestAudience,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = _validationSigningKey,
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.FromMinutes(30),
-            RoleClaimType = "roles",
-            NameClaimType = "name"
+            Mode = "JwtBearer",
+            JwtSigningPublicKeyPemPath = _publicPemPath,
+            JwtLocalIssuer = JwtLocalTestIssuer,
+            JwtLocalAudience = JwtLocalTestAudience
         };
+
+        IConfiguration emptyConfiguration = new ConfigurationBuilder().Build();
+        ArchLucidJwtBearerConfiguration.Apply(options, authOptions, emptyConfiguration);
+        options.ConfigurationManager = null;
+        options.TokenValidationParameters.ClockSkew = TimeSpan.FromMinutes(30);
     }
 
     /// <summary>Host overrides shared by bootstrap and late configuration providers.</summary>

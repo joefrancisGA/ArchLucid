@@ -99,20 +99,12 @@ public sealed class TeamsIncomingWebhookConnectionsController(
                 ProblemTypes.ValidationFailed);
         }
 
-        if (string.IsNullOrWhiteSpace(body.KeyVaultSecretName))
+        if (!TeamsIncomingWebhookConnectionUpsertValidation.TryValidateKeyVaultSecretName(
+                body.KeyVaultSecretName,
+                out string? trimmed,
+                out string? keyVaultError))
         {
-            return this.BadRequestProblem(
-                "KeyVaultSecretName is required.",
-                ProblemTypes.ValidationFailed);
-        }
-
-        string trimmed = body.KeyVaultSecretName.Trim();
-
-        if (trimmed.Contains("://", StringComparison.Ordinal))
-        {
-            return this.BadRequestProblem(
-                "KeyVaultSecretName must be a Key Vault secret name or id reference — raw webhook URLs are not stored in ArchLucid SQL.",
-                ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem(keyVaultError!, ProblemTypes.ValidationFailed);
         }
 
         if (body.EnabledTriggers is not null)
@@ -131,7 +123,7 @@ public sealed class TeamsIncomingWebhookConnectionsController(
 
         TeamsIncomingWebhookConnectionResponse? saved = await _connectionRepository.UpsertAsync(
             scope.TenantId,
-            trimmed,
+            trimmed!,
             string.IsNullOrWhiteSpace(body.Label) ? null : body.Label.Trim(),
             body.EnabledTriggers,
             cancellationToken);
