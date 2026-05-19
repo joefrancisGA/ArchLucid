@@ -3,6 +3,7 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
+[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Shared contract assertions for <see cref="IRunRepository" />.

@@ -5,6 +5,7 @@ using ArchLucid.Persistence.Models;
 using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.AzureExtractor;
+[Trait("Category", "Unit")]
 
 public sealed class AzureExtractorEvidenceBundleMergerTests
 {

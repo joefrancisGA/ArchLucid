@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Tests.Telemetry;
+[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Improvement 12 â€” verifies the privacy-sensitive flag toggles between aggregated emission

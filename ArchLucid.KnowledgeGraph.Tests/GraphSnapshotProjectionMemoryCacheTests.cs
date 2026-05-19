@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 
 namespace ArchLucid.KnowledgeGraph.Tests;
+[Trait("Category", "Unit")]
 
 /// <summary><see cref="GraphSnapshotProjectionMemoryCache" /> exercises read-through + invalidation semantics.</summary>
 public sealed class GraphSnapshotProjectionMemoryCacheTests

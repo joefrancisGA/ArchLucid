@@ -1,6 +1,7 @@
 using FluentAssertions;
 
 namespace ArchLucid.Cli.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class ArchLucidApiClientBaseUrlTests
 {

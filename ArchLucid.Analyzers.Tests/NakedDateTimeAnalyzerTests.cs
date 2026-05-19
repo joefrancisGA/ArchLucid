@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 
 namespace ArchLucid.Analyzers.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class NakedDateTimeAnalyzerTests
 {

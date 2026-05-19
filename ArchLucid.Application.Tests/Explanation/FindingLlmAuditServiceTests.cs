@@ -12,6 +12,7 @@ using FluentAssertions;
 using Moq;
 
 namespace ArchLucid.Application.Tests.Explanation;
+[Trait("Category", "Unit")]
 
 public sealed class FindingLlmAuditServiceTests
 {

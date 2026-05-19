@@ -2,6 +2,7 @@ using ArchLucid.Core.Conversation;
 using ArchLucid.Persistence.Conversation;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
+[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Shared contract assertions for <see cref="IConversationMessageRepository" />.

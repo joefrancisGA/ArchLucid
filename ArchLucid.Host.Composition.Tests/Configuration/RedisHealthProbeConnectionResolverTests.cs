@@ -8,6 +8,7 @@ using ArchLucid.Persistence.Coordination.Caching;
 using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Host.Composition.Tests.Configuration;
+[Trait("Category", "Unit")]
 
 public sealed class RedisHealthProbeConnectionResolverTests
 {

@@ -1,4 +1,5 @@
 ﻿namespace ArchLucid.Persistence.Tests.Coordination.Diagnostics;
+[Trait("Category", "Unit")]
 
 public sealed class InMemoryOutboxOperationalMetricsReaderTests
 {

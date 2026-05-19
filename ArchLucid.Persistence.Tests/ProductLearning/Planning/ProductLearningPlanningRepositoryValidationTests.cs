@@ -2,6 +2,7 @@
 using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
+[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Direct coverage for <see cref="ProductLearningPlanningRepositoryValidation" /> (59R planning persistence guards).

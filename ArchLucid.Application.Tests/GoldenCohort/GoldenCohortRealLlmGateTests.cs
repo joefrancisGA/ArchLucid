@@ -3,6 +3,8 @@
 using ArchLucid.Core.GoldenCorpus;
 
 namespace ArchLucid.Application.Tests.GoldenCohort;
+[Trait("Category", "Unit")]
+[Trait("Suite", "GoldenCohort")]
 
 /// <summary>
 /// Lightweight checks for the optional nightly real-LLM gate job (no Azure OpenAI calls; budget probe runs separately).

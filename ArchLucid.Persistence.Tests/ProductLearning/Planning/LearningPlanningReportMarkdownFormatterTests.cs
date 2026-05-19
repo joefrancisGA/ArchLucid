@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
+[Trait("Category", "Unit")]
 
 [Trait("ChangeSet", "59R")]
 public sealed class LearningPlanningReportMarkdownFormatterTests

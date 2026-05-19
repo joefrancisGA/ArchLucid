@@ -4,6 +4,7 @@ using ArchLucid.Persistence.Tenancy;
 using Moq;
 
 namespace ArchLucid.Persistence.Tests.Tenancy;
+[Trait("Category", "Unit")]
 
 public sealed class SqlTenantHardPurgeServiceTests
 {

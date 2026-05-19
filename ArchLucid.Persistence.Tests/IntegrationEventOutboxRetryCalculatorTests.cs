@@ -1,6 +1,7 @@
 using ArchLucid.Persistence.IntegrationOutbox;
 
 namespace ArchLucid.Persistence.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class IntegrationEventOutboxRetryCalculatorTests
 {

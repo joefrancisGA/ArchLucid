@@ -3,6 +3,7 @@ using ArchLucid.Core.Scoping;
 using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Scoping;
+[Trait("Category", "Unit")]
 
 public sealed class DemoTourWorkspaceIdsParityTests
 {

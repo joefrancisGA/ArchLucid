@@ -4,6 +4,7 @@ using ArchLucid.Persistence.Tenancy;
 using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Tenancy;
+[Trait("Category", "Unit")]
 
 public sealed class TrialTenantBootstrapServiceBaselinePersistenceTests
 {

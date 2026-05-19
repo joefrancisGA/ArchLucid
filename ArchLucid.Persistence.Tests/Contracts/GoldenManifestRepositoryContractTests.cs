@@ -4,6 +4,7 @@ using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
+[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Shared contract assertions for authority <see cref="IGoldenManifestRepository" /> (SQL + in-memory).

@@ -3,6 +3,7 @@ using ArchLucid.Contracts.ValueReports;
 using FluentAssertions;
 
 namespace ArchLucid.Contracts.Tests.ValueReports;
+[Trait("Category", "Unit")]
 
 public sealed class BaselineReviewCycleSourceMarkersTests
 {

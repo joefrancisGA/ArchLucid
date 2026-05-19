@@ -4,6 +4,7 @@ using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 namespace ArchLucid.Application.Tests.Governance;
+[Trait("Category", "Unit")]
 
 public sealed class DefaultPolicyPackTemplatesTests
 {

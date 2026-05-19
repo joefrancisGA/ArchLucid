@@ -8,6 +8,7 @@ using ArchLucid.Host.Core.Health;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace ArchLucid.Host.Core.Tests.Health;
+[Trait("Category", "Unit")]
 
 public sealed class OptionalRedisConnectionHealthCheckTests
 {

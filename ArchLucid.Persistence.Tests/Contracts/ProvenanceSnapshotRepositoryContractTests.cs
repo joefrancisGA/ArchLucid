@@ -3,6 +3,7 @@ using ArchLucid.Persistence.Provenance;
 using ArchLucid.Provenance;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
+[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Shared contract assertions for <see cref="IProvenanceSnapshotRepository" />.

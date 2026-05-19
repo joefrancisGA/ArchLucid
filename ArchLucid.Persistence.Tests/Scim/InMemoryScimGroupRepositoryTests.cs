@@ -2,6 +2,7 @@
 using ArchLucid.Persistence.Scim;
 
 namespace ArchLucid.Persistence.Tests.Scim;
+[Trait("Category", "Unit")]
 
 public sealed class InMemoryScimGroupRepositoryTests
 {

@@ -3,6 +3,7 @@ using ArchLucid.Application.Integrations.Itsm.Outbound;
 using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Integrations.Itsm.Outbound;
+[Trait("Category", "Unit")]
 
 public sealed class ItsmOutboundLocalConfigurationEvaluatorTests
 {

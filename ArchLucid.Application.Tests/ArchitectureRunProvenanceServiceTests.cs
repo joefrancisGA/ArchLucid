@@ -13,6 +13,7 @@ using FluentAssertions;
 using Moq;
 
 namespace ArchLucid.Application.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class ArchitectureRunProvenanceServiceTests
 {

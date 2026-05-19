@@ -3,6 +3,7 @@ using ArchLucid.Core.Support;
 using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Support;
+[Trait("Category", "Unit")]
 
 public sealed class SupportBundleNextStepsBuilderTests
 {

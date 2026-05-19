@@ -5,6 +5,7 @@ using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Tenancy;
 
 namespace ArchLucid.Persistence.Tests.Repositories;
+[Trait("Category", "Unit")]
 
 public sealed class InMemoryRunRepositoryGetLatestWithGraphAtOrBeforeTests
 {

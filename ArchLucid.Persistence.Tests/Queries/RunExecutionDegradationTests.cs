@@ -2,6 +2,7 @@ using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Persistence.Tests.Queries;
+[Trait("Category", "Unit")]
 
 public sealed class RunExecutionDegradationTests
 {

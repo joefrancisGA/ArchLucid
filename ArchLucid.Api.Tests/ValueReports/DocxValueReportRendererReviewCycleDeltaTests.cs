@@ -9,6 +9,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchLucid.Api.Tests.ValueReports;
+[Trait("Category", "Unit")]
 
 public sealed class DocxValueReportRendererReviewCycleDeltaTests
 {

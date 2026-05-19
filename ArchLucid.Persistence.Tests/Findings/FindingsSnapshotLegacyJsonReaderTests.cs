@@ -3,6 +3,7 @@ using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Persistence.Tests.Findings;
+[Trait("Category", "Unit")]
 
 public sealed class FindingsSnapshotLegacyJsonReaderTests
 {

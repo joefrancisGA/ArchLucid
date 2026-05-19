@@ -7,6 +7,7 @@ using Moq;
 using PersistenceFindingReviewEventRecord = ArchLucid.Persistence.Models.FindingReviewEventRecord;
 
 namespace ArchLucid.Application.Tests.Governance.FindingReview;
+[Trait("Category", "Unit")]
 
 /// <seealso cref="FindingReviewTrailAppendService" />
 public sealed class FindingReviewTrailAppendServiceTests

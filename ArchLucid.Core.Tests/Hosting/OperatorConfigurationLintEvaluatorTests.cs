@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
 namespace ArchLucid.Core.Tests.Hosting;
+[Trait("Category", "Unit")]
 
 public sealed class OperatorConfigurationLintEvaluatorTests
 {

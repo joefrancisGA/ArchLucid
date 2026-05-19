@@ -1,6 +1,7 @@
 using FluentAssertions;
 
 namespace ArchLucid.Persistence.MigrateVerify.Tests;
+[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Process env is mutated per-instance to avoid flaky parallel workers when multiple tests toggle

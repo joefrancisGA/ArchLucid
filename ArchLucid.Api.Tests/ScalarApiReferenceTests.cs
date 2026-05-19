@@ -5,6 +5,8 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace ArchLucid.Api.Tests;
+[Trait("Suite", "Core")]
+[Trait("Category", "Integration")]
 
 public sealed class ScalarApiReferenceTests
 {

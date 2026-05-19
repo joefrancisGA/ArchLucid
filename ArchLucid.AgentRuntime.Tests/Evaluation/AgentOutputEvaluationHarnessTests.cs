@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Findings;
 using FluentAssertions;
 
 namespace ArchLucid.AgentRuntime.Tests.Evaluation;
+[Trait("Category", "Unit")]
 
 public sealed class AgentOutputEvaluationHarnessTests
 {

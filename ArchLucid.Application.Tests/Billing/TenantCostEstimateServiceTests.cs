@@ -6,6 +6,7 @@ using FluentAssertions;
 using Moq;
 
 namespace ArchLucid.Application.Tests.Billing;
+[Trait("Category", "Unit")]
 
 public sealed class TenantCostEstimateServiceTests
 {

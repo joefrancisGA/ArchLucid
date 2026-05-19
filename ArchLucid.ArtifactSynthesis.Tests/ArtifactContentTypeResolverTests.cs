@@ -4,6 +4,7 @@ using ArchLucid.ArtifactSynthesis.Packaging;
 using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class ArtifactContentTypeResolverTests
 {

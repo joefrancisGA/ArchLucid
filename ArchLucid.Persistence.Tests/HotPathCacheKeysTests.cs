@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class HotPathCacheKeysTests
 {

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 
 namespace ArchLucid.AgentRuntime.Tests.Evaluation;
+[Trait("Category", "Unit")]
 
 public sealed class AgentOutputLlmSemanticJudgeTests
 {

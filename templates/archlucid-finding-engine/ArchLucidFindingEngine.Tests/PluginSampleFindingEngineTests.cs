@@ -5,6 +5,7 @@ using ArchLucid.KnowledgeGraph.Models;
 using ArchLucidFindingEngine;
 
 namespace ArchLucidFindingEngine.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class PluginSampleFindingEngineTests
 {

@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Persistence.Value;
 
 namespace ArchLucid.Persistence.Tests.Value;
+[Trait("Category", "Unit")]
 
 public sealed class InMemoryValueReportMetricsReaderTests
 {

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace ArchLucid.Api.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class AuditEventCsvFormatterTests
 {

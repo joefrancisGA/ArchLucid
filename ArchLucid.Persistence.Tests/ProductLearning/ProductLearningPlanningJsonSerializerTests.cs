@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning;
+[Trait("Category", "Unit")]
 
 public sealed class ProductLearningPlanningJsonSerializerTests
 {

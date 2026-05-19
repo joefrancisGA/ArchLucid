@@ -19,6 +19,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 
 namespace ArchLucid.Api.Tests;
+[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Unit tests for <see cref="ApiKeyAuthenticationHandler" /> (handler is non-sealed to allow this test double).

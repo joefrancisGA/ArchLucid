@@ -3,6 +3,7 @@ using ArchLucid.Core.Budgeting;
 using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Budgeting;
+[Trait("Category", "Unit")]
 
 public sealed class LlmBudgetTelemetryTests
 {

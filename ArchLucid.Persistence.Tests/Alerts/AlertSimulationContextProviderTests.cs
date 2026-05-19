@@ -13,6 +13,7 @@ using ArchLucid.Persistence.Queries;
 using Moq;
 
 namespace ArchLucid.Persistence.Tests.Alerts;
+[Trait("Category", "Unit")]
 
 public sealed class AlertSimulationContextProviderTests
 {

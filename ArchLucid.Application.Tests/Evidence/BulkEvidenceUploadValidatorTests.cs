@@ -6,6 +6,7 @@ using FluentAssertions;
 using Xunit;
 
 namespace ArchLucid.Application.Tests.Evidence;
+[Trait("Category", "Unit")]
 
 public sealed class BulkEvidenceUploadValidatorTests
 {

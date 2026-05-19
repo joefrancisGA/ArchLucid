@@ -6,6 +6,7 @@ using ArchLucid.KnowledgeGraph.Serialization;
 using FluentAssertions;
 
 namespace ArchLucid.KnowledgeGraph.Tests.Serialization;
+[Trait("Category", "Unit")]
 
 public sealed class GraphJsonSerializationTests
 {

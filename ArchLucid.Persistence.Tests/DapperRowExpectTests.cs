@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Persistence.Utilities;
 
 namespace ArchLucid.Persistence.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class DapperRowExpectTests
 {

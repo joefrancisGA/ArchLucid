@@ -11,6 +11,7 @@ using ArchLucid.Contracts.ValueReports;
 using Moq;
 
 namespace ArchLucid.Application.Tests.Value;
+[Trait("Category", "Unit")]
 
 public sealed class ValueReportBuilderTests
 {

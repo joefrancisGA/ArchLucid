@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace ArchLucid.Api.Tests;
+[Trait("Category", "Unit")]
 
 /// <summary>Unit tests for <see cref="CircuitBreakerAuditBridge" /> (async audit scheduling).</summary>
 public sealed class CircuitBreakerAuditBridgeTests

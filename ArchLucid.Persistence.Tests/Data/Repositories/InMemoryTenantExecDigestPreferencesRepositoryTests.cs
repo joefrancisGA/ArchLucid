@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Data.Repositories;
+[Trait("Category", "Unit")]
 
 public sealed class InMemoryTenantExecDigestPreferencesRepositoryTests
 {

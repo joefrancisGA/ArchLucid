@@ -4,6 +4,7 @@ using ArchLucid.Persistence.Queries;
 using Moq;
 
 namespace ArchLucid.Persistence.Tests.Compare;
+[Trait("Category", "Unit")]
 
 public sealed class AuthorityCompareServiceAddRunDiffTests
 {

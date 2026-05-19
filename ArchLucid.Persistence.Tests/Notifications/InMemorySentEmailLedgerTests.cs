@@ -2,6 +2,7 @@
 using ArchLucid.Persistence.Notifications;
 
 namespace ArchLucid.Persistence.Tests.Notifications;
+[Trait("Category", "Unit")]
 
 public sealed class InMemorySentEmailLedgerTests
 {

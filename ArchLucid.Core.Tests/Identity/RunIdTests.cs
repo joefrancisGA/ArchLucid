@@ -5,6 +5,7 @@ using ArchLucid.Core.Identity;
 using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Identity;
+[Trait("Category", "Unit")]
 
 public sealed class RunIdTests
 {

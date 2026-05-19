@@ -6,6 +6,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Api.Tests.Configuration;
+[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Locks hosted Staging/Production JSON to the pilot-strict blocking posture and per-agent reject floors.

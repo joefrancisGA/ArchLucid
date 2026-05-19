@@ -8,6 +8,7 @@ using Cm = ArchLucid.Contracts.Manifest;
 using Dm = ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Decisioning.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class AuthorityCommitProjectionBuilderTests
 {

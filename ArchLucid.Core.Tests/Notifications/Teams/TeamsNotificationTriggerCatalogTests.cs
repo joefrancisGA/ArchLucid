@@ -6,6 +6,7 @@ using ArchLucid.Core.Notifications.Teams;
 using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Notifications.Teams;
+[Trait("Category", "Unit")]
 
 public sealed class TeamsNotificationTriggerCatalogTests
 {

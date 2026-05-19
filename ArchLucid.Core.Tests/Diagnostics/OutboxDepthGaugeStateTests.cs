@@ -3,6 +3,7 @@ using ArchLucid.Core.Diagnostics;
 using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Diagnostics;
+[Trait("Category", "Unit")]
 
 public sealed class OutboxDepthGaugeStateTests
 {

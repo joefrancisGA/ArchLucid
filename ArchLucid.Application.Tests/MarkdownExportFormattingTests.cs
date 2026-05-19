@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Manifest;
 using FluentAssertions;
 
 namespace ArchLucid.Application.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class MarkdownExportFormattingTests
 {

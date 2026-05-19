@@ -9,6 +9,8 @@ namespace ArchLucid.Api.Tests;
 ///     Verifies <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.CanCommitRuns" /> when the
 ///     <c>commit:run</c> permission claim is absent (Operator role otherwise).
 /// </summary>
+[Trait("Suite", "Core")]
+[Trait("Category", "Integration")]
 public sealed class CommitRunRequiresCommitPermissionTests(OperatorWithoutCommitRunPermissionApiFactory factory)
     : IClassFixture<OperatorWithoutCommitRunPermissionApiFactory>
 {
@@ -29,8 +31,9 @@ public sealed class CommitRunRequiresCommitPermissionTests(OperatorWithoutCommit
 ///     Verifies <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.CanExportConsultingDocx" /> on analysis
 ///     consulting DOCX routes.
 /// </summary>
-public sealed class
-    ConsultingDocxRequiresExportPermissionTests(OperatorWithoutConsultingDocxPermissionApiFactory factory)
+[Trait("Suite", "Core")]
+[Trait("Category", "Integration")]
+public sealed class ConsultingDocxRequiresExportPermissionTests(OperatorWithoutConsultingDocxPermissionApiFactory factory)
     : IClassFixture<OperatorWithoutConsultingDocxPermissionApiFactory>
 {
     private readonly HttpClient _client = factory.CreateClient();
@@ -62,6 +65,8 @@ public sealed class
 ///     Verifies <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.CanExportConsultingDocx" /> on architecture
 ///     package DOCX (Reader satisfies read policy only).
 /// </summary>
+[Trait("Suite", "Core")]
+[Trait("Category", "Integration")]
 public sealed class ArchitecturePackageDocxRequiresExportPermissionTests(ReaderRoleArchLucidApiFactory factory) : IClassFixture<ReaderRoleArchLucidApiFactory>
 {
     private readonly HttpClient _client = factory.CreateClient();

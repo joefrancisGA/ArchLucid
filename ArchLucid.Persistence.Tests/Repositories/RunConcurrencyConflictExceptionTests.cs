@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Persistence.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Repositories;
+[Trait("Category", "Unit")]
 
 public sealed class RunConcurrencyConflictExceptionTests
 {

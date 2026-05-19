@@ -5,6 +5,8 @@ using ArchLucid.Core.GoldenCorpus;
 using Xunit.Abstractions;
 
 namespace ArchLucid.Application.Tests.GoldenCohort;
+[Trait("Category", "Unit")]
+[Trait("Suite", "GoldenCohort")]
 
 /// <summary>
 /// Validates the committed golden cohort JSON (N=20) used for nightly simulator drift automation.

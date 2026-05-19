@@ -1,6 +1,7 @@
 ﻿using ArchLucid.ContextIngestion.Models;
 
 namespace ArchLucid.Persistence.Tests.Orchestration;
+[Trait("Category", "Unit")]
 
 public sealed class AuthorityPipelineWorkPayloadJsonTests
 {

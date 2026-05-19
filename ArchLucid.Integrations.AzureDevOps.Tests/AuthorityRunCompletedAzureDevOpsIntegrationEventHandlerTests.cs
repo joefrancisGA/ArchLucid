@@ -12,6 +12,7 @@ using Moq;
 using Xunit;
 
 namespace ArchLucid.Integrations.AzureDevOps.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class AuthorityRunCompletedAzureDevOpsIntegrationEventHandlerTests
 {

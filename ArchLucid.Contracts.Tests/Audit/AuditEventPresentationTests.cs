@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Audit;
 
 namespace ArchLucid.Contracts.Tests.Audit;
+[Trait("Category", "Unit")]
 
 public sealed class AuditEventPresentationTests
 {

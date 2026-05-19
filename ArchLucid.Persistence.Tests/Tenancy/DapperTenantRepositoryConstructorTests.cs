@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 
 namespace ArchLucid.Persistence.Tests.Tenancy;
+[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Guards primary-constructor null validation for <see cref="DapperTenantRepository" /> (no SQL).

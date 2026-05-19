@@ -5,6 +5,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Api.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class SwaggerOpenApiAuthTests
 {

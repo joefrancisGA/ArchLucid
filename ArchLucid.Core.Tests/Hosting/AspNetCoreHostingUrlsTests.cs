@@ -3,6 +3,7 @@ using ArchLucid.Host.Core.Hosting;
 using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Core.Tests.Hosting;
+[Trait("Category", "Unit")]
 
 public sealed class AspNetCoreHostingUrlsTests
 {

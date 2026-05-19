@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Requests;
 using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Templates;
+[Trait("Category", "Unit")]
 
 public sealed class ArchitectureRequestTemplatesTests
 {

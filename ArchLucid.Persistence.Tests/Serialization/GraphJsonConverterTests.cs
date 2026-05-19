@@ -4,6 +4,7 @@ using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.KnowledgeGraph.Serialization;
 
 namespace ArchLucid.Persistence.Tests.Serialization;
+[Trait("Category", "Unit")]
 
 public sealed class GraphJsonConverterTests
 {

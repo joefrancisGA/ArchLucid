@@ -3,6 +3,7 @@ using ArchLucid.Core.Integration;
 using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Integration;
+[Trait("Category", "Unit")]
 
 public sealed class IntegrationEventTypesTests
 {

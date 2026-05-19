@@ -6,6 +6,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Api.Tests.Configuration;
+[Trait("Category", "Unit")]
 
 public sealed class ArchLucidConfigurationBridgeTests
 {

@@ -3,6 +3,7 @@ using ArchLucid.KnowledgeGraph.Models;
 using FluentAssertions;
 
 namespace ArchLucid.KnowledgeGraph.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class GraphSnapshotPaginationTests
 {

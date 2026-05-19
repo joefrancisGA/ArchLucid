@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace ArchLucid.Api.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class ArchLucidConfigurationRulesTests
 {

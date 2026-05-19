@@ -5,6 +5,7 @@ using ArchLucid.Application.Analysis;
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class ConsultingDocxAnalysisRequestFactoryTests
 {

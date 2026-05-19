@@ -2,6 +2,7 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
+[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Shared contract assertions for <see cref="IPolicyPackAssignmentRepository" />.

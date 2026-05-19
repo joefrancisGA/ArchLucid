@@ -1,4 +1,5 @@
 ﻿namespace ArchLucid.Persistence.Tests.Compare;
+[Trait("Category", "Unit")]
 
 public sealed class ManifestComparisonResultTests
 {

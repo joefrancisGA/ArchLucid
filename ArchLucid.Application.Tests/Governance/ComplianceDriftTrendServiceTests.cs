@@ -8,6 +8,7 @@ using FluentAssertions;
 using Moq;
 
 namespace ArchLucid.Application.Tests.Governance;
+[Trait("Category", "Unit")]
 
 public sealed class ComplianceDriftTrendServiceTests
 {

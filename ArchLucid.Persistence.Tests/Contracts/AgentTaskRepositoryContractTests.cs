@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
+[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Shared contract assertions for <see cref="IAgentTaskRepository" />.

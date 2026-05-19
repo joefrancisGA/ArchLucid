@@ -3,6 +3,7 @@ using ArchLucid.Core.Configuration;
 using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Configuration;
+[Trait("Category", "Unit")]
 
 public sealed class FallbackLlmConfigurationResolverTests
 {

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class PrometheusScrapeAuthMiddlewareTests
 {

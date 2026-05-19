@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace ArchLucid.Host.Core.Tests.Health;
+[Trait("Category", "Unit")]
 
 public sealed class AzureOpenAiHealthCheckTests
 {

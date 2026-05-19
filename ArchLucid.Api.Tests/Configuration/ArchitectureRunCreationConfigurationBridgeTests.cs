@@ -6,6 +6,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Api.Tests.Configuration;
+[Trait("Category", "Unit")]
 
 public sealed class ArchitectureRunCreationConfigurationBridgeTests
 {

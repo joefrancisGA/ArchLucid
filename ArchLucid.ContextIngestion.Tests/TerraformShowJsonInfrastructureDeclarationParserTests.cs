@@ -6,6 +6,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchLucid.ContextIngestion.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
 {

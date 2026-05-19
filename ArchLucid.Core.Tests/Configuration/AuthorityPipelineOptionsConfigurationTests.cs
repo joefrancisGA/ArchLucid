@@ -5,6 +5,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Core.Tests.Configuration;
+[Trait("Category", "Unit")]
 
 /// <summary>Configuration binding for <see cref="AuthorityPipelineOptions"/> under <c>ArchLucid:AuthorityPipeline:</c>.</summary>
 public sealed class AuthorityPipelineOptionsConfigurationTests

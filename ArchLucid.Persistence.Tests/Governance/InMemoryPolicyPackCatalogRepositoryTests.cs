@@ -4,6 +4,7 @@ using ArchLucid.Persistence.Governance;
 using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.Governance;
+[Trait("Category", "Unit")]
 
 public sealed class InMemoryPolicyPackCatalogRepositoryTests
 {

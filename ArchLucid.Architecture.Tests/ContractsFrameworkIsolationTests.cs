@@ -7,6 +7,8 @@ using FluentAssertions;
 using NetArchTest.Rules;
 
 namespace ArchLucid.Architecture.Tests;
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 
 /// <summary>
 /// <c>ArchLucid.Contracts</c> (DTOs and port interfaces under <c>ArchLucid.Contracts.Abstractions.*</c>) is a

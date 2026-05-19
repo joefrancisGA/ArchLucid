@@ -3,6 +3,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
+[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Shared contract assertions for authority <see cref="IDecisionTraceRepository" />.

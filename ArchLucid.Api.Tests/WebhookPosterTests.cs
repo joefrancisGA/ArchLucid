@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 
 namespace ArchLucid.Api.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class WebhookPosterTests
 {

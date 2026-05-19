@@ -12,6 +12,7 @@ using FluentAssertions;
 using FluentValidation.Results;
 
 namespace ArchLucid.Api.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class AdditionalFluentValidationTests
 {

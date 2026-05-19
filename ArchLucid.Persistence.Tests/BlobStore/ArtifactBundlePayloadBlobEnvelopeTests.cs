@@ -1,6 +1,7 @@
 using ArchLucid.Persistence.ArtifactBundles;
 
 namespace ArchLucid.Persistence.Tests.BlobStore;
+[Trait("Category", "Unit")]
 
 public sealed class ArtifactBundlePayloadBlobEnvelopeTests
 {

@@ -1,4 +1,5 @@
 namespace ArchLucid.Persistence.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class HybridHotPathReadCacheTests
 {

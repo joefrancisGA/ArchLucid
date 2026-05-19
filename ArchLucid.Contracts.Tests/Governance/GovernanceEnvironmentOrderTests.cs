@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Governance;
 using FluentAssertions;
 
 namespace ArchLucid.Contracts.Tests.Governance;
+[Trait("Category", "Unit")]
 
 public sealed class GovernanceEnvironmentOrderTests
 {

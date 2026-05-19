@@ -3,6 +3,7 @@ using ArchLucid.Persistence.ContextSnapshots;
 using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Persistence.Tests.ContextSnapshots;
+[Trait("Category", "Unit")]
 
 public sealed class ContextSnapshotLegacyJsonReaderTests
 {

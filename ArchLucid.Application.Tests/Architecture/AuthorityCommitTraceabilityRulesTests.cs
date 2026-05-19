@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Manifest;
 using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Architecture;
+[Trait("Category", "Unit")]
 
 public sealed class AuthorityCommitTraceabilityRulesTests
 {

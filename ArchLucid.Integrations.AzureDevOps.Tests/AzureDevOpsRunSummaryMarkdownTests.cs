@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Abstractions.Integrations;
 using Xunit;
 
 namespace ArchLucid.Integrations.AzureDevOps.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class AzureDevOpsRunSummaryMarkdownTests
 {

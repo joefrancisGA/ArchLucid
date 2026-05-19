@@ -1,6 +1,7 @@
 using Xunit;
 
 namespace ArchLucid.Integrations.AzureDevOps.Tests;
+[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Golden JSON under <c>tests/fixtures/azure-devops-pipeline-task/</c> must match

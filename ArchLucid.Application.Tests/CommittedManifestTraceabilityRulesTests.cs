@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Metadata;
 using FluentAssertions;
 
 namespace ArchLucid.Application.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class CommittedManifestTraceabilityRulesTests
 {

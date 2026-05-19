@@ -9,6 +9,7 @@ using FluentAssertions;
 using VerifyXunit;
 
 namespace ArchLucid.Application.Tests.TerraformAdvisory;
+[Trait("Category", "Unit")]
 
 /// <summary>Snapshot baselines for advisory Terraform emits (no <c>terraform validate</c>; strings only).</summary>
 public sealed class TerraformAdvisoryEmitSnapshotTests : VerifyBase

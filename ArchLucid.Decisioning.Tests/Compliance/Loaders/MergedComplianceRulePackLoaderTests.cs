@@ -4,6 +4,7 @@ using ArchLucid.Decisioning.Compliance.Loaders;
 using FluentAssertions;
 
 namespace ArchLucid.Decisioning.Tests.Compliance.Loaders;
+[Trait("Category", "Unit")]
 
 public sealed class MergedComplianceRulePackLoaderTests
 {

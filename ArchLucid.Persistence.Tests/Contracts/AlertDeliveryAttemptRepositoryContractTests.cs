@@ -1,6 +1,7 @@
 using ArchLucid.Decisioning.Alerts.Delivery;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
+[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Shared contract assertions for <see cref="IAlertDeliveryAttemptRepository" />.

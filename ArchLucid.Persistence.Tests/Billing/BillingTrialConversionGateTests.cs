@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 
 namespace ArchLucid.Persistence.Tests.Billing;
+[Trait("Category", "Unit")]
 
 public sealed class BillingTrialConversionGateTests
 {

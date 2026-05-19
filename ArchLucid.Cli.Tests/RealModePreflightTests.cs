@@ -3,6 +3,7 @@ using ArchLucid.Cli.Real;
 using FluentAssertions;
 
 namespace ArchLucid.Cli.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class RealModePreflightTests
 {

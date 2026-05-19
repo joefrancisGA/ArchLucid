@@ -9,6 +9,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchLucid.Application.Tests.Pilots;
+[Trait("Category", "Unit")]
 
 public sealed class FirstValueReportBuilderReviewCycleDeltaTests
 {

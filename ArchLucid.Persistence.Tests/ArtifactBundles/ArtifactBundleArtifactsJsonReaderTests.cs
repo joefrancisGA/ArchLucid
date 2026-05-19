@@ -3,6 +3,7 @@ using ArchLucid.Persistence.ArtifactBundles;
 using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Persistence.Tests.ArtifactBundles;
+[Trait("Category", "Unit")]
 
 public sealed class ArtifactBundleArtifactsJsonReaderTests
 {

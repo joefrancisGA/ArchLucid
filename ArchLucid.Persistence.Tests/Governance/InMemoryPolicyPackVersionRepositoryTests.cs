@@ -2,6 +2,7 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Governance;
 
 namespace ArchLucid.Persistence.Tests.Governance;
+[Trait("Category", "Unit")]
 
 public sealed class InMemoryPolicyPackVersionRepositoryTests
 {

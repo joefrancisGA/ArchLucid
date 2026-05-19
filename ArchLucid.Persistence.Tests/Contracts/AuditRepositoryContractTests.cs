@@ -3,6 +3,7 @@ using ArchLucid.Core.Pagination;
 using ArchLucid.Persistence.Audit;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
+[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Shared contract assertions for <see cref="IAuditRepository" />.

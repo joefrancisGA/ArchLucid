@@ -6,6 +6,7 @@ using ArchLucid.Application.TerraformAdvisory;
 using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.TerraformAdvisory;
+[Trait("Category", "Unit")]
 
 public sealed class TerraformAdvisorySnippetTemplatesTests
 {

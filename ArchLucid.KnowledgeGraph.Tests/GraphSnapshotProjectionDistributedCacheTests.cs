@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 
 namespace ArchLucid.KnowledgeGraph.Tests;
+[Trait("Category", "Unit")]
 
 /// <summary><see cref="GraphSnapshotProjectionDistributedCache"/> exercises UTF-8 JSON round-trip + eviction.</summary>
 public sealed class GraphSnapshotProjectionDistributedCacheTests

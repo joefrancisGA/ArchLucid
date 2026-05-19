@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 
 namespace ArchLucid.Application.Tests.Identity;
+[Trait("Category", "Unit")]
 
 public sealed class TrialLocalIdentityServiceTests
 {

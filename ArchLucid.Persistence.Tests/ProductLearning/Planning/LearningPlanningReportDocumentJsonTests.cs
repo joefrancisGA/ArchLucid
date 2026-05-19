@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
+[Trait("Category", "Unit")]
 
 /// <summary>59R export document JSON shape (stable property names for clients).</summary>
 [Trait("ChangeSet", "59R")]

@@ -1,4 +1,5 @@
 ﻿namespace ArchLucid.AgentRuntime.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class AgentExecutionResilienceOptionsTests
 {

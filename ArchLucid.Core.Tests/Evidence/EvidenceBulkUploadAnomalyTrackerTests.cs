@@ -6,6 +6,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Core.Tests.Evidence;
+[Trait("Category", "Unit")]
 
 public sealed class EvidenceBulkUploadAnomalyTrackerTests
 {

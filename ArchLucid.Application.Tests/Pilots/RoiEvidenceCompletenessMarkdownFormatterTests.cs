@@ -6,6 +6,7 @@ using ArchLucid.Contracts.ValueReports;
 using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Pilots;
+[Trait("Category", "Unit")]
 
 public sealed class RoiEvidenceCompletenessMarkdownFormatterTests
 {

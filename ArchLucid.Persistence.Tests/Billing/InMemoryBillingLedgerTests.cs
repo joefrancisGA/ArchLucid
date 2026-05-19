@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Persistence.Billing;
 
 namespace ArchLucid.Persistence.Tests.Billing;
+[Trait("Category", "Unit")]
 
 public sealed class InMemoryBillingLedgerTests
 {

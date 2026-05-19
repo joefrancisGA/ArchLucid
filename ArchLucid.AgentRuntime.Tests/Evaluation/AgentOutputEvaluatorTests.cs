@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Common;
 using FluentAssertions;
 
 namespace ArchLucid.AgentRuntime.Tests.Evaluation;
+[Trait("Category", "Unit")]
 
 public sealed class AgentOutputEvaluatorTests
 {

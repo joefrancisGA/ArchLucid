@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 
 namespace ArchLucid.Application.Tests.DataConsistency;
+[Trait("Category", "Unit")]
 
 public sealed class DataConsistencyReconciliationHostedServiceTests
 {
@@ -148,6 +149,7 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
     }
 }
 
+[Trait("Category", "Unit")]
 public sealed class DataConsistencyHealthCheckTests
 {
     [SkippableFact]

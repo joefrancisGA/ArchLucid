@@ -5,6 +5,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class LlmTokenQuotaWindowTrackerTests
 {

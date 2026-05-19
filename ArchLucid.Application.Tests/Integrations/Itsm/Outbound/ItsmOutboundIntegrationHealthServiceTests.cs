@@ -15,6 +15,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 
 namespace ArchLucid.Application.Tests.Integrations.Itsm.Outbound;
+[Trait("Category", "Unit")]
 
 public sealed class ItsmOutboundIntegrationHealthServiceTests
 {

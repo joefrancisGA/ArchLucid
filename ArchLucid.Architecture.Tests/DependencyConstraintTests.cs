@@ -24,6 +24,8 @@ using FluentAssertions;
 using NetArchTest.Rules;
 
 namespace ArchLucid.Architecture.Tests;
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 
 /// <summary>NetArchTest + assembly-reference checks for layer boundaries. One <see cref="FactAttribute"/> per rule for clear CI output.</summary>
 public sealed class DependencyConstraintTests

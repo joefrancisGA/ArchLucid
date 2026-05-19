@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLucid.Api.Tests;
+[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Locks <see cref="RequiresCommercialTenantTierAttribute" /> metadata for Operate / analysis HTTP surfaces (class and

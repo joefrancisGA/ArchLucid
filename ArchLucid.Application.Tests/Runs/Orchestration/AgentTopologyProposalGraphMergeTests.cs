@@ -9,6 +9,7 @@ using ArchLucid.KnowledgeGraph.Models;
 using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Runs.Orchestration;
+[Trait("Category", "Unit")]
 
 public sealed class AgentTopologyProposalGraphMergeTests
 {

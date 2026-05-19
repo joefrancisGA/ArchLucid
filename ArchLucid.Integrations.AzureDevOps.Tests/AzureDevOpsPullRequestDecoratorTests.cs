@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace ArchLucid.Integrations.AzureDevOps.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class AzureDevOpsPullRequestDecoratorTests
 {

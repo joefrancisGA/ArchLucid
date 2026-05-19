@@ -3,6 +3,7 @@
 using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Pilots;
+[Trait("Category", "Unit")]
 
 public sealed class ExecutionProvenanceFooterRendererTests
 {

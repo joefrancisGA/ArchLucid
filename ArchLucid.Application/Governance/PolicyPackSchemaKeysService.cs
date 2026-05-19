@@ -17,7 +17,8 @@ public sealed class PolicyPackSchemaKeysService : IPolicyPackSchemaKeysService
     /// <inheritdoc />
     public PolicyPackSchemaKeysResponse GetSchemaKeys()
     {
-        JsonNode schemaRoot = JsonSchemaExporter.GetSchemaAsNode(
+        JsonNode schemaRoot = JsonSchemaExporter.GetJsonSchemaAsNode(
+            PolicyPackJsonSerializerOptions.Default,
             typeof(PolicyPackContentDocument),
             ExporterOptions);
 
