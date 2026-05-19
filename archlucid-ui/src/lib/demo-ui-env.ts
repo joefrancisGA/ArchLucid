@@ -79,10 +79,6 @@ export function isDemoStrictNavigationRedirectsBypassedForE2E(): boolean {
  * Bypassed when {@link isDemoStrictNavigationRedirectsBypassedForE2E} is true so Playwright can reach advanced routes.
  */
 export function isCompareRouteBlockedUnderDemoStrictShell(): boolean {
-  if (!isDemoStrictNavigationRedirectsActive()) {
-    return false;
-  }
-
   if (isDemoStrictNavigationRedirectsBypassedForE2E()) {
     return false;
   }
@@ -93,5 +89,9 @@ export function isCompareRouteBlockedUnderDemoStrictShell(): boolean {
     return false;
   }
 
-  return true;
+  if (isDemoStrictNavigationRedirectsActive() || isBuyerPolishedOperatorShellEnv()) {
+    return true;
+  }
+
+  return false;
 }

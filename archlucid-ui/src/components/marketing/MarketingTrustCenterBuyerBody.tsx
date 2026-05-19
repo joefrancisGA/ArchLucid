@@ -75,7 +75,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
             </div>
             <div className="rounded-md border border-blue-200/70 bg-white/80 p-3 dark:border-blue-900/60 dark:bg-neutral-950/40">
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                Planned assurance
+                Planned assurance activities
               </p>
               <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
                 <li>

@@ -15,4 +15,7 @@ export const ARCHITECTURE_REVIEW_VOCABULARY = {
    */
   reviewManifestTraceHelp:
     "An architecture review is the end-to-end work unit (intake through finalized outputs). The finalized manifest is the signed package you govern and export for that review. Traces are per-step execution records—agents, scores, and pipeline stages—that explain how the manifest was produced.",
+  /** Buyer-polished shell — replaces {@link reviewManifestTraceHelp} on LayerHeader and governance surfaces. */
+  buyerReviewPackageScopeHelp:
+    "A review package records the decision, evidence, manifest, governance approval, and audit trail for a single architecture review. Traces link review steps, evidence links, decisions, approvals, and deliverables.",
 } as const;

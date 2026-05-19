@@ -17,6 +17,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation } from "@/types/explanation";
 import type { RunComparison, RunSummary } from "@/types/authority";
+import { BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL } from "@/lib/buyer-polish-copy";
 import type { ComparedPair } from "@/app/(operator)/compare/_sections/compare-page-helpers";
 
 export type CompareResultsPanelProps = {
@@ -251,7 +252,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             className="mt-6 rounded-lg border border-dashed border-neutral-300 bg-neutral-50/50 p-4 dark:border-neutral-600 dark:bg-neutral-900/30"
           >
             <summary className="cursor-pointer text-sm font-semibold text-neutral-800 dark:text-neutral-100">
-              Technical details — supplementary review-level comparison
+              {buyerPolished ? BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL : "Technical details — supplementary review-level comparison"}
             </summary>
             <div className="mt-4">
               <LegacyRunComparisonView result={result} />

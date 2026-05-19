@@ -658,7 +658,7 @@ export function SidebarNav() {
         </div>
       ) : null}
 
-      {reviewNavRows.map((row) => renderNavCluster(row))}
+      {buyerPolishedShell ? null : reviewNavRows.map((row) => renderNavCluster(row))}
 
       {showProgressiveDisclosureChrome ? (
         <div className="mt-2 px-2" data-testid="sidebar-collapsed-toggle-wrap">

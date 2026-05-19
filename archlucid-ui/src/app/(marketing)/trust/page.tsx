@@ -49,8 +49,8 @@ export default function MarketingTrustCenterPage(): ReactNode {
           Request evidence summary
         </a>
         <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-          Email security review to request the current public evidence summary — we send the excerpt above or confirm
-          diligence intake.
+          We send the current public-safe evidence summary by email to ensure buyers receive the latest approved version.
+          Email security review to request it — we confirm diligence intake when needed.
         </p>
       </div>
     </main>

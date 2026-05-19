@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
-import { BUYER_HOME_SAMPLE_PACKAGE_LEAD } from "@/lib/buyer-polish-copy";
+import { BUYER_HOME_SAMPLE_PACKAGE_LEAD, BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
@@ -61,13 +61,19 @@ export function SampleFirstReviewPackageCard() {
             ) : null}
           </div>
 
-          <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-            {buyerPolished === true ? (
-              <>{BUYER_HOME_SAMPLE_PACKAGE_LEAD}</>
-            ) : (
-              "Open the Claims Intake sample to see the reviewed manifest, evidence trail, findings, and artifacts before filling out the real-input wizard."
-            )}
-          </p>
+          {buyerPolished === true ? (
+            <>
+              <p className="m-0 mt-1 text-sm text-neutral-500 dark:text-neutral-400">{BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE}</p>
+              <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                {BUYER_HOME_SAMPLE_PACKAGE_LEAD}
+              </p>
+            </>
+          ) : (
+            <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+              Open the Claims Intake sample to see the reviewed manifest, evidence trail, findings, and artifacts before
+              filling out the real-input wizard.
+            </p>
+          )}
 
           {buyerPolished === true ? null : (
             <p className="m-0 mt-2 text-xs text-amber-800 dark:text-amber-300">

@@ -17,7 +17,7 @@ import {
   OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN,
 } from "@/lib/operator-home-example-request";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
-import { BUYER_RUNS_DASHBOARD_RECENT_LABEL } from "@/lib/buyer-polish-copy";
+import { BUYER_RUNS_DASHBOARD_RECENT_LABEL, BUYER_RUNS_DASHBOARD_RECENT_SUMMARY } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
@@ -239,7 +239,11 @@ export function RunsDashboardPanel() {
             {tab === "outcomes" ? "Review outcomes" : null}
           </CardTitle>
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            {tab === "recent" ? "Showing the latest reviews for this workspace." : null}
+            {tab === "recent"
+              ? buyerPolishedShell
+                ? BUYER_RUNS_DASHBOARD_RECENT_SUMMARY
+                : "Showing the latest reviews for this workspace."
+              : null}
             {tab === "attention"
               ? buyerPolishedShell
                 ? "Architecture reviews still moving toward a finalized signed manifest before sponsor sign-off."

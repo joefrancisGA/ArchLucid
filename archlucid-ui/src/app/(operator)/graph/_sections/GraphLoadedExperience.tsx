@@ -193,11 +193,6 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
           </Button>
         </div>
       ) : null}
-      {demoUi && buyerPolishedShell ? (
-        <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-          Use filters to focus the evidence view on a selected review package or evidence type when more than one package is available in this workspace.
-        </p>
-      ) : null}
       {demoUi && !buyerPolishedShell ? (
         <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
           Use the controls above to switch reviews or exploration mode — the Claims Intake sample loads this graph

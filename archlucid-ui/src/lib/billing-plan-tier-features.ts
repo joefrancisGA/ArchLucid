@@ -18,8 +18,8 @@ export const BILLING_TIER_FEATURE_BULLETS: Readonly<Record<string, readonly stri
     "1-year audit retention · guided onboarding and business-hours support",
   ],
   enterprise: [
-    "Unlimited workspaces and named architects (annual contract)",
-    "High-volume reviews with 2,000/month fair-use soft cap",
+    "Unlimited workspaces; named architect licensing included in annual contract",
+    "High-volume reviews with 2,000/month fair-use soft cap — higher volumes through procurement terms",
     "Full governance + custom policy pack support · Enterprise workflow integrations",
     "Custom audit retention + export · Entra ID and OIDC federation under negotiated terms",
     "Dedicated CSM · priority response · custom SLA terms",

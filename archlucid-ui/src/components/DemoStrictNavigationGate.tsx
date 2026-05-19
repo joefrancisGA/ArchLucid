@@ -35,10 +35,6 @@ export function DemoStrictNavigationGate() {
   const router = useRouter();
 
   useLayoutEffect(() => {
-    if (!isDemoStrictNavigationRedirectsActive()) {
-      return;
-    }
-
     if (isDemoStrictNavigationRedirectsBypassedForE2E()) {
       return;
     }
@@ -50,6 +46,10 @@ export function DemoStrictNavigationGate() {
     if (isCompareRouteBlockedUnderDemoStrictShell() && (pathname === "/compare" || pathname.startsWith("/compare/"))) {
       router.replace("/");
 
+      return;
+    }
+
+    if (!isDemoStrictNavigationRedirectsActive()) {
       return;
     }
 

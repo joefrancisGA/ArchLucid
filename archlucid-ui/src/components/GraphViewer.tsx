@@ -172,8 +172,8 @@ export function GraphViewer({
 
   const buyerTrailPanel = flowPresentation === "buyerTrail";
 
-  const fitPadding = buyerTrailPanel ? 0.02 : 0.08;
-  const fitMaxZoom = buyerTrailPanel ? 4.8 : 1.52;
+  const fitPadding = buyerTrailPanel ? 0.01 : 0.08;
+  const fitMaxZoom = buyerTrailPanel ? 5.6 : 1.52;
 
   useEffect(() => {
     if (filtered.nodes.length === 0) {
@@ -570,14 +570,14 @@ export function GraphViewer({
                     const rid = canonicalizeDemoRunId(runId.trim());
 
                     return (
-                      <>
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                         <Button type="button" variant="default" size="sm" className="h-9 w-full justify-center" asChild>
                           <Link href={graphFindingDetailHref(rid, fid)}>View finding detail</Link>
                         </Button>
-                        <Button type="button" variant="outline" size="sm" className="h-9 w-full justify-center" asChild>
+                        <Button type="button" variant="default" size="sm" className="h-9 w-full justify-center" asChild>
                           <Link href={getShowcaseManifestHref()}>View signed manifest</Link>
                         </Button>
-                      </>
+                      </div>
                     );
                   })()}
                 </div>

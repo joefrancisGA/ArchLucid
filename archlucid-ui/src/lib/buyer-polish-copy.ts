@@ -10,10 +10,22 @@ export const BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL = "Review change details
 
 export const BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY = "Change compared reviews";
 
+export const BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE = "Example workspace using illustrative data.";
+
 export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
-  "Example Claims Intake review package using illustrative data — start at the executive summary, or open the full review package to explore manifest, evidence trail, governance, and audit from one workspace view.";
+  "Start at the executive summary, or open the full review package to explore signed manifest, evidence trail, governance approval, and audit trail.";
 
 export const BUYER_RUNS_DASHBOARD_RECENT_LABEL = "Featured review package";
+
+export const BUYER_RUNS_DASHBOARD_RECENT_SUMMARY =
+  "One finalized review package is available: signed manifest, evidence trail, governance approval, and audit trail complete.";
+
+export const BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL = "Detailed comparison appendix";
+
+export const BUYER_SEALED_MANIFEST_TOOLTIP =
+  "Finalized signed manifest: hash-verified, write-locked record after governance approval — not informal draft text.";
+
+export const BUYER_PRICING_FAIR_USE_OVERAGE_NOTE = "Higher volumes are handled through procurement terms.";
 
 export const BUYER_GOVERNANCE_CHANGE_MANAGEMENT_FOOTNOTE =
   "Production execution remains controlled by the customer's enterprise change-management process.";
