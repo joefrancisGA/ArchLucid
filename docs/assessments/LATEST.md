@@ -1,11 +1,11 @@
-﻿# ArchLucid Assessment – (A) Headline Readiness: 82.02%
+﻿# ArchLucid Assessment – (A) Headline Readiness: 83.12%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding items deferred to V1.1 or V2.*
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**
-ArchLucid is highly ready for its V1 core mission: moving from an architecture request to a committed, reviewable manifest. The foundational authority pipeline, golden manifest generation, and auditability are robust. The primary gaps holding back the score are adoption friction (manual data ingestion) and workflow embeddedness (lack of ITSM/Chat integrations in V1).
+ArchLucid is highly ready for its V1 core mission: moving from an architecture request to a committed, reviewable manifest. The foundational authority pipeline, golden manifest generation, and auditability are robust. The primary gaps holding back the score are adoption friction (manual data ingestion), workflow embeddedness (lack of ITSM/Chat integrations in V1), and cost-effectiveness (high baseline COGS due to database-per-tenant isolation for trials).
 
 **`(B)` Procurement/Market-Motion Realism**
 Procurement will face moderate friction. The absence of a CPA-issued SOC 2 Type II report and a published third-party pen test summary will trigger extended security reviews. The lack of a signed design partner or public reference customer may slow executive buy-in, though the sales-led pilot motion is well-supported.
@@ -17,7 +17,7 @@ The commercial foundation is solid for sales-led pilots, with strong proof-of-RO
 Enterprise usability is good, aided by progressive disclosure in the UI. However, enterprise adoption will be bottlenecked by the requirement for customers to manually run a PowerShell script for Azure extraction, and the lack of native Jira/ServiceNow/Teams integrations in V1, making ArchLucid a destination app rather than an embedded workflow tool.
 
 **Engineering Picture**
-The engineering architecture is structurally sound, with clear boundaries between the API, Application, Decisioning, and Persistence layers. AI/Agent readiness is high. The main risks involve over-reliance on SQL Server for large JSON payloads, potential cache coherency issues in multi-replica setups without Redis, and the complexity of maintaining parallel Authority and Coordinator pipelines.
+The engineering architecture is structurally sound, with clear boundaries between the API, Application, Decisioning, and Persistence layers. AI/Agent readiness is high. The main risks involve over-reliance on SQL Server for large JSON payloads, potential cache coherency issues in multi-replica setups without Redis, the complexity of maintaining parallel Authority and Coordinator pipelines, and observability gaps due to head-based trace sampling dropping high-value authority runs.
 
 ---
 
@@ -121,7 +121,15 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Cost/Complexity vs. High Availability.
 - **Improvement recommendations:** Add Redis cache coherency checks for multi-replica deployments.
 
-### 13. Stickiness
+### 13. Cost-Effectiveness
+- **Score:** 65
+- **Weight:** 1
+- **Weighted deficiency signal:** 35
+- **Justification:** While LLM token budgets are well-controlled, the architectural mandate of "database-per-tenant" (even for self-serve trial tenants) introduces a massive baseline infrastructure cost and limits density in Azure SQL Elastic Pools.
+- **Tradeoffs:** Strict tenant data isolation vs. Infrastructure cost.
+- **Improvement recommendations:** Implement a shared-database, RLS-isolated tier specifically for trial tenants to reduce the COGS of the self-serve funnel.
+
+### 14. Stickiness
 - **Score:** 70
 - **Weight:** 1
 - **Weighted deficiency signal:** 30
@@ -129,7 +137,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Standalone value vs. Integrated value.
 - **Improvement recommendations:** Deliver the Jira and Teams integrations.
 
-### 14. Cognitive Load
+### 15. Cognitive Load
 - **Score:** 70
 - **Weight:** 1
 - **Weighted deficiency signal:** 30
@@ -137,7 +145,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** System flexibility vs. User simplicity.
 - **Improvement recommendations:** Hide internal orchestration details from the standard operator UI.
 
-### 15. Maintainability
+### 16. Maintainability
 - **Score:** 85
 - **Weight:** 2
 - **Weighted deficiency signal:** 30
@@ -145,7 +153,15 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Backward compatibility vs. Codebase simplicity.
 - **Improvement recommendations:** Unify the state transition logic between the two pipelines.
 
-### 16. Explainability
+### 17. Observability
+- **Score:** 75
+- **Weight:** 1
+- **Weighted deficiency signal:** 25
+- **Justification:** Strong metrics and dashboarding, but the reliance on head-based trace sampling in the .NET SDK means high-value authority run traces may be dropped in production unless an external OTLP collector is configured for tail sampling.
+- **Tradeoffs:** Trace volume/cost vs. Debuggability of critical flows.
+- **Improvement recommendations:** Provide a default OTLP collector configuration with tail sampling for `ArchLucid.AuthorityRun` traces, or implement a custom in-process sampler.
+
+### 18. Explainability
 - **Score:** 90
 - **Weight:** 2
 - **Weighted deficiency signal:** 20
@@ -153,7 +169,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Storage cost of traces vs. Transparency.
 - **Improvement recommendations:** Add UI indicators for context ingestion warnings to explain why certain documents were ignored.
 
-### 17. Template and Accelerator Richness
+### 19. Template and Accelerator Richness
 - **Score:** 80
 - **Weight:** 1
 - **Weighted deficiency signal:** 20
@@ -161,7 +177,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Curated defaults vs. Exhaustive frameworks.
 - **Improvement recommendations:** Expand the catalog of promoted policy packs.
 
-### 18. Scalability
+### 20. Scalability
 - **Score:** 80
 - **Weight:** 1
 - **Weighted deficiency signal:** 20
@@ -169,7 +185,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Relational simplicity vs. NoSQL scalability.
 - **Improvement recommendations:** Optimize SQL Server JSON payload storage.
 
-### 19. Performance
+### 21. Performance
 - **Score:** 85
 - **Weight:** 1
 - **Weighted deficiency signal:** 15
@@ -177,7 +193,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Memory usage vs. Response time.
 - **Improvement recommendations:** Optimize the Audit Log CSV export to stream data and prevent timeouts.
 
-### 20. Supportability
+### 22. Supportability
 - **Score:** 85
 - **Weight:** 1
 - **Weighted deficiency signal:** 15
@@ -185,7 +201,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Data privacy vs. Diagnostic depth.
 - **Improvement recommendations:** Add a System Health dashboard to the operator UI.
 
-### 21. Testability
+### 23. Testability
 - **Score:** 85
 - **Weight:** 1
 - **Weighted deficiency signal:** 15
@@ -193,38 +209,22 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Test speed vs. Database fidelity.
 - **Improvement recommendations:** Ensure in-memory repos maintain strict parity with SQL behavior.
 
-### 22. Observability
-- **Score:** 90
-- **Weight:** 1
-- **Weighted deficiency signal:** 10
-- **Justification:** Strong OpenTelemetry integration and append-only audit logs.
-- **Tradeoffs:** Telemetry volume vs. Insight.
-- **Improvement recommendations:** None urgent.
-
-### 23. Cost-Effectiveness
-- **Score:** 90
-- **Weight:** 1
-- **Weighted deficiency signal:** 10
-- **Justification:** Excellent LLM budget controls (`LlmDailyTenantBudget`, `LlmMonthlyTenantDollarBudget`).
-- **Tradeoffs:** Strict limits vs. Uninterrupted service.
-- **Improvement recommendations:** None urgent.
-
 ---
 
 ## Top 12 Most Important Weaknesses
 
 1. **Manual Data Ingestion Bottleneck:** The requirement to manually run a PowerShell script for Azure extraction introduces significant adoption friction.
 2. **Destination App Syndrome:** The lack of V1 integrations with Jira, ServiceNow, Teams, and Slack means users must leave their daily workflows to use the product.
-3. **High Cognitive Load of Domain Vocabulary:** Terms like Authority, Coordinator, Manifest, and Trace leak into the UI, confusing new operators.
-4. **Over-reliance on SQL Server for Large Payloads:** Storing large JSON manifests and traces in SQL Server `NVARCHAR(MAX)` columns poses a scalability risk.
-5. **Incomplete Idempotency on Mutating Endpoints:** The `POST /v1/architecture/request` endpoint lacks full idempotency, risking duplicate runs on network retries.
-6. **Lack of Automated Tenant Erasure:** The absence of a fully automated tenant erasure pipeline (deferred to V2) may raise data privacy concerns for enterprise buyers.
-7. **Missing Multi-Cloud Support in V1:** Being Azure-only in V1 limits the total addressable market and differentiability.
-8. **Complex RBAC and Policy Pack Configuration:** The governance resolution and policy pack assignment logic is powerful but difficult to troubleshoot when conflicts occur.
-9. **Potential Cache Coherency Issues:** Multi-replica deployments that fail to configure Redis may experience stale data issues.
-10. **Content Safety API Dependency Risk:** If the Azure Content Safety API fails, the system may fail closed, impacting availability.
-11. **Fragmented Orchestration:** Maintaining both the Authority pipeline and the legacy Coordinator endpoints increases technical debt and the risk of bugs.
-12. **Limited Extensibility without MCP:** The deferral of the Model Context Protocol (MCP) server limits integration with the broader AI ecosystem.
+3. **Database-per-Tenant COGS for Trials:** Using a dedicated SQL database for every self-serve trial tenant creates massive baseline infrastructure costs and limits elastic pool density.
+4. **Head-Based Trace Sampling Drops High-Value Traces:** The .NET SDK's head-based sampling means critical `ArchLucid.AuthorityRun` traces may be dropped in production without an external OTLP tail-sampling collector.
+5. **High Cognitive Load of Domain Vocabulary:** Terms like Authority, Coordinator, Manifest, and Trace leak into the UI, confusing new operators.
+6. **Over-reliance on SQL Server for Large Payloads:** Storing large JSON manifests and traces in SQL Server `NVARCHAR(MAX)` columns poses a scalability risk.
+7. **Incomplete Idempotency on Mutating Endpoints:** The `POST /v1/architecture/request` endpoint lacks full idempotency, risking duplicate runs on network retries.
+8. **Lack of Automated Tenant Erasure:** The absence of a fully automated tenant erasure pipeline (deferred to V2) may raise data privacy concerns for enterprise buyers.
+9. **Missing Multi-Cloud Support in V1:** Being Azure-only in V1 limits the total addressable market and differentiability.
+10. **Complex RBAC and Policy Pack Configuration:** The governance resolution and policy pack assignment logic is powerful but difficult to troubleshoot when conflicts occur.
+11. **Potential Cache Coherency Issues:** Multi-replica deployments that fail to configure Redis may experience stale data issues.
+12. **Content Safety API Dependency Risk:** If the Azure Content Safety API fails, the system may fail closed, impacting availability.
 
 ---
 
@@ -252,12 +252,12 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 
 ## Top 6 Engineering Risks
 
-1. **SQL Server Performance Degradation:** Large JSON payloads (manifests, traces) could cause database bloat and slow down queries.
-2. **Lack of Full Idempotency on Create/Commit Endpoints:** Network instability could lead to duplicate architecture runs and wasted LLM spend.
-3. **Cache Coherency Issues:** Deployments scaling beyond one replica without Redis configured will serve stale data.
-4. **Orchestration Complexity:** The split between the Authority pipeline and the legacy Coordinator makes state transitions hard to reason about.
-5. **Content Safety API Fail-Closed Dependency:** A localized outage of the Azure Content Safety API could take down the entire ArchLucid deployment.
-6. **Lack of Multi-Region Active/Active Topology:** Deferred to V2, this limits the system's ability to survive a full Azure region outage.
+1. **Trace Sampling Dropping High-Value Workflows:** Production environments using fractional sampling will lose visibility into core business workflows unless operators manually configure OTLP tail sampling.
+2. **Database-per-Tenant COGS Risk:** The trial funnel could become unsustainably expensive if a high volume of self-serve signups requires provisioning thousands of individual SQL databases.
+3. **SQL Server Performance Degradation:** Large JSON payloads (manifests, traces) could cause database bloat and slow down queries.
+4. **Lack of Full Idempotency on Create/Commit Endpoints:** Network instability could lead to duplicate architecture runs and wasted LLM spend.
+5. **Cache Coherency Issues:** Deployments scaling beyond one replica without Redis configured will serve stale data.
+6. **Content Safety API Fail-Closed Dependency:** A localized outage of the Azure Content Safety API could take down the entire ArchLucid deployment.
 
 ---
 
@@ -329,7 +329,36 @@ ArchLucid has a strong, defensible core for architecture review and governance, 
 - **Affected qualities:** None directly.
 - **Input needed:** Owner to engage CPA firm and complete examination.
 
-### 11. Implement Full Idempotency for Create Run Endpoint
+### 11. Implement Shared-Database RLS Tier for Trial Tenants
+- **Why it matters:** Reduces the massive baseline infrastructure cost of provisioning a dedicated SQL database for every self-serve trial signup.
+- **Expected impact:** Directly improves Cost-Effectiveness (+15 pts) and Scalability (+5 pts). Weighted readiness impact: +0.3%.
+- **Affected qualities:** Cost-Effectiveness, Scalability.
+- **Actionable now.**
+```text
+Implement a shared-database, RLS-isolated tier for trial tenants.
+1. Create a new `SystemWithSharedTrialCatalog` tenant isolation mode.
+2. Modify the `TenantProvisioningService` to place new trial tenants into a shared database.
+3. Ensure Row-Level Security (RLS) via `SESSION_CONTEXT` is strictly enforced for this shared catalog.
+4. Provide a migration path for converting a trial tenant from the shared catalog to a dedicated catalog upon paid conversion.
+Files: `ArchLucid.Persistence/Tenants/TenantProvisioningService.cs`, `ArchLucid.Persistence/Connections/SessionContextSqlConnectionFactory.cs`.
+Constraints: Must not compromise data isolation between trial tenants.
+```
+
+### 12. Configure Tail-Based Trace Sampling for Authority Runs
+- **Why it matters:** Ensures high-value business workflows are never dropped by head-based sampling in production.
+- **Expected impact:** Directly improves Observability (+10 pts) and Supportability (+5 pts). Weighted readiness impact: +0.2%.
+- **Affected qualities:** Observability, Supportability.
+- **Actionable now.**
+```text
+Configure tail-based trace sampling for `ArchLucid.AuthorityRun` traces.
+1. Since the .NET SDK doesn't support per-source sampling natively, implement a custom `Sampler` that checks the `Activity.DisplayName` or `ActivitySource.Name`.
+2. If the source is `ArchLucid.AuthorityRun`, always return `SamplingResult.RecordAndSample`.
+3. Otherwise, fall back to the configured fractional sampling ratio.
+Files: `ArchLucid.Host.Core/Startup/ObservabilityTraceSamplingConfigurator.cs`.
+Constraints: Must not impact the performance of high-volume, low-value traces.
+```
+
+### 13. Implement Full Idempotency for Create Run Endpoint
 - **Why it matters:** Prevents duplicate runs on network retries, saving LLM costs and avoiding confusion.
 - **Expected impact:** Directly improves Reliability (+5 pts) and Correctness (+2 pts). Weighted readiness impact: +0.2%.
 - **Affected qualities:** Reliability, Correctness.
@@ -345,7 +374,7 @@ Files: `ArchLucid.Api/Controllers/ArchitectureController.cs`, `ArchLucid.Applica
 Constraints: Do not break existing non-idempotent clients.
 ```
 
-### 12. Add Redis Cache Coherency Checks
+### 14. Add Redis Cache Coherency Checks
 - **Why it matters:** Prevents stale data in multi-replica deployments.
 - **Expected impact:** Directly improves Reliability (+3 pts) and Scalability (+2 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Reliability, Scalability.
@@ -359,7 +388,7 @@ Files: `ArchLucid.Host.Composition/Configuration/ArchLucidConfigurationRules.cs`
 Constraints: Do not break single-replica deployments.
 ```
 
-### 13. Optimize SQL Server JSON Payload Storage
+### 15. Optimize SQL Server JSON Payload Storage
 - **Why it matters:** Prevents performance degradation with large manifests.
 - **Expected impact:** Directly improves Performance (+5 pts) and Scalability (+3 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Performance, Scalability.
@@ -373,7 +402,7 @@ Files: `ArchLucid.Persistence.Data/Repositories/GoldenManifestRepository.cs`.
 Constraints: Do not break existing queries that rely on `OPENJSON`.
 ```
 
-### 14. Simplify Domain Vocabulary in Operator UI
+### 16. Simplify Domain Vocabulary in Operator UI
 - **Why it matters:** Reduces cognitive load for new users.
 - **Expected impact:** Directly improves Cognitive Load (+10 pts) and Usability (+5 pts). Weighted readiness impact: +0.3%.
 - **Affected qualities:** Cognitive Load, Usability.
@@ -387,7 +416,7 @@ Files: `archlucid-ui/src/components/LayerHeader.tsx`, `archlucid-ui/src/lib/laye
 Constraints: Do not change API route names or database column names.
 ```
 
-### 15. Add Content Safety API Circuit Breaker
+### 17. Add Content Safety API Circuit Breaker
 - **Why it matters:** Prevents the entire system from failing closed if the Content Safety API is down.
 - **Expected impact:** Directly improves Reliability (+5 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Reliability.
@@ -401,7 +430,7 @@ Files: `ArchLucid.Application/Safety/ContentSafetyService.cs`.
 Constraints: Must respect the `FailClosedOnSdkError` configuration.
 ```
 
-### 16. Unify Authority and Coordinator Pipeline Logic
+### 18. Unify Authority and Coordinator Pipeline Logic
 - **Why it matters:** Reduces orchestration complexity and bugs.
 - **Expected impact:** Directly improves Maintainability (+5 pts) and Correctness (+2 pts). Weighted readiness impact: +0.2%.
 - **Affected qualities:** Maintainability, Correctness.
@@ -415,7 +444,7 @@ Files: `ArchLucid.Persistence/Orchestration/AuthorityRunOrchestrator.cs`, `ArchL
 Constraints: Do not break existing API contracts.
 ```
 
-### 17. Add Bulk Evidence Upload Progress Indicator
+### 19. Add Bulk Evidence Upload Progress Indicator
 - **Why it matters:** Improves usability for large uploads.
 - **Expected impact:** Directly improves Usability (+5 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Usability.
@@ -429,7 +458,7 @@ Files: `archlucid-ui/src/components/EvidenceUpload.tsx`.
 Constraints: Must work with the existing `/v1/evidence/bulk` endpoint.
 ```
 
-### 18. Enhance Advisory Scan Scheduling UI
+### 20. Enhance Advisory Scan Scheduling UI
 - **Why it matters:** Makes it easier to configure automated scans.
 - **Expected impact:** Directly improves Usability (+5 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Usability.
@@ -443,7 +472,7 @@ Files: `archlucid-ui/src/app/(operator)/advisory-scheduling/page.tsx`.
 Constraints: Must use the existing `PUT /v1/advisory/schedules` endpoint.
 ```
 
-### 19. Add Export-Only Trial State Warning
+### 21. Add Export-Only Trial State Warning
 - **Why it matters:** Prevents data loss surprises for trial users.
 - **Expected impact:** Directly improves Usability (+2 pts) and Supportability (+2 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Usability, Supportability.
@@ -457,7 +486,7 @@ Files: `archlucid-ui/src/components/TrialBanner.tsx`.
 Constraints: Must use the existing trial status API.
 ```
 
-### 20. Implement Configurable Alert Routing Rules
+### 22. Implement Configurable Alert Routing Rules
 - **Why it matters:** Reduces alert fatigue by routing alerts to the right teams.
 - **Expected impact:** Directly improves Usability (+3 pts) and Workflow Embeddedness (+2 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Usability, Workflow Embeddedness.
@@ -471,7 +500,7 @@ Files: `archlucid-ui/src/app/(operator)/alert-routing/page.tsx`, `ArchLucid.Api/
 Constraints: Must be backward compatible with existing routing rules.
 ```
 
-### 21. Add Policy Pack Conflict Resolution UI
+### 23. Add Policy Pack Conflict Resolution UI
 - **Why it matters:** Helps operators understand why a policy was overridden.
 - **Expected impact:** Directly improves Usability (+5 pts) and Explainability (+3 pts). Weighted readiness impact: +0.2%.
 - **Affected qualities:** Usability, Explainability.
@@ -485,7 +514,7 @@ Files: `archlucid-ui/src/app/(operator)/governance-resolution/page.tsx`.
 Constraints: Must use the existing governance resolution API.
 ```
 
-### 22. Optimize Audit Log CSV Export
+### 24. Optimize Audit Log CSV Export
 - **Why it matters:** Prevents timeouts for large exports.
 - **Expected impact:** Directly improves Performance (+5 pts) and Scalability (+2 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Performance, Scalability.
@@ -499,7 +528,7 @@ Files: `ArchLucid.Api/Controllers/Admin/AuditController.cs`, `ArchLucid.Persiste
 Constraints: Must maintain the existing CSV format.
 ```
 
-### 23. Add System Health Dashboard
+### 25. Add System Health Dashboard
 - **Why it matters:** Improves observability for operators.
 - **Expected impact:** Directly improves Observability (+5 pts) and Supportability (+3 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Observability, Supportability.
@@ -513,62 +542,34 @@ Files: `archlucid-ui/src/app/(operator)/health/page.tsx`.
 Constraints: Must be accessible to users with `ReadAuthority`.
 ```
 
-### 24. Implement Automated Data Consistency Remediation
-- **Why it matters:** Reduces manual effort for fixing orphaned records.
-- **Expected impact:** Directly improves Reliability (+3 pts) and Maintainability (+2 pts). Weighted readiness impact: +0.1%.
-- **Affected qualities:** Reliability, Maintainability.
-- **Actionable now.**
-```text
-Implement automated remediation for data consistency issues.
-1. When `DataConsistency:Enforcement:AutoQuarantine` is true, automatically quarantine orphaned records found by the probe.
-2. Log an audit event for each quarantined record.
-3. Provide an API endpoint to review and restore quarantined records.
-Files: `ArchLucid.Worker/BackgroundJobs/DataConsistencyProbe.cs`.
-Constraints: Must respect the `AutoQuarantine` configuration flag.
-```
-
-### 25. Add Context Ingestion Warning UI
-- **Why it matters:** Helps users understand why some documents were ignored.
-- **Expected impact:** Directly improves Usability (+3 pts) and Explainability (+2 pts). Weighted readiness impact: +0.1%.
-- **Affected qualities:** Usability, Explainability.
-- **Actionable now.**
-```text
-Display context ingestion warnings in the operator UI.
-1. Check the `warnings` array on the `ContextSnapshot` associated with a run.
-2. Display these warnings prominently on the Run Detail page.
-3. Provide actionable advice on how to fix the warnings (e.g., "Convert PDF to Markdown").
-Files: `archlucid-ui/src/app/(operator)/runs/[runId]/page.tsx`.
-Constraints: Must use the existing `ContextSnapshot` data.
-```
-
 ---
 
 ## Prompt Batching Guidance
 
 To optimize context window usage and cost-effectiveness, batch the implementation of the actionable prompts as follows:
 
-**Batch 1: Core Reliability & Performance (Backend)**
-- Implement Full Idempotency for Create Run Endpoint (11)
-- Add Redis Cache Coherency Checks (12)
-- Add Content Safety API Circuit Breaker (15)
-- Optimize Audit Log CSV Export (22)
+**Batch 1: Core Reliability, Observability & Cost (Backend)**
+- Implement Shared-Database RLS Tier for Trial Tenants (11)
+- Configure Tail-Based Trace Sampling for Authority Runs (12)
+- Implement Full Idempotency for Create Run Endpoint (13)
+- Add Redis Cache Coherency Checks (14)
 
 **Batch 2: UI & Usability Enhancements (Frontend)**
-- Simplify Domain Vocabulary in Operator UI (14)
-- Add Bulk Evidence Upload Progress Indicator (17)
-- Add Export-Only Trial State Warning (19)
-- Add System Health Dashboard (23)
-- Add Context Ingestion Warning UI (25)
+- Simplify Domain Vocabulary in Operator UI (16)
+- Add Bulk Evidence Upload Progress Indicator (19)
+- Add Export-Only Trial State Warning (21)
+- Add System Health Dashboard (25)
 
 **Batch 3: Governance & Orchestration (Full Stack)**
-- Unify Authority and Coordinator Pipeline Logic (16)
-- Enhance Advisory Scan Scheduling UI (18)
-- Implement Configurable Alert Routing Rules (20)
-- Add Policy Pack Conflict Resolution UI (21)
+- Unify Authority and Coordinator Pipeline Logic (18)
+- Enhance Advisory Scan Scheduling UI (20)
+- Implement Configurable Alert Routing Rules (22)
+- Add Policy Pack Conflict Resolution UI (23)
 
-**Batch 4: Data Management (Backend)**
-- Optimize SQL Server JSON Payload Storage (13)
-- Implement Automated Data Consistency Remediation (24)
+**Batch 4: Data Management & Safety (Backend)**
+- Optimize SQL Server JSON Payload Storage (15)
+- Add Content Safety API Circuit Breaker (17)
+- Optimize Audit Log CSV Export (24)
 
 ---
 
@@ -598,3 +599,8 @@ To optimize context window usage and cost-effectiveness, batch the implementatio
 
 **DEFERRED Implement Automated Tenant Erasure Pipeline**
 - What are the specific legal hold requirements and the default quarantine delay (e.g., 30 days) for V2?
+**DEFERRED Publish Third-Party Pen Test Summary**
+- When will the vendor engagement be executed?
+
+**DEFERRED Obtain SOC 2 Type II Report**
+- What is the timeline for engaging a CPA firm?
