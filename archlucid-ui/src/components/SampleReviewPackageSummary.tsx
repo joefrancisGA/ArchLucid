@@ -32,7 +32,7 @@ export function SampleReviewPackageSummary({
       </h2>
       <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed">
         Example review package prepared for buyer demonstration—inspect the manifest, findings, evidence trail, and
-        artifacts. The golden manifest is a deterministic merge of agent outputs into one signed package competitors cannot
+        artifacts. The finalized manifest is a deterministic merge of agent outputs into one signed package competitors cannot
         replay without your evidence bundle. Numbers are illustrative only and do not represent customer ROI without a
         live workspace.
       </p>

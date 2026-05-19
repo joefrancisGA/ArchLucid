@@ -36,7 +36,7 @@ describe("LayerHeader", () => {
     render(<LayerHeader pageKey="compare" />);
 
     expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/Review · Manifest · Trace/i);
-    expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/golden manifest/i);
+    expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/finalized manifest/i);
   });
 
   it("renders Governance responsibility footnote on audit", () => {

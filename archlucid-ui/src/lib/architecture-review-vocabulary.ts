@@ -14,5 +14,5 @@ export const ARCHITECTURE_REVIEW_VOCABULARY = {
    * Review = work unit; manifest = finalized package; trace = per-step execution record.
    */
   reviewManifestTraceHelp:
-    "An architecture review is the end-to-end work unit (intake through finalized outputs). The golden manifest is the signed package you govern and export for that review. Traces are per-step execution records—agents, scores, and pipeline stages—that explain how the manifest was produced.",
+    "An architecture review is the end-to-end work unit (intake through finalized outputs). The finalized manifest is the signed package you govern and export for that review. Traces are per-step execution records—agents, scores, and pipeline stages—that explain how the manifest was produced.",
 } as const;
