@@ -46,7 +46,7 @@ export const BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA = "View risk observa
 export const BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA = "View evidence trail";
 
 export const BUYER_ASK_GROUNDING_ONCE =
-  "Example answers are illustrative. In connected workspaces, answers are scoped to selected review evidence and source anchors.";
+  "Example answers are illustrative. In connected workspaces, answers are scoped to selected review evidence and source anchors. Validate conclusions against your finalized signed manifest before approvals — Ask does not replace formal sign-off records.";
 
 export const BUYER_ASK_SHOWCASE_ANCHORS_LINE =
   "On the Claims Intake sample review, replies include quick links to executive summary, manifest, policy basis, evidence trail, and audit anchors where available.";

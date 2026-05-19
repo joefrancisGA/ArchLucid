@@ -219,6 +219,8 @@ describe("RunsDashboardPanel", () => {
       await waitFor(() => {
         expect(screen.getByText("Featured review package")).toBeInTheDocument();
       });
+      expect(screen.getByTestId("runs-dashboard-buyer-proof-summary")).toBeInTheDocument();
+      expect(screen.getByText("Decision: Package finalized")).toBeInTheDocument();
       expect(screen.queryByTestId("operator-home-showcase-demo-banner")).toBeNull();
       expect(screen.queryByRole("link", { name: "Jump to review journey" })).toBeNull();
       expect(screen.getByRole("link", { name: "Claims Intake sample" })).toHaveAttribute(
@@ -254,22 +256,14 @@ describe("RunsDashboardPanel", () => {
         expect(screen.getByTestId("operator-home-getting-started")).toBeInTheDocument();
       });
       expect(
-        screen.getByText(
-          /open the sample executive summary or the full review package to walk/i,
-        ),
+        screen.getByText(/open the full review package above to walk a governed claims intake review end to end/i),
       ).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "Start executive review" })).toHaveAttribute(
-        "href",
-        "/executive/reviews/claims-intake-modernization",
-      );
       expect(screen.getByRole("link", { name: "View review package" })).toHaveAttribute(
         "href",
         "/reviews/claims-intake-modernization",
       );
-      expect(screen.getByRole("link", { name: "View signed manifest" })).toHaveAttribute(
-        "href",
-        "/reviews/claims-intake-modernization/manifest",
-      );
+      expect(screen.queryByRole("link", { name: "Start executive review" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "View signed manifest" })).toBeNull();
       expect(screen.queryByTestId("example-request-panel")).toBeNull();
     } finally {
       fallbackSpy.mockRestore();

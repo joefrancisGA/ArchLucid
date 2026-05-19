@@ -17,7 +17,7 @@ import {
   OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN,
 } from "@/lib/operator-home-example-request";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
-import { BUYER_RUNS_DASHBOARD_RECENT_LABEL, BUYER_RUNS_DASHBOARD_RECENT_SUMMARY } from "@/lib/buyer-polish-copy";
+import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK, BUYER_RUNS_DASHBOARD_RECENT_LABEL, BUYER_RUNS_DASHBOARD_RECENT_SUMMARY } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
@@ -30,7 +30,7 @@ import {
   getShowcaseWalkthroughHref,
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer-safe-review-navigation";
-import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID, SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -351,7 +351,7 @@ export function RunsDashboardPanel() {
                   <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Getting started</p>
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
                     {buyerPolishedShell
-                      ? "Open the sample executive summary or the full review package to walk a governed Claims Intake review end to end."
+                      ? "Open the full review package above to walk a governed Claims Intake review end to end."
                       : "You have no architecture reviews yet. Create a request to produce a manifest, findings, and exportable artifacts — or walk the pilot checklist first."}
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
@@ -360,19 +360,11 @@ export function RunsDashboardPanel() {
                         <Link href="/reviews/new">Create your first request</Link>
                       </Button>
                     ) : (
-                      <>
-                        <Button asChild variant="primary" size="sm" className="h-8">
-                          <Link href={getShowcaseExecutiveHref()}>Start executive review</Link>
-                        </Button>
-                        <Button asChild variant="outline" size="sm" className="h-8">
-                          <Link href={getCanonicalReviewWorkspaceHref(SHOWCASE_STATIC_DEMO_RUN_ID)}>
-                            View review package
-                          </Link>
-                        </Button>
-                        <Button asChild variant="outline" size="sm" className="h-8">
-                          <Link href={getShowcaseManifestHref()}>View signed manifest</Link>
-                        </Button>
-                      </>
+                      <Button asChild variant="outline" size="sm" className="h-8">
+                        <Link href={getCanonicalReviewWorkspaceHref(SHOWCASE_STATIC_DEMO_RUN_ID)}>
+                          View review package
+                        </Link>
+                      </Button>
                     )}
                     {buyerPolishedShell ? null : (
                       <>
@@ -386,6 +378,30 @@ export function RunsDashboardPanel() {
                     )}
                   </div>
                 </div>
+              ) : null}
+
+              {(phase === "ready" || phase === "error") && showcaseDemoRun && buyerPolishedShell ? (
+                <section
+                  aria-label="Featured review package summary"
+                  className="space-y-2 rounded-lg border border-teal-200 bg-teal-50/40 p-3 dark:border-teal-800 dark:bg-teal-950/30"
+                  data-testid="runs-dashboard-buyer-proof-summary"
+                >
+                  <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Decision: Package finalized</p>
+                  <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Governance approval: Approved with monitoring</p>
+                  <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">
+                    {BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK(
+                      SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount,
+                      SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount,
+                    )}
+                  </p>
+                  <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Evidence trail: Ready</p>
+                  <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Audit trail: Complete</p>
+                  {showcasePrimaryCta ? (
+                    <Button asChild variant="primary" size="sm" className="mt-1 h-8">
+                      <Link href={showcasePrimaryCta.href}>{showcasePrimaryCta.label}</Link>
+                    </Button>
+                  ) : null}
+                </section>
               ) : null}
 
               {(phase === "ready" || phase === "error") && effectiveItems.length > 0 ? (

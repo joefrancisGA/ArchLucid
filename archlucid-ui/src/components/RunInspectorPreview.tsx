@@ -212,30 +212,28 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         </ul>
       </div>
 
-      {/* Primary exploration — buyer shell leads with the full package; signed manifest + graph stay one click away. */}
+      {/* Primary exploration — buyer shell leads with the full package; secondary links stay one click away under collapsible groups. */}
       <div className="space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         {buyerPolished ? (
-          <div className="flex flex-col gap-2">
+          <>
             {!showcaseStory ? (
               <Button variant="primary" size="sm" className="w-full" asChild>
                 <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
               </Button>
             ) : null}
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button variant="outline" size="sm" className="w-full sm:flex-1" asChild>
-                <Link href={signedManifestExplore.href}>{signedManifestExplore.label}</Link>
-              </Button>
-              {showEvidenceGraphCta ? (
-                <Button variant="outline" size="sm" className="w-full sm:flex-1" asChild>
-                  <Link href={graphEvidenceHref}>View evidence graph</Link>
+            <details className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20">
+              <summary className="cursor-pointer select-none px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                Related actions
+              </summary>
+              <div className="flex flex-col gap-2 border-t border-neutral-200 px-3 py-3 dark:border-neutral-700">
+                <Button variant="outline" size="sm" className="w-full" asChild>
+                  <Link href={signedManifestExplore.href}>{signedManifestExplore.label}</Link>
                 </Button>
-              ) : null}
-            </div>
-            <div className="space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
-              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                Governance and audit
-              </p>
-              <div className="flex flex-col gap-2">
+                {showEvidenceGraphCta ? (
+                  <Button variant="outline" size="sm" className="w-full" asChild>
+                    <Link href={graphEvidenceHref}>View evidence graph</Link>
+                  </Button>
+                ) : null}
                 <Button variant="outline" size="sm" className="w-full" asChild>
                   <Link href={`/governance?runId=${encodeURIComponent(run.runId)}`}>View governance approval</Link>
                 </Button>
@@ -246,8 +244,55 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                   <Link href={`/ask?runId=${encodeURIComponent(run.runId)}`}>Ask about this review</Link>
                 </Button>
               </div>
-            </div>
-          </div>
+            </details>
+            <details className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20">
+              <summary className="cursor-pointer select-none px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                Open specific artifact
+              </summary>
+              <div className="flex flex-col gap-2 border-t border-neutral-200 px-3 py-3 dark:border-neutral-700">
+                {buyerSafePrimary ? (
+                  <>
+                    {showcaseStory ? (
+                      <Button variant="outline" size="sm" className="w-full" asChild>
+                        <Link href={getShowcaseExecutiveHref()}>Executive summary</Link>
+                      </Button>
+                    ) : null}
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={showcaseWalkthroughHref}>Read-only walkthrough</Link>
+                    </Button>
+                    {!(buyerPolished && showcaseStory) ? (
+                      <Button variant="outline" size="sm" className="w-full" asChild>
+                        <Link href={workspaceHref}>Full review detail</Link>
+                      </Button>
+                    ) : null}
+                  </>
+                ) : null}
+
+                {!(buyerSafePrimary && showcaseStory && !buyerPolished) ? (
+                  <>
+                    {!buyerSafePrimary ? (
+                      <Button variant="outline" size="sm" className="w-full" asChild>
+                        <Link href={`/manifests/${encodeURIComponent(manifestId)}`}>Open manifest</Link>
+                      </Button>
+                    ) : null}
+                    {hasFindingsLink ? (
+                      <Button variant="outline" size="sm" className="w-full" asChild>
+                        <Link href={findingsQuickHref}>{findingsQuickLabel}</Link>
+                      </Button>
+                    ) : null}
+                    {hasArtifactsLink ? (
+                      <Button variant="outline" size="sm" className="w-full" asChild>
+                        <Link href={artifactsQuickHref}>Deliverables</Link>
+                      </Button>
+                    ) : null}
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={timelineQuickHref}>{timelineQuickLabel}</Link>
+                    </Button>
+                  </>
+                ) : null}
+              </div>
+            </details>
+          </>
         ) : (
           <div
             className={cn(
@@ -268,55 +313,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             ) : null}
           </div>
         )}
-        {buyerPolished ? (
-          <details className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20">
-            <summary className="cursor-pointer select-none px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-              Next steps
-            </summary>
-            <div className="flex flex-col gap-2 border-t border-neutral-200 px-3 py-3 dark:border-neutral-700">
-              {buyerSafePrimary ? (
-                <>
-                  {showcaseStory ? (
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <Link href={getShowcaseExecutiveHref()}>Executive summary</Link>
-                    </Button>
-                  ) : null}
-                  <Button variant="outline" size="sm" className="w-full" asChild>
-                    <Link href={showcaseWalkthroughHref}>Read-only walkthrough</Link>
-                  </Button>
-                  {!(buyerPolished && showcaseStory) ? (
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <Link href={workspaceHref}>Full review detail</Link>
-                    </Button>
-                  ) : null}
-                </>
-              ) : null}
-
-              {!(buyerSafePrimary && showcaseStory && !buyerPolished) ? (
-                <>
-                  {!buyerSafePrimary ? (
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <Link href={`/manifests/${encodeURIComponent(manifestId)}`}>Open manifest</Link>
-                    </Button>
-                  ) : null}
-                  {hasFindingsLink ? (
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <Link href={findingsQuickHref}>{findingsQuickLabel}</Link>
-                    </Button>
-                  ) : null}
-                  {hasArtifactsLink ? (
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <Link href={artifactsQuickHref}>Deliverables</Link>
-                    </Button>
-                  ) : null}
-                  <Button variant="outline" size="sm" className="w-full" asChild>
-                    <Link href={timelineQuickHref}>{timelineQuickLabel}</Link>
-                  </Button>
-                </>
-              ) : null}
-            </div>
-          </details>
-        ) : (
+        {!buyerPolished ? (
           <>
             {showcaseStory || run.hasGraphSnapshot === true ? (
               <Button variant="outline" size="sm" className="w-full" asChild>
@@ -361,7 +358,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
               </div>
             ) : null}
           </>
-        )}
+        ) : null}
       </div>
 
       {!buyerPolished ? (

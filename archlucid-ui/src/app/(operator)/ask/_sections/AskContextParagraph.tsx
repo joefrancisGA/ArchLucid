@@ -25,15 +25,6 @@ export function AskContextParagraph(props: AskContextParagraphProps) {
               </p>
             </details>
           ) : null}
-          <details className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40">
-            <summary className="cursor-pointer text-xs font-semibold text-neutral-800 dark:text-neutral-200">
-              Validation note (approvals)
-            </summary>
-            <p className="m-0 mt-2 text-xs leading-relaxed">
-              Validate conclusions against your finalized signed manifest before approvals — Ask does not replace formal
-              sign-off records.
-            </p>
-          </details>
         </>
       ) : (
         <p className="m-0">

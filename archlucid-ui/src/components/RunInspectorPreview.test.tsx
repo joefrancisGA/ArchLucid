@@ -75,6 +75,7 @@ describe("RunInspectorPreview", () => {
       "href",
       "/reviews/claims-intake-modernization",
     );
+    fireEvent.click(screen.getByText("Related actions"));
     expect(screen.getByRole("link", { name: "View signed manifest" })).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization/manifest",
@@ -95,7 +96,7 @@ describe("RunInspectorPreview", () => {
       "href",
       "/ask?runId=claims-intake-modernization",
     );
-    fireEvent.click(screen.getByText("Next steps"));
+    fireEvent.click(screen.getByText("Open specific artifact"));
 
     expect(screen.getByRole("link", { name: "Executive summary" })).toHaveAttribute(
       "href",

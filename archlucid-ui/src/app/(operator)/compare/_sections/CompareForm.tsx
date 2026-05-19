@@ -16,7 +16,11 @@ import {
 } from "@/lib/compare-url-query-params";
 import { BUYER_COMPARE_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import {
+  isStaticDemoPayloadFallbackEnabled,
+  tryStaticDemoGoldenManifestComparison,
+  tryStaticDemoRunComparison,
+} from "@/lib/operator-static-demo";
 import { cn } from "@/lib/utils";
 import { CompareBuyerScopedGate } from "@/app/(operator)/compare/_sections/CompareBuyerScopedGate";
 import { CompareDemoQuickPick } from "@/app/(operator)/compare/_sections/CompareDemoQuickPick";
@@ -44,6 +48,7 @@ export function CompareForm() {
   const aiGenerationRef = useRef(0);
   const autoComparedFromUrlRef = useRef(false);
   const demoComparePrefillDoneRef = useRef(false);
+  const buyerAutoSeedDoneRef = useRef(false);
   const initialUrlPair = readCompareRunIdsFromSearchParams(searchParams);
   const [leftRunId, setLeftRunId] = useState(initialUrlPair.prior);
   const [rightRunId, setRightRunId] = useState(initialUrlPair.later);
@@ -76,6 +81,22 @@ export function CompareForm() {
     setAiFailure(null);
     setAiMalformed(null);
     setLastComparedPair(null);
+
+    const staticLegacy = tryStaticDemoRunComparison(leftAtStart, rightAtStart);
+    const staticGolden = tryStaticDemoGoldenManifestComparison(leftAtStart, rightAtStart);
+
+    if (staticLegacy !== null && staticGolden !== null) {
+      if (gen !== compareGenerationRef.current) {
+        return;
+      }
+
+      setResult(staticLegacy);
+      setGolden(staticGolden);
+      setLoading(false);
+      setLastComparedPair({ left: leftAtStart, right: rightAtStart });
+
+      return;
+    }
 
     try {
       const legacy: unknown = await compareRuns(leftAtStart, rightAtStart);
@@ -170,6 +191,27 @@ export function CompareForm() {
     setLeftRunId(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID);
     setRightRunId(SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID);
   }, [searchParams, leftRunId, rightRunId]);
+
+  useEffect(() => {
+    if (!isBuyerPolishedOperatorShellEnv() || !isStaticDemoPayloadFallbackEnabled()) {
+      return;
+    }
+
+    if (buyerAutoSeedDoneRef.current) {
+      return;
+    }
+
+    const { prior: priorQ, later: laterQ } = readCompareRunIdsFromSearchParams(searchParams);
+
+    if (priorQ.length > 0 || laterQ.length > 0) {
+      return;
+    }
+
+    buyerAutoSeedDoneRef.current = true;
+    setLeftRunId(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID);
+    setRightRunId(SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID);
+    void runCompareForPair(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID, SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID);
+  }, [searchParams, runCompareForPair]);
 
   useEffect(() => {
     const { prior: left, later: right } = readCompareRunIdsFromSearchParams(searchParams);

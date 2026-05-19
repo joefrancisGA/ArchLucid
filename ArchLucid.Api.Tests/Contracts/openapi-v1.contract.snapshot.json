@@ -2392,6 +2392,9 @@
               "string"
             ]
           },
+          "isPinned": {
+            "type": "boolean"
+          },
           "lastAgentExecutionFailure": {
             "oneOf": [
               {
@@ -10497,6 +10500,28 @@
         },
         "type": "object"
       },
+      "PinRunRequest": {
+        "properties": {
+          "isPinned": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "PinRunResponse": {
+        "properties": {
+          "isPinned": {
+            "type": "boolean"
+          },
+          "runId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PersistComparisonRequest": {
         "properties": {
           "persist": {
@@ -14555,6 +14580,9 @@
             "type": "boolean"
           },
           "isDemoWelcomeRun": {
+            "type": "boolean"
+          },
+          "isPinned": {
             "type": "boolean"
           },
           "projectId": {
@@ -27415,6 +27443,97 @@
               }
             },
             "description": "Conflict"
+          }
+        },
+        "tags": [
+          "Runs"
+        ]
+      }
+    },
+    "/v1/architecture/run/{runId}/pin": {
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PinRunRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PinRunRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PinRunRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PinRunResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PinRunResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PinRunResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
           }
         },
         "tags": [

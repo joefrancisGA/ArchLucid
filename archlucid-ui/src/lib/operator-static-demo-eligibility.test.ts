@@ -3,11 +3,18 @@ import { describe, expect, it } from "vitest";
 import {
   isStaticDemoPayloadFallbackActiveForManifest,
   isStaticDemoPayloadFallbackActiveForRun,
+  tryStaticDemoGoldenManifestComparison,
+  tryStaticDemoRunComparison,
   tryStaticDemoRunDetail,
   tryStaticDemoRunSummariesPaged,
 } from "@/lib/operator-static-demo";
 import { extractQuickDecisionFindingsFromRunDetail } from "@/lib/quick-decision-summary-derive";
-import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import {
+  SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
+  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+  SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
+  SHOWCASE_STATIC_DEMO_RUN_ID,
+} from "@/lib/showcase-static-demo";
 
 describe("operator-static-demo — showcase eligibility without demo env vars", () => {
   it("ActiveForRun is true for canonical showcase id and legacy alias targets", () => {
@@ -88,6 +95,27 @@ describe("operator-static-demo — showcase eligibility without demo env vars", 
 
     if (originalStatic !== undefined) {
       process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR = originalStatic;
+    }
+  });
+
+  it("tryStaticDemo compare payloads return structured deltas for Claims Intake v1 vs v2", () => {
+    const golden = tryStaticDemoGoldenManifestComparison(
+      SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
+      SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
+    );
+    const legacy = tryStaticDemoRunComparison(
+      SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
+      SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
+    );
+
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "true") {
+      expect(golden).not.toBeNull();
+      expect(legacy).not.toBeNull();
+      expect(golden?.decisionChanges.length).toBeGreaterThan(0);
+      expect(legacy?.hasManifestComparison).toBe(true);
+    } else {
+      expect(golden).not.toBeNull();
+      expect(legacy).not.toBeNull();
     }
   });
 });
