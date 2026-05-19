@@ -15,7 +15,7 @@ namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
 ///     Persists authority <see cref="DecisionTrace" /> (rule audit) from decisioning (not coordinator
-///     <c>DecisionTraces</c> table).
+///     <c>DecisionTraces</c> table). JSON columns are <c>NVARCHAR(MAX)</c> with rowstore PAGE compression (migration 088).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionFactory) : IDecisionTraceRepository

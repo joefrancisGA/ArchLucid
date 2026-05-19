@@ -28,6 +28,8 @@ namespace ArchLucid.Persistence.Repositories;
 ///     SQL Server-backed <see cref="IGoldenManifestRepository" /> with dual-write to legacy JSON columns and
 ///     phase-1 relational tables for assumptions, warnings, decisions (+ evidence/node links + RawDecisionJson),
 ///     and provenance reference lists. Reads prefer relational slices per collection when rows exist.
+///     JSON columns are <c>NVARCHAR(MAX)</c> with rowstore PAGE compression (migration 174); payloads above
+///     <see cref="ArtifactLargePayloadOptions" /> thresholds offload to <c>ManifestPayloadBlobUri</c> instead of growing in-row JSON.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlGoldenManifestRepository(

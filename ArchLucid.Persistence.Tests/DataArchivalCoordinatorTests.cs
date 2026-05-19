@@ -188,4 +188,56 @@ public sealed class DataArchivalCoordinatorTests
             t => t.HardDeleteTracesArchivedBeforeAsync(It.IsAny<DateTimeOffset>(), 500, It.IsAny<CancellationToken>()),
             Times.Exactly(3));
     }
+
+    [Fact]
+    public async Task RunOnceAsync_hard_deletes_stale_uncommitted_runs_until_batch_returns_zero()
+    {
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.ArchiveRunsCreatedBeforeAsync(It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunArchiveBatchResult { UpdatedCount = 0, ArchivedRuns = [] });
+        Mock<IArchitectureDigestRepository> digests = new();
+        Mock<IConversationThreadRepository> threads = new();
+        Mock<IAgentExecutionTraceRepository> traceRepo = new();
+        runs.SetupSequence(
+                r => r.HardDeleteStaleUncommittedRunsBatchAsync(
+                    It.IsAny<DateTimeOffset>(),
+                    500,
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunStaleUncommittedPurgeBatchResult
+            {
+                Deleted =
+                [
+                    new ArchivedRunScopeRow
+                    {
+                        RunId = Guid.NewGuid(),
+                        TenantId = Guid.NewGuid(),
+                        WorkspaceId = Guid.NewGuid(),
+                        ScopeProjectId = Guid.NewGuid()
+                    }
+                ]
+            })
+            .ReturnsAsync(new RunStaleUncommittedPurgeBatchResult { Deleted = [] });
+
+        DataArchivalCoordinator coordinator = new(
+            runs.Object,
+            digests.Object,
+            threads.Object,
+            traceRepo.Object,
+            NullLogger<DataArchivalCoordinator>.Instance);
+
+        await coordinator.RunOnceAsync(
+            new DataArchivalOptions
+            {
+                RunsRetentionDays = 0,
+                DigestsRetentionDays = 0,
+                ConversationsRetentionDays = 0,
+                PurgeUncommittedRunsAfterDays = 7,
+                PurgeUncommittedRunsBatchSize = 500
+            },
+            CancellationToken.None);
+
+        runs.Verify(
+            r => r.HardDeleteStaleUncommittedRunsBatchAsync(It.IsAny<DateTimeOffset>(), 500, It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+    }
 }
