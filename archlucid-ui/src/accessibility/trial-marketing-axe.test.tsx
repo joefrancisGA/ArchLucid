@@ -10,6 +10,7 @@ expect.extend(toHaveNoViolations);
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
+  usePathname: () => "/",
   useSearchParams: () => new URLSearchParams(),
   redirect: vi.fn(),
 }));
