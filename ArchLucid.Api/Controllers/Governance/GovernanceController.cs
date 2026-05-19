@@ -51,6 +51,7 @@ public sealed class GovernanceController(
     IComplianceDriftTrendService complianceDriftTrendService,
     IPolicyPackDryRunService policyPackDryRunService,
     IPolicyPackGovernanceDryRunService policyPackGovernanceDryRunService,
+    IPolicyPackSchemaKeysService policyPackSchemaKeysService,
     IAuditService auditService,
     ILogger<GovernanceController> logger)
     : ControllerBase
@@ -75,6 +76,9 @@ public sealed class GovernanceController(
 
     private readonly IPolicyPackGovernanceDryRunService _policyPackGovernanceDryRunService =
         policyPackGovernanceDryRunService ?? throw new ArgumentNullException(nameof(policyPackGovernanceDryRunService));
+
+    private readonly IPolicyPackSchemaKeysService _policyPackSchemaKeysService =
+        policyPackSchemaKeysService ?? throw new ArgumentNullException(nameof(policyPackSchemaKeysService));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -426,6 +430,18 @@ public sealed class GovernanceController(
             logger.LogWarning(ex, "Activate failed: run not found.");
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+    }
+
+    /// <summary>
+    ///     Returns flat and tree views of all configurable keys in the registered
+    ///     <c>PolicyPackContentDocument</c> JSON Schema for dynamic policy pack form builders.
+    /// </summary>
+    [HttpGet("schema-keys")]
+    [ProducesResponseType(typeof(PolicyPackSchemaKeysResponse), StatusCodes.Status200OK)]
+    public IActionResult GetPolicyPackSchemaKeys()
+    {
+        PolicyPackSchemaKeysResponse response = _policyPackSchemaKeysService.GetSchemaKeys();
+        return Ok(response);
     }
 
     [HttpGet("dashboard")]

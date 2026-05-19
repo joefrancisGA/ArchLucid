@@ -58,6 +58,7 @@ public sealed class GovernanceControllerDashboardTests
             Mock.Of<IComplianceDriftTrendService>(),
             Mock.Of<IPolicyPackDryRunService>(),
             Mock.Of<IPolicyPackGovernanceDryRunService>(),
+            Mock.Of<IPolicyPackSchemaKeysService>(),
             Mock.Of<Core.Audit.IAuditService>(),
             NullLogger<GovernanceController>.Instance);
 
