@@ -338,6 +338,22 @@ The following bulk processing features are explicitly deferred to **V1.1**:
 
 ---
 
+## 6o. Executive ROI summary endpoint — cross-run dedup (**V1.1**) (owner scope 2026-05-19)
+
+**Context:** **V1 GA** already ships tenant **pilot scorecard** (`GET /v1/pilots/outcome-summary`, `POST /v1/pilots/scorecard`), **pilot value report**, **per-run ROI** (`GET /v1/architecture/run/{runId}/roi`), **value report** APIs, and authority **executive-summary** posture rollup — see [`PILOT_SCORECARD_API.md`](PILOT_SCORECARD_API.md). This section defers only a **dedicated cross-run executive ROI summary** surface with explicit **overlapping-finding aggregation** semantics (sum vs max vs unique-finding group).
+
+| Milestone | V1 posture | V1.1 commitment |
+|-----------|------------|-----------------|
+| **Dedicated cross-run executive ROI summary API** (workspace- or tenant-scoped rollup of cost savings / risk reduction with dedup rules when multiple runs surface the same systemic issue) | **Out of V1.** Pilots and CFO narratives use existing scorecard, value report, and per-run ROI. **`(A)` assessments must not** deduct Executive Value Visibility or Proof-of-ROI Readiness for absence of this endpoint. | **In scope for V1.1** after owner pins aggregation rules (record in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) when resolved). |
+
+**Rules:**
+
+- **V1 GA assessments** **must not** treat “no `/v1/reports/executive-summary`” (or equivalent dedicated CFO rollup route) as a V1 defect — same pattern as published reference customer **§6b**.
+- **V1.1 engineering** should prefer extending **`ValueReportSnapshot`** / pilot scorecard DTOs over parallel ROI math unless a separate contract is required for board packs.
+- Open product question (V1.1 planning only): when multiple runs identify the same systemic issue, aggregate by **sum**, **max**, or **unique finding identity** — not a V1 gate.
+
+---
+
 ## 7. Engineering backlog (not a product roadmap)
 
 | Item | Doc source |
