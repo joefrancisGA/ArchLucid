@@ -130,20 +130,27 @@ internal static class TestClassTraitConventionScanner
     private static string FormatQualifiedTypeName(TypeDeclarationSyntax typeDeclaration)
     {
         List<string> segments = [];
-        TypeDeclarationSyntax? current = typeDeclaration;
 
-        while (current is not null)
-        {
-            segments.Insert(0, current.Identifier.Text);
-            current = current.Parent as TypeDeclarationSyntax;
-        }
+        for (SyntaxNode? node = typeDeclaration; node is TypeDeclarationSyntax type; node = node.Parent)
+            segments.Insert(0, type.Identifier.Text);
 
-        string? namespaceName = (typeDeclaration.Parent as BaseNamespaceDeclarationSyntax)?.Name.ToString();
+        string? namespaceName = FindContainingNamespaceName(typeDeclaration);
 
         if (string.IsNullOrWhiteSpace(namespaceName))
             return string.Join(".", segments);
 
         return namespaceName + "." + string.Join(".", segments);
+    }
+
+    private static string? FindContainingNamespaceName(TypeDeclarationSyntax typeDeclaration)
+    {
+        for (SyntaxNode? node = typeDeclaration.Parent; node is not null; node = node.Parent)
+        {
+            if (node is BaseNamespaceDeclarationSyntax namespaceDeclaration)
+                return namespaceDeclaration.Name.ToString();
+        }
+
+        return null;
     }
 
     private static bool TypeHasSuiteOrCategoryTrait(TypeDeclarationSyntax typeDeclaration)

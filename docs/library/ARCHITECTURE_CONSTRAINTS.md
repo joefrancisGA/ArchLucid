@@ -56,6 +56,7 @@ Catch **accidental coupling** early: foundation assemblies pulling in hosts, dom
 | **`ArchLucid.Architecture.Tests`** | Holds rules; references only the assemblies under test (no product code changes). |
 | **`ArchitectureConstraintNamespaces`** | Single place to maintain Tier 1 forbidden prefix lists. |
 | **`DependencyConstraintTests`** | One fact per tier rule; uses anchor types (`typeof(...).Assembly`) so renaming types inside an assembly does not break resolution unnecessarily. |
+| **`TestClassTraitCategorizationArchitectureTests`** | Roslyn source scan: every public `*Tests` class in a `*.Tests` project folder must declare `[Trait("Suite", …)]` and/or `[Trait("Category", …)]` at class scope (see `docs/library/TEST_EXECUTION_MODEL.md`). |
 
 ---
 

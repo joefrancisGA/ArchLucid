@@ -105,6 +105,11 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
 
             message.MessageId = TrimMessageId(messageId);
 
+        string? correlationId = IntegrationEventServiceBusCorrelationId.TryResolveForPublish(utf8JsonPayload);
+
+        if (!string.IsNullOrWhiteSpace(correlationId))
+            message.CorrelationId = correlationId;
+
         try
         {
             await _sender.SendMessageAsync(message, cancellationToken);
