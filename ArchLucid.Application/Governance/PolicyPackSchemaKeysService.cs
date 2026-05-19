@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Schema;
-using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Decisioning.Governance.PolicyPacks;

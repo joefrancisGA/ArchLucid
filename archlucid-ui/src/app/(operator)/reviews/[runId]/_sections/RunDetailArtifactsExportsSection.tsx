@@ -181,9 +181,6 @@ export function RunDetailArtifactsExportsSection(
                   trustEvidenceCard={trustEvidenceCard ?? null}
                   buyerMarkdownAsPrimaryButton
                 />
-                <Button variant="outline" size="sm" className="text-teal-800 dark:text-teal-300" asChild>
-                  <Link href={`/ask?runId=${encodeURIComponent(runId)}`}>Ask about this review</Link>
-                </Button>
               </div>
             ) : (
               <div className="flex flex-wrap items-center gap-3">

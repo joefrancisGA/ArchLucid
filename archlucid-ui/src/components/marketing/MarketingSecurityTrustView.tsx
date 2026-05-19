@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { Button } from "@/components/ui/button";
 import {
   SECURITY_TRUST_MATURITY_SECTION_HEADINGS,
   SECURITY_TRUST_NDA_NOTICE,
@@ -150,6 +151,17 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
             </details>
           </li>
         </ul>
+        <div className="mt-4 flex flex-wrap gap-2" data-testid="security-trust-primary-ctas">
+          <Button variant="primary" size="sm" asChild>
+            <Link href="/trust#trust-contact-review">Request diligence materials</Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/trust">Open Trust Center</Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <a href="mailto:security@archlucid.net">Email security team</a>
+          </Button>
+        </div>
       </section>
 
       <section

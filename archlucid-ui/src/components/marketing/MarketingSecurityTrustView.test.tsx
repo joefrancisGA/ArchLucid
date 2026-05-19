@@ -58,4 +58,15 @@ describe("MarketingSecurityTrustView", () => {
     expect(within(soc2).getByTestId("assurance-maturity-badge")).toHaveTextContent("Available now");
     expect(within(soc2).getByTestId("assurance-access-badge")).toHaveTextContent(/readiness summary|SOC/i);
   });
+
+  it("groups primary diligence CTAs under the available-now strip", () => {
+    render(<MarketingSecurityTrustView />);
+
+    const ctaRow = screen.getByTestId("security-trust-primary-ctas");
+    expect(within(ctaRow).getByRole("link", { name: /Request diligence materials/i })).toHaveAttribute(
+      "href",
+      "/trust#trust-contact-review",
+    );
+    expect(within(ctaRow).getByRole("link", { name: /Open Trust Center/i })).toHaveAttribute("href", "/trust");
+  });
 });

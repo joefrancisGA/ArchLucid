@@ -88,6 +88,25 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
             </div>
           </div>
         </div>
+
+        <div
+          className="mt-6 flex flex-wrap items-center gap-3"
+          data-testid="trust-center-primary-ctas"
+          aria-label="Trust Center primary actions"
+        >
+          <Button variant="primary" size="sm" asChild>
+            <Link href="mailto:security@archlucid.net">Request diligence materials</Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/security-trust">Security and trust detail</Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/privacy">Privacy disclosures</Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="#trust-contact-review">Security review contact</Link>
+          </Button>
+        </div>
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2">
