@@ -350,21 +350,21 @@ export function RunDetailOutcomeCards({
           {BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER}
         </p>
       ) : null}
+      <PackageStatusStrip
+        manifestId={manifestId}
+        hasGoldenManifest={hasGoldenManifest}
+        warningCountDisplay={warningCountDisplay}
+        findingCountDisplay={findingCountDisplay}
+        aggregateRiskPosture={aggregateRiskPosture}
+        artifactCount={artifactCount}
+        governanceGateLabel={governanceGateLabel}
+        showcasePolicyPackStrip={showcasePolicyPackStrip ?? null}
+      />
       <details className="rounded-lg border border-neutral-200 bg-neutral-50/50 dark:border-neutral-800 dark:bg-neutral-900/30">
         <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-          Package metrics and outcome taxonomy
+          Outcome taxonomy reference
         </summary>
-        <div className="space-y-3 border-t border-neutral-200 px-3 py-3 dark:border-neutral-800">
-          <PackageStatusStrip
-            manifestId={manifestId}
-            hasGoldenManifest={hasGoldenManifest}
-            warningCountDisplay={warningCountDisplay}
-            findingCountDisplay={findingCountDisplay}
-            aggregateRiskPosture={aggregateRiskPosture}
-            artifactCount={artifactCount}
-            governanceGateLabel={governanceGateLabel}
-            showcasePolicyPackStrip={showcasePolicyPackStrip ?? null}
-          />
+        <div className="border-t border-neutral-200 px-3 py-3 dark:border-neutral-800">
           <ReviewOutcomeTaxonomyLegend />
         </div>
       </details>

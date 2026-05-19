@@ -1,7 +1,5 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
-import { BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY } from "@/lib/buyer-polish-copy";
-
 import {
   FIXTURE_LEFT_RUN_ID,
   FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID,
@@ -62,7 +60,7 @@ export async function expandCompareRunPickersIfCollapsed(page: Page): Promise<vo
   }
 
   const collapsedPickers = page.locator("details").filter({ has: leftInput });
-  const summary = collapsedPickers.getByText(BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY, { exact: true });
+  const summary = collapsedPickers.locator("summary");
 
   if ((await summary.count()) === 0) {
     return;
