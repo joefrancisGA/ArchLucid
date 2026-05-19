@@ -27,6 +27,7 @@ test.describe("operator journey — compare proxy mocks", () => {
     await compareSubmit.click();
     await expect(structuredCompareSponsorRecommendationParagraph(page)).toBeVisible();
 
+    await expandCompareRunPickersIfCollapsed(page);
     await comparePageSummarizeNarrativeButton(page).click();
     await page.locator("#compare-ai summary").click();
     await expect(page.getByText(explainFixture.highLevelSummary)).toBeVisible();
