@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -56,6 +57,51 @@ CONFIG_KEYS_DOC = (
 )
 
 
+def _strip_block_comments(text: str) -> str:
+    # ASP.NET Core appsettings.json allows /* */ comments; stdlib json does not.
+    return re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
+
+
+def _strip_line_comments(text: str) -> str:
+    out_lines: list[str] = []
+
+    for line in text.splitlines():
+        if "//" in line:
+            in_string = False
+            quote = ""
+            i = 0
+            cut = len(line)
+
+            while i < len(line) - 1:
+                ch = line[i]
+
+                if not in_string and ch == "/" and line[i + 1] == "/":
+                    cut = i
+                    break
+
+                if ch in ('"', "'"):
+                    if not in_string:
+                        in_string = True
+                        quote = ch
+                    elif ch == quote and line[i - 1] != "\\":
+                        in_string = False
+
+                i += 1
+
+            line = line[:cut].rstrip()
+
+        out_lines.append(line)
+
+    return "\n".join(out_lines)
+
+
+def parse_appsettings_json(raw: str) -> Any:
+    """Parse appsettings-style JSON (comments allowed, same as host configuration)."""
+    cleaned = _strip_line_comments(_strip_block_comments(raw))
+
+    return json.loads(cleaned)
+
+
 def deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
     out: dict[str, Any] = dict(base)
 
@@ -83,7 +129,7 @@ def load_merged_json_objects(paths: Iterable[Path]) -> tuple[dict[str, Any], lis
         raw = path.read_text(encoding="utf-8")
 
         try:
-            obj = json.loads(raw)
+            obj = parse_appsettings_json(raw)
         except json.JSONDecodeError as ex:
             errors.append(f"{path}: JSON error: {ex}")
             continue
