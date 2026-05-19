@@ -25,10 +25,7 @@ public sealed class CustomerNotificationChannelPreferencesIntegrationTests(JwtLo
     [SkippableFact]
     public async Task Get_customer_channel_preferences_with_reader_jwt_returns_unconfigured_defaults()
     {
-        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
-            factory.PrivatePemForTests,
-            "https://test.archlucid.local",
-            "api://archlucid-jwt-local-test",
+        string token = factory.MintLocalBearerJwt(
             "ReaderUser",
             [ArchLucidRoles.Reader]);
 
@@ -38,7 +35,8 @@ public sealed class CustomerNotificationChannelPreferencesIntegrationTests(JwtLo
         HttpResponseMessage res =
             await client.GetAsync(new Uri("/v1/notifications/customer-channel-preferences", UriKind.Relative));
 
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
+        string responseBody = await res.Content.ReadAsStringAsync();
+        res.StatusCode.Should().Be(HttpStatusCode.OK, "response body: {0}", responseBody);
         TenantNotificationChannelPreferencesResponse? body =
             await res.Content.ReadFromJsonAsync<TenantNotificationChannelPreferencesResponse>(JsonOptions);
 

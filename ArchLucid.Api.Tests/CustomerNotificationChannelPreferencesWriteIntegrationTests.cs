@@ -23,10 +23,7 @@ public sealed class
     [SkippableFact]
     public async Task Put_customer_channel_preferences_with_reader_jwt_returns_forbidden()
     {
-        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
-            factory.PrivatePemForTests,
-            "https://test.archlucid.local",
-            "api://archlucid-jwt-local-test",
+        string token = factory.MintLocalBearerJwt(
             "ReaderUser",
             [ArchLucidRoles.Reader]);
 
@@ -50,10 +47,7 @@ public sealed class
     [SkippableFact]
     public async Task Put_customer_channel_preferences_with_operator_jwt_then_get_returns_configured_row()
     {
-        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
-            factory.PrivatePemForTests,
-            "https://test.archlucid.local",
-            "api://archlucid-jwt-local-test",
+        string token = factory.MintLocalBearerJwt(
             "OperatorUser",
             [ArchLucidRoles.Operator]);
 
