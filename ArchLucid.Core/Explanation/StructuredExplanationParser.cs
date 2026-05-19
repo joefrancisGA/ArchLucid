@@ -69,6 +69,10 @@ public static class StructuredExplanationParser
         };
     }
 
+    /// <summary>
+    ///     Normalizes LLM confidence to <c>[0, 1]</c>: values in <c>(1, 100]</c> are treated as percentages;
+    ///     values outside <c>[0, 100]</c> are discarded.
+    /// </summary>
     internal static decimal? ClampConfidence(decimal? value)
     {
         if (value is null)
@@ -76,10 +80,13 @@ public static class StructuredExplanationParser
 
         decimal v = value.Value;
 
-        if (v < 0m)
-            return 0m;
+        if (v < 0m || v > 100m)
+            return null;
 
-        return v > 1m ? 1m : v;
+        if (v > 1m)
+            return v / 100m;
+
+        return v;
     }
 
     private static StructuredExplanation MapFromDto(StructuredExplanationDto dto)

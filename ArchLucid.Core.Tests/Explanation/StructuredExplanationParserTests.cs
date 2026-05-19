@@ -83,11 +83,36 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
-    public void ClampConfidence_clamps_to_unit_interval()
+    public void ClampConfidence_normalizes_percentages_and_rejects_out_of_range()
     {
         StructuredExplanationParser.ClampConfidence(null).Should().BeNull();
-        StructuredExplanationParser.ClampConfidence(-0.1m).Should().Be(0m);
-        StructuredExplanationParser.ClampConfidence(1.1m).Should().Be(1m);
+        StructuredExplanationParser.ClampConfidence(-0.1m).Should().BeNull();
+        StructuredExplanationParser.ClampConfidence(101m).Should().BeNull();
         StructuredExplanationParser.ClampConfidence(0.25m).Should().Be(0.25m);
+        StructuredExplanationParser.ClampConfidence(1m).Should().Be(1m);
+        StructuredExplanationParser.ClampConfidence(75m).Should().Be(0.75m);
+        StructuredExplanationParser.ClampConfidence(100m).Should().Be(1m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_scales_percentage_confidence()
+    {
+        const string json = """{"reasoning":"x","confidence":75}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_nulls_invalid_confidence()
+    {
+        const string json = """{"reasoning":"x","confidence":120}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().BeNull();
     }
 }
