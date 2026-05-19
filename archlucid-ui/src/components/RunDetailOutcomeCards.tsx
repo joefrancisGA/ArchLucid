@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
 import { StatusPill } from "@/components/StatusPill";
-import { BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER } from "@/lib/buyer-polish-copy";
+import { BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER, BUYER_SEALED_MANIFEST_TOOLTIP } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
@@ -165,7 +165,13 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
   const packageBody = (
     <>
       {props.hasGoldenManifest ? (
-        <StatusPill status="Finalized" domain="pipeline" className="mt-px" ariaLabel="Review package outcome: finalized" />
+        <StatusPill
+          status="Finalized"
+          domain="pipeline"
+          className="mt-px"
+          ariaLabel="Review package outcome: finalized"
+          title={isBuyerPolishedOperatorShellEnv() ? BUYER_SEALED_MANIFEST_TOOLTIP : undefined}
+        />
       ) : (
         <p
           className={cn(
@@ -344,19 +350,26 @@ export function RunDetailOutcomeCards({
           {BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER}
         </p>
       ) : null}
-        <PackageStatusStrip
-          manifestId={manifestId}
-          hasGoldenManifest={hasGoldenManifest}
-          warningCountDisplay={warningCountDisplay}
-          findingCountDisplay={findingCountDisplay}
-          aggregateRiskPosture={aggregateRiskPosture}
-          artifactCount={artifactCount}
-          governanceGateLabel={governanceGateLabel}
-          showcasePolicyPackStrip={showcasePolicyPackStrip ?? null}
-        />
-        <ReviewOutcomeTaxonomyLegend />
-      </div>
-    );
+      <details className="rounded-lg border border-neutral-200 bg-neutral-50/50 dark:border-neutral-800 dark:bg-neutral-900/30">
+        <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+          Package metrics and outcome taxonomy
+        </summary>
+        <div className="space-y-3 border-t border-neutral-200 px-3 py-3 dark:border-neutral-800">
+          <PackageStatusStrip
+            manifestId={manifestId}
+            hasGoldenManifest={hasGoldenManifest}
+            warningCountDisplay={warningCountDisplay}
+            findingCountDisplay={findingCountDisplay}
+            aggregateRiskPosture={aggregateRiskPosture}
+            artifactCount={artifactCount}
+            governanceGateLabel={governanceGateLabel}
+            showcasePolicyPackStrip={showcasePolicyPackStrip ?? null}
+          />
+          <ReviewOutcomeTaxonomyLegend />
+        </div>
+      </details>
+    </div>
+  );
   }
 
   const unresolvedTrunc =

@@ -53,11 +53,6 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
           placeholder="Ask about your architecture..."
           rows={4}
         />
-        {buyerPolishedShell ? (
-          <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-            Examples below are illustrative; live workspace answers are scoped to the selected review evidence.
-          </p>
-        ) : null}
         <div
           className={cn(buyerPolishedShell ? "flex flex-col gap-3" : "flex flex-wrap gap-2")}
           role="group"

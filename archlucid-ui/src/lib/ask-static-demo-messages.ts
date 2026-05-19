@@ -28,12 +28,12 @@ export function tryStaticDemoConversationMessages(threadId: string): Conversatio
         threadId: tid,
         role: "Assistant",
         content:
-          "The PHI minimization risk at intake is accepted with monitoring and is non-blocking for go-live under the documented governance cadence.\n\n" +
+          "The primary concern is PHI minimization at intake: legacy connectors may retain more patient identifiers than the target architecture allows. The risk is accepted with monitoring and is non-blocking for go-live under the documented governance cadence.\n\n" +
+          "The signed manifest records the mitigation pattern and links supporting evidence for governance traceability. The evidence trail links the intake adapters and retention controls to this finding. The audit trail shows governance approval recorded before the package was finalized.\n\n" +
           "Risk:\n\n" +
-          "PHI minimization at the intake boundary: legacy connectors may retain more patient identifiers than the " +
-          "target architecture allows.\n\n" +
+          "Expanded breach and audit scope if minimization is understated at the intake boundary.\n\n" +
           "Evidence:\n\n" +
-          "The finalized manifest records the mitigation pattern and links supporting evidence for governance traceability.\n\n" +
+          "Signed manifest disposition, evidence trail anchors, and audit events for approval and findings capture.\n\n" +
           "Mitigation:\n\n" +
           "Align adapters to the minimization posture documented in the review package before sign-off.\n\n" +
           "Validation:\n\n" +
@@ -60,10 +60,12 @@ export function tryStaticDemoConversationMessages(threadId: string): Conversatio
         threadId: tid,
         role: "Assistant",
         content:
+          "Legal review should confirm that every HIPAA-boundary data flow and retention control is documented before sign-off. Undocumented flows or retention gaps are the main blocker.\n\n" +
+          "The signed manifest summarizes boundary decisions for this package. The evidence trail links each control point to supporting records. The audit trail shows when findings and approvals were recorded.\n\n" +
           "Risk:\n\n" +
           "Undocumented data flows or retention gaps across the HIPAA boundary could block sign-off.\n\n" +
           "Evidence:\n\n" +
-          "Use the review package to tie each control point to evidence in the trail graph.\n\n" +
+          "Review package narratives, evidence trail anchors, and audit events tied to boundary controls.\n\n" +
           "Mitigation:\n\n" +
           "Document flows, subprocessors touching PHI, and monitoring proof before legal review completes.\n\n" +
           "Validation:\n\n" +

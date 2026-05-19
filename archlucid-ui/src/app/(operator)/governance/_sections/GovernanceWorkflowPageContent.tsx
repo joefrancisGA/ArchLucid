@@ -41,6 +41,11 @@ import {
   tryStaticDemoGovernanceApprovalRequests,
   tryStaticDemoGovernancePromotions,
 } from "@/lib/operator-static-demo";
+import {
+  BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD,
+  BUYER_GOVERNANCE_CHANGE_MANAGEMENT_FOOTNOTE,
+  BUYER_GOVERNANCE_GOVERNED_USE_SCOPE,
+} from "@/lib/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type {
   GovernanceApprovalRequest,
@@ -470,7 +475,7 @@ export function GovernanceWorkflowPageContent() {
         docsPageKey="/governance"
         subtitle={
           showBuyerApprovalStory
-            ? "Approval record: governed-use approval for this package’s finalized manifest is summarized in the card below."
+            ? BUYER_GOVERNANCE_GOVERNED_USE_SCOPE
             : buyerPolishedShell
               ? "Governance holds the approval decision and audit linkage for this review package."
               : canMutateWorkflow
@@ -497,11 +502,25 @@ export function GovernanceWorkflowPageContent() {
         </p>
       ) : null}
       {showBuyerApprovalStory ? (
-        <GovernanceApprovalStoryCard
-          row={approvals[0]!}
-          auditTrailHref={`/audit?runId=${encodeURIComponent(activeRunId)}`}
-          emphasizeComplete
-        />
+        <>
+          <p
+            className="mb-4 max-w-prose rounded-xl border-2 border-teal-600/70 bg-teal-50/70 px-4 py-3 text-sm font-semibold leading-snug text-neutral-950 shadow-sm dark:border-teal-500/50 dark:bg-teal-950/40 dark:text-neutral-50"
+            data-testid="governance-buyer-approval-record-lead"
+          >
+            {BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD}
+          </p>
+          <GovernanceApprovalStoryCard
+            row={approvals[0]!}
+            auditTrailHref={`/audit?runId=${encodeURIComponent(activeRunId)}`}
+            emphasizeComplete
+          />
+          <p className="mb-4 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+            {BUYER_GOVERNANCE_GOVERNED_USE_SCOPE}
+          </p>
+          <p className="mb-4 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
+            {BUYER_GOVERNANCE_CHANGE_MANAGEMENT_FOOTNOTE}
+          </p>
+        </>
       ) : null}
       {!showBuyerApprovalStory ? (
         <p

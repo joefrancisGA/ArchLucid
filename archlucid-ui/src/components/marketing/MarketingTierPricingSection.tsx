@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { BILLING_TIER_FEATURE_BULLETS } from "@/lib/billing-plan-tier-features";
+import { BUYER_PRICING_FAIR_USE_OVERAGE_NOTE } from "@/lib/buyer-polish-copy";
 import { isPublicStripeTeamCheckoutEnabled } from "@/lib/marketing/is-public-stripe-team-checkout-enabled";
 import type { PricingDoc } from "@/lib/pricing-types";
 import { looksStripeHostedTestCheckoutUrl, resolveTeamStripeCheckoutHref } from "@/lib/team-stripe-checkout-url";
@@ -177,9 +178,12 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                   ) : null}
                 </dl>
                 {pkg.id === "enterprise" ? (
-                  <p className="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
-                    Deployment model and terms are finalized through procurement.
-                  </p>
+                  <>
+                    <p className="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
+                      Deployment model and terms are finalized through procurement.
+                    </p>
+                    <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">{BUYER_PRICING_FAIR_USE_OVERAGE_NOTE}</p>
+                  </>
                 ) : null}
                 <div className="mt-4 flex flex-col gap-2">
                   {pkg.id === "team" ? (

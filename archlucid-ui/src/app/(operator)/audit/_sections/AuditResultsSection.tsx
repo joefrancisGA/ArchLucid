@@ -238,6 +238,25 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                             ? auditExportCsvButtonLabelRoleRestricted
                             : "Download audit trail (CSV)"}
                   </Button>
+                  <div className="border-t border-neutral-200 pt-3 dark:border-neutral-700">
+                    <p className="m-0 text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+                      Next steps after sample review
+                    </p>
+                    <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+                      When your team is ready for tenant-backed governed reviews, procurement and workspace onboarding use a
+                      separate request flow. You have now seen the sample audit trail — use this section when you are ready to
+                      discuss tenant-backed workspaces.
+                    </p>
+                    <p className="m-0 mt-3 text-xs">
+                      <Link
+                        className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                        href="/reviews/new"
+                      >
+                        Create follow-up review
+                      </Link>{" "}
+                      when you need another governed package after completing this sample path.
+                    </p>
+                  </div>
                 </div>
               </details>
             ) : null}

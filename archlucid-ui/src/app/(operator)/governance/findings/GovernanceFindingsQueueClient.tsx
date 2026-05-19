@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type KeyboardEvent, type ReactElement } from "react";
 
-import { BuyerGoldenJourneyStrip } from "@/components/BuyerGoldenJourneyStrip";
 import { EmptyState } from "@/components/EmptyState";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -419,11 +418,6 @@ export default function GovernanceFindingsQueueClient() {
             Review records and dispositions
           </span>
         </nav>
-      ) : null}
-      {buyerPolishedShell ? (
-        <div className="mt-4">
-          <BuyerGoldenJourneyStrip />
-        </div>
       ) : null}
       <OperatorPageHeader title={buyerPolishedShell ? "Review records and dispositions" : "Findings"} />
 
