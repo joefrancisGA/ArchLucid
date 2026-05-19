@@ -1,4 +1,5 @@
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Configuration;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Pilots;
 using ArchLucid.ArtifactSynthesis.Packaging;
@@ -445,6 +446,16 @@ public sealed class PilotRunDeltaComputerTests
         return mock.Object;
     }
 
+    private static IAgentOutputQualityGateOptionsResolver CreateGateOptionsResolver(AgentOutputQualityGateOptions? gateOpts = null)
+    {
+        Mock<IAgentOutputQualityGateOptionsResolver> resolver = new();
+        AgentOutputQualityGateOptions options = gateOpts ?? new AgentOutputQualityGateOptions();
+
+        resolver.Setup(r => r.Resolve(It.IsAny<CancellationToken>())).Returns(options);
+
+        return resolver.Object;
+    }
+
     private static PilotRunDeltaComputer CreatePilotDeltaComputer(
         IFindingEvidenceChainService evidence,
         IAgentExecutionTraceRepository traces,
@@ -462,7 +473,7 @@ public sealed class PilotRunDeltaComputerTests
             scope,
             Mock.Of<IRunExplanationSummaryService>(),
             pilotAggregator ?? DefaultStrictPilotAgg(),
-            Options.Create(gateOpts ?? new AgentOutputQualityGateOptions()),
+            CreateGateOptionsResolver(gateOpts),
             NullLogger<PilotRunDeltaComputer>.Instance);
     }
 

@@ -495,6 +495,13 @@ public static class AuditEventTypes
     /// </summary>
     public const string TenantNotificationChannelPreferencesUpdated = "TenantNotificationChannelPreferencesUpdated";
 
+    public const string TenantAgentOutputQualityGateModeUpdated = "Tenant.AgentOutputQualityGateModeUpdated";
+
+    public const string TenantAgentOutputQualityGateModeOverrideCleared = "Tenant.AgentOutputQualityGateModeOverrideCleared";
+
+    /// <summary>Admin issued new host API key rotation material (payload excludes key material).</summary>
+    public const string AdminApiKeyRotationMaterialIssued = "Admin.ApiKeyRotationMaterialIssued";
+
     /// <summary>
     ///     Outbound subscriber URL probe without persistence (<c>POST /v1/webhooks/dry-run</c>). Payload excludes shared
     ///     secrets and response bodies.

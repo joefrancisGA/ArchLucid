@@ -1,7 +1,8 @@
 using System.Reflection;
 
-using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Configuration;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
@@ -15,10 +16,11 @@ namespace ArchLucid.Architecture.Tests;
 [Trait("Category", "Unit")]
 public sealed class AgentOutputQualityGateOptionsInjectionArchitectureTests
 {
-    private static readonly Type[] AllowedTypes =
+    private static readonly Type[] AllowedOptionsInjectionTypes =
     [
         typeof(ArchitectureRunExecuteOrchestrator),
-        typeof(PilotRunDeltaComputer),
+        typeof(TenantAgentOutputQualityGateModeService),
+        typeof(AgentOutputQualityGateOptionsResolver),
     ];
 
     [Fact]
@@ -42,10 +44,15 @@ public sealed class AgentOutputQualityGateOptionsInjectionArchitectureTests
             {
                 foreach (ParameterInfo parameter in ctor.GetParameters())
                 {
-                    if (parameter.ParameterType != optionsType && parameter.ParameterType != monitorType)
+                    Type parameterType = parameter.ParameterType;
+
+                    if (parameterType == typeof(IAgentOutputQualityGateOptionsResolver))
                         continue;
 
-                    if (AllowedTypes.Contains(type))
+                    if (parameterType != optionsType && parameterType != monitorType)
+                        continue;
+
+                    if (AllowedOptionsInjectionTypes.Contains(type))
                         continue;
 
                     violations.Add($"{type.FullName}({parameter.ParameterType.Name} {parameter.Name})");

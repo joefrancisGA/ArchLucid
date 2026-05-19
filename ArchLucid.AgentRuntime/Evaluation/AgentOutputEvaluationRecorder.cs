@@ -1,13 +1,13 @@
 using System.Diagnostics;
 
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
+using ArchLucid.Application.Configuration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Evaluation;
 
@@ -21,7 +21,7 @@ public sealed class AgentOutputEvaluationRecorder(
     IAgentOutputEvaluator evaluator,
     IAgentOutputSemanticEvaluator semanticEvaluator,
     IAgentOutputQualityGate qualityGate,
-    IOptions<AgentOutputQualityGateOptions> gateOptions,
+    IAgentOutputQualityGateOptionsResolver gateOptionsResolver,
     AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
     Contracts.Findings.IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher,
     IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
@@ -36,8 +36,8 @@ public sealed class AgentOutputEvaluationRecorder(
     /// </summary>
     private const double LowSemanticScoreThreshold = 0.3;
 
-    private readonly AgentOutputQualityGateOptions _gateOptions =
-        (gateOptions ?? throw new ArgumentNullException(nameof(gateOptions))).Value;
+    private readonly IAgentOutputQualityGateOptionsResolver _gateOptionsResolver =
+        gateOptionsResolver ?? throw new ArgumentNullException(nameof(gateOptionsResolver));
 
     private readonly AgentOutputReferenceCaseRunEvaluator _referenceCaseRunEvaluator =
         referenceCaseRunEvaluator ?? throw new ArgumentNullException(nameof(referenceCaseRunEvaluator));
@@ -79,13 +79,14 @@ public sealed class AgentOutputEvaluationRecorder(
 
         async Task EvaluateOneAsync(AgentExecutionTrace trace)
         {
+            AgentOutputQualityGateOptions gateOptions = _gateOptionsResolver.Resolve(cancellationToken);
             string agentLabel = trace.AgentType.ToString();
             TagList tags = new() { { "agent_type", agentLabel } };
 
             AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? evaluated =
                 await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
                     trace,
-                    _gateOptions,
+                    gateOptions,
                     evaluator,
                     semanticEvaluator,
                     qualityGate,
@@ -140,9 +141,9 @@ public sealed class AgentOutputEvaluationRecorder(
 
             if (evaluated.EmitQualityGateMetric)
             {
-                string gateModeLabel = !_gateOptions.Enabled
+                string gateModeLabel = !gateOptions.Enabled
                     ? "disabled"
-                    : _gateOptions.Mode == AgentOutputQualityGateMode.PilotStrict
+                    : gateOptions.Mode == AgentOutputQualityGateMode.PilotStrict
                         ? "pilot_strict"
                         : "warn_only";
 
@@ -167,7 +168,7 @@ public sealed class AgentOutputEvaluationRecorder(
                     await traceRepository.PatchQualityRejectedAsync(trace.TraceId, true, cancellationToken)
                         .ConfigureAwait(false);
 
-                    if (_gateOptions.EnforceOnReject)
+                    if (gateOptions.EnforceOnReject)
                         throw new AgentOutputQualityGateRejectedException(
                             runId,
                             trace.TraceId,

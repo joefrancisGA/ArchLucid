@@ -367,13 +367,13 @@ Constraints: Must not obscure the actual architecture content.
 - **Why it matters:** Allows admins to easily enforce stricter quality gates.
 - **Expected impact:** Improves Usability (+5 pts) and Manageability (+2 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Usability.
-- **Actionable now.**
+- **Completed.** `GET`/`PUT`/`DELETE /v1/admin/settings/agent-output-quality-gate-mode` (`SettingsController`, `AdminAuthority`) persist `AgentOutput.QualityGate.Mode` in `dbo.TenantSettings`; `IAgentOutputQualityGateOptionsResolver` applies tenant mode at runtime; tenant settings card toggles WarnOnly/PilotStrict.
 ```text
 Add a UI toggle for the `AgentOutput:QualityGate:Mode` configuration.
 1. Expose the current mode (`WarnOnly` or `PilotStrict`) via a new admin settings endpoint.
 2. Add a toggle in the operator UI (under an Admin or Settings section) to switch between modes.
 3. Persist the override in the database (e.g., `dbo.TenantSettings`) so it applies dynamically.
-Files: `ArchLucid.Api/Controllers/Admin/SettingsController.cs`, `archlucid-ui/src/app/(operator)/settings/page.tsx`.
+Files: `ArchLucid.Api/Controllers/Admin/SettingsController.cs`, `archlucid-ui/src/app/(operator)/settings/tenant/_sections/TenantQualityGatesCard.tsx`.
 Constraints: Must require `AdminAuthority`.
 ```
 
@@ -394,7 +394,7 @@ Constraints: Must explicitly exclude demo/showcase runs from the purge.
 - **Why it matters:** Enterprise admins need a self-serve way to rotate API keys without CLI access.
 - **Expected impact:** Directly improves Usability (+5 pts) and Supportability (+2 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Usability, Supportability.
-- **Actionable now.**
+- **Completed.** `GET`/`POST /v1/admin/settings/api-keys` (+ `/rotate`) expose masked segments and issue rotation material once; `/settings/api-keys` admin page; audit omits key material.
 ```text
 Implement an API Key Rotation UI in the operator settings.
 1. Create a new settings page for API Key Management (visible only to `AdminAuthority`).

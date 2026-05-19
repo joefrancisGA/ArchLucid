@@ -42,6 +42,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         }
 
         services.AddScoped<IAdminDiagnosticsService, AdminDiagnosticsService>();
+        services.AddScoped<IAdminApiKeySettingsService, AdminApiKeySettingsService>();
         services.AddHttpClient<IOidcWellKnownDiagnosticsService, OidcWellKnownDiagnosticsService>(static client =>
         {
             client.Timeout = TimeSpan.FromSeconds(10);

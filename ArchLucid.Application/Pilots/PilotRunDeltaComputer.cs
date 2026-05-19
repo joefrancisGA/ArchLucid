@@ -1,4 +1,5 @@
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Configuration;
 using ArchLucid.Application.Explanation;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Contracts.Agents;
@@ -36,7 +37,7 @@ public sealed class PilotRunDeltaComputer(
     IScopeContextProvider scopeContextProvider,
     IRunExplanationSummaryService runExplanationSummaryService,
     IRunAgentOutputPilotEvidenceAggregator pilotEvidenceAggregator,
-    IOptions<AgentOutputQualityGateOptions> gateOptions,
+    IAgentOutputQualityGateOptionsResolver gateOptionsResolver,
     ILogger<PilotRunDeltaComputer> logger) : IPilotRunDeltaComputer
 {
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
@@ -54,7 +55,8 @@ public sealed class PilotRunDeltaComputer(
     private readonly IRunAgentOutputPilotEvidenceAggregator _pilotEvidenceAggregator =
         pilotEvidenceAggregator ?? throw new ArgumentNullException(nameof(pilotEvidenceAggregator));
 
-    private readonly IOptions<AgentOutputQualityGateOptions> _gateOptions = gateOptions ?? throw new ArgumentNullException(nameof(gateOptions));
+    private readonly IAgentOutputQualityGateOptionsResolver _gateOptionsResolver =
+        gateOptionsResolver ?? throw new ArgumentNullException(nameof(gateOptionsResolver));
 
     /// <inheritdoc/>
     public async Task<PilotRunDeltas> ComputeAsync(ArchitectureRunDetail detail, CancellationToken cancellationToken = default)
@@ -67,7 +69,7 @@ public sealed class PilotRunDeltaComputer(
         IReadOnlyList<KeyValuePair<string, int>> findings = AggregateFindingsBySeverity(detail);
         ArchitectureFinding? topFinding = SelectTopSeverityFinding(detail);
         (IReadOnlyList<AgentExecutionTrace> traces, int llmCallCount, bool tracesResolved) = await TryListExecutionTracesAsync(runId, cancellationToken);
-        AgentOutputQualityGateOptions gateOpts = _gateOptions.Value;
+        AgentOutputQualityGateOptions gateOpts = _gateOptionsResolver.Resolve(cancellationToken);
         bool pilotStrictFails = false;
         if (tracesResolved && gateOpts is { Enabled: true, Mode: AgentOutputQualityGateMode.PilotStrict })
         {

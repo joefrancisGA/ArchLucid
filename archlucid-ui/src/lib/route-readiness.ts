@@ -53,6 +53,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/settings/exec-digest": "advanced-only",
   "/settings/webhooks": "advanced-only",
   "/settings/roles": "admin-only",
+  "/settings/api-keys": "admin-only",
   "/settings/cost-reporting": "admin-only",
   /** Alias to Alert rules hub (`/alerts?tab=rules`) for settings-style bookmarks. */
   "/settings/alerts": "advanced-only",

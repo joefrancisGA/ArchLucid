@@ -131,7 +131,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       {buyerFinalizedPackage ? null : (
         <RunDetailExecutiveSummaryCtaCard runId={m.resolvedDetail.run.runId} />
-      ) : null}
+      )}
 
       {!m.buyerPolishedArtifactTable ? (
         <div className="flex flex-wrap items-center gap-2">

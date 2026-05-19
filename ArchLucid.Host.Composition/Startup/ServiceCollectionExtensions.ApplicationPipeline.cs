@@ -22,7 +22,9 @@ using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingReview;
 using ArchLucid.Application.Marketing;
+using ArchLucid.Application.Configuration;
 using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Tenancy;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Summaries;
@@ -185,6 +187,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IFindingEvidenceChainService, FindingEvidenceChainService>();
         services.AddScoped<IRunTrustEvidenceCardBuilder, RunTrustEvidenceCardBuilder>();
         services.AddScoped<IFindingLlmAuditService, FindingLlmAuditService>();
+        services.AddScoped<IAgentOutputQualityGateOptionsResolver, AgentOutputQualityGateOptionsResolver>();
+        services.AddScoped<ITenantAgentOutputQualityGateModeService, TenantAgentOutputQualityGateModeService>();
         services.AddScoped<IPilotRunDeltaComputer, PilotRunDeltaComputer>();
         services.AddScoped<IRecentPilotRunDeltasService, RecentPilotRunDeltasService>();
         services.AddScoped<IPolicyPackDryRunService, PolicyPackDryRunService>();

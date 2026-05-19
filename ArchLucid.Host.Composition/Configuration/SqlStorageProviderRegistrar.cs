@@ -307,6 +307,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IFirstTenantFunnelArchivalBatchStore, SqlFirstTenantFunnelArchivalBatchStore>();
         services.AddScoped<IItsmFindingCorrelationRepository, SqlItsmFindingCorrelationRepository>();
         services.AddScoped<ITenantItsmOutboundSettingsRepository, SqlTenantItsmOutboundSettingsRepository>();
+        services.AddScoped<ITenantSettingsRepository, SqlTenantSettingsRepository>();
         services.AddScoped<ITenantFirstValueReportBrandingRepository, SqlTenantFirstValueReportBrandingRepository>();
         services.AddScoped<ItsmInboundWebhookSyncService>();
         services.AddScoped<IValueReportMetricsReader, DapperValueReportMetricsReader>();

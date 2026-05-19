@@ -85,6 +85,108 @@
         },
         "type": "object"
       },
+      "TenantAgentOutputQualityGateModeResponse": {
+        "properties": {
+          "effectiveMode": {
+            "type": "string"
+          },
+          "hostDefaultMode": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TenantAgentOutputQualityGateModeUpdateRequest": {
+        "properties": {
+          "mode": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ApiKeySlotStatusDto": {
+        "properties": {
+          "expiresAtUtc": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isConfigured": {
+            "type": "boolean"
+          },
+          "maskedSegments": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "AdminApiKeySettingsResponse": {
+        "properties": {
+          "admin": {
+            "$ref": "#/components/schemas/ApiKeySlotStatusDto"
+          },
+          "developmentBypassAll": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "readOnly": {
+            "$ref": "#/components/schemas/ApiKeySlotStatusDto"
+          }
+        },
+        "type": "object"
+      },
+      "AdminApiKeyRotateRequest": {
+        "properties": {
+          "invalidatePrevious": {
+            "type": "boolean"
+          },
+          "slot": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AdminApiKeyRotateResponse": {
+        "properties": {
+          "appendConfigSuffix": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "configPath": {
+            "type": "string"
+          },
+          "deploymentAction": {
+            "type": "string"
+          },
+          "plaintextKey": {
+            "type": "string"
+          },
+          "replaceConfigValue": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "slot": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "AdminOidcDiagnosticsResponse": {
         "properties": {
           "authMode": {
@@ -17043,6 +17145,121 @@
         },
         "tags": [
           "Admin"
+        ]
+      }
+    },
+    "/v1/admin/settings/api-keys": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminApiKeySettingsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "AdminApiKeySettings"
+        ]
+      }
+    },
+    "/v1/admin/settings/api-keys/rotate": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminApiKeyRotateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminApiKeyRotateResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "AdminApiKeySettings"
+        ]
+      }
+    },
+    "/v1/admin/settings/agent-output-quality-gate-mode": {
+      "delete": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Settings"
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Settings"
+        ]
+      },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "Settings"
         ]
       }
     },

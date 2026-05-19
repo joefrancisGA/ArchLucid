@@ -1,9 +1,8 @@
+using ArchLucid.Application.Configuration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Explanation;
-
-using Microsoft.Extensions.Options;
 
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -11,15 +10,15 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 
 /// <inheritdoc cref="IRunAgentOutputPilotEvidenceAggregator" />
 public sealed class RunAgentOutputPilotEvidenceAggregator(
-    IOptions<AgentOutputQualityGateOptions> options,
+    IAgentOutputQualityGateOptionsResolver optionsResolver,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IAgentOutputEvaluator structuralEvaluator,
     IAgentOutputSemanticEvaluator semanticEvaluator,
     IAgentOutputQualityGate qualityGate,
     IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker) : IRunAgentOutputPilotEvidenceAggregator
 {
-    private readonly AgentOutputQualityGateOptions _options =
-        (options ?? throw new ArgumentNullException(nameof(options))).Value;
+    private readonly IAgentOutputQualityGateOptionsResolver _optionsResolver =
+        optionsResolver ?? throw new ArgumentNullException(nameof(optionsResolver));
 
     private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
         agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
@@ -45,7 +44,9 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
     {
         ArgumentNullException.ThrowIfNull(traces);
 
-        if (!_options.Enabled || _options.Mode != AgentOutputQualityGateMode.PilotStrict)
+        AgentOutputQualityGateOptions options = _optionsResolver.Resolve(cancellationToken);
+
+        if (!options.Enabled || options.Mode != AgentOutputQualityGateMode.PilotStrict)
             return false;
 
         if (traces.Count == 0)
@@ -60,7 +61,7 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
             AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? evaluated =
                 await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
                         trace,
-                        _options,
+                        options,
                         _structuralEvaluator,
                         _semanticEvaluator,
                         _qualityGate,
@@ -73,7 +74,7 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
                 return true;
         }
 
-        if (_options.PilotStrictMinFaithfulnessSupportRatio is not { } minFaith)
+        if (options.PilotStrictMinFaithfulnessSupportRatio is not { } minFaith)
             return false;
 
         double? ratio = explanationSummary?.FaithfulnessSupportRatio;

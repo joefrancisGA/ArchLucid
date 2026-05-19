@@ -832,6 +832,171 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/settings/api-keys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminApiKeySettingsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/settings/api-keys/rotate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminApiKeyRotateRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminApiKeyRotateResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/settings/agent-output-quality-gate-mode": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantAgentOutputQualityGateModeResponse"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["TenantAgentOutputQualityGateModeUpdateRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantAgentOutputQualityGateModeResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantAgentOutputQualityGateModeResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/configuration/summary": {
         parameters: {
             query?: never;
@@ -22032,54 +22197,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/tenant/workspaces/recycle-bin": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["TenantWorkspacesRecycleBinResponse"];
-                        "text/json": components["schemas"]["TenantWorkspacesRecycleBinResponse"];
-                        "text/plain": components["schemas"]["TenantWorkspacesRecycleBinResponse"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v1/tenant/workspaces/{workspaceId}/projects/{projectId}": {
         parameters: {
             query?: never;
@@ -22133,75 +22250,6 @@ export interface paths {
                 };
             };
         };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    workspaceId: string;
-                    projectId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Conflict */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                    };
-                };
-            };
-        };
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -22515,6 +22563,37 @@ export interface components {
         };
         AdminConfigSummaryResponse: {
             keys?: null | components["schemas"]["ConfigSummaryKeyRow"][];
+        };
+        TenantAgentOutputQualityGateModeResponse: {
+            effectiveMode?: string;
+            hostDefaultMode?: string;
+            source?: string;
+        };
+        TenantAgentOutputQualityGateModeUpdateRequest: {
+            mode?: string;
+        };
+        ApiKeySlotStatusDto: {
+            expiresAtUtc?: null | string;
+            isConfigured?: boolean;
+            maskedSegments?: null | string[];
+        };
+        AdminApiKeySettingsResponse: {
+            admin?: components["schemas"]["ApiKeySlotStatusDto"];
+            developmentBypassAll?: boolean;
+            enabled?: boolean;
+            readOnly?: components["schemas"]["ApiKeySlotStatusDto"];
+        };
+        AdminApiKeyRotateRequest: {
+            invalidatePrevious?: boolean;
+            slot?: string;
+        };
+        AdminApiKeyRotateResponse: {
+            appendConfigSuffix?: null | string;
+            configPath?: string;
+            deploymentAction?: string;
+            plaintextKey?: string;
+            replaceConfigValue?: null | string;
+            slot?: string;
         };
         AdminOidcDiagnosticsResponse: {
             authMode?: string;
@@ -25165,8 +25244,12 @@ export interface components {
             /** Format: double */
             estimatedUsdPressure?: null | number | string;
             /** Format: double */
+            hardCapUtilizationFraction?: null | number;
+            /** Format: double */
             hardCutoffUsdPerUtcMonth?: null | number | string;
             monthlyBudgetMonitoringActive?: boolean;
+            /** Format: double */
+            warnFraction?: null | number | string;
             /** Format: double */
             purchasedCapBumpUsd?: null | number | string;
             utcMonth?: string;
@@ -27135,32 +27218,14 @@ export interface components {
             /** Format: uuid */
             workspaceId?: string;
         };
-        TenantWorkspaceDeletedProjectApiDto: {
-            /** Format: date-time */
-            deletedUtc?: string;
-            displayName?: null | string;
-            name?: string;
-            /** Format: uuid */
-            projectId?: string;
-        };
         TenantWorkspaceProjectApiDto: {
             displayName?: null | string;
             name?: string;
             /** Format: uuid */
             projectId?: string;
         };
-        TenantWorkspaceRecycleBinApiDto: {
-            deletedProjects?: components["schemas"]["TenantWorkspaceDeletedProjectApiDto"][];
-            displayName?: null | string;
-            name?: string;
-            /** Format: uuid */
-            workspaceId?: string;
-        };
         TenantWorkspacesListResponse: {
             workspaces?: components["schemas"]["TenantWorkspaceApiDto"][];
-        };
-        TenantWorkspacesRecycleBinResponse: {
-            workspaces?: components["schemas"]["TenantWorkspaceRecycleBinApiDto"][];
         };
         TerraformPrCreatedResponse: {
             branchName?: string;
