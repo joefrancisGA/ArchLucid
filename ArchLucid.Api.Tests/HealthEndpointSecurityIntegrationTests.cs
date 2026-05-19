@@ -7,7 +7,8 @@ namespace ArchLucid.Api.Tests;
 
 /// <summary>
 ///     Regression: anonymous callers receive summary payloads on <c>/health/ready</c> and <c>/health</c>
-///     (deep SQL plus optional Redis summary when configured). <c>/health/diagnostics</c> requires ReadAuthority.
+///     (deep SQL plus optional Redis summary when configured). <c>/health/diagnostics</c> requires ReadAuthority;
+///     <c>/health/detailed</c> requires AdminAuthority and only circuit breakers, SQL, and distributed cache probes.
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class HealthEndpointSecurityIntegrationTests(HealthEndpointSecurityApiFactory factory)
@@ -135,5 +136,68 @@ public sealed class HealthEndpointSecurityIntegrationTests(HealthEndpointSecurit
             .BeTrue("detailed health must surface HealthCheckResult.Data for operators");
         data.TryGetProperty("gates", out JsonElement gates).Should().BeTrue();
         gates.ValueKind.Should().Be(JsonValueKind.Array);
+    }
+
+    [SkippableFact]
+    public async Task Health_detailed_anonymous_returns_401()
+    {
+        using HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response = await client.GetAsync("/health/detailed");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [SkippableFact]
+    public async Task Health_detailed_with_reader_api_key_returns_403()
+    {
+        using HttpClient client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Api-Key", HealthEndpointSecurityApiFactory.IntegrationTestReaderApiKey);
+
+        HttpResponseMessage response = await client.GetAsync("/health/detailed");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [SkippableFact]
+    public async Task Health_detailed_with_admin_api_key_returns_operational_subset()
+    {
+        using HttpClient client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Api-Key", HealthEndpointSecurityApiFactory.IntegrationTestAdminApiKey);
+
+        HttpResponseMessage response = await client.GetAsync("/health/detailed");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        string body = await response.Content.ReadAsStringAsync();
+
+        using JsonDocument doc = JsonDocument.Parse(body);
+        JsonElement root = doc.RootElement;
+
+        root.TryGetProperty("version", out _).Should().BeTrue();
+        root.TryGetProperty("commitSha", out _).Should().BeTrue();
+
+        string[] names = root.GetProperty("entries")
+            .EnumerateArray()
+            .Select(e => e.GetProperty("name").GetString())
+            .Where(n => n is not null)
+            .Cast<string>()
+            .OrderBy(static n => n, StringComparer.Ordinal)
+            .ToArray();
+
+        names.Should().Equal(
+        [
+            "circuit_breakers",
+            "database",
+            "distributed_cache",
+        ]);
+
+        JsonElement cacheEntry = root
+            .GetProperty("entries")
+            .EnumerateArray()
+            .First(e => string.Equals(e.GetProperty("name").GetString(), "distributed_cache", StringComparison.Ordinal));
+
+        cacheEntry.TryGetProperty("data", out JsonElement cacheData).Should().BeTrue();
+        cacheData.GetProperty("registered").GetBoolean().Should().BeFalse("integration host does not register IDistributedCache");
+        cacheData.GetProperty("reachable").GetBoolean().Should().BeFalse();
     }
 }

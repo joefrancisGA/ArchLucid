@@ -26,6 +26,8 @@ public sealed class HealthEndpointSecurityApiFactory : ArchLucidApiFactory
 {
     public const string IntegrationTestAdminApiKey = "health-endpoint-security-test-admin-key";
 
+    public const string IntegrationTestReaderApiKey = "health-endpoint-security-test-reader-key";
+
     private static Dictionary<string, string?> ApiKeyAuthConfiguration
     {
         get;
@@ -34,7 +36,8 @@ public sealed class HealthEndpointSecurityApiFactory : ArchLucidApiFactory
         ["ArchLucidAuth:Mode"] = "ApiKey",
         ["Authentication:ApiKey:Enabled"] = "true",
         ["Authentication:ApiKey:DevelopmentBypassAll"] = "false",
-        ["Authentication:ApiKey:AdminKey"] = IntegrationTestAdminApiKey
+        ["Authentication:ApiKey:AdminKey"] = IntegrationTestAdminApiKey,
+        ["Authentication:ApiKey:ReadOnlyKey"] = IntegrationTestReaderApiKey
     };
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

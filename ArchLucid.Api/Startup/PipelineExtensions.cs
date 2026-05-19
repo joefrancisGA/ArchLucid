@@ -159,6 +159,14 @@ internal static class PipelineExtensions
                     DetailedHealthCheckResponseWriter.WriteAsync(ctx, r, HealthCheckResponseDetailLevel.Detailed)
             })
             .RequireAuthorization(ArchLucidPolicies.ReadAuthority);
+        app.MapHealthChecks("/health/detailed", new HealthCheckOptions
+            {
+                Predicate = static registration =>
+                    OperationalDetailedHealthChecks.IsIncluded(registration.Name),
+                ResponseWriter = static (ctx, r) =>
+                    DetailedHealthCheckResponseWriter.WriteAsync(ctx, r, HealthCheckResponseDetailLevel.Detailed)
+            })
+            .RequireAuthorization(ArchLucidPolicies.AdminAuthority);
 
         // OWASP ZAP baseline (and similar spiders) expect 200 on the scan root, /robots.txt, and /sitemap.xml.
         // Without these, the automation plan fails on 404s; SecurityHeadersMiddleware uses short public caching on these paths to satisfy passive 10049-1.

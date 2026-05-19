@@ -75,7 +75,9 @@ public sealed class EffectiveGovernanceResolver(
                 if (pack is null)
                 {
                     skippedNotes.Add(
-                        $"Skipped assignment for policy pack '{assignment.PolicyPackId}': pack not found.");
+                        string.Format(
+                            GovernanceConstants.Notes.SkippedPackNotFound,
+                            assignment.PolicyPackId));
                     continue;
                 }
 
@@ -86,8 +88,11 @@ public sealed class EffectiveGovernanceResolver(
                 if (version is null)
                 {
                     skippedNotes.Add(
-                        $"Skipped policy pack '{pack.Name}' ({assignment.PolicyPackId}): " +
-                        $"version '{assignment.PolicyPackVersion}' not found.");
+                        string.Format(
+                            GovernanceConstants.Notes.SkippedVersionNotFound,
+                            pack.Name,
+                            assignment.PolicyPackId,
+                            assignment.PolicyPackVersion));
                     continue;
                 }
 
@@ -104,16 +109,23 @@ public sealed class EffectiveGovernanceResolver(
                     catch (JsonException ex)
                     {
                         skippedNotes.Add(
-                            $"Skipped policy pack '{pack.Name}' ({assignment.PolicyPackId}) " +
-                            $"version '{assignment.PolicyPackVersion}': content JSON is corrupt ({ex.Message}).");
+                            string.Format(
+                                GovernanceConstants.Notes.SkippedCorruptJson,
+                                pack.Name,
+                                assignment.PolicyPackId,
+                                assignment.PolicyPackVersion,
+                                ex.Message));
                         continue;
                     }
 
                     if (content is null)
                     {
                         skippedNotes.Add(
-                            $"Skipped policy pack '{pack.Name}' ({assignment.PolicyPackId}) " +
-                            $"version '{assignment.PolicyPackVersion}': content deserialized to null.");
+                            string.Format(
+                                GovernanceConstants.Notes.SkippedNullContent,
+                                pack.Name,
+                                assignment.PolicyPackId,
+                                assignment.PolicyPackVersion));
                         continue;
                     }
 
@@ -134,49 +146,49 @@ public sealed class EffectiveGovernanceResolver(
 
             ResolveGuidIdList(
                 result,
-                "ComplianceRule",
+                GovernanceConstants.ItemTypes.ComplianceRule,
                 resolvedPacks,
                 x => x.Content.ComplianceRuleIds,
                 (content, ids) => content.ComplianceRuleIds = ids);
 
             ResolveStringKeyList(
                 result,
-                "ComplianceRuleKey",
+                GovernanceConstants.ItemTypes.ComplianceRuleKey,
                 resolvedPacks,
                 x => x.Content.ComplianceRuleKeys,
                 (content, keys) => content.ComplianceRuleKeys = keys);
 
             ResolveGuidIdList(
                 result,
-                "AlertRule",
+                GovernanceConstants.ItemTypes.AlertRule,
                 resolvedPacks,
                 x => x.Content.AlertRuleIds,
                 (content, ids) => content.AlertRuleIds = ids);
 
             ResolveGuidIdList(
                 result,
-                "CompositeAlertRule",
+                GovernanceConstants.ItemTypes.CompositeAlertRule,
                 resolvedPacks,
                 x => x.Content.CompositeAlertRuleIds,
                 (content, ids) => content.CompositeAlertRuleIds = ids);
 
             ResolveDictionary(
                 result,
-                "AdvisoryDefault",
+                GovernanceConstants.ItemTypes.AdvisoryDefault,
                 resolvedPacks,
                 x => x.Content.AdvisoryDefaults,
                 (content, dict) => content.AdvisoryDefaults = dict);
 
             ResolveDictionary(
                 result,
-                "Metadata",
+                GovernanceConstants.ItemTypes.Metadata,
                 resolvedPacks,
                 x => x.Content.Metadata,
                 (content, dict) => content.Metadata = dict);
 
-            result.Notes.Add($"Resolved {resolvedPacks.Count} applicable policy pack assignment(s).");
-            result.Notes.Add($"Produced {result.Decisions.Count} resolution decision(s).");
-            result.Notes.Add($"Detected {result.Conflicts.Count} conflict(s).");
+            result.Notes.Add(string.Format(GovernanceConstants.Notes.ResolvedAssignmentCount, resolvedPacks.Count));
+            result.Notes.Add(string.Format(GovernanceConstants.Notes.ProducedDecisionCount, result.Decisions.Count));
+            result.Notes.Add(string.Format(GovernanceConstants.Notes.DetectedConflictCount, result.Conflicts.Count));
 
             return result;
         }
@@ -227,13 +239,13 @@ public sealed class EffectiveGovernanceResolver(
     {
         int tier = assignment.ScopeLevel switch
         {
-            GovernanceScopeLevel.Tenant => 1000,
-            GovernanceScopeLevel.Workspace => 2000,
-            GovernanceScopeLevel.Project => 3000,
+            GovernanceScopeLevel.Tenant => GovernanceConstants.PrecedenceTiers.Tenant,
+            GovernanceScopeLevel.Workspace => GovernanceConstants.PrecedenceTiers.Workspace,
+            GovernanceScopeLevel.Project => GovernanceConstants.PrecedenceTiers.Project,
             _ => 0
         };
 
-        return assignment.IsPinned ? tier + 100 : tier;
+        return assignment.IsPinned ? tier + GovernanceConstants.PrecedenceTiers.PinnedBoost : tier;
     }
 
     /// <summary>Projects a <see cref="ResolvedPackRow" /> into a <see cref="GovernanceResolutionCandidate" /> for UI/API.</summary>
@@ -275,21 +287,20 @@ public sealed class EffectiveGovernanceResolver(
     private static string BuildResolutionReason(List<GovernanceResolutionCandidate> ordered)
     {
         if (ordered.Count == 0)
-            return "No candidates.";
+            return GovernanceConstants.ResolutionReasons.NoCandidates;
 
         if (ordered.Count == 1)
-            return "Only one applicable candidate existed.";
+            return GovernanceConstants.ResolutionReasons.SingleCandidate;
 
         GovernanceResolutionCandidate winner = ordered[0];
         GovernanceResolutionCandidate second = ordered[1];
 
         if (winner.PrecedenceRank != second.PrecedenceRank)
-            return
-                "Higher governance scope tier (project > workspace > tenant), or pinned assignment within a tier, outranked the other candidate(s).";
+            return GovernanceConstants.ResolutionReasons.HigherScopeTier;
 
         return winner.AssignedUtc != second.AssignedUtc
-            ? "Same scope tier and pin state; the newer assignment (AssignedUtc) won."
-            : "Same scope tier, pin state, and timestamp; winner chosen by deterministic tie-break (AssignmentId).";
+            ? GovernanceConstants.ResolutionReasons.SameTierNewerAssignment
+            : GovernanceConstants.ResolutionReasons.SameTierTieBreak;
     }
 
     /// <summary>
@@ -347,9 +358,8 @@ public sealed class EffectiveGovernanceResolver(
                 {
                     ItemType = itemType,
                     ItemKey = raw,
-                    ConflictType = "DuplicateDefinition",
-                    Description =
-                        $"Multiple policy packs defined the same {itemType} item. The higher-precedence candidate was selected.",
+                    ConflictType = GovernanceConstants.ConflictTypes.DuplicateDefinition,
+                    Description = string.Format(GovernanceConstants.Notes.DuplicateDefinitionItem, itemType),
                     Candidates = candidates
                 });
         }
@@ -419,9 +429,8 @@ public sealed class EffectiveGovernanceResolver(
                 {
                     ItemType = itemType,
                     ItemKey = canonical,
-                    ConflictType = "DuplicateDefinition",
-                    Description =
-                        $"Multiple policy packs defined the same {itemType} key. The higher-precedence candidate was selected.",
+                    ConflictType = GovernanceConstants.ConflictTypes.DuplicateDefinition,
+                    Description = string.Format(GovernanceConstants.Notes.DuplicateDefinitionKey, itemType),
                     Candidates = candidates
                 });
         }
@@ -504,9 +513,8 @@ public sealed class EffectiveGovernanceResolver(
                 {
                     ItemType = itemType,
                     ItemKey = canonicalKey,
-                    ConflictType = "ValueConflict",
-                    Description =
-                        $"Multiple policy packs defined different values for {itemType} '{canonicalKey}'. The higher-precedence value was selected.",
+                    ConflictType = GovernanceConstants.ConflictTypes.ValueConflict,
+                    Description = string.Format(GovernanceConstants.Notes.ValueConflict, itemType, canonicalKey),
                     Candidates = candidates
                 });
         }

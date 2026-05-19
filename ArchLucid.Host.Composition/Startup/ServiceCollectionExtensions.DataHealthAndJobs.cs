@@ -64,6 +64,10 @@ public static partial class ServiceCollectionExtensions
                 "circuit_breakers",
                 failureStatus: HealthStatus.Degraded,
                 tags: [])
+            .AddCheck<DistributedCacheHealthCheck>(
+                OperationalDetailedHealthChecks.DistributedCache,
+                failureStatus: HealthStatus.Degraded,
+                tags: [])
             .AddCheck<DemoViewerDataHealthCheck>(
                 "demo_viewer_data",
                 failureStatus: HealthStatus.Degraded,
