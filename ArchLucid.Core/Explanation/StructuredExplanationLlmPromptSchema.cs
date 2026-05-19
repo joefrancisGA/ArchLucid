@@ -18,6 +18,10 @@ public static class StructuredExplanationLlmPromptSchema
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
+    private const string AlternativesConsideredMandate =
+        "Include at least one entry naming a rejected architectural alternative and why it was discarded " +
+        "(not an empty array).";
+
     private static readonly IReadOnlyDictionary<string, string> OptionalFieldHints =
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
@@ -48,6 +52,7 @@ public static class StructuredExplanationLlmPromptSchema
             sb.AppendLine(FormatPropertyLine(property, extraHint));
         }
 
+        sb.AppendLine(AlternativesConsideredMandate);
         sb.Append("Example: ");
         sb.AppendLine(BuildExampleJson());
         sb.Append("If you cannot follow the schema, respond with plain prose only (no JSON); the system will still accept it.");
@@ -69,6 +74,12 @@ public static class StructuredExplanationLlmPromptSchema
 
         if (property.Name == nameof(StructuredExplanation.SchemaVersion))
             line.Append(" (use 1)");
+        else if (property.Name == nameof(StructuredExplanation.AlternativesConsidered))
+        {
+            line.Append(" (required)");
+            line.Append(" — ");
+            line.Append(AlternativesConsideredMandate);
+        }
         else if (isRequired)
         {
             line.Append(" (required)");
@@ -100,7 +111,11 @@ public static class StructuredExplanationLlmPromptSchema
             SchemaVersion = 1,
             Reasoning = "...",
             EvidenceRefs = ["dec-1"],
-            Confidence = 0.72m
+            Confidence = 0.72m,
+            AlternativesConsidered =
+            [
+                "Keep monolith — rejected because manifest requires independent scaling for ingest workers."
+            ]
         };
 
         return JsonSerializer.Serialize(sample, SerializerOptions);

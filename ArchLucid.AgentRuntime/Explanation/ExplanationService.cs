@@ -26,7 +26,9 @@ public sealed class ExplanationService(
 {
     private const string ArchitectSystemPrompt =
         "You are a senior enterprise architect. Be concise but authoritative. " +
-        "Ground every statement in the facts provided; do not invent services or decisions not listed.";
+        "Ground every statement in the facts provided; do not invent services or decisions not listed. " +
+        "When responding with structured JSON, you must populate alternativesConsidered: " +
+        "include at least one rejected architectural alternative and a brief reason it was discarded.";
 
     /// <inheritdoc />
     public async Task<ComparisonExplanationResult> ExplainComparisonAsync(

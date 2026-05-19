@@ -36,6 +36,18 @@ public sealed class StructuredExplanationLlmPromptSchemaTests
     }
 
     [Fact]
+    public void BuildRunExplanationJsonResponseInstructions_mandates_alternatives_considered()
+    {
+        string instructions =
+            StructuredExplanationLlmPromptSchema.BuildRunExplanationJsonResponseInstructions("hint");
+
+        instructions.Should().Contain("alternativesConsidered:");
+        instructions.Should().Contain("(required)");
+        instructions.Should().Contain("rejected architectural alternative");
+        instructions.Should().Contain("not an empty array");
+    }
+
+    [Fact]
     public void BuildExampleJson_deserializes_to_structured_explanation()
     {
         string json = StructuredExplanationLlmPromptSchema.BuildExampleJson();
@@ -49,6 +61,10 @@ public sealed class StructuredExplanationLlmPromptSchemaTests
         parsed.Reasoning.Should().Be("...");
         parsed.EvidenceRefs.Should().Equal("dec-1");
         parsed.Confidence.Should().Be(0.72m);
+        parsed.AlternativesConsidered.Should()
+            .ContainSingle()
+            .Which.Should()
+            .Contain("monolith");
     }
 
     [Fact]
