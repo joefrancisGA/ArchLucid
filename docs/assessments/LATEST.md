@@ -508,7 +508,7 @@ Constraints: Do not break existing API contracts.
 - **Why it matters:** Improves usability for large uploads.
 - **Expected impact:** Directly improves Usability (+5 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Usability.
-- **Actionable now.**
+- **Completed.** `BulkEvidenceUpload` uses XHR upload progress via `/api/proxy/.../evidence/bulk`; ETA + per-file partial failure list.
 ```text
 Add a progress indicator for bulk evidence uploads in the operator UI.
 1. Modify the upload component to track the progress of the `multipart/form-data` request.
@@ -522,7 +522,7 @@ Constraints: Must work with the existing `/v1/evidence/bulk` endpoint.
 - **Why it matters:** Makes it easier to configure automated scans.
 - **Expected impact:** Directly improves Usability (+5 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Usability.
-- **Actionable now.**
+- **Completed.** `CronExpressionBuilder` + next-run preview; `/advisory-scheduling` renders schedules UI; **Run now (test)** via `POST .../schedules/{id}/run`.
 ```text
 Enhance the Advisory Scan Scheduling UI.
 1. Add a cron expression builder component to the schedule creation form.
@@ -536,7 +536,7 @@ Constraints: Must use the existing `PUT /v1/advisory/schedules` endpoint.
 - **Why it matters:** Prevents data loss surprises for trial users.
 - **Expected impact:** Directly improves Usability (+2 pts) and Supportability (+2 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Usability, Supportability.
-- **Actionable now.**
+- **Completed.** `TrialBanner` red export-only alert on all operator routes via `GET /v1/tenant/trial-status` (`daysRemaining` = days until purge).
 ```text
 Add a prominent warning in the operator UI when a trial enters the export-only state.
 1. Check the `TrialStatus` from `GET /v1/tenant/trial-status`.

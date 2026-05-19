@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 
+import { CronExpressionBuilder } from "@/components/advisory/CronExpressionBuilder";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -47,6 +48,7 @@ export function AdvisorySchedulesContent() {
     {},
   );
   const [loading, setLoading] = useState(false);
+  const [runningScheduleId, setRunningScheduleId] = useState<string | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   const [name, setName] = useState("Daily Advisory Scan");
@@ -106,12 +108,16 @@ export function AdvisorySchedulesContent() {
     }
 
     setFailure(null);
+    setRunningScheduleId(scheduleId);
+
     try {
       await runAdvisoryScheduleNow(scheduleId);
       await loadExecutions(scheduleId);
       await refresh();
     } catch (err) {
       setFailure(toApiLoadFailure(err));
+    } finally {
+      setRunningScheduleId(null);
     }
   }
 
@@ -155,16 +161,12 @@ export function AdvisorySchedulesContent() {
                   className={cn(inputClass, "mt-1")}
                 />
               </label>
-              <label>
-                Cron / preset (<code className="rounded bg-neutral-200 px-1 text-xs dark:bg-neutral-800">@hourly</code>, <code className="rounded bg-neutral-200 px-1 text-xs dark:bg-neutral-800">@daily</code>, <code className="rounded bg-neutral-200 px-1 text-xs dark:bg-neutral-800">0 7 * * *</code>)
-                <input
-                  value={cronExpression}
-                  onChange={(e) => setCronExpression(e.target.value)}
-                  readOnly={!canMutateSchedules}
-                  title={canMutateSchedules ? undefined : enterpriseMutationControlDisabledTitle}
-                  className={cn(inputClass, "mt-1 font-mono")}
-                />
-              </label>
+              <CronExpressionBuilder
+                value={cronExpression}
+                onChange={setCronExpression}
+                disabled={!canMutateSchedules}
+                inputClassName={inputClass}
+              />
               <label>
                 Workspace project slug
                 <input
@@ -235,10 +237,18 @@ export function AdvisorySchedulesContent() {
                         size="sm"
                         variant="outline"
                         onClick={() => void onRunNow(s.scheduleId)}
-                        disabled={!canMutateSchedules}
-                        title={canMutateSchedules ? undefined : enterpriseMutationControlDisabledTitle}
+                        disabled={!canMutateSchedules || runningScheduleId !== null}
+                        title={
+                          canMutateSchedules
+                            ? "Trigger this schedule immediately for testing (does not wait for the next cron tick)."
+                            : enterpriseMutationControlDisabledTitle
+                        }
                       >
-                        {canMutateSchedules ? "Run now" : advisorySchedulesRunNowButtonLabelReaderRank}
+                        {runningScheduleId === s.scheduleId
+                          ? "Running test scan…"
+                          : canMutateSchedules
+                            ? "Run now (test)"
+                            : advisorySchedulesRunNowButtonLabelReaderRank}
                       </Button>
                       <Button
                         type="button"

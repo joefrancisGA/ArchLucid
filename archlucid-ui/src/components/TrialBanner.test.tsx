@@ -13,6 +13,12 @@ vi.mock("@/lib/oidc/session", () => ({
   isLikelySignedIn: () => false,
 }));
 
+const usePathnameMock = vi.hoisted(() => vi.fn(() => "/"));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => usePathnameMock(),
+}));
+
 vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
   showSuccess: vi.fn(),
@@ -22,6 +28,8 @@ import { TrialBanner } from "./TrialBanner";
 
 describe("TrialBanner", () => {
   beforeEach(() => {
+    usePathnameMock.mockReturnValue("/");
+
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => {
@@ -92,6 +100,53 @@ describe("TrialBanner", () => {
     await waitFor(() => {
       expect(fetchMock.mock.calls.some((c) => String(c[0]).includes("billing/checkout"))).toBe(true);
     });
+  });
+
+  it("shows export-only purge banner on every route and ignores snooze", async () => {
+    usePathnameMock.mockReturnValue("/reviews");
+    window.localStorage.setItem("archlucid_trial_banner_snooze_until_ms", String(Date.now() + 86_400_000));
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        return new Response(JSON.stringify({ status: "ExportOnly", daysRemaining: 12 }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }),
+    );
+
+    render(<TrialBanner />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("trial-export-only-banner")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/12 days until hard purge/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Export review packages" })).toHaveAttribute("href", "/reviews");
+    expect(screen.getByRole("link", { name: "Export audit log" })).toHaveAttribute("href", "/audit");
+  });
+
+  it("hides non-export trial strip off home when pathname is not /", async () => {
+    usePathnameMock.mockReturnValue("/reviews");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        return new Response(JSON.stringify({ status: "Expired", daysRemaining: 0 }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }),
+    );
+
+    render(<TrialBanner />);
+
+    await waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalled();
+    });
+
+    expect(screen.queryByRole("region", { name: /Trial subscription/i })).toBeNull();
   });
 
   it("hides for 24h after dismiss (snooze)", async () => {

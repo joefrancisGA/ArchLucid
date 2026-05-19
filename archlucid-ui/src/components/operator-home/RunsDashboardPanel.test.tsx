@@ -193,7 +193,7 @@ describe("RunsDashboardPanel", () => {
     ).toBeInTheDocument();
   });
 
-  it("buyer-polished showcase banner uses manifest primary, omits full-review CTA, and hides full list when only sample run", async () => {
+  it("buyer-polished recent tab features sample review, omits showcase banner, and hides full list when only sample run", async () => {
     runsDashBuyerPolishedForced.on = true;
 
     try {
@@ -217,11 +217,11 @@ describe("RunsDashboardPanel", () => {
       render(<RunsDashboardPanel />);
 
       await waitFor(() => {
-        expect(screen.getByTestId("operator-home-showcase-demo-banner")).toBeInTheDocument();
+        expect(screen.getByText("Featured review package")).toBeInTheDocument();
       });
-      expect(screen.getByText(/workspace preview/i)).toBeInTheDocument();
+      expect(screen.queryByTestId("operator-home-showcase-demo-banner")).toBeNull();
       expect(screen.queryByRole("link", { name: "Jump to review journey" })).toBeNull();
-      expect(screen.getByRole("link", { name: "Open full review package" })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: "Claims Intake sample" })).toHaveAttribute(
         "href",
         "/reviews/claims-intake-modernization",
       );

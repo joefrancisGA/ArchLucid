@@ -268,7 +268,7 @@ function AppShellInner({ children }: AppShellClientProps) {
             <div data-testid="app-shell-main" className="min-w-0 flex-1 px-4 py-4 print:px-0 lg:px-6 lg:py-6">
               <SimulatorExecutionModeBanner />
               <TrialExpiryBanner />
-              {pathname === "/" ? <TrialBanner /> : null}
+              <TrialBanner />
               <KeyboardShortcutProvider
                 onHelpRequested={() => {
                   setHelpDocSearchOpen(true);

@@ -12,6 +12,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/AdminApiKeySettingsController.cs",
+      "class_name": "AdminApiKeySettingsController",
+      "route_template": "v{version:apiVersion}/admin/settings/api-keys",
+      "normalized_prefix": "/v1/admin/settings/api-keys",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": "/settings/api-keys"
+    },
+    {
       "controller_file": "Admin/AdminController.cs",
       "class_name": "AdminController",
       "route_template": "v{version:apiVersion}/admin",
@@ -190,6 +200,16 @@
       "class_policy": "AdminAuthority",
       "exemption": null,
       "nav_operator_href": "/workspace/security-trust"
+    },
+    {
+      "controller_file": "Admin/SettingsController.cs",
+      "class_name": "SettingsController",
+      "route_template": "v{version:apiVersion}/admin/settings",
+      "normalized_prefix": "/v1/admin/settings",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": "/settings/tenant"
     },
     {
       "controller_file": "Admin/SupportBundleController.cs",

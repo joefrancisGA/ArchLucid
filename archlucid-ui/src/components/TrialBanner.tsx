@@ -2,44 +2,84 @@
 
 import { X } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { AUTH_MODE } from "@/lib/auth-config";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import {
+  formatTrialExportOnlyPurgeHeadline,
+  TRIAL_EXPORT_ONLY_SUPPORTING_LINE,
+} from "@/lib/trial-export-only-banner-copy";
 import { isTrialBannerSnoozed, snoozeTrialBanner24h } from "@/lib/trial-banner-dismiss";
 import { showError, showSuccess } from "@/lib/toast";
-import { Button } from "@/components/ui/button";
-
-type TrialStatusPayload = {
-  status?: string;
-  daysRemaining?: number | null;
-};
+import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
 
 function shouldShowTrialStrip(status: string | undefined): boolean {
   if (!status || status === "None" || status === "Converted") {
     return false;
   }
 
-  return status === "Active" || status === "Expired" || status === "ReadOnly";
+  return (
+    status === "Active" ||
+    status === "Expired" ||
+    status === "ReadOnly" ||
+    status === "ExportOnly"
+  );
 }
 
-/** Sticky trial callout in the operator shell; dismiss hides for 24h. */
+function isExportOnlyStatus(status: string | undefined): boolean {
+  return status === "ExportOnly";
+}
+
+type TrialExportOnlyBannerProps = {
+  daysRemaining: number | null | undefined;
+};
+
+function TrialExportOnlyBanner({ daysRemaining }: TrialExportOnlyBannerProps) {
+  return (
+    <div
+      role="alert"
+      aria-label="Trial export-only — data purge warning"
+      data-testid="trial-export-only-banner"
+      className="mb-4 rounded-lg border border-red-400 bg-red-50 p-3 text-sm text-red-950 shadow-sm dark:border-red-700 dark:bg-red-950/50 dark:text-red-50"
+    >
+      <p className="m-0 font-semibold">{formatTrialExportOnlyPurgeHeadline(daysRemaining)}</p>
+      <p className="m-0 mt-1 text-xs text-red-900 dark:text-red-200">{TRIAL_EXPORT_ONLY_SUPPORTING_LINE}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Button
+          asChild
+          type="button"
+          size="sm"
+          className="bg-red-800 text-white hover:bg-red-900 dark:bg-red-700 dark:hover:bg-red-600"
+        >
+          <Link href="/reviews">Export review packages</Link>
+        </Button>
+        <Button asChild type="button" size="sm" variant="outline" className="border-red-300 dark:border-red-600">
+          <Link href="/audit">Export audit log</Link>
+        </Button>
+        <Button asChild type="button" size="sm" variant="outline" className="border-red-300 dark:border-red-600">
+          <Link href="/pricing#pricing-quote-request">Talk to us about retention</Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/** Sticky trial callout in the operator shell; dismiss hides non–export-only states for 24h. */
 export function TrialBanner() {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
-  const [payload, setPayload] = useState<TrialStatusPayload | null>(null);
+  const [payload, setPayload] = useState<TenantTrialStatusPayload | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
   const refresh = useCallback(async () => {
     if (AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn()) {
       setVisible(false);
-
-      return;
-    }
-
-    if (isTrialBannerSnoozed()) {
-      setVisible(false);
+      setPayload(null);
 
       return;
     }
@@ -52,22 +92,29 @@ export function TrialBanner() {
 
       if (!res.ok) {
         setVisible(false);
+        setPayload(null);
 
         return;
       }
 
-      const json = (await res.json()) as TrialStatusPayload;
+      const json = (await res.json()) as TenantTrialStatusPayload;
       setPayload(json);
+
+      if (isExportOnlyStatus(json.status)) {
+        setVisible(true);
+
+        return;
+      }
+
+      if (isTrialBannerSnoozed()) {
+        setVisible(false);
+
+        return;
+      }
 
       const days = json.daysRemaining;
 
-      if (
-        json.status === "Active" &&
-        typeof days === "number" &&
-        days >= 0 &&
-        days <= 7
-      )
-      {
+      if (json.status === "Active" && typeof days === "number" && days >= 0 && days <= 7) {
         setVisible(false);
 
         return;
@@ -76,6 +123,7 @@ export function TrialBanner() {
       setVisible(shouldShowTrialStrip(json.status));
     } catch {
       setVisible(false);
+      setPayload(null);
     }
   }, []);
 
@@ -112,7 +160,15 @@ export function TrialBanner() {
     }
   };
 
-  if (!hydrated || !visible || !payload) {
+  if (!hydrated || !payload) {
+    return null;
+  }
+
+  if (isExportOnlyStatus(payload.status)) {
+    return <TrialExportOnlyBanner daysRemaining={payload.daysRemaining} />;
+  }
+
+  if (!visible || pathname !== "/") {
     return null;
   }
 

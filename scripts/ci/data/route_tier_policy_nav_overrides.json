@@ -36,6 +36,8 @@
     "Scim/ScimUsersController.cs": "scim_idp_automation"
   },
   "nav_operator_href_by_controller_file": {
+    "Admin/AdminApiKeySettingsController.cs": "/settings/api-keys",
+    "Admin/SettingsController.cs": "/settings/tenant",
     "Admin/AuditController.cs": "/audit",
     "Billing/BillingCheckoutController.cs": "/settings/tenant",
     "Admin/AdminLlmCostTuningController.cs": "/settings/tenant-cost",

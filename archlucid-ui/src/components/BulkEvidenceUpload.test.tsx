@@ -1,9 +1,22 @@
 import React from "react";
-import { describe, it, expect } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+
+import * as bulkEvidenceUploadClient from "@/lib/bulk-evidence-upload-client";
+
 import { BulkEvidenceUpload } from "./BulkEvidenceUpload";
 
+vi.mock("@/lib/bulk-evidence-upload-client", () => ({
+  postBulkEvidenceMultipartWithProgress: vi.fn(),
+}));
+
+const postBulkEvidence = vi.mocked(bulkEvidenceUploadClient.postBulkEvidenceMultipartWithProgress);
+
 describe("BulkEvidenceUpload Component", () => {
+  beforeEach(() => {
+    postBulkEvidence.mockReset();
+  });
+
   it("renders quota indicator '0 / 30'", () => {
     render(<BulkEvidenceUpload runId="test-run-id" />);
     expect(screen.getByText("0 / 30 files")).toBeInTheDocument();
@@ -48,5 +61,65 @@ describe("BulkEvidenceUpload Component", () => {
     fireEvent.click(removeBtn);
 
     expect(screen.getByText("0 / 30 files")).toBeInTheDocument();
+  });
+
+  it("shows upload progress and success summary", async () => {
+    let finishUpload: ((value: { status: number; bodyText: string }) => void) | undefined;
+
+    postBulkEvidence.mockImplementation((_runId, _files, onProgress) => {
+      onProgress({ loadedBytes: 50, totalBytes: 100, percent: 50 });
+
+      return new Promise((resolve) => {
+        finishUpload = resolve;
+      });
+    });
+
+    render(<BulkEvidenceUpload runId="test-run-id" />);
+
+    const fileInput = screen.getByLabelText(/drag and drop evidence files here/i, { selector: "input" });
+    fireEvent.change(fileInput, {
+      target: { files: [new File(["content"], "evidence.txt", { type: "text/plain" })] },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Upload Evidence" }));
+
+    expect(await screen.findByTestId("bulk-evidence-upload-progress")).toBeInTheDocument();
+    expect(screen.getByText("50%")).toBeInTheDocument();
+
+    finishUpload?.({
+      status: 200,
+      bodyText: JSON.stringify({ evidenceItemIds: ["id-1"] }),
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("bulk-evidence-upload-summary")).toHaveTextContent("Evidence successfully uploaded");
+    });
+  });
+
+  it("lists failed files after partial upload", async () => {
+    postBulkEvidence.mockResolvedValue({
+      status: 400,
+      bodyText: JSON.stringify({
+        detail: "An error occurred during upload. 1 of 2 files were uploaded. Error: storage",
+      }),
+    });
+
+    render(<BulkEvidenceUpload runId="test-run-id" />);
+
+    const fileInput = screen.getByLabelText(/drag and drop evidence files here/i, { selector: "input" });
+    fireEvent.change(fileInput, {
+      target: {
+        files: [
+          new File(["a"], "first.txt", { type: "text/plain" }),
+          new File(["b"], "second.txt", { type: "text/plain" }),
+        ],
+      },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Upload Evidence" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("bulk-evidence-upload-file-outcomes")).toHaveTextContent("second.txt");
+    });
   });
 });
