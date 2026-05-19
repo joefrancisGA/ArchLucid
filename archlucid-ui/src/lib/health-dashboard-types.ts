@@ -108,3 +108,14 @@ export function findHealthReadyEntryByName(
 
   return null;
 }
+
+export function isHealthEntryStatusDegraded(status: string | undefined | null): boolean {
+  return status?.trim().toLowerCase() === "degraded";
+}
+
+/** True when the worker `data_archival` readiness check reports Degraded (absent when archival is off or not on a worker host). */
+export function isDataArchivalHealthDegraded(entries: HealthReadyResponse["entries"]): boolean {
+  const entry = findHealthReadyEntryByName(entries, "data_archival");
+
+  return entry !== null && isHealthEntryStatusDegraded(entry.status);
+}

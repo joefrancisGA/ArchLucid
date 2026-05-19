@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   findCircuitBreakersEntry,
   findHealthReadyEntryByName,
+  isDataArchivalHealthDegraded,
+  isHealthEntryStatusDegraded,
   parseCircuitGatesFromHealthEntry,
 } from "./health-dashboard-types";
 
@@ -48,5 +50,32 @@ describe("findHealthReadyEntryByName", () => {
 
   it("returns null when missing", () => {
     expect(findHealthReadyEntryByName([{ name: "database", status: "Healthy" }], "data_archival")).toBeNull();
+  });
+});
+
+describe("isHealthEntryStatusDegraded", () => {
+  it("matches Degraded case-insensitively", () => {
+    expect(isHealthEntryStatusDegraded("Degraded")).toBe(true);
+    expect(isHealthEntryStatusDegraded(" degraded ")).toBe(true);
+    expect(isHealthEntryStatusDegraded("Healthy")).toBe(false);
+  });
+});
+
+describe("isDataArchivalHealthDegraded", () => {
+  it("is true only when data_archival entry is Degraded", () => {
+    expect(
+      isDataArchivalHealthDegraded([
+        { name: "database", status: "Healthy" },
+        { name: "data_archival", status: "Degraded" },
+      ]),
+    ).toBe(true);
+  });
+
+  it("is false when check is absent (disabled or non-worker host)", () => {
+    expect(isDataArchivalHealthDegraded([{ name: "database", status: "Healthy" }])).toBe(false);
+  });
+
+  it("is false when archival is healthy (including disabled healthy)", () => {
+    expect(isDataArchivalHealthDegraded([{ name: "data_archival", status: "Healthy" }])).toBe(false);
   });
 });

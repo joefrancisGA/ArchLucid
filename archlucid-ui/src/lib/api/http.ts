@@ -1,4 +1,6 @@
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { notifyTrialLimitFromApiError } from "@/lib/trial-limit-modal-bridge";
+import { parseTrialLimitProblemDetails } from "@/lib/trial-limit-problem";
 import { showError } from "@/lib/toast";
 import { CORRELATION_ID_HEADER, generateCorrelationId } from "@/lib/correlation";
 import { getServerApiBaseUrl } from "@/lib/config";
@@ -114,6 +116,14 @@ export function withCorrelationHeaders(headers: HeadersInit): Headers {
 
 export function throwApiRequestError(response: Response, bodyText: string): never {
   const err = buildApiRequestErrorFromParts(response, bodyText);
+
+  if (isBrowser() && err.httpStatus === 402) {
+    const trial = parseTrialLimitProblemDetails(bodyText);
+
+    if (trial !== null) {
+      notifyTrialLimitFromApiError(err.problem?.title, err.problem?.detail, trial);
+    }
+  }
 
   if (isBrowser() && err.httpStatus >= 500) {
     showError("Server error", err.message);

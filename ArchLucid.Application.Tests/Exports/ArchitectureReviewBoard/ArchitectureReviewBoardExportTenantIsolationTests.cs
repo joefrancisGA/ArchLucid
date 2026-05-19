@@ -69,8 +69,8 @@ public sealed class ArchitectureReviewBoardExportTenantIsolationTests
 
         ArchitectureReviewPdfBuilder sut = new();
 
-        byte[] pdfA = await sut.BuildAsync(model, tenantA, MinimalLogo, CancellationToken.None);
-        byte[] pdfB = await sut.BuildAsync(model, tenantB, MinimalLogo, CancellationToken.None);
+        byte[] pdfA = await sut.BuildAsync(model, tenantA, MinimalLogo, cancellationToken: CancellationToken.None);
+        byte[] pdfB = await sut.BuildAsync(model, tenantB, MinimalLogo, cancellationToken: CancellationToken.None);
 
         pdfA.Should().NotBeEquivalentTo(pdfB);
 

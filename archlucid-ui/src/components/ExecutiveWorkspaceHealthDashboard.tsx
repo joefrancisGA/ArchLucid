@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { ComplianceDriftChartPdfExport } from "@/components/ComplianceDriftChartPdfExport";
+import { DataArchivalDegradedBanner } from "@/components/governance/DataArchivalDegradedBanner";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { HelpLink } from "@/components/HelpLink";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -249,6 +250,8 @@ export function ExecutiveWorkspaceHealthDashboard() {
         <p className="m-0 font-semibold text-teal-900 dark:text-teal-100">Session scope</p>
         <p className="m-0 mt-1 leading-snug">{scopeBanner}</p>
       </div>
+
+      <DataArchivalDegradedBanner />
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="border-neutral-200 dark:border-neutral-800">

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isDataArchivalHealthDegraded } from "@/lib/health-dashboard-types";
 
 import { isInternalTestBuildVersion } from "./admin-health-helpers";
 import type { AdminHealthPageViewModel } from "./admin-health-view-model";
@@ -43,9 +44,8 @@ export function AdminHealthPageView(props: Props) {
 
   const internalTestBuildDisclosure = isInternalTestBuildVersion(m.version);
   const overall = m.ready?.status ?? "Unknown";
-  const archivalEntry = m.ready?.entries.find((entry) => entry.name === "data_archival") ?? null;
   const archivalDegraded =
-    archivalEntry !== null && archivalEntry.status.trim().toLowerCase() === "degraded";
+    m.ready !== null && isDataArchivalHealthDegraded(m.ready.entries);
 
   return (
     <div className="mx-auto max-w-3xl space-y-6" data-testid="admin-health-page">

@@ -38,7 +38,7 @@ public sealed class ArchitectureReviewBoardExportPipelineIntegrationTests
         docxXml.Should().Contain("Synthetic.CommitGate");
 
         ArchitectureReviewPdfBuilder pdfBuilder = new();
-        byte[] pdf = await pdfBuilder.BuildAsync(model, whitelabel: null, logoImageBytes: null, CancellationToken.None);
+        byte[] pdf = await pdfBuilder.BuildAsync(model, whitelabel: null, logoImageBytes: null, cancellationToken: CancellationToken.None);
 
         ArchitectureReviewBoardPdfTestHelpers.AssertPdfWireBaseline(pdf);
     }
@@ -66,7 +66,7 @@ public sealed class ArchitectureReviewBoardExportPipelineIntegrationTests
         docxXml.Should().Contain("ARB integration fixture engagement");
 
         ArchitectureReviewPdfBuilder pdfBuilder = new();
-        byte[] pdf = await pdfBuilder.BuildAsync(model, whitelabel, logoImageBytes: null, CancellationToken.None);
+        byte[] pdf = await pdfBuilder.BuildAsync(model, whitelabel, logoImageBytes: null, cancellationToken: CancellationToken.None);
 
         ArchitectureReviewBoardPdfTestHelpers.AssertPdfWireBaseline(pdf);
     }

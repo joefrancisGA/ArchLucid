@@ -6,6 +6,8 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
@@ -49,6 +51,28 @@ public sealed class ArchitectureReviewExportServiceTests
         };
     }
 
+    private static ArchitectureReviewExportService CreateSut(
+        IRunDetailQueryService runDetailQuery,
+        IArchitectureAnalysisService analysis,
+        IScopeContextProvider? scopeContextProvider = null,
+        ITenantRepository? tenantRepository = null)
+    {
+        if (scopeContextProvider is null)
+        {
+            Mock<IScopeContextProvider> scopeMock = new();
+            scopeMock.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+            scopeContextProvider = scopeMock.Object;
+        }
+
+        return new ArchitectureReviewExportService(
+            runDetailQuery,
+            analysis,
+            scopeContextProvider,
+            tenantRepository ?? Mock.Of<ITenantRepository>(),
+            new ArchitectureReviewDocxBuilder(),
+            new ArchitectureReviewPdfBuilder());
+    }
+
     [Fact]
     public async Task GenerateReportAsync_returns_pdf_when_finalized()
     {
@@ -65,7 +89,7 @@ public sealed class ArchitectureReviewExportServiceTests
         Mock<IArchitectureAnalysisService> analysis = new();
         analysis.Setup(x => x.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(report);
 
-        ArchitectureReviewExportService sut = new(runDetailQuery.Object, analysis.Object, new ArchitectureReviewDocxBuilder(), new ArchitectureReviewPdfBuilder());
+        ArchitectureReviewExportService sut = CreateSut(runDetailQuery.Object, analysis.Object);
 
         ExportResult result =
             await sut.GenerateReportAsync(runId, ExportFormat.Pdf, whitelabel: null, logoImageBytes: null, httpCorrelationId: "c1",
@@ -86,13 +110,79 @@ public sealed class ArchitectureReviewExportServiceTests
     }
 
     [Fact]
+    public async Task GenerateReportAsync_pdf_embeds_active_trial_notice_when_tenant_on_active_trial()
+    {
+        string runId = "dddddddddddddddddddddddddddddddd";
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        ArchitectureRunDetail detail = CreateCommittedDetail(runId);
+
+        Mock<IRunDetailQueryService> runDetailQuery = new();
+        runDetailQuery.Setup(x => x.GetRunDetailAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
+
+        GoldenManifest manifest = detail.Manifest!;
+        ArchitectureAnalysisReport report = new() { Run = detail.Run, Manifest = manifest, Summary = "Summary text." };
+
+        Mock<IArchitectureAnalysisService> analysis = new();
+        analysis.Setup(x => x.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(report);
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = tenantId,
+                    Name = "Trial tenant",
+                    Slug = "trial",
+                    Tier = TenantTier.Standard,
+                    TrialStatus = TrialLifecycleStatus.Active
+                });
+
+        ArchitectureReviewExportService sut = CreateSut(runDetailQuery.Object, analysis.Object, scope.Object, tenants.Object);
+
+        ExportResult result =
+            await sut.GenerateReportAsync(runId, ExportFormat.Pdf, whitelabel: null, logoImageBytes: null, httpCorrelationId: null,
+                CancellationToken.None);
+
+        Mock<ITenantRepository> convertedTenants = new();
+        convertedTenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = tenantId,
+                    Name = "Paid tenant",
+                    Slug = "paid",
+                    Tier = TenantTier.Standard,
+                    TrialStatus = TrialLifecycleStatus.Converted
+                });
+
+        ArchitectureReviewExportService sutConverted = CreateSut(runDetailQuery.Object, analysis.Object, scope.Object, convertedTenants.Object);
+
+        ExportResult convertedResult =
+            await sutConverted.GenerateReportAsync(runId, ExportFormat.Pdf, whitelabel: null, logoImageBytes: null, httpCorrelationId: null,
+                CancellationToken.None);
+
+        using MemoryStream activeMs = new();
+        await result.Content.CopyToAsync(activeMs);
+
+        using MemoryStream convertedMs = new();
+        await convertedResult.Content.CopyToAsync(convertedMs);
+
+        activeMs.ToArray().Should().NotBeEquivalentTo(convertedMs.ToArray());
+
+        await result.Content.DisposeAsync();
+        await convertedResult.Content.DisposeAsync();
+    }
+
+    [Fact]
     public async Task GenerateReportAsync_throws_when_run_missing()
     {
         Mock<IRunDetailQueryService> runDetailQuery = new();
         runDetailQuery.Setup(x => x.GetRunDetailAsync("missing", It.IsAny<CancellationToken>())).ReturnsAsync((ArchitectureRunDetail?)null);
 
-        ArchitectureReviewExportService sut = new(runDetailQuery.Object, Mock.Of<IArchitectureAnalysisService>(), new ArchitectureReviewDocxBuilder(),
-            new ArchitectureReviewPdfBuilder());
+        ArchitectureReviewExportService sut = CreateSut(runDetailQuery.Object, Mock.Of<IArchitectureAnalysisService>());
 
         Func<Task> act = async () =>
             await sut.GenerateReportAsync("missing", ExportFormat.Docx, null, null, null, CancellationToken.None);
@@ -109,8 +199,7 @@ public sealed class ArchitectureReviewExportServiceTests
         Mock<IRunDetailQueryService> runDetailQuery = new();
         runDetailQuery.Setup(x => x.GetRunDetailAsync(detail.Run.RunId, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
 
-        ArchitectureReviewExportService sut = new(runDetailQuery.Object, Mock.Of<IArchitectureAnalysisService>(), new ArchitectureReviewDocxBuilder(),
-            new ArchitectureReviewPdfBuilder());
+        ArchitectureReviewExportService sut = CreateSut(runDetailQuery.Object, Mock.Of<IArchitectureAnalysisService>());
 
         Func<Task> act = async () =>
             await sut.GenerateReportAsync(detail.Run.RunId, ExportFormat.Docx, null, null, null, CancellationToken.None);
@@ -128,8 +217,7 @@ public sealed class ArchitectureReviewExportServiceTests
         Mock<IRunDetailQueryService> runDetailQuery = new();
         runDetailQuery.Setup(x => x.GetRunDetailAsync(detail.Run.RunId, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
 
-        ArchitectureReviewExportService sut = new(runDetailQuery.Object, Mock.Of<IArchitectureAnalysisService>(), new ArchitectureReviewDocxBuilder(),
-            new ArchitectureReviewPdfBuilder());
+        ArchitectureReviewExportService sut = CreateSut(runDetailQuery.Object, Mock.Of<IArchitectureAnalysisService>());
 
         Func<Task> act = async () =>
             await sut.GenerateReportAsync(detail.Run.RunId, ExportFormat.Docx, null, null, null, CancellationToken.None);

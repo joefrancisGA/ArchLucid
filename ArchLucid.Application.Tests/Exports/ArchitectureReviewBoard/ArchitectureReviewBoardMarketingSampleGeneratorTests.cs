@@ -32,7 +32,7 @@ public sealed class ArchitectureReviewBoardMarketingSampleGeneratorTests
         ArchitectureReviewPdfBuilder pdfBuilder = new();
 
         byte[] docxBytes = await docxBuilder.BuildAsync(model, whitelabel, logo, CancellationToken.None);
-        byte[] pdfBytes = await pdfBuilder.BuildAsync(model, whitelabel, logo, CancellationToken.None);
+        byte[] pdfBytes = await pdfBuilder.BuildAsync(model, whitelabel, logo, cancellationToken: CancellationToken.None);
 
         string docxPath = Path.Combine(samplesDir, "architecture-review-report-sample.docx");
         string pdfPath = Path.Combine(samplesDir, "architecture-review-report-sample.pdf");

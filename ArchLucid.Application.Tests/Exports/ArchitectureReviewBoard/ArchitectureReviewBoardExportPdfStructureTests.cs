@@ -19,11 +19,11 @@ public sealed class ArchitectureReviewBoardExportPdfStructureTests
 
         byte[] populated =
             await sut.BuildAsync(ArchitectureReviewBoardExportTestModels.CreateFullyPopulatedModel(), whitelabel: null, logoImageBytes: null,
-                CancellationToken.None);
+                cancellationToken: CancellationToken.None);
 
         byte[] empty =
             await sut.BuildAsync(ArchitectureReviewBoardExportTestModels.CreateEmptySectionsModel(), whitelabel: null, logoImageBytes: null,
-                CancellationToken.None);
+                cancellationToken: CancellationToken.None);
 
         ArchitectureReviewBoardPdfTestHelpers.AssertPdfWireBaseline(populated);
 
@@ -48,14 +48,40 @@ public sealed class ArchitectureReviewBoardExportPdfStructureTests
 
         ArchitectureReviewPdfBuilder sut = new();
 
-        byte[] defaultPdf = await sut.BuildAsync(model, whitelabel: null, logoImageBytes: null, CancellationToken.None);
+        byte[] defaultPdf = await sut.BuildAsync(model, whitelabel: null, logoImageBytes: null, cancellationToken: CancellationToken.None);
 
-        byte[] brandedPdf = await sut.BuildAsync(model, whitelabel, png, CancellationToken.None);
+        byte[] brandedPdf = await sut.BuildAsync(model, whitelabel, png, cancellationToken: CancellationToken.None);
 
         ArchitectureReviewBoardPdfTestHelpers.AssertPdfWireBaseline(defaultPdf);
 
         ArchitectureReviewBoardPdfTestHelpers.AssertPdfWireBaseline(brandedPdf);
 
         defaultPdf.Should().NotBeEquivalentTo(brandedPdf);
+    }
+
+    [Fact]
+    public void ComposePageFooterText_appends_active_trial_suffix_when_requested()
+    {
+        ArchitectureReviewPdfBuilder.ComposePageFooterText("Prepared by ArchLucid", true)
+            .Should()
+            .Be($"Prepared by ArchLucid · {ArchitectureReviewPdfBuilder.ActiveTrialExportFooterSuffix}");
+    }
+
+    [Fact]
+    public async Task BuildAsync_active_trial_notice_changes_pdf_payload()
+    {
+        ArchitectureReviewBoardExportDocumentModel model = ArchitectureReviewBoardExportTestModels.CreateFullyPopulatedModel();
+        ArchitectureReviewPdfBuilder sut = new();
+
+        byte[] withoutNotice = await sut.BuildAsync(model, whitelabel: null, logoImageBytes: null, cancellationToken: CancellationToken.None);
+
+        byte[] withNotice = await sut.BuildAsync(
+            model,
+            whitelabel: null,
+            logoImageBytes: null,
+            includeActiveTrialExportNotice: true,
+            cancellationToken: CancellationToken.None);
+
+        withNotice.Should().NotBeEquivalentTo(withoutNotice);
     }
 }

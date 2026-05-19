@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 
 import { findHealthReadyEntryByName, type HealthReadyResponse } from "@/lib/health-dashboard-types";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { cn } from "@/lib/utils";
 
 function healthReadinessDotClass(status: string): string {
@@ -47,23 +47,19 @@ export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripPr
       setPhase("loading");
 
       try {
-        const res = await fetch(
-          "/api/proxy/health/ready",
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" }),
-        );
+        const body = await fetchHealthReadySummary();
 
         if (cancelled) {
           return;
         }
 
-        if (!res.ok) {
+        if (body === null) {
           setReady(null);
           setPhase("unavailable");
 
           return;
         }
 
-        const body = (await res.json()) as HealthReadyResponse;
         setReady(body);
         setPhase("ready");
       } catch {

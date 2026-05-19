@@ -279,13 +279,13 @@ Constraints: Ensure the copied command includes all necessary flags for the stan
 - **Why it matters:** Gives operators visibility into whether data retention policies are successfully executing.
 - **Expected impact:** Improves Supportability (+5 pts) and Observability (+2 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Supportability, Observability.
-- **Actionable now.**
+- **Completed.** Shipped on Governance Dashboard (`/governance/dashboard`): `DataArchivalDegradedBanner` on `ExecutiveWorkspaceHealthDashboard` consumes anonymous `GET /health/ready` (via `/api/proxy/health/ready`), parses the `data_archival` readiness entry, and shows an amber warning when status is `Degraded`. No banner when archival is disabled, the check is absent (API-only host), or readiness is unavailable.
 ```text
 Expose the `DataArchivalHostHealthCheck` status in the operator UI.
-1. Consume the `GET /health` endpoint (which includes detailed health checks).
+1. Consume the `GET /health/ready` endpoint (summary readiness includes `data_archival` on worker hosts).
 2. Parse the `data_archival` check status.
 3. Display a warning banner on the Governance Dashboard if the archival health is `Degraded`.
-Files: `archlucid-ui/src/app/(operator)/governance/dashboard/page.tsx`.
+Files: `archlucid-ui/src/app/(operator)/governance/dashboard/page.tsx`, `archlucid-ui/src/components/ExecutiveWorkspaceHealthDashboard.tsx`, `archlucid-ui/src/components/governance/DataArchivalDegradedBanner.tsx`, `archlucid-ui/src/lib/fetch-health-ready.ts`, `archlucid-ui/src/lib/health-dashboard-types.ts`.
 Constraints: Must gracefully handle environments where data archival is disabled.
 ```
 
@@ -293,13 +293,13 @@ Constraints: Must gracefully handle environments where data archival is disabled
 - **Why it matters:** Provides a clear upgrade path when users hit trial limits.
 - **Expected impact:** Improves Usability (+5 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Usability.
-- **Actionable now.**
+- **Completed.** `throwApiRequestError` in `archlucid-ui/src/lib/api/http.ts` (re-exported from `api-client.ts`) opens `TrialLimitModalHost` on browser 402 responses when Problem Details include `trialReason` / `daysRemaining`; the request still throws so callers handle failure — read-only GETs are unaffected unless the API returns 402.
 ```text
 Implement graceful client-side handling for HTTP 402 Payment Required responses.
 1. Intercept 402 responses in the UI's API client.
 2. Parse the `application/problem+json` body for `trialReason` and `daysRemaining`.
 3. Display a modal or toast notification explaining the limit (e.g., "Trial limit reached") with a CTA to upgrade.
-Files: `archlucid-ui/src/lib/api-client.ts`, `archlucid-ui/src/components/TrialLimitModal.tsx`.
+Files: `archlucid-ui/src/lib/api-client.ts`, `archlucid-ui/src/lib/api/http.ts`, `archlucid-ui/src/lib/trial-limit-problem.ts`, `archlucid-ui/src/lib/trial-limit-modal-bridge.ts`, `archlucid-ui/src/components/TrialLimitModal.tsx`.
 Constraints: Must not block read-only operations.
 ```
 
@@ -354,12 +354,12 @@ Constraints: Must respect the configured HMAC signing secret.
 - **Why it matters:** Ensures executives reviewing exported PDFs are aware of the trial status.
 - **Expected impact:** Improves Executive Value Visibility (+5 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Executive Value Visibility.
-- **Actionable now.**
+- **Completed.** `ArchitectureReviewExportService` loads tenant `TrialStatus`; when `Active`, `ArchitectureReviewPdfBuilder` adds footer text and a light cover watermark (`Generated during ArchLucid Trial`). Paid/converted tenants and non-active lifecycle phases omit the notice.
 ```text
 Add a visual indicator for trial expiration in generated PDFs.
 1. Check the `TrialStatus` when generating the Architecture Review Board PDF.
 2. If the tenant is on an active trial, add a subtle watermark or footer note (e.g., "Generated during ArchLucid Trial").
-Files: `ArchLucid.Application/Exports/ArchitectureReviewPdfBuilder.cs`.
+Files: `ArchLucid.Application/Exports/ArchitectureReviewExportService.cs`, `ArchLucid.Application/Exports/ArchitectureReviewBoard/ArchitectureReviewPdfBuilder.cs`.
 Constraints: Must not obscure the actual architecture content.
 ```
 
@@ -617,7 +617,7 @@ To optimize context window usage and cost-effectiveness, batch the implementatio
 
 **Batch 2: UI & UX Enhancements (Frontend)**
 - ~~Add 1-Click Copy for Azure Extractor PowerShell Script (1)~~ *(completed 2026-05-19)*
-- Implement Client-Side Handling for 402 Trial Limits (3)
+- ~~Implement Client-Side Handling for 402 Trial Limits (3)~~ *(completed 2026-05-19)*
 - Simplify Domain Vocabulary in Operator UI (16)
 - Add Bulk Evidence Upload Progress Indicator (19)
 - Add Export-Only Trial State Warning (21)
@@ -635,7 +635,7 @@ To optimize context window usage and cost-effectiveness, batch the implementatio
 - Optimize Knowledge Graph Snapshot Serialization (6)
 - Add Content Safety API Circuit Breaker (17)
 - Optimize Audit Log CSV Export (24)
-- Expose Data Archival Health in Operator UI (2)
+- ~~Expose Data Archival Health in Operator UI (2)~~ *(completed 2026-05-19)*
 - Add System Health Dashboard (25)
 
 ---

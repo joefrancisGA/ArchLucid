@@ -36,6 +36,7 @@ import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/dem
 import { SimulatorExecutionModeBanner } from "@/components/SimulatorExecutionModeBanner";
 import { TrialBanner } from "@/components/TrialBanner";
 import { TrialExpiryBanner } from "@/components/TrialExpiryBanner";
+import { TrialLimitModalHost } from "@/components/TrialLimitModal";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -189,6 +190,7 @@ function AppShellInner({ children }: AppShellClientProps) {
             </div>
             <AppToaster />
             <RouteAnnouncer />
+            <TrialLimitModalHost />
             <HelpSearchPanel
               open={helpDocSearchOpen}
               onOpenChange={setHelpDocSearchOpen}
@@ -297,6 +299,7 @@ function AppShellInner({ children }: AppShellClientProps) {
         </div>
         <AppToaster />
         <RouteAnnouncer />
+        <TrialLimitModalHost />
         <HelpSearchPanel
           open={helpDocSearchOpen}
           onOpenChange={setHelpDocSearchOpen}

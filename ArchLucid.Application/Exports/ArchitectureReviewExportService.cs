@@ -3,6 +3,8 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Exports;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Application.Exports;
 
@@ -12,6 +14,8 @@ namespace ArchLucid.Application.Exports;
 public sealed class ArchitectureReviewExportService(
     IRunDetailQueryService runDetailQueryService,
     IArchitectureAnalysisService architectureAnalysisService,
+    IScopeContextProvider scopeContextProvider,
+    ITenantRepository tenantRepository,
     ArchitectureReviewDocxBuilder docxBuilder,
     ArchitectureReviewPdfBuilder pdfBuilder) : IArchitectureReviewExportService
 {
@@ -20,6 +24,12 @@ public sealed class ArchitectureReviewExportService(
 
     private readonly IArchitectureAnalysisService _architectureAnalysisService =
         architectureAnalysisService ?? throw new ArgumentNullException(nameof(architectureAnalysisService));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     private readonly ArchitectureReviewDocxBuilder _docxBuilder =
         docxBuilder ?? throw new ArgumentNullException(nameof(docxBuilder));
@@ -82,7 +92,13 @@ public sealed class ArchitectureReviewExportService(
 
             case ExportFormat.Pdf:
             {
-                byte[] bytes = await _pdfBuilder.BuildAsync(documentModel, whitelabel, logoImageBytes, cancellationToken);
+                bool includeActiveTrialExportNotice = await ShouldIncludeActiveTrialExportNoticeAsync(cancellationToken);
+                byte[] bytes = await _pdfBuilder.BuildAsync(
+                    documentModel,
+                    whitelabel,
+                    logoImageBytes,
+                    includeActiveTrialExportNotice,
+                    cancellationToken);
 
                 MemoryStream stream = new(bytes);
 
@@ -92,6 +108,21 @@ public sealed class ArchitectureReviewExportService(
             default:
                 throw new ArgumentOutOfRangeException(nameof(format), format, "Unsupported export format.");
         }
+    }
+
+    private async Task<bool> ShouldIncludeActiveTrialExportNoticeAsync(CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        if (scope.TenantId == Guid.Empty)
+            return false;
+
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
+        if (tenant is null)
+            return false;
+
+        return string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal);
     }
 
     private static string SanitizeRunIdForFileName(string runId)
