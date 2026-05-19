@@ -79,7 +79,7 @@ test.describe("live-api-compare-runs", () => {
     await page.goto(`/compare?leftRunId=${encodeURIComponent(runIdA)}&rightRunId=${encodeURIComponent(runIdB)}`);
 
     await expect(
-      page.getByRole("heading", { level: 2, name: /Compare reviews|Review change comparison/i }).first(),
+      page.getByRole("heading", { level: 2, name: /Compare reviews|Advanced review comparison/i }).first(),
     ).toBeVisible({
       timeout: 60_000,
     });

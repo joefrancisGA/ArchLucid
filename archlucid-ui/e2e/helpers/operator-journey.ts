@@ -28,11 +28,11 @@ export async function gotoComparePageWithFixturePair(
 
 /**
  * Primary `/compare` H2 from {@link OperatorPageHeader}. Mock E2E sets demo env flags, so
- * `isBuyerPolishedOperatorShellEnv()` is true and the title is **Review change comparison**; full-operator
+ * `isBuyerPolishedOperatorShellEnv()` is true and the title is **Advanced review comparison**; full-operator
  * builds use **Compare reviews**.
  */
 export function comparePageMainHeading(page: Page): Locator {
-  return page.getByRole("heading", { level: 2, name: /Compare reviews|Review change comparison/i });
+  return page.getByRole("heading", { level: 2, name: /Compare reviews|Advanced review comparison/i });
 }
 
 /**
