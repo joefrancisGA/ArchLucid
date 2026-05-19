@@ -117,7 +117,7 @@ public static class SamlSpConfigurationDiagnostics
                 snapshot.SigningCertificatePassword);
 
             DateTimeOffset notAfterUtc = new(certificate.NotAfter.ToUniversalTime(), TimeSpan.Zero);
-            DateTimeOffset nowUtc = DateTimeOffset.UtcNow;
+            DateTimeOffset nowUtc = TimeProvider.System.GetUtcNow();
 
             if (notAfterUtc <= nowUtc)
             {
@@ -221,7 +221,7 @@ public static class SamlSpConfigurationDiagnostics
                 return;
             }
 
-            DateTimeOffset nowUtc = DateTimeOffset.UtcNow;
+            DateTimeOffset nowUtc = TimeProvider.System.GetUtcNow();
 
             if (validUntilUtc <= nowUtc)
             {
