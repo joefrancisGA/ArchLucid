@@ -1,661 +1,600 @@
-﻿> **Scope:** Independent, first-principles assessment of ArchLucid readiness.
-> **Status:** current
+﻿# ArchLucid Assessment – (A) Headline Readiness: 82.02%
 
-# ArchLucid Assessment – (A) Headline Readiness: 88.19%
-
-This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (e.g., SOC 2 CPA attestation, third-party pen testing, MCP, live commerce un-hold, first **published** reference customer, **first-party** **Jira** / **ServiceNow** / **Confluence** / **Slack** managed connectors ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13–§2.15 → **V1.1**), **Microsoft Teams** / **CloudEvents webhooks** / **customer-operated recipes** as **buyer-contract** paths ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.14, §3 → **V1.1**), and V1.1-scoped integration / ops collateral). Deferred items do not reduce this headline score.
+*This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding items deferred to V1.1 or V2.*
 
 ## Executive Summary
 
-### (A) Overall Headline Readiness (88.19%)
-ArchLucid is a functionally complete V1 product with a highly rigorous architectural foundation (88.19% readiness). It successfully executes the core pilot loop and provides strong governance and traceability features. The system has robust AI/Agent readiness, strong correctness, and excellent interoperability. **Proof-of-ROI Readiness** and **Differentiability** are not reduced for absence of a **published** reference customer — that obligation is **V1.1** per [`docs/library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6b. **Workflow Embeddedness**, **Interoperability**, **Adoption Friction**, and **Supportability** are **not** reduced for absence of **first-party** **Jira** / **ServiceNow** / **Confluence** / **Slack**, **Microsoft Teams** webhook delivery, **CloudEvents** outbound webhooks, or **recipe** bridges (**V1.1** per [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3) or for residual **V1.1** connector ops work: **`(A)`** treats the **V1** integration contract as **REST**, **CLI**, **operator UI**, **SCIM**, **Azure DevOps** / **GitHub** CI surfaces, and **§2.16+** HTTP paths — not Teams / webhook / recipe **buyer commitments**. The primary remaining gaps include observability follow-through (broad Loki alerting beyond policy-pack assignment rules; composite SLO coherence — **partially mitigated** by SLO/outbox-dead-letter, policy-pack, and GenAI latency Grafana panels, improvements **#3**, **#9**, **#18**, **#25**), E2E test mock reliance (**partially mitigated** by expanded `live-api-smoke`, **#4**), `evidenceBulkUpload` anomaly detection (**#15**, still open), and cognitive load for new operators due to the large product surface (**partially mitigated** by projection-cache operator doc, **#23**).
+**`(A)` Overall Headline Readiness**
+ArchLucid is highly ready for its V1 core mission: moving from an architecture request to a committed, reviewable manifest. The foundational authority pipeline, golden manifest generation, and auditability are robust. The primary gaps holding back the score are adoption friction (manual data ingestion) and workflow embeddedness (lack of ITSM/Chat integrations in V1).
 
-### (B) Procurement/Market-Motion Realism
-Enterprise procurement will face friction due to the lack of a CPA-issued SOC 2 Type II report and third-party penetration testing (both intentionally deferred). The reliance on a SOC 2 self-assessment and owner-conducted penetration testing is acceptable for early pilots but will require executive sponsorship to bypass standard vendor security gates. Automated tenant erasure is specified as actionable backlog for V2; until shipped, it is not scored as an `(A)` defect.
+**`(B)` Procurement/Market-Motion Realism**
+Procurement will face moderate friction. The absence of a CPA-issued SOC 2 Type II report and a published third-party pen test summary will trigger extended security reviews. The lack of a signed design partner or public reference customer may slow executive buy-in, though the sales-led pilot motion is well-supported.
 
-### Commercial Picture
-The commercial posture is strongly aligned for a sales-led, service-led motion. Curated demo workspaces, default policy packs, and the ZIP-first baseline wizard accelerate Time-to-Value and Proof-of-ROI. A **published** reference customer + case study is a **V1.1** commercial milestone ([`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6b) and is **not** an `(A)` V1 gate. The deferred live commerce correctly prioritizes validated purchasing motions over premature self-serve availability.
+**Commercial Picture**
+The commercial foundation is solid for sales-led pilots, with strong proof-of-ROI reporting (first-value reports, sponsor DOCX). However, self-serve transactability is blocked because Stripe live keys and the Azure Marketplace listing are intentionally deferred to V1.1.
 
-### Enterprise Picture
-ArchLucid provides strong enterprise integration points for **V1** through **REST**, **CLI**, **operator UI**, **SCIM**, **Azure DevOps** / **GitHub** PR and manifest decoration, and **§2.16+** surfaces; **Microsoft Teams**, **CloudEvents webhooks**, **customer-operated** recipes, and **first-party** **Jira**, **ServiceNow**, **Confluence**, and **Slack** are **V1.1 buyer-contract** paths per [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3 (*Resolved 2026-05-18*). **`(A)`** does **not** lower headline readiness for **V1.1**-scoped connector / integration depth. Tenant isolation is robustly handled via database-per-tenant and RLS. SAML SP nearing-expiry email notifications, tenant-fair authority pipeline outbox dequeue, and configurable per-tenant rate limits enhance enterprise readiness.
+**Enterprise Picture**
+Enterprise usability is good, aided by progressive disclosure in the UI. However, enterprise adoption will be bottlenecked by the requirement for customers to manually run a PowerShell script for Azure extraction, and the lack of native Jira/ServiceNow/Teams integrations in V1, making ArchLucid a destination app rather than an embedded workflow tool.
 
-### Engineering Picture
-The engineering foundation is highly rigorous, with strong architectural invariants, NetArchTest boundary rules, and a durable audit trail. The agent orchestration pipeline is resilient, and producer-side OpenTelemetry GenAI instrumentation records token aggregates, latency, and deployment identifiers. Mock-heavy `ui-e2e-smoke` release gates keep testability breadth uneven vs full live route coverage.
+**Engineering Picture**
+The engineering architecture is structurally sound, with clear boundaries between the API, Application, Decisioning, and Persistence layers. AI/Agent readiness is high. The main risks involve over-reliance on SQL Server for large JSON payloads, potential cache coherency issues in multi-replica setups without Redis, and the complexity of maintaining parallel Authority and Coordinator pipelines.
 
 ---
 
 ## Weighted Quality Assessment
 
-### 1. Cognitive Load
-- **Score:** 82
-- **Weight:** 1
-- **Weighted deficiency signal:** 18
-- **Why this score was assigned:** The product surface is large and complex, which can overwhelm new operators despite marketing-aligned vocabulary.
-- **Key tradeoffs:** Breadth is valuable for expansion but increases first-session confusion.
-- **Specific improvement recommendations:** Use telemetry to refine operator UI once patterns are stable. Executive dashboard baseline-upload warning — **shipped** (`ExecutiveDashboardBaselineWarningBanner` on `/dashboard`; `GET /v1/tenant/workspace-baseline-artifacts`; CTA `/reviews/new?baseline=1`).
-- **Fixability:** Fixable in V1.
+Qualities are ranked from most urgent to least urgent based on their weighted deficiency (Weight × (100 - Score)).
 
-### 2. Explainability
+### 1. Adoption Friction
+- **Score:** 75
+- **Weight:** 6
+- **Weighted deficiency signal:** 150
+- **Justification:** While the "Tier 1" access model (no vendor access to customer cloud) is great for security, requiring customers to manually run a PowerShell script (`Get-ArchLucidAzurePackage.ps1`) to extract Azure data introduces significant friction.
+- **Tradeoffs:** Security/Trust vs. Ease of Onboarding.
+- **Improvement recommendations:** Automate the extraction process where possible, or provide a more seamless UI-driven guide for running the script.
+
+### 2. Workflow Embeddedness
+- **Score:** 60
+- **Weight:** 3
+- **Weighted deficiency signal:** 120
+- **Justification:** V1 lacks native integrations with Jira, ServiceNow, Microsoft Teams, and Slack (all deferred to V1.1). Users must leave their daily tools to use ArchLucid.
+- **Tradeoffs:** Core product focus vs. Ecosystem integration.
+- **Improvement recommendations:** Accelerate the delivery of the ITSM and Chat integrations to make ArchLucid an invisible enabler rather than a destination app.
+
+### 3. Correctness
 - **Score:** 85
+- **Weight:** 8
+- **Weighted deficiency signal:** 120
+- **Justification:** The authority pipeline and golden manifest are strong, but the lack of full idempotency on the `POST /v1/architecture/request` endpoint introduces a risk of duplicate runs during network retries.
+- **Tradeoffs:** Implementation speed vs. Strict distributed systems guarantees.
+- **Improvement recommendations:** Implement full idempotency using the `Idempotency-Key` header for the create run endpoint.
+
+### 4. Time-to-Value
+- **Score:** 85
+- **Weight:** 7
+- **Weighted deficiency signal:** 105
+- **Justification:** The Core Pilot path is well-defined and fast, but the manual Azure extraction step delays the time it takes to get the first meaningful architecture review.
+- **Tradeoffs:** Manual secure ingestion vs. Automated risky ingestion.
+- **Improvement recommendations:** Streamline the ingestion of infrastructure declarations and context documents.
+
+### 5. AI/Agent Readiness
+- **Score:** 88
+- **Weight:** 8
+- **Weighted deficiency signal:** 96
+- **Justification:** Strong agent orchestration and cost estimation. However, the `StagedCriticEnabled` feature adds batch wall-clock time, and the Content Safety API dependency could cause availability issues if it fails closed.
+- **Tradeoffs:** Safety/Quality vs. Latency/Availability.
+- **Improvement recommendations:** Implement a circuit breaker for the Content Safety API.
+
+### 6. Interoperability
+- **Score:** 65
 - **Weight:** 2
-- **Weighted deficiency signal:** 30
-- **Why this score was assigned:** The system provides comparison replays and a knowledge graph, but default in-process projection cache caps multi-replica coherence.
-- **Key tradeoffs:** Single-process projection simplifies deployment but limits scale.
-- **Specific improvement recommendations:** Enhance documentation for single-process projection limitations.
-- **Fixability:** Fixable in V1.
+- **Weighted deficiency signal:** 70
+- **Justification:** Interoperability is limited to REST APIs and the CLI. The Model Context Protocol (MCP) server is deferred to V1.1.
+- **Tradeoffs:** Core API stability vs. Standardized ecosystem protocols.
+- **Improvement recommendations:** Deliver the MCP server to allow seamless integration with other AI tools.
 
-### 3. Observability
-- **Score:** 85
-- **Weight:** 1
-- **Weighted deficiency signal:** 15
-- **Why this score was assigned:** OpenTelemetry and Serilog provide good visibility, and GenAI instrumentation is shipped. Policy pack assign/unassign Loki ruler rules and a curated Grafana dashboard ship in-repo (`infra/loki/archlucid-policy-pack-assignment-alerts.yml`, `infra/grafana/dashboard-archlucid-policy-packs.json`); broader Loki alerting on other structured-log surfaces and composite GenAI/cross-service SLO coherence are still missing.
-- **Key tradeoffs:** Standard observability tools require operator expertise to configure.
-- **Specific improvement recommendations:** Wire and tune the committed policy pack Loki rules and Grafana dashboard per environment; extend Loki alerting and dashboards to other structured-log surfaces.
-- **Fixability:** Fixable in V1.
+### 7. Usability
+- **Score:** 80
+- **Weight:** 3
+- **Weighted deficiency signal:** 60
+- **Justification:** Progressive disclosure helps, but the domain vocabulary (Authority, Coordinator, Manifest, Trace) imposes a high cognitive load on new users.
+- **Tradeoffs:** Precise technical terms vs. Approachable user language.
+- **Improvement recommendations:** Simplify the UI vocabulary, using terms like "Architecture Review" consistently instead of "Run".
 
-### 4. Performance
-- **Score:** 85
-- **Weight:** 1
-- **Weighted deficiency signal:** 15
-- **Why this score was assigned:** Rate limiting is implemented, optional Redis cache is available, and health check endpoints exist.
-- **Key tradeoffs:** Making Redis optional simplifies single-replica deployments but complicates scaled operations.
-- **Specific improvement recommendations:** Implement anomaly detection for `evidenceBulkUpload`.
-- **Fixability:** Fixable in V1.
-
-### 5. Template and Accelerator Richness
-- **Score:** 85
-- **Weight:** 1
-- **Weighted deficiency signal:** 15
-- **Why this score was assigned:** Three curated default policy packs provide a good starting point, and the Internal Policy Pack Hub is available.
-- **Key tradeoffs:** The library is currently small for a broad enterprise audience.
-- **Specific improvement recommendations:** Delivered — curated Azure WAF policy pack at `docs/samples/policy-packs/azure-waf-rules-v1.json` (12 extractor-aligned rules across all five pillars).
-- **Fixability:** Fixable in V1.
-
-### 6. Executive Value Visibility
+### 8. Differentiability
 - **Score:** 85
 - **Weight:** 4
 - **Weighted deficiency signal:** 60
-- **Why this score was assigned:** Architecture Review Report export with consultant whitelabeling provides immediate artifacts.
-- **Key tradeoffs:** Executive value can become abstract if real tenant baselines are missing.
-- **Specific improvement recommendations:** Executive dashboard baseline-upload warning — **shipped** (`ExecutiveDashboardBaselineWarningBanner`; workspace artifact probe via `GET /v1/tenant/workspace-baseline-artifacts`; links to `/reviews/new?baseline=1`).
-- **Fixability:** Fixable in V1.
+- **Justification:** The focus on governance, auditability, and the golden manifest differentiates ArchLucid from generic AI wrappers, but the lack of multi-cloud support (AWS/GCP deferred to V1.1) limits its appeal to Azure-only shops.
+- **Tradeoffs:** Deep Azure integration vs. Broad multi-cloud appeal.
+- **Improvement recommendations:** Deliver AWS/GCP architecture analysis capabilities.
 
-### 7. Adoption Friction
-- **Score:** 88
-- **Weight:** 6
-- **Weighted deficiency signal:** 72
-- **Why this score was assigned:** Operator shell labels are aligned with marketing vocabulary. **V1** leans on **REST**, **CLI**, **operator UI**, **ADO**/**GitHub** CI hooks, and **§2.16+** for workflow-shaped coverage; **Teams**, **webhooks**, **recipes**, and **first-party** **Jira** / **ServiceNow** / **Confluence** / **Slack** are **V1.1** ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3). Residual **V1.1** connector program work is **not** an `(A)` V1 deduction.
-- **Key tradeoffs:** Governance authoring UX depth may still lag specialist policy-studio expectations.
-- **Specific improvement recommendations:** SAML SP configuration validation CLI — **shipped** (`archlucid saml test-config`; see improvement **#16**).
-- **Fixability:** Fixable in V1.
-
-### 8. Differentiability
+### 9. Proof-of-ROI Readiness
 - **Score:** 90
-- **Weight:** 4
-- **Weighted deficiency signal:** 40
-- **Why this score was assigned:** Evidence-linked findings and governed decision trails differentiate the product from generic LLM wrappers. Absence of a **published** named reference customer is **V1.1** scope ([`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6b) and **does not** reduce this `(A)` score.
-- **Key tradeoffs:** Broad proof surface helps defensibility but requires concise buyer framing.
-- **Specific improvement recommendations:** Create a curated policy pack for GDPR compliance baseline.
-- **Fixability:** Fixable in V1.
-
-### 9. Decision Velocity
-- **Score:** 86
-- **Weight:** 2
-- **Weighted deficiency signal:** 28
-- **Why this score was assigned:** Speeds up architecture reviews by providing structured evidence and policy findings. Export to CSV for findings is available.
-- **Key tradeoffs:** Requires operator trust in the AI's findings to truly accelerate decisions.
-- **Specific improvement recommendations:** Implement a dashboard panel for compliance drift trend.
-- **Fixability:** Fixable in V1.
-
-### 10. Usability
-- **Score:** 86
-- **Weight:** 3
-- **Weighted deficiency signal:** 42
-- **Why this score was assigned:** The operator UI is functional. Bounded bulk evidence upload is supported. Soft delete for architecture projects is available with in-product recycle listing and restore.
-- **Key tradeoffs:** The 30-file ceiling avoids abuse but may annoy heavy dossier pilots.
-- **Specific improvement recommendations:** Surfacing purge-window / hard-delete timing in recycle bin copy and runbooks (in-product recycle list + restore shipped at `/settings/tenant/recycle-bin` via `GET /v1/tenant/workspaces/recycle-bin` and `POST /v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore`). Executive dashboard baseline-upload warning — **shipped** (`ExecutiveDashboardBaselineWarningBanner` on `/dashboard`).
-- **Fixability:** Fixable in V1.
-
-### 11. Maintainability
-- **Score:** 87
-- **Weight:** 2
-- **Weighted deficiency signal:** 26
-- **Why this score was assigned:** Clean code architecture. NetArchTest boundary rules enforce layering.
-- **Key tradeoffs:** The large surface area increases maintenance overhead.
-- **Specific improvement recommendations:** Dependency Injection Analyzer NetArchTest rule — **shipped** (`ControllerAndHandlerDependencyInjectionArchitectureTests`; missing `IExecutiveSummaryService` / Confluence publisher registrations fixed in `ServiceCollectionExtensions.ApplicationPipeline.cs`).
-- **Fixability:** Fixable in V1.
-
-### 12. Time-to-Value
-- **Score:** 88
-- **Weight:** 7
-- **Weighted deficiency signal:** 84
-- **Why this score was assigned:** Curated demo workspaces, default policy packs, and a guided baseline collection wizard accelerate initial value.
-- **Key tradeoffs:** Real-mode value requires tenant baseline data, which can take time to gather.
-- **Specific improvement recommendations:** Automated SQL backup region verification on the executive dashboard — **shipped** (`ExecutiveSqlBackupRegionVerificationCard` on `/dashboard`; persisted artifact `archlucid-ui/public/sql-backup-region-verification.json` from `scripts/ci/write_sql_backup_verification_artifact.py` after `assert_sql_backup_regions.py` in CI/CD).
-- **Fixability:** Fixable in V1.
-
-### 13. Proof-of-ROI Readiness
-- **Score:** 91
 - **Weight:** 5
-- **Weighted deficiency signal:** 45
-- **Why this score was assigned:** The Azure extractor appends Retail Prices for App Service, SQL, Virtual Machines, and Storage Accounts. Azure Cost Management Actual-Spend ingestion is added. Lack of a **published** reference customer / measured **ROI** story is **V1.1** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6b and is **excluded** from `(A)` deductions here.
-- **Key tradeoffs:** Broader Cost Management / Advisor parity and estimate-vs-actual spend narratives remain manual for some SKUs.
-- **Specific improvement recommendations:** Implement a dashboard panel for integration event outbox dead letters.
-- **Fixability:** Fixable in V1.
+- **Weighted deficiency signal:** 50
+- **Justification:** Excellent built-in reporting (first-value report, pilot run deltas) that explicitly tracks time saved and LLM calls.
+- **Tradeoffs:** None significant; this is a strong area.
+- **Improvement recommendations:** Enhance the UI to make these reports even more prominent post-commit.
 
-### 14. Stickiness
+### 10. Executive Value Visibility
 - **Score:** 88
-- **Weight:** 1
-- **Weighted deficiency signal:** 12
-- **Why this score was assigned:** Governance workflows and compliance drift tracking provide ongoing value. Telemetry for policy pack assignments is added.
-- **Key tradeoffs:** Thin starter packs risk one-and-done pilots.
-- **Specific improvement recommendations:** Wire the imported policy pack Grafana dashboard and Loki alert rules per environment.
-- **Fixability:** Fixable in V1.
+- **Weight:** 4
+- **Weighted deficiency signal:** 48
+- **Justification:** The sponsor-shareable PDF and DOCX architecture packages are highly effective for executive visibility.
+- **Tradeoffs:** Standardized reporting vs. Customizable templates.
+- **Improvement recommendations:** Allow minor customizations (e.g., logo insertion) in the generated PDFs.
 
-### 15. Workflow Embeddedness
-- **Score:** 95
-- **Weight:** 3
-- **Weighted deficiency signal:** 15
-- **Why this score was assigned:** **V1** workflow embedding is anchored on **GitHub/ADO** CI surfaces and **REST**/**CLI**/operator UI. **Teams**, **webhooks**, **recipes**, and **first-party** **Jira** / **ServiceNow** / **Confluence** / **Slack** are **V1.1** ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3). **`(A)`** does **not** deduct for **V1.1** connector program depth.
-- **Key tradeoffs:** Custom integrations still require webhook handling when tenants bypass first-party connectors.
-- **Specific improvement recommendations:** **V1.1:** first-party connectors, Teams/webhooks/recipes per [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3.
-- **Fixability:** **V1** REST/CLI/CI/**§2.16+**; **V1.1** Teams/webhooks/recipes + first-party ITSM/Slack/Confluence per scope.
-
-### 16. Correctness
-- **Score:** 88
-- **Weight:** 8
-- **Weighted deficiency signal:** 96
-- **Why this score was assigned:** The execution model is solid. OpenAPI snapshot staleness check added to CI.
-- **Key tradeoffs:** RLS migrations remain coordination-heavy.
-- **Specific improvement recommendations:** Expand `live-api-*` matrices to cover more operator flows without mocks.
-- **Fixability:** Fixable in V1.
-
-### 17. AI/Agent Readiness
-- **Score:** 88
-- **Weight:** 8
-- **Weighted deficiency signal:** 96
-- **Why this score was assigned:** The system effectively uses Azure OpenAI with prompt redaction. Prometheus alert for LLM tenant budget approaching warn fraction is available.
-- **Key tradeoffs:** Cost attribution still depends on exporters and retention.
-- **Specific improvement recommendations:** Add a health check endpoint for the Azure OpenAI connection.
-- **Fixability:** Fixable in V1.
-
-### 18. Reliability
-- **Score:** 88
+### 11. Decision Velocity
+- **Score:** 80
 - **Weight:** 2
-- **Weighted deficiency signal:** 24
-- **Why this score was assigned:** Tenant-fairness queuing in authority pipeline is added. Rate limiting for bulk evidence upload is implemented.
-- **Key tradeoffs:** Application-level job retries and outbox semantics remain separate from SQL transient retries on worker paths.
-- **Specific improvement recommendations:** Polly-backed SQL retries on ancillary background workers — **shipped** (`IBackgroundWorkerSqlConnectionFactory`, `SqlResilientOperationExecutor`, `SqlOpenResilienceDefaults.BuildSqlOperationRetryPipeline`; primary-catalog repos and `RegisterBackgroundWorkerSqlResilience` in `SqlStorageProviderRegistrar`; tests in `SqlResilientOperationExecutorTests`).
-- **Fixability:** Fixable in V1.
+- **Weighted deficiency signal:** 40
+- **Justification:** Features like "Compare two reviews" and "Ask" accelerate decisions, but the manual data ingestion slows down the initial velocity.
+- **Tradeoffs:** Thorough analysis vs. Instant answers.
+- **Improvement recommendations:** Improve the speed of the advisory scans.
 
-### 19. Scalability
-- **Score:** 88
+### 12. Reliability
+- **Score:** 80
+- **Weight:** 2
+- **Weighted deficiency signal:** 40
+- **Justification:** Solid single-region reliability with SQL Server and Polly retries. However, multi-region active/active topology is deferred to V2.
+- **Tradeoffs:** Cost/Complexity vs. High Availability.
+- **Improvement recommendations:** Add Redis cache coherency checks for multi-replica deployments.
+
+### 13. Stickiness
+- **Score:** 70
 - **Weight:** 1
-- **Weighted deficiency signal:** 12
-- **Why this score was assigned:** Scales well horizontally. Auto-scaling rules for worker pool exist.
-- **Key tradeoffs:** Single-tenant worker pool exhaustion is still a risk.
-- **Specific improvement recommendations:** Implement anomaly detection for `evidenceBulkUpload`.
-- **Fixability:** Fixable in V1.
+- **Weighted deficiency signal:** 30
+- **Justification:** Without ITSM and Chat integrations, ArchLucid is less sticky because it doesn't live where the users already work.
+- **Tradeoffs:** Standalone value vs. Integrated value.
+- **Improvement recommendations:** Deliver the Jira and Teams integrations.
+
+### 14. Cognitive Load
+- **Score:** 70
+- **Weight:** 1
+- **Weighted deficiency signal:** 30
+- **Justification:** The system has a complex architecture (Authority vs Coordinator, various snapshot types) that leaks into the operator experience.
+- **Tradeoffs:** System flexibility vs. User simplicity.
+- **Improvement recommendations:** Hide internal orchestration details from the standard operator UI.
+
+### 15. Maintainability
+- **Score:** 85
+- **Weight:** 2
+- **Weighted deficiency signal:** 30
+- **Justification:** Clean architecture boundaries, but maintaining both the Authority pipeline and the legacy Coordinator endpoints adds technical debt.
+- **Tradeoffs:** Backward compatibility vs. Codebase simplicity.
+- **Improvement recommendations:** Unify the state transition logic between the two pipelines.
+
+### 16. Explainability
+- **Score:** 90
+- **Weight:** 2
+- **Weighted deficiency signal:** 20
+- **Justification:** The `/v1/explain` endpoints, provenance graphs, and reasoning traces provide excellent explainability.
+- **Tradeoffs:** Storage cost of traces vs. Transparency.
+- **Improvement recommendations:** Add UI indicators for context ingestion warnings to explain why certain documents were ignored.
+
+### 17. Template and Accelerator Richness
+- **Score:** 80
+- **Weight:** 1
+- **Weighted deficiency signal:** 20
+- **Justification:** Ships with 23 default policy packs, which is a great start.
+- **Tradeoffs:** Curated defaults vs. Exhaustive frameworks.
+- **Improvement recommendations:** Expand the catalog of promoted policy packs.
+
+### 18. Scalability
+- **Score:** 80
+- **Weight:** 1
+- **Weighted deficiency signal:** 20
+- **Justification:** Supports multiple replicas, but relies heavily on SQL Server for large JSON payloads, which could become a bottleneck.
+- **Tradeoffs:** Relational simplicity vs. NoSQL scalability.
+- **Improvement recommendations:** Optimize SQL Server JSON payload storage.
+
+### 19. Performance
+- **Score:** 85
+- **Weight:** 1
+- **Weighted deficiency signal:** 15
+- **Justification:** Good use of `HotPathCache` and `LlmCompletionCache`.
+- **Tradeoffs:** Memory usage vs. Response time.
+- **Improvement recommendations:** Optimize the Audit Log CSV export to stream data and prevent timeouts.
 
 ### 20. Supportability
-- **Score:** 92
+- **Score:** 85
 - **Weight:** 1
-- **Weighted deficiency signal:** 8
-- **Why this score was assigned:** Good logging, OpenTelemetry, and CLI diagnostics. Automated SAML cert expiry email notifications are added. **First-party** ITSM/Slack/Confluence, **Teams**/webhook/recipe buyer-contract depth (**V1.1** per §2.8, §2.13–§2.15, §3) is **not** an `(A)` V1 deduction.
-- **Key tradeoffs:** New HTTP utilities must reuse auth headers.
-- **Specific improvement recommendations:** Rate-limit 429 triage runbook shipped (`docs/runbooks/RATE_LIMIT_EXCEEDED.md` for `evidenceBulkUpload`; P2 index in `docs/runbooks/README.md`).
-- **Fixability:** Fixable in V1.
+- **Weighted deficiency signal:** 15
+- **Justification:** Excellent support bundle CLI and correlation IDs.
+- **Tradeoffs:** Data privacy vs. Diagnostic depth.
+- **Improvement recommendations:** Add a System Health dashboard to the operator UI.
 
 ### 21. Testability
-- **Score:** 88
+- **Score:** 85
 - **Weight:** 1
-- **Weighted deficiency signal:** 12
-- **Why this score was assigned:** Strong unit/integration tests. Live API smoke test suite added. Merged-line coverage floor raised to 75.
-- **Key tradeoffs:** `ui-e2e-smoke` remains mock-forward.
-- **Specific improvement recommendations:** Expand `live-api-*` matrices to cover more operator flows without mocks.
-- **Fixability:** Fixable in V1.
+- **Weighted deficiency signal:** 15
+- **Justification:** In-memory repositories enable fast contract tests.
+- **Tradeoffs:** Test speed vs. Database fidelity.
+- **Improvement recommendations:** Ensure in-memory repos maintain strict parity with SQL behavior.
 
-### 22. Cost-Effectiveness
-- **Score:** 88
+### 22. Observability
+- **Score:** 90
 - **Weight:** 1
-- **Weighted deficiency signal:** 12
-- **Why this score was assigned:** Azure cost extractor provides visibility. Azure VM and Storage Account Retail Prices and Actual-Spend ingestion are added.
-- **Key tradeoffs:** Some manual estimation remains in broader Azure cost workflows.
-- **Specific improvement recommendations:** Audit log CSV export — **shipped** (`GET /v1/audit/export/csv`; see improvement **#10**).
-- **Fixability:** Fixable in V1.
+- **Weighted deficiency signal:** 10
+- **Justification:** Strong OpenTelemetry integration and append-only audit logs.
+- **Tradeoffs:** Telemetry volume vs. Insight.
+- **Improvement recommendations:** None urgent.
 
-### 23. Interoperability
-- **Score:** 94
-- **Weight:** 2
-- **Weighted deficiency signal:** 12
-- **Why this score was assigned:** REST API, CLI, **operator UI**, SAML 2.0 SP, and OIDC provide strong **V1** interoperability. **CloudEvents webhooks**, **Microsoft Teams** chat-ops, **recipe** bridges, and **first-party** **Jira** / **ServiceNow** / **Confluence** / **Slack** are **V1.1** buyer-contract surfaces ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3); **`(A)`** does **not** penalize their absence for V1.
-- **Key tradeoffs:** SAML SP adds dual auth-surface operational burden.
-- **Specific improvement recommendations:** SAML SP certificate rotation runbook — **shipped** ([`docs/runbooks/SAML_CERT_ROTATION.md`](../runbooks/SAML_CERT_ROTATION.md); see improvement **#17**). Knowledge graph GraphML CLI export — **shipped** (`archlucid graph export … --format graphml`; see improvement **#21**).
-- **Fixability:** Fixable in V1.
+### 23. Cost-Effectiveness
+- **Score:** 90
+- **Weight:** 1
+- **Weighted deficiency signal:** 10
+- **Justification:** Excellent LLM budget controls (`LlmDailyTenantBudget`, `LlmMonthlyTenantDollarBudget`).
+- **Tradeoffs:** Strict limits vs. Uninterrupted service.
+- **Improvement recommendations:** None urgent.
 
 ---
 
 ## Top 12 Most Important Weaknesses
 
-1. **Observability alerting gaps:** While Grafana dashboards and some Prometheus alerts exist, broader Loki alerting on structured logs (beyond the committed policy pack assignment rules in `infra/loki/archlucid-policy-pack-assignment-alerts.yml`) and composite GenAI/cross-service SLO coherence are missing.
-2. **E2E test mock reliance:** `ui-e2e-smoke` relies on mocks, creating a coverage skew compared to `live-api-*` tests.
-3. **Cognitive Load:** The product surface is large and complex, which can overwhelm new operators despite marketing-aligned vocabulary.
-4. **Explainability of single-process projection limitations:** Default in-process projection cache caps multi-replica coherence — **partially mitigated** by [`docs/operations/PROJECTION_CACHE_AND_REPLICAS.md`](../operations/PROJECTION_CACHE_AND_REPLICAS.md) and in-product Learn more on **Tenant settings** and **Admin → Configuration** (improvement **#23**).
-5. **Performance edge cases:** Making Redis optional simplifies single-replica deployments but complicates scaled operations, and rate limiting needs WAF-aligned quotas.
-6. **Template and Accelerator Richness:** While 3 packs exist, the library is still relatively small for a broad enterprise audience.
-7. **Executive Value Visibility without baselines:** Executive value can become abstract if real tenant baselines are missing — **partially mitigated** by the baseline-upload banner and the 30-day compliance drift open/resolved panel on `/dashboard` (improvements **#14**, **#22**).
-8. **Background job transient fault handling:** **Partially mitigated** by Polly-backed SQL retries on ancillary background workers (improvement **#11**); remaining paths should be inventoried before multi-region scale-out.
-9. **Architecture project retention UX clarity:** Undo/restore is productized (`/settings/tenant/recycle-bin`, `POST /v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore`), but purge-window escalation and SLA-style messaging for operators remains uneven vs the retention worker.
-10. **Policy pack assignment visibility (operator wiring):** Assign and archive paths emit structured logs; Loki ruler rules and a Grafana dashboard ship in-repo (`infra/loki/archlucid-policy-pack-assignment-alerts.yml`, `infra/grafana/dashboard-archlucid-policy-packs.json`); operators must import/bind Loki and tighten stream selectors per environment.
-11. **Data residency diligence depth:** Buyers require verifiable proof that SQL topology and backups match their geography.
-12. **SAML SP operational burden:** Certificate rotation and metadata drift still need disciplined operations — **partially mitigated** by `archlucid saml test-config` and [`docs/runbooks/SAML_CERT_ROTATION.md`](../runbooks/SAML_CERT_ROTATION.md) (improvements **#16**–**#17**).
+1. **Manual Data Ingestion Bottleneck:** The requirement to manually run a PowerShell script for Azure extraction introduces significant adoption friction.
+2. **Destination App Syndrome:** The lack of V1 integrations with Jira, ServiceNow, Teams, and Slack means users must leave their daily workflows to use the product.
+3. **High Cognitive Load of Domain Vocabulary:** Terms like Authority, Coordinator, Manifest, and Trace leak into the UI, confusing new operators.
+4. **Over-reliance on SQL Server for Large Payloads:** Storing large JSON manifests and traces in SQL Server `NVARCHAR(MAX)` columns poses a scalability risk.
+5. **Incomplete Idempotency on Mutating Endpoints:** The `POST /v1/architecture/request` endpoint lacks full idempotency, risking duplicate runs on network retries.
+6. **Lack of Automated Tenant Erasure:** The absence of a fully automated tenant erasure pipeline (deferred to V2) may raise data privacy concerns for enterprise buyers.
+7. **Missing Multi-Cloud Support in V1:** Being Azure-only in V1 limits the total addressable market and differentiability.
+8. **Complex RBAC and Policy Pack Configuration:** The governance resolution and policy pack assignment logic is powerful but difficult to troubleshoot when conflicts occur.
+9. **Potential Cache Coherency Issues:** Multi-replica deployments that fail to configure Redis may experience stale data issues.
+10. **Content Safety API Dependency Risk:** If the Azure Content Safety API fails, the system may fail closed, impacting availability.
+11. **Fragmented Orchestration:** Maintaining both the Authority pipeline and the legacy Coordinator endpoints increases technical debt and the risk of bugs.
+12. **Limited Extensibility without MCP:** The deferral of the Model Context Protocol (MCP) server limits integration with the broader AI ecosystem.
 
 ---
 
 ## Top 6 Monetization Blockers
 
-1. **Lack of a published reference customer (`(B)` / V1.1):** Still dampens **buyer trust and cycle speed** in real GTM; tracked as **V1.1** in [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6b — **does not reduce `(A)` headline readiness**.
-2. **Lack of self-serve transactability:** Stripe live keys and Marketplace publication are deferred, forcing a high-touch sales motion.
-3. **Named productized offers packaging:** Velocity to cash depends on a buyable review SKU and SOW alignment.
-4. **Thin starter packs:** Risk "one-and-done" pilots if tenants do not extend them.
-5. **Executive Value Visibility without baselines:** Reduces the impact of the executive dashboard during pilots — **partially mitigated** by the baseline-upload warning banner and compliance drift trend panel on `/dashboard` (improvements **#14**, **#22**).
-6. **Manual Azure cost estimations for non-standard SKUs:** Limits the platform's ability to automatically prove hard infrastructure savings.
+1. **Stripe Live Keys and Marketplace Listing Deferred:** Self-serve transactability is blocked because these are deferred to V1.1.
+2. **Lack of a Signed Design Partner:** While not required for V1 GA, the absence of a design partner slows down real-world commercial validation.
+3. **Lack of a Public Reference Customer:** Deferred to V1.1, this creates friction in proving market traction to new buyers.
+4. **Trial to Paid Conversion Flow in TEST Mode:** The billing checkout flow is still running against Stripe TEST keys in production.
+5. **Absence of SOC 2 Type II Report:** This will cause significant friction during enterprise procurement and security reviews.
+6. **Absence of Third-Party Pen Test Summary:** Deferred to V2, this will also trigger extended security reviews by enterprise buyers.
 
 ---
 
 ## Top 6 Enterprise Adoption Blockers
 
-1. **Absence of compliance attestations:** Lack of a CPA-issued SOC 2 Type II report causes friction in security reviews.
-2. **Data residency diligence depth:** Buyers require verifiable proof that SQL topology and backups match their geography.
-3. **SAML SP operational burden:** Metadata drift and IdP coordination still add enterprise IT overhead — **partially mitigated** by offline `archlucid saml test-config`, [`docs/runbooks/SAML_CERT_ROTATION.md`](../runbooks/SAML_CERT_ROTATION.md), and automated cert-expiry notifications.
-4. **Automated tenant erasure:** Not a V1 headline blocker, but buyers may still request a productized erasure narrative (V2 backlog).
-5. **Architecture project retention communication:** Soft-delete, retention purge, and in-product recycle bin + restore exist; buyer/operator narratives still need sharper hard-purge timeline and escalation guidance.
-6. **Noisy neighbor posture in orchestration:** Buyers will diligence steady-state parallelism and multi-region fairness.
+1. **Manual PowerShell Script Execution:** Security and operations teams will resist running a third-party script to extract Azure data.
+2. **Lack of Jira/ServiceNow Integration in V1:** Enterprise teams rely on ITSM tools; without them, ArchLucid is disconnected from their workflows.
+3. **Lack of Teams/Slack Integration in V1:** Architecture reviews often happen in chat; lack of integration reduces visibility.
+4. **Lack of Automated Tenant Erasure:** Data privacy teams will flag the manual nature of data purging.
+5. **Missing AWS/GCP Support:** Enterprises with multi-cloud strategies will defer adoption until V1.1.
+6. **Complex Policy Pack Assignment:** Enterprise admins will struggle to understand why certain policies are effective without better conflict resolution UI.
 
 ---
 
 ## Top 6 Engineering Risks
 
-1. **E2E test mock reliance:** `ui-e2e-smoke` stays mock-forward, creating coverage skew unless `live-api-*` is expanded.
-2. **LLM observability consumption gaps:** **Partially mitigated** by in-product LLM budget utilization (`/settings/cost-reporting`, **#19**) and Grafana p95 GenAI latency panels (**#25**); Loki correlation and composite SLO alerting remain uneven.
-3. **Background job transient fault handling:** **Partially mitigated** by Polly-backed SQL retries on ancillary workers (**#11**).
-4. **Architecture project retention vs UX:** Deleted projects linger for the purge window—recycle restore is available in-product, but timeline/escalation clarity for hard purge remains a documentation and UX-strip gap.
-5. **Single-tenant worker pool exhaustion risk:** Despite tenant-fairness queuing, heavy workloads from a single tenant could still impact others if not properly bounded.
-6. **`evidenceBulkUpload` observability:** Anomaly detection and WAF-aligned quotas remain uneven for abusive tenants.
+1. **SQL Server Performance Degradation:** Large JSON payloads (manifests, traces) could cause database bloat and slow down queries.
+2. **Lack of Full Idempotency on Create/Commit Endpoints:** Network instability could lead to duplicate architecture runs and wasted LLM spend.
+3. **Cache Coherency Issues:** Deployments scaling beyond one replica without Redis configured will serve stale data.
+4. **Orchestration Complexity:** The split between the Authority pipeline and the legacy Coordinator makes state transitions hard to reason about.
+5. **Content Safety API Fail-Closed Dependency:** A localized outage of the Azure Content Safety API could take down the entire ArchLucid deployment.
+6. **Lack of Multi-Region Active/Active Topology:** Deferred to V2, this limits the system's ability to survive a full Azure region outage.
 
 ---
 
 ## Most Important Truth
 
-ArchLucid is a functionally complete, highly rigorous V1 product ready for sales-led pilots, but its ability to scale commercially is bottlenecked by the need for deeper observability, broader E2E test coverage without mocks, and enterprise friction points like self-serve transactability and compliance attestations.
+ArchLucid has a strong, defensible core for architecture review and governance, but its V1 adoption will be bottlenecked by the manual nature of data ingestion (PowerShell script) and the lack of embeddedness in existing enterprise workflows (Jira, Teams), making it a destination app rather than an invisible enabler.
 
 ---
 
 ## Top Improvement Opportunities
 
-**Backlog status (2026-05-19):** Improvements **#3–#14** and **#16–#25** are **COMPLETED** (or **DEFERRED** where labeled). **#1–#2** remain **DEFERRED** (commerce un-hold, PGP key). The only remaining **V1 actionable** item in this numbered list is **#15** (`evidenceBulkUpload` anomaly detection).
+### 1. DEFERRED Implement Jira Integration
+- **Why it matters:** Embeds ArchLucid into enterprise workflows.
+- **Expected impact:** Improves Workflow Embeddedness (+20 pts) and Stickiness (+15 pts). Weighted readiness impact: +1.1%.
+- **Affected qualities:** Workflow Embeddedness, Stickiness.
+- **Input needed:** Confirmation of V1.1 timeline and Jira API credentials for testing.
 
-### 1. DEFERRED: Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
-- **Why it matters:** Enables self-serve revenue and frictionless purchasing.
-- **Expected impact:** Adoption Friction (+5 pts).
-- **Affected qualities:** Adoption Friction.
-- **Actionable:** DEFERRED
-- **Needed from me:** Please provide the `sk_live_` Stripe keys and confirm the Marketplace offer is `Published`.
+### 2. DEFERRED Implement ServiceNow Integration
+- **Why it matters:** Essential for enterprise ITSM adoption.
+- **Expected impact:** Improves Workflow Embeddedness (+15 pts). Weighted readiness impact: +0.6%.
+- **Affected qualities:** Workflow Embeddedness.
+- **Input needed:** Confirmation of V1.1 timeline and ServiceNow Developer instance details.
 
-### 2. DEFERRED: PGP key drop for `security@archlucid.net`
-- **Why it matters:** Fulfills coordinated disclosure requirements for security researchers.
-- **Expected impact:** Supportability (+5 pts).
-- **Affected qualities:** Supportability.
-- **Actionable:** DEFERRED
-- **Needed from me:** **Domain acquisition — confirmed (owner 2026-05-18).** Please provide or authorize generation of the **public** key block (`archlucid-ui/public/.well-known/pgp-key.txt`) and custodian/fingerprint for `SECURITY.md` + marketing `/security` in the same PR per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c.
+### 3. DEFERRED Implement Microsoft Teams Integration
+- **Why it matters:** Brings architecture reviews into daily chat workflows.
+- **Expected impact:** Improves Workflow Embeddedness (+10 pts). Weighted readiness impact: +0.4%.
+- **Affected qualities:** Workflow Embeddedness.
+- **Input needed:** Confirmation of V1.1 timeline and Teams webhook configuration.
 
-### 3. COMPLETED: Loki alert rules for policy pack assignments
-- **Why it matters:** Provides actionable alerts when policy packs are assigned or unassigned, improving observability.
-- **Expected impact:** Observability (+10 pts), Stickiness (+5 pts).
-- **Affected qualities:** Observability, Stickiness.
-- **Actionable:** No — delivered as `infra/loki/archlucid-policy-pack-assignment-alerts.yml` (LogQL on logs from `PolicyPackAssignmentRepository` / `SanitizedLoggerInformationExtensions` EventId 3014–3015). Operators must mount/sync the file to Loki ruler or Grafana Alerting and tighten stream selectors per environment.
-```text
-Create Loki alert rules for policy pack assignments. [COMPLETED]
-- Acceptance criteria: Alert rules trigger when a policy pack is assigned or unassigned, using the structured logs emitted by `PolicyPackAssignmentRepository`.
-- Constraints: Use existing Loki configuration patterns.
-- What not to change: Do not modify the application logging logic.
-- Impact: Directly improves Observability (+8-10 pts) and Stickiness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-- Deliverable: `infra/loki/archlucid-policy-pack-assignment-alerts.yml`
-```
+### 4. DEFERRED Implement Slack Integration
+- **Why it matters:** Essential for modern engineering teams.
+- **Expected impact:** Improves Workflow Embeddedness (+10 pts). Weighted readiness impact: +0.4%.
+- **Affected qualities:** Workflow Embeddedness.
+- **Input needed:** Confirmation of V1.1 timeline and Slack App configuration.
 
-### 4. COMPLETED: Expand live API smoke for additional operator flows (no mocks)
-- **Why it matters:** Reduces reliance on mocks and ensures real integration surfaces are tested.
-- **Expected impact:** Testability (+15 pts), Correctness (+10 pts).
-- **Affected qualities:** Testability, Correctness.
-- **Actionable:** No — delivered in `archlucid-ui/e2e/live-api-smoke.spec.ts` (policy pack assignment + authority compare hydrated through `/compare`, both via `archlucid-ui/e2e/helpers/live-api-client.ts`, no `page.route` mocks); helper updates add optional tenant scope on `compareAuthorityRuns` and align `postReplayRunRaw` with POST `/v1/architecture/run/{runId}/replay`.
-```text
-Expand `archlucid-ui/e2e/live-api-smoke.spec.ts` to include additional operator flows (e.g., policy pack assignment, comparison replay) without using `page.route` mocks. [COMPLETED]
-- Acceptance criteria: At least two new operator flows are covered in the live API smoke test suite.
-- Constraints: Reuse existing `live-api-client` utilities.
-- What not to change: Do not modify the application code.
-- Impact: Directly improves Testability (+10-15 pts) and Correctness (+8-10 pts). Weighted readiness impact: +0.2-0.3%.
-- Deliverable: `archlucid-ui/e2e/live-api-smoke.spec.ts` (operator flows); `archlucid-ui/e2e/helpers/live-api-client.ts` (optional tenant scope on `compareAuthorityRuns`; `postReplayRunRaw` targets POST `/v1/architecture/run/{runId}/replay`).
-```
+### 5. DEFERRED Flip Stripe Live Keys and Publish Marketplace Listing
+- **Why it matters:** Unblocks self-serve revenue.
+- **Expected impact:** Unblocks monetization.
+- **Affected qualities:** None directly (commercial milestone).
+- **Input needed:** Owner to perform the flip and publish in Partner Center.
 
-### 5. COMPLETED: In-product undo/restore UX for soft-deleted architecture projects
-- **Why it matters:** Allows operators to recover accidentally deleted projects without backend intervention.
-- **Expected impact:** Usability (+15 pts), Reliability (+5 pts).
-- **Affected qualities:** Usability, Reliability.
-- **Actionable:** No — delivered as `GET /v1/tenant/workspaces/recycle-bin` and `POST /v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore` (`TenantWorkspacesController`), persistence on `IArchitectureProjectRepository.ListSoftDeletedByTenantAsync` / `TryRestoreAsync` (`DapperArchitectureProjectRepository` / `InMemoryArchitectureProjectRepository`), audit `ArchitectureProjectRestored`, operator UI `/settings/tenant/recycle-bin` (`ProjectsRecycleBinPage`), nav + OpenAPI snapshot + generated clients/types aligned per `Http-Surface-Docs-And-Clients.mdc`. Restore rejects active workspace/name collisions (`409`).
-```text
-Add a "Restore" button to the UI for soft-deleted architecture projects and a corresponding `POST /v1/tenant/workspaces/.../projects/.../restore` endpoint. [COMPLETED]
-- Acceptance criteria: Operators can view soft-deleted projects in a "Recycle Bin" view and restore them, clearing the `IsDeleted` flag.
-- Constraints: Ensure restored projects do not violate unique constraints.
-- What not to change: Do not modify the hard-purge background job.
-- Impact: Directly improves Usability (+10-15 pts) and Reliability (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
-- Deliverable: `ArchLucid.Api/Controllers/Tenancy/TenantWorkspacesController.cs` (recycle + restore); `ArchLucid.Core/Tenancy/IArchitectureProjectRepository.cs` + `ArchLucid.Persistence/Tenancy/DapperArchitectureProjectRepository.cs` (+ in-memory parity); `archlucid-ui/.../settings/tenant/recycle-bin/` (`ProjectsRecycleBinPage`); `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json` + `npm run generate:api-types`; `ArchLucid.Api.Client` regen.
-```
+### 6. DEFERRED Implement Model Context Protocol (MCP) Server
+- **Why it matters:** Enables ecosystem integrations.
+- **Expected impact:** Improves Interoperability (+20 pts). Weighted readiness impact: +0.5%.
+- **Affected qualities:** Interoperability.
+- **Input needed:** Confirmation of V1.1 timeline and MCP SDK version.
 
-### 6. COMPLETED: Create a runbook for handling rate limit exceeded errors
-- **Why it matters:** Provides operators with clear steps to diagnose and mitigate 429 errors.
-- **Expected impact:** Supportability (+10 pts), Cognitive Load (+5 pts).
-- **Affected qualities:** Supportability, Cognitive Load.
-- **Actionable:** No — delivered as `docs/runbooks/RATE_LIMIT_EXCEEDED.md` (`evidenceBulkUpload` policy on `POST …/evidence/bulk`): tenant identification (`tenant_id` / correlation / audit), effective limit inspection (`RateLimiting:EvidenceBulkUpload:*`, role multipliers), configuration tuning without code changes; 429 vs 400 file-count limit distinction; indexed in `docs/runbooks/README.md` (P2).
-```text
-Create a runbook `docs/runbooks/RATE_LIMIT_EXCEEDED.md` detailing how to handle 429 Too Many Requests errors, specifically for `evidenceBulkUpload`. [COMPLETED]
-- Acceptance criteria: Runbook includes steps to identify the affected tenant, check current limits, and adjust configuration if necessary.
-- Constraints: Follow existing runbook formatting guidelines.
-- What not to change: Do not modify the rate limiting logic.
-- Impact: Directly improves Supportability (+8-10 pts) and Cognitive Load (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-- Deliverable: `docs/runbooks/RATE_LIMIT_EXCEEDED.md`; `docs/runbooks/README.md` (P2 index row).
-```
+### 7. DEFERRED Implement AWS/GCP Architecture Analysis
+- **Why it matters:** Expands TAM to multi-cloud enterprises.
+- **Expected impact:** Improves Differentiability (+10 pts). Weighted readiness impact: +0.5%.
+- **Affected qualities:** Differentiability.
+- **Input needed:** Confirmation of V1.1 timeline and AWS/GCP inventory script requirements.
 
-### 7. COMPLETED: Dependency Injection Analyzer NetArchTest rule
-- **Why it matters:** Prevents DI configuration errors from causing runtime failures.
-- **Expected impact:** Maintainability (+10 pts), Correctness (+5 pts).
-- **Affected qualities:** Maintainability, Correctness.
-- **Actionable:** No — delivered as `ArchLucid.Architecture.Tests/ControllerAndHandlerDependencyInjectionArchitectureTests.cs` with NetArchTest discovery (`ApiHostControllerAndHandlerDiscovery`) over `ArchLucid.Api` `ControllerBase` types and auth `*Handler` types; constructor-injected interfaces are checked against the simulator API composition built by `ApiSimulatorCompositionServiceCollectionBuilder`. CI fails on unregistered dependencies. Bugfix registrations added in `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.ApplicationPipeline.cs` for `IExecutiveSummaryService`, `IPublisherConnector` / `ConfluenceCloudPublisherConnector`, and `IConfluenceFirstValueReportPublisher` (surfaced by the new test).
-```text
-Add a NetArchTest rule to verify that all interfaces injected into controllers and handlers are registered in the DI container. [COMPLETED]
-- Acceptance criteria: The test suite fails if an unregistered dependency is detected.
-- Constraints: Use the existing NetArchTest framework.
-- What not to change: Do not modify existing DI registrations unless fixing a bug.
-- Impact: Directly improves Maintainability (+8-10 pts) and Correctness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-- Deliverable: `ArchLucid.Architecture.Tests/ControllerAndHandlerDependencyInjectionArchitectureTests.cs`; `ArchLucid.Architecture.Tests/DependencyInjection/*`; `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.ApplicationPipeline.cs` (missing service registrations); `ArchLucid.Api/ArchLucid.Api.csproj` (`InternalsVisibleTo` for `ArchLucid.Architecture.Tests`).
-```
+### 8. DEFERRED Implement Automated Tenant Erasure Pipeline
+- **Why it matters:** Satisfies enterprise data privacy requirements.
+- **Expected impact:** Removes an enterprise adoption blocker.
+- **Affected qualities:** Reliability.
+- **Input needed:** Confirmation of V2 timeline and legal hold requirements.
 
-### 8. COMPLETED: Add automated SQL backup region verification to the executive dashboard
-- **Why it matters:** Provides executives with immediate visibility into data residency compliance.
-- **Expected impact:** Executive Value Visibility (+5 pts).
-- **Affected qualities:** Executive Value Visibility.
-- **Actionable:** No — delivered as `ExecutiveSqlBackupRegionVerificationCard` on `/dashboard` (`ExecutiveRoiDashboardPageView`): green check + primary data region when `verified` is true, amber warning when false. Reads `archlucid-ui/public/sql-backup-region-verification.json` at build/SSR via `loadSqlBackupRegionVerification()`. Artifact is emitted by `scripts/ci/write_sql_backup_verification_artifact.py` (reuses `assert_sql_backup_regions.py` validation; assert script unchanged). CD regenerates the JSON after a passing Terraform plan guard; CI drift-checks against `scripts/ci/fixtures/tfplan-sql-backup-verified.sample.json`.
-```text
-Add a widget to the executive dashboard that displays the verified SQL backup region, reading from the artifact generated by `assert_sql_backup_regions.py`. [COMPLETED]
-- Acceptance criteria: The dashboard shows a green checkmark and the region name if verified, or a warning if unverified.
-- Constraints: Read the verification status from a persisted configuration or artifact.
-- What not to change: Do not modify the Python verification script.
-- Impact: Directly improves Executive Value Visibility (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
-- Deliverable: `scripts/ci/write_sql_backup_verification_artifact.py`; `archlucid-ui/public/sql-backup-region-verification.json`; `archlucid-ui/src/lib/sql-backup-region-verification.ts`; `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveSqlBackupRegionVerificationCard.tsx`; `.github/workflows/cd.yml` + `.github/workflows/ci.yml` (writer + drift check); `scripts/ci/fixtures/tfplan-sql-backup-verified.sample.json`.
-```
+### 9. DEFERRED Publish Third-Party Pen Test Summary
+- **Why it matters:** Reduces security review friction.
+- **Expected impact:** Removes a monetization blocker.
+- **Affected qualities:** None directly.
+- **Input needed:** Owner to execute vendor engagement and provide redacted summary.
 
-### 9. COMPLETED: Curate Grafana/Loki dashboards keyed on policy pack assignment events
-- **Why it matters:** Provides visual insights into policy pack adoption and usage trends.
-- **Expected impact:** Observability (+10 pts), Stickiness (+5 pts).
-- **Affected qualities:** Observability, Stickiness.
-- **Actionable:** No — delivered as `infra/grafana/dashboard-archlucid-policy-packs.json` (Loki LogQL on assign/unassign logs from `PolicyPackAssignmentRepository` / `SanitizedLoggerInformationExtensions` EventId 3014–3015): panels for total assignments over time, top assigned packs, and assignment churn. Optional Terraform import via `infra/terraform-monitoring/grafana_dashboards.tf` when `grafana_terraform_dashboards_enabled`. Operators must bind `${datasource}` to Loki and tighten `${stream_labels}` per environment (same guidance as `infra/loki/archlucid-policy-pack-assignment-alerts.yml`).
-```text
-Create a Grafana dashboard `infra/grafana/dashboard-archlucid-policy-packs.json` to visualize policy pack assignments and unassignments using Loki logs. [COMPLETED]
-- Acceptance criteria: Dashboard includes panels for total assignments over time, top assigned packs, and assignment churn.
-- Constraints: Use existing Loki data sources.
-- What not to change: Do not modify the application logging logic.
-- Impact: Directly improves Observability (+8-10 pts) and Stickiness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-- Deliverable: `infra/grafana/dashboard-archlucid-policy-packs.json`; `infra/terraform-monitoring/grafana_dashboards.tf` (`grafana_dashboard.policy_packs`).
-```
+### 10. DEFERRED Obtain SOC 2 Type II Report
+- **Why it matters:** Essential for enterprise procurement.
+- **Expected impact:** Removes a monetization blocker.
+- **Affected qualities:** None directly.
+- **Input needed:** Owner to engage CPA firm and complete examination.
 
-### 10. COMPLETED: Add export to CSV for audit logs
-- **Why it matters:** Facilitates offline analysis and compliance reporting for audit events.
-- **Expected impact:** Usability (+5 pts).
-- **Affected qualities:** Usability.
-- **Actionable:** No — delivered as `GET /v1/audit/export/csv` on `AuditController` (`ArchLucid.Api/Controllers/Admin/AuditController.cs`); accepts the same optional filter params as the search endpoint (`eventType`, `fromUtc`, `toUtc`, `correlationId`, `actorUserId`, `runId`) plus `maxRows` clamped 1–10 000; always responds `text/csv` with `Content-Disposition: attachment`; uses `GetFilteredExportAsync`; requires `RequireAuditor` role; rate-limited under the `expensive` policy. Audit coverage matrix updated (`docs/library/AUDIT_COVERAGE_MATRIX.md`). Tests in `ArchLucid.Api.Tests/AuditExportCsvControllerTests.cs`. OpenAPI snapshot regeneration required before merge.
-```text
-Add a `GET /v1/audit/export/csv` endpoint to export audit logs as a CSV file. [COMPLETED]
-- Acceptance criteria: The endpoint returns a well-formatted CSV containing audit event details, filtered by the same parameters as the search endpoint.
-- Constraints: Ensure the endpoint is covered by the audit matrix.
-- What not to change: Do not modify the existing JSON audit endpoints.
-- Impact: Directly improves Usability (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
-```
-
-### 11. COMPLETED: Implement Polly-backed SQL retries on remaining ancillary background workers
-- **Why it matters:** Prevents silent failures due to transient database connectivity issues.
-- **Expected impact:** Reliability (+15 pts), Correctness (+5 pts).
+### 11. Implement Full Idempotency for Create Run Endpoint
+- **Why it matters:** Prevents duplicate runs on network retries, saving LLM costs and avoiding confusion.
+- **Expected impact:** Directly improves Reliability (+5 pts) and Correctness (+2 pts). Weighted readiness impact: +0.2%.
 - **Affected qualities:** Reliability, Correctness.
-- **Actionable:** No — ancillary primary-catalog SQL paths now use `IBackgroundWorkerSqlConnectionFactory` (Polly on open via `BackgroundWorkerResilientSqlConnectionFactory`) and `SqlResilientOperationExecutor` (full operation retry via `SqlOpenResilienceDefaults.BuildSqlOperationRetryPipeline` / `SqlTransientDetector`, configured from `Persistence:SqlOpenResilience`). Updated repos: weekly digest critical-findings summary, internal cross-tenant rollup/analytics/metrics, first-tenant funnel archival batch store, ITSM correlation/outbound settings, first-value report branding. SQL hosts register `DapperOutboxOperationalMetricsReader` for `OutboxOperationalMetricsHostedService`. Tests: `ArchLucid.Persistence.Tests/Connections/SqlResilientOperationExecutorTests.cs`.
+- **Actionable now.**
 ```text
-Identify all background workers interacting with SQL that lack Polly retry policies and implement `SqlTransientException` retries. [COMPLETED]
-- Acceptance criteria: All identified workers use a standard Polly retry policy for SQL operations.
-- Constraints: Use the existing `ArchLucid.Persistence` retry configurations.
-- What not to change: Do not alter the business logic of the workers.
-- Impact: Directly improves Reliability (+10-15 pts) and Correctness (+3-5 pts). Weighted readiness impact: +0.2-0.3%.
-- Deliverable: `ArchLucid.Persistence/Connections/` (`IBackgroundWorkerSqlConnectionFactory`, `BackgroundWorkerResilientSqlConnectionFactory`, `SqlResilientOperationExecutor`); `SqlStorageProviderRegistrar.RegisterBackgroundWorkerSqlResilience`; updated analytics/weekly-digest/telemetry/integration/tenancy SQL repos listed above.
+Implement full idempotency for `POST /v1/architecture/request`.
+1. Modify `ArchitectureRequest` processing to accept and validate the `Idempotency-Key` header.
+2. Store the mapping of `(tenant, workspace, project, SHA-256(key))` to `runId` in a short-lived server-side store or SQL table.
+3. If a request with the same key and payload fingerprint arrives, return 200 OK with the existing `runId` and `Idempotency-Replayed: true`.
+4. If the payload fingerprint differs, return 409 Conflict.
+5. Ensure thread safety and handle concurrent requests gracefully.
+Files: `ArchLucid.Api/Controllers/ArchitectureController.cs`, `ArchLucid.Application/Runs/ArchitectureRunService.cs`.
+Constraints: Do not break existing non-idempotent clients.
 ```
 
-### 12. COMPLETED: Add a health check endpoint for the Azure OpenAI connection
-- **Why it matters:** Verifies connectivity to the critical LLM infrastructure.
-- **Expected impact:** Supportability (+10 pts), AI/Agent Readiness (+5 pts).
-- **Affected qualities:** Supportability, AI/Agent Readiness.
-- **Actionable:** No — `AzureOpenAiHealthCheck` registered as `openai` in `RegisterArchLucidHealthChecks` (`ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.DataHealthAndJobs.cs`); probes only when `AzureOpenAiExecutionProbePolicy.ShouldProbeConfiguredEndpoint` (Real mode, non-Echo client); uses bounded TCP connect via `AzureOpenAiEndpointConnectivitySocketProbe` (no chat/embedding calls — zero model quota). Surfaces on `/health`, `/health/ready`, and summary responses. Tests: `ArchLucid.Host.Core.Tests/Health/AzureOpenAiHealthCheckTests.cs`.
-```text
-Add a health check for the Azure OpenAI connection to `RegisterArchLucidHealthChecks`. [COMPLETED]
-- Acceptance criteria: The `/health` endpoint includes an `openai` status, performing a lightweight ping to the Azure OpenAI endpoint.
-- Constraints: Ensure the ping does not consume significant quota or incur high costs.
-- What not to change: Do not modify the core LLM execution logic.
-- Impact: Directly improves Supportability (+8-10 pts) and AI/Agent Readiness (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
-- Deliverable: `ArchLucid.Host.Core/Health/AzureOpenAiHealthCheck.cs`; registration in `ServiceCollectionExtensions.DataHealthAndJobs.cs`.
-```
-
-### 13. COMPLETED: Create a curated policy pack for Azure Well-Architected Framework (WAF) alignment
-- **Why it matters:** Provides immediate value for Azure customers looking to align with best practices.
-- **Expected impact:** Template and Accelerator Richness (+15 pts), Time-to-Value (+10 pts).
-- **Affected qualities:** Template and Accelerator Richness, Time-to-Value.
-- **Actionable:** No — delivered as `docs/samples/policy-packs/azure-waf-rules-v1.json` (curated-rules V1; 12 WAF pillar rules with `azureExtractor.manifest.*` and bundle evidence hints).
-```text
-Create a new curated policy pack `docs/samples/policy-packs/azure-waf-rules-v1.json` focused on Azure WAF alignment. [COMPLETED]
-- Acceptance criteria: The pack is valid JSON matching the curated-rules schema and includes at least 10 WAF-aligned rules.
-- Constraints: Ensure the rules map to data collected by the Azure extractor.
-- What not to change: Do not modify the policy engine.
-- Impact: Directly improves Template and Accelerator Richness (+10-15 pts) and Time-to-Value (+8-10 pts). Weighted readiness impact: +0.2-0.3%.
-- Deliverable: `docs/samples/policy-packs/azure-waf-rules-v1.json`
-```
-
-### 14. COMPLETED: Add a UI warning when tenant baselines are missing on the executive dashboard
-- **Why it matters:** Guides users to upload baselines to unlock the full value of the dashboard.
-- **Expected impact:** Usability (+10 pts), Executive Value Visibility (+5 pts).
-- **Affected qualities:** Usability, Executive Value Visibility.
-- **Actionable:** No — delivered as `ExecutiveDashboardBaselineWarningBanner` on `/dashboard` (`ExecutiveRoiDashboardPageView`): amber alert for Execute+ callers when `GET /v1/tenant/workspace-baseline-artifacts` reports no persisted Azure extractor ZIP rows for the active tenant/workspace (`IAzureExtractorPackageRepository.HasAnyInWorkspaceAsync` on `dbo.AzureExtractorPackages`); primary CTA links to `/reviews/new?baseline=1`; session-dismissible. KPI widgets unchanged. Tests: `ExecutiveDashboardBaselineWarningBanner.test.tsx`, `WorkspaceBaselineArtifactsEndpointTests.cs`. OpenAPI snapshot + `npm run generate:api-types` required before merge.
-```text
-Add a warning banner to the executive dashboard if no baseline data (e.g., Azure extractor ZIP) has been uploaded for the tenant. [COMPLETED]
-- Acceptance criteria: The banner is visible and links to the baseline upload wizard.
-- Constraints: Check for the existence of baseline artifacts in the tenant's workspace.
-- What not to change: Do not modify the dashboard's analytical widgets.
-- Impact: Directly improves Usability (+8-10 pts) and Executive Value Visibility (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-- Deliverable: `GET /v1/tenant/workspace-baseline-artifacts` (`TenantWorkspaceBaselineArtifactsController`); `IAzureExtractorPackageRepository.HasAnyInWorkspaceAsync`; `archlucid-ui/src/hooks/use-workspace-baseline-artifacts.ts`; `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveDashboardBaselineWarningBanner.tsx`.
-```
-
-### 15. Implement anomaly detection for `evidenceBulkUpload`
-- **Why it matters:** Protects the system from abusive or anomalous bulk upload patterns.
-- **Expected impact:** Reliability (+10 pts), Scalability (+5 pts).
+### 12. Add Redis Cache Coherency Checks
+- **Why it matters:** Prevents stale data in multi-replica deployments.
+- **Expected impact:** Directly improves Reliability (+3 pts) and Scalability (+2 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Reliability, Scalability.
-- **Actionable:** Yes
+- **Actionable now.**
 ```text
-Add anomaly detection logic to the `EvidenceBulkUploadController` to flag and temporarily throttle tenants with highly unusual upload patterns (e.g., sudden spikes).
-- Acceptance criteria: The system logs an anomaly warning and applies a stricter rate limit if an anomaly is detected.
-- Constraints: Use standard statistical methods or existing rate-limiting extensions.
-- What not to change: Do not modify the base 30-file ceiling.
-- Impact: Directly improves Reliability (+8-10 pts) and Scalability (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
+Add startup validation for Redis cache coherency.
+1. In `ArchLucidConfigurationRules`, add a rule that checks if `HotPathCache:ExpectedApiReplicaCount > 1`.
+2. If true, ensure that `HotPathCache:Provider` resolves to `Redis` and `HotPathCache:RedisConnectionString` is not empty.
+3. If it resolves to `Memory`, log a strong warning or fail startup depending on the environment.
+Files: `ArchLucid.Host.Composition/Configuration/ArchLucidConfigurationRules.cs`.
+Constraints: Do not break single-replica deployments.
 ```
 
-### 16. COMPLETED: Add a CLI command to test SAML SP configuration
-- **Why it matters:** Simplifies the setup and troubleshooting of SAML SP integrations.
-- **Expected impact:** Adoption Friction (+10 pts), Supportability (+5 pts).
-- **Affected qualities:** Adoption Friction, Supportability.
-- **Actionable:** No — delivered as `archlucid saml test-config` (`ArchLucid.Cli/Commands/SamlTestConfigCommand.cs`): offline validation from merged `appsettings` / env via `SamlSpConfigurationDiagnostics` in `ArchLucid.Core/Auth/Saml/` (issuer, optional signing PFX, IdP metadata HTTPS fetch + `validUntil`, expiry warnings); Pass/Fail/Warn/Info per component; global `--json`; exit **4** on any Fail. SAML authentication middleware unchanged. Documented in `docs/library/CLI_USAGE.md`. Tests: `ArchLucid.Core.Tests/Auth/Saml/SamlSpConfigurationDiagnosticsTests.cs`, `ArchLucid.Cli.Tests/SamlTestConfigCommandTests.cs`.
+### 13. Optimize SQL Server JSON Payload Storage
+- **Why it matters:** Prevents performance degradation with large manifests.
+- **Expected impact:** Directly improves Performance (+5 pts) and Scalability (+3 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Performance, Scalability.
+- **Actionable now.**
 ```text
-Add a command `archlucid saml test-config` to the CLI to validate the SAML SP configuration (e.g., metadata URL, certificate validity). [COMPLETED]
-- Acceptance criteria: The command outputs a clear pass/fail status for each configuration component.
-- Constraints: Do not perform a full authentication flow, only configuration validation.
-- What not to change: Do not modify the SAML authentication middleware.
-- Impact: Directly improves Adoption Friction (+8-10 pts) and Supportability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-- Deliverable: `archlucid saml test-config`; `ArchLucid.Core/Auth/Saml/SamlSpConfigurationDiagnostics.cs`; `ArchLucid.Cli/Commands/SamlTestConfigCommand.cs`.
+Optimize the storage of large JSON payloads in SQL Server.
+1. Review `GoldenManifestRepository` and `DecisionTraceRepository`.
+2. Ensure that `PayloadJson` columns are using `NVARCHAR(MAX)` and are compressed if possible.
+3. Consider adding a background job to compress older payloads or move them to Blob Storage if they exceed a certain size.
+Files: `ArchLucid.Persistence.Data/Repositories/GoldenManifestRepository.cs`.
+Constraints: Do not break existing queries that rely on `OPENJSON`.
 ```
 
-### 17. COMPLETED: Create a runbook for SAML SP certificate rotation
-- **Why it matters:** Provides clear instructions for operators to rotate expiring certificates.
-- **Expected impact:** Supportability (+10 pts), Maintainability (+5 pts).
-- **Affected qualities:** Supportability, Maintainability.
-- **Actionable:** No — delivered as `docs/runbooks/SAML_CERT_ROTATION.md` (P2): generate/obtain PFX, export public cert for IdP, dual-trust overlap cutover, config keys, rolling deploy, `archlucid saml test-config` + `GET /v1/admin/auth/saml-operational-health`, smoke `/Auth/Saml2/*`, rollback; indexed in `docs/runbooks/README.md`. Prior stub `docs/library/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md` now points to the canonical runbook. SAML authentication logic unchanged.
+### 14. Simplify Domain Vocabulary in Operator UI
+- **Why it matters:** Reduces cognitive load for new users.
+- **Expected impact:** Directly improves Cognitive Load (+10 pts) and Usability (+5 pts). Weighted readiness impact: +0.3%.
+- **Affected qualities:** Cognitive Load, Usability.
+- **Actionable now.**
 ```text
-Create a runbook `docs/runbooks/SAML_CERT_ROTATION.md` detailing the steps to rotate the SAML SP certificate without downtime. [COMPLETED]
-- Acceptance criteria: Runbook includes steps for generating a new cert, updating configuration, and coordinating with the IdP.
-- Constraints: Follow existing runbook formatting guidelines.
-- What not to change: Do not modify the SAML authentication logic.
-- Impact: Directly improves Supportability (+8-10 pts) and Maintainability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-- Deliverable: `docs/runbooks/SAML_CERT_ROTATION.md`; `docs/runbooks/README.md` index row.
+Simplify the domain vocabulary in the operator UI.
+1. Ensure that "Architecture review" is used consistently instead of "Run" in primary headings and CTAs.
+2. Add a tooltip or help text explaining the relationship between "Review", "Manifest", and "Trace".
+3. Update `archlucid-ui/src/lib/layer-guidance.ts` to reflect these simplified terms.
+Files: `archlucid-ui/src/components/LayerHeader.tsx`, `archlucid-ui/src/lib/layer-guidance.ts`.
+Constraints: Do not change API route names or database column names.
 ```
 
-### 18. COMPLETED: Implement a dashboard panel for integration event outbox dead letters
-- **Why it matters:** Provides visual visibility into dead-letter queues, complementing the existing alert.
-- **Expected impact:** Observability (+10 pts), Reliability (+5 pts).
-- **Affected qualities:** Observability, Reliability.
-- **Actionable:** No — delivered as a **timeseries** panel on **`infra/grafana/dashboard-archlucid-slo.json`** (Terraform-provisioned via **`grafana_dashboard.slo`** when managed Grafana dashboards are enabled): PromQL **`archlucid_integration_event_outbox_dead_letter`**, `${datasource}` Prometheus template, green/red threshold at **≥1**; pairs with **`ArchLucidIntegrationEventOutboxDeadLetter`** in **`infra/prometheus/archlucid-alerts.yml`**. Metric emission unchanged (`ArchLucidInstrumentation.cs`).
+### 15. Add Content Safety API Circuit Breaker
+- **Why it matters:** Prevents the entire system from failing closed if the Content Safety API is down.
+- **Expected impact:** Directly improves Reliability (+5 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Reliability.
+- **Actionable now.**
 ```text
-Add a panel to an existing operational Grafana dashboard to visualize the `archlucid_integration_event_outbox_dead_letter` gauge. [COMPLETED]
-- Acceptance criteria: The panel clearly shows the dead-letter count over time.
-- Constraints: Use existing Prometheus data sources.
-- What not to change: Do not modify the metric emission logic.
-- Impact: Directly improves Observability (+8-10 pts) and Reliability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-- Deliverable: `infra/grafana/dashboard-archlucid-slo.json` (panel id **4**); `docs/library/API_SLOS.md` § Outbox convergence row; `docs/library/OBSERVABILITY.md` dashboard table.
+Add a circuit breaker for the Azure Content Safety API.
+1. Wrap the Content Safety API calls in a Polly circuit breaker policy.
+2. If the circuit is open, log an alert and either fail closed (if `FailClosedOnSdkError` is true) or fail open (if false).
+3. Ensure the circuit state is observable via metrics.
+Files: `ArchLucid.Application/Safety/ContentSafetyService.cs`.
+Constraints: Must respect the `FailClosedOnSdkError` configuration.
 ```
 
-### 19. COMPLETED: Add a UI component to display the current LLM budget utilization fraction
-- **Why it matters:** Gives operators real-time visibility into their LLM budget usage directly in the UI.
-- **Expected impact:** Usability (+10 pts), Cost-Effectiveness (+5 pts).
-- **Affected qualities:** Usability, Cost-Effectiveness.
-- **Actionable:** No — delivered as **`LlmBudgetUtilizationMeter`** on **`/settings/cost-reporting`**: reads cached **`GET /v1/admin/llm-monthly-dollar-budget-status`** (60s client cache shared with run wizards); progress bar uses **`hardCapUtilizationFraction`** and **`warnFraction`** (read-model projection only; tracker math unchanged).
+### 16. Unify Authority and Coordinator Pipeline Logic
+- **Why it matters:** Reduces orchestration complexity and bugs.
+- **Expected impact:** Directly improves Maintainability (+5 pts) and Correctness (+2 pts). Weighted readiness impact: +0.2%.
+- **Affected qualities:** Maintainability, Correctness.
+- **Actionable now.**
 ```text
-Add a progress bar or gauge to the operator UI (e.g., in the settings or dashboard) showing the current LLM budget utilization fraction. [COMPLETED]
-- Acceptance criteria: The component reads from an appropriate API endpoint and displays the fraction visually, turning yellow/red near the warn fraction.
-- Constraints: Ensure the API endpoint used is performant and cached.
-- What not to change: Do not modify the backend budget calculation logic.
-- Impact: Directly improves Usability (+8-10 pts) and Cost-Effectiveness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-- Deliverable: `archlucid-ui/src/components/LlmBudgetUtilizationMeter.tsx`; `archlucid-ui/src/lib/llm-monthly-budget-status.ts`; `LlmMonthlyTenantDollarBudgetStatusResult` display fields; cost-reporting settings card.
+Refactor the Authority and Coordinator pipelines to share more common logic.
+1. Identify duplicated state transition logic between `AuthorityRunOrchestrator` and the legacy coordinator endpoints (`execute`, `result`, `commit`).
+2. Extract this logic into a shared `RunStateTransitionService`.
+3. Ensure both paths use this service to validate preconditions before committing.
+Files: `ArchLucid.Persistence/Orchestration/AuthorityRunOrchestrator.cs`, `ArchLucid.Application/Runs/ArchitectureRunService.cs`.
+Constraints: Do not break existing API contracts.
 ```
 
-### 20. COMPLETED: Create a curated policy pack for GDPR compliance baseline
-- **Why it matters:** Helps European and global customers quickly assess GDPR readiness.
-- **Expected impact:** Template and Accelerator Richness (+10 pts).
-- **Affected qualities:** Template and Accelerator Richness.
-- **Actionable:** No — delivered as V1 GA bundled default `gdpr-baseline` (`docs/samples/policy-packs/gdpr-baseline-rules-v1.json`); see [`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md).
+### 17. Add Bulk Evidence Upload Progress Indicator
+- **Why it matters:** Improves usability for large uploads.
+- **Expected impact:** Directly improves Usability (+5 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Usability.
+- **Actionable now.**
 ```text
-Create a new curated policy pack `docs/samples/policy-packs/gdpr-baseline-rules-v1.json` focused on GDPR compliance. [COMPLETED]
-- Acceptance criteria: The pack includes at least 5 rules covering data residency, consent, and breach notification.
-- Constraints: Use the standard curated-rules V1 schema.
-- What not to change: Do not modify the policy pack evaluation engine.
-- Impact: Directly improves Template and Accelerator Richness (+8-10 pts). Weighted readiness impact: +0.1-0.2%.
-- Deliverable: `docs/samples/policy-packs/gdpr-baseline-rules-v1.json`; bundled default `gdpr-baseline` in tenant provisioning.
+Add a progress indicator for bulk evidence uploads in the operator UI.
+1. Modify the upload component to track the progress of the `multipart/form-data` request.
+2. Display a progress bar and estimated time remaining.
+3. Handle partial successes gracefully by showing which files failed.
+Files: `archlucid-ui/src/components/EvidenceUpload.tsx`.
+Constraints: Must work with the existing `/v1/evidence/bulk` endpoint.
 ```
 
-### 21. COMPLETED: Implement a CLI command to export the knowledge graph to GraphML
-- **Why it matters:** Allows advanced users to analyze the knowledge graph in external tools like Gephi.
-- **Expected impact:** Interoperability (+10 pts), Explainability (+5 pts).
-- **Affected qualities:** Interoperability, Explainability.
-- **Actionable:** No — delivered as `archlucid graph export <runId> [--format mermaid|graphml] [--decision <key>] [--out <path>]` (`GraphExportCommand`); GraphML serialization via `GraphWireGraphMlFormatter` (standard GraphML 1.0 namespace + `xsi:schemaLocation`); wire DTO `GraphWireModel` only (no changes to `GraphSnapshot` / knowledge-graph storage). Unit tests: `ArchLucid.Cli.Tests/GraphWireGraphMlFormatterTests.cs`. CLI reference: [`CLI_USAGE.md`](../library/CLI_USAGE.md).
+### 18. Enhance Advisory Scan Scheduling UI
+- **Why it matters:** Makes it easier to configure automated scans.
+- **Expected impact:** Directly improves Usability (+5 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Usability.
+- **Actionable now.**
 ```text
-Add a command `archlucid graph export --format graphml` to the CLI to export the knowledge graph for a specific run. [COMPLETED]
-- Acceptance criteria: The command outputs a valid GraphML XML file representing the nodes and edges.
-- Constraints: Use standard GraphML schema.
-- What not to change: Do not modify the internal graph representation.
-- Impact: Directly improves Interoperability (+8-10 pts) and Explainability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-- Deliverable: `ArchLucid.Cli/Commands/GraphExportCommand.cs`; `ArchLucid.Cli/Commands/GraphWireGraphMlFormatter.cs`; `ArchLucid.Cli.Tests/GraphWireGraphMlFormatterTests.cs`.
+Enhance the Advisory Scan Scheduling UI.
+1. Add a cron expression builder component to the schedule creation form.
+2. Display the next 5 scheduled run times based on the cron expression.
+3. Allow operators to manually trigger a scheduled scan immediately for testing.
+Files: `archlucid-ui/src/app/(operator)/advisory-scheduling/page.tsx`.
+Constraints: Must use the existing `PUT /v1/advisory/schedules` endpoint.
 ```
 
-### 22. COMPLETED: Implement a dashboard panel for compliance drift trend
-- **Why it matters:** Provides visual visibility into how compliance is changing over time.
-- **Expected impact:** Executive Value Visibility (+10 pts), Stickiness (+5 pts).
-- **Affected qualities:** Executive Value Visibility, Stickiness.
-- **Actionable:** No — delivered on **`/dashboard`** (`ExecutiveComplianceDriftTrendSection`, `ComplianceDriftOpenResolvedChart`): 30-day window, stacked daily bars for **opened** vs **resolved** findings. API: extended **`GET /v1/governance/compliance-drift-trend`** (`openFindingsCount`, `resolvedFindingsCount`) via audit bucketing (`IComplianceDriftFindingsTrendReader` / Dapper + in-memory); findings schema unchanged.
+### 19. Add Export-Only Trial State Warning
+- **Why it matters:** Prevents data loss surprises for trial users.
+- **Expected impact:** Directly improves Usability (+2 pts) and Supportability (+2 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Usability, Supportability.
+- **Actionable now.**
 ```text
-Add a panel to the executive dashboard to visualize the compliance drift trend over the last 30 days. [COMPLETED]
-- Acceptance criteria: The panel clearly shows the trend of open vs. resolved findings.
-- Constraints: Read from existing aggregated data or perform an efficient query.
-- What not to change: Do not modify the underlying findings data model.
-- Impact: Directly improves Executive Value Visibility (+8-10 pts) and Stickiness (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
-- Deliverable: `ExecutiveComplianceDriftTrendSection.tsx`; `ComplianceDriftOpenResolvedChart.tsx`; `ComplianceDriftTrendPoint` + `ComplianceDriftTrendService` + `DapperComplianceDriftFindingsTrendReader`.
+Add a prominent warning in the operator UI when a trial enters the export-only state.
+1. Check the `TrialStatus` from `GET /v1/tenant/trial-status`.
+2. If the status is `ExportOnly`, display a red banner indicating the number of days until hard purge.
+3. Provide a clear CTA to export all artifacts and audit logs.
+Files: `archlucid-ui/src/components/TrialBanner.tsx`.
+Constraints: Must use the existing trial status API.
 ```
 
-### 23. COMPLETED: Add operator-facing documentation for projection cache and multi-replica limitations
-- **Why it matters:** Default in-process projection behavior is easy to misunderstand when scaling to multiple replicas; explicit help reduces **Explainability** and **Cognitive Load** gaps called out in the Top Weaknesses list.
-- **Expected impact:** Explainability (+10 pts), Cognitive Load (+5 pts).
-- **Affected qualities:** Explainability, Cognitive Load.
-- **Actionable:** No — delivered as `docs/operations/PROJECTION_CACHE_AND_REPLICAS.md` (in-process vs Distributed projection cache, `HotPathCache` / LLM cache notes, multi-replica footguns, validation checklist). In-product links: **Learn more** on **Admin → Configuration** (`ContextualHelp` → `admin-configuration`), **Tenant settings** technical details, Help drawer topic `projection-cache-replicas`. Cross-link from `docs/engineering/DEPLOYMENT.md`.
+### 20. Implement Configurable Alert Routing Rules
+- **Why it matters:** Reduces alert fatigue by routing alerts to the right teams.
+- **Expected impact:** Directly improves Usability (+3 pts) and Workflow Embeddedness (+2 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Usability, Workflow Embeddedness.
+- **Actionable now.**
 ```text
-Add an operator-facing doc (e.g. `docs/operations/PROJECTION_CACHE_AND_REPLICAS.md`) and link it from the operator UI settings or internal help: explain when in-process projection is sufficient, when Redis/shared cache is required, and how to validate coherence across replicas. [COMPLETED]
-- Acceptance criteria: Doc is linked from at least one in-product “learn more” surface; mentions multi-replica footguns in plain language.
-- Constraints: Stay aligned with shipped configuration flags and existing `Explainability`/architecture notes — do not invent new product promises.
-- What not to change: Do not change projection engine behavior in the same change set unless a defect is found.
-- Impact: Directly improves Explainability (+8-10 pts) and Cognitive Load (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-- Deliverable: `docs/operations/PROJECTION_CACHE_AND_REPLICAS.md`; `archlucid-ui/src/lib/contextual-help-content.ts`; `archlucid-ui/src/lib/help-topics.ts`; `archlucid-ui/src/app/(operator)/settings/tenant/_sections/TenantSettingsPageView.tsx`.
+Enhance the Alert Routing UI to support more complex rules.
+1. Allow operators to route alerts based on severity, finding type, or tags.
+2. Update the `POST /v1/alert-routing` payload to accept these new routing criteria.
+3. Ensure the backend evaluates these criteria before dispatching the alert.
+Files: `archlucid-ui/src/app/(operator)/alert-routing/page.tsx`, `ArchLucid.Api/Controllers/AlertsController.cs`.
+Constraints: Must be backward compatible with existing routing rules.
 ```
 
-### 24. COMPLETED: Add automated tests that reject inbound webhooks with invalid HMAC signatures
-- **Why it matters:** CloudEvents subscribers must not accept **forged** deliveries; contract tests prevent regressions in verification middleware.
-- **Expected impact:** Correctness (+10 pts), Testability (+8 pts).
-- **Affected qualities:** Correctness, Testability.
-- **Actionable:** No — delivered as `ArchLucid.Api.Tests/Integrations/InboundWebhookHmacSignatureIntegrationTests.cs` (missing / wrong / missing-token → **401**; valid `X-ArchLucid-Webhook-Signature` + token → passes HMAC gate → **400** for non-Jira canonical body); `WebhookSecrets.IsValidHmacSha256Signature` accepts `sha256=` prefix; `ItsmInboundWebhooksController` checks `X-ArchLucid-Webhook-Signature` then legacy `X-ArchLucid-Signature`. Unit tests: `ArchLucid.Core.Tests/Security/WebhookSecretsTests.cs`.
+### 21. Add Policy Pack Conflict Resolution UI
+- **Why it matters:** Helps operators understand why a policy was overridden.
+- **Expected impact:** Directly improves Usability (+5 pts) and Explainability (+3 pts). Weighted readiness impact: +0.2%.
+- **Affected qualities:** Usability, Explainability.
+- **Actionable now.**
 ```text
-Add Core/API tests that POST representative webhook payloads with missing, wrong, and well-formed `X-ArchLucid-Webhook-Signature` values and assert 401/400 (per contract) — reuse `INTEGRATION_EVENTS_AND_WEBHOOKS.md` canonical examples. [COMPLETED]
-- Acceptance criteria: At least three negative cases + one positive case; no live vendor calls.
-- Constraints: Use existing test harness patterns; keep secrets out of tests.
-- What not to change: Do not weaken production verification logic to make tests pass.
-- Impact: Directly improves Correctness (+8-10 pts) and Testability (+5-8 pts). Weighted readiness impact: +0.15-0.25%.
-- Deliverable: `ArchLucid.Api.Tests/Integrations/InboundWebhookHmacSignatureIntegrationTests.cs`; `ArchLucid.Core/Security/WebhookSecrets.cs`; `ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs`.
+Add a conflict resolution view to the Governance Resolution UI.
+1. Consume the `conflicts` and `notes` arrays from `GET /v1/governance-resolution`.
+2. Display a clear table showing which policy pack won the conflict and why (e.g., scope level).
+3. Provide a link to edit the losing policy pack assignment.
+Files: `archlucid-ui/src/app/(operator)/governance-resolution/page.tsx`.
+Constraints: Must use the existing governance resolution API.
 ```
 
-### 25. COMPLETED: Add Grafana panel for GenAI request latency (p95) from existing OTel GenAI metrics
-- **Why it matters:** Operators still need **SLO depth** tying LLM spend to latency; complements token metrics already emitted.
-- **Expected impact:** Observability (+10 pts), AI/Agent Readiness (+5 pts).
-- **Affected qualities:** Observability, AI/Agent Readiness.
-- **Actionable:** No — delivered on **`infra/grafana/dashboard-archlucid-llm-usage.json`** (Terraform **`grafana_dashboard.llm_usage`**) and **`dashboard-archlucid-llm.json`** (**`grafana_dashboard.llm_genai`**): **24h** default range, **p95** from **`archlucid_llm_gen_ai_operation_duration_ms`** (`RecordLlmGenAiOperationDurationMilliseconds`); panel descriptions document PromQL (Prometheus meter scrape, not Loki). **`llm_deployment`** on token-rate panels; **`tenant_id`** on budget gauges — duration histogram has **`gen_ai_operation_name`** + **`status`** only (no new metrics).
+### 22. Optimize Audit Log CSV Export
+- **Why it matters:** Prevents timeouts for large exports.
+- **Expected impact:** Directly improves Performance (+5 pts) and Scalability (+2 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Performance, Scalability.
+- **Actionable now.**
 ```text
-Extend `infra/grafana/` dashboards (or add a panel to an existing operational dashboard) charting p95 GenAI completion latency from OpenTelemetry GenAI metrics already produced by the host — document the PromQL/Loki source in the dashboard annotation. [COMPLETED]
-- Acceptance criteria: Panel shows p95 latency over 24h with tenant or deployment label where available.
-- Constraints: Do not add new custom metrics unless an existing series is truly absent — prefer `grep`/dashboard reuse from current exporters.
-- What not to change: Do not change LLM call paths; dashboard-only deliverable.
-- Impact: Directly improves Observability (+8-10 pts) and AI/Agent Readiness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-- Deliverable: `infra/grafana/dashboard-archlucid-llm-usage.json`; `infra/grafana/dashboard-archlucid-llm.json`; `infra/terraform-monitoring/grafana_dashboards.tf`; `infra/grafana/dashboards/README.md`.
+Optimize the `GET /v1/audit/export` endpoint for large datasets.
+1. Stream the CSV response directly from the database using `IAsyncEnumerable` or a `SqlDataReader`.
+2. Avoid loading the entire dataset into memory before writing to the response stream.
+3. Ensure the response has the correct `Content-Disposition` header for streaming downloads.
+Files: `ArchLucid.Api/Controllers/Admin/AuditController.cs`, `ArchLucid.Persistence.Data/Repositories/AuditRepository.cs`.
+Constraints: Must maintain the existing CSV format.
+```
+
+### 23. Add System Health Dashboard
+- **Why it matters:** Improves observability for operators.
+- **Expected impact:** Directly improves Observability (+5 pts) and Supportability (+3 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Observability, Supportability.
+- **Actionable now.**
+```text
+Add a System Health dashboard to the operator UI.
+1. Consume the `GET /health/live` and `GET /health/ready` endpoints.
+2. Display the status of critical dependencies (SQL Server, Azure OpenAI, Redis).
+3. Show the current version and uptime.
+Files: `archlucid-ui/src/app/(operator)/health/page.tsx`.
+Constraints: Must be accessible to users with `ReadAuthority`.
+```
+
+### 24. Implement Automated Data Consistency Remediation
+- **Why it matters:** Reduces manual effort for fixing orphaned records.
+- **Expected impact:** Directly improves Reliability (+3 pts) and Maintainability (+2 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Reliability, Maintainability.
+- **Actionable now.**
+```text
+Implement automated remediation for data consistency issues.
+1. When `DataConsistency:Enforcement:AutoQuarantine` is true, automatically quarantine orphaned records found by the probe.
+2. Log an audit event for each quarantined record.
+3. Provide an API endpoint to review and restore quarantined records.
+Files: `ArchLucid.Worker/BackgroundJobs/DataConsistencyProbe.cs`.
+Constraints: Must respect the `AutoQuarantine` configuration flag.
+```
+
+### 25. Add Context Ingestion Warning UI
+- **Why it matters:** Helps users understand why some documents were ignored.
+- **Expected impact:** Directly improves Usability (+3 pts) and Explainability (+2 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Usability, Explainability.
+- **Actionable now.**
+```text
+Display context ingestion warnings in the operator UI.
+1. Check the `warnings` array on the `ContextSnapshot` associated with a run.
+2. Display these warnings prominently on the Run Detail page.
+3. Provide actionable advice on how to fix the warnings (e.g., "Convert PDF to Markdown").
+Files: `archlucid-ui/src/app/(operator)/runs/[runId]/page.tsx`.
+Constraints: Must use the existing `ContextSnapshot` data.
 ```
 
 ---
 
 ## Prompt Batching Guidance
 
-**Status:** All batches below are **complete** except **#15** (Reliability). Use a fresh agent prompt scoped only to **#15** if continuing V1 backlog work.
+To optimize context window usage and cost-effectiveness, batch the implementation of the actionable prompts as follows:
 
-Historical batching (for reference when replaying similar work):
+**Batch 1: Core Reliability & Performance (Backend)**
+- Implement Full Idempotency for Create Run Endpoint (11)
+- Add Redis Cache Coherency Checks (12)
+- Add Content Safety API Circuit Breaker (15)
+- Optimize Audit Log CSV Export (22)
 
-- **Batch 1 (Observability & Dashboards):** **COMPLETED** — #3, #9, #18, #22, #25
-- **Batch 2 (UI & UX Enhancements):** **COMPLETED** — #5, #8, #14, #19, #23
-- **Batch 3 (Reliability & Health Checks):** **#15 open**; **#12 completed**
-- **Batch 4 (CLI & Export Features):** **COMPLETED** — #10, #16, #21
-- **Batch 5 (Policy Packs & Runbooks):** **COMPLETED** — #6, #13, #17, #20
-- **Batch 6 (Testing & Code Quality):** **COMPLETED** — #4, #7, #24
+**Batch 2: UI & Usability Enhancements (Frontend)**
+- Simplify Domain Vocabulary in Operator UI (14)
+- Add Bulk Evidence Upload Progress Indicator (17)
+- Add Export-Only Trial State Warning (19)
+- Add System Health Dashboard (23)
+- Add Context Ingestion Warning UI (25)
+
+**Batch 3: Governance & Orchestration (Full Stack)**
+- Unify Authority and Coordinator Pipeline Logic (16)
+- Enhance Advisory Scan Scheduling UI (18)
+- Implement Configurable Alert Routing Rules (20)
+- Add Policy Pack Conflict Resolution UI (21)
+
+**Batch 4: Data Management (Backend)**
+- Optimize SQL Server JSON Payload Storage (13)
+- Implement Automated Data Consistency Remediation (24)
 
 ---
 
 ## Pending Questions for Later
 
-### DEFERRED: Commerce un-hold (Stripe live keys flipped + Marketplace listing published)
-- What are the `sk_live_` Stripe keys and is the Marketplace offer `Published`?
+**DEFERRED Implement Jira Integration**
+- What is the exact target date for the V1.1 release window?
+- Can you provide a Jira Developer instance and API credentials for testing?
 
-### V1.1 / DEFERRED: Publish first named reference customer
-- What is the customer name, do we have logo permission, and what is the case study text?
+**DEFERRED Implement ServiceNow Integration**
+- When will the ServiceNow Developer Program instance be provisioned and credentials provided?
 
-### V1.1 / DEFERRED: First-party Jira / ServiceNow / Confluence / Slack connector program
-- What **V1.1** milestone anchors shipping per [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13–§2.15 (*Resolved 2026-05-18*) — and does **P10** (ServiceNow developer instance) block validation calendar?
+**DEFERRED Implement Microsoft Teams Integration**
+- Do we have a test Microsoft Teams tenant and webhook configuration available?
 
-### DEFERRED: PGP key drop for `security@archlucid.net`
-- Domain acquisition is **confirmed** (2026-05-18). What is the **public** key material (or approval to generate per [`docs/security/PGP_KEY_GENERATION_RECIPE.md`](../security/PGP_KEY_GENERATION_RECIPE.md)), and who is named custodian for rotation?
+**DEFERRED Implement Slack Integration**
+- Has a Slack App been created in the workspace for testing, and are the OAuth tokens available?
+
+**DEFERRED Flip Stripe Live Keys and Publish Marketplace Listing**
+- When do you plan to complete the Partner Center seller verification, tax profile, and payout account setup?
+
+**DEFERRED Implement Model Context Protocol (MCP) Server**
+- Which specific version of the MCP SDK should we target for the V1.1 implementation?
+
+**DEFERRED Implement AWS/GCP Architecture Analysis**
+- Are there specific AWS/GCP accounts provisioned for testing the read-only inventory scripts?
+
+**DEFERRED Implement Automated Tenant Erasure Pipeline**
+- What are the specific legal hold requirements and the default quarantine delay (e.g., 30 days) for V2?
