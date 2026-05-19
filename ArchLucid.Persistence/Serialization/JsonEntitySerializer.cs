@@ -1,5 +1,6 @@
 using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
+
+using ArchLucid.KnowledgeGraph.Serialization;
 
 namespace ArchLucid.Persistence.Serialization;
 
@@ -12,21 +13,7 @@ public static class JsonEntitySerializer
     public static JsonSerializerOptions EntityJsonOptions
     {
         get;
-    } = CreateEntityJsonOptions();
-
-    private static JsonSerializerOptions CreateEntityJsonOptions()
-    {
-        JsonSerializerOptions o = new()
-        {
-            PropertyNameCaseInsensitive = true,
-            WriteIndented = false,
-            TypeInfoResolver = new DefaultJsonTypeInfoResolver(),
-            Converters = { new GraphNodeJsonConverter(), new GraphEdgeJsonConverter() }
-        };
-
-        o.MakeReadOnly();
-        return o;
-    }
+    } = GraphJsonSerialization.EntityJsonOptions;
 
     public static string Serialize<T>(T value)
     {

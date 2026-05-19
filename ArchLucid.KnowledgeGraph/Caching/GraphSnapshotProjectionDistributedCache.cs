@@ -1,10 +1,8 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
 using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph.Configuration;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.KnowledgeGraph.Serialization;
 
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
@@ -16,8 +14,6 @@ public sealed class GraphSnapshotProjectionDistributedCache(
     IDistributedCache distributedCache,
     IOptionsMonitor<KnowledgeGraphProjectionCacheOptions> optionsMonitor) : IGraphSnapshotProjectionCache
 {
-    private static readonly JsonSerializerOptions SerializerOptions = CreateSerializerOptions();
-
     private readonly IDistributedCache _distributedCache =
         distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
 
@@ -44,7 +40,7 @@ public sealed class GraphSnapshotProjectionDistributedCache(
 
         if (cached is { Length: > 0 })
         {
-            GraphSnapshot? deserialized = Deserialize(cached);
+            GraphSnapshot? deserialized = GraphJsonSerialization.DeserializeSnapshot(cached);
 
             if (deserialized is not null)
                 return deserialized;
@@ -59,7 +55,7 @@ public sealed class GraphSnapshotProjectionDistributedCache(
 
         await _distributedCache.SetAsync(
             key,
-            Serialize(created),
+            GraphJsonSerialization.SerializeSnapshotToUtf8Bytes(created),
             new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = ttl },
             cancellationToken);
 
@@ -86,36 +82,5 @@ public sealed class GraphSnapshotProjectionDistributedCache(
         seconds = Math.Clamp(seconds, 1, 86400);
 
         return TimeSpan.FromSeconds(seconds);
-    }
-
-    private static JsonSerializerOptions CreateSerializerOptions()
-    {
-        JsonSerializerOptions options = new()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            WriteIndented = false,
-        };
-
-        return options;
-    }
-
-    private static byte[] Serialize(GraphSnapshot snapshot)
-    {
-        ArgumentNullException.ThrowIfNull(snapshot);
-
-        return JsonSerializer.SerializeToUtf8Bytes(snapshot, SerializerOptions);
-    }
-
-    private static GraphSnapshot? Deserialize(byte[] bytes)
-    {
-        try
-        {
-            return JsonSerializer.Deserialize<GraphSnapshot>(bytes, SerializerOptions);
-        }
-        catch (JsonException)
-        {
-            return null;
-        }
     }
 }

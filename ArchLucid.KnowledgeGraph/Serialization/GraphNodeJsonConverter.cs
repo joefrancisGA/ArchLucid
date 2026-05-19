@@ -3,13 +3,13 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchLucid.Persistence.Serialization;
+namespace ArchLucid.KnowledgeGraph.Serialization;
 
 /// <summary>
 ///     Tolerates older or alternate JSON property names when reading <see cref="GraphNode" /> rows from storage
 ///     (e.g. <c>id</c>/<c>nodeId</c>, <c>type</c>/<c>nodeType</c>, <c>name</c>/<c>label</c>).
 /// </summary>
-internal sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
+public sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
 {
     public override GraphNode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

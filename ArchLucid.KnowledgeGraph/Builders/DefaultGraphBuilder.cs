@@ -17,36 +17,41 @@ public class DefaultGraphBuilder(
     {
         ArgumentNullException.ThrowIfNull(contextSnapshot);
 
-        GraphBuildResult result = new();
+        IReadOnlyList<CanonicalObject> canonicalObjects = contextSnapshot.CanonicalObjects;
+        List<GraphNode> nodes = new(canonicalObjects.Count + 1);
 
-        GraphNode contextNode = new()
+        nodes.Add(CreateContextNode(contextSnapshot));
+
+        foreach (CanonicalObject item in canonicalObjects)
+
+            nodes.Add(nodeFactory.CreateNode(item));
+
+        IReadOnlyList<GraphEdge> inferredEdges = edgeInferer.InferEdges(contextSnapshot, nodes);
+
+        GraphBuildResult result = new()
+        {
+            Nodes = nodes,
+            Edges = inferredEdges.Count == 0 ? [] : [.. inferredEdges]
+        };
+
+        return Task.FromResult(result);
+    }
+
+    private static GraphNode CreateContextNode(ContextSnapshot contextSnapshot)
+    {
+        return new GraphNode
         {
             NodeId = $"context-{contextSnapshot.SnapshotId:N}",
             NodeType = GraphNodeTypes.ContextSnapshot,
             Label = $"Context Snapshot {contextSnapshot.SnapshotId:N}",
             SourceType = GraphNodeTypes.ContextSnapshot,
             SourceId = contextSnapshot.SnapshotId.ToString(),
-            Properties = new Dictionary<string, string>
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 ["snapshotId"] = contextSnapshot.SnapshotId.ToString(),
                 ["runId"] = contextSnapshot.RunId.ToString(),
                 ["projectId"] = contextSnapshot.ProjectId
             }
         };
-
-        result.Nodes.Add(contextNode);
-
-        foreach (CanonicalObject item in contextSnapshot.CanonicalObjects)
-
-            result.Nodes.Add(nodeFactory.CreateNode(item));
-
-
-        IReadOnlyList<GraphEdge> inferredEdges = edgeInferer.InferEdges(
-            contextSnapshot,
-            result.Nodes);
-
-        result.Edges.AddRange(inferredEdges);
-
-        return Task.FromResult(result);
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 
 using ArchLucid.KnowledgeGraph.Models;
-using ArchLucid.Persistence.Serialization;
+using ArchLucid.KnowledgeGraph.Serialization;
 
 namespace ArchLucid.Persistence.Tests.Serialization;
 
