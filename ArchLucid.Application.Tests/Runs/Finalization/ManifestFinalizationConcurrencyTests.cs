@@ -1,6 +1,7 @@
 using System.Data;
 using System.Reflection;
 
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
@@ -277,7 +278,8 @@ public sealed class ManifestFinalizationConcurrencyTests
             golden ?? Mock.Of<IGoldenManifestRepository>(),
             Mock.Of<IManifestHashService>(),
             audit ?? Mock.Of<IAuditService>(),
-            outbox ?? Mock.Of<IIntegrationEventOutboxRepository>());
+            outbox ?? Mock.Of<IIntegrationEventOutboxRepository>(),
+            new RunStateTransitionService());
     }
 
     private static IFindingsSnapshotRepository CreateDefaultFindingsSnapshotRepository()

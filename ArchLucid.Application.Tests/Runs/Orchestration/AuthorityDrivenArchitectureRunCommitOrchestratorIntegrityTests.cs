@@ -334,6 +334,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
             Mock.Of<ITrialFunnelCommitHook>(),
             Mock.Of<IFirstSessionLifecycleHook>(),
             Mock.Of<IDbConnectionFactory>(),
+            new RunStateTransitionService(),
             Mock.Of<ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator>>());
     }
 }

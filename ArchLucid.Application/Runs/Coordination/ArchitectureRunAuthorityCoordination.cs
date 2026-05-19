@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -25,6 +26,7 @@ public sealed class ArchitectureRunAuthorityCoordination(
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
     IAzureExtractorPackageRepository azureExtractorPackageRepository,
+    IRunStateTransitionService runStateTransitionService,
     ILogger<ArchitectureRunAuthorityCoordination> logger) : IArchitectureRunAuthorityCoordination
 {
     private readonly IAuthorityRunOrchestrator _authorityRunOrchestrator =
@@ -36,6 +38,9 @@ public sealed class ArchitectureRunAuthorityCoordination(
     private readonly ILogger<ArchitectureRunAuthorityCoordination> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IRunStateTransitionService _runStateTransitionService =
+        runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
 
     /// <inheritdoc/>
     public async Task<CoordinationResult> CreateRunAsync(ArchitectureRequest request, CancellationToken cancellationToken = default)
@@ -94,7 +99,7 @@ public sealed class ArchitectureRunAuthorityCoordination(
         }
 
         header.ArchitectureRequestId = requestId;
-        header.LegacyRunStatus = deferred ? nameof(ArchitectureRunStatus.Created) : nameof(ArchitectureRunStatus.TasksGenerated);
+        header.LegacyRunStatus = _runStateTransitionService.GetCoordinationLegacyStatusAfterCreate(deferred);
         await _runRepository.UpdateAsync(header, cancellationToken);
     }
 

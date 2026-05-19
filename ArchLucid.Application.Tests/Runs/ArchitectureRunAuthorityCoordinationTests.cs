@@ -1,3 +1,4 @@
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Tests.TestDoubles;
 using ArchLucid.ContextIngestion.Models;
@@ -49,6 +50,7 @@ public sealed class ArchitectureRunAuthorityCoordinationTests
             runRepo.Object,
             scopeProvider.Object,
             new NoOpAzureExtractorPackageRepository(),
+            new RunStateTransitionService(),
             NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
 
         CoordinationResult result = await service.CreateRunAsync(request);
@@ -133,6 +135,7 @@ public sealed class ArchitectureRunAuthorityCoordinationTests
             runRepo.Object,
             scopeProvider.Object,
             extractorRepo.Object,
+            new RunStateTransitionService(),
             NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
 
         CoordinationResult result = await service.CreateRunAsync(request);

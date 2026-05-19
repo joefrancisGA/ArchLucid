@@ -1,11 +1,13 @@
 using System.Data;
 using System.Text.Json;
 
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Interfaces;
@@ -31,7 +33,8 @@ public sealed class ManifestFinalizationService(
     IGoldenManifestRepository goldenManifestRepository,
     IManifestHashService manifestHashService,
     IAuditService auditService,
-    IIntegrationEventOutboxRepository integrationEventOutbox) : IManifestFinalizationService
+    IIntegrationEventOutboxRepository integrationEventOutbox,
+    IRunStateTransitionService runStateTransitionService) : IManifestFinalizationService
 {
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
@@ -53,6 +56,9 @@ public sealed class ManifestFinalizationService(
         findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
 
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+
+    private readonly IRunStateTransitionService _runStateTransitionService =
+        runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
     private const int SqlRunNotFoundOrScope = 50001;
     private const int SqlCommittedDifferentManifest = 50002;
     private const int SqlBadRunStatus = 50003;
@@ -120,8 +126,7 @@ public sealed class ManifestFinalizationService(
             return new ManifestFinalizationResult(manifestId, true, locked.CurrentManifestVersion ?? string.Empty, null);
         }
 
-        if (!IsCommitAllowedStatus(locked.LegacyRunStatus))
-            throw new ConflictException($"Run '{request.RunId:D}' cannot be finalized in status '{locked.LegacyRunStatus ?? "(null)"}'.");
+        RunStateTransitionEnforcement.EnsureCommitAllowedLegacy(_runStateTransitionService, request.RunId, locked.LegacyRunStatus);
         if (locked.FindingsSnapshotId is null || locked.FindingsSnapshotId.Value != request.ExpectedFindingsSnapshotId)
             throw new InvalidOperationException("Findings snapshot on the run record does not match the expected findings for finalization.");
         await EnsureFindingsSnapshotFinalizableAsync(request.ExpectedFindingsSnapshotId, cancellationToken);
@@ -219,8 +224,7 @@ public sealed class ManifestFinalizationService(
             return new ManifestFinalizationResult(mid, true, header.CurrentManifestVersion ?? string.Empty, null);
         }
 
-        if (!IsCommitAllowedStatus(header.LegacyRunStatus))
-            throw new ConflictException($"Run '{request.RunId:D}' cannot be finalized in status '{header.LegacyRunStatus ?? "(null)"}'.");
+        RunStateTransitionEnforcement.EnsureCommitAllowedLegacy(_runStateTransitionService, request.RunId, header.LegacyRunStatus);
         if (header.FindingsSnapshotId is null || header.FindingsSnapshotId.Value != request.ExpectedFindingsSnapshotId)
             throw new InvalidOperationException("Findings snapshot on the run record does not match the expected findings for finalization.");
         await EnsureFindingsSnapshotFinalizableAsync(request.ExpectedFindingsSnapshotId, cancellationToken);
@@ -330,12 +334,6 @@ public sealed class ManifestFinalizationService(
             SqlFindingsMismatch or SqlArtifactMismatch => new InvalidOperationException(ex.Message, ex),
             _ => ex
         };
-    }
-
-    private static bool IsCommitAllowedStatus(string? legacyRunStatus)
-    {
-        return string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.ReadyForCommit), StringComparison.OrdinalIgnoreCase) ||
-               string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.TasksGenerated), StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task EnsureFindingsSnapshotFinalizableAsync(Guid findingsSnapshotId, CancellationToken cancellationToken)

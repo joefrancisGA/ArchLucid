@@ -7,6 +7,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Interfaces;
@@ -37,6 +38,7 @@ public sealed class AuthorityRunOrchestrator(
     IAsyncAuthorityPipelineModeResolver asyncAuthorityPipelineModeResolver,
     IOptionsMonitor<AuthorityPipelineOptions> authorityPipelineOptions,
     ITenantAuthorityPipelineConcurrencyGate tenantAuthorityPipelineConcurrencyGate,
+    IRunStateTransitionService runStateTransitionService,
     ILogger<AuthorityRunOrchestrator> logger)
 {
     private readonly IRunRepository _runRepository =
@@ -53,6 +55,9 @@ public sealed class AuthorityRunOrchestrator(
     private readonly ITenantAuthorityPipelineConcurrencyGate _tenantAuthorityPipelineConcurrencyGate =
         tenantAuthorityPipelineConcurrencyGate
         ?? throw new ArgumentNullException(nameof(tenantAuthorityPipelineConcurrencyGate));
+
+    private readonly IRunStateTransitionService _runStateTransitionService =
+        runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
 
     /// <inheritdoc />
     /// <remarks>
@@ -306,7 +311,7 @@ public sealed class AuthorityRunOrchestrator(
                 throw new InvalidOperationException(
                     $"Run '{request.RunId:D}' was not found for queued authority completion.");
 
-            if (existing.ContextSnapshotId is not null)
+            if (_runStateTransitionService.ShouldSkipQueuedAuthorityPipelineCompletion(existing.ContextSnapshotId))
             {
                 if (logger.IsEnabled(LogLevel.Information))
 

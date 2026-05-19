@@ -65,7 +65,7 @@ public sealed class CircuitBreakingContentSafetyGuard(
         }
         catch (CircuitBreakerOpenException)
         {
-            return await DegradedAllowAsync(text, kind, cancellationToken).ConfigureAwait(false);
+            return await HandleCircuitOpenAsync(text, kind, cancellationToken).ConfigureAwait(false);
         }
 
         try
@@ -83,10 +83,10 @@ public sealed class CircuitBreakingContentSafetyGuard(
                 catch (CircuitBreakerOpenException)
                 {
                     _logger.LogWarning(
-                        "Content safety consecutive SDK failures opened circuit breaker; degraded fallback invoked for kind {Kind}.",
+                        "Content safety consecutive SDK failures opened circuit breaker for kind {Kind}.",
                         kind);
 
-                    return await DegradedAllowAsync(text, kind, cancellationToken).ConfigureAwait(false);
+                    return await HandleCircuitOpenAsync(text, kind, cancellationToken).ConfigureAwait(false);
                 }
 
                 return result;
@@ -116,11 +116,35 @@ public sealed class CircuitBreakingContentSafetyGuard(
             }
             catch (CircuitBreakerOpenException)
             {
-                return await DegradedAllowAsync(text, kind, cancellationToken).ConfigureAwait(false);
+                return await HandleCircuitOpenAsync(text, kind, cancellationToken).ConfigureAwait(false);
             }
 
             return new ContentSafetyResult(false, "Content safety service error.", "SdkError", null);
         }
+    }
+
+    private Task<ContentSafetyResult> HandleCircuitOpenAsync(
+        string text,
+        string kind,
+        CancellationToken cancellationToken)
+    {
+        ContentSafetyOptions options = _contentSafetyOptions.CurrentValue;
+
+        if (options.FailClosedOnSdkError)
+        {
+            _logger.LogWarning(
+                "Content safety circuit breaker is open; failing closed for kind {Kind} (FailClosedOnSdkError=true).",
+                kind);
+
+            return Task.FromResult(
+                new ContentSafetyResult(false, "Content safety circuit open.", "CircuitOpen", null));
+        }
+
+        _logger.LogWarning(
+            "Content safety circuit breaker is open; fail-open with deny-list scrub for kind {Kind} (FailClosedOnSdkError=false).",
+            kind);
+
+        return DegradedAllowAsync(text, kind, cancellationToken);
     }
 
     private async Task<ContentSafetyResult> DegradedAllowAsync(string text, string kind, CancellationToken cancellationToken)

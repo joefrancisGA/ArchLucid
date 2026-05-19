@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Telemetry;
 using ArchLucid.Contracts.Agents;
@@ -14,6 +15,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
@@ -61,6 +63,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     ITrialFunnelCommitHook trialFunnelCommitHook,
     IFirstSessionLifecycleHook firstSessionLifecycleHook,
     IDbConnectionFactory dbConnectionFactory,
+    IRunStateTransitionService runStateTransitionService,
     ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
     private const int CommitRunTransientMaxAttempts = 5;
@@ -116,6 +119,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     private readonly IAgentTaskRepository _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
     private readonly ITrialFunnelCommitHook _trialFunnelCommitHook = trialFunnelCommitHook ?? throw new ArgumentNullException(nameof(trialFunnelCommitHook));
+
+    private readonly IRunStateTransitionService _runStateTransitionService =
+        runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
 
     /// <inheritdoc/>
     public Task<CommitRunResult> CommitRunAsync(string runId, CancellationToken cancellationToken = default) =>
@@ -209,7 +215,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
         try
         {
-            EnforceCommitAllowedForStatus(run, runId);
+            RunStateTransitionEnforcement.EnsureCommitAllowed(_runStateTransitionService, run, runId);
         }
         catch (ConflictException ex)
         {
@@ -461,20 +467,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 telemetry.ManualReviewDurationMs,
                 telemetry.EstimatedHoursSaved
             });
-    }
-
-    private static void EnforceCommitAllowedForStatus(ArchitectureRun run, string runId)
-    {
-        if (run.Status == ArchitectureRunStatus.ReadyForCommit)
-            return;
-        if (run.Status == ArchitectureRunStatus.TasksGenerated)
-            return;
-        if (run.Status == ArchitectureRunStatus.Failed)
-            throw new ConflictException($"Run '{runId}' is in Failed status and cannot be committed.");
-        if (run.Status == ArchitectureRunStatus.ExecutionCompletedQualityRejected)
-            throw new ConflictException(
-                $"Run '{runId}' did not pass the output quality gate and cannot be committed. Re-execute with more context or adjust quality settings.");
-        throw new ConflictException($"Run '{runId}' cannot be committed in status '{run.Status}'. Execute the run until it reaches ReadyForCommit.");
     }
 
     private static void ApplyRuleAuditScope(DecisionTrace trace, ScopeContext scope)

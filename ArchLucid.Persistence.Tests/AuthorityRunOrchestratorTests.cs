@@ -1,6 +1,7 @@
 using System.Data;
 using System.Text.Json;
 
+using ArchLucid.Application.Runs;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Audit;
@@ -1018,6 +1019,7 @@ public sealed class AuthorityRunOrchestratorTests
             modeResolver,
             pipelineOpts,
             tenantConcurrencyGate,
+            new RunStateTransitionService(),
             logger);
     }
 

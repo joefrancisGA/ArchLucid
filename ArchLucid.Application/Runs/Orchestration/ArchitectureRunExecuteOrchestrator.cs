@@ -12,6 +12,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
@@ -45,6 +46,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
     IOptions<AgentExecutionOptions> agentExecutionOptions,
     IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions,
+    IRunStateTransitionService runStateTransitionService,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
@@ -90,8 +92,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     private readonly IRequestContentSafetyPrecheck _requestContentSafetyPrecheck =
         requestContentSafetyPrecheck ?? throw new ArgumentNullException(nameof(requestContentSafetyPrecheck));
 
-    /// <summary>One persisted result per required agent type (Topology, Cost, Compliance, Critic) before commit.</summary>
-    private static readonly HashSet<AgentType> RequiredAgentTypesForCommit = [AgentType.Topology, AgentType.Cost, AgentType.Compliance, AgentType.Critic];
+    private readonly IRunStateTransitionService _runStateTransitionService =
+        runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
 
     /// <inheritdoc/>
     public async Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default)
@@ -321,7 +323,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     private async Task<ExecuteRunResult?> TryReturnExistingExecuteResultsAsync(ArchitectureRun run, string runId, CancellationToken cancellationToken)
     {
         IReadOnlyList<AgentResult> existingResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
-        if (run.Status is ArchitectureRunStatus.ReadyForCommit or ArchitectureRunStatus.Committed)
+        if (_runStateTransitionService.IsExecuteIdempotentTerminalStatus(run.Status))
         {
             if (existingResults.Count > 0)
             {
@@ -363,16 +365,6 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         return new ExecuteRunResult { RunId = runId, Results = existingResults.ToList() };
     }
 
-    private static bool HasAllRequiredAgentTypesForCommit(IReadOnlyList<AgentResult> results)
-    {
-        if (results.Count != RequiredAgentTypesForCommit.Count)
-            return false;
-        foreach (AgentType required in RequiredAgentTypesForCommit)
-            if (results.Count(r => r.AgentType == required) != 1)
-                return false;
-        return true;
-    }
-
     /// <summary>
     ///     ADR-0012: execute no longer wrote <c>LegacyRunStatus</c>; clients and UIs still expect
     ///     <see cref = "ArchitectureRunStatus.ReadyForCommit"/>
@@ -380,7 +372,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     /// </summary>
     private async Task TryPromoteRunLegacyStatusIfAllResultsPresentAsync(string runId, IReadOnlyList<AgentResult> results, CancellationToken cancellationToken)
     {
-        if (!HasAllRequiredAgentTypesForCommit(results))
+        if (!_runStateTransitionService.HasAllRequiredAgentResults(results))
             return;
         if (!TryParseRunGuid(runId, out Guid runGuid))
             return;
@@ -394,8 +386,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         }
 
         string previousLegacyRunStatus = header.LegacyRunStatus ?? "";
-        if (string.Equals(previousLegacyRunStatus, nameof(ArchitectureRunStatus.ReadyForCommit), StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(previousLegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
+        if (!_runStateTransitionService.ShouldPromoteLegacyStatusToReadyForCommit(previousLegacyRunStatus))
             return;
         header.LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit);
         header.StructuralExecutionMode = StructuralExecutionModeResolver.FromAgentExecutionOptionsAndFallback(

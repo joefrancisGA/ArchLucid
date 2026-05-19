@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Interfaces;
@@ -44,6 +45,7 @@ public sealed class ArchitectureApplicationService(
     IAuditService auditService,
     IActorContext actorContext,
     IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher,
+    IRunStateTransitionService runStateTransitionService,
     ILogger<ArchitectureApplicationService> logger) : IArchitectureApplicationService
 {
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -69,12 +71,8 @@ public sealed class ArchitectureApplicationService(
     private readonly IUnifiedGoldenManifestReader _unifiedGoldenManifestReader =
         unifiedGoldenManifestReader ?? throw new ArgumentNullException(nameof(unifiedGoldenManifestReader));
 
-    /// <summary>Agent types that must each have exactly one result before a run can transition to ReadyForCommit.</summary>
-    private static readonly HashSet<AgentType> RequiredAgentTypes = [AgentType.Topology, AgentType.Cost, AgentType.Compliance, AgentType.Critic];
-
-    /// <summary>Run statuses that allow submitting agent results.</summary>
-    private static readonly HashSet<ArchitectureRunStatus> ResultSubmissionAllowedStatuses =
-        [ArchitectureRunStatus.TasksGenerated, ArchitectureRunStatus.WaitingForResults];
+    private readonly IRunStateTransitionService _runStateTransitionService =
+        runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
 
     public async Task<GetRunResult?> GetRunAsync(string runId, CancellationToken cancellationToken = default)
     {
@@ -96,13 +94,9 @@ public sealed class ArchitectureApplicationService(
         ArchitectureRun run = detail.Run;
         List<AgentTask> tasks = detail.Tasks;
         List<AgentResult> existingResults = detail.Results;
-        if (!ResultSubmissionAllowedStatuses.Contains(run.Status))
-        {
-            string allowed = string.Join(" or ", ResultSubmissionAllowedStatuses.OrderBy(s => s.ToString()));
-            return new SubmitResultResult(false, null,
-                $"Run is in status '{run.Status}' and does not accept agent results. Only {allowed} runs can receive results.",
-                ApplicationServiceFailureKind.BadRequest);
-        }
+        RunStateTransitionCheck submissionCheck = _runStateTransitionService.ValidateResultSubmissionAllowed(run.Status);
+        if (!submissionCheck.IsAllowed)
+            return new SubmitResultResult(false, null, submissionCheck.Message!, ApplicationServiceFailureKind.BadRequest);
 
         if (!string.Equals(result.RunId, runId, StringComparison.OrdinalIgnoreCase))
             return new SubmitResultResult(false, null, $"Result RunId '{result.RunId}' does not match route runId '{runId}'.",
@@ -162,12 +156,9 @@ public sealed class ArchitectureApplicationService(
         if (detail is null)
             return new SeedFakeResultsResult(false, 0, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
         ArchitectureRun run = detail.Run;
-        if (!ResultSubmissionAllowedStatuses.Contains(run.Status))
-        {
-            string allowed = string.Join(" or ", ResultSubmissionAllowedStatuses.OrderBy(s => s.ToString()));
-            return new SeedFakeResultsResult(false, 0, $"Run is in status '{run.Status}' and does not accept results. Only {allowed} runs can be seeded.",
-                ApplicationServiceFailureKind.BadRequest);
-        }
+        RunStateTransitionCheck seedSubmissionCheck = _runStateTransitionService.ValidateResultSubmissionAllowed(run.Status);
+        if (!seedSubmissionCheck.IsAllowed)
+            return new SeedFakeResultsResult(false, 0, seedSubmissionCheck.Message!, ApplicationServiceFailureKind.BadRequest);
 
         ArchitectureRequest? architectureRequest = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
         if (architectureRequest is null)
@@ -186,8 +177,7 @@ public sealed class ArchitectureApplicationService(
         }
 
         IReadOnlyList<AgentResult> fakeResults = FakeAgentResultFactory.CreateStarterResults(runId, tasks, architectureRequest);
-        ArchitectureRunStatus newStatus =
-            HasAllRequiredAgentTypes(fakeResults) ? ArchitectureRunStatus.ReadyForCommit : ArchitectureRunStatus.WaitingForResults;
+        ArchitectureRunStatus newStatus = _runStateTransitionService.DeriveStatusAfterResultSubmission(fakeResults);
         await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
         try
         {
@@ -217,19 +207,6 @@ public sealed class ArchitectureApplicationService(
         return new SeedFakeResultsResult(true, fakeResults.Count, null);
     }
 
-    /// <summary>True when there is exactly one result for each required agent type and no extra types.</summary>
-    private static bool HasAllRequiredAgentTypes(IReadOnlyList<AgentResult>? results)
-    {
-        if (results is null)
-            return false;
-        if (results.Count != RequiredAgentTypes.Count)
-            return false;
-        foreach (AgentType required in RequiredAgentTypes)
-            if (results.Count(r => r.AgentType == required) != 1)
-                return false;
-        return true;
-    }
-
     private async Task<ArchitectureRunStatus> SubmitAgentResultPersistAsync(string runId, AgentResult result, IArchLucidUnitOfWork uow,
         CancellationToken cancellationToken)
     {
@@ -238,16 +215,12 @@ public sealed class ArchitectureApplicationService(
             await resultRepository.CreateAsync(result, cancellationToken, uow.Connection, uow.Transaction);
             // Re-fetch results after insert so concurrent submissions see the full set and only one transition sets ReadyForCommit.
             IReadOnlyList<AgentResult> allResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken, uow.Connection, uow.Transaction);
-            bool hasAllRequiredAgentTypes = HasAllRequiredAgentTypes(allResults);
-            ArchitectureRunStatus newStatus = hasAllRequiredAgentTypes ? ArchitectureRunStatus.ReadyForCommit : ArchitectureRunStatus.WaitingForResults;
-            return newStatus;
+            return _runStateTransitionService.DeriveStatusAfterResultSubmission(allResults);
         }
 
         await resultRepository.CreateAsync(result, cancellationToken);
         IReadOnlyList<AgentResult> allResultsMemory = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
-        bool hasAllRequired = HasAllRequiredAgentTypes(allResultsMemory);
-        ArchitectureRunStatus newStatusMemory = hasAllRequired ? ArchitectureRunStatus.ReadyForCommit : ArchitectureRunStatus.WaitingForResults;
-        return newStatusMemory;
+        return _runStateTransitionService.DeriveStatusAfterResultSubmission(allResultsMemory);
     }
 
     private async Task SeedFakeResultsPersistAsync(string runId, IReadOnlyList<AgentResult> fakeResults, ArchitectureRequest request, IArchLucidUnitOfWork uow,

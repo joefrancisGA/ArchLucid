@@ -1,5 +1,7 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -113,6 +115,7 @@ public sealed class ArchitectureApplicationServiceTests
             _auditService.Object,
             actorContext.Object,
             architectureFindingConfidenceEnricher.Object,
+            new RunStateTransitionService(),
             logger.Object);
     }
 

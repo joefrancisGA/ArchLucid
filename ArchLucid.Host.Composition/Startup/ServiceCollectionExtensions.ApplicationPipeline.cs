@@ -25,8 +25,10 @@ using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Configuration;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Tenancy;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Core.Runs;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Application.Support;
 using ArchLucid.Application.Traceability;
@@ -175,6 +177,7 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(EvidenceInjectionMitigationOptions.SectionPath));
         services.AddSingleton<IEvidencePackageInjectionMitigator, EvidencePackageInjectionMitigator>();
         services.Configure<SupportBundleOptions>(configuration.GetSection(SupportBundleOptions.SectionPath));
+        services.AddSingleton<IRunStateTransitionService, RunStateTransitionService>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
         // ADR 0030 PR A3 (2026-04-24): the legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector

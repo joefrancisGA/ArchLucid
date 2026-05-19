@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
@@ -118,6 +119,7 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             precheck,
             Options.Create(new AgentExecutionOptions()),
             Options.Create(new AgentOutputQualityGateOptions()),
+            new RunStateTransitionService(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 
