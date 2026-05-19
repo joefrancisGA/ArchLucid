@@ -40,7 +40,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         <div className="mt-6 rounded-lg border border-blue-100 bg-blue-50/70 px-4 py-4 dark:border-blue-950 dark:bg-blue-950/35">
           <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Assurance at a glance</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <motion.div className="rounded-lg border-2 border-blue-300/80 bg-white/90 p-4 shadow-sm dark:border-blue-800/70 dark:bg-neutral-950/50">
+            <div className="rounded-lg border-2 border-blue-300/80 bg-white/90 p-4 shadow-sm dark:border-blue-800/70 dark:bg-neutral-950/50">
               <p className="m-0 text-sm font-semibold uppercase tracking-wide text-neutral-800 dark:text-neutral-200">
                 Available now
               </p>
