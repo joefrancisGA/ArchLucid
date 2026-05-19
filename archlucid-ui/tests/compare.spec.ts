@@ -1,8 +1,10 @@
 import { expect, test } from "@playwright/test";
 
+import { FIXTURE_LEFT_RUN_ID, FIXTURE_RIGHT_RUN_ID } from "../e2e/fixtures";
 import {
+  comparePageLeftRunInput,
   comparePageMainHeading,
-  comparePageSubmitButton,
+  comparePageRightRunInput,
   expandCompareStructuredDecisionChanges,
   expandCompareTechnicalDetails,
   gotoComparePageWithFixturePair,
@@ -20,11 +22,12 @@ test.describe("Compare view — mocked manifest delta", () => {
     await gotoComparePageWithFixturePair(page);
 
     await expect(comparePageMainHeading(page)).toBeVisible();
+    await expect(comparePageLeftRunInput(page)).toHaveValue(FIXTURE_LEFT_RUN_ID);
+    await expect(comparePageRightRunInput(page)).toHaveValue(FIXTURE_RIGHT_RUN_ID);
 
-    await comparePageSubmitButton(page).click();
-
-    await expect(page.getByRole("heading", { name: "Manifest comparison", level: 3 })).toBeVisible();
+    // `CompareForm` auto-runs compare when `leftRunId`/`rightRunId` are in the URL; wait for outcomes, not the submit control.
     await expect(page.locator("#compare-structured")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Manifest comparison", level: 3 })).toBeVisible();
 
     await expect(structuredCompareSponsorRecommendationParagraph(page)).toBeVisible();
 
