@@ -9,7 +9,7 @@ namespace ArchLucid.Core.Tests.Evidence;
 
 public sealed class EvidenceBulkUploadAnomalyTrackerTests
 {
-    [SkippableFact]
+    [Fact]
     public void RecordAndEvaluate_when_disabled_does_not_throttle()
     {
         EvidenceBulkUploadAnomalyOptions opts = new() { Enabled = false };
@@ -22,7 +22,7 @@ public sealed class EvidenceBulkUploadAnomalyTrackerTests
         tracker.GetPermitLimitMultiplier("t:abc").Should().Be(1.0);
     }
 
-    [SkippableFact]
+    [Fact]
     public void RecordAndEvaluate_when_spike_detected_throttles_and_returns_stricter_multiplier()
     {
         MutableTimeProvider clock = new(new DateTime(2026, 5, 18, 12, 0, 0, DateTimeKind.Utc));
@@ -61,7 +61,7 @@ public sealed class EvidenceBulkUploadAnomalyTrackerTests
         tracker.GetPermitLimitMultiplier(key).Should().Be(0.25);
     }
 
-    [SkippableFact]
+    [Fact]
     public void IsThrottled_clears_after_throttle_duration()
     {
         MutableTimeProvider clock = new(new DateTime(2026, 5, 18, 12, 0, 0, DateTimeKind.Utc));
