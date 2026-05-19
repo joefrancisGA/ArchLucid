@@ -9,6 +9,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Diagnostics;
+using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Startup;
 using ArchLucid.Persistence.Archival;
@@ -29,6 +30,7 @@ public static partial class ServiceCollectionExtensions
         IConfiguration configuration,
         ArchLucidHostingRole hostingRole)
     {
+        services.AddHostedService<ConfigurationValidationHostedService>();
         services.AddSingleton<StartupMigrationHealthState>();
         services.AddSingleton<ExportFormatterService>();
         services.AddSingleton<TemplateProvider>();
