@@ -1,7 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Auth.Services;
+using ArchLucid.Core.Authorization;
 
 using FluentAssertions;
 
@@ -10,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ArchLucid.Api.Tests.Auth;
 
@@ -102,6 +105,68 @@ public sealed class AuthServiceCollectionExtensionsTests
             {
                 if (File.Exists(pemPath))
                     File.Delete(pemPath);
+            }
+            catch
+            {
+                // Best-effort — temp cleanup on build agents.
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Regression: tokens minted like <see cref="JwtLocalSigningIntegrationTestTokens" /> must validate against
+    ///     <see cref="AddArchLucidAuth" /> PEM settings (CI 401 on Teams/JWT integration tests).
+    /// </summary>
+    [Fact]
+    public void AddArchLucidAuth_local_pem_validates_minted_jwt_from_matching_key_pair()
+    {
+        using RSA rsa = RSA.Create(2048);
+        string privatePem = rsa.ExportPkcs8PrivateKeyPem();
+        string publicPemPath = Path.Combine(Path.GetTempPath(), $"archlucid-auth-mint-pem-{Guid.NewGuid():N}.pem");
+
+        try
+        {
+            File.WriteAllText(publicPemPath, rsa.ExportSubjectPublicKeyInfoPem(), System.Text.Encoding.UTF8);
+
+            IConfiguration configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(
+                    new Dictionary<string, string?>
+                    {
+                        ["ArchLucidAuth:Mode"] = "JwtBearer",
+                        ["ArchLucidAuth:JwtSigningPublicKeyPemPath"] = publicPemPath,
+                        ["ArchLucidAuth:JwtLocalIssuer"] = JwtLocalSigningWebAppFactory.JwtLocalTestIssuer,
+                        ["ArchLucidAuth:JwtLocalAudience"] = JwtLocalSigningWebAppFactory.JwtLocalTestAudience
+                    })
+                .Build();
+
+            ServiceCollection services = new();
+            services.AddLogging();
+            services.AddArchLucidAuth(configuration);
+
+            using ServiceProvider serviceProvider = services.BuildServiceProvider();
+            IOptionsMonitor<JwtBearerOptions> optionsMonitor =
+                serviceProvider.GetRequiredService<IOptionsMonitor<JwtBearerOptions>>();
+            TokenValidationParameters parameters =
+                optionsMonitor.Get(JwtBearerDefaults.AuthenticationScheme).TokenValidationParameters;
+
+            string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
+                privatePem,
+                JwtLocalSigningWebAppFactory.JwtLocalTestIssuer,
+                JwtLocalSigningWebAppFactory.JwtLocalTestAudience,
+                "OperatorUser",
+                [ArchLucidRoles.Operator]);
+
+            JwtSecurityTokenHandler handler = new();
+            handler.Invoking(h => h.ValidateToken(token, parameters, out _))
+                .Should()
+                .NotThrow();
+        }
+        finally
+        {
+            try
+            {
+                if (File.Exists(publicPemPath))
+                    File.Delete(publicPemPath);
             }
             catch
             {
