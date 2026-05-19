@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -7,12 +8,33 @@ using ArchLucid.Core.Authorization;
 
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+
 namespace ArchLucid.Api.Tests;
 
 /// <summary>JWT validation using <see cref="ArchLucidAuthOptions.JwtSigningPublicKeyPemPath" /> (CI / local E2E pattern).</summary>
 [Trait("Category", "Integration")]
 public sealed class JwtLocalSigningIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
+    [SkippableFact]
+    public void Minted_operator_jwt_validates_against_host_jwt_bearer_options()
+    {
+        _ = factory.CreateClient();
+        TokenValidationParameters parameters = factory.Services
+            .GetRequiredService<IOptionsMonitor<JwtBearerOptions>>()
+            .Get(JwtBearerDefaults.AuthenticationScheme)
+            .TokenValidationParameters;
+        string token = factory.MintLocalBearerJwt("OperatorUser", [ArchLucidRoles.Operator]);
+        JwtSecurityTokenHandler handler = new();
+
+        handler.Invoking(h => h.ValidateToken(token, parameters, out _))
+            .Should()
+            .NotThrow();
+    }
+
     [SkippableFact]
     public async Task Get_architecture_runs_with_valid_local_jwt_returns_OK()
     {
