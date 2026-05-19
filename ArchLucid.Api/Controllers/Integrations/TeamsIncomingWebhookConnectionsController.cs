@@ -107,6 +107,8 @@ public sealed class TeamsIncomingWebhookConnectionsController(
             return this.BadRequestProblem(keyVaultError!, ProblemTypes.ValidationFailed);
         }
 
+        string keyVaultSecretName = trimmed!;
+
         if (body.EnabledTriggers is not null)
         {
             IReadOnlyList<string> unknown = TeamsNotificationTriggerCatalog.Unknown(body.EnabledTriggers);
@@ -123,7 +125,7 @@ public sealed class TeamsIncomingWebhookConnectionsController(
 
         TeamsIncomingWebhookConnectionResponse? saved = await _connectionRepository.UpsertAsync(
             scope.TenantId,
-            trimmed!,
+            keyVaultSecretName,
             string.IsNullOrWhiteSpace(body.Label) ? null : body.Label.Trim(),
             body.EnabledTriggers,
             cancellationToken);
@@ -146,7 +148,7 @@ public sealed class TeamsIncomingWebhookConnectionsController(
                 ProjectId = scope.ProjectId,
                 DataJson = JsonSerializer.Serialize(new
                 {
-                    keyVaultSecretNameLength = trimmed.Length, enabledTriggerCount = saved.EnabledTriggers.Count
+                    keyVaultSecretNameLength = keyVaultSecretName.Length, enabledTriggerCount = saved.EnabledTriggers.Count
                 })
             },
             cancellationToken);
