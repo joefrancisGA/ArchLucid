@@ -14,8 +14,8 @@ describe("graphBuyerTrailRecordTypeLine", () => {
     };
 
     expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
-      primary: "Risk finding",
-      secondary: "Risk area: PHI minimization",
+      primary: "Finding: PHI minimization",
+      secondary: "Risk area: PHI handling",
     });
   });
 

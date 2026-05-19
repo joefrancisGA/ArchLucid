@@ -56,6 +56,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
   const quoteSectionDomId = props.quoteSectionDomId ?? "pricing-quote-request";
   const [pricing, setPricing] = useState<PricingDoc | null>(null);
   const [pricingError, setPricingError] = useState(false);
+  const [pricingLoading, setPricingLoading] = useState(true);
 
   const scrollToQuote = useCallback(() => {
     if (typeof document === "undefined") return;
@@ -78,10 +79,12 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
 
         if (!cancelled) {
           setPricing(json);
+          setPricingLoading(false);
         }
       } catch {
         if (!cancelled) {
           setPricingError(true);
+          setPricingLoading(false);
         }
       }
     })();
@@ -114,6 +117,28 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
         <p className="text-sm text-red-600" role="alert">
           Pricing data is temporarily unavailable.
         </p>
+      ) : null}
+
+      {pricingLoading && !pricingError ? (
+        <ul className="grid gap-6 md:grid-cols-3" aria-busy="true" aria-label="Loading pricing tiers">
+          {[0, 1, 2].map((slot) => (
+            <li
+              key={slot}
+              className="flex min-h-[22rem] animate-pulse flex-col rounded-lg border border-neutral-200 bg-neutral-100/80 p-5 dark:border-neutral-800 dark:bg-neutral-900/60"
+              data-testid="pricing-tier-skeleton"
+            >
+              <div className="h-6 w-32 rounded bg-neutral-200 dark:bg-neutral-700" />
+              <div className="mt-4 h-4 w-full rounded bg-neutral-200 dark:bg-neutral-700" />
+              <div className="mt-2 h-4 w-5/6 rounded bg-neutral-200 dark:bg-neutral-700" />
+              <div className="mt-6 flex-1 space-y-2">
+                <div className="h-3 w-full rounded bg-neutral-200 dark:bg-neutral-700" />
+                <div className="h-3 w-11/12 rounded bg-neutral-200 dark:bg-neutral-700" />
+                <div className="h-3 w-10/12 rounded bg-neutral-200 dark:bg-neutral-700" />
+              </div>
+              <div className="mt-6 h-10 w-full rounded bg-neutral-200 dark:bg-neutral-700" />
+            </li>
+          ))}
+        </ul>
       ) : null}
 
       {pricing && !pricingError ? (

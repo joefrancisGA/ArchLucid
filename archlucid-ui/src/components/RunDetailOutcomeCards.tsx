@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
 import { StatusPill } from "@/components/StatusPill";
-import { BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER, BUYER_SEALED_MANIFEST_TOOLTIP } from "@/lib/buyer-polish-copy";
+import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER, BUYER_SEALED_MANIFEST_TOOLTIP } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
@@ -145,10 +145,16 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
     typeof props.findingCountDisplay === "number" && Number.isFinite(props.findingCountDisplay)
       ? Math.trunc(props.findingCountDisplay)
       : null;
+  const warningN =
+    typeof props.warningCountDisplay === "number" && Number.isFinite(props.warningCountDisplay)
+      ? Math.trunc(props.warningCountDisplay)
+      : null;
   const findingsWord = findingN === 1 ? "finding" : "findings";
   const findingsPrimary =
     findingN !== null && findingN >= 0
-      ? `${findingN} ${findingsWord}`
+      ? isBuyerPolishedOperatorShellEnv() && warningN !== null && warningN > 0
+        ? BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK(findingN, warningN)
+        : `${findingN} ${findingsWord}`
       : finiteIntegerCountDisplay(props.findingCountDisplay);
   const severitySignal = buyerFindingSeveritySignal(props.findingCountDisplay, props.aggregateRiskPosture);
   const gate =

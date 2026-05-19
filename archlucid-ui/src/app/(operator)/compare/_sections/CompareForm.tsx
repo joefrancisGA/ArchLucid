@@ -44,8 +44,9 @@ export function CompareForm() {
   const aiGenerationRef = useRef(0);
   const autoComparedFromUrlRef = useRef(false);
   const demoComparePrefillDoneRef = useRef(false);
-  const [leftRunId, setLeftRunId] = useState("");
-  const [rightRunId, setRightRunId] = useState("");
+  const initialUrlPair = readCompareRunIdsFromSearchParams(searchParams);
+  const [leftRunId, setLeftRunId] = useState(initialUrlPair.prior);
+  const [rightRunId, setRightRunId] = useState(initialUrlPair.later);
   const [result, setResult] = useState<RunComparison | null>(null);
   const [golden, setGolden] = useState<GoldenManifestComparison | null>(null);
   const [legacyFailure, setLegacyFailure] = useState<ApiLoadFailureState | null>(null);

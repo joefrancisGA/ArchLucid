@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { AuditEvent } from "@/lib/api";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import { pipelineEventTypeBuyerMilestoneSubtitle, pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
+import { auditBuyerEventIsSystemRecordedActor } from "@/app/(operator)/audit/audit-ui-helpers";
 import { auditBuyerActorRoleLine, formatUtc, tryFormatDataJson } from "./audit-page-helpers";
 
 type AuditTimelineEventCardProps = {

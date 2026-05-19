@@ -184,8 +184,8 @@ export function mapGraphToReactFlow(
   const cellH = isBuyerTrail ? 240 : 140;
   const nodeWidth = isBuyerTrail ? 320 : 180;
   const heroNodeWidth = isBuyerTrail ? 356 : nodeWidth;
-  const fontSize = isBuyerTrail ? 24 : 12;
-  const heroFontSize = isBuyerTrail ? 28 : fontSize;
+  const fontSize = isBuyerTrail ? 26 : 12;
+  const heroFontSize = isBuyerTrail ? 32 : fontSize;
 
   const nodes: Node[] = layoutNodes.map((node, index) => {
     const hero = isBuyerTrail && isBuyerTrailPhiHeroNode(node);

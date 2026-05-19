@@ -15,9 +15,9 @@ After substantive **C#** or **`archlucid-ui/`** edits, run a **scoped** compile 
 
 | Change scope | Command |
 |--------------|---------|
-| One or more `.csproj` under a library | `powershell -NoProfile -File scripts/ci/agent-compile-check.ps1 -ProjectPath <smallest-covering.csproj-or.slnf>` |
+| One or more `.csproj` under a library | `.\scripts\ci\agent-compile-check.ps1 -ProjectPath <smallest-covering.csproj-or.slnf>` |
 | Prefer narrow filter when unsure | `ArchLucid.Core.slnf`, `ArchLucid.Backend.slnf`, or the touched `.csproj` — see **`docs/engineering/BUILD.md`** |
-| UI TypeScript only | `powershell -NoProfile -File scripts/ci/agent-compile-check.ps1 -Ui` |
+| UI TypeScript only | `.\scripts\ci\agent-compile-check.ps1 -Ui` |
 
 Do **not** run `dotnet build ArchLucid.sln` unless the user asks or CI parity is explicitly required.
 

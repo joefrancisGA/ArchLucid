@@ -1,10 +1,8 @@
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
-  getShowcaseCompareHref,
   getShowcaseExecutiveHref,
   getShowcaseManifestHref,
 } from "@/lib/buyer-safe-review-navigation";
-import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
@@ -48,10 +46,6 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
     {
       label: BUYER_SURFACE_VOCABULARY.evidenceGraph,
       href: `/graph?runId=${encodeURIComponent(runId)}`,
-    },
-    {
-      label: BUYER_COMPARE_OPEN_FULL_LINK_LABEL,
-      href: getShowcaseCompareHref(),
     },
     {
       label: BUYER_SURFACE_VOCABULARY.auditTrail,

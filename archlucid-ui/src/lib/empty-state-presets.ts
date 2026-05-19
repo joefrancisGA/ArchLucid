@@ -59,6 +59,17 @@ export const COMPARE_WAITING: EmptyStateProps = {
   ],
 };
 
+/** Buyer-polished compare: no raw IDs or query-parameter instructions. */
+export const COMPARE_WAITING_BUYER: EmptyStateProps = {
+  icon: GitCompareArrows,
+  title: "Choose two reviews to compare",
+  description: "Choose two finalized review packages to compare.",
+  actions: [
+    { label: "View reviews list", href: "/reviews?projectId=default" },
+    { label: "Load sample comparison", href: "/compare", variant: "outline" },
+  ],
+};
+
 export const PLANNING_EMPTY: EmptyStateProps = {
   icon: BarChart3,
   title: "No themes or plans in this scope yet",

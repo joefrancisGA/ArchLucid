@@ -61,12 +61,12 @@ const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   RunSubmitted: "Hands off the review package for formal review or governance steps.",
   ManifestGenerated: "Produces the versioned architecture manifest backing decisions and exports.",
   ManifestFinalized:
-    "Seals the reviewed manifest as the authoritative record for decisions, deliverables, and audit.",
+    "Finalizes the reviewed manifest as the authoritative signed record for decisions, deliverables, and audit.",
   FindingsSnapshotSealed: "Freezes finding text and severities for traceability and remediation tickets.",
   ArtifactsGenerated: "Materializes sponsor and compliance deliverables attached to the manifest.",
   GovernanceApprovalRequested:
     "Creates an auditable governance checkpoint before any governed downstream handoff.",
-  "finalize.run": "Seals the reviewed manifest as the authoritative record for decisions, deliverables, and audit.",
+  "finalize.run": "Finalizes the reviewed manifest as the authoritative signed record for decisions, deliverables, and audit.",
   "run.finalized": "Closes the run with a durable outcome snapshot for governance and audit.",
   "context.snapshot.created": "Captures the ingested context used to justify findings and graph evidence.",
   "graph.snapshot.created": "Persists the architecture relationship graph used in the evidence trail.",
@@ -79,11 +79,11 @@ const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   findings_snapshot: "Persists generated findings before final manifest packaging.",
   "com.archlucid.authority.run.completed": "Closes the run with a durable outcome snapshot for governance and audit.",
   "com.archlucid.manifest.finalized.v1":
-    "Seals the reviewed manifest as the authoritative record for decisions, deliverables, and audit.",
+    "Finalizes the reviewed manifest as the authoritative signed record for decisions, deliverables, and audit.",
   "com.archlucid.governance.approval.submitted":
     "Creates an auditable governance checkpoint before any governed downstream handoff.",
   "com.archlucid.governance.approval.recorded":
-    "Records that the required governance approval sequence completed for this sealed package.",
+    "Records that the required governance approval sequence completed for this finalized signed review package.",
   "com.archlucid.governance.promotion.activated":
     "Records that an approved package was authorized to advance within the governed change boundary.",
 };

@@ -36,7 +36,7 @@ export function buildBuyerReviewPackagePlainStatusHeadline(input: BuyerReviewDis
   }
 
   if (postureRaw === "approved with monitoring") {
-    return "Approved with monitoring — proceed under the controls documented in this sealed package.";
+    return "Approved with monitoring — proceed under the controls documented in this finalized signed review package.";
   }
 
   return null;
@@ -77,16 +77,21 @@ export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDisposi
   const posture =
     postureRaw.length > 0 && postureRaw.toLowerCase() !== "not rated" ? postureRaw : null;
 
+  const includesMonitoredRiskInFindingPhrase =
+    warnings !== null && warnings > 0 && (unresolved === null || unresolved === 0);
+
   const findingPhrase =
     findings === null
       ? "Finding counts appear in the strip below."
       : unresolved !== null && unresolved > 0
         ? `${findings} finding${findings === 1 ? "" : "s"} recorded with ${unresolved} unresolved issue${unresolved === 1 ? "" : "s"} still tracked on the manifest.`
-        : `${findings} finding${findings === 1 ? "" : "s"} recorded with no blocking items left open for this package.`;
+        : includesMonitoredRiskInFindingPhrase && findings !== null
+          ? `${findings} finding${findings === 1 ? "" : "s"}, including ${warnings} non-blocking monitored risk${warnings === 1 ? "" : "s"}.`
+          : `${findings} finding${findings === 1 ? "" : "s"} recorded with no blocking items left open for this package.`;
 
   const warningPhrase =
-    warnings !== null && warnings > 0
-      ? ` ${warnings} non-blocking monitored risk${warnings === 1 ? "" : "s"} remain on the sealed record.`
+    warnings !== null && warnings > 0 && unresolved !== null && unresolved > 0
+      ? ` ${warnings} non-blocking monitored risk${warnings === 1 ? "" : "s"} remain on the finalized signed record.`
       : "";
 
   const lead =

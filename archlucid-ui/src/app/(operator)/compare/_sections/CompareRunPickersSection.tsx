@@ -1,7 +1,7 @@
 import { EmptyState } from "@/components/EmptyState";
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY } from "@/lib/buyer-polish-copy";
-import { COMPARE_WAITING } from "@/lib/empty-state-presets";
+import { COMPARE_WAITING, COMPARE_WAITING_BUYER } from "@/lib/empty-state-presets";
 import type { RunSummary } from "@/types/authority";
 
 export type CompareRunPickersSectionProps = {
@@ -127,7 +127,9 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
         </div>
       </div>
 
-      {(!leftTrim || !rightTrim) && <EmptyState {...COMPARE_WAITING} />}
+      {(!leftTrim || !rightTrim) && (
+        <EmptyState {...(useBuyerFacingRunLabels ? COMPARE_WAITING_BUYER : COMPARE_WAITING)} />
+      )}
     </>
   );
 

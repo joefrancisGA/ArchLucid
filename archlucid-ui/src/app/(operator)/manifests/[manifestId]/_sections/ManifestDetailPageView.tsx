@@ -143,6 +143,22 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         )}
       </p>
 
+      {showcaseBuyerManifestHeadline === true ? (
+        <section
+          aria-labelledby="manifest-authority-summary-heading"
+          className="rounded-xl border-2 border-teal-600/70 bg-teal-50/60 p-4 shadow-sm dark:border-teal-500/40 dark:bg-teal-950/35"
+          data-testid="manifest-buyer-authority-summary"
+        >
+          <h2 id="manifest-authority-summary-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            What this signed manifest proves
+          </h2>
+          <p className="m-0 mt-2 max-w-prose text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+            This signed manifest is the authoritative reviewed architecture record for the Claims Intake Modernization
+            package — decisions, findings, and downloadable deliverables.
+          </p>
+        </section>
+      ) : null}
+
       {buyerPolishedLayout ? (
         <nav
           aria-label="On this page"
@@ -182,10 +198,10 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
 
       {buyerPolishedLayout ? (
         <>
+          {overviewSummaryCard}
           <div id="manifest-decisions" className="scroll-mt-24 space-y-6">
             {decisionsLeadCard}
           </div>
-          {overviewSummaryCard}
         </>
       ) : (
         <>
@@ -310,7 +326,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
             </CardDescription>
           </div>
           {buyerPolishedLayout ? (
-            <BuyerTitleHint text="Rows below list individual sealed-package files. Prefer ZIP above when your workspace publishes a full bundle." />
+            <BuyerTitleHint text="Rows below list individual deliverable artifacts. Prefer the consolidated package download above when your workspace publishes a full bundle." />
           ) : null}
         </CardHeader>
         <CardContent className="space-y-4">
@@ -398,7 +414,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length > 0 && buyerPolishedLayout ? (
             <details className="group rounded-md border border-neutral-200/90 bg-neutral-50/40 p-3 dark:border-neutral-800 dark:bg-neutral-950/30">
               <summary className="cursor-pointer select-none text-sm font-medium text-neutral-900 outline-none marker:text-neutral-500 focus-visible:ring-2 focus-visible:ring-teal-500/80 dark:text-neutral-100">
-                Show individual deliverable files ({artifacts.length})
+                Show deliverable artifacts ({artifacts.length})
               </summary>
               <div className="mt-4">
                 <ArtifactListTable

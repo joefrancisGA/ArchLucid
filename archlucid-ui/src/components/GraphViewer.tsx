@@ -172,8 +172,8 @@ export function GraphViewer({
 
   const buyerTrailPanel = flowPresentation === "buyerTrail";
 
-  const fitPadding = buyerTrailPanel ? 0.01 : 0.08;
-  const fitMaxZoom = buyerTrailPanel ? 5.6 : 1.52;
+  const fitPadding = buyerTrailPanel ? 0.005 : 0.08;
+  const fitMaxZoom = buyerTrailPanel ? 6.2 : 1.52;
 
   useEffect(() => {
     if (filtered.nodes.length === 0) {
@@ -243,7 +243,7 @@ export function GraphViewer({
       <div
         className={
           buyerTrailPanel
-            ? "h-[min(88vh,960px)] min-h-[520px] w-full rounded-xl border-2 border-slate-200 bg-slate-50/80 shadow-inner dark:border-slate-700 dark:bg-slate-950/50"
+            ? "h-[min(76vh,820px)] min-h-[440px] w-full rounded-xl border-2 border-slate-200 bg-slate-50/80 shadow-inner dark:border-slate-700 dark:bg-slate-950/50"
             : compactChrome
               ? "h-[min(55vh,520px)] min-h-[300px] w-full border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
               : "h-[70vh] w-full border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
@@ -455,62 +455,33 @@ export function GraphViewer({
                 </p>
               ) : null}
 
-              <p>
-                <strong>{buyerTrailPanel ? (selectedNode.type === "Finding" ? "Finding" : "Node") : "Label"}:</strong>{" "}
-                {selectedNode.label}
-              </p>
-
-              {!buyerTrailPanel ? (
-                <p>
-                  <strong>Type:</strong> {selectedNode.type}
-                </p>
-              ) : (
+              {buyerTrailPanel ? (
                 (() => {
                   const recordType = graphBuyerTrailRecordTypeLine(selectedNode);
 
                   return (
-                    <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                      <span className="font-medium text-neutral-700 dark:text-neutral-300">Record type:</span>{" "}
-                      {recordType.primary}
+                    <p className="m-0 text-sm leading-snug text-neutral-800 dark:text-neutral-200">
+                      <strong>{recordType.primary}</strong>
                       {recordType.secondary !== null ? (
                         <>
-                          {" "}
-                          ·{" "}
-                          <span className="font-medium text-neutral-700 dark:text-neutral-300">
-                            {recordType.secondary}
-                          </span>
-                        </>
-                      ) : null}
-                      {selectedNode.type === "Finding" && recordType.secondary === null ? (
-                        <>
-                          {" "}
-                          ·{" "}
-                          <span className="font-medium text-neutral-700 dark:text-neutral-300">Severity:</span>{" "}
-                          {(() => {
-                            const meta = selectedNode.metadata;
-
-                            if (meta === undefined) {
-                              return "—";
-                            }
-
-                            for (const [rawKey, rawVal] of Object.entries(meta)) {
-                              const key = rawKey.trim().toLowerCase();
-
-                              if (key === "severity" || key.endsWith("severity")) {
-                                const value = String(rawVal).trim();
-
-                                return value.length > 0 ? value : "—";
-                              }
-                            }
-
-                            return "—";
-                          })()}
+                          <br />
+                          <span className="text-neutral-700 dark:text-neutral-300">{recordType.secondary}</span>
                         </>
                       ) : null}
                     </p>
                   );
                 })()
+              ) : (
+                <p>
+                  <strong>Label:</strong> {selectedNode.label}
+                </p>
               )}
+
+              {!buyerTrailPanel ? (
+                <p>
+                  <strong>Type:</strong> {selectedNode.type}
+                </p>
+              ) : null}
 
               {buyerTrailPanel
                 ? (() => {
@@ -572,10 +543,10 @@ export function GraphViewer({
                     return (
                       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                         <Button type="button" variant="default" size="sm" className="h-9 w-full justify-center" asChild>
-                          <Link href={graphFindingDetailHref(rid, fid)}>View finding detail</Link>
-                        </Button>
-                        <Button type="button" variant="default" size="sm" className="h-9 w-full justify-center" asChild>
                           <Link href={getShowcaseManifestHref()}>View signed manifest</Link>
+                        </Button>
+                        <Button type="button" variant="outline" size="sm" className="h-9 w-full justify-center" asChild>
+                          <Link href={graphFindingDetailHref(rid, fid)}>View finding detail</Link>
                         </Button>
                       </div>
                     );

@@ -49,7 +49,7 @@ export const BUYER_ASK_GROUNDING_ONCE =
   "Example answers are illustrative. In connected workspaces, answers are scoped to selected review evidence and source anchors.";
 
 export const BUYER_ASK_SHOWCASE_ANCHORS_LINE =
-  "On the Claims Intake sample review, replies include quick links to executive summary, manifest, policy basis, evidence trail, optional review change comparison, and audit anchors where available.";
+  "On the Claims Intake sample review, replies include quick links to executive summary, manifest, policy basis, evidence trail, and audit anchors where available.";
 
 export const BUYER_COMPARE_SECONDARY_PAGE_LEAD =
   "Advanced review comparison is a secondary diligence view. Start from the finalized review package, then load a prior vs later pair when you need an explicit delta.";
@@ -57,7 +57,19 @@ export const BUYER_COMPARE_SECONDARY_PAGE_LEAD =
 export const BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER =
   "The monitored risk is included in the findings count and is non-blocking.";
 
-export const BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY = "Download consolidated review package (ZIP)";
+export const BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY = "Download finalized review package";
+
+export const BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE = "Delivered as a ZIP archive for diligence and archiving.";
+
+export const BUYER_PRICING_ARCHITECTURE_PROOF_ENGINE_CLAUSE =
+  "for governed architecture review, evidence traceability, and audit-ready decision records";
+
+export const BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK = (findingCount: number, warningCount: number): string => {
+  const findingsWord = findingCount === 1 ? "finding" : "findings";
+  const riskWord = warningCount === 1 ? "risk" : "risks";
+
+  return `${findingCount} ${findingsWord}, including ${warningCount} non-blocking monitored ${riskWord}.`;
+};
 
 export const BUYER_COMPARE_OPEN_FULL_LINK_LABEL = "View review change comparison";
 

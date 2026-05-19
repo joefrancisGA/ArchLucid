@@ -4,6 +4,7 @@ import { MarketingPricingPublicCutoverNotice } from "@/components/marketing/Mark
 import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
 import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
+import { BUYER_PRICING_ARCHITECTURE_PROOF_ENGINE_CLAUSE } from "@/lib/buyer-polish-copy";
 import { buildPricingSignupHref } from "@/lib/marketing/pricing-signup-href";
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
 
@@ -38,7 +39,7 @@ export default async function PricingPage(props: PricingPageProps) {
         className="mb-6 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
         data-testid="pricing-brand-category-paragraph"
       >
-        ArchLucid is an {BRAND_CATEGORY} offering. For procurement-led deployments,{" "}
+        ArchLucid is an {BRAND_CATEGORY} offering {BUYER_PRICING_ARCHITECTURE_PROOF_ENGINE_CLAUSE}. For procurement-led deployments,{" "}
         <a
           className="font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-200"
           href="#pricing-quote-request"

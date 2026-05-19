@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { getBundleDownloadUrl } from "@/lib/api";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
-import { BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY } from "@/lib/buyer-polish-copy";
+import { BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY, BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE } from "@/lib/buyer-polish-copy";
 import { policyPackBuyerGovernanceDetailHref, policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
   SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT,
@@ -84,7 +84,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         </p>
         <p className="m-0 mt-2 text-xs leading-snug text-neutral-600 dark:text-neutral-400">
           {isCuratedDemo
-            ? "Sample healthcare claims pack for this walkthrough — defines checks referenced in diligence. Human approvals do not replace your change-management authority."
+            ? "Policy pack used for this sample review — defines checks referenced in diligence. Human approvals do not replace your change-management authority."
             : "Defines referenced checks used in diligence; approvals stay human-governed and do not bypass deployment authority."}
         </p>
         {buyerPolicyPackHref !== null ? (
@@ -287,16 +287,16 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
           id="manifest-bundle-zip"
           className="scroll-mt-24 rounded-lg border border-neutral-200/90 bg-neutral-50/40 dark:border-neutral-800 dark:bg-neutral-950/30"
           data-testid="manifest-buyer-bundle-download"
-          open
         >
           <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-neutral-900 outline-none marker:text-neutral-500 focus-visible:ring-2 focus-visible:ring-teal-500/80 dark:text-neutral-100">
             {BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY}
           </summary>
           <div className="border-t border-neutral-200 px-3 py-3 dark:border-neutral-800">
             <p className="m-0 max-w-prose text-sm text-neutral-800 dark:text-neutral-200">
-              Prefer the consolidated bundle for diligence and archiving — it seals the downloadable outputs that align to
-              the decisions and posture summarized above.
+              Prefer the consolidated bundle for diligence and archiving — it packages the downloadable outputs that align
+              to the decisions and posture summarized above.
             </p>
+            <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">{BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Button variant="primary" size="sm" asChild>
                 <a href={getBundleDownloadUrl(summary.manifestId)}>Download finalized review package</a>

@@ -1,0 +1,48 @@
+---
+description: Minimize Windows shell/process churn — one Shell per turn, no parallel terminals, prefer read-only tools
+alwaysApply: true
+---
+
+# Agent shell discipline (Windows)
+
+Each **`Shell`** tool invocation on Windows typically spawns **powershell.exe** and **conhost.exe**. A WSL or Git Bash default profile also spawns **wsl.exe** / **bash.exe** per call. Parallel **`Shell`** batches multiply that cost and can make the workstation unusable.
+
+This rule complements **`Agent-Execution-Policy.mdc`** (no parallel subagents) and **`Agent-Local-Compile.mdc`** (when to compile).
+
+## Hard limits
+
+- **At most one `Shell` tool call per assistant turn** (one message). Never issue multiple `Shell` calls in the same turn, including “run these in parallel.”
+- **No nested launcher:** do not wrap repo scripts in `powershell -NoProfile -File …` when Cursor already runs PowerShell. Invoke scripts directly from repo root, e.g. `.\scripts\ci\agent-compile-check.ps1 -ProjectPath …`.
+- **No WSL / bash / sh** for routine agent work unless the user explicitly requests a Linux shell command in that turn.
+- **No speculative shells:** do not run `dotnet test`, full-solution `dotnet build`, `npm`/`pnpm` install, Docker, or broad `git` history unless the user asked or the task cannot complete without it.
+
+## Prefer non-shell tools
+
+Use **`Read`**, **`Grep`**, **`Glob`**, and **`SemanticSearch`** for exploration, file content, and symbol lookup. Use **`ReadLints`** for editor diagnostics before reaching for build scripts.
+
+## Git (single invocation)
+
+When git is required, **chain** in one `Shell` call from repo root, for example:
+
+```powershell
+git status --short; git diff --stat; git log -5 --oneline
+```
+
+Do **not** split `git status`, `git diff`, and `git log` into separate parallel `Shell` calls.
+
+## Compile verification
+
+Follow **`Agent-Local-Compile.mdc`**, but:
+
+- Run **at most one** scoped compile check per task (plus **one** retry on exit code **1** on the **same** scope).
+- Skip compile when the user defers verification or the turn was read-only / docs-only.
+- Use the direct script path: `.\scripts\ci\agent-compile-check.ps1` with `-ProjectPath` or `-Ui`.
+
+## Hooks and background work
+
+- Do not start **background** agents or parallel Task workers unless the user explicitly approved (see **`Agent-Execution-Policy.mdc`** and `.cursor/hooks.json`).
+- The **`stop`** hook may run `git` after a completed agent turn via `auto-commit-push.mjs`. Users can set **`ARCHLUCID_DISABLE_AUTO_COMMIT=1`** in the environment to disable it.
+
+## User overrides
+
+If the user says **no shell**, **read-only**, or **at most one command per turn**, treat that as stricter than this rule for the rest of the session.

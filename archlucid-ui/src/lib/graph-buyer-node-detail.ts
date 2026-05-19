@@ -68,8 +68,8 @@ export function graphBuyerTrailRecordTypeLine(node: GraphNodeVm): {
 } {
   if (isBuyerTrailPhiHeroNode(node)) {
     return {
-      primary: "Risk finding",
-      secondary: "Risk area: PHI minimization",
+      primary: "Finding: PHI minimization",
+      secondary: "Risk area: PHI handling",
     };
   }
 
