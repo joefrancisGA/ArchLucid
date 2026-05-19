@@ -47,12 +47,10 @@ export function RunsPageView(props: Props) {
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
         {isBuyerPolishedOperatorShellEnv() ? (
           m.totalCount === 1 && m.runs[0]?.hasGoldenManifest === true ? (
-            <>
-              <span className="inline-flex flex-wrap items-center gap-x-1">
-                One finalized review package is available in this example workspace.
-                <RunsPageBuyerHelpTip variant="sample-workspace" />
-              </span>
-            </>
+            <span className="inline-flex flex-wrap items-center gap-x-1">
+              One finalized review package is available in this example workspace.
+              <RunsPageBuyerHelpTip variant="sample-workspace" />
+            </span>
           ) : (
             <>
               <span className="inline-flex flex-wrap items-center gap-x-1">

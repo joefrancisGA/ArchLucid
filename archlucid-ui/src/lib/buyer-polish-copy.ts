@@ -4,6 +4,8 @@
 
 export const BUYER_EXAMPLE_WORKSPACE_TOOLTIP = "Example workspace using illustrative sample data only.";
 
+export const BUYER_COMPARE_PAGE_TITLE = "Advanced review comparison";
+
 export const BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL = "Review change details";
 
 export const BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY = "Change compared reviews";
@@ -38,7 +40,10 @@ export const BUYER_ASK_SHOWCASE_ANCHORS_LINE =
   "On the Claims Intake sample review, replies include quick links to executive summary, manifest, policy basis, evidence trail, optional review change comparison, and audit anchors where available.";
 
 export const BUYER_COMPARE_SECONDARY_PAGE_LEAD =
-  "Review change comparison is a secondary diligence view. Start from the finalized review package, then load a prior vs later pair when you need an explicit delta.";
+  "Advanced review comparison is a secondary diligence view. Start from the finalized review package, then load a prior vs later pair when you need an explicit delta.";
+
+export const BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER =
+  "The monitored risk is included in the findings count and is non-blocking.";
 
 export const BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY = "Download consolidated review package (ZIP)";
 

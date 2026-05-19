@@ -129,7 +129,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       {outcomeCardsEl}
 
-      {buyerFinalizedPackage ? (
+      {buyerFinalizedPackage ? null : (
         <RunDetailExecutiveSummaryCtaCard runId={m.resolvedDetail.run.runId} />
       ) : null}
 

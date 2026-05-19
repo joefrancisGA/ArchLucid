@@ -142,8 +142,10 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                 </h3>
                 {pkg.id === "team" ? (
                   <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-                    <span className="font-medium text-neutral-700 dark:text-neutral-300">Evaluation tier</span>
-                    {" — "}small teams and pilot workspaces (not the primary procurement path).
+                    <span className="font-medium text-neutral-700 dark:text-neutral-300">
+                      Evaluation and small-team workspace
+                    </span>
+                    {" — "}pilot and evaluation tier (not the primary procurement path).
                   </p>
                 ) : null}
                 <p className="mt-2 flex-1 text-sm text-neutral-700 dark:text-neutral-300">{pkg.summary}</p>

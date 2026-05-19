@@ -110,7 +110,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
           <li>Control mapping aligned to common questionnaire structures</li>
           <li>Published data-handling posture suitable for privacy reviews</li>
           <li>Immutable audit instrumentation for material lifecycle changes</li>
-          <li>Diligence intake via{" "}
+          <li>Diligence materials: request detailed diligence materials at{" "}
             <a className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300" href="mailto:security@archlucid.net">
               security@archlucid.net
             </a>

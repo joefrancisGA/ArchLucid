@@ -28,6 +28,7 @@ export function tryStaticDemoConversationMessages(threadId: string): Conversatio
         threadId: tid,
         role: "Assistant",
         content:
+          "The PHI minimization risk at intake is accepted with monitoring and is non-blocking for go-live under the documented governance cadence.\n\n" +
           "Risk:\n\n" +
           "PHI minimization at the intake boundary: legacy connectors may retain more patient identifiers than the " +
           "target architecture allows.\n\n" +

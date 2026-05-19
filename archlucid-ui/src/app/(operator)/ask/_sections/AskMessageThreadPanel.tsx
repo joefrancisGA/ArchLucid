@@ -4,7 +4,6 @@ import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
-import { tryStaticDemoConversationMessages } from "@/lib/ask-static-demo-messages";
 import { cn } from "@/lib/utils";
 import { ASK_BUYER_PROMPT_GROUPS } from "@/app/(operator)/ask/_sections/ask-page-constants";
 import type { ConversationMessage } from "@/types/conversation";
@@ -44,17 +43,6 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
 
   return (
     <div className="space-y-3 pt-1">
-      {buyerPolishedShell ? (
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          Each assistant reply is scoped to the selected package; verify citations on the linked surfaces before you rely on
-          them in diligence.
-        </p>
-      ) : null}
-      {buyerPolishedShell && tryStaticDemoConversationMessages(selectedThreadId.trim()) !== null ? (
-        <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">
-          Example review question — illustrative Q&A for the Claims Intake sample walkthrough.
-        </p>
-      ) : null}
       <h3 className="mb-3 m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
         {buyerPolishedShell ? "Evidence Q&A exchange" : "Conversation"}
       </h3>

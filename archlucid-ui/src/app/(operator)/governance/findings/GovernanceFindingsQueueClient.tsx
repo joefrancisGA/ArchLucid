@@ -293,18 +293,16 @@ function GovernanceFindingsBuyerMobileRow(props: { readonly row: GovernanceFindi
             </p>
           </details>
         ) : null}
-        <div className="flex flex-col gap-2">
-          <Button asChild variant="outline" size="sm" className="h-9 border-teal-300 dark:border-teal-700">
-            <Link href={inspectHref(row.runId, row.findingId)}>
-              {row.recordKind === "decision" ? "View decision" : BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA}
+        {graphHref !== null ? (
+          <p className="m-0">
+            <Link
+              className="text-sm font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+              href={graphHref}
+            >
+              {BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA}
             </Link>
-          </Button>
-          {graphHref !== null ? (
-            <Button asChild variant="outline" size="sm" className="h-9 border-neutral-300 dark:border-neutral-600">
-              <Link href={graphHref}>{BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA}</Link>
-            </Button>
-          ) : null}
-        </div>
+          </p>
+        ) : null}
       </CardContent>
     </Card>
   );

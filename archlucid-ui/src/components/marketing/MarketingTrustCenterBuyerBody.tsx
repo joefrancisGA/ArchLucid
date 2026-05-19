@@ -169,7 +169,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           Planned assurance
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          Roadmap and in-flight items below — timelines align with your procurement calendar.
+          Planned assurance activities below — timelines align with your procurement calendar.
         </p>
         <ul className="mt-3 max-w-3xl list-disc space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
           <li>
@@ -201,6 +201,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           >
             security@archlucid.net
           </Link>
+          . We send the current public-safe evidence summary by email to ensure buyers receive the latest approved version.
         </p>
       </section>
     </div>

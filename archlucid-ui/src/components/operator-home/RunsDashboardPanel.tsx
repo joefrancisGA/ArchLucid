@@ -269,25 +269,6 @@ export function RunsDashboardPanel() {
                 </div>
               ) : null}
 
-              {(phase === "ready" || phase === "error") && showcaseDemoRun && buyerPolishedShell ? (
-                <div
-                  className="space-y-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-3 py-3 dark:border-emerald-900 dark:bg-emerald-950/25"
-                  data-testid="operator-home-showcase-demo-banner"
-                >
-                  <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                    Claims Intake — workspace preview
-                  </p>
-                  <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                    Finalized Claims Intake review package with signed manifest, evidence trail, governance approval, and audit trail — open the review package here.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <Button asChild variant="outline" size="sm" className="h-8">
-                      <Link href={`/reviews/${encodeURIComponent(showcaseDemoRun.runId)}`}>Open full review package</Link>
-                    </Button>
-                  </div>
-                </div>
-              ) : null}
-
               {(phase === "ready" || phase === "error") && showcaseDemoRun && !buyerPolishedShell ? (
                 <div
                   className="space-y-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-3 py-3 dark:border-emerald-900 dark:bg-emerald-950/25"

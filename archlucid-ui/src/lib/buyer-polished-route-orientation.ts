@@ -144,7 +144,7 @@ export function buyerPolishedRouteOrientation(
 
   if (path.startsWith("/compare")) {
     return {
-      label: "Review change comparison",
+      label: "Advanced review comparison",
       line: "Side-by-side architecture deltas — what changed in scope, posture, risk, and deliverables.",
     };
   }

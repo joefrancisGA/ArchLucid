@@ -15,6 +15,16 @@ export function AskContextParagraph(props: AskContextParagraphProps) {
       {buyerPolishedShell ? (
         <>
           <p className="m-0">{BUYER_ASK_GROUNDING_ONCE}</p>
+          {canonicalizeDemoRunId(runId.trim()) === SHOWCASE_STATIC_DEMO_RUN_ID ? (
+            <details className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40">
+              <summary className="cursor-pointer text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+                Sample review anchors
+              </summary>
+              <p className="m-0 mt-2 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+                {BUYER_ASK_SHOWCASE_ANCHORS_LINE}
+              </p>
+            </details>
+          ) : null}
           <details className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40">
             <summary className="cursor-pointer text-xs font-semibold text-neutral-800 dark:text-neutral-200">
               Validation note (approvals)
@@ -24,9 +34,6 @@ export function AskContextParagraph(props: AskContextParagraphProps) {
               sign-off records.
             </p>
           </details>
-          {canonicalizeDemoRunId(runId.trim()) === SHOWCASE_STATIC_DEMO_RUN_ID ? (
-            <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">{BUYER_ASK_SHOWCASE_ANCHORS_LINE}</p>
-          ) : null}
         </>
       ) : (
         <p className="m-0">

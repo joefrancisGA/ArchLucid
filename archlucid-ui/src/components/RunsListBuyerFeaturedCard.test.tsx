@@ -29,6 +29,8 @@ describe("RunsListBuyerFeaturedCard", () => {
     expect(screen.getByTestId(`runs-row-primary-explore-${SHOWCASE_STATIC_DEMO_RUN_ID}`)).toBeInTheDocument();
     expect(screen.getByText(/Decision: Approved with monitoring/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /view review package/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /signed manifest/i })).toBeInTheDocument();
+    expect(screen.getByText(/Evidence trail/i)).toBeInTheDocument();
+    expect(screen.getByText(/Complete/i)).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /signed manifest/i })).not.toBeInTheDocument();
   });
 });

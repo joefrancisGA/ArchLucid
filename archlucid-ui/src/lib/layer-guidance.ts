@@ -251,7 +251,7 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     firstPilotNote: null,
   },
   compare: {
-    layerBadge: "Review change comparison",
+    layerBadge: "Advanced review comparison",
     headline: "See what changed between two finalized architecture reviews.",
     useWhen:
       "Use when you need a structured package diff or an optional executive narrative after two packages are finalized.",

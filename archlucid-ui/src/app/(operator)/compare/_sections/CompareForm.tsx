@@ -14,6 +14,7 @@ import {
   compareRunIdsAreSameAfterDemoCanonicalization,
   readCompareRunIdsFromSearchParams,
 } from "@/lib/compare-url-query-params";
+import { BUYER_COMPARE_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { cn } from "@/lib/utils";
@@ -346,7 +347,7 @@ export function CompareForm() {
     <div>
       <LayerHeader pageKey="compare" />
       <OperatorPageHeader
-        title={buyerPolished ? "Review change comparison" : "Compare reviews"}
+        title={buyerPolished ? BUYER_COMPARE_PAGE_TITLE : "Compare reviews"}
         helpKey="compare-runs"
         docsPageKey="/compare"
         metadata={

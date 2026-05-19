@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
 import { StatusPill } from "@/components/StatusPill";
+import { BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
@@ -306,14 +307,20 @@ export function RunDetailOutcomeCards({
   });
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {statusHeadline !== null ? (
-        <p
-          className="m-0 whitespace-pre-line rounded-lg border border-amber-200/90 bg-amber-50/70 px-3 py-2 text-sm font-semibold leading-snug text-neutral-950 dark:border-amber-900/55 dark:bg-amber-950/25 dark:text-neutral-50"
+        <div
+          className="rounded-xl border-2 border-teal-600/75 bg-teal-50/70 px-4 py-3 shadow-sm dark:border-teal-500/60 dark:bg-teal-950/35"
           data-testid="buyer-review-status-headline"
+          role="status"
         >
-          {statusHeadline}
-        </p>
+          <p className="m-0 whitespace-pre-line text-sm font-semibold leading-snug text-neutral-950 dark:text-neutral-50">
+            {statusHeadline}
+          </p>
+          <p className="m-0 mt-2 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300">
+            Blocking issues: 0 · Evidence basis: signed manifest, evidence trail, audit trail
+          </p>
+        </div>
       ) : null}
       <p
         className="m-0 rounded-lg border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-sm font-medium leading-snug text-neutral-900 dark:border-teal-900/55 dark:bg-teal-950/30 dark:text-neutral-100"
@@ -329,6 +336,14 @@ export function RunDetailOutcomeCards({
           aggregateRiskPosture,
         })}
       </p>
+      {typeof warningCountDisplay === "number" && warningCountDisplay > 0 ? (
+        <p
+          className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400"
+          data-testid="buyer-review-monitored-risk-clarifier"
+        >
+          {BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER}
+        </p>
+      ) : null}
         <PackageStatusStrip
           manifestId={manifestId}
           hasGoldenManifest={hasGoldenManifest}
