@@ -90,15 +90,9 @@ public sealed class ExplanationService(
             string.Join("\n", compliance.Select(x => "- " + x)) +
             "\n\n## Provenance\n" +
             deterministic.FormatProvenanceSummary(provenance) +
-            "\n\nRespond with a single JSON object only (no markdown fences), matching this schema (camelCase keys):\n" +
-            "- schemaVersion: number (use 1)\n" +
-            "- reasoning: string (required) — 2–4 paragraphs referencing the bullets above\n" +
-            "- evidenceRefs: string[] — optional provenance or decision IDs you cite\n" +
-            "- confidence: number between 0 and 1, or omit if unknown\n" +
-            "- alternativesConsidered: string[] — optional\n" +
-            "- caveats: string[] — optional limitations\n" +
-            "Example: {\"schemaVersion\":1,\"reasoning\":\"...\",\"evidenceRefs\":[\"dec-1\"],\"confidence\":0.72}\n" +
-            "If you cannot follow the schema, respond with plain prose only (no JSON); the system will still accept it.";
+            "\n\n" +
+            StructuredExplanationLlmPromptSchema.BuildRunExplanationJsonResponseInstructions(
+                "2–4 paragraphs referencing the bullets above");
 
         string? json = await TryCompleteJsonAsync(userPrompt, ct);
         json = ValidateRunExplanationPayload(json);

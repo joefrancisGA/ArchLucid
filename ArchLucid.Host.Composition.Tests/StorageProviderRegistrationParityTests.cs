@@ -2,6 +2,7 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Coordination.Diagnostics;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -48,7 +49,10 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(SqlResilientOperationExecutor)
     ];
 
-    private static readonly HashSet<Type> InMemoryOnlyServiceTypes = [];
+    private static readonly HashSet<Type> InMemoryOnlyServiceTypes =
+    [
+        typeof(InMemoryAuditRepository)
+    ];
 
     [Fact]
     public void AddArchLucidStorage_InMemory_and_Sql_register_same_service_types_except_allowlisted()

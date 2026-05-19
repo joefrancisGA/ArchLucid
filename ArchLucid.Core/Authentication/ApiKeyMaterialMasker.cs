@@ -3,6 +3,9 @@ namespace ArchLucid.Core.Authentication;
 /// <summary>Masks API key configuration material for operator UI (never returns full secrets).</summary>
 public static class ApiKeyMaterialMasker
 {
+    // Reveal only the last four characters when enough material remains hidden (typical hex keys are 64 chars).
+    private const int MinLengthToRevealSuffix = 9;
+
     public static IReadOnlyList<string> MaskCommaSeparatedSegments(string? raw)
     {
         if (string.IsNullOrWhiteSpace(raw))
@@ -35,7 +38,7 @@ public static class ApiKeyMaterialMasker
 
         string trimmed = segment.Trim();
 
-        if (trimmed.Length <= 4)
+        if (trimmed.Length < MinLengthToRevealSuffix)
             return "****";
 
         return string.Concat("****", trimmed.AsSpan(trimmed.Length - 4));
