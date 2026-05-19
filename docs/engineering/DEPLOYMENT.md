@@ -46,6 +46,8 @@ Treat Redis like other private-plane dependencies (typically **Azure Cache for R
 
 Key catalog (presence semantics and TTL): [CONFIGURATION_REFERENCE.md](../library/CONFIGURATION_REFERENCE.md). Background **`Hosting:Role=Worker`** processes that exercise projection caching benefit from the same **`Distributed`** setting.
 
+Operator playbook (footguns, validation, hot-path cache): [PROJECTION_CACHE_AND_REPLICAS.md](../operations/PROJECTION_CACHE_AND_REPLICAS.md).
+
 ## Application deployment
 
 1. **Build and publish** the API image (or package) from **`ArchLucid.Api`** using your pipeline; tag with an immutable version. The same Docker image also carries **`ArchLucid.Worker.dll`** for Azure Container Apps worker revisions (see **`docs/engineering/CONTAINERIZATION.md`**).

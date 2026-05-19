@@ -240,7 +240,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 1. **Observability alerting gaps:** While Grafana dashboards and some Prometheus alerts exist, broader Loki alerting on structured logs (beyond the committed policy pack assignment rules in `infra/loki/archlucid-policy-pack-assignment-alerts.yml`) and composite GenAI/cross-service SLO coherence are missing.
 2. **E2E test mock reliance:** `ui-e2e-smoke` relies on mocks, creating a coverage skew compared to `live-api-*` tests.
 3. **Cognitive Load:** The product surface is large and complex, which can overwhelm new operators despite marketing-aligned vocabulary.
-4. **Explainability of single-process projection limitations:** Default in-process projection cache caps multi-replica coherence, needing better documentation.
+4. **Explainability of single-process projection limitations:** Default in-process projection cache caps multi-replica coherence — **partially mitigated** by [`docs/operations/PROJECTION_CACHE_AND_REPLICAS.md`](../operations/PROJECTION_CACHE_AND_REPLICAS.md) and in-product Learn more on **Tenant settings** and **Admin → Configuration** (improvement **#23**).
 5. **Performance edge cases:** Making Redis optional simplifies single-replica deployments but complicates scaled operations, and rate limiting needs WAF-aligned quotas.
 6. **Template and Accelerator Richness:** While 3 packs exist, the library is still relatively small for a broad enterprise audience.
 7. **Executive Value Visibility without baselines:** Executive value can become abstract if real tenant baselines are missing — **partially mitigated** by the executive dashboard baseline-upload banner (`ExecutiveDashboardBaselineWarningBanner` on `/dashboard`).
@@ -576,17 +576,18 @@ Add a panel to the executive dashboard to visualize the compliance drift trend o
 - Impact: Directly improves Executive Value Visibility (+8-10 pts) and Stickiness (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
 ```
 
-### 23. Add operator-facing documentation for projection cache and multi-replica limitations
+### 23. COMPLETED: Add operator-facing documentation for projection cache and multi-replica limitations
 - **Why it matters:** Default in-process projection behavior is easy to misunderstand when scaling to multiple replicas; explicit help reduces **Explainability** and **Cognitive Load** gaps called out in the Top Weaknesses list.
 - **Expected impact:** Explainability (+10 pts), Cognitive Load (+5 pts).
 - **Affected qualities:** Explainability, Cognitive Load.
-- **Actionable:** Yes
+- **Actionable:** No — delivered as `docs/operations/PROJECTION_CACHE_AND_REPLICAS.md` (in-process vs Distributed projection cache, `HotPathCache` / LLM cache notes, multi-replica footguns, validation checklist). In-product links: **Learn more** on **Admin → Configuration** (`ContextualHelp` → `admin-configuration`), **Tenant settings** technical details, Help drawer topic `projection-cache-replicas`. Cross-link from `docs/engineering/DEPLOYMENT.md`.
 ```text
-Add an operator-facing doc (e.g. `docs/operations/PROJECTION_CACHE_AND_REPLICAS.md`) and link it from the operator UI settings or internal help: explain when in-process projection is sufficient, when Redis/shared cache is required, and how to validate coherence across replicas.
+Add an operator-facing doc (e.g. `docs/operations/PROJECTION_CACHE_AND_REPLICAS.md`) and link it from the operator UI settings or internal help: explain when in-process projection is sufficient, when Redis/shared cache is required, and how to validate coherence across replicas. [COMPLETED]
 - Acceptance criteria: Doc is linked from at least one in-product “learn more” surface; mentions multi-replica footguns in plain language.
 - Constraints: Stay aligned with shipped configuration flags and existing `Explainability`/architecture notes — do not invent new product promises.
 - What not to change: Do not change projection engine behavior in the same change set unless a defect is found.
 - Impact: Directly improves Explainability (+8-10 pts) and Cognitive Load (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- Deliverable: `docs/operations/PROJECTION_CACHE_AND_REPLICAS.md`; `archlucid-ui/src/lib/contextual-help-content.ts`; `archlucid-ui/src/lib/help-topics.ts`; `archlucid-ui/src/app/(operator)/settings/tenant/_sections/TenantSettingsPageView.tsx`.
 ```
 
 ### 24. Add automated tests that reject inbound webhooks with invalid HMAC signatures
@@ -622,7 +623,7 @@ Extend `infra/grafana/` dashboards (or add a panel to an existing operational da
 To optimize context window usage and cost-effectiveness, batch the actionable prompts as follows:
 
 - **Batch 1 (Observability & Dashboards):** 3, 9, 18, 22, 25
-- **Batch 2 (UI & UX Enhancements):** 5, 8, 19, 23 *(14 completed)*
+- **Batch 2 (UI & UX Enhancements):** 5, 8, 19 *(14, 23 completed)*
 - **Batch 3 (Reliability & Health Checks):** 15 *(12 completed)*
 - **Batch 4 (CLI & Export Features):** *(10, 16, 21 completed)*
 - **Batch 5 (Policy Packs & Runbooks):** *(6, 17, 20 completed)*

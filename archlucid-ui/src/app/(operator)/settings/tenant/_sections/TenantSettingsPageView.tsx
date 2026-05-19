@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 
 import { TenantSettingsDigestEmailsInput } from "./TenantSettingsDigestEmailsInput";
@@ -81,6 +82,18 @@ export function TenantSettingsPageView(props: Props) {
                 Project: <span className="font-mono text-xs">{scope["x-project-id"]}</span>
               </li>
             </ul>
+            <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-300">
+              Hosted deployments with more than one API instance should use a shared projection cache —{" "}
+              <a
+                className="text-teal-800 underline dark:text-teal-300"
+                href={toDocsBlobUrl("/docs/operations/PROJECTION_CACHE_AND_REPLICAS.md")}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Learn more about projection cache and replicas
+              </a>
+              .
+            </p>
           </CollapsibleSection>
         </CardContent>
       </Card>

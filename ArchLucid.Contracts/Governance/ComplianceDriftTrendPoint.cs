@@ -26,4 +26,22 @@ public sealed class ComplianceDriftTrendPoint
         init;
     } =
         new Dictionary<string, int>(StringComparer.Ordinal);
+
+    /// <summary>
+    ///     Findings captured into snapshots in this bucket (<c>FindingsSnapshotSealed</c> audit events).
+    /// </summary>
+    public int OpenFindingsCount
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
+    ///     Human review dispositions recorded in this bucket (approved / rejected / overridden).
+    /// </summary>
+    public int ResolvedFindingsCount
+    {
+        get;
+        init;
+    }
 }

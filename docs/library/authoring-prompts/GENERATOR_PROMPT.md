@@ -1,3 +1,5 @@
+> **Scope:** Cursor chat prompt to generate `*-rules-v1.json` curated-rules files from pack context. Internal authoring only; not buyer-facing documentation or runtime policy enforcement.
+
 # ArchLucid policy pack — generator prompt
 
 **Purpose:** Paste this prompt (with the pack context section filled in from `PACK_CONTEXTS.md`) into a Cursor chat to produce a `*-rules-v1.json` curated-rules file. Run the critic prompt (`CRITIC_PROMPT.md`) on the output before committing.

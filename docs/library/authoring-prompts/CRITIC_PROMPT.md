@@ -1,3 +1,5 @@
+> **Scope:** Cursor chat prompt for structured QA of curated policy-pack JSON before commit. Internal authoring only; not buyer-facing documentation or the rules corpora themselves.
+
 # ArchLucid policy pack — critic prompt
 
 **Purpose:** Paste this prompt (with the generated JSON attached) into a Cursor chat to perform a structured QA pass before committing the curated-rules file. The critic pass catches the failure modes a generator is most likely to introduce.

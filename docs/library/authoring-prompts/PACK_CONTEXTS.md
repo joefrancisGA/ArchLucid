@@ -1,3 +1,5 @@
+> **Scope:** Per-pack context blocks copied into generator and critic prompts for policy-pack authoring. Internal reference only; not buyer-facing materials or canonical go-to-market pack definitions.
+
 # ArchLucid policy pack — authoring contexts
 
 **Purpose:** One context block per pack queued for authoring. Copy the relevant block into `GENERATOR_PROMPT.md` and `CRITIC_PROMPT.md` before running.

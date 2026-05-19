@@ -287,6 +287,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
           id="manifest-bundle-zip"
           className="scroll-mt-24 rounded-lg border border-neutral-200/90 bg-neutral-50/40 dark:border-neutral-800 dark:bg-neutral-950/30"
           data-testid="manifest-buyer-bundle-download"
+          open
         >
           <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-neutral-900 outline-none marker:text-neutral-500 focus-visible:ring-2 focus-visible:ring-teal-500/80 dark:text-neutral-100">
             {BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY}

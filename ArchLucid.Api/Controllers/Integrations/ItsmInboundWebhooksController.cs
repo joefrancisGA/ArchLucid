@@ -8,6 +8,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Security;
 
 using ArchLucid.Host.Core.Middleware;
+using ArchLucid.Host.Core.Services.Delivery;
 
 using Asp.Versioning;
 
@@ -174,9 +175,11 @@ public sealed class ItsmInboundWebhooksController(
 
         if (!o.RequireBodyHmacSignature) return true;
 
-        string? signature = Request.Headers["X-ArchLucid-Signature"].FirstOrDefault();
+        string? signature =
+            Request.Headers[WebhookSignature.HeaderName].FirstOrDefault()
+            ?? Request.Headers["X-ArchLucid-Signature"].FirstOrDefault();
 
-        if (!WebhookSecrets.IsValidHmacSha256LowerHex(sharedSecret, rawBody, signature))
+        if (!WebhookSecrets.IsValidHmacSha256Signature(sharedSecret, rawBody, signature))
         {
             reject = Unauthorized();
 

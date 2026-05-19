@@ -37,6 +37,26 @@ public sealed class WebhookSecretsTests
     }
 
     [Fact]
+    public void IsValidHmacSha256Signature_accepts_sha256_prefixed_header()
+    {
+        const string secret = "test-secret";
+        const string body = """{"hello":"world"}""";
+        string hex = ComputeHmacHex(secret, body);
+
+        WebhookSecrets.IsValidHmacSha256Signature(secret, body, "sha256=" + hex).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsValidHmacSha256Signature_rejects_wrong_prefix_or_hex()
+    {
+        const string secret = "test-secret";
+        const string body = """{"hello":"world"}""";
+
+        WebhookSecrets.IsValidHmacSha256Signature(secret, body, "sha256=deadbeef").Should().BeFalse();
+        WebhookSecrets.IsValidHmacSha256Signature(secret, body, null).Should().BeFalse();
+    }
+
+    [Fact]
     public void TimestampWithinSkew_rejects_when_skew_required_but_missing_header()
     {
         WebhookSecrets.TimestampWithinSkew(TimeProvider.System.GetUtcNow(), null, 60).Should().BeFalse();

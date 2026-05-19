@@ -33,8 +33,9 @@ public sealed class IntegrationsItsmInboundOptions
     public Dictionary<string, string> ServiceNowStateHumanReviewMap { get; set; } = new();
 
     /// <summary>
-    ///     When <see langword="true" />, callers must send <c>X-ArchLucid-Signature</c> = lowercase hex HMAC-SHA256(body bytes,
-    ///     UTF-8 shared secret). The legacy bearer token header is still required.
+    ///     When <see langword="true" />, callers must send HMAC-SHA256 over the raw UTF-8 body on
+    ///     <c>X-ArchLucid-Webhook-Signature</c> (<c>sha256=&lt;hex&gt;</c>, outbound-aligned) or legacy
+    ///     <c>X-ArchLucid-Signature</c> (lowercase hex only). The vendor token header is still required.
     /// </summary>
     public bool RequireBodyHmacSignature { get; set; }
 

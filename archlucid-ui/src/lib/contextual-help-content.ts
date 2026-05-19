@@ -106,8 +106,8 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   },
   "admin-configuration": {
     text:
-      "Catalog view of host configuration: keys, sources, and redacted values. Environment health uses GET /v1/admin/config-lint. Mutation is server-side only.",
-    learnMoreUrl: "/docs/library/CONFIGURATION_REFERENCE.md",
+      "Effective host configuration (masked). With more than one API replica, per-process graph caches are not shared — configure Redis before scale-out.",
+    learnMoreUrl: "/docs/operations/PROJECTION_CACHE_AND_REPLICAS.md",
   },
 };
 

@@ -167,4 +167,14 @@ public sealed class InMemoryAuditRepository : IAuditRepository
 
         return Task.FromResult<IReadOnlyList<AuditEvent>>(result);
     }
+
+    /// <summary>Tenant-scoped range read for governance findings trend aggregation (in-memory / tests).</summary>
+    internal IReadOnlyList<AuditEvent> ListByTenantInRange(Guid tenantId, DateTime fromUtc, DateTime toUtc)
+    {
+        lock (_gate)
+
+            return _events
+                .Where(x => x.TenantId == tenantId && x.OccurredUtc >= fromUtc && x.OccurredUtc < toUtc)
+                .ToList();
+    }
 }

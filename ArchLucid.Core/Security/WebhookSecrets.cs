@@ -23,6 +23,23 @@ public static class WebhookSecrets
     }
 
     /// <summary>
+    ///     Verifies an inbound signature header: optional <c>sha256=</c> prefix (outbound
+    ///     <c>X-ArchLucid-Webhook-Signature</c>) or raw lowercase hex (<c>X-ArchLucid-Signature</c>).
+    /// </summary>
+    public static bool IsValidHmacSha256Signature(string secret, string body, string? signatureHeaderValue)
+    {
+        if (string.IsNullOrWhiteSpace(signatureHeaderValue))
+            return false;
+
+        string trimmed = signatureHeaderValue.Trim();
+
+        if (trimmed.StartsWith("sha256=", StringComparison.OrdinalIgnoreCase))
+            trimmed = trimmed["sha256=".Length..];
+
+        return IsValidHmacSha256LowerHex(secret, body, trimmed);
+    }
+
+    /// <summary>
     ///     Verifies <paramref name="signatureHex" /> as lowercase hex of HMAC-SHA256(secret, body UTF-8 bytes).
     /// </summary>
     public static bool IsValidHmacSha256LowerHex(string secret, string body, string? signatureHex)

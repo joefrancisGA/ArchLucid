@@ -3,6 +3,7 @@ using ArchLucid.Application.Analytics;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Analytics;
 using ArchLucid.Application.Audit;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ArtifactSynthesis.Interfaces;
@@ -166,6 +167,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IPolicyPackVersionRepository, InMemoryPolicyPackVersionRepository>();
         services.AddSingleton<IPolicyPackAssignmentRepository, InMemoryPolicyPackAssignmentRepository>();
         services.AddSingleton<IPolicyPackChangeLogRepository, InMemoryPolicyPackChangeLogRepository>();
+        services.AddSingleton<IComplianceDriftFindingsTrendReader, InMemoryComplianceDriftFindingsTrendReader>();
         services.AddSingleton<IPolicyPackCatalogRepository, InMemoryPolicyPackCatalogRepository>();
         services.AddSingleton<IArchLucidUnitOfWorkFactory, InMemoryArchLucidUnitOfWorkFactory>();
         services.AddSingleton<IDistributedCreateRunIdempotencyLock, InProcessCreateRunIdempotencyLock>();

@@ -4,9 +4,15 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 namespace ArchLucid.Application.Governance;
 
 /// <inheritdoc/>
-public sealed class ComplianceDriftTrendService(IPolicyPackChangeLogRepository changeLogRepository) : IComplianceDriftTrendService
+public sealed class ComplianceDriftTrendService(
+    IPolicyPackChangeLogRepository changeLogRepository,
+    IComplianceDriftFindingsTrendReader findingsTrendReader) : IComplianceDriftTrendService
 {
-    private readonly IPolicyPackChangeLogRepository _changeLogRepository = changeLogRepository ?? throw new ArgumentNullException(nameof(changeLogRepository));
+    private readonly IPolicyPackChangeLogRepository _changeLogRepository =
+        changeLogRepository ?? throw new ArgumentNullException(nameof(changeLogRepository));
+
+    private readonly IComplianceDriftFindingsTrendReader _findingsTrendReader =
+        findingsTrendReader ?? throw new ArgumentNullException(nameof(findingsTrendReader));
 
     /// <inheritdoc/>
     public async Task<IReadOnlyList<ComplianceDriftTrendPoint>> GetTrendAsync(Guid tenantId, DateTime fromUtc, DateTime toUtc, TimeSpan bucketSize,
@@ -18,7 +24,12 @@ public sealed class ComplianceDriftTrendService(IPolicyPackChangeLogRepository c
             throw new ArgumentOutOfRangeException(nameof(toUtc), "toUtc must be greater than fromUtc.");
         if (bucketSize <= TimeSpan.Zero)
             throw new ArgumentOutOfRangeException(nameof(bucketSize));
-        IReadOnlyList<PolicyPackChangeLogEntry> entries = await _changeLogRepository.GetByTenantInRangeAsync(tenantId, fromUtc, toUtc, cancellationToken);
+        IReadOnlyList<PolicyPackChangeLogEntry> entries =
+            await _changeLogRepository.GetByTenantInRangeAsync(tenantId, fromUtc, toUtc, cancellationToken);
+
+        IReadOnlyDictionary<DateTime, ComplianceDriftFindingsBucketCounts> findingsBuckets =
+            await _findingsTrendReader.GetBucketCountsAsync(tenantId, fromUtc, toUtc, bucketSize, cancellationToken);
+
         long bucketTicks = bucketSize.Ticks;
         Dictionary<DateTime, Dictionary<string, int>> buckets = [];
         foreach (PolicyPackChangeLogEntry entry in entries)
@@ -43,18 +54,31 @@ public sealed class ComplianceDriftTrendService(IPolicyPackChangeLogRepository c
         List<ComplianceDriftTrendPoint> points = [];
         for (DateTime bucket = fromUtc; bucket < toUtc; bucket = bucket.Add(bucketSize))
         {
+            findingsBuckets.TryGetValue(bucket, out ComplianceDriftFindingsBucketCounts? findingsCounts);
+
             if (!buckets.TryGetValue(bucket, out Dictionary<string, int>? byType))
             {
                 points.Add(new ComplianceDriftTrendPoint
                 {
-                    BucketUtc = bucket, ChangeCount = 0, ChangesByType = new Dictionary<string, int>(StringComparer.Ordinal)
+                    BucketUtc = bucket,
+                    ChangeCount = 0,
+                    ChangesByType = new Dictionary<string, int>(StringComparer.Ordinal),
+                    OpenFindingsCount = findingsCounts?.OpenFindingsCount ?? 0,
+                    ResolvedFindingsCount = findingsCounts?.ResolvedFindingsCount ?? 0,
                 });
                 continue;
             }
 
             int total = byType.Values.Sum();
             IReadOnlyDictionary<string, int> frozen = new Dictionary<string, int>(byType, StringComparer.Ordinal);
-            points.Add(new ComplianceDriftTrendPoint { BucketUtc = bucket, ChangeCount = total, ChangesByType = frozen });
+            points.Add(new ComplianceDriftTrendPoint
+            {
+                BucketUtc = bucket,
+                ChangeCount = total,
+                ChangesByType = frozen,
+                OpenFindingsCount = findingsCounts?.OpenFindingsCount ?? 0,
+                ResolvedFindingsCount = findingsCounts?.ResolvedFindingsCount ?? 0,
+            });
         }
 
         return points;

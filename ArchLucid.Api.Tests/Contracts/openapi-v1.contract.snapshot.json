@@ -9247,6 +9247,13 @@
               "string"
             ]
           },
+          "hardCapUtilizationFraction": {
+            "format": "double",
+            "type": [
+              "null",
+              "number"
+            ]
+          },
           "hardCutoffUsdPerUtcMonth": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
@@ -9258,6 +9265,15 @@
           },
           "monthlyBudgetMonitoringActive": {
             "type": "boolean"
+          },
+          "warnFraction": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
           },
           "purchasedCapBumpUsd": {
             "format": "double",

@@ -5,6 +5,7 @@ using ArchLucid.Application.Advisory;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Analytics;
 using ArchLucid.Application.Audit;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ArtifactSynthesis.Interfaces;
@@ -331,6 +332,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IPolicyPackVersionRepository, DapperPolicyPackVersionRepository>();
         services.AddScoped<IPolicyPackAssignmentRepository, DapperPolicyPackAssignmentRepository>();
         services.AddScoped<IPolicyPackChangeLogRepository, DapperPolicyPackChangeLogRepository>();
+        services.AddScoped<IComplianceDriftFindingsTrendReader, DapperComplianceDriftFindingsTrendReader>();
         services.AddScoped<IPolicyPackCatalogRepository, DapperPolicyPackCatalogRepository>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
         services.AddScoped<ITenantRepository, DapperTenantRepository>();
