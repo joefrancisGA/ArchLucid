@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { AzureExtractorPackageZipField } from "@/components/wizard/steps/AzureExtractorPackageZipField";
 import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { showError, showSuccess } from "@/lib/toast";
 
 /** Optional Azure inventory packaging before advancing to advanced ingest fields (Improvement #17 UX). */
@@ -12,7 +13,9 @@ export function WizardStepAzureContext() {
   const [commandLine, setCommandLine] = useState("");
 
   useEffect(() => {
-    setCommandLine(buildGetArchLucidAzurePackageCommandLine());
+    const tenantId = getEffectiveBrowserProxyScopeHeaders()["x-tenant-id"]?.trim() ?? "";
+
+    setCommandLine(buildGetArchLucidAzurePackageCommandLine({ subscriptionId: tenantId }));
   }, []);
 
   return (

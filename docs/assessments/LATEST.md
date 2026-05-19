@@ -31,7 +31,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Weighted deficiency signal:** 150
 - **Justification:** While the "Tier 1" access model (no vendor access to customer cloud) is great for security, requiring customers to manually run a PowerShell script (`Get-ArchLucidAzurePackage.ps1`) to extract Azure data introduces onboarding friction.
 - **Tradeoffs:** Security/Trust vs. Ease of Onboarding.
-- **Improvement recommendations:** Provide a more seamless UI-driven guide and 1-click copy functionality for running the extraction script.
+- **Improvement recommendations:** Provide a more seamless UI-driven guide and 1-click copy functionality for running the extraction script. *(1-click copy shipped 2026-05-19 — Full Wizard step “Ingest Azure context”.)*
 
 ### 2. Correctness
 - **Score:** 85
@@ -269,17 +269,17 @@ ArchLucid has a strong, defensible core for architecture review and governance t
 
 ## Top Improvement Opportunities
 
-### 1. Add 1-Click Copy for Azure Extractor PowerShell Script
+### 1. Add 1-Click Copy for Azure Extractor PowerShell Script *(Completed 2026-05-19)*
 - **Why it matters:** Reduces the friction of the manual Azure extraction process.
 - **Expected impact:** Improves Adoption Friction (+5 pts) and Usability (+2 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Adoption Friction, Usability.
-- **Actionable now.**
+- **Completed.** Shipped in Full Wizard step “Ingest Azure context” (`WizardStepAzureContext`): pre-filled `Get-ArchLucidAzurePackage.ps1` command (operator scope tenant id → `-SubscriptionId`, `-IncludeCost`, `-OutputPath`) and **Copy to clipboard** (`data-testid="wizard-azure-ingest-copy"`).
 ```text
 Add a 1-click copy button for the Azure Extractor PowerShell script in the operator UI.
 1. Create a dedicated "Data Ingestion" or "Azure Extractor" tab in the New Review wizard.
 2. Display the exact `Get-ArchLucidAzurePackage.ps1` command with the current tenant ID pre-filled.
 3. Add a "Copy to Clipboard" button next to the command.
-Files: `archlucid-ui/src/app/(operator)/runs/new/page.tsx`.
+Files: `archlucid-ui/src/app/(operator)/reviews/new/NewRunWizardClient.tsx`, `archlucid-ui/src/components/wizard/steps/WizardStepAzureContext.tsx`, `archlucid-ui/src/lib/get-archlucid-azure-package-command.ts`.
 Constraints: Ensure the copied command includes all necessary flags for the standard V1 extraction.
 ```
 
@@ -624,7 +624,7 @@ To optimize context window usage and cost-effectiveness, batch the implementatio
 - Configure Default Purge for Stale Uncommitted Runs (10)
 
 **Batch 2: UI & UX Enhancements (Frontend)**
-- Add 1-Click Copy for Azure Extractor PowerShell Script (1)
+- ~~Add 1-Click Copy for Azure Extractor PowerShell Script (1)~~ *(completed 2026-05-19)*
 - Implement Client-Side Handling for 402 Trial Limits (3)
 - Simplify Domain Vocabulary in Operator UI (16)
 - Add Bulk Evidence Upload Progress Indicator (19)
