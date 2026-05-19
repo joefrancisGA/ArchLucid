@@ -1,11 +1,11 @@
-﻿# ArchLucid Assessment – (A) Headline Readiness: 84.12%
+﻿# ArchLucid Assessment – (A) Headline Readiness: 84.56%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding items deferred to V1.1 or V2.*
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**
-ArchLucid is highly ready for its V1 core mission: moving from an architecture request to a committed, reviewable manifest. The foundational authority pipeline, golden manifest generation, and auditability are robust. By explicitly removing penalties for V1.1/V2 deferred scope (such as ITSM/Chat integrations, MCP, and AWS/GCP support), the assessment reflects a strong, focused V1 product. The primary gaps holding back the score are cost-effectiveness (high baseline COGS due to database-per-tenant isolation for trials), observability (head-based trace sampling), and cognitive load in the operator UI.
+ArchLucid is highly ready for its V1 core mission: moving from an architecture request to a committed, reviewable manifest. The foundational authority pipeline, golden manifest generation, and auditability are robust. By explicitly removing penalties for V1.1/V2 deferred scope (such as ITSM/Chat integrations, MCP, and AWS/GCP support) and aligning with the Azure Elastic Pool engineering decision, the assessment reflects a strong, focused V1 product. The primary gaps holding back the score are adoption friction (manual data ingestion), observability (head-based trace sampling), and cognitive load in the operator UI.
 
 **`(B)` Procurement/Market-Motion Realism**
 Procurement will face moderate friction. The absence of a CPA-issued SOC 2 Type II report and a published third-party pen test summary will trigger extended security reviews. The lack of a signed design partner or public reference customer may slow executive buy-in, though the sales-led pilot motion is well-supported.
@@ -57,39 +57,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Safety/Quality vs. Latency/Availability.
 - **Improvement recommendations:** Implement a circuit breaker for the Content Safety API.
 
-### 5. Cost-Effectiveness
-- **Score:** 65
-- **Weight:** 1
-- **Weighted deficiency signal:** 35
-- **Justification:** While LLM token budgets are well-controlled, the architectural mandate of "database-per-tenant" (even for self-serve trial tenants) introduces a massive baseline infrastructure cost and limits density in Azure SQL Elastic Pools.
-- **Tradeoffs:** Strict tenant data isolation vs. Infrastructure cost.
-- **Improvement recommendations:** Implement a shared-database, RLS-isolated tier specifically for trial tenants to reduce the COGS of the self-serve funnel.
-
-### 6. Cognitive Load
-- **Score:** 70
-- **Weight:** 1
-- **Weighted deficiency signal:** 30
-- **Justification:** The system has a complex architecture (Authority vs Coordinator, various snapshot types) that leaks into the operator experience.
-- **Tradeoffs:** System flexibility vs. User simplicity.
-- **Improvement recommendations:** Hide internal orchestration details from the standard operator UI.
-
-### 7. Maintainability
-- **Score:** 85
-- **Weight:** 2
-- **Weighted deficiency signal:** 30
-- **Justification:** Clean architecture boundaries, but maintaining both the Authority pipeline and the legacy Coordinator endpoints adds technical debt.
-- **Tradeoffs:** Backward compatibility vs. Codebase simplicity.
-- **Improvement recommendations:** Unify the state transition logic between the two pipelines.
-
-### 8. Observability
-- **Score:** 75
-- **Weight:** 1
-- **Weighted deficiency signal:** 25
-- **Justification:** Strong metrics and dashboarding, but the reliance on head-based trace sampling in the .NET SDK means high-value authority run traces may be dropped in production unless an external OTLP collector is configured for tail sampling.
-- **Tradeoffs:** Trace volume/cost vs. Debuggability of critical flows.
-- **Improvement recommendations:** Provide a default OTLP collector configuration with tail sampling for `ArchLucid.AuthorityRun` traces, or implement a custom in-process sampler.
-
-### 9. Usability
+### 5. Usability
 - **Score:** 80
 - **Weight:** 3
 - **Weighted deficiency signal:** 60
@@ -97,7 +65,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Precise technical terms vs. Approachable user language.
 - **Improvement recommendations:** Simplify the UI vocabulary and add clear visual indicators for trial expiration.
 
-### 10. Proof-of-ROI Readiness
+### 6. Proof-of-ROI Readiness
 - **Score:** 90
 - **Weight:** 5
 - **Weighted deficiency signal:** 50
@@ -105,7 +73,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** None significant; this is a strong area.
 - **Improvement recommendations:** Enhance the UI to make these reports even more prominent post-commit.
 
-### 11. Executive Value Visibility
+### 7. Executive Value Visibility
 - **Score:** 88
 - **Weight:** 4
 - **Weighted deficiency signal:** 48
@@ -113,7 +81,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Standardized reporting vs. Customizable templates.
 - **Improvement recommendations:** Add visual indicators for trial expiration in PDF exports.
 
-### 12. Workflow Embeddedness
+### 8. Workflow Embeddedness
 - **Score:** 85
 - **Weight:** 3
 - **Weighted deficiency signal:** 45
@@ -121,7 +89,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Core product focus vs. Ecosystem integration.
 - **Improvement recommendations:** Add a "Test Connection" button for webhook subscriptions to improve the integration experience.
 
-### 13. Differentiability
+### 9. Differentiability
 - **Score:** 90
 - **Weight:** 4
 - **Weighted deficiency signal:** 40
@@ -129,7 +97,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Deep Azure integration vs. Broad multi-cloud appeal.
 - **Improvement recommendations:** Continue deepening Azure-native governance features.
 
-### 14. Decision Velocity
+### 10. Decision Velocity
 - **Score:** 80
 - **Weight:** 2
 - **Weighted deficiency signal:** 40
@@ -137,7 +105,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Thorough analysis vs. Instant answers.
 - **Improvement recommendations:** Improve the speed of the advisory scans.
 
-### 15. Reliability
+### 11. Reliability
 - **Score:** 80
 - **Weight:** 2
 - **Weighted deficiency signal:** 40
@@ -145,7 +113,23 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Cost/Complexity vs. High Availability.
 - **Improvement recommendations:** Add Redis cache coherency checks for multi-replica deployments.
 
-### 16. Interoperability
+### 12. Cognitive Load
+- **Score:** 70
+- **Weight:** 1
+- **Weighted deficiency signal:** 30
+- **Justification:** The system has a complex architecture (Authority vs Coordinator, various snapshot types) that leaks into the operator experience.
+- **Tradeoffs:** System flexibility vs. User simplicity.
+- **Improvement recommendations:** Hide internal orchestration details from the standard operator UI.
+
+### 13. Maintainability
+- **Score:** 85
+- **Weight:** 2
+- **Weighted deficiency signal:** 30
+- **Justification:** Clean architecture boundaries, but maintaining both the Authority pipeline and the legacy Coordinator endpoints adds technical debt.
+- **Tradeoffs:** Backward compatibility vs. Codebase simplicity.
+- **Improvement recommendations:** Unify the state transition logic between the two pipelines.
+
+### 14. Interoperability
 - **Score:** 85
 - **Weight:** 2
 - **Weighted deficiency signal:** 30
@@ -153,7 +137,15 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Core API stability vs. Standardized ecosystem protocols.
 - **Improvement recommendations:** Ensure OpenAPI specifications remain strictly versioned.
 
-### 17. Explainability
+### 15. Observability
+- **Score:** 75
+- **Weight:** 1
+- **Weighted deficiency signal:** 25
+- **Justification:** Strong metrics and dashboarding, but the reliance on head-based trace sampling in the .NET SDK means high-value authority run traces may be dropped in production unless an external OTLP collector is configured for tail sampling.
+- **Tradeoffs:** Trace volume/cost vs. Debuggability of critical flows.
+- **Improvement recommendations:** Provide a default OTLP collector configuration with tail sampling for `ArchLucid.AuthorityRun` traces, or implement a custom in-process sampler.
+
+### 16. Explainability
 - **Score:** 90
 - **Weight:** 2
 - **Weighted deficiency signal:** 20
@@ -161,7 +153,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Storage cost of traces vs. Transparency.
 - **Improvement recommendations:** Add UI indicators for context ingestion warnings to explain why certain documents were ignored.
 
-### 18. Template and Accelerator Richness
+### 17. Template and Accelerator Richness
 - **Score:** 80
 - **Weight:** 1
 - **Weighted deficiency signal:** 20
@@ -169,7 +161,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Curated defaults vs. Exhaustive frameworks.
 - **Improvement recommendations:** Add a Markdown export for governance resolution to easily share policy decisions.
 
-### 19. Scalability
+### 18. Scalability
 - **Score:** 80
 - **Weight:** 1
 - **Weighted deficiency signal:** 20
@@ -177,7 +169,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Relational simplicity vs. NoSQL scalability.
 - **Improvement recommendations:** Optimize SQL Server JSON payload storage.
 
-### 20. Performance
+### 19. Performance
 - **Score:** 85
 - **Weight:** 1
 - **Weighted deficiency signal:** 15
@@ -185,7 +177,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Memory usage vs. Response time.
 - **Improvement recommendations:** Optimize the Audit Log CSV export to stream data and prevent timeouts.
 
-### 21. Stickiness
+### 20. Stickiness
 - **Score:** 85
 - **Weight:** 1
 - **Weighted deficiency signal:** 15
@@ -193,7 +185,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Standalone value vs. Integrated value.
 - **Improvement recommendations:** Enhance the policy pack conflict resolution UI to keep users engaged in the governance loop.
 
-### 22. Supportability
+### 21. Supportability
 - **Score:** 85
 - **Weight:** 1
 - **Weighted deficiency signal:** 15
@@ -201,7 +193,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Data privacy vs. Diagnostic depth.
 - **Improvement recommendations:** Add a System Health dashboard to the operator UI.
 
-### 23. Testability
+### 22. Testability
 - **Score:** 85
 - **Weight:** 1
 - **Weighted deficiency signal:** 15
@@ -209,22 +201,30 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Test speed vs. Database fidelity.
 - **Improvement recommendations:** Ensure in-memory repos maintain strict parity with SQL behavior.
 
+### 23. Cost-Effectiveness
+- **Score:** 90
+- **Weight:** 1
+- **Weighted deficiency signal:** 10
+- **Justification:** Excellent LLM budget controls (`LlmDailyTenantBudget`, `LlmMonthlyTenantDollarBudget`). Azure SQL Elastic Pools provide sufficient density for the database-per-tenant isolation model.
+- **Tradeoffs:** Strict limits vs. Uninterrupted service.
+- **Improvement recommendations:** None urgent.
+
 ---
 
 ## Top 12 Most Important Weaknesses
 
-1. **Database-per-Tenant COGS for Trials:** Using a dedicated SQL database for every self-serve trial tenant creates massive baseline infrastructure costs and limits elastic pool density.
-2. **Head-Based Trace Sampling Drops High-Value Traces:** The .NET SDK's head-based sampling means critical `ArchLucid.AuthorityRun` traces may be dropped in production without an external OTLP tail-sampling collector.
-3. **High Cognitive Load of Domain Vocabulary:** Terms like Authority, Coordinator, Manifest, and Trace leak into the UI, confusing new operators.
-4. **Over-reliance on SQL Server for Large Payloads:** Storing large JSON manifests and traces in SQL Server `NVARCHAR(MAX)` columns poses a scalability risk.
-5. **Incomplete Idempotency on Mutating Endpoints:** The `POST /v1/architecture/request` endpoint lacks full idempotency, risking duplicate runs on network retries.
-6. **Complex RBAC and Policy Pack Configuration:** The governance resolution and policy pack assignment logic is powerful but difficult to troubleshoot when conflicts occur.
-7. **Potential Cache Coherency Issues:** Multi-replica deployments that fail to configure Redis may experience stale data issues.
-8. **Content Safety API Dependency Risk:** If the Azure Content Safety API fails, the system may fail closed, impacting availability.
-9. **Fragmented Orchestration:** Maintaining both the Authority pipeline and the legacy Coordinator endpoints increases technical debt and the risk of bugs.
-10. **Manual Data Ingestion Friction (Azure Extractor UX):** Running the PowerShell script is secure but lacks a smooth, guided UI experience.
-11. **Lack of Webhook Testing UI:** Operators cannot easily verify if their webhook subscriptions are correctly configured and reachable.
-12. **Unclear Trial Expiration UX:** Trial users lack prominent visual warnings when their trial enters the read-only or export-only phases.
+1. **Head-Based Trace Sampling Drops High-Value Traces:** The .NET SDK's head-based sampling means critical `ArchLucid.AuthorityRun` traces may be dropped in production without an external OTLP tail-sampling collector.
+2. **High Cognitive Load of Domain Vocabulary:** Terms like Authority, Coordinator, Manifest, and Trace leak into the UI, confusing new operators.
+3. **Over-reliance on SQL Server for Large Payloads:** Storing large JSON manifests and traces in SQL Server `NVARCHAR(MAX)` columns poses a scalability risk.
+4. **Incomplete Idempotency on Mutating Endpoints:** The `POST /v1/architecture/request` endpoint lacks full idempotency, risking duplicate runs on network retries.
+5. **Complex RBAC and Policy Pack Configuration:** The governance resolution and policy pack assignment logic is powerful but difficult to troubleshoot when conflicts occur.
+6. **Potential Cache Coherency Issues:** Multi-replica deployments that fail to configure Redis may experience stale data issues.
+7. **Content Safety API Dependency Risk:** If the Azure Content Safety API fails, the system may fail closed, impacting availability.
+8. **Fragmented Orchestration:** Maintaining both the Authority pipeline and the legacy Coordinator endpoints increases technical debt and the risk of bugs.
+9. **Manual Data Ingestion Friction (Azure Extractor UX):** Running the PowerShell script is secure but lacks a smooth, guided UI experience.
+10. **Lack of Webhook Testing UI:** Operators cannot easily verify if their webhook subscriptions are correctly configured and reachable.
+11. **Unclear Trial Expiration UX:** Trial users lack prominent visual warnings when their trial enters the read-only or export-only phases.
+12. **Missing API Key Rotation UI for Enterprise Trust:** Enterprise admins need a self-serve way to rotate API keys without CLI access.
 
 ---
 
@@ -232,10 +232,10 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 
 1. **Stripe Live Keys and Marketplace Listing Deferred (V1.1):** Self-serve transactability is blocked because these are intentionally deferred.
 2. **Trial to Paid Conversion Flow in TEST Mode:** The billing checkout flow is still running against Stripe TEST keys in production.
-3. **High Baseline Infrastructure Cost for Trials:** The COGS for a free trial is too high due to the database-per-tenant model.
-4. **Lack of Visual Trial Expiration Warnings in Exports:** Generated PDFs do not clearly indicate if they were produced during a trial that is about to expire.
-5. **Missing API Key Rotation UI for Enterprise Trust:** Enterprise admins need a self-serve way to rotate API keys without CLI access.
-6. **Unclear Data Archival Health Status for Compliance:** Operators cannot easily see if data retention policies are successfully executing.
+3. **Lack of Visual Trial Expiration Warnings in Exports:** Generated PDFs do not clearly indicate if they were produced during a trial that is about to expire.
+4. **Missing API Key Rotation UI for Enterprise Trust:** Enterprise admins need a self-serve way to rotate API keys without CLI access.
+5. **Unclear Data Archival Health Status for Compliance:** Operators cannot easily see if data retention policies are successfully executing.
+6. **Lack of UI Toggle for Quality Gate Modes:** Admins need an easy way to switch between `WarnOnly` and `PilotStrict` without editing configuration files.
 
 ---
 
@@ -253,17 +253,17 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 ## Top 6 Engineering Risks
 
 1. **Trace Sampling Dropping High-Value Workflows:** Production environments using fractional sampling will lose visibility into core business workflows unless operators manually configure OTLP tail sampling.
-2. **Database-per-Tenant COGS Risk:** The trial funnel could become unsustainably expensive if a high volume of self-serve signups requires provisioning thousands of individual SQL databases.
-3. **SQL Server Performance Degradation:** Large JSON payloads (manifests, traces) could cause database bloat and slow down queries.
-4. **Lack of Full Idempotency on Create/Commit Endpoints:** Network instability could lead to duplicate architecture runs and wasted LLM spend.
-5. **Cache Coherency Issues:** Deployments scaling beyond one replica without Redis configured will serve stale data.
-6. **Content Safety API Fail-Closed Dependency:** A localized outage of the Azure Content Safety API could take down the entire ArchLucid deployment.
+2. **SQL Server Performance Degradation:** Large JSON payloads (manifests, traces) could cause database bloat and slow down queries.
+3. **Lack of Full Idempotency on Create/Commit Endpoints:** Network instability could lead to duplicate architecture runs and wasted LLM spend.
+4. **Cache Coherency Issues:** Deployments scaling beyond one replica without Redis configured will serve stale data.
+5. **Content Safety API Fail-Closed Dependency:** A localized outage of the Azure Content Safety API could take down the entire ArchLucid deployment.
+6. **Data Consistency Remediation is Manual:** Orphaned records detected by the consistency probe require manual intervention to quarantine or restore.
 
 ---
 
 ## Most Important Truth
 
-ArchLucid has a strong, defensible core for architecture review and governance that is highly ready for V1. The most critical immediate tasks are optimizing the infrastructure COGS for the trial funnel, ensuring high-value traces aren't dropped by sampling, and smoothing the UX around data ingestion and governance resolution.
+ArchLucid has a strong, defensible core for architecture review and governance that is highly ready for V1. The most critical immediate tasks are ensuring high-value traces aren't dropped by sampling, smoothing the UX around data ingestion and governance resolution, and unifying the orchestration pipelines.
 
 ---
 
@@ -398,19 +398,18 @@ Files: `ArchLucid.Api/appsettings.Production.json`.
 Constraints: Must explicitly exclude demo/showcase runs from the purge.
 ```
 
-### 11. Implement Shared-Database RLS Tier for Trial Tenants
-- **Why it matters:** Reduces the massive baseline infrastructure cost of provisioning a dedicated SQL database for every self-serve trial signup.
-- **Expected impact:** Directly improves Cost-Effectiveness (+15 pts) and Scalability (+5 pts). Weighted readiness impact: +0.3%.
-- **Affected qualities:** Cost-Effectiveness, Scalability.
+### 11. Implement API Key Rotation UI for Enterprise Trust
+- **Why it matters:** Enterprise admins need a self-serve way to rotate API keys without CLI access.
+- **Expected impact:** Directly improves Usability (+5 pts) and Supportability (+2 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Usability, Supportability.
 - **Actionable now.**
 ```text
-Implement a shared-database, RLS-isolated tier for trial tenants.
-1. Create a new `SystemWithSharedTrialCatalog` tenant isolation mode.
-2. Modify the `TenantProvisioningService` to place new trial tenants into a shared database.
-3. Ensure Row-Level Security (RLS) via `SESSION_CONTEXT` is strictly enforced for this shared catalog.
-4. Provide a migration path for converting a trial tenant from the shared catalog to a dedicated catalog upon paid conversion.
-Files: `ArchLucid.Persistence/Tenants/TenantProvisioningService.cs`, `ArchLucid.Persistence/Connections/SessionContextSqlConnectionFactory.cs`.
-Constraints: Must not compromise data isolation between trial tenants.
+Implement an API Key Rotation UI in the operator settings.
+1. Create a new settings page for API Key Management (visible only to `AdminAuthority`).
+2. Display the current status of `Authentication:ApiKey:Enabled` and the masked keys.
+3. Provide a secure way to generate a new key and invalidate the old one.
+Files: `archlucid-ui/src/app/(operator)/settings/api-keys/page.tsx`.
+Constraints: Must securely handle key material and never log the raw keys.
 ```
 
 ### 12. Configure Tail-Based Trace Sampling for Authority Runs
@@ -617,8 +616,8 @@ Constraints: Must be accessible to users with `ReadAuthority`.
 
 To optimize context window usage and cost-effectiveness, batch the implementation of the actionable prompts as follows:
 
-**Batch 1: Core Reliability, Observability & Cost (Backend)**
-- Implement Shared-Database RLS Tier for Trial Tenants (11)
+**Batch 1: Core Reliability, Observability & Trust (Backend)**
+- Implement API Key Rotation UI for Enterprise Trust (11)
 - Configure Tail-Based Trace Sampling for Authority Runs (12)
 - Implement Full Idempotency for Create Run Endpoint (13)
 - Add Redis Cache Coherency Checks (14)
