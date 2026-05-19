@@ -6,6 +6,7 @@ import {
 } from "@/components/OperatorEvidenceLimitsFooter";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { BuyerTitleHint } from "@/components/BuyerTitleHint";
+import { ManifestBuyerBundleDownloadSection } from "@/components/ManifestBuyerBundleDownloadSection";
 import { ManifestDetailSummaryPanel } from "@/components/ManifestDetailSummaryPanel";
 import { ManifestTopDecisionsCard } from "@/components/ManifestTopDecisionsCard";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -57,7 +58,11 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <ManifestDetailSummaryPanel summary={summary} buyerPolishedLayout={buyerPolishedLayout} />
+        <ManifestDetailSummaryPanel
+          summary={summary}
+          buyerPolishedLayout={buyerPolishedLayout}
+          includeBundleDownload={!buyerPolishedLayout}
+        />
       </CardContent>
     </Card>
   );
@@ -173,6 +178,12 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           >
             Decisions
           </a>
+          <a
+            className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300"
+            href="#manifest-deliverables"
+          >
+            Deliverables
+          </a>
           <a className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300" href="#manifest-bundle-zip">
             Bundle download
           </a>
@@ -186,12 +197,6 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           ) : null}
           <a className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300" href="#manifest-ask">
             Diligence questions
-          </a>
-          <a
-            className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300"
-            href="#manifest-deliverables"
-          >
-            Deliverables
           </a>
         </nav>
       ) : null}
@@ -299,10 +304,14 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-50">Questions during diligence?</CardTitle>
             <CardDescription>
-              Align questionnaire formats, bundled downloads, and security follow-ups through our Trust Center contact.
+              Ask evidence-backed questions about this review package, or coordinate procurement questionnaires and security
+              follow-ups through our Trust Center contact.
             </CardDescription>
           </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent className="flex flex-wrap gap-2 pt-0">
+            <Button variant="primary" size="sm" asChild>
+              <Link href={`/ask?runId=${encodeURIComponent(summary.runId)}`}>Ask about this review</Link>
+            </Button>
             <Button variant="outline" size="sm" asChild>
               <Link href="/trust#trust-contact-review">Open Trust Center contact</Link>
             </Button>
@@ -326,7 +335,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
             </CardDescription>
           </div>
           {buyerPolishedLayout ? (
-            <BuyerTitleHint text="Rows below list individual deliverable artifacts. Prefer the consolidated package download above when your workspace publishes a full bundle." />
+            <BuyerTitleHint text="Rows below list individual deliverable artifacts. Prefer the consolidated package download below when your workspace publishes a full bundle." />
           ) : null}
         </CardHeader>
         <CardContent className="space-y-4">
@@ -436,6 +445,8 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           ) : null}
         </CardContent>
       </Card>
+
+      {buyerPolishedLayout ? <ManifestBuyerBundleDownloadSection manifestId={manifestId} /> : null}
 
       <OperatorEvidenceLimitsFooter
         runId={summary.runId}

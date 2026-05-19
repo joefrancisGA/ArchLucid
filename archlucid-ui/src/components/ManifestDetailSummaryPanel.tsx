@@ -25,13 +25,15 @@ export type ManifestDetailSummaryPanelProps = {
    * When true (buyer/demo builds): lead with conclusions and narratives; keep count tiles beneath; collapse identifiers.
    */
   readonly buyerPolishedLayout?: boolean;
+  /** When false, bundle download renders elsewhere on the page (buyer manifest detail). */
+  readonly includeBundleDownload?: boolean;
 };
 
 /**
  * Manifest summary: metric tiles plus expandable decisions/warnings when we have curated demo copy or counts only.
  */
 export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProps) {
-  const { summary, buyerPolishedLayout } = props;
+  const { summary, buyerPolishedLayout, includeBundleDownload = true } = props;
   const isCuratedDemo = summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID;
   const decisionLinesAll = isCuratedDemo ? [...SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES] : [];
   const decisionLinesPreview = decisionLinesAll.slice(0, 3);
@@ -283,6 +285,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
             </div>
           </div>
         ) : null}
+        {includeBundleDownload ? (
         <details
           id="manifest-bundle-zip"
           className="scroll-mt-24 rounded-lg border border-neutral-200/90 bg-neutral-50/40 dark:border-neutral-800 dark:bg-neutral-950/30"
@@ -304,6 +307,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
             </div>
           </div>
         </details>
+        ) : null}
         <div id="manifest-buyer-recorded-details" className="space-y-3">
           {!(buyerPolishedLayout ?? false) || !isCuratedDemo ? decisionsBlock : null}
           {warningsBlock}

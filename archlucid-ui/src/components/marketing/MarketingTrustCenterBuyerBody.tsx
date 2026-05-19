@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { Button } from "@/components/ui/button";
+
 /** Curated buyer Trust Center sections — avoids rendering raw repo markdown publicly. */
 export type MarketingTrustCenterBuyerBodyProps = {
   readonly lastReviewedUtc: string | null;
