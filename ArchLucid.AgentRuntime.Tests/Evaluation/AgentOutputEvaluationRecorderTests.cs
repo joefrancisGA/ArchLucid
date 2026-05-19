@@ -2,7 +2,6 @@ using System.Diagnostics.Metrics;
 
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
-using ArchLucid.Application.Configuration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;

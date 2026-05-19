@@ -1,4 +1,3 @@
-using ArchLucid.Application.Configuration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Configuration;

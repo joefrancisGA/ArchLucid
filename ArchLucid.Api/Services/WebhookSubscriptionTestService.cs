@@ -26,6 +26,7 @@ public sealed class WebhookSubscriptionTestService(
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
+    [InformationalAudit]
     public async Task<WebhookSubscriptionTestResult> TestAsync(
         Guid routingSubscriptionId,
         CancellationToken cancellationToken = default)
