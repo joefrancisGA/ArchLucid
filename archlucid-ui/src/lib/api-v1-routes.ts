@@ -20,6 +20,8 @@ export const ApiV1Routes = {
   tenantCostEstimate: "v1/tenant/cost-estimate",
   tenantMeasuredRoi: "v1/tenant/measured-roi",
   tenantWorkspaces: "v1/tenant/workspaces",
+  /** Persisted Azure extractor baseline artifact presence for the scoped workspace. */
+  tenantWorkspaceBaselineArtifacts: "v1/tenant/workspace-baseline-artifacts",
   /** Soft-deleted architecture projects grouped by workspace. */
   tenantWorkspacesRecycleBin: "v1/tenant/workspaces/recycle-bin",
   /** Pilot value report JSON/Markdown aggregate (`GET` with `fromUtc` / `toUtc` query). */

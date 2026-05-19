@@ -14,4 +14,7 @@ public sealed class NoOpAzureExtractorPackageRepository : IAzureExtractorPackage
         Guid runId,
         CancellationToken cancellationToken = default)
         => Task.FromResult<AzureExtractorPackageProvenance?>(null);
+
+    public Task<bool> HasAnyInWorkspaceAsync(ScopeContext scope, CancellationToken cancellationToken = default)
+        => Task.FromResult(false);
 }

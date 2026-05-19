@@ -5,8 +5,7 @@ import { useEffect, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
-import { usePilotRoiBaselineCompleteness } from "@/hooks/use-pilot-roi-baseline-completeness";
-import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
+import { useWorkspaceBaselineArtifactsPresence } from "@/hooks/use-workspace-baseline-artifacts";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 /** Session-dismiss key — discarded when the browser tab ends. */
@@ -14,15 +13,15 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 const EXECUTIVE_DASHBOARD_BASELINE_WARNING_DISMISSED_SESSION_KEY: string =
   "archlucid-dashboard-baseline-upload-warning-dismissed";
 
-/** GitHub-rendered baseline / Azure extractor ZIP upload operator runbook. */
+/** Baseline-first new-run wizard (`?baseline=1`) — Azure extractor ZIP upload before identity. */
 
-export const EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_DOC_HREF = `${DEFAULT_GITHUB_BLOB_BASE}/docs/runbooks/AZURE_EXTRACTOR_INGEST.md`;
+export const EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF = "/reviews/new?baseline=1";
 
-/** Prominent nudge when tenant ROI baseline anchors are not captured yet (Executive summary route). */
+/** Prominent nudge when no Azure extractor baseline artifact exists in the active workspace. */
 
 export function ExecutiveDashboardBaselineWarningBanner() {
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
-  const { loading: baselineLoading, complete } = usePilotRoiBaselineCompleteness();
+  const { loading: artifactsLoading, hasBaselineArtifacts } = useWorkspaceBaselineArtifactsPresence();
   const [sessionDismissed, setSessionDismissed] = useState(false);
 
   useEffect(() => {
@@ -38,9 +37,9 @@ export function ExecutiveDashboardBaselineWarningBanner() {
   const operatorOrAdminTier: boolean =
     !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
 
-  // `complete === false`: anchors missing; `null` / `true` hides the banner (unknown or already captured).
+  // `hasBaselineArtifacts === false`: no persisted extractor ZIP in workspace; `null` / `true` hides the banner.
 
-  if (sessionDismissed || !operatorOrAdminTier || baselineLoading || complete !== false) {
+  if (sessionDismissed || !operatorOrAdminTier || artifactsLoading || hasBaselineArtifacts !== false) {
     return null;
   }
 
@@ -51,24 +50,19 @@ export function ExecutiveDashboardBaselineWarningBanner() {
       data-testid="executive-baseline-upload-warning-banner"
     >
       <div className="min-w-0 flex-1">
-        <p className="m-0 font-semibold">Establish tenant baseline inputs</p>
+        <p className="m-0 font-semibold">Upload workspace baseline inventory</p>
         <p className="mt-2 mb-0 text-amber-900/95 dark:text-amber-100/90">
-          Executive ROI summaries stay grounded when you capture baseline evidence — typically an Azure extractor
-          inventory ZIP from your checkout (see docs) plus{" "}
-          <Link href="/settings/baseline" className="font-medium underline underline-offset-2">
-            ROI baseline settings
-          </Link>
-          .
+          Executive ROI summaries stay grounded when you upload an Azure extractor inventory ZIP for this workspace.
+          Use the baseline upload wizard to parse the packager output and start your first review from real inventory.
         </p>
         <p className="mt-2 mb-0">
-          <a
-            href={EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_DOC_HREF}
-            target="_blank"
-            rel="noreferrer noopener"
+          <Link
+            href={EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF}
             className="font-medium underline underline-offset-2"
+            data-testid="executive-baseline-upload-wizard-link"
           >
-            Baseline ZIP upload documentation (opens in new tab)
-          </a>
+            Open baseline upload wizard
+          </Link>
         </p>
       </div>
 

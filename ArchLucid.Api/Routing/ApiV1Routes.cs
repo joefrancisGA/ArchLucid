@@ -37,6 +37,9 @@ public static class ApiV1Routes
     /// <summary>Workspaces + architecture projects for scope switcher (<c>GET /v1/tenant/workspaces</c>).</summary>
     public const string TenantWorkspaces = "v1/tenant/workspaces";
 
+    /// <summary>Azure extractor baseline artifact presence for the scoped workspace.</summary>
+    public const string TenantWorkspaceBaselineArtifacts = "v1/tenant/workspace-baseline-artifacts";
+
     /// <summary>Soft-deleted architecture projects by workspace (<c>GET /v1/tenant/workspaces/recycle-bin</c>).</summary>
     public const string TenantWorkspacesRecycleBin = "v1/tenant/workspaces/recycle-bin";
 

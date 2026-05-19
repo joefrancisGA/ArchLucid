@@ -107,6 +107,31 @@ public sealed class SqlAzureExtractorPackageRepository(ISqlConnectionFactory con
         };
     }
 
+    public async Task<bool> HasAnyInWorkspaceAsync(ScopeContext scope, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        const string sql = """
+                           SELECT CASE WHEN EXISTS (
+                               SELECT 1
+                               FROM dbo.AzureExtractorPackages
+                               WHERE TenantId = @TenantId
+                                   AND WorkspaceId = @WorkspaceId
+                           ) THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END;
+                           """;
+
+        using System.Data.IDbConnection conn =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        bool exists = await conn.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId },
+                cancellationToken: cancellationToken));
+
+        return exists;
+    }
+
 
     private sealed class Row
 

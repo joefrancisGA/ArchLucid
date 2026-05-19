@@ -8,9 +8,9 @@ const navAuth = vi.hoisted(() => ({
   isAuthorityLoading: false,
 }));
 
-const baselineGate = vi.hoisted(() => ({
+const workspaceArtifacts = vi.hoisted(() => ({
   loading: false,
-  complete: false as boolean | null,
+  hasBaselineArtifacts: false as boolean | null,
   reload: vi.fn(),
 }));
 
@@ -22,16 +22,16 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   }),
 }));
 
-vi.mock("@/hooks/use-pilot-roi-baseline-completeness", () => ({
-  usePilotRoiBaselineCompleteness: () => ({
-    loading: baselineGate.loading,
-    complete: baselineGate.complete,
-    reload: baselineGate.reload,
+vi.mock("@/hooks/use-workspace-baseline-artifacts", () => ({
+  useWorkspaceBaselineArtifactsPresence: () => ({
+    loading: workspaceArtifacts.loading,
+    hasBaselineArtifacts: workspaceArtifacts.hasBaselineArtifacts,
+    reload: workspaceArtifacts.reload,
   }),
 }));
 
 import {
-  EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_DOC_HREF,
+  EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF,
   ExecutiveDashboardBaselineWarningBanner,
 } from "./ExecutiveDashboardBaselineWarningBanner";
 
@@ -44,28 +44,28 @@ describe("ExecutiveDashboardBaselineWarningBanner", () => {
     sessionStorage.clear();
     navAuth.callerAuthorityRank = AUTHORITY_RANK.ExecuteAuthority;
     navAuth.isAuthorityLoading = false;
-    baselineGate.loading = false;
-    baselineGate.complete = false;
+    workspaceArtifacts.loading = false;
+    workspaceArtifacts.hasBaselineArtifacts = false;
   });
 
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  it("renders for Execute-tier callers when tenant baseline anchors are incomplete", () => {
+  it("renders for Execute-tier callers when workspace baseline artifacts are absent", () => {
     navAuth.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
 
     render(<ExecutiveDashboardBaselineWarningBanner />);
 
     expect(screen.getByTestId("executive-baseline-upload-warning-banner")).toBeInTheDocument();
 
-    expect(screen.getByRole("link", { name: /baseline zip upload documentation/i })).toHaveAttribute(
+    expect(screen.getByTestId("executive-baseline-upload-wizard-link")).toHaveAttribute(
       "href",
-      EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_DOC_HREF,
+      EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF,
     );
   });
 
-  it("omits banner for reader-tier callers even when baseline is incomplete", () => {
+  it("omits banner for reader-tier callers even when baseline artifacts are absent", () => {
     navAuth.callerAuthorityRank = AUTHORITY_RANK.ReadAuthority;
 
     render(<ExecutiveDashboardBaselineWarningBanner />);
@@ -73,8 +73,8 @@ describe("ExecutiveDashboardBaselineWarningBanner", () => {
     expect(screen.queryByTestId("executive-baseline-upload-warning-banner")).toBeNull();
   });
 
-  it("omits banner while baseline load is unresolved", () => {
-    baselineGate.loading = true;
+  it("omits banner while workspace artifact load is unresolved", () => {
+    workspaceArtifacts.loading = true;
 
     render(<ExecutiveDashboardBaselineWarningBanner />);
 
@@ -89,15 +89,15 @@ describe("ExecutiveDashboardBaselineWarningBanner", () => {
     expect(screen.queryByTestId("executive-baseline-upload-warning-banner")).toBeNull();
   });
 
-  it("omits banner when completeness is unknown or affirmative", () => {
-    baselineGate.complete = null;
+  it("omits banner when artifact presence is unknown or affirmative", () => {
+    workspaceArtifacts.hasBaselineArtifacts = null;
 
     const { unmount } = render(<ExecutiveDashboardBaselineWarningBanner />);
 
     expect(screen.queryByTestId("executive-baseline-upload-warning-banner")).toBeNull();
 
     unmount();
-    baselineGate.complete = true;
+    workspaceArtifacts.hasBaselineArtifacts = true;
     render(<ExecutiveDashboardBaselineWarningBanner />);
 
     expect(screen.queryByTestId("executive-baseline-upload-warning-banner")).toBeNull();

@@ -8,6 +8,7 @@ using ArchLucid.TestSupport;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -43,6 +44,8 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
 
     private readonly string _publicPemPath;
 
+    private bool _jwtEnvironmentOverridesApplied;
+
     public JwtLocalSigningWebAppFactory()
     {
         using RSA rsa = RSA.Create(2048);
@@ -70,6 +73,8 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
+
+        ApplyJwtEnvironmentOverrides();
 
         Dictionary<string, string?> settings = BuildHostConfigurationOverrides();
 
@@ -143,6 +148,37 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
         return settings;
     }
 
+    /// <summary>
+    ///     <see cref="Program" /> calls <c>AddEnvironmentVariables()</c> after JSON files, so env wins over
+    ///     <c>appsettings.Development.json</c> <c>DevelopmentBypass</c> / default <c>ApiKey</c> when the host starts.
+    /// </summary>
+    private void ApplyJwtEnvironmentOverrides()
+    {
+        Environment.SetEnvironmentVariable("ArchLucidAuth__Mode", "JwtBearer");
+        Environment.SetEnvironmentVariable("ArchLucidAuth__Authority", string.Empty);
+        Environment.SetEnvironmentVariable("ArchLucidAuth__Audience", string.Empty);
+        Environment.SetEnvironmentVariable("ArchLucidAuth__JwtSigningPublicKeyPemPath", _publicPemPath);
+        Environment.SetEnvironmentVariable("ArchLucidAuth__JwtLocalIssuer", JwtLocalTestIssuer);
+        Environment.SetEnvironmentVariable("ArchLucidAuth__JwtLocalAudience", JwtLocalTestAudience);
+        Environment.SetEnvironmentVariable("Authentication__ApiKey__DevelopmentBypassAll", "false");
+        _jwtEnvironmentOverridesApplied = true;
+    }
+
+    private void ClearJwtEnvironmentOverrides()
+    {
+        if (!_jwtEnvironmentOverridesApplied)
+            return;
+
+        Environment.SetEnvironmentVariable("ArchLucidAuth__Mode", null);
+        Environment.SetEnvironmentVariable("ArchLucidAuth__Authority", null);
+        Environment.SetEnvironmentVariable("ArchLucidAuth__Audience", null);
+        Environment.SetEnvironmentVariable("ArchLucidAuth__JwtSigningPublicKeyPemPath", null);
+        Environment.SetEnvironmentVariable("ArchLucidAuth__JwtLocalIssuer", null);
+        Environment.SetEnvironmentVariable("ArchLucidAuth__JwtLocalAudience", null);
+        Environment.SetEnvironmentVariable("Authentication__ApiKey__DevelopmentBypassAll", null);
+        _jwtEnvironmentOverridesApplied = false;
+    }
+
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -151,6 +187,8 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
         {
             return;
         }
+
+        ClearJwtEnvironmentOverrides();
 
         try
         {

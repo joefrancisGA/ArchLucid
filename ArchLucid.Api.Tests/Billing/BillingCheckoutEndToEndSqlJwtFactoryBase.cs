@@ -1,6 +1,10 @@
 using System.Security.Cryptography;
 using System.Text;
 
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Auth.Services;
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
@@ -47,9 +51,30 @@ internal abstract class BillingCheckoutEndToEndSqlJwtFactoryBase : GreenfieldSql
             builder.UseSetting(pair.Key, pair.Value);
         }
 
+        IConfiguration bootstrap = new ConfigurationBuilder().AddInMemoryCollection(overrides).Build();
+        builder.UseConfiguration(bootstrap);
+
         builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(overrides));
 
-        builder.ConfigureTestServices(ConfigureEndToEndServices);
+        builder.ConfigureTestServices(services =>
+        {
+            services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                ArchLucidAuthOptions authOptions = new()
+                {
+                    Mode = "JwtBearer",
+                    JwtSigningPublicKeyPemPath = _publicPemPath,
+                    JwtLocalIssuer = "https://test.archlucid.local",
+                    JwtLocalAudience = "api://archlucid-jwt-local-test"
+                };
+
+                IConfiguration emptyConfiguration = new ConfigurationBuilder().Build();
+                ArchLucidJwtBearerConfiguration.Apply(options, authOptions, emptyConfiguration);
+                options.TokenValidationParameters.ClockSkew = TimeSpan.FromMinutes(30);
+            });
+
+            ConfigureEndToEndServices(services);
+        });
     }
 
     /// <summary>Per-flow billing keys (Stripe vs Azure Marketplace, etc.).</summary>
