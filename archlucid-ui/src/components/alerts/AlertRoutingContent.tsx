@@ -32,7 +32,13 @@ import {
   alertRoutingEmptyGettingStartedOperator,
   alertRoutingEmptyGettingStartedReader,
 } from "@/lib/alerts-hub-empty-guidance";
+import {
+  EMPTY_ALERT_ROUTING_CRITERIA,
+  formatAlertRoutingCriteriaSummary,
+  parseAlertRoutingCriteriaFromMetadata,
+} from "@/lib/alert-routing-criteria";
 import { cn } from "@/lib/utils";
+import { AlertRoutingCriteriaFields } from "./AlertRoutingCriteriaFields";
 import {
   createAlertRoutingSubscription,
   listAlertRoutingDeliveryAttempts,
@@ -61,6 +67,7 @@ export function AlertRoutingContent() {
   const [channelType, setChannelType] = useState("Email");
   const [destination, setDestination] = useState("");
   const [minimumSeverity, setMinimumSeverity] = useState("High");
+  const [routingCriteria, setRoutingCriteria] = useState(EMPTY_ALERT_ROUTING_CRITERIA);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -89,7 +96,13 @@ export function AlertRoutingContent() {
         destination: destination.trim(),
         minimumSeverity,
         isEnabled: true,
+        routingCriteria: {
+          severities: routingCriteria.severities,
+          findingTypes: routingCriteria.findingTypes,
+          tags: routingCriteria.tags,
+        },
       });
+      setRoutingCriteria({ ...EMPTY_ALERT_ROUTING_CRITERIA });
       setDestination("");
       await load();
     } catch (e) {
@@ -205,6 +218,10 @@ export function AlertRoutingContent() {
                     <div>Channel: {item.channelType}</div>
                     <div className="break-all">Destination: {item.destination}</div>
                     <div>Minimum severity: {item.minimumSeverity}</div>
+                    <div>
+                      Filters:{" "}
+                      {formatAlertRoutingCriteriaSummary(parseAlertRoutingCriteriaFromMetadata(item.metadataJson))}
+                    </div>
                     <div>Enabled: {String(item.isEnabled)}</div>
                     <div>
                       Last delivered: {item.lastDeliveredUtc ? new Date(item.lastDeliveredUtc).toLocaleString() : "Never"}
@@ -332,6 +349,12 @@ export function AlertRoutingContent() {
                 <option value="Critical">Critical</option>
               </select>
             </label>
+            <AlertRoutingCriteriaFields
+              criteria={routingCriteria}
+              onChange={setRoutingCriteria}
+              disabled={!canMutateRouting}
+              disabledTitle={enterpriseMutationControlDisabledTitle}
+            />
             <button
               type="button"
               onClick={() => void onCreate()}

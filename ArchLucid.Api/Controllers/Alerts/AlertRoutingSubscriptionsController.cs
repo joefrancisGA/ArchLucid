@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Models.Alerts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -46,21 +47,33 @@ public sealed class AlertRoutingSubscriptionsController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Create(
-        [FromBody] AlertRoutingSubscription? subscription,
+        [FromBody] AlertRoutingSubscriptionCreatePayload? request,
         CancellationToken ct = default)
     {
-        if (subscription is null)
+        if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (string.IsNullOrWhiteSpace(request.ChannelType) || string.IsNullOrWhiteSpace(request.Destination))
+            return this.BadRequestProblem("ChannelType and Destination are required.", ProblemTypes.ValidationFailed);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        subscription.RoutingSubscriptionId = Guid.NewGuid();
-        subscription.TenantId = scope.TenantId;
-        subscription.WorkspaceId = scope.WorkspaceId;
-        subscription.ProjectId = scope.ProjectId;
-        subscription.CreatedUtc = TimeProvider.System.UtcNowDateTime();
-        if (string.IsNullOrWhiteSpace(subscription.MetadataJson))
-            subscription.MetadataJson = "{}";
+        AlertRoutingSubscription subscription = new()
+        {
+            RoutingSubscriptionId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            Name = string.IsNullOrWhiteSpace(request.Name) ? "Alert Routing Subscription" : request.Name.Trim(),
+            ChannelType = request.ChannelType.Trim(),
+            Destination = request.Destination.Trim(),
+            MinimumSeverity = string.IsNullOrWhiteSpace(request.MinimumSeverity)
+                ? AlertSeverity.Warning
+                : request.MinimumSeverity.Trim(),
+            IsEnabled = request.IsEnabled,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            MetadataJson = AlertRoutingCriteriaMetadata.MergeIntoMetadata(request.MetadataJson, request.RoutingCriteria),
+        };
 
         await subscriptionRepository.CreateAsync(subscription, ct);
 
@@ -73,7 +86,8 @@ public sealed class AlertRoutingSubscriptionsController(
                     subscription.RoutingSubscriptionId,
                     subscription.Name,
                     subscription.ChannelType,
-                    subscription.MinimumSeverity
+                    subscription.MinimumSeverity,
+                    routingCriteria = request.RoutingCriteria,
                 })
             },
             ct);

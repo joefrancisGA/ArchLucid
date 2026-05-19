@@ -36,8 +36,10 @@ public sealed class AlertDeliveryDispatcher(
             .ListEnabledByScopeAsync(alert.TenantId, alert.WorkspaceId, alert.ProjectId, ct)
             ;
 
+        AlertRoutingSignal signal = AlertRoutingSignal.FromAlert(alert);
+
         List<AlertRoutingSubscription> matching = subscriptions
-            .Where(x => AlertSeverityComparer.MeetsMinimum(alert.Severity, x.MinimumSeverity))
+            .Where(subscription => AlertRoutingMatcher.Matches(subscription, signal))
             .ToList();
 
         foreach (AlertRoutingSubscription subscription in matching)

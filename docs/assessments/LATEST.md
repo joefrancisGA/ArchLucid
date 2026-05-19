@@ -550,7 +550,7 @@ Constraints: Must use the existing trial status API.
 - **Why it matters:** Reduces alert fatigue by routing alerts to the right teams.
 - **Expected impact:** Directly improves Usability (+3 pts) and Workflow Embeddedness (+2 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities:** Usability, Workflow Embeddedness.
-- **Actionable now.**
+- **Completed.** `routingCriteria` on `POST /v1/alert-routing-subscriptions`; `AlertRoutingMatcher` in dispatcher; UI filters on `/alert-routing` and alerts hub.
 ```text
 Enhance the Alert Routing UI to support more complex rules.
 1. Allow operators to route alerts based on severity, finding type, or tags.

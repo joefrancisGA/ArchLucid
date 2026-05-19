@@ -25,7 +25,8 @@ namespace ArchLucid.Api.Controllers.Alerts;
 /// <remarks>
 ///     Scope comes from <see cref="IScopeContextProvider" />; alert <strong>evaluation</strong> is performed by
 ///     orchestration paths
-///     (<c>AlertService</c> / composite service), not from this controller.
+///     (<c>AlertService</c> / composite service), not from this controller. Outbound delivery filters are configured on
+///     <c>POST /v1/alert-routing-subscriptions</c> (<see cref="AlertRoutingSubscriptionsController" />).
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]

@@ -71,7 +71,13 @@ export async function listAlertRoutingSubscriptions(): Promise<AlertRoutingSubsc
   return apiGet<AlertRoutingSubscription[]>("/v1/alert-routing-subscriptions");
 }
 
-/** Creates a new alert routing subscription (channel + severity filter). */
+export type AlertRoutingCriteriaInput = {
+  severities?: string[];
+  findingTypes?: string[];
+  tags?: string[];
+};
+
+/** Creates a new alert routing subscription (channel + severity filter + optional routing criteria). */
 export async function createAlertRoutingSubscription(body: {
   name: string;
   channelType: string;
@@ -79,6 +85,7 @@ export async function createAlertRoutingSubscription(body: {
   minimumSeverity: string;
   isEnabled?: boolean;
   metadataJson?: string;
+  routingCriteria?: AlertRoutingCriteriaInput;
 }): Promise<AlertRoutingSubscription> {
   return apiPostJson<AlertRoutingSubscription>(`/${ApiV1Routes.alertRoutingSubscriptions}`, {
     name: body.name,
@@ -87,6 +94,7 @@ export async function createAlertRoutingSubscription(body: {
     minimumSeverity: body.minimumSeverity,
     isEnabled: body.isEnabled ?? true,
     metadataJson: body.metadataJson ?? "{}",
+    routingCriteria: body.routingCriteria,
   });
 }
 
