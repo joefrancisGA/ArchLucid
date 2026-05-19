@@ -97,7 +97,9 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
                 ["Billing:Provider"] = "Noop",
                 ["ASPNETCORE_URLS"] = "http://127.0.0.1:0",
                 ["ArchLucidAuth:AllowTestActorHeaders"] = "true",
-                ["ArchLucid:EvidenceBulkUploadMaxFiles"] = "30"
+                ["ArchLucid:EvidenceBulkUploadMaxFiles"] = "30",
+                // Bulk evidence writes use IArtifactBlobStore (ArtifactLargePayload), not ArchLucid:StorageProvider.
+                ["ArtifactLargePayload:BlobProvider"] = "Local"
             };
 
             ApiTestWebHostLogging.AddQuietDefaultLogLevel(settings);

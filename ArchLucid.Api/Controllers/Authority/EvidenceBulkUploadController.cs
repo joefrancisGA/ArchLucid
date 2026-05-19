@@ -1,7 +1,9 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Api.Startup;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Evidence;
 using ArchLucid.Host.Core.ProblemDetails;
 
 using Asp.Versioning;
@@ -10,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Authority;
@@ -27,7 +30,10 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class EvidenceBulkUploadController(
     IBulkEvidenceUploadService uploadService,
-    IOptions<EvidenceBulkUploadOptions> bulkUploadOptions) : ControllerBase
+    IOptions<EvidenceBulkUploadOptions> bulkUploadOptions,
+    IOptions<EvidenceBulkUploadAnomalyOptions> anomalyOptions,
+    IEvidenceBulkUploadAnomalyTracker anomalyTracker,
+    ILogger<EvidenceBulkUploadController> logger) : ControllerBase
 {
     /// <summary>
     /// Bulk uploads evidence files for a given review run, up to <see cref="EvidenceBulkUploadOptions.EvidenceBulkUploadMaxFiles" />.
@@ -47,6 +53,18 @@ public sealed class EvidenceBulkUploadController(
         // multipart/integration clients even when parts are present (ReadFormAsync is authoritative).
         IFormCollection form = await Request.ReadFormAsync(cancellationToken);
         IFormFileCollection files = form.Files;
+
+        string partitionKey = RateLimitingRolePartitionBuilder.ResolveClientPartitionKey(HttpContext);
+
+        if (anomalyTracker.RecordAndEvaluate(partitionKey, files.Count))
+        {
+            int throttleMinutes = Math.Max(1, anomalyOptions.Value.ThrottleDurationMinutes);
+
+            logger.LogWarning(
+                "Evidence bulk upload anomaly detected for partition {EvidenceBulkUploadPartitionKey}; applying stricter rate limit for {EvidenceBulkUploadThrottleMinutes} minute(s).",
+                partitionKey,
+                throttleMinutes);
+        }
 
         BulkEvidenceUploadResult result = await uploadService.UploadBulkEvidenceAsync(
             runId,

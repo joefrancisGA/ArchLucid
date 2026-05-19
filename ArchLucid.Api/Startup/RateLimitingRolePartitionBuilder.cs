@@ -21,7 +21,8 @@ internal static class RateLimitingRolePartitionBuilder
         int basePermitLimit,
         int windowMinutes,
         int queueLimit,
-        string policyTag)
+        string policyTag,
+        double additionalPermitMultiplier = 1.0)
     {
         RateLimitingRoleMultiplierOptions multOpts = httpContext.RequestServices
                                                          .GetService<IOptions<RateLimitingRoleMultiplierOptions>>()
@@ -30,7 +31,8 @@ internal static class RateLimitingRolePartitionBuilder
 
         string roleSeg = ResolveRoleSegment(httpContext);
         double mult = ClampMult(MultiplierForSegment(roleSeg, multOpts));
-        int permits = Math.Max(1, (int)Math.Round(basePermitLimit * mult));
+        double permitScale = Math.Clamp(additionalPermitMultiplier, 0.05, 1.0);
+        int permits = Math.Max(1, (int)Math.Round(basePermitLimit * mult * permitScale));
         string clientKey = ResolveClientPartitionKey(httpContext);
         string partitionKey = $"{policyTag}:{roleSeg}:{clientKey}";
         TimeSpan window = TimeSpan.FromMinutes(windowMinutes);
@@ -43,7 +45,7 @@ internal static class RateLimitingRolePartitionBuilder
     /// <summary>
     ///     Buckets authenticated callers by <c>tenant_id</c> JWT claim when available; anonymous callers bucket by remote IP.
     /// </summary>
-    private static string ResolveClientPartitionKey(HttpContext httpContext)
+    internal static string ResolveClientPartitionKey(HttpContext httpContext)
     {
         ClaimsPrincipal user = httpContext.User;
 

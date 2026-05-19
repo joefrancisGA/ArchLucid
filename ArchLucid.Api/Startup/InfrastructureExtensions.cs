@@ -6,11 +6,13 @@ using ArchLucid.Api.Filters;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Evidence;
 using ArchLucid.Host.Core.Authorization;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Startup;
 
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ArchLucid.Api.Startup;
 
@@ -39,6 +41,11 @@ internal static class InfrastructureExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.TryAddSingleton(TimeProvider.System);
+        services.Configure<EvidenceBulkUploadAnomalyOptions>(
+            configuration.GetSection(EvidenceBulkUploadAnomalyOptions.SectionPath));
+        services.AddSingleton<IEvidenceBulkUploadAnomalyTracker, EvidenceBulkUploadAnomalyTracker>();
+
         services.Configure<RateLimitingRoleMultiplierOptions>(
             configuration.GetSection(RateLimitingRoleMultiplierOptions.SectionPath));
 
@@ -184,12 +191,21 @@ internal static class InfrastructureExtensions
 
             options.AddPolicy(
                 "evidenceBulkUpload",
-                httpContext => RateLimitingRolePartitionBuilder.CreateFixedWindow(
-                    httpContext,
-                    evidenceBulkPermitLimit,
-                    evidenceBulkWindowMinutes,
-                    evidenceBulkQueueLimit,
-                    "evidenceBulkUpload"));
+                httpContext =>
+                {
+                    IEvidenceBulkUploadAnomalyTracker? anomalyTracker =
+                        httpContext.RequestServices.GetService<IEvidenceBulkUploadAnomalyTracker>();
+                    string clientKey = RateLimitingRolePartitionBuilder.ResolveClientPartitionKey(httpContext);
+                    double anomalyMultiplier = anomalyTracker?.GetPermitLimitMultiplier(clientKey) ?? 1.0;
+
+                    return RateLimitingRolePartitionBuilder.CreateFixedWindow(
+                        httpContext,
+                        evidenceBulkPermitLimit,
+                        evidenceBulkWindowMinutes,
+                        evidenceBulkQueueLimit,
+                        "evidenceBulkUpload",
+                        anomalyMultiplier);
+                });
         });
         return services;
     }
