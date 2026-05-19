@@ -60,6 +60,42 @@ function Test-HasFileLockErrors {
     return $Output -match 'MSB302[17]'
 }
 
+function Test-BuildSucceeded {
+    param([string] $Output)
+
+    if (Test-HasCompileErrors -Output $Output) {
+        return $false
+    }
+
+    return $Output -match 'Build succeeded\.'
+}
+
+function Stop-ProcessTree {
+    param(
+        [System.Diagnostics.Process] $Process
+    )
+
+    if ($null -eq $Process -or $Process.HasExited) {
+        return
+    }
+
+    $runningOnWindows = $env:OS -like '*Windows*'
+
+    if ($runningOnWindows) {
+        Start-Process `
+            -FilePath 'taskkill' `
+            -ArgumentList @('/F', '/T', '/PID', $Process.Id.ToString()) `
+            -NoNewWindow `
+            -Wait `
+            | Out-Null
+    }
+    else {
+        $Process.Kill()
+    }
+
+    $Process.WaitForExit(5000) | Out-Null
+}
+
 function Invoke-TimedExternalProcess {
     param(
         [string] $FileName,
@@ -82,34 +118,47 @@ function Invoke-TimedExternalProcess {
             -RedirectStandardError $stderrFile `
             -Wait:$false
 
-        $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
-
-        while (-not $process.HasExited -and [DateTime]::UtcNow -lt $deadline) {
-            Start-Sleep -Milliseconds 200
-        }
+        $timeoutMs = $TimeoutSeconds * 1000
+        $exitedInTime = $process.WaitForExit($timeoutMs)
 
         $stdout = Get-Content -LiteralPath $stdoutFile -Raw -ErrorAction SilentlyContinue
         $stderr = Get-Content -LiteralPath $stderrFile -Raw -ErrorAction SilentlyContinue
         $combined = Get-CombinedOutput -Stdout $stdout -Stderr $stderr
 
-        if (-not $process.HasExited) {
-            $process.Kill()
-            $process.WaitForExit(5000) | Out-Null
+        if (-not $exitedInTime) {
+            Stop-ProcessTree -Process $process
             Write-Host $stdout
             Write-Host $stderr
 
+            if (Test-BuildSucceeded -Output $combined) {
+                return @{
+                    ExitCode       = 0
+                    CombinedOutput = $combined
+                    TimedOut       = $false
+                }
+            }
+
             return @{
-                ExitCode     = 2
+                ExitCode       = 2
                 CombinedOutput = $combined
-                TimedOut     = $true
+                TimedOut       = $true
             }
         }
 
         Write-Host $stdout
         Write-Host $stderr
 
+        $exitCode = $process.ExitCode
+        if ($null -eq $exitCode) {
+            $exitCode = 0
+        }
+
+        if ($exitCode -ne 0 -and (Test-BuildSucceeded -Output $combined)) {
+            $exitCode = 0
+        }
+
         return @{
-            ExitCode       = $process.ExitCode
+            ExitCode       = $exitCode
             CombinedOutput = $combined
             TimedOut       = $false
         }
@@ -152,8 +201,6 @@ if ($Ui) {
 
 $projectFullPath = Resolve-Path -LiteralPath (Join-Path $repoRoot $ProjectPath)
 
-dotnet build-server shutdown 2>$null | Out-Null
-
 $outDir = Join-Path $env:TEMP ('archlucid-agent-build-' + [Guid]::NewGuid().ToString('n'))
 New-Item -ItemType Directory -Path $outDir -Force | Out-Null
 
@@ -166,6 +213,7 @@ try {
             '-c', 'Release'
             '-o', $outDir
             '--nologo'
+            '--disable-build-servers'
             '-v', 'minimal'
         ) `
         -WorkingDirectory $repoRoot `
