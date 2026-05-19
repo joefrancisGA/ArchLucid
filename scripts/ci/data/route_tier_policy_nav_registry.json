@@ -1212,6 +1212,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Tenancy/TenantWorkspaceBaselineArtifactsController.cs",
+      "class_name": "TenantWorkspaceBaselineArtifactsController",
+      "route_template": "v{version:apiVersion}/tenant/workspace-baseline-artifacts",
+      "normalized_prefix": "/v1/tenant/workspace-baseline-artifacts",
+      "commercial_tier": "none",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Tenancy/TenantWorkspacesController.cs",
       "class_name": "TenantWorkspacesController",
       "route_template": "v{version:apiVersion}/tenant/workspaces",

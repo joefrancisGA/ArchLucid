@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Xml.Linq;
 
-namespace ArchLucid.Api.Services.Admin;
+namespace ArchLucid.Core.Auth.Saml;
 
 /// <summary>Parses SAML metadata root <c>validUntil</c> without coupling to IdP vendor-specific deserialization.</summary>
 public static class SamlMetadataValidUntilParser

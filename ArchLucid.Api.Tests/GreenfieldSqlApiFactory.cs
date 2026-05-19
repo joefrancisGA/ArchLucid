@@ -107,7 +107,7 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
         base.ConfigureClient(client);
 
         // Worst wall clock for one POST: applock wait budget (10 min) + pipeline ceiling (5 min) — stay aligned with settings above.
-        client.Timeout = TimeSpan.FromMinutes(28);
+        client.Timeout = ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout;
     }
 
     /// <inheritdoc />

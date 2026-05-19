@@ -3,6 +3,7 @@ using System.Security.Cryptography.X509Certificates;
 
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Controllers.Admin;
+using ArchLucid.Core.Auth.Saml;
 
 using ITfoxtec.Identity.Saml2.Util;
 

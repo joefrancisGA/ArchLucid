@@ -21,15 +21,15 @@ namespace ArchLucid.Api.Tests;
 public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
 {
     /// <summary>
-    ///     Caps total wall clock so a wedged host fails instead of hitting the CI job blame timeout. Must stay
-    ///     <strong>above</strong> <see cref="ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout" />:
-    ///     parallel POSTs link this token into each slot; a shorter guard cancels mid-response-buffer and yields
-    ///     <see cref="OperationCanceledException" /> despite legitimate <c>sp_getapplock</c> + pipeline waits in slow CI.
-    ///     Must stay <strong>below</strong> the CI <c>--blame-hang-timeout</c> (90 min) so this token fires first and
-    ///     the test fails cleanly rather than the host being dumped mid-run.
+    ///     Caps wall clock for the parallel burst (after greenfield bootstrap). Uses
+    ///     <see cref="ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout" />, not
+    ///     <see cref="ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout" /> (InMemory factory).
+    ///     Must stay <strong>below</strong> CI <c>--blame-hang-timeout</c> (90 min) including
+    ///     <see cref="ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlHostBootstrapBudget" />.
     /// </summary>
     private static readonly TimeSpan ParallelCreateRunHangGuard =
-        ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout + TimeSpan.FromMinutes(10);
+        ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout
+        + TimeSpan.FromMinutes(25);
 
     private const string SqlUnavailable =
         "API greenfield SQL tests need SQL Server. Set "
@@ -54,13 +54,15 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
     {
         Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
-        using CancellationTokenSource hangGuard = new();
-        hangGuard.CancelAfter(ParallelCreateRunHangGuard);
-        CancellationToken ct = hangGuard.Token;
-
         await using GreenfieldSqlApiFactory factory = new();
         HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+
+        await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(client);
+
+        using CancellationTokenSource hangGuard = new();
+        hangGuard.CancelAfter(ParallelCreateRunHangGuard);
+        CancellationToken ct = hangGuard.Token;
 
         string idempotencyKey = "idem-conc-" + Guid.NewGuid().ToString("N");
         string requestId = "REQ-IDEM-" + Guid.NewGuid().ToString("N")[..12];
@@ -75,7 +77,8 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
                 parallel,
                 10,
                 500,
-                ct);
+                ct,
+                ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout);
 
         responses = await ArchitectureRequestConcurrencyTestSupport.ResolveServiceUnavailablePerResponseAsync(
             client,

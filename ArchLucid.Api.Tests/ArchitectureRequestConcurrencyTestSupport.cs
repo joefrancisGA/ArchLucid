@@ -3,6 +3,8 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.TestSupport;
+
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
@@ -19,12 +21,24 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     ///     A single POST can wait on the lock and then run the authority pipeline (seconds for Simulator in practice; bounded by host
     ///     <c>AuthorityPipeline:PipelineTimeout</c>).
     ///     <see cref="ArchLucidApiFactory" /> sets <see cref="HttpClient.Timeout" /> around <strong>65</strong> minutes.
-    ///     <see cref="GreenfieldSqlApiFactory" /> uses a tighter ceiling (~28 minutes) aligned to its simulator budgets.
+    ///     <see cref="GreenfieldSqlApiFactory" /> uses a tighter ceiling aligned to
+    ///     <see cref="GreenfieldSqlArchitectureRequestBurstHttpTimeout" /> (applock wait + pipeline + SQL headroom).
     ///     Any per-operation CTS (e.g. transient 503 retry loops in integration tests) must meet or exceed that ceiling
     ///     plus backoff headroom — never below the factory HTTP timeout or a hung first attempt cancels before the pipeline
     ///     finishes despite the longer <see cref="HttpClient.Timeout" />.
     /// </summary>
     internal static readonly TimeSpan ArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(65);
+
+    /// <summary>
+    ///     Per-POST ceiling for <see cref="GreenfieldSqlApiFactory" /> (10 min <c>sp_getapplock</c> + 5 min pipeline + slack).
+    ///     Parallel idempotency bursts after <see cref="WarmGreenfieldSqlHostForArchitectureRequestTestsAsync" /> should finish well
+    ///     under this; it must stay below <see cref="ArchitectureRequestBurstHttpTimeout" /> so greenfield tests do not inherit
+    ///     InMemory-factory budgets meant for hour-scale lock chains.
+    /// </summary>
+    internal static readonly TimeSpan GreenfieldSqlArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(32);
+
+    /// <summary>DbUp + readiness + first create-run on an empty catalog (outside parallel-burst hang guards).</summary>
+    internal static readonly TimeSpan GreenfieldSqlHostBootstrapBudget = TimeSpan.FromMinutes(30);
 
     internal static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
@@ -43,14 +57,17 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         object body,
         string idempotencyKey,
         int parallel,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        TimeSpan? parallelOperationTimeout = null)
     {
+        TimeSpan burstTimeout = parallelOperationTimeout ?? ArchitectureRequestBurstHttpTimeout;
+
         if (parallel > 1)
-            AlignHttpClientTimeoutForSqlIdempotencyLockChain(client);
+            AlignHttpClientTimeoutForSqlIdempotencyLockChain(client, burstTimeout);
 
         // Per-operation timeout: cannot assign HttpClient.Timeout after the first request (runtime throws). Cold CI
         // SQL + DbUp + serialized sp_getapplock chains can exceed many minutes (N slots x create-run duration).
-        TimeSpan operationTimeout = parallel > 1 ? ArchitectureRequestBurstHttpTimeout : TimeSpan.FromSeconds(100);
+        TimeSpan operationTimeout = parallel > 1 ? burstTimeout : TimeSpan.FromSeconds(100);
 
         using CancellationTokenSource timeoutCts = new();
         timeoutCts.CancelAfter(operationTimeout);
@@ -180,13 +197,16 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         int parallel,
         int maxAttempts,
         int initialDelayMilliseconds,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        TimeSpan? parallelOperationTimeout = null)
     {
-        AlignHttpClientTimeoutForSqlIdempotencyLockChain(client);
+        TimeSpan burstTimeout = parallelOperationTimeout ?? ArchitectureRequestBurstHttpTimeout;
+        AlignHttpClientTimeoutForSqlIdempotencyLockChain(client, burstTimeout);
 
         int delayMilliseconds = initialDelayMilliseconds;
         HttpResponseMessage[] responses =
-            await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel, cancellationToken);
+            await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel, cancellationToken,
+                burstTimeout);
 
         for (int attempt = 0;
              attempt < maxAttempts - 1 && responses.Any(static r => r.StatusCode == HttpStatusCode.ServiceUnavailable);
@@ -196,10 +216,112 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             await Task.Delay(delayMilliseconds, cancellationToken);
             delayMilliseconds = Math.Min(delayMilliseconds * 2, 4000);
             responses = await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel,
-                cancellationToken);
+                cancellationToken, burstTimeout);
         }
 
         return responses;
+    }
+
+    /// <summary>
+    ///     Runs DbUp/readiness and a single create-run POST before parallel idempotency bursts so migrations and cold SQL
+    ///     do not compete with <c>sp_getapplock</c> waiters inside the test hang guard.
+    /// </summary>
+    internal static async Task WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(
+        HttpClient client,
+        CancellationToken cancellationToken = default)
+    {
+        using CancellationTokenSource bootstrap = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        bootstrap.CancelAfter(GreenfieldSqlHostBootstrapBudget);
+        CancellationToken ct = bootstrap.Token;
+
+        AlignHttpClientTimeoutForSqlIdempotencyLockChain(client, GreenfieldSqlArchitectureRequestBurstHttpTimeout);
+        await HealthReadyProbe.EnsureReadyAsync(client, ct);
+        await WarmListRunsPathAsync(client, ct);
+        await WarmSingleCreateRunPathAsync(client, ct);
+    }
+
+    private static async Task WarmListRunsPathAsync(HttpClient client, CancellationToken cancellationToken)
+    {
+        int delayMs = 1000;
+
+        for (int attempt = 0; attempt < 60; attempt++)
+        {
+            using HttpResponseMessage response = await client.GetAsync("/v1/architecture/runs?limit=1", cancellationToken);
+
+            if (response.IsSuccessStatusCode)
+                return;
+
+            if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
+            {
+                await response.EnsureSuccessStatusCode();
+                return;
+            }
+
+            await Task.Delay(delayMs, cancellationToken);
+            delayMs = Math.Min(delayMs * 2, 8000);
+        }
+
+        throw new InvalidOperationException(
+            "GET /v1/architecture/runs stayed 503 while warming the greenfield SQL host. See "
+            + nameof(WarmGreenfieldSqlHostForArchitectureRequestTestsAsync)
+            + ".");
+    }
+
+    private static async Task WarmSingleCreateRunPathAsync(HttpClient client, CancellationToken cancellationToken)
+    {
+        string idempotencyKey = "greenfield-warm-" + Guid.NewGuid().ToString("N");
+        object body = TestRequestFactory.CreateArchitectureRequest(
+            "REQ-GREENFIELD-WARM-" + Guid.NewGuid().ToString("N")[..8]);
+        int delayMs = 250;
+
+        for (int attempt = 0; attempt < 10; attempt++)
+        {
+            using CancellationTokenSource attemptBudget =
+                CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            attemptBudget.CancelAfter(GreenfieldSqlArchitectureRequestBurstHttpTimeout);
+
+            try
+            {
+                using HttpResponseMessage response = await PostSingleArchitectureRequestAsync(
+                    client,
+                    body,
+                    idempotencyKey,
+                    attemptBudget.Token);
+
+                if (response.IsSuccessStatusCode)
+                    return;
+
+                if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
+                {
+                    throw new InvalidOperationException(
+                        "POST /v1/architecture/request warmup failed with HTTP "
+                        + (int)response.StatusCode
+                        + " (expected success after transient SQL retries).");
+                }
+            }
+            catch (HttpRequestException ex) when (!cancellationToken.IsCancellationRequested
+                                                  && IndicatesClientAbortedResponseBuffering(ex))
+            {
+            }
+            catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested
+                                                   && ex.InnerException is TimeoutException)
+            {
+            }
+            catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+            }
+            catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+            }
+
+            await Task.Delay(delayMs, cancellationToken);
+            delayMs = Math.Min(delayMs * 2, 4000);
+        }
+
+        throw new InvalidOperationException(
+            "POST /v1/architecture/request warmup did not succeed after transient retries. See "
+            + nameof(WarmGreenfieldSqlHostForArchitectureRequestTestsAsync)
+            + ".");
     }
 
     internal static void DisposeAll(HttpResponseMessage[] responses)
@@ -215,17 +337,21 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     ///     Safe to call after traffic has started: .NET forbids mutating <see cref="HttpClient.Timeout" /> then, so we no-op
     ///     when the setter throws (timeout should already be adequate if callers aligned before the first request).
     /// </summary>
-    internal static void AlignHttpClientTimeoutForSqlIdempotencyLockChain(HttpClient client)
+    internal static void AlignHttpClientTimeoutForSqlIdempotencyLockChain(
+        HttpClient client,
+        TimeSpan? minimumTimeout = null)
     {
         if (client is null)
             throw new ArgumentNullException(nameof(client));
 
-        if (client.Timeout >= ArchitectureRequestBurstHttpTimeout)
+        TimeSpan required = minimumTimeout ?? ArchitectureRequestBurstHttpTimeout;
+
+        if (client.Timeout >= required)
             return;
 
         try
         {
-            client.Timeout = ArchitectureRequestBurstHttpTimeout;
+            client.Timeout = required;
         }
         catch (InvalidOperationException)
         {
