@@ -86,7 +86,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted deficiency signal:** 72
 - **Why this score was assigned:** Operator shell labels are aligned with marketing vocabulary. **V1** leans on **REST**, **CLI**, **operator UI**, **ADO**/**GitHub** CI hooks, and **§2.16+** for workflow-shaped coverage; **Teams**, **webhooks**, **recipes**, and **first-party** **Jira** / **ServiceNow** / **Confluence** / **Slack** are **V1.1** ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3). Residual **V1.1** connector program work is **not** an `(A)` V1 deduction.
 - **Key tradeoffs:** Governance authoring UX depth may still lag specialist policy-studio expectations.
-- **Specific improvement recommendations:** Add a CLI command to test SAML SP configuration.
+- **Specific improvement recommendations:** SAML SP configuration validation CLI — **shipped** (`archlucid saml test-config`; see improvement **#16**).
 - **Fixability:** Fixable in V1.
 
 ### 8. Differentiability
@@ -230,7 +230,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 - **Weighted deficiency signal:** 12
 - **Why this score was assigned:** REST API, CLI, **operator UI**, SAML 2.0 SP, and OIDC provide strong **V1** interoperability. **CloudEvents webhooks**, **Microsoft Teams** chat-ops, **recipe** bridges, and **first-party** **Jira** / **ServiceNow** / **Confluence** / **Slack** are **V1.1** buyer-contract surfaces ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3); **`(A)`** does **not** penalize their absence for V1.
 - **Key tradeoffs:** SAML SP adds dual auth-surface operational burden.
-- **Specific improvement recommendations:** Create a runbook for SAML SP certificate rotation.
+- **Specific improvement recommendations:** SAML SP certificate rotation runbook — **shipped** ([`docs/runbooks/SAML_CERT_ROTATION.md`](../runbooks/SAML_CERT_ROTATION.md); see improvement **#17**).
 - **Fixability:** Fixable in V1.
 
 ---
@@ -248,7 +248,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 9. **Architecture project retention UX clarity:** Undo/restore is productized (`/settings/tenant/recycle-bin`, `POST /v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore`), but purge-window escalation and SLA-style messaging for operators remains uneven vs the retention worker.
 10. **Policy pack assignment visibility (operator wiring):** Assign and archive paths emit structured logs; Loki ruler rules and a Grafana dashboard ship in-repo (`infra/loki/archlucid-policy-pack-assignment-alerts.yml`, `infra/grafana/dashboard-archlucid-policy-packs.json`); operators must import/bind Loki and tighten stream selectors per environment.
 11. **Data residency diligence depth:** Buyers require verifiable proof that SQL topology and backups match their geography.
-12. **SAML SP operational burden:** Managing certificate rotation and metadata drift adds operational overhead.
+12. **SAML SP operational burden:** Certificate rotation and metadata drift still need disciplined operations — **partially mitigated** by `archlucid saml test-config` and [`docs/runbooks/SAML_CERT_ROTATION.md`](../runbooks/SAML_CERT_ROTATION.md) (improvements **#16**–**#17**).
 
 ---
 
@@ -267,7 +267,7 @@ The engineering foundation is highly rigorous, with strong architectural invaria
 
 1. **Absence of compliance attestations:** Lack of a CPA-issued SOC 2 Type II report causes friction in security reviews.
 2. **Data residency diligence depth:** Buyers require verifiable proof that SQL topology and backups match their geography.
-3. **SAML SP operational burden:** Managing certificate rotation and metadata drift for SAML SP adds operational overhead for enterprise IT.
+3. **SAML SP operational burden:** Metadata drift and IdP coordination still add enterprise IT overhead — **partially mitigated** by offline `archlucid saml test-config`, [`docs/runbooks/SAML_CERT_ROTATION.md`](../runbooks/SAML_CERT_ROTATION.md), and automated cert-expiry notifications.
 4. **Automated tenant erasure:** Not a V1 headline blocker, but buyers may still request a productized erasure narrative (V2 backlog).
 5. **Architecture project retention communication:** Soft-delete, retention purge, and in-product recycle bin + restore exist; buyer/operator narratives still need sharper hard-purge timeline and escalation guidance.
 6. **Noisy neighbor posture in orchestration:** Buyers will diligence steady-state parallelism and multi-region fairness.
@@ -487,30 +487,32 @@ Add anomaly detection logic to the `EvidenceBulkUploadController` to flag and te
 - Impact: Directly improves Reliability (+8-10 pts) and Scalability (+3-5 pts). Weighted readiness impact: +0.15-0.25%.
 ```
 
-### 16. Add a CLI command to test SAML SP configuration
+### 16. COMPLETED: Add a CLI command to test SAML SP configuration
 - **Why it matters:** Simplifies the setup and troubleshooting of SAML SP integrations.
 - **Expected impact:** Adoption Friction (+10 pts), Supportability (+5 pts).
 - **Affected qualities:** Adoption Friction, Supportability.
-- **Actionable:** Yes
+- **Actionable:** No — delivered as `archlucid saml test-config` (`ArchLucid.Cli/Commands/SamlTestConfigCommand.cs`): offline validation from merged `appsettings` / env via `SamlSpConfigurationDiagnostics` in `ArchLucid.Core/Auth/Saml/` (issuer, optional signing PFX, IdP metadata HTTPS fetch + `validUntil`, expiry warnings); Pass/Fail/Warn/Info per component; global `--json`; exit **4** on any Fail. SAML authentication middleware unchanged. Documented in `docs/library/CLI_USAGE.md`. Tests: `ArchLucid.Core.Tests/Auth/Saml/SamlSpConfigurationDiagnosticsTests.cs`, `ArchLucid.Cli.Tests/SamlTestConfigCommandTests.cs`.
 ```text
-Add a command `archlucid saml test-config` to the CLI to validate the SAML SP configuration (e.g., metadata URL, certificate validity).
+Add a command `archlucid saml test-config` to the CLI to validate the SAML SP configuration (e.g., metadata URL, certificate validity). [COMPLETED]
 - Acceptance criteria: The command outputs a clear pass/fail status for each configuration component.
 - Constraints: Do not perform a full authentication flow, only configuration validation.
 - What not to change: Do not modify the SAML authentication middleware.
 - Impact: Directly improves Adoption Friction (+8-10 pts) and Supportability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- Deliverable: `archlucid saml test-config`; `ArchLucid.Core/Auth/Saml/SamlSpConfigurationDiagnostics.cs`; `ArchLucid.Cli/Commands/SamlTestConfigCommand.cs`.
 ```
 
-### 17. Create a runbook for SAML SP certificate rotation
+### 17. COMPLETED: Create a runbook for SAML SP certificate rotation
 - **Why it matters:** Provides clear instructions for operators to rotate expiring certificates.
 - **Expected impact:** Supportability (+10 pts), Maintainability (+5 pts).
 - **Affected qualities:** Supportability, Maintainability.
-- **Actionable:** Yes
+- **Actionable:** No — delivered as `docs/runbooks/SAML_CERT_ROTATION.md` (P2): generate/obtain PFX, export public cert for IdP, dual-trust overlap cutover, config keys, rolling deploy, `archlucid saml test-config` + `GET /v1/admin/auth/saml-operational-health`, smoke `/Auth/Saml2/*`, rollback; indexed in `docs/runbooks/README.md`. Prior stub `docs/library/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md` now points to the canonical runbook. SAML authentication logic unchanged.
 ```text
-Create a runbook `docs/runbooks/SAML_CERT_ROTATION.md` detailing the steps to rotate the SAML SP certificate without downtime.
+Create a runbook `docs/runbooks/SAML_CERT_ROTATION.md` detailing the steps to rotate the SAML SP certificate without downtime. [COMPLETED]
 - Acceptance criteria: Runbook includes steps for generating a new cert, updating configuration, and coordinating with the IdP.
 - Constraints: Follow existing runbook formatting guidelines.
 - What not to change: Do not modify the SAML authentication logic.
 - Impact: Directly improves Supportability (+8-10 pts) and Maintainability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+- Deliverable: `docs/runbooks/SAML_CERT_ROTATION.md`; `docs/runbooks/README.md` index row.
 ```
 
 ### 18. Implement a dashboard panel for integration event outbox dead letters
@@ -619,8 +621,8 @@ To optimize context window usage and cost-effectiveness, batch the actionable pr
 - **Batch 1 (Observability & Dashboards):** 3, 9, 18, 22, 25
 - **Batch 2 (UI & UX Enhancements):** 5, 8, 19, 23 *(14 completed)*
 - **Batch 3 (Reliability & Health Checks):** 15 *(12 completed)*
-- **Batch 4 (CLI & Export Features):** 10, 16, 21
-- **Batch 5 (Policy Packs & Runbooks):** 6, 17, 20 *(13 completed)*
+- **Batch 4 (CLI & Export Features):** 21 *(10, 16 completed)*
+- **Batch 5 (Policy Packs & Runbooks):** *(6, 17, 20 completed)*
 - **Batch 6 (Testing & Code Quality):** 4, 7, 24
 
 ---
