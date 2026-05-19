@@ -21,25 +21,6 @@ namespace ArchLucid.Api.Tests.Security;
 [Trait("Category", "Integration")]
 public sealed class TenantIsolationSmokeTests
 {
-    /// <summary>
-    ///     Backoff between transient POST retries plus slack so the outer CTS does not cancel mid-third-attempt when two
-    ///     prior attempts each consumed a full <see cref="ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout" />.
-    /// </summary>
-    private static readonly TimeSpan WarmCreateRunRetryHeadroom = TimeSpan.FromMinutes(10);
-
-    /// <summary>
-    ///     Outer wall clock for <see cref="PostArchitectureRequestWithTransientRetryAsync" />: three full create-run attempts
-    ///     (each may run up to <see cref="ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout" />)
-    ///     plus <see cref="WarmCreateRunRetryHeadroom" />. Cold greenfield CI can burn two consecutive HttpClient timeouts
-    ///     (idempotency wait + pipeline) before the third POST succeeds; a two-burst outer budget left only ~5m for that
-    ///     third attempt and reproduced ~70m "retry budget exceeded" failures.
-    /// </summary>
-    private static readonly TimeSpan PostArchitectureTransientRetryOuterBudget =
-        ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout
-        + ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout
-        + ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout
-        + WarmCreateRunRetryHeadroom;
-
     // Unlike idempotent-create SQL tests, this one requires *explicit* SQL (env var). Windows+localhost only is too easy
     // to misconfigure and caused long host-build hangs; CI sets the standard variables (see docs/BUILD.md).
     private const string SqlExplicitUnavailable =
@@ -98,7 +79,7 @@ public sealed class TenantIsolationSmokeTests
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await WarmSqlAuthorityPipelineAsync(primer);
+            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(primer);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
@@ -107,7 +88,7 @@ public sealed class TenantIsolationSmokeTests
         WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
         string requestId = "REQ-TNTISO-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage create = await PostArchitectureRequestWithTransientRetryAsync(
+        HttpResponseMessage create = await PostArchitectureRequestAsync(
             clientA,
             TestRequestFactory.CreateArchitectureRequest(requestId));
         await create.EnsureSuccessForTestAsync();
@@ -138,7 +119,7 @@ public sealed class TenantIsolationSmokeTests
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await WarmSqlAuthorityPipelineAsync(primer);
+            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(primer);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
@@ -147,7 +128,7 @@ public sealed class TenantIsolationSmokeTests
         WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
         string requestId = "REQ-TNTROI-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage create = await PostArchitectureRequestWithTransientRetryAsync(
+        HttpResponseMessage create = await PostArchitectureRequestAsync(
             clientA,
             TestRequestFactory.CreateArchitectureRequest(requestId));
         await create.EnsureSuccessForTestAsync();
@@ -170,7 +151,9 @@ public sealed class TenantIsolationSmokeTests
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await WarmSqlAuthorityPipelineAsync(primer, includePostCreateRunWarmup: false);
+            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(
+                primer,
+                includePostCreateRunWarmup: false);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
@@ -193,12 +176,10 @@ public sealed class TenantIsolationSmokeTests
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
         await using GreenfieldSqlApiFactory factory = new();
-        // Full POST warmup: this test creates two runs (tenant A and B). Skipping warmup reproduced CI failures where
-        // cold create-run + idempotency/SQL settled only after three 65-minute attempt budgets (~3h25m outer wall).
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await WarmSqlAuthorityPipelineAsync(primer);
+            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(primer);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
@@ -210,7 +191,7 @@ public sealed class TenantIsolationSmokeTests
         WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
         string reqA = "REQ-ADMARCH-A-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage createA = await PostArchitectureRequestWithTransientRetryAsync(
+        HttpResponseMessage createA = await PostArchitectureRequestAsync(
             clientA,
             TestRequestFactory.CreateArchitectureRequest(reqA));
         await createA.EnsureSuccessForTestAsync();
@@ -218,7 +199,7 @@ public sealed class TenantIsolationSmokeTests
         string runIdA = createdA!.Run.RunId;
 
         string reqB = "REQ-ADMARCH-B-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage createB = await PostArchitectureRequestWithTransientRetryAsync(
+        HttpResponseMessage createB = await PostArchitectureRequestAsync(
             clientB,
             TestRequestFactory.CreateArchitectureRequest(reqB));
         await createB.EnsureSuccessForTestAsync();
@@ -234,6 +215,15 @@ public sealed class TenantIsolationSmokeTests
         await getB.EnsureSuccessForTestAsync();
         HttpResponseMessage getA = await clientA.GetAsync($"/v1/architecture/run/{runIdA}");
         getA.StatusCode.Should().Be(HttpStatusCode.NotFound, "tenant A admin batch should archive only tenant A runs.");
+    }
+
+    private static Task<HttpResponseMessage> PostArchitectureRequestAsync(HttpClient client, object body)
+    {
+        string idempotencyKey = "tenant-iso-smoke-" + Guid.NewGuid().ToString("N");
+        return ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestWithGreenfieldTransientRetryAsync(
+            client,
+            body,
+            idempotencyKey);
     }
 
     private static async Task<Guid?> TryGetAnyGoldenManifestIdForTenantAsync(string connectionString, Guid tenantId)
@@ -280,7 +270,7 @@ public sealed class TenantIsolationSmokeTests
         return false;
     }
 
-    /// <summary>Inserts a second registry row so <c>CommercialTenantTierFilter</c> allows tenant Bâ€™s HTTP scope.</summary>
+    /// <summary>Inserts a second registry row so <c>CommercialTenantTierFilter</c> allows tenant B's HTTP scope.</summary>
     private static async Task EnsureAlternateTenantAndWorkspaceAsync(
         string connectionString,
         Guid tenantId,
@@ -308,145 +298,5 @@ public sealed class TenantIsolationSmokeTests
         cmd.Parameters.AddWithValue("@Wid", workspaceId);
         cmd.Parameters.AddWithValue("@Pid", defaultProjectId);
         _ = await cmd.ExecuteNonQueryAsync();
-    }
-
-    /// <summary>
-    ///     DbUp + cold CI SQL can return 503 until migrations and first queries settle; combine readiness + list, and
-    ///     optionally POST so the full authority write path is warmed before tests that create runs. Read-only tenant
-    ///     checks can skip POST to avoid cold-path create runs that may exceed CI wall clocks or cancel mid-response.
-    /// </summary>
-    private static async Task WarmSqlAuthorityPipelineAsync(HttpClient client, bool includePostCreateRunWarmup = true)
-    {
-        ArchitectureRequestConcurrencyTestSupport.AlignHttpClientTimeoutForSqlIdempotencyLockChain(client);
-
-        await WarmHealthReadyPathAsync(client);
-        await WarmListRunsPathAsync(client);
-
-        if (!includePostCreateRunWarmup)
-            return;
-
-        await WarmPostCreateRunPathAsync(client);
-    }
-
-    private static Task WarmHealthReadyPathAsync(HttpClient client) => HealthReadyProbe.EnsureReadyAsync(client);
-
-    private static async Task WarmListRunsPathAsync(HttpClient client)
-    {
-        int delayMs = 1000;
-
-        for (int attempt = 0; attempt < 60; attempt++)
-        {
-            using HttpResponseMessage response = await client.GetAsync("/v1/architecture/runs?limit=1");
-
-            if (response.IsSuccessStatusCode)
-                return;
-
-            if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
-            {
-                await response.EnsureSuccessForTestAsync();
-                return;
-            }
-
-            await Task.Delay(delayMs);
-            delayMs = Math.Min(delayMs * 2, 8000);
-        }
-
-        throw new InvalidOperationException(
-            "GET /v1/architecture/runs stayed 503 (host still warming or SQL not reachable). "
-            + "See " + nameof(WarmListRunsPathAsync) + " and greenfield host startup.");
-    }
-
-    /// <summary>
-    ///     Primes the full create-run write path (authority pipeline, idempotency lock, persistence) so subsequent test
-    ///     POSTs do not encounter cold-path timeouts on CI SQL. Uses the same transient-503 retry policy as test POSTs
-    ///     so warmup does not give up while <see cref="PostArchitectureRequestWithTransientRetryAsync" /> would still retry.
-    /// </summary>
-    private static async Task WarmPostCreateRunPathAsync(HttpClient client)
-    {
-        using HttpResponseMessage response = await PostArchitectureRequestWithTransientRetryAsync(
-            client,
-            TestRequestFactory.CreateArchitectureRequest("REQ-WARMUP-" + Guid.NewGuid().ToString("N")[..8]));
-
-        if (!response.IsSuccessStatusCode)
-            throw new InvalidOperationException(
-                "POST /v1/architecture/request warmup failed with HTTP "
-                + (int)response.StatusCode
-                + " (expected success after transient SQL retries). See "
-                + nameof(WarmPostCreateRunPathAsync)
-                + ", "
-                + nameof(PostArchitectureRequestWithTransientRetryAsync)
-                + ", and greenfield host startup.");
-    }
-
-    private static async Task<HttpResponseMessage> PostArchitectureRequestWithTransientRetryAsync(
-        HttpClient client,
-        object body)
-    {
-        string idempotencyKey = "tenant-iso-smoke-" + Guid.NewGuid().ToString("N");
-        int delayMs = 250;
-
-        // Outer budget: enough for multiple full POSTs; each attempt gets its own CancelAfter(BurstHttpTimeout) so one
-        // long pipeline cannot consume the entire outer window and leave no time for a second try after 503s/timeouts.
-        using CancellationTokenSource outerBudget = new(PostArchitectureTransientRetryOuterBudget);
-
-        try
-        {
-            while (true)
-            {
-                outerBudget.Token.ThrowIfCancellationRequested();
-
-                using CancellationTokenSource attemptBudget =
-                    CancellationTokenSource.CreateLinkedTokenSource(outerBudget.Token);
-                attemptBudget.CancelAfter(
-                    ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout);
-
-                CancellationToken ct = attemptBudget.Token;
-
-                try
-                {
-                    HttpResponseMessage response =
-                        await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestAsync(
-                            client,
-                            body,
-                            idempotencyKey,
-                            ct);
-
-                    if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
-                        return response;
-
-                    response.Dispose();
-                }
-                catch (HttpRequestException ex) when (!outerBudget.IsCancellationRequested
-                                                      && ArchitectureRequestConcurrencyTestSupport
-                                                          .IndicatesClientAbortedResponseBuffering(ex))
-                {
-                    // TestServer long POSTs can drop the response stream without signaling our CTS; retry like a cold-start blip.
-                }
-                catch (TaskCanceledException ex) when (!outerBudget.IsCancellationRequested
-                                                      && ex.InnerException is TimeoutException)
-                {
-                    // HttpClient.Timeout can surface here without linking to our operation token.
-                }
-                catch (TaskCanceledException) when (!outerBudget.IsCancellationRequested)
-                {
-                    // Per-attempt CTS (or HttpClient) canceled while outer budget remains — retry with backoff.
-                }
-                catch (OperationCanceledException) when (!outerBudget.IsCancellationRequested)
-                {
-                    // Same as TaskCanceled for completion-token paths without subclass.
-                }
-
-                await Task.Delay(delayMs, outerBudget.Token);
-                delayMs = Math.Min(delayMs * 2, 4000);
-            }
-        }
-        catch (OperationCanceledException) when (outerBudget.IsCancellationRequested)
-        {
-            throw new InvalidOperationException(
-                "POST /v1/architecture/request exceeded retry budget (HTTP 503 or transient transport timeouts). See "
-                + nameof(WarmSqlAuthorityPipelineAsync) + ", "
-                + nameof(WarmListRunsPathAsync) + ", and "
-                + nameof(PostArchitectureRequestWithTransientRetryAsync) + ".");
-        }
     }
 }
