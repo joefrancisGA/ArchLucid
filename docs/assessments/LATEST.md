@@ -1,11 +1,11 @@
-﻿# ArchLucid Assessment – (A) Headline Readiness: 84.56%
+﻿# ArchLucid Assessment – (A) Headline Readiness: 84.41%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding items deferred to V1.1 or V2.*
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**
-ArchLucid is highly ready for its V1 core mission: moving from an architecture request to a committed, reviewable manifest. The foundational authority pipeline, golden manifest generation, and auditability are robust. By explicitly removing penalties for V1.1/V2 deferred scope (such as ITSM/Chat integrations, MCP, and AWS/GCP support) and aligning with the Azure Elastic Pool engineering decision, the assessment reflects a strong, focused V1 product. The primary gaps holding back the score are adoption friction (manual data ingestion), observability (head-based trace sampling), and cognitive load in the operator UI.
+ArchLucid is highly ready for its V1 core mission: moving from an architecture request to a committed, reviewable manifest. The foundational authority pipeline, golden manifest generation, and auditability are robust. By explicitly removing penalties for V1.1/V2 deferred scope (such as ITSM/Chat integrations, MCP, and AWS/GCP support), the assessment reflects a strong, focused V1 product. The primary gaps holding back the score are adoption friction (manual data ingestion), observability (head-based trace sampling), and cognitive load in the operator UI.
 
 **`(B)` Procurement/Market-Motion Realism**
 Procurement will face moderate friction. The absence of a CPA-issued SOC 2 Type II report and a published third-party pen test summary will trigger extended security reviews. The lack of a signed design partner or public reference customer may slow executive buy-in, though the sales-led pilot motion is well-supported.
@@ -200,14 +200,6 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Justification:** In-memory repositories enable fast contract tests.
 - **Tradeoffs:** Test speed vs. Database fidelity.
 - **Improvement recommendations:** Ensure in-memory repos maintain strict parity with SQL behavior.
-
-### 23. Cost-Effectiveness
-- **Score:** 90
-- **Weight:** 1
-- **Weighted deficiency signal:** 10
-- **Justification:** Excellent LLM budget controls (`LlmDailyTenantBudget`, `LlmMonthlyTenantDollarBudget`). Azure SQL Elastic Pools provide sufficient density for the database-per-tenant isolation model.
-- **Tradeoffs:** Strict limits vs. Uninterrupted service.
-- **Improvement recommendations:** None urgent.
 
 ---
 
