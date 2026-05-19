@@ -69,7 +69,6 @@ export function AskMainPanel(props: AskMainPanelProps) {
   const messageThreadPanel = (
     <AskMessageThreadPanel
       buyerPolishedShell={buyerPolishedShell}
-      selectedThreadId={selectedThreadId}
       messages={messages}
       askAssistantGroundingLinks={askAssistantGroundingLinks}
       showPostAssistantFollowUps={showPostAssistantFollowUps}

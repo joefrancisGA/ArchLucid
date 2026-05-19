@@ -125,6 +125,8 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         }
       />
 
+      {changesSinceLastReviewBannerEl}
+
       {m.savingsSummary !== null ? <RunSavingsSummary model={m.savingsSummary} /> : null}
 
       {outcomeCardsEl}

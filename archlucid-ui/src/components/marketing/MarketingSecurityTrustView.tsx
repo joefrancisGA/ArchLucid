@@ -28,16 +28,6 @@ function assuranceTierBadgeLabel(tier: AssuranceMaturityTier): string {
   }
 }
 
-function assuranceAccessBadgeLabel(kind: AssuranceEngagementRow["summaryAccess"]["kind"]): string {
-  switch (kind) {
-    case "public":
-      return "Public";
-
-    case "nda":
-      return "Under NDA";
-  }
-}
-
 type MarketingSecurityTrustViewProps = {
   rows?: ReadonlyArray<AssuranceEngagementRow>;
 };

@@ -10,7 +10,6 @@ import type { ConversationMessage } from "@/types/conversation";
 
 export type AskMessageThreadPanelProps = {
   buyerPolishedShell: boolean;
-  selectedThreadId: string;
   messages: ConversationMessage[];
   askAssistantGroundingLinks: readonly BuyerAskGroundingLink[] | null;
   showPostAssistantFollowUps: boolean;
@@ -33,7 +32,6 @@ function askMessageRoleLabel(role: string, buyerPolishedShell: boolean): string 
 export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
   const {
     buyerPolishedShell,
-    selectedThreadId,
     messages,
     askAssistantGroundingLinks,
     showPostAssistantFollowUps,

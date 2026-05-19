@@ -21,7 +21,7 @@ afterEach(() => {
 function stubIdentityProvidersFetch(keys: unknown[]): void {
   vi.stubGlobal(
     "fetch",
-    vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
+    vi.fn(async (input: RequestInfo | URL) => {
       const url = typeof input === "string" ? input : input instanceof Request ? input.url : String(input);
 
       if (url.includes("/auth/saml-operational-health")) {

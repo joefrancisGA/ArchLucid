@@ -867,7 +867,7 @@
       "route_template": "v{version:apiVersion}/integrations/webhooks",
       "normalized_prefix": "/v1/integrations/webhooks",
       "commercial_tier": "standard",
-      "class_policy": "ExecuteAuthority",
+      "class_policy": "ReadAuthority",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -1278,6 +1278,16 @@
       "normalized_prefix": "/v1/webhooks",
       "commercial_tier": "none",
       "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Webhooks/WebhooksController.cs",
+      "class_name": "WebhooksController",
+      "route_template": "v{version:apiVersion}/webhooks/subscriptions",
+      "normalized_prefix": "/v1/webhooks/subscriptions",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
       "exemption": null,
       "nav_operator_href": null
     }

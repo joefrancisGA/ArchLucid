@@ -1,6 +1,63 @@
 {
   "components": {
     "schemas": {
+      "AdminApiKeyRotateRequest": {
+        "properties": {
+          "invalidatePrevious": {
+            "type": "boolean"
+          },
+          "slot": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AdminApiKeyRotateResponse": {
+        "properties": {
+          "appendConfigSuffix": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "configPath": {
+            "type": "string"
+          },
+          "deploymentAction": {
+            "type": "string"
+          },
+          "plaintextKey": {
+            "type": "string"
+          },
+          "replaceConfigValue": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "slot": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AdminApiKeySettingsResponse": {
+        "properties": {
+          "admin": {
+            "$ref": "#/components/schemas/ApiKeySlotStatusDto"
+          },
+          "developmentBypassAll": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "readOnly": {
+            "$ref": "#/components/schemas/ApiKeySlotStatusDto"
+          }
+        },
+        "type": "object"
+      },
       "AdminArchiveRunsBatchRequest": {
         "properties": {
           "createdBeforeUtc": {
@@ -81,108 +138,6 @@
               "null",
               "array"
             ]
-          }
-        },
-        "type": "object"
-      },
-      "TenantAgentOutputQualityGateModeResponse": {
-        "properties": {
-          "effectiveMode": {
-            "type": "string"
-          },
-          "hostDefaultMode": {
-            "type": "string"
-          },
-          "source": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "TenantAgentOutputQualityGateModeUpdateRequest": {
-        "properties": {
-          "mode": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "ApiKeySlotStatusDto": {
-        "properties": {
-          "expiresAtUtc": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "isConfigured": {
-            "type": "boolean"
-          },
-          "maskedSegments": {
-            "items": {
-              "type": "string"
-            },
-            "type": [
-              "null",
-              "array"
-            ]
-          }
-        },
-        "type": "object"
-      },
-      "AdminApiKeySettingsResponse": {
-        "properties": {
-          "admin": {
-            "$ref": "#/components/schemas/ApiKeySlotStatusDto"
-          },
-          "developmentBypassAll": {
-            "type": "boolean"
-          },
-          "enabled": {
-            "type": "boolean"
-          },
-          "readOnly": {
-            "$ref": "#/components/schemas/ApiKeySlotStatusDto"
-          }
-        },
-        "type": "object"
-      },
-      "AdminApiKeyRotateRequest": {
-        "properties": {
-          "invalidatePrevious": {
-            "type": "boolean"
-          },
-          "slot": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "AdminApiKeyRotateResponse": {
-        "properties": {
-          "appendConfigSuffix": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "configPath": {
-            "type": "string"
-          },
-          "deploymentAction": {
-            "type": "string"
-          },
-          "plaintextKey": {
-            "type": "string"
-          },
-          "replaceConfigValue": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "slot": {
-            "type": "string"
           }
         },
         "type": "object"
@@ -1773,6 +1728,30 @@
         },
         "type": "object"
       },
+      "ApiKeySlotStatusDto": {
+        "properties": {
+          "expiresAtUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isConfigured": {
+            "type": "boolean"
+          },
+          "maskedSegments": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "ApproveGovernanceRequest": {
         "properties": {
           "reviewComment": {
@@ -3230,6 +3209,14 @@
           },
           "informationalVersion": {
             "type": "string"
+          },
+          "processUptimeSeconds": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "runtimeFramework": {
             "type": "string"
@@ -9418,9 +9405,11 @@
           },
           "hardCapUtilizationFraction": {
             "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
             "type": [
               "null",
-              "number"
+              "number",
+              "string"
             ]
           },
           "hardCutoffUsdPerUtcMonth": {
@@ -9435,15 +9424,6 @@
           "monthlyBudgetMonitoringActive": {
             "type": "boolean"
           },
-          "warnFraction": {
-            "format": "double",
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
-            "type": [
-              "null",
-              "number",
-              "string"
-            ]
-          },
           "purchasedCapBumpUsd": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
@@ -9455,6 +9435,15 @@
           },
           "utcMonth": {
             "type": "string"
+          },
+          "warnFraction": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -15169,6 +15158,28 @@
         ],
         "type": "object"
       },
+      "TenantAgentOutputQualityGateModeResponse": {
+        "properties": {
+          "effectiveMode": {
+            "type": "string"
+          },
+          "hostDefaultMode": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TenantAgentOutputQualityGateModeUpdateRequest": {
+        "properties": {
+          "mode": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "TenantBaselineGetResponse": {
         "properties": {
           "baselineReviewCycleCapturedUtc": {
@@ -15291,14 +15302,39 @@
         },
         "type": "object"
       },
-      "TenantDeletionQueuedResponse": {
+      "TenantErasureLegalHoldRequest": {
         "properties": {
+          "reason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "untilUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TenantErasureOffboardAcceptedResponse": {
+        "properties": {
+          "erasureEligibleUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
           "jobId": {
+            "type": "string"
+          },
+          "offboardedUtc": {
+            "format": "date-time",
             "type": "string"
           }
         },
         "required": [
-          "jobId"
+          "erasureEligibleUtc",
+          "jobId",
+          "offboardedUtc"
         ],
         "type": "object"
       },
@@ -15592,6 +15628,13 @@
               "string"
             ]
           },
+          "erasureEligibleUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "id": {
             "format": "uuid",
             "type": "string"
@@ -15608,8 +15651,41 @@
               "string"
             ]
           },
+          "legalHoldReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "legalHoldSetByUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "legalHoldSetUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "legalHoldUntilUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "name": {
             "type": "string"
+          },
+          "offboardedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "slug": {
             "type": "string"
@@ -15927,6 +16003,36 @@
         },
         "type": "object"
       },
+      "TenantWorkspaceBaselineArtifactsResponse": {
+        "properties": {
+          "hasBaselineArtifacts": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "TenantWorkspaceDeletedProjectApiDto": {
+        "properties": {
+          "deletedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "TenantWorkspaceProjectApiDto": {
         "properties": {
           "displayName": {
@@ -15945,11 +16051,46 @@
         },
         "type": "object"
       },
+      "TenantWorkspaceRecycleBinApiDto": {
+        "properties": {
+          "deletedProjects": {
+            "items": {
+              "$ref": "#/components/schemas/TenantWorkspaceDeletedProjectApiDto"
+            },
+            "type": "array"
+          },
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "TenantWorkspacesListResponse": {
         "properties": {
           "workspaces": {
             "items": {
               "$ref": "#/components/schemas/TenantWorkspaceApiDto"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "TenantWorkspacesRecycleBinResponse": {
+        "properties": {
+          "workspaces": {
+            "items": {
+              "$ref": "#/components/schemas/TenantWorkspaceRecycleBinApiDto"
             },
             "type": "array"
           }
@@ -17207,121 +17348,6 @@
         ]
       }
     },
-    "/v1/admin/settings/api-keys": {
-      "get": {
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminApiKeySettingsResponse"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "tags": [
-          "AdminApiKeySettings"
-        ]
-      }
-    },
-    "/v1/admin/settings/api-keys/rotate": {
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AdminApiKeyRotateRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminApiKeyRotateResponse"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        },
-        "tags": [
-          "AdminApiKeySettings"
-        ]
-      }
-    },
-    "/v1/admin/settings/agent-output-quality-gate-mode": {
-      "delete": {
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeResponse"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "tags": [
-          "Settings"
-        ]
-      },
-      "get": {
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeResponse"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "tags": [
-          "Settings"
-        ]
-      },
-      "put": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeUpdateRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeResponse"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        },
-        "tags": [
-          "Settings"
-        ]
-      }
-    },
     "/v1/admin/configuration/summary": {
       "get": {
         "parameters": [
@@ -18463,6 +18489,227 @@
         ]
       }
     },
+    "/v1/admin/settings/agent-output-quality-gate-mode": {
+      "delete": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Settings"
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Settings"
+        ]
+      },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeUpdateRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeUpdateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAgentOutputQualityGateModeResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "Settings"
+        ]
+      }
+    },
+    "/v1/admin/settings/api-keys": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminApiKeySettingsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminApiKeySettingsResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminApiKeySettingsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "AdminApiKeySettings"
+        ]
+      }
+    },
+    "/v1/admin/settings/api-keys/rotate": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminApiKeyRotateRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminApiKeyRotateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminApiKeyRotateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminApiKeyRotateResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminApiKeyRotateResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminApiKeyRotateResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "AdminApiKeySettings"
+        ]
+      }
+    },
     "/v1/admin/support-bundle": {
       "post": {
         "responses": {
@@ -18641,17 +18888,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TenantDeletionQueuedResponse"
+                  "$ref": "#/components/schemas/TenantErasureOffboardAcceptedResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TenantDeletionQueuedResponse"
+                  "$ref": "#/components/schemas/TenantErasureOffboardAcceptedResponse"
                 }
               },
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/TenantDeletionQueuedResponse"
+                  "$ref": "#/components/schemas/TenantErasureOffboardAcceptedResponse"
                 }
               }
             },
@@ -18676,6 +18923,233 @@
               }
             },
             "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict"
+          }
+        },
+        "tags": [
+          "AdminTenants"
+        ]
+      }
+    },
+    "/v1/admin/tenants/{id}/erasure/legal-hold": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict"
+          }
+        },
+        "tags": [
+          "AdminTenants"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantErasureLegalHoldRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantErasureLegalHoldRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantErasureLegalHoldRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict"
+          }
+        },
+        "tags": [
+          "AdminTenants"
+        ]
+      }
+    },
+    "/v1/admin/tenants/{id}/erasure/restore": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict"
           }
         },
         "tags": [
@@ -30268,6 +30742,91 @@
               }
             },
             "description": "Not Found"
+          }
+        },
+        "tags": [
+          "Audit"
+        ]
+      }
+    },
+    "/v1/audit/export/csv": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "eventType",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "fromUtc",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "toUtc",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "correlationId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "actorUserId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "runId",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "maxRows",
+            "schema": {
+              "default": 10000,
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/csv": {}
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
           }
         },
         "tags": [
@@ -46720,6 +47279,78 @@
         ]
       }
     },
+    "/v1/tenant/erasure/legal-hold": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantErasureLegalHoldRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantErasureLegalHoldRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantErasureLegalHoldRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict"
+          }
+        },
+        "tags": [
+          "TenantErasureLegalHold"
+        ]
+      }
+    },
     "/v1/tenant/exec-digest-preferences": {
       "get": {
         "responses": {
@@ -47131,6 +47762,55 @@
         ]
       }
     },
+    "/v1/tenant/workspace-baseline-artifacts": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantWorkspaceBaselineArtifactsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantWorkspaceBaselineArtifactsResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantWorkspaceBaselineArtifactsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "TenantWorkspaceBaselineArtifacts"
+        ]
+      }
+    },
     "/v1/tenant/workspaces": {
       "get": {
         "responses": {
@@ -47149,6 +47829,55 @@
               "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/TenantWorkspacesListResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "TenantWorkspaces"
+        ]
+      }
+    },
+    "/v1/tenant/workspaces/recycle-bin": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantWorkspacesRecycleBinResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantWorkspacesRecycleBinResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantWorkspacesRecycleBinResponse"
                 }
               }
             },
@@ -47245,6 +47974,98 @@
               }
             },
             "description": "Not Found"
+          }
+        },
+        "tags": [
+          "TenantWorkspaces"
+        ]
+      }
+    },
+    "/v1/tenant/workspaces/{workspaceId}/projects/{projectId}/restore": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict"
           }
         },
         "tags": [
@@ -47623,6 +48444,126 @@
         ]
       }
     },
+    "/v1/webhooks/subscriptions/{subscriptionId}/test": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "subscriptionId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "Webhooks"
+        ]
+      }
+    },
     "/version": {
       "get": {
         "responses": {
@@ -47661,6 +48602,9 @@
   "tags": [
     {
       "name": "Admin"
+    },
+    {
+      "name": "AdminApiKeySettings"
     },
     {
       "name": "AdminAuthDiagnostics"
@@ -47960,6 +48904,9 @@
       "name": "SecurityTrustPublication"
     },
     {
+      "name": "Settings"
+    },
+    {
       "name": "SlackInteractivity"
     },
     {
@@ -47987,6 +48934,9 @@
       "name": "TenantCustomerSuccess"
     },
     {
+      "name": "TenantErasureLegalHold"
+    },
+    {
       "name": "TenantExecDigestPreferences"
     },
     {
@@ -48003,6 +48953,9 @@
     },
     {
       "name": "TenantWeeklyDigestHealth"
+    },
+    {
+      "name": "TenantWorkspaceBaselineArtifacts"
     },
     {
       "name": "TenantWorkspaces"
@@ -48024,6 +48977,9 @@
     },
     {
       "name": "WebhookConnections"
+    },
+    {
+      "name": "Webhooks"
     },
     {
       "name": "WhyArchlucidMarketingPack"
