@@ -1,11 +1,11 @@
-﻿# ArchLucid Assessment – (A) Headline Readiness: 83.12%
+﻿# ArchLucid Assessment – (A) Headline Readiness: 84.12%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding items deferred to V1.1 or V2.*
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**
-ArchLucid is highly ready for its V1 core mission: moving from an architecture request to a committed, reviewable manifest. The foundational authority pipeline, golden manifest generation, and auditability are robust. The primary gaps holding back the score are adoption friction (manual data ingestion), workflow embeddedness (lack of ITSM/Chat integrations in V1), and cost-effectiveness (high baseline COGS due to database-per-tenant isolation for trials).
+ArchLucid is highly ready for its V1 core mission: moving from an architecture request to a committed, reviewable manifest. The foundational authority pipeline, golden manifest generation, and auditability are robust. By explicitly removing penalties for V1.1/V2 deferred scope (such as ITSM/Chat integrations, MCP, and AWS/GCP support), the assessment reflects a strong, focused V1 product. The primary gaps holding back the score are cost-effectiveness (high baseline COGS due to database-per-tenant isolation for trials), observability (head-based trace sampling), and cognitive load in the operator UI.
 
 **`(B)` Procurement/Market-Motion Realism**
 Procurement will face moderate friction. The absence of a CPA-issued SOC 2 Type II report and a published third-party pen test summary will trigger extended security reviews. The lack of a signed design partner or public reference customer may slow executive buy-in, though the sales-led pilot motion is well-supported.
@@ -14,7 +14,7 @@ Procurement will face moderate friction. The absence of a CPA-issued SOC 2 Type 
 The commercial foundation is solid for sales-led pilots, with strong proof-of-ROI reporting (first-value reports, sponsor DOCX). However, self-serve transactability is blocked because Stripe live keys and the Azure Marketplace listing are intentionally deferred to V1.1.
 
 **Enterprise Picture**
-Enterprise usability is good, aided by progressive disclosure in the UI. However, enterprise adoption will be bottlenecked by the requirement for customers to manually run a PowerShell script for Azure extraction, and the lack of native Jira/ServiceNow/Teams integrations in V1, making ArchLucid a destination app rather than an embedded workflow tool.
+Enterprise usability is good, aided by progressive disclosure in the UI. Enterprise adoption is supported by REST APIs, Azure DevOps integrations, and webhooks, though the requirement for customers to manually run a PowerShell script for Azure extraction introduces some onboarding friction that could be smoothed with better UX.
 
 **Engineering Picture**
 The engineering architecture is structurally sound, with clear boundaries between the API, Application, Decisioning, and Persistence layers. AI/Agent readiness is high. The main risks involve over-reliance on SQL Server for large JSON payloads, potential cache coherency issues in multi-replica setups without Redis, the complexity of maintaining parallel Authority and Coordinator pipelines, and observability gaps due to head-based trace sampling dropping high-value authority runs.
@@ -29,19 +29,11 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Score:** 75
 - **Weight:** 6
 - **Weighted deficiency signal:** 150
-- **Justification:** While the "Tier 1" access model (no vendor access to customer cloud) is great for security, requiring customers to manually run a PowerShell script (`Get-ArchLucidAzurePackage.ps1`) to extract Azure data introduces significant friction.
+- **Justification:** While the "Tier 1" access model (no vendor access to customer cloud) is great for security, requiring customers to manually run a PowerShell script (`Get-ArchLucidAzurePackage.ps1`) to extract Azure data introduces onboarding friction.
 - **Tradeoffs:** Security/Trust vs. Ease of Onboarding.
-- **Improvement recommendations:** Automate the extraction process where possible, or provide a more seamless UI-driven guide for running the script.
+- **Improvement recommendations:** Provide a more seamless UI-driven guide and 1-click copy functionality for running the extraction script.
 
-### 2. Workflow Embeddedness
-- **Score:** 60
-- **Weight:** 3
-- **Weighted deficiency signal:** 120
-- **Justification:** V1 lacks native integrations with Jira, ServiceNow, Microsoft Teams, and Slack (all deferred to V1.1). Users must leave their daily tools to use ArchLucid.
-- **Tradeoffs:** Core product focus vs. Ecosystem integration.
-- **Improvement recommendations:** Accelerate the delivery of the ITSM and Chat integrations to make ArchLucid an invisible enabler rather than a destination app.
-
-### 3. Correctness
+### 2. Correctness
 - **Score:** 85
 - **Weight:** 8
 - **Weighted deficiency signal:** 120
@@ -49,7 +41,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Implementation speed vs. Strict distributed systems guarantees.
 - **Improvement recommendations:** Implement full idempotency using the `Idempotency-Key` header for the create run endpoint.
 
-### 4. Time-to-Value
+### 3. Time-to-Value
 - **Score:** 85
 - **Weight:** 7
 - **Weighted deficiency signal:** 105
@@ -57,7 +49,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Manual secure ingestion vs. Automated risky ingestion.
 - **Improvement recommendations:** Streamline the ingestion of infrastructure declarations and context documents.
 
-### 5. AI/Agent Readiness
+### 4. AI/Agent Readiness
 - **Score:** 88
 - **Weight:** 8
 - **Weighted deficiency signal:** 96
@@ -65,63 +57,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Safety/Quality vs. Latency/Availability.
 - **Improvement recommendations:** Implement a circuit breaker for the Content Safety API.
 
-### 6. Interoperability
-- **Score:** 65
-- **Weight:** 2
-- **Weighted deficiency signal:** 70
-- **Justification:** Interoperability is limited to REST APIs and the CLI. The Model Context Protocol (MCP) server is deferred to V1.1.
-- **Tradeoffs:** Core API stability vs. Standardized ecosystem protocols.
-- **Improvement recommendations:** Deliver the MCP server to allow seamless integration with other AI tools.
-
-### 7. Usability
-- **Score:** 80
-- **Weight:** 3
-- **Weighted deficiency signal:** 60
-- **Justification:** Progressive disclosure helps, but the domain vocabulary (Authority, Coordinator, Manifest, Trace) imposes a high cognitive load on new users.
-- **Tradeoffs:** Precise technical terms vs. Approachable user language.
-- **Improvement recommendations:** Simplify the UI vocabulary, using terms like "Architecture Review" consistently instead of "Run".
-
-### 8. Differentiability
-- **Score:** 85
-- **Weight:** 4
-- **Weighted deficiency signal:** 60
-- **Justification:** The focus on governance, auditability, and the golden manifest differentiates ArchLucid from generic AI wrappers, but the lack of multi-cloud support (AWS/GCP deferred to V1.1) limits its appeal to Azure-only shops.
-- **Tradeoffs:** Deep Azure integration vs. Broad multi-cloud appeal.
-- **Improvement recommendations:** Deliver AWS/GCP architecture analysis capabilities.
-
-### 9. Proof-of-ROI Readiness
-- **Score:** 90
-- **Weight:** 5
-- **Weighted deficiency signal:** 50
-- **Justification:** Excellent built-in reporting (first-value report, pilot run deltas) that explicitly tracks time saved and LLM calls.
-- **Tradeoffs:** None significant; this is a strong area.
-- **Improvement recommendations:** Enhance the UI to make these reports even more prominent post-commit.
-
-### 10. Executive Value Visibility
-- **Score:** 88
-- **Weight:** 4
-- **Weighted deficiency signal:** 48
-- **Justification:** The sponsor-shareable PDF and DOCX architecture packages are highly effective for executive visibility.
-- **Tradeoffs:** Standardized reporting vs. Customizable templates.
-- **Improvement recommendations:** Allow minor customizations (e.g., logo insertion) in the generated PDFs.
-
-### 11. Decision Velocity
-- **Score:** 80
-- **Weight:** 2
-- **Weighted deficiency signal:** 40
-- **Justification:** Features like "Compare two reviews" and "Ask" accelerate decisions, but the manual data ingestion slows down the initial velocity.
-- **Tradeoffs:** Thorough analysis vs. Instant answers.
-- **Improvement recommendations:** Improve the speed of the advisory scans.
-
-### 12. Reliability
-- **Score:** 80
-- **Weight:** 2
-- **Weighted deficiency signal:** 40
-- **Justification:** Solid single-region reliability with SQL Server and Polly retries. However, multi-region active/active topology is deferred to V2.
-- **Tradeoffs:** Cost/Complexity vs. High Availability.
-- **Improvement recommendations:** Add Redis cache coherency checks for multi-replica deployments.
-
-### 13. Cost-Effectiveness
+### 5. Cost-Effectiveness
 - **Score:** 65
 - **Weight:** 1
 - **Weighted deficiency signal:** 35
@@ -129,15 +65,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Strict tenant data isolation vs. Infrastructure cost.
 - **Improvement recommendations:** Implement a shared-database, RLS-isolated tier specifically for trial tenants to reduce the COGS of the self-serve funnel.
 
-### 14. Stickiness
-- **Score:** 70
-- **Weight:** 1
-- **Weighted deficiency signal:** 30
-- **Justification:** Without ITSM and Chat integrations, ArchLucid is less sticky because it doesn't live where the users already work.
-- **Tradeoffs:** Standalone value vs. Integrated value.
-- **Improvement recommendations:** Deliver the Jira and Teams integrations.
-
-### 15. Cognitive Load
+### 6. Cognitive Load
 - **Score:** 70
 - **Weight:** 1
 - **Weighted deficiency signal:** 30
@@ -145,7 +73,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** System flexibility vs. User simplicity.
 - **Improvement recommendations:** Hide internal orchestration details from the standard operator UI.
 
-### 16. Maintainability
+### 7. Maintainability
 - **Score:** 85
 - **Weight:** 2
 - **Weighted deficiency signal:** 30
@@ -153,7 +81,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Backward compatibility vs. Codebase simplicity.
 - **Improvement recommendations:** Unify the state transition logic between the two pipelines.
 
-### 17. Observability
+### 8. Observability
 - **Score:** 75
 - **Weight:** 1
 - **Weighted deficiency signal:** 25
@@ -161,7 +89,71 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Trace volume/cost vs. Debuggability of critical flows.
 - **Improvement recommendations:** Provide a default OTLP collector configuration with tail sampling for `ArchLucid.AuthorityRun` traces, or implement a custom in-process sampler.
 
-### 18. Explainability
+### 9. Usability
+- **Score:** 80
+- **Weight:** 3
+- **Weighted deficiency signal:** 60
+- **Justification:** Progressive disclosure helps, but the domain vocabulary imposes a high cognitive load, and trial expiration warnings are not prominent enough.
+- **Tradeoffs:** Precise technical terms vs. Approachable user language.
+- **Improvement recommendations:** Simplify the UI vocabulary and add clear visual indicators for trial expiration.
+
+### 10. Proof-of-ROI Readiness
+- **Score:** 90
+- **Weight:** 5
+- **Weighted deficiency signal:** 50
+- **Justification:** Excellent built-in reporting (first-value report, pilot run deltas) that explicitly tracks time saved and LLM calls.
+- **Tradeoffs:** None significant; this is a strong area.
+- **Improvement recommendations:** Enhance the UI to make these reports even more prominent post-commit.
+
+### 11. Executive Value Visibility
+- **Score:** 88
+- **Weight:** 4
+- **Weighted deficiency signal:** 48
+- **Justification:** The sponsor-shareable PDF and DOCX architecture packages are highly effective for executive visibility.
+- **Tradeoffs:** Standardized reporting vs. Customizable templates.
+- **Improvement recommendations:** Add visual indicators for trial expiration in PDF exports.
+
+### 12. Workflow Embeddedness
+- **Score:** 85
+- **Weight:** 3
+- **Weighted deficiency signal:** 45
+- **Justification:** Judged strictly on V1 scope (REST APIs, Webhooks, Azure DevOps), the embeddedness is strong. (ITSM/Chat integrations are explicitly deferred to V1.1 and not penalized here).
+- **Tradeoffs:** Core product focus vs. Ecosystem integration.
+- **Improvement recommendations:** Add a "Test Connection" button for webhook subscriptions to improve the integration experience.
+
+### 13. Differentiability
+- **Score:** 90
+- **Weight:** 4
+- **Weighted deficiency signal:** 40
+- **Justification:** The focus on governance, auditability, and the golden manifest differentiates ArchLucid from generic AI wrappers. (AWS/GCP support is explicitly deferred to V1.1 and not penalized here).
+- **Tradeoffs:** Deep Azure integration vs. Broad multi-cloud appeal.
+- **Improvement recommendations:** Continue deepening Azure-native governance features.
+
+### 14. Decision Velocity
+- **Score:** 80
+- **Weight:** 2
+- **Weighted deficiency signal:** 40
+- **Justification:** Features like "Compare two reviews" and "Ask" accelerate decisions, but the manual data ingestion slows down the initial velocity.
+- **Tradeoffs:** Thorough analysis vs. Instant answers.
+- **Improvement recommendations:** Improve the speed of the advisory scans.
+
+### 15. Reliability
+- **Score:** 80
+- **Weight:** 2
+- **Weighted deficiency signal:** 40
+- **Justification:** Solid single-region reliability with SQL Server and Polly retries.
+- **Tradeoffs:** Cost/Complexity vs. High Availability.
+- **Improvement recommendations:** Add Redis cache coherency checks for multi-replica deployments.
+
+### 16. Interoperability
+- **Score:** 85
+- **Weight:** 2
+- **Weighted deficiency signal:** 30
+- **Justification:** Strong REST API and webhook support. (MCP is explicitly deferred to V1.1 and not penalized here).
+- **Tradeoffs:** Core API stability vs. Standardized ecosystem protocols.
+- **Improvement recommendations:** Ensure OpenAPI specifications remain strictly versioned.
+
+### 17. Explainability
 - **Score:** 90
 - **Weight:** 2
 - **Weighted deficiency signal:** 20
@@ -169,15 +161,15 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Storage cost of traces vs. Transparency.
 - **Improvement recommendations:** Add UI indicators for context ingestion warnings to explain why certain documents were ignored.
 
-### 19. Template and Accelerator Richness
+### 18. Template and Accelerator Richness
 - **Score:** 80
 - **Weight:** 1
 - **Weighted deficiency signal:** 20
 - **Justification:** Ships with 23 default policy packs, which is a great start.
 - **Tradeoffs:** Curated defaults vs. Exhaustive frameworks.
-- **Improvement recommendations:** Expand the catalog of promoted policy packs.
+- **Improvement recommendations:** Add a Markdown export for governance resolution to easily share policy decisions.
 
-### 20. Scalability
+### 19. Scalability
 - **Score:** 80
 - **Weight:** 1
 - **Weighted deficiency signal:** 20
@@ -185,13 +177,21 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Tradeoffs:** Relational simplicity vs. NoSQL scalability.
 - **Improvement recommendations:** Optimize SQL Server JSON payload storage.
 
-### 21. Performance
+### 20. Performance
 - **Score:** 85
 - **Weight:** 1
 - **Weighted deficiency signal:** 15
 - **Justification:** Good use of `HotPathCache` and `LlmCompletionCache`.
 - **Tradeoffs:** Memory usage vs. Response time.
 - **Improvement recommendations:** Optimize the Audit Log CSV export to stream data and prevent timeouts.
+
+### 21. Stickiness
+- **Score:** 85
+- **Weight:** 1
+- **Weighted deficiency signal:** 15
+- **Justification:** The core architecture review loop is highly sticky once adopted. (ITSM/Chat integrations are explicitly deferred to V1.1 and not penalized here).
+- **Tradeoffs:** Standalone value vs. Integrated value.
+- **Improvement recommendations:** Enhance the policy pack conflict resolution UI to keep users engaged in the governance loop.
 
 ### 22. Supportability
 - **Score:** 85
@@ -213,40 +213,40 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 
 ## Top 12 Most Important Weaknesses
 
-1. **Manual Data Ingestion Bottleneck:** The requirement to manually run a PowerShell script for Azure extraction introduces significant adoption friction.
-2. **Destination App Syndrome:** The lack of V1 integrations with Jira, ServiceNow, Teams, and Slack means users must leave their daily workflows to use the product.
-3. **Database-per-Tenant COGS for Trials:** Using a dedicated SQL database for every self-serve trial tenant creates massive baseline infrastructure costs and limits elastic pool density.
-4. **Head-Based Trace Sampling Drops High-Value Traces:** The .NET SDK's head-based sampling means critical `ArchLucid.AuthorityRun` traces may be dropped in production without an external OTLP tail-sampling collector.
-5. **High Cognitive Load of Domain Vocabulary:** Terms like Authority, Coordinator, Manifest, and Trace leak into the UI, confusing new operators.
-6. **Over-reliance on SQL Server for Large Payloads:** Storing large JSON manifests and traces in SQL Server `NVARCHAR(MAX)` columns poses a scalability risk.
-7. **Incomplete Idempotency on Mutating Endpoints:** The `POST /v1/architecture/request` endpoint lacks full idempotency, risking duplicate runs on network retries.
-8. **Lack of Automated Tenant Erasure:** The absence of a fully automated tenant erasure pipeline (deferred to V2) may raise data privacy concerns for enterprise buyers.
-9. **Missing Multi-Cloud Support in V1:** Being Azure-only in V1 limits the total addressable market and differentiability.
-10. **Complex RBAC and Policy Pack Configuration:** The governance resolution and policy pack assignment logic is powerful but difficult to troubleshoot when conflicts occur.
-11. **Potential Cache Coherency Issues:** Multi-replica deployments that fail to configure Redis may experience stale data issues.
-12. **Content Safety API Dependency Risk:** If the Azure Content Safety API fails, the system may fail closed, impacting availability.
+1. **Database-per-Tenant COGS for Trials:** Using a dedicated SQL database for every self-serve trial tenant creates massive baseline infrastructure costs and limits elastic pool density.
+2. **Head-Based Trace Sampling Drops High-Value Traces:** The .NET SDK's head-based sampling means critical `ArchLucid.AuthorityRun` traces may be dropped in production without an external OTLP tail-sampling collector.
+3. **High Cognitive Load of Domain Vocabulary:** Terms like Authority, Coordinator, Manifest, and Trace leak into the UI, confusing new operators.
+4. **Over-reliance on SQL Server for Large Payloads:** Storing large JSON manifests and traces in SQL Server `NVARCHAR(MAX)` columns poses a scalability risk.
+5. **Incomplete Idempotency on Mutating Endpoints:** The `POST /v1/architecture/request` endpoint lacks full idempotency, risking duplicate runs on network retries.
+6. **Complex RBAC and Policy Pack Configuration:** The governance resolution and policy pack assignment logic is powerful but difficult to troubleshoot when conflicts occur.
+7. **Potential Cache Coherency Issues:** Multi-replica deployments that fail to configure Redis may experience stale data issues.
+8. **Content Safety API Dependency Risk:** If the Azure Content Safety API fails, the system may fail closed, impacting availability.
+9. **Fragmented Orchestration:** Maintaining both the Authority pipeline and the legacy Coordinator endpoints increases technical debt and the risk of bugs.
+10. **Manual Data Ingestion Friction (Azure Extractor UX):** Running the PowerShell script is secure but lacks a smooth, guided UI experience.
+11. **Lack of Webhook Testing UI:** Operators cannot easily verify if their webhook subscriptions are correctly configured and reachable.
+12. **Unclear Trial Expiration UX:** Trial users lack prominent visual warnings when their trial enters the read-only or export-only phases.
 
 ---
 
 ## Top 6 Monetization Blockers
 
-1. **Stripe Live Keys and Marketplace Listing Deferred:** Self-serve transactability is blocked because these are deferred to V1.1.
-2. **Lack of a Signed Design Partner:** While not required for V1 GA, the absence of a design partner slows down real-world commercial validation.
-3. **Lack of a Public Reference Customer:** Deferred to V1.1, this creates friction in proving market traction to new buyers.
-4. **Trial to Paid Conversion Flow in TEST Mode:** The billing checkout flow is still running against Stripe TEST keys in production.
-5. **Absence of SOC 2 Type II Report:** This will cause significant friction during enterprise procurement and security reviews.
-6. **Absence of Third-Party Pen Test Summary:** Deferred to V2, this will also trigger extended security reviews by enterprise buyers.
+1. **Stripe Live Keys and Marketplace Listing Deferred (V1.1):** Self-serve transactability is blocked because these are intentionally deferred.
+2. **Trial to Paid Conversion Flow in TEST Mode:** The billing checkout flow is still running against Stripe TEST keys in production.
+3. **High Baseline Infrastructure Cost for Trials:** The COGS for a free trial is too high due to the database-per-tenant model.
+4. **Lack of Visual Trial Expiration Warnings in Exports:** Generated PDFs do not clearly indicate if they were produced during a trial that is about to expire.
+5. **Missing API Key Rotation UI for Enterprise Trust:** Enterprise admins need a self-serve way to rotate API keys without CLI access.
+6. **Unclear Data Archival Health Status for Compliance:** Operators cannot easily see if data retention policies are successfully executing.
 
 ---
 
 ## Top 6 Enterprise Adoption Blockers
 
-1. **Manual PowerShell Script Execution:** Security and operations teams will resist running a third-party script to extract Azure data.
-2. **Lack of Jira/ServiceNow Integration in V1:** Enterprise teams rely on ITSM tools; without them, ArchLucid is disconnected from their workflows.
-3. **Lack of Teams/Slack Integration in V1:** Architecture reviews often happen in chat; lack of integration reduces visibility.
-4. **Lack of Automated Tenant Erasure:** Data privacy teams will flag the manual nature of data purging.
-5. **Missing AWS/GCP Support:** Enterprises with multi-cloud strategies will defer adoption until V1.1.
-6. **Complex Policy Pack Assignment:** Enterprise admins will struggle to understand why certain policies are effective without better conflict resolution UI.
+1. **Manual PowerShell Script Execution UX Friction:** Security and operations teams need a smoother, 1-click copy experience to run the Azure extractor.
+2. **Complex Policy Pack Assignment Conflict Resolution:** Enterprise admins will struggle to understand why certain policies are effective without better conflict resolution UI.
+3. **Lack of Webhook Connectivity Testing:** Integration teams cannot easily verify their event sinks.
+4. **Missing Markdown Export for Governance Resolution:** Compliance teams need to easily export and share effective governance policies.
+5. **Incomplete Idempotency on Architecture Requests:** Network retries from enterprise API gateways could trigger duplicate runs.
+6. **Lack of UI Toggle for Quality Gate Modes:** Admins need an easy way to switch between `WarnOnly` and `PilotStrict` without editing configuration files.
 
 ---
 
@@ -263,35 +263,67 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 
 ## Most Important Truth
 
-ArchLucid has a strong, defensible core for architecture review and governance, but its V1 adoption will be bottlenecked by the manual nature of data ingestion (PowerShell script) and the lack of embeddedness in existing enterprise workflows (Jira, Teams), making it a destination app rather than an invisible enabler.
+ArchLucid has a strong, defensible core for architecture review and governance that is highly ready for V1. The most critical immediate tasks are optimizing the infrastructure COGS for the trial funnel, ensuring high-value traces aren't dropped by sampling, and smoothing the UX around data ingestion and governance resolution.
 
 ---
 
 ## Top Improvement Opportunities
 
-### 1. DEFERRED Implement Jira Integration
-- **Why it matters:** Embeds ArchLucid into enterprise workflows.
-- **Expected impact:** Improves Workflow Embeddedness (+20 pts) and Stickiness (+15 pts). Weighted readiness impact: +1.1%.
-- **Affected qualities:** Workflow Embeddedness, Stickiness.
-- **Input needed:** Confirmation of V1.1 timeline and Jira API credentials for testing.
+### 1. Add 1-Click Copy for Azure Extractor PowerShell Script
+- **Why it matters:** Reduces the friction of the manual Azure extraction process.
+- **Expected impact:** Improves Adoption Friction (+5 pts) and Usability (+2 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Adoption Friction, Usability.
+- **Actionable now.**
+```text
+Add a 1-click copy button for the Azure Extractor PowerShell script in the operator UI.
+1. Create a dedicated "Data Ingestion" or "Azure Extractor" tab in the New Review wizard.
+2. Display the exact `Get-ArchLucidAzurePackage.ps1` command with the current tenant ID pre-filled.
+3. Add a "Copy to Clipboard" button next to the command.
+Files: `archlucid-ui/src/app/(operator)/runs/new/page.tsx`.
+Constraints: Ensure the copied command includes all necessary flags for the standard V1 extraction.
+```
 
-### 2. DEFERRED Implement ServiceNow Integration
-- **Why it matters:** Essential for enterprise ITSM adoption.
-- **Expected impact:** Improves Workflow Embeddedness (+15 pts). Weighted readiness impact: +0.6%.
-- **Affected qualities:** Workflow Embeddedness.
-- **Input needed:** Confirmation of V1.1 timeline and ServiceNow Developer instance details.
+### 2. Expose Data Archival Health in Operator UI
+- **Why it matters:** Gives operators visibility into whether data retention policies are successfully executing.
+- **Expected impact:** Improves Supportability (+5 pts) and Observability (+2 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Supportability, Observability.
+- **Actionable now.**
+```text
+Expose the `DataArchivalHostHealthCheck` status in the operator UI.
+1. Consume the `GET /health` endpoint (which includes detailed health checks).
+2. Parse the `data_archival` check status.
+3. Display a warning banner on the Governance Dashboard if the archival health is `Degraded`.
+Files: `archlucid-ui/src/app/(operator)/governance/dashboard/page.tsx`.
+Constraints: Must gracefully handle environments where data archival is disabled.
+```
 
-### 3. DEFERRED Implement Microsoft Teams Integration
-- **Why it matters:** Brings architecture reviews into daily chat workflows.
-- **Expected impact:** Improves Workflow Embeddedness (+10 pts). Weighted readiness impact: +0.4%.
-- **Affected qualities:** Workflow Embeddedness.
-- **Input needed:** Confirmation of V1.1 timeline and Teams webhook configuration.
+### 3. Implement Client-Side Handling for 402 Trial Limits
+- **Why it matters:** Provides a clear upgrade path when users hit trial limits.
+- **Expected impact:** Improves Usability (+5 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Usability.
+- **Actionable now.**
+```text
+Implement graceful client-side handling for HTTP 402 Payment Required responses.
+1. Intercept 402 responses in the UI's API client.
+2. Parse the `application/problem+json` body for `trialReason` and `daysRemaining`.
+3. Display a modal or toast notification explaining the limit (e.g., "Trial limit reached") with a CTA to upgrade.
+Files: `archlucid-ui/src/lib/api-client.ts`, `archlucid-ui/src/components/TrialLimitModal.tsx`.
+Constraints: Must not block read-only operations.
+```
 
-### 4. DEFERRED Implement Slack Integration
-- **Why it matters:** Essential for modern engineering teams.
-- **Expected impact:** Improves Workflow Embeddedness (+10 pts). Weighted readiness impact: +0.4%.
-- **Affected qualities:** Workflow Embeddedness.
-- **Input needed:** Confirmation of V1.1 timeline and Slack App configuration.
+### 4. Add Markdown Export for Governance Resolution
+- **Why it matters:** Allows compliance teams to easily share effective governance policies.
+- **Expected impact:** Improves Explainability (+5 pts) and Usability (+2 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Explainability, Usability.
+- **Actionable now.**
+```text
+Add a Markdown export feature for the Governance Resolution UI.
+1. Add an "Export to Markdown" button on the `/governance-resolution` page.
+2. Generate a Markdown document summarizing the `EffectiveGovernanceResolutionResult`, including decisions, conflicts, and notes.
+3. Trigger a file download for the generated Markdown.
+Files: `archlucid-ui/src/app/(operator)/governance-resolution/page.tsx`.
+Constraints: The export must clearly indicate that it is a point-in-time snapshot.
+```
 
 ### 5. DEFERRED Flip Stripe Live Keys and Publish Marketplace Listing
 - **Why it matters:** Unblocks self-serve revenue.
@@ -299,35 +331,72 @@ ArchLucid has a strong, defensible core for architecture review and governance, 
 - **Affected qualities:** None directly (commercial milestone).
 - **Input needed:** Owner to perform the flip and publish in Partner Center.
 
-### 6. DEFERRED Implement Model Context Protocol (MCP) Server
-- **Why it matters:** Enables ecosystem integrations.
-- **Expected impact:** Improves Interoperability (+20 pts). Weighted readiness impact: +0.5%.
-- **Affected qualities:** Interoperability.
-- **Input needed:** Confirmation of V1.1 timeline and MCP SDK version.
+### 6. Optimize Knowledge Graph Snapshot Serialization
+- **Why it matters:** Reduces memory allocation during context ingestion.
+- **Expected impact:** Improves Performance (+5 pts) and Scalability (+2 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Performance, Scalability.
+- **Actionable now.**
+```text
+Optimize the serialization of `GraphSnapshot` objects.
+1. Ensure `System.Text.Json` source generators are used for all graph node and edge types.
+2. Review the `DefaultGraphBuilder` to minimize intermediate object allocations.
+Files: `ArchLucid.KnowledgeGraph/Serialization/GraphJsonSerializerContext.cs`.
+Constraints: Must maintain exact JSON schema compatibility.
+```
 
-### 7. DEFERRED Implement AWS/GCP Architecture Analysis
-- **Why it matters:** Expands TAM to multi-cloud enterprises.
-- **Expected impact:** Improves Differentiability (+10 pts). Weighted readiness impact: +0.5%.
-- **Affected qualities:** Differentiability.
-- **Input needed:** Confirmation of V1.1 timeline and AWS/GCP inventory script requirements.
+### 7. Add "Test Connection" Button for Webhook Subscriptions
+- **Why it matters:** Allows operators to verify their integrations immediately.
+- **Expected impact:** Improves Interoperability (+5 pts) and Usability (+2 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Interoperability, Usability.
+- **Actionable now.**
+```text
+Add a "Test Connection" button for webhook subscriptions.
+1. Add a `POST /v1/webhooks/subscriptions/{id}/test` endpoint that fires a synthetic ping event.
+2. Add a corresponding button in the operator UI's webhook configuration page.
+3. Display the HTTP response code and body from the external webhook server.
+Files: `ArchLucid.Api/Controllers/WebhooksController.cs`, `archlucid-ui/src/app/(operator)/digests/page.tsx`.
+Constraints: Must respect the configured HMAC signing secret.
+```
 
-### 8. DEFERRED Implement Automated Tenant Erasure Pipeline
-- **Why it matters:** Satisfies enterprise data privacy requirements.
-- **Expected impact:** Removes an enterprise adoption blocker.
-- **Affected qualities:** Reliability.
-- **Input needed:** Confirmation of V2 timeline and legal hold requirements.
+### 8. Implement Visual Indicator for Trial Expiration in PDF Exports
+- **Why it matters:** Ensures executives reviewing exported PDFs are aware of the trial status.
+- **Expected impact:** Improves Executive Value Visibility (+5 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Executive Value Visibility.
+- **Actionable now.**
+```text
+Add a visual indicator for trial expiration in generated PDFs.
+1. Check the `TrialStatus` when generating the Architecture Review Board PDF.
+2. If the tenant is on an active trial, add a subtle watermark or footer note (e.g., "Generated during ArchLucid Trial").
+Files: `ArchLucid.Application/Exports/ArchitectureReviewPdfBuilder.cs`.
+Constraints: Must not obscure the actual architecture content.
+```
 
-### 9. DEFERRED Publish Third-Party Pen Test Summary
-- **Why it matters:** Reduces security review friction.
-- **Expected impact:** Removes a monetization blocker.
-- **Affected qualities:** None directly.
-- **Input needed:** Owner to execute vendor engagement and provide redacted summary.
+### 9. Add UI Toggle for AgentOutput:QualityGate:Mode
+- **Why it matters:** Allows admins to easily enforce stricter quality gates.
+- **Expected impact:** Improves Usability (+5 pts) and Manageability (+2 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Usability.
+- **Actionable now.**
+```text
+Add a UI toggle for the `AgentOutput:QualityGate:Mode` configuration.
+1. Expose the current mode (`WarnOnly` or `PilotStrict`) via a new admin settings endpoint.
+2. Add a toggle in the operator UI (under an Admin or Settings section) to switch between modes.
+3. Persist the override in the database (e.g., `dbo.TenantSettings`) so it applies dynamically.
+Files: `ArchLucid.Api/Controllers/Admin/SettingsController.cs`, `archlucid-ui/src/app/(operator)/settings/page.tsx`.
+Constraints: Must require `AdminAuthority`.
+```
 
-### 10. DEFERRED Obtain SOC 2 Type II Report
-- **Why it matters:** Essential for enterprise procurement.
-- **Expected impact:** Removes a monetization blocker.
-- **Affected qualities:** None directly.
-- **Input needed:** Owner to engage CPA firm and complete examination.
+### 10. Configure Default Purge for Stale Uncommitted Runs
+- **Why it matters:** Prevents database bloat from abandoned architecture requests.
+- **Expected impact:** Improves Scalability (+5 pts) and Maintainability (+2 pts). Weighted readiness impact: +0.1%.
+- **Affected qualities:** Scalability, Maintainability.
+- **Actionable now.**
+```text
+Configure a default purge policy for stale uncommitted runs.
+1. Update the production `appsettings.json` template to set `DataArchival:PurgeUncommittedRunsAfterDays` to a sensible default (e.g., 7 days).
+2. Ensure the `DataArchivalCoordinator` correctly hard-deletes these rows.
+Files: `ArchLucid.Api/appsettings.Production.json`.
+Constraints: Must explicitly exclude demo/showcase runs from the purge.
+```
 
 ### 11. Implement Shared-Database RLS Tier for Trial Tenants
 - **Why it matters:** Reduces the massive baseline infrastructure cost of provisioning a dedicated SQL database for every self-serve trial signup.
@@ -553,54 +622,34 @@ To optimize context window usage and cost-effectiveness, batch the implementatio
 - Configure Tail-Based Trace Sampling for Authority Runs (12)
 - Implement Full Idempotency for Create Run Endpoint (13)
 - Add Redis Cache Coherency Checks (14)
+- Configure Default Purge for Stale Uncommitted Runs (10)
 
-**Batch 2: UI & Usability Enhancements (Frontend)**
+**Batch 2: UI & UX Enhancements (Frontend)**
+- Add 1-Click Copy for Azure Extractor PowerShell Script (1)
+- Implement Client-Side Handling for 402 Trial Limits (3)
 - Simplify Domain Vocabulary in Operator UI (16)
 - Add Bulk Evidence Upload Progress Indicator (19)
 - Add Export-Only Trial State Warning (21)
-- Add System Health Dashboard (25)
 
-**Batch 3: Governance & Orchestration (Full Stack)**
+**Batch 3: Governance, Integration & Orchestration (Full Stack)**
+- Add "Test Connection" Button for Webhook Subscriptions (7)
+- Add Markdown Export for Governance Resolution (4)
 - Unify Authority and Coordinator Pipeline Logic (18)
 - Enhance Advisory Scan Scheduling UI (20)
 - Implement Configurable Alert Routing Rules (22)
 - Add Policy Pack Conflict Resolution UI (23)
 
-**Batch 4: Data Management & Safety (Backend)**
+**Batch 4: Data Management, Safety & Observability (Backend)**
 - Optimize SQL Server JSON Payload Storage (15)
+- Optimize Knowledge Graph Snapshot Serialization (6)
 - Add Content Safety API Circuit Breaker (17)
 - Optimize Audit Log CSV Export (24)
+- Expose Data Archival Health in Operator UI (2)
+- Add System Health Dashboard (25)
 
 ---
 
 ## Pending Questions for Later
 
-**DEFERRED Implement Jira Integration**
-- What is the exact target date for the V1.1 release window?
-- Can you provide a Jira Developer instance and API credentials for testing?
-
-**DEFERRED Implement ServiceNow Integration**
-- When will the ServiceNow Developer Program instance be provisioned and credentials provided?
-
-**DEFERRED Implement Microsoft Teams Integration**
-- Do we have a test Microsoft Teams tenant and webhook configuration available?
-
-**DEFERRED Implement Slack Integration**
-- Has a Slack App been created in the workspace for testing, and are the OAuth tokens available?
-
 **DEFERRED Flip Stripe Live Keys and Publish Marketplace Listing**
 - When do you plan to complete the Partner Center seller verification, tax profile, and payout account setup?
-
-**DEFERRED Implement Model Context Protocol (MCP) Server**
-- Which specific version of the MCP SDK should we target for the V1.1 implementation?
-
-**DEFERRED Implement AWS/GCP Architecture Analysis**
-- Are there specific AWS/GCP accounts provisioned for testing the read-only inventory scripts?
-
-**DEFERRED Implement Automated Tenant Erasure Pipeline**
-- What are the specific legal hold requirements and the default quarantine delay (e.g., 30 days) for V2?
-**DEFERRED Publish Third-Party Pen Test Summary**
-- When will the vendor engagement be executed?
-
-**DEFERRED Obtain SOC 2 Type II Report**
-- What is the timeline for engaging a CPA firm?
