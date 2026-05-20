@@ -6,7 +6,6 @@ ArchLucid.Api.Controllers.Admin.AdminController.RemediateOrphanComparisonRecords
 ArchLucid.Api.Controllers.Admin.AdminController.RemediateOrphanFindingsSnapshots
 ArchLucid.Api.Controllers.Admin.AdminController.RemediateOrphanGoldenManifests
 ArchLucid.Api.Controllers.Admin.AdminController.RetryIntegrationOutboxDeadLetter
-ArchLucid.Api.Controllers.Admin.AdminController.UploadTenantCoverLogoAsync
 ArchLucid.Api.Controllers.Admin.ClientErrorTelemetryController.PostClientError
 ArchLucid.Api.Controllers.Admin.ClientErrorTelemetryController.PostCorePilotRailChecklistStep
 ArchLucid.Api.Controllers.Admin.ClientErrorTelemetryController.PostFirstTenantFunnelEvent
@@ -91,6 +90,7 @@ ArchLucid.Api.Controllers.Pilots.PilotsController.PostFirstValueReportPdf
 ArchLucid.Api.Controllers.Pilots.PilotsController.PostScorecard
 ArchLucid.Api.Controllers.Pilots.PilotsController.PostSponsorOnePager
 ArchLucid.Api.Controllers.Planning.AskController.Ask
+ArchLucid.Api.Controllers.Planning.AskController.AskStream
 ArchLucid.Api.Controllers.Planning.ComparisonsController.AnalyzeComparisonDrift
 ArchLucid.Api.Controllers.Planning.ComparisonsController.ReplayComparison
 ArchLucid.Api.Controllers.Planning.ComparisonsController.ReplayComparisonMetadata
