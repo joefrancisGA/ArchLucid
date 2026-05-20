@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "scenario-09-event-driven",
+  "metadata": {
+    "title": "Contoso telemetry insights — event-driven sub-minute lag",
+    "complexity": "high",
+    "primaryAgents": ["Topology"],
+    "rubricNotes": "4 MUSTs: hits 3/4 (75%) to clear the 70% recall floor."
+  },
+  "inputSource": "templates/architecture-requests/event-driven-microservices.json",
+  "recording": "tests/eval-corpus/templates-pack/recordings/scenario-09-event-driven.findings.json",
+  "expectedFindings": [
+    {
+      "id": "must-idempotent-consumers",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["idempotent"]
+    },
+    {
+      "id": "must-dead-letter-queue",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["dead-letter"]
+    },
+    {
+      "id": "must-private-link-data-plane",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["private link"]
+    },
+    {
+      "id": "must-replay-within-retention",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["replay"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Critic", "ifContainsAny": ["exactly-once delivery everywhere", "exactly once across all hops"] },
+    { "category": "Critic", "ifContainsAny": ["skip dead-letter", "discard poison messages silently"] }
+  ]
+}

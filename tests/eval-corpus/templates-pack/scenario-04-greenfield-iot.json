@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "scenario-04-greenfield-iot",
+  "metadata": {
+    "title": "Wingtip IoT telemetry (greenfield) — partitioning, latency, device identity",
+    "complexity": "high",
+    "primaryAgents": ["Topology", "Compliance", "Cost"],
+    "rubricNotes": "Dropped 'regional outage / degraded mode' MUST (already a constraint, not an architectural decision). 4 MUSTs: hits 3/4 (75%) to clear the 70% recall floor."
+  },
+  "inputSource": "templates/architecture-requests/greenfield-design-review.json",
+  "recording": "tests/eval-corpus/templates-pack/recordings/scenario-04-greenfield-iot.findings.json",
+  "expectedFindings": [
+    {
+      "id": "must-event-hub-partitioning",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["partition"]
+    },
+    {
+      "id": "must-hot-path-latency-design",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["hot path", "latency"]
+    },
+    {
+      "id": "must-device-identity-x509-or-sas",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["device identity"]
+    },
+    {
+      "id": "must-ingestion-cost-guardrails",
+      "category": "Cost",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["throughput unit"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Compliance", "ifContainsAny": ["allow anonymous device", "skip device authentication"] },
+    { "category": "Topology", "ifContainsAny": ["single tenant database for all devices", "one sql server for 500k devices"] }
+  ]
+}

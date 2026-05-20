@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "rubricId": "templates-pack-v0",
+  "recallFloorPct": 70,
+  "unexpectedHitMax": 0,
+  "severityRule": "gte",
+  "negationGuardEnabled": true,
+  "negationTokens": ["no", "not", "without", "avoid", "deny", "disable", "skip", "bypass"],
+  "negationLookbackTokens": 5,
+  "mode": "simulator",
+  "enforceByDefault": false,
+  "notes": "v0 calibration: 70% recall floor with zero unexpected hits. Negation guard rejects substring matches like 'do not use key vault'. Flip enforceByDefault to true (or pass --enforce on the runner) after the first inform-only baseline confirms scenarios match actual agent behaviour."
+}

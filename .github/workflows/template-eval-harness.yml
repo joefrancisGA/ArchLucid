@@ -1,0 +1,122 @@
+name: template-eval-harness
+
+# Templates-pack agent evaluation harness for the 10 curated architecture
+# requests under templates/architecture-requests/*.json. Inform-only until the
+# first inform-only baseline confirms scenario anchors line up with actual
+# agent vocabulary; flip `--enforce` on once the report is consistently clean.
+#
+# Lifecycle:
+#  - capture mode: workflow_dispatch with mode=capture against a running API
+#    (BASE_URL input). Saves findings to tests/eval-corpus/templates-pack/
+#    recordings/scenario-*.findings.json. Commit those recordings in a PR.
+#  - score mode: runs on every push/PR touching the templates-pack folder or
+#    the harness itself; uploads a markdown report artifact; never blocks.
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Mode to run (score | capture)"
+        required: true
+        default: "score"
+        type: choice
+        options:
+          - score
+          - capture
+      base_url:
+        description: "API base URL for capture mode (e.g. https://staging.archlucid.example)"
+        required: false
+        default: ""
+      real_mode:
+        description: "Forward pilot real-mode header (capture mode only)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+      enforce:
+        description: "Score mode: exit nonzero on failures (default off = inform-only)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+  pull_request:
+    paths:
+      - "tests/eval-corpus/templates-pack/**"
+      - "scripts/ci/eval_template_harness.py"
+      - ".github/workflows/template-eval-harness.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "tests/eval-corpus/templates-pack/**"
+      - "scripts/ci/eval_template_harness.py"
+
+permissions:
+  contents: read
+
+jobs:
+  templates-pack-eval:
+    if: github.event.repository.fork == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Resolve harness mode
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "mode=${{ github.event.inputs.mode }}" >> "$GITHUB_OUTPUT"
+            echo "enforce=${{ github.event.inputs.enforce }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=score" >> "$GITHUB_OUTPUT"
+            echo "enforce=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Score recorded findings (inform-only by default)
+        if: steps.mode.outputs.mode == 'score'
+        env:
+          ENFORCE_FLAG: ${{ steps.mode.outputs.enforce == 'true' && '--enforce' || '' }}
+        run: |
+          python3 scripts/ci/eval_template_harness.py \
+            --mode score \
+            --report "${RUNNER_TEMP}/templates-pack-eval.md" \
+            ${ENFORCE_FLAG}
+
+      - name: Capture findings from live API
+        if: steps.mode.outputs.mode == 'capture'
+        env:
+          ARCHLUCID_BEARER_TOKEN: ${{ secrets.ARCHLUCID_BEARER_TOKEN }}
+          ARCHLUCID_API_KEY: ${{ secrets.ARCHLUCID_API_KEY }}
+          REAL_MODE_FLAG: ${{ github.event.inputs.real_mode == 'true' && '--real-mode' || '' }}
+        run: |
+          if [ -z "${{ github.event.inputs.base_url }}" ]; then
+            echo "::error::capture mode requires the base_url input"
+            exit 2
+          fi
+
+          python3 scripts/ci/eval_template_harness.py \
+            --mode capture \
+            --base-url "${{ github.event.inputs.base_url }}" \
+            ${REAL_MODE_FLAG}
+
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.mode.outputs.mode == 'score'
+        with:
+          name: templates-pack-eval
+          path: ${{ runner.temp }}/templates-pack-eval.md
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.mode.outputs.mode == 'capture'
+        with:
+          name: templates-pack-recordings
+          path: tests/eval-corpus/templates-pack/recordings/
+          if-no-files-found: warn

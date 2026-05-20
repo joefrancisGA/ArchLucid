@@ -441,6 +441,8 @@ public static class ArchLucidStorageServiceCollectionExtensions
             services.AddSingleton<IArtifactBlobStore, NullArtifactBlobStore>();
 
             services.AddSingleton<IAzureExtractorChunkSessionStore, NullAzureExtractorChunkSessionStore>();
+
+            services.AddSingleton<ITenantReviewBoardCoverLogoStore, NullTenantReviewBoardCoverLogoStore>();
         }
 
     }

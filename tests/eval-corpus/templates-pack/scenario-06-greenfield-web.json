@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "scenario-06-greenfield-web",
+  "metadata": {
+    "title": "Contoso retail web (greenfield) — private SQL, MI, Front Door edge",
+    "complexity": "medium",
+    "primaryAgents": ["Topology", "Compliance"],
+    "rubricNotes": "Dropped multi-region/DR MUST (constraint already mandates two regions with Front Door). 4 MUSTs: hits 3/4 (75%) to clear the 70% recall floor."
+  },
+  "inputSource": "templates/architecture-requests/greenfield-web-app.json",
+  "recording": "tests/eval-corpus/templates-pack/recordings/scenario-06-greenfield-web.findings.json",
+  "expectedFindings": [
+    {
+      "id": "must-private-endpoint-sql",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["private endpoint", "sql"]
+    },
+    {
+      "id": "must-managed-identity-sql-keyvault",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["managed identity"]
+    },
+    {
+      "id": "must-front-door-edge-isolation",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["front door"]
+    },
+    {
+      "id": "must-key-vault-no-plaintext",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["key vault"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Topology", "ifContainsAny": ["app service publicly exposed", "direct origin from internet"] },
+    { "category": "Compliance", "ifContainsAny": ["connection strings in repository", "checked-in secrets", "plaintext credentials"] }
+  ]
+}
