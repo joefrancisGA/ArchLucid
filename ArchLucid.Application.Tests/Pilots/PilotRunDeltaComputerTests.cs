@@ -13,6 +13,8 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
@@ -462,13 +464,19 @@ public sealed class PilotRunDeltaComputerTests
         IArtifactQueryService artifacts,
         IScopeContextProvider scope,
         AgentOutputQualityGateOptions? gateOpts = null,
-        IRunAgentOutputPilotEvidenceAggregator? pilotAggregator = null)
+        IRunAgentOutputPilotEvidenceAggregator? pilotAggregator = null,
+        IFindingsSnapshotRepository? findingsSnapshots = null)
     {
+        Mock<IFindingsSnapshotRepository> findings = new();
+        findings.Setup(f => f.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid _, CancellationToken _) => (FindingsSnapshot?)null);
+
         return new PilotRunDeltaComputer(
             evidence,
             traces,
             audit,
             artifacts,
+            findingsSnapshots ?? findings.Object,
             scope,
             Mock.Of<IRunExplanationSummaryService>(),
             pilotAggregator ?? DefaultStrictPilotAgg(),

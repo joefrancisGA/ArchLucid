@@ -16,4 +16,9 @@ public sealed partial class RunsController
             "Run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}, User={User}, CorrelationId={CorrelationId}")]
     private partial void LogRunCommitted(string runId, string? manifestVersion, int warningCount, string user,
         string correlationId);
+
+    [LoggerMessage(EventId = 2005, Level = LogLevel.Information,
+        Message =
+            "Idempotency replay: returning cached success for RequestId={RequestId}, User={User}, CorrelationId={CorrelationId}")]
+    private partial void LogIdempotencyReplay(string requestId, string user, string correlationId);
 }

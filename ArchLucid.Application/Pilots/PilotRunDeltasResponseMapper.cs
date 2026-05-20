@@ -51,6 +51,7 @@ public static class PilotRunDeltasResponseMapper
             TopFindingId = deltas.TopFindingId,
             TopFindingEvidenceChain = deltas.TopFindingEvidenceChain,
             IsDemoTenant = deltas.IsDemoTenant,
+            EstimatedUsdSavings = deltas.EstimatedUsdSavings,
             ProofPackageCompleteness = proofPackage,
         };
     }

@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
+import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -53,6 +54,7 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
             </div>
           </div>
         </header>
+        <LayerContextFromRoute />
         <main
           id="main-content"
           tabIndex={-1}

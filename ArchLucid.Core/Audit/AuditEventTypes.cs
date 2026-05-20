@@ -279,6 +279,8 @@ public static class AuditEventTypes
     public const string PolicyPackAssignmentCreated = "PolicyPackAssignmentCreated";
     public const string PolicyPackAssignmentArchived = "PolicyPackAssignmentArchived";
 
+    public const string PolicyPackDuplicated = "PolicyPackDuplicated";
+
     /// <summary>Admin promoted a policy pack snapshot into the global catalog.</summary>
     public const string PolicyPackCatalogPromoted = "PolicyPackCatalogPromoted";
 

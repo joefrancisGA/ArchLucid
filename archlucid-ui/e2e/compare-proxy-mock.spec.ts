@@ -21,11 +21,16 @@ test.describe("operator journey — compare proxy mocks", () => {
     });
     await page.goto(`/compare?${q.toString()}`);
 
-    await expandCompareRunPickersIfCollapsed(page);
-    const compareSubmit = comparePageSubmitButton(page);
-    await expect(compareSubmit).toBeEnabled();
-    await compareSubmit.click();
-    await expect(structuredCompareSponsorRecommendationParagraph(page)).toBeVisible();
+    const structuredSummary = structuredCompareSponsorRecommendationParagraph(page);
+
+    if (!(await structuredSummary.isVisible())) {
+      await expandCompareRunPickersIfCollapsed(page);
+      const compareSubmit = comparePageSubmitButton(page);
+      await expect(compareSubmit).toBeEnabled();
+      await compareSubmit.click();
+    }
+
+    await expect(structuredSummary).toBeVisible();
 
     await expandCompareRunPickersIfCollapsed(page);
     await comparePageSummarizeNarrativeButton(page).click();

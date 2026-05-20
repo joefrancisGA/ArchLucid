@@ -1,5 +1,7 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services.Admin;
+using ArchLucid.Application.Exports;
+using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Configuration.Summary;
@@ -15,6 +17,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.ResponseCaching;
 using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
 
@@ -29,7 +32,8 @@ public sealed class AdminController(
     IConfiguration configuration,
     IHostEnvironment hostEnvironment,
     IAdminDiagnosticsService diagnostics,
-    IFeatureManager featureManager) : ControllerBase
+    IFeatureManager featureManager,
+    ITenantReviewBoardCoverLogoStore? tenantReviewBoardCoverLogoStore) : ControllerBase
 {
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -43,11 +47,47 @@ public sealed class AdminController(
     private readonly IFeatureManager _featureManager =
         featureManager ?? throw new ArgumentNullException(nameof(featureManager));
 
+    private readonly ITenantReviewBoardCoverLogoStore? _tenantReviewBoardCoverLogoStore = tenantReviewBoardCoverLogoStore;
+
+    /// <summary>Uploads a tenant-scoped PNG/JPEG cover logo for architecture review board exports.</summary>
+    [HttpPost("tenant/logo")]
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(ArchitectureReviewBoardCoverLogoValidator.MaxLogoBytes + 256)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+    public async Task<IActionResult> UploadTenantCoverLogoAsync(IFormFile? file, CancellationToken cancellationToken)
+    {
+        if (_tenantReviewBoardCoverLogoStore is null)
+            return StatusCode(
+                StatusCodes.Status503ServiceUnavailable,
+                "Tenant cover logo storage is not configured for this host.");
+
+        if (file is null || file.Length == 0)
+            return this.BadRequestProblem("Logo file is required.", ProblemTypes.ValidationFailed);
+
+        await using MemoryStream buffer = new();
+        await file.CopyToAsync(buffer, cancellationToken).ConfigureAwait(false);
+        byte[] bytes = buffer.ToArray();
+
+        try
+        {
+            await _tenantReviewBoardCoverLogoStore.UploadAsync(bytes, cancellationToken).ConfigureAwait(false);
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+
+        return NoContent();
+    }
+
     /// <summary>
     ///     Production-profile blocking findings plus optional hosting advisor warnings (<c>archlucid config lint</c> parity).
     /// </summary>
     /// <remarks>No secrets are returned; findings mirror CLI/advisor rule names.</remarks>
     [HttpGet("config-lint")]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     [ProducesResponseType(typeof(AdminConfigLintResponse), StatusCodes.Status200OK)]
     public ActionResult<AdminConfigLintResponse> GetConfigLint([FromQuery] bool includeAdvisory = true)
     {
@@ -77,12 +117,14 @@ public sealed class AdminController(
     ///     (never returns raw secrets).
     /// </summary>
     [HttpGet("config-summary")]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     [ProducesResponseType(typeof(AdminConfigSummaryResponse), StatusCodes.Status200OK)]
     public ActionResult<AdminConfigSummaryResponse> GetConfigSummary([FromQuery] bool includeEffectiveValues = false) =>
         Ok(BuildAdminConfigSummary(includeEffectiveValues));
 
     /// <inheritdoc cref="GetConfigSummary" />
     [HttpGet("configuration/summary")]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     [ProducesResponseType(typeof(AdminConfigSummaryResponse), StatusCodes.Status200OK)]
     public ActionResult<AdminConfigSummaryResponse> GetConfigurationSummary([FromQuery] bool includeEffectiveValues = false)
         => Ok(BuildAdminConfigSummary(includeEffectiveValues));

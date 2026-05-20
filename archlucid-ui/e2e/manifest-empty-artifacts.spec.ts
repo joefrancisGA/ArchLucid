@@ -26,7 +26,7 @@ test.describe("operator journey — manifest empty artifact list", () => {
     ).toBeVisible();
 
     // Manifest ID lives under a collapsed <details> in the summary panel; label varies by shell — use stable test id.
-    await page.getByTestId("manifest-verification-appendix").locator("summary").click();
+    await page.getByTestId("manifest-verification-appendix").locator("summary").first().click();
     await expect(page.getByText(FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID)).toBeVisible();
 
     await expect(page.getByText("Artifact list could not be loaded.", { exact: true })).toHaveCount(0);
@@ -41,8 +41,13 @@ test.describe("operator journey — manifest empty artifact list", () => {
     await expect(emptyRegion.getByText(/valid empty result/)).toBeVisible();
     await expect(emptyRegion.getByText(/Bundle ZIP may return 404/)).toBeVisible();
 
-    // Buyer-polished shell: primary bundle CTA is "Download finalized review package" (`ManifestDetailPageView`).
-    // Full-operator shell: header "Export manifest bundle" and card "Download bundle (ZIP)".
+    // Buyer-polished shell: bundle CTA lives in collapsed `manifest-buyer-bundle-download` details.
+    const buyerBundleDetails = page.getByTestId("manifest-buyer-bundle-download");
+
+    if ((await buyerBundleDetails.count()) > 0) {
+      await buyerBundleDetails.locator("summary").first().click();
+    }
+
     const bundleLink = page
       .getByRole("link", {
         name:

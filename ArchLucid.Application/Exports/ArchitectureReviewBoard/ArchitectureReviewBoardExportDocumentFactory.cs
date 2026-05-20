@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
@@ -36,12 +37,16 @@ public static class ArchitectureReviewBoardExportDocumentFactory
         ArchitectureRunDetail detail,
         ArchitectureAnalysisReport report,
         string? httpCorrelationId,
-        string? extractorTimestampUtcLabel)
+        string? extractorTimestampUtcLabel,
+        bool? isDemoTenant = null)
     {
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(report);
 
         string runId = detail.Run.RunId ?? string.Empty;
+        bool demo = isDemoTenant
+                    ?? (ContosoRetailDemoIdentifiers.IsDemoRunId(runId)
+                        || ContosoRetailDemoIdentifiers.IsDemoRequestId(detail.Run.RequestId));
 
         return new ArchitectureReviewBoardExportDocumentModel
         {
@@ -60,7 +65,8 @@ public static class ArchitectureReviewBoardExportDocumentFactory
             PolicyFindings = BuildPolicyFindings(detail),
             AiDispositionFindings = BuildAiDisposition(report),
             TraceabilityLines = BuildExtraTraceLines(detail),
-            RecommendedNextActions = BuildRecommendedActions(report, detail)
+            RecommendedNextActions = BuildRecommendedActions(report, detail),
+            IsDemoTenant = demo,
         };
     }
 

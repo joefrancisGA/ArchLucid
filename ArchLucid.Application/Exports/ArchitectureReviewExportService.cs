@@ -19,6 +19,7 @@ public sealed class ArchitectureReviewExportService(
     IArchitectureAnalysisService architectureAnalysisService,
     IScopeContextProvider scopeContextProvider,
     ITenantRepository tenantRepository,
+    ITenantReviewBoardCoverLogoStore? tenantReviewBoardCoverLogoStore,
     ArchitectureReviewDocxBuilder docxBuilder,
     ArchitectureReviewPdfBuilder pdfBuilder) : IArchitectureReviewExportService
 {
@@ -39,6 +40,8 @@ public sealed class ArchitectureReviewExportService(
 
     private readonly ArchitectureReviewPdfBuilder _pdfBuilder =
         pdfBuilder ?? throw new ArgumentNullException(nameof(pdfBuilder));
+
+    private readonly ITenantReviewBoardCoverLogoStore? _tenantReviewBoardCoverLogoStore = tenantReviewBoardCoverLogoStore;
 
     /// <inheritdoc/>
     public async Task<ExportResult> GenerateReportAsync(string runId, ExportFormat format, WhitelabelConfiguration? whitelabel,
@@ -79,13 +82,18 @@ public sealed class ArchitectureReviewExportService(
         ArchitectureReviewBoardExportDocumentModel documentModel =
             ArchitectureReviewBoardExportDocumentFactory.Create(detail, report, httpCorrelationId, extractorTimestampUtcLabel: null);
 
+        byte[]? resolvedLogoBytes = logoImageBytes;
+
+        if (resolvedLogoBytes is null && _tenantReviewBoardCoverLogoStore is not null)
+            resolvedLogoBytes = await _tenantReviewBoardCoverLogoStore.TryGetBytesAsync(cancellationToken).ConfigureAwait(false);
+
         string safeSegment = SanitizeRunIdForFileName(documentModel.RunId);
 
         switch (format)
         {
             case ExportFormat.Docx:
             {
-                byte[] bytes = await _docxBuilder.BuildAsync(documentModel, whitelabel, logoImageBytes, cancellationToken);
+                byte[] bytes = await _docxBuilder.BuildAsync(documentModel, whitelabel, resolvedLogoBytes, cancellationToken);
 
                 MemoryStream stream = new(bytes);
 
@@ -99,7 +107,7 @@ public sealed class ArchitectureReviewExportService(
                 byte[] bytes = await _pdfBuilder.BuildAsync(
                     documentModel,
                     whitelabel,
-                    logoImageBytes,
+                    resolvedLogoBytes,
                     includeActiveTrialExportNotice,
                     cancellationToken);
 

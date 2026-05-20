@@ -12,6 +12,39 @@ namespace ArchLucid.Host.Composition.Tests;
 public sealed class BillingProductionSafetyRulesTests
 {
     [Fact]
+    public void CollectStripeTestKeyDisallowedInProduction_when_sk_test_adds_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["Billing:Stripe:SecretKey"] = "sk_test_unit_test_placeholder_not_a_real_key",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        List<string> errors = [];
+
+        BillingProductionSafetyRules.CollectStripeTestKeyDisallowedInProduction(configuration, errors);
+
+        errors.Should()
+            .ContainSingle(static e => e.Contains("sk_test_", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void CollectStripeTestKeyDisallowedInProduction_when_sk_live_is_clean()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["Billing:Stripe:SecretKey"] = "sk_live_unit_test_placeholder_not_a_real_key",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        List<string> errors = [];
+
+        BillingProductionSafetyRules.CollectStripeTestKeyDisallowedInProduction(configuration, errors);
+
+        errors.Should().BeEmpty();
+    }
+
+    [Fact]
     public void CollectStripeLiveKeyRequiresWebhookSigningSecret_when_sk_live_without_whsec_adds_error()
     {
         Dictionary<string, string?> data = new()

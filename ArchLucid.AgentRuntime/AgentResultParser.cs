@@ -20,9 +20,13 @@ public sealed class AgentResultParser : IAgentResultParser
 {
     private const int MaxTruncatedJsonLength = 2000;
 
+    private const int MaxJsonDepth = 32;
+
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() }
+        PropertyNameCaseInsensitive = true,
+        MaxDepth = MaxJsonDepth,
+        Converters = { new JsonStringEnumConverter() }
     };
 
     private readonly ILogger<AgentResultParser> _logger;

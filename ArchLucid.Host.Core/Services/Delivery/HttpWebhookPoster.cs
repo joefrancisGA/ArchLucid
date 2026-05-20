@@ -6,6 +6,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Host.Core.Middleware;
 using ArchLucid.Notifications;
 
 namespace ArchLucid.Host.Core.Services.Delivery;
@@ -14,6 +15,8 @@ namespace ArchLucid.Host.Core.Services.Delivery;
 public sealed class HttpWebhookPoster(ILogger<HttpWebhookPoster> logger, IHttpClientFactory httpClientFactory) : IWebhookPoster
 {
     public const string WebhookHttpClientName = "ArchLucidWebhooks";
+
+    public const string UserAgentProductToken = "ArchLucid-Webhook/1.0";
 
     /// <inheritdoc />
     public async Task PostJsonAsync(string url, object payload, CancellationToken ct, WebhookPostOptions? options = null)
@@ -37,6 +40,16 @@ public sealed class HttpWebhookPoster(ILogger<HttpWebhookPoster> logger, IHttpCl
         using HttpRequestMessage request = new(HttpMethod.Post, url);
         request.Content = new ByteArrayContent(body);
         request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json") { CharSet = "utf-8" };
+        request.Headers.TryAddWithoutValidation("User-Agent", UserAgentProductToken);
+
+        string? correlationId = options?.CorrelationId?.Trim();
+
+        if (!string.IsNullOrEmpty(correlationId)
+            && CorrelationIdHeaderParser.TryParse(correlationId, out string? validatedCorrelationId)
+            && validatedCorrelationId is not null)
+        {
+            request.Headers.TryAddWithoutValidation(CorrelationIdHeaderParser.HeaderName, validatedCorrelationId);
+        }
 
         string? secret = options?.HmacSha256SharedSecret?.Trim();
 

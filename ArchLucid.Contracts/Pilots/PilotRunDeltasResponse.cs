@@ -84,6 +84,15 @@ public sealed class PilotRunDeltasResponse
     }
 
     /// <summary>
+    ///     Sum of accepted Cost-category findings' projected USD impact from the run's findings snapshot, when loaded.
+    /// </summary>
+    public decimal? EstimatedUsdSavings
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
     ///     Proof-package completeness checklist + buyer-safe gate labels (same evaluation as the first-value Markdown gate section).
     /// </summary>
     public ProofPackageCompletenessResponse? ProofPackageCompleteness

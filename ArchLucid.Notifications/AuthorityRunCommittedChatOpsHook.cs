@@ -31,6 +31,7 @@ public sealed class AuthorityRunCommittedChatOpsHook(
         {
             EventType = "chatOps.architectureAuthorityRun.completed",
             TenantId = notice.TenantId,
+            CorrelationId = notice.RunId.ToString("D"),
         };
 
         Task slackTask =

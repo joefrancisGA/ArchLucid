@@ -90,6 +90,7 @@ function New-ArchLucidCollectedArmResourceRecord([object] $AzResource)
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.RetailPrices.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.PolicyCompliance.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.CostManagement.helpers.ps1')
+. (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ResourceGraph.helpers.ps1')
 
 if (-not (Get-Module -ListAvailable -Name Az.Resources))
 {
@@ -138,7 +139,13 @@ New-Item -ItemType Directory -Path $staging | Out-Null
 
 try
 {
-    if ([string]::IsNullOrWhiteSpace($ResourceGroupScope))
+    if (Get-Module -ListAvailable -Name Az.ResourceGraph)
+    {
+        $resources = Get-ArchLucidAzureResourcesViaResourceGraph `
+            -SubscriptionId $SubscriptionId `
+            -ResourceGroupScope $ResourceGroupScope
+    }
+    elseif ([string]::IsNullOrWhiteSpace($ResourceGroupScope))
     {
         $resources = Get-AzResource -Verbose:$false | ForEach-Object { New-ArchLucidCollectedArmResourceRecord $_ }
     }

@@ -1,9 +1,8 @@
-import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedulesContent";
+import { redirect } from "next/navigation";
 
 /**
- * Advisory scan schedules (also available on `/advisory?tab=schedules`).
- * Create via `POST /v1/advisory-scheduling/schedules`.
+ * Legacy route: advisory scan schedules live on the **Advisory** hub **Schedules** tab.
  */
-export default function AdvisorySchedulingPage() {
-  return <AdvisorySchedulesContent />;
+export default function AdvisorySchedulingRedirect() {
+  redirect("/advisory?tab=schedules");
 }

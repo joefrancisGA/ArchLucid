@@ -15,6 +15,8 @@ public sealed class ArchitectureReviewPdfBuilder
 {
     internal const string ActiveTrialExportFooterSuffix = "Generated during ArchLucid Trial";
 
+    internal const string DemoTenantExportWatermark = "DEMO — NOT A CUSTOMER OUTCOME";
+
     /// <summary>
     ///     Generates PDF bytes. When <paramref name="logoImageBytes" /> is supplied, renders a cover logo (PNG/JPEG; callers validate via
     ///     <see cref="ArchitectureReviewBoardCoverLogoValidator" />).
@@ -81,6 +83,17 @@ public sealed class ArchitectureReviewPdfBuilder
                 .Italic();
         }
 
+        if (model.IsDemoTenant)
+        {
+            page.Background()
+                .AlignCenter()
+                .AlignMiddle()
+                .Text(DemoTenantExportWatermark)
+                .FontSize(28)
+                .FontColor(Colors.Grey.Lighten3)
+                .Italic();
+        }
+
         page.Content().Column(column =>
         {
             if (logoImageBytes is { Length: > 0 })
@@ -97,12 +110,28 @@ public sealed class ArchitectureReviewPdfBuilder
             }
             else
             {
-                column.Item().Text("Architecture review board packet").Bold().FontSize(22);
+                string title = model.IsDemoTenant
+                    ? "Architecture review board packet (DEMO)"
+                    : "Architecture review board packet";
+                column.Item().Text(title).Bold().FontSize(22);
                 column.Item().Height(8);
 
                 string subtitle = string.IsNullOrWhiteSpace(model.SystemName) ? model.RunId.Trim() : model.SystemName.Trim();
 
+                if (model.IsDemoTenant)
+                    subtitle += " (DEMO)";
+
                 column.Item().Text(subtitle).SemiBold().FontSize(14);
+            }
+
+            if (model.IsDemoTenant)
+            {
+                column.Item().Height(8);
+                column.Item()
+                    .Text("Demo tenant — replace before publishing to executives.")
+                    .FontSize(8)
+                    .FontColor(Colors.Grey.Darken2)
+                    .Italic();
             }
 
             column.Item().Height(22);

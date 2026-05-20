@@ -6,6 +6,7 @@ using ArchLucid.Host.Core.Services.Delivery;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchLucid.Api.Tests;
 
@@ -60,6 +61,29 @@ public sealed class HttpWebhookPosterInstrumentationTests
 
         telemetryLogger.MessagesJoined().Should().NotContain("world");
         stub.SendCount.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task HttpWebhookPoster_adds_user_agent_and_correlation_id_headers()
+    {
+        HttpRequestMessage? captured = null;
+
+        CapturingHttpStubHandler stub = new(
+            () => new HttpResponseMessage(HttpStatusCode.OK),
+            request => captured = request);
+
+        HttpWebhookPoster poster = new(NullLogger<HttpWebhookPoster>.Instance, new SingletonWebhookClientFactory(stub));
+
+        await poster.PostJsonAsync(
+            "https://hooks.partner.test/notify",
+            new { ok = true },
+            CancellationToken.None,
+            new WebhookPostOptions { CorrelationId = "corr-webhook-001" });
+
+        captured.Should().NotBeNull();
+        captured!.Headers.UserAgent.ToString().Should().Contain(HttpWebhookPoster.UserAgentProductToken);
+        captured.Headers.TryGetValues("X-Correlation-ID", out IEnumerable<string>? values).Should().BeTrue();
+        values!.Should().ContainSingle("corr-webhook-001");
     }
 
     [SkippableFact]
@@ -185,6 +209,35 @@ public sealed class HttpWebhookPosterInstrumentationTests
             ArgumentNullException.ThrowIfNull(request.RequestUri);
 
             SendCount++;
+
+            return Task.FromResult(_factory());
+        }
+    }
+
+    private sealed class CapturingHttpStubHandler(
+        Func<HttpResponseMessage> responseFactory,
+        Action<HttpRequestMessage> onSend) : HttpMessageHandler
+    {
+        private readonly Func<HttpResponseMessage> _factory =
+            responseFactory ?? throw new ArgumentNullException(nameof(responseFactory));
+
+        private readonly Action<HttpRequestMessage> _onSend =
+            onSend ?? throw new ArgumentNullException(nameof(onSend));
+
+        public int SendCount
+        {
+            get;
+            private set;
+        }
+
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            _ = cancellationToken;
+            ArgumentNullException.ThrowIfNull(request);
+            SendCount++;
+            _onSend(request);
 
             return Task.FromResult(_factory());
         }

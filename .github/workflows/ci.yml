@@ -2315,11 +2315,14 @@ jobs:
         env:
           CI: true
           NODE_OPTIONS: --max-old-space-size=6144
+          NEXT_PUBLIC_DEMO_MODE: "true"
+          NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "true"
+          NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1"
         run: |
           npm ci
           npm run build
-          npx playwright install --with-deps chromium
-          npm run test:e2e:mock:functional
+          MOCK_E2E_SKIP_NEXT_BUILD=1 npx playwright install --with-deps chromium
+          MOCK_E2E_SKIP_NEXT_BUILD=1 npm run test:e2e:mock:functional
 
       - uses: actions/upload-artifact@v6
         if: always()

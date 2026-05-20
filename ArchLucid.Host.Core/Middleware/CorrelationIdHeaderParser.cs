@@ -38,6 +38,19 @@ public static class CorrelationIdHeaderParser
         return true;
     }
 
+    /// <summary>Validates an outbound correlation token before attaching it to webhook requests.</summary>
+    public static bool TryParse(string? value, [NotNullWhen(true)] out string? correlationId)
+    {
+        correlationId = null;
+
+        if (!IsValidCorrelationId(value))
+            return false;
+
+        correlationId = value!.Trim();
+
+        return true;
+    }
+
     private static bool IsValidCorrelationId(string? value) =>
         value is not null
         && !string.IsNullOrWhiteSpace(value)

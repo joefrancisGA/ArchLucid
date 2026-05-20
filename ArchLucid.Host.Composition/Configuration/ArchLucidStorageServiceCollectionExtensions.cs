@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.DataConsistency;
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
@@ -402,6 +403,11 @@ public static class ArchLucidStorageServiceCollectionExtensions
                     sp.GetRequiredService<TokenCredential>(),
                     sp.GetRequiredService<IScopeContextProvider>()));
             services.AddScoped<IAzureExtractorChunkSessionStore, AzureBlobAzureExtractorChunkSessionStore>();
+            services.AddScoped<ITenantReviewBoardCoverLogoStore>(sp =>
+                new Application.Exports.TenantReviewBoardCoverLogoStore(
+                    sp.GetRequiredService<IScopeContextProvider>(),
+                    sp.GetRequiredService<ITenantRegionalArtifactBlobClients>(),
+                    sp.GetRequiredService<TokenCredential>()));
         }
         else if (string.Equals(provider, "Local", StringComparison.OrdinalIgnoreCase))
         {
@@ -424,6 +430,10 @@ public static class ArchLucidStorageServiceCollectionExtensions
                     stagingRoot,
                     sp.GetRequiredService<IScopeContextProvider>(),
                     sp.GetRequiredService<IOptions<AzureExtractorChunkUploadOptions>>()));
+            services.AddScoped<ITenantReviewBoardCoverLogoStore>(sp =>
+                new Application.Exports.TenantReviewBoardCoverLogoStore(
+                    sp.GetRequiredService<IScopeContextProvider>(),
+                    resolvedRoot));
         }
         else
 

@@ -12,7 +12,9 @@ using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Startup;
 
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Api.Startup;
 
@@ -57,6 +59,23 @@ internal static class InfrastructureExtensions
             {
                 HttpContext httpContext = context.HttpContext;
                 httpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+
+                EnableRateLimitingAttribute? rateLimitAttribute =
+                    httpContext.GetEndpoint()?.Metadata.GetMetadata<EnableRateLimitingAttribute>();
+                string policyName = rateLimitAttribute?.PolicyName ?? "unknown";
+                string correlationId = httpContext.TraceIdentifier;
+                ILogger rateLimitLogger =
+                    httpContext.RequestServices.GetRequiredService<ILoggerFactory>()
+                        .CreateLogger("ArchLucid.RateLimiting");
+
+                if (rateLimitLogger.IsEnabled(LogLevel.Warning))
+                {
+                    rateLimitLogger.LogWarning(
+                        "Rate limit rejected request. Policy={RateLimitPolicy} CorrelationId={CorrelationId} Path={Path}",
+                        policyName,
+                        correlationId,
+                        httpContext.Request.Path.Value);
+                }
 
                 ArchLucidRateLimitResponseHeaders.AttachRejectionHeaders(httpContext.Response, context.Lease);
 

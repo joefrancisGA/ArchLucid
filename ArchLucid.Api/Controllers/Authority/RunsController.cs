@@ -125,6 +125,7 @@ public sealed partial class RunsController(
                     response);
 
             Response.Headers.Append("Idempotency-Replayed", "true");
+            LogIdempotencyReplay(request.RequestId, user, correlationId);
 
             return Ok(response);
         }
@@ -159,6 +160,9 @@ public sealed partial class RunsController(
         [FromBody] IReadOnlyList<ArchitectureRequest>? requests,
         CancellationToken cancellationToken)
     {
+        string user = actorContext.GetActor();
+        string correlationId = HttpContext.TraceIdentifier;
+
         if (requests is null || requests.Count == 0)
             return this.BadRequestProblem("Request body must be a non-empty JSON array.", ProblemTypes.ValidationFailed);
 
@@ -227,6 +231,7 @@ public sealed partial class RunsController(
                 // we'll just return an empty Accepted or we'd need to store the response.
                 // For now, we'll just proceed and skip processing, returning a generic success.
                 Response.Headers.Append("Idempotency-Replayed", "true");
+                LogIdempotencyReplay("batch", user, correlationId);
                 return Ok(new BatchCreateRunResponse { Items = new List<BatchCreateRunItemResult>() }); // Simplified replay response
             }
         }
@@ -451,7 +456,10 @@ public sealed partial class RunsController(
             }
 
             if (markIdempotencyReplayHeader)
+            {
                 Response.Headers.Append("Idempotency-Replayed", "true");
+                LogIdempotencyReplay(runId, user, correlationId);
+            }
 
             LogRunCommitted(
                 canonicalRunKey,

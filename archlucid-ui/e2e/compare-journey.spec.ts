@@ -29,7 +29,9 @@ test.describe("operator journey — compare query prefill and review order", () 
 
     await expect(comparePageMainHeading(page)).toBeVisible();
     await expect(
-      page.getByText(/review the structured summary first|The structured summary below is the authoritative/i),
+      page.getByText(
+        /review the structured summary first|The structured summary below is the authoritative|structured summary is the authoritative delta/i,
+      ),
     ).toBeVisible();
     // URL pair triggers auto-compare; buyer-polished shell then folds pickers below results (`collapseBelowResults`).
     await expandCompareRunPickersIfCollapsed(page);

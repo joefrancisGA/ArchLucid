@@ -90,7 +90,9 @@ test.describe("buyer golden path — Claims Intake spine", () => {
     await expectNoGenericErrorBoundary(page);
 
     await page.goto(BUYER_GOLDEN_PATH_HREFS.ask);
-    await expect(page.getByRole("heading", { name: /^Ask about a review$/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /^(Ask about a review|Evidence-backed review questions)$/i }),
+    ).toBeVisible();
     await expectNoGenericErrorBoundary(page);
 
     await page.goto(BUYER_GOLDEN_PATH_HREFS.policyPackDetail);

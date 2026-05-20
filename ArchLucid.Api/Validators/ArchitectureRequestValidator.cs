@@ -86,5 +86,10 @@ public sealed class ArchitectureRequestValidator : AbstractValidator<Architectur
 
         RuleForEach(x => x.InfrastructureDeclarations)
             .SetValidator(new InfrastructureDeclarationRequestValidator());
+
+        RuleFor(x => x)
+            .Must(ArchitectureRequestInlinePayloadBudget.IsWithinBudget)
+            .WithMessage(
+                $"Total inline requirement and document characters must not exceed {ArchitectureRequestInlinePayloadBudget.MaxTotalInlineCharacters}.");
     }
 }

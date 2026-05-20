@@ -118,6 +118,15 @@ public sealed record PilotRunDeltas
     }
 
     /// <summary>
+    ///     Rolled-up projected USD savings from the run's persisted findings snapshot (<see langword="null" /> when unavailable).
+    /// </summary>
+    public decimal? EstimatedUsdSavings
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
     ///     Rows returned from <see cref="ArchLucid.Persistence.Queries.IArtifactQueryService.ListArtifactsByManifestIdAsync" />
     ///     when <see cref="ArchLucid.Contracts.Metadata.ArchitectureRun.GoldenManifestId" /> was present; otherwise
     ///     <see langword="null" /> when not queried or the lookup failed (warnings logged — sponsor surfaces stay honest).

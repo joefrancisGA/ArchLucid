@@ -189,7 +189,7 @@ public sealed class PolicyPacksAppService(
         await auditService.LogAsync(
             new AuditEvent
             {
-                EventType = "PolicyPackDuplicated",
+                EventType = AuditEventTypes.PolicyPackDuplicated,
                 DataJson = JsonSerializer.Serialize(new { sourcePolicyPackId = policyPackId, duplicate.PolicyPackId }),
             },
             ct);

@@ -46,6 +46,8 @@ public sealed class GraphSnapshotProjectionMemoryCache(
 
         using ICacheEntry entry = _memoryCache.CreateEntry(key);
         entry.AbsoluteExpirationRelativeToNow = ttl;
+        entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+        entry.Size = 1;
         entry.Value = created;
 
         return created;

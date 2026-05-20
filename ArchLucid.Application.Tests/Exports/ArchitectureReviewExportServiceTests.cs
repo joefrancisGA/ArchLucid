@@ -69,6 +69,7 @@ public sealed class ArchitectureReviewExportServiceTests
             analysis,
             scopeContextProvider,
             tenantRepository ?? Mock.Of<ITenantRepository>(),
+            tenantReviewBoardCoverLogoStore: null,
             new ArchitectureReviewDocxBuilder(),
             new ArchitectureReviewPdfBuilder());
     }

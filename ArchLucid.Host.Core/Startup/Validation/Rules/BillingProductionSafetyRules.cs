@@ -9,6 +9,24 @@ namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 /// </summary>
 internal static class BillingProductionSafetyRules
 {
+    /// <summary>Stripe <c>sk_test_*</c> must not be configured in Production (charges and webhooks use test mode).</summary>
+    public static void CollectStripeTestKeyDisallowedInProduction(IConfiguration configuration, List<string> errors)
+    {
+        BillingOptions billing =
+            configuration.GetSection(BillingOptions.SectionName).Get<BillingOptions>() ?? new BillingOptions();
+
+        string? secretKey = billing.Stripe.SecretKey?.Trim();
+
+        if (string.IsNullOrWhiteSpace(secretKey))
+            return;
+
+        if (!secretKey.StartsWith("sk_test_", StringComparison.Ordinal))
+            return;
+
+        errors.Add(
+            "Billing:Stripe:SecretKey uses Stripe test prefix sk_test_; configure a live sk_live_ key in Production.");
+    }
+
     /// <summary>Stripe <c>sk_live_*</c> without a webhook signing secret is unsafe in Production (unsigned events).</summary>
     public static void CollectStripeLiveKeyRequiresWebhookSigningSecret(IConfiguration configuration, List<string> errors)
     {

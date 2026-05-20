@@ -31,4 +31,13 @@ public sealed class WebhookPostOptions
         get;
         init;
     }
+
+    /// <summary>
+    ///     Optional outbound <c>X-Correlation-ID</c> for customer log correlation (validated length when set).
+    /// </summary>
+    public string? CorrelationId
+    {
+        get;
+        init;
+    }
 }

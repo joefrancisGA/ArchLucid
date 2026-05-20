@@ -34,6 +34,20 @@ public sealed class AgentResultParserTests
     }
 
     [SkippableFact]
+    public void ParseAndValidate_when_json_exceeds_max_depth_throws_deserialize_failure()
+    {
+        string nested = "{\"runId\":\"run\",\"taskId\":\"task\",\"agentType\":\"Topology\",\"resultId\":\"r\",\"claims\":[],\"evidenceRefs\":[],\"confidence\":0.5,\"createdUtc\":\"2026-01-01T00:00:00Z\",\"nested\":";
+        nested += string.Concat(Enumerable.Repeat("{\"child\":", 40));
+        nested += "null";
+        nested += string.Concat(Enumerable.Repeat('}', 40));
+        nested += "}";
+
+        Action act = () => _sut.ParseAndValidate(nested, "run", "task", AgentType.Topology);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*deserialize*");
+    }
+
+    [SkippableFact]
     public void ParseAndValidate_when_ids_mismatch_throws()
     {
         const string json = """

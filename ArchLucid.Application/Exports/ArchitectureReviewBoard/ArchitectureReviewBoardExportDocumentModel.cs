@@ -103,4 +103,11 @@ public sealed class ArchitectureReviewBoardExportDocumentModel
         get;
         init;
     }
+
+    /// <summary>When true, DOCX/PDF exports must flag the packet as demo data (not a customer outcome).</summary>
+    public bool IsDemoTenant
+    {
+        get;
+        init;
+    }
 }

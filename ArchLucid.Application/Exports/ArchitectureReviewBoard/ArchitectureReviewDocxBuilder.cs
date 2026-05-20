@@ -92,11 +92,26 @@ public sealed class ArchitectureReviewDocxBuilder
         }
         else
         {
-            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, "Architecture review board packet",
-                "DocTitle");
+            string title = model.IsDemoTenant
+                ? "Architecture review board packet (DEMO)"
+                : "Architecture review board packet";
+            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, title, "DocTitle");
             ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
             string subtitle = string.IsNullOrWhiteSpace(model.SystemName) ? model.RunId.Trim() : model.SystemName.Trim();
+
+            if (model.IsDemoTenant)
+                subtitle += " (DEMO)";
+
             ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, subtitle, "DocSubtitle");
+        }
+
+        if (model.IsDemoTenant)
+        {
+            ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
+            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(
+                body,
+                "Demo tenant — replace before publishing to executives.",
+                "Subtle");
         }
 
         ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 2);

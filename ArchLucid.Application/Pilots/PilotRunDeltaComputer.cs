@@ -12,6 +12,8 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
@@ -33,6 +35,7 @@ public sealed class PilotRunDeltaComputer(
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IAuditRepository auditRepository,
     IArtifactQueryService artifactQueryService,
+    IFindingsSnapshotRepository findingsSnapshotRepository,
     IScopeContextProvider scopeContextProvider,
     IRunExplanationSummaryService runExplanationSummaryService,
     IRunAgentOutputPilotEvidenceAggregator pilotEvidenceAggregator,
@@ -44,6 +47,8 @@ public sealed class PilotRunDeltaComputer(
 
     private readonly IArtifactQueryService _artifactQueryService = artifactQueryService ?? throw new ArgumentNullException(nameof(artifactQueryService));
     private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
+    private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
+        findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
     private readonly IFindingEvidenceChainService _evidenceChainService = evidenceChainService ?? throw new ArgumentNullException(nameof(evidenceChainService));
     private readonly ILogger<PilotRunDeltaComputer> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -89,6 +94,7 @@ public sealed class PilotRunDeltaComputer(
         FindingEvidenceChainResponse? chain = topFinding is null ? null : await TryBuildEvidenceChainAsync(runId, topFinding.FindingId, cancellationToken);
         bool isDemo = ContosoRetailDemoIdentifiers.IsDemoRunId(runId) || ContosoRetailDemoIdentifiers.IsDemoRequestId(run.RequestId);
         (int? artifactCount, bool artifactResolved) = await TryCountArtifactsAsync(run.GoldenManifestId, cancellationToken);
+        decimal? estimatedUsdSavings = await TryResolveEstimatedUsdSavingsAsync(run.FindingsSnapshotId, cancellationToken);
         return new PilotRunDeltas
         {
             RunCreatedUtc = run.CreatedUtc,
@@ -105,9 +111,31 @@ public sealed class PilotRunDeltaComputer(
             TopFindingSeverity = topFinding?.Severity.ToString(),
             TopFindingEvidenceChain = chain,
             IsDemoTenant = isDemo,
+            EstimatedUsdSavings = estimatedUsdSavings,
             SynthesizedArtifactDescriptorCount = artifactCount,
             SynthesizedArtifactDescriptorCountResolved = artifactResolved,
         };
+    }
+
+    private async Task<decimal?> TryResolveEstimatedUsdSavingsAsync(Guid? findingsSnapshotId, CancellationToken cancellationToken)
+    {
+        if (findingsSnapshotId is null || findingsSnapshotId == Guid.Empty)
+            return null;
+
+        try
+        {
+            FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(findingsSnapshotId.Value, cancellationToken);
+
+            if (snapshot is null)
+                return null;
+
+            return snapshot.TotalEstimatedSavings;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "Pilot delta: findings snapshot savings unavailable for snapshot {SnapshotId}.", findingsSnapshotId);
+            return null;
+        }
     }
 
     private async Task<(IReadOnlyList<AgentExecutionTrace> traces, int count, bool resolved)> TryListExecutionTracesAsync(string runId,

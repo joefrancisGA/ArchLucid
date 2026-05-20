@@ -74,6 +74,7 @@ public static class ArchLucidConfigurationRules
             ProductionSafetyRules.CollectWebhookSecrets(configuration, errors);
             ProductionSafetyRules.CollectTransactionalEmailAcs(configuration, errors);
             ProductionSafetyRules.CollectBillingStripeSecret(configuration, errors);
+            BillingProductionSafetyRules.CollectStripeTestKeyDisallowedInProduction(configuration, errors);
             BillingProductionSafetyRules.CollectStripeLiveKeyRequiresWebhookSigningSecret(configuration, errors);
             BillingProductionSafetyRules.CollectAzureMarketplaceLandingPageUrl(configuration, errors);
             BillingProductionSafetyRules.CollectAzureMarketplaceGaRequiresOfferId(configuration, errors);
@@ -89,6 +90,7 @@ public static class ArchLucidConfigurationRules
         ProductionSafetyRules.CollectTrialAuthExternalId(configuration, errors);
         ProductionSafetyRules.CollectTransactionalEmailAcs(configuration, errors);
         ProductionSafetyRules.CollectBillingStripeSecret(configuration, errors);
+        BillingProductionSafetyRules.CollectStripeTestKeyDisallowedInProduction(configuration, errors);
         BillingProductionSafetyRules.CollectStripeLiveKeyRequiresWebhookSigningSecret(configuration, errors);
         BillingProductionSafetyRules.CollectAzureMarketplaceLandingPageUrl(configuration, errors);
         BillingProductionSafetyRules.CollectAzureMarketplaceGaRequiresOfferId(configuration, errors);
