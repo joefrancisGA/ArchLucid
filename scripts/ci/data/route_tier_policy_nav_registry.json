@@ -592,6 +592,16 @@
       "nav_operator_href": "/reviews?projectId=default"
     },
     {
+      "controller_file": "Authority/RunsExportController.cs",
+      "class_name": "RunsExportController",
+      "route_template": "v{version:apiVersion}/runs",
+      "normalized_prefix": "/v1/runs",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Authority/TemplatesController.cs",
       "class_name": "TemplatesController",
       "route_template": "v{version:apiVersion}/architecture",
