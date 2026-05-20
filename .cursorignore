@@ -1,4 +1,4 @@
-﻿# .cursorignore — Cursor search and indexing exclusions
+# .cursorignore — Cursor search and indexing exclusions
 #
 # Purpose: prevent Cursor from indexing build outputs, generated artifacts,
 # media files, and IDE state that pollute search results and slow AI context.
@@ -12,6 +12,11 @@
 **/bin/
 **/obj/
 **/TestResults/
+
+# ── Local coverage report trees (multi-GB; not searchable source) ─────────────
+coverage/
+trx-download/
+infra/
 
 # ── .NET coverage scratch folders ────────────────────────────────────────────
 _cov_merge/

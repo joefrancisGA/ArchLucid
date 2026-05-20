@@ -38,7 +38,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:129 -->
+<!-- route-tier-policy-nav-registry-count:130 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -139,6 +139,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Marketing/WhyArchlucidMarketingPackController.cs` | `/v1/marketing` | none | AllowAnonymous |  | marketing_public_api |
 | `Notifications/CustomerNotificationChannelPreferencesController.cs` | `/v1/notifications` | standard | AuthenticatedUserOnly |  |  |
 | `Notifications/ExecDigestUnsubscribeController.cs` | `/v1/notifications/exec-digest` | none | AllowAnonymous |  | signed_token_unsubscribe |
+| `Operator/OperatorSavedViewsController.cs` | `/v1/operator/saved-views` | standard | AuthenticatedUserOnly |  |  |
 | `Pilots/PilotsBoardPackController.cs` | `/v1/pilots` | standard | ExecuteAuthority | /scorecard |  |
 | `Pilots/PilotsController.cs` | `/v1/pilots` | none | ReadAuthority | /reviews?projectId=default |  |
 | `Planning/AskController.cs` | `/v1/ask` | standard | ReadAuthority | /ask |  |

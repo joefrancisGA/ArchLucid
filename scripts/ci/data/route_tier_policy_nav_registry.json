@@ -2,16 +2,6 @@
   "version": 1,
   "entries": [
     {
-      "controller_file": "Admin/AdminAuthDiagnosticsController.cs",
-      "class_name": "AdminAuthDiagnosticsController",
-      "route_template": "v{version:apiVersion}/admin",
-      "normalized_prefix": "/v1/admin",
-      "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
-      "exemption": "auth_debug_api",
-      "nav_operator_href": null
-    },
-    {
       "controller_file": "Admin/AdminApiKeySettingsController.cs",
       "class_name": "AdminApiKeySettingsController",
       "route_template": "v{version:apiVersion}/admin/settings/api-keys",
@@ -20,6 +10,16 @@
       "class_policy": "AdminAuthority",
       "exemption": null,
       "nav_operator_href": "/settings/api-keys"
+    },
+    {
+      "controller_file": "Admin/AdminAuthDiagnosticsController.cs",
+      "class_name": "AdminAuthDiagnosticsController",
+      "route_template": "v{version:apiVersion}/admin",
+      "normalized_prefix": "/v1/admin",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": "auth_debug_api",
+      "nav_operator_href": null
     },
     {
       "controller_file": "Admin/AdminController.cs",
@@ -959,6 +959,16 @@
       "commercial_tier": "none",
       "class_policy": "AllowAnonymous",
       "exemption": "signed_token_unsubscribe",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Operator/OperatorSavedViewsController.cs",
+      "class_name": "OperatorSavedViewsController",
+      "route_template": "v{version:apiVersion}/operator/saved-views",
+      "normalized_prefix": "/v1/operator/saved-views",
+      "commercial_tier": "standard",
+      "class_policy": "AuthenticatedUserOnly",
+      "exemption": null,
       "nav_operator_href": null
     },
     {

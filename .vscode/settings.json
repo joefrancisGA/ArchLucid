@@ -1,0 +1,93 @@
+{
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "terminal.integrated.useWslProfiles": false,
+  "terminal.integrated.automationProfile.windows": {
+    "source": "PowerShell"
+  },
+  "terminal.integrated.env.windows": {
+    "ARCHLUCID_DISABLE_AUTO_COMMIT": "1"
+  },
+
+  "dotnet.defaultSolution": "ArchLucid.Core.slnf",
+
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/.next/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/bin/**": true,
+    "**/obj/**": true,
+    "**/TestResults/**": true,
+    "**/coverage/**": true,
+    "**/trx-download/**": true,
+    "**/artifacts/**": true,
+    "**/infra/**": true,
+    "**/.turbo/**": true,
+    "**/.cache/**": true,
+    "**/playwright-report/**": true,
+    "**/test-results/**": true,
+    "**/.terraform/**": true,
+    "**/_gh_artifacts/**": true,
+    "**/_tmp*/**": true,
+    "**/_cov_*/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/bin": true,
+    "**/obj": true,
+    "**/TestResults": true,
+    "**/coverage": true,
+    "**/trx-download": true,
+    "**/artifacts": true,
+    "**/infra": true,
+    "**/.terraform": true,
+    "**/_gh_artifacts": true
+  },
+  "files.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "infra": true
+  },
+
+  "git.autorefresh": false,
+  "git.decorationsEnabled": false,
+  "git.autoRepositoryDetection": false,
+
+  "editor.minimap.enabled": false,
+  "editor.codeLens": false,
+  "editor.formatOnType": false,
+  "editor.formatOnSave": false,
+  "editor.semanticHighlighting.enabled": false,
+  "editor.inlineSuggest.enabled": false,
+  "editor.suggest.preview": false,
+  "editor.parameterHints.enabled": false,
+  "editor.quickSuggestions": {
+    "other": false,
+    "comments": false,
+    "strings": false
+  },
+
+  "dotnet.backgroundAnalysis.analyzerDiagnosticsScope": "openFiles",
+  "dotnet.backgroundAnalysis.compilerDiagnosticsScope": "openFiles",
+  "dotnet.codeLens.enableReferencesCodeLens": false,
+  "dotnet.codeLens.enableTestsCodeLens": false,
+  "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": false,
+  "dotnet.inlayHints.enableInlayHintsForParameters": false,
+  "csharp.inlayHints.enableInlayHintsForTypes": false,
+  "csharp.inlayHints.enableInlayHintsForImplicitVariableTypes": false,
+  "csharp.inlayHints.enableInlayHintsForImplicitObjectCreation": false,
+  "csharp.inlayHints.enableInlayHintsForLambdaParameterTypes": false,
+
+  "typescript.tsserver.exclude": [
+    "**/node_modules",
+    "**/.next",
+    "**/dist",
+    "**/build",
+    "**/coverage"
+  ]
+}
