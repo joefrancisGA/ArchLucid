@@ -436,8 +436,7 @@ public sealed class RunQueryController(
     {
         if (!string.IsNullOrWhiteSpace(cursor))
         {
-            (_, int normalizedPageSize) = PaginationDefaults.Normalize(page, pageSize);
-            int effectiveTake = RunPagination.ClampTake(take <= RunPagination.DefaultTake ? normalizedPageSize : take);
+            int effectiveTake = RunPagination.ClampTake(take);
 
             (IReadOnlyList<RunSummary> keysetSummaries, bool keysetHasMore, string? nextCursor) =
                 await runDetailQueryService.ListRunSummariesKeysetAsync(cursor, effectiveTake, cancellationToken);
@@ -446,7 +445,9 @@ public sealed class RunQueryController(
         }
 
         int effectiveLimit = RunPagination.ClampLimit(limit ?? pageSize);
-        int effectiveOffset = RunPagination.NormalizeOffset(offset);
+        int effectiveOffset = offset > 0
+            ? RunPagination.NormalizeOffset(offset)
+            : PaginationDefaults.ToSkip(page, effectiveLimit);
 
         (IReadOnlyList<RunSummary> offsetSummaries, bool offsetHasMore) =
             await runDetailQueryService.ListRunSummariesOffsetAsync(effectiveOffset, effectiveLimit, cancellationToken);
