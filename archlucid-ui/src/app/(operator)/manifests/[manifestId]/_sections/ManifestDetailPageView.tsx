@@ -313,7 +313,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
               <Link href={`/ask?runId=${encodeURIComponent(summary.runId)}`}>Ask about this review</Link>
             </Button>
             <Button variant="outline" size="sm" asChild>
-              <Link href="/trust#trust-contact-review">Open Trust Center contact</Link>
+              <Link href="/trust#trust-contact-review">Contact Trust Center</Link>
             </Button>
           </CardContent>
         </Card>

@@ -22,7 +22,7 @@ public sealed class QuickScanService(IAgentCompletionClient completionClient) : 
             QuickScanLlmPrompts.SystemPrompt,
             userPrompt,
             maxTokens: null,
-            cancellationToken);
+            cancellationToken: cancellationToken);
 
         if (string.IsNullOrWhiteSpace(jsonResponse))
             return new QuickScanResult { Summary = "No response from LLM." };

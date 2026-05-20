@@ -488,34 +488,47 @@ export function buildStaticDemoPrimaryFindingInspectPayload(effectiveRunId: stri
   return {
     findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
     typedPayload: {
-      title: "PHI minimization risk",
+      title: "Residual PHI minimization risk (monitored)",
       description:
         "Unstructured intake attachments can bypass minimization controls during peak load — monitor exceptions, reinforce " +
         "ingress classification, and keep privacy-office review on a weekly cadence for this modernization path.",
       whyThisMatters:
         "If PHI volume or retention slips outside the minimization boundary, breach impact, audit scope, and downstream " +
-        "processing obligations expand materially — this finding keeps sponsor sign-off tied to observable controls.",
+        "processing obligations expand materially — this risk observation is recorded with monitoring in the finalized package.",
       severity: "Warning",
       category: "Compliance",
-      status: "Triaged",
+      status: "Accepted with monitoring",
+      impactedArea: "Intake PHI boundary, adapters, OCR exception paths, and downstream adjudication handoff",
     },
     decisionRuleId: "phi.minimization.intake",
     decisionRuleName: "PHI minimization at intake",
     evidence: [
       {
-        artifactId: null,
-        lineRange: null,
+        artifactId: "intake-subgraph-v2",
+        lineRange: "142-168",
         excerpt:
           "Claims intake subgraph retains qualifying attachment metadata used for downstream adjudication references.",
       },
+      {
+        artifactId: "ingress-classifier-spec",
+        lineRange: "28-41",
+        excerpt: "Ingress PHI classification rules applied before adapter handoff with exception logging.",
+      },
+      {
+        artifactId: "ocr-bypass-monitor",
+        lineRange: "12-19",
+        excerpt: "OCR bypass path emits volume alerts when unstructured attachment rate exceeds threshold.",
+      },
     ],
     reasoningSummary:
-      "This warning finding was triggered because PHI minimization at intake. The evidence shows Claims intake subgraph retains qualifying attachment metadata used for downstream adjudication references. The recommendation to Confirm OCR bypass monitoring and alerting for unstructured attachment paths. addresses Compliance.",
+      "This monitored risk was recorded because PHI minimization at intake requires observable controls at ingress, adapter " +
+      "boundaries, and OCR exception paths. Three evidence citations support the governance decision record.",
     recommendedActions: [
-      "Confirm OCR bypass monitoring and alerting for unstructured attachment paths.",
-      "Schedule sponsor + privacy review of exception volume before the next release train.",
+      "Validate ingress PHI classification rules against production traffic patterns.",
+      "Monitor unstructured attachment exception volumes weekly and escalate threshold breaches.",
+      "Confirm OCR bypass handling alerts fire before volume thresholds and review after go-live.",
     ],
-    auditRowId: null,
+    auditRowId: "audit-claims-intake-phi-001",
     runId: d.run.runId,
     manifestVersion: "Healthcare Claims Policy Pack v3.4.1",
     confidenceLevel: "Medium",
@@ -659,6 +672,18 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
       {
 
+        id: "n-rule",
+
+        type: "DecisionRule",
+
+        referenceId: "phi.minimization.intake",
+
+        name: "PHI minimization at intake",
+
+      },
+
+      {
+
         id: "n-graph",
 
         type: "GraphSnapshot",
@@ -666,6 +691,18 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
         referenceId: chain.graphSnapshotId ?? "graph-demo",
 
         name: "Evidence graph created",
+
+      },
+
+      {
+
+        id: "n-evidence",
+
+        type: "EvidenceArtifact",
+
+        referenceId: "intake-subgraph-v2",
+
+        name: "Intake subgraph evidence",
 
       },
 
@@ -685,7 +722,43 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
         id: "n-phi",
         type: "Finding",
         referenceId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
-        name: "PHI minimization risk",
+        name: "PHI minimization risk (monitored)",
+      },
+
+      {
+
+        id: "n-control",
+
+        type: "Control",
+
+        referenceId: "ingress-classifier",
+
+        name: "Ingress PHI classification control",
+
+      },
+
+      {
+
+        id: "n-reviewer",
+
+        type: "Reviewer",
+
+        referenceId: "jordan-lee",
+
+        name: "Jordan Lee — Architecture approver",
+
+      },
+
+      {
+
+        id: "n-monitor",
+
+        type: "Monitor",
+
+        referenceId: "exception-volume-weekly",
+
+        name: "Weekly exception-volume monitoring",
+
       },
 
       {
@@ -702,6 +775,18 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
       {
 
+        id: "n-audit",
+
+        type: "AuditEvent",
+
+        referenceId: "audit-claims-intake-001",
+
+        name: "Governance approval recorded",
+
+      },
+
+      {
+
         id: "n-bundle",
 
         type: "ArtifactBundle",
@@ -712,21 +797,49 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
       },
 
+      {
+
+        id: "n-owner",
+
+        type: "RiskOwner",
+
+        referenceId: "taylor-morgan",
+
+        name: "Taylor Morgan — Residual risk owner",
+
+      },
+
     ],
 
     edges: [
 
       { id: "e-run-ctx", type: "produced", fromNodeId: "n-run", toNodeId: "n-ctx" },
 
-      { id: "e-ctx-policy", type: "next", fromNodeId: "n-ctx", toNodeId: "n-policy" },
+      { id: "e-ctx-policy", type: "evaluated against", fromNodeId: "n-ctx", toNodeId: "n-policy" },
 
-      { id: "e-policy-graph", type: "next", fromNodeId: "n-policy", toNodeId: "n-graph" },
+      { id: "e-policy-rule", type: "defines", fromNodeId: "n-policy", toNodeId: "n-rule" },
 
-      { id: "e-graph-find", type: "next", fromNodeId: "n-graph", toNodeId: "n-find" },
+      { id: "e-rule-graph", type: "applied in", fromNodeId: "n-rule", toNodeId: "n-graph" },
+
+      { id: "e-graph-evidence", type: "cites", fromNodeId: "n-graph", toNodeId: "n-evidence" },
+
+      { id: "e-evidence-find", type: "supports", fromNodeId: "n-evidence", toNodeId: "n-find" },
 
       { id: "e-find-phi", type: "raised", fromNodeId: "n-find", toNodeId: "n-phi" },
 
+      { id: "e-phi-control", type: "mitigated by", fromNodeId: "n-phi", toNodeId: "n-control" },
+
+      { id: "e-control-reviewer", type: "reviewed by", fromNodeId: "n-control", toNodeId: "n-reviewer" },
+
+      { id: "e-phi-monitor", type: "monitored via", fromNodeId: "n-phi", toNodeId: "n-monitor" },
+
+      { id: "e-monitor-owner", type: "owned by", fromNodeId: "n-monitor", toNodeId: "n-owner" },
+
       { id: "e-phi-manifest", type: "recorded in", fromNodeId: "n-phi", toNodeId: "n-manifest" },
+
+      { id: "e-reviewer-audit", type: "recorded in", fromNodeId: "n-reviewer", toNodeId: "n-audit" },
+
+      { id: "e-manifest-audit", type: "finalized in", fromNodeId: "n-manifest", toNodeId: "n-audit" },
 
       { id: "e-manifest-bundle", type: "packaged", fromNodeId: "n-manifest", toNodeId: "n-bundle" },
 
@@ -799,7 +912,7 @@ export function tryStaticDemoPolicyPacksList(options?: PolicyPacksStaticFallback
       workspaceId: "demo-workspace",
       projectId: "default",
       name: policyPackBuyerLabel("healthcare-claims-v3", "3.4.1"),
-      description: "Illustrative pack aligned with the Claims Intake sample manifest.",
+      description: "Healthcare Claims pack aligned with the Claims Intake review package.",
       packType: "BuiltIn",
       status: "Active",
       createdUtc: "2026-01-10T12:00:00.000Z",

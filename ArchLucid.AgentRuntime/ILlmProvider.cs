@@ -29,5 +29,6 @@ public interface ILlmProvider
         string systemPrompt,
         string userPrompt,
         int? maxTokens = null,
+        float? temperature = null,
         CancellationToken cancellationToken = default);
 }

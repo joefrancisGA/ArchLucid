@@ -29,7 +29,7 @@ describe("pipelineEventTypeBuyerMilestoneSubtitle", () => {
       "Captures the ingested context used to justify findings and graph evidence.",
     );
     expect(pipelineEventTypeBuyerMilestoneSubtitle("com.archlucid.manifest.finalized.v1")).toBe(
-      "Seals the reviewed manifest as the authoritative record for decisions, deliverables, and audit.",
+      "Finalizes the reviewed manifest as the authoritative signed record for decisions, deliverables, and audit.",
     );
   });
 

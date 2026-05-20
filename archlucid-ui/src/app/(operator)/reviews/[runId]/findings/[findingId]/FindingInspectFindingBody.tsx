@@ -5,7 +5,7 @@ import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/dem
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
-import { findingInspectPrimaryLabels, findingWhyThisMattersText } from "@/lib/finding-display-from-inspect";
+import { findingInspectPrimaryLabels, findingWhyThisMattersText, phiMinimizationRecommendedActionFallback } from "@/lib/finding-display-from-inspect";
 
 import { FindingInspectAuditSection } from "./FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "./FindingInspectEvidenceSection";
@@ -37,7 +37,7 @@ export function FindingInspectFindingBody({
     ? getShowcaseManifestHref()
     : `/reviews/${encodeURIComponent(runId)}`;
   const reviewContextLabel = isDemoRunIdEligibleForStaticFallback(runId)
-    ? "Review package (manifest & context)"
+    ? "Open review package"
     : "Open review detail (artifacts & graph)";
   const labels = findingInspectPrimaryLabels(payload);
   const whyThisMattersNarrative = findingWhyThisMattersText(payload);
@@ -45,7 +45,9 @@ export function FindingInspectFindingBody({
   const structuredActions: string[] = (payload.recommendedActions ?? []).filter((a) => a.trim().length > 0);
   const recommendedActionParagraph =
     labels.recommendedAction ??
-    "Review evidence and rationale above. Consult the finding category and primary rule to determine the appropriate remediation path.";
+    (isBuyerPolishedOperatorShellEnv()
+      ? phiMinimizationRecommendedActionFallback()
+      : "Review evidence and rationale above. Consult the finding category and primary rule to determine the appropriate remediation path.");
 
   const whyBlock = (
     <FindingInspectWhyMattersSection

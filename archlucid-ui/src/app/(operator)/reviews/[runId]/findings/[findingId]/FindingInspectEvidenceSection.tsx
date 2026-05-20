@@ -56,7 +56,7 @@ export function FindingInspectEvidenceSection({
                 birth fields referenced by the adjudication subgraph.
               </p>
               <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-                Illustrative — production reviews link live graph nodes and artifact references.
+                Linked in the evidence trail and manifest decision record for this review package.
               </p>
               <div className="mt-2">
                 <Link href={reviewContextHref} className="text-xs font-medium text-sky-700 underline dark:text-sky-300">

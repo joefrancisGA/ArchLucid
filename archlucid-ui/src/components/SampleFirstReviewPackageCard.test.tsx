@@ -35,7 +35,7 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-import { BUYER_HOME_SAMPLE_PACKAGE_LEAD, BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
+import { BUYER_HOME_PRIMARY_CTA, BUYER_HOME_SAMPLE_PACKAGE_LEAD, BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE, BUYER_HOME_SECONDARY_CTA } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE } from "@/lib/showcase-static-demo";
 
 import { SampleFirstReviewPackageCard } from "./SampleFirstReviewPackageCard";
@@ -84,11 +84,11 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
 
     expect(screen.getByText(BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByText(BUYER_HOME_SAMPLE_PACKAGE_LEAD)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Start executive review" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: BUYER_HOME_PRIMARY_CTA })).toHaveAttribute(
       "href",
       "/executive/reviews/claims-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "Open full review package" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: BUYER_HOME_SECONDARY_CTA })).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization",
     );
@@ -100,7 +100,7 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
   it("records review-output telemetry when the full package link opens", () => {
     render(<SampleFirstReviewPackageCard />);
 
-    fireEvent.click(screen.getByRole("link", { name: "Open full review package" }));
+    fireEvent.click(screen.getByRole("link", { name: BUYER_HOME_SECONDARY_CTA }));
 
     expect(recordCorePilotRailChecklistStep).toHaveBeenCalledWith(3);
   });

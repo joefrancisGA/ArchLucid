@@ -18,9 +18,9 @@ export function OperatorDemoStaticBanner(): ReactElement {
         role="status"
         data-demo-static="true"
       >
-        <span className="font-medium">Demonstration content</span>
+        <span className="font-medium">Demonstration workspace</span>
         <span className="text-amber-900/95 dark:text-amber-200/95">
-          {" — "}Example review aligned with the showcase; connect a workspace for live data.
+          {" — "}Review package aligned with the Claims Intake workspace; connect a tenant for live data.
         </span>
       </div>
     );
@@ -35,7 +35,7 @@ export function OperatorDemoStaticBanner(): ReactElement {
             role="status"
             data-demo-static="true"
           >
-            <span className="font-medium">Example workspace</span>
+            <span className="font-medium">Demonstration workspace</span>
             <span className="sr-only"> — {BUYER_EXAMPLE_WORKSPACE_TOOLTIP}</span>
           </div>
         </TooltipTrigger>

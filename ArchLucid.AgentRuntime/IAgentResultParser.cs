@@ -21,5 +21,6 @@ public interface IAgentResultParser
         string json,
         string expectedRunId,
         string expectedTaskId,
-        AgentType expectedAgentType);
+        AgentType expectedAgentType,
+        CancellationToken cancellationToken = default);
 }

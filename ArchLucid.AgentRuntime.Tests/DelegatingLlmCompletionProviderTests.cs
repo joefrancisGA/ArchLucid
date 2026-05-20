@@ -52,7 +52,7 @@ public sealed class DelegatingLlmCompletionProviderTests
         FakeAgentCompletionClient inner = new((_, _) => """{"ok":true}""");
         DelegatingLlmCompletionProvider sut = new(inner, "p", "m");
 
-        string json = await sut.CompleteJsonAsync("sys", "user", CancellationToken.None);
+        string json = await sut.CompleteJsonAsync("sys", "user", cancellationToken: CancellationToken.None);
 
         json.Should().Be("""{"ok":true}""");
     }

@@ -56,10 +56,13 @@ public sealed class AgentResultParser : IAgentResultParser
         string json,
         string expectedRunId,
         string expectedTaskId,
-        AgentType expectedAgentType)
+        AgentType expectedAgentType,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(json))
             throw new InvalidOperationException("Agent returned empty JSON.");
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         AgentResult? result;
 

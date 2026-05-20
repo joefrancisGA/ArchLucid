@@ -38,13 +38,15 @@ public sealed class ContentSafetyEnforcingAgentCompletionClient(
         string systemPrompt,
         string userPrompt,
         int? maxTokens = null,
+        float? temperature = null,
         CancellationToken cancellationToken = default)
     {
         ContentSafetyOptions opts = _optionsMonitor.CurrentValue;
 
         if (!opts.EvaluateCompletionPromptAndResponse)
 
-            return await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, cancellationToken).ConfigureAwait(false);
+            return await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken)
+                .ConfigureAwait(false);
 
         ContentSafetyResult systemSafety =
             await _guard.CheckInputAsync(systemPrompt, cancellationToken).ConfigureAwait(false);
@@ -61,7 +63,8 @@ public sealed class ContentSafetyEnforcingAgentCompletionClient(
             ThrowBlocked(userSafety, "user_prompt");
 
         string completionJson =
-            await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, cancellationToken).ConfigureAwait(false);
+            await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken)
+                .ConfigureAwait(false);
 
         ContentSafetyResult outputSafety =
             await _guard.CheckOutputAsync(completionJson, cancellationToken).ConfigureAwait(false);

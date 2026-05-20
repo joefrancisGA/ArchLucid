@@ -34,7 +34,7 @@ public sealed class AgentOutputLlmSemanticJudgeTests
 
         result.Should().BeNull();
         client.Verify(
-            c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -49,7 +49,7 @@ public sealed class AgentOutputLlmSemanticJudgeTests
 
         result.Should().BeNull();
         client.Verify(
-            c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -58,7 +58,7 @@ public sealed class AgentOutputLlmSemanticJudgeTests
     {
         Mock<IAgentCompletionClient> client = new();
         client
-            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("""{"overallQuality":0.82,"rationale":"solid evidence links"}""");
 
         AgentOutputLlmSemanticJudge judge = CreateJudge(client.Object, enabled: true, mode: "Real");
@@ -70,7 +70,7 @@ public sealed class AgentOutputLlmSemanticJudgeTests
         result.OverallQuality.Should().BeApproximately(0.82, 1e-9);
         result.Rationale.Should().Contain("evidence");
         client.Verify(
-            c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
             Times.Once);
     }
 

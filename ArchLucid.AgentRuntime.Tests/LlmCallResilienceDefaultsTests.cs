@@ -259,7 +259,10 @@ public sealed class LlmCallResilienceDefaultsTests
         string retryAfter)
     {
         Mock<PipelineResponseHeaders> headers = new();
-        headers.Setup(h => h.TryGetValue("Retry-After", out retryAfter)).Returns(true);
+        headers
+            .Setup(h => h.TryGetValue(It.IsAny<string>(), out It.Ref<string?>.IsAny))
+            .Callback((string _, out string? value) => value = retryAfter)
+            .Returns(true);
 
         Mock<PipelineResponse> response = new();
         response.SetupGet(r => r.Status).Returns((int)status);

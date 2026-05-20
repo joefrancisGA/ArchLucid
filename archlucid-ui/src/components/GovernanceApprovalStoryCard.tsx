@@ -2,6 +2,16 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  BUYER_GOVERNANCE_CHANGE_MANAGEMENT_FOOTNOTE,
+  BUYER_SHOWCASE_APPROVAL_UTC,
+  BUYER_SHOWCASE_APPROVER_ROLE,
+  BUYER_SHOWCASE_POLICY_PACK_LABEL,
+  BUYER_SHOWCASE_REQUEST_OWNER_ROLE,
+  BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE,
+  BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW,
+  BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
+} from "@/lib/buyer-polish-copy";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 import { cn } from "@/lib/utils";
 
@@ -23,28 +33,29 @@ export function GovernanceApprovalStoryCard(props: {
   const reviewed = (row.reviewedBy?.trim().length ?? 0) > 0;
   const approved = row.status.trim().toLowerCase() === "approved";
   const promoteReady = approved && reviewed;
+  const approvalTimestamp = row.reviewedUtc?.trim() ?? BUYER_SHOWCASE_APPROVAL_UTC;
 
   const steps: { label: string; done: boolean; detail: string }[] = [
     {
       label: "Submitted for review",
       done: submitted,
-      detail: submitted ? `Requested by ${row.requestedBy}` : "Awaiting submission",
+      detail: submitted ? `${BUYER_SHOWCASE_REQUEST_OWNER_ROLE}: ${row.requestedBy}` : "Awaiting submission",
     },
     {
       label: "Architecture review completed",
       done: reviewed,
-      detail: reviewed ? `Reviewer ${row.reviewedBy ?? "—"}` : "Pending reviewer action",
+      detail: reviewed ? `${BUYER_SHOWCASE_APPROVER_ROLE}: ${row.reviewedBy ?? "—"}` : "Pending reviewer action",
     },
     {
       label: "Governance approval recorded",
       done: approved,
-      detail: approved ? "Governance approval recorded" : row.status.trim() || "Not approved yet",
+      detail: approved ? `Recorded ${approvalTimestamp}` : row.status.trim() || "Not approved yet",
     },
     {
-      label: "Approved for governed use",
+      label: "Approved as architecture decision record",
       done: promoteReady,
       detail: promoteReady
-        ? "Governance record ready for diligence, architecture review, and implementation planning."
+        ? "Ready for implementation planning, subject to enterprise change control."
         : "Complete approval before citing this package in the next stage of review and implementation planning.",
     },
   ];
@@ -65,17 +76,23 @@ export function GovernanceApprovalStoryCard(props: {
         <div className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
           <p className="m-0 leading-relaxed">
             <span className="font-semibold text-neutral-900 dark:text-neutral-100">Recorded package:</span> finalized manifest
-            version <span className="font-semibold">{row.manifestVersion}</span> — approved for governed use as the architecture
-            record for this review package. Use the audit trail for timestamps and actor identifiers when you need evidence
-            detail.
+            version <span className="font-semibold">{row.manifestVersion}</span> — approved as architecture decision record for
+            this review package. Policy basis: <span className="font-semibold">{BUYER_SHOWCASE_POLICY_PACK_LABEL}</span>.
           </p>
           {reviewed ? (
             <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-              Reviewer <span className="font-medium text-neutral-800 dark:text-neutral-200">{row.reviewedBy ?? "—"}</span>
+              {BUYER_SHOWCASE_APPROVER_ROLE}{" "}
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">{row.reviewedBy ?? "—"}</span>
               {" · "}
-              Request owner <span className="font-medium text-neutral-800 dark:text-neutral-200">{row.requestedBy ?? "—"}</span>
-              {" — "}
-              weekly exception-volume sampling applies while monitored PHI posture stays open.
+              {BUYER_SHOWCASE_REQUEST_OWNER_ROLE}{" "}
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">{row.requestedBy ?? "—"}</span>
+              {" · "}
+              Residual-risk owner {BUYER_SHOWCASE_RESIDUAL_RISK_OWNER}
+            </p>
+          ) : null}
+          {promoteReady ? (
+            <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+              {BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE} · Next review {BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW}
             </p>
           ) : null}
         </div>
@@ -96,7 +113,7 @@ export function GovernanceApprovalStoryCard(props: {
               <div
                 className={cn(
                   "min-w-0 flex-1 rounded-md border px-3 py-2 text-sm",
-                  s.label === "Approved for governed use" && promoteReady
+                  s.label === "Approved as architecture decision record" && promoteReady
                     ? "border-teal-600 bg-teal-50/95 ring-2 ring-teal-500/30 dark:border-teal-500 dark:bg-teal-950/55"
                     : "border-neutral-200 bg-white/90 dark:border-neutral-700 dark:bg-neutral-950/40",
                 )}
@@ -113,8 +130,7 @@ export function GovernanceApprovalStoryCard(props: {
           ))}
         </ol>
         <p className="m-0 mt-4 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-          ArchLucid records governed architecture evidence for diligence and review. Production execution remains controlled
-          by the customer&apos;s enterprise change-management process.
+          {BUYER_GOVERNANCE_CHANGE_MANAGEMENT_FOOTNOTE}
         </p>
       </CardContent>
       {auditTrailHref.length > 0 ? (

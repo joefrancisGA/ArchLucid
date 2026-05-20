@@ -17,7 +17,7 @@ export function RunsPageBuyerHelpTip(props: RunsPageBuyerHelpTipProps) {
   const label =
     variant === "search"
       ? "How to use Search reviews on this page"
-      : "About this example workspace listing";
+      : "About this demonstration workspace";
 
   const body =
     variant === "search" ? (
@@ -28,8 +28,8 @@ export function RunsPageBuyerHelpTip(props: RunsPageBuyerHelpTipProps) {
       </>
     ) : (
       <>
-        Illustrative sample workspace only — suitable for understanding output shape and navigation, not as
-        customer-specific ROI or compliance evidence.
+        Demonstration workspace — suitable for understanding output shape and navigation, not as customer-specific ROI or
+        compliance evidence.
       </>
     );
 

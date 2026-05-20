@@ -21,6 +21,7 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
+import { BUYER_AUDIT_TIMELINE_INTRO, BUYER_AUDIT_TRAIL_COMPLETE_HEADING, BUYER_VIEWING_AS_DEMO_ROLE } from "@/lib/buyer-polish-copy";
 import { cn } from "@/lib/utils";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { AuditTimelineEventCard } from "./AuditTimelineEventCard";
@@ -70,11 +71,13 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
   return (
     <section aria-labelledby="audit-results-heading">
       <h3 id="audit-results-heading" className="mt-0 mb-2 text-base">
-        {buyerPolishedShell
-          ? auditResultsSectionHeadingBuyerPolished
-          : callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
-            ? auditResultsSectionHeadingReader
-            : auditResultsSectionHeadingOperator}
+        {buyerPolishedShell && events.length > 0
+          ? BUYER_AUDIT_TRAIL_COMPLETE_HEADING
+          : buyerPolishedShell
+            ? auditResultsSectionHeadingBuyerPolished
+            : callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+              ? auditResultsSectionHeadingReader
+              : auditResultsSectionHeadingOperator}
       </h3>
       <p className="text-neutral-600 dark:text-neutral-400 text-[13px] mt-0 mb-2 max-w-2xl">
         {buyerPolishedShell ? (
@@ -91,8 +94,11 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
       </p>
       {buyerPolishedShell && isNextPublicDemoMode() ? (
         <p className="m-0 mb-2 max-w-2xl text-sm text-neutral-600 dark:text-neutral-400">
-          Sample timeline — illustrative dates for walkthrough.
+          {BUYER_AUDIT_TIMELINE_INTRO}
         </p>
+      ) : null}
+      {buyerPolishedShell ? (
+        <p className="m-0 mb-2 max-w-2xl text-xs text-neutral-500 dark:text-neutral-400">{BUYER_VIEWING_AS_DEMO_ROLE}</p>
       ) : null}
       <p role="status" aria-live="polite" aria-atomic="true" className="text-neutral-600 dark:text-neutral-400 text-sm mt-0">
         {formatAuditSummaryHeading(events.length, hasMoreResults)}.
@@ -189,13 +195,18 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                 className="mt-8 rounded-xl border-2 border-teal-600/60 bg-teal-50/55 p-4 shadow-sm dark:border-teal-500/40 dark:bg-teal-950/30"
                 data-testid="audit-buyer-completion-card"
               >
-                <h3 id="audit-buyer-completion-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-                  Review package complete
+                <h3 id="audit-buyer-completion-heading" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                  Audit trail complete — review package finalized
                 </h3>
                 <p className="m-0 mt-2 max-w-prose text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
                   Decision, signed manifest, evidence trail, governance approval, and audit trail are available for this
-                  sample review package.
+                  review package. Download the audit trail or open the manifest bundle for diligence export.
                 </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button type="button" variant="primary" size="sm" onClick={() => void onExportCsv()} disabled={!csvExportUiAllowed || exporting}>
+                    Download audit trail (CSV)
+                  </Button>
+                </div>
               </section>
             ) : null}
             {buyerPolishedShell && events.length > 0 ? (
@@ -255,7 +266,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                   </Button>
                   <div className="border-t border-neutral-200 pt-3 dark:border-neutral-700">
                     <p className="m-0 text-xs font-semibold text-neutral-800 dark:text-neutral-200">
-                      Next steps after sample review
+                      Next steps for enterprise workspace
                     </p>
                     <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
                       When your team is ready for tenant-backed governed reviews, procurement and workspace onboarding use a

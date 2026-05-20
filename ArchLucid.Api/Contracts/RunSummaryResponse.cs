@@ -118,4 +118,18 @@ public class RunSummaryResponse
         get;
         set;
     } = [];
+
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.HasWarnings" />
+    public bool HasWarnings
+    {
+        get;
+        set;
+    }
+
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.HasGovernanceWarnings" />
+    public bool HasGovernanceWarnings
+    {
+        get;
+        set;
+    }
 }

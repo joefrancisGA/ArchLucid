@@ -77,7 +77,7 @@ const PILLARS: readonly WelcomePillar[] = [
     title: "Auditable decision trail",
     body: "Every architecture recommendation ArchLucid produces is designed to ship with a chain of evidence: explainability metadata on findings records what was examined, what rules were applied, what decisions were taken, and why. Provenance and graph surfaces connect evidence to decisions and artifacts for investigation in the operator shell — not an anonymous “AI said so” reply.",
     verify: [
-      { label: "Explainability demo (live run)", href: "/demo/explain" },
+      { label: "Evidence trail demo", href: "/demo/preview" },
       { label: "Knowledge graph overview", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/KNOWLEDGE_GRAPH.md` },
     ],
   },
@@ -168,8 +168,8 @@ export function WelcomeMarketingPage() {
               the demo preview page
             </Link>{" "}
             — full page, no signup.{" "}
-            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/explain">
-              See a live run (explain + provenance)
+            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/preview">
+              See the evidence trail walkthrough
             </Link>
             .
           </p>
@@ -189,8 +189,8 @@ export function WelcomeMarketingPage() {
               Trust center
             </Link>
             {" · "}
-            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/explain">
-              Explainability demo
+            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/preview">
+              Evidence trail demo
             </Link>
           </p>
         </div>

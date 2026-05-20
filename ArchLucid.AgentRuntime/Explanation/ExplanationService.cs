@@ -138,11 +138,15 @@ public sealed class ExplanationService(
         if (logger.IsEnabled(LogLevel.Warning))
 
             logger.LogWarning(
-                "Run explanation LLM JSON failed schema validation; retrying. Errors: {Errors}",
-                string.Join("; ", schemaResult.Errors));
+                "Run explanation LLM JSON failed schema validation; retrying. Errors: {@Errors}",
+                schemaResult.Errors);
 
         // Retry on schema validation failure
-        string? retryJson = await TryCompleteJsonAsync(userPrompt, explanationOptions.Value.MaxTokens, ct);
+        string? retryJson = await TryCompleteJsonAsync(
+            userPrompt,
+            explanationOptions.Value.MaxTokens,
+            ct,
+            temperature: 0.1f);
         
         if (string.IsNullOrWhiteSpace(retryJson))
             return null;
@@ -151,6 +155,8 @@ public sealed class ExplanationService(
         
         if (retrySchemaResult.IsValid)
         {
+            ArchLucidInstrumentation.RecordExplanationRetrySuccess("run");
+
             return retryJson;
         }
 
@@ -188,11 +194,15 @@ public sealed class ExplanationService(
         if (logger.IsEnabled(LogLevel.Warning))
 
             logger.LogWarning(
-                "Comparison explanation LLM JSON failed schema validation; retrying. Errors: {Errors}",
-                string.Join("; ", schemaResult.Errors));
+                "Comparison explanation LLM JSON failed schema validation; retrying. Errors: {@Errors}",
+                schemaResult.Errors);
 
         // Retry on schema validation failure
-        string? retryJson = await TryCompleteJsonAsync(userPrompt, explanationOptions.Value.MaxTokens, ct);
+        string? retryJson = await TryCompleteJsonAsync(
+            userPrompt,
+            explanationOptions.Value.MaxTokens,
+            ct,
+            temperature: 0.1f);
         
         if (string.IsNullOrWhiteSpace(retryJson))
             return null;
@@ -201,6 +211,8 @@ public sealed class ExplanationService(
         
         if (retrySchemaResult.IsValid)
         {
+            ArchLucidInstrumentation.RecordExplanationRetrySuccess("comparison");
+
             return retryJson;
         }
 
@@ -260,11 +272,20 @@ public sealed class ExplanationService(
             string.IsNullOrWhiteSpace(o.PromptContentHash) ? null : o.PromptContentHash.Trim());
     }
 
-    private async Task<string?> TryCompleteJsonAsync(string userPrompt, int? maxTokens, CancellationToken ct)
+    private async Task<string?> TryCompleteJsonAsync(
+        string userPrompt,
+        int? maxTokens,
+        CancellationToken ct,
+        float? temperature = null)
     {
         try
         {
-            string raw = await completionClient.CompleteJsonAsync(ArchitectSystemPrompt, userPrompt, maxTokens, ct);
+            string raw = await completionClient.CompleteJsonAsync(
+                ArchitectSystemPrompt,
+                userPrompt,
+                maxTokens,
+                temperature,
+                ct);
 
             return UnwrapJsonFence(raw);
         }

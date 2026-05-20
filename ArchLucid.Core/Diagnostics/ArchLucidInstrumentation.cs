@@ -344,6 +344,14 @@ public static class ArchLucidInstrumentation
             "archlucid_explanation_schema_validations_total",
             description: "Schema validation of explanation LLM payloads (labels: explanation_type, outcome).");
 
+    /// <summary>
+    ///     Successful explanation LLM completions after a schema-validation retry (label: <c>explanation_type</c>).
+    /// </summary>
+    public static readonly Counter<long> ExplanationRetrySuccessTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_explanation_retry_success_total",
+            description: "Explanation LLM schema retry succeeded (label: explanation_type).");
+
     /// <summary>Per-stage wall time inside the authority pipeline (labels: <c>stage</c>, <c>outcome</c>=success|error).</summary>
     public static readonly Histogram<double> AuthorityPipelineStageDurationMilliseconds =
         AppMeter.CreateHistogram<double>(
@@ -1059,6 +1067,15 @@ public static class ArchLucidInstrumentation
         TagList tags = new() { { "explanation_type", explanationType }, { "outcome", outcome } };
 
         ExplanationSchemaValidationsTotal.Add(1, tags);
+    }
+
+    /// <summary>Increments <see cref="ExplanationRetrySuccessTotal" />.</summary>
+    public static void RecordExplanationRetrySuccess(string explanationType)
+    {
+        string type = string.IsNullOrWhiteSpace(explanationType) ? "unknown" : explanationType.Trim();
+        TagList tags = new() { { "explanation_type", type } };
+
+        ExplanationRetrySuccessTotal.Add(1, tags);
     }
 
     /// <summary>Records <see cref="ExplanationFaithfulnessRatio" /> (clamped 0–1).</summary>

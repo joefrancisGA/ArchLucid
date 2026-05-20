@@ -58,6 +58,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IPostConfigureOptions<StagedCriticAgentOptions>,
             StagedCriticAgentOptionsNormalizePostConfigure>();
         services.Configure<AzureOpenAiOptions>(configuration.GetSection(AzureOpenAiOptions.SectionName));
+        services.AddSingleton<IValidateOptions<AzureOpenAiOptions>, AzureOpenAiOptionsValidator>();
         services.Configure<ArchLucidPersistenceOptions>(
             configuration.GetSection(ArchLucidPersistenceOptions.SectionPath));
         services.Configure<ContentSafetyOptions>(configuration.GetSection(ContentSafetyOptions.SectionPath));

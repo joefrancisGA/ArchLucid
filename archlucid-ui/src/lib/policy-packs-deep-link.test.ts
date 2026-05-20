@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { POLICY_PACK_ID_QUERY_PARAM, policyPacksEditHref } from "@/lib/policy-packs-deep-link";
+import { POLICY_PACK_ID_QUERY_PARAM, POLICY_RULE_ID_QUERY_PARAM, policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
 
 describe("policy-packs-deep-link", () => {
   it("builds href with packId query param", () => {
@@ -12,5 +12,11 @@ describe("policy-packs-deep-link", () => {
 
   it("returns bare route when pack id is empty", () => {
     expect(policyPacksEditHref("   ")).toBe("/policy-packs");
+  });
+
+  it("builds policy packs href with ruleId query param", () => {
+    const href = policyPacksRuleHref("architecture-risk-phi-intake");
+
+    expect(href).toBe(`/policy-packs?${POLICY_RULE_ID_QUERY_PARAM}=architecture-risk-phi-intake`);
   });
 });

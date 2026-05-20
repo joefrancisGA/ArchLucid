@@ -130,4 +130,11 @@ public class RunSummaryDto
         get;
         set;
     }
+
+    /// <summary><see langword="true" /> when the run has open governance alerts requiring operator attention.</summary>
+    public bool HasGovernanceWarnings
+    {
+        get;
+        set;
+    }
 }

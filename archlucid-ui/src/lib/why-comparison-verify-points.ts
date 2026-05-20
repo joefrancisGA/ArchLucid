@@ -31,7 +31,7 @@ export const WHY_COMPARISON_VERIFY_LINK_ROWS: readonly WhyVerifyLink[][] = [
       href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/COMPARISON_REPLAY.md`,
     },
   ],
-  [{ label: "Explainability demo (live review)", href: "/demo/explain" }],
+  [{ label: "Evidence trail demo", href: "/demo/preview" }],
   [
     {
       label: "Governance gate control description",

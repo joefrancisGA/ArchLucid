@@ -159,6 +159,8 @@ public sealed class CachingLlmCompletionClientTests
         public Task<string> CompleteJsonAsync(
             string systemPrompt,
             string userPrompt,
+            int? maxTokens = null,
+            float? temperature = null,
             CancellationToken cancellationToken = default)
         {
             CallCount++;

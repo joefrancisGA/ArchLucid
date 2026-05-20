@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -465,5 +466,57 @@ public sealed class PolicyPacksController(
                 ProblemTypes.ResourceNotFound);
 
         return Ok(result);
+    }
+
+    /// <summary>
+    ///     Validates raw policy pack content JSON against structural rules without persisting a pack.
+    /// </summary>
+    [HttpPost("validate")]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    public IActionResult Validate([FromBody] JsonElement? body)
+    {
+        if (body is null || body.Value.ValueKind is JsonValueKind.Undefined or JsonValueKind.Null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (body.Value.ValueKind is not JsonValueKind.Object)
+            return this.BadRequestProblem("Expected a JSON object.", ProblemTypes.ValidationFailed);
+
+        PolicyPackContentDocument? document;
+
+        try
+        {
+            document = JsonSerializer.Deserialize<PolicyPackContentDocument>(
+                body.Value.GetRawText(),
+                ContractJson.CamelCaseIgnoreNullCompact);
+        }
+        catch (JsonException jsonException)
+        {
+            return this.BadRequestProblem(
+                $"Invalid JSON: {jsonException.Message}",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (document is null)
+            return this.BadRequestProblem("Deserialized document is null.", ProblemTypes.ValidationFailed);
+
+        PolicyPackContentDocumentValidator validator = new();
+        FluentValidation.Results.ValidationResult validationResult = validator.Validate(document);
+
+        if (!validationResult.IsValid)
+        {
+            string[] errors = validationResult.Errors
+                .Select(static error => error.ErrorMessage)
+                .ToArray();
+
+            return this.BadRequestProblem(
+                string.Join("; ", errors),
+                ProblemTypes.ValidationFailed,
+                extensions: new Dictionary<string, object?> { ["errors"] = errors });
+        }
+
+        return Ok();
     }
 }

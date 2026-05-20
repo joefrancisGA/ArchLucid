@@ -8,16 +8,26 @@ import { formatFindings, formatHours, safeCommittedRunWindowCount } from "@/comp
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { listRunsByProjectPaged } from "@/lib/api";
+import {
+  ARCHITECTURE_REVIEW_LABELS,
+  RUNS_DASHBOARD_LABELS,
+} from "@/lib/i18n";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
   OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN,
 } from "@/lib/operator-home-example-request";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
-import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK, BUYER_RUNS_DASHBOARD_RECENT_LABEL, BUYER_RUNS_DASHBOARD_RECENT_SUMMARY } from "@/lib/buyer-polish-copy";
+import {
+  BUYER_AUDIT_TIMELINE_INTRO,
+  BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK,
+  BUYER_RUNS_DASHBOARD_RECENT_LABEL,
+  BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
+} from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
@@ -45,7 +55,7 @@ function runListPrimaryTitle(run: RunSummary): string {
     return d;
   }
 
-  return "Untitled architecture review";
+  return ARCHITECTURE_REVIEW_LABELS.untitled;
 }
 
 function isRunNeedingAttention(run: RunSummary): boolean {
@@ -54,14 +64,44 @@ function isRunNeedingAttention(run: RunSummary): boolean {
 
 function runsDashboardTabLabel(tabId: TabId, buyerPolishedShell: boolean): string {
   if (tabId === "recent") {
-    return "Recent";
+    return buyerPolishedShell ? "Finalized packages" : RUNS_DASHBOARD_LABELS.tabRecent;
   }
 
   if (tabId === "attention") {
-    return buyerPolishedShell ? "Monitored risks" : "Needs attention";
+    return buyerPolishedShell ? "Residual risks under monitoring" : RUNS_DASHBOARD_LABELS.tabNeedsAttention;
   }
 
-  return "Outcomes";
+  return buyerPolishedShell ? "Governance outcomes" : RUNS_DASHBOARD_LABELS.tabOutcomes;
+}
+
+function RunGovernanceWarningIndicator() {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Badge
+            variant="outline"
+            className="shrink-0 border-amber-400 bg-amber-50 text-[0.6rem] font-semibold text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"
+            data-testid="run-governance-warning-indicator"
+          >
+            {RUNS_DASHBOARD_LABELS.governanceWarningTitle}
+          </Badge>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-xs text-sm">
+          <p>{RUNS_DASHBOARD_LABELS.governanceWarningHint}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+function RunListRowBadges({ run, className }: { run: RunSummary; className?: string }) {
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <RunStatusBadge run={run} className={className} />
+      {run.hasGovernanceWarnings === true ? <RunGovernanceWarningIndicator /> : null}
+    </div>
+  );
 }
 
 function runIsShowcaseHomeExampleStory(run: RunSummary): boolean {
@@ -199,7 +239,7 @@ export function RunsDashboardPanel() {
         id="runs-dashboard-heading"
         className="mb-3 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
       >
-        Architecture reviews
+        {RUNS_DASHBOARD_LABELS.sectionHeading}
       </h3>
       <Card
         className="border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
@@ -229,28 +269,28 @@ export function RunsDashboardPanel() {
             ))}
           </div>
           <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-            {tab === "recent" && buyerPolishedShell ? BUYER_RUNS_DASHBOARD_RECENT_LABEL : tab === "recent" ? "Latest in workspace" : null}
+            {tab === "recent" && buyerPolishedShell ? BUYER_RUNS_DASHBOARD_RECENT_LABEL : tab === "recent" ? RUNS_DASHBOARD_LABELS.latestInWorkspace : null}
             {tab === "attention"
               ? buyerPolishedShell
-                ? "Packaging and pre-final posture"
-                : "Reviews needing attention"
+                ? RUNS_DASHBOARD_LABELS.packagingPreFinalPosture
+                : RUNS_DASHBOARD_LABELS.reviewsNeedingAttention
               : null}
-            {tab === "outcomes" ? "Review outcomes" : null}
+            {tab === "outcomes" ? RUNS_DASHBOARD_LABELS.reviewOutcomes : null}
           </CardTitle>
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
             {tab === "recent"
               ? buyerPolishedShell
                 ? BUYER_RUNS_DASHBOARD_RECENT_SUMMARY
-                : "Showing the latest reviews for this workspace."
+                : RUNS_DASHBOARD_LABELS.recentSummary
               : null}
             {tab === "attention"
               ? buyerPolishedShell
-                ? "Architecture reviews still moving toward a finalized signed manifest before sponsor sign-off."
-                : "Reviews with findings awaiting a finalized manifest."
+                ? RUNS_DASHBOARD_LABELS.attentionSummaryBuyer
+                : RUNS_DASHBOARD_LABELS.attentionSummary
               : null}
             {tab === "outcomes"
               ? buyerPolishedShell && showcaseDemoRun !== undefined
-                ? "Representative posture for this sample workspace."
+                ? "Representative governance posture for this workspace."
                 : "Manifests finalized, findings surfaced, and average time to finalization."
               : null}
           </p>
@@ -259,7 +299,7 @@ export function RunsDashboardPanel() {
           {tab === "recent" ? (
             <div data-testid="runs-dashboard-tab-recent">
               {phase === "loading" ? (
-                <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Loading reviews…</p>
+                <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">{RUNS_DASHBOARD_LABELS.loadingReviews}</p>
               ) : null}
 
               {runListError ? (
@@ -417,7 +457,7 @@ export function RunsDashboardPanel() {
                         >
                           {runListPrimaryTitle(run)}
                         </Link>
-                        <RunStatusBadge run={run} className="text-[0.6rem]" />
+                        <RunListRowBadges run={run} className="text-[0.6rem]" />
                       </div>
                     </li>
                   ))}
@@ -429,7 +469,7 @@ export function RunsDashboardPanel() {
           {tab === "attention" ? (
             <div data-testid="runs-dashboard-tab-attention">
               {phase === "loading" ? (
-                <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Loading reviews…</p>
+                <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">{RUNS_DASHBOARD_LABELS.loadingReviews}</p>
               ) : null}
 
               {runListError ? (
@@ -446,14 +486,14 @@ export function RunsDashboardPanel() {
                 <>
                   {attentionRuns.length === 0 ? (
                     <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-                      No reviews currently need attention.
+                      {RUNS_DASHBOARD_LABELS.noReviewsNeedAttention}
                     </p>
                   ) : (
                     <>
                       <p className="m-0 text-xs font-medium text-neutral-700 dark:text-neutral-300">
                         {attentionRuns.length === 1
-                          ? "1 review needs attention."
-                          : `${attentionRuns.length} reviews need attention.`}
+                          ? RUNS_DASHBOARD_LABELS.oneReviewNeedsAttention
+                          : RUNS_DASHBOARD_LABELS.reviewsNeedAttentionCount(attentionRuns.length)}
                       </p>
                       <ul className="m-0 list-none space-y-2 p-0" data-testid="command-center-runs-card">
                         {attentionPreview.map((run) => (
@@ -464,7 +504,7 @@ export function RunsDashboardPanel() {
                             <span className="min-w-0 flex-1 text-xs font-medium text-neutral-900 dark:text-neutral-100">
                               {runListPrimaryTitle(run)}
                             </span>
-                            <RunStatusBadge run={run} className="text-[0.6rem]" />
+                            <RunListRowBadges run={run} className="text-[0.6rem]" />
                           </li>
                         ))}
                       </ul>
@@ -570,7 +610,7 @@ export function RunsDashboardPanel() {
               href={`/reviews?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}
               className="inline-block text-xs font-semibold text-teal-800 underline dark:text-teal-300"
             >
-              Open full reviews list
+              {RUNS_DASHBOARD_LABELS.openFullReviewsList}
             </Link>
           ) : null}
         </CardContent>

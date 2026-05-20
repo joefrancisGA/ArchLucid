@@ -7,6 +7,8 @@ public sealed class StubAgentCompletionClient(string json) : IAgentCompletionCli
     public Task<string> CompleteJsonAsync(
         string systemPrompt,
         string userPrompt,
+        int? maxTokens = null,
+        float? temperature = null,
         CancellationToken cancellationToken = default)
     {
         return Task.FromResult(json);

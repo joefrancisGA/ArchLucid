@@ -62,10 +62,11 @@ public sealed class CachingAgentCompletionClient : IAgentCompletionClient
         string systemPrompt,
         string userPrompt,
         int? maxTokens = null,
+        float? temperature = null,
         CancellationToken cancellationToken = default)
     {
         if (!_enabled)
-            return await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, cancellationToken);
+            return await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken);
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
@@ -89,7 +90,7 @@ public sealed class CachingAgentCompletionClient : IAgentCompletionClient
             return cached;
         }
 
-        string result = await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, cancellationToken);
+        string result = await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken);
 
         await _store.SetAsync(key, result, _ttl, cancellationToken);
 

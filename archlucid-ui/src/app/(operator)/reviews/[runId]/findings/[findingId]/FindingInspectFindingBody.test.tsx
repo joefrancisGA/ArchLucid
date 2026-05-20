@@ -43,7 +43,7 @@ describe("FindingInspectFindingBody", () => {
     expect(screen.getByRole("heading", { name: "Why Rule A matters" })).toBeTruthy();
     expect(screen.queryByText("View AI Reasoning")).toBeNull();
     expect(screen.queryByText("AI Audit Inspection")).toBeNull();
-    expect(screen.getByRole("heading", { name: "Audit" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Audit record" })).toBeTruthy();
 
     const headings = screen.getAllByRole("heading").map((h) => h.textContent ?? "");
     const evIdx = headings.indexOf("Evidence citations");
@@ -64,8 +64,8 @@ describe("FindingInspectFindingBody", () => {
       />,
     );
 
-    expect(screen.getByText("View AI Reasoning")).toBeTruthy();
-    expect(screen.getByText("AI Audit Inspection")).toBeTruthy();
+    expect(screen.getByText("Review rationale (technical)")).toBeTruthy();
+    expect(screen.getByText("Structured evaluation record")).toBeTruthy();
     expect(screen.getByText("step one then step two")).toBeTruthy();
   });
 });

@@ -8,7 +8,7 @@
     "ARCHLUCID_DISABLE_AUTO_COMMIT": "1"
   },
 
-  "dotnet.defaultSolution": "ArchLucid.Core.slnf",
+  "dotnet.defaultSolution": "ArchLucid.Active.slnf",
 
   "files.watcherExclude": {
     "**/.git/objects/**": true,

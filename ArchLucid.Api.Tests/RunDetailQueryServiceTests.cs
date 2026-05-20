@@ -335,7 +335,7 @@ public sealed class RunDetailQueryServiceTests
                         CreatedUtc = new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc)
                     }
                 ],
-                hasMore: true));
+                HasMore: true));
 
         (IReadOnlyList<RunSummary> items, bool hasMore) = await _sut.ListRunSummariesOffsetAsync(10, 25);
 

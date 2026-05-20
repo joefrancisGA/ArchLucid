@@ -193,6 +193,30 @@ describe("RunsDashboardPanel", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows governance warning indicator when run hasGovernanceWarnings is true", async () => {
+    const run: RunSummary = {
+      runId: "00000000-0000-0000-0000-000000000099",
+      projectId: "default",
+      description: "Governance follow-up",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+    };
+    listRuns.mockResolvedValue({
+      items: [run],
+      totalCount: 1,
+      page: 1,
+      pageSize: 5,
+      hasMore: false,
+    });
+    stubFetchForDashboard();
+
+    render(<RunsDashboardPanel />);
+
+    expect(await screen.findByTestId("run-governance-warning-indicator")).toBeInTheDocument();
+  });
+
   it("buyer-polished recent tab features sample review, omits showcase banner, and hides full list when only sample run", async () => {
     runsDashBuyerPolishedForced.on = true;
 

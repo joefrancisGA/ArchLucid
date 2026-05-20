@@ -1,0 +1,25 @@
+{
+  "solution": {
+    "path": "ArchLucid.sln",
+    "projects": [
+      "ArchLucid.AgentRuntime/ArchLucid.AgentRuntime.csproj",
+      "ArchLucid.AgentSimulator/ArchLucid.AgentSimulator.csproj",
+      "ArchLucid.Analyzers/ArchLucid.Analyzers.csproj",
+      "ArchLucid.Api/ArchLucid.Api.csproj",
+      "ArchLucid.Application/ArchLucid.Application.csproj",
+      "ArchLucid.ArtifactSynthesis/ArchLucid.ArtifactSynthesis.csproj",
+      "ArchLucid.ContextIngestion/ArchLucid.ContextIngestion.csproj",
+      "ArchLucid.Contracts/ArchLucid.Contracts.csproj",
+      "ArchLucid.Core/ArchLucid.Core.csproj",
+      "ArchLucid.Decisioning/ArchLucid.Decisioning.csproj",
+      "ArchLucid.Host.Composition/ArchLucid.Host.Composition.csproj",
+      "ArchLucid.Host.Core/ArchLucid.Host.Core.csproj",
+      "ArchLucid.KnowledgeGraph/ArchLucid.KnowledgeGraph.csproj",
+      "ArchLucid.Notifications/ArchLucid.Notifications.csproj",
+      "ArchLucid.Persistence/ArchLucid.Persistence.csproj",
+      "ArchLucid.Provenance/ArchLucid.Provenance.csproj",
+      "ArchLucid.Retrieval/ArchLucid.Retrieval.csproj",
+      "ArchLucid.TestSupport/ArchLucid.TestSupport.csproj"
+    ]
+  }
+}

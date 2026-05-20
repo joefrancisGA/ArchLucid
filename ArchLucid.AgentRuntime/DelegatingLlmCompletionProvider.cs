@@ -33,8 +33,9 @@ public sealed class DelegatingLlmCompletionProvider(
         string systemPrompt,
         string userPrompt,
         int? maxTokens = null,
+        float? temperature = null,
         CancellationToken cancellationToken = default)
     {
-        return _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, cancellationToken);
+        return _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken);
     }
 }

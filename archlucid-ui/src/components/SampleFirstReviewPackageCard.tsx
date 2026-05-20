@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
-import { BUYER_HOME_SAMPLE_PACKAGE_LEAD, BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
+import { BUYER_HOME_PRIMARY_CTA, BUYER_HOME_SAMPLE_PACKAGE_LEAD, BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE, BUYER_HOME_SECONDARY_CTA } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
@@ -53,8 +53,7 @@ export function SampleFirstReviewPackageCard() {
                     </button>
                   </TooltipTrigger>
                   <TooltipContent side="top" className="max-w-xs text-left">
-                    Illustrative sample review — use it to understand output shape and workflow, not as customer ROI
-                    evidence.
+                    Demonstration workspace — use this package to understand output shape and governance workflow.
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -112,7 +111,7 @@ export function SampleFirstReviewPackageCard() {
                 <>
                   <Button asChild variant="primary" size="lg" className="h-11 min-h-[44px] px-7 text-base shadow-sm">
                     <Link href={getShowcaseExecutiveHref()} onClick={recordSampleOpened}>
-                      Start executive review
+                      {BUYER_HOME_PRIMARY_CTA}
                     </Link>
                   </Button>
                 </>
@@ -137,7 +136,7 @@ export function SampleFirstReviewPackageCard() {
                   onClick={recordSampleOpened}
                   className="inline-flex min-h-[24px] items-center font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
                 >
-                  Open full review package
+                  {BUYER_HOME_SECONDARY_CTA}
                 </Link>
               </div>
             ) : null}

@@ -24,7 +24,7 @@ public sealed class LlmAgentSchemaCompletionTests
         Mock<IAgentCompletionClient> completion = new();
 
         completion
-            .SetupSequence(c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .SetupSequence(c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("{ not valid json")
             .ReturnsAsync(ValidTopologyJson);
 
@@ -48,13 +48,15 @@ public sealed class LlmAgentSchemaCompletionTests
         parsed.ResultId.Should().Be("res1");
 
         completion.Verify(
-            c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
             Times.Exactly(2));
 
         completion.Verify(
             c => c.CompleteJsonAsync(
                 "sys",
                 It.Is<string>(u => u.Contains("Remediation:", StringComparison.Ordinal)),
+                It.IsAny<int?>(),
+                It.IsAny<float?>(),
                 It.IsAny<CancellationToken>()),
             Times.AtLeastOnce());
     }
@@ -70,7 +72,7 @@ public sealed class LlmAgentSchemaCompletionTests
         Mock<IAgentCompletionClient> completion = new();
 
         completion
-            .SetupSequence(c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .SetupSequence(c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(wrongRunJson)
             .ReturnsAsync(ValidTopologyJson);
 
@@ -94,7 +96,7 @@ public sealed class LlmAgentSchemaCompletionTests
         parsed.RunId.Should().Be("run1");
 
         completion.Verify(
-            c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
             Times.Exactly(2));
     }
 
@@ -104,7 +106,7 @@ public sealed class LlmAgentSchemaCompletionTests
         Mock<IAgentCompletionClient> completion = new();
 
         completion
-            .Setup(c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("{");
 
         AgentResultParser parser = new();
@@ -126,7 +128,7 @@ public sealed class LlmAgentSchemaCompletionTests
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*deserialize*");
 
         completion.Verify(
-            c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
             Times.Once);
     }
 }

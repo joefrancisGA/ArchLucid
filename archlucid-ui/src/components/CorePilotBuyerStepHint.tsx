@@ -33,7 +33,7 @@ function buyerHintBody(
   if (state === "no-run") {
     return (
       <>
-        Start a real-input review when you are ready to move beyond the frozen sample.{" "}
+        Start a tenant-backed review when you are ready to move beyond the demonstration package.{" "}
         <Link
           href="/reviews/new"
           className="font-medium text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-600"
@@ -50,7 +50,7 @@ function buyerHintBody(
 
     return (
       <>
-        Finish automation and seal the manifest from review detail.{" "}
+        Finish automation and finalize the review package from review detail.{" "}
         <Link
           href={href}
           className="font-medium text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-600"

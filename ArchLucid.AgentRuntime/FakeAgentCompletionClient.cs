@@ -20,6 +20,7 @@ public sealed class FakeAgentCompletionClient(
         string systemPrompt,
         string userPrompt,
         int? maxTokens = null,
+        float? temperature = null,
         CancellationToken cancellationToken = default)
     {
         string json = resolver(systemPrompt, userPrompt);

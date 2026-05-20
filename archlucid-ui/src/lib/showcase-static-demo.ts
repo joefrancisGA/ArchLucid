@@ -78,7 +78,7 @@ export const SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES: readonly string[] = SHOWCAS
 );
 
 /** Buyer “at a glance” counts aligned with the demo graph and audit sample. */
-export const SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT = 8;
+export const SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT = 15;
 
 export const SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT = 7;
 

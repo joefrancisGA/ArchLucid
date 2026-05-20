@@ -22,7 +22,7 @@ public sealed class CircuitBreakingAgentCompletionClientLoggingTests
         CollectingLogger logger = new();
         Mock<IAgentCompletionClient> inner = new();
         inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
-        inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("429"));
 
         CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
@@ -32,7 +32,7 @@ public sealed class CircuitBreakingAgentCompletionClientLoggingTests
         CircuitBreakingAgentCompletionClient sut = new(inner.Object, gate, ResiliencePipeline.Empty, logger);
 
         await Assert.ThrowsAsync<HttpRequestException>(() =>
-            sut.CompleteJsonAsync("s", "u", CancellationToken.None));
+            sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None));
 
         logger.Entries.Count(e =>
                 e.Level == LogLevel.Warning &&
@@ -50,7 +50,7 @@ public sealed class CircuitBreakingAgentCompletionClientLoggingTests
         CollectingLogger logger = new();
         Mock<IAgentCompletionClient> inner = new();
         inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
-        inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("429"));
 
         CircuitBreakerOptions options = new() { FailureThreshold = 5, DurationOfBreakSeconds = 60 };
@@ -59,7 +59,7 @@ public sealed class CircuitBreakingAgentCompletionClientLoggingTests
         CircuitBreakingAgentCompletionClient sut = new(inner.Object, gate, ResiliencePipeline.Empty, logger);
 
         await Assert.ThrowsAsync<HttpRequestException>(() =>
-            sut.CompleteJsonAsync("s", "u", CancellationToken.None));
+            sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None));
 
         logger.Entries.Should().NotContain(e =>
             e.Message.Contains("LLM Circuit Breaker opened due to consecutive failures", StringComparison.Ordinal));
@@ -72,7 +72,7 @@ public sealed class CircuitBreakingAgentCompletionClientLoggingTests
         int attempts = 0;
         Mock<IAgentCompletionClient> inner = new();
         inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
-        inner.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+        inner.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .Returns(() =>
             {
                 int n = Interlocked.Increment(ref attempts);
@@ -89,11 +89,11 @@ public sealed class CircuitBreakingAgentCompletionClientLoggingTests
         CircuitBreakingAgentCompletionClient sut = new(inner.Object, gate, ResiliencePipeline.Empty, logger);
 
         await Assert.ThrowsAsync<HttpRequestException>(() =>
-            sut.CompleteJsonAsync("s", "u", CancellationToken.None));
+            sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None));
 
         clock.Advance(TimeSpan.FromSeconds(61));
 
-        string ok = await sut.CompleteJsonAsync("s", "u", CancellationToken.None);
+        string ok = await sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None);
 
         ok.Should().Be("{}");
         logger.Entries.Should().ContainSingle(e =>

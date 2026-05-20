@@ -193,4 +193,18 @@ public sealed class RunRecord
         get;
         set;
     }
+
+    /// <summary>Populated on read queries when findings snapshots report warnings for this run.</summary>
+    public bool HasWarnings
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Populated on read queries when open governance alerts exist for this run.</summary>
+    public bool HasGovernanceWarnings
+    {
+        get;
+        set;
+    }
 }

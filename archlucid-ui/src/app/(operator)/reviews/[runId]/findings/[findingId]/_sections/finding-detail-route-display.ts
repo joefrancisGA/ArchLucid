@@ -4,7 +4,9 @@ import {
   isPhiMinimizationSampleFinding,
   phiMinimizationApprovalNarrative,
   phiMinimizationControlNarrative,
+  phiMinimizationRecommendedActionFallback,
 } from "@/lib/finding-display-from-inspect";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): string {
@@ -13,13 +15,22 @@ export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): s
   }
 
   const evidenceCount = payload.evidence.length;
+  const ruleLabel = payload.decisionRuleName ?? payload.decisionRuleId;
+  const citationLabel = evidenceCount === 1 ? "citation" : "citations";
 
   if (evidenceCount === 0) {
+    if (isPhiMinimizationSampleFinding(payload) || isPhiMinimizationFindingId(payload.findingId)) {
+      if (isBuyerPolishedOperatorShellEnv()) {
+        if (ruleLabel !== null && ruleLabel.trim().length > 0) {
+          return `Evidence linked to ${ruleLabel} — see evidence trail and manifest decision record.`;
+        }
+
+        return "Evidence linked in the finalized review package — see evidence trail and manifest decision record.";
+      }
+    }
+
     return "No explicit evidence citations are attached yet; reviewers should treat this as requiring evidence completion before closure.";
   }
-
-  const citationLabel = evidenceCount === 1 ? "citation" : "citations";
-  const ruleLabel = payload.decisionRuleName ?? payload.decisionRuleId;
 
   if (ruleLabel !== null && ruleLabel.trim().length > 0) {
     return `${evidenceCount} evidence ${citationLabel} tied to ${ruleLabel}.`;
@@ -53,16 +64,20 @@ export function fallbackStatus(payload: FindingInspectPayload | null, findingId:
     const status = findingInspectPrimaryLabels(payload).statusLabel;
 
     if (status !== null && status.trim().length > 0) {
+      if (isBuyerPolishedOperatorShellEnv() && status.toLowerCase() === "triaged") {
+        return "Accepted with monitoring";
+      }
+
       return status;
     }
 
     if (isPhiMinimizationSampleFinding(payload)) {
-      return "Mitigated and monitored";
+      return "Accepted with monitoring";
     }
   }
 
   if (isPhiMinimizationFindingId(findingId)) {
-    return "Mitigated and monitored";
+    return "Accepted with monitoring";
   }
 
   return "Requires review";
@@ -105,6 +120,10 @@ export function mitigationPosture(payload: FindingInspectPayload | null, finding
     return phiMinimizationControlNarrative();
   }
 
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return phiMinimizationRecommendedActionFallback();
+  }
+
   return "Review the recommended action and cited evidence before closing or escalating this finding.";
 }
 
@@ -117,5 +136,18 @@ export function validationRequirement(payload: FindingInspectPayload | null, fin
     return phiMinimizationApprovalNarrative();
   }
 
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return "Recorded in the governance decision record with evidence trail linkage.";
+  }
+
   return "Validate that the related manifest decision, evidence citations, and remediation action are complete before approval.";
+}
+
+/** Buyer-polished fallback when inspect payload has not loaded yet. */
+export function findingDetailLeadFallback(findingId: string): string {
+  if (isPhiMinimizationFindingId(findingId) && isBuyerPolishedOperatorShellEnv()) {
+    return "Residual risk record for the finalized Claims Intake review package.";
+  }
+
+  return "Review this finding independently from the parent package before approval.";
 }

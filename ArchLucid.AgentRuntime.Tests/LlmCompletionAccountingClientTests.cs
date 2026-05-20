@@ -43,17 +43,17 @@ public sealed class LlmCompletionAccountingClientTests
 
         Mock<IAgentCompletionClient> inner = new();
         inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("stub", "stub"));
-        inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("{}");
 
         LlmCompletionAccountingClient sut = CreateClient(inner.Object, tenant, quotaTracker, clientQuotaOptions: quotaOpts);
 
         Func<Task> act = async () =>
-            await sut.CompleteJsonAsync("sys", "user", CancellationToken.None);
+            await sut.CompleteJsonAsync("sys", "user", cancellationToken: CancellationToken.None);
 
         await act.Should().ThrowAsync<LlmTokenQuotaExceededException>();
         inner.Verify(
-            c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -62,7 +62,7 @@ public sealed class LlmCompletionAccountingClientTests
     {
         Mock<IAgentCompletionClient> inner = new();
         inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("stub", "stub"));
-        inner.Setup(c => c.CompleteJsonAsync("sys-in", "user-in", It.IsAny<CancellationToken>())).ReturnsAsync("{}");
+        inner.Setup(c => c.CompleteJsonAsync("sys-in", "user-in", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>())).ReturnsAsync("{}");
 
         LlmPromptRedactionOptions redactionOpts = new() { Enabled = false };
         Mock<IPromptRedactor> redactor = new();
@@ -72,7 +72,7 @@ public sealed class LlmCompletionAccountingClientTests
             redactionOptions: redactionOpts,
             promptRedactor: redactor.Object);
 
-        string result = await sut.CompleteJsonAsync("sys-in", "user-in", CancellationToken.None);
+        string result = await sut.CompleteJsonAsync("sys-in", "user-in", cancellationToken: CancellationToken.None);
 
         result.Should().Be("{}");
         redactor.Verify(r => r.Redact(It.IsAny<string>()), Times.Never);
@@ -83,7 +83,7 @@ public sealed class LlmCompletionAccountingClientTests
     {
         Mock<IAgentCompletionClient> inner = new();
         inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("stub", "stub"));
-        inner.Setup(c => c.CompleteJsonAsync("SYS-R", "USR-R", It.IsAny<CancellationToken>())).ReturnsAsync("{}");
+        inner.Setup(c => c.CompleteJsonAsync("SYS-R", "USR-R", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>())).ReturnsAsync("{}");
 
         IPromptRedactor redactor = new RecordingPromptRedactor(("sys-in", "SYS-R"), ("user-in", "USR-R"));
         LlmPromptRedactionOptions redactionOpts = new() { Enabled = true };
@@ -93,9 +93,9 @@ public sealed class LlmCompletionAccountingClientTests
             redactionOptions: redactionOpts,
             promptRedactor: redactor);
 
-        await sut.CompleteJsonAsync("sys-in", "user-in", CancellationToken.None);
+        await sut.CompleteJsonAsync("sys-in", "user-in", cancellationToken: CancellationToken.None);
 
-        inner.Verify(c => c.CompleteJsonAsync("SYS-R", "USR-R", It.IsAny<CancellationToken>()), Times.Once);
+        inner.Verify(c => c.CompleteJsonAsync("SYS-R", "USR-R", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -105,7 +105,7 @@ public sealed class LlmCompletionAccountingClientTests
         Mock<IAgentCompletionClient> inner = new();
         inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("stub", "stub"));
         inner
-            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .Returns(() =>
             {
                 AzureOpenAiCompletionClient.SeedLastCompletionTokenUsageForTests(7, 13);
@@ -120,7 +120,7 @@ public sealed class LlmCompletionAccountingClientTests
 
         LlmCompletionAccountingClient sut = CreateClient(inner.Object, tenant, usageMetering: metering.Object);
 
-        await sut.CompleteJsonAsync("s", "u", CancellationToken.None);
+        await sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None);
 
         metering.Verify(
             m => m.RecordAsync(
@@ -141,13 +141,13 @@ public sealed class LlmCompletionAccountingClientTests
         Guid tenant = Guid.NewGuid();
         Mock<IAgentCompletionClient> inner = new();
         inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("stub", "stub"));
-        inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("{}");
 
         Mock<IUsageMeteringService> metering = new();
         LlmCompletionAccountingClient sut = CreateClient(inner.Object, tenant, usageMetering: metering.Object);
 
-        await sut.CompleteJsonAsync("s", "u", CancellationToken.None);
+        await sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None);
 
         metering.Verify(
             m => m.RecordAsync(It.IsAny<UsageEvent>(), It.IsAny<CancellationToken>()),
@@ -160,7 +160,7 @@ public sealed class LlmCompletionAccountingClientTests
         Mock<IAgentCompletionClient> inner = new();
         inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("stub", "stub"));
         inner
-            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .Returns(() =>
             {
                 AzureOpenAiCompletionClient.SeedLastCompletionTokenUsageForTests(5, 5);
@@ -171,7 +171,7 @@ public sealed class LlmCompletionAccountingClientTests
         Mock<IUsageMeteringService> metering = new();
         LlmCompletionAccountingClient sut = CreateClient(inner.Object, Guid.Empty, usageMetering: metering.Object);
 
-        await sut.CompleteJsonAsync("s", "u", CancellationToken.None);
+        await sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None);
 
         metering.Verify(
             m => m.RecordAsync(It.IsAny<UsageEvent>(), It.IsAny<CancellationToken>()),

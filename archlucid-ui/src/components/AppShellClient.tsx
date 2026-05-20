@@ -34,6 +34,7 @@ import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunConte
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { SimulatorExecutionModeBanner } from "@/components/SimulatorExecutionModeBanner";
+import { ServiceBusHealthBanner } from "@/components/governance/ServiceBusHealthBanner";
 import { TrialBanner } from "@/components/TrialBanner";
 import { TrialExpiryBanner } from "@/components/TrialExpiryBanner";
 import { TrialLimitModalHost } from "@/components/TrialLimitModal";
@@ -170,6 +171,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               </div>
               <div data-testid="app-shell-main" className="mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 py-4 lg:px-6 lg:py-6">
                 <SimulatorExecutionModeBanner />
+                <ServiceBusHealthBanner />
                 <TrialExpiryBanner />
                 <KeyboardShortcutProvider
                   onHelpRequested={() => {
@@ -269,6 +271,7 @@ function AppShellInner({ children }: AppShellClientProps) {
             </nav>
             <div data-testid="app-shell-main" className="min-w-0 flex-1 px-4 py-4 print:px-0 lg:px-6 lg:py-6">
               <SimulatorExecutionModeBanner />
+              <ServiceBusHealthBanner />
               <TrialExpiryBanner />
               <TrialBanner />
               <KeyboardShortcutProvider

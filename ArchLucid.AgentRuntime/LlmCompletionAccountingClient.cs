@@ -105,6 +105,7 @@ public sealed class LlmCompletionAccountingClient : IAgentCompletionClient
         string systemPrompt,
         string userPrompt,
         int? maxTokens = null,
+        float? temperature = null,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -156,7 +157,7 @@ public sealed class LlmCompletionAccountingClient : IAgentCompletionClient
 
         try
         {
-            return await _inner.CompleteJsonAsync(outboundSystem, outboundUser, maxTokens, cancellationToken);
+            return await _inner.CompleteJsonAsync(outboundSystem, outboundUser, maxTokens, temperature, cancellationToken);
         }
         finally
         {

@@ -19,7 +19,7 @@ public sealed class EchoAgentCompletionClientTests
             RunId: RUN-X
             TaskId: TASK-Y
             """,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         json.Should().Contain("\"agentType\":\"Topology\"");
         json.Should().Contain("RUN-X");
@@ -40,7 +40,7 @@ public sealed class EchoAgentCompletionClientTests
             RunId: RUN-C
             TaskId: TASK-C
             """,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         json.Should().Contain("\"agentType\":\"Compliance\"");
     }
@@ -59,7 +59,7 @@ public sealed class EchoAgentCompletionClientTests
             RunId: RUN-K
             TaskId: TASK-K
             """,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         json.Should().Contain("\"agentType\":\"Critic\"");
     }

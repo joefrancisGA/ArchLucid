@@ -34,7 +34,7 @@ public sealed class FallbackLlmResilienceCompositionTests
         Mock<IAgentCompletionClient> primaryInner = new();
         primaryInner.SetupGet(c => c.Descriptor).Returns(PrimaryDescriptor);
         primaryInner
-            .Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+            .Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .Returns(() =>
             {
                 int n = Interlocked.Increment(ref primaryInnerCalls);
@@ -47,7 +47,7 @@ public sealed class FallbackLlmResilienceCompositionTests
         secondary
             .SetupGet(c => c.Descriptor)
             .Returns(LlmProviderDescriptor.ForAzureOpenAi(new Uri("https://secondary.example"), "secondary"));
-        secondary.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+        secondary.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("{\"from\":\"fallback\"}");
 
         using CircuitBreakingAgentCompletionClient primaryChain = CreatePrimaryWithRetry(primaryInner.Object, maxRetryAttempts: 3);
@@ -62,7 +62,7 @@ public sealed class FallbackLlmResilienceCompositionTests
         result.Should().Be("{\"from\":\"fallback\"}");
         primaryInnerCalls.Should().Be(4);
 
-        secondary.Verify(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()), Times.Once);
+        secondary.Verify(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [SkippableFact]
@@ -72,7 +72,7 @@ public sealed class FallbackLlmResilienceCompositionTests
         Mock<IAgentCompletionClient> primaryInner = new();
         primaryInner.SetupGet(c => c.Descriptor).Returns(PrimaryDescriptor);
         primaryInner
-            .Setup(c => c.CompleteJsonAsync("a", "b", It.IsAny<CancellationToken>()))
+            .Setup(c => c.CompleteJsonAsync("a", "b", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .Returns(() =>
             {
                 Interlocked.Increment(ref primaryInnerCalls);
@@ -83,7 +83,7 @@ public sealed class FallbackLlmResilienceCompositionTests
 
         Mock<IAgentCompletionClient> secondary = new();
         secondary.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("fb", "fb"));
-        secondary.Setup(c => c.CompleteJsonAsync("a", "b", It.IsAny<CancellationToken>()))
+        secondary.Setup(c => c.CompleteJsonAsync("a", "b", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("{}");
 
         using CircuitBreakingAgentCompletionClient primaryChain = CreatePrimaryWithRetry(primaryInner.Object, maxRetryAttempts: 2);
@@ -97,7 +97,7 @@ public sealed class FallbackLlmResilienceCompositionTests
 
         result.Should().Be("{}");
         primaryInnerCalls.Should().Be(3);
-        secondary.Verify(c => c.CompleteJsonAsync("a", "b", It.IsAny<CancellationToken>()), Times.Once);
+        secondary.Verify(c => c.CompleteJsonAsync("a", "b", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [SkippableFact]
@@ -107,7 +107,7 @@ public sealed class FallbackLlmResilienceCompositionTests
         Mock<IAgentCompletionClient> primaryInner = new();
         primaryInner.SetupGet(c => c.Descriptor).Returns(PrimaryDescriptor);
         primaryInner
-            .Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+            .Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .Returns(() =>
             {
                 Interlocked.Increment(ref primaryInnerCalls);
@@ -117,7 +117,7 @@ public sealed class FallbackLlmResilienceCompositionTests
 
         Mock<IAgentCompletionClient> secondary = new();
         secondary.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("fb", "fb"));
-        secondary.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+        secondary.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("ok");
 
         using CircuitBreakingAgentCompletionClient primaryChain = CreatePrimaryWithRetry(primaryInner.Object, maxRetryAttempts: 1);
@@ -132,7 +132,7 @@ public sealed class FallbackLlmResilienceCompositionTests
         result.Should().Be("ok");
         primaryInnerCalls.Should().Be(1);
 
-        secondary.Verify(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()), Times.Once);
+        secondary.Verify(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [SkippableFact]
@@ -142,7 +142,7 @@ public sealed class FallbackLlmResilienceCompositionTests
         Mock<IAgentCompletionClient> primaryInner = new();
         primaryInner.SetupGet(c => c.Descriptor).Returns(PrimaryDescriptor);
         primaryInner
-            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .Returns(() =>
             {
                 Interlocked.Increment(ref primaryInnerCalls);
@@ -154,7 +154,7 @@ public sealed class FallbackLlmResilienceCompositionTests
         Mock<IAgentCompletionClient> secondary = new();
         secondary.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("sec", "sec"));
         secondary
-            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("{}");
 
         using CircuitBreakingAgentCompletionClient primaryChain = CreatePrimaryWithRetry(primaryInner.Object, maxRetryAttempts: 2);
@@ -182,7 +182,7 @@ public sealed class FallbackLlmResilienceCompositionTests
         Mock<IAgentCompletionClient> primaryInner = new();
         primaryInner.SetupGet(c => c.Descriptor).Returns(PrimaryDescriptor);
         primaryInner
-            .Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+            .Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .Returns(() =>
             {
                 Interlocked.Increment(ref primaryInnerCalls);
@@ -208,7 +208,7 @@ public sealed class FallbackLlmResilienceCompositionTests
         primaryInnerCalls.Should().Be(3);
 
         secondary.Verify(
-            c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -218,12 +218,12 @@ public sealed class FallbackLlmResilienceCompositionTests
         Mock<IAgentCompletionClient> primaryInner = new();
         primaryInner.SetupGet(c => c.Descriptor).Returns(PrimaryDescriptor);
         primaryInner
-            .Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+            .Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromException<string>(new RequestFailedException(503, "Service unavailable", null, null)));
 
         Mock<IAgentCompletionClient> secondary = new();
         secondary.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("fb", "fb"));
-        secondary.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>())).ReturnsAsync("ok");
+        secondary.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>())).ReturnsAsync("ok");
 
         using CircuitBreakingAgentCompletionClient primaryChain = CreatePrimaryWithRetry(primaryInner.Object, maxRetryAttempts: 0);
 
@@ -243,17 +243,17 @@ public sealed class FallbackLlmResilienceCompositionTests
         Mock<IAgentCompletionClient> primaryInner = new();
         primaryInner.SetupGet(c => c.Descriptor).Returns(PrimaryDescriptor);
         primaryInner
-            .Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+            .Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromException<string>(new RequestFailedException(503, "primary", null, null)));
 
         Mock<IAgentCompletionClient> fb0 = new();
         fb0.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("a", "a"));
-        fb0.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+        fb0.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromException<string>(new RequestFailedException(503, "fb0", null, null)));
 
         Mock<IAgentCompletionClient> fb1 = new();
         fb1.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("b", "b"));
-        fb1.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>())).ReturnsAsync("final");
+        fb1.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>())).ReturnsAsync("final");
 
         using CircuitBreakingAgentCompletionClient primaryChain = CreatePrimaryWithRetry(primaryInner.Object, maxRetryAttempts: 0);
 
@@ -266,8 +266,8 @@ public sealed class FallbackLlmResilienceCompositionTests
 
         result.Should().Be("final");
 
-        fb0.Verify(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()), Times.Once);
-        fb1.Verify(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()), Times.Once);
+        fb0.Verify(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Once);
+        fb1.Verify(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static CircuitBreakingAgentCompletionClient CreatePrimaryWithRetry(

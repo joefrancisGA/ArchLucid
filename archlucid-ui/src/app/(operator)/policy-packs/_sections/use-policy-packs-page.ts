@@ -31,7 +31,7 @@ import type {
   PolicyPackVersion,
 } from "@/types/policy-packs";
 
-import { POLICY_PACK_ID_QUERY_PARAM } from "@/lib/policy-packs-deep-link";
+import { POLICY_PACK_ID_QUERY_PARAM, POLICY_RULE_ID_QUERY_PARAM } from "@/lib/policy-packs-deep-link";
 import { isBundledPlatformDefaultPackType } from "@/lib/policy-pack-type-label";
 
 import { DEFAULT_CONTENT } from "./policy-packs-page-constants";
@@ -41,6 +41,7 @@ import type { PolicyPacksPageTab, PolicyPacksPageViewModel } from "./policy-pack
 export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): PolicyPacksPageViewModel {
   const searchParams = useSearchParams();
   const packIdFromUrl = searchParams.get(POLICY_PACK_ID_QUERY_PARAM)?.trim() ?? "";
+  const ruleIdFromUrl = searchParams.get(POLICY_RULE_ID_QUERY_PARAM)?.trim() ?? "";
   const canMutatePacks = useNavSurface("policy-packs").mutationCapability;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [packs, setPacks] = useState<PolicyPack[]>(serverLoad.packs);
@@ -448,5 +449,6 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     compareRightVersion,
     selectedPackSummary,
     syncPolicyContentJson,
+    ruleIdFromUrl,
   };
 }

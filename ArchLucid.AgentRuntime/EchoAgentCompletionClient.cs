@@ -32,6 +32,7 @@ public sealed class EchoAgentCompletionClient : IAgentCompletionClient
         string systemPrompt,
         string userPrompt,
         int? maxTokens = null,
+        float? temperature = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(systemPrompt);

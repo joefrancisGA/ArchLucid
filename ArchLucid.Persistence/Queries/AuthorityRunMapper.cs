@@ -26,7 +26,9 @@ internal static class AuthorityRunMapper
             FindingsSnapshotId = run.FindingsSnapshotId,
             GoldenManifestId = run.GoldenManifestId,
             DecisionTraceId = run.DecisionTraceId,
-            ArtifactBundleId = run.ArtifactBundleId
+            ArtifactBundleId = run.ArtifactBundleId,
+            HasWarnings = run.HasWarnings,
+            HasGovernanceWarnings = run.HasGovernanceWarnings
         };
     }
 

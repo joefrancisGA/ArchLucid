@@ -16,6 +16,7 @@ import { ShortcutHint } from "@/components/ShortcutHint";
 import { Button } from "@/components/ui/button";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
+import { BUYER_RUNS_DASHBOARD_RECENT_SUMMARY } from "@/lib/buyer-polish-copy";
 import { RUNS_EMPTY } from "@/lib/empty-state-presets";
 
 import type { RunsPageModel } from "./runs-page-model";
@@ -34,7 +35,7 @@ export function RunsPageView(props: Props) {
     <div>
       <OperatorWelcomeOnboarding serverEligible={m.welcomeOnboardingEligible} />
       <OperatorPageHeader
-        title="Architecture Reviews"
+        title={isBuyerPolishedOperatorShellEnv() ? "Review packages" : "Architecture Reviews"}
         metadata={
           <>
             <span>{m.projectTitle}</span>
@@ -48,7 +49,7 @@ export function RunsPageView(props: Props) {
         {isBuyerPolishedOperatorShellEnv() ? (
           m.totalCount === 1 && m.runs[0]?.hasGoldenManifest === true ? (
             <span className="inline-flex flex-wrap items-center gap-x-1">
-              One finalized review package is available.
+              {BUYER_RUNS_DASHBOARD_RECENT_SUMMARY}
               <RunsPageBuyerHelpTip variant="sample-workspace" />
             </span>
           ) : (

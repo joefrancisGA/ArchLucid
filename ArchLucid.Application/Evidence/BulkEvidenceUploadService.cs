@@ -22,6 +22,7 @@ public sealed class BulkEvidenceUploadService(
     IAuditService auditService,
     IRunRepository runRepository,
     IArtifactBlobStore blobStore,
+    IZipEvidenceExpanderService zipEvidenceExpanderService,
     IOptions<EvidenceBulkUploadOptions> options,
     ILogger<BulkEvidenceUploadService> logger) : IBulkEvidenceUploadService
 {
@@ -91,19 +92,26 @@ public sealed class BulkEvidenceUploadService(
                 if (string.IsNullOrEmpty(safeBaseName))
                     safeBaseName = "upload";
 
-                string evidenceItemId = Guid.NewGuid().ToString("N");
-                string blobName = $"evidence/{runId:N}/{evidenceItemId}_{safeBaseName}";
+                if (IsZipArchive(safeBaseName))
+                {
+                    await UploadExpandedZipEntriesAsync(
+                        runId,
+                        file,
+                        safeBaseName,
+                        uploadedIds,
+                        fileNames,
+                        cancellationToken);
 
-                using Stream stream = file.OpenReadStream();
-                using MemoryStream ms = new();
-                await stream.CopyToAsync(ms, cancellationToken);
-                string contentBase64 = Convert.ToBase64String(ms.ToArray());
+                    continue;
+                }
 
-                // Reuse existing blob store logic
-                await blobStore.WriteAsync("artifacts", blobName, contentBase64, cancellationToken);
-
-                uploadedIds.Add(evidenceItemId);
-                fileNames.Add(safeBaseName);
+                await UploadSingleEvidenceFileAsync(
+                    runId,
+                    safeBaseName,
+                    file.OpenReadStream(),
+                    uploadedIds,
+                    fileNames,
+                    cancellationToken);
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -152,5 +160,56 @@ public sealed class BulkEvidenceUploadService(
             Succeeded = true,
             UploadedEvidenceItemIds = uploadedIds
         };
+    }
+
+    private async Task UploadExpandedZipEntriesAsync(
+        Guid runId,
+        IFormFile zipFile,
+        string archiveName,
+        List<string> uploadedIds,
+        List<string> fileNames,
+        CancellationToken cancellationToken)
+    {
+        using Stream zipStream = zipFile.OpenReadStream();
+        ZipEvidenceExpansionResult expansion = zipEvidenceExpanderService.Expand(zipStream, archiveName);
+
+        foreach (ZipEvidenceExpandedFile expandedFile in expansion.Files)
+        {
+            using MemoryStream contentStream = new(expandedFile.Content);
+
+            await UploadSingleEvidenceFileAsync(
+                runId,
+                expandedFile.FileName,
+                contentStream,
+                uploadedIds,
+                fileNames,
+                cancellationToken);
+        }
+    }
+
+    private async Task UploadSingleEvidenceFileAsync(
+        Guid runId,
+        string safeBaseName,
+        Stream contentStream,
+        List<string> uploadedIds,
+        List<string> fileNames,
+        CancellationToken cancellationToken)
+    {
+        string evidenceItemId = Guid.NewGuid().ToString("N");
+        string blobName = $"evidence/{runId:N}/{evidenceItemId}_{safeBaseName}";
+
+        using MemoryStream ms = new();
+        await contentStream.CopyToAsync(ms, cancellationToken);
+        string contentBase64 = Convert.ToBase64String(ms.ToArray());
+
+        await blobStore.WriteAsync("artifacts", blobName, contentBase64, cancellationToken);
+
+        uploadedIds.Add(evidenceItemId);
+        fileNames.Add(safeBaseName);
+    }
+
+    private static bool IsZipArchive(string fileName)
+    {
+        return fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
     }
 }

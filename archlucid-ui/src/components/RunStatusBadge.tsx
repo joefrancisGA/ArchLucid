@@ -1,6 +1,10 @@
 import { StatusPill } from "@/components/StatusPill";
-import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  ARCHITECTURE_REVIEW_LABELS,
+  PIPELINE_STATUS_LABELS,
+  PIPELINE_STATUS_TOOLTIPS,
+} from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 import {
@@ -21,33 +25,33 @@ export type RunPipelineLabel =
  */
 export function deriveRunListPipelineLabel(run: RunSummary): RunPipelineLabel {
   if (run.hasGoldenManifest === true) {
-    return "Finalized";
+    return PIPELINE_STATUS_LABELS.finalized;
   }
 
   if (run.hasFindingsSnapshot === true) {
-    return "Ready to finalize";
+    return PIPELINE_STATUS_LABELS.readyToFinalize;
   }
 
   if (run.hasGraphSnapshot === true || run.hasContextSnapshot === true) {
-    return "In pipeline";
+    return PIPELINE_STATUS_LABELS.inPipeline;
   }
 
-  return "Starting";
+  return PIPELINE_STATUS_LABELS.starting;
 }
 
 function buyerPipelineStatusDisplayLabel(label: RunPipelineLabel): string {
   switch (label) {
-    case "Finalized":
-      return "Package finalized";
+    case PIPELINE_STATUS_LABELS.finalized:
+      return PIPELINE_STATUS_LABELS.packageFinalized;
 
-    case "Ready to finalize":
-      return "Ready to seal";
+    case PIPELINE_STATUS_LABELS.readyToFinalize:
+      return PIPELINE_STATUS_LABELS.readyToSeal;
 
-    case "In pipeline":
-      return "In flight";
+    case PIPELINE_STATUS_LABELS.inPipeline:
+      return PIPELINE_STATUS_LABELS.inFlight;
 
-    case "Starting":
-      return "Starting";
+    case PIPELINE_STATUS_LABELS.starting:
+      return PIPELINE_STATUS_LABELS.starting;
 
     default:
       return label;
@@ -56,14 +60,14 @@ function buyerPipelineStatusDisplayLabel(label: RunPipelineLabel): string {
 
 function getTooltipContent(label: RunPipelineLabel): string {
   switch (label) {
-    case "Finalized":
-      return "The Golden Manifest has been committed and the architecture review is sealed.";
-    case "Ready to finalize":
-      return "All analysis is complete. An operator must review and commit the Golden Manifest.";
-    case "In pipeline":
-      return "The architecture graph and context have been extracted, and analysis is currently running.";
-    case "Starting":
-      return "The architecture request has been received and the execution pipeline is initializing.";
+    case PIPELINE_STATUS_LABELS.finalized:
+      return PIPELINE_STATUS_TOOLTIPS.finalized;
+    case PIPELINE_STATUS_LABELS.readyToFinalize:
+      return PIPELINE_STATUS_TOOLTIPS.readyToFinalize;
+    case PIPELINE_STATUS_LABELS.inPipeline:
+      return PIPELINE_STATUS_TOOLTIPS.inPipeline;
+    case PIPELINE_STATUS_LABELS.starting:
+      return PIPELINE_STATUS_TOOLTIPS.starting;
     default:
       return "";
   }
@@ -91,7 +95,7 @@ export function RunStatusBadge({ run, className }: RunStatusBadgeProps) {
               status={displayLabel}
               domain="pipeline"
               className={cn("shrink-0", className)}
-              ariaLabel={`${ARCHITECTURE_REVIEW_VOCABULARY.pipelineStatusAriaPrefix}: ${displayLabel}`}
+              ariaLabel={`${ARCHITECTURE_REVIEW_LABELS.pipelineStatusAriaPrefix}: ${displayLabel}`}
             />
           </div>
         </TooltipTrigger>

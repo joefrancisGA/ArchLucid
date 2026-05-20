@@ -271,6 +271,7 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(KnowledgeGraphLimitsOptions.SectionName));
         services.Configure<KnowledgeGraphProjectionCacheOptions>(
             configuration.GetSection(KnowledgeGraphProjectionCacheOptions.SectionName));
+        services.AddSingleton<IValidateOptions<KnowledgeGraphProjectionCacheOptions>, KnowledgeGraphProjectionCacheOptionsValidator>();
         services.TryAddSingleton<IMemoryCache>(_ => new MemoryCache(new MemoryCacheOptions()));
         services.TryAddSingleton<IGraphSnapshotProjectionCache>(static sp =>
         {

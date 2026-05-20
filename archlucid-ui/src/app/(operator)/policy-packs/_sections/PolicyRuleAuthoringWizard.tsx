@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { PolicySimulator } from "@/components/governance/PolicySimulator";
 import { listRunsByProjectPaged, simulatePolicyPackAgainstRun } from "@/lib/api";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -49,6 +50,7 @@ export type PolicyRuleAuthoringWizardProps = {
   readonly onPublishVersionChange: (value: string) => void;
   readonly onCreate: () => void | Promise<void>;
   readonly onPublish: () => void | Promise<void>;
+  readonly highlightRuleId?: string;
 };
 
 type WizardStepId = 1 | 2 | 3;
@@ -85,6 +87,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
     onPublishVersionChange,
     onCreate,
     onPublish,
+    highlightRuleId,
   } = props;
 
   const [step, setStep] = useState<WizardStepId>(1);
@@ -113,6 +116,28 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
     });
     setAuthoringErrors([]);
   }, [selectedPackId, policyContentJson]);
+
+  useEffect(() => {
+    const ruleId = highlightRuleId?.trim() ?? "";
+
+    if (ruleId.length === 0) {
+      return;
+    }
+
+    setStep(1);
+
+    const timer = window.setTimeout(() => {
+      const row = document.querySelector(`[data-rule-id="${CSS.escape(ruleId)}"]`);
+
+      if (row !== null) {
+        row.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 150);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [highlightRuleId]);
 
   const [simulateRunId, setSimulateRunId] = useState("");
   const [recentRuns, setRecentRuns] = useState<RunSummary[]>([]);
@@ -384,6 +409,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
                 packDescription={description}
                 publishVersion={publishVersion}
                 packType={packType}
+                highlightRuleId={highlightRuleId}
               />
               {authoringErrors.length > 0 ? (
                 <div role="alert" className="rounded-md border border-amber-200 bg-amber-50 p-2 text-xs text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
@@ -518,56 +544,8 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
           ) : null}
 
           {simulateResult !== null ? (
-            <div
-              className="rounded-md border border-neutral-200 dark:border-neutral-700 p-3 text-sm space-y-2"
-              data-testid="policy-rule-wizard-simulate-result"
-            >
-              <p className="font-medium text-neutral-900 dark:text-neutral-100">Simulation outcome</p>
-              {simulateResult.gateResult !== undefined ? (
-                <p>
-                  Gate: {simulateResult.gateResult?.blocked === true ? "blocked" : "not blocked"}
-                  {simulateResult.gateResult?.warnOnly === true ? " (warn-only)" : ""}
-                </p>
-              ) : null}
-              {simulateResult.resolvedRunId !== undefined ? (
-                <p className="font-mono text-xs break-all">Resolved run: {simulateResult.resolvedRunId}</p>
-              ) : null}
-              {simulateResult.passedChecks !== undefined && simulateResult.passedChecks.length > 0 ? (
-                <div>
-                  <p className="font-medium">Passed checks</p>
-                  <ul className="list-disc ml-5">
-                    {simulateResult.passedChecks.map((c) => (
-                      <li key={c} className="font-mono text-xs">
-                        {c}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-              {simulateResult.failedChecks !== undefined && simulateResult.failedChecks.length > 0 ? (
-                <div>
-                  <p className="font-medium text-amber-900 dark:text-amber-100">Failed checks</p>
-                  <ul className="list-disc ml-5">
-                    {simulateResult.failedChecks.map((c) => (
-                      <li key={c} className="font-mono text-xs">
-                        {c}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-              {simulateResult.warnings !== undefined && simulateResult.warnings.length > 0 ? (
-                <div>
-                  <p className="font-medium">Warnings</p>
-                  <ul className="list-disc ml-5">
-                    {simulateResult.warnings.map((w) => (
-                      <li key={w} className="text-xs">
-                        {w}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
+            <div data-testid="policy-rule-wizard-simulate-result">
+              <PolicySimulator result={simulateResult} />
             </div>
           ) : null}
         </div>

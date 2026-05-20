@@ -1,8 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Tests.TestDtos;
@@ -16,12 +14,6 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class ArchitectureRunPinIntegrationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null) }
-    };
-
     [SkippableFact]
     public async Task PinRun_toggle_and_explicit_set_persist_on_summary()
     {
@@ -57,11 +49,5 @@ public sealed class ArchitectureRunPinIntegrationTests(ArchLucidApiFactory facto
         PinRunResponse? unpinPayload = await unpin.Content.ReadFromJsonAsync<PinRunResponse>(JsonOptions);
         unpinPayload.Should().NotBeNull();
         unpinPayload!.IsPinned.Should().BeFalse();
-    }
-
-    private static StringContent JsonContent(object value)
-    {
-        string json = JsonSerializer.Serialize(value, JsonOptions);
-        return new StringContent(json, Encoding.UTF8, "application/json");
     }
 }

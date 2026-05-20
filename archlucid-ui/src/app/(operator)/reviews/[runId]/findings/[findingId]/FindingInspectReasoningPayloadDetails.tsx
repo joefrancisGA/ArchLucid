@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 
 import { FindingInspectJsonPayload } from "@/components/FindingInspectJsonPayload";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 export type FindingInspectReasoningPayloadDetailsProps = {
   readonly reasoningTrace: string | null | undefined;
@@ -12,11 +13,15 @@ export function FindingInspectReasoningPayloadDetails({
   reasoningTrace,
   typedPayload,
 }: FindingInspectReasoningPayloadDetailsProps): ReactElement {
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const rationaleLabel = buyerPolished ? "Review rationale (technical)" : "View AI Reasoning";
+  const evaluationLabel = buyerPolished ? "Structured evaluation record" : "AI Audit Inspection";
+
   return (
     <>
       <details className="rounded-lg border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40">
         <summary className="cursor-pointer select-none px-4 py-3 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-          View AI Reasoning
+          {rationaleLabel}
         </summary>
         <div className="border-t border-neutral-200 px-4 pb-4 pt-2 dark:border-neutral-700">
           {reasoningTrace ? (
@@ -25,7 +30,7 @@ export function FindingInspectReasoningPayloadDetails({
             </p>
           ) : (
             <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-              No reasoning trace available for this finding.
+              No rationale trace available for this finding.
             </p>
           )}
         </div>
@@ -33,7 +38,7 @@ export function FindingInspectReasoningPayloadDetails({
 
       <details className="rounded-lg border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40">
         <summary className="cursor-pointer select-none px-4 py-3 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-          AI Audit Inspection
+          {evaluationLabel}
         </summary>
         <div className="border-t border-neutral-200 px-4 pb-4 pt-2 dark:border-neutral-700">
           <FindingInspectJsonPayload value={typedPayload ?? null} />

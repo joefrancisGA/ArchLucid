@@ -137,6 +137,7 @@ export function PolicyPacksPageView(props: Props) {
                   onPublishVersionChange={m.setPublishVersion}
                   onCreate={m.onCreate}
                   onPublish={m.onPublish}
+                  highlightRuleId={m.ruleIdFromUrl}
                 />
               )}
               <PolicyPacksInspectSection

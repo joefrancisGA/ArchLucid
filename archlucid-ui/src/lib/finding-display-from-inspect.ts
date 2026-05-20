@@ -1,4 +1,13 @@
+import {
+  BUYER_FINDING_POST_APPROVAL_LEAD,
+  BUYER_FINDING_POST_APPROVAL_VALIDATION,
+  BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE,
+  BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW,
+  BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
+} from "@/lib/buyer-polish-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 /**
@@ -93,7 +102,7 @@ export function isPhiMinimizationFindingId(findingId: string | null | undefined)
  */
 export function findingDetailHeadingTitle(payload: FindingInspectPayload): string {
   if (isPhiMinimizationSampleFinding(payload)) {
-    return "PHI Minimization Risk";
+    return "Residual PHI minimization risk (monitored)";
   }
 
   const narrative = findingInspectNarrativeFields(payload);
@@ -124,18 +133,22 @@ export function findingDetailHeadingTitleForRoute(
   payload: FindingInspectPayload | null
 ): string {
   if (isPhiMinimizationFindingId(findingId)) {
-    return "PHI Minimization Risk";
+    return "Residual PHI minimization risk (monitored)";
   }
 
   if (payload !== null) {
     return findingDetailHeadingTitle(payload);
   }
 
-  return "Finding detail";
+  return BUYER_SURFACE_VOCABULARY.riskObservation;
 }
 
 /** Short user-facing primer under the title when structured description is unavailable. */
 export function findingDetailLeadSentence(payload: FindingInspectPayload): string {
+  if (isPhiMinimizationSampleFinding(payload) && isBuyerPolishedOperatorShellEnv()) {
+    return BUYER_FINDING_POST_APPROVAL_LEAD;
+  }
+
   const narrative = findingInspectNarrativeFields(payload);
   const description = narrative.description?.trim();
 
@@ -147,7 +160,15 @@ export function findingDetailLeadSentence(payload: FindingInspectPayload): strin
   const area = labels.impactedAreaLabel?.trim();
 
   if (area !== undefined && area.length > 0) {
+    if (isBuyerPolishedOperatorShellEnv()) {
+      return `Recorded risk observation for ${area}. Residual disposition and monitoring cadence are documented in the governance record.`;
+    }
+
     return `Outcome focuses on ${area}. Review evidence and the recommended action before closing or escalating.`;
+  }
+
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return "Risk observation record for the finalized review package — see evidence and monitoring details below.";
   }
 
   return "Review the recommendations and cited evidence below before sign-off.";
@@ -185,10 +206,10 @@ export function isPhiMinimizationSampleFinding(payload: FindingInspectPayload): 
  */
 export function findingDetailPageEyebrow(payload: FindingInspectPayload | null, findingId?: string): string {
   if (payload !== null ? isPhiMinimizationSampleFinding(payload) : isPhiMinimizationFindingId(findingId)) {
-    return "Finding detail — PHI minimization";
+    return "Risk observation summary — PHI minimization";
   }
 
-  return "Finding detail — risk observation";
+  return "Risk observation summary";
 }
 
 /**
@@ -196,10 +217,10 @@ export function findingDetailPageEyebrow(payload: FindingInspectPayload | null, 
  */
 export function findingInspectPageEyebrow(payload: FindingInspectPayload): string {
   if (isPhiMinimizationSampleFinding(payload)) {
-    return "Traceability — PHI minimization risk";
+    return "Technical evidence trace — PHI minimization";
   }
 
-  return "Traceability inspection";
+  return "Technical evidence trace";
 }
 
 /**
@@ -209,17 +230,29 @@ export function phiMinimizationBuyerConsequenceNarrative(): string {
   return (
     "If understated, PHI could accumulate in adapters or caches beyond the intended minimization boundary — " +
     "expanding breach impact, audit scope, and downstream processing obligations. " +
-    "The review package documents classification at ingress, adapter boundaries, and retention controls; " +
-    "evidence snapshots and the evidence graph show how those controls tie to this observation. " +
-    "Ongoing monitoring should track exception paths, attachment volume, and OCR bypass rates after go-live."
+    "The finalized review package documents classification at ingress, adapter boundaries, and retention controls; " +
+    "the evidence trail shows how those controls tie to this observation. " +
+    `Monitoring owner ${BUYER_SHOWCASE_RESIDUAL_RISK_OWNER} tracks exception paths, attachment volume, and OCR bypass rates on a ${BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE.toLowerCase()} cadence; next review ${BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW}.`
   );
 }
 
 export function phiMinimizationApprovalNarrative(): string {
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return BUYER_FINDING_POST_APPROVAL_VALIDATION;
+  }
+
   return (
     "Before approval, reviewers need evidence that PHI classification occurs at ingress, adapter boundaries remain " +
     "stateless or explicitly bounded, unstructured attachments cannot bypass the OCR/control path unnoticed, and " +
     "post-go-live monitoring will surface exception volume before it becomes an audit or breach exposure."
+  );
+}
+
+/** Specific recommended actions for the PHI showcase when structured actions are unavailable. */
+export function phiMinimizationRecommendedActionFallback(): string {
+  return (
+    "Validate ingress PHI classification rules, monitor unstructured attachment exception volumes weekly, confirm OCR bypass " +
+    "handling alerts fire before volume thresholds, and schedule a post-go-live review with the privacy office."
   );
 }
 

@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { cn } from "@/lib/utils";
 import {
   createEmptyCuratedRuleRow,
   CURATED_RULE_SEVERITIES,
@@ -31,6 +32,7 @@ export type CuratedRulesAuthoringSectionProps = {
   readonly packDescription: string;
   readonly publishVersion: string;
   readonly packType: string;
+  readonly highlightRuleId?: string;
 };
 
 function cloneRule(row: CuratedRuleRow): CuratedRuleRow {
@@ -50,6 +52,7 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
     packDescription,
     publishVersion,
     packType,
+    highlightRuleId,
   } = props;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
@@ -180,7 +183,18 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
             </thead>
             <tbody>
               {curatedDoc.rules.map((r, index) => (
-                <tr key={`${r.id}-${index}`} className="border-b border-neutral-100 dark:border-neutral-800">
+                <tr
+                  key={`${r.id}-${index}`}
+                  data-rule-id={r.id}
+                  className={cn(
+                    "border-b border-neutral-100 dark:border-neutral-800",
+                    highlightRuleId !== undefined &&
+                      highlightRuleId.trim().length > 0 &&
+                      r.id.trim().toLowerCase() === highlightRuleId.trim().toLowerCase()
+                      ? "bg-amber-50 ring-2 ring-amber-400 ring-inset dark:bg-amber-950/30 dark:ring-amber-600"
+                      : undefined,
+                  )}
+                >
                   <td className="py-1 pr-2 font-mono text-xs align-top">{r.id}</td>
                   <td className="py-1 pr-2 align-top">{r.title}</td>
                   <td className="py-1 pr-2 align-top">{r.severity}</td>

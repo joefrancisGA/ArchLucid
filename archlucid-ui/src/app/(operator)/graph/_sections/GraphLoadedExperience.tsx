@@ -68,7 +68,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
               What this graph proves
             </p>
             <p className="m-0 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-              For this sample review, the PHI minimization finding is tied to source context, applied policy packs, the signed
+              For this review package, the PHI minimization risk observation is tied to source context, applied policy packs, the signed
               manifest, and packaged deliverables in one trace consumers can follow in a single evidence trail.
             </p>
           </div>
@@ -189,7 +189,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
         <div className={cn("mt-6 space-y-2", graphMainColumnMaxClass)}>
           <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">Next</p>
           <Button type="button" asChild variant="default" size="sm">
-            <Link href={`/governance?runId=${encodeURIComponent(runTrim)}`}>Governance approval</Link>
+            <Link href={`/governance?runId=${encodeURIComponent(runTrim)}`}>Continue to governance approval</Link>
           </Button>
         </div>
       ) : null}

@@ -22,7 +22,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
     {
         Mock<IAgentCompletionClient> inner = new();
         inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
-        inner.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+        inner.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("{}");
 
         CircuitBreakerOptions options = new() { FailureThreshold = 5, DurationOfBreakSeconds = 60 };
@@ -34,7 +34,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
             ResiliencePipeline.Empty,
             NullLogger<CircuitBreakingAgentCompletionClient>.Instance);
 
-        string result = await sut.CompleteJsonAsync("s", "u", CancellationToken.None);
+        string result = await sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None);
 
         result.Should().Be("{}");
     }
@@ -44,7 +44,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
     {
         Mock<IAgentCompletionClient> inner = new();
         inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
-        inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("429"));
 
         CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
@@ -58,12 +58,12 @@ public sealed class CircuitBreakingAgentCompletionClientTests
             NullLogger<CircuitBreakingAgentCompletionClient>.Instance);
 
         await Assert.ThrowsAsync<HttpRequestException>(() =>
-            sut.CompleteJsonAsync("s", "u", CancellationToken.None));
+            sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None));
 
         clock.Advance(TimeSpan.FromSeconds(1));
 
         await Assert.ThrowsAsync<CircuitBreakerOpenException>(() =>
-            sut.CompleteJsonAsync("s", "u", CancellationToken.None));
+            sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None));
     }
 
     [SkippableFact]
@@ -72,7 +72,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
         int callCount = 0;
         Mock<IAgentCompletionClient> inner = new();
         inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
-        inner.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+        inner.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .Returns(() =>
             {
                 int n = Interlocked.Increment(ref callCount);
@@ -95,7 +95,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
             retry,
             NullLogger<CircuitBreakingAgentCompletionClient>.Instance);
 
-        string result = await sut.CompleteJsonAsync("s", "u", CancellationToken.None);
+        string result = await sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None);
 
         result.Should().Be("{}");
         callCount.Should().Be(3);
@@ -106,7 +106,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
     {
         Mock<IAgentCompletionClient> inner = new();
         inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
-        inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("always fail"));
 
         CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
@@ -123,15 +123,15 @@ public sealed class CircuitBreakingAgentCompletionClientTests
             NullLogger<CircuitBreakingAgentCompletionClient>.Instance);
 
         await Assert.ThrowsAsync<HttpRequestException>(() =>
-            sut.CompleteJsonAsync("s", "u", CancellationToken.None));
+            sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None));
 
         clock.Advance(TimeSpan.FromSeconds(1));
 
         await Assert.ThrowsAsync<CircuitBreakerOpenException>(() =>
-            sut.CompleteJsonAsync("s", "u", CancellationToken.None));
+            sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None));
 
         inner.Verify(
-            c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
             Times.Exactly(4));
     }
 
@@ -141,7 +141,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
         int calls = 0;
         Mock<IAgentCompletionClient> inner = new();
         inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
-        inner.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+        inner.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .Returns((string _, string _, CancellationToken ct) =>
             {
                 Interlocked.Increment(ref calls);
@@ -167,9 +167,9 @@ public sealed class CircuitBreakingAgentCompletionClientTests
         await cts.CancelAsync();
 
         await Assert.ThrowsAsync<OperationCanceledException>(() =>
-            sut.CompleteJsonAsync("s", "u", cts.Token));
+            sut.CompleteJsonAsync("s", "u", cancellationToken: cts.Token));
 
-        string ok = await sut.CompleteJsonAsync("s", "u", CancellationToken.None);
+        string ok = await sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None);
 
         ok.Should().Be("{}");
     }

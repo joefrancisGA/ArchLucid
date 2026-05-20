@@ -14,6 +14,8 @@ type RunSummaryWireExtensions = {
   findingCount?: number | null;
   warningCount?: number | null;
   artifactCount?: number | null;
+  /** When true, the run has unresolved governance violations or alerts requiring operator action. */
+  hasGovernanceWarnings?: boolean | null;
 };
 
 /**

@@ -126,6 +126,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ItsmOutboundIssueCreationService>();
         services.Configure<EvidenceBulkUploadOptions>(
             configuration.GetSection(EvidenceBulkUploadOptions.SectionName));
+        services.Configure<ZipEvidenceExpanderOptions>(
+            configuration.GetSection(ZipEvidenceExpanderOptions.SectionName));
+        services.AddSingleton<IZipEvidenceExpanderService, ZipEvidenceExpanderService>();
         services.AddScoped<IBulkEvidenceUploadService, BulkEvidenceUploadService>();
         RegisterScimProvisioning(services, configuration);
 

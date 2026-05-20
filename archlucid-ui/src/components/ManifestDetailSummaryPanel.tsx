@@ -86,7 +86,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         </p>
         <p className="m-0 mt-2 text-xs leading-snug text-neutral-600 dark:text-neutral-400">
           {isCuratedDemo
-            ? "Policy pack used for this sample review — defines checks referenced in diligence. Human approvals do not replace your change-management authority."
+            ? "Policy pack used for this review package — defines checks referenced in diligence. Human approvals do not replace your change-management authority."
             : "Defines referenced checks used in diligence; approvals stay human-governed and do not bypass deployment authority."}
         </p>
         {buyerPolicyPackHref !== null ? (
@@ -409,7 +409,7 @@ function countsGridTiles(summary: ManifestSummary, options: CountsGridTilesOptio
             <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
               {SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT}
             </p>
-            <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">Milestone events in demo walkthrough</p>
+            <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">Lifecycle events in audit trail</p>
             <p className="m-0 mt-2 text-xs">
               <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={auditHref}>
                 Open full audit trail

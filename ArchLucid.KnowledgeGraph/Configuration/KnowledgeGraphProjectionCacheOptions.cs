@@ -5,6 +5,10 @@ public sealed class KnowledgeGraphProjectionCacheOptions
 {
     public const string SectionName = "ArchLucid:KnowledgeGraph:ProjectionCache";
 
+    public const int DefaultAbsoluteExpirationSeconds = 3600;
+
+    public const int DefaultMaxAbsoluteExpirationSeconds = 86400;
+
     /// <summary>
     ///     Process-local <see cref="IMemoryCache" /> vs shared <see cref="Microsoft.Extensions.Caching.Distributed.IDistributedCache" />.
     /// </summary>
@@ -37,5 +41,12 @@ public sealed class KnowledgeGraphProjectionCacheOptions
     {
         get;
         set;
-    } = 300;
+    } = 3600;
+
+    /// <summary>Maximum operator-configurable TTL in seconds (caps stale-cache risk).</summary>
+    public int MaxAbsoluteExpirationSeconds
+    {
+        get;
+        set;
+    } = 86400;
 }

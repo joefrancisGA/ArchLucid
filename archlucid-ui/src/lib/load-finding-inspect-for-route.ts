@@ -21,7 +21,26 @@ export function normalizeFindingInspectRecommendedActions(payload: FindingInspec
   };
 }
 
-/** Authority run IDs from URL vs API (hyphenated vs GUID “N”, case). */
+function enrichSparseFindingInspectFromStatic(
+  payload: FindingInspectPayload,
+  staticInspect: FindingInspectPayload,
+): FindingInspectPayload {
+  const recommendedActions = payload.recommendedActions ?? [];
+
+  return {
+    ...payload,
+    evidence: payload.evidence.length > 0 ? payload.evidence : staticInspect.evidence,
+    confidenceLevel: payload.confidenceLevel ?? staticInspect.confidenceLevel,
+    evaluationConfidenceScore: payload.evaluationConfidenceScore ?? staticInspect.evaluationConfidenceScore,
+    decisionRuleId: payload.decisionRuleId ?? staticInspect.decisionRuleId,
+    decisionRuleName: payload.decisionRuleName ?? staticInspect.decisionRuleName,
+    recommendedActions: recommendedActions.length > 0 ? recommendedActions : (staticInspect.recommendedActions ?? []),
+    auditRowId: payload.auditRowId ?? staticInspect.auditRowId,
+    typedPayload: payload.typedPayload ?? staticInspect.typedPayload,
+    reasoningSummary: payload.reasoningSummary ?? staticInspect.reasoningSummary,
+    manifestVersion: payload.manifestVersion ?? staticInspect.manifestVersion,
+  };
+}
 function authorityRunIdsAlignForInspectRoute(urlRunId: string, payloadRunId: string): boolean {
   const norm = (s: string): string => s.replace(/-/g, "").toLowerCase();
 
@@ -98,7 +117,10 @@ export async function loadFindingInspectForRoute(
     };
   }
 
-  return { payload: effective, failure: null, invalidRouteAlignment: false };
+  const merged =
+    staticInspect !== null ? enrichSparseFindingInspectFromStatic(effective, staticInspect) : effective;
+
+  return { payload: merged, failure: null, invalidRouteAlignment: false };
 }
 
 /** When failure is absent and payload is absent, callers may still need `notFound()` for not-found-ish outcomes. */

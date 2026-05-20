@@ -114,6 +114,19 @@ export function isHealthEntryStatusDegraded(status: string | undefined | null): 
   return status?.trim().toLowerCase() === "degraded";
 }
 
+export function isHealthEntryStatusUnhealthy(status: string | undefined | null): boolean {
+  const normalized = status?.trim().toLowerCase() ?? "";
+
+  return normalized === "unhealthy" || normalized === "degraded";
+}
+
+/** True when the `azure_service_bus` readiness check reports Unhealthy or Degraded. */
+export function isAzureServiceBusHealthUnhealthy(entries: HealthReadyResponse["entries"]): boolean {
+  const entry = findHealthReadyEntryByName(entries, "azure_service_bus");
+
+  return entry !== null && isHealthEntryStatusUnhealthy(entry.status);
+}
+
 /** True when the worker `data_archival` readiness check reports Degraded (absent when archival is off or not on a worker host). */
 export function isDataArchivalHealthDegraded(entries: HealthReadyResponse["entries"]): boolean {
   const entry = findHealthReadyEntryByName(entries, "data_archival");

@@ -57,10 +57,11 @@ public sealed class CachingLlmCompletionClient : IAgentCompletionClient
         string systemPrompt,
         string userPrompt,
         int? maxTokens = null,
+        float? temperature = null,
         CancellationToken cancellationToken = default)
     {
         if (!_optionsMonitor.CurrentValue.Enabled)
-            return await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, cancellationToken);
+            return await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken);
 
         LlmTelemetryLabelOptions labels = _telemetryLabels.CurrentValue;
         LlmCompletionCacheOptions cacheOpts = _optionsMonitor.CurrentValue;
@@ -101,7 +102,7 @@ public sealed class CachingLlmCompletionClient : IAgentCompletionClient
 
         ArchLucidInstrumentation.RecordLlmCompletionCacheMiss(agentType);
 
-        string result = await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, cancellationToken);
+        string result = await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken);
 
         await _cache.SetAsync(cacheKey, new LlmCompletionResult(result), cancellationToken);
 

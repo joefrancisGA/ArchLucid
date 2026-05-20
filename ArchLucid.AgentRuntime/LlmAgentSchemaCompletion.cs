@@ -51,12 +51,17 @@ public static class LlmAgentSchemaCompletion
             string userPrompt = BuildUserPrompt(baseUserPrompt, lastRemediation);
 
             string rawJson = await completionClient
-                .CompleteJsonAsync(systemPrompt, userPrompt, maxTokens: null, cancellationToken)
+                .CompleteJsonAsync(systemPrompt, userPrompt, maxTokens: null, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             try
             {
-                AgentResult parsed = resultParser.ParseAndValidate(rawJson, runId, taskId, agentType);
+                AgentResult parsed = resultParser.ParseAndValidate(
+                    rawJson,
+                    runId,
+                    taskId,
+                    agentType,
+                    cancellationToken);
 
                 return (rawJson, parsed);
             }

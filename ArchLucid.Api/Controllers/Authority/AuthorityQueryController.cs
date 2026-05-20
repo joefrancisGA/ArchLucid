@@ -382,6 +382,8 @@ public sealed class AuthorityQueryController(
             HasGoldenManifest = x.HasGoldenManifest,
             HasDecisionTrace = x.HasDecisionTrace,
             HasArtifactBundle = x.HasArtifactBundle,
+            HasWarnings = x.HasWarnings,
+            HasGovernanceWarnings = x.HasGovernanceWarnings,
             RunDegradedExecution = x.RunDegradedExecution,
             DegradedExecutionAgents = x.DegradedExecutionAgents
         };

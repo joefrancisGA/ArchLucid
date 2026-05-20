@@ -2,6 +2,8 @@ import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { BUYER_SHOWCASE_POLICY_PACK_LABEL } from "@/lib/buyer-polish-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { findingDetailHeadingTitle } from "@/lib/finding-display-from-inspect";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
@@ -36,9 +38,8 @@ export function FindingInspectWhyMattersSection({
         </p>
       ) : demoFillGaps ? (
         <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-          In the Claims Intake sample, sensitive fields (PHI) are carried through the request path into downstream
-          services. Without explicit redaction and access boundaries, reviewers cannot show regulators a defensible
-          boundary for where patient identifiers stop.
+          Sensitive fields (PHI) are carried through the intake path into downstream services. The finalized review
+          package documents where patient identifiers stop and how monitoring validates ongoing minimization.
         </p>
       ) : (
         <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
@@ -46,10 +47,17 @@ export function FindingInspectWhyMattersSection({
         </p>
       )}
       <dl className="mt-3 space-y-2 text-sm text-neutral-800 dark:text-neutral-200">
-        <div>
-          <dt className="font-medium text-neutral-600 dark:text-neutral-400">Primary rule</dt>
-          <dd className="m-0 mt-1">{payload.decisionRuleName ?? payload.decisionRuleId ?? "—"}</dd>
-        </div>
+        {(payload.decisionRuleName ?? payload.decisionRuleId) ? (
+          <div>
+            <dt className="font-medium text-neutral-600 dark:text-neutral-400">Primary rule</dt>
+            <dd className="m-0 mt-1">{payload.decisionRuleName ?? payload.decisionRuleId}</dd>
+          </div>
+        ) : isBuyerPolishedOperatorShellEnv() ? (
+          <div>
+            <dt className="font-medium text-neutral-600 dark:text-neutral-400">Primary rule</dt>
+            <dd className="m-0 mt-1">{BUYER_SHOWCASE_POLICY_PACK_LABEL} — PHI minimization at intake</dd>
+          </div>
+        ) : null}
       </dl>
       {payload.decisionRuleId ? (
         <div className="mt-3">

@@ -1,4 +1,4 @@
-using ArchLucid.Api.Health;
+using ArchLucid.Host.Core.Health;
 using ArchLucid.Core.Integration;
 
 using FluentAssertions;

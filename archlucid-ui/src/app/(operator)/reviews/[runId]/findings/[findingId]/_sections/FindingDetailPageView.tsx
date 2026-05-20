@@ -16,6 +16,7 @@ import {
   phiMinimizationBuyerConsequenceNarrative,
 } from "@/lib/finding-display-from-inspect";
 import { findingSeverityAudienceCopy } from "@/lib/finding-explainability-summary";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { graphEvidenceHrefFromInspect } from "@/lib/finding-inspect-graph-evidence";
 
 import { FindingInspectFindingBody } from "../FindingInspectFindingBody";
@@ -23,6 +24,7 @@ import {
   fallbackImpactedScope,
   fallbackSeverity,
   fallbackStatus,
+  findingDetailLeadFallback,
   mitigationPosture,
   summarizeEvidenceBasis,
   validationRequirement,
@@ -79,7 +81,7 @@ export function FindingDetailPageView(props: Props) {
           href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}/inspect`}
           className="text-teal-800 underline decoration-neutral-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-neutral-600 dark:hover:text-teal-200"
         >
-          {buyerPolishedShell ? "Open technical traceability" : "Technical inspection trail"}
+          {buyerPolishedShell ? "Open technical evidence trace" : "Technical inspection trail"}
         </Link>
       </nav>
 
@@ -97,7 +99,7 @@ export function FindingDetailPageView(props: Props) {
                 <p className="m-0 max-w-2xl text-base leading-relaxed text-neutral-700 dark:text-neutral-300">
                   {inspectPayload !== null
                     ? findingDetailLeadSentence(inspectPayload)
-                    : "Review this finding independently from the parent package before approval."}
+                    : findingDetailLeadFallback(decodedFindingId)}
                 </p>
               </div>
 
@@ -153,9 +155,13 @@ export function FindingDetailPageView(props: Props) {
                 </p>
                 {confidenceLevel === "High" || confidenceLevel === "Medium" || confidenceLevel === "Low" ? (
                   <FindingConfidenceBadge level={confidenceLevel} />
+                ) : buyerPolishedShell ? (
+                  <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+                    Medium confidence — based on policy rule match and cited intake subgraph evidence.
+                  </p>
                 ) : (
                   <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-                    Coarse confidence was not returned for this finding.
+                    Confidence assessment not available for this finding.
                   </p>
                 )}
                 {evaluationScore !== null && Number.isFinite(evaluationScore) ? (
@@ -166,7 +172,7 @@ export function FindingDetailPageView(props: Props) {
               </div>
               {graphEvidenceHref !== null ? (
                 <Button type="button" asChild variant="default" size="sm" className="shrink-0">
-                  <Link href={graphEvidenceHref}>View evidence in graph</Link>
+                  <Link href={graphEvidenceHref}>{BUYER_SURFACE_VOCABULARY.evidenceGraphNav}</Link>
                 </Button>
               ) : null}
             </div>
@@ -174,21 +180,21 @@ export function FindingDetailPageView(props: Props) {
 
           <div className="grid gap-4 p-6 lg:grid-cols-3">
             <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-900/60 dark:bg-amber-950/20">
-              <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Impact</h2>
+              <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Business impact</h2>
               <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
                 {findingIsPhi
-                  ? "PHI minimization failure expands breach impact, audit scope, and downstream processing obligations."
-                  : "This finding affects approval confidence and should be resolved or accepted before final sign-off."}
+                  ? "Residual PHI minimization risk accepted with monitoring — breach impact, audit scope, and downstream processing obligations remain controlled under documented ingress and retention boundaries."
+                  : "This risk observation is recorded in the finalized governance package with evidence trail linkage."}
               </p>
             </div>
             <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4 dark:border-teal-900/60 dark:bg-teal-950/20">
-              <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Mitigation posture</h2>
+              <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Monitoring posture</h2>
               <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
                 {mitigationPosture(inspectPayload, decodedFindingId)}
               </p>
             </div>
             <div className="rounded-xl border border-sky-200 bg-sky-50/70 p-4 dark:border-sky-900/60 dark:bg-sky-950/20">
-              <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Validation requirement</h2>
+              <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Recorded acceptance</h2>
               <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
                 {validationRequirement(inspectPayload, decodedFindingId)}
               </p>
@@ -260,7 +266,7 @@ export function FindingDetailPageView(props: Props) {
                 className="text-sm font-semibold text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
                 href={graphEvidenceHref}
               >
-                View evidence in graph
+                View evidence trail
               </Link>
             </p>
           ) : null}
@@ -291,7 +297,7 @@ export function FindingDetailPageView(props: Props) {
       ) : null}
 
       {inspectPayload !== null ? (
-        <CollapsibleSection title="Export for remediation ticket" defaultOpen={false}>
+        <CollapsibleSection title="Export for work tracking" defaultOpen={false}>
           <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
             Copy a structured summary formatted for your issue tracker (Markdown, GitHub Issues, Azure Boards, or Jira).
           </p>
@@ -328,7 +334,7 @@ export function FindingDetailPageView(props: Props) {
       ) : null}
 
       <CollapsibleSection
-        title={buyerPolishedShell ? "Reference — audit correlation (optional)" : "Technical audit trail"}
+        title={buyerPolishedShell ? "Related audit record" : "Technical audit trail"}
         defaultOpen={false}
       >
         <FindingExplainPanel

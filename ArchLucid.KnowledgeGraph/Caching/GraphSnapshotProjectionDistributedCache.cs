@@ -74,12 +74,18 @@ public sealed class GraphSnapshotProjectionDistributedCache(
 
     private TimeSpan ResolveTtl()
     {
-        int seconds = _optionsMonitor.CurrentValue.AbsoluteExpirationSeconds;
+        KnowledgeGraphProjectionCacheOptions options = _optionsMonitor.CurrentValue;
+        int seconds = options.AbsoluteExpirationSeconds;
 
         if (seconds < 1)
-            seconds = 300;
+            seconds = KnowledgeGraphProjectionCacheOptions.DefaultAbsoluteExpirationSeconds;
 
-        seconds = Math.Clamp(seconds, 1, 86400);
+        int maxSeconds = options.MaxAbsoluteExpirationSeconds;
+
+        if (maxSeconds < 1)
+            maxSeconds = KnowledgeGraphProjectionCacheOptions.DefaultMaxAbsoluteExpirationSeconds;
+
+        seconds = Math.Clamp(seconds, 1, maxSeconds);
 
         return TimeSpan.FromSeconds(seconds);
     }

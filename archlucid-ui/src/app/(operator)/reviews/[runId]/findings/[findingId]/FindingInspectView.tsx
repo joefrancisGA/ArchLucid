@@ -97,7 +97,7 @@ export function FindingInspectView({
   }
 
   const findingTitle = findingDetailHeadingTitle(payload);
-  const inspectHeroTitle = `${findingTitle} — evidence & trace`;
+  const inspectHeroTitle = buyerPolishedShell ? "Technical evidence trace" : `${findingTitle} — evidence & trace`;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">

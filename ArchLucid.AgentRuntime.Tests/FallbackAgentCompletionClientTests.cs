@@ -21,7 +21,7 @@ public sealed class FallbackAgentCompletionClientTests
         Mock<IAgentCompletionClient> primary = new();
         Mock<IAgentCompletionClient> secondary = new();
         primary.Setup(p => p.Descriptor).Returns(PrimaryDescriptor);
-        primary.Setup(p => p.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>())).ReturnsAsync("{}");
+        primary.Setup(p => p.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>())).ReturnsAsync("{}");
 
         FallbackAgentCompletionClient sut = new(
             primary.Object,
@@ -32,7 +32,7 @@ public sealed class FallbackAgentCompletionClientTests
 
         result.Should().Be("{}");
         secondary.Verify(
-            s => s.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            s => s.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -42,9 +42,9 @@ public sealed class FallbackAgentCompletionClientTests
         Mock<IAgentCompletionClient> primary = new();
         Mock<IAgentCompletionClient> secondary = new();
         primary.Setup(p => p.Descriptor).Returns(PrimaryDescriptor);
-        primary.Setup(p => p.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+        primary.Setup(p => p.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("limit", null, HttpStatusCode.TooManyRequests));
-        secondary.Setup(s => s.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+        secondary.Setup(s => s.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("{\"from\":\"secondary\"}");
 
         FallbackAgentCompletionClient sut = new(
@@ -55,7 +55,7 @@ public sealed class FallbackAgentCompletionClientTests
         string result = await sut.CompleteJsonAsync("s", "u");
 
         result.Should().Be("{\"from\":\"secondary\"}");
-        secondary.Verify(s => s.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()), Times.Once);
+        secondary.Verify(s => s.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [SkippableFact]
@@ -64,9 +64,9 @@ public sealed class FallbackAgentCompletionClientTests
         Mock<IAgentCompletionClient> primary = new();
         Mock<IAgentCompletionClient> secondary = new();
         primary.Setup(p => p.Descriptor).Returns(PrimaryDescriptor);
-        primary.Setup(p => p.CompleteJsonAsync("a", "b", It.IsAny<CancellationToken>()))
+        primary.Setup(p => p.CompleteJsonAsync("a", "b", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("srv", null, HttpStatusCode.InternalServerError));
-        secondary.Setup(s => s.CompleteJsonAsync("a", "b", It.IsAny<CancellationToken>())).ReturnsAsync("{}");
+        secondary.Setup(s => s.CompleteJsonAsync("a", "b", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>())).ReturnsAsync("{}");
 
         FallbackAgentCompletionClient sut = new(
             primary.Object,
@@ -75,7 +75,7 @@ public sealed class FallbackAgentCompletionClientTests
 
         await sut.CompleteJsonAsync("a", "b");
 
-        secondary.Verify(s => s.CompleteJsonAsync("a", "b", It.IsAny<CancellationToken>()), Times.Once);
+        secondary.Verify(s => s.CompleteJsonAsync("a", "b", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [SkippableFact]
@@ -84,7 +84,7 @@ public sealed class FallbackAgentCompletionClientTests
         Mock<IAgentCompletionClient> primary = new();
         Mock<IAgentCompletionClient> secondary = new();
         primary.Setup(p => p.Descriptor).Returns(PrimaryDescriptor);
-        primary.Setup(p => p.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+        primary.Setup(p => p.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("bad", null, HttpStatusCode.BadRequest));
 
         FallbackAgentCompletionClient sut = new(
@@ -96,7 +96,7 @@ public sealed class FallbackAgentCompletionClientTests
 
         await act.Should().ThrowAsync<HttpRequestException>();
         secondary.Verify(
-            s => s.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            s => s.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -106,7 +106,7 @@ public sealed class FallbackAgentCompletionClientTests
         Mock<IAgentCompletionClient> primary = new();
         Mock<IAgentCompletionClient> secondary = new();
         primary.Setup(p => p.Descriptor).Returns(PrimaryDescriptor);
-        primary.Setup(p => p.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+        primary.Setup(p => p.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new OperationCanceledException("canceled"));
 
         FallbackAgentCompletionClient sut = new(
@@ -118,7 +118,7 @@ public sealed class FallbackAgentCompletionClientTests
 
         await act.Should().ThrowAsync<OperationCanceledException>();
         secondary.Verify(
-            s => s.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            s => s.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -128,10 +128,10 @@ public sealed class FallbackAgentCompletionClientTests
         Mock<IAgentCompletionClient> primary = new();
         Mock<IAgentCompletionClient> secondary = new();
         primary.Setup(p => p.Descriptor).Returns(PrimaryDescriptor);
-        primary.Setup(p => p.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+        primary.Setup(p => p.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("limit", null, HttpStatusCode.TooManyRequests));
         InvalidOperationException secondaryFailure = new("secondary failed");
-        secondary.Setup(s => s.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+        secondary.Setup(s => s.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(secondaryFailure);
 
         FallbackAgentCompletionClient sut = new(

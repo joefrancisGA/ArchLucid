@@ -71,6 +71,8 @@ ArchLucid.Api.Controllers.Governance.GovernanceController.DryRunPolicyPack
 ArchLucid.Api.Controllers.Governance.GovernanceController.DryRunProposedPolicyPack
 # Same EvaluateAsync audit path as DryRunProposedPolicyPack (typed body facade over policy-packs/simulate).
 ArchLucid.Api.Controllers.Governance.PolicyPacksController.Simulate
+# Read-only structural validation; no durable state change.
+ArchLucid.Api.Controllers.Governance.PolicyPacksController.Validate
 ArchLucid.Api.Controllers.Governance.GovernancePreviewController.CompareEnvironments
 ArchLucid.Api.Controllers.Governance.GovernancePreviewController.Preview
 ArchLucid.Api.Controllers.Governance.PolicyPacksController.ArchiveAssignment

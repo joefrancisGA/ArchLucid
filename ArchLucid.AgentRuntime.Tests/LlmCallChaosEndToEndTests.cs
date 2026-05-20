@@ -51,7 +51,7 @@ public sealed class LlmCallChaosEndToEndTests
             retryAndChaos,
             NullLogger<CircuitBreakingAgentCompletionClient>.Instance);
 
-        string json = await sut.CompleteJsonAsync("s", "u", CancellationToken.None);
+        string json = await sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None);
 
         json.Should().Be("{}");
         inner.SuccessCount.Should().Be(1);
@@ -90,10 +90,10 @@ public sealed class LlmCallChaosEndToEndTests
             NullLogger<CircuitBreakingAgentCompletionClient>.Instance);
 
         await Assert.ThrowsAsync<HttpRequestException>(() =>
-            sut.CompleteJsonAsync("s", "u", CancellationToken.None));
+            sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None));
 
         await Assert.ThrowsAsync<CircuitBreakerOpenException>(() =>
-            sut.CompleteJsonAsync("s", "u", CancellationToken.None));
+            sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None));
     }
 
     private sealed class RecordingCompletionClient : IAgentCompletionClient
@@ -109,6 +109,8 @@ public sealed class LlmCallChaosEndToEndTests
         public Task<string> CompleteJsonAsync(
             string systemPrompt,
             string userPrompt,
+            int? maxTokens = null,
+            float? temperature = null,
             CancellationToken cancellationToken = default)
         {
             SuccessCount++;

@@ -79,8 +79,8 @@ export default function GetStartedPage(): ReactNode {
       </p>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
         Want proof without signing in first?{" "}
-        <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/demo/explain">
-          See a live run — citations &amp; provenance
+        <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/demo/preview">
+          See the evidence trail walkthrough
         </Link>{" "}
         (same seeded demo surface as{" "}
         <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/demo/preview">

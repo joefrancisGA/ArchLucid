@@ -57,6 +57,7 @@ import { applyAlertAction, fetchAlertActionLoop, listAlertsPaged } from "@/lib/a
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { alertPrimaryFindingDetailHref } from "@/lib/alert-finding-navigation";
+import { policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
 import { shouldMergeOperatorDemoAlertSample, tryStaticDemoAlertInboxRow } from "@/lib/operator-static-demo";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
@@ -437,6 +438,15 @@ export function AlertsInboxContent() {
                     <div className="mt-3">
                       <Button asChild variant="default" size="sm" className="h-9">
                         <Link href={findingDetailHref}>Open linked finding</Link>
+                      </Button>
+                    </div>
+                  ) : null}
+                  {alert.ruleId.trim().length > 0 ? (
+                    <div className={findingDetailHref !== null ? "mt-2" : "mt-3"}>
+                      <Button asChild variant="outline" size="sm" className="h-9">
+                        <Link href={policyPacksRuleHref(alert.ruleId)} data-testid="alert-policy-rule-link">
+                          Open policy rule
+                        </Link>
                       </Button>
                     </div>
                   ) : null}

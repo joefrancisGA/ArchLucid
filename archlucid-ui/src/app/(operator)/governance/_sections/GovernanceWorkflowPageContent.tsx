@@ -44,6 +44,7 @@ import {
 import {
   BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD,
   BUYER_GOVERNANCE_GOVERNED_USE_SCOPE,
+  BUYER_GOVERNANCE_PAGE_TITLE,
 } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type {
@@ -470,7 +471,7 @@ export function GovernanceWorkflowPageContent() {
     <div className="mx-auto max-w-4xl">
       <LayerHeader pageKey="governance-workflow" />
       <OperatorPageHeader
-        title={buyerPolishedShell ? "Governance approval" : "Governance workflow"}
+        title={buyerPolishedShell ? BUYER_GOVERNANCE_PAGE_TITLE : "Governance workflow"}
         docsPageKey="/governance"
         subtitle={
           showBuyerApprovalStory
@@ -535,12 +536,12 @@ export function GovernanceWorkflowPageContent() {
         <GovernanceInteractiveQuickstartCard />
       )}
 
-      {(isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled()) ? (
+      {(isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled()) && !showBuyerApprovalStory ? (
         <div className="mb-6 rounded-md border border-violet-200 bg-violet-50/70 px-4 py-3 text-sm text-neutral-900 dark:border-violet-900 dark:bg-violet-950/40 dark:text-neutral-50">
-          <strong>Sample approval path</strong>
+          <strong>Approval workflow reference</strong>
           {" — "}
-          Read-only sample timeline. In production, authorized roles submit requests, complete approval, release approved
-          packages to each environment, and record go-live.
+          In production, authorized roles submit requests, complete approval, release approved packages to each environment,
+          and record go-live.
         </div>
       ) : null}
 

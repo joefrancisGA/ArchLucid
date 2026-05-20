@@ -34,6 +34,7 @@ public sealed class CircuitBreakingAgentCompletionClient(
         string systemPrompt,
         string userPrompt,
         int? maxTokens = null,
+        float? temperature = null,
         CancellationToken cancellationToken = default)
     {
         try
@@ -61,7 +62,7 @@ public sealed class CircuitBreakingAgentCompletionClient(
             string stateBeforeOutcome = _gate.CurrentState;
 
             string result = await _llmRetryPipeline.ExecuteAsync(
-                async ct => await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, ct),
+                async ct => await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, ct),
                 cancellationToken);
 
             _gate.RecordSuccess();

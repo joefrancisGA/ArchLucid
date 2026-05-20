@@ -33,6 +33,7 @@ public sealed class PolicyPackMarkdownExplainService(
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug("Policy pack explain requested for '{PackName}'.", packDisplayName);
 
-        return await _completionClient.CompleteJsonAsync(system, user, maxTokens: null, ct).ConfigureAwait(false);
+        return await _completionClient.CompleteJsonAsync(system, user, maxTokens: null, cancellationToken: ct)
+            .ConfigureAwait(false);
     }
 }

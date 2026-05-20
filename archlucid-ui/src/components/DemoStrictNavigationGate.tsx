@@ -28,6 +28,7 @@ const DEMO_NAVIGATION_BLOCKED_PREFIXES: readonly string[] = [
   "/product-learning",
   "/recommendation-learning",
   "/evolution-review",
+  "/demo/explain",
 ];
 
 export function DemoStrictNavigationGate() {
