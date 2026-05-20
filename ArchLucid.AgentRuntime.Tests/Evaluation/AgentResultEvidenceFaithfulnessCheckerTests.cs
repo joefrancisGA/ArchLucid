@@ -57,10 +57,9 @@ public sealed class AgentResultEvidenceFaithfulnessCheckerTests
     {
         AgentEvidencePackage evidence = new();
 
-        string json =
-            """
-            {"claims":[{"detail":"Missing catalog linkage","evidenceRefs":["does-not-exist"]}],"findings":[]}
-            """;
+        const string json = """
+                            {"claims":[{"detail":"Missing catalog linkage","evidenceRefs":["does-not-exist"]}],"findings":[]}
+                            """;
 
         AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
 

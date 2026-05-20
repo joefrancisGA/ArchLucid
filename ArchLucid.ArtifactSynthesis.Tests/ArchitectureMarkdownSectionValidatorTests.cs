@@ -40,9 +40,9 @@ public sealed class ArchitectureMarkdownSectionValidatorTests
     [Fact]
     public void GetMissingSectionHeaders_does_not_treat_plain_text_as_headings()
     {
-        string markdown = """
-            Objective Assumptions Constraints Architecture Overview Component Breakdown Data Flow Security Model Operational Considerations
-            """;
+        const string markdown = """
+                                Objective Assumptions Constraints Architecture Overview Component Breakdown Data Flow Security Model Operational Considerations
+                                """;
 
         ArchitectureMarkdownSectionValidator.GetMissingSectionHeaders(markdown)
             .Should()
@@ -52,7 +52,7 @@ public sealed class ArchitectureMarkdownSectionValidatorTests
     [Fact]
     public void GetMissingSectionHeaders_ignores_level_three_heading_with_same_title()
     {
-        string markdown = "### Objective";
+        const string markdown = "### Objective";
 
         ArchitectureMarkdownSectionValidator.GetMissingSectionHeaders(markdown)
             .Should()
@@ -62,7 +62,7 @@ public sealed class ArchitectureMarkdownSectionValidatorTests
     [Fact]
     public void GetMissingSectionHeaders_allows_extra_spaces_after_hashes()
     {
-        string markdown = "##  Objective";
+        const string markdown = "##  Objective";
 
         IReadOnlyList<string> missing = ArchitectureMarkdownSectionValidator.GetMissingSectionHeaders(markdown);
 
@@ -72,7 +72,7 @@ public sealed class ArchitectureMarkdownSectionValidatorTests
     [Fact]
     public void GetMissingSectionHeaders_is_case_insensitive_for_titles()
     {
-        string markdown = "## objective";
+        const string markdown = "## objective";
 
         ArchitectureMarkdownSectionValidator.GetMissingSectionHeaders(markdown)
             .Should()

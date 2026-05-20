@@ -30,7 +30,11 @@ public sealed class LlmCostTuningRequestValidatorTests
     [Fact]
     public void Zero_input_fails()
     {
-        LlmCostTuningRequest req = new() { InputUsdPerMillionTokens = 0m, OutputUsdPerMillionTokens = 1m };
+        LlmCostTuningRequest req = new()
+        {
+            InputUsdPerMillionTokens = 0m,
+            OutputUsdPerMillionTokens = 1m
+        };
 
         ValidationResult result = _validator.Validate(req);
 
@@ -40,8 +44,12 @@ public sealed class LlmCostTuningRequestValidatorTests
     [Fact]
     public void Above_max_fails()
     {
-        decimal over = LlmCostTuningRequestValidator.MaxUsdPerMillionTokens + 0.0001m;
-        LlmCostTuningRequest req = new() { InputUsdPerMillionTokens = 1m, OutputUsdPerMillionTokens = over };
+        const decimal over = LlmCostTuningRequestValidator.MaxUsdPerMillionTokens + 0.0001m;
+        LlmCostTuningRequest req = new()
+        {
+            InputUsdPerMillionTokens = 1m,
+            OutputUsdPerMillionTokens = over
+        };
 
         ValidationResult result = _validator.Validate(req);
 

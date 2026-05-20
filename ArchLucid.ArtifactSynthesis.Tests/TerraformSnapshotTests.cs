@@ -23,13 +23,13 @@ public sealed class TerraformSnapshotTests
 
         Skip.IfNot(terraformExecutable is not null, TerraformPathSkipMessage);
 
-        string hclBody = """
-            variable "archlucid_terraform_snapshot_probe" {
-              type        = string
-              description = "ArchLucid ArtifactSynthesis.Tests probe variable"
-              default     = "ok"
-            }
-            """;
+        const string hclBody = """
+                               variable "archlucid_terraform_snapshot_probe" {
+                                 type        = string
+                                 description = "ArchLucid ArtifactSynthesis.Tests probe variable"
+                                 default     = "ok"
+                               }
+                               """;
 
         string tempDir = Path.Combine(Path.GetTempPath(), "archlucid-tf-test-" + Guid.NewGuid().ToString("N"));
 
@@ -39,7 +39,7 @@ public sealed class TerraformSnapshotTests
             string filePath = Path.Combine(tempDir, "main.tf");
             File.WriteAllText(filePath, hclBody);
 
-            RunTerraformInitFmtCheckValidate(terraformExecutable!, tempDir);
+            RunTerraformInitFmtCheckValidate(terraformExecutable, tempDir);
         }
         finally
         {
@@ -69,7 +69,7 @@ public sealed class TerraformSnapshotTests
 
         string hclBody;
 
-        using (StreamReader reader = new(tfEntry!.Open(), Encoding.UTF8))
+        using (StreamReader reader = new(tfEntry.Open(), Encoding.UTF8))
             hclBody = reader.ReadToEnd();
 
         string tempDir = Path.Combine(Path.GetTempPath(), "archlucid-tf-advisory-export-" + Guid.NewGuid().ToString("N"));
@@ -79,7 +79,7 @@ public sealed class TerraformSnapshotTests
             Directory.CreateDirectory(tempDir);
             File.WriteAllText(Path.Combine(tempDir, "main.tf"), hclBody);
 
-            RunTerraformInitFmtCheckValidate(terraformExecutable!, tempDir);
+            RunTerraformInitFmtCheckValidate(terraformExecutable, tempDir);
         }
         finally
         {
@@ -98,7 +98,8 @@ public sealed class TerraformSnapshotTests
             CreateNoWindow = true,
         };
 
-        using Process initProcess = new() { StartInfo = initPsi };
+        using Process initProcess = new();
+        initProcess.StartInfo = initPsi;
         initProcess.Start();
         initProcess.WaitForExit(TimeSpan.FromSeconds(120));
 
@@ -113,7 +114,8 @@ public sealed class TerraformSnapshotTests
             CreateNoWindow = true,
         };
 
-        using Process fmtProcess = new() { StartInfo = fmtPsi };
+        using Process fmtProcess = new();
+        fmtProcess.StartInfo = fmtPsi;
         fmtProcess.Start();
         fmtProcess.WaitForExit(TimeSpan.FromSeconds(60));
 
@@ -128,7 +130,8 @@ public sealed class TerraformSnapshotTests
             CreateNoWindow = true,
         };
 
-        using Process validateProcess = new() { StartInfo = validatePsi };
+        using Process validateProcess = new();
+        validateProcess.StartInfo = validatePsi;
         validateProcess.Start();
         validateProcess.WaitForExit(TimeSpan.FromSeconds(60));
 

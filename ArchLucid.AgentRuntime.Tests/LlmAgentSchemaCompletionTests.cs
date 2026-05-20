@@ -42,7 +42,7 @@ public sealed class LlmAgentSchemaCompletionTests
             "task1",
             "sys",
             "user base",
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         rawJson.Should().Be(ValidTopologyJson);
         parsed.ResultId.Should().Be("res1");
@@ -90,7 +90,7 @@ public sealed class LlmAgentSchemaCompletionTests
             "task1",
             "sys",
             "user base",
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         rawJson.Should().Be(ValidTopologyJson);
         parsed.RunId.Should().Be("run1");
@@ -123,7 +123,7 @@ public sealed class LlmAgentSchemaCompletionTests
             "task1",
             "sys",
             "user",
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*deserialize*");
 

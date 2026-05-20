@@ -33,7 +33,7 @@ internal static class AgentOutputEvaluationWorstGateAggregator
     {
         return Rank(a) >= Rank(b) ? a : b;
 
-        int Rank(AgentOutputQualityGateOutcome x) => x switch
+        static int Rank(AgentOutputQualityGateOutcome x) => x switch
         {
             AgentOutputQualityGateOutcome.Rejected => 2,
             AgentOutputQualityGateOutcome.Warned => 1,

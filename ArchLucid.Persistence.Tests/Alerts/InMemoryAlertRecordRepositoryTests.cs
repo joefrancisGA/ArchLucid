@@ -76,7 +76,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
         gone.Should().BeNull();
 
         IReadOnlyList<AlertRecord> scope =
-            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, null, 600, CancellationToken.None);
+            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, null, 600, ct: CancellationToken.None);
         scope.Should().HaveCount(500);
     }
 
@@ -151,17 +151,17 @@ public sealed class InMemoryAlertRecordRepositoryTests
             CancellationToken.None);
 
         IReadOnlyList<AlertRecord> list =
-            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, null, 2, CancellationToken.None);
+            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, null, 2, ct: CancellationToken.None);
         list.Should().HaveCount(2);
         list[0].CreatedUtc.Should().Be(BaseUtc.AddHours(3));
         list[1].CreatedUtc.Should().Be(BaseUtc.AddHours(1));
 
         IReadOnlyList<AlertRecord> defaultTake =
-            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, null, 0, CancellationToken.None);
+            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, null, 0, ct: CancellationToken.None);
         defaultTake.Should().HaveCount(3);
 
         IReadOnlyList<AlertRecord> maxCap =
-            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, null, 900, CancellationToken.None);
+            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, null, 900, ct: CancellationToken.None);
         maxCap.Should().HaveCount(3);
     }
 
@@ -177,7 +177,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
             CancellationToken.None);
 
         IReadOnlyList<AlertRecord> openOnly =
-            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, "open", 50, CancellationToken.None);
+            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, "open", 50, ct: CancellationToken.None);
 
         openOnly.Should().ContainSingle();
         openOnly[0].Status.Should().Be(AlertStatus.Open);
@@ -205,7 +205,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
             null,
             2,
             PaginationDefaults.MaxPageSize + 50,
-            CancellationToken.None);
+            ct: CancellationToken.None);
 
         total.Should().Be(10);
         page.Should().HaveCount(8);
@@ -218,7 +218,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
             null,
             -3,
             3,
-            CancellationToken.None);
+            ct: CancellationToken.None);
 
         total2.Should().Be(10);
         page2.Should().HaveCount(3);
