@@ -21,6 +21,12 @@ export const ARCHITECTURE_REVIEW_LABELS = {
   pipelineStatusAriaPrefix: "Architecture review pipeline status",
 } as const;
 
+/** `/reviews` index {@link OperatorPageHeader} title by shell mode (`RunsPageView`). */
+export const RUNS_LIST_PAGE_TITLES = {
+  buyerPolished: "Review packages",
+  fullOperator: "Architecture Reviews",
+} as const;
+
 export const PIPELINE_STATUS_LABELS = {
   finalized: "Finalized",
   readyToFinalize: "Ready to finalize",

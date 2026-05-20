@@ -19,7 +19,7 @@ public sealed class InMemoryCommitRunIdempotencyRepository : ICommitRunIdempoten
         ArgumentNullException.ThrowIfNull(idempotencyKeyHash);
         string key = BuildKey(tenantId, workspaceId, projectId, runId, idempotencyKeyHash);
 
-        return Task.FromResult(_rows.TryGetValue(key, out CommitRunIdempotencyLookup? lookup) ? lookup : null);
+        return Task.FromResult(_rows.GetValueOrDefault(key));
     }
 
     /// <inheritdoc />
@@ -37,7 +37,10 @@ public sealed class InMemoryCommitRunIdempotencyRepository : ICommitRunIdempoten
         string key = BuildKey(tenantId, workspaceId, projectId, runId, idempotencyKeyHash);
 
         CommitRunIdempotencyLookup row =
-            new() { RequestFingerprint = (byte[])requestFingerprint.Clone(), };
+            new()
+            {
+                RequestFingerprint = (byte[])requestFingerprint.Clone(),
+            };
 
         bool added = _rows.TryAdd(key, row);
 

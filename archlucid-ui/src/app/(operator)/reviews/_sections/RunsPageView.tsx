@@ -18,6 +18,7 @@ import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import { BUYER_RUNS_DASHBOARD_RECENT_SUMMARY } from "@/lib/buyer-polish-copy";
 import { RUNS_EMPTY } from "@/lib/empty-state-presets";
+import { RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 
 import type { RunsPageModel } from "./runs-page-model";
 
@@ -35,7 +36,11 @@ export function RunsPageView(props: Props) {
     <div>
       <OperatorWelcomeOnboarding serverEligible={m.welcomeOnboardingEligible} />
       <OperatorPageHeader
-        title={isBuyerPolishedOperatorShellEnv() ? "Review packages" : "Architecture Reviews"}
+        title={
+          isBuyerPolishedOperatorShellEnv()
+            ? RUNS_LIST_PAGE_TITLES.buyerPolished
+            : RUNS_LIST_PAGE_TITLES.fullOperator
+        }
         metadata={
           <>
             <span>{m.projectTitle}</span>

@@ -13,7 +13,7 @@ import {
   expectBuyerGoldenJourneyStepper,
   expectNoGenericErrorBoundary,
 } from "./helpers/buyer-golden-path";
-import { comparePageMainHeading } from "./helpers/operator-journey";
+import { askPageMainHeading, comparePageMainHeading, governancePageMainHeading } from "./helpers/operator-journey";
 
 test.describe("buyer golden path — Claims Intake spine", () => {
   test("walks five-step diligence spine and satellite surfaces without generic error @smoke @smoke-golden-path", async ({
@@ -57,11 +57,9 @@ test.describe("buyer golden path — Claims Intake spine", () => {
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
-    // Step 4 — Governance approval
+    // Step 4 — Governance decision record
     await page.goto(BUYER_GOLDEN_PATH_HREFS.governanceApproval);
-    await expect(
-      page.getByRole("heading", { level: 2, name: /^(Governance workflow|Governance approval)$/i }),
-    ).toBeVisible();
+    await expect(governancePageMainHeading(page)).toBeVisible();
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
@@ -90,9 +88,7 @@ test.describe("buyer golden path — Claims Intake spine", () => {
     await expectNoGenericErrorBoundary(page);
 
     await page.goto(BUYER_GOLDEN_PATH_HREFS.ask);
-    await expect(
-      page.getByRole("heading", { name: /^(Ask about a review|Evidence-backed review questions)$/i }),
-    ).toBeVisible();
+    await expect(askPageMainHeading(page)).toBeVisible();
     await expectNoGenericErrorBoundary(page);
 
     await page.goto(BUYER_GOLDEN_PATH_HREFS.policyPackDetail);

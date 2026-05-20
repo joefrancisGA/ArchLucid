@@ -1,10 +1,12 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
 import {
+  ASK_PAGE_PRIMARY_HEADING_PATTERN,
   FIXTURE_LEFT_RUN_ID,
   FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID,
   FIXTURE_RIGHT_RUN_ID,
   FIXTURE_RUN_ID,
+  GOVERNANCE_PAGE_PRIMARY_HEADING_PATTERN,
 } from "../fixtures";
 
 // --- Navigation (deterministic operator paths; defaults match shared fixtures) ---
@@ -33,6 +35,16 @@ export async function gotoComparePageWithFixturePair(
  */
 export function comparePageMainHeading(page: Page): Locator {
   return page.getByRole("heading", { level: 2, name: /Compare reviews|Advanced review comparison/i });
+}
+
+/** Primary `/ask` H2 from {@link OperatorPageHeader} (buyer-polished vs full-operator titles). */
+export function askPageMainHeading(page: Page): Locator {
+  return page.getByRole("heading", { level: 2, name: ASK_PAGE_PRIMARY_HEADING_PATTERN });
+}
+
+/** Primary `/governance` H2 from {@link OperatorPageHeader} (buyer-polished vs full-operator titles). */
+export function governancePageMainHeading(page: Page): Locator {
+  return page.getByRole("heading", { level: 2, name: GOVERNANCE_PAGE_PRIMARY_HEADING_PATTERN });
 }
 
 /**

@@ -44,6 +44,8 @@ export const BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD =
 export const BUYER_GOVERNANCE_GOVERNED_USE_SCOPE =
   "Approved for implementation planning, subject to enterprise change control — not a production deployment authorization.";
 
+export const BUYER_ASK_PAGE_TITLE = "Evidence-backed review questions";
+
 export const BUYER_GOVERNANCE_PAGE_TITLE = "Governance decision record";
 
 export const BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD =

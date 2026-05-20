@@ -15,6 +15,7 @@ import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/dem
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { tryStaticDemoConversationMessages } from "@/lib/ask-static-demo-messages";
 import { formatConversationListDate, formatConversationListDatePolished } from "@/lib/locale-datetime";
+import { BUYER_ASK_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
@@ -322,7 +323,7 @@ export function AskPageContent() {
   return (
     <div className="max-w-5xl">
       <OperatorPageHeader
-        title={buyerPolishedShell ? "Evidence-backed review questions" : "Ask about a review"}
+        title={buyerPolishedShell ? BUYER_ASK_PAGE_TITLE : "Ask about a review"}
         helpKey="ask-archlucid"
         subtitle={
           buyerPolishedShell ? undefined : "Conversations stay in your workspace. Select an architecture review for a new conversation; follow-ups stay on the same conversation without picking the review again."
