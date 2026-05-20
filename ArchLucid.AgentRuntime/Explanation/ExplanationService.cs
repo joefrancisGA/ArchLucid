@@ -59,8 +59,8 @@ public sealed class ExplanationService(
             "Respond with a single JSON object only (no markdown fences), keys:\n" +
             "highLevelSummary (string), keyTradeoffs (array of strings), narrative (string, 2-4 short paragraphs).";
 
-        string? json = await TryCompleteJsonAsync(userPrompt, ct);
-        json = ValidateComparisonExplanationPayload(json);
+        string? json = await TryCompleteJsonAsync(userPrompt, explanationOptions.Value.MaxTokens, ct);
+        json = await ValidateComparisonExplanationPayloadAsync(json, userPrompt, ct);
 
         return deterministic.BuildComparisonExplanation(comparison, majorChanges, json);
     }
@@ -96,8 +96,8 @@ public sealed class ExplanationService(
             StructuredExplanationLlmPromptSchema.BuildRunExplanationJsonResponseInstructions(
                 "2–4 paragraphs referencing the bullets above");
 
-        string? json = await TryCompleteJsonAsync(userPrompt, ct);
-        json = ValidateRunExplanationPayload(json);
+        string? json = await TryCompleteJsonAsync(userPrompt, explanationOptions.Value.MaxTokens, ct);
+        json = await ValidateRunExplanationPayloadAsync(json, userPrompt, ct);
         string rawStored = json ?? string.Empty;
 
         return FinalizeRunExplanation(
@@ -110,7 +110,7 @@ public sealed class ExplanationService(
                 rawStored));
     }
 
-    private string? ValidateRunExplanationPayload(string? json)
+    private async Task<string?> ValidateRunExplanationPayloadAsync(string? json, string userPrompt, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(json))
             return json;
@@ -138,13 +138,29 @@ public sealed class ExplanationService(
         if (logger.IsEnabled(LogLevel.Warning))
 
             logger.LogWarning(
-                "Run explanation LLM JSON failed schema validation; using deterministic fallback. Errors: {Errors}",
+                "Run explanation LLM JSON failed schema validation; retrying. Errors: {Errors}",
                 string.Join("; ", schemaResult.Errors));
+
+        // Retry on schema validation failure
+        string? retryJson = await TryCompleteJsonAsync(userPrompt, explanationOptions.Value.MaxTokens, ct);
+        
+        if (string.IsNullOrWhiteSpace(retryJson))
+            return null;
+
+        SchemaValidationResult retrySchemaResult = schemaValidation.ValidateExplanationRunJson(retryJson.Trim());
+        
+        if (retrySchemaResult.IsValid)
+        {
+            return retryJson;
+        }
+
+        if (logger.IsEnabled(LogLevel.Warning))
+            logger.LogWarning("Run explanation LLM JSON failed schema validation on retry; using deterministic fallback.");
 
         return null;
     }
 
-    private string? ValidateComparisonExplanationPayload(string? json)
+    private async Task<string?> ValidateComparisonExplanationPayloadAsync(string? json, string userPrompt, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(json))
             return json;
@@ -172,8 +188,24 @@ public sealed class ExplanationService(
         if (logger.IsEnabled(LogLevel.Warning))
 
             logger.LogWarning(
-                "Comparison explanation LLM JSON failed schema validation; using heuristic fallback. Errors: {Errors}",
+                "Comparison explanation LLM JSON failed schema validation; retrying. Errors: {Errors}",
                 string.Join("; ", schemaResult.Errors));
+
+        // Retry on schema validation failure
+        string? retryJson = await TryCompleteJsonAsync(userPrompt, explanationOptions.Value.MaxTokens, ct);
+        
+        if (string.IsNullOrWhiteSpace(retryJson))
+            return null;
+
+        SchemaValidationResult retrySchemaResult = schemaValidation.ValidateComparisonExplanationJson(retryJson.Trim());
+        
+        if (retrySchemaResult.IsValid)
+        {
+            return retryJson;
+        }
+
+        if (logger.IsEnabled(LogLevel.Warning))
+            logger.LogWarning("Comparison explanation LLM JSON failed schema validation on retry; using heuristic fallback.");
 
         return null;
     }
@@ -228,11 +260,11 @@ public sealed class ExplanationService(
             string.IsNullOrWhiteSpace(o.PromptContentHash) ? null : o.PromptContentHash.Trim());
     }
 
-    private async Task<string?> TryCompleteJsonAsync(string userPrompt, CancellationToken ct)
+    private async Task<string?> TryCompleteJsonAsync(string userPrompt, int? maxTokens, CancellationToken ct)
     {
         try
         {
-            string raw = await completionClient.CompleteJsonAsync(ArchitectSystemPrompt, userPrompt, ct);
+            string raw = await completionClient.CompleteJsonAsync(ArchitectSystemPrompt, userPrompt, maxTokens, ct);
 
             return UnwrapJsonFence(raw);
         }
@@ -243,7 +275,6 @@ public sealed class ExplanationService(
         catch (Exception ex)
         {
             logger.LogWarning(ex, "LLM completion failed in ExplanationService; falling back to heuristic response.");
-
             return null;
         }
     }

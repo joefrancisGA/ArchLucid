@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { HelpLink } from "@/components/HelpLink";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
@@ -102,6 +100,9 @@ export function AuditPageView(props: AuditPageViewProps) {
             clearDateRangeAndSearch={props.clearDateRangeAndSearch}
             runSearch={props.runSearch}
             clearFiltersAndSearch={props.clearFiltersAndSearch}
+            showSavedViews={!buyerPolishedShell && props.canMutateEnterpriseShell}
+            getAuditSavedViewPayload={props.getAuditSavedViewPayload}
+            loadAuditSavedView={props.loadAuditSavedView}
           />
         </div>
 

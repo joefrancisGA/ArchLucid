@@ -25,8 +25,19 @@ public sealed class TerraformGitHubPrOptions
     public string BaseBranch { get; set; } = "main";
 
     /// <summary>
-    ///     GitHub Personal Access Token (PAT) with <c>repo</c> scope, or a GitHub App installation token.
+    ///     Optional base URL for the ArchLucid Operator UI (e.g. <c>https://archlucid.local</c>).
+    ///     Used to generate deeplinks in PR comments.
+    /// </summary>
+    public string? OperatorUiBaseUrl
+    {
+        get;
+        set;
+    }
     ///     Use a Key Vault reference rather than a plaintext value in production.
+    ///     Never logged.
+    /// </summary>
+    /// <summary>
+    ///     GitHub Personal Access Token (PAT) with <c>repo</c> scope, or a GitHub App installation token.
     ///     Never logged.
     /// </summary>
     public string? PersonalAccessToken { get; set; }

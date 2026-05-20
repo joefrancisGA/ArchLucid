@@ -63,4 +63,7 @@ public interface IPolicyPacksAppService
 
     /// <summary>Archives an assignment in the current tenant; logs <c>PolicyPackAssignmentArchived</c> when successful.</summary>
     Task<bool> TryArchiveAssignmentAsync(Guid tenantId, Guid assignmentId, CancellationToken ct);
+
+    /// <summary>Soft-deletes a policy pack; logs <c>PolicyPackDeleted</c> when successful.</summary>
+    Task<bool> TrySoftDeletePackAsync(Guid tenantId, Guid policyPackId, CancellationToken ct);
 }

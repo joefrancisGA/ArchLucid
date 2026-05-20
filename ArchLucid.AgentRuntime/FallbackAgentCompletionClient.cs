@@ -70,6 +70,7 @@ public sealed class FallbackAgentCompletionClient : IAgentCompletionClient, IDis
     public async Task<string> CompleteJsonAsync(
         string systemPrompt,
         string userPrompt,
+        int? maxTokens = null,
         CancellationToken cancellationToken = default)
     {
         LastCallUsedFallback.Value = false;
@@ -77,7 +78,7 @@ public sealed class FallbackAgentCompletionClient : IAgentCompletionClient, IDis
 
         try
         {
-            return await _primary.CompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
+            return await _primary.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, cancellationToken);
         }
         catch (OperationCanceledException)
         {
@@ -91,7 +92,7 @@ public sealed class FallbackAgentCompletionClient : IAgentCompletionClient, IDis
                     "Primary LLM completion failed with a fallback-eligible error; trying {Count} fallback endpoint(s).",
                     _fallbacks.Count);
 
-            return await CompleteWithFallbacksAsync(systemPrompt, userPrompt, cancellationToken, ex);
+            return await CompleteWithFallbacksAsync(systemPrompt, userPrompt, maxTokens, cancellationToken, ex);
         }
     }
 
@@ -113,6 +114,7 @@ public sealed class FallbackAgentCompletionClient : IAgentCompletionClient, IDis
     private async Task<string> CompleteWithFallbacksAsync(
         string systemPrompt,
         string userPrompt,
+        int? maxTokens,
         CancellationToken cancellationToken,
         Exception primaryFailure)
     {
@@ -124,7 +126,7 @@ public sealed class FallbackAgentCompletionClient : IAgentCompletionClient, IDis
 
             try
             {
-                string result = await client.CompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
+                string result = await client.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, cancellationToken);
                 LastCallUsedFallback.Value = true;
 
                 string deployment =

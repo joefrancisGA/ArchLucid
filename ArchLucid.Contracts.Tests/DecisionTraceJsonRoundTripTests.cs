@@ -70,7 +70,16 @@ public sealed class DecisionTraceJsonRoundTripTests
                 AppliedRuleIds = ["r1"],
                 AcceptedFindingIds = ["f1"],
                 RejectedFindingIds = [],
-                Notes = []
+                Notes = [],
+                Warnings =
+                [
+                    new RuleAuditTraceWarning
+                    {
+                        RuleId = "r1",
+                        MissingFieldPaths = ["payload.controlId"],
+                        Severity = RuleAuditTraceWarningSeverity.Warning
+                    }
+                ]
             });
 
         string json = JsonSerializer.Serialize<DecisionTrace>(original, JsonOptions);
@@ -83,6 +92,9 @@ public sealed class DecisionTraceJsonRoundTripTests
         audit.DecisionTraceId.Should().Be(traceId);
         audit.RunId.Should().Be(runId);
         audit.AppliedRuleIds.Should().Equal("r1");
+        audit.Warnings.Should().ContainSingle();
+        audit.Warnings[0].RuleId.Should().Be("r1");
+        audit.Warnings[0].MissingFieldPaths.Should().Equal("payload.controlId");
     }
 
     [Fact]

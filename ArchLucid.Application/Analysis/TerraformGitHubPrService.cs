@@ -185,8 +185,12 @@ public sealed class TerraformGitHubPrService(
         return doc.RootElement.GetProperty("number").GetInt32();
     }
 
-    private static string BuildPrBody(Guid runId) =>
-        $"""
+    private string BuildPrBody(Guid runId)
+    {
+        string baseUrl = _optionsMonitor.CurrentValue.OperatorUiBaseUrl ?? "https://archlucid.local";
+        string approveUrl = $"{baseUrl}/reviews/{runId:D}/finalize";
+        
+        return $"""
          ## ArchLucid Advisory Terraform Export
 
          > **This is an advisory export only.** Review and adapt the Terraform files before applying them
@@ -195,7 +199,13 @@ public sealed class TerraformGitHubPrService(
          **Run ID:** `{runId:D}`
 
          See the README inside the committed files for aztfexport usage guidance.
+
+         ---
+         
+         ### Actions
+         - [Approve / Finalize Run]({approveUrl})
          """;
+    }
 
     /// <summary>
     ///     Extracts text files from the advisory Terraform ZIP (skips binary files and directories).

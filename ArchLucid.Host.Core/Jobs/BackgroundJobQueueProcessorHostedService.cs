@@ -16,7 +16,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
     QueueClient queueClient,
     IBackgroundJobRepository repository,
     IServiceScopeFactory scopeFactory,
-    IOptions<BackgroundJobsOptions> options) : BackgroundService
+    IOptions<BackgroundJobsOptions> options) : BackgroundService, IAsyncDisposable
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -194,5 +194,11 @@ public sealed class BackgroundJobQueueProcessorHostedService(
 
         await repository.MarkFailedTerminalAsync(jobId, ex.Message, nextRetry, stoppingToken);
         await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await base.StopAsync(CancellationToken.None);
+        base.Dispose();
     }
 }

@@ -25,7 +25,6 @@ import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import {
   getBuyerSafeReviewsTableLink,
   getCanonicalReviewWorkspaceHref,
-  getShowcaseExecutiveHref,
   getShowcaseManifestHref,
   getShowcaseWalkthroughHref,
   isBuyerSafePrimaryReviewNavigationPreferred,

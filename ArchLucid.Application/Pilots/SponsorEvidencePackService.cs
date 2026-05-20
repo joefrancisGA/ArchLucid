@@ -68,7 +68,7 @@ public sealed class SponsorEvidencePackService(
     private async Task<FindingsSnapshot> ResolveFindingsSnapshotAsync(ArchitectureRunDetail? detail, CancellationToken cancellationToken)
     {
         if (detail?.Run.FindingsSnapshotId is not { } snapshotId)
-            return new FindingsSnapshot { Findings = [] };
+            return new FindingsSnapshot { Findings = [], TotalEstimatedSavings = 0m };
         try
         {
             FindingsSnapshot? loaded = await _findingsSnapshotRepository.GetByIdAsync(snapshotId, cancellationToken);
@@ -76,13 +76,13 @@ public sealed class SponsorEvidencePackService(
                 return loaded;
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning("Sponsor evidence pack: findings snapshot {SnapshotId} not found for demo run.", snapshotId);
-            return new FindingsSnapshot { Findings = [], FindingsSnapshotId = snapshotId };
+            return new FindingsSnapshot { Findings = [], FindingsSnapshotId = snapshotId, TotalEstimatedSavings = 0m };
         }
         catch (Exception ex)when (ex is not OperationCanceledException)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "Sponsor evidence pack: findings snapshot load failed.");
-            return new FindingsSnapshot { Findings = [] };
+            return new FindingsSnapshot { Findings = [], TotalEstimatedSavings = 0m };
         }
     }
 

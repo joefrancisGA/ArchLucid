@@ -28,9 +28,10 @@ public sealed class CostGuardrailInterceptor(
     public async Task<string> CompleteJsonAsync(
         string systemPrompt,
         string userPrompt,
+        int? maxTokens = null,
         CancellationToken cancellationToken = default)
     {
-        string result = await _inner.CompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
+        string result = await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, cancellationToken);
 
         AgentCompletionTokenUsage.TryPeek(out int? inTok, out int? outTok, out int? reasoningTok);
 

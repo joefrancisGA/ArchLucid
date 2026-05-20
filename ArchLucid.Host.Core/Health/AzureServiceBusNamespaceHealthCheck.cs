@@ -7,7 +7,7 @@ using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Api.Health;
+namespace ArchLucid.Host.Core.Health;
 
 /// <summary>
 ///     Verifies data-plane reachability to the Azure Service Bus namespace used for integration events (same settings as

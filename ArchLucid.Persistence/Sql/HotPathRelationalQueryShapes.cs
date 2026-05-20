@@ -20,7 +20,8 @@ internal static class HotPathRelationalQueryShapes
                                                       IsDemoWelcomeRun,
                                                       IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                                       StructuralExecutionMode,
-                                                      RetryCount, LastFailureReason
+                                                      RetryCount, LastFailureReason,
+                                                      CASE WHEN EXISTS (SELECT 1 FROM dbo.FindingsSnapshots fs WITH (NOLOCK) WHERE fs.RunId = dbo.Runs.RunId AND fs.ArchivedUtc IS NULL AND fs.HasWarnings = 1) THEN 1 ELSE 0 END AS HasWarnings
                                                   FROM dbo.Runs WITH (NOLOCK)
                                                   WHERE ProjectId = @ProjectSlug
                                                     AND TenantId = @TenantId
@@ -40,7 +41,8 @@ internal static class HotPathRelationalQueryShapes
                                                             IsDemoWelcomeRun,
                                                             IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                                             StructuralExecutionMode,
-                                                            RetryCount, LastFailureReason
+                                                            RetryCount, LastFailureReason,
+                                                            CASE WHEN EXISTS (SELECT 1 FROM dbo.FindingsSnapshots fs WITH (NOLOCK) WHERE fs.RunId = dbo.Runs.RunId AND fs.ArchivedUtc IS NULL AND fs.HasWarnings = 1) THEN 1 ELSE 0 END AS HasWarnings
                                                         FROM dbo.Runs WITH (NOLOCK)
                                                         WHERE ProjectId = @ProjectSlug
                                                           AND TenantId = @TenantId
@@ -89,7 +91,8 @@ internal static class HotPathRelationalQueryShapes
                                                           IsDemoWelcomeRun,
                                                           IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                                           StructuralExecutionMode,
-                                                          RetryCount, LastFailureReason
+                                                          RetryCount, LastFailureReason,
+                                                          CASE WHEN EXISTS (SELECT 1 FROM dbo.FindingsSnapshots fs WITH (NOLOCK) WHERE fs.RunId = dbo.Runs.RunId AND fs.ArchivedUtc IS NULL AND fs.HasWarnings = 1) THEN 1 ELSE 0 END AS HasWarnings
                                                       FROM dbo.Runs WITH (NOLOCK)
                                                       WHERE TenantId = @TenantId
                                                         AND WorkspaceId = @WorkspaceId
@@ -108,7 +111,8 @@ internal static class HotPathRelationalQueryShapes
                                                                 IsDemoWelcomeRun,
                                                                 IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                                                 StructuralExecutionMode,
-                                                                RetryCount, LastFailureReason
+                                                                RetryCount, LastFailureReason,
+                                                                CASE WHEN EXISTS (SELECT 1 FROM dbo.FindingsSnapshots fs WITH (NOLOCK) WHERE fs.RunId = dbo.Runs.RunId AND fs.ArchivedUtc IS NULL AND fs.HasWarnings = 1) THEN 1 ELSE 0 END AS HasWarnings
                                                             FROM dbo.Runs WITH (NOLOCK)
                                                             WHERE TenantId = @TenantId
                                                               AND WorkspaceId = @WorkspaceId
@@ -128,7 +132,8 @@ internal static class HotPathRelationalQueryShapes
                                                                 IsDemoWelcomeRun,
                                                                 IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                                                 StructuralExecutionMode,
-                                                                RetryCount, LastFailureReason
+                                                                RetryCount, LastFailureReason,
+                                                                CASE WHEN EXISTS (SELECT 1 FROM dbo.FindingsSnapshots fs WITH (NOLOCK) WHERE fs.RunId = dbo.Runs.RunId AND fs.ArchivedUtc IS NULL AND fs.HasWarnings = 1) THEN 1 ELSE 0 END AS HasWarnings
                                                             FROM dbo.Runs WITH (NOLOCK)
                                                             WHERE TenantId = @TenantId
                                                               AND WorkspaceId = @WorkspaceId

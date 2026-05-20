@@ -353,7 +353,8 @@ public sealed class AdvisoryScanRunner(
             ContextSnapshotId = manifest.ContextSnapshotId,
             GraphSnapshotId = manifest.GraphSnapshotId,
             CreatedUtc = manifest.CreatedUtc,
-            Findings = []
+            Findings = [],
+            TotalEstimatedSavings = 0m
         };
     }
 }

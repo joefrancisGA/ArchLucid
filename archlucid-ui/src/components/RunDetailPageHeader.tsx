@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { StatusPill } from "@/components/StatusPill";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 import type { RunSummary } from "@/types/authority";
 
 export type RunDetailPageHeaderProps = {
@@ -137,6 +139,14 @@ export function RunDetailPageHeader({
               ) : (
                 <p className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-50">Finalized package</p>
               )}
+              {hasGoldenManifest && (
+                <Button variant="outline" size="sm" asChild className="mt-1">
+                  <Link href={`/api/runs/${encodeURIComponent(runId)}/export/docx`} prefetch={false} target="_blank">
+                    <Download className="mr-2 h-4 w-4" />
+                    Export to DOCX
+                  </Link>
+                </Button>
+              )}
             </div>
           ) : (
             <div className="flex shrink-0 flex-col gap-1.5">
@@ -145,6 +155,14 @@ export function RunDetailPageHeader({
                 <ContextualHelp helpKey="commit-manifest" />
               </p>
               <CommitRunButton runId={runId} disabled={hasGoldenManifest} />
+              {hasGoldenManifest && (
+                <Button variant="outline" size="sm" asChild className="mt-1">
+                  <Link href={`/api/runs/${encodeURIComponent(runId)}/export/docx`} prefetch={false} target="_blank">
+                    <Download className="mr-2 h-4 w-4" />
+                    Export to DOCX
+                  </Link>
+                </Button>
+              )}
               <p className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
                 <span className="whitespace-nowrap">Governance approval</span>
                 <ContextualHelp helpKey="governance-gate" placement="left" />
@@ -158,6 +176,14 @@ export function RunDetailPageHeader({
               <ContextualHelp helpKey="commit-manifest" />
             </p>
             <CommitRunButton runId={runId} disabled={hasGoldenManifest} />
+            {hasGoldenManifest && (
+              <Button variant="outline" size="sm" asChild className="mt-1">
+                <Link href={`/api/runs/${encodeURIComponent(runId)}/export/docx`} prefetch={false} target="_blank">
+                  <Download className="mr-2 h-4 w-4" />
+                  Export to DOCX
+                </Link>
+              </Button>
+            )}
             <p className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
               <span className="whitespace-nowrap">Governance gate</span>
               <ContextualHelp helpKey="governance-gate" placement="left" />

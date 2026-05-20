@@ -59,6 +59,13 @@ public class FindingsSnapshot
         set;
     } = [];
 
+    /// <summary>Sum of projected impact for all accepted Cost-related findings in the run.</summary>
+    public decimal TotalEstimatedSavings
+    {
+        get;
+        set;
+    }
+
     public IReadOnlyList<Finding> GetByCategory(string category)
     {
         return Findings

@@ -279,12 +279,14 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 await TryMarkRunQualityGateRejectedAsync(runId, actor, ex, cancellationToken);
                 throw;
             }
-            catch (Exception ex)
-            {
-                if (logger.IsEnabled(LogLevel.Warning))
-                    logger.LogWarning(ex, "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged.",
-                        LogSanitizer.Sanitize(runId));
-            }
+        catch (Exception ex)
+        {
+            if (logger.IsEnabled(LogLevel.Warning))
+                logger.LogWarning(ex, "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged.",
+                    LogSanitizer.Sanitize(runId));
+            
+            logger.LogError(ex, "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged. CorrelationId={CorrelationId}", LogSanitizer.Sanitize(runId), System.Diagnostics.Activity.Current?.Id ?? "unknown");
+        }
 
             await TryPromoteRunLegacyStatusIfAllResultsPresentAsync(runId, results, cancellationToken);
             await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunExecuteSucceeded, actor, runId, $"ResultCount={results.Count}",
@@ -302,6 +304,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         {
             if (logger.IsEnabled(LogLevel.Warning))
                 logger.LogWarningArchitectureRunExecutionFailed(ex, runId, ex.GetType().Name);
+                
+            logger.LogError(ex, "Architecture run execution failed: RunId={RunId}, ExceptionType={ExceptionType}. CorrelationId={CorrelationId}", LogSanitizer.Sanitize(runId), ex.GetType().Name, System.Diagnostics.Activity.Current?.Id ?? "unknown");
 
             AgentExecutionFailureSummary failureSummary = AgentExecutionFailureSummaryFactory.FromException(ex);
             await TryMarkRunExecuteFailedAsync(runId, failureSummary, cancellationToken);
@@ -477,6 +481,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         header.CompletedUtc = TimeProvider.System.UtcNowDateTime();
         header.LastFailureReason = AgentExecutionFailureSummaryJson.Serialize(summary);
         await runRepository.UpdateAsync(header, cancellationToken);
+        
+        logger.LogError("Run execution failed for RunId={RunId}. CorrelationId={CorrelationId}", LogSanitizer.Sanitize(runId), System.Diagnostics.Activity.Current?.Id ?? "unknown");
     }
 
     /// <summary>

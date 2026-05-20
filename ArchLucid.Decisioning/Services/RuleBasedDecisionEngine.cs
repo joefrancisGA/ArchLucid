@@ -66,6 +66,21 @@ public class RuleBasedDecisionEngine(
 
             foreach (DecisionRule rule in matchingRules)
             {
+                if (!DecisionRuleCriteriaEvaluator.TryEvaluate(finding, rule.Criteria, out IReadOnlyList<string> missingContextFieldPaths))
+                {
+                    if (missingContextFieldPaths.Count > 0)
+                    {
+                        audit.Warnings.Add(new RuleAuditTraceWarning
+                        {
+                            RuleId = rule.RuleId,
+                            MissingFieldPaths = missingContextFieldPaths.ToList(),
+                            Severity = RuleAuditTraceWarningSeverity.Warning
+                        });
+                    }
+
+                    continue;
+                }
+
                 audit.AppliedRuleIds.Add(rule.RuleId);
 
                 switch (rule.Action.ToLowerInvariant())

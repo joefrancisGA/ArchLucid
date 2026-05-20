@@ -85,4 +85,11 @@ public class PolicyPack
         get;
         set;
     } = "1.0.0";
+
+    /// <summary>Soft-delete flag.</summary>
+    public bool IsDeleted
+    {
+        get;
+        set;
+    }
 }

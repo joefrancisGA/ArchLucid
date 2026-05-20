@@ -90,6 +90,7 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
             new { RunId = runId },
+            flags: CommandFlags.None,
             cancellationToken: cancellationToken));
 
         List<DecisionNode> nodes = [];

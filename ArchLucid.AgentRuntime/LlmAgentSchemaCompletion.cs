@@ -51,7 +51,7 @@ public static class LlmAgentSchemaCompletion
             string userPrompt = BuildUserPrompt(baseUserPrompt, lastRemediation);
 
             string rawJson = await completionClient
-                .CompleteJsonAsync(systemPrompt, userPrompt, cancellationToken)
+                .CompleteJsonAsync(systemPrompt, userPrompt, maxTokens: null, cancellationToken)
                 .ConfigureAwait(false);
 
             try

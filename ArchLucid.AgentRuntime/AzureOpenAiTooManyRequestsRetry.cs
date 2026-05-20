@@ -114,7 +114,10 @@ internal static class AzureOpenAiTooManyRequestsRetry
             if (current is not RequestFailedException rfe)
                 continue;
 
-            if (!rfe.Headers.TryGetValue("Retry-After", out string? rawValue)
+            Response? response = rfe.GetRawResponse();
+
+            if (response is null
+                || !response.Headers.TryGetValue("Retry-After", out string? rawValue)
                 || string.IsNullOrWhiteSpace(rawValue))
                 continue;
 

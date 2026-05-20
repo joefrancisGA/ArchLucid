@@ -152,6 +152,8 @@ public partial class FindingsOrchestrator(
 
         FindingHumanReviewInitializer.Apply(snapshot.Findings, _humanReviewOptions.Value);
 
+        snapshot.TotalEstimatedSavings = FindingsSnapshotEstimatedSavingsCalculator.ComputeTotal(snapshot.Findings);
+
         FindingsSnapshotMigrator.Apply(snapshot);
 
         snapshot.GenerationStatus = engineFailures.Count switch

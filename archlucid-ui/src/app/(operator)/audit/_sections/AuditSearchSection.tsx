@@ -1,5 +1,9 @@
 import { ChevronDown } from "lucide-react";
 
+import { OperatorSavedViewsBar } from "@/components/OperatorSavedViewsBar";
+import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
+import type { OperatorSavedViewPayload } from "@/lib/operator-saved-view-types";
+
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   auditClearFiltersButtonLabelReaderRank,
@@ -47,6 +51,9 @@ type AuditSearchSectionProps = {
   clearDateRangeAndSearch: () => void | Promise<void>;
   runSearch: () => void | Promise<void>;
   clearFiltersAndSearch: () => void | Promise<void>;
+  showSavedViews?: boolean;
+  getAuditSavedViewPayload?: () => OperatorSavedViewPayload;
+  loadAuditSavedView?: (view: OperatorSavedView) => void | Promise<void>;
 };
 
 export function AuditSearchSection(props: AuditSearchSectionProps) {
@@ -79,6 +86,9 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
     clearDateRangeAndSearch,
     runSearch,
     clearFiltersAndSearch,
+    showSavedViews = false,
+    getAuditSavedViewPayload,
+    loadAuditSavedView,
   } = props;
 
   return (
@@ -88,6 +98,14 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
         "rounded-lg p-3 mb-4 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-700",
       )}
     >
+      {showSavedViews && getAuditSavedViewPayload !== undefined && loadAuditSavedView !== undefined ? (
+        <OperatorSavedViewsBar
+          surface="audit"
+          disabled={searching || loadingTypes}
+          getCurrentPayload={getAuditSavedViewPayload}
+          onLoadView={loadAuditSavedView}
+        />
+      ) : null}
       <h3 id="audit-search-heading" className="mt-0 mb-3 text-base">
         {buyerPolishedShell
           ? auditSearchEventsSectionHeadingBuyerPolished

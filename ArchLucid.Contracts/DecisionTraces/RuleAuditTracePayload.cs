@@ -83,4 +83,10 @@ public sealed class RuleAuditTracePayload
         get;
         set;
     } = [];
+
+    public List<RuleAuditTraceWarning> Warnings
+    {
+        get;
+        set;
+    } = [];
 }

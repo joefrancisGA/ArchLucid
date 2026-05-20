@@ -69,6 +69,11 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             Enum.TryParse(hrsEl.GetString(), true, out FindingHumanReviewStatus hrs))
             finding.HumanReviewStatus = hrs;
 
+        if (root.TryGetProperty("projectedImpactUsd", out JsonElement impactEl) &&
+            impactEl.ValueKind == JsonValueKind.Number &&
+            impactEl.TryGetDecimal(out decimal projectedImpactUsd))
+            finding.ProjectedImpactUsd = projectedImpactUsd;
+
         if (root.TryGetProperty("reviewedAtUtc", out JsonElement raEl) && raEl.ValueKind == JsonValueKind.String &&
             DateTimeOffset.TryParse(raEl.GetString(), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind,
                 out DateTimeOffset ra))
@@ -149,6 +154,10 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             writer.WriteNull("evaluationConfidenceLevel");
 
         writer.WriteString("humanReviewStatus", value.HumanReviewStatus.ToString());
+
+        if (value.ProjectedImpactUsd is { } projectedImpactUsd)
+            writer.WriteNumber("projectedImpactUsd", projectedImpactUsd);
+
         WriteOptionalString(writer, "reviewedByUserId", value.ReviewedByUserId);
 
         if (value.ReviewedAtUtc is { } ra)

@@ -28,11 +28,14 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { isStaticDemoPayloadFallbackEnabled, shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
+import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
+import type { AuditSavedViewFilters } from "@/lib/operator-saved-view-types";
 import type { AuditPageViewProps } from "./audit-page-view-props";
 import type { AuditPageServerLoad } from "./load-audit-page-data";
 import {
   AUDIT_PAGE_SIZE,
   type AuditFilterFields,
+  buildAuditSavedViewPayload,
   toDatetimeLocalInputValue,
 } from "./audit-page-helpers";
 import { resolveAuditSearchPageForUi, shouldInjectAuditDemoOnSearchError } from "./resolve-audit-search-page-for-ui";
@@ -357,6 +360,56 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
     }
   }, [currentFilters, currentPrincipal.roleClaimValues, fromUtc, toUtc]);
 
+  const getAuditSavedViewPayload = useCallback(
+    () => buildAuditSavedViewPayload(currentFilters(), auditDatePreset, advancedAuditFiltersOpen),
+    [advancedAuditFiltersOpen, auditDatePreset, currentFilters],
+  );
+
+  const loadAuditSavedView = useCallback(
+    async (view: OperatorSavedView) => {
+      const filters = view.payload.filters as AuditSavedViewFilters;
+      const nextFilters: AuditFilterFields = {
+        eventType: filters.eventType ?? "",
+        fromUtc: filters.fromUtc ?? "",
+        toUtc: filters.toUtc ?? "",
+        correlationId: filters.correlationId ?? "",
+        actorUserId: filters.actorUserId ?? "",
+        runId: filters.runId ?? "",
+      };
+
+      setEventType(nextFilters.eventType);
+      setFromUtc(nextFilters.fromUtc);
+      setToUtc(nextFilters.toUtc);
+      setCorrelationId(nextFilters.correlationId);
+      setActorUserId(nextFilters.actorUserId);
+      setRunId(nextFilters.runId);
+      setAuditDatePreset(filters.auditDatePreset ?? null);
+      setAdvancedAuditFiltersOpen(
+        filters.advancedAuditFiltersOpen ?? view.payload.columnVisibility?.showAdvancedFilters === true,
+      );
+      setSearching(true);
+      setFailure(null);
+
+      try {
+        const page = await executeSearch(nextFilters);
+
+        applySearchPageToState(page, nextFilters);
+      } catch (error) {
+        if (shouldInjectAuditDemoOnSearchError(nextFilters)) {
+          setEvents(getDemoSampleAuditTrailEvents());
+          setHasMoreResults(false);
+          setAuditNextCursor(null);
+          setFailure(null);
+        } else {
+          setFailure(toApiLoadFailure(error));
+        }
+      } finally {
+        setSearching(false);
+      }
+    },
+    [applySearchPageToState, executeSearch],
+  );
+
   const exportDateRangeReady = canExportAuditCsv(fromUtc, toUtc);
   const exportRoleOk = principalRolesAllowAuditCsvExport(currentPrincipal.roleClaimValues);
   const csvExportUiAllowed = exportDateRangeReady && exportRoleOk;
@@ -474,5 +527,7 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
     exporting,
     exportDateRangeReady,
     onExportCsv,
+    getAuditSavedViewPayload,
+    loadAuditSavedView,
   };
 }

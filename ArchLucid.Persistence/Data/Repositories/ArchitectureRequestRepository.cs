@@ -33,7 +33,8 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
                                Environment,
                                CloudProvider,
                                RequestJson,
-                               CreatedUtc
+                               CreatedUtc,
+                               IsArchived
                            )
                            VALUES
                            (
@@ -42,7 +43,8 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
                                @Environment,
                                @CloudProvider,
                                @RequestJson,
-                               @CreatedUtc
+                               @CreatedUtc,
+                               @IsArchived
                            );
                            """;
 
@@ -62,7 +64,8 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
                     request.Environment,
                     CloudProvider = request.CloudProvider.ToString(),
                     RequestJson = json,
-                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                    IsArchived = request.IsArchived
                 },
                 transaction,
                 cancellationToken: cancellationToken));
@@ -108,5 +111,20 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
                ?? throw new InvalidOperationException(
                    $"Request JSON for '{requestId}' deserialized to null. " +
                    "The stored JSON may be empty or corrupt.");
+    }
+
+    public async Task ArchiveAsync(string requestId, CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           UPDATE ArchitectureRequests
+                           SET IsArchived = 1
+                           WHERE RequestId = @RequestId;
+                           """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await connection.ExecuteAsync(new CommandDefinition(
+            sql,
+            new { RequestId = requestId },
+            cancellationToken: cancellationToken));
     }
 }

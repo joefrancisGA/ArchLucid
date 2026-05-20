@@ -95,6 +95,8 @@ export function auditBuyerActorRoleLine(actorName: string, eventType: string): s
   return "Participant";
 }
 
+import type { OperatorSavedViewPayload } from "@/lib/operator-saved-view-types";
+
 export interface AuditFilterFields {
   eventType: string;
   fromUtc: string;
@@ -102,4 +104,27 @@ export interface AuditFilterFields {
   correlationId: string;
   actorUserId: string;
   runId: string;
+}
+
+export function buildAuditSavedViewPayload(
+  filters: AuditFilterFields,
+  auditDatePreset: null | "24h" | "7d",
+  advancedAuditFiltersOpen: boolean,
+): OperatorSavedViewPayload {
+  return {
+    filters: {
+      eventType: filters.eventType,
+      fromUtc: filters.fromUtc,
+      toUtc: filters.toUtc,
+      correlationId: filters.correlationId,
+      actorUserId: filters.actorUserId,
+      runId: filters.runId,
+      auditDatePreset,
+      advancedAuditFiltersOpen,
+    },
+    sort: "occurredUtc:desc",
+    columnVisibility: {
+      showAdvancedFilters: advancedAuditFiltersOpen,
+    },
+  };
 }

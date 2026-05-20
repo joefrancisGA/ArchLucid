@@ -164,7 +164,8 @@ public sealed class AgentOutputLlmSemanticJudge(
 
         try
         {
-            string raw = await client.CompleteJsonAsync(systemPrompt, userPrompt, linked.Token).ConfigureAwait(false);
+            string raw = await client.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens: null, linked.Token)
+                .ConfigureAwait(false);
 
             return TryParseJudgeResponse(raw);
         }

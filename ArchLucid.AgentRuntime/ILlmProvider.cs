@@ -28,5 +28,6 @@ public interface ILlmProvider
     Task<string> CompleteJsonAsync(
         string systemPrompt,
         string userPrompt,
+        int? maxTokens = null,
         CancellationToken cancellationToken = default);
 }

@@ -22,9 +22,9 @@ public static class Program
 
         try
         {
-            if (normalized.Length == 0)
+            if (normalized.Length == 0 || IsRootHelpRequest(normalized))
             {
-                WriteNoCommandMessage();
+                WriteRootHelpMessage();
 
                 return CliExitCode.UsageError;
             }
@@ -503,8 +503,22 @@ public static class Program
         }
     }
 
-    private static void WriteNoCommandMessage()
+    private static bool IsRootHelpRequest(string[] normalized)
     {
+        if (normalized.Length != 1)
+            return false;
+
+        string token = normalized[0];
+
+        return string.Equals(token, "--help", StringComparison.Ordinal)
+               || string.Equals(token, "-h", StringComparison.Ordinal)
+               || string.Equals(token, "-?", StringComparison.Ordinal);
+    }
+
+    private static void WriteRootHelpMessage()
+    {
+        CliRootHelpHints.WriteTryPilotLoopBanner();
+
         const string plain =
             "Please provide a command. Available commands: new [--quickstart], init [--out <path>] [--force], dev up [--sql-only], pilot up | pilot success-criteria-template, seed-demo-data, explain-operator-model, try [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <secs>] [--commit-deadline <secs>], second-run <SECOND_RUN.toml|json> [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--commit-deadline <secs>], trial smoke --org <name> --email <email> [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas], roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain], agent-eval rollup --from-json <agent-evaluation.json> [--json], real-llm-evidence summarize --from-json <path>, security-trust publish --kind pen-test --date <YYYY-MM-DD> --summary-url <URL> [--assessor <name>] [--assessment-code <code>] [--ui-base-url <url>], marketplace preflight [--repo <dir>], azure terraform-export --subscription <subId> --resource-group <name> --out <bundle.zip>, az-roles (--subscription|--scope, --assignee, [--shell bash|powershell|both]), az-token-test (ARCHLUCID_AZURE_TOKEN_TEST_SCOPE optional), manifest validate --file <path.json>, golden-cohort lock-baseline [--cohort <path>] [--write] | golden-cohort drift [--cohort <path>] [--strict-real] [--structural-only], templates list [--repo-root <dir>], run [--quick], status <runId>, trace <runId>, run-support-packet <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, first-value-report <runId> [--save], buyer-proof-pack <runId> --out <path.zip> [--repo-root <dir>], sponsor-one-pager <runId> [--save], reference-evidence | proof-pack (--run or --tenant; same CLI), comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], cost-estimate [--live-pricing] <manifest.json|extractor.zip>, data-consistency orphans [--api-base-url <url>] | data-consistency remediate <target> [--execute] [--max-rows <n>] [--api-base-url <url>], health, validate-config, saml test-config, compliance-report [--out <file.md>] [--repo <dir>] [--with-live-audit], policy validate <file.json> | policy-pack validate <file.json>, pack export-scaffold [--output <path>] [--force], graph export <runId> [--format mermaid|graphml] [--decision <key>] [--out <path>], rules simulate --run <runGuid> [--severity Warning] [--count 3], webhooks test [--url <url>] [--secret <s>] [--payload <path>] [--help], config check [--no-api], config lint [--simulate-production] [--hosting-advisor], config bootstrap [--out <path>] [--force], doctor (or check), deployment-evidence --environment <staging|production|dev> --api-base-url <url> [--out <path>] [--repo <dir>] [--synthetic-path <path>] [--allow-missing-openapi], support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell. Global: --json for machine-readable output where supported.";
 

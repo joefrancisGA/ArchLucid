@@ -21,6 +21,45 @@ public sealed class CommandLineTests
             string output = outWriter + errWriter.ToString();
             output.Should().Contain("Please provide a command");
             output.Should().Contain("Available commands");
+            errWriter.ToString().Should().Contain(CliRootHelpHints.TryPilotLoopBanner);
+        }
+        finally
+        {
+            RestoreConsole(prevOut, prevErr);
+        }
+    }
+
+    [Fact]
+    public async Task RootHelp_Returns1_AndPrintsTryBannerOnStderr()
+    {
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+            out TextWriter prevErr);
+        try
+        {
+            int exitCode = await Program.RunAsync(["--help"]);
+
+            exitCode.Should().Be(CliExitCode.UsageError);
+            errWriter.ToString().Should().Contain(CliRootHelpHints.TryPilotLoopBanner);
+            outWriter.ToString().Should().Contain("Please provide a command");
+        }
+        finally
+        {
+            RestoreConsole(prevOut, prevErr);
+        }
+    }
+
+    [Fact]
+    public async Task SubcommandHelp_does_not_print_root_try_banner()
+    {
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+            out TextWriter prevErr);
+        try
+        {
+            int exitCode = await Program.RunAsync(["data-consistency", "--help"]);
+
+            exitCode.Should().Be(CliExitCode.UsageError);
+            (outWriter + errWriter.ToString()).Should().Contain("data-consistency");
+            errWriter.ToString().Should().NotContain(CliRootHelpHints.TryPilotLoopBanner);
         }
         finally
         {

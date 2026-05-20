@@ -32,7 +32,7 @@ namespace ArchLucid.Api.Tests;
 ///         raised for stable CI/local runs.
 ///     </para>
 /// </remarks>
-public class ArchLucidApiFactory : WebApplicationFactory<Program>
+public class ArchLucidApiFactory : BaseIntegrationTestFixture
 {
     /// <summary>Creates the factory, ensures the unique test database exists, and applies migrations.</summary>
     public ArchLucidApiFactory()
@@ -55,56 +55,13 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
         get;
     }
 
-    /// <summary>
-    ///     Points the hosted API at this factory’s SQL connection string and sets in-memory storage for non-relational
-    ///     dependencies.
-    /// </summary>
-    /// <param name="builder">ASP.NET Core host builder.</param>
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    protected override void AddCustomSettings(Dictionary<string, string?> settings)
     {
-        builder.UseEnvironment("Development");
-
-        builder.UseSetting("ConnectionStrings:ArchLucid", SqlConnectionString);
-        builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
-        builder.UseSetting("DataConsistency:InitialDelaySeconds", "0");
-        builder.UseSetting("HostLeaderElection:Enabled", "false");
-
-        builder.ConfigureAppConfiguration((_, config) =>
-        {
-            // Last-in wins over appsettings / user secrets: keep integration tests off real OpenAI and
-            // avoid circuit-breaker 503s; relax rate limits so parallel runs do not exhaust shared windows.
-            Dictionary<string, string?> settings = new()
-            {
-                ["ArchLucid:StorageProvider"] = "InMemory",
-                ["ConnectionStrings:ArchLucid"] = SqlConnectionString,
-                ["DataConsistency:InitialDelaySeconds"] = "0",
-                ["HostLeaderElection:Enabled"] = "false",
-                ["AgentExecution:Mode"] = "Simulator",
-                ["AzureOpenAI:Endpoint"] = "",
-                ["AzureOpenAI:ApiKey"] = "",
-                ["AzureOpenAI:DeploymentName"] = "",
-                ["AzureOpenAI:EmbeddingDeploymentName"] = "",
-                ["RateLimiting:FixedWindow:PermitLimit"] = "100000",
-                ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
-                ["RateLimiting:Expensive:PermitLimit"] = "100000",
-                ["RateLimiting:Expensive:WindowMinutes"] = "1",
-                ["RateLimiting:Replay:Light:PermitLimit"] = "100000",
-                ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
-                ["RateLimiting:Registration:PermitLimit"] = "100000",
-                ["RateLimiting:Registration:WindowMinutes"] = "1",
-                ["RateLimiting:EvidenceBulkUpload:PermitLimit"] = "100000",
-                ["RateLimiting:EvidenceBulkUpload:WindowMinutes"] = "1",
-                ["Billing:Provider"] = "Noop",
-                ["ASPNETCORE_URLS"] = "http://127.0.0.1:0",
-                ["ArchLucidAuth:AllowTestActorHeaders"] = "true",
-                ["ArchLucid:EvidenceBulkUploadMaxFiles"] = "30",
-                // Bulk evidence writes use IArtifactBlobStore (ArtifactLargePayload), not ArchLucid:StorageProvider.
-                ["ArtifactLargePayload:BlobProvider"] = "Local"
-            };
-
-            ApiTestWebHostLogging.AddQuietDefaultLogLevel(settings);
-            config.AddInMemoryCollection(settings);
-        });
+        settings["ArchLucid:StorageProvider"] = "InMemory";
+        settings["ConnectionStrings:ArchLucid"] = SqlConnectionString;
+        settings["ArchLucidAuth:AllowTestActorHeaders"] = "true";
+        settings["ArchLucid:EvidenceBulkUploadMaxFiles"] = "30";
+        settings["ArtifactLargePayload:BlobProvider"] = "Local";
     }
 
     /// <inheritdoc />

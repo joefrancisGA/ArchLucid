@@ -104,6 +104,7 @@ public sealed class LlmCompletionAccountingClient : IAgentCompletionClient
     public async Task<string> CompleteJsonAsync(
         string systemPrompt,
         string userPrompt,
+        int? maxTokens = null,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -155,7 +156,7 @@ public sealed class LlmCompletionAccountingClient : IAgentCompletionClient
 
         try
         {
-            return await _inner.CompleteJsonAsync(outboundSystem, outboundUser, cancellationToken);
+            return await _inner.CompleteJsonAsync(outboundSystem, outboundUser, maxTokens, cancellationToken);
         }
         finally
         {

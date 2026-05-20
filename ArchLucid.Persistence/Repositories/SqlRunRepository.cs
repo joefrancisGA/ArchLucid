@@ -117,7 +117,8 @@ public sealed class SqlRunRepository(
                                    IsDemoWelcomeRun, IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                    StructuralExecutionMode,
                                    RetryCount, LastFailureReason,
-                                   RowVersionStamp AS RowVersion
+                                   RowVersionStamp AS RowVersion,
+                                   CASE WHEN EXISTS (SELECT 1 FROM dbo.FindingsSnapshots fs WITH (NOLOCK) WHERE fs.RunId = dbo.Runs.RunId AND fs.ArchivedUtc IS NULL AND fs.HasWarnings = 1) THEN 1 ELSE 0 END AS HasWarnings
                                FROM dbo.Runs
                                WHERE RunId = @RunId
                                  AND TenantId = @TenantId
@@ -163,7 +164,8 @@ public sealed class SqlRunRepository(
                                    IsDemoWelcomeRun, IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                    StructuralExecutionMode,
                                    RetryCount, LastFailureReason,
-                                   RowVersionStamp AS RowVersion
+                                   RowVersionStamp AS RowVersion,
+                                   CASE WHEN EXISTS (SELECT 1 FROM dbo.FindingsSnapshots fs WITH (NOLOCK) WHERE fs.RunId = dbo.Runs.RunId AND fs.ArchivedUtc IS NULL AND fs.HasWarnings = 1) THEN 1 ELSE 0 END AS HasWarnings
                                FROM dbo.Runs
                                WHERE RunId = @RunId
                                  AND ArchivedUtc IS NULL;
@@ -208,7 +210,8 @@ public sealed class SqlRunRepository(
                                    IsDemoWelcomeRun, IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                    StructuralExecutionMode,
                                    RetryCount, LastFailureReason,
-                                   RowVersionStamp AS RowVersion
+                                   RowVersionStamp AS RowVersion,
+                                   CASE WHEN EXISTS (SELECT 1 FROM dbo.FindingsSnapshots fs WITH (NOLOCK) WHERE fs.RunId = dbo.Runs.RunId AND fs.ArchivedUtc IS NULL AND fs.HasWarnings = 1) THEN 1 ELSE 0 END AS HasWarnings
                                FROM dbo.Runs
                                WHERE TenantId = @TenantId
                                  AND WorkspaceId = @WorkspaceId

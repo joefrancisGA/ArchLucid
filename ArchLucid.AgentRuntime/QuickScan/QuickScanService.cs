@@ -21,6 +21,7 @@ public sealed class QuickScanService(IAgentCompletionClient completionClient) : 
         string jsonResponse = await completionClient.CompleteJsonAsync(
             QuickScanLlmPrompts.SystemPrompt,
             userPrompt,
+            maxTokens: null,
             cancellationToken);
 
         if (string.IsNullOrWhiteSpace(jsonResponse))

@@ -99,3 +99,9 @@ ArchLucid.Api.Controllers.Scim.ScimUsersController.CreateAsync
 ArchLucid.Api.Controllers.Scim.ScimUsersController.ReplaceAsync
 ArchLucid.Api.Controllers.Scim.ScimUsersController.PatchAsync
 ArchLucid.Api.Controllers.Scim.ScimUsersController.DeleteAsync
+# Read-only simulation / soft-delete / operator UI prefs — no durable tenant audit row required at controller layer.
+ArchLucid.Api.Controllers.Authority.RunsController.CloneRequest
+ArchLucid.Api.Controllers.Governance.GovernanceController.Simulate
+ArchLucid.Api.Controllers.Governance.PolicyPacksController.DeletePack
+ArchLucid.Api.Controllers.Operator.OperatorSavedViewsController.CreateSavedView
+ArchLucid.Api.Controllers.Operator.OperatorSavedViewsController.DeleteSavedView

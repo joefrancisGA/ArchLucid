@@ -78,7 +78,7 @@ public static class LlmCallResilienceDefaults
             .Build();
     }
 
-    private static ValueTask<TimeSpan?> ResolveRetryDelay(RetryDelayGeneratorArguments args, TimeSpan maxDelay)
+    private static ValueTask<TimeSpan?> ResolveRetryDelay(RetryDelayGeneratorArguments<object> args, TimeSpan maxDelay)
     {
         if (args.Outcome.Exception is not Exception ex)
             return default;

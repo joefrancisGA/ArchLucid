@@ -37,13 +37,13 @@ public sealed class DapperPolicyPackRepository(
                            (
                                PolicyPackId, TenantId, WorkspaceId, ProjectId,
                                Name, Description, PackType, Status,
-                               CreatedUtc, ActivatedUtc, CurrentVersion
+                               CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted
                            )
                            VALUES
                            (
                                @PolicyPackId, @TenantId, @WorkspaceId, @ProjectId,
                                @Name, @Description, @PackType, @Status,
-                               @CreatedUtc, @ActivatedUtc, @CurrentVersion
+                               @CreatedUtc, @ActivatedUtc, @CurrentVersion, @IsDeleted
                            );
                            """;
 
@@ -73,7 +73,8 @@ public sealed class DapperPolicyPackRepository(
                                PackType = @PackType,
                                Status = @Status,
                                ActivatedUtc = @ActivatedUtc,
-                               CurrentVersion = @CurrentVersion
+                               CurrentVersion = @CurrentVersion,
+                               IsDeleted = @IsDeleted
                            WHERE PolicyPackId = @PolicyPackId;
                            """;
 
@@ -88,9 +89,10 @@ public sealed class DapperPolicyPackRepository(
                            SELECT
                                PolicyPackId, TenantId, WorkspaceId, ProjectId,
                                Name, Description, PackType, Status,
-                               CreatedUtc, ActivatedUtc, CurrentVersion
+                               CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted
                            FROM dbo.PolicyPacks
-                           WHERE PolicyPackId = @PolicyPackId;
+                           WHERE PolicyPackId = @PolicyPackId
+                             AND IsDeleted = 0;
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -110,11 +112,12 @@ public sealed class DapperPolicyPackRepository(
                            SELECT TOP 200
                                PolicyPackId, TenantId, WorkspaceId, ProjectId,
                                Name, Description, PackType, Status,
-                               CreatedUtc, ActivatedUtc, CurrentVersion
+                               CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted
                            FROM dbo.PolicyPacks
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
                              AND ProjectId = @ProjectId
+                             AND IsDeleted = 0
                            ORDER BY CreatedUtc DESC;
                            """;
 

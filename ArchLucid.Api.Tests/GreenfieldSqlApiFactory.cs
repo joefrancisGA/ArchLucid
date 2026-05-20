@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 ///     Host startup must run DbUp then <c>ISchemaBootstrapper</c> — same path as greenfield deployments and CI
 ///     <c>api-greenfield-boot</c>.
 /// </summary>
-public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
+public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
 {
     /// <summary>Creates the factory and ensures the catalog exists without applying migrations (host does that on boot).</summary>
     public GreenfieldSqlApiFactory()
@@ -51,54 +51,16 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
         get;
     }
 
-    /// <inheritdoc />
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    protected override void AddCustomSettings(Dictionary<string, string?> settings)
     {
-        builder.UseEnvironment("Development");
-
-        builder.UseSetting("ConnectionStrings:ArchLucid", SqlConnectionString);
-        builder.UseSetting("ArchLucid:StorageProvider", "Sql");
-        builder.UseSetting("ArchLucidAuth:Mode", "DevelopmentBypass");
-        builder.UseSetting("Authentication:ApiKey:DevelopmentBypassAll", "true");
-        builder.UseSetting("ArchLucidAuth:AllowTestActorHeaders", "true");
-
-        builder.ConfigureAppConfiguration((_, config) =>
-        {
-            Dictionary<string, string?> settings = new()
-            {
-                ["ArchLucid:StorageProvider"] = "Sql",
-                ["ConnectionStrings:ArchLucid"] = SqlConnectionString,
-                ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
-                ["ArchLucidAuth:AllowTestActorHeaders"] = "true",
-                ["AgentExecution:Mode"] = "Simulator",
-                ["AzureOpenAI:Endpoint"] = "",
-                ["AzureOpenAI:ApiKey"] = "",
-                ["AzureOpenAI:DeploymentName"] = "",
-                ["AzureOpenAI:EmbeddingDeploymentName"] = "",
-                ["RateLimiting:FixedWindow:PermitLimit"] = "100000",
-                ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
-                ["RateLimiting:Expensive:PermitLimit"] = "100000",
-                ["RateLimiting:Expensive:WindowMinutes"] = "1",
-                ["RateLimiting:Replay:Light:PermitLimit"] = "100000",
-                ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
-                ["RateLimiting:Registration:PermitLimit"] = "100000",
-                ["RateLimiting:Registration:WindowMinutes"] = "1",
-                ["ArchLucid:Persistence:DefaultSqlCommandTimeoutSeconds"] = "300",
-                // Simulator finishes in seconds; 5 min is ample and keeps the lock chain well under the per-request CTS.
-                ["AuthorityPipeline:PipelineTimeout"] = "00:05:00",
-                // Losers wait on sp_getapplock while the winner runs the pipeline — must exceed PipelineTimeout (5 min).
-                // 10 min gives 5 min headroom; SqlCommandTimeoutSecondsForLockWait adds a further 120 s on top.
-                ["ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds"] = "600000",
-                // appsettings.Advanced.json sets 120s; that blocks DataConsistency readiness on Combined hosts until the first reconciliation.
-                ["DataConsistency:InitialDelaySeconds"] = "0",
-                // Http-only URL list disables HTTPS redirection middleware for in-memory TestServer (avoids redirect handler + long POST interaction quirks in CI).
-                ["ASPNETCORE_URLS"] = "http://127.0.0.1:0"
-            };
-
-            ApiTestWebHostLogging.AddQuietDefaultLogLevel(settings);
-            config.AddInMemoryCollection(settings);
-        });
+        settings["ArchLucid:StorageProvider"] = "Sql";
+        settings["ConnectionStrings:ArchLucid"] = SqlConnectionString;
+        settings["ArchLucidAuth:Mode"] = "DevelopmentBypass";
+        settings["Authentication:ApiKey:DevelopmentBypassAll"] = "true";
+        settings["ArchLucidAuth:AllowTestActorHeaders"] = "true";
+        settings["ArchLucid:Persistence:DefaultSqlCommandTimeoutSeconds"] = "300";
+        settings["AuthorityPipeline:PipelineTimeout"] = "00:05:00";
+        settings["ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds"] = "600000";
     }
 
     /// <inheritdoc />

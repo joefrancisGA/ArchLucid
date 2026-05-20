@@ -123,4 +123,11 @@ public class RunSummaryDto
         get;
         set;
     }
+
+    /// <summary><see langword="true" /> when the run has associated warnings.</summary>
+    public bool HasWarnings
+    {
+        get;
+        set;
+    }
 }

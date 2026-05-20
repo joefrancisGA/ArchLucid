@@ -185,6 +185,25 @@ public sealed class PolicyPacksController(
         return NoContent();
     }
 
+    /// <summary>Soft-deletes a policy pack.</summary>
+    /// <returns>404 when the pack does not exist in the current scope.</returns>
+    [HttpDelete("{policyPackId:guid}")]
+    [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeletePack(Guid policyPackId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        bool ok = await policyPacksApp.TrySoftDeletePackAsync(scope.TenantId, policyPackId, ct);
+
+        if (!ok)
+            return this.NotFoundProblem(
+                $"Policy pack '{policyPackId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
+
+        return NoContent();
+    }
+
     /// <summary>Lists packs whose <em>authoring</em> scope matches the current tenant/workspace/project.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<PolicyPack>), StatusCodes.Status200OK)]

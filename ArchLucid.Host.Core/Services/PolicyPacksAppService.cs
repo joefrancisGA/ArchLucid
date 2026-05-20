@@ -134,4 +134,24 @@ public sealed class PolicyPacksAppService(
 
         return true;
     }
+
+    /// <inheritdoc />
+    public async Task<bool> TrySoftDeletePackAsync(Guid tenantId, Guid policyPackId, CancellationToken ct)
+    {
+        PolicyPack? pack = await packRepository.GetByIdAsync(policyPackId, ct);
+
+        if (pack is null || pack.TenantId != tenantId)
+            return false;
+
+        pack.IsDeleted = true;
+        pack.Status = PolicyPackStatus.Retired;
+
+        await packRepository.UpdateAsync(pack, ct);
+
+        await auditService.LogAsync(
+            new AuditEvent { EventType = "PolicyPackDeleted", DataJson = JsonSerializer.Serialize(new { policyPackId }), },
+            ct);
+
+        return true;
+    }
 }

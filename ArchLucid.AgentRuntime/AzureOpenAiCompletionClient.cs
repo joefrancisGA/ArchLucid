@@ -127,6 +127,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
     public async Task<string> CompleteJsonAsync(
         string systemPrompt,
         string userPrompt,
+        int? maxTokens = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(systemPrompt);
@@ -166,7 +167,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 
             try
             {
-                completion = await CompleteChatCoreAsync(messages, cancellationToken).ConfigureAwait(false);
+                completion = await CompleteChatCoreAsync(messages, maxTokens, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -262,9 +263,10 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 
     private async Task<ChatCompletion> CompleteChatCoreAsync(
         List<ChatMessage> messages,
+        int? maxTokens,
         CancellationToken cancellationToken)
     {
-        ChatCompletionOptions jsonObjectOptions = CreateCompletionOptions(ChatResponseFormat.CreateJsonObjectFormat());
+        ChatCompletionOptions jsonObjectOptions = CreateCompletionOptions(ChatResponseFormat.CreateJsonObjectFormat(), maxTokens);
 
         if (_structuredOutputAgentResultSchema is null)
             return await CompleteChatOnceAsync(messages, jsonObjectOptions, cancellationToken).ConfigureAwait(false);
@@ -274,7 +276,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
                 "agent_result",
                 _structuredOutputAgentResultSchema,
                 "ArchLucid AgentResult wire JSON per schemas/agentresult.schema.json.",
-                jsonSchemaIsStrict: true));
+                jsonSchemaIsStrict: true), maxTokens);
 
         try
         {
@@ -293,12 +295,12 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         }
     }
 
-    private ChatCompletionOptions CreateCompletionOptions(ChatResponseFormat format)
+    private ChatCompletionOptions CreateCompletionOptions(ChatResponseFormat format, int? maxTokens)
     {
         return new ChatCompletionOptions
         {
             Temperature = 0.1f,
-            MaxOutputTokenCount = _maxOutputTokens,
+            MaxOutputTokenCount = maxTokens ?? _maxOutputTokens,
             ResponseFormat = format
         };
     }

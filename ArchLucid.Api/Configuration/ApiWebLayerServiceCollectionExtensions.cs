@@ -1,5 +1,6 @@
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Health;
+using ArchLucid.Host.Core.Health;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.Startup;
 using ArchLucid.Api.Services;
@@ -9,7 +10,6 @@ using ArchLucid.Api.Validators;
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Import;
 using ArchLucid.Host.Core.Configuration;
-using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Services.Governance;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 

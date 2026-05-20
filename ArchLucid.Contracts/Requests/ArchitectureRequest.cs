@@ -133,4 +133,11 @@ public sealed class ArchitectureRequest
         get;
         set;
     } = [];
+
+    /// <summary>Indicates if this request has been archived by the user.</summary>
+    public bool IsArchived
+    {
+        get;
+        set;
+    }
 }

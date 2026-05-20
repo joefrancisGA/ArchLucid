@@ -32,8 +32,9 @@ public sealed class DelegatingLlmCompletionProvider(
     public Task<string> CompleteJsonAsync(
         string systemPrompt,
         string userPrompt,
+        int? maxTokens = null,
         CancellationToken cancellationToken = default)
     {
-        return _inner.CompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
+        return _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, cancellationToken);
     }
 }

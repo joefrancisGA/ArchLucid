@@ -151,7 +151,7 @@ public sealed class AskService(
         string? raw;
         try
         {
-            raw = await llm.CompleteJsonAsync(ArchitectSystemPrompt, userPrompt, ct);
+            raw = await llm.CompleteJsonAsync(ArchitectSystemPrompt, userPrompt, maxTokens: null, ct);
         }
         catch (OperationCanceledException)
         {

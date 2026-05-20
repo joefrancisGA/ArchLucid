@@ -54,7 +54,7 @@ public sealed class InMemoryPolicyPackRepository : IPolicyPackRepository
     {
         ct.ThrowIfCancellationRequested();
         lock (_gate)
-            return Task.FromResult(_items.FirstOrDefault(x => x.PolicyPackId == policyPackId));
+            return Task.FromResult(_items.FirstOrDefault(x => x.PolicyPackId == policyPackId && !x.IsDeleted));
     }
 
     public Task<IReadOnlyList<PolicyPack>> ListByScopeAsync(
@@ -67,7 +67,7 @@ public sealed class InMemoryPolicyPackRepository : IPolicyPackRepository
         lock (_gate)
         {
             List<PolicyPack> result = _items
-                .Where(x => x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId)
+                .Where(x => x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId && !x.IsDeleted)
                 .OrderByDescending(x => x.CreatedUtc)
                 .Take(ListScopeCap)
                 .ToList();

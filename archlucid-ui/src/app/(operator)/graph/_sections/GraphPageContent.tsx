@@ -40,12 +40,18 @@ import { GraphFetchStatusAlerts } from "@/app/(operator)/graph/_sections/GraphFe
 import { GraphIdlePlaceholder } from "@/app/(operator)/graph/_sections/GraphIdlePlaceholder";
 import {
   applyProvenanceDemoPresentationIfEligible,
+  buildGraphSavedViewPayload,
   type GraphMode,
+  type GraphSavedViewState,
 } from "@/app/(operator)/graph/_sections/graph-page-helpers";
 import { GraphLoadedExperience } from "@/app/(operator)/graph/_sections/GraphLoadedExperience";
 import { GraphModeAuxiliaryFields } from "@/app/(operator)/graph/_sections/GraphModeAuxiliaryFields";
 import { GraphPageControls } from "@/app/(operator)/graph/_sections/GraphPageControls";
 import { GraphPageIntroParagraph } from "@/app/(operator)/graph/_sections/GraphPageIntroParagraph";
+import { OperatorSavedViewsBar } from "@/components/OperatorSavedViewsBar";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
+import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
+import type { GraphSavedViewFilters } from "@/lib/operator-saved-view-types";
 
 export function GraphPageContent() {
   const searchParams = useSearchParams();
@@ -70,6 +76,7 @@ export function GraphPageContent() {
   const loadGenRef = useRef(0);
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const canMutateEnterpriseShell = useOperateCapability();
   const graphMainColumnMaxClass = buyerPolishedShell ? "max-w-6xl" : "max-w-4xl";
   const defaultSelectedGraphNodeId =
     urlGraphNodeId.length > 0
@@ -168,7 +175,13 @@ export function GraphPageContent() {
     return [...set].sort((a, b) => a.localeCompare(b));
   }, [effectiveGraph]);
 
-  const performGraphLoad = useCallback(async () => {
+  const performGraphLoad = useCallback(async (override?: Partial<GraphSavedViewState>) => {
+    const effectiveRunId = override?.runId ?? runId;
+    const effectiveMode = override?.mode ?? mode;
+    const effectiveDecisionId = override?.decisionId ?? decisionId;
+    const effectiveNodeId = override?.nodeId ?? nodeId;
+    const effectiveDepth = override?.depth ?? depth;
+    const effectiveTypeFilter = override?.typeFilter ?? typeFilter;
     const gen = ++loadGenRef.current;
     setLoading(true);
 
@@ -185,11 +198,11 @@ export function GraphPageContent() {
         return;
       }
 
-      if (mode !== "provenance-full") {
+      if (effectiveMode !== "provenance-full") {
         return;
       }
 
-      const rid = runId.trim();
+      const rid = effectiveRunId.trim();
       const prov = tryStaticDemoProvenanceGraph(rid);
 
       if (prov === null) {
@@ -199,29 +212,29 @@ export function GraphPageContent() {
       setLoadFailure(null);
       setMalformedMessage(null);
       setGraph(
-        applyProvenanceDemoPresentationIfEligible(provenanceLinkageToGraphViewModel(prov), mode, rid),
+        applyProvenanceDemoPresentationIfEligible(provenanceLinkageToGraphViewModel(prov), effectiveMode, rid),
       );
-      setTypeFilter("");
+      setTypeFilter(effectiveTypeFilter);
     };
 
     try {
       let raw: unknown;
 
-      switch (mode) {
+      switch (effectiveMode) {
         case "provenance-full":
-          raw = await getProvenanceGraph(runId);
+          raw = await getProvenanceGraph(effectiveRunId);
           break;
         case "decision-subgraph":
-          raw = await getDecisionSubgraph(runId, decisionId);
+          raw = await getDecisionSubgraph(effectiveRunId, effectiveDecisionId);
           break;
         case "node-neighborhood":
-          raw = await getNodeNeighborhood(runId, nodeId, depth);
+          raw = await getNodeNeighborhood(effectiveRunId, effectiveNodeId, effectiveDepth);
           break;
         case "architecture":
           try {
-            raw = await getArchitectureGraph(runId);
+            raw = await getArchitectureGraph(effectiveRunId);
           } catch (err) {
-            const rid = runId.trim();
+            const rid = effectiveRunId.trim();
 
             if (!isApiRequestError(err) || err.httpStatus !== 413 || rid.length === 0) throw err;
 
@@ -255,17 +268,18 @@ export function GraphPageContent() {
 
       let nextGraph = coerced.value;
 
-      if (mode === "provenance-full" && nextGraph.nodes.length === 0 && nextGraph.edges.length === 0) {
-        const prov = tryStaticDemoProvenanceGraph(runId.trim());
+      if (effectiveMode === "provenance-full" && nextGraph.nodes.length === 0 && nextGraph.edges.length === 0) {
+        const prov = tryStaticDemoProvenanceGraph(effectiveRunId.trim());
 
         if (prov !== null) {
           nextGraph = provenanceLinkageToGraphViewModel(prov);
         }
       }
 
-      setGraph(applyProvenanceDemoPresentationIfEligible(nextGraph, mode, runId.trim()));
-      setTypeFilter("");
-      if (mode !== "architecture") {
+      setGraph(applyProvenanceDemoPresentationIfEligible(nextGraph, effectiveMode, effectiveRunId.trim()));
+      setTypeFilter(effectiveTypeFilter);
+
+      if (effectiveMode !== "architecture") {
         setArchitectureGraphNote(null);
       }
     } catch (err) {
@@ -281,7 +295,7 @@ export function GraphPageContent() {
         setLoading(false);
       }
     }
-  }, [mode, runId, decisionId, nodeId, depth, buyerPolishedShell]);
+  }, [buyerPolishedShell, decisionId, depth, mode, nodeId, runId, typeFilter]);
 
   const performRef = useRef(performGraphLoad);
   performRef.current = performGraphLoad;
@@ -370,6 +384,55 @@ export function GraphPageContent() {
     !(demoUi && mode === "provenance-full") &&
     (!demoUi || mode !== "provenance-full" || effectiveGraph === null);
 
+  const showSavedViews = canMutateEnterpriseShell && !buyerPolishedShell && !demoUi;
+
+  const getGraphSavedViewPayload = useCallback(
+    () =>
+      buildGraphSavedViewPayload({
+        runId,
+        mode,
+        decisionId,
+        nodeId,
+        depth,
+        typeFilter,
+      }),
+    [decisionId, depth, mode, nodeId, runId, typeFilter],
+  );
+
+  const loadGraphSavedView = useCallback(
+    async (view: OperatorSavedView) => {
+      const filters = view.payload.filters as GraphSavedViewFilters;
+      const nextState: GraphSavedViewState = {
+        runId: filters.runId ?? runId,
+        mode: filters.mode ?? mode,
+        decisionId: filters.decisionId ?? decisionId,
+        nodeId: filters.nodeId ?? nodeId,
+        depth: filters.depth ?? depth,
+        typeFilter: filters.typeFilter ?? typeFilter,
+      };
+
+      setRunId(nextState.runId);
+      setMode(nextState.mode);
+      setDecisionId(nextState.decisionId);
+      setNodeId(nextState.nodeId);
+      setDepth(nextState.depth);
+      setTypeFilter(nextState.typeFilter);
+      await performGraphLoad(nextState);
+    },
+    [decisionId, depth, mode, nodeId, performGraphLoad, runId, typeFilter],
+  );
+
+  const savedViewsBar =
+    showSavedViews ? (
+      <OperatorSavedViewsBar
+        surface="graph"
+        disabled={loading}
+        className={graphMainColumnMaxClass}
+        getCurrentPayload={getGraphSavedViewPayload}
+        onLoadView={loadGraphSavedView}
+      />
+    ) : null;
+
   const controls = (
     <GraphPageControls
       graphMainColumnMaxClass={graphMainColumnMaxClass}
@@ -404,7 +467,12 @@ export function GraphPageContent() {
         <GraphPageIntroParagraph demoUi={demoUi} buyerPolishedShell={buyerPolishedShell} leadIntro={leadIntro} />
       ) : null}
 
-      {effectiveGraph === null ? controls : null}
+      {effectiveGraph === null ? (
+        <>
+          {savedViewsBar}
+          {controls}
+        </>
+      ) : null}
 
       <GraphModeAuxiliaryFields
         mode={mode}
@@ -428,7 +496,9 @@ export function GraphPageContent() {
       )}
 
       {effectiveGraph ? (
-        <GraphLoadedExperience
+        <>
+          {savedViewsBar}
+          <GraphLoadedExperience
           buyerPolishedShell={buyerPolishedShell}
           graphMainColumnMaxClass={graphMainColumnMaxClass}
           graph={effectiveGraph}
@@ -446,6 +516,7 @@ export function GraphPageContent() {
           leadIntro={leadIntro}
           defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
         />
+        </>
       ) : null}
     </div>
   );

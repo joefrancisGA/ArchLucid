@@ -32,7 +32,7 @@ public static class FindingsSerialization
 
     public static FindingsSnapshot DeserializeSnapshot(string json)
     {
-        FindingsSnapshot s = JsonSerializer.Deserialize<FindingsSnapshot>(json, Options) ?? new FindingsSnapshot();
+        FindingsSnapshot s = JsonSerializer.Deserialize<FindingsSnapshot>(json, Options) ?? new FindingsSnapshot { TotalEstimatedSavings = 0m };
         FindingsSnapshotMigrator.Apply(s);
         return s;
     }

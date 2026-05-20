@@ -1,8 +1,9 @@
 import type { Dispatch, SetStateAction } from "react";
 
 import type { AuditEvent } from "@/lib/api";
+import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-
+import type { OperatorSavedViewPayload } from "@/lib/operator-saved-view-types";
 export type AuditPageEventGroup = {
   readonly stage: string;
   readonly events: AuditEvent[];
@@ -59,4 +60,6 @@ export type AuditPageViewProps = {
   readonly exporting: boolean;
   readonly exportDateRangeReady: boolean;
   readonly onExportCsv: () => Promise<void>;
+  readonly getAuditSavedViewPayload: () => OperatorSavedViewPayload;
+  readonly loadAuditSavedView: (view: OperatorSavedView) => Promise<void>;
 };

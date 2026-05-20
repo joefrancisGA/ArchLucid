@@ -31,6 +31,7 @@ public sealed class EchoAgentCompletionClient : IAgentCompletionClient
     public Task<string> CompleteJsonAsync(
         string systemPrompt,
         string userPrompt,
+        int? maxTokens = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(systemPrompt);

@@ -24,4 +24,9 @@ public interface IArchitectureRequestRepository
     ///     or <see langword="null" /> when not found.
     /// </summary>
     Task<ArchitectureRequest?> GetByIdAsync(string requestId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Marks the request as archived.
+    /// </summary>
+    Task ArchiveAsync(string requestId, CancellationToken cancellationToken = default);
 }

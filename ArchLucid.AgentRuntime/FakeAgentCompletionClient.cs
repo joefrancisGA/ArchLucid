@@ -19,6 +19,7 @@ public sealed class FakeAgentCompletionClient(
     public Task<string> CompleteJsonAsync(
         string systemPrompt,
         string userPrompt,
+        int? maxTokens = null,
         CancellationToken cancellationToken = default)
     {
         string json = resolver(systemPrompt, userPrompt);

@@ -11,6 +11,32 @@ export type GraphMode =
   | "node-neighborhood"
   | "architecture";
 
+export type GraphSavedViewState = {
+  runId: string;
+  mode: GraphMode;
+  decisionId: string;
+  nodeId: string;
+  depth: number;
+  typeFilter: string;
+};
+
+export function buildGraphSavedViewPayload(state: GraphSavedViewState) {
+  return {
+    filters: {
+      runId: state.runId,
+      mode: state.mode,
+      decisionId: state.decisionId,
+      nodeId: state.nodeId,
+      depth: state.depth,
+      typeFilter: state.typeFilter,
+    },
+    sort: "nodeLabel:asc",
+    columnVisibility: {
+      showNodeKindLegend: true,
+    },
+  };
+}
+
 export function applyProvenanceDemoPresentationIfEligible(
   model: GraphViewModel,
   mode: GraphMode,

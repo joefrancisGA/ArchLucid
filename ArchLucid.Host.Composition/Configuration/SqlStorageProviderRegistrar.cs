@@ -353,6 +353,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IImportedArchitectureRequestRepository, SqlImportedArchitectureRequestRepository>();
         services.AddScoped<IAzureExtractorPackageRepository, SqlAzureExtractorPackageRepository>();
         services.AddScoped<ITenantNotificationChannelPreferencesRepository, DapperTenantNotificationChannelPreferencesRepository>();
+        services.AddScoped<IOperatorSavedViewRepository, DapperOperatorSavedViewRepository>();
         services.AddScoped<ITenantTeamsIncomingWebhookConnectionRepository, DapperTenantTeamsIncomingWebhookConnectionRepository>();
         services.AddScoped<ITenantExecDigestPreferencesRepository, DapperTenantExecDigestPreferencesRepository>();
         services.AddScoped<ITenantHardPurgeService, SqlTenantHardPurgeService>();

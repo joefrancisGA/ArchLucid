@@ -33,6 +33,7 @@ public sealed class CircuitBreakingAgentCompletionClient(
     public async Task<string> CompleteJsonAsync(
         string systemPrompt,
         string userPrompt,
+        int? maxTokens = null,
         CancellationToken cancellationToken = default)
     {
         try
@@ -60,7 +61,7 @@ public sealed class CircuitBreakingAgentCompletionClient(
             string stateBeforeOutcome = _gate.CurrentState;
 
             string result = await _llmRetryPipeline.ExecuteAsync(
-                async ct => await _inner.CompleteJsonAsync(systemPrompt, userPrompt, ct),
+                async ct => await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, ct),
                 cancellationToken);
 
             _gate.RecordSuccess();

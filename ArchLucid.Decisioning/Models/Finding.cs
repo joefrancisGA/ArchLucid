@@ -184,6 +184,13 @@ public class Finding
         set;
     }
 
+    /// <summary>Estimated monthly savings in USD when the finding is cost-related and quantified.</summary>
+    public decimal? ProjectedImpactUsd
+    {
+        get;
+        set;
+    }
+
     /// <summary>When true, this finding is hidden from default operator review lists until un-muted (SQL-backed tenants).</summary>
     public bool IsMuted
     {

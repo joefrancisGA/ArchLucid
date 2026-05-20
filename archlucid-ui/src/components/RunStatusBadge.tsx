@@ -3,6 +3,12 @@ import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabu
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export type RunPipelineLabel =
   | "Finalized"
@@ -48,6 +54,21 @@ function buyerPipelineStatusDisplayLabel(label: RunPipelineLabel): string {
   }
 }
 
+function getTooltipContent(label: RunPipelineLabel): string {
+  switch (label) {
+    case "Finalized":
+      return "The Golden Manifest has been committed and the architecture review is sealed.";
+    case "Ready to finalize":
+      return "All analysis is complete. An operator must review and commit the Golden Manifest.";
+    case "In pipeline":
+      return "The architecture graph and context have been extracted, and analysis is currently running.";
+    case "Starting":
+      return "The architecture request has been received and the execution pipeline is initializing.";
+    default:
+      return "";
+  }
+}
+
 export type RunStatusBadgeProps = {
   run: RunSummary;
   className?: string;
@@ -59,13 +80,25 @@ export type RunStatusBadgeProps = {
 export function RunStatusBadge({ run, className }: RunStatusBadgeProps) {
   const internal = deriveRunListPipelineLabel(run);
   const displayLabel = isBuyerPolishedOperatorShellEnv() ? buyerPipelineStatusDisplayLabel(internal) : internal;
+  const tooltipContent = getTooltipContent(internal);
 
   return (
-    <StatusPill
-      status={displayLabel}
-      domain="pipeline"
-      className={cn("shrink-0", className)}
-      ariaLabel={`${ARCHITECTURE_REVIEW_VOCABULARY.pipelineStatusAriaPrefix}: ${displayLabel}`}
-    />
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="inline-block cursor-help">
+            <StatusPill
+              status={displayLabel}
+              domain="pipeline"
+              className={cn("shrink-0", className)}
+              ariaLabel={`${ARCHITECTURE_REVIEW_VOCABULARY.pipelineStatusAriaPrefix}: ${displayLabel}`}
+            />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-xs text-sm">
+          <p>{tooltipContent}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }

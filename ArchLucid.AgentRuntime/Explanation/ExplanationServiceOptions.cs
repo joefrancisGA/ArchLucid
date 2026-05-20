@@ -34,4 +34,10 @@ public sealed class ExplanationServiceOptions
         get;
         set;
     }
+
+    public int? MaxTokens
+    {
+        get;
+        set;
+    }
 }

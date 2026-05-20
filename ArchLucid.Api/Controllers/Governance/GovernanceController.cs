@@ -8,6 +8,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -559,6 +560,43 @@ public sealed class GovernanceController(
         IReadOnlyList<GovernanceEnvironmentActivation> items =
             await activationRepo.GetByRunIdAsync(runId, cancellationToken);
         return Ok(items);
+    }
+
+    /// <summary>
+    ///     Simulates proposed pack content against a single run's findings (pre-commit gate semantics) without persisting a pack.
+    /// </summary>
+    [HttpPost("simulate")]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [EnableRateLimiting("governancePolicyPackDryRun")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(PolicyPackGovernanceDryRunResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Simulate(
+        [FromBody] PolicyPackSimulateRequest? request,
+        CancellationToken cancellationToken)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        string policyPackContentJson =
+            JsonSerializer.Serialize(request.Content, ContractJson.CamelCaseIgnoreNullCompact);
+
+        PolicyPackGovernanceDryRunResult? result = await _policyPackGovernanceDryRunService.EvaluateAsync(
+            policyPackContentJson,
+            request.RunId.Trim(),
+            targetManifestId: null,
+            request.BlockCommitOnCritical,
+            request.BlockCommitMinimumSeverity,
+            request.ProposedPolicyPackId,
+            cancellationToken);
+
+        if (result is null)
+            return this.NotFoundProblem(
+                "The target run was not found in the current tenant/workspace/project scope.",
+                ProblemTypes.ResourceNotFound);
+
+        return Ok(result);
     }
 
     /// <summary>
