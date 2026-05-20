@@ -1,6 +1,9 @@
 ﻿using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics;
 using System.Net;
+
+using Azure;
 
 using FluentAssertions;
 
@@ -29,6 +32,64 @@ public sealed class LlmCallResilienceDefaultsTests
             CancellationToken.None);
 
         calls.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task BuildLlmRetryPipeline_HonorsRetryAfterHeaderOnClientResult503()
+    {
+        ResiliencePipeline pipeline = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
+            maxRetryAttempts: 1,
+            baseDelay: TimeSpan.FromMinutes(5),
+            maxDelay: TimeSpan.FromMinutes(10));
+
+        int calls = 0;
+        Stopwatch stopwatch = Stopwatch.StartNew();
+
+        await pipeline.ExecuteAsync(
+            _ =>
+            {
+                if (Interlocked.Increment(ref calls) == 1)
+                    throw CreateClientResultExceptionWithRetryAfter(HttpStatusCode.ServiceUnavailable, "0");
+
+                return ValueTask.CompletedTask;
+            },
+            CancellationToken.None);
+
+        stopwatch.Stop();
+        calls.Should().Be(2);
+        stopwatch.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(3));
+    }
+
+    [SkippableFact]
+    public async Task BuildLlmRetryPipeline_HonorsRetryAfterHeaderOnHttpRequestException()
+    {
+        ResiliencePipeline pipeline = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
+            maxRetryAttempts: 1,
+            baseDelay: TimeSpan.FromMinutes(5),
+            maxDelay: TimeSpan.FromMinutes(10));
+
+        int calls = 0;
+        Stopwatch stopwatch = Stopwatch.StartNew();
+
+        await pipeline.ExecuteAsync(
+            _ =>
+            {
+                if (Interlocked.Increment(ref calls) == 1)
+                {
+                    RequestFailedException inner = CreateRequestFailedExceptionWithRetryAfter(
+                        HttpStatusCode.ServiceUnavailable,
+                        "0");
+
+                    throw new HttpRequestException("boom", inner, HttpStatusCode.ServiceUnavailable);
+                }
+
+                return ValueTask.CompletedTask;
+            },
+            CancellationToken.None);
+
+        stopwatch.Stop();
+        calls.Should().Be(2);
+        stopwatch.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(3));
     }
 
     [SkippableFact]
@@ -193,5 +254,30 @@ public sealed class LlmCallResilienceDefaultsTests
         response.SetupGet(r => r.Status).Returns(status);
 
         return new ClientResultException("test", response.Object);
+    }
+
+    private static ClientResultException CreateClientResultExceptionWithRetryAfter(
+        HttpStatusCode status,
+        string retryAfter)
+    {
+        Mock<PipelineResponseHeaders> headers = new();
+        headers.Setup(h => h.TryGetValue("Retry-After", out retryAfter)).Returns(true);
+
+        Mock<PipelineResponse> response = new();
+        response.SetupGet(r => r.Status).Returns((int)status);
+        response.SetupGet(r => r.Headers).Returns(headers.Object);
+
+        return new ClientResultException("test", response.Object);
+    }
+
+    private static RequestFailedException CreateRequestFailedExceptionWithRetryAfter(
+        HttpStatusCode status,
+        string retryAfter)
+    {
+        Mock<Azure.Response> response = new();
+        response.SetupGet(r => r.Status).Returns((int)status);
+        response.Setup(r => r.Headers.TryGetValue("Retry-After", out retryAfter)).Returns(true);
+
+        return new RequestFailedException(response.Object);
     }
 }

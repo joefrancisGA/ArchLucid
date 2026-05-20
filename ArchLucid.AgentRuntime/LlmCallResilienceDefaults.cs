@@ -46,6 +46,7 @@ public static class LlmCallResilienceDefaults
                 MaxDelay = cap,
                 BackoffType = DelayBackoffType.Exponential,
                 UseJitter = true,
+                DelayGenerator = args => ResolveRetryDelay(args, cap),
                 ShouldHandle = new PredicateBuilder().Handle<Exception>(ShouldRetryLlmException),
                 OnRetry = args =>
                 {
@@ -75,6 +76,17 @@ public static class LlmCallResilienceDefaults
                 }
             })
             .Build();
+    }
+
+    private static ValueTask<TimeSpan?> ResolveRetryDelay(RetryDelayGeneratorArguments args, TimeSpan maxDelay)
+    {
+        if (args.Outcome.Exception is not Exception ex)
+            return default;
+
+        if (!AzureOpenAiTooManyRequestsRetry.TryGetRetryAfterDelayForResilience(ex, maxDelay, out TimeSpan fromHeader))
+            return default;
+
+        return new ValueTask<TimeSpan?>(fromHeader);
     }
 
     /// <summary>Used by chaos/retry composition tests (Simmy) aligned with the same classification rules.</summary>

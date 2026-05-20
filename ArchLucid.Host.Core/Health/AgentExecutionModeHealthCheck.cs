@@ -18,7 +18,7 @@ public sealed class AgentExecutionModeHealthCheck(IConfiguration configuration) 
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        string mode = AgentExecutionModeHealthCheckSupport.ResolveReportedMode(configuration);
+        string mode = ResolveReportedMode(configuration);
 
         IReadOnlyDictionary<string, object> data = new Dictionary<string, object>
         {
@@ -28,14 +28,9 @@ public sealed class AgentExecutionModeHealthCheck(IConfiguration configuration) 
         return Task.FromResult(
             HealthCheckResult.Healthy($"AgentExecution mode is {mode}.", data: data));
     }
-}
 
-internal static class AgentExecutionModeHealthCheckSupport
-{
-    internal static string ResolveReportedMode(IConfiguration configuration)
+    private static string ResolveReportedMode(IConfiguration configuration)
     {
-        ArgumentNullException.ThrowIfNull(configuration);
-
         string? raw = configuration["AgentExecution:Mode"]?.Trim();
 
         if (string.IsNullOrWhiteSpace(raw))

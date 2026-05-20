@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using System.Text.Json;
 
+using ArchLucid.Host.Core.Health;
+
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
@@ -34,6 +36,11 @@ public sealed class HealthEndpointSecurityIntegrationTests(HealthEndpointSecurit
         root.TryGetProperty("commitSha", out _).Should().BeFalse();
         root.TryGetProperty("totalDurationMs", out _).Should().BeFalse();
 
+        root.TryGetProperty("agentExecutionMode", out JsonElement agentMode).Should().BeTrue();
+        agentMode.GetString().Should().NotBeNullOrWhiteSpace();
+
+        bool sawAgentExecutionModeEntry = false;
+
         foreach (JsonElement entry in root.GetProperty("entries").EnumerateArray())
         {
             entry.TryGetProperty("error", out _).Should().BeFalse("summary entries must not expose exception text");
@@ -41,7 +48,19 @@ public sealed class HealthEndpointSecurityIntegrationTests(HealthEndpointSecurit
             entry.TryGetProperty("durationMs", out _).Should().BeFalse();
             entry.GetProperty("name").GetString().Should().NotBeNullOrWhiteSpace();
             entry.GetProperty("status").GetString().Should().NotBeNullOrWhiteSpace();
+
+            if (string.Equals(
+                    entry.GetProperty("name").GetString(),
+                    AgentExecutionModeHealthCheck.RegistrationName,
+                    StringComparison.Ordinal))
+            {
+                sawAgentExecutionModeEntry = true;
+                entry.GetProperty("status").GetString().Should().Be("Healthy");
+            }
         }
+
+        sawAgentExecutionModeEntry.Should().BeTrue();
+        agentMode.GetString().Should().BeOneOf("Simulator", "Real");
     }
 
     [SkippableFact]

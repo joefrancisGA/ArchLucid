@@ -2,6 +2,9 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Net.Http;
+
+using Azure;
 
 using Microsoft.Extensions.Logging;
 
@@ -57,6 +60,39 @@ internal static class AzureOpenAiTooManyRequestsRetry
         if (ex.Status != 429)
             return false;
 
+        return TryGetRetryAfterDelayFromClientResult(ex, out delay);
+    }
+
+    /// <summary>
+    ///     Reads <c>Retry-After</c> for Polly LLM retries (<see cref="LlmCallResilienceDefaults" />), clamped to
+    ///     <paramref name="maxDelay" />.
+    /// </summary>
+    internal static bool TryGetRetryAfterDelayForResilience(
+        Exception ex,
+        TimeSpan maxDelay,
+        out TimeSpan delay)
+    {
+        delay = TimeSpan.Zero;
+
+        bool found = ex switch
+        {
+            ClientResultException cre => TryGetRetryAfterDelayFromClientResult(cre, out delay),
+            HttpRequestException hre => TryGetRetryAfterDelayFromHttpRequest(hre, out delay),
+            _ => false,
+        };
+
+        if (!found)
+            return false;
+
+        delay = delay.Clamp(MinimumThrottleDelay, maxDelay);
+
+        return true;
+    }
+
+    internal static bool TryGetRetryAfterDelayFromClientResult(ClientResultException ex, out TimeSpan delay)
+    {
+        delay = TimeSpan.Zero;
+
         PipelineResponse? raw = ex.GetRawResponse();
 
         if (raw is null)
@@ -66,6 +102,26 @@ internal static class AzureOpenAiTooManyRequestsRetry
             return false;
 
         return TryParseRetryAfterHeaderValue(rawValue, out delay);
+    }
+
+    internal static bool TryGetRetryAfterDelayFromHttpRequest(HttpRequestException ex, out TimeSpan delay)
+    {
+        delay = TimeSpan.Zero;
+
+        for (Exception? current = ex; current is not null; current = current.InnerException)
+        {
+            if (current is not RequestFailedException rfe)
+                continue;
+
+            if (!rfe.Headers.TryGetValue("Retry-After", out string? rawValue)
+                || string.IsNullOrWhiteSpace(rawValue))
+                continue;
+
+            if (TryParseRetryAfterHeaderValue(rawValue, out delay))
+                return true;
+        }
+
+        return false;
     }
 
     internal static bool TryParseRetryAfterHeaderValue(string? raw, out TimeSpan delay)

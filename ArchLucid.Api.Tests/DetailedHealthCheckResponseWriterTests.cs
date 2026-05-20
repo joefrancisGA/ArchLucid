@@ -232,4 +232,29 @@ public sealed class DetailedHealthCheckResponseWriterTests
         first.TryGetProperty("error", out _).Should().BeFalse();
         first.TryGetProperty("description", out _).Should().BeFalse();
     }
+
+    [SkippableFact]
+    public async Task WriteAsync_summary_includes_agent_execution_mode_when_registered()
+    {
+        Dictionary<string, HealthReportEntry> entries = new()
+        {
+            [AgentExecutionModeHealthCheck.RegistrationName] = new HealthReportEntry(
+                HealthStatus.Healthy,
+                "AgentExecution mode is Simulator.",
+                TimeSpan.FromMilliseconds(1),
+                exception: null,
+                data: new Dictionary<string, object> { [AgentExecutionModeHealthCheck.ModeDataKey] = "Simulator" }),
+        };
+
+        HealthReport report = new(entries, TimeSpan.FromMilliseconds(2));
+        DefaultHttpContext httpContext = new() { Response = { Body = new MemoryStream() } };
+
+        await DetailedHealthCheckResponseWriter.WriteAsync(httpContext, report, HealthCheckResponseDetailLevel.Summary);
+
+        httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        using JsonDocument doc = await JsonDocument.ParseAsync(httpContext.Response.Body);
+        JsonElement root = doc.RootElement;
+
+        root.GetProperty("agentExecutionMode").GetString().Should().Be("Simulator");
+    }
 }
