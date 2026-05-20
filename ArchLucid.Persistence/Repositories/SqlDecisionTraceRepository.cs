@@ -5,6 +5,7 @@ using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Serialization;
 
 using Dapper;
@@ -28,6 +29,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
     {
         ArgumentNullException.ThrowIfNull(trace);
         RuleAuditTracePayload audit = trace.RequireRuleAudit();
+        ScopedRepositoryScopeValidation.RequireEntityTenant(audit.TenantId);
 
         const string sql = """
                            INSERT INTO dbo.DecisioningTraces
@@ -76,6 +78,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
     public async Task<DecisionTrace?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
 
         const string sql = """
                            SELECT

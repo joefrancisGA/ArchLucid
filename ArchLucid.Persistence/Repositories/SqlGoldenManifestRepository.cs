@@ -10,6 +10,7 @@ using ArchLucid.Decisioning.Manifest.Mapping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.GoldenManifests;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Serialization;
@@ -45,6 +46,7 @@ public sealed class SqlGoldenManifestRepository(
         IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(manifest);
+        ScopedRepositoryScopeValidation.RequireEntityTenant(manifest.TenantId);
 
         if (connection is not null)
         {
@@ -85,6 +87,7 @@ public sealed class SqlGoldenManifestRepository(
             throw new ArgumentNullException(nameof(keying));
         if (contractHash is null)
             throw new ArgumentNullException(nameof(contractHash));
+        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
         ManifestDocument model = ContractGoldenManifestPersistence.ResolveGoldenManifestForContractSave(
             contract,
             scope,
@@ -104,6 +107,7 @@ public sealed class SqlGoldenManifestRepository(
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
 
         if (connection is not null)
             return await SupersedeUnreferencedActiveGoldenManifestsCoreAsync(scope, newManifestId, connection, transaction, cancellationToken);
@@ -174,6 +178,7 @@ public sealed class SqlGoldenManifestRepository(
     public async Task<ManifestDocument?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
 
         const string sql = """
                            SELECT
@@ -231,6 +236,7 @@ public sealed class SqlGoldenManifestRepository(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
 
         if (string.IsNullOrWhiteSpace(manifestVersion))
             throw new ArgumentException("Manifest version is required.", nameof(manifestVersion));
@@ -702,65 +708,59 @@ public sealed class SqlGoldenManifestRepository(
         ArgumentNullException.ThrowIfNull(connection);
 
         Guid manifestId = manifest.ManifestId;
+        ScopedRepositoryScopeValidation.RequireEntityTenant(manifest.TenantId);
+
+        object sliceCountArgs = new
+        {
+            ManifestId = manifestId,
+            manifest.TenantId,
+            manifest.WorkspaceId,
+            manifest.ProjectId
+        };
+
+        const string sliceTenantWhere =
+            "ManifestId = @ManifestId AND TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId";
 
         int assumptionsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestAssumptions WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId
-            },
+            $"SELECT COUNT(1) FROM dbo.GoldenManifestAssumptions WHERE {sliceTenantWhere}",
+            sliceCountArgs,
             ct);
 
         int warningsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestWarnings WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId
-            },
+            $"SELECT COUNT(1) FROM dbo.GoldenManifestWarnings WHERE {sliceTenantWhere}",
+            sliceCountArgs,
             ct);
 
         int provFindingCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceFindings WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId
-            },
+            $"SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceFindings WHERE {sliceTenantWhere}",
+            sliceCountArgs,
             ct);
 
         int provNodeCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceGraphNodes WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId
-            },
+            $"SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceGraphNodes WHERE {sliceTenantWhere}",
+            sliceCountArgs,
             ct);
 
         int provRuleCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceAppliedRules WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId
-            },
+            $"SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceAppliedRules WHERE {sliceTenantWhere}",
+            sliceCountArgs,
             ct);
 
         int decisionsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestDecisions WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId
-            },
+            $"SELECT COUNT(1) FROM dbo.GoldenManifestDecisions WHERE {sliceTenantWhere}",
+            sliceCountArgs,
             ct);
 
         if (assumptionsCount == 0 && manifest.Assumptions.Count > 0)

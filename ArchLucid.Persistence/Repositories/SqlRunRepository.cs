@@ -8,6 +8,7 @@ using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Sql;
@@ -40,6 +41,7 @@ public sealed class SqlRunRepository(
         IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(run);
+        ScopedRepositoryScopeValidation.RequireEntityTenant(run.TenantId);
 
         const string sql = """
                            INSERT INTO dbo.Runs
@@ -100,6 +102,7 @@ public sealed class SqlRunRepository(
     public async Task<RunRecord?> GetByIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
 
         Stopwatch sw = Stopwatch.StartNew();
 
@@ -190,6 +193,7 @@ public sealed class SqlRunRepository(
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(authorityProjectSlug);
+        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
 
         Stopwatch sw = Stopwatch.StartNew();
 
@@ -246,6 +250,7 @@ public sealed class SqlRunRepository(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
 
         // NOLOCK: dashboard-grade list on hot-write table; tolerates replica-style staleness (see ListRecentInScopeAsync).
 
@@ -287,6 +292,7 @@ public sealed class SqlRunRepository(
     {
         ArgumentNullException.ThrowIfNull(scope);
         ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
+        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
 
         int safeTake = RunPagination.ClampTake(take);
         int fetch = safeTake + 1;
@@ -334,6 +340,7 @@ public sealed class SqlRunRepository(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
 
         Stopwatch sw = Stopwatch.StartNew();
 
@@ -374,6 +381,7 @@ public sealed class SqlRunRepository(
     {
         ArgumentNullException.ThrowIfNull(scope);
         ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
+        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
 
         int safeTake = RunPagination.ClampTake(take);
         int fetch = safeTake + 1;
@@ -422,6 +430,7 @@ public sealed class SqlRunRepository(
         IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(run);
+        ScopedRepositoryScopeValidation.RequireEntityTenant(run.TenantId);
 
         const string sql = """
                            UPDATE dbo.Runs
@@ -452,6 +461,9 @@ public sealed class SqlRunRepository(
                                LastFailureReason = @LastFailureReason
                            OUTPUT inserted.RowVersionStamp
                            WHERE RunId = @RunId
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ScopeProjectId = @ScopeProjectId
                              AND (@RowVersion IS NULL OR RowVersionStamp = @RowVersion);
                            """;
 
@@ -807,6 +819,7 @@ public sealed class SqlRunRepository(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
 
         if (string.IsNullOrWhiteSpace(architectureRequestId))
             throw new ArgumentException("Architecture request id is required.", nameof(architectureRequestId));
