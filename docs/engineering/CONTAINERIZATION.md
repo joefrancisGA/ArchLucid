@@ -65,6 +65,29 @@ cd archlucid-ui && npm run dev
 
 This is unchanged from before containerization was added.
 
+### Workflow 1b — SQL-only (API-only local dev)
+
+When you run the API natively with default **`appsettings.Development.json`** (`ArchLucid:StorageProvider=InMemory`, **`HotPathCache:Enabled=false`**, in-process background jobs), you often only need SQL Server in Docker:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.local.yml up -d
+dotnet run --project ArchLucid.Api
+```
+
+Or:
+
+```bash
+dotnet run --project ArchLucid.Cli -- dev up --sql-only
+```
+
+**`docker-compose.local.yml`** gates **Azurite** and **Redis** behind profile **`local-with-sidecars`**. To add them back on the same overlay:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local-with-sidecars up -d
+```
+
+Use the default **`docker compose up -d`** (or **`archlucid dev up`** without **`--sql-only`**) when you enable SQL blob storage, durable background jobs, or Redis-backed cache in user secrets.
+
 ### Workflow 2 — Full-stack integration
 
 Run everything in containers to validate the production image locally.

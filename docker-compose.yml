@@ -4,6 +4,11 @@
 #   docker compose up -d
 #   → SQL Server, Azurite, Redis only. Run API + UI natively.
 #
+# API-only / SQL-only (skip Azurite + Redis):
+#   docker compose -f docker-compose.yml -f docker-compose.local.yml up -d
+#   → SQL Server + sqlserver-init only. See docker-compose.local.yml.
+#   Or: dotnet run --project ArchLucid.Cli -- dev up --sql-only
+#
 # Full-stack integration (containerised API + UI):
 #   docker compose --profile full-stack up -d
 #   → Everything, including the ArchLucid API and Operator UI images.

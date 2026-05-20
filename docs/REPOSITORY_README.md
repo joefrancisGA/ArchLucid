@@ -160,6 +160,7 @@ From the ArchLucid repo directory (or any directory containing `docker-compose.y
 
 ```bash
 dotnet run --project ArchLucid.Cli -- dev up
+# SQL only (skip Azurite + Redis): dev up --sql-only
 ```
 
 This starts SQL Server, Azurite, and Redis in Docker (default profile — for hot-reload development). To run the full stack (API + UI in containers too): `docker compose --profile full-stack up -d --build`. For the **internal-operator Docker-only demo** with Contoso demo seed and simulator agents (used by sales for seller-led demos; **not** the customer first-run path), use `.\scripts\demo-start.ps1` or see [docs/go-to-market/DEMO_QUICKSTART.md](go-to-market/DEMO_QUICKSTART.md). See [docs/engineering/CONTAINERIZATION.md](engineering/CONTAINERIZATION.md).
@@ -323,7 +324,7 @@ See [docs/DECISIONING_TYPED_FINDINGS.md](library/DECISIONING_TYPED_FINDINGS.md).
 | Command | Description |
 |---------|-------------|
 | `new <projectName>` | Create a new project skeleton with `archlucid.json`, `inputs/brief.md`, `outputs/`, and Terraform stubs |
-| `dev up` | Start SQL Server, Azurite, and Redis via Docker Compose (requires `docker-compose.yml` in repo root) |
+| `dev up [--sql-only]` | Start dev dependencies via Docker Compose. Default: SQL, Azurite, Redis. **`--sql-only`**: SQL only (`docker-compose.local.yml`). |
 | `run` | Submit an architecture request to the API. Reads `archlucid.json` and `inputs/brief.md` |
 | `run --quick` | Same as `run`, then seeds fake results and commits in one step (Development only) |
 | `status <runId>` | Show run status, tasks, and submitted results |

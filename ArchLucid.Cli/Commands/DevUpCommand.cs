@@ -7,7 +7,7 @@ namespace ArchLucid.Cli.Commands;
     "CLI dev up invokes Docker Compose from the host; environment-dependent; exercised manually.")]
 internal static class DevUpCommand
 {
-    public static Task<int> RunAsync()
+    public static Task<int> RunAsync(bool sqlOnly = false)
     {
         string? composeDir = FindDockerComposeDirectory();
 
@@ -20,16 +20,22 @@ internal static class DevUpCommand
         }
 
         string composePath = Path.Combine(composeDir, "docker-compose.yml");
-        Console.WriteLine($"Starting ArchLucid dev services from {composeDir}...");
+        string composeFiles = sqlOnly
+            ? $"-f \"{composePath}\" -f \"{Path.Combine(composeDir, "docker-compose.local.yml")}\""
+            : $"-f \"{composePath}\"";
+        Console.WriteLine(
+            sqlOnly
+                ? $"Starting ArchLucid dev services (SQL only) from {composeDir}..."
+                : $"Starting ArchLucid dev services from {composeDir}...");
 
         try
         {
             (int exitCode, string output, string error) =
-                RunProcess("docker", $"compose -f \"{composePath}\" up -d", composeDir);
+                RunProcess("docker", $"compose {composeFiles} up -d", composeDir);
 
             if (exitCode != 0)
 
-                (exitCode, output, error) = RunProcess("docker-compose", $"-f \"{composePath}\" up -d", composeDir);
+                (exitCode, output, error) = RunProcess("docker-compose", $"{composeFiles} up -d", composeDir);
 
             if (exitCode != 0)
             {
@@ -47,10 +53,21 @@ internal static class DevUpCommand
             }
 
             Console.WriteLine();
-            Console.WriteLine("Dev services started:");
+            Console.WriteLine(sqlOnly ? "Dev services started (SQL only):" : "Dev services started:");
             Console.WriteLine("  SQL Server: localhost:1433");
-            Console.WriteLine("  Azurite:    localhost:10000 (blob), 10001 (queue), 10002 (table)");
-            Console.WriteLine("  Redis:      localhost:6379");
+
+            if (!sqlOnly)
+            {
+                Console.WriteLine("  Azurite:    localhost:10000 (blob), 10001 (queue), 10002 (table)");
+                Console.WriteLine("  Redis:      localhost:6379");
+            }
+            else
+            {
+                Console.WriteLine();
+                Console.WriteLine(
+                    "  Azurite/Redis skipped (docker-compose.local.yml). Use default dev up or --profile local-with-sidecars when you need blob/queue/cache emulation.");
+            }
+
             Console.WriteLine();
             Console.WriteLine("Connection string for ArchLucid API (User Secrets or env):");
             Console.WriteLine(
