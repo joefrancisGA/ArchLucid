@@ -137,6 +137,33 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
     }
 
     /// <inheritdoc />
+    public async Task<RunListPage> ListRecentInScopeOffsetAsync(
+        ScopeContext scope,
+        int offset,
+        int limit,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        int safeLimit = RunPagination.ClampLimit(limit);
+        int safeOffset = RunPagination.NormalizeOffset(offset);
+
+        if (safeOffset > 0)
+            return await _inner.ListRecentInScopeOffsetAsync(scope, safeOffset, safeLimit, ct);
+
+        string key = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, safeLimit);
+
+        RunListPage? cached = await _hotPathReadCache.GetOrCreateAsync(
+            key,
+            async innerCt =>
+                await _inner.ListRecentInScopeOffsetAsync(scope, 0, safeLimit, innerCt),
+            ct,
+            absoluteExpirationSecondsOverride: ListAbsoluteExpirationSeconds);
+
+        return cached ?? throw new InvalidOperationException("Run list cache returned null unexpectedly.");
+    }
+
+    /// <inheritdoc />
     public Task<int> CountActiveRunsForArchitectureRequestAsync(
         ScopeContext scope,
         string architectureRequestId,

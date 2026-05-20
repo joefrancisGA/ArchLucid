@@ -423,6 +423,54 @@ public sealed class SqlRunRepository(
         }
     }
 
+    /// <inheritdoc />
+    public async Task<RunListPage> ListRecentInScopeOffsetAsync(
+        ScopeContext scope,
+        int offset,
+        int limit,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+
+        int safeLimit = RunPagination.ClampLimit(limit);
+        int safeOffset = RunPagination.NormalizeOffset(offset);
+        int fetch = safeLimit + 1;
+
+        Stopwatch sw = Stopwatch.StartNew();
+
+        try
+        {
+            await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
+            IEnumerable<RunRecord> rowsEnumerable = await connection.QueryAsync<RunRecord>(
+                new CommandDefinition(
+                    HotPathRelationalQueryShapes.RunsListRecentInScopeOffsetNoLock,
+                    new
+                    {
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId,
+                        Offset = safeOffset,
+                        Fetch = fetch
+                    },
+                    cancellationToken: ct));
+
+            List<RunRecord> rows = rowsEnumerable.ToList();
+            bool hasMore = rows.Count > safeLimit;
+
+            if (hasMore)
+                rows.RemoveAt(rows.Count - 1);
+
+            return new RunListPage(rows, hasMore);
+        }
+        finally
+        {
+            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
+                NamedQueryTelemetryNames.ListRunsRecentInScopeOffset,
+                sw.Elapsed.TotalMilliseconds);
+        }
+    }
+
     public async Task UpdateAsync(
         RunRecord run,
         CancellationToken ct,

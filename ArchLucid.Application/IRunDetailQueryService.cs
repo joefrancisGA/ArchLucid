@@ -33,4 +33,12 @@ public interface IRunDetailQueryService
         string? cursor,
         int take,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Offset-paged run summaries for the current scope (newest first).
+    /// </summary>
+    Task<(IReadOnlyList<RunSummary> Items, bool HasMore)> ListRunSummariesOffsetAsync(
+        int offset,
+        int limit,
+        CancellationToken cancellationToken = default);
 }

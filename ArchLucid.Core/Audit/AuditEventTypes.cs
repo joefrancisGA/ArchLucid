@@ -80,6 +80,9 @@ public static class AuditEventTypes
 
     public const string ReplayExecuted = "ReplayExecuted";
 
+    /// <summary>Workspace curation: <c>PATCH /v1/architecture/run/{{runId}}/pin</c> set or toggled <c>dbo.Runs.IsPinned</c>.</summary>
+    public const string RunPinStateChanged = "RunPinStateChanged";
+
     /// <summary>Internal QA: POST <c>…/internal/architecture/runs/{{runId}}/determinism-check</c> completed.</summary>
     public const string InternalArchitectureDeterminismCheckExecuted = "InternalArchitectureDeterminismCheckExecuted";
 

@@ -98,6 +98,26 @@ internal static class HotPathRelationalQueryShapes
                                                       ORDER BY CreatedUtc DESC;
                                                       """;
 
+    /// <summary>Offset-paged recent runs in scope (<c>SqlRunRepository.ListRecentInScopeOffsetAsync</c>).</summary>
+    public const string RunsListRecentInScopeOffsetNoLock = """
+                                                            SELECT
+                                                                RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
+                                                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
+                                                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
+                                                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
+                                                                IsDemoWelcomeRun,
+                                                                IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                                                StructuralExecutionMode,
+                                                                RetryCount, LastFailureReason
+                                                            FROM dbo.Runs WITH (NOLOCK)
+                                                            WHERE TenantId = @TenantId
+                                                              AND WorkspaceId = @WorkspaceId
+                                                              AND ScopeProjectId = @ScopeProjectId
+                                                              AND ArchivedUtc IS NULL
+                                                            ORDER BY CreatedUtc DESC
+                                                            OFFSET @Offset ROWS FETCH NEXT @Fetch ROWS ONLY;
+                                                            """;
+
     /// <summary>Keyset recent runs in scope (<c>SqlRunRepository.ListRecentInScopeKeysetAsync</c>).</summary>
     public const string RunsListRecentInScopeKeysetNoLock = """
                                                             SELECT TOP (@Fetch)

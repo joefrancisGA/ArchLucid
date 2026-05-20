@@ -102,6 +102,16 @@ public interface IRunRepository
         CancellationToken ct);
 
     /// <summary>
+    ///     Returns up to <paramref name="limit" /> runs in <paramref name="scope" /> after skipping
+    ///     <paramref name="offset" /> rows, ordered by <c>CreatedUtc</c> descending. Excludes archived rows.
+    /// </summary>
+    Task<RunListPage> ListRecentInScopeOffsetAsync(
+        ScopeContext scope,
+        int offset,
+        int limit,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Applies an update to an existing run row. Callers may pass an existing
     ///     <paramref name="connection" /> and <paramref name="transaction" /> to participate
     ///     in a multi-statement transaction.

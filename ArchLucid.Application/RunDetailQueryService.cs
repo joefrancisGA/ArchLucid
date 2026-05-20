@@ -167,6 +167,32 @@ public sealed class RunDetailQueryService(
         return (items, page.HasMore, next);
     }
 
+    /// <inheritdoc/>
+    public async Task<(IReadOnlyList<RunSummary> Items, bool HasMore)> ListRunSummariesOffsetAsync(
+        int offset,
+        int limit,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        RunListPage page = await runRepository.ListRecentInScopeOffsetAsync(
+            scope,
+            RunPagination.NormalizeOffset(offset),
+            RunPagination.ClampLimit(limit),
+            cancellationToken);
+        IReadOnlyList<RunSummary> items = page.Items.Select(r => new RunSummary
+        {
+            RunId = r.RunId.ToString("N"),
+            RequestId = r.ArchitectureRequestId ?? string.Empty,
+            Status = r.LegacyRunStatus ?? nameof(ArchitectureRunStatus.Created),
+            CreatedUtc = r.CreatedUtc,
+            CompletedUtc = r.CompletedUtc,
+            CurrentManifestVersion = r.CurrentManifestVersion,
+            SystemName = r.ProjectId
+        }).ToList();
+
+        return (items, page.HasMore);
+    }
+
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
     {
         return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);

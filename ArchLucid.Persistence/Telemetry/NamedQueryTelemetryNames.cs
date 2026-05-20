@@ -16,6 +16,8 @@ internal static class NamedQueryTelemetryNames
 
     public const string ListRunsRecentInScopeKeyset = "ListRunsRecentInScopeKeyset";
 
+    public const string ListRunsRecentInScopeOffset = "ListRunsRecentInScopeOffset";
+
     public const string GetRunByScopedId = "GetRunByScopedId";
 
     public const string GetRunByIdAdmin = "GetRunByIdAdmin";

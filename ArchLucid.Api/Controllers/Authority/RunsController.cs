@@ -595,6 +595,25 @@ public sealed partial class RunsController(
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
 
+        string auditActor = actorContext.GetActor();
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.RunPinStateChanged,
+                ActorUserId = auditActor,
+                ActorUserName = auditActor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = runGuid,
+                CorrelationId = HttpContext.TraceIdentifier,
+                DataJson = JsonSerializer.Serialize(
+                    new { isPinned = run.IsPinned },
+                    AuditJsonSerializationOptions.Instance)
+            },
+            cancellationToken);
+
         return Ok(new PinRunResponse { RunId = run.RunId.ToString("N"), IsPinned = run.IsPinned });
     }
 
