@@ -53,8 +53,11 @@ public sealed class CosmosClientFactory(IOptionsMonitor<CosmosDbOptions> options
             _client ??= CreateClient(opts);
             _database ??= await _client.CreateDatabaseIfNotExistsAsync(opts.DatabaseName, cancellationToken: ct);
 
-            int throughput = 400;
-            ContainerProperties properties = new(containerId, GetPartitionKeyPath(containerId)) { DefaultTimeToLive = GetDefaultTtl(containerId, opts) };
+            const int throughput = 400;
+            ContainerProperties properties = new(containerId, GetPartitionKeyPath(containerId))
+            {
+                DefaultTimeToLive = GetDefaultTtl(containerId, opts)
+            };
 
             ContainerResponse response = await _database.CreateContainerIfNotExistsAsync(
                 properties,
@@ -142,7 +145,9 @@ public sealed class CosmosClientFactory(IOptionsMonitor<CosmosDbOptions> options
     {
         CosmosClientOptions clientOptions = new()
         {
-            ApplicationName = "ArchLucid", ConnectionMode = ConnectionMode.Direct, ConsistencyLevel = ParseConsistency(opts.DefaultConsistencyLevel)
+            ApplicationName = "ArchLucid",
+            ConnectionMode = ConnectionMode.Direct,
+            ConsistencyLevel = ParseConsistency(opts.DefaultConsistencyLevel)
         };
 
         if (IsEmulatorConnection(opts.ConnectionString))

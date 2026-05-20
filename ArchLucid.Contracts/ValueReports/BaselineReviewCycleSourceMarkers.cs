@@ -19,10 +19,7 @@ public static class BaselineReviewCycleSourceMarkers
 
         string t = source.Trim();
 
-        if (string.Equals(t, OperatorSettingsToken, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        return t.StartsWith(OperatorSettingsToken + ":", StringComparison.OrdinalIgnoreCase);
+        return string.Equals(t, OperatorSettingsToken, StringComparison.OrdinalIgnoreCase) || t.StartsWith(OperatorSettingsToken + ":", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -38,16 +35,15 @@ public static class BaselineReviewCycleSourceMarkers
         if (string.Equals(t, OperatorSettingsToken, StringComparison.OrdinalIgnoreCase))
             return null;
 
-        string prefix = OperatorSettingsToken + ":";
+        const string prefix = OperatorSettingsToken + ":";
 
-        if (t.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-        {
-            string tail = t[prefix.Length..].Trim();
+        if (!t.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            return t;
 
-            return tail.Length == 0 ? null : tail;
-        }
+        string tail = t[prefix.Length..].Trim();
 
-        return t;
+        return tail.Length == 0 ? null : tail;
+
     }
 
     /// <summary>Persisted JSON shape for operator baseline wizard / settings saves.</summary>

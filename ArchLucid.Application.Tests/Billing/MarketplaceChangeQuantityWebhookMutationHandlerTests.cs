@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Application.Billing;
 using ArchLucid.Core.Billing;
@@ -18,7 +18,10 @@ public sealed class MarketplaceChangeQuantityWebhookMutationHandlerTests
     [SkippableFact]
     public async Task Ga_disabled_returns_deferred_without_ledger_mutation()
     {
-        BillingOptions billing = new() { AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false }, };
+        BillingOptions billing = new()
+        {
+            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false },
+        };
 
         BillingOptionsTestMonitor<BillingOptions> monitor = new(billing);
         Mock<IBillingLedger> ledger = new();
@@ -42,7 +45,10 @@ public sealed class MarketplaceChangeQuantityWebhookMutationHandlerTests
     [SkippableFact]
     public async Task Ga_enabled_invokes_change_quantity_with_parsed_seats()
     {
-        BillingOptions billing = new() { AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = true }, };
+        BillingOptions billing = new()
+        {
+            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = true },
+        };
 
         BillingOptionsTestMonitor<BillingOptions> monitor = new(billing);
         Mock<IBillingLedger> ledger = new();
@@ -56,7 +62,7 @@ public sealed class MarketplaceChangeQuantityWebhookMutationHandlerTests
             NullLogger<MarketplaceChangeQuantityWebhookMutationHandler>.Instance);
 
         Guid tenantId = Guid.NewGuid();
-        string raw = """{"quantity":15}""";
+        const string raw = """{"quantity":15}""";
         using JsonDocument doc = JsonDocument.Parse(raw);
 
         MarketplaceWebhookMutationOutcome outcome =

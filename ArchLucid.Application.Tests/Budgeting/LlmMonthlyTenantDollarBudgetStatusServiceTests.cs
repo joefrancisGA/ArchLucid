@@ -47,9 +47,9 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusServiceTests
     {
         Guid tenantId = Guid.Parse("22222222-2222-2222-2222-222222222222");
         InMemoryLlmTenantBudgetRepository repo = new();
-        string periodKey = "2026-05";
+        const string periodKey = "2026-05";
         LlmTenantBudgetStateReadModel row =
-            await repo.GetOrCreateAsync(tenantId, LlmBudgetPeriod.Monthly, periodKey, default);
+            await repo.GetOrCreateAsync(tenantId, LlmBudgetPeriod.Monthly, periodKey, CancellationToken.None);
         LlmTenantBudgetSettleResult settled = await repo.SettleAsync(
             new LlmTenantBudgetSettleRequest
             {
@@ -61,7 +61,7 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusServiceTests
                 WarnAtUsd = 999_999m,
                 ExpectedRowVersion = row.RowVersion
             },
-            default);
+            CancellationToken.None);
         settled.NewState.Should().NotBeNull();
         settled.NewState!.CommittedUsd.Should().Be(100m);
 
@@ -102,9 +102,9 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusServiceTests
     {
         Guid tenantId = Guid.Parse("44444444-4444-4444-4444-444444444444");
         InMemoryLlmTenantBudgetRepository repo = new();
-        string periodKey = "2026-05";
+        const string periodKey = "2026-05";
         LlmTenantBudgetStateReadModel row =
-            await repo.GetOrCreateAsync(tenantId, LlmBudgetPeriod.Monthly, periodKey, default);
+            await repo.GetOrCreateAsync(tenantId, LlmBudgetPeriod.Monthly, periodKey, CancellationToken.None);
         LlmTenantBudgetSettleResult settled = await repo.SettleAsync(
             new LlmTenantBudgetSettleRequest
             {
@@ -116,7 +116,7 @@ public sealed class LlmMonthlyTenantDollarBudgetStatusServiceTests
                 WarnAtUsd = 999_999m,
                 ExpectedRowVersion = row.RowVersion
             },
-            default);
+            CancellationToken.None);
         settled.NewState.Should().NotBeNull();
 
         Mock<IScopeContextProvider> scope = new();

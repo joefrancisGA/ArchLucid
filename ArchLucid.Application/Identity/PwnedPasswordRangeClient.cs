@@ -40,7 +40,7 @@ public sealed class PwnedPasswordRangeClient(HttpClient httpClient, IMemoryCache
         response.EnsureSuccessStatusCode();
         string body = await response.Content.ReadAsStringAsync(cancellationToken);
         HashSet<string> set = ParseRangeBody(body);
-        _cache.Set(cacheKey, (IReadOnlySet<string>)set, new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = RangeResponseCacheDuration });
+        _cache.Set<IReadOnlySet<string>>(cacheKey, set, new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = RangeResponseCacheDuration });
         return set.Contains(suffix);
     }
 

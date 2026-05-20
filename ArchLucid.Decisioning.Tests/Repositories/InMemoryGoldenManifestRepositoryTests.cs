@@ -1,4 +1,3 @@
-using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Repositories;
 
@@ -57,7 +56,7 @@ public sealed class InMemoryGoldenManifestRepositoryTests
         };
 
         using CancellationTokenSource cts = new();
-        cts.Cancel();
+        await cts.CancelAsync();
 
         Func<Task> act = async () =>
             await sut.GetByContractManifestVersionAsync(scope, "v1", cts.Token);

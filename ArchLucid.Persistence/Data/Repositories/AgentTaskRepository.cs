@@ -48,7 +48,7 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
                            );
                            """;
 
-        IEnumerable<object> rows = tasks.Select(t => (object)new
+        IEnumerable<object> rows = tasks.Select(object (t) => new
         {
             t.TaskId,
             t.RunId,
@@ -115,7 +115,10 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
 
         IEnumerable<AgentTaskRow> rows = await connection.QueryAsync<AgentTaskRow>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             cancellationToken: cancellationToken));
 
         return
