@@ -258,6 +258,7 @@ public static class AuditEventTypes
     public const string AlertAcknowledged = "AlertAcknowledged";
     public const string AlertResolved = "AlertResolved";
     public const string AlertSuppressed = "AlertSuppressed";
+    public const string AlertArchived = "AlertArchived";
 
     public const string AlertRoutingSubscriptionCreated = "AlertRoutingSubscriptionCreated";
     public const string AlertRoutingSubscriptionToggled = "AlertRoutingSubscriptionToggled";
