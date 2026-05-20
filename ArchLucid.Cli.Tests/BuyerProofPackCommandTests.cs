@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 
-using ArchLucid.Cli;
 using ArchLucid.Cli.Commands;
 
 using FluentAssertions;
@@ -49,10 +48,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
 
     private void RestoreApiUrlEnv()
     {
-        if (_prevApiUrl is null)
-            Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", null);
-        else
-            Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", _prevApiUrl);
+        Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", _prevApiUrl ?? null);
     }
 
     private static string ResolveRepositoryRootFromTests()
@@ -255,7 +251,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
 
                 int exit = await BuyerProofPackCommand.RunAsync(
                     ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", Path.Combine(_emptyCwd, "out.zip"), "--repo-root",
-                        repoMissingBrief]);
+                        repoMissingBrief], listenCts.Token);
 
                 exit.Should().Be(CliExitCode.OperationFailed);
                 errWriter.ToString().Should().Contain("Missing sponsor brief");
@@ -294,13 +290,13 @@ public sealed class BuyerProofPackCommandTests : IDisposable
             Directory.SetCurrentDirectory(_emptyCwd);
 
             int exit = await BuyerProofPackCommand.RunAsync(
-                ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", zipPath, "--repo-root", repoRoot]);
+                ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", zipPath, "--repo-root", repoRoot], listenCts.Token);
 
             exit.Should().Be(CliExitCode.Success, $"stderr: {errWriter}");
             File.Exists(zipPath).Should().BeTrue();
 
             await using FileStream zipFs = new(zipPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            using ZipArchive zip = new(zipFs, ZipArchiveMode.Read);
+            await using ZipArchive zip = new(zipFs, ZipArchiveMode.Read);
 
             string[] names = zip.Entries.Select(e => e.FullName.Replace('\\', '/')).OrderBy(static x => x).ToArray();
 
@@ -314,9 +310,9 @@ public sealed class BuyerProofPackCommandTests : IDisposable
             names.Should().Contain("pilot-scorecard-blank.md");
 
             ZipArchiveEntry manifestEntry = zip.GetEntry("pack-manifest.json")!;
-            await using Stream manifestStream = manifestEntry.Open();
+            await using Stream manifestStream = await manifestEntry.OpenAsync(listenCts.Token);
             using StreamReader sr = new(manifestStream, Encoding.UTF8);
-            string manifestJson = await sr.ReadToEndAsync();
+            string manifestJson = await sr.ReadToEndAsync(listenCts.Token);
 
             using JsonDocument doc = JsonDocument.Parse(manifestJson);
             JsonElement files = doc.RootElement.GetProperty("files");
@@ -353,7 +349,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
 
             int exit = await BuyerProofPackCommand.RunAsync(
                 ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", Path.Combine(_emptyCwd, "nf.zip"), "--repo-root",
-                    repoRoot]);
+                    repoRoot], listenCts.Token);
 
             exit.Should().Be(CliExitCode.UsageError);
             errWriter.ToString().Should().Contain("was not found");
@@ -388,7 +384,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
 
             int exit = await BuyerProofPackCommand.RunAsync(
                 ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", Path.Combine(_emptyCwd, "e.zip"), "--repo-root",
-                    repoRoot]);
+                    repoRoot], listenCts.Token);
 
             exit.Should().Be(CliExitCode.OperationFailed);
             errWriter.ToString().Should().Contain("Error fetching pilot-run-deltas");
@@ -423,7 +419,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
 
             int exit = await BuyerProofPackCommand.RunAsync(
                 ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", Path.Combine(_emptyCwd, "g.zip"), "--repo-root",
-                    repoRoot]);
+                    repoRoot], listenCts.Token);
 
             exit.Should().Be(CliExitCode.UsageError);
             errWriter.ToString().Should().Contain("proofPackageCompleteness");
@@ -460,7 +456,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
 
             int exit = await BuyerProofPackCommand.RunAsync(
                 ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", Path.Combine(_emptyCwd, "nc.zip"), "--repo-root",
-                    repoRoot]);
+                    repoRoot], listenCts.Token);
 
             exit.Should().Be(CliExitCode.UsageError);
             errWriter.ToString().Should().Contain("not in committed status");
@@ -494,7 +490,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
 
             int exit = await BuyerProofPackCommand.RunAsync(
                 ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", Path.Combine(_emptyCwd, "md.zip"), "--repo-root",
-                    repoRoot]);
+                    repoRoot], listenCts.Token);
 
             exit.Should().Be(CliExitCode.OperationFailed);
             errWriter.ToString().Should().Contain("Error fetching first-value Markdown");
@@ -528,7 +524,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
 
             int exit = await BuyerProofPackCommand.RunAsync(
                 ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", Path.Combine(_emptyCwd, "pdf.zip"), "--repo-root",
-                    repoRoot]);
+                    repoRoot], listenCts.Token);
 
             exit.Should().Be(CliExitCode.OperationFailed);
             errWriter.ToString().Should().Contain("Error fetching first-value PDF");
@@ -565,7 +561,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
                 Console.SetError(errWriter);
 
                 int exit = await BuyerProofPackCommand.RunAsync(
-                    ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", zipPath, "--repo-root", repoRoot]);
+                    ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", zipPath, "--repo-root", repoRoot], listenCts.Token);
 
                 exit.Should().Be(CliExitCode.Success, $"stderr: {errWriter}");
                 File.Exists(zipPath).Should().BeTrue();
@@ -578,10 +574,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
         }
         finally
         {
-            if (prevKey is null)
-                Environment.SetEnvironmentVariable("ARCHLUCID_API_KEY", null);
-            else
-                Environment.SetEnvironmentVariable("ARCHLUCID_API_KEY", prevKey);
+            Environment.SetEnvironmentVariable("ARCHLUCID_API_KEY", prevKey ?? null);
 
             RestoreApiUrlEnv();
         }
@@ -611,16 +604,16 @@ public sealed class BuyerProofPackCommandTests : IDisposable
             Console.SetError(errWriter);
 
             int exit = await BuyerProofPackCommand.RunAsync(
-                ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", zipPath, "--repo-root", repoRoot]);
+                ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", zipPath, "--repo-root", repoRoot], listenCts.Token);
 
             exit.Should().Be(CliExitCode.Success, $"stderr: {errWriter}");
 
             await using FileStream zipFs = new(zipPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            using ZipArchive zip = new(zipFs, ZipArchiveMode.Read);
+            await using ZipArchive zip = new(zipFs, ZipArchiveMode.Read);
             ZipArchiveEntry manifestEntry = zip.GetEntry("pack-manifest.json")!;
-            await using Stream manifestStream = manifestEntry.Open();
+            await using Stream manifestStream = await manifestEntry.OpenAsync(listenCts.Token);
             using StreamReader sr = new(manifestStream, Encoding.UTF8);
-            string manifestJson = await sr.ReadToEndAsync();
+            string manifestJson = await sr.ReadToEndAsync(listenCts.Token);
 
             using JsonDocument doc = JsonDocument.Parse(manifestJson);
             doc.RootElement.GetProperty("demoDataWarning").GetBoolean().Should().BeTrue();
@@ -673,16 +666,16 @@ public sealed class BuyerProofPackCommandTests : IDisposable
             Console.SetError(errWriter);
 
             int exit = await BuyerProofPackCommand.RunAsync(
-                ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", zipPath, "--repo-root", repoRoot]);
+                ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", zipPath, "--repo-root", repoRoot], listenCts.Token);
 
             exit.Should().Be(CliExitCode.Success, $"stderr: {errWriter}");
 
             await using FileStream zipFs = new(zipPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            using ZipArchive zip = new(zipFs, ZipArchiveMode.Read);
+            await using ZipArchive zip = new(zipFs, ZipArchiveMode.Read);
             ZipArchiveEntry summaryEntry = zip.GetEntry("artifact-and-proof-summary.md")!;
-            await using Stream s = summaryEntry.Open();
+            await using Stream s = await summaryEntry.OpenAsync(listenCts.Token);
             using StreamReader reader = new(s, Encoding.UTF8);
-            string md = await reader.ReadToEndAsync();
+            string md = await reader.ReadToEndAsync(listenCts.Token);
 
             md.Should().Contain("Proof-package completeness");
             md.Should().Contain("`label`");
@@ -730,16 +723,16 @@ public sealed class BuyerProofPackCommandTests : IDisposable
             Console.SetError(errWriter);
 
             int exit = await BuyerProofPackCommand.RunAsync(
-                ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", zipPath, "--repo-root", repoRoot]);
+                ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", zipPath, "--repo-root", repoRoot], listenCts.Token);
 
             exit.Should().Be(CliExitCode.Success, $"stderr: {errWriter}");
 
             await using FileStream zipFs = new(zipPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            using ZipArchive zip = new(zipFs, ZipArchiveMode.Read);
+            await using ZipArchive zip = new(zipFs, ZipArchiveMode.Read);
             ZipArchiveEntry summaryEntry = zip.GetEntry("artifact-and-proof-summary.md")!;
-            await using Stream s = summaryEntry.Open();
+            await using Stream s = await summaryEntry.OpenAsync(listenCts.Token);
             using StreamReader reader = new(s, Encoding.UTF8);
-            string md = await reader.ReadToEndAsync();
+            string md = await reader.ReadToEndAsync(listenCts.Token);
 
             md.Should().Contain("(No severity buckets in response.)");
             md.Should().NotContain("Top finding id");
@@ -772,13 +765,13 @@ public sealed class BuyerProofPackCommandTests : IDisposable
             Console.SetError(errWriter);
 
             int first = await BuyerProofPackCommand.RunAsync(
-                ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", zipPath, "--repo-root", repoRoot]);
+                ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", zipPath, "--repo-root", repoRoot], listenCts.Token);
 
             first.Should().Be(CliExitCode.Success, $"stderr: {errWriter}");
             Directory.Exists(nestedDir).Should().BeTrue();
 
             int second = await BuyerProofPackCommand.RunAsync(
-                ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", zipPath, "--repo-root", repoRoot]);
+                ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", zipPath, "--repo-root", repoRoot], listenCts.Token);
 
             second.Should().Be(CliExitCode.Success, $"stderr: {errWriter}");
             new FileInfo(zipPath).Length.Should().BeGreaterThan(0);
@@ -796,7 +789,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
     /// </summary>
     private sealed class BuyerProofPackLoopbackApi : IAsyncDisposable
     {
-        private static readonly byte[] MinimalPdfBytes = Encoding.ASCII.GetBytes("%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n");
+        private static readonly byte[] MinimalPdfBytes = "%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n"u8.ToArray();
 
         private readonly HttpListener _listener = new();
         private readonly CancellationTokenSource _runnerCts = new();
@@ -812,18 +805,27 @@ public sealed class BuyerProofPackCommandTests : IDisposable
         /// <summary>HTTP status returned for GET pilot-run-deltas (default 200).</summary>
         public int PilotRunDeltasStatusCode { get; set; } = 200;
 
-        public string PilotRunDeltasJson { get; set; } =
+        public string PilotRunDeltasJson
+        {
+            get; set;
+        } =
             """
             {"isDemoTenant":false,"proofPackageCompleteness":{"runInCommittedStatus":true},"findingsBySeverity":[],"topFindingId":"finding-demo"}
             """;
 
         public int FirstValueReportStatusCode { get; set; } = 200;
 
-        public string FirstValueReportMarkdown { get; set; } = "# First value report\n\nstub";
+        private string FirstValueReportMarkdown
+        {
+            get;
+        } = "# First value report\n\nstub";
 
         public int PdfStatusCode { get; set; } = 200;
 
-        public string PdfFailureBody { get; set; } = "pdf error";
+        private string PdfFailureBody
+        {
+            get;
+        } = "pdf error";
 
         public static async Task<BuyerProofPackLoopbackApi> StartAsync(CancellationToken ct)
         {
