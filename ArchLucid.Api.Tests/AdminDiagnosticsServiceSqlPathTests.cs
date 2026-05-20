@@ -9,7 +9,6 @@ using ArchLucid.Core.Pagination;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Data.Infrastructure;
-using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Orchestration;
@@ -17,8 +16,6 @@ using ArchLucid.Persistence.Orchestration;
 using Microsoft.Extensions.Options;
 
 using Moq;
-
-using Xunit;
 
 namespace ArchLucid.Api.Tests;
 
@@ -563,7 +560,10 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
 
         foreach (object? scalar in scalarSequence)
         {
-            ScriptedDbCommand shell = new(CreateParameterTemplate) { ScalarAsync = _ => Task.FromResult(scalar) };
+            ScriptedDbCommand shell = new(CreateParameterTemplate)
+            {
+                ScalarAsync = _ => Task.FromResult(scalar)
+            };
 
             queue.Enqueue(shell);
         }
@@ -605,7 +605,10 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         Task<int> outcome,
         Action<ScriptedDbCommand>? sideEffect)
     {
-        ScriptedDbCommand command = new(CreateParameterTemplate) { NonQueryAsync = _ => outcome };
+        ScriptedDbCommand command = new(CreateParameterTemplate)
+        {
+            NonQueryAsync = _ => outcome
+        };
 
         sideEffect?.Invoke(command);
 

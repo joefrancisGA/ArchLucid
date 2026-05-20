@@ -1,7 +1,5 @@
 using ArchLucid.Api.Demo;
 
-using Xunit;
-
 namespace ArchLucid.Api.Tests;
 
 [Trait("Suite", "Core")]

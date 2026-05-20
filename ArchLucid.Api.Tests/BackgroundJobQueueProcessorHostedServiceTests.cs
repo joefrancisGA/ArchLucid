@@ -1,15 +1,13 @@
 using ArchLucid.Application.Jobs;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Jobs;
-using ArchLucid.Persistence.Data.Repositories;
-
-using Microsoft.Extensions.DependencyInjection;
 
 using Azure.Storage.Queues;
 using Azure.Storage.Queues.Models;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -27,7 +25,7 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
         Mock<QueueClient> queueClient = new();
         Mock<IBackgroundJobRepository> repo = new();
         Mock<IServiceScopeFactory> scopeFactory = new();
-        
+
         var options = new BackgroundJobsOptions { ProcessorReceiveBatchSize = 1, ProcessorIdlePollMilliseconds = 10 };
 
         var sut = new BackgroundJobQueueProcessorHostedService(
@@ -50,10 +48,10 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
             });
 
         Func<Task> act = async () => await sut.StartAsync(cts.Token);
-        
+
         // Ensure it doesn't throw unhandled exception on graceful shutdown
         await act.Should().NotThrowAsync();
-        
+
         // the background task should have finished
         await sut.StopAsync(CancellationToken.None);
     }
@@ -64,7 +62,7 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
         Mock<QueueClient> queueClient = new();
         Mock<IBackgroundJobRepository> repo = new();
         Mock<IServiceScopeFactory> scopeFactory = new();
-        
+
         var options = new BackgroundJobsOptions { ProcessorReceiveBatchSize = 1 };
 
         var sut = new BackgroundJobQueueProcessorHostedService(
@@ -81,12 +79,13 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
             .ReturnsAsync(Mock.Of<Azure.Response>());
 
         var queueMessage = QueuesModelFactory.QueueMessage("msg-id", "receipt", "job-1", 1);
-        
+
         queueClient.Setup(q => q.ReceiveMessagesAsync(It.IsAny<int>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() =>
             {
                 pulls++;
-                if (pulls == 1) return Azure.Response.FromValue(new[] { queueMessage }, new Mock<Azure.Response>().Object);
+                if (pulls == 1)
+                    return Azure.Response.FromValue(new[] { queueMessage }, new Mock<Azure.Response>().Object);
                 cts.Cancel();
                 throw new OperationCanceledException(cts.Token);
             });
@@ -98,12 +97,12 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
             .ReturnsAsync(Mock.Of<Azure.Response>());
 
         await sut.StartAsync(CancellationToken.None);
-        
+
         // Wait briefly for background execution
         await Task.Delay(100);
 
         queueClient.Verify(q => q.DeleteMessageAsync("msg-id", "receipt", It.IsAny<CancellationToken>()), Times.AtLeastOnce);
-        
+
         await sut.StopAsync(CancellationToken.None);
     }
 
@@ -193,7 +192,11 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
         Mock<IBackgroundJobRepository> repo = new();
         Mock<IServiceScopeFactory> scopeFactory = new();
 
-        BackgroundJobsOptions backgroundJobsOptions = new() { ProcessorReceiveBatchSize = 1, ProcessorIdlePollMilliseconds = 10 };
+        BackgroundJobsOptions backgroundJobsOptions = new()
+        {
+            ProcessorReceiveBatchSize = 1,
+            ProcessorIdlePollMilliseconds = 10
+        };
 
         BackgroundJobQueueProcessorHostedService sut = new(
             NullLogger<BackgroundJobQueueProcessorHostedService>.Instance,
@@ -266,7 +269,11 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
         using ServiceProvider provider = serviceCollection.BuildServiceProvider();
         IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
 
-        BackgroundJobsOptions backgroundJobsOptions = new() { ProcessorReceiveBatchSize = 1, ProcessorIdlePollMilliseconds = 10 };
+        BackgroundJobsOptions backgroundJobsOptions = new()
+        {
+            ProcessorReceiveBatchSize = 1,
+            ProcessorIdlePollMilliseconds = 10
+        };
 
         BackgroundJobQueueProcessorHostedService sut = new(
             NullLogger<BackgroundJobQueueProcessorHostedService>.Instance,

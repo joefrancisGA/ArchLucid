@@ -1,6 +1,5 @@
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Scheduling;
-using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 

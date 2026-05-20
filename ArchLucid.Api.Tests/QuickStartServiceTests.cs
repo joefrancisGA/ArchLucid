@@ -1,5 +1,4 @@
 using ArchLucid.Api.Demo;
-using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
@@ -18,8 +17,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
-
-using Xunit;
 
 namespace ArchLucid.Api.Tests;
 
@@ -61,7 +58,10 @@ public sealed class QuickStartServiceTests
     {
         QuickStartService sut = QuickStartWithDisconnectedOrchestration();
 
-        DemoQuickStartRequest inbound = new() { PresetId = "  unknown  " };
+        DemoQuickStartRequest inbound = new()
+        {
+            PresetId = "  unknown  "
+        };
 
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             sut.RunAsync(inbound, CancellationToken.None));
@@ -72,7 +72,10 @@ public sealed class QuickStartServiceTests
     {
         QuickStartService sut = QuickStartWithDisconnectedOrchestration();
 
-        DemoQuickStartRequest inbound = new() { Description = "   \t\n" };
+        DemoQuickStartRequest inbound = new()
+        {
+            Description = "   \t\n"
+        };
 
         InvalidOperationException ex =
             await Assert.ThrowsAsync<InvalidOperationException>(() =>

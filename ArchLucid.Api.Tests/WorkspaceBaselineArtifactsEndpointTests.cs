@@ -1,6 +1,5 @@
 using System.IO.Compression;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
 
 using FluentAssertions;

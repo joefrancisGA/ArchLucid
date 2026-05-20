@@ -1,16 +1,15 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Controllers.Operator;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Operator;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
-
-using System.Text.Json;
 
 namespace ArchLucid.Api.Tests;
 

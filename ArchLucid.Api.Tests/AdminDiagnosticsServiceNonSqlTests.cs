@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Linq;
 using System.Text.Json;
 
 using ArchLucid.Api.Services.Admin;
@@ -9,7 +8,6 @@ using ArchLucid.Core.Integration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Data.Infrastructure;
-using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -18,8 +16,6 @@ using ArchLucid.Persistence.Orchestration;
 using Microsoft.Extensions.Options;
 
 using Moq;
-
-using Xunit;
 
 namespace ArchLucid.Api.Tests;
 
@@ -639,14 +635,20 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
 
     private static IOptions<ArchLucidOptions> SqlOptions()
     {
-        ArchLucidOptions o = new() { StorageProvider = "Sql" };
+        ArchLucidOptions o = new()
+        {
+            StorageProvider = "Sql"
+        };
 
         return Options.Create(o);
     }
 
     private static IOptions<ArchLucidOptions> InMemoryOptions()
     {
-        ArchLucidOptions o = new() { StorageProvider = "InMemory" };
+        ArchLucidOptions o = new()
+        {
+            StorageProvider = "InMemory"
+        };
 
         return Options.Create(o);
     }

@@ -1,5 +1,4 @@
 using ArchLucid.Api.Auth.Services;
-using ArchLucid.Api.Authentication;
 
 using FluentAssertions;
 

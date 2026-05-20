@@ -4,9 +4,8 @@ using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
 
-using Xunit;
-
 namespace ArchLucid.Api.Tests;
+
 [Trait("Category", "Unit")]
 
 public sealed class FindingsListAccessTelemetryTests

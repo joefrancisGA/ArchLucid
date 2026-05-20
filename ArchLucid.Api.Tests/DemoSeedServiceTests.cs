@@ -1,11 +1,10 @@
-﻿using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Bootstrap;
-using ArchLucid.Contracts.Metadata;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Governance.Preview;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Queries;
 

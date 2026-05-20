@@ -1,9 +1,6 @@
 using ArchLucid.TestSupport;
 
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Api.Tests;
 
@@ -25,7 +22,8 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
             SqlConnectionStringBuilder builder = new(raw)
             {
                 // Parallel integration tests (same host process) can open many connections at once; CI SQL is slower than local.
-                MaxPoolSize = 200, ConnectTimeout = 120
+                MaxPoolSize = 200,
+                ConnectTimeout = 120
             };
 
             SqlConnectionString = builder.ConnectionString;

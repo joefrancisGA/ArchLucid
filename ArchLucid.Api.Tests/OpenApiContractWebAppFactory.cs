@@ -1,9 +1,5 @@
 using ArchLucid.TestSupport;
 
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
-
 namespace ArchLucid.Api.Tests;
 
 /// <summary>

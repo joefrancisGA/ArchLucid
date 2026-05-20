@@ -1,8 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
 
-using ArchLucid.Api.Tests;
-
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;

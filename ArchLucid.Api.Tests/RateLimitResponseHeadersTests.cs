@@ -1,7 +1,5 @@
 using System.Net;
 
-using ArchLucid.Api.Middleware;
-
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;

@@ -1,9 +1,7 @@
 using ArchLucid.TestSupport;
 
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Api.Tests;
 
@@ -39,7 +37,11 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture
     {
         string databaseName = "ArchLucidTest_" + Guid.NewGuid().ToString("N");
         string raw = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(databaseName);
-        SqlConnectionStringBuilder builder = new(raw) { MaxPoolSize = 200, ConnectTimeout = 120 };
+        SqlConnectionStringBuilder builder = new(raw)
+        {
+            MaxPoolSize = 200,
+            ConnectTimeout = 120
+        };
 
         SqlConnectionString = builder.ConnectionString;
         SqlServerTestCatalogCommands.EnsureCatalogExists(SqlConnectionString);

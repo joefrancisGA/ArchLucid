@@ -1,11 +1,9 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
-using ArchLucid.Core;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Decisioning.Validation;
-using ArchLucid.Host.Core.ProblemDetails;
 
 using FluentAssertions;
 

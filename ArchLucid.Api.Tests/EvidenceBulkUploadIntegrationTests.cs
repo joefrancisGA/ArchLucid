@@ -1,17 +1,15 @@
 using System.Net;
-using System.Net.Http.Json;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
-using ArchLucid.Host.Core.ProblemDetails;
-using ArchLucid.Persistence.Models;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
 
-using Microsoft.Extensions.DependencyInjection;
-
 using FluentAssertions;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.Tests;
 
@@ -45,11 +43,11 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        
+
         using var scope = Factory.Services.CreateScope();
         var auditRepo = scope.ServiceProvider.GetRequiredService<IAuditRepository>();
         var events = await auditRepo.GetByScopeAsync(ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject, 100, CancellationToken.None);
-        
+
         var bulkEvents = events.Where(e => e.RunId == Guid.Parse(runId) && e.EventType == AuditEventTypes.EvidenceBulkAttached).ToList();
         bulkEvents.Should().HaveCount(1);
         bulkEvents[0].DataJson.Should().Contain("30");
@@ -86,7 +84,7 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
         using var scope = Factory.Services.CreateScope();
         var auditRepo = scope.ServiceProvider.GetRequiredService<IAuditRepository>();
         var events = await auditRepo.GetByScopeAsync(ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject, 100, CancellationToken.None);
-        
+
         var bulkEvents = events.Where(e => e.RunId == Guid.Parse(runId) && e.EventType == AuditEventTypes.EvidenceBulkAttached).ToList();
         bulkEvents.Should().BeEmpty();
     }

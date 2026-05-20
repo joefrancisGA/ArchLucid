@@ -4,8 +4,6 @@ using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Host.Core.Auth.Services;
-using ArchLucid.Host.Core.Services;
 
 using FluentAssertions;
 
