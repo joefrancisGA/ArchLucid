@@ -3,8 +3,6 @@ using System.ClientModel.Primitives;
 using System.Diagnostics;
 using System.Net;
 
-using Azure;
-
 using FluentAssertions;
 
 using Moq;
@@ -76,7 +74,7 @@ public sealed class LlmCallResilienceDefaultsTests
             {
                 if (Interlocked.Increment(ref calls) == 1)
                 {
-                    RequestFailedException inner = CreateRequestFailedExceptionWithRetryAfter(
+                    ClientResultException inner = CreateClientResultExceptionWithRetryAfter(
                         HttpStatusCode.ServiceUnavailable,
                         "0");
 
@@ -270,14 +268,4 @@ public sealed class LlmCallResilienceDefaultsTests
         return new ClientResultException("test", response.Object);
     }
 
-    private static RequestFailedException CreateRequestFailedExceptionWithRetryAfter(
-        HttpStatusCode status,
-        string retryAfter)
-    {
-        Mock<Azure.Response> response = new();
-        response.SetupGet(r => r.Status).Returns((int)status);
-        response.Setup(r => r.Headers.TryGetValue("Retry-After", out retryAfter)).Returns(true);
-
-        return new RequestFailedException(response.Object);
-    }
 }

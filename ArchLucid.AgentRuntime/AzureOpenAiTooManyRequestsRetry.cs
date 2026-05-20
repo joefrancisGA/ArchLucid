@@ -2,8 +2,6 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Net.Http;
-
 using Azure;
 
 using Microsoft.Extensions.Logging;
@@ -110,6 +108,9 @@ internal static class AzureOpenAiTooManyRequestsRetry
 
         for (Exception? current = ex; current is not null; current = current.InnerException)
         {
+            if (current is ClientResultException cre && TryGetRetryAfterDelayFromClientResult(cre, out delay))
+                return true;
+
             if (current is not RequestFailedException rfe)
                 continue;
 
