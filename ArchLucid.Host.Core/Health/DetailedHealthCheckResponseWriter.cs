@@ -42,12 +42,50 @@ public static class DetailedHealthCheckResponseWriter
 
     private static Task WriteSummaryPayloadAsync(HttpContext context, HealthReport report)
     {
-        var payload = new
+        string? agentExecutionMode = TryResolveAgentExecutionMode(report);
+
+        if (agentExecutionMode is null)
         {
-            status = report.Status.ToString(), entries = report.Entries.Select(entry => new { name = entry.Key, status = entry.Value.Status.ToString(), }),
+            var payload = new
+            {
+                status = report.Status.ToString(),
+                entries = report.Entries.Select(entry => new
+                {
+                    name = entry.Key,
+                    status = entry.Value.Status.ToString(),
+                }),
+            };
+
+            return context.Response.WriteAsJsonAsync(payload, JsonOptions, context.RequestAborted);
+        }
+
+        var payloadWithMode = new
+        {
+            status = report.Status.ToString(),
+            agentExecutionMode,
+            entries = report.Entries.Select(entry => new
+            {
+                name = entry.Key,
+                status = entry.Value.Status.ToString(),
+            }),
         };
 
-        return context.Response.WriteAsJsonAsync(payload, JsonOptions, context.RequestAborted);
+        return context.Response.WriteAsJsonAsync(payloadWithMode, JsonOptions, context.RequestAborted);
+    }
+
+    private static string? TryResolveAgentExecutionMode(HealthReport report)
+    {
+        if (!report.Entries.TryGetValue(AgentExecutionModeHealthCheck.RegistrationName, out HealthReportEntry entry))
+            return null;
+
+        if (!entry.Data.TryGetValue(AgentExecutionModeHealthCheck.ModeDataKey, out object? modeValue))
+            return null;
+
+        return modeValue switch
+        {
+            string mode when !string.IsNullOrWhiteSpace(mode) => mode,
+            _ => null,
+        };
     }
 
     private static Task WriteDetailedPayloadAsync(HttpContext context, HealthReport report)
