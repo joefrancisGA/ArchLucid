@@ -1408,12 +1408,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CursorPagedResponseOfRunListItemResponse> RunsAsync(string? cursor, int? take, int? page, int? pageSize);
+        System.Threading.Tasks.Task<CursorPagedResponseOfRunListItemResponse> RunsAsync(string? cursor, int? limit, int? offset, int? take, int? page, int? pageSize);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CursorPagedResponseOfRunListItemResponse> RunsAsync(string? cursor, int? take, int? page, int? pageSize, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<CursorPagedResponseOfRunListItemResponse> RunsAsync(string? cursor, int? limit, int? offset, int? take, int? page, int? pageSize, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -19112,15 +19112,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CursorPagedResponseOfRunListItemResponse> RunsAsync(string? cursor, int? take, int? page, int? pageSize)
+        public virtual System.Threading.Tasks.Task<CursorPagedResponseOfRunListItemResponse> RunsAsync(string? cursor, int? limit, int? offset, int? take, int? page, int? pageSize)
         {
-            return RunsAsync(cursor, take, page, pageSize, System.Threading.CancellationToken.None);
+            return RunsAsync(cursor, limit, offset, take, page, pageSize, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CursorPagedResponseOfRunListItemResponse> RunsAsync(string? cursor, int? take, int? page, int? pageSize, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<CursorPagedResponseOfRunListItemResponse> RunsAsync(string? cursor, int? limit, int? offset, int? take, int? page, int? pageSize, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -19139,6 +19139,14 @@ namespace ArchLucid.Api.Client.Generated
                     if (cursor != null)
                     {
                         urlBuilder_.Append(System.Uri.EscapeDataString("cursor")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(cursor, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    if (limit != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("limit")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(limit, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    if (offset != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("offset")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(offset, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     }
                     if (take != null)
                     {
