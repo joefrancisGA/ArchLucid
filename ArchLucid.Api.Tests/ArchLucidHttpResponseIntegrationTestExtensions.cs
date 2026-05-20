@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace System.Net.Http;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 ///     Integration-test HTTP assertions: failed responses include bodies (often RFC 9457 Problem Details).

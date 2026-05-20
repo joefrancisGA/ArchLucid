@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-namespace ArchLucid.Api.Tests.Hosted;
+namespace ArchLucid.Api.Tests;
 
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
