@@ -586,9 +586,9 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               >
                 <a
                   class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
-                  href="/demo/explain"
+                  href="/demo/preview"
                 >
-                  Explainability demo (live review)
+                  Evidence trail demo
                 </a>
               </div>
             </td>
