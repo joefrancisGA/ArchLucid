@@ -69,6 +69,7 @@ public sealed class CriticAgentHandler(
                 task.TaskId,
                 systemPrompt,
                 baseUserPrompt,
+                request.MaxTokensOverride,
                 cancellationToken);
 
             lastCompletionJson = rawJson;

@@ -30,6 +30,9 @@ public interface IAlertRecordRepository
         string deduplicationKey,
         CancellationToken ct);
 
+    /// <summary>Marks an alert as archived (hidden from default listings).</summary>
+    Task ArchiveAsync(Guid alertId, CancellationToken ct);
+
     /// <summary>Lists recent alerts for the scope, optionally filtered by <paramref name="status" />.</summary>
     Task<IReadOnlyList<AlertRecord>> ListByScopeAsync(
         Guid tenantId,
@@ -37,7 +40,8 @@ public interface IAlertRecordRepository
         Guid projectId,
         string? status,
         int take,
-        CancellationToken ct);
+        bool includeArchived = false,
+        CancellationToken ct = default);
 
     /// <summary>
     ///     Paged listing with total count (SQL OFFSET/FETCH or in-memory skip); avoids loading the full list for HTTP
@@ -50,5 +54,6 @@ public interface IAlertRecordRepository
         string? status,
         int skip,
         int take,
-        CancellationToken ct);
+        bool includeArchived = false,
+        CancellationToken ct = default);
 }

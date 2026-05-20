@@ -140,4 +140,11 @@ public sealed class ArchitectureRequest
         get;
         set;
     }
+
+    /// <summary>Optional per-request cap on model output tokens for agent completions.</summary>
+    public int? MaxTokensOverride
+    {
+        get;
+        set;
+    }
 }

@@ -48,4 +48,14 @@ public sealed class AzureOpenAiOptions
         get;
         set;
     }
+
+    /// <summary>
+    ///     Polly retry attempts for Azure OpenAI completion calls. When zero, falls back to
+    ///     <c>AgentExecution:Resilience:LlmCallMaxRetryAttempts</c>.
+    /// </summary>
+    public int MaxRetries
+    {
+        get;
+        set;
+    } = 3;
 }

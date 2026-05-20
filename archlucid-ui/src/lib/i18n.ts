@@ -59,6 +59,27 @@ export const RUNS_DASHBOARD_LABELS = {
   openFullReviewsList: "Open full reviews list",
   governanceWarningTitle: "Governance warnings",
   governanceWarningHint: "Unresolved governance alerts or policy violations require operator follow-up.",
+  governanceWarningsOnly: "Has governance warnings",
+  showArchived: "Show archived",
+  restoreRequest: "Restore",
+  restoringRequest: "Restoring…",
+  archivedListUnsupported:
+    "Archived requests are not returned by the runs list yet. When the API adds isArchived or includeArchived, rows will appear here.",
+} as const;
+
+export const RUN_PACKAGE_EXPORT_LABELS = {
+  docx: "Export to DOCX",
+  pdf: "Export to PDF",
+  html: "Export to HTML",
+} as const;
+
+export const ALERTS_INBOX_LABELS = {
+  acknowledgeSelected: "Acknowledge selected",
+  acknowledgingSelected: "Acknowledging…",
+  archiveAlert: "Archive",
+  archivingAlert: "Archiving…",
+  selectAlert: "Select alert for bulk acknowledge",
+  selectAllOnPage: "Select all alerts on this page",
 } as const;
 
 export const SERVICE_BUS_HEALTH_LABELS = {

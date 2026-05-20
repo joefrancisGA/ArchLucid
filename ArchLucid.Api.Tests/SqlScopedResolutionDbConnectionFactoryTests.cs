@@ -9,6 +9,7 @@ using FluentAssertions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -34,7 +35,8 @@ public sealed class SqlScopedResolutionDbConnectionFactoryTests
 
         SqlScopedResolutionDbConnectionFactory sut = new(
             provider.GetRequiredService<IServiceScopeFactory>(),
-            "Server=(localdb)\\mssqllocaldb;Database=master;Trusted_Connection=True;TrustServerCertificate=True");
+            "Server=(localdb)\\mssqllocaldb;Database=master;Trusted_Connection=True;TrustServerCertificate=True",
+            CreateOptionsMonitor(new SqlServerOptions()));
 
         IDbConnection conn = await sut.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -50,11 +52,16 @@ public sealed class SqlScopedResolutionDbConnectionFactoryTests
 
         const string cs =
             "Server=(localdb)\\mssqllocaldb;Database=master;Trusted_Connection=True;TrustServerCertificate=True";
-        SqlScopedResolutionDbConnectionFactory sut = new(provider.GetRequiredService<IServiceScopeFactory>(), cs);
+        SqlScopedResolutionDbConnectionFactory sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            cs,
+            CreateOptionsMonitor(new SqlServerOptions { CommandTimeoutSeconds = 45 }));
 
         IDbConnection conn = sut.CreateConnection();
 
         conn.Should().BeOfType<SqlConnection>();
+        SqlConnection sqlConn = (SqlConnection)conn;
+        sqlConn.CommandTimeout.Should().Be(45);
         conn.State.Should().Be(ConnectionState.Closed);
     }
 
@@ -92,11 +99,21 @@ public sealed class SqlScopedResolutionDbConnectionFactoryTests
 
         SqlScopedResolutionDbConnectionFactory sut = new(
             provider.GetRequiredService<IServiceScopeFactory>(),
-            "Server=(localdb)\\mssqllocaldb;Database=master;Trusted_Connection=True;TrustServerCertificate=True");
+            "Server=(localdb)\\mssqllocaldb;Database=master;Trusted_Connection=True;TrustServerCertificate=True",
+            CreateOptionsMonitor(new SqlServerOptions()));
 
         IDbConnection conn = await sut.CreateOpenConnectionAsync(CancellationToken.None);
 
         conn.Should().BeSameAs(expected);
         callCount.Should().Be(2);
+    }
+
+    private static IOptionsMonitor<SqlServerOptions> CreateOptionsMonitor(SqlServerOptions options)
+    {
+        Mock<IOptionsMonitor<SqlServerOptions>> monitor = new();
+        monitor.Setup(m => m.CurrentValue).Returns(options);
+        monitor.Setup(m => m.Get(It.IsAny<string>())).Returns(options);
+
+        return monitor.Object;
     }
 }

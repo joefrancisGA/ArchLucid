@@ -60,6 +60,7 @@ public sealed class AlertsController(
         [FromQuery] int take = 100,
         [FromQuery] int? page = null,
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
+        [FromQuery] bool includeArchived = false,
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -75,6 +76,7 @@ public sealed class AlertsController(
                 status,
                 skip,
                 safePageSize,
+                includeArchived,
                 ct);
 
             return Ok(PagedResponseBuilder.FromDatabasePage(items, total, safePage, safePageSize));
@@ -88,9 +90,36 @@ public sealed class AlertsController(
             scope.ProjectId,
             status,
             take,
+            includeArchived,
             ct);
 
         return Ok(alerts);
+    }
+
+    /// <summary>Archives an alert in the current scope (hidden from default listings).</summary>
+    [HttpPatch("{alertId:guid}/archive")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(AlertRecord), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Archive(
+        Guid alertId,
+        CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        AlertRecord? existing = await alertRepository.GetByIdAsync(alertId, ct);
+
+        if (existing is null || !MatchesScope(existing, scope))
+            return this.NotFoundProblem(
+                $"Alert '{alertId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
+
+        if (existing.IsArchived)
+            return Ok(existing);
+
+        await alertRepository.ArchiveAsync(alertId, ct);
+        AlertRecord? updated = await alertRepository.GetByIdAsync(alertId, ct);
+
+        return Ok(updated ?? existing);
     }
 
     /// <summary>Alert lifecycle plus redacted delivery attempts for closure visibility.</summary>

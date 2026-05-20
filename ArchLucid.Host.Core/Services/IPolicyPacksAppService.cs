@@ -66,4 +66,9 @@ public interface IPolicyPacksAppService
 
     /// <summary>Soft-deletes a policy pack; logs <c>PolicyPackDeleted</c> when successful.</summary>
     Task<bool> TrySoftDeletePackAsync(Guid tenantId, Guid policyPackId, CancellationToken ct);
+
+    /// <summary>
+    ///     Duplicates a pack and its latest version content under a new name suffixed with <c> (Copy)</c>.
+    /// </summary>
+    Task<PolicyPack?> TryDuplicatePackAsync(Guid tenantId, Guid workspaceId, Guid projectId, Guid policyPackId, CancellationToken ct);
 }

@@ -7,6 +7,7 @@ vi.mock("@/lib/api", async (importOriginal) => {
   return {
     ...actual,
     listRunsByProjectPaged: vi.fn(),
+    restoreArchitectureRequest: vi.fn(),
   };
 });
 
@@ -193,6 +194,42 @@ describe("RunsDashboardPanel", () => {
     ).toBeInTheDocument();
   });
 
+  it("filters to governance-warning runs when checkbox is checked", async () => {
+    listRuns.mockResolvedValue({
+      items: [
+        {
+          runId: "00000000-0000-0000-0000-000000000001",
+          projectId: "default",
+          description: "Clear",
+          createdUtc: "2026-01-15T12:00:00.000Z",
+          hasGovernanceWarnings: false,
+        },
+        {
+          runId: "00000000-0000-0000-0000-000000000002",
+          projectId: "default",
+          description: "Needs follow-up",
+          createdUtc: "2026-01-15T12:00:00.000Z",
+          hasGovernanceWarnings: true,
+        },
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 5,
+      hasMore: false,
+    });
+    stubFetchForDashboard();
+
+    render(<RunsDashboardPanel />);
+
+    expect(await screen.findByRole("link", { name: "Clear" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Needs follow-up" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("runs-dashboard-governance-warnings-only"));
+
+    expect(screen.queryByRole("link", { name: "Clear" })).toBeNull();
+    expect(screen.getByRole("link", { name: "Needs follow-up" })).toBeInTheDocument();
+  });
+
   it("shows governance warning indicator when run hasGovernanceWarnings is true", async () => {
     const run: RunSummary = {
       runId: "00000000-0000-0000-0000-000000000099",
@@ -241,7 +278,7 @@ describe("RunsDashboardPanel", () => {
       render(<RunsDashboardPanel />);
 
       await waitFor(() => {
-        expect(screen.getByText("Featured review package")).toBeInTheDocument();
+        expect(screen.getByTestId("runs-dashboard-buyer-proof-summary")).toBeInTheDocument();
       });
       expect(screen.getByTestId("runs-dashboard-buyer-proof-summary")).toBeInTheDocument();
       expect(screen.getByText("Decision: Package finalized")).toBeInTheDocument();

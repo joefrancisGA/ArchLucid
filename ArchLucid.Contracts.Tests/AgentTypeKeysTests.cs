@@ -22,7 +22,7 @@ public sealed class AgentTypeKeysTests
     [Fact]
     public void FromEnum_throws_for_unknown_value()
     {
-        AgentType unknown = (AgentType)99;
+        const AgentType unknown = (AgentType)99;
 
         Action act = () => AgentTypeKeys.FromEnum(unknown);
 

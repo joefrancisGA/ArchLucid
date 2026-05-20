@@ -56,6 +56,21 @@ public sealed class InMemoryArchitectureRequestRepository : IArchitectureRequest
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
+    public Task RestoreAsync(string requestId, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            if (_byId.TryGetValue(requestId, out ArchitectureRequest? r))
+            {
+                r.IsArchived = false;
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
     private static ArchitectureRequest Clone(ArchitectureRequest source)
     {
         string json = JsonSerializer.Serialize(source, ContractJson.Default);

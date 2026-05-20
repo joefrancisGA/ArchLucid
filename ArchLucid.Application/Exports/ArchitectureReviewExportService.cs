@@ -1,3 +1,6 @@
+using System.Globalization;
+using System.Text;
+
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
@@ -105,6 +108,14 @@ public sealed class ArchitectureReviewExportService(
                 return new ExportResult(stream, "application/pdf", $"architecture-review-board-{safeSegment}.pdf");
             }
 
+            case ExportFormat.Html:
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(BuildMinimalHtml(documentModel));
+                MemoryStream stream = new(bytes);
+
+                return new ExportResult(stream, "text/html; charset=utf-8", $"architecture-review-board-{safeSegment}.html");
+            }
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(format), format, "Unsupported export format.");
         }
@@ -123,6 +134,48 @@ public sealed class ArchitectureReviewExportService(
             return false;
 
         return string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal);
+    }
+
+    private static string BuildMinimalHtml(ArchitectureReviewBoardExportDocumentModel documentModel)
+    {
+        ArgumentNullException.ThrowIfNull(documentModel);
+
+        string title = string.IsNullOrWhiteSpace(documentModel.SystemName)
+            ? "Architecture review"
+            : documentModel.SystemName.Trim();
+        string summary = string.IsNullOrWhiteSpace(documentModel.ExecutiveSummary)
+            ? "No executive summary is available for this review."
+            : documentModel.ExecutiveSummary.Trim();
+
+        StringBuilder html = new();
+        html.AppendLine("<!DOCTYPE html>");
+        html.AppendLine("<html lang=\"en\">");
+        html.AppendLine("<head>");
+        html.AppendLine("<meta charset=\"utf-8\" />");
+        html.AppendLine(CultureInfo.InvariantCulture, $"<title>{HtmlEncode(title)}</title>");
+        html.AppendLine("</head>");
+        html.AppendLine("<body>");
+        html.AppendLine(CultureInfo.InvariantCulture, $"<h1>{HtmlEncode(title)}</h1>");
+        html.AppendLine(CultureInfo.InvariantCulture, $"<p><strong>Run:</strong> {HtmlEncode(documentModel.RunId)}</p>");
+
+        if (!string.IsNullOrWhiteSpace(documentModel.ManifestVersion))
+        {
+            html.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"<p><strong>Manifest version:</strong> {HtmlEncode(documentModel.ManifestVersion)}</p>");
+        }
+
+        html.AppendLine("<h2>Summary</h2>");
+        html.AppendLine(CultureInfo.InvariantCulture, $"<p>{HtmlEncode(summary)}</p>");
+        html.AppendLine("</body>");
+        html.AppendLine("</html>");
+
+        return html.ToString();
+    }
+
+    private static string HtmlEncode(string value)
+    {
+        return System.Net.WebUtility.HtmlEncode(value);
     }
 
     private static string SanitizeRunIdForFileName(string runId)

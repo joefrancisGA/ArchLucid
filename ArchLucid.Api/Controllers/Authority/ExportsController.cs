@@ -87,7 +87,7 @@ public sealed class ExportsController(
         if (loaded.Error is not null)
             return loaded.Error;
 
-        ExportRecordDiffResult diff = exportRecordDiffService.Compare(loaded.Left!, loaded.Right!);
+        ExportRecordDiffResult diff = await exportRecordDiffService.CompareAsync(loaded.Left!, loaded.Right!, cancellationToken);
 
         return Ok(new ExportRecordDiffResponse { Diff = diff });
     }
@@ -109,7 +109,7 @@ public sealed class ExportsController(
 
         request ??= new PersistComparisonRequest();
 
-        ExportRecordDiffResult diff = exportRecordDiffService.Compare(loaded.Left!, loaded.Right!);
+        ExportRecordDiffResult diff = await exportRecordDiffService.CompareAsync(loaded.Left!, loaded.Right!, cancellationToken);
         string summary = exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
 
         if (!request.Persist)

@@ -10,8 +10,9 @@ import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { listRunsByProjectPaged } from "@/lib/api";
+import { listRunsByProjectPaged, restoreArchitectureRequest } from "@/lib/api";
 import {
   ARCHITECTURE_REVIEW_LABELS,
   RUNS_DASHBOARD_LABELS,
@@ -104,6 +105,20 @@ function RunListRowBadges({ run, className }: { run: RunSummary; className?: str
   );
 }
 
+function runSummaryHasArchivedField(run: RunSummary): boolean {
+  return run.isArchived !== undefined && run.isArchived !== null;
+}
+
+function runListPrimaryRequestId(run: RunSummary): string | null {
+  const id = run.requestId?.trim() ?? "";
+
+  if (id.length > 0) {
+    return id;
+  }
+
+  return null;
+}
+
 function runIsShowcaseHomeExampleStory(run: RunSummary): boolean {
   const id = run.runId.trim();
 
@@ -126,6 +141,9 @@ export function RunsDashboardPanel() {
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [runsListAuthorityUnusable, setRunsListAuthorityUnusable] = useState(false);
   const [items, setItems] = useState<RunSummary[]>([]);
+  const [governanceWarningsOnly, setGovernanceWarningsOnly] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
+  const [restoreBusyRequestId, setRestoreBusyRequestId] = useState<string | null>(null);
   const { status: deltaStatus, data: deltaData } = useDeltaQuery({ count: 5 });
 
   const outcomesWindow =
@@ -140,7 +158,9 @@ export function RunsDashboardPanel() {
       setRunsListAuthorityUnusable(false);
 
       try {
-        const raw: unknown = await listRunsByProjectPaged(DEFAULT_PROJECT_ID, 1, PREVIEW_MAX);
+        const raw: unknown = await listRunsByProjectPaged(DEFAULT_PROJECT_ID, 1, PREVIEW_MAX, {
+          includeArchived: showArchived,
+        });
         const coerced = coerceRunSummaryPaged(raw);
 
         if (cancelled) {
@@ -173,7 +193,7 @@ export function RunsDashboardPanel() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [showArchived]);
 
   const effectiveItems = useMemo(() => {
     if (items.length > 0) {
@@ -209,9 +229,32 @@ export function RunsDashboardPanel() {
     return items;
   }, [items, phase, runsListAuthorityUnusable]);
 
-  const showcaseDemoRun = useMemo(
-    () => effectiveItems.find((r) => runIsShowcaseHomeExampleStory(r)),
+  const archivedFieldSupported = useMemo(
+    () => effectiveItems.some(runSummaryHasArchivedField),
     [effectiveItems],
+  );
+
+  const filteredItems = useMemo(() => {
+    let rows = effectiveItems;
+
+    if (showArchived) {
+      if (archivedFieldSupported) {
+        rows = rows.filter((run) => run.isArchived === true);
+      }
+    } else {
+      rows = rows.filter((run) => run.isArchived !== true);
+    }
+
+    if (governanceWarningsOnly) {
+      rows = rows.filter((run) => run.hasGovernanceWarnings === true);
+    }
+
+    return rows;
+  }, [effectiveItems, governanceWarningsOnly, showArchived, archivedFieldSupported]);
+
+  const showcaseDemoRun = useMemo(
+    () => filteredItems.find((r) => runIsShowcaseHomeExampleStory(r)),
+    [filteredItems],
   );
 
   const buyerSafeHighlight =
@@ -224,11 +267,22 @@ export function RunsDashboardPanel() {
 
   const onlyShowcaseRunInBuyerPolishedWorkspace =
     buyerPolishedShell &&
-    effectiveItems.length === 1 &&
-    effectiveItems[0] !== undefined &&
-    runIsShowcaseHomeExampleStory(effectiveItems[0]);
+    filteredItems.length === 1 &&
+    filteredItems[0] !== undefined &&
+    runIsShowcaseHomeExampleStory(filteredItems[0]);
 
-  const attentionRuns = useMemo(() => effectiveItems.filter(isRunNeedingAttention), [effectiveItems]);
+  const attentionRuns = useMemo(() => filteredItems.filter(isRunNeedingAttention), [filteredItems]);
+
+  async function restoreArchivedRequest(requestId: string): Promise<void> {
+    setRestoreBusyRequestId(requestId);
+
+    try {
+      await restoreArchitectureRequest(requestId);
+      setShowArchived(false);
+    } finally {
+      setRestoreBusyRequestId(null);
+    }
+  }
   const attentionPreview = useMemo(() => attentionRuns.slice(0, 3), [attentionRuns]);
 
   const runListError = phase === "error" && failure !== null && effectiveItems.length === 0;
@@ -296,6 +350,42 @@ export function RunsDashboardPanel() {
           </p>
         </CardHeader>
         <CardContent className="space-y-3 px-3 pb-3 text-sm">
+          <div
+            className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/50"
+            data-testid="runs-dashboard-filters"
+          >
+            <div className="flex items-center gap-2">
+              <input
+                id="runs-dashboard-governance-warnings-only"
+                type="checkbox"
+                className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
+                checked={governanceWarningsOnly}
+                onChange={(e) => {
+                  setGovernanceWarningsOnly(e.target.checked);
+                }}
+                data-testid="runs-dashboard-governance-warnings-only"
+              />
+              <Label htmlFor="runs-dashboard-governance-warnings-only" className="text-xs font-medium">
+                {RUNS_DASHBOARD_LABELS.governanceWarningsOnly}
+              </Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                id="runs-dashboard-show-archived"
+                type="checkbox"
+                className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
+                checked={showArchived}
+                onChange={(e) => {
+                  setShowArchived(e.target.checked);
+                }}
+                data-testid="runs-dashboard-show-archived"
+              />
+              <Label htmlFor="runs-dashboard-show-archived" className="text-xs font-medium">
+                {RUNS_DASHBOARD_LABELS.showArchived}
+              </Label>
+            </div>
+          </div>
+
           {tab === "recent" ? (
             <div data-testid="runs-dashboard-tab-recent">
               {phase === "loading" ? (
@@ -382,7 +472,16 @@ export function RunsDashboardPanel() {
                 </div>
               ) : null}
 
-              {(phase === "ready" || phase === "error") && effectiveItems.length === 0 && !runListError ? (
+              {showArchived && !archivedFieldSupported && (phase === "ready" || phase === "error") ? (
+                <p
+                  className="m-0 text-xs text-neutral-600 dark:text-neutral-400"
+                  data-testid="runs-dashboard-archived-unsupported"
+                >
+                  {RUNS_DASHBOARD_LABELS.archivedListUnsupported}
+                </p>
+              ) : null}
+
+              {(phase === "ready" || phase === "error") && filteredItems.length === 0 && effectiveItems.length === 0 && !runListError ? (
                 <div
                   className="space-y-3 rounded-lg border border-teal-200 bg-teal-50/60 px-3 py-3 dark:border-teal-900 dark:bg-teal-950/30"
                   data-testid="operator-home-getting-started"
@@ -443,9 +542,12 @@ export function RunsDashboardPanel() {
                 </section>
               ) : null}
 
-              {(phase === "ready" || phase === "error") && effectiveItems.length > 0 ? (
+              {(phase === "ready" || phase === "error") && filteredItems.length > 0 ? (
                 <ul className="m-0 list-none space-y-2 p-0" data-testid="recent-runs-home-panel">
-                  {effectiveItems.map((run) => (
+                  {filteredItems.map((run) => {
+                    const requestId = runListPrimaryRequestId(run);
+
+                    return (
                     <li
                       key={run.runId}
                       className="flex flex-wrap items-start gap-2 border-b border-neutral-100 pb-2 last:border-b-0 last:pb-0 dark:border-neutral-800"
@@ -459,8 +561,26 @@ export function RunsDashboardPanel() {
                         </Link>
                         <RunListRowBadges run={run} className="text-[0.6rem]" />
                       </div>
+                      {showArchived && requestId !== null ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-xs"
+                          disabled={restoreBusyRequestId === requestId}
+                          data-testid={`runs-dashboard-restore-${run.runId}`}
+                          onClick={() => {
+                            void restoreArchivedRequest(requestId);
+                          }}
+                        >
+                          {restoreBusyRequestId === requestId
+                            ? RUNS_DASHBOARD_LABELS.restoringRequest
+                            : RUNS_DASHBOARD_LABELS.restoreRequest}
+                        </Button>
+                      ) : null}
                     </li>
-                  ))}
+                    );
+                  })}
                 </ul>
               ) : null}
             </div>
@@ -482,7 +602,7 @@ export function RunsDashboardPanel() {
                 </div>
               ) : null}
 
-              {(phase === "ready" || (phase === "error" && effectiveItems.length > 0)) ? (
+              {(phase === "ready" || (phase === "error" && filteredItems.length > 0)) ? (
                 <>
                   {attentionRuns.length === 0 ? (
                     <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
@@ -616,7 +736,7 @@ export function RunsDashboardPanel() {
         </CardContent>
       </Card>
 
-      {(phase === "ready" || phase === "error") && effectiveItems.length === 0 && !runListError && !buyerPolishedShell ? (
+      {(phase === "ready" || phase === "error") && filteredItems.length === 0 && effectiveItems.length === 0 && !runListError && !buyerPolishedShell ? (
         <Card
           className="mt-3 border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
           data-testid="example-request-panel"

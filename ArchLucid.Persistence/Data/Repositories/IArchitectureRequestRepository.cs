@@ -29,4 +29,9 @@ public interface IArchitectureRequestRepository
     ///     Marks the request as archived.
     /// </summary>
     Task ArchiveAsync(string requestId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Restores an archived request (clears <see cref="ArchitectureRequest.IsArchived" />).
+    /// </summary>
+    Task RestoreAsync(string requestId, CancellationToken cancellationToken = default);
 }

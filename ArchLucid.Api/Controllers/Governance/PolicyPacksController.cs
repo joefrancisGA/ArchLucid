@@ -205,6 +205,29 @@ public sealed class PolicyPacksController(
         return NoContent();
     }
 
+    /// <summary>Duplicates a policy pack and its latest version content.</summary>
+    [HttpPost("{policyPackId:guid}/duplicate")]
+    [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
+    [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DuplicatePack(Guid policyPackId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        PolicyPack? duplicate = await policyPacksApp.TryDuplicatePackAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            policyPackId,
+            ct);
+
+        if (duplicate is null)
+            return this.NotFoundProblem(
+                $"Policy pack '{policyPackId}' was not found or has no versions to duplicate.",
+                ProblemTypes.ResourceNotFound);
+
+        return Ok(duplicate);
+    }
+
     /// <summary>Lists packs whose <em>authoring</em> scope matches the current tenant/workspace/project.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<PolicyPack>), StatusCodes.Status200OK)]
@@ -466,6 +489,111 @@ public sealed class PolicyPacksController(
                 ProblemTypes.ResourceNotFound);
 
         return Ok(result);
+    }
+
+    /// <summary>
+    ///     Simulates the pack's latest version content against many runs (governance dry-run per run).
+    /// </summary>
+    [HttpPost("{policyPackId:guid}/simulate-bulk")]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [EnableRateLimiting("governancePolicyPackDryRun")]
+    [ProducesResponseType(typeof(PolicyPackSimulateBulkSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SimulateBulk(
+        Guid policyPackId,
+        [FromBody] PolicyPackSimulateBulkRequest? request,
+        CancellationToken cancellationToken)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (request.RunIds.Count == 0)
+            return this.BadRequestProblem("RunIds must contain at least one id.", ProblemTypes.ValidationFailed);
+
+        if (request.RunIds.Count > 50)
+            return this.BadRequestProblem("At most 50 run ids are allowed per request.", ProblemTypes.ValidationFailed);
+
+        PolicyPack? pack = await packRepository.GetByIdAsync(policyPackId, cancellationToken);
+
+        if (pack is null || pack.IsDeleted)
+            return this.NotFoundProblem(
+                $"Policy pack '{policyPackId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+
+        PolicyPackVersion? versionRow = await versionRepository.GetByPackAndVersionAsync(
+            policyPackId,
+            pack.CurrentVersion.Trim(),
+            cancellationToken);
+
+        if (versionRow is null)
+        {
+            IReadOnlyList<PolicyPackVersion> versions = await versionRepository.ListByPackAsync(policyPackId, cancellationToken);
+            versionRow = versions.FirstOrDefault();
+        }
+
+        if (versionRow is null)
+            return this.NotFoundProblem(
+                $"Policy pack '{policyPackId}' has no versions to simulate.",
+                ProblemTypes.ResourceNotFound);
+
+        List<PolicyPackSimulateBulkRunResult> runResults = [];
+        int wouldBlock = 0;
+        int notFound = 0;
+        int evaluated = 0;
+
+        foreach (string runIdRaw in request.RunIds.Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            if (string.IsNullOrWhiteSpace(runIdRaw))
+                continue;
+
+            string runId = runIdRaw.Trim();
+            PolicyPackGovernanceDryRunResult? dryRun = await _policyPackGovernanceDryRunService.EvaluateAsync(
+                versionRow.ContentJson,
+                runId,
+                targetManifestId: null,
+                request.BlockCommitOnCritical,
+                request.BlockCommitMinimumSeverity,
+                policyPackId,
+                cancellationToken);
+
+            if (dryRun is null)
+            {
+                notFound++;
+                runResults.Add(new PolicyPackSimulateBulkRunResult { RunId = runId, Found = false });
+
+                continue;
+            }
+
+            evaluated++;
+
+            bool wouldBlockCommit = dryRun.GateResult.Blocked;
+
+            if (wouldBlockCommit)
+                wouldBlock++;
+
+            runResults.Add(
+                new PolicyPackSimulateBulkRunResult
+                {
+                    RunId = runId,
+                    Found = true,
+                    WouldBlockCommit = wouldBlockCommit,
+                    Detail = dryRun,
+                });
+        }
+
+        PolicyPackSimulateBulkSummaryResponse summary = new()
+        {
+            PolicyPackId = policyPackId,
+            PolicyPackVersion = versionRow.Version,
+            RequestedRunCount = request.RunIds.Count,
+            EvaluatedRunCount = evaluated,
+            NotFoundRunCount = notFound,
+            WouldBlockCommitCount = wouldBlock,
+            Results = runResults,
+        };
+
+        return Ok(summary);
     }
 
     /// <summary>

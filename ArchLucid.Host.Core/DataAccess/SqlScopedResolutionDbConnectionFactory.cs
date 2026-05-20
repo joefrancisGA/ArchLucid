@@ -4,6 +4,7 @@ using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.DataAccess;
 
@@ -23,7 +24,8 @@ namespace ArchLucid.Host.Core.DataAccess;
 /// </remarks>
 public sealed class SqlScopedResolutionDbConnectionFactory(
     IServiceScopeFactory scopeFactory,
-    string connectionString) : IDbConnectionFactory
+    string connectionString,
+    IOptionsMonitor<SqlServerOptions> sqlServerOptions) : IDbConnectionFactory
 {
     private readonly IServiceScopeFactory _scopeFactory =
         scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
@@ -31,10 +33,13 @@ public sealed class SqlScopedResolutionDbConnectionFactory(
     private readonly string _connectionString = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(
         connectionString ?? throw new ArgumentNullException(nameof(connectionString)));
 
+    private readonly IOptionsMonitor<SqlServerOptions> _sqlServerOptions =
+        sqlServerOptions ?? throw new ArgumentNullException(nameof(sqlServerOptions));
+
     /// <inheritdoc />
     public IDbConnection CreateConnection()
     {
-        return new SqlConnection(_connectionString);
+        return new SqlConnection(ResolveConnectionStringWithCommandTimeout());
     }
 
     /// <inheritdoc />
@@ -45,5 +50,20 @@ public sealed class SqlScopedResolutionDbConnectionFactory(
         SqlConnection connection = await sql.CreateOpenConnectionAsync(cancellationToken);
 
         return connection;
+    }
+
+    private string ResolveConnectionStringWithCommandTimeout()
+    {
+        int timeoutSeconds = _sqlServerOptions.CurrentValue.CommandTimeoutSeconds;
+
+        if (timeoutSeconds <= 0)
+            return _connectionString;
+
+        SqlConnectionStringBuilder builder = new(_connectionString)
+        {
+            CommandTimeout = timeoutSeconds
+        };
+
+        return builder.ConnectionString;
     }
 }

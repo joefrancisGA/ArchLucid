@@ -31,4 +31,6 @@ export type AlertRecord = {
   primaryFindingId?: string | null;
   comparedToRunId?: string | null;
   recommendationId?: string | null;
+  /** When true, the alert is archived and hidden from the default inbox. */
+  isArchived?: boolean | null;
 };

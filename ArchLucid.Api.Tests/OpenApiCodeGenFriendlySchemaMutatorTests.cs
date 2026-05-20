@@ -61,4 +61,38 @@ public sealed class OpenApiCodeGenFriendlySchemaMutatorTests
 
         schema.Type.Should().Be(JsonSchemaType.Integer | JsonSchemaType.Null);
     }
+
+    [SkippableFact]
+    public void Apply_does_not_stack_overflow_on_circular_component_schema_references()
+    {
+        OpenApiDocument document = new()
+        {
+            Components = new OpenApiComponents
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema>(StringComparer.Ordinal)
+                {
+                    ["Foo"] = new OpenApiSchema
+                    {
+                        Type = JsonSchemaType.Object,
+                        Properties = new Dictionary<string, IOpenApiSchema>(StringComparer.Ordinal)
+                    },
+                    ["Bar"] = new OpenApiSchema
+                    {
+                        Type = JsonSchemaType.Object,
+                        Properties = new Dictionary<string, IOpenApiSchema>(StringComparer.Ordinal)
+                    }
+                }
+            }
+        };
+
+        OpenApiSchema foo = (OpenApiSchema)document.Components!.Schemas["Foo"];
+        OpenApiSchema bar = (OpenApiSchema)document.Components.Schemas["Bar"];
+
+        foo.Properties!["next"] = new OpenApiSchemaReference("Bar", document, "#/components/schemas/Bar");
+        bar.Properties!["next"] = new OpenApiSchemaReference("Foo", document, "#/components/schemas/Foo");
+
+        Action act = () => OpenApiCodeGenFriendlySchemaMutator.Apply(document);
+
+        act.Should().NotThrow();
+    }
 }

@@ -78,6 +78,10 @@ public static partial class ServiceCollectionExtensions
             .AddCheck<AzureOpenAiHealthCheck>(
                 "openai",
                 failureStatus: HealthStatus.Unhealthy,
+                tags: [ReadinessTags.Ready])
+            .AddCheck<KeyVaultHealthCheck>(
+                "keyvault",
+                failureStatus: HealthStatus.Unhealthy,
                 tags: [ReadinessTags.Ready]);
 
         if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)

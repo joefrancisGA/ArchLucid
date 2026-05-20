@@ -154,4 +154,46 @@ public sealed class PolicyPacksAppService(
 
         return true;
     }
+
+    /// <inheritdoc />
+    public async Task<PolicyPack?> TryDuplicatePackAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid policyPackId,
+        CancellationToken ct)
+    {
+        PolicyPack? sourcePack = await packRepository.GetByIdAsync(policyPackId, ct);
+
+        if (sourcePack is null || sourcePack.TenantId != tenantId || sourcePack.IsDeleted)
+            return null;
+
+        IReadOnlyList<PolicyPackVersion> versions = await versionRepository.ListByPackAsync(policyPackId, ct);
+        PolicyPackVersion? latestVersion = versions.FirstOrDefault();
+
+        if (latestVersion is null)
+            return null;
+
+        string copyName = sourcePack.Name.TrimEnd() + " (Copy)";
+
+        PolicyPack duplicate = await managementService.CreatePackAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            copyName,
+            sourcePack.Description,
+            sourcePack.PackType,
+            latestVersion.ContentJson,
+            ct);
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = "PolicyPackDuplicated",
+                DataJson = JsonSerializer.Serialize(new { sourcePolicyPackId = policyPackId, duplicate.PolicyPackId }),
+            },
+            ct);
+
+        return duplicate;
+    }
 }

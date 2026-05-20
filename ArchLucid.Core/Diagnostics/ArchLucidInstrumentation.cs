@@ -94,6 +94,9 @@ public static class ArchLucidInstrumentation
     /// <summary>Scheduled data retention archival (<c>DataArchivalCoordinator</c>).</summary>
     public static readonly ActivitySource DataArchival = new("ArchLucid.DataArchival", "1.0.0");
 
+    /// <summary>Evidence ZIP expansion (<c>ZipEvidenceExpanderService</c>).</summary>
+    public static readonly ActivitySource EvidenceZipExpansion = new("ArchLucid.Evidence.ZipExpansion", "1.0.0");
+
     /// <summary>Digest channel send succeeded (labels: <c>channel</c>).</summary>
     public static readonly Counter<long> DigestDeliverySucceeded =
         AppMeter.CreateCounter<long>("digest_delivery_succeeded");

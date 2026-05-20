@@ -5,7 +5,17 @@ import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 import type { RuleCandidateComparisonResult, RuleSimulationResult } from "@/types/alert-simulation";
 import type { ThresholdRecommendationResult } from "@/types/alert-tuning";
 import type { PagedResponse } from "@/types/pagination";
-import { apiGet, apiPostJson } from "./http";
+import { apiGet, apiPatchJson, apiPostJson } from "./http";
+
+export type AlertsAcknowledgeBatchItemResult = {
+  alertId: string;
+  succeeded: boolean;
+  message?: string | null;
+};
+
+export type AlertsAcknowledgeBatchResponse = {
+  results: AlertsAcknowledgeBatchItemResult[];
+};
 
 export async function listAlertRules(): Promise<AlertRule[]> {
   return apiGet<AlertRule[]>(`/${ApiV1Routes.alertRules}`);
@@ -64,6 +74,22 @@ export async function applyAlertAction(
     action,
     comment: comment ?? "",
   });
+}
+
+/** Acknowledges multiple alerts in one request (POST /v1/alerts/acknowledge-batch). */
+export async function acknowledgeAlertsBatch(
+  alertIds: string[],
+  comment?: string,
+): Promise<AlertsAcknowledgeBatchResponse> {
+  return apiPostJson<AlertsAcknowledgeBatchResponse>(`/${ApiV1Routes.alerts}/acknowledge-batch`, {
+    alertIds,
+    comment: comment ?? "",
+  });
+}
+
+/** Archives an alert (PATCH /v1/alerts/{alertId}/archive). */
+export async function archiveAlert(alertId: string): Promise<AlertRecord> {
+  return apiPatchJson<AlertRecord>(`/${ApiV1Routes.alerts}/${encodeURIComponent(alertId)}/archive`, {});
 }
 
 /** Lists all alert routing subscriptions (delivery channels for fired alerts). */

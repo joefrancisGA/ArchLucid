@@ -16,6 +16,16 @@ public sealed class SqlServerOptions
         get;
         set;
     } = new();
+
+    /// <summary>
+    ///     Command timeout in seconds for connections created by <see cref="ArchLucid.Host.Core.DataAccess.SqlScopedResolutionDbConnectionFactory" />.
+    ///     When zero or negative, ADO.NET default applies.
+    /// </summary>
+    public int CommandTimeoutSeconds
+    {
+        get;
+        set;
+    }
 }
 
 /// <summary>Binding for <c>SqlServer:ReadReplica</c>.</summary>

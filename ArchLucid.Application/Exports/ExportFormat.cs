@@ -6,5 +6,6 @@ namespace ArchLucid.Application.Exports;
 public enum ExportFormat
 {
     Docx = 0,
-    Pdf = 1
+    Pdf = 1,
+    Html = 2
 }

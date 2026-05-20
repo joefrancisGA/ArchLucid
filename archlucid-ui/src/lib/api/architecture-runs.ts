@@ -25,6 +25,7 @@ import {
   apiGetJsonWithTrace,
   apiPatchJson,
   apiPostJson,
+  apiPostNoContent,
   ensureOidcBearerReady,
   resolveBinaryGetRequest,
   resolveRequest,
@@ -128,7 +129,7 @@ export async function listRunsByProjectPaged(
   projectId: string,
   page: number,
   pageSize: number,
-  options?: { readonly cursor?: string | null },
+  options?: { readonly cursor?: string | null; readonly includeArchived?: boolean },
 ): Promise<PagedResponse<RunSummary>> {
   const q = new URLSearchParams();
 
@@ -140,9 +141,18 @@ export async function listRunsByProjectPaged(
     q.set("pageSize", String(pageSize));
   }
 
+  if (options?.includeArchived === true) {
+    q.set("includeArchived", "true");
+  }
+
   return apiGet<PagedResponse<RunSummary>>(
     `/v1/authority/projects/${encodeURIComponent(projectId)}/runs?${q}`,
   );
+}
+
+/** Restores a soft-archived architecture request (POST /v1/architecture/request/{requestId}/restore). */
+export async function restoreArchitectureRequest(requestId: string): Promise<void> {
+  return apiPostNoContent(`/v1/architecture/request/${encodeURIComponent(requestId)}/restore`, {});
 }
 
 /** Fetches the lightweight summary for a single run. */

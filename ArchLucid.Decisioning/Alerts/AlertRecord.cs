@@ -147,4 +147,11 @@ public class AlertRecord
         get;
         set;
     } = null!;
+
+    /// <summary>When true, the alert is hidden from default inbox listings.</summary>
+    public bool IsArchived
+    {
+        get;
+        set;
+    }
 }

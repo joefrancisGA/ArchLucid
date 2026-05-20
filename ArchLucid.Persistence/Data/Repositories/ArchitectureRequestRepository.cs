@@ -127,4 +127,20 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
             new { RequestId = requestId },
             cancellationToken: cancellationToken));
     }
+
+    /// <inheritdoc />
+    public async Task RestoreAsync(string requestId, CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           UPDATE ArchitectureRequests
+                           SET IsArchived = 0
+                           WHERE RequestId = @RequestId;
+                           """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await connection.ExecuteAsync(new CommandDefinition(
+            sql,
+            new { RequestId = requestId },
+            cancellationToken: cancellationToken));
+    }
 }

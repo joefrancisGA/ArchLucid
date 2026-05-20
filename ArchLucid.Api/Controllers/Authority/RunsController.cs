@@ -833,6 +833,53 @@ public sealed partial class RunsController(
         return Ok();
     }
 
+    /// <summary>
+    ///     Restores an archived architecture request so it appears in default list views again.
+    /// </summary>
+    [HttpPost("request/{requestId}/restore")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RestoreRequest(
+        [FromRoute] string requestId,
+        [FromServices] IArchitectureRequestRepository requestRepository,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(requestId))
+            return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
+
+        ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
+
+        if (request is null)
+            return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
+
+        if (!request.IsArchived)
+            return Ok();
+
+        await requestRepository.RestoreAsync(requestId, cancellationToken);
+
+        string auditActor = actorContext.GetActor();
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = "ArchitectureRequestRestored",
+                ActorUserId = auditActor,
+                ActorUserName = auditActor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                CorrelationId = HttpContext.TraceIdentifier,
+                DataJson = JsonSerializer.Serialize(
+                    new { requestId },
+                    AuditJsonSerializationOptions.Instance)
+            },
+            cancellationToken);
+
+        return Ok();
+    }
+
     private async Task LogRunSubmittedAuditAsync(string runId, string actor, CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();

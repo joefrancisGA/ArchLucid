@@ -46,6 +46,19 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         return result;
     }
 
+    /// <inheritdoc />
+    public Task<ExportRecordDiffResult> CompareAsync(
+        RunExportRecord left,
+        RunExportRecord right,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        ExportRecordDiffResult result = Compare(left, right);
+
+        return Task.FromResult(result);
+    }
+
     private static void CompareTopLevel(
         RunExportRecord left,
         RunExportRecord right,

@@ -16,6 +16,10 @@ type RunSummaryWireExtensions = {
   artifactCount?: number | null;
   /** When true, the run has unresolved governance violations or alerts requiring operator action. */
   hasGovernanceWarnings?: boolean | null;
+  /** Architecture request id when returned by list/detail endpoints (used for restore from archive). */
+  requestId?: string | null;
+  /** When true, the backing architecture request is archived and hidden from default lists. */
+  isArchived?: boolean | null;
 };
 
 /**

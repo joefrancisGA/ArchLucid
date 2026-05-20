@@ -20,6 +20,15 @@ namespace ArchLucid.Persistence.Alerts;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connectionFactory) : IAlertRecordRepository
 {
+    private const string SelectColumns = """
+        AlertId, RuleId, TenantId, WorkspaceId, ProjectId,
+        RunId, ComparedToRunId, RecommendationId,
+        Title, Category, Severity, Status,
+        TriggerValue, Description, CreatedUtc, LastUpdatedUtc,
+        AcknowledgedByUserId, AcknowledgedByUserName, ResolutionComment,
+        DeduplicationKey, IsArchived
+        """;
+
     /// <inheritdoc />
     public async Task CreateAsync(AlertRecord alert, CancellationToken ct)
     {
@@ -33,7 +42,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
                 Title, Category, Severity, Status,
                 TriggerValue, Description, CreatedUtc, LastUpdatedUtc,
                 AcknowledgedByUserId, AcknowledgedByUserName, ResolutionComment,
-                DeduplicationKey
+                DeduplicationKey, IsArchived
             )
             VALUES
             (
@@ -42,7 +51,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
                 @Title, @Category, @Severity, @Status,
                 @TriggerValue, @Description, @CreatedUtc, @LastUpdatedUtc,
                 @AcknowledgedByUserId, @AcknowledgedByUserName, @ResolutionComment,
-                @DeduplicationKey
+                @DeduplicationKey, @IsArchived
             );
             """;
 
@@ -70,16 +79,27 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         await connection.ExecuteAsync(new CommandDefinition(sql, alert, cancellationToken: ct));
     }
 
-    public async Task<AlertRecord?> GetByIdAsync(Guid alertId, CancellationToken ct)
+    /// <inheritdoc />
+    public async Task ArchiveAsync(Guid alertId, CancellationToken ct)
     {
         const string sql = """
-            SELECT
-                AlertId, RuleId, TenantId, WorkspaceId, ProjectId,
-                RunId, ComparedToRunId, RecommendationId,
-                Title, Category, Severity, Status,
-                TriggerValue, Description, CreatedUtc, LastUpdatedUtc,
-                AcknowledgedByUserId, AcknowledgedByUserName, ResolutionComment,
-                DeduplicationKey
+            UPDATE dbo.AlertRecords
+            SET IsArchived = 1,
+                LastUpdatedUtc = @LastUpdatedUtc
+            WHERE AlertId = @AlertId;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(
+            sql,
+            new { AlertId = alertId, LastUpdatedUtc = TimeProvider.System.UtcNowDateTime() },
+            cancellationToken: ct));
+    }
+
+    public async Task<AlertRecord?> GetByIdAsync(Guid alertId, CancellationToken ct)
+    {
+        string sql = $"""
+            SELECT {SelectColumns}
             FROM dbo.AlertRecords
             WHERE AlertId = @AlertId;
             """;
@@ -100,19 +120,14 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         string deduplicationKey,
         CancellationToken ct)
     {
-        const string sql = """
-            SELECT TOP 1
-                AlertId, RuleId, TenantId, WorkspaceId, ProjectId,
-                RunId, ComparedToRunId, RecommendationId,
-                Title, Category, Severity, Status,
-                TriggerValue, Description, CreatedUtc, LastUpdatedUtc,
-                AcknowledgedByUserId, AcknowledgedByUserName, ResolutionComment,
-                DeduplicationKey
+        string sql = $"""
+            SELECT TOP 1 {SelectColumns}
             FROM dbo.AlertRecords
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
               AND DeduplicationKey = @DeduplicationKey
+              AND IsArchived = 0
               AND Status IN ('Open', 'Acknowledged')
             ORDER BY CreatedUtc DESC;
             """;
@@ -138,21 +153,17 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         Guid projectId,
         string? status,
         int take,
-        CancellationToken ct)
+        bool includeArchived = false,
+        CancellationToken ct = default)
     {
-        const string sql = """
-            SELECT TOP (@Take)
-                AlertId, RuleId, TenantId, WorkspaceId, ProjectId,
-                RunId, ComparedToRunId, RecommendationId,
-                Title, Category, Severity, Status,
-                TriggerValue, Description, CreatedUtc, LastUpdatedUtc,
-                AcknowledgedByUserId, AcknowledgedByUserName, ResolutionComment,
-                DeduplicationKey
+        string sql = $"""
+            SELECT TOP (@Take) {SelectColumns}
             FROM dbo.AlertRecords
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
               AND (@Status IS NULL OR Status = @Status)
+              AND (@IncludeArchived = 1 OR IsArchived = 0)
             ORDER BY CreatedUtc DESC;
             """;
 
@@ -167,6 +178,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
                     ProjectId = projectId,
                     Status = status,
                     Take = Math.Clamp(take, 1, 500),
+                    IncludeArchived = includeArchived ? 1 : 0,
                 },
                 cancellationToken: ct));
         return rows.ToList();
@@ -180,33 +192,30 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         string? status,
         int skip,
         int take,
-        CancellationToken ct)
+        bool includeArchived = false,
+        CancellationToken ct = default)
     {
         take = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
         skip = Math.Max(skip, 0);
 
-        const string countSql = """
+        string countSql = """
             SELECT COUNT(*)
             FROM dbo.AlertRecords
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
-              AND (@Status IS NULL OR Status = @Status);
+              AND (@Status IS NULL OR Status = @Status)
+              AND (@IncludeArchived = 1 OR IsArchived = 0);
             """;
 
-        const string pageSql = """
-            SELECT
-                AlertId, RuleId, TenantId, WorkspaceId, ProjectId,
-                RunId, ComparedToRunId, RecommendationId,
-                Title, Category, Severity, Status,
-                TriggerValue, Description, CreatedUtc, LastUpdatedUtc,
-                AcknowledgedByUserId, AcknowledgedByUserName, ResolutionComment,
-                DeduplicationKey
+        string pageSql = $"""
+            SELECT {SelectColumns}
             FROM dbo.AlertRecords
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
               AND (@Status IS NULL OR Status = @Status)
+              AND (@IncludeArchived = 1 OR IsArchived = 0)
             ORDER BY CreatedUtc DESC
             OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY;
             """;
@@ -218,7 +227,8 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
             ProjectId = projectId,
             Status = status,
             Skip = skip,
-            Take = take
+            Take = take,
+            IncludeArchived = includeArchived ? 1 : 0,
         };
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);

@@ -66,6 +66,7 @@ public sealed class TopologyAgentHandler(
                 task.TaskId,
                 systemPrompt,
                 baseUserPrompt,
+                request.MaxTokensOverride,
                 cancellationToken);
 
             lastCompletionJson = rawJson;

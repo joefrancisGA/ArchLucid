@@ -408,7 +408,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddSingleton<IDbConnectionFactory>(p =>
             new SqlScopedResolutionDbConnectionFactory(
                 p.GetRequiredService<IServiceScopeFactory>(),
-                connectionString));
+                connectionString,
+                p.GetRequiredService<IOptionsMonitor<SqlServerOptions>>()));
 
         ArchLucidStorageServiceCollectionExtensions.RegisterHostLeaderLeaseInfrastructure(services);
         services.AddSingleton<IHostLeaderLeaseRepository, SqlHostLeaderLeaseRepository>();

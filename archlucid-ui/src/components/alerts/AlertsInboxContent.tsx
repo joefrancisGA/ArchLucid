@@ -53,7 +53,14 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { useAlertCardShortcuts } from "@/hooks/useAlertCardShortcuts";
 import { useNavSurface } from "@/lib/use-nav-surface";
-import { applyAlertAction, fetchAlertActionLoop, listAlertsPaged } from "@/lib/api";
+import {
+  acknowledgeAlertsBatch,
+  applyAlertAction,
+  archiveAlert,
+  fetchAlertActionLoop,
+  listAlertsPaged,
+} from "@/lib/api";
+import { ALERTS_INBOX_LABELS } from "@/lib/i18n";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { alertPrimaryFindingDetailHref } from "@/lib/alert-finding-navigation";
@@ -112,8 +119,24 @@ export function AlertsInboxContent() {
   const [actionLoopData, setActionLoopData] = useState<AlertActionLoopDto | null>(null);
   const [actionLoopLoading, setActionLoopLoading] = useState(false);
   const [actionLoopError, setActionLoopError] = useState<string | null>(null);
+  const [selectedAlertIds, setSelectedAlertIds] = useState<string[]>([]);
+  const [batchAckBusy, setBatchAckBusy] = useState(false);
+  const [archiveBusyAlertId, setArchiveBusyAlertId] = useState<string | null>(null);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / ALERTS_PAGE_SIZE));
+
+  const visibleAlerts = useMemo(
+    () => alerts.filter((alert) => alert.isArchived !== true),
+    [alerts],
+  );
+
+  const selectedOnPageCount = useMemo(
+    () => visibleAlerts.filter((alert) => selectedAlertIds.includes(alert.alertId)).length,
+    [visibleAlerts, selectedAlertIds],
+  );
+
+  const allVisibleSelected =
+    visibleAlerts.length > 0 && selectedOnPageCount === visibleAlerts.length;
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -136,6 +159,7 @@ export function AlertsInboxContent() {
 
       setAlerts(items);
       setTotalCount(total);
+      setSelectedAlertIds((prev) => prev.filter((id) => items.some((row) => row.alertId === id)));
       const pages = Math.max(1, Math.ceil(data.totalCount / ALERTS_PAGE_SIZE));
 
       if (data.totalCount > 0 && page > pages) {
@@ -166,14 +190,14 @@ export function AlertsInboxContent() {
   }, [load]);
 
   const pageMixSummary = useMemo(() => {
-    if (alerts.length === 0) {
+    if (visibleAlerts.length === 0) {
       return null;
     }
 
     const parts: string[] = [];
 
     for (const label of ["Open", "Acknowledged", "Resolved", "Suppressed"]) {
-      const n = alerts.filter((a) => a.status === label).length;
+      const n = visibleAlerts.filter((a) => a.status === label).length;
 
       if (n > 0) {
         parts.push(`${n} ${label}`);
@@ -181,7 +205,7 @@ export function AlertsInboxContent() {
     }
 
     return parts.length > 0 ? parts.join(" · ") : null;
-  }, [alerts]);
+  }, [visibleAlerts]);
 
   const emptyFilteredProps = useMemo(() => {
     if (buyerPolishedShell) {
@@ -244,6 +268,68 @@ export function AlertsInboxContent() {
 
   /** Alt+1–3 register only when `canMutateAlertInbox`; buttons may still open read-only triage preview at read rank. */
   useAlertCardShortcuts({ onAction: onAlertShortcutAction, mutationsEnabled: canMutateAlertInbox });
+
+  async function onAcknowledgeSelected(): Promise<void> {
+    if (!canMutateAlertInbox || selectedAlertIds.length === 0) {
+      return;
+    }
+
+    setBatchAckBusy(true);
+    setFailure(null);
+
+    try {
+      await acknowledgeAlertsBatch(selectedAlertIds);
+      setSelectedAlertIds([]);
+      await load();
+    } catch (e) {
+      setFailure(toApiLoadFailure(e));
+    } finally {
+      setBatchAckBusy(false);
+    }
+  }
+
+  async function onArchiveAlert(alertId: string): Promise<void> {
+    if (!canMutateAlertInbox) {
+      return;
+    }
+
+    setArchiveBusyAlertId(alertId);
+    setFailure(null);
+
+    try {
+      await archiveAlert(alertId);
+      setSelectedAlertIds((prev) => prev.filter((id) => id !== alertId));
+      await load();
+    } catch (e) {
+      setFailure(toApiLoadFailure(e));
+    } finally {
+      setArchiveBusyAlertId(null);
+    }
+  }
+
+  function toggleAlertSelected(alertId: string, checked: boolean): void {
+    setSelectedAlertIds((prev) => {
+      if (checked) {
+        if (prev.includes(alertId)) {
+          return prev;
+        }
+
+        return [...prev, alertId];
+      }
+
+      return prev.filter((id) => id !== alertId);
+    });
+  }
+
+  function toggleSelectAllVisible(checked: boolean): void {
+    if (!checked) {
+      setSelectedAlertIds([]);
+
+      return;
+    }
+
+    setSelectedAlertIds(visibleAlerts.map((alert) => alert.alertId));
+  }
 
   async function onConfirmActionDialog(): Promise<void> {
     if (pendingAction === null || !canMutateAlertInbox) {
@@ -338,6 +424,21 @@ export function AlertsInboxContent() {
         >
           {loading ? "Loading…" : "Refresh"}
         </Button>
+        {canMutateAlertInbox && visibleAlerts.length > 0 ? (
+          <Button
+            type="button"
+            variant="primary"
+            disabled={batchAckBusy || selectedAlertIds.length === 0}
+            data-testid="alerts-acknowledge-selected"
+            onClick={() => {
+              void onAcknowledgeSelected();
+            }}
+          >
+            {batchAckBusy
+              ? ALERTS_INBOX_LABELS.acknowledgingSelected
+              : `${ALERTS_INBOX_LABELS.acknowledgeSelected}${selectedAlertIds.length > 0 ? ` (${selectedAlertIds.length})` : ""}`}
+          </Button>
+        ) : null}
       </div>
 
       {failure === null ? (
@@ -380,7 +481,25 @@ export function AlertsInboxContent() {
       )}
 
       <div className="grid gap-3">
-        {loading && failure === null && alerts.length === 0 ? (
+        {canMutateAlertInbox && visibleAlerts.length > 0 ? (
+          <div className="flex items-center gap-2 text-sm" data-testid="alerts-inbox-bulk-select">
+            <input
+              id="alerts-select-all-visible"
+              type="checkbox"
+              className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
+              checked={allVisibleSelected}
+              aria-label={ALERTS_INBOX_LABELS.selectAllOnPage}
+              onChange={(e) => {
+                toggleSelectAllVisible(e.target.checked);
+              }}
+            />
+            <Label htmlFor="alerts-select-all-visible" className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+              {ALERTS_INBOX_LABELS.selectAllOnPage}
+            </Label>
+          </div>
+        ) : null}
+
+        {loading && failure === null && visibleAlerts.length === 0 && alerts.length === 0 ? (
           buyerPolishedShell === true ? (
             <div className="rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-6 text-sm text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
               <p className="m-0 font-medium text-neutral-900 dark:text-neutral-50">
@@ -401,10 +520,10 @@ export function AlertsInboxContent() {
           )
         ) : null}
 
-        {!loading && failure === null && alerts.length === 0 ? <EmptyState {...emptyFilteredProps} /> : null}
+        {!loading && failure === null && visibleAlerts.length === 0 ? <EmptyState {...emptyFilteredProps} /> : null}
 
-        {alerts.length > 0
-          ? alerts.map((alert) => {
+        {visibleAlerts.length > 0
+          ? visibleAlerts.map((alert) => {
               const findingDetailHref = alertPrimaryFindingDetailHref(alert);
               const hideDemoTriageActions =
                 buyerPolishedShell && alert.alertId === "demo-alert-phi-intake";
@@ -419,7 +538,21 @@ export function AlertsInboxContent() {
               >
                 <div>
                   <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
-                    <strong className="text-base text-neutral-900 dark:text-neutral-100">{alert.title}</strong>
+                    <div className="flex min-w-0 flex-1 items-start gap-2">
+                      {canMutateAlertInbox ? (
+                        <input
+                          type="checkbox"
+                          className="mt-1 h-4 w-4 shrink-0 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
+                          checked={selectedAlertIds.includes(alert.alertId)}
+                          aria-label={ALERTS_INBOX_LABELS.selectAlert}
+                          data-testid={`alert-select-${alert.alertId}`}
+                          onChange={(e) => {
+                            toggleAlertSelected(alert.alertId, e.target.checked);
+                          }}
+                        />
+                      ) : null}
+                      <strong className="min-w-0 text-base text-neutral-900 dark:text-neutral-100">{alert.title}</strong>
+                    </div>
                     <Badge className={cn("text-xs font-semibold", severityBadgeClass(alert.severity))} variant="outline">
                       {alert.severity}
                     </Badge>
@@ -527,6 +660,22 @@ export function AlertsInboxContent() {
                       >
                         {canMutateAlertInbox ? "Resolve" : alertsTriageResolveButtonLabelReaderInbox}
                       </Button>
+                      {canMutateAlertInbox ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          disabled={archiveBusyAlertId === alert.alertId}
+                          data-testid={`alert-archive-${alert.alertId}`}
+                          onClick={() => {
+                            void onArchiveAlert(alert.alertId);
+                          }}
+                        >
+                          {archiveBusyAlertId === alert.alertId
+                            ? ALERTS_INBOX_LABELS.archivingAlert
+                            : ALERTS_INBOX_LABELS.archiveAlert}
+                        </Button>
+                      ) : null}
                       {buyerPolishedShell ? null : (
                       <details className="group relative">
                         <summary className="cursor-pointer list-none rounded-md border border-neutral-300 bg-neutral-50 px-3 py-1.5 text-sm font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800 [&::-webkit-details-marker]:hidden">

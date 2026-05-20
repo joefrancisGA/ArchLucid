@@ -939,10 +939,12 @@ public static partial class ServiceCollectionExtensions
             sp.GetRequiredService<IOptions<AgentExecutionResilienceOptions>>().Value;
 
         resOpts.Normalize();
+        AzureOpenAiOptions azureOpenAiOptions = sp.GetRequiredService<IOptions<AzureOpenAiOptions>>().Value;
+        int maxRetryAttempts = ResolveLlmMaxRetryAttempts(azureOpenAiOptions, resOpts);
 
         ResiliencePipeline llmRetry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
             logger: breakerLogger,
-            maxRetryAttempts: resOpts.LlmCallMaxRetryAttempts,
+            maxRetryAttempts: maxRetryAttempts,
             baseDelay: TimeSpan.FromMilliseconds(resOpts.LlmCallBaseDelayMilliseconds),
             maxDelay: TimeSpan.FromSeconds(resOpts.LlmCallMaxDelaySeconds),
             gateName: gate.GateName);
@@ -1040,14 +1042,30 @@ public static partial class ServiceCollectionExtensions
         AgentExecutionResilienceOptions resOpts =
             sp.GetRequiredService<IOptions<AgentExecutionResilienceOptions>>().Value;
         resOpts.Normalize();
+        AzureOpenAiOptions azureOpenAiOptions = sp.GetRequiredService<IOptions<AzureOpenAiOptions>>().Value;
+        int maxRetryAttempts = ResolveLlmMaxRetryAttempts(azureOpenAiOptions, resOpts);
+
         ResiliencePipeline llmRetry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
             logger: logger,
-            maxRetryAttempts: resOpts.LlmCallMaxRetryAttempts,
+            maxRetryAttempts: maxRetryAttempts,
             baseDelay: TimeSpan.FromMilliseconds(resOpts.LlmCallBaseDelayMilliseconds),
             maxDelay: TimeSpan.FromSeconds(resOpts.LlmCallMaxDelaySeconds),
             gateName: gate.GateName);
 
         return new CircuitBreakingAgentCompletionClient(completionPipeline, gate, llmRetry, logger);
+    }
+
+    private static int ResolveLlmMaxRetryAttempts(
+        AzureOpenAiOptions azureOpenAiOptions,
+        AgentExecutionResilienceOptions resOpts)
+    {
+        ArgumentNullException.ThrowIfNull(azureOpenAiOptions);
+        ArgumentNullException.ThrowIfNull(resOpts);
+
+        if (azureOpenAiOptions.MaxRetries > 0)
+            return azureOpenAiOptions.MaxRetries;
+
+        return resOpts.LlmCallMaxRetryAttempts;
     }
 
     private static BinaryData? ResolveStructuredOutputAgentResultSchema(

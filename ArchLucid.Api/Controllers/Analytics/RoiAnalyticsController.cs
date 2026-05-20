@@ -1,3 +1,6 @@
+using System.Globalization;
+using System.Text;
+
 using ArchLucid.Api.Models.Analytics;
 using ArchLucid.Core.Authorization;
 
@@ -47,6 +50,44 @@ public sealed class RoiAnalyticsController : ControllerBase
         PortfolioRoiSummaryResponse body = BuildPortfolioSummary(findings);
 
         return Ok(body);
+    }
+
+    /// <summary>Exports the portfolio ROI summary as CSV (mock data until the ROI model is finalized).</summary>
+    [HttpGet("roi/portfolio-summary/export")]
+    [Produces("text/csv")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    public ActionResult ExportPortfolioSummaryCsv()
+    {
+        IReadOnlyList<MockPortfolioFinding> findings = CreateMockPortfolioFindings();
+        PortfolioRoiSummaryResponse summary = BuildPortfolioSummary(findings);
+        byte[] bytes = Encoding.UTF8.GetBytes(BuildPortfolioSummaryCsv(summary));
+
+        return File(bytes, "text/csv", "portfolio-roi-summary.csv");
+    }
+
+    private static string BuildPortfolioSummaryCsv(PortfolioRoiSummaryResponse summary)
+    {
+        ArgumentNullException.ThrowIfNull(summary);
+
+        StringBuilder csv = new();
+        csv.AppendLine("metric,deduplicated,raw");
+        csv.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"time_saved_hours,{summary.DeduplicatedTotals.TimeSavedHours},{summary.RawRunTotals.TimeSavedHours}");
+        csv.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"decisions_automated,{summary.DeduplicatedTotals.DecisionsAutomated},{summary.RawRunTotals.DecisionsAutomated}");
+        csv.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"compliance_risks_mitigated,{summary.DeduplicatedTotals.ComplianceRisksMitigated},{summary.RawRunTotals.ComplianceRisksMitigated}");
+        csv.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"unique_finding_count,{summary.UniqueFindingCount},");
+        csv.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"raw_finding_count,{summary.RawFindingCount},");
+
+        return csv.ToString();
     }
 
     private static PortfolioRoiSummaryResponse BuildPortfolioSummary(IReadOnlyList<MockPortfolioFinding> findings)

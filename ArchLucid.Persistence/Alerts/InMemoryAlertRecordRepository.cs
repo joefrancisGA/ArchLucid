@@ -40,6 +40,24 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
+    public Task ArchiveAsync(Guid alertId, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            AlertRecord? match = _items.FirstOrDefault(x => x.AlertId == alertId);
+
+            if (match is not null)
+            {
+                match.IsArchived = true;
+                match.LastUpdatedUtc = TimeProvider.System.UtcNowDateTime();
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
     public Task<AlertRecord?> GetByIdAsync(Guid alertId, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
@@ -62,6 +80,7 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
                     x.TenantId == tenantId &&
                     x.WorkspaceId == workspaceId &&
                     x.ProjectId == projectId &&
+                    !x.IsArchived &&
                     string.Equals(x.DeduplicationKey, deduplicationKey, StringComparison.Ordinal) &&
                     (string.Equals(x.Status, AlertStatus.Open, StringComparison.OrdinalIgnoreCase) ||
                      string.Equals(x.Status, AlertStatus.Acknowledged, StringComparison.OrdinalIgnoreCase)))
@@ -77,13 +96,18 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         Guid projectId,
         string? status,
         int take,
-        CancellationToken ct)
+        bool includeArchived = false,
+        CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
         int n = Math.Clamp(take <= 0 ? 50 : take, 1, 500);
         lock (_gate)
         {
             IEnumerable<AlertRecord> q = _items.Where(x => x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId);
+
+            if (!includeArchived)
+                q = q.Where(x => !x.IsArchived);
+
             if (!string.IsNullOrWhiteSpace(status))
                 q = q.Where(x => string.Equals(x.Status, status, StringComparison.OrdinalIgnoreCase));
 
@@ -100,7 +124,8 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         string? status,
         int skip,
         int take,
-        CancellationToken ct)
+        bool includeArchived = false,
+        CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
         take = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
@@ -110,6 +135,9 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         {
             IEnumerable<AlertRecord> q = _items.Where(x =>
                 x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId);
+
+            if (!includeArchived)
+                q = q.Where(x => !x.IsArchived);
 
             if (!string.IsNullOrWhiteSpace(status))
                 q = q.Where(x => string.Equals(x.Status, status, StringComparison.OrdinalIgnoreCase));
