@@ -22,7 +22,7 @@ public sealed class CostAgentHandlerTests
     [Fact]
     public async Task ExecuteAsync_ReturnsDeterministicCostAgentResult()
     {
-        const string RunId = "run-cost-test";
+        const string runId = "run-cost-test";
 
         ArchitectureRequest request = new()
         {
@@ -33,14 +33,14 @@ public sealed class CostAgentHandlerTests
         AgentEvidencePackage evidence = new();
         AgentTask task = new()
         {
-            RunId = RunId,
+            RunId = runId,
             AgentType = AgentType.Cost,
             Objective = "estimate"
         };
 
-        AgentResult result = await _sut.ExecuteAsync(RunId, request, evidence, task, CancellationToken.None);
+        AgentResult result = await _sut.ExecuteAsync(runId, request, evidence, task, CancellationToken.None);
 
-        result.RunId.Should().Be(RunId);
+        result.RunId.Should().Be(runId);
         result.TaskId.Should().Be(task.TaskId);
         result.AgentType.Should().Be(AgentType.Cost);
         result.Claims.Should().NotBeEmpty();
