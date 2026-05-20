@@ -313,4 +313,35 @@ public sealed class RunDetailQueryServiceTests
 
         result.Should().BeEmpty();
     }
+
+    [SkippableFact]
+    public async Task ListRunSummariesOffsetAsync_ReturnsMappedPageAndHasMore()
+    {
+        Guid g1 = Guid.Parse("55555555-5555-5555-5555-555555555555");
+
+        _runRepo.Setup(r => r.ListRecentInScopeOffsetAsync(_scope, 10, 25, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunListPage(
+                [
+                    new RunRecord
+                    {
+                        RunId = g1,
+                        TenantId = _scope.TenantId,
+                        WorkspaceId = _scope.WorkspaceId,
+                        ScopeProjectId = _scope.ProjectId,
+                        ProjectId = "OffsetSys",
+                        ArchitectureRequestId = "req-offset",
+                        LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                        CreatedUtc = new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc)
+                    }
+                ],
+                hasMore: true));
+
+        (IReadOnlyList<RunSummary> items, bool hasMore) = await _sut.ListRunSummariesOffsetAsync(10, 25);
+
+        hasMore.Should().BeTrue();
+        items.Should().ContainSingle();
+        items[0].RunId.Should().Be(g1.ToString("N"));
+        items[0].SystemName.Should().Be("OffsetSys");
+    }
 }

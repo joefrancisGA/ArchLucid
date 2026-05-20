@@ -68,6 +68,20 @@ public sealed class HotPathRelationalQueryShapeTests
     }
 
     [SkippableFact]
+    public void Runs_list_recent_in_scope_offset_retains_nolock_scope_archived_filter_and_offset_fetch()
+    {
+        const string sql = HotPathRelationalQueryShapes.RunsListRecentInScopeOffsetNoLock;
+
+        sql.Should().Contain("FROM dbo.Runs WITH (NOLOCK)");
+        sql.Should().Contain("TenantId = @TenantId");
+        sql.Should().Contain("WorkspaceId = @WorkspaceId");
+        sql.Should().Contain("ScopeProjectId = @ScopeProjectId");
+        sql.Should().Contain("ArchivedUtc IS NULL");
+        sql.Should().Contain("ORDER BY CreatedUtc DESC");
+        sql.Should().Contain("OFFSET @Offset ROWS FETCH NEXT @Fetch ROWS ONLY");
+    }
+
+    [SkippableFact]
     public void Runs_list_recent_in_scope_keyset_matches_project_keyset_cursor_pattern()
     {
         const string sql = HotPathRelationalQueryShapes.RunsListRecentInScopeKeysetNoLock;

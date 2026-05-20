@@ -298,6 +298,12 @@ public sealed class PolicyPackDryRunServiceTests
             int take,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<(IReadOnlyList<RunSummary>, bool, string?)>(([], false, null));
+
+        public Task<(IReadOnlyList<RunSummary> Items, bool HasMore)> ListRunSummariesOffsetAsync(
+            int offset,
+            int limit,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<RunSummary>, bool)>(([], false));
     }
 
     /// <summary>

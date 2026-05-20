@@ -11,5 +11,6 @@
   { "name": "ListAuditEventsFiltered", "p95ThresholdMs": 220 },
   { "name": "ListRunsByProject", "p95ThresholdMs": 200 },
   { "name": "ListRunsByProjectKeyset", "p95ThresholdMs": 220 },
-  { "name": "ListRunsRecentInScopeKeyset", "p95ThresholdMs": 220 }
+  { "name": "ListRunsRecentInScopeKeyset", "p95ThresholdMs": 220 },
+  { "name": "ListRunsRecentInScopeOffset", "p95ThresholdMs": 220 }
 ]

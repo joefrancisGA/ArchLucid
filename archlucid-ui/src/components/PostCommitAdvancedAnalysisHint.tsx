@@ -43,8 +43,10 @@ export function PostCommitAdvancedAnalysisHint({
   const showcaseSpineRun =
     buyerPolishedShell && canonicalizeDemoRunId(runId) === SHOWCASE_STATIC_DEMO_RUN_ID;
   const showcaseCompareHref =
-    showcaseSpineRun && !buyerPolishedShell ? getShowcaseCompareHref() : null;
+    showcaseSpineRun && buyerPolishedShell ? getShowcaseCompareHref() : null;
   const compareHrefForLinks = compareWithPriorHref ?? showcaseCompareHref;
+  const showComparePriorCta =
+    compareWithPriorHref !== null ? !buyerPolishedShell : showcaseCompareHref !== null;
 
   const sidebarHint = buyerPolishedShell ? (
     <>Deeper passes below are optional—most sponsors consume exported deliverables first.</>
@@ -75,7 +77,7 @@ export function PostCommitAdvancedAnalysisHint({
           </>
         )}
       </p>
-      {compareHrefForLinks !== null && !buyerPolishedShell ? (
+      {showComparePriorCta ? (
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Button
             asChild

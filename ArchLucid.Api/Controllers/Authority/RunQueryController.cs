@@ -418,35 +418,48 @@ public sealed class RunQueryController(
     }
 
     /// <summary>
-    ///     Lists runs visible in the current scope (keyset pagination with <paramref name="cursor" />). Legacy
-    ///     <paramref name="page" /> is limited to page <c>1</c> without a cursor.
+    ///     Lists runs visible in the current scope. Without <paramref name="cursor" />, uses offset pagination via
+    ///     <paramref name="limit" /> and <paramref name="offset" />; with <paramref name="cursor" />, uses keyset
+    ///     continuation.
     /// </summary>
     [HttpGet("runs")]
     [HttpGet("/v{version:apiVersion}/runs")]
     [ProducesResponseType(typeof(CursorPagedResponse<RunListItemResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListRuns(
         [FromQuery] string? cursor = null,
+        [FromQuery] int? limit = null,
+        [FromQuery] int offset = 0,
         [FromQuery] int take = RunPagination.DefaultTake,
         [FromQuery] int page = PaginationDefaults.DefaultPage,
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
         CancellationToken cancellationToken = default)
     {
-        if (page > 1 && string.IsNullOrWhiteSpace(cursor))
+        if (!string.IsNullOrWhiteSpace(cursor))
+        {
+            (_, int normalizedPageSize) = PaginationDefaults.Normalize(page, pageSize);
+            int effectiveTake = RunPagination.ClampTake(take <= RunPagination.DefaultTake ? normalizedPageSize : take);
 
-            return this.BadRequestProblem(
-                "Paging beyond page 1 requires the nextCursor token from the prior response.",
-                ProblemTypes.ValidationFailed);
+            (IReadOnlyList<RunSummary> keysetSummaries, bool keysetHasMore, string? nextCursor) =
+                await runDetailQueryService.ListRunSummariesKeysetAsync(cursor, effectiveTake, cancellationToken);
 
-        (_, int normalizedPageSize) = PaginationDefaults.Normalize(page, pageSize);
+            return Ok(MapRunListPage(keysetSummaries, keysetHasMore, nextCursor, effectiveTake));
+        }
 
-        int effectiveTake =
-            string.IsNullOrWhiteSpace(cursor)
-                ? RunPagination.ClampTake(normalizedPageSize)
-                : RunPagination.ClampTake(take);
+        int effectiveLimit = RunPagination.ClampLimit(limit ?? pageSize);
+        int effectiveOffset = RunPagination.NormalizeOffset(offset);
 
-        (IReadOnlyList<RunSummary> summaries, bool hasMore, string? nextCursor) =
-            await runDetailQueryService.ListRunSummariesKeysetAsync(cursor, effectiveTake, cancellationToken);
+        (IReadOnlyList<RunSummary> offsetSummaries, bool offsetHasMore) =
+            await runDetailQueryService.ListRunSummariesOffsetAsync(effectiveOffset, effectiveLimit, cancellationToken);
 
+        return Ok(MapRunListPage(offsetSummaries, offsetHasMore, nextCursor: null, effectiveLimit));
+    }
+
+    private static CursorPagedResponse<RunListItemResponse> MapRunListPage(
+        IReadOnlyList<RunSummary> summaries,
+        bool hasMore,
+        string? nextCursor,
+        int requestedTake)
+    {
         List<RunListItemResponse> mapped = summaries
             .Select(r => new RunListItemResponse
             {
@@ -460,14 +473,13 @@ public sealed class RunQueryController(
             })
             .ToList();
 
-        return Ok(
-            new CursorPagedResponse<RunListItemResponse>
-            {
-                Items = mapped,
-                NextCursor = nextCursor,
-                HasMore = hasMore,
-                RequestedTake = effectiveTake
-            });
+        return new CursorPagedResponse<RunListItemResponse>
+        {
+            Items = mapped,
+            NextCursor = nextCursor,
+            HasMore = hasMore,
+            RequestedTake = requestedTake
+        };
     }
 
 

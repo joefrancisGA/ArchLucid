@@ -219,6 +219,38 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         return Task.FromResult(new RunListPage(filtered, hasMore));
     }
 
+    /// <inheritdoc />
+    public Task<RunListPage> ListRecentInScopeOffsetAsync(
+        ScopeContext scope,
+        int offset,
+        int limit,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ct.ThrowIfCancellationRequested();
+
+        int safeLimit = RunPagination.ClampLimit(limit);
+        int safeOffset = RunPagination.NormalizeOffset(offset);
+        int fetch = safeLimit + 1;
+
+        List<RunRecord> filtered = _store.Values
+            .Where(r =>
+                MatchesScope(r, scope) &&
+                !r.ArchivedUtc.HasValue)
+            .OrderByDescending(r => r.CreatedUtc)
+            .Skip(safeOffset)
+            .Take(fetch)
+            .ToList();
+
+        bool hasMore = filtered.Count > safeLimit;
+
+        if (hasMore)
+
+            filtered.RemoveAt(filtered.Count - 1);
+
+        return Task.FromResult(new RunListPage(filtered, hasMore));
+    }
+
     public Task UpdateAsync(
         RunRecord run,
         CancellationToken ct,
