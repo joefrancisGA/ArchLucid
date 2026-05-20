@@ -8,8 +8,8 @@ public sealed class NoOpLlmCostEstimationUsdRateOverride : ILlmCostEstimationUsd
     /// <inheritdoc />
     public bool TryGetUsdPerMillionRates(out decimal inputUsdPerMillionTokens, out decimal outputUsdPerMillionTokens)
     {
-        inputUsdPerMillionTokens = default;
-        outputUsdPerMillionTokens = default;
+        inputUsdPerMillionTokens = 0;
+        outputUsdPerMillionTokens = 0;
 
         return false;
     }

@@ -10,8 +10,7 @@ public sealed class RoleSyncService(IScimUserRepository scimUsers) : IRoleSyncSe
 {
     private const string RolesShortClaim = "roles";
 
-    private static readonly string MappedRoleClaimType =
-        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
+    private const string MappedRoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
 
     private readonly IScimUserRepository _scimUsers = scimUsers ?? throw new ArgumentNullException(nameof(scimUsers));
 

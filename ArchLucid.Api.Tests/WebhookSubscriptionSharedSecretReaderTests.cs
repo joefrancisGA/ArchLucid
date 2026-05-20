@@ -10,7 +10,7 @@ public sealed class WebhookSubscriptionSharedSecretReaderTests
     [Fact]
     public void TryRead_returns_webhookSharedSecret_when_present()
     {
-        string json = """{"webhookSharedSecret":"super-secret-key-12345","eventTypes":[]}""";
+        const string json = """{"webhookSharedSecret":"super-secret-key-12345","eventTypes":[]}""";
 
         WebhookSubscriptionSharedSecretReader.TryRead(json).Should().Be("super-secret-key-12345");
     }

@@ -6,7 +6,7 @@ namespace ArchLucid.Persistence.Repositories;
 /// <summary>Process-global cache of persisted USD/M rates loaded from SQL at startup and after admin updates.</summary>
 public sealed class LlmCostEstimationUsdRateOverrideCache : ILlmCostEstimationUsdRateOverride
 {
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
 
     private LlmCostEstimationUsdRateOverrideRow? _row;
 
@@ -17,8 +17,8 @@ public sealed class LlmCostEstimationUsdRateOverrideCache : ILlmCostEstimationUs
         {
             if (_row is null)
             {
-                inputUsdPerMillionTokens = default;
-                outputUsdPerMillionTokens = default;
+                inputUsdPerMillionTokens = 0;
+                outputUsdPerMillionTokens = 0;
 
                 return false;
             }

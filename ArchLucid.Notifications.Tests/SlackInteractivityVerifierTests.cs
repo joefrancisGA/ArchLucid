@@ -18,7 +18,7 @@ public sealed class SlackInteractivityVerifierTests
     {
         const string signingSecret = "test-signing-secret";
         const string body = "{\"type\":\"block_actions\"}";
-        long timestamp = 1_700_000_000;
+        const long timestamp = 1_700_000_000;
 
         FakeTimeProvider fakeClock = new();
         fakeClock.SetUtcNow(DateTimeOffset.FromUnixTimeSeconds(timestamp));

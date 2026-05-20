@@ -16,7 +16,7 @@ public sealed class InMemoryTenantSettingsRepository : ITenantSettingsRepository
         cancellationToken.ThrowIfCancellationRequested();
 
         return Task.FromResult(
-            _values.TryGetValue((tenantId, settingKey.Trim()), out string? value) ? value : null);
+            _values.GetValueOrDefault((tenantId, settingKey.Trim())));
     }
 
     public Task UpsertAsync(Guid tenantId, string settingKey, string settingValue, CancellationToken cancellationToken)
