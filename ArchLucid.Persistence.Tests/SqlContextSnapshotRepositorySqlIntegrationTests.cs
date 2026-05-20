@@ -118,7 +118,8 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         string hashesJson = JsonEntitySerializer.Serialize(
             new Dictionary<string, string>(StringComparer.Ordinal)
             {
-                ["legacy/path.cs"] = "sha256:aa", ["other"] = "bb"
+                ["legacy/path.cs"] = "sha256:aa",
+                ["other"] = "bb"
             });
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
@@ -366,7 +367,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                                     );
                                     """;
 
-        string empty = "";
+        const string empty = "";
 
         await connection.ExecuteAsync(
             new CommandDefinition(

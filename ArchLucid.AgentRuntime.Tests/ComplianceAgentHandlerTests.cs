@@ -86,7 +86,7 @@ public sealed class ComplianceAgentHandlerTests
             new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         ComplianceAgentHandler handler = new(
-            completionClient,
+            AgentTierCompletionRouterTestFactory.CreatePassThrough(completionClient),
             parser,
             traceRecorder,
             catalog,

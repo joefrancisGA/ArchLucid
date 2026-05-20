@@ -93,7 +93,7 @@ public sealed class RealAzureOpenAIEndToEndTests
             AgentSchemaRemediationOptionsMonitorTestFactory.Create();
 
         TopologyAgentHandler topology = new(
-            completion,
+            AgentTierCompletionRouterTestFactory.CreatePassThrough(completion),
             parser,
             traceSpy,
             promptCatalog,
@@ -102,7 +102,7 @@ public sealed class RealAzureOpenAIEndToEndTests
             schemaRemediation);
 
         ComplianceAgentHandler compliance = new(
-            completion,
+            AgentTierCompletionRouterTestFactory.CreatePassThrough(completion),
             parser,
             traceSpy,
             promptCatalog,

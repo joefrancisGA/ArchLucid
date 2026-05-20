@@ -133,4 +133,64 @@ public sealed class AskThreadIntegrationTests
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
+
+    [SkippableFact]
+    public async Task Ask_stream_with_seeded_run_emits_token_and_done_events()
+    {
+        await using AlertLifecycleWebAppFactory factory = new();
+        Guid runId = await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(
+            factory.Services, CancellationToken.None);
+
+        HttpClient client = factory.CreateClient();
+
+        using HttpRequestMessage request = new(HttpMethod.Post, "v1/ask/stream")
+        {
+            Content = JsonContent.Create(
+                new AskRequest { RunId = runId, Question = "Summarize the primary topology risks." },
+                options: JsonOptions)
+        };
+        request.Headers.Accept.ParseAdd("text/event-stream");
+
+        using HttpResponseMessage response = await client.SendAsync(
+            request,
+            HttpCompletionOption.ResponseHeadersRead,
+            CancellationToken.None);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Content.Headers.ContentType?.MediaType.Should().Be("text/event-stream");
+
+        await using Stream body = await response.Content.ReadAsStreamAsync(CancellationToken.None);
+        using StreamReader reader = new(body);
+
+        bool sawToken = false;
+        AskResponse? donePayload = null;
+        string? pendingEvent = null;
+
+        while (await reader.ReadLineAsync(CancellationToken.None) is { } line)
+        {
+            if (line.StartsWith("event:", StringComparison.Ordinal))
+            {
+                pendingEvent = line["event:".Length..].Trim();
+                continue;
+            }
+
+            if (!line.StartsWith("data:", StringComparison.Ordinal))
+                continue;
+
+            string data = line["data:".Length..].TrimStart();
+
+            if (pendingEvent == "token")
+                sawToken = true;
+
+            if (pendingEvent == "done")
+                donePayload = JsonSerializer.Deserialize<AskResponse>(data, JsonOptions);
+
+            pendingEvent = null;
+        }
+
+        sawToken.Should().BeTrue("stream should emit at least one token event");
+        donePayload.Should().NotBeNull("stream should terminate with a done payload");
+        donePayload!.ThreadId.Should().NotBeEmpty();
+        donePayload.Answer.Should().NotBeNullOrWhiteSpace();
+    }
 }

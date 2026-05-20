@@ -1,8 +1,12 @@
+using System.Text.Json;
+
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Configuration.Summary;
 using ArchLucid.Core.Hosting;
@@ -33,6 +37,8 @@ public sealed class AdminController(
     IHostEnvironment hostEnvironment,
     IAdminDiagnosticsService diagnostics,
     IFeatureManager featureManager,
+    IScopeContextProvider scopeContextProvider,
+    IAuditService auditService,
     ITenantReviewBoardCoverLogoStore? tenantReviewBoardCoverLogoStore) : ControllerBase
 {
     private readonly IConfiguration _configuration =
@@ -46,6 +52,11 @@ public sealed class AdminController(
 
     private readonly IFeatureManager _featureManager =
         featureManager ?? throw new ArgumentNullException(nameof(featureManager));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly ITenantReviewBoardCoverLogoStore? _tenantReviewBoardCoverLogoStore = tenantReviewBoardCoverLogoStore;
 
@@ -78,6 +89,22 @@ public sealed class AdminController(
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string actor = User.Identity?.Name ?? "admin";
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.TenantReviewBoardCoverLogoUploaded,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson = JsonSerializer.Serialize(new { logoByteLength = bytes.Length })
+            },
+            cancellationToken).ConfigureAwait(false);
 
         return NoContent();
     }

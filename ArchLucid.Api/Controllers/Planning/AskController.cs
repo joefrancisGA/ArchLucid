@@ -1,4 +1,7 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Ask;
 using ArchLucid.Core.Authorization;
@@ -31,6 +34,8 @@ public sealed class AskController(
     IScopeContextProvider scopeProvider,
     ILogger<AskController> logger) : ControllerBase
 {
+    private static readonly JsonSerializerOptions StreamSerializerOptions = new(JsonSerializerDefaults.Web);
+
     /// <summary>Grounded Q&amp;A over GoldenManifest, provenance graph, optional run comparison, and retrieval hits.</summary>
     /// <param name="request">Thread/run anchors and question (see validation rules in method body).</param>
     /// <param name="ct">Cancellation token.</param>
@@ -40,6 +45,92 @@ public sealed class AskController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Ask([FromBody] AskRequest? request, CancellationToken ct = default)
+    {
+        IActionResult? validation = ValidateAskRequest(request);
+
+        if (validation is not null)
+            return validation;
+
+        try
+        {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            AskResponse result = await ask.AskAsync(request!, scope, ct);
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(ex, "Ask failed: resource not found.");
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "Ask failed: invalid argument.");
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+    }
+
+    /// <summary>
+    ///     Streams grounded Q&amp;A as <c>text/event-stream</c>: <c>token</c> events carry answer text deltas;
+    ///     a terminal <c>done</c> event carries the final <see cref="AskResponse" /> JSON.
+    /// </summary>
+    [HttpPost("stream")]
+    [Produces("text/event-stream")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task AskStream([FromBody] AskRequest? request, CancellationToken ct = default)
+    {
+        IActionResult? validation = ValidateAskRequest(request);
+
+        if (validation is not null)
+        {
+            await WriteStreamValidationProblemAsync(validation, ct);
+
+            return;
+        }
+
+        Response.Headers.ContentType = "text/event-stream";
+        Response.Headers.CacheControl = "no-cache";
+        Response.Headers.Connection = "keep-alive";
+
+        try
+        {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+
+            AskResponse result = await ask.AskStreamAsync(
+                request!,
+                scope,
+                async (answerDelta, tokenCt) =>
+                {
+                    string payload = JsonSerializer.Serialize(new { text = answerDelta }, StreamSerializerOptions);
+                    await SseEventWriter.WriteAsync(Response.Body, "token", payload, tokenCt);
+                },
+                ct);
+
+            string donePayload = JsonSerializer.Serialize(result, StreamSerializerOptions);
+            await SseEventWriter.WriteAsync(Response.Body, "done", donePayload, ct);
+        }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(ex, "Ask stream failed: resource not found.");
+            await SseEventWriter.WriteAsync(
+                Response.Body,
+                "error",
+                JsonSerializer.Serialize(new { detail = ex.Message }, StreamSerializerOptions),
+                ct);
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "Ask stream failed: invalid argument.");
+            await SseEventWriter.WriteAsync(
+                Response.Body,
+                "error",
+                JsonSerializer.Serialize(new { detail = ex.Message }, StreamSerializerOptions),
+                ct);
+        }
+    }
+
+    private IActionResult? ValidateAskRequest(AskRequest? request)
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
@@ -59,21 +150,28 @@ public sealed class AskController(
                 "Provide both baseRunId and targetRunId for comparison, or omit both.",
                 ProblemTypes.ValidationFailed);
 
-        try
+        return null;
+    }
+
+    private async Task WriteStreamValidationProblemAsync(IActionResult validation, CancellationToken ct)
+    {
+        Response.Headers.ContentType = "text/event-stream";
+        Response.Headers.CacheControl = "no-cache";
+        Response.Headers.Connection = "keep-alive";
+        Response.StatusCode = StatusCodes.Status400BadRequest;
+
+        if (validation is ObjectResult { Value: not null } objectResult)
         {
-            ScopeContext scope = scopeProvider.GetCurrentScope();
-            AskResponse result = await ask.AskAsync(request, scope, ct);
-            return Ok(result);
+            string payload = JsonSerializer.Serialize(objectResult.Value, StreamSerializerOptions);
+            await SseEventWriter.WriteAsync(Response.Body, "error", payload, ct);
+
+            return;
         }
-        catch (InvalidOperationException ex)
-        {
-            logger.LogWarning(ex, "Ask failed: resource not found.");
-            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
-        }
-        catch (ArgumentException ex)
-        {
-            logger.LogWarning(ex, "Ask failed: invalid argument.");
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
-        }
+
+        await SseEventWriter.WriteAsync(
+            Response.Body,
+            "error",
+            JsonSerializer.Serialize(new { detail = "Validation failed." }, StreamSerializerOptions),
+            ct);
     }
 }

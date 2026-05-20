@@ -39,6 +39,16 @@ public sealed class AgentModelTierOptions
         set;
     }
 
+    /// <summary>
+    ///     Tier for Ask, explanations, and schema-remediation retries. Names
+    ///     <see cref="Contracts.Common.LlmModelTier" /> (default <c>Economy</c>).
+    /// </summary>
+    public string NonAgentDefaultTier
+    {
+        get;
+        set;
+    } = "Economy";
+
     /// <summary>Optional per-agent-type tier overrides (keys: Topology, Cost, Compliance, Critic).</summary>
     public Dictionary<string, string> AgentTypeTiers
     {

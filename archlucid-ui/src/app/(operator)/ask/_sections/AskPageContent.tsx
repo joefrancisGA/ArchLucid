@@ -8,7 +8,7 @@ import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
-import { askArchLucid, getConversationMessages, listConversationThreads } from "@/lib/conversation-api";
+import { askArchLucidStream, getConversationMessages, listConversationThreads } from "@/lib/conversation-api";
 import { buyerAskGroundingLinksForRun } from "@/lib/ask-buyer-grounding-links";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -36,6 +36,7 @@ export function AskPageContent() {
   const [targetRunId, setTargetRunId] = useState("");
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
+  const [streamingAssistantContent, setStreamingAssistantContent] = useState<string | null>(null);
   const [compareOpen, setCompareOpen] = useState(false);
   const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
   const [actionFailure, setActionFailure] = useState<ApiLoadFailureState | null>(null);
@@ -195,23 +196,57 @@ export function AskPageContent() {
     }
 
     setLoading(true);
-    try {
-      const result = await askArchLucid({
-        threadId: tid || undefined,
-        runId: rid || undefined,
-        question: q,
-        baseRunId: useCompare ? base : undefined,
-        targetRunId: useCompare ? target : undefined,
-      });
+    setStreamingAssistantContent("");
+    const pendingUserMessage: ConversationMessage = {
+      messageId: `pending-user-${Date.now()}`,
+      threadId: tid || "pending",
+      role: "User",
+      content: q,
+      createdUtc: new Date().toISOString(),
+      metadataJson: "{}",
+    };
+    setMessages((previous) => [...previous, pendingUserMessage]);
 
-      setSelectedThreadId(result.threadId);
+    try {
+      const result = await askArchLucidStream(
+        {
+          threadId: tid || undefined,
+          runId: rid || undefined,
+          question: q,
+          baseRunId: useCompare ? base : undefined,
+          targetRunId: useCompare ? target : undefined,
+        },
+        {
+          onToken: (text) => {
+            setStreamingAssistantContent((previous) => (previous ?? "") + text);
+          },
+          onDone: (response) => {
+            setSelectedThreadId(response.threadId);
+            setStreamingAssistantContent(null);
+          },
+          onError: (detail) => {
+            setStreamingAssistantContent(null);
+            setActionFailure(uiFailureFromMessage(detail));
+          },
+        },
+      );
+
+      if (result === null) {
+        setMessages((previous) => previous.filter((m) => m.messageId !== pendingUserMessage.messageId));
+
+        return;
+      }
+
       setQuestion("");
       await loadThreads();
       await loadMessages(result.threadId);
     } catch (e) {
+      setStreamingAssistantContent(null);
+      setMessages((previous) => previous.filter((m) => m.messageId !== pendingUserMessage.messageId));
       setActionFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
+      setStreamingAssistantContent(null);
     }
   }
 
@@ -383,6 +418,7 @@ export function AskPageContent() {
           onAsk={onAsk}
           actionFailure={actionFailure}
           messages={messages}
+          streamingAssistantContent={streamingAssistantContent}
           askAssistantGroundingLinks={askAssistantGroundingLinks}
           showPostAssistantFollowUps={showPostAssistantFollowUps}
         />

@@ -23,4 +23,15 @@ public interface IAskService
     ///     on a new thread, or run/manifest missing in scope).
     /// </exception>
     Task<AskResponse> AskAsync(AskRequest request, ScopeContext scope, CancellationToken ct);
+
+    /// <summary>
+    ///     Same grounding and persistence as <see cref="AskAsync" />, but invokes <paramref name="onAnswerTokenAsync" />
+    ///     with incremental answer text while the LLM generates tokens.
+    /// </summary>
+    /// <returns>The final parsed response after the stream completes.</returns>
+    Task<AskResponse> AskStreamAsync(
+        AskRequest request,
+        ScopeContext scope,
+        Func<string, CancellationToken, Task> onAnswerTokenAsync,
+        CancellationToken ct);
 }

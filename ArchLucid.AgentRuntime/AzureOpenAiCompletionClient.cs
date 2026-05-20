@@ -1,6 +1,7 @@
 using System.ClientModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 using ArchLucid.Core.Configuration;
@@ -27,7 +28,7 @@ namespace ArchLucid.AgentRuntime;
 /// </remarks>
 [ExcludeFromCodeCoverage(Justification =
     "Thin wrapper around Azure OpenAI SDK; requires live Azure endpoint to exercise.")]
-public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
+public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClient
 {
     /// <summary>Used when <c>AzureOpenAI:MaxCompletionTokens</c> is omitted or zero.</summary>
     public const int DefaultMaxCompletionTokens = AzureOpenAiOptions.DefaultMaxCompletionTokens;
@@ -117,6 +118,138 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
     public LlmProviderDescriptor Descriptor
     {
         get;
+    }
+
+    /// <inheritdoc />
+    public async IAsyncEnumerable<string> StreamJsonAsync(
+        string systemPrompt,
+        string userPrompt,
+        int? maxTokens = null,
+        float? temperature = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        await foreach (string chunk in StreamJsonWithTelemetryAsync(
+                           systemPrompt,
+                           userPrompt,
+                           maxTokens,
+                           temperature,
+                           cancellationToken).ConfigureAwait(false))
+        {
+            yield return chunk;
+        }
+    }
+
+    private async IAsyncEnumerable<string> StreamJsonWithTelemetryAsync(
+        string systemPrompt,
+        string userPrompt,
+        int? maxTokens,
+        float? temperature,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(systemPrompt);
+        ArgumentException.ThrowIfNullOrWhiteSpace(userPrompt);
+        LastCompletionTokenUsage.Value = null;
+        LastModelMetadata.Value = null;
+
+        bool completionSucceededForTelemetry = false;
+        long latencyStartTicks = Stopwatch.GetTimestamp();
+
+        using Activity? llmActivity = ArchLucidInstrumentation.AgentLlmCompletion.StartActivity(
+            "gen_ai.chat.completion.stream",
+            ActivityKind.Client);
+
+        llmActivity?.SetTag("gen_ai.system", "azure_openai");
+        llmActivity?.SetTag("gen_ai.operation.name", "chat");
+        llmActivity?.SetTag("gen_ai.request.model", _deploymentName);
+
+        try
+        {
+            await foreach (string chunk in StreamJsonTokensAsync(
+                               systemPrompt,
+                               userPrompt,
+                               maxTokens,
+                               temperature,
+                               cancellationToken).ConfigureAwait(false))
+            {
+                yield return chunk;
+            }
+
+            ArchLucidInstrumentation.RecordLlmCompletionCallForCurrentRunBatch();
+            llmActivity?.SetStatus(ActivityStatusCode.Ok);
+            completionSucceededForTelemetry = true;
+        }
+        finally
+        {
+            if (!completionSucceededForTelemetry)
+                LastModelMetadata.Value = null;
+
+            double latencyMs = Stopwatch.GetElapsedTime(latencyStartTicks).TotalMilliseconds;
+            ApplyGenAiLatencyTag(llmActivity, latencyMs);
+
+            ArchLucidInstrumentation.RecordLlmGenAiOperationDurationMilliseconds(
+                "chat",
+                latencyMs,
+                completionSucceededForTelemetry);
+        }
+    }
+
+    private async IAsyncEnumerable<string> StreamJsonTokensAsync(
+        string systemPrompt,
+        string userPrompt,
+        int? maxTokens,
+        float? temperature,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        List<ChatMessage> messages =
+        [
+            new SystemChatMessage(systemPrompt),
+            new UserChatMessage(userPrompt)
+        ];
+
+        ChatCompletionOptions options = CreateCompletionOptions(
+            ChatResponseFormat.CreateJsonObjectFormat(),
+            maxTokens,
+            temperature);
+
+        StringBuilder fullText = new();
+
+        await foreach (StreamingChatCompletionUpdate update in StreamChatCoreAsync(
+                           messages,
+                           options,
+                           cancellationToken).ConfigureAwait(false))
+        {
+            IReadOnlyList<ChatMessageContentPart> parts = update.ContentUpdate;
+
+            if (parts is null || parts.Count < 1)
+                continue;
+
+            foreach (ChatMessageContentPart part in parts)
+            {
+                if (part.Kind != ChatMessageContentPartKind.Text || string.IsNullOrEmpty(part.Text))
+                    continue;
+
+                fullText.Append(part.Text);
+                yield return part.Text;
+            }
+
+            if (update.Usage is { } usage)
+            {
+                int inTok = usage.InputTokenCount is var ip ? ip : 0;
+                int outTok = usage.OutputTokenCount is var op ? op : 0;
+                int reasoningTok = usage.OutputTokenDetails?.ReasoningTokenCount ?? 0;
+
+                if (inTok > 0 || outTok > 0 || reasoningTok > 0)
+
+                    LastCompletionTokenUsage.Value = (inTok, outTok, reasoningTok);
+            }
+
+            if (!string.IsNullOrWhiteSpace(update.Model))
+                LastModelMetadata.Value = (_deploymentName, update.Model.Trim());
+        }
+
+        if (fullText.Length < 1)
+
+            throw new InvalidOperationException("Azure OpenAI streaming returned no message content.");
     }
 
     /// <inheritdoc />
@@ -331,23 +464,57 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
             }
             catch (ClientResultException ex) when (ex.Status == 429)
             {
-                TimeSpan wait = AzureOpenAiTooManyRequestsRetry.GetDelayBeforeRetry(
-                    ex,
-                    tooManyRequestsAttempt,
-                    _logger,
-                    out bool usedRetryAfterHeader);
-                TagList rateTags = [];
-
-                rateTags.Add("retry_after", usedRetryAfterHeader ? "header" : "fallback");
-
-                ArchLucidInstrumentation.LlmRateLimitTotal.Add(1, rateTags);
-
-                if (tooManyRequestsAttempt >= AzureOpenAiTooManyRequestsRetry.MaxConsecutiveTooManyRequestsAttempts - 1)
-                    throw;
-
-                await Task.Delay(wait, cancellationToken).ConfigureAwait(false);
+                await HandleTooManyRequestsAsync(ex, tooManyRequestsAttempt, cancellationToken).ConfigureAwait(false);
             }
         }
+    }
+
+    private async IAsyncEnumerable<StreamingChatCompletionUpdate> StreamChatCoreAsync(
+        List<ChatMessage> messages,
+        ChatCompletionOptions options,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        for (int tooManyRequestsAttempt = 0; ; tooManyRequestsAttempt++)
+        {
+            IAsyncEnumerable<StreamingChatCompletionUpdate> stream;
+
+            try
+            {
+                stream = _chatClient.CompleteChatStreamingAsync(messages, options, cancellationToken);
+            }
+            catch (ClientResultException ex) when (ex.Status == 429)
+            {
+                await HandleTooManyRequestsAsync(ex, tooManyRequestsAttempt, cancellationToken).ConfigureAwait(false);
+                continue;
+            }
+
+            await foreach (StreamingChatCompletionUpdate update in stream.ConfigureAwait(false))
+                yield return update;
+
+            yield break;
+        }
+    }
+
+    private async Task HandleTooManyRequestsAsync(
+        ClientResultException ex,
+        int tooManyRequestsAttempt,
+        CancellationToken cancellationToken)
+    {
+        TimeSpan wait = AzureOpenAiTooManyRequestsRetry.GetDelayBeforeRetry(
+            ex,
+            tooManyRequestsAttempt,
+            _logger,
+            out bool usedRetryAfterHeader);
+        TagList rateTags = [];
+
+        rateTags.Add("retry_after", usedRetryAfterHeader ? "header" : "fallback");
+
+        ArchLucidInstrumentation.LlmRateLimitTotal.Add(1, rateTags);
+
+        if (tooManyRequestsAttempt >= AzureOpenAiTooManyRequestsRetry.MaxConsecutiveTooManyRequestsAttempts - 1)
+            throw ex;
+
+        await Task.Delay(wait, cancellationToken).ConfigureAwait(false);
     }
 
     private static string? BuildReasoningTraceSnippet(ChatCompletion completion)

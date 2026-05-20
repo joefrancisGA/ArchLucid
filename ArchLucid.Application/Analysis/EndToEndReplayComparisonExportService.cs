@@ -288,7 +288,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         sb.AppendLine();
     }
 
-    private void AppendMarkdownExecutiveSummary(StringBuilder sb, EndToEndReplayComparisonReport report)
+    private static void AppendMarkdownExecutiveSummary(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
         sb.AppendLine("## Key counts");
         sb.AppendLine();

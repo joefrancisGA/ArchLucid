@@ -98,4 +98,14 @@ public sealed class AgentTask
         get;
         set;
     } = [];
+
+    /// <summary>
+    ///     Optional model tier override for this task. When null, tier routing uses
+    ///     <c>ArchLucid:AgentModelTiers:AgentTypeTiers</c> and the tenant default.
+    /// </summary>
+    public LlmModelTier? ModelTierOverride
+    {
+        get;
+        set;
+    }
 }

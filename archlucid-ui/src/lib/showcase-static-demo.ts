@@ -32,6 +32,9 @@ export const SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF = "/governance/policy-
  */
 export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID = "phi-minimization-risk";
 
+/** Canonical headline for PHI finding deep links (queues, graph, finding detail H1). */
+export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE = "PHI Minimization Risk";
+
 /**
  * Canonical counts for the static Claims Intake demo spine — Run detail, manifest summary, and showcase should
  * reflect the same numbers when serving this payload (see {@link getShowcaseStaticDemoPayload}).

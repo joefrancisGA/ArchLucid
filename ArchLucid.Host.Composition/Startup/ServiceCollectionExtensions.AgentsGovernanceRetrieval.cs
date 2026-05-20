@@ -15,6 +15,7 @@ using ArchLucid.Capabilities.Cost;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Agents;
@@ -255,6 +256,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(AgentSchemaRemediationOptions.SectionPath));
         services.PostConfigure<AgentSchemaRemediationOptions>(static o => o.Normalize());
 
+        RegisterAgentModelTierOrchestration(services, configuration);
+
         string? agentMode = configuration["AgentExecution:Mode"];
         string? completionClientRaw = configuration["AgentExecution:CompletionClient"]?.Trim();
         bool useEchoClient = string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase)
@@ -358,6 +361,38 @@ public static partial class ServiceCollectionExtensions
                     });
                 }
 
+                services.AddSingleton<AzureOpenAiCompletionClientCache>(sp =>
+                {
+                    IConfiguration config = sp.GetRequiredService<IConfiguration>();
+                    string endpoint = config["AzureOpenAI:Endpoint"]
+                                      ?? throw new InvalidOperationException("AzureOpenAI:Endpoint is missing.");
+                    string apiKey = config["AzureOpenAI:ApiKey"]
+                                    ?? throw new InvalidOperationException("AzureOpenAI:ApiKey is missing.");
+                    int maxTokens = config.GetValue("AzureOpenAI:MaxCompletionTokens", 0);
+
+                    if (maxTokens <= 0)
+
+                        maxTokens = AzureOpenAiCompletionClient.DefaultMaxCompletionTokens;
+
+
+                    AzureOpenAiOptions ao = sp.GetRequiredService<IOptions<AzureOpenAiOptions>>().Value;
+                    BinaryData? schema = ResolveStructuredOutputAgentResultSchema(config, ao);
+                    ILogger<AzureOpenAiCompletionClient> completionLogger =
+                        sp.GetRequiredService<ILogger<AzureOpenAiCompletionClient>>();
+                    IOptionsMonitor<LlmTelemetryOptions> llmTelemetryOptions =
+                        sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
+
+                    return new AzureOpenAiCompletionClientCache(deploymentName =>
+                        new AzureOpenAiCompletionClient(
+                            endpoint,
+                            apiKey,
+                            deploymentName,
+                            maxTokens,
+                            schema,
+                            completionLogger,
+                            llmTelemetryOptions));
+                });
+
                 services.AddSingleton<AzureOpenAiCompletionClient>(sp =>
                 {
                     IConfiguration config = sp.GetRequiredService<IConfiguration>();
@@ -397,7 +432,7 @@ public static partial class ServiceCollectionExtensions
                     AgentOutputLlmJudgeCompletionServiceKey.Value,
                     static (sp, _) => BuildAgentOutputSemanticJudgeCompletionChain(sp));
 
-                services.AddScoped<IAgentCompletionClient>(sp =>
+                services.AddScoped<ScopedInnerAgentCompletionClient>(sp =>
                 {
                     AzureOpenAiCompletionClient azureInner = sp.GetRequiredService<AzureOpenAiCompletionClient>();
                     IConfiguration config = sp.GetRequiredService<IConfiguration>();
@@ -413,10 +448,14 @@ public static partial class ServiceCollectionExtensions
                         primaryDeployment);
 
                     if (!fallbackLlmEnabled)
-                        return new CostGuardrailInterceptor(
+                    {
+                        IAgentCompletionClient guarded = new CostGuardrailInterceptor(
                             primaryChain,
                             sp.GetRequiredService<IOptions<AgentOutputQualityGateOptions>>(),
                             sp.GetRequiredService<ILlmCostEstimator>());
+
+                        return new ScopedInnerAgentCompletionClient(guarded);
+                    }
 
 
                     FallbackAzureOpenAiInnerClientsRegistry registry =
@@ -435,11 +474,16 @@ public static partial class ServiceCollectionExtensions
                         secondaryChains,
                         fallbackLogger);
 
-                    return new CostGuardrailInterceptor(
+                    IAgentCompletionClient guardedFinal = new CostGuardrailInterceptor(
                         finalClient,
                         sp.GetRequiredService<IOptions<AgentOutputQualityGateOptions>>(),
                         sp.GetRequiredService<ILlmCostEstimator>());
+
+                    return new ScopedInnerAgentCompletionClient(guardedFinal);
                 });
+
+                RegisterTieredAzureCompletionRouter(services);
+                RegisterAgentCompletionClientFromTierRouter(services);
             }
             else
 
@@ -495,7 +539,7 @@ public static partial class ServiceCollectionExtensions
 
     private static void RegisterEchoAgentCompletionPipeline(IServiceCollection services)
     {
-        services.AddScoped<IAgentCompletionClient>(sp =>
+        services.AddScoped<ScopedInnerAgentCompletionClient>(sp =>
         {
             EchoAgentCompletionClient echoInner = new();
             LlmTokenQuotaWindowTracker quotaTracker = sp.GetRequiredService<LlmTokenQuotaWindowTracker>();
@@ -550,7 +594,14 @@ public static partial class ServiceCollectionExtensions
                                                                ?? new LlmCompletionResponseCacheOptions();
 
             if (!cacheOptions.Enabled || modernCompletionCacheEnabled)
-                return completionPipeline;
+            {
+                IAgentCompletionClient guarded = new CostGuardrailInterceptor(
+                    completionPipeline,
+                    sp.GetRequiredService<IOptions<AgentOutputQualityGateOptions>>(),
+                    sp.GetRequiredService<ILlmCostEstimator>());
+
+                return new ScopedInnerAgentCompletionClient(guarded);
+            }
 
             string cacheDeploymentLabel = config["AzureOpenAI:DeploymentName"]?.Trim() ?? "echo";
 
@@ -568,11 +619,16 @@ public static partial class ServiceCollectionExtensions
                 scopeProvider: scopeProvider,
                 logger: cacheLogger);
 
-            return new CostGuardrailInterceptor(
+            IAgentCompletionClient guardedCached = new CostGuardrailInterceptor(
                 completionPipeline,
                 sp.GetRequiredService<IOptions<AgentOutputQualityGateOptions>>(),
                 sp.GetRequiredService<ILlmCostEstimator>());
+
+            return new ScopedInnerAgentCompletionClient(guardedCached);
         });
+
+        RegisterPassThroughTierCompletionRouter(services);
+        RegisterAgentCompletionClientFromTierRouter(services);
     }
 
     /// <summary>
@@ -587,7 +643,8 @@ public static partial class ServiceCollectionExtensions
             Converters = { new JsonStringEnumConverter() }
         };
 
-        services.AddScoped<IAgentCompletionClient>(_ => new FakeAgentCompletionClient(
+        services.AddScoped<ScopedInnerAgentCompletionClient>(_ => new ScopedInnerAgentCompletionClient(
+            new FakeAgentCompletionClient(
             (systemPrompt, userPrompt) =>
             {
                 if (systemPrompt.Contains(QuickScanLlmPrompts.ClientRoutingMarker, StringComparison.OrdinalIgnoreCase))
@@ -604,6 +661,13 @@ public static partial class ServiceCollectionExtensions
 
                            ## Operational impact
                            None (offline completion).
+                           """;
+                }
+
+                if (systemPrompt.Contains("senior enterprise architect", StringComparison.OrdinalIgnoreCase))
+                {
+                    return """
+                           {"answer":"Stub grounded answer for offline Ask completions. Risk:\n\nEvidence supports the manifest decisions in scope.\n\nMitigation:\n\nReview referenced decisions before commit.\n\nValidation:\n\nRe-run after manifest changes.","referencedDecisions":[],"referencedFindings":[],"referencedArtifacts":[]}
                            """;
                 }
 
@@ -633,7 +697,10 @@ public static partial class ServiceCollectionExtensions
                 AgentResult result = FakeScenarioFactory.CreateTopologyResult(runId, taskId, dummyRequest);
 
                 return JsonSerializer.Serialize(result, jsonOptions);
-            }));
+            })));
+
+        RegisterPassThroughTierCompletionRouter(services);
+        RegisterAgentCompletionClientFromTierRouter(services);
     }
 
     private static void RegisterGovernance(IServiceCollection services, IConfiguration configuration)
@@ -1095,5 +1162,58 @@ public static partial class ServiceCollectionExtensions
                 + fullPath + "' (SchemaValidation:AgentResultSchemaPath is '" + relative + "').");
 
         return BinaryData.FromString(File.ReadAllText(fullPath));
+    }
+
+    private static void RegisterAgentModelTierOrchestration(IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<AgentModelTierOptions>(configuration.GetSection(AgentModelTierOptions.SectionPath));
+        services.PostConfigure<AgentModelTierOptions>(static opts => AgentModelTierDefaults.ApplyDefaults(opts));
+        services.AddSingleton<IAgentModelTierResolver, AgentModelTierResolver>();
+    }
+
+    private static void RegisterPassThroughTierCompletionRouter(IServiceCollection services)
+    {
+        services.AddScoped<IAgentTierCompletionRouter>(static sp =>
+        {
+            ScopedInnerAgentCompletionClient innerHolder = sp.GetRequiredService<ScopedInnerAgentCompletionClient>();
+            IAgentModelTierResolver resolver = sp.GetRequiredService<IAgentModelTierResolver>();
+
+            return new PassThroughAgentTierCompletionRouter(innerHolder.Inner, resolver);
+        });
+    }
+
+    private static void RegisterTieredAzureCompletionRouter(IServiceCollection services)
+    {
+        services.AddScoped<IAgentTierCompletionRouter>(static sp =>
+        {
+            IAgentModelTierResolver resolver = sp.GetRequiredService<IAgentModelTierResolver>();
+            ScopedInnerAgentCompletionClient primaryHolder = sp.GetRequiredService<ScopedInnerAgentCompletionClient>();
+            AzureOpenAiCompletionClientCache clientCache = sp.GetRequiredService<AzureOpenAiCompletionClientCache>();
+            CircuitBreakerGate primaryGate =
+                sp.GetRequiredKeyedService<CircuitBreakerGate>(OpenAiCircuitBreakerKeys.Completion);
+            IConfiguration config = sp.GetRequiredService<IConfiguration>();
+            string primaryDeployment = config["AzureOpenAI:DeploymentName"]?.Trim()
+                                       ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName is missing.");
+
+            return new TieredAgentCompletionRouter(
+                resolver,
+                tier =>
+                {
+                    string deployment = resolver.ResolveDeploymentName(tier);
+
+                    if (string.Equals(deployment, primaryDeployment, StringComparison.OrdinalIgnoreCase))
+                        return primaryHolder.Inner;
+
+                    AzureOpenAiCompletionClient azureInner = clientCache.GetOrAdd(deployment);
+
+                    return BuildAzureOpenAiScopedCompletionChain(sp, azureInner, primaryGate, deployment);
+                });
+        });
+    }
+
+    private static void RegisterAgentCompletionClientFromTierRouter(IServiceCollection services)
+    {
+        services.AddScoped<IAgentCompletionClient>(static sp =>
+            sp.GetRequiredService<IAgentTierCompletionRouter>().DefaultCompletionClient);
     }
 }

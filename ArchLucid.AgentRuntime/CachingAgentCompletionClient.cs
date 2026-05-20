@@ -2,6 +2,8 @@ using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
 
+using System.Runtime.CompilerServices;
+
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
@@ -12,7 +14,7 @@ namespace ArchLucid.AgentRuntime;
 ///     affect the breaker.
 ///     Backing store is <see cref="ILlmCompletionResponseStore" /> (memory or distributed Redis).
 /// </remarks>
-public sealed class CachingAgentCompletionClient : IAgentCompletionClient
+public sealed class CachingAgentCompletionClient : IAgentStreamingCompletionClient
 {
     private const string CacheKeyPrefix = "llm:completion:v1:";
     private readonly string _deploymentName;
@@ -95,5 +97,75 @@ public sealed class CachingAgentCompletionClient : IAgentCompletionClient
         await _store.SetAsync(key, result, _ttl, cancellationToken);
 
         return result;
+    }
+
+    /// <inheritdoc />
+    public async IAsyncEnumerable<string> StreamJsonAsync(
+        string systemPrompt,
+        string userPrompt,
+        int? maxTokens = null,
+        float? temperature = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        if (!_enabled)
+        {
+            await foreach (string chunk in AgentCompletionStreamingBridge.StreamJsonAsync(
+                               _inner,
+                               systemPrompt,
+                               userPrompt,
+                               maxTokens,
+                               temperature,
+                               cancellationToken).ConfigureAwait(false))
+            {
+                yield return chunk;
+            }
+
+            yield break;
+        }
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        string key =
+            CacheKeyPrefix
+            + LlmCompletionCacheFingerprint.Compute(
+                _partitionByScope,
+                _deploymentName,
+                systemPrompt,
+                userPrompt,
+                scope);
+
+        string? cached = await _store.TryGetAsync(key, cancellationToken).ConfigureAwait(false);
+
+        if (cached is { Length: > 0 })
+        {
+            if (_logger.IsEnabled(LogLevel.Debug))
+
+                _logger.LogDebug("LLM completion cache hit for streaming (key prefix {KeyPrefix}).", key[..Math.Min(24, key.Length)]);
+
+            foreach (string chunk in AgentCompletionStreamingBridge.SimulateChunks(cached))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                yield return chunk;
+            }
+
+            yield break;
+        }
+
+        System.Text.StringBuilder accumulator = new();
+
+        await foreach (string chunk in AgentCompletionStreamingBridge.StreamJsonAsync(
+                           _inner,
+                           systemPrompt,
+                           userPrompt,
+                           maxTokens,
+                           temperature,
+                           cancellationToken).ConfigureAwait(false))
+        {
+            accumulator.Append(chunk);
+            yield return chunk;
+        }
+
+        if (accumulator.Length > 0)
+            await _store.SetAsync(key, accumulator.ToString(), _ttl, cancellationToken).ConfigureAwait(false);
     }
 }

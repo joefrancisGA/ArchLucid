@@ -208,7 +208,7 @@ public sealed class RealRuntimeMixedModeTests
             AgentSchemaRemediationOptionsMonitorTestFactory.Create();
 
         TopologyAgentHandler topologyHandler = new(
-            new StubAgentCompletionClient(topologyJson),
+            AgentTierCompletionRouterTestFactory.CreatePassThrough(new StubAgentCompletionClient(topologyJson)),
             parser,
             traceRecorder,
             promptCatalog,
@@ -217,7 +217,7 @@ public sealed class RealRuntimeMixedModeTests
             schemaRemediation);
 
         ComplianceAgentHandler complianceHandler = new(
-            new StubAgentCompletionClient(complianceJson),
+            AgentTierCompletionRouterTestFactory.CreatePassThrough(new StubAgentCompletionClient(complianceJson)),
             parser,
             traceRecorder,
             promptCatalog,
@@ -228,7 +228,7 @@ public sealed class RealRuntimeMixedModeTests
         CostAgentHandler costHandler = new();
 
         CriticAgentHandler criticHandler = new(
-            new StubAgentCompletionClient(criticJson),
+            AgentTierCompletionRouterTestFactory.CreatePassThrough(new StubAgentCompletionClient(criticJson)),
             parser,
             traceRecorder,
             promptCatalog,

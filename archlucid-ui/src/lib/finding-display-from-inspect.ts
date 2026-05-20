@@ -6,7 +6,10 @@ import {
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
+import {
+  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
+} from "@/lib/showcase-static-demo";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
@@ -100,7 +103,17 @@ export function isPhiMinimizationFindingId(findingId: string | null | undefined)
 /**
  * Preferred page title for Finding detail — human narrative first, then rule context, generic last.
  */
+function isShowcasePrimaryPhiFindingId(findingId: string | null | undefined): boolean {
+  const normalized = findingId?.trim().toLowerCase() ?? "";
+
+  return normalized === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID.toLowerCase();
+}
+
 export function findingDetailHeadingTitle(payload: FindingInspectPayload): string {
+  if (isShowcasePrimaryPhiFindingId(payload.findingId)) {
+    return SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE;
+  }
+
   if (isPhiMinimizationSampleFinding(payload)) {
     return "Residual PHI minimization risk (monitored)";
   }
@@ -132,6 +145,10 @@ export function findingDetailHeadingTitleForRoute(
   findingId: string,
   payload: FindingInspectPayload | null
 ): string {
+  if (isShowcasePrimaryPhiFindingId(findingId)) {
+    return SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE;
+  }
+
   if (isPhiMinimizationFindingId(findingId)) {
     return "Residual PHI minimization risk (monitored)";
   }

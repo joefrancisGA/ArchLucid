@@ -505,6 +505,12 @@ public static class AuditEventTypes
 
     public const string TenantAgentOutputQualityGateModeOverrideCleared = "Tenant.AgentOutputQualityGateModeOverrideCleared";
 
+    /// <summary>
+    ///     Tenant architecture review board cover logo replaced (
+    ///     <c>POST /v1/admin/tenant/logo</c>). Payload excludes image bytes.
+    /// </summary>
+    public const string TenantReviewBoardCoverLogoUploaded = "Tenant.ReviewBoardCoverLogoUploaded";
+
     /// <summary>Admin issued new host API key rotation material (payload excludes key material).</summary>
     public const string AdminApiKeyRotationMaterialIssued = "Admin.ApiKeyRotationMaterialIssued";
 

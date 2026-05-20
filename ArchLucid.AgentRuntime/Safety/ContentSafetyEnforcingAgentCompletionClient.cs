@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
@@ -17,7 +19,7 @@ public sealed class ContentSafetyEnforcingAgentCompletionClient(
     IAgentCompletionClient inner,
     IContentSafetyGuard guard,
     IOptionsMonitor<ContentSafetyOptions> optionsMonitor,
-    ILogger<ContentSafetyEnforcingAgentCompletionClient> logger) : IAgentCompletionClient
+    ILogger<ContentSafetyEnforcingAgentCompletionClient> logger) : IAgentStreamingCompletionClient
 {
     private readonly IAgentCompletionClient _inner =
         inner ?? throw new ArgumentNullException(nameof(inner));
@@ -74,6 +76,68 @@ public sealed class ContentSafetyEnforcingAgentCompletionClient(
             ThrowBlocked(outputSafety, "completion_json");
 
         return completionJson;
+    }
+
+    /// <inheritdoc />
+    public async IAsyncEnumerable<string> StreamJsonAsync(
+        string systemPrompt,
+        string userPrompt,
+        int? maxTokens = null,
+        float? temperature = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        ContentSafetyOptions opts = _optionsMonitor.CurrentValue;
+
+        if (!opts.EvaluateCompletionPromptAndResponse)
+        {
+            await foreach (string chunk in AgentCompletionStreamingBridge.StreamJsonAsync(
+                               _inner,
+                               systemPrompt,
+                               userPrompt,
+                               maxTokens,
+                               temperature,
+                               cancellationToken).ConfigureAwait(false))
+            {
+                yield return chunk;
+            }
+
+            yield break;
+        }
+
+        ContentSafetyResult systemSafety =
+            await _guard.CheckInputAsync(systemPrompt, cancellationToken).ConfigureAwait(false);
+
+        if (!systemSafety.IsAllowed)
+
+            ThrowBlocked(systemSafety, "system_prompt");
+
+        ContentSafetyResult userSafety =
+            await _guard.CheckInputAsync(userPrompt, cancellationToken).ConfigureAwait(false);
+
+        if (!userSafety.IsAllowed)
+
+            ThrowBlocked(userSafety, "user_prompt");
+
+        StringBuilder completionJson = new();
+
+        await foreach (string chunk in AgentCompletionStreamingBridge.StreamJsonAsync(
+                           _inner,
+                           systemPrompt,
+                           userPrompt,
+                           maxTokens,
+                           temperature,
+                           cancellationToken).ConfigureAwait(false))
+        {
+            completionJson.Append(chunk);
+            yield return chunk;
+        }
+
+        ContentSafetyResult outputSafety =
+            await _guard.CheckOutputAsync(completionJson.ToString(), cancellationToken).ConfigureAwait(false);
+
+        if (!outputSafety.IsAllowed)
+
+            ThrowBlocked(outputSafety, "completion_json");
     }
 
     private void ThrowBlocked(ContentSafetyResult result, string stageKey)

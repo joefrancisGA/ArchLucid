@@ -1,5 +1,6 @@
 using System.ClientModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 using ArchLucid.Core.Diagnostics;
 
@@ -13,7 +14,7 @@ namespace ArchLucid.AgentRuntime;
 ///     Decorator that delegates to <paramref name="primary" /> and, on fallback-eligible failures, tries
 ///     <paramref name="fallbacks" /> in order (429 / 5xx / Azure <see cref="RequestFailedException" /> throttling).
 /// </summary>
-public sealed class FallbackAgentCompletionClient : IAgentCompletionClient, IDisposable
+public sealed class FallbackAgentCompletionClient : IAgentStreamingCompletionClient, IDisposable
 {
     /// <summary>
     ///     Set to <see langword="true" /> on the current async flow when a fallback client was used for the last
@@ -98,6 +99,84 @@ public sealed class FallbackAgentCompletionClient : IAgentCompletionClient, IDis
     }
 
     /// <inheritdoc />
+    public async IAsyncEnumerable<string> StreamJsonAsync(
+        string systemPrompt,
+        string userPrompt,
+        int? maxTokens = null,
+        float? temperature = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        await foreach (string chunk in StreamJsonWithFallbackAsync(
+                           systemPrompt,
+                           userPrompt,
+                           maxTokens,
+                           temperature,
+                           cancellationToken).ConfigureAwait(false))
+        {
+            yield return chunk;
+        }
+    }
+
+    private async IAsyncEnumerable<string> StreamJsonWithFallbackAsync(
+        string systemPrompt,
+        string userPrompt,
+        int? maxTokens,
+        float? temperature,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        LastCallUsedFallback.Value = false;
+        cancellationToken.ThrowIfCancellationRequested();
+
+        Exception? primaryFailure = null;
+
+        await using IAsyncEnumerator<string> primaryEnumerator = AgentCompletionStreamingBridge
+            .StreamJsonAsync(_primary, systemPrompt, userPrompt, maxTokens, temperature, cancellationToken)
+            .GetAsyncEnumerator(cancellationToken);
+
+        while (true)
+        {
+            bool moved;
+
+            try
+            {
+                moved = await primaryEnumerator.MoveNextAsync().ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex) when (IsFallbackEligible(ex))
+            {
+                primaryFailure = ex;
+
+                if (_logger.IsEnabled(LogLevel.Warning))
+                    _logger.LogWarning(
+                        ex,
+                        "Primary LLM streaming failed with a fallback-eligible error; trying {Count} fallback endpoint(s).",
+                        _fallbacks.Count);
+                break;
+            }
+
+            if (!moved)
+                yield break;
+
+            yield return primaryEnumerator.Current;
+        }
+
+        await foreach (string chunk in StreamWithFallbacksAsync(
+                           systemPrompt,
+                           userPrompt,
+                           maxTokens,
+                           temperature,
+                           cancellationToken,
+                           primaryFailure ?? new InvalidOperationException("Primary LLM streaming failed."))
+                           .ConfigureAwait(false))
+        {
+            yield return chunk;
+        }
+    }
+
+    /// <inheritdoc />
     public void Dispose()
     {
         if (_primary is IDisposable primaryDisposable)
@@ -169,6 +248,90 @@ public sealed class FallbackAgentCompletionClient : IAgentCompletionClient, IDis
                         "Fallback LLM completion index {FallbackIndex} failed with a retryable error; trying next fallback.",
                         i);
             }
+        }
+
+        throw last ?? primaryFailure;
+    }
+
+    private async IAsyncEnumerable<string> StreamWithFallbacksAsync(
+        string systemPrompt,
+        string userPrompt,
+        int? maxTokens,
+        float? temperature,
+        [EnumeratorCancellation] CancellationToken cancellationToken,
+        Exception primaryFailure)
+    {
+        Exception? last = primaryFailure;
+
+        for (int i = 0; i < _fallbacks.Count; i++)
+        {
+            IAgentCompletionClient client = _fallbacks[i];
+
+            Exception? iterationFailure = null;
+            bool completed = false;
+
+            await using IAsyncEnumerator<string> fallbackEnumerator = AgentCompletionStreamingBridge
+                .StreamJsonAsync(client, systemPrompt, userPrompt, maxTokens, temperature, cancellationToken)
+                .GetAsyncEnumerator(cancellationToken);
+
+            while (true)
+            {
+                bool moved;
+
+                try
+                {
+                    moved = await fallbackEnumerator.MoveNextAsync().ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception ex) when (i < _fallbacks.Count - 1 && IsFallbackEligible(ex))
+                {
+                    iterationFailure = ex;
+
+                    if (_logger.IsEnabled(LogLevel.Warning))
+                        _logger.LogWarning(
+                            ex,
+                            "Fallback LLM streaming index {FallbackIndex} failed with a retryable error; trying next fallback.",
+                            i);
+                    break;
+                }
+
+                if (!moved)
+                {
+                    completed = true;
+                    break;
+                }
+
+                yield return fallbackEnumerator.Current;
+            }
+
+            if (completed)
+            {
+                LastCallUsedFallback.Value = true;
+
+                string deployment =
+                    string.IsNullOrWhiteSpace(_primary.Descriptor.ModelId)
+                        ? "unknown"
+                        : _primary.Descriptor.ModelId.Trim();
+
+                ArchLucidInstrumentation.RecordLlmCompletionFallbackEngaged(deployment);
+
+                Activity.Current?.SetTag("archlucid.llm.completion.fallback_engaged", true);
+                Activity.Current?.SetTag("archlucid.llm.completion.fallback_primary_model_id", deployment);
+                Activity.Current?.SetTag("archlucid.llm.completion.fallback_index", i);
+
+                if (_logger.IsEnabled(LogLevel.Warning))
+                    _logger.LogWarning(
+                        "LLM streaming succeeded using fallback endpoint index {FallbackIndex} (of {Total}).",
+                        i,
+                        _fallbacks.Count);
+
+                yield break;
+            }
+
+            last = iterationFailure ?? last;
         }
 
         throw last ?? primaryFailure;

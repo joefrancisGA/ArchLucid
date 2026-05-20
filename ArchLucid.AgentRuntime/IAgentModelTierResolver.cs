@@ -11,6 +11,9 @@ public interface IAgentModelTierResolver
     /// <summary>Configured default tier for non-agent completion paths (Ask, explanations).</summary>
     LlmModelTier ResolveDefaultTenantTier();
 
+    /// <summary>Tier for summarization and formatting workloads (Ask, explanations, schema remediation).</summary>
+    LlmModelTier ResolveNonAgentDefaultTier();
+
     /// <summary>Deployment name for <paramref name="tier" /> (never empty when base deployment is configured).</summary>
     string ResolveDeploymentName(LlmModelTier tier);
 }

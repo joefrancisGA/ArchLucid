@@ -1,6 +1,9 @@
 import type { AskResponse, ConversationMessage, ConversationThread } from "@/types/conversation";
 import { apiGet, apiPostJson } from "./http";
 
+export { askArchLucidStream } from "./ask-sse-stream";
+export type { AskStreamHandlers } from "./ask-sse-stream";
+
 /** Sends a natural-language question to the ArchLucid conversational AI endpoint. */
 export async function askArchLucid(payload: {
   threadId?: string;

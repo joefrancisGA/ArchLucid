@@ -19,7 +19,7 @@ namespace ArchLucid.AgentRuntime;
 ///     contradictions.
 /// </summary>
 public sealed class CriticAgentHandler(
-    IAgentCompletionClient completionClient,
+    IAgentTierCompletionRouter tierCompletionRouter,
     IAgentResultParser resultParser,
     IAgentExecutionTraceRecorder traceRecorder,
     IAgentSystemPromptCatalog systemPromptCatalog,
@@ -60,6 +60,9 @@ public sealed class CriticAgentHandler(
 
         try
         {
+            (IAgentCompletionClient completionClient, IAgentCompletionClient remediationClient) =
+                AgentHandlerLlmResolution.ResolveCompletionClients(tierCompletionRouter, AgentType.Critic, task);
+
             (string rawJson, AgentResult parsed) = await LlmAgentSchemaCompletion.CompleteAsync(
                 completionClient,
                 resultParser,
@@ -70,6 +73,7 @@ public sealed class CriticAgentHandler(
                 systemPrompt,
                 baseUserPrompt,
                 request.MaxTokensOverride,
+                remediationClient,
                 cancellationToken);
 
             lastCompletionJson = rawJson;

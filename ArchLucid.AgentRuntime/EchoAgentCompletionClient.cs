@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -14,7 +15,7 @@ namespace ArchLucid.AgentRuntime;
 ///     so Real-mode pipelines exercise the same code path as Azure OpenAI without outbound LLM calls. Telemetry labels
 ///     should be set to <c>echo</c>.
 /// </summary>
-public sealed class EchoAgentCompletionClient : IAgentCompletionClient
+public sealed class EchoAgentCompletionClient : IAgentStreamingCompletionClient
 {
     private static readonly LlmProviderDescriptor EchoDescriptor =
         LlmProviderDescriptor.ForOffline("echo", "echo");
@@ -52,6 +53,25 @@ public sealed class EchoAgentCompletionClient : IAgentCompletionClient
         string json = JsonSerializer.Serialize(result, JsonOptions);
 
         return Task.FromResult(json);
+    }
+
+    /// <inheritdoc />
+    public async IAsyncEnumerable<string> StreamJsonAsync(
+        string systemPrompt,
+        string userPrompt,
+        int? maxTokens = null,
+        float? temperature = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        string json = await CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken)
+            .ConfigureAwait(false);
+
+        foreach (string chunk in AgentCompletionStreamingBridge.SimulateChunks(json))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            yield return chunk;
+            await Task.Delay(12, cancellationToken).ConfigureAwait(false);
+        }
     }
 
     private static AgentType ResolveAgentType(string systemPrompt)

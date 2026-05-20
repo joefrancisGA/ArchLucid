@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
@@ -16,7 +17,7 @@ namespace ArchLucid.AgentRuntime;
 ///     Scoped decorator: enforces per-tenant token quota, records OTel counters (and optional per-tenant series),
 ///     and forwards to the inner client (typically <see cref="AzureOpenAiCompletionClient" />).
 /// </summary>
-public sealed class LlmCompletionAccountingClient : IAgentCompletionClient
+public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionClient
 {
     private readonly IAuditService _auditService;
 
@@ -158,6 +159,136 @@ public sealed class LlmCompletionAccountingClient : IAgentCompletionClient
         try
         {
             return await _inner.CompleteJsonAsync(outboundSystem, outboundUser, maxTokens, temperature, cancellationToken);
+        }
+        finally
+        {
+            bool consumed = AzureOpenAiCompletionClient.TryConsumeLastCompletionTokenUsage(out int promptTok,
+                out int completionTok,
+                out int reasoningTok);
+
+            if (!consumed)
+            {
+                await _dailyTenantBudgetTracker
+                    .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, CancellationToken.None)
+                    .ConfigureAwait(false);
+
+                await _monthlyDollarBudgetTracker
+                    .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, CancellationToken.None)
+                    .ConfigureAwait(false);
+            }
+            else
+            {
+                _ = reasoningTok;
+
+                _quotaTracker.RecordUsage(scope.TenantId, promptTok, completionTok);
+
+                await _dailyTenantBudgetTracker
+                    .RecordUsageAndMaybeWarnAsync(
+                        scope.TenantId,
+                        providerKind,
+                        _scopeProvider,
+                        _auditService,
+                        promptTok,
+                        completionTok,
+                        CancellationToken.None)
+                    .ConfigureAwait(false);
+
+                await _monthlyDollarBudgetTracker
+                    .RecordUsageAndMaybeWarnAsync(
+                        scope.TenantId,
+                        providerKind,
+                        _scopeProvider,
+                        _auditService,
+                        promptTok,
+                        completionTok,
+                        CancellationToken.None)
+                    .ConfigureAwait(false);
+
+                bool perTenant = _telemetryOptions.CurrentValue.RecordPerTenantTokens;
+                string? tenantKey = perTenant && scope.TenantId != Guid.Empty ? scope.TenantId.ToString("N") : null;
+
+                LlmTelemetryLabelOptions labels = _labelOptions.CurrentValue;
+
+                ArchLucidInstrumentation.RecordLlmTokenUsage(
+                    promptTok,
+                    completionTok,
+                    perTenant,
+                    tenantKey,
+                    labels.ProviderId,
+                    labels.ModelDeploymentLabel);
+
+                _ = TryRecordLlmUsageMeteringAsync(scope, promptTok, completionTok, cancellationToken);
+            }
+        }
+    }
+
+    /// <inheritdoc />
+    public async IAsyncEnumerable<string> StreamJsonAsync(
+        string systemPrompt,
+        string userPrompt,
+        int? maxTokens = null,
+        float? temperature = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        string providerKind = _inner.Descriptor.ProviderKind;
+
+        try
+        {
+            if (_dailyTenantBudgetOptions.CurrentValue.Enabled)
+                await _dailyTenantBudgetTracker
+                    .EnsureWithinBudgetBeforeCallAsync(scope.TenantId, providerKind, cancellationToken)
+                    .ConfigureAwait(false);
+
+            if (_monthlyDollarBudgetOptions.CurrentValue.Enabled)
+                await _monthlyDollarBudgetTracker
+                    .EnsureWithinBudgetBeforeCallAsync(scope.TenantId, providerKind, cancellationToken)
+                    .ConfigureAwait(false);
+
+            if (_quotaOptions.CurrentValue.Enabled)
+                _quotaTracker.EnsureWithinQuotaBeforeCall(scope.TenantId);
+        }
+        catch (LlmTokenQuotaExceededException)
+        {
+            ArchLucidInstrumentation.LlmQuotaExceededTotal.Add(1);
+            throw;
+        }
+
+        LlmPromptRedactionOptions redactionOpts = _redactionOptions.CurrentValue;
+        string outboundSystem = systemPrompt;
+        string outboundUser = userPrompt;
+
+        if (!redactionOpts.Enabled)
+        {
+            ArchLucidInstrumentation.RecordLlmPromptRedactionSkipped();
+        }
+        else
+        {
+            PromptRedactionOutcome systemOutcome = _promptRedactor.Redact(systemPrompt);
+            PromptRedactionOutcome userOutcome = _promptRedactor.Redact(userPrompt);
+
+            foreach (KeyValuePair<string, int> kv in systemOutcome.CountsByCategory)
+                ArchLucidInstrumentation.RecordLlmPromptRedactions(kv.Key, kv.Value);
+
+            foreach (KeyValuePair<string, int> kv in userOutcome.CountsByCategory)
+                ArchLucidInstrumentation.RecordLlmPromptRedactions(kv.Key, kv.Value);
+
+            outboundSystem = systemOutcome.Text;
+            outboundUser = userOutcome.Text;
+        }
+
+        try
+        {
+            await foreach (string chunk in AgentCompletionStreamingBridge.StreamJsonAsync(
+                               _inner,
+                               outboundSystem,
+                               outboundUser,
+                               maxTokens,
+                               temperature,
+                               cancellationToken).ConfigureAwait(false))
+            {
+                yield return chunk;
+            }
         }
         finally
         {

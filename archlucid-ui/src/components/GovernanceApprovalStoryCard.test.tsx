@@ -26,11 +26,15 @@ describe("GovernanceApprovalStoryCard", () => {
     expect(screen.getByText(/This package completed the approval path/i)).toBeInTheDocument();
     expect(screen.getByText("Submitted for review")).toBeInTheDocument();
     expect(screen.getByText("Architecture review completed")).toBeInTheDocument();
-    // Label and detail use the same copy when the step is complete.
-    expect(screen.getAllByText("Governance approval recorded")).toHaveLength(2);
-    expect(screen.getByText("Approved for governed use")).toBeInTheDocument();
+    expect(screen.getByText("Governance approval recorded")).toBeInTheDocument();
+    expect(screen.getByText(/Recorded 2026-01-14T22:05:00\.000Z/)).toBeInTheDocument();
+    expect(screen.getByText("Approved as architecture decision record")).toBeInTheDocument();
+    expect(
+      screen.getByText(/Ready for implementation planning, subject to enterprise change control\./),
+    ).toBeInTheDocument();
     expect(screen.getByText(/manifest version/i)).toBeInTheDocument();
-    expect(screen.getByText(/3\.4\.1/)).toBeInTheDocument();
+    const recordedPackageParagraph = screen.getByText(/Recorded package:/i).closest("p");
+    expect(recordedPackageParagraph).toHaveTextContent("3.4.1");
     expect(screen.queryByText(/Development → Staging/)).toBeNull();
   });
 

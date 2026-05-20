@@ -1,6 +1,7 @@
 using ArchLucid.Api.Controllers.Alerts;
 using ArchLucid.Api.Models.Alerts;
 using ArchLucid.Application.Alerts;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts;
 
@@ -38,12 +39,14 @@ public sealed class AlertsControllerActionLoopTests
             .ReturnsAsync((AlertActionLoopSnapshot?)null);
 
         Mock<IAlertService> alertService = new();
+        Mock<IAuditService> audit = new();
 
         AlertsController sut = new(
             scope.Object,
             records.Object,
             alertService.Object,
-            reader.Object)
+            reader.Object,
+            audit.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -83,12 +86,14 @@ public sealed class AlertsControllerActionLoopTests
                 });
 
         Mock<IAlertService> alertService = new();
+        Mock<IAuditService> audit = new();
 
         AlertsController sut = new(
             scope.Object,
             records.Object,
             alertService.Object,
-            reader.Object)
+            reader.Object,
+            audit.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

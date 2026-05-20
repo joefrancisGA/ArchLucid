@@ -10,23 +10,18 @@ public sealed class AzureOpenAiCompletionClientCache
     private readonly ConcurrentDictionary<string, AzureOpenAiCompletionClient> _clients =
         new(StringComparer.OrdinalIgnoreCase);
 
-    private readonly string _endpoint;
-    private readonly string _apiKey;
-    private readonly int _maxCompletionTokens;
+    private readonly Func<string, AzureOpenAiCompletionClient> _clientFactory;
 
-    /// <summary>Creates a cache for the given Azure OpenAI resource credentials.</summary>
+    /// <summary>Creates a cache using a minimal client factory (endpoint, key, max tokens only).</summary>
     public AzureOpenAiCompletionClientCache(string endpoint, string apiKey, int maxCompletionTokens)
+        : this(deploymentName => new AzureOpenAiCompletionClient(endpoint, apiKey, deploymentName, maxCompletionTokens))
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
-        ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
+    }
 
-        if (maxCompletionTokens < 1)
-            throw new ArgumentOutOfRangeException(nameof(maxCompletionTokens), maxCompletionTokens,
-                "Must be at least 1.");
-
-        _endpoint = endpoint.Trim();
-        _apiKey = apiKey.Trim();
-        _maxCompletionTokens = maxCompletionTokens;
+    /// <summary>Creates a cache with a custom factory (structured output, telemetry, etc.).</summary>
+    public AzureOpenAiCompletionClientCache(Func<string, AzureOpenAiCompletionClient> clientFactory)
+    {
+        _clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
     }
 
     /// <summary>Returns or creates a client for <paramref name="deploymentName" />.</summary>
@@ -36,8 +31,6 @@ public sealed class AzureOpenAiCompletionClientCache
 
         string key = deploymentName.Trim();
 
-        return _clients.GetOrAdd(
-            key,
-            k => new AzureOpenAiCompletionClient(_endpoint, _apiKey, k, _maxCompletionTokens));
+        return _clients.GetOrAdd(key, _clientFactory);
     }
 }

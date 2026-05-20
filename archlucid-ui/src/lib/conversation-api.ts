@@ -4,6 +4,7 @@
  */
 export {
   askArchLucid,
+  askArchLucidStream,
   getConversationMessages,
   listConversationThreads,
 } from "./api";

@@ -2,6 +2,8 @@ using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Options;
 
+using System.Runtime.CompilerServices;
+
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
@@ -11,7 +13,7 @@ namespace ArchLucid.AgentRuntime;
 public sealed class CostGuardrailInterceptor(
     IAgentCompletionClient inner,
     IOptions<AgentOutputQualityGateOptions> options,
-    ILlmCostEstimator costEstimator) : IAgentCompletionClient
+    ILlmCostEstimator costEstimator) : IAgentStreamingCompletionClient
 {
     private readonly IAgentCompletionClient _inner = inner ?? throw new ArgumentNullException(nameof(inner));
     private readonly IOptions<AgentOutputQualityGateOptions> _options = options ?? throw new ArgumentNullException(nameof(options));
@@ -57,5 +59,50 @@ public sealed class CostGuardrailInterceptor(
                        ?? 0m;
 
         return cost > opts.MaxCostPerRun.Value ? throw new CostLimitExceededException($"Run exceeded maximum allowed cost (${opts.MaxCostPerRun.Value}).") : result;
+    }
+
+    /// <inheritdoc />
+    public async IAsyncEnumerable<string> StreamJsonAsync(
+        string systemPrompt,
+        string userPrompt,
+        int? maxTokens = null,
+        float? temperature = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        await foreach (string chunk in AgentCompletionStreamingBridge.StreamJsonAsync(
+                           _inner,
+                           systemPrompt,
+                           userPrompt,
+                           maxTokens,
+                           temperature,
+                           cancellationToken).ConfigureAwait(false))
+        {
+            yield return chunk;
+        }
+
+        AgentCompletionTokenUsage.TryPeek(out int? inTok, out int? outTok, out int? reasoningTok);
+
+        _totalInputTokens += inTok ?? 0;
+        _totalOutputTokens += outTok ?? 0;
+        _totalReasoningTokens += reasoningTok ?? 0;
+
+        AgentOutputQualityGateOptions opts = _options.Value;
+
+        if (opts.MaxTokensPerRun.HasValue
+            && (_totalInputTokens + _totalOutputTokens + _totalReasoningTokens) > opts.MaxTokensPerRun.Value)
+            throw new CostLimitExceededException($"Run exceeded maximum allowed tokens ({opts.MaxTokensPerRun.Value}).");
+
+        if (!opts.MaxCostPerRun.HasValue)
+            yield break;
+
+        decimal cost = _costEstimator.EstimateUsd(
+                           _totalInputTokens,
+                           _totalOutputTokens,
+                           _totalReasoningTokens,
+                           deploymentLabel: null)
+                       ?? 0m;
+
+        if (cost > opts.MaxCostPerRun.Value)
+            throw new CostLimitExceededException($"Run exceeded maximum allowed cost (${opts.MaxCostPerRun.Value}).");
     }
 }

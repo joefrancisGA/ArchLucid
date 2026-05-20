@@ -1,3 +1,4 @@
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import type { GraphViewModel } from "@/types/graph";
 
 /** Known coordinator provenance node kinds surfaced on the review-trail graph. */
@@ -25,12 +26,22 @@ export function isProvenanceTrailCoordinatorType(nodeType: string): boolean {
   return PROVENANCE_TRAIL_NODE_TYPES.has(nodeType);
 }
 
+function isPhiMinimizationFindingLabel(label: string): boolean {
+  const lower = label.toLowerCase();
+
+  return lower.includes("phi") && (lower.includes("minimization") || lower.includes("minimisation"));
+}
+
 /** Map a single node's label for buyer-facing provenance graphs. */
 export function buyerLabelForProvenanceNode(nodeType: string, fallbackName: string): string {
   const mapped = PROVENANCE_TYPE_BUSINESS_LABEL[nodeType];
 
   if (mapped !== undefined && mapped.length > 0) {
     return mapped;
+  }
+
+  if (nodeType === "Finding" && isPhiMinimizationFindingLabel(fallbackName)) {
+    return BUYER_SURFACE_VOCABULARY.phiMinimizationRisk;
   }
 
   return fallbackName;

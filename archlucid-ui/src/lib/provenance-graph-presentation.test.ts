@@ -13,6 +13,9 @@ describe("provenance graph presentation", () => {
   it("maps coordinator types to business labels", () => {
     expect(buyerLabelForProvenanceNode("ArchitectureRun", "x")).toBe("Review kickoff");
     expect(buyerLabelForProvenanceNode("Unknown", "Fallback")).toBe("Fallback");
+    expect(buyerLabelForProvenanceNode("Finding", "PHI minimization risk (monitored)")).toBe(
+      "PHI minimization risk",
+    );
   });
 
   it("rewrites static demo graph nodes for buyers", () => {

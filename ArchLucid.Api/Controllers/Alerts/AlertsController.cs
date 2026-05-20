@@ -1,9 +1,11 @@
 using System.Security.Claims;
+using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Alerts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Alerts;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
@@ -38,7 +40,8 @@ public sealed class AlertsController(
     IScopeContextProvider scopeProvider,
     IAlertRecordRepository alertRepository,
     IAlertService alertService,
-    IAlertActionLoopReader actionLoopReader)
+    IAlertActionLoopReader actionLoopReader,
+    IAuditService auditService)
     : ControllerBase
 {
     private readonly IAlertActionLoopReader _actionLoopReader =
@@ -116,7 +119,22 @@ public sealed class AlertsController(
         if (existing.IsArchived)
             return Ok(existing);
 
+        string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+        string userName = User.Identity?.Name ?? "unknown";
+
         await alertRepository.ArchiveAsync(alertId, ct);
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.AlertArchived,
+                RunId = existing.RunId,
+                ActorUserId = userId,
+                ActorUserName = userName,
+                DataJson = JsonSerializer.Serialize(new { alertId }),
+            },
+            ct);
+
         AlertRecord? updated = await alertRepository.GetByIdAsync(alertId, ct);
 
         return Ok(updated ?? existing);

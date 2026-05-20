@@ -54,7 +54,7 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
             AgentSchemaRemediationOptionsMonitorTestFactory.Create();
 
         TopologyAgentHandler topology = new(
-            completion,
+            AgentTierCompletionRouterTestFactory.CreatePassThrough(completion),
             parser,
             recorder,
             promptCatalog,
@@ -63,7 +63,7 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
             schemaRemediation);
 
         ComplianceAgentHandler compliance = new(
-            completion,
+            AgentTierCompletionRouterTestFactory.CreatePassThrough(completion),
             parser,
             recorder,
             promptCatalog,
@@ -74,7 +74,7 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
         CostAgentHandler cost = new();
 
         CriticAgentHandler critic = new(
-            completion,
+            AgentTierCompletionRouterTestFactory.CreatePassThrough(completion),
             parser,
             recorder,
             promptCatalog,

@@ -18,7 +18,7 @@ namespace ArchLucid.AgentRuntime;
 ///     deltas, validates JSON, records traces.
 /// </summary>
 public sealed class TopologyAgentHandler(
-    IAgentCompletionClient completionClient,
+    IAgentTierCompletionRouter tierCompletionRouter,
     IAgentResultParser resultParser,
     IAgentExecutionTraceRecorder traceRecorder,
     IAgentSystemPromptCatalog systemPromptCatalog,
@@ -57,6 +57,9 @@ public sealed class TopologyAgentHandler(
 
         try
         {
+            (IAgentCompletionClient completionClient, IAgentCompletionClient remediationClient) =
+                AgentHandlerLlmResolution.ResolveCompletionClients(tierCompletionRouter, AgentType.Topology, task);
+
             (string rawJson, AgentResult parsed) = await LlmAgentSchemaCompletion.CompleteAsync(
                 completionClient,
                 resultParser,
@@ -67,6 +70,7 @@ public sealed class TopologyAgentHandler(
                 systemPrompt,
                 baseUserPrompt,
                 request.MaxTokensOverride,
+                remediationClient,
                 cancellationToken);
 
             lastCompletionJson = rawJson;

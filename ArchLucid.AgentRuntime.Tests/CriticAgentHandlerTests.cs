@@ -82,7 +82,7 @@ public sealed class CriticAgentHandlerTests
             new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         CriticAgentHandler handler = new(
-            completionClient,
+            AgentTierCompletionRouterTestFactory.CreatePassThrough(completionClient),
             parser,
             traceRecorder,
             catalog,

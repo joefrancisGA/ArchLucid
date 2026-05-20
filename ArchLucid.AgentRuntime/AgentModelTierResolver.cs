@@ -41,6 +41,14 @@ public sealed class AgentModelTierResolver(IConfiguration configuration, IOption
     }
 
     /// <inheritdoc />
+    public LlmModelTier ResolveNonAgentDefaultTier()
+    {
+        AgentModelTierOptions opts = _tierOptions.CurrentValue;
+
+        return TryParseTier(opts.NonAgentDefaultTier, out LlmModelTier t) ? t : LlmModelTier.Economy;
+    }
+
+    /// <inheritdoc />
     public string ResolveDeploymentName(LlmModelTier tier)
     {
         AgentModelTierOptions opts = _tierOptions.CurrentValue;

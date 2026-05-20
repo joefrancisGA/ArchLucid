@@ -34,6 +34,7 @@ export type AskMainPanelProps = {
   onAsk: () => void;
   actionFailure: ApiLoadFailureState | null;
   messages: ConversationMessage[];
+  streamingAssistantContent: string | null;
   askAssistantGroundingLinks: readonly BuyerAskGroundingLink[] | null;
   showPostAssistantFollowUps: boolean;
 };
@@ -62,6 +63,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
     onAsk,
     actionFailure,
     messages,
+    streamingAssistantContent,
     askAssistantGroundingLinks,
     showPostAssistantFollowUps,
   } = props;
@@ -70,6 +72,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
     <AskMessageThreadPanel
       buyerPolishedShell={buyerPolishedShell}
       messages={messages}
+      streamingAssistantContent={streamingAssistantContent}
       askAssistantGroundingLinks={askAssistantGroundingLinks}
       showPostAssistantFollowUps={showPostAssistantFollowUps}
       runMissing={runMissing}

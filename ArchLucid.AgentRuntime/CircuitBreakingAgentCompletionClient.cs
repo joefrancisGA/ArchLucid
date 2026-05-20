@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Resilience;
 
@@ -15,7 +17,7 @@ public sealed class CircuitBreakingAgentCompletionClient(
     IAgentCompletionClient inner,
     CircuitBreakerGate gate,
     ResiliencePipeline llmRetryPipeline,
-    ILogger<CircuitBreakingAgentCompletionClient> logger) : IAgentCompletionClient, IDisposable
+    ILogger<CircuitBreakingAgentCompletionClient> logger) : IAgentStreamingCompletionClient, IDisposable
 {
     private readonly CircuitBreakerGate _gate = gate ?? throw new ArgumentNullException(nameof(gate));
     private readonly IAgentCompletionClient _inner = inner ?? throw new ArgumentNullException(nameof(inner));
@@ -103,6 +105,109 @@ public sealed class CircuitBreakingAgentCompletionClient(
 
             _logger.LogWarning(ex, "LLM completion call failed after retries; circuit breaker recorded failure.");
             throw;
+        }
+    }
+
+    /// <inheritdoc />
+    public async IAsyncEnumerable<string> StreamJsonAsync(
+        string systemPrompt,
+        string userPrompt,
+        int? maxTokens = null,
+        float? temperature = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        await foreach (string chunk in StreamJsonWithBreakerAsync(
+                           systemPrompt,
+                           userPrompt,
+                           maxTokens,
+                           temperature,
+                           cancellationToken).ConfigureAwait(false))
+        {
+            yield return chunk;
+        }
+    }
+
+    private async IAsyncEnumerable<string> StreamJsonWithBreakerAsync(
+        string systemPrompt,
+        string userPrompt,
+        int? maxTokens,
+        float? temperature,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        try
+        {
+            _gate.ThrowIfBroken();
+        }
+        catch (CircuitBreakerOpenException ex)
+        {
+            string safeGate = LogSanitizer.Sanitize(_gate.GateName);
+
+            _logger.LogWarning(
+                ex,
+                "LLM circuit gate {GateName} rejected streaming call (state {State}, retry after {RetryAfter}).",
+                safeGate,
+                _gate.CurrentState,
+                ex.RetryAfterUtc);
+            throw;
+        }
+
+        string stateBeforeOutcome = _gate.CurrentState;
+        bool success = false;
+
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            await foreach (string chunk in AgentCompletionStreamingBridge.StreamJsonAsync(
+                               _inner,
+                               systemPrompt,
+                               userPrompt,
+                               maxTokens,
+                               temperature,
+                               cancellationToken).ConfigureAwait(false))
+            {
+                yield return chunk;
+            }
+
+            success = true;
+        }
+        finally
+        {
+            if (success)
+            {
+                _gate.RecordSuccess();
+
+                if (stateBeforeOutcome.Equals("HalfOpen", StringComparison.Ordinal) &&
+                    _gate.CurrentState.Equals("Closed", StringComparison.Ordinal))
+                {
+                    string safeGate = LogSanitizer.Sanitize(_gate.GateName);
+
+                    _logger.LogInformation(
+                        "LLM Circuit Breaker reset; circuit closed and streaming completions may proceed. Gate={GateName}.",
+                        safeGate);
+                }
+            }
+            else if (cancellationToken.IsCancellationRequested)
+            {
+                _gate.RecordCallCancelled();
+            }
+            else
+            {
+                string stateBeforeFailure = _gate.CurrentState;
+
+                _gate.RecordFailure();
+
+                if (_gate.CurrentState.Equals("Open", StringComparison.Ordinal) &&
+                    (stateBeforeFailure.Equals("Closed", StringComparison.Ordinal) ||
+                     stateBeforeFailure.Equals("HalfOpen", StringComparison.Ordinal)))
+                {
+                    string safeGate = LogSanitizer.Sanitize(_gate.GateName);
+
+                    _logger.LogWarning(
+                        "LLM Circuit Breaker opened due to consecutive streaming failures. Gate={GateName}.",
+                        safeGate);
+                }
+            }
         }
     }
 

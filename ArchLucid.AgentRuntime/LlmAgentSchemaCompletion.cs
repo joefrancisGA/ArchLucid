@@ -28,6 +28,7 @@ public static class LlmAgentSchemaCompletion
         string systemPrompt,
         string baseUserPrompt,
         int? maxTokensOverride = null,
+        IAgentCompletionClient? remediationCompletionClient = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(completionClient);
@@ -51,7 +52,11 @@ public static class LlmAgentSchemaCompletion
 
             string userPrompt = BuildUserPrompt(baseUserPrompt, lastRemediation);
 
-            string rawJson = await completionClient
+            IAgentCompletionClient activeClient = lastRemediation is null
+                ? completionClient
+                : remediationCompletionClient ?? completionClient;
+
+            string rawJson = await activeClient
                 .CompleteJsonAsync(systemPrompt, userPrompt, maxTokens: maxTokensOverride, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 

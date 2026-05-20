@@ -1,7 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ContextIngestion.Models;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Manifest.Sections;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
@@ -132,7 +132,12 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
         await repository.SaveAsync(bundle, CancellationToken.None);
 
-        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        ScopeContext scope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId
+        };
 
         ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, loadArtifactBodies: true, CancellationToken.None);
         loaded.Should().NotBeNull();
@@ -269,7 +274,12 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                 },
                 cancellationToken: CancellationToken.None));
 
-        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        ScopeContext scope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId
+        };
 
         SqlArtifactBundleRepository
             repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
@@ -431,7 +441,12 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                 },
                 cancellationToken: CancellationToken.None));
 
-        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        ScopeContext scope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId
+        };
 
         SqlArtifactBundleRepository
             repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
@@ -568,7 +583,12 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                 },
                 cancellationToken: CancellationToken.None));
 
-        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        ScopeContext scope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId
+        };
 
         SqlArtifactBundleRepository
             repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
@@ -674,7 +694,12 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                 },
                 cancellationToken: CancellationToken.None));
 
-        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        ScopeContext scope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId
+        };
 
         SqlArtifactBundleRepository
             repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
@@ -753,7 +778,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         Guid bundleId = Guid.NewGuid();
         Guid artifactId = Guid.NewGuid();
         Guid synthTraceId = Guid.NewGuid();
-        string storedBody = "relational body for load-slices-only";
+        const string storedBody = "relational body for load-slices-only";
 
         ArtifactBundle bundle = new()
         {
@@ -797,7 +822,12 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
         await repository.SaveAsync(bundle, CancellationToken.None);
 
-        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        ScopeContext scope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId
+        };
 
         ArtifactBundle? loaded =
             await repository.GetByManifestIdAsync(scope, manifestId, loadArtifactBodies: false, CancellationToken.None);
@@ -915,7 +945,12 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
         await repository.SaveAsync(bundle, CancellationToken.None);
 
-        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        ScopeContext scope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId
+        };
 
         ArtifactBundle? loaded =
             await repository.GetByManifestIdAsync(scope, manifestId, loadArtifactBodies: true, CancellationToken.None);
@@ -1053,7 +1088,12 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                 },
                 cancellationToken: CancellationToken.None));
 
-        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        ScopeContext scope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId
+        };
 
         SqlArtifactBundleRepository
             repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
@@ -1192,7 +1232,12 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                 },
                 cancellationToken: CancellationToken.None));
 
-        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        ScopeContext scope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId
+        };
 
         SqlArtifactBundleRepository
             repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
@@ -1329,7 +1374,12 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                 },
                 cancellationToken: CancellationToken.None));
 
-        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        ScopeContext scope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId
+        };
 
         SqlArtifactBundleRepository
             repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);

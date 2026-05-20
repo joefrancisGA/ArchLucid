@@ -11,6 +11,7 @@ import type { ConversationMessage } from "@/types/conversation";
 export type AskMessageThreadPanelProps = {
   buyerPolishedShell: boolean;
   messages: ConversationMessage[];
+  streamingAssistantContent: string | null;
   askAssistantGroundingLinks: readonly BuyerAskGroundingLink[] | null;
   showPostAssistantFollowUps: boolean;
   runMissing: boolean;
@@ -33,6 +34,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
   const {
     buyerPolishedShell,
     messages,
+    streamingAssistantContent,
     askAssistantGroundingLinks,
     showPostAssistantFollowUps,
     runMissing,
@@ -72,6 +74,23 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
             </CardContent>
           </Card>
         ))}
+        {streamingAssistantContent !== null ? (
+          <Card
+            className="border border-neutral-200 bg-neutral-50/90 dark:border-neutral-700 dark:bg-neutral-800/50"
+            data-testid="ask-streaming-assistant"
+            aria-busy="true"
+          >
+            <CardContent className="space-y-1 p-3">
+              <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                {askMessageRoleLabel("assistant", buyerPolishedShell)}
+              </div>
+              <AskAssistantMessageBody
+                buyerPolishedLinks={buyerPolishedShell}
+                content={streamingAssistantContent.length > 0 ? streamingAssistantContent : "…"}
+              />
+            </CardContent>
+          </Card>
+        ) : null}
       </div>
       {showPostAssistantFollowUps ? (
         <div className="space-y-4 pt-1">

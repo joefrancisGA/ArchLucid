@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
+
 [Trait("Category", "Unit")]
 
 /// <summary>
@@ -293,8 +294,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         await PrepareRunAndTaskAsync(requestId, runId, taskTopology, CancellationToken.None);
         await PrepareRunAndTaskAsync(requestId, runId, taskCost, CancellationToken.None);
 
-        string fallbackName =
-            AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix + "eastus2-secondary";
+        const string fallbackName = AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix + "eastus2-secondary";
 
         await repo.CreateAsync(
             NewTrace(
@@ -345,8 +345,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         await PrepareRunAndTaskAsync(requestId, runA, taskA, CancellationToken.None);
         await PrepareRunAndTaskAsync(requestId, runB, taskB, CancellationToken.None);
 
-        string fallbackName =
-            AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix + "secondary";
+        const string fallbackName = AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix + "secondary";
 
         await repo.CreateAsync(
             NewTrace(

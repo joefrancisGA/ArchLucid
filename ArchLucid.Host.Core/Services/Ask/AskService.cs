@@ -58,11 +58,85 @@ public sealed class AskService(
         "referencedArtifacts (array of strings; use provenance graph node labels where Type suggests an artifact, or empty array).";
 
     /// <inheritdoc />
-    /// <remarks>
-    /// Loads manifest for <see cref="AskRequest.RunId"/> or thread default; builds comparison when both base and target run ids resolve.
-    /// Appends user message before LLM call and assistant message after; indexes the turn best-effort.
-    /// </remarks>
     public async Task<AskResponse> AskAsync(AskRequest request, ScopeContext scope, CancellationToken ct)
+    {
+        AskPreparedContext prepared = await PrepareAskContextAsync(request, scope, ct);
+        string userPrompt = BuildUserPrompt(prepared);
+
+        string? raw;
+        try
+        {
+            raw = await llm.CompleteJsonAsync(
+                ArchitectSystemPrompt,
+                userPrompt,
+                maxTokens: null,
+                cancellationToken: ct);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "LLM completion failed for Ask (ThreadId={ThreadId}); returning fallback response.",
+                LogSanitizer.Sanitize(prepared.Thread.ThreadId.ToString()));
+
+            return await PersistFallbackResponseAsync(prepared, ct);
+        }
+
+        return await FinalizeAskResponseAsync(prepared, raw, ct);
+    }
+
+    /// <inheritdoc />
+    public async Task<AskResponse> AskStreamAsync(
+        AskRequest request,
+        ScopeContext scope,
+        Func<string, CancellationToken, Task> onAnswerTokenAsync,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(onAnswerTokenAsync);
+
+        AskPreparedContext prepared = await PrepareAskContextAsync(request, scope, ct);
+        string userPrompt = BuildUserPrompt(prepared);
+        StreamingJsonAnswerExtractor extractor = new();
+
+        string? raw;
+        try
+        {
+            await foreach (string chunk in AgentCompletionStreamingBridge.StreamJsonAsync(
+                               llm,
+                               ArchitectSystemPrompt,
+                               userPrompt,
+                               maxTokens: null,
+                               cancellationToken: ct).ConfigureAwait(false))
+            {
+                string delta = extractor.AppendChunkAndTakeAnswerDelta(chunk);
+
+                if (delta.Length > 0)
+                    await onAnswerTokenAsync(delta, ct).ConfigureAwait(false);
+            }
+
+            raw = extractor.RawJson;
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "LLM streaming failed for Ask (ThreadId={ThreadId}); returning fallback response.",
+                LogSanitizer.Sanitize(prepared.Thread.ThreadId.ToString()));
+
+            return await PersistFallbackResponseAsync(prepared, ct);
+        }
+
+        return await FinalizeAskResponseAsync(prepared, raw, ct);
+    }
+
+    private async Task<AskPreparedContext> PrepareAskContextAsync(
+        AskRequest request,
+        ScopeContext scope,
+        CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -88,10 +162,11 @@ public sealed class AskService(
             throw new InvalidOperationException(
                 "No run is anchored. Provide runId on the first message, or use a thread that already has a run.");
 
-        await conversationService.AppendUserMessageAsync(thread.ThreadId, request.Question.Trim(), ct);
+        string question = request.Question.Trim();
+        await conversationService.AppendUserMessageAsync(thread.ThreadId, question, ct);
 
         IReadOnlyList<ConversationMessage> historyWindow = await conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, ct);
-        IReadOnlyList<ConversationMessage> priorMessages = TrimCurrentUserTurn(historyWindow, request.Question.Trim());
+        IReadOnlyList<ConversationMessage> priorMessages = TrimCurrentUserTurn(historyWindow, question);
         string historyText = BuildConversationHistory(priorMessages);
 
         RunDetailDto? detail = await query.GetRunDetailAsync(scope, effectiveRunId.Value, ct);
@@ -100,7 +175,7 @@ public sealed class AskService(
             throw new InvalidOperationException(
                 "Run not found or has no ManifestDocument for the current scope.");
 
-        ManifestDocument? manifest = detail.GoldenManifest;
+        ManifestDocument manifest = detail.GoldenManifest;
         GraphViewModel? graph = await provenanceQuery.GetFullGraphAsync(scope, effectiveRunId.Value, ct);
 
         ComparisonResult? comparisonResult = null;
@@ -126,7 +201,7 @@ public sealed class AskService(
                     ProjectId = scope.ProjectId,
                     RunId = null,
                     ManifestId = null,
-                    QueryText = request.Question.Trim(),
+                    QueryText = question,
                     TopK = 8
                 },
                 ct);
@@ -136,46 +211,44 @@ public sealed class AskService(
             logger.LogWarning(ex, "Retrieval search failed for Ask; continuing without retrieved evidence.");
         }
 
-        string retrievalContext = BuildRetrievalContext(retrievalHits);
+        return new AskPreparedContext(
+            thread,
+            question,
+            historyText,
+            manifest,
+            effectiveRunId,
+            contextJson,
+            BuildRetrievalContext(retrievalHits),
+            scope);
+    }
 
-        string userPrompt =
-            "Conversation History:\n" +
-            (string.IsNullOrWhiteSpace(historyText) ? "(none)\n" : historyText + "\n") +
-            "\nStructured Context:\n" +
-            contextJson +
-            "\n\nRetrieved Evidence:\n" +
-            (string.IsNullOrWhiteSpace(retrievalContext) ? "(none)\n" : retrievalContext + "\n") +
-            "\nUser Question:\n" +
-            request.Question.Trim();
+    private static string BuildUserPrompt(AskPreparedContext prepared) =>
+        "Conversation History:\n" +
+        (string.IsNullOrWhiteSpace(prepared.HistoryText) ? "(none)\n" : prepared.HistoryText + "\n") +
+        "\nStructured Context:\n" +
+        prepared.ContextJson +
+        "\n\nRetrieved Evidence:\n" +
+        (string.IsNullOrWhiteSpace(prepared.RetrievalContext) ? "(none)\n" : prepared.RetrievalContext + "\n") +
+        "\nUser Question:\n" +
+        prepared.Question;
 
-        string? raw;
-        try
+    private async Task<AskResponse> PersistFallbackResponseAsync(AskPreparedContext prepared, CancellationToken ct)
+    {
+        AskResponse response = new()
         {
-            raw = await llm.CompleteJsonAsync(
-                ArchitectSystemPrompt,
-                userPrompt,
-                maxTokens: null,
-                cancellationToken: ct);
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(ex, "LLM completion failed for Ask (ThreadId={ThreadId}); returning fallback response.",
-                LogSanitizer.Sanitize(thread.ThreadId.ToString()));
-            return new AskResponse
-            {
-                ThreadId = thread.ThreadId,
-                Answer =
-                    "The assistant could not be reached. Summarize from context manually or retry. " +
-                    (manifest is not null
-                        ? "Context included " + manifest.Decisions.Count + " decision(s)."
-                        : "No manifest was loaded for this run.")
-            };
-        }
+            ThreadId = prepared.Thread.ThreadId,
+            Answer =
+                "The assistant could not be reached. Summarize from context manually or retry. " +
+                "Context included " + prepared.Manifest.Decisions.Count + " decision(s)."
+        };
 
+        await PersistAssistantTurnAsync(prepared, response, ct);
+
+        return response;
+    }
+
+    private async Task<AskResponse> FinalizeAskResponseAsync(AskPreparedContext prepared, string? raw, CancellationToken ct)
+    {
         raw = UnwrapJsonFence(raw);
         LlmAskShape? parsed = TryDeserialize(raw);
 
@@ -184,7 +257,7 @@ public sealed class AskService(
 
             response = new AskResponse
             {
-                ThreadId = thread.ThreadId,
+                ThreadId = prepared.Thread.ThreadId,
                 Answer = string.IsNullOrWhiteSpace(raw)
                     ? "No answer produced."
                     : raw.Trim(),
@@ -197,19 +270,26 @@ public sealed class AskService(
 
             response = new AskResponse
             {
-                ThreadId = thread.ThreadId,
+                ThreadId = prepared.Thread.ThreadId,
                 Answer = parsed.Answer.Trim(),
                 ReferencedDecisions = NormalizeList(parsed.ReferencedDecisions),
                 ReferencedFindings = NormalizeList(parsed.ReferencedFindings),
                 ReferencedArtifacts = NormalizeList(parsed.ReferencedArtifacts)
             };
 
+        await PersistAssistantTurnAsync(prepared, response, ct);
+
+        return response;
+    }
+
+    private async Task PersistAssistantTurnAsync(AskPreparedContext prepared, AskResponse response, CancellationToken ct)
+    {
         string metadataJson = JsonSerializer.Serialize(
             new { response.ReferencedDecisions, response.ReferencedFindings, response.ReferencedArtifacts },
             ContractJson.CamelCaseCompact);
 
         await conversationService.AppendAssistantMessageAsync(
-            thread.ThreadId,
+            prepared.Thread.ThreadId,
             response.Answer,
             metadataJson,
             ct);
@@ -222,9 +302,9 @@ public sealed class AskService(
                 new()
                 {
                     MessageId = Guid.NewGuid(),
-                    ThreadId = thread.ThreadId,
+                    ThreadId = prepared.Thread.ThreadId,
                     Role = ConversationMessageRole.User,
-                    Content = request.Question.Trim(),
+                    Content = prepared.Question,
                     CreatedUtc = now,
                     MetadataJson = "{}"
                 },
@@ -232,7 +312,7 @@ public sealed class AskService(
                 new()
                 {
                     MessageId = Guid.NewGuid(),
-                    ThreadId = thread.ThreadId,
+                    ThreadId = prepared.Thread.ThreadId,
                     Role = ConversationMessageRole.Assistant,
                     Content = response.Answer,
                     CreatedUtc = now,
@@ -241,10 +321,10 @@ public sealed class AskService(
             ];
 
             IReadOnlyList<RetrievalDocument> convDocs = retrievalDocumentBuilder.BuildForConversation(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                effectiveRunId,
+                prepared.Scope.TenantId,
+                prepared.Scope.WorkspaceId,
+                prepared.Scope.ProjectId,
+                prepared.EffectiveRunId,
                 conversationTurn);
 
             await retrievalIndexingService.IndexDocumentsAsync(convDocs, ct);
@@ -253,9 +333,17 @@ public sealed class AskService(
         {
             logger.LogWarning(ex, "Failed to index Ask conversation turn for retrieval.");
         }
-
-        return response;
     }
+
+    private sealed record AskPreparedContext(
+        ConversationThread Thread,
+        string Question,
+        string HistoryText,
+        ManifestDocument Manifest,
+        Guid? EffectiveRunId,
+        string ContextJson,
+        string RetrievalContext,
+        ScopeContext Scope);
 
     private static string BuildRetrievalContext(IReadOnlyList<RetrievalHit> hits)
     {

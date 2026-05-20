@@ -105,7 +105,7 @@ public sealed class TopologyAgentHandlerTests
             new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         TopologyAgentHandler handler = new(
-            completionClient,
+            AgentTierCompletionRouterTestFactory.CreatePassThrough(completionClient),
             parser,
             traceRecorder,
             catalog,
