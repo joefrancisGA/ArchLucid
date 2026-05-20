@@ -1,9 +1,30 @@
 ﻿{
   "recommendations": [
-    "GitHub.vscode-codeql",
-    "GitHub.vscode-pull-request-github",
+    "ms-dotnettools.csharp",
+    "ms-dotnettools.vscode-dotnet-runtime",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
     "hashicorp.terraform",
-    "ms-azure-devops.azure-pipelines",
-    "ms-vscode.azure-repos"
+    "redhat.vscode-yaml",
+    "github.vscode-codeql",
+    "github.vscode-github-actions",
+    "github.vscode-pull-request-github",
+    "eamodio.gitlens",
+    "ms-vscode.powershell",
+    "ms-azuretools.vscode-containers",
+    "ms-azuretools.vscode-docker"
+  ],
+  "unwantedRecommendations": [
+    "github.copilot",
+    "github.copilot-chat",
+    "ms-azuretools.vscode-azure-github-copilot",
+    "ms-azuretools.vscode-azure-mcp-server",
+    "jetbrains.resharper-code",
+    "donjayamanne.githistory",
+    "angular.ng-template",
+    "doggy8088.angular-extension-pack",
+    "ms-toolsai.jupyter",
+    "ms-edgedevtools.vscode-edge-devtools",
+    "ms-vscode.cpptools"
   ]
 }
