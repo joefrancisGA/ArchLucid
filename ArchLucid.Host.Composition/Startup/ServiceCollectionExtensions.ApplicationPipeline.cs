@@ -71,6 +71,7 @@ using ArchLucid.KnowledgeGraph.Inference;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Mapping;
 using ArchLucid.KnowledgeGraph.Services;
+using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Caching.Distributed;
@@ -204,6 +205,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPolicyPackDryRunService, PolicyPackDryRunService>();
         services.AddScoped<IPolicyPackGovernanceDryRunService, PolicyPackGovernanceDryRunService>();
         services.AddSingleton<IPolicyPackSchemaKeysService, PolicyPackSchemaKeysService>();
+        services.AddSingleton<IPolicyPackRuleTemplatesService, PolicyPackRuleTemplatesService>();
         services.AddSingleton<IEvidencePackSourceProvider, EmbeddedResourceEvidencePackSourceProvider>();
         services.AddSingleton<IEvidencePackBuilder, EvidencePackBuilder>();
         services.AddSingleton<ISupportBundleAssembler, SupportBundleAssembler>();
@@ -291,8 +293,11 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(KnowledgeGraphProjectionCacheOptions.SectionName));
         services.AddSingleton<IValidateOptions<KnowledgeGraphProjectionCacheOptions>, KnowledgeGraphProjectionCacheOptionsValidator>();
         services.TryAddSingleton<IMemoryCache>(_ => new MemoryCache(new MemoryCacheOptions { SizeLimit = 1000 }));
+        services.TryAddSingleton<IGraphProjectionCacheInvalidationBroadcaster>(
+            NullGraphProjectionCacheInvalidationBroadcaster.Instance);
         services.TryAddSingleton<IGraphSnapshotProjectionCache>(static sp =>
         {
+            IConfiguration configuration = sp.GetRequiredService<IConfiguration>();
             IOptionsMonitor<KnowledgeGraphProjectionCacheOptions> monitor =
                 sp.GetRequiredService<IOptionsMonitor<KnowledgeGraphProjectionCacheOptions>>();
             KnowledgeGraphProjectionCacheOptions opts = monitor.CurrentValue;
@@ -300,11 +305,26 @@ public static partial class ServiceCollectionExtensions
             if (!opts.Enabled)
                 return NonCachingGraphSnapshotProjectionCache.Instance;
 
-            if (opts.Backend == GraphProjectionCacheBackend.Distributed)
+            HotPathCacheOptions hotPath =
+                configuration.GetSection(HotPathCacheOptions.SectionName).Get<HotPathCacheOptions>()
+                ?? new HotPathCacheOptions();
+
+            bool redisConfigured = !string.IsNullOrWhiteSpace(opts.RedisConnectionString)
+                || !string.IsNullOrWhiteSpace(configuration["HotPathCache:RedisConnectionString"])
+                || !string.IsNullOrWhiteSpace(configuration["LlmCompletionCache:RedisConnectionString"]);
+
+            GraphProjectionCacheBackend effectiveBackend = GraphProjectionCacheProviderResolver.ResolveEffectiveBackend(
+                opts,
+                hotPath.ExpectedApiReplicaCount,
+                redisConfigured);
+
+            if (effectiveBackend == GraphProjectionCacheBackend.Distributed)
             {
                 IDistributedCache distributedCache = sp.GetRequiredService<IDistributedCache>();
+                IGraphProjectionCacheInvalidationBroadcaster broadcaster =
+                    sp.GetRequiredService<IGraphProjectionCacheInvalidationBroadcaster>();
 
-                return new GraphSnapshotProjectionDistributedCache(distributedCache, monitor);
+                return new GraphSnapshotProjectionDistributedCache(distributedCache, monitor, broadcaster);
             }
 
             IMemoryCache memoryCache = sp.GetRequiredService<IMemoryCache>();

@@ -59,6 +59,7 @@ public sealed class PolicyPacksController(
     IPolicyPackCatalogAdminService policyPackCatalogAdminService,
     IPolicyPackGovernanceDryRunService policyPackGovernanceDryRunService,
     PolicyPackMarkdownExplainService policyPackMarkdownExplainService,
+    IPolicyPackRuleTemplatesService policyPackRuleTemplatesService,
     IAuditService auditService)
     : ControllerBase
 {
@@ -75,6 +76,9 @@ public sealed class PolicyPacksController(
 
     private readonly IPolicyPackGovernanceDryRunService _policyPackGovernanceDryRunService =
         policyPackGovernanceDryRunService ?? throw new ArgumentNullException(nameof(policyPackGovernanceDryRunService));
+
+    private readonly IPolicyPackRuleTemplatesService _policyPackRuleTemplatesService =
+        policyPackRuleTemplatesService ?? throw new ArgumentNullException(nameof(policyPackRuleTemplatesService));
     /// <summary>Creates a new pack and an initial unpublished version <c>1.0.0</c>.</summary>
     /// <remarks>Audit: <c>PolicyPackCreated</c> via <see cref="IPolicyPacksAppService" />.</remarks>
     [HttpPost]
@@ -448,6 +452,16 @@ public sealed class PolicyPacksController(
             ct);
 
         return Ok(doc);
+    }
+
+    /// <summary>Bundled starter policy pack templates for the visual rule builder (flattened manifest).</summary>
+    [HttpGet("rule-templates")]
+    [ProducesResponseType(typeof(IReadOnlyList<PolicyPackRuleTemplateItem>), StatusCodes.Status200OK)]
+    public ActionResult<IReadOnlyList<PolicyPackRuleTemplateItem>> GetRuleTemplates()
+    {
+        IReadOnlyList<PolicyPackRuleTemplateItem> templates = _policyPackRuleTemplatesService.ListTemplates();
+
+        return Ok(templates);
     }
 
     /// <summary>

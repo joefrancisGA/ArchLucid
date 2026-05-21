@@ -13,6 +13,8 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Startup;
+using ArchLucid.Host.Composition.Caching;
+using ArchLucid.KnowledgeGraph.Caching;
 using ArchLucid.KnowledgeGraph.Configuration;
 using ArchLucid.Persistence.AzureExtractorChunkUpload;
 using ArchLucid.Persistence.BlobStore;
@@ -35,6 +37,8 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+
+using StackExchange.Redis;
 
 namespace ArchLucid.Host.Composition.Configuration;
 
@@ -180,6 +184,18 @@ public static class ArchLucidStorageServiceCollectionExtensions
 
 
         services.AddStackExchangeRedisCache(o => o.Configuration = redis);
+        RegisterGraphProjectionRedisPubSub(services, redis);
+    }
+
+    private static void RegisterGraphProjectionRedisPubSub(IServiceCollection services, string redisConnectionString)
+    {
+        if (services.Any(static d => d.ServiceType == typeof(IConnectionMultiplexer)))
+            return;
+
+        services.AddSingleton<IConnectionMultiplexer>(_ =>
+            ConnectionMultiplexer.Connect(ConfigurationOptions.Parse(redisConnectionString)));
+        services.AddSingleton<IGraphProjectionCacheInvalidationBroadcaster, RedisGraphProjectionCacheInvalidationBroadcaster>();
+        services.AddHostedService<GraphProjectionCacheInvalidationSubscriberHostedService>();
     }
 
     internal static void RegisterHostLeaderLeaseInfrastructure(IServiceCollection services)

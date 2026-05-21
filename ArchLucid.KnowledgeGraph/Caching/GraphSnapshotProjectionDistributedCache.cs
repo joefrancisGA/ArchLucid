@@ -12,13 +12,17 @@ namespace ArchLucid.KnowledgeGraph.Caching;
 /// <summary><see cref="IDistributedCache" />-backed implementation of <see cref="IGraphSnapshotProjectionCache" />.</summary>
 public sealed class GraphSnapshotProjectionDistributedCache(
     IDistributedCache distributedCache,
-    IOptionsMonitor<KnowledgeGraphProjectionCacheOptions> optionsMonitor) : IGraphSnapshotProjectionCache
+    IOptionsMonitor<KnowledgeGraphProjectionCacheOptions> optionsMonitor,
+    IGraphProjectionCacheInvalidationBroadcaster invalidationBroadcaster) : IGraphSnapshotProjectionCache
 {
     private readonly IDistributedCache _distributedCache =
         distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
 
     private readonly IOptionsMonitor<KnowledgeGraphProjectionCacheOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
+
+    private readonly IGraphProjectionCacheInvalidationBroadcaster _invalidationBroadcaster =
+        invalidationBroadcaster ?? throw new ArgumentNullException(nameof(invalidationBroadcaster));
 
     /// <inheritdoc />
     public async Task<GraphSnapshot?> GetOrLoadAsync(
@@ -40,7 +44,8 @@ public sealed class GraphSnapshotProjectionDistributedCache(
 
         if (cached is { Length: > 0 })
         {
-            GraphSnapshot? deserialized = GraphJsonSerialization.DeserializeSnapshot(cached);
+            GraphSnapshot? deserialized = GraphSnapshotMessagePackSerialization.DeserializeSnapshot(cached)
+                ?? GraphJsonSerialization.DeserializeSnapshot(cached);
 
             if (deserialized is not null)
                 return deserialized;
@@ -55,7 +60,7 @@ public sealed class GraphSnapshotProjectionDistributedCache(
 
         await _distributedCache.SetAsync(
             key,
-            GraphJsonSerialization.SerializeSnapshotToUtf8Bytes(created),
+            GraphSnapshotMessagePackSerialization.SerializeSnapshot(created),
             new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = ttl },
             cancellationToken);
 
@@ -70,6 +75,7 @@ public sealed class GraphSnapshotProjectionDistributedCache(
         string key = GraphSnapshotProjectionCacheKeys.Projection(scope, runId, graphSnapshotId);
 
         _distributedCache.Remove(key);
+        _invalidationBroadcaster.PublishInvalidation(scope, runId, graphSnapshotId);
     }
 
     private TimeSpan ResolveTtl()

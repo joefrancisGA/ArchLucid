@@ -59,6 +59,10 @@ public static partial class ServiceCollectionExtensions
                 AzureSqlReadReplicaHealthCheck.RegistrationName,
                 failureStatus: HealthStatus.Unhealthy,
                 tags: [ReadinessTags.Ready])
+            .AddCheck<RedisGraphProjectionHealthCheck>(
+                RedisGraphProjectionHealthCheck.RegistrationName,
+                failureStatus: HealthStatus.Unhealthy,
+                tags: [ReadinessTags.Ready])
             .AddCheck<SchemaFilesHealthCheck>("schema_files", tags: [ReadinessTags.Ready])
             .AddCheck<ComplianceRulePackHealthCheck>("compliance_rule_pack", tags: [ReadinessTags.Ready])
             .AddCheck<ProcessTempDirectoryHealthCheck>("temp_directory", tags: [ReadinessTags.Ready])

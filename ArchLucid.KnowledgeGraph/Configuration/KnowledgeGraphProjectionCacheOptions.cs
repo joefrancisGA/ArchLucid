@@ -19,6 +19,22 @@ public sealed class KnowledgeGraphProjectionCacheOptions
     } = GraphProjectionCacheBackend.Memory;
 
     /// <summary>
+    ///     High-level provider selection (<c>Auto</c> picks distributed when replica count &gt; 1 and Redis is configured).
+    /// </summary>
+    public GraphProjectionCacheProvider CacheProvider
+    {
+        get;
+        set;
+    } = GraphProjectionCacheProvider.Auto;
+
+    /// <summary>Cache TTL in minutes (maps to <see cref="AbsoluteExpirationSeconds" /> when set).</summary>
+    public int? CacheTtlMinutes
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
     ///     Optional Redis connection string for distributed projection caching when <see cref="Backend"/> is
     ///     <see cref="GraphProjectionCacheBackend.Distributed"/> and no <c>IDistributedCache</c> is registered yet.
     ///     Falls back to LLM / hot-path Redis strings in host composition when unset.

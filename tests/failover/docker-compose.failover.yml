@@ -1,0 +1,74 @@
+# Nightly database resilience drill — single SQL Server with persisted volume.
+# Simulates primary outage by stopping the container; API must reconnect when SQL returns.
+# See tests/failover/run-failover-test.ps1 and docs/quality/game-day-log/FAILOVER_RESULTS.md.
+
+services:
+  sql-primary:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: archlucid-failover-sql
+    ports:
+      - "11433:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "ArchLucid_Failover_Pass123!"
+      MSSQL_PID: "Developer"
+    volumes:
+      - failover-sql-data:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'ArchLucid_Failover_Pass123!' -C -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  sql-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    depends_on:
+      sql-primary:
+        condition: service_healthy
+    environment:
+      MSSQL_SA_PASSWORD: "ArchLucid_Failover_Pass123!"
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - >
+        /opt/mssql-tools18/bin/sqlcmd -S sql-primary -U sa -P "ArchLucid_Failover_Pass123!" -C
+        -Q "IF DB_ID(N'ArchLucidFailover') IS NULL CREATE DATABASE ArchLucidFailover;"
+    restart: "no"
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    ports:
+      - "11000:10000"
+    command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0
+
+  api:
+    build:
+      context: ../..
+      dockerfile: ArchLucid.Api/Dockerfile
+    ports:
+      - "15000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__ArchLucid: "Server=sql-primary,1433;Database=ArchLucidFailover;User Id=sa;Password=ArchLucid_Failover_Pass123!;TrustServerCertificate=True;Connect Timeout=5;"
+      ArchLucid__StorageProvider: "Sql"
+      Demo__Enabled: "true"
+      Demo__SeedOnStartup: "true"
+      ArchLucidAuth__Mode: "DevelopmentBypass"
+      RateLimiting__FixedWindow__PermitLimit: "6000"
+      RateLimiting__FixedWindow__WindowMinutes: "1"
+    depends_on:
+      sql-primary:
+        condition: service_healthy
+      sql-init:
+        condition: service_completed_successfully
+      azurite:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8080/health/ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 90s
+
+volumes:
+  failover-sql-data: {}

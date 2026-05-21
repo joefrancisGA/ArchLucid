@@ -32,6 +32,7 @@ import type { RunSummary } from "@/types/authority";
 
 import { PACK_TYPES } from "./policy-packs-page-constants";
 import { CuratedRulesAuthoringSection } from "./CuratedRulesAuthoringSection";
+import { PolicyPackVisualBuilder } from "./PolicyPackVisualBuilder";
 
 const AUTH_WIZARD_PROJECT_ID = "default";
 
@@ -93,7 +94,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
   } = props;
 
   const [step, setStep] = useState<WizardStepId>(1);
-  const [inputMode, setInputMode] = useState<"guided" | "json">("guided");
+  const [inputMode, setInputMode] = useState<"guided" | "visual" | "json">("guided");
   const [guidedFields, setGuidedFields] = useState<GuidedPolicyFields>(() => ({
     complianceRuleKeysText: "",
     alertRuleIdsText: "",
@@ -336,6 +337,15 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
             <Button
               type="button"
               size="sm"
+              variant={inputMode === "visual" ? "default" : "secondary"}
+              onClick={() => setInputMode("visual")}
+              data-testid="policy-rule-wizard-visual-tab"
+            >
+              Visual builder
+            </Button>
+            <Button
+              type="button"
+              size="sm"
               variant={inputMode === "json" ? "default" : "secondary"}
               onClick={() => setInputMode("json")}
             >
@@ -424,7 +434,14 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
             ) : null}
           </div>
 
-          {inputMode === "guided" ? (
+          {inputMode === "visual" ? (
+            <PolicyPackVisualBuilder
+              canMutatePacks={canMutatePacks}
+              policyContentJson={policyContentJson}
+              onPolicyContentJsonSync={onPolicyContentJsonSync}
+              selectedPackId={selectedPackId}
+            />
+          ) : inputMode === "guided" ? (
             <div className="grid gap-3">
               <p className="text-xs text-neutral-500 dark:text-neutral-400">
                 Map compliance rule keys and optional alert hooks; metadata lines use{" "}

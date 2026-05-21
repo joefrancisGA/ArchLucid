@@ -1,0 +1,25 @@
+name: Nightly failover test
+
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+jobs:
+  failover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run automated failover drill
+        shell: pwsh
+        run: ./tests/failover/run-failover-test.ps1 -RtoSeconds 60
+
+      - name: Upload failover results log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failover-results
+          path: docs/quality/game-day-log/FAILOVER_RESULTS.md
