@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:216 -->
+<!-- audit-core-const-count:217 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -113,6 +113,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Architecture request file import (TOML/JSON draft) | `ImportRequestFileService` (`POST …/architecture/request/import`, `ImportRequestFileController`) | `RequestFileImported` | Tenant/Workspace/Project from ambient scope | `importId`, `requestId`, `format`, `sourceFileName` (JSON payload); correlation id when HTTP trace present |
 | Azure extractor ZIP ingest | `AzureExtractorIngestService` (`POST …/azure-extractor/upload`, `AzureExtractorUploadController`) | `AzureExtractorPackageUploaded`, `AzureExtractorPackageParseFailed`, `AzureExtractorPackageSchemaRejected`, `AzureExtractorPackageIngestSucceeded` | Tenant/Workspace/Project; optional `RunId` on success event | `originalFileName`, `sizeBytes` on upload; `reason` on failures; `packageId` plus citation summary on success |
 | Chunked Azure extractor ingest session started | `AzureExtractorUploadController` (`POST …/azure-extractor/upload-sessions`; `AzureExtractorChunkedUploadService`) | `AzureExtractorPackageChunkSessionStarted` | Tenant/Workspace/Project | `sessionId`, `fileName`, `totalChunks`, `totalBytes`, `maxChunkBytes` |
+| Tier 2 hosted Azure extractor configured (customer SP + subscription scope via WIF) | `HostedAzureExtractorAdminController` (`POST /v1/admin/azure-extractor/hosted/configure`) | `IntegrationHostedAzureExtractorConfigured` | Tenant/Workspace/Project from ambient scope | `{ subscriptionId, customerTenantId, customerAppId, includeCost }` — **no** customer secrets stored |
 | Internal cross-tenant analytics rollup refresh (operator) | `InternalCrossTenantAnalyticsController` (`POST /v1/internal/analytics/cross-tenant/daily/refresh`) | `InternalCrossTenantRollupRefreshed` | Operator RBAC; non-tenant aggregate surface | `{ rollupDate }` (UTC calendar day string) |
 | Tenant value report DOCX (sync or async completion) | `ValueReportController` | `ValueReportGenerated` | Tenant/Workspace/Project from ambient scope | `tenantId`, `from`, `to`, `byteCount`, `asyncJob` (JSON); async jobs also include `jobId` |
 | Replay export persisted as new row | `ExportsController` (replay POST + metadata POST when `RecordReplayExport`) | `ReplayExportRecorded` | RunId when parseable | `sourceExportRecordId`, `recordedReplayExportRecordId`, `runId` |
@@ -423,6 +424,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `Saml2ServiceProviderSignInSucceeded` | `Saml2ServiceProviderSignInSucceeded` | `ArchLucidSaml2SignInAudit` (SAML2 `CookieSignedInContext`; minimal name-id / tenant payload) |
 | `Saml2ServiceProviderSignInFailed` | `Saml2ServiceProviderSignInFailed` | `ArchLucidSaml2SignInAudit.TryAppendProtocolFailureAudit` (`/Auth/*` ITfoxtec protocol faults; best-effort) |
 | `IdentitySsoConfigurationActivated` | `Identity.SsoConfigurationActivated` | `IdentityProviderConfigurationController` (`POST /v1/admin/identity/activate`) |
+| `IntegrationHostedAzureExtractorConfigured` | `Integration.HostedAzureExtractorConfigured` | `HostedAzureExtractorAdminController` (`POST /v1/admin/azure-extractor/hosted/configure`) |
 | `IdentityCustomRoleCreated` | `Identity.CustomRoleCreated` | `CustomRolesAdminController` (`POST /v1/admin/roles`) |
 | `IdentityCustomRoleUpdated` | `Identity.CustomRoleUpdated` | `CustomRolesAdminController` (`PUT /v1/admin/roles/{roleId}`) |
 | `IdentityCustomRoleAssigned` | `Identity.CustomRoleAssigned` | `CustomRolesAdminController` (`POST /v1/admin/roles/{roleId}/assign`) |
