@@ -23,6 +23,7 @@ public interface IOperatorSavedViewRepository
         string name,
         string payloadJson,
         string? sortKey,
+        bool isShared,
         CancellationToken cancellationToken);
 
     /// <summary>Deletes a view owned by the tenant/user pair. Returns false when no row matched.</summary>

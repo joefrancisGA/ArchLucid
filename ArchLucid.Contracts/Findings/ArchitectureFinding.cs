@@ -88,4 +88,11 @@ public sealed class ArchitectureFinding
         get;
         set;
     }
+
+    /// <summary>Tenant-adjusted projected USD savings when populated by the ROI pipeline.</summary>
+    public decimal? EstimatedUsdSavings
+    {
+        get;
+        set;
+    }
 }

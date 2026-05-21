@@ -8,6 +8,7 @@ import type { ReactElement } from "react";
 import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
 import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
+import { FindingFeedbackThumbs } from "@/components/FindingFeedbackThumbs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -21,7 +22,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
-import { postFindingMute } from "@/lib/api";
+import { postFindingMute, downloadRunFindingsCsv } from "@/lib/api";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
@@ -74,6 +75,8 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   const [reasoningOpen, setReasoningOpen] = useState(false);
   const [activeReasoning, setActiveReasoning] = useState<QuickDecisionFinding | null>(null);
   const [muteOpen, setMuteOpen] = useState(false);
+  const [exportingCsv, setExportingCsv] = useState(false);
+  const [exportCsvError, setExportCsvError] = useState<string | null>(null);
   const [muteTarget, setMuteTarget] = useState<QuickDecisionFinding | null>(null);
   const [muteReason, setMuteReason] = useState("");
   const [muteBusy, setMuteBusy] = useState(false);
@@ -121,21 +124,50 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               {buyerPolishedShell ? "Decision summary" : "Quick decision summary"}
             </CardTitle>
             {hasSourceFindings ? (
-              <label className="flex cursor-pointer items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600"
-                  checked={showMuted}
-                  onChange={(e) => {
-                    setShowMuted(e.target.checked);
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={exportingCsv}
+                  onClick={() => {
+                    void (async () => {
+                      setExportingCsv(true);
+                      setExportCsvError(null);
+
+                      try {
+                        await downloadRunFindingsCsv(props.runId);
+                      } catch (error) {
+                        setExportCsvError(error instanceof Error ? error.message : "Export failed.");
+                      } finally {
+                        setExportingCsv(false);
+                      }
+                    })();
                   }}
-                />
-                Show muted findings
-              </label>
+                >
+                  {exportingCsv ? "Exporting…" : "Export to CSV"}
+                </Button>
+                <label className="flex cursor-pointer items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600"
+                    checked={showMuted}
+                    onChange={(e) => {
+                      setShowMuted(e.target.checked);
+                    }}
+                  />
+                  Show muted findings
+                </label>
+              </div>
             ) : null}
           </div>
         </CardHeader>
         <CardContent className="space-y-3 pt-0 text-sm text-neutral-700 dark:text-neutral-300">
+          {exportCsvError !== null ? (
+            <p className="m-0 text-xs text-red-700 dark:text-red-300" role="alert">
+              {exportCsvError}
+            </p>
+          ) : null}
           {!hasSourceFindings ? (
             renderEmptySummary()
           ) : visibleFindings.length === 0 ? (
@@ -233,6 +265,9 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                         >
                           Mute
                         </Button>
+                      ) : null}
+                      {canMutate ? (
+                        <FindingFeedbackThumbs runId={props.runId} findingId={f.findingId} compact />
                       ) : null}
                     </div>
                     {f.traceConfidenceLabel !== null &&

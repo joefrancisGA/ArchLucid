@@ -118,6 +118,7 @@ public sealed class OperatorSavedViewsController(
                 name,
                 payloadJson,
                 body.Payload.Sort,
+                body.IsShared,
                 cancellationToken);
 
             if (created is null)

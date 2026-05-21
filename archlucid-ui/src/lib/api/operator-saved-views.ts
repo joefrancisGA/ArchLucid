@@ -12,6 +12,7 @@ export type CreateOperatorSavedViewRequest = {
   surface: OperatorSavedViewSurface;
   name: string;
   payload: OperatorSavedViewPayload;
+  isShared?: boolean;
 };
 
 export async function listOperatorSavedViews(

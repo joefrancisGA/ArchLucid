@@ -26,11 +26,11 @@ public sealed class SqlFindingFeedbackRepository(ISqlConnectionFactory connectio
                            INSERT INTO dbo.FindingFeedback (
                                FeedbackId,
                                TenantId, WorkspaceId, ProjectId,
-                               RunId, FindingId, Score, CreatedUtc)
+                               RunId, FindingId, Score, Comment, CreatedUtc)
                            VALUES (
                                @FeedbackId,
                                @TenantId, @WorkspaceId, @ProjectId,
-                               @RunId, @FindingId, @Score, SYSUTCDATETIME());
+                               @RunId, @FindingId, @Score, @Comment, SYSUTCDATETIME());
                            """;
 
         await connection.ExecuteAsync(
@@ -44,7 +44,8 @@ public sealed class SqlFindingFeedbackRepository(ISqlConnectionFactory connectio
                     submission.ProjectId,
                     submission.RunId,
                     submission.FindingId,
-                    submission.Score
+                    submission.Score,
+                    submission.Comment
                 },
                 cancellationToken: cancellationToken));
     }

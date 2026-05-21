@@ -16,10 +16,12 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Feedback;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
@@ -64,9 +66,17 @@ public sealed partial class RunsController(
     ICommitSponsorEmailNotifier commitSponsorEmailNotifier,
     ICommitRunIdempotencyRepository commitRunIdempotencyRepository,
     IRunRepository runRepository,
+    IAuthorityQueryService authorityQuery,
+    IFindingFeedbackRepository findingFeedbackRepository,
     ILogger<RunsController> logger)
     : ControllerBase
 {
+    private readonly IAuthorityQueryService authorityQuery =
+        authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
+
+    private readonly IFindingFeedbackRepository findingFeedbackRepository =
+        findingFeedbackRepository ?? throw new ArgumentNullException(nameof(findingFeedbackRepository));
+
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 

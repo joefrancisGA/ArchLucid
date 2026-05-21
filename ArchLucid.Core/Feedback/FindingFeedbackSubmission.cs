@@ -39,4 +39,11 @@ public sealed class FindingFeedbackSubmission
         get;
         init;
     }
+
+    /// <summary>Optional operator note (nullable).</summary>
+    public string? Comment
+    {
+        get;
+        init;
+    }
 }

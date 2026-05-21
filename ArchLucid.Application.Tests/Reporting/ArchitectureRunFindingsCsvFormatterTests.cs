@@ -51,7 +51,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
 
         csv.Should().Contain("f-1,r-9,t-2,Compliance,Warning,cat,");
-        csv.Should().Contain("muted,noise,0.5");
+        csv.Should().Contain(",muted,noise,0.5");
 
         string escapedMessage = ExportFormatterService.EscapeCsvField(finding.Message);
         csv.Should().Contain(escapedMessage);

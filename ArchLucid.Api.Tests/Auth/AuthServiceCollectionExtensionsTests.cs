@@ -52,9 +52,9 @@ public sealed class AuthServiceCollectionExtensionsTests
         // Verify Role mapping configuration
         jwtOptions.TokenValidationParameters.RoleClaimType.Should().Be("roles");
 
-        // Verify that ArchLucidRoleClaimsTransformation is registered
-        var claimsTransformation = sp.GetRequiredService<IClaimsTransformation>();
-        claimsTransformation.Should().BeOfType<ArchLucidRoleClaimsTransformation>();
+        // Verify composite claims transformation runs role + custom-role mappers in order.
+        IClaimsTransformation claimsTransformation = sp.GetRequiredService<IClaimsTransformation>();
+        claimsTransformation.Should().BeOfType<CompositeClaimsTransformation>();
     }
 
     /// <summary>

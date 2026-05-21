@@ -38,10 +38,12 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
                          SortKey,
                          PayloadJson,
                          CreatedUtc,
-                         UpdatedUtc
+                         UpdatedUtc,
+                         IsShared,
+                         UserId
                      FROM dbo.OperatorSavedViews
                      WHERE TenantId = @TenantId
-                       AND UserId = @UserId
+                       AND (UserId = @UserId OR IsShared = 1)
                      """;
 
         if (!string.IsNullOrWhiteSpace(surface))
@@ -58,7 +60,7 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
                 new { TenantId = tenantId, UserId = userId, Surface = surface },
                 cancellationToken: cancellationToken));
 
-        return rows.Select(MapRow).ToList();
+        return rows.Select(row => MapRow(row, userId)).ToList();
     }
 
     /// <inheritdoc />
@@ -69,6 +71,7 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
         string name,
         string payloadJson,
         string? sortKey,
+        bool isShared,
         CancellationToken cancellationToken)
     {
         ScopedRepositoryScopeValidation.RequireEntityTenant(tenantId);
@@ -106,6 +109,7 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
                                      Name,
                                      SortKey,
                                      PayloadJson,
+                                     IsShared,
                                      CreatedUtc,
                                      UpdatedUtc
                                  )
@@ -117,6 +121,7 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
                                      @Name,
                                      @SortKey,
                                      @PayloadJson,
+                                     @IsShared,
                                      SYSUTCDATETIME(),
                                      SYSUTCDATETIME()
                                  );
@@ -135,7 +140,8 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
                         Surface = surface,
                         Name = name,
                         SortKey = sortKey,
-                        PayloadJson = payloadJson
+                        PayloadJson = payloadJson,
+                        IsShared = isShared
                     },
                     cancellationToken: cancellationToken));
         }
@@ -156,14 +162,16 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
                     SortKey,
                     PayloadJson,
                     CreatedUtc,
-                    UpdatedUtc
+                    UpdatedUtc,
+                    IsShared,
+                    UserId
                 FROM dbo.OperatorSavedViews
                 WHERE Id = @Id;
                 """,
                 new { Id = id },
                 cancellationToken: cancellationToken));
 
-        return row is null ? null : MapRow(row);
+        return row is null ? null : MapRow(row, userId);
     }
 
     /// <inheritdoc />
@@ -198,7 +206,7 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
         return affected > 0;
     }
 
-    private static OperatorSavedViewResponse MapRow(OperatorSavedViewRow row)
+    private static OperatorSavedViewResponse MapRow(OperatorSavedViewRow row, string currentUserId)
     {
         OperatorSavedViewPayload payload =
             JsonSerializer.Deserialize<OperatorSavedViewPayload>(row.PayloadJson, ContractJson.CamelCaseDeserializeCaseInsensitive)
@@ -211,7 +219,9 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
             Name = row.Name,
             Payload = payload,
             CreatedUtc = new DateTimeOffset(row.CreatedUtc, TimeSpan.Zero),
-            UpdatedUtc = new DateTimeOffset(row.UpdatedUtc, TimeSpan.Zero)
+            UpdatedUtc = new DateTimeOffset(row.UpdatedUtc, TimeSpan.Zero),
+            IsShared = row.IsShared,
+            IsOwnedByCurrentUser = string.Equals(row.UserId, currentUserId, StringComparison.Ordinal)
         };
     }
 
@@ -258,5 +268,17 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
             get;
             init;
         }
+
+        public bool IsShared
+        {
+            get;
+            init;
+        }
+
+        public string UserId
+        {
+            get;
+            init;
+        } = string.Empty;
     }
 }

@@ -127,7 +127,11 @@ public static class AuthServiceCollectionExtensions
         services.AddSingleton<IAuthDiagnosticsRingBuffer, AuthDiagnosticsRingBuffer>();
         services.AddScoped<ArchLucidRoleClaimsTransformation>();
         services.AddScoped<CustomRoleClaimsTransformation>();
-        services.AddScoped<IClaimsTransformation, CompositeClaimsTransformation>();
+        services.AddScoped<IClaimsTransformation>(static sp => new CompositeClaimsTransformation(
+            [
+                sp.GetRequiredService<ArchLucidRoleClaimsTransformation>(),
+                sp.GetRequiredService<CustomRoleClaimsTransformation>(),
+            ]));
 
         return services;
     }

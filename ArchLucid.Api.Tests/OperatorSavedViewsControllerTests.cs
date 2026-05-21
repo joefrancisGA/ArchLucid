@@ -81,6 +81,7 @@ public sealed class OperatorSavedViewsControllerTests
                 request.Name,
                 It.IsAny<string>(),
                 null,
+                false,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(created);
 

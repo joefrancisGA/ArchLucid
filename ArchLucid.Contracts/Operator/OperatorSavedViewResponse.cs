@@ -38,4 +38,18 @@ public sealed class OperatorSavedViewResponse
         get;
         set;
     }
+
+    /// <summary>When true, other tenant users can load this preset from the shared views list.</summary>
+    public bool IsShared
+    {
+        get;
+        set;
+    }
+
+    /// <summary>True when the saved view was created by the requesting user (delete allowed).</summary>
+    public bool IsOwnedByCurrentUser
+    {
+        get;
+        set;
+    }
 }

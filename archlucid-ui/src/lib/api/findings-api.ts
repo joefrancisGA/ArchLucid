@@ -4,7 +4,14 @@ import type {
   FindingLlmAudit,
 } from "@/types/explanation";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
-import { apiGet, apiPostJson } from "./http";
+import {
+  apiGet,
+  apiPostJson,
+  ensureOidcBearerReady,
+  resolveBinaryGetRequest,
+  throwApiRequestError,
+  withCorrelationHeaders,
+} from "./http";
 
 /** Read-model inspector: typed payload, rules, evidence citations, audit correlation (ReadAuthority). */
 /** Run-scoped: GET /v1/architecture/run/{runId}/findings/{findingId}/inspect */
@@ -53,6 +60,52 @@ export async function postFindingFeedback(
     `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/feedback`,
     { score },
   );
+}
+
+/** Records thumbs feedback via the architecture surface (ExecuteAuthority). */
+export async function postArchitectureFindingFeedback(
+  runId: string,
+  findingId: string,
+  isHelpful: boolean,
+  comment?: string,
+): Promise<void> {
+  const encodedFinding = encodeURIComponent(findingId);
+
+  await apiPostJson(`/v1/architecture/finding/${encodedFinding}/feedback`, {
+    runId,
+    isHelpful,
+    comment: comment ?? null,
+  });
+}
+
+/** Downloads findings CSV for a run (browser only). */
+export async function downloadRunFindingsCsv(runId: string): Promise<void> {
+  if (typeof window === "undefined") {
+    throw new Error("downloadRunFindingsCsv is only available in the browser.");
+  }
+
+  await ensureOidcBearerReady();
+  const path = `/v1/architecture/run/${encodeURIComponent(runId)}/findings/export/csv`;
+  const { url, headers } = resolveBinaryGetRequest(path);
+  const requestHeaders = withCorrelationHeaders(new Headers(headers));
+  requestHeaders.set("Accept", "text/csv");
+  const response = await fetch(url, { cache: "no-store", headers: requestHeaders });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throwApiRequestError(response, text);
+  }
+
+  const blob = await response.blob();
+  const disposition = response.headers.get("Content-Disposition") ?? "";
+  const fileNameMatch = /filename="?([^";]+)"?/i.exec(disposition);
+  const fileName = fileNameMatch?.[1] ?? `architecture-run-${runId}-findings.csv`;
+  const objectUrl = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = objectUrl;
+  anchor.download = fileName;
+  anchor.click();
+  URL.revokeObjectURL(objectUrl);
 }
 
 /** Mutes a finding for a run (ExecuteAuthority); persists to relational findings snapshot. */

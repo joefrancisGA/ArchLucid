@@ -20,4 +20,11 @@ public sealed class CreateOperatorSavedViewRequest
         get;
         set;
     } = new();
+
+    /// <summary>When true, the view is visible to all users in the tenant for the same surface.</summary>
+    public bool IsShared
+    {
+        get;
+        set;
+    }
 }

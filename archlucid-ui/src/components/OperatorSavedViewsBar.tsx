@@ -51,12 +51,12 @@ export function useOperatorSavedViews(options: UseOperatorSavedViewsOptions) {
   }, [refresh]);
 
   const saveView = useCallback(
-    async (name: string, payload: OperatorSavedViewPayload) => {
+    async (name: string, payload: OperatorSavedViewPayload, isShared: boolean) => {
       setSaving(true);
       setFailure(null);
 
       try {
-        const created = await createOperatorSavedView({ surface, name, payload });
+        const created = await createOperatorSavedView({ surface, name, payload, isShared });
         setViews((current) => [...current, created].sort((left, right) => left.name.localeCompare(right.name)));
         setSelectedViewId(created.id);
 
@@ -132,7 +132,11 @@ export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
     deleteSelectedView,
   } = useOperatorSavedViews({ surface, enabled: !disabled });
   const [saveName, setSaveName] = useState("");
+  const [saveShared, setSaveShared] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
+  const myViews = views.filter((view) => view.isOwnedByCurrentUser !== false);
+  const sharedViews = views.filter((view) => view.isShared === true && view.isOwnedByCurrentUser === false);
 
   const handleLoad = async () => {
     if (selectedView === null) {
@@ -156,8 +160,9 @@ export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
     setStatusMessage(null);
 
     try {
-      const created = await saveView(trimmedName, getCurrentPayload());
+      const created = await saveView(trimmedName, getCurrentPayload(), saveShared);
       setSaveName("");
+      setSaveShared(false);
       setStatusMessage(`Saved “${created.name}”.`);
     } catch {
       setStatusMessage("Could not save this view — check the name is unique.");
@@ -199,11 +204,25 @@ export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
             aria-label={`Load saved ${surface} view`}
           >
             <option value="">{loading ? "Loading…" : views.length === 0 ? "No saved views" : "Select a view"}</option>
-            {views.map((view) => (
-              <option key={view.id} value={view.id}>
-                {view.name}
-              </option>
-            ))}
+            {myViews.length > 0 ? (
+              <optgroup label="My views">
+                {myViews.map((view) => (
+                  <option key={view.id} value={view.id}>
+                    {view.name}
+                    {view.isShared ? " (shared)" : ""}
+                  </option>
+                ))}
+              </optgroup>
+            ) : null}
+            {sharedViews.length > 0 ? (
+              <optgroup label="Shared views">
+                {sharedViews.map((view) => (
+                  <option key={view.id} value={view.id}>
+                    {view.name}
+                  </option>
+                ))}
+              </optgroup>
+            ) : null}
           </select>
         </label>
         <Button
@@ -219,7 +238,7 @@ export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
           type="button"
           variant="outline"
           size="sm"
-          disabled={disabled || loading || deleting || selectedView === null}
+          disabled={disabled || loading || deleting || selectedView === null || selectedView.isOwnedByCurrentUser === false}
           onClick={() => void handleDelete()}
         >
           {deleting ? "Deleting…" : "Delete"}
@@ -236,6 +255,15 @@ export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
             className="mt-1 block w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm dark:border-neutral-600 dark:bg-neutral-950"
             aria-label={`Name for new ${surface} saved view`}
           />
+        </label>
+        <label className="flex items-center gap-2 pb-2 text-xs text-neutral-700 dark:text-neutral-200">
+          <input
+            type="checkbox"
+            checked={saveShared}
+            disabled={disabled || saving}
+            onChange={(event) => setSaveShared(event.target.checked)}
+          />
+          Share with team
         </label>
         <Button type="button" variant="primary" size="sm" disabled={disabled || saving} onClick={() => void handleSave()}>
           {saving ? "Saving…" : "Save view"}

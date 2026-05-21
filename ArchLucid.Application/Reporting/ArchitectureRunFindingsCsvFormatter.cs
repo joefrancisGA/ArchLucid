@@ -13,7 +13,7 @@ namespace ArchLucid.Application.Reporting;
 public static class ArchitectureRunFindingsCsvFormatter
 {
     internal const string HeaderLine =
-        "FindingId,ResultId,TaskId,SourceAgent,Severity,Category,Message,Status,MuteReason,ConfidenceScore";
+        "FindingId,ResultId,TaskId,SourceAgent,Severity,Category,Message,EstimatedUsdSavings,Status,MuteReason,ConfidenceScore";
 
     /// <returns>CSV text including header; empty findings yield header only.</returns>
     public static string BuildCsvContent(ArchitectureRunDetail detail)
@@ -97,9 +97,20 @@ public static class ArchitectureRunFindingsCsvFormatter
                 ExportFormatterService.EscapeCsvField(finding.Severity.ToString()),
                 ExportFormatterService.EscapeCsvField(finding.Category),
                 ExportFormatterService.EscapeCsvField(finding.Message),
+                ExportFormatterService.EscapeCsvField(FormatEstimatedUsdSavings(finding)),
                 ExportFormatterService.EscapeCsvField(FormatFindingStatus(finding.IsMuted)),
                 ExportFormatterService.EscapeCsvField(finding.MuteReason),
                 ExportFormatterService.EscapeCsvField(confidence))
             .Append('\n');
+    }
+
+    private static string FormatEstimatedUsdSavings(ArchitectureFinding finding)
+    {
+        if (finding.EstimatedUsdSavings.HasValue)
+        {
+            return finding.EstimatedUsdSavings.Value.ToString(CultureInfo.InvariantCulture);
+        }
+
+        return string.Empty;
     }
 }

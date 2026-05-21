@@ -19,7 +19,8 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
         CancellationToken cancellationToken)
     {
         IEnumerable<StoredView> query = _views.Values.Where(view =>
-            view.TenantId == tenantId && string.Equals(view.UserId, userId, StringComparison.Ordinal));
+            view.TenantId == tenantId
+            && (string.Equals(view.UserId, userId, StringComparison.Ordinal) || view.IsShared));
 
         if (!string.IsNullOrWhiteSpace(surface))
         {
@@ -28,7 +29,7 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
 
         IReadOnlyList<OperatorSavedViewResponse> rows = query
             .OrderBy(view => view.Name, StringComparer.Ordinal)
-            .Select(MapStored)
+            .Select(view => MapStored(view, userId))
             .ToList();
 
         return Task.FromResult(rows);
@@ -42,6 +43,7 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
         string name,
         string payloadJson,
         string? sortKey,
+        bool isShared,
         CancellationToken cancellationToken)
     {
         bool duplicate = _views.Values.Any(view =>
@@ -66,13 +68,14 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
             Name = name,
             SortKey = sortKey,
             PayloadJson = payloadJson,
+            IsShared = isShared,
             CreatedUtc = now,
             UpdatedUtc = now
         };
 
         _views[stored.Id] = stored;
 
-        return Task.FromResult<OperatorSavedViewResponse?>(MapStored(stored));
+        return Task.FromResult<OperatorSavedViewResponse?>(MapStored(stored, userId));
     }
 
     /// <inheritdoc />
@@ -95,7 +98,7 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
         return Task.FromResult(_views.TryRemove(viewId, out _));
     }
 
-    private static OperatorSavedViewResponse MapStored(StoredView stored)
+    private static OperatorSavedViewResponse MapStored(StoredView stored, string currentUserId)
     {
         OperatorSavedViewPayload payload =
             JsonSerializer.Deserialize<OperatorSavedViewPayload>(stored.PayloadJson, ContractJson.CamelCaseDeserializeCaseInsensitive)
@@ -108,7 +111,9 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
             Name = stored.Name,
             Payload = payload,
             CreatedUtc = stored.CreatedUtc,
-            UpdatedUtc = stored.UpdatedUtc
+            UpdatedUtc = stored.UpdatedUtc,
+            IsShared = stored.IsShared,
+            IsOwnedByCurrentUser = string.Equals(stored.UserId, currentUserId, StringComparison.Ordinal)
         };
     }
 
@@ -145,6 +150,12 @@ public sealed class InMemoryOperatorSavedViewRepository : IOperatorSavedViewRepo
         } = string.Empty;
 
         public string? SortKey
+        {
+            get;
+            init;
+        }
+
+        public bool IsShared
         {
             get;
             init;

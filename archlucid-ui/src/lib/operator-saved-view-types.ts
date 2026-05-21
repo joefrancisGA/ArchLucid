@@ -16,6 +16,8 @@ export type OperatorSavedView = {
   payload: OperatorSavedViewPayload;
   createdUtc: string;
   updatedUtc: string;
+  isShared?: boolean;
+  isOwnedByCurrentUser?: boolean;
 };
 
 export type OperatorSavedViewListResponse = {
