@@ -99,7 +99,7 @@ public sealed class SponsorOnePagerPdfBuilder(
                     column.Item().Text("Bar heights are proportional to: total runs in window, committed runs, remainder (not dollar estimates).");
                     column.Item().PaddingTop(6).Row(row =>
                     {
-                        float h1 = 80f;
+                        const float h1 = 80f;
                         float h2 = (float)(committedRatio * 80);
                         float h3 = Math.Max(4, 80 - h2);
                         row.RelativeItem().Column(c =>

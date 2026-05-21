@@ -17,6 +17,8 @@ public static class ArchLucidJobNames
 
     public const string ExecDigestWeekly = "exec-digest-weekly";
 
+    public const string WeeklyExecutiveSummary = "weekly-executive-summary";
+
     /// <summary>Mock weekly relational critical-findings digest (log-only scaffold).</summary>
     public const string WeeklyArchitectureDigest = "weekly-architecture-digest";
 

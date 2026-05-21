@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PolicyPackContentJsonEditor } from "@/components/PolicyPackContentJsonEditor";
 import { Textarea } from "@/components/ui/textarea";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { PolicySimulator } from "@/components/governance/PolicySimulator";
@@ -518,16 +519,13 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
             </div>
           ) : (
             <div className="space-y-2">
-              <label htmlFor="wizard-raw-json" className="text-sm font-medium">
-                Policy pack content document (JSON)
-              </label>
-              <Textarea
+              <PolicyPackContentJsonEditor
                 id="wizard-raw-json"
-                data-testid="policy-rule-wizard-raw-json"
+                label="Policy pack content document (JSON)"
+                testId="policy-rule-wizard-raw-json"
                 value={jsonEditorValue}
-                onChange={(e) => onPolicyContentJsonSync(e.target.value)}
+                onChange={onPolicyContentJsonSync}
                 rows={14}
-                className="font-mono text-xs"
                 readOnly={!canMutatePacks}
                 title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
               />

@@ -20,9 +20,8 @@ public sealed class PolicyPackDraftService(IAgentCompletionClient completionClie
         string fewShot = PolicyPackDraftFewShotExamples.BuildFewShotJson();
         string schema = PolicyPackDraftFewShotExamples.BuildSchemaDescription();
 
-        string systemPrompt =
-            "You are a cloud governance expert. Based on the operator intent, draft ONE valid ArchLucid curated policy pack rule "
-            + "JSON object conforming to the schema. Use the few-shot examples as style references. Return ONLY the rule JSON object.";
+        const string systemPrompt = "You are a cloud governance expert. Based on the operator intent, draft ONE valid ArchLucid curated policy pack rule "
+                                    + "JSON object conforming to the schema. Use the few-shot examples as style references. Return ONLY the rule JSON object.";
 
         string userPrompt =
             "Schema:\n" +

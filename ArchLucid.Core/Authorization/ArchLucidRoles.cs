@@ -35,6 +35,11 @@ public static class ArchLucidRoles
     public const string Admin = "Admin";
 
     /// <summary>
+    ///     Executive sponsor persona (read-oriented sponsor surfaces). Typical Entra app-role string <c>Sponsor</c>.
+    /// </summary>
+    public const string Sponsor = "Sponsor";
+
+    /// <summary>
     ///     Internal platform operator (hosted / break-glass). Mapped to <c>platform:tenant-delete</c> permission for
     ///     tenant offboarding jobs — grant only via IdP or DevelopmentBypass <c>DevRole</c>.
     /// </summary>

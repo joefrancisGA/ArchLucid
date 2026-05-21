@@ -80,11 +80,16 @@ public sealed class DemoWorkspaceFixtureManifestParityTests
 
     private sealed class DemoFixtureWorkspace
     {
+        public DemoFixtureWorkspace(int expectedCommittedFindingCount, int seedSyntheticEvidenceObjectCount)
+        {
+            ExpectedCommittedFindingCount = expectedCommittedFindingCount;
+            SeedSyntheticEvidenceObjectCount = seedSyntheticEvidenceObjectCount;
+        }
         public string RunId { get; init; } = "";
 
         public string WorkspaceId { get; init; } = "";
 
-        public string ProjectId { get; init; } = "";
+        public string ProjectId { get; } = "";
 
         public int ExpectedCommittedFindingCount { get; init; }
 

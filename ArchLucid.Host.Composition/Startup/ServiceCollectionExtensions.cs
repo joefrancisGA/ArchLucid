@@ -74,9 +74,11 @@ public static partial class ServiceCollectionExtensions
         services.RegisterBilling(configuration);
         RegisterAdvisoryScheduling(services, configuration, hostingRole);
         RegisterExecDigestServices(services);
+        RegisterWeeklyExecutiveSummaryServices(services, configuration);
         RegisterWeeklyArchitectureDigest(services, configuration);
         RegisterTrialLifecycleEmailHostedServices(services, configuration, hostingRole);
         RegisterExecDigestWorkerInfrastructure(services, configuration, hostingRole);
+        RegisterWeeklyExecutiveSummaryWorkerInfrastructure(services, configuration, hostingRole);
         RegisterWeeklyArchitectureDigestWorkerInfrastructure(services, configuration, hostingRole);
         RegisterTrialLifecycleScheduler(services, configuration, hostingRole);
         RegisterTrialArchitecturePreseed(services, configuration, hostingRole);

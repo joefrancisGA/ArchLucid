@@ -1,6 +1,6 @@
+import { PolicyPackContentJsonEditor } from "@/components/PolicyPackContentJsonEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   enterpriseMutationControlDisabledTitle,
   policyPacksAssignButtonLabelReaderRank,
@@ -9,7 +9,6 @@ import {
   policyPacksPublishButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
 import { cn } from "@/lib/utils";
-import { PolicyPackJsonSchemaHelpIcon } from "@/lib/policy-pack-json-schema-hint";
 import { PACK_TYPES, VERTICAL_POLICY_PACK_IMPORTS } from "./policy-packs-page-constants";
 
 export type PolicyPacksLifecycleSectionProps = {
@@ -166,28 +165,14 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
                 ))}
               </select>
             </label>
-            <div className="space-y-2">
-              <div className="flex flex-wrap items-start gap-2">
-                <label
-                  htmlFor="policy-pack-create-json"
-                  className="min-w-[12rem] flex-1 text-sm font-medium text-neutral-800 dark:text-neutral-200"
-                >
-                  Initial content (policy)
-                </label>
-                <PolicyPackJsonSchemaHelpIcon ariaLabel="Brief policy-pack JSON schema reference" />
-              </div>
-              <Textarea
-                id="policy-pack-create-json"
-                value={createJson}
-                onChange={(e) => {
-                  onCreateJsonChange(e.target.value);
-                }}
-                readOnly={!canMutatePacks}
-                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-                rows={12}
-                className="mt-1 font-mono text-xs"
-              />
-            </div>
+            <PolicyPackContentJsonEditor
+              id="policy-pack-create-json"
+              label="Initial content (policy)"
+              value={createJson}
+              onChange={onCreateJsonChange}
+              readOnly={!canMutatePacks}
+              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+            />
             <button
               type="button"
               onClick={() => void onCreate()}
@@ -234,28 +219,14 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
                 className="mt-1"
               />
             </div>
-            <div className="space-y-2">
-              <div className="flex flex-wrap items-start gap-2">
-                <label
-                  htmlFor="policy-pack-publish-json"
-                  className="min-w-[12rem] flex-1 text-sm font-medium text-neutral-800 dark:text-neutral-200"
-                >
-                  Content (policy)
-                </label>
-                <PolicyPackJsonSchemaHelpIcon ariaLabel="Brief policy-pack JSON schema reference" />
-              </div>
-              <Textarea
-                id="policy-pack-publish-json"
-                value={publishJson}
-                onChange={(e) => {
-                  onPublishJsonChange(e.target.value);
-                }}
-                readOnly={!canMutatePacks}
-                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-                rows={12}
-                className="mt-1 font-mono text-xs"
-              />
-            </div>
+            <PolicyPackContentJsonEditor
+              id="policy-pack-publish-json"
+              label="Content (policy)"
+              value={publishJson}
+              onChange={onPublishJsonChange}
+              readOnly={!canMutatePacks}
+              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+            />
             <button
               type="button"
               onClick={() => void onPublish()}

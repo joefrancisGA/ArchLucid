@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 
@@ -45,5 +47,20 @@ public sealed class PolicyPackSchemaKeysServiceTests
         PolicyPackSchemaKeyNode metadataNode = response.Tree.Single(node => node.Name == "metadata");
         metadataNode.AllowsCustomKeys.Should().BeTrue();
         metadataNode.Children.Should().ContainSingle().Which.Name.Should().Be("{key}");
+    }
+
+    [SkippableFact]
+    public void GetContentDocumentJsonSchema_ReturnsObjectSchemaWithTopLevelProperties()
+    {
+        PolicyPackSchemaKeysService sut = new();
+
+        PolicyPackContentDocumentJsonSchemaResponse response = sut.GetContentDocumentJsonSchema();
+
+        response.Schema.ValueKind.Should().Be(JsonValueKind.Object);
+        response.Schema.TryGetProperty("type", out JsonElement type).Should().BeTrue();
+        type.GetString().Should().Be("object");
+        response.Schema.TryGetProperty("properties", out JsonElement properties).Should().BeTrue();
+        properties.TryGetProperty("complianceRuleIds", out _).Should().BeTrue();
+        properties.TryGetProperty("metadata", out _).Should().BeTrue();
     }
 }

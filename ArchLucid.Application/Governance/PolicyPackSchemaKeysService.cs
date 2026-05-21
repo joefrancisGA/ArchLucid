@@ -1,41 +1,33 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Text.Json.Schema;
-using System.Text.Json.Serialization.Metadata;
 
 using ArchLucid.Contracts.Governance;
-using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 namespace ArchLucid.Application.Governance;
 
 /// <inheritdoc cref="IPolicyPackSchemaKeysService" />
 public sealed class PolicyPackSchemaKeysService : IPolicyPackSchemaKeysService
 {
-    // JsonSchemaExporter requires TypeInfoResolver; PolicyPackJsonSerializerOptions.Default is shared read-only IO config.
-    private static readonly JsonSerializerOptions SchemaExportSerializerOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        TypeInfoResolver = new DefaultJsonTypeInfoResolver()
-    };
-
-    private static readonly JsonSchemaExporterOptions ExporterOptions = new()
-    {
-        TreatNullObliviousAsNonNullable = true
-    };
-
     /// <inheritdoc />
     public PolicyPackSchemaKeysResponse GetSchemaKeys()
     {
-        JsonNode schemaRoot = JsonSchemaExporter.GetJsonSchemaAsNode(
-            SchemaExportSerializerOptions,
-            typeof(PolicyPackContentDocument),
-            ExporterOptions);
+        JsonNode schemaRoot = PolicyPackContentDocumentSchemaExporter.ExportSchemaRoot();
 
         PolicyPackSchemaKeysResponse response = PolicyPackSchemaKeyParser.Parse(schemaRoot);
         AppendCustomKeyDescriptors(response);
 
         return response;
+    }
+
+    /// <inheritdoc />
+    public PolicyPackContentDocumentJsonSchemaResponse GetContentDocumentJsonSchema()
+    {
+        JsonNode schemaRoot = PolicyPackContentDocumentSchemaExporter.ExportSchemaRoot();
+
+        return new PolicyPackContentDocumentJsonSchemaResponse
+        {
+            Schema = JsonSerializer.SerializeToElement(schemaRoot)
+        };
     }
 
     private static void AppendCustomKeyDescriptors(PolicyPackSchemaKeysResponse response)

@@ -446,6 +446,19 @@ public sealed class GovernanceController(
         return Ok(response);
     }
 
+    /// <summary>
+    ///     Returns the registered <c>PolicyPackContentDocument</c> JSON Schema for real-time policy pack editor validation.
+    /// </summary>
+    [HttpGet("policy-pack-content-schema")]
+    [ProducesResponseType(typeof(PolicyPackContentDocumentJsonSchemaResponse), StatusCodes.Status200OK)]
+    public IActionResult GetPolicyPackContentDocumentJsonSchema()
+    {
+        PolicyPackContentDocumentJsonSchemaResponse response =
+            _policyPackSchemaKeysService.GetContentDocumentJsonSchema();
+
+        return Ok(response);
+    }
+
     [HttpGet("dashboard")]
     [ProducesResponseType(typeof(GovernanceDashboardSummary), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetDashboard(
