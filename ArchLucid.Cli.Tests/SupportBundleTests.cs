@@ -122,8 +122,9 @@ public sealed class SupportBundleTests
             payload.Health.Ready.HttpStatus.Should().Be(200);
             payload.References.ApiEndpoints.Should().NotBeEmpty();
             SupportBundleCollector.SerializeIndented(payload).Should().NotContain("Bearer ");
-            payload.Manifest.TriageReadOrder[0].File.Should().Be(SupportBundleLayout.NextStepsFileName);
-            payload.Manifest.TriageReadOrder[1].File.Should().Be(SupportBundleArchiveWriter.HealthFileName);
+            payload.Manifest.TriageReadOrder[0].File.Should().Be(SupportBundleLayout.DiagnosticsSummaryFileName);
+            payload.Manifest.TriageReadOrder[1].File.Should().Be(SupportBundleLayout.NextStepsFileName);
+            payload.Manifest.TriageReadOrder[2].File.Should().Be(SupportBundleArchiveWriter.HealthFileName);
             payload.ConfigSummary.HasArchlucidJson.Should().BeTrue();
             payload.Workspace.FileCount.Should().Be(1);
             payload.References.Documentation.Should()
@@ -171,6 +172,7 @@ public sealed class SupportBundleTests
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.ManifestFileName)).Should().BeTrue();
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.ReadmeFileName)).Should().BeTrue();
             File.Exists(Path.Combine(dir, SupportBundleLayout.NextStepsFileName)).Should().BeTrue();
+            File.Exists(Path.Combine(dir, SupportBundleLayout.DiagnosticsSummaryFileName)).Should().BeTrue();
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.HealthFileName)).Should().BeTrue();
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.ApiContractFileName)).Should().BeTrue();
             File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ManifestFileName)).Should()
@@ -222,6 +224,11 @@ public sealed class SupportBundleTests
             manifest.Should().Contain("mask-jwt-like-tokens");
             manifest.Should().Contain("mask-json-escaped-jwt-strings");
             manifest.Should().Contain("includedFilesLexOrder");
+
+            string diagnostics = File.ReadAllText(Path.Combine(dir, SupportBundleLayout.DiagnosticsSummaryFileName));
+
+            diagnostics.Should().Contain("automated log diagnostics");
+            diagnostics.Should().NotContain("supersecret");
 
             string logJson = File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.LogsFileName));
 

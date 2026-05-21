@@ -1,0 +1,91 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "ArchLucid trial sample — minimal read-friendly web workload for extractor and review demos. Deploy into a dedicated resource group; no privileged roles required."
+  },
+  "parameters": {
+    "environmentSuffix": {
+      "type": "string",
+      "defaultValue": "trial",
+      "metadata": {
+        "description": "Short suffix for resource names (letters and numbers only)."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Azure region for all resources."
+      }
+    }
+  },
+  "variables": {
+    "suffix": "[toLower(parameters('environmentSuffix'))]",
+    "storageAccountName": "[concat('alucid', uniqueString(resourceGroup().id, variables('suffix')))]",
+    "appServicePlanName": "[concat('al-plan-', variables('suffix'))]",
+    "webAppName": "[concat('al-web-', variables('suffix'), '-', uniqueString(resourceGroup().id))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[variables('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true,
+        "allowBlobPublicAccess": false
+      }
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2023-01-01",
+      "name": "[variables('appServicePlanName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "B1",
+        "tier": "Basic"
+      },
+      "properties": {
+        "reserved": false
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2023-01-01",
+      "name": "[variables('webAppName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+        "httpsOnly": true,
+        "siteConfig": {
+          "minTlsVersion": "1.2",
+          "ftpsState": "Disabled"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "webAppName": {
+      "type": "string",
+      "value": "[variables('webAppName')]"
+    },
+    "storageAccountName": {
+      "type": "string",
+      "value": "[variables('storageAccountName')]"
+    },
+    "resourceGroupLocation": {
+      "type": "string",
+      "value": "[parameters('location')]"
+    }
+  }
+}

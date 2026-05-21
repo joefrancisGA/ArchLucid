@@ -13,6 +13,11 @@ public static class SupportBundleTriageCatalog
         get;
     } =
     [
+        new()
+        {
+            File = SupportBundleLayout.DiagnosticsSummaryFileName,
+            Why = "Automated scan of log excerpt for timeouts, 401/429, and 5xx signatures — read before deep log review."
+        },
         new() { File = SupportBundleLayout.NextStepsFileName, Why = "Machine-generated triage summary from probes (advisory only) — read with health.json." },
         new() { File = SupportBundleArchiveWriter.HealthFileName, Why = "Liveness/readiness/combined health — primary evidence when the API misbehaves." },
         new() { File = SupportBundleArchiveWriter.BuildFileName, Why = "CLI identity plus GET /version — server build and environment name." },

@@ -1,7 +1,9 @@
 using System.Net;
 
+using ArchLucid.Core.Http;
+using ArchLucid.Host.Core.Http;
+
 using Polly;
-using Polly.Retry;
 
 namespace ArchLucid.Host.Core.Services.Delivery;
 
@@ -32,36 +34,8 @@ public static class WebhookOutboundHttpRetryPolicy
     {
         ArgumentNullException.ThrowIfNull(sleepDurationProvider);
 
-        ResiliencePipeline<HttpResponseMessage> pipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
-            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
-            {
-                MaxRetryAttempts = ProductionRetryAttempts,
-                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
-                    .Handle<HttpRequestException>()
-                    .HandleResult(ShouldRetryOutboundWebhookResponse),
-                DelayGenerator = args =>
-                {
-                    TimeSpan delay = sleepDurationProvider(args.AttemptNumber);
+        OutboundExternalHttpResilienceOptions options = new() { MaxRetryAttempts = ProductionRetryAttempts };
 
-                    return new ValueTask<TimeSpan?>(delay);
-                },
-            })
-            .Build();
-
-        return pipeline.AsAsyncPolicy();
-    }
-
-    /// <summary>Matches <c>HandleTransientHttpError().OrResult(429)</c> from the historical Polly.Extensions.Http policy.</summary>
-    private static bool ShouldRetryOutboundWebhookResponse(HttpResponseMessage response)
-    {
-        HttpStatusCode code = response.StatusCode;
-
-        if (code == HttpStatusCode.RequestTimeout)
-            return true;
-
-        if (code == HttpStatusCode.TooManyRequests)
-            return true;
-
-        return (int)code >= 500 && (int)code < 600;
+        return OutboundExternalHttpResiliencePolicy.Create(options, sleepDurationProvider);
     }
 }

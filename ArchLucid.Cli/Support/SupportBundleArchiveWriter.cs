@@ -21,6 +21,8 @@ public static class SupportBundleArchiveWriter
     public const string ReferencesFileName = "references.json";
     public const string LogsFileName = "logs.json";
 
+    public const string DiagnosticsSummaryFileName = SupportBundleLayout.DiagnosticsSummaryFileName;
+
     /// <summary>
     ///     Writes JSON files into <paramref name="outputDirectory" /> (created if missing). Returns the directory path.
     /// </summary>
@@ -59,6 +61,7 @@ public static class SupportBundleArchiveWriter
         WriteFile(Path.Combine(outputDirectory, ReferencesFileName),
             SupportBundleCollector.SerializeIndented(payload.References));
         WriteFile(Path.Combine(outputDirectory, LogsFileName), SupportBundleCollector.SerializeIndented(payload.Logs));
+        WriteDiagnosticsSummary(outputDirectory, payload);
 
         SupportBundleManifest finalized =
             SupportBundleFinalManifestBuilder.WithInventory(payload.Manifest, redactionPassAppliedToSerializedSections: false);
@@ -110,6 +113,7 @@ public static class SupportBundleArchiveWriter
             SupportBundleCollector.SerializeIndented(payload.References));
         WriteRedactedFile(Path.Combine(outputDirectory, LogsFileName),
             SupportBundleCollector.SerializeIndented(payload.Logs));
+        WriteDiagnosticsSummary(outputDirectory, payload);
 
         SupportBundleManifest finalized =
             SupportBundleFinalManifestBuilder.WithInventory(payload.Manifest, redactionPassAppliedToSerializedSections: true);
@@ -182,5 +186,16 @@ public static class SupportBundleArchiveWriter
     private static void WriteRedactedFile(string path, string content)
     {
         WriteFile(path, SupportBundleRedactor.RedactSensitivePatterns(content));
+    }
+
+    private static void WriteDiagnosticsSummary(string outputDirectory, SupportBundlePayload payload)
+    {
+        ArgumentNullException.ThrowIfNull(payload);
+
+        DateTimeOffset analyzedUtc = DateTimeOffset.UtcNow;
+        string summary = SupportBundleLogDiagnosticsAnalyzer.BuildSummary(payload.Logs.LocalLogExcerpt, analyzedUtc);
+        string redacted = SupportBundleRedactor.RedactSensitivePatterns(summary);
+
+        WriteFile(Path.Combine(outputDirectory, DiagnosticsSummaryFileName), redacted);
     }
 }

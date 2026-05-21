@@ -12,6 +12,7 @@ using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Host.Core.Http;
 using ArchLucid.Host.Core.Startup;
 using ArchLucid.Persistence.Archival;
 
@@ -37,6 +38,9 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<TemplateProvider>();
         services.AddSingleton(TimeProvider.System);
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
+        services.Configure<OutboundExternalHttpResilienceOptions>(
+            configuration.GetSection(OutboundExternalHttpResilienceOptions.SectionName));
+        services.PostConfigure<OutboundExternalHttpResilienceOptions>(static o => o.Normalize());
         services.AddHttpClient(nameof(ConfigurationHealthProbe), static client =>
         {
             client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.InternalLoopbackProbe);
@@ -120,11 +124,15 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(IntegrationsItsmOutboundOptions.SectionName));
         services.Configure<ConfluencePublishingOptions>(
             configuration.GetSection(ConfluencePublishingOptions.SectionName));
-        services.AddHttpClient<JiraOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60));
-        services.AddHttpClient<ServiceNowOutboundIncidentClient>(static client => client.Timeout = TimeSpan.FromSeconds(60));
-        services.AddHttpClient(
-            ItsmOutboundIntegrationHealthLimits.HttpClientName,
-            static client => client.Timeout = TimeSpan.FromSeconds(ItsmOutboundIntegrationHealthLimits.NetworkTimeoutSeconds));
+        services.AddHttpClient<JiraOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
+            .AddOutboundExternalHttpResilience();
+        services.AddHttpClient<ServiceNowOutboundIncidentClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
+            .AddOutboundExternalHttpResilience();
+        services
+            .AddHttpClient(
+                ItsmOutboundIntegrationHealthLimits.HttpClientName,
+                static client => client.Timeout = TimeSpan.FromSeconds(ItsmOutboundIntegrationHealthLimits.NetworkTimeoutSeconds))
+            .AddOutboundExternalHttpResilience();
         services.AddScoped<IItsmOutboundIntegrationHealthService, ItsmOutboundIntegrationHealthService>();
         services.AddScoped<ItsmOutboundIssueCreationService>();
         services.Configure<EvidenceBulkUploadOptions>(

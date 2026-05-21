@@ -17,6 +17,7 @@ using ArchLucid.Application.Evolution;
 using ArchLucid.Application.ExecutiveSummary;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Integrations.Confluence;
+using ArchLucid.Host.Core.Http;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Findings;
@@ -218,8 +219,10 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ICustomRoleService, CustomRoleService>();
         services.AddScoped<ICustomRolePermissionEvaluator, CustomRolePermissionEvaluator>();
         services.AddScoped<IExecutiveRoiSummaryService, ExecutiveRoiSummaryService>();
-        services.AddHttpClient<IPublisherConnector, ConfluenceCloudPublisherConnector>(
-            static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration));
+        services
+            .AddHttpClient<IPublisherConnector, ConfluenceCloudPublisherConnector>(
+                static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration))
+            .AddOutboundExternalHttpResilience();
         services.AddScoped<IConfluenceFirstValueReportPublisher, ConfluenceFirstValueReportPublisher>();
         services.AddScoped<FirstValueReportPdfBuilder>();
         services.AddScoped<WhyArchLucidPackPdfBuilder>();

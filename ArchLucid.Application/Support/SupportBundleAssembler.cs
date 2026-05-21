@@ -78,8 +78,10 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
         string referencesJson = SerializeIndented(BuildReferencesSection());
         string nextStepsJson = SerializeIndented(nextSteps);
         string readmeText = BuildReadme(createdUtcIso, requesterDisplay, tenantDisplay, nextSteps);
+        string diagnosticsSummary = SupportBundleLogDiagnosticsAnalyzer.BuildSummary(null, generatedUtc);
         byte[] zipBytes = WriteZip([
             new SupportBundleZipEntry(ReadmeFileName, RedactToBytes(readmeText)),
+            new SupportBundleZipEntry(SupportBundleLayout.DiagnosticsSummaryFileName, RedactToBytes(diagnosticsSummary)),
             new SupportBundleZipEntry(SupportBundleLayout.NextStepsFileName, RedactToBytes(nextStepsJson)),
             new SupportBundleZipEntry(ManifestFileName, RedactToBytes(manifestJson)), new SupportBundleZipEntry(BuildFileName, RedactToBytes(buildJson)),
             new SupportBundleZipEntry(EnvironmentFileName, RedactToBytes(environmentJson)),
@@ -108,6 +110,11 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
             triageReadOrder = new object[]
             {
                 new { file = ReadmeFileName, why = "Plain-text overview — open first." },
+                new
+                {
+                    file = SupportBundleLayout.DiagnosticsSummaryFileName,
+                    why = "Automated log-pattern scan (server bundles have no host log excerpt by default)."
+                },
                 new { file = SupportBundleLayout.NextStepsFileName, why = "Machine-generated triage summary (advisory only)." },
                 new { file = ManifestFileName, why = "Bundle metadata + read order in machine-readable form." },
                 new { file = BuildFileName, why = "Host build identity (assembly version, runtime)." },
@@ -190,11 +197,12 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
         body.AppendLine("Read first (in order)");
         body.AppendLine("---------------------");
         body.Append(" 1. ").Append(ReadmeFileName).AppendLine("              — this file");
-        body.Append(" 2. ").Append(SupportBundleLayout.NextStepsFileName).AppendLine(" — same summary as JSON + structured hints");
-        body.Append(" 3. ").Append(ManifestFileName).AppendLine("            — bundle metadata + machine-readable read order");
-        body.Append(" 4. ").Append(BuildFileName).AppendLine("               — host build identity (assembly version + runtime)");
-        body.Append(" 5. ").Append(EnvironmentFileName).AppendLine("         — redacted ARCHLUCID_* / DOTNET_* env vars");
-        body.Append(" 6. ").Append(ReferencesFileName).AppendLine("          — API endpoints, doc links, correlation tip");
+        body.Append(" 2. ").Append(SupportBundleLayout.DiagnosticsSummaryFileName).AppendLine(" — automated log-pattern triage (advisory)");
+        body.Append(" 3. ").Append(SupportBundleLayout.NextStepsFileName).AppendLine(" — same summary as JSON + structured hints");
+        body.Append(" 4. ").Append(ManifestFileName).AppendLine("            — bundle metadata + machine-readable read order");
+        body.Append(" 5. ").Append(BuildFileName).AppendLine("               — host build identity (assembly version + runtime)");
+        body.Append(" 6. ").Append(EnvironmentFileName).AppendLine("         — redacted ARCHLUCID_* / DOTNET_* env vars");
+        body.Append(" 7. ").Append(ReferencesFileName).AppendLine("          — API endpoints, doc links, correlation tip");
         body.AppendLine();
         body.AppendLine("Redaction");
         body.AppendLine("---------");

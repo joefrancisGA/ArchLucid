@@ -111,7 +111,7 @@ internal static class SupportBundleCommand
         Console.WriteLine(
             "  Writes README.txt (read first), manifest.json (triageReadOrder), build.json, health.json,");
         Console.WriteLine("  api-contract.json (bounded GET /openapi/v1.json), config-summary.json, environment.json,");
-        Console.WriteLine("  workspace.json, references.json, logs.json under a new UTC-stamped folder (or --output).");
+        Console.WriteLine("  workspace.json, references.json, logs.json, diagnostics-summary.txt under a new UTC-stamped folder (or --output).");
         Console.WriteLine("  --zip  Also creates <folder>.zip next to the folder.");
     }
 

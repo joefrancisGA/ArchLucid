@@ -15,6 +15,7 @@ using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination.Retrieval;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Host.Core.Http;
 using ArchLucid.Host.Core.Integration;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Host.Core.Services;
@@ -181,7 +182,7 @@ public static partial class ServiceCollectionExtensions
             .AddHttpClient(
                 HttpWebhookPoster.WebhookHttpClientName,
                 static client => client.Timeout = TimeSpan.FromSeconds(60))
-            .AddPolicyHandler(static (_, _) => WebhookOutboundHttpRetryPolicy.Create());
+            .AddOutboundExternalHttpResilience();
         services.AddSingleton<HttpWebhookPoster>();
         services.AddSingleton<FakeWebhookPoster>();
         services.AddSingleton<IWebhookPoster>(static sp =>

@@ -1,5 +1,6 @@
 using System.Net;
 
+using ArchLucid.Core.Http;
 using ArchLucid.Host.Core.Services.Delivery;
 
 using FluentAssertions;
@@ -22,6 +23,7 @@ public sealed class WebhookOutboundHttpRetryPolicyTests
         ServiceCollection services = [];
 
         services.AddLogging(static b => b.SetMinimumLevel(LogLevel.None));
+        services.Configure<OutboundExternalHttpResilienceOptions>(static o => o.MaxRetryAttempts = 3);
 
         services
             .AddHttpClient(HttpWebhookPoster.WebhookHttpClientName)

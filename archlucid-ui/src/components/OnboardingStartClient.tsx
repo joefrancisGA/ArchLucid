@@ -4,6 +4,10 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  buildTrialSampleAzurePortalDeployUrl,
+  resolveTrialSampleAzureTemplateUrl,
+} from "@/lib/trial-sample-azure-deploy";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { readLastRegistrationPayload } from "@/lib/registration-session";
 
@@ -120,6 +124,11 @@ export function OnboardingStartClient() {
   const hasSample = sampleId.length > 0;
   const wizardHref = hasSample ? `/reviews/new?sampleRunId=${encodeURIComponent(sampleId)}` : "/reviews/new";
 
+  const sampleAzureDeployHref =
+    typeof window !== "undefined"
+      ? buildTrialSampleAzurePortalDeployUrl(resolveTrialSampleAzureTemplateUrl(window.location.origin))
+      : null;
+
   const recovery: RecoveryCopy | null =
     error !== null && !loading
       ? errorStatus !== null
@@ -196,6 +205,28 @@ export function OnboardingStartClient() {
               Organization: <strong>{reg.organizationName}</strong>
             </p>
           ) : null}
+
+          <div className="mt-4 rounded-md border border-teal-200 bg-teal-50/60 p-4 text-sm text-teal-950 dark:border-teal-900 dark:bg-teal-950/30 dark:text-teal-50">
+            <p className="m-0 font-medium">Optional: deploy a live sample in Azure</p>
+            <p className="m-0 mt-2 leading-relaxed text-teal-900/90 dark:text-teal-100/90">
+              Deploy an isolated App Service + storage footprint in your subscription, then run the Azure extractor or hosted
+              extractor against it. The template uses Reader-safe resources only — create a dedicated resource group first.
+            </p>
+            {sampleAzureDeployHref !== null ? (
+              <div className="mt-3">
+                <Button asChild variant="primary" size="sm">
+                  <a
+                    href={sampleAzureDeployHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-testid="onboarding-deploy-sample-azure"
+                  >
+                    Deploy sample architecture to Azure
+                  </a>
+                </Button>
+              </div>
+            ) : null}
+          </div>
 
           <div className="mt-5 flex flex-wrap gap-3">
             {hasSample ? (
