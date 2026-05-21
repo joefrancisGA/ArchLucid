@@ -221,8 +221,13 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
   useEffect(() => {
     void (async () => {
       try {
-        const page = coerceRunSummaryPaged(await listRunsByProjectPaged("default", 1, 1));
-        const first = page.items[0];
+        const coerced = coerceRunSummaryPaged(await listRunsByProjectPaged("default", 1, 1));
+
+        if (!coerced.ok) {
+          return;
+        }
+
+        const first = coerced.value.items[0];
 
         if (first?.runId && simulateRunId.trim().length === 0) {
           setSimulateRunId(first.runId);
