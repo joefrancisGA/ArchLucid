@@ -88,6 +88,10 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     text: "Operator-facing tenant preferences: trial status, executive digest email schedule, and the active request scope. Sensitive infrastructure settings remain server-only.",
     learnMoreUrl: "/docs/library/API_CONTRACTS.md",
   },
+  "tenant-cost-settings": {
+    text: "Architect hourly rate and average incident cost drive estimated USD savings on pilot run deltas and the executive ROI summary. Until you save, platform defaults from the ROI model apply.",
+    learnMoreUrl: "/docs/go-to-market/ROI_MODEL.md",
+  },
   "admin-users-page": {
     text: "Principals in this tenant and their effective authority rank. The API is authoritative; role changes need the admin user management endpoints to be available on your environment.",
     learnMoreUrl: "/docs/library/API_CONTRACTS.md",

@@ -486,6 +486,9 @@ public static class AuditEventTypes
     /// <summary>Subsequent edits to <c>BaselineManualPrep*</c> after the first capture.</summary>
     public const string TrialBaselineManualPrepUpdated = "TrialBaselineManualPrepUpdated";
 
+    /// <summary>Operator saved per-tenant ROI cost assumptions on <c>dbo.TenantCostSettings</c>.</summary>
+    public const string TenantCostSettingsUpdated = "TenantCostSettingsUpdated";
+
     /// <summary>First golden manifest commit recorded for a self-service trial tenant (funnel depth).</summary>
     public const string TrialFirstRunCompleted = "TrialFirstRunCompleted";
 

@@ -1,6 +1,7 @@
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Roi;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
@@ -465,18 +466,19 @@ public sealed class PilotRunDeltaComputerTests
         IScopeContextProvider scope,
         AgentOutputQualityGateOptions? gateOpts = null,
         IRunAgentOutputPilotEvidenceAggregator? pilotAggregator = null,
-        IFindingsSnapshotRepository? findingsSnapshots = null)
+        ITenantEstimatedUsdSavingsResolver? savingsResolver = null)
     {
-        Mock<IFindingsSnapshotRepository> findings = new();
-        findings.Setup(f => f.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Guid _, CancellationToken _) => (FindingsSnapshot?)null);
+        Mock<ITenantEstimatedUsdSavingsResolver> savings = new();
+        savings
+            .Setup(r => r.ResolveFromFindingsSnapshotIdAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((decimal?)null);
 
         return new PilotRunDeltaComputer(
             evidence,
             traces,
             audit,
             artifacts,
-            findingsSnapshots ?? findings.Object,
+            savingsResolver ?? savings.Object,
             scope,
             Mock.Of<IRunExplanationSummaryService>(),
             pilotAggregator ?? DefaultStrictPilotAgg(),

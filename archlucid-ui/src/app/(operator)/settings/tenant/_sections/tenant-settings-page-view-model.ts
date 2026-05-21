@@ -6,6 +6,7 @@ import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
 export type TenantSettingsPageContentModel = {
   readonly currentPrincipalName: string | null;
   readonly canEditDigest: boolean;
+  readonly canEditCostSettings: boolean;
   readonly digestLoadFailure: string | null;
   readonly trial: TenantTrialStatusPayload | null;
   readonly digest: ExecDigestPreferencesResponse | null;

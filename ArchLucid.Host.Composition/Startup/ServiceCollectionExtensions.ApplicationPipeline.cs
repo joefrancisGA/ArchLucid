@@ -211,6 +211,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<FirstValueReportBuilder>();
         services.AddScoped<IFirstValueReportBuilder>(static sp => sp.GetRequiredService<FirstValueReportBuilder>());
         services.AddScoped<IExecutiveSummaryService, ExecutiveSummaryService>();
+        services.AddScoped<ITenantEstimatedUsdSavingsResolver, TenantEstimatedUsdSavingsResolver>();
         services.AddScoped<IExecutiveRoiSummaryService, ExecutiveRoiSummaryService>();
         services.AddHttpClient<IPublisherConnector, ConfluenceCloudPublisherConnector>(
             static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration));

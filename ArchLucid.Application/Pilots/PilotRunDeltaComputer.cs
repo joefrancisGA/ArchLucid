@@ -1,5 +1,6 @@
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Explanation;
+using ArchLucid.Application.Roi;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
@@ -35,7 +36,7 @@ public sealed class PilotRunDeltaComputer(
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IAuditRepository auditRepository,
     IArtifactQueryService artifactQueryService,
-    IFindingsSnapshotRepository findingsSnapshotRepository,
+    ITenantEstimatedUsdSavingsResolver tenantEstimatedUsdSavingsResolver,
     IScopeContextProvider scopeContextProvider,
     IRunExplanationSummaryService runExplanationSummaryService,
     IRunAgentOutputPilotEvidenceAggregator pilotEvidenceAggregator,
@@ -47,8 +48,8 @@ public sealed class PilotRunDeltaComputer(
 
     private readonly IArtifactQueryService _artifactQueryService = artifactQueryService ?? throw new ArgumentNullException(nameof(artifactQueryService));
     private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
-    private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
-        findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
+    private readonly ITenantEstimatedUsdSavingsResolver _tenantEstimatedUsdSavingsResolver =
+        tenantEstimatedUsdSavingsResolver ?? throw new ArgumentNullException(nameof(tenantEstimatedUsdSavingsResolver));
     private readonly IFindingEvidenceChainService _evidenceChainService = evidenceChainService ?? throw new ArgumentNullException(nameof(evidenceChainService));
     private readonly ILogger<PilotRunDeltaComputer> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -117,26 +118,8 @@ public sealed class PilotRunDeltaComputer(
         };
     }
 
-    private async Task<decimal?> TryResolveEstimatedUsdSavingsAsync(Guid? findingsSnapshotId, CancellationToken cancellationToken)
-    {
-        if (findingsSnapshotId is null || findingsSnapshotId == Guid.Empty)
-            return null;
-
-        try
-        {
-            FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(findingsSnapshotId.Value, cancellationToken);
-
-            if (snapshot is null)
-                return null;
-
-            return snapshot.TotalEstimatedSavings;
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogWarning(ex, "Pilot delta: findings snapshot savings unavailable for snapshot {SnapshotId}.", findingsSnapshotId);
-            return null;
-        }
-    }
+    private Task<decimal?> TryResolveEstimatedUsdSavingsAsync(Guid? findingsSnapshotId, CancellationToken cancellationToken) =>
+        _tenantEstimatedUsdSavingsResolver.ResolveFromFindingsSnapshotIdAsync(findingsSnapshotId, cancellationToken);
 
     private async Task<(IReadOnlyList<AgentExecutionTrace> traces, int count, bool resolved)> TryListExecutionTracesAsync(string runId,
         CancellationToken cancellationToken)

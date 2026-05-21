@@ -42,6 +42,13 @@ public sealed class ValueReportComputationOptions
         init;
     } = 150m;
 
+    /// <summary>Default inconsistency / remediation incident cost from ROI_MODEL §2 ($25K mid-range).</summary>
+    public decimal DefaultAverageIncidentCostUsd
+    {
+        get;
+        init;
+    } = 25_000m;
+
     /// <summary>Example all-in annual baseline from ROI_MODEL §4 (subscription + infra + LLM + setup amortized + ops).</summary>
     public decimal BaselineAnnualSubscriptionAndOpsCostUsdFromRoiModel
     {

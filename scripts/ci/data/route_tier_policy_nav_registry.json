@@ -1222,6 +1222,16 @@
       "nav_operator_href": "/settings/tenant-cost"
     },
     {
+      "controller_file": "Tenancy/TenantCostSettingsController.cs",
+      "class_name": "TenantCostSettingsController",
+      "route_template": "v{version:apiVersion}/tenant/cost-settings",
+      "normalized_prefix": "/v1/tenant/cost-settings",
+      "commercial_tier": "none",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Tenancy/TenantCustomerSuccessController.cs",
       "class_name": "TenantCustomerSuccessController",
       "route_template": "v{version:apiVersion}/tenant/customer-success",

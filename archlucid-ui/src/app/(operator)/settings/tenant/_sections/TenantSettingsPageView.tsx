@@ -13,6 +13,7 @@ import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 
 import { TenantSettingsDigestEmailsInput } from "./TenantSettingsDigestEmailsInput";
+import { TenantCostSettingsCard } from "./TenantCostSettingsCard";
 import { TenantQualityGatesCard } from "./TenantQualityGatesCard";
 import type { TenantSettingsPageContentModel } from "./tenant-settings-page-view-model";
 
@@ -119,6 +120,8 @@ export function TenantSettingsPageView(props: Props) {
           )}
         </CardContent>
       </Card>
+
+      <TenantCostSettingsCard canEdit={m.canEditCostSettings} />
 
       <Card>
         <CardHeader>

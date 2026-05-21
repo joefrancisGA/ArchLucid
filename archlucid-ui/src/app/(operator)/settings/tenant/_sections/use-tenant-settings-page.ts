@@ -26,6 +26,7 @@ function buildDigestForm(d: ExecDigestPreferencesResponse): ExecDigestPreference
 export function useTenantSettingsPage(loaded: TenantSettingsVisibleLoad): TenantSettingsPageContentModel {
   const { callerAuthorityRank, currentPrincipal } = useOperatorNavAuthority();
   const canEditDigest = operateCapabilityFromRank(callerAuthorityRank);
+  const canEditCostSettings = canEditDigest;
 
   const [digestLoadFailure, setDigestLoadFailure] = useState<string | null>(loaded.digestLoadFailure);
   const [trial, setTrial] = useState<TenantTrialStatusPayload | null>(loaded.trial);
@@ -97,6 +98,7 @@ export function useTenantSettingsPage(loaded: TenantSettingsVisibleLoad): Tenant
   return {
     currentPrincipalName: currentPrincipal.name ?? null,
     canEditDigest,
+    canEditCostSettings,
     digestLoadFailure,
     trial,
     digest,

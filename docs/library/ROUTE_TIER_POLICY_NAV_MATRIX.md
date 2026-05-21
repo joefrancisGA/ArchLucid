@@ -38,7 +38,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:136 -->
+<!-- route-tier-policy-nav-registry-count:137 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -164,6 +164,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Tenancy/CorePilotTeamChecklistController.cs` | `/v1/tenant/core-pilot-checklist` | standard | Authorize | /onboarding |  |
 | `Tenancy/TenantBaselineController.cs` | `/v1/tenant/baseline` | none | Authorize | /settings/baseline |  |
 | `Tenancy/TenantCostEstimateController.cs` | `/v1/tenant/cost-estimate` | standard | Authorize | /settings/tenant-cost |  |
+| `Tenancy/TenantCostSettingsController.cs` | `/v1/tenant/cost-settings` | none | Authorize |  |  |
 | `Tenancy/TenantCustomerSuccessController.cs` | `/v1/tenant/customer-success` | standard | Authorize |  |  |
 | `Tenancy/TenantErasureLegalHoldController.cs` | `/v1/tenant/erasure` | none | Authorize |  |  |
 | `Tenancy/TenantExecDigestPreferencesController.cs` | `/v1/tenant` | standard | Authorize |  |  |

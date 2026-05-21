@@ -28,7 +28,7 @@ public sealed class ExecutiveRoiSummaryServiceTests
             .Setup(query => query.ListRunSummariesKeysetAsync(null, It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Array.Empty<RunSummary>(), false, null));
 
-        ExecutiveRoiSummaryService sut = CreateSut(runQuery.Object, Mock.Of<IFindingsSnapshotRepository>());
+        ExecutiveRoiSummaryService sut = CreateSut(runQuery.Object, Mock.Of<ITenantEstimatedUsdSavingsResolver>());
 
         ExecutiveRoiSummaryResponse response = await sut.BuildAsync(CancellationToken.None);
 
@@ -91,12 +91,12 @@ public sealed class ExecutiveRoiSummaryServiceTests
                 new ArchitectureFinding { Category = "Compliance", Severity = FindingSeverity.Warning, Message = "c" },
             ]));
 
-        Mock<IFindingsSnapshotRepository> findingsRepo = new();
-        findingsRepo
-            .Setup(repo => repo.GetByIdAsync(findingsSnapshotId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FindingsSnapshot { FindingsSnapshotId = findingsSnapshotId, TotalEstimatedSavings = 12500m });
+        Mock<ITenantEstimatedUsdSavingsResolver> savingsResolver = new();
+        savingsResolver
+            .Setup(resolver => resolver.ResolveFromFindingsSnapshotIdAsync(findingsSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(12500m);
 
-        ExecutiveRoiSummaryService sut = CreateSut(runQuery.Object, findingsRepo.Object);
+        ExecutiveRoiSummaryService sut = CreateSut(runQuery.Object, savingsResolver.Object);
 
         ExecutiveRoiSummaryResponse response = await sut.BuildAsync(CancellationToken.None);
 
@@ -111,11 +111,11 @@ public sealed class ExecutiveRoiSummaryServiceTests
 
     private static ExecutiveRoiSummaryService CreateSut(
         IRunDetailQueryService runDetailQueryService,
-        IFindingsSnapshotRepository findingsSnapshotRepository)
+        ITenantEstimatedUsdSavingsResolver tenantEstimatedUsdSavingsResolver)
     {
         return new ExecutiveRoiSummaryService(
             runDetailQueryService,
-            findingsSnapshotRepository,
+            tenantEstimatedUsdSavingsResolver,
             NullLogger<ExecutiveRoiSummaryService>.Instance);
     }
 

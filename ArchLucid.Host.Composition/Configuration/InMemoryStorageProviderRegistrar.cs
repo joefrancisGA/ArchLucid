@@ -73,6 +73,7 @@ using ArchLucid.Persistence.Marketing;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Orchestration.Pipeline;
 using ArchLucid.Persistence.Pilots;
+using ArchLucid.Persistence.Roi;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Repositories;
@@ -146,6 +147,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IPilotScorecardMetricsReader, NullPilotScorecardMetricsReader>();
         services.AddSingleton<IPilotReportCardMetricsReader, NullPilotReportCardMetricsReader>();
         services.AddSingleton<IPilotBaselineRepository, InMemoryPilotBaselineRepository>();
+        services.AddSingleton<ITenantCostSettingsRepository, InMemoryTenantCostSettingsRepository>();
         services.AddSingleton<IPilotCloseoutRepository, InMemoryPilotCloseoutRepository>();
         services.AddSingleton<IValueReportMetricsReader, InMemoryValueReportMetricsReader>();
         services.AddScoped<IRunPipelineAuditTimelineService, RunPipelineAuditTimelineService>();

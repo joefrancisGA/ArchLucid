@@ -13,7 +13,7 @@ namespace ArchLucid.Application.Roi;
 /// <inheritdoc cref="IExecutiveRoiSummaryService"/>
 public sealed class ExecutiveRoiSummaryService(
     IRunDetailQueryService runDetailQueryService,
-    IFindingsSnapshotRepository findingsSnapshotRepository,
+    ITenantEstimatedUsdSavingsResolver tenantEstimatedUsdSavingsResolver,
     ILogger<ExecutiveRoiSummaryService> logger) : IExecutiveRoiSummaryService
 {
     /// <summary>Max distinct systems whose run details are loaded per request (defense against huge tenants).</summary>
@@ -21,8 +21,8 @@ public sealed class ExecutiveRoiSummaryService(
 
     private const string UnspecifiedSystemName = "(unspecified)";
 
-    private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
-        findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
+    private readonly ITenantEstimatedUsdSavingsResolver _tenantEstimatedUsdSavingsResolver =
+        tenantEstimatedUsdSavingsResolver ?? throw new ArgumentNullException(nameof(tenantEstimatedUsdSavingsResolver));
 
     private readonly ILogger<ExecutiveRoiSummaryService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -130,26 +130,8 @@ public sealed class ExecutiveRoiSummaryService(
             .ToList();
     }
 
-    private async Task<decimal?> TryResolveEstimatedUsdSavingsAsync(Guid? findingsSnapshotId, CancellationToken cancellationToken)
-    {
-        if (findingsSnapshotId is null || findingsSnapshotId == Guid.Empty)
-            return null;
-
-        try
-        {
-            FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(findingsSnapshotId.Value, cancellationToken).ConfigureAwait(false);
-
-            if (snapshot is null)
-                return null;
-
-            return snapshot.TotalEstimatedSavings;
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogWarning(ex, "Executive ROI summary: findings snapshot savings unavailable for snapshot {SnapshotId}.", findingsSnapshotId);
-            return null;
-        }
-    }
+    private Task<decimal?> TryResolveEstimatedUsdSavingsAsync(Guid? findingsSnapshotId, CancellationToken cancellationToken) =>
+        _tenantEstimatedUsdSavingsResolver.ResolveFromFindingsSnapshotIdAsync(findingsSnapshotId, cancellationToken);
 
     private static bool IsCommittedSummary(RunSummary summary)
     {

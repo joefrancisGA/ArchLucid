@@ -65,6 +65,33 @@ vi.mock("@/lib/api", () => ({
 import TenantSettingsPage from "./page";
 
 describe("TenantSettingsPage", () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/v1/tenant/cost-settings")) {
+          return new Response(
+            JSON.stringify({
+              architectHourlyRateUsd: 150,
+              averageIncidentCostUsd: 25000,
+              isTenantConfigured: false,
+              updatedUtc: null,
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          );
+        }
+
+        return new Response("{}", { status: 404 });
+      }),
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it("renders and saves digest preferences", async () => {
     const page = await TenantSettingsPage();
 
