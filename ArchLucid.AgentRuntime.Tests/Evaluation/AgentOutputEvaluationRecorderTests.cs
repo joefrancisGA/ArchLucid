@@ -1,5 +1,6 @@
 using System.Diagnostics.Metrics;
 
+using ArchLucid.Application.Agents;
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
@@ -60,13 +61,25 @@ public sealed class AgentOutputEvaluationRecorderTests
                     It.IsAny<CancellationToken>()))
             .ReturnsAsync((double?)null);
 
+        InMemoryAgentResultRepository agentResults = new();
+
         return new AgentOutputEvaluationRecorder(
             traceRepository,
             new InMemoryAgentEvidencePackageRepository(),
+            agentResults,
             new AgentOutputEvaluator(),
             semanticFacade,
             new AgentOutputQualityGate(Options.Create(opts)),
             CreateGateOptionsResolver(opts),
+            new AgentConfidenceCalibrationService(
+                agentResults,
+                new AgentConfidenceCalibrator(
+                    new NoOpAgentConfidenceCalibrationSampleRepository(),
+                    Options.Create(new AgentConfidenceCalibrationOptions { Enabled = false })),
+                Options.Create(new AgentConfidenceCalibrationOptions { Enabled = false }),
+                NullLogger<AgentConfidenceCalibrationService>.Instance),
+            new NoOpAgentConfidenceCalibrationSampleRepository(),
+            Options.Create(new AgentConfidenceCalibrationOptions { Enabled = false }),
             referenceEvaluator,
             archFindingConfidence.Object,
             new AgentResultEvidenceFaithfulnessChecker(),

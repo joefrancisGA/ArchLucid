@@ -524,6 +524,12 @@ public static class AuditEventTypes
     public const string EvidenceBulkAttached = "EvidenceBulkAttached";
 
     /// <summary>
+    ///     Admin promoted an agent-curated evidence proposal into the tenant catalog (
+    ///     <c>POST /v1/admin/evidence/proposals/{{resultId}}/promote</c>).
+    /// </summary>
+    public const string EvidenceProposalPromoted = "EvidenceProposalPromoted";
+
+    /// <summary>
     ///     Operator pinged a persisted alert-routing webhook subscription to verify connectivity
     ///     (<c>POST /v1/integrations/webhooks/{id}/test</c>). Payload includes subscription ID, transport outcome, and
     ///     status code; never the destination URL or response body.

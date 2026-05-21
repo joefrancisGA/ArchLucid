@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
-import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
 
 import type { OnboardingPageViewModel } from "./onboarding-page-view-model";

@@ -41,9 +41,17 @@ public interface IFindingsSnapshotRepository
         Guid findingsSnapshotId,
         int? cursorSortOrder,
         Guid? cursorFindingRecordId,
+        int? cursorPriorityRank,
         string? severity,
         string? category,
         string? findingType,
         int take,
+        bool orderByPriority,
+        CancellationToken ct);
+
+    /// <summary>Persists LLM-derived business-impact ranks for findings in a snapshot.</summary>
+    Task UpdatePriorityRanksAsync(
+        Guid findingsSnapshotId,
+        IReadOnlyList<(string FindingId, int PriorityRank)> ranks,
         CancellationToken ct);
 }

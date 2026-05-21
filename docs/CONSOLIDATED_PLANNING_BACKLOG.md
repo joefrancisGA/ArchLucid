@@ -1,4 +1,4 @@
-> **Scope:** Single owner-facing planning backlog — consolidates GTM, engineering refactor, tech backlog, assessment themes, AI roadmap, and deferred inventory. Source files remain authoritative for detail; this file records **reassessed decisions** from review sessions.
+﻿> **Scope:** Single owner-facing planning backlog — consolidates GTM, engineering refactor, tech backlog, assessment themes, AI roadmap, and deferred inventory. Source files remain authoritative for detail; this file records **reassessed decisions** from review sessions.
 >
 > **Spine:** [`START_HERE.md`](START_HERE.md) · **V1 contract:** [`library/V1_SCOPE.md`](library/V1_SCOPE.md) · **Deferred inventory:** [`library/V1_DEFERRED.md`](library/V1_DEFERRED.md)
 
@@ -96,23 +96,23 @@ Source: [`go-to-market/GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md). **GTM-only
 | ID | Task | Priority | Source status | Decision | Horizon | Notes |
 |----|------|----------|---------------|----------|---------|-------|
 | CPB-M01 | Positioning tagline → `POSITIONING.md` | P0 | Done | **Keep** (done) | — | Already complete. |
-| CPB-M02 | One-minute elevator pitch | P0 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. P0 copy; basis `EXECUTIVE_SPONSOR_BRIEF.md`. |
-| CPB-M03 | Five-minute demo script | P0 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. Marketing vocabulary; blocks M-19. |
+| CPB-M02 | One-minute elevator pitch | P0 | Done | **Keep** (done) | — | `ELEVATOR_PITCH.md` written 2026-05-21: 30-sec, 1-min, 2-min, consulting-line variants. |
+| CPB-M03 | Five-minute demo script | P0 | Done | **Keep** (done) | — | Five-minute live-call script added to `DEMO_VIDEO_SCRIPT.md` 2026-05-21; includes Q&A prompts. |
 | CPB-M04 | Workspace A Playwright smoke sign-off | P0 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. QA sign-off only; #30 shipped. |
 | CPB-M05 | Workspace B Playwright smoke sign-off | P0 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. |
 | CPB-M06 | Review sample report from Workspace B | P0 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. Content review; #28 done. |
 | CPB-M07 | 6–8 workflow screenshots | P0 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. Production asset; #30 done. |
-| CPB-M08 | Align audit-chain differentiator copy | P0 | Not started | *Pending review* | GTM-only | Depends finding-confidence UI (#24). |
-| CPB-M09 | Landing page full content | P1 | Not started | *Pending review* | GTM-only | #31+#32 done. |
-| CPB-M10–M14 | LinkedIn posts 1–5 | P1 | Not started | *Pending review* | GTM-only | Batch candidate. |
-| CPB-M15 | Long-form article (diagrams ≠ evidence) | P1 | Not started | *Pending review* | GTM-only | |
-| CPB-M16 | Short demo video (Workspace A) | P1 | Not started | *Pending review* | GTM-only | |
-| CPB-M17 | Outreach list (20 contacts) | P2 | Not started | *Pending review* | GTM-only | |
-| CPB-M18 | 20 outreach messages | P2 | Not started | *Pending review* | GTM-only | Needs M-09, M-16. |
-| CPB-M19 | 5–10 live demos | P2 | Not started | *Pending review* | GTM-only | Needs M-03. |
-| CPB-M20 | Refine positioning from demo objections | P2 | Not started | *Pending review* | GTM-only | |
-| CPB-M21 | Identify strongest buyer segment | P2 | Not started | *Pending review* | GTM-only | |
-| CPB-M34 | SOWs / talk track → `SERVICE_LED_OFFERS.md` | P2 | Not started | *Pending review* | GTM-only | |
+| CPB-M08 | Align audit-chain differentiator copy | **P1** | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. **Reprioritized P0→P1** until finding-confidence UI (#24); copy can draft earlier but not P0 gate. |
+| CPB-M09 | Landing page full content | P1 | In progress | **Keep** (shipped in repo) | GTM-only | 2026-05-21: `WelcomeMarketingPage` + sections — wedge copy, problem/solution, workflow strip, WAF/CAF use cases + disclaimer. **Owner:** M-06 report review, M-07 screenshots, deploy sign-off. |
+| CPB-M10-M14 | LinkedIn posts 1-5 | P1 | Done | **Keep** (done) | — | All five drafts in `LINKEDIN_CONTENT_V1.md` 2026-05-21; ready to publish one per week. |
+| CPB-M15 | Long-form article (diagrams not evidence) | P1 | Done | **Keep** (done) | — | Full article in `LINKEDIN_CONTENT_V1.md` 2026-05-21 (~1,800 words); owner to publish. |
+| CPB-M16 | Short demo video (Workspace A) | P1 | Not started | **Defer** | GTM-only | Confirmed 2026-05-21. Record after M-04 smoke sign-off + M-07 screenshots; async outreach (M-18) can use live demo or landing page until then. |
+| CPB-M17 | Outreach list (20 contacts) | P2 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. Owner builds list; avoid employer/NDA conflicts. Feeds M-18/M-19. |
+| CPB-M18 | 20 outreach messages | P2 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. 10-min demo + feedback (not hard pitch). Needs M-09 deploy + M-17 list; M-16 video optional until recorded (live demo OK). |
+| CPB-M19 | 5–10 live demos | P2 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. Workspace A/B; `DEMO_VIDEO_SCRIPT.md` live script done. Recommend M-04/M-05 sign-off before external calls. Feeds M-20/M-21. |
+| CPB-M20 | Refine positioning from demo objections | P2 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. After M-19; update `POSITIONING.md` + pitch/demo scripts from real objections. |
+| CPB-M21 | Identify strongest buyer segment | P2 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. After M-20; narrows CPB-P02 ICP from demo evidence. Feeds M-22+ monetization focus. |
+| CPB-M34 | SOWs / talk track → `SERVICE_LED_OFFERS.md` | P2 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. Align `ORDER_FORM_TEMPLATE.md` + outreach to named SKUs; recommended before M-22/M-23 paid signature. |
 | CPB-M35 | ARC-AMPE policy pack #24 | P1 | Not started | *Pending review* | GTM-only | Content + eng. |
 | CPB-M22–M23 | Paid pilot offer drafts A/B | P3 | Not started | *Pending review* | GTM-only | |
 | CPB-M24–M26 | Upwork listings (3 SKUs) | P3 | Not started | *Pending review* | GTM-only | |

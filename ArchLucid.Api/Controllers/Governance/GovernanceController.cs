@@ -54,6 +54,7 @@ public sealed class GovernanceController(
     IPolicyPackGovernanceDryRunService policyPackGovernanceDryRunService,
     IPolicyPackSchemaKeysService policyPackSchemaKeysService,
     IAuditService auditService,
+    IPolicyPackDraftService policyPackDraftService,
     ILogger<GovernanceController> logger)
     : ControllerBase
 {
@@ -736,5 +737,28 @@ public sealed class GovernanceController(
             return g;
 
         return Guid.TryParse(runId, out g) ? g : null;
+    }
+
+    /// <summary>AI-assisted draft of a single curated policy rule (advisory; not persisted).</summary>
+    [HttpPost("policy-pack/draft")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Draft endpoint is advisory-only and does not persist domain mutations.")]
+    [ProducesResponseType(typeof(DraftPolicyPackRuleResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DraftPolicyPackRule(
+        [FromBody] DraftPolicyPackInput? input,
+        CancellationToken cancellationToken)
+    {
+        if (input is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (string.IsNullOrWhiteSpace(input.FreeTextIntent))
+            return this.BadRequestProblem("FreeTextIntent is required.", ProblemTypes.ValidationFailed);
+
+        if (input.FreeTextIntent.Trim().Length < 20)
+            return this.BadRequestProblem("FreeTextIntent must be at least 20 characters.", ProblemTypes.ValidationFailed);
+
+        DraftPolicyPackRuleResponse response = await policyPackDraftService.DraftRuleAsync(input, cancellationToken);
+        return Ok(response);
     }
 }

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "scenario-03-security-baseline",
+  "source": "bootstrap_eval_template_recordings.py",
+  "note": "Synthetic baseline until live API capture; replace via eval_template_harness --mode capture.",
+  "findings": [
+    {
+      "findingId": "must-waf-on-internet-ingress",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "waf",
+      "detail": "waf",
+      "message": "waf"
+    },
+    {
+      "findingId": "must-no-public-database-endpoints",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "private endpoint database",
+      "detail": "private endpoint database",
+      "message": "private endpoint database"
+    },
+    {
+      "findingId": "must-managed-identity-app-to-data",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "managed identity",
+      "detail": "managed identity",
+      "message": "managed identity"
+    }
+  ]
+}

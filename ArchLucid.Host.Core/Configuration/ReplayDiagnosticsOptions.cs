@@ -7,12 +7,12 @@ public sealed class ReplayDiagnosticsOptions
 {
     public const string SectionName = "ReplayDiagnostics";
 
-    /// <summary>Maximum entries retained (clamped to 1–1000; invalid values default to 100).</summary>
+    /// <summary>Maximum entries retained (clamped to 1–50000; invalid values default to 10000).</summary>
     public int Capacity
     {
         get;
         set;
-    } = 100;
+    } = 10000;
 
     /// <summary>
     /// Entries older than this many minutes are evicted from the front of the queue on each <see cref="Services.IReplayDiagnosticsRecorder.Record"/>.

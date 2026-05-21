@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
@@ -77,6 +78,17 @@ public sealed class AgentResult
         set;
     }
 
+    /// <summary>
+    ///     Confidence mapped to historical semantic evaluation scores for this <see cref="AgentType" />.
+    ///     Populated after post-execution evaluation when calibration is enabled; null until then.
+    /// </summary>
+    [Range(0.0, 1.0)]
+    public double? CalibratedConfidence
+    {
+        get;
+        set;
+    }
+
     /// <summary>Architecture findings identified by the agent (security gaps, topology issues, etc.).</summary>
     public List<ArchitectureFinding> Findings
     {
@@ -118,4 +130,15 @@ public sealed class AgentResult
         get;
         set;
     } = TimeProvider.System.GetUtcNow().UtcDateTime;
+
+    /// <summary>
+    ///     Optional agent-proposed catalog evidence (persisted in <c>dbo.AgentResults.ProposedEvidenceJson</c>, not inside
+    ///     <see cref="ResultJson" /> payload).
+    /// </summary>
+    [JsonIgnore]
+    public string? ProposedEvidenceJson
+    {
+        get;
+        set;
+    }
 }

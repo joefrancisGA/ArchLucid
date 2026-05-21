@@ -19,6 +19,7 @@ using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Integrations.Confluence;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingReview;
 using ArchLucid.Application.Marketing;
@@ -249,6 +250,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();
         services.AddScoped<IExportReplayService, ExportReplayService>();
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
+        services.AddScoped<IPolicyPackDraftService, PolicyPackDraftService>();
+        services.AddScoped<IRunSummaryOnePagerExportService, RunSummaryOnePagerExportService>();
         services.AddScoped<IAgentExecutorResolver, DefaultAgentExecutorResolver>();
         services.AddScoped<IDiagramGenerator, MermaidDiagramGenerator>();
         services.AddScoped<IManifestDiagramService, ManifestDiagramService>();

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net;
 
 using ArchLucid.Contracts.Abstractions.Agents;
@@ -24,6 +25,12 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Suite", "Core")]
 public sealed class RealAgentExecutorTests
 {
+    /// <summary>
+    ///     Literal source name for <see cref="ActivityListener.ShouldListenTo" /> — do not read
+    ///     <see cref="ArchLucidInstrumentation.AgentHandler" /> during listener registration (type-init cycle).
+    /// </summary>
+    private const string AgentHandlerActivitySourceName = "ArchLucid.Agent.Handler";
+
     private static IOptions<AgentExecutionResilienceOptions> UnlimitedResilienceOptions()
     {
         return Options.Create(
@@ -192,10 +199,11 @@ public sealed class RealAgentExecutorTests
     [SkippableFact]
     public async Task ExecuteAsync_records_one_activity_per_task_with_agent_tags()
     {
-        List<Activity> completed = [];
+        // Handlers run concurrently; ActivityStopped can fire on different threads.
+        ConcurrentBag<Activity> completed = [];
 
         using ActivityListener listener = new();
-        listener.ShouldListenTo = s => s.Name == ArchLucidInstrumentation.AgentHandler.Name;
+        listener.ShouldListenTo = s => s.Name == AgentHandlerActivitySourceName;
         listener.Sample = (ref _) => ActivitySamplingResult.AllData;
         listener.ActivityStopped = completed.Add;
 
@@ -215,10 +223,12 @@ public sealed class RealAgentExecutorTests
 
         await sut.ExecuteAsync(runId, request, evidence, [taskZ, taskC], CancellationToken.None);
 
-        completed.Should().HaveCount(2);
-        completed.Should().OnlyContain(a => a.OperationName == "archlucid.agent.handle");
+        Activity[] completedSnapshot = completed.ToArray();
 
-        string[] types = completed
+        completedSnapshot.Should().HaveCount(2);
+        completedSnapshot.Should().OnlyContain(a => a.OperationName == "archlucid.agent.handle");
+
+        string[] types = completedSnapshot
             .Select(a => (string)a.GetTagItem("archlucid.agent.type")!)
             .OrderBy(s => s, StringComparer.OrdinalIgnoreCase)
             .ToArray();

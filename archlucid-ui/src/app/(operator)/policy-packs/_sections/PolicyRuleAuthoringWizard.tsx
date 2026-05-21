@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { PolicySimulator } from "@/components/governance/PolicySimulator";
 import { listRunsByProjectPaged, simulatePolicyPackAgainstRun } from "@/lib/api";
+import { draftPolicyPackRule } from "@/lib/api/policy-pack-draft-api";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
@@ -148,6 +149,10 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
     useState<components["schemas"]["PolicyPackGovernanceDryRunResult"] | null>(null);
   const [blockOnCritical, setBlockOnCritical] = useState(true);
   const [allowPublishWithoutTest, setAllowPublishWithoutTest] = useState(false);
+  const [draftIntent, setDraftIntent] = useState("");
+  const [draftBusy, setDraftBusy] = useState(false);
+  const [draftFailure, setDraftFailure] = useState<ApiLoadFailureState | null>(null);
+  const [draftResponse, setDraftResponse] = useState<{ disclaimer: string; draftRuleJson: string } | null>(null);
 
   const jsonEditorValue = policyContentJson;
 
@@ -335,6 +340,87 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
             >
               Raw JSON
             </Button>
+          </div>
+
+          <div
+            className="rounded-lg border border-dashed border-violet-300 bg-violet-50/60 p-4 dark:border-violet-800 dark:bg-violet-950/30"
+            data-testid="policy-pack-ai-draft-panel"
+          >
+            <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              Draft a rule from plain English
+            </p>
+            <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+              Describe governance intent in natural language; review the AI draft beside the curated rule schema before
+              merging into your pack.
+            </p>
+            <Textarea
+              className="mt-3 font-sans text-sm"
+              rows={4}
+              value={draftIntent}
+              onChange={(e) => setDraftIntent(e.target.value)}
+              disabled={!canMutatePacks || draftBusy}
+              placeholder="Example: Encrypt all PHI at rest with customer-managed keys and require audit logging on every override."
+            />
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                disabled={!canMutatePacks || draftBusy || draftIntent.trim().length < 20}
+                onClick={() => {
+                  void (async () => {
+                    setDraftBusy(true);
+                    setDraftFailure(null);
+
+                    try {
+                      const response = await draftPolicyPackRule({ freeTextIntent: draftIntent.trim() });
+                      setDraftResponse(response);
+                    } catch (e: unknown) {
+                      setDraftResponse(null);
+                      setDraftFailure(toApiLoadFailure(e));
+                    } finally {
+                      setDraftBusy(false);
+                    }
+                  })();
+                }}
+              >
+                {draftBusy ? "Drafting…" : "✨ Draft a rule from plain English"}
+              </Button>
+            </div>
+            {draftFailure !== null ? (
+              <div className="mt-3" role="alert">
+                <OperatorApiProblem failure={draftFailure} />
+              </div>
+            ) : null}
+            {draftResponse !== null ? (
+              <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                <div>
+                  <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                    Schema reference
+                  </p>
+                  <pre className="mt-2 max-h-64 overflow-auto rounded-md border border-neutral-200 bg-white p-3 text-xs dark:border-neutral-700 dark:bg-neutral-950">
+                    {`{
+  "id": "kebab-case-id",
+  "title": "string",
+  "description": "string",
+  "severity": "Critical|High|Medium|Low",
+  "remediationGuidance": "string",
+  "evidenceHints": ["manifest paths"],
+  "frameworkMappings": [{ "framework": "", "requirement": "" }],
+  "priority": "P0|P1|P2"
+}`}
+                  </pre>
+                </div>
+                <div>
+                  <p className="m-0 text-xs font-semibold uppercase tracking-wide text-amber-800 dark:text-amber-200">
+                    AI draft (review required)
+                  </p>
+                  <p className="mt-1 text-xs text-amber-900 dark:text-amber-100">{draftResponse.disclaimer}</p>
+                  <pre className="mt-2 max-h-64 overflow-auto rounded-md border border-amber-200 bg-amber-50/80 p-3 text-xs text-amber-950 dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-50">
+                    {draftResponse.draftRuleJson}
+                  </pre>
+                </div>
+              </div>
+            ) : null}
           </div>
 
           {inputMode === "guided" ? (

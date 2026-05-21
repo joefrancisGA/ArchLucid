@@ -9,7 +9,8 @@ public sealed record FindingRecordMetadataRow(
     string Category,
     string EngineType,
     string Severity,
-    string Title);
+    string Title,
+    int? PriorityRank = null);
 
 /// <summary>
 ///     Keyset page of finding metadata rows ordered by <c>SortOrder ASC</c>, <c>FindingRecordId ASC</c>.

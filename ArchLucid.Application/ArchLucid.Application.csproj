@@ -19,12 +19,14 @@
     <PackageReference Include="OpenTelemetry.Api" />
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
     <PackageReference Include="Polly" />
+    <PackageReference Include="Handlebars.Net" />
     <PackageReference Include="QuestPDF" />
     <PackageReference Include="RazorLight" />
     <PackageReference Include="Tomlyn" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Notifications\Email\Templates\*.cshtml" />
+    <EmbeddedResource Include="Exports\Templates\*.hbs" />
   </ItemGroup>
 
   <!-- Architecture presets for GET /v1/architecture/templates and future wizard hydration. -->

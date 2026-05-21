@@ -107,14 +107,15 @@ public sealed class TenantTrialControllerTests
             WorkspaceId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff"),
             ProjectId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000000")
         };
-        DateTimeOffset committed = DateTimeOffset.Parse("2026-04-10T08:00:00+00:00");
+        DateTimeOffset created = TimeProvider.System.GetUtcNow().AddDays(-2);
+        DateTimeOffset committed = created.AddHours(6);
         TenantRecord tenant = new()
         {
             Id = scope.TenantId,
             Name = "t",
             Slug = "t",
             Tier = TenantTier.Standard,
-            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            CreatedUtc = created,
             TrialRunsUsed = 0,
             TrialSeatsUsed = 0,
             TrialStatus = "   ",
@@ -142,8 +143,7 @@ public sealed class TenantTrialControllerTests
         TenantTrialStatusResponse body = ok.Value.Should().BeOfType<TenantTrialStatusResponse>().Subject;
         body.Status.Should().Be("None");
         body.FirstCommitUtc.Should().Be(committed);
-        body.TimeToFirstCommittedManifestTotalSeconds.Should().NotBeNull();
-        body.TimeToFirstCommittedManifestTotalSeconds!.Value.Should().BeGreaterThan(0);
+        body.TimeToFirstCommittedManifestTotalSeconds.Should().BeApproximately(6 * 3600, 1);
     }
 
     [SkippableFact]

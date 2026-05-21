@@ -7,6 +7,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { getRunDetail } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { coerceRunDetail } from "@/lib/operator-response-guards";
 import { extractIacStubForFinding } from "@/lib/quick-decision-summary-derive";
 
 type FindingIacStubPanelProps = {
@@ -39,8 +40,17 @@ export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
     setError(null);
 
     try {
-      const detail = await getRunDetail(props.runId);
-      const stub = extractIacStubForFinding(detail, props.findingId);
+      const detailEnvelope = await getRunDetail(props.runId);
+      const coercedDetail = coerceRunDetail(detailEnvelope.data);
+
+      if (!coercedDetail.ok) {
+        setError({ message: coercedDetail.message, correlationId: null });
+        setLoaded(true);
+
+        return;
+      }
+
+      const stub = extractIacStubForFinding(coercedDetail.value, props.findingId);
       setIacStub(stub);
       setLoaded(true);
     } catch (e: unknown) {

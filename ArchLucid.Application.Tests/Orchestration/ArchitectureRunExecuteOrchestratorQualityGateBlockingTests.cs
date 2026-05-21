@@ -186,6 +186,7 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateBlockingTests
             auditService.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             traceHook.Object,
+            new ArchLucid.Application.Agents.Evidence.NoOpAgentResultPostExecutionEnricher(),
             new NoOpEvidencePackageInjectionMitigator(),
             contentSafety.Object,
             Options.Create(new AgentExecutionOptions()),

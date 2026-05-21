@@ -70,6 +70,7 @@ public sealed class AskService(
     public async Task<AskResponse> AskAsync(AskRequest request, ScopeContext scope, CancellationToken ct)
     {
         AskPreparedContext prepared = await PrepareAskContextAsync(request, scope, ct);
+        string? comparisonNarrative = await TryBuildComparisonNarrativeAsync(prepared, ct);
         string userPrompt = BuildUserPrompt(prepared);
 
         string? raw;
@@ -90,10 +91,14 @@ public sealed class AskService(
             logger.LogWarning(ex, "LLM completion failed for Ask (ThreadId={ThreadId}); returning fallback response.",
                 LogSanitizer.Sanitize(prepared.Thread.ThreadId.ToString()));
 
-            return await PersistFallbackResponseAsync(prepared, ct);
+            AskResponse fallback = await PersistFallbackResponseAsync(prepared, ct);
+            fallback.ComparisonNarrative = comparisonNarrative;
+            return fallback;
         }
 
-        return await FinalizeAskResponseAsync(prepared, raw, ct);
+        AskResponse response = await FinalizeAskResponseAsync(prepared, raw, ct);
+        response.ComparisonNarrative = comparisonNarrative;
+        return response;
     }
 
     /// <inheritdoc />
@@ -307,9 +312,51 @@ public sealed class AskService(
             historyText,
             manifest,
             effectiveRunId,
+            effectiveBaseRunId,
+            effectiveTargetRunId,
+            comparisonResult,
             contextJson,
             BuildRetrievalContext(retrievalHits),
             scope);
+    }
+
+    private const string ComparisonNarrativeSystemPrompt =
+        "You are an enterprise architect. Given the delta between two architecture runs, write a 3–5 sentence narrative: "
+        + "(1) the most significant improvement, (2) any new risk introduced, (3) whether the architecture is net-better or net-worse. "
+        + "Return ONLY the narrative prose.";
+
+    private async Task<string?> TryBuildComparisonNarrativeAsync(AskPreparedContext prepared, CancellationToken ct)
+    {
+        if (!prepared.BaseRunId.HasValue || !prepared.TargetRunId.HasValue || prepared.ComparisonResult is null)
+            return null;
+
+        string userPrompt =
+            "Structured comparison delta JSON:\n" +
+            JsonSerializer.Serialize(prepared.ComparisonResult, ContractJson.CamelCaseIgnoreNullCompact);
+
+        try
+        {
+            string narrative = await llm.CompleteJsonAsync(
+                ComparisonNarrativeSystemPrompt,
+                userPrompt,
+                maxTokens: null,
+                cancellationToken: ct);
+
+            return string.IsNullOrWhiteSpace(narrative) ? null : narrative.Trim();
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(
+                ex,
+                "Comparison narrative generation failed (ThreadId={ThreadId}).",
+                LogSanitizer.Sanitize(prepared.Thread.ThreadId.ToString()));
+
+            return null;
+        }
     }
 
     private static string BuildUserPrompt(AskPreparedContext prepared) =>
@@ -499,6 +546,9 @@ public sealed class AskService(
         string HistoryText,
         ManifestDocument Manifest,
         Guid? EffectiveRunId,
+        Guid? BaseRunId,
+        Guid? TargetRunId,
+        ComparisonResult? ComparisonResult,
         string ContextJson,
         string RetrievalContext,
         ScopeContext Scope);

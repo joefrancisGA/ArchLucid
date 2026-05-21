@@ -168,8 +168,8 @@ export const HELP_TOPICS: HelpTopic[] = [
   {
     id: "support-bundle",
     title: "Support bundle",
-    keywords: ["zip", "triage", "ticket"],
-    summary: "CLI support-bundle collects sanitized health and contract probes for support tickets.",
+    keywords: ["zip", "triage", "ticket", "download"],
+    summary: "Download a redacted support bundle from Help or Settings (POST /v1/admin/support-bundle), or use the CLI support-bundle command.",
     docPath: "docs/TROUBLESHOOTING.md",
     routes: [],
   },

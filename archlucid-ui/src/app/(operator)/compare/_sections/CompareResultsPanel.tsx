@@ -39,6 +39,8 @@ export type CompareResultsPanelProps = {
   golden: GoldenManifestComparison | null;
   result: RunComparison | null;
   aiExplanation: ComparisonExplanation | null;
+  comparisonNarrative: string | null;
+  comparisonNarrativeLoading: boolean;
   /** Buyer shell: softer labels, collapsed technical outline, collapsed structured folds by default. */
   buyerPolished?: boolean;
 };
@@ -63,6 +65,8 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
     golden,
     result,
     aiExplanation,
+    comparisonNarrative,
+    comparisonNarrativeLoading,
     buyerPolished = false,
   } = props;
 
@@ -227,6 +231,25 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
       ) : null}
 
       <ClientErrorBoundary title="Comparison results failed to render">
+        {comparisonNarrativeLoading ? (
+          <OperatorLoadingNotice>
+            <strong>Generating comparison narrative.</strong>
+          </OperatorLoadingNotice>
+        ) : null}
+
+        {comparisonNarrative !== null ? (
+          <div
+            className="mb-6 rounded-lg border border-teal-300 bg-teal-50 px-4 py-3 text-sm leading-relaxed text-teal-950 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100"
+            role="status"
+            data-testid="compare-ask-narrative-banner"
+          >
+            <p className="m-0 mb-1 text-xs font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-200">
+              Architecture comparison narrative
+            </p>
+            <p className="m-0 whitespace-pre-wrap">{comparisonNarrative}</p>
+          </div>
+        ) : null}
+
         {golden !== null && (
           <StructuredComparisonView
             golden={golden}

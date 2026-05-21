@@ -10,6 +10,7 @@ import { coerceComparisonExplanation, coerceGoldenManifestComparison, coerceRunC
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { compareGoldenManifestRuns, compareRuns, explainComparisonRuns } from "@/lib/api";
+import { fetchComparisonNarrativeViaAsk } from "@/lib/api/conversation-api";
 import {
   compareRunIdsAreSameAfterDemoCanonicalization,
   readCompareRunIdsFromSearchParams,
@@ -63,6 +64,8 @@ export function CompareForm() {
   const [aiFailure, setAiFailure] = useState<ApiLoadFailureState | null>(null);
   const [aiMalformed, setAiMalformed] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [comparisonNarrative, setComparisonNarrative] = useState<string | null>(null);
+  const [comparisonNarrativeLoading, setComparisonNarrativeLoading] = useState(false);
   const [lastComparedPair, setLastComparedPair] = useState<ComparedPair | null>(null);
   const [leftPickedSummary, setLeftPickedSummary] = useState<RunSummary | null>(null);
   const [rightPickedSummary, setRightPickedSummary] = useState<RunSummary | null>(null);
@@ -80,6 +83,8 @@ export function CompareForm() {
     setAiExplanation(null);
     setAiFailure(null);
     setAiMalformed(null);
+    setComparisonNarrative(null);
+    setComparisonNarrativeLoading(false);
     setLastComparedPair(null);
 
     const staticLegacy = tryStaticDemoRunComparison(leftAtStart, rightAtStart);
@@ -148,9 +153,34 @@ export function CompareForm() {
       if (gen === compareGenerationRef.current) {
         setLoading(false);
         setLastComparedPair({ left: leftAtStart, right: rightAtStart });
+        void loadComparisonNarrative(leftAtStart, rightAtStart, gen);
       }
     }
   }, []);
+
+  const loadComparisonNarrative = async (leftAtStart: string, rightAtStart: string, compareGen: number) => {
+    setComparisonNarrativeLoading(true);
+
+    try {
+      const narrative = await fetchComparisonNarrativeViaAsk(leftAtStart, rightAtStart);
+
+      if (compareGen !== compareGenerationRef.current) {
+        return;
+      }
+
+      setComparisonNarrative(narrative);
+    } catch {
+      if (compareGen !== compareGenerationRef.current) {
+        return;
+      }
+
+      setComparisonNarrative(null);
+    } finally {
+      if (compareGen === compareGenerationRef.current) {
+        setComparisonNarrativeLoading(false);
+      }
+    }
+  };
 
   useEffect(() => {
     const { prior: left, later: right } = readCompareRunIdsFromSearchParams(searchParams);
@@ -455,6 +485,8 @@ export function CompareForm() {
           golden={golden}
           result={result}
           aiExplanation={aiExplanation}
+          comparisonNarrative={comparisonNarrative}
+          comparisonNarrativeLoading={comparisonNarrativeLoading}
           buyerPolished={buyerPolished}
         />
         )}

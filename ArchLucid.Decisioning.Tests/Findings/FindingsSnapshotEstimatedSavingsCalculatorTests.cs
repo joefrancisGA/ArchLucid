@@ -5,6 +5,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Decisioning.Tests.Findings;
 
+[Trait("Suite", "Core")]
 public sealed class FindingsSnapshotEstimatedSavingsCalculatorTests
 {
     [Fact]

@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
@@ -42,6 +43,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IAuditService auditService,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     IAgentOutputTraceEvaluationHook outputTraceEvaluationHook,
+    IAgentResultPostExecutionEnricher agentResultPostExecutionEnricher,
     IEvidencePackageInjectionMitigator evidencePackageInjectionMitigator,
     IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
     IOptions<AgentExecutionOptions> agentExecutionOptions,
@@ -62,6 +64,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     private readonly IAgentOutputTraceEvaluationHook _outputTraceEvaluationHook =
         outputTraceEvaluationHook ?? throw new ArgumentNullException(nameof(outputTraceEvaluationHook));
+
+    private readonly IAgentResultPostExecutionEnricher _agentResultPostExecutionEnricher =
+        agentResultPostExecutionEnricher ?? throw new ArgumentNullException(nameof(agentResultPostExecutionEnricher));
 
     private readonly IEvidencePackageInjectionMitigator _evidencePackageInjectionMitigator =
         evidencePackageInjectionMitigator ?? throw new ArgumentNullException(nameof(evidencePackageInjectionMitigator));
@@ -101,7 +106,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ValidateDependencies(runRepository, scopeContextProvider, requestRepository, taskRepository, agentExecutor, agentEvaluationService, resultRepository,
             agentEvaluationRepository, agentEvidencePackageRepository, evidenceBuilder, actorContext, baselineMutationAudit, auditService, unitOfWorkFactory,
-            outputTraceEvaluationHook, evidencePackageInjectionMitigator, requestContentSafetyPrecheck, agentExecutionOptions, agentOutputQualityGateOptions, logger);
+            outputTraceEvaluationHook, agentResultPostExecutionEnricher, evidencePackageInjectionMitigator, requestContentSafetyPrecheck,
+            agentExecutionOptions, agentOutputQualityGateOptions, logger);
         string actor = actorContext.GetActor();
         try
         {
@@ -119,7 +125,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         IAgentEvaluationService agentEvaluationService, IAgentResultRepository resultRepository, IAgentEvaluationRepository agentEvaluationRepository,
         IAgentEvidencePackageRepository agentEvidencePackageRepository, IEvidenceBuilder evidenceBuilder, IActorContext actorContext,
         IBaselineMutationAuditService baselineMutationAudit, IAuditService auditService, IArchLucidUnitOfWorkFactory unitOfWorkFactory,
-        IAgentOutputTraceEvaluationHook outputTraceEvaluationHook, IEvidencePackageInjectionMitigator evidencePackageInjectionMitigator,
+        IAgentOutputTraceEvaluationHook outputTraceEvaluationHook, IAgentResultPostExecutionEnricher agentResultPostExecutionEnricher,
+        IEvidencePackageInjectionMitigator evidencePackageInjectionMitigator,
         IRequestContentSafetyPrecheck requestContentSafetyPrecheck, IOptions<AgentExecutionOptions> agentExecutionOptions,
         IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions,
         ILogger<ArchitectureRunExecuteOrchestrator> logger)
@@ -139,6 +146,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         ArgumentNullException.ThrowIfNull(auditService);
         ArgumentNullException.ThrowIfNull(unitOfWorkFactory);
         ArgumentNullException.ThrowIfNull(outputTraceEvaluationHook);
+        ArgumentNullException.ThrowIfNull(agentResultPostExecutionEnricher);
         ArgumentNullException.ThrowIfNull(evidencePackageInjectionMitigator);
         ArgumentNullException.ThrowIfNull(requestContentSafetyPrecheck);
         ArgumentNullException.ThrowIfNull(agentExecutionOptions);
@@ -253,6 +261,10 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                     "agent_batch_executing",
                     "agent_results_persisting",
                     scheduledTaskIds);
+
+            await _agentResultPostExecutionEnricher
+                .EnrichAsync(runId, request, evidence, results, cancellationToken)
+                .ConfigureAwait(false);
 
             IReadOnlyList<AgentEvaluation> evaluations =
                 await agentEvaluationService.EvaluateAsync(runId, request, evidence, tasks, results, cancellationToken);

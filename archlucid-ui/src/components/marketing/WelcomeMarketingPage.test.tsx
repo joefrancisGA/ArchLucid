@@ -5,7 +5,7 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
-import { BRAND_CATEGORY } from "@/lib/brand-category";
+import { WELCOME_HERO_PITCH, WELCOME_WORKFLOW_STEPS } from "@/components/marketing/welcome-marketing-copy";
 
 import { WelcomeMarketingPage } from "./WelcomeMarketingPage";
 
@@ -44,11 +44,20 @@ describe("WelcomeMarketingPage", () => {
     render(<WelcomeMarketingPage />);
 
     expect(screen.getByRole("heading", { level: 1, name: /Defensible architecture, on demand/i })).toBeInTheDocument();
-    const escapedCategory = BRAND_CATEGORY.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    expect(
-      screen.getByText(new RegExp(`ArchLucid is an ${escapedCategory} platform\\. You bring real architecture context`, "i")),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("welcome-hero-pitch")).toHaveTextContent(WELCOME_HERO_PITCH);
     expect(screen.getByRole("button", { name: /join early access/i })).toBeInTheDocument();
+    expect(screen.getByTestId("welcome-problem-solution")).toBeInTheDocument();
+    expect(screen.getByTestId("welcome-core-workflow")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Core workflow/i })).toBeInTheDocument();
+
+    for (const step of WELCOME_WORKFLOW_STEPS) {
+      expect(screen.getByTestId(`welcome-workflow-step-${step.id}`)).toHaveTextContent(step.label);
+    }
+
+    expect(screen.getByTestId("welcome-use-cases")).toBeInTheDocument();
+    expect(screen.getByTestId("welcome-use-case-azure-waf")).toBeInTheDocument();
+    expect(screen.getByTestId("welcome-policy-pack-disclaimer")).toHaveTextContent(/thematic mapping/i);
+    expect(screen.getByRole("heading", { name: /Proof at a glance/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Three pillars/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /AI-native architecture analysis/i })).toBeInTheDocument();
 
@@ -61,7 +70,7 @@ describe("WelcomeMarketingPage", () => {
     render(<WelcomeMarketingPage />);
 
     expect(screen.getByTestId("welcome-hero-cta-subheading")).toHaveTextContent(
-      /See how ArchLucid delivers architecture reviews your ARB trusts/i,
+      /architecture review package built for governance/i,
     );
 
     const primaryRow = screen.getByTestId("welcome-hero-primary-secondary-row");

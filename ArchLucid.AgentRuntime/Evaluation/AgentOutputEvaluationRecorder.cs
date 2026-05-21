@@ -1,5 +1,6 @@
 using System.Diagnostics;
 
+using ArchLucid.Application.Agents;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Configuration;
@@ -7,6 +8,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Evaluation;
 
@@ -17,10 +19,14 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 public sealed class AgentOutputEvaluationRecorder(
     IAgentExecutionTraceRepository traceRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
+    IAgentResultRepository agentResultRepository,
     IAgentOutputEvaluator evaluator,
     IAgentOutputSemanticEvaluator semanticEvaluator,
     IAgentOutputQualityGate qualityGate,
     IAgentOutputQualityGateOptionsResolver gateOptionsResolver,
+    IAgentConfidenceCalibrationService confidenceCalibrationService,
+    IAgentConfidenceCalibrationSampleRepository calibrationSampleRepository,
+    IOptions<AgentConfidenceCalibrationOptions> calibrationOptions,
     AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
     Contracts.Findings.IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher,
     IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
@@ -45,6 +51,18 @@ public sealed class AgentOutputEvaluationRecorder(
         architectureFindingConfidenceEnricher ??
         throw new ArgumentNullException(nameof(architectureFindingConfidenceEnricher));
 
+    private readonly IAgentResultRepository _agentResultRepository =
+        agentResultRepository ?? throw new ArgumentNullException(nameof(agentResultRepository));
+
+    private readonly IAgentConfidenceCalibrationService _confidenceCalibrationService =
+        confidenceCalibrationService ?? throw new ArgumentNullException(nameof(confidenceCalibrationService));
+
+    private readonly IAgentConfidenceCalibrationSampleRepository _calibrationSampleRepository =
+        calibrationSampleRepository ?? throw new ArgumentNullException(nameof(calibrationSampleRepository));
+
+    private readonly AgentConfidenceCalibrationOptions _calibrationOptions =
+        (calibrationOptions ?? throw new ArgumentNullException(nameof(calibrationOptions))).Value;
+
     private readonly IAgentResultEmbeddingFaithfulnessScorer _embeddingFaithfulnessScorer =
         embeddingFaithfulnessScorer ?? throw new ArgumentNullException(nameof(embeddingFaithfulnessScorer));
 
@@ -60,7 +78,16 @@ public sealed class AgentOutputEvaluationRecorder(
 
         IReadOnlyList<AgentExecutionTrace> traces = await traceRepository.GetByRunIdAsync(runId, cancellationToken);
 
-        await Task.WhenAll(traces.Select(EvaluateOneAsync)).ConfigureAwait(false);
+        await _confidenceCalibrationService
+            .ApplyCalibratedConfidenceForRunAsync(runId, cancellationToken)
+            .ConfigureAwait(false);
+
+        IReadOnlyList<AgentResult> agentResults = await _agentResultRepository.GetByRunIdAsync(runId, cancellationToken)
+            .ConfigureAwait(false);
+
+        Dictionary<string, double?> calibratedByTaskId = BuildCalibratedConfidenceByTaskId(agentResults);
+
+        await Task.WhenAll(traces.Select(trace => EvaluateOneAsync(trace, calibratedByTaskId))).ConfigureAwait(false);
 
         try
         {
@@ -76,7 +103,7 @@ public sealed class AgentOutputEvaluationRecorder(
 
         return;
 
-        async Task EvaluateOneAsync(AgentExecutionTrace trace)
+        async Task EvaluateOneAsync(AgentExecutionTrace trace, Dictionary<string, double?> calibratedLookup)
         {
             AgentOutputQualityGateOptions gateOptions = _gateOptionsResolver.Resolve(cancellationToken);
             string agentLabel = trace.AgentType.ToString();
@@ -92,10 +119,24 @@ public sealed class AgentOutputEvaluationRecorder(
                     cancellationToken,
                     evidence,
                     agentResultEvidenceFaithfulnessChecker,
-                    _embeddingFaithfulnessScorer).ConfigureAwait(false);
+                    _embeddingFaithfulnessScorer,
+                    calibratedLookup).ConfigureAwait(false);
 
             if (evaluated is null)
                 return;
+
+            AgentResult? matchingResult = agentResults.FirstOrDefault(r => r.TaskId == trace.TaskId);
+
+            if (matchingResult is not null && _calibrationOptions.Enabled)
+            {
+                await _calibrationSampleRepository
+                    .AppendAsync(
+                        trace.AgentType,
+                        matchingResult.Confidence,
+                        evaluated.Semantic.OverallSemanticScore,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
 
             if (evaluated.IncrementParseFailureCounter)
                 ArchLucidInstrumentation.AgentOutputParseFailuresTotal.Add(1, tags);
@@ -194,5 +235,18 @@ public sealed class AgentOutputEvaluationRecorder(
                 await _referenceCaseRunEvaluator.EvaluateTraceAsync(trace, runId, cancellationToken)
                     .ConfigureAwait(false);
         }
+    }
+
+    private static Dictionary<string, double?> BuildCalibratedConfidenceByTaskId(IReadOnlyList<AgentResult> agentResults)
+    {
+        Dictionary<string, double?> map = new(StringComparer.Ordinal);
+
+        foreach (AgentResult result in agentResults)
+        {
+            if (result.CalibratedConfidence is { } calibrated)
+                map[result.TaskId] = calibrated;
+        }
+
+        return map;
     }
 }

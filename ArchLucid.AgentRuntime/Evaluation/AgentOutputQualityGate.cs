@@ -16,7 +16,8 @@ public sealed class AgentOutputQualityGate(IOptions<AgentOutputQualityGateOption
     /// <inheritdoc />
     public AgentOutputQualityGateOutcome Evaluate(
         AgentOutputEvaluationScore structuralScore,
-        AgentOutputSemanticScore semanticScore)
+        AgentOutputSemanticScore semanticScore,
+        double? calibratedConfidence = null)
     {
         ArgumentNullException.ThrowIfNull(structuralScore);
         ArgumentNullException.ThrowIfNull(semanticScore);
@@ -27,7 +28,7 @@ public sealed class AgentOutputQualityGate(IOptions<AgentOutputQualityGateOption
         ResolveFloors(structuralScore.AgentType, out double sRej, out double semRej, out double sWarn, out double semWarn);
 
         double structural = structuralScore.StructuralCompletenessRatio;
-        double semantic = semanticScore.OverallSemanticScore;
+        double semantic = calibratedConfidence ?? semanticScore.OverallSemanticScore;
 
         if (structural < sRej || semantic < semRej)
             return AgentOutputQualityGateOutcome.Rejected;

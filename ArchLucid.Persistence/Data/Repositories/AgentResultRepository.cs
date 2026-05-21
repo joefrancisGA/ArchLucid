@@ -33,6 +33,8 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
                                      RunId,
                                      AgentType,
                                      Confidence,
+                                     CalibratedConfidence,
+                                     ProposedEvidenceJson,
                                      ResultJson,
                                      CreatedUtc
                                  )
@@ -43,6 +45,8 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
                                      @RunId,
                                      @AgentType,
                                      @Confidence,
+                                     @CalibratedConfidence,
+                                     @ProposedEvidenceJson,
                                      @ResultJson,
                                      @CreatedUtc
                                  );
@@ -56,6 +60,8 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             result.RunId,
             AgentType = result.AgentType.ToString(),
             result.Confidence,
+            result.CalibratedConfidence,
+            ProposedEvidenceJson = result.ProposedEvidenceJson,
             ResultJson = json,
             result.CreatedUtc
         };
@@ -135,6 +141,8 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
                                      RunId,
                                      AgentType,
                                      Confidence,
+                                     CalibratedConfidence,
+                                     ProposedEvidenceJson,
                                      ResultJson,
                                      CreatedUtc
                                  )
@@ -145,6 +153,8 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
                                      @RunId,
                                      @AgentType,
                                      @Confidence,
+                                     @CalibratedConfidence,
+                                     @ProposedEvidenceJson,
                                      @ResultJson,
                                      @CreatedUtc
                                  );
@@ -157,6 +167,8 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             result.RunId,
             AgentType = result.AgentType.ToString(),
             result.Confidence,
+            result.CalibratedConfidence,
+            ProposedEvidenceJson = result.ProposedEvidenceJson,
             ResultJson = JsonSerializer.Serialize(result, ContractJson.Default),
             result.CreatedUtc
         });
@@ -256,4 +268,149 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
 
         return results;
     }
+
+    public async Task PatchCalibratedConfidenceAsync(
+        string resultId,
+        double calibratedConfidence,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(resultId);
+
+        const string sql = """
+                           UPDATE AgentResults
+                           SET CalibratedConfidence = @CalibratedConfidence
+                           WHERE ResultId = @ResultId;
+                           """;
+
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, null, cancellationToken);
+
+        try
+        {
+            await conn.ExecuteAsync(new CommandDefinition(
+                sql,
+                new { ResultId = resultId, CalibratedConfidence = calibratedConfidence },
+                cancellationToken: cancellationToken));
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
+    }
+
+    public async Task PatchProposedEvidenceJsonAsync(
+        string resultId,
+        string proposedEvidenceJson,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(resultId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(proposedEvidenceJson);
+
+        const string sql = """
+                           UPDATE AgentResults
+                           SET ProposedEvidenceJson = @ProposedEvidenceJson
+                           WHERE ResultId = @ResultId;
+                           """;
+
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, null, cancellationToken);
+
+        try
+        {
+            await conn.ExecuteAsync(new CommandDefinition(
+                sql,
+                new { ResultId = resultId, ProposedEvidenceJson = proposedEvidenceJson },
+                cancellationToken: cancellationToken));
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
+    }
+
+    public async Task<IReadOnlyList<EvidenceProposalListItem>> ListEvidenceProposalsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT
+                               ar.ResultId,
+                               ar.RunId,
+                               ar.AgentType,
+                               ar.ProposedEvidenceJson,
+                               ar.CreatedUtc,
+                               CASE
+                                   WHEN EXISTS (
+                                       SELECT 1
+                                       FROM TenantCuratedEvidenceEntries AS tce
+                                       WHERE tce.SourceResultId = ar.ResultId)
+                                   THEN CAST(1 AS BIT)
+                                   ELSE CAST(0 AS BIT)
+                               END AS IsPromoted
+                           FROM AgentResults AS ar
+                           WHERE ar.ProposedEvidenceJson IS NOT NULL
+                           ORDER BY ar.CreatedUtc DESC;
+                           """;
+
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, null, cancellationToken);
+
+        IEnumerable<EvidenceProposalListItem> rows;
+        try
+        {
+            rows = await conn.QueryAsync<EvidenceProposalListItem>(new CommandDefinition(
+                sql,
+                cancellationToken: cancellationToken));
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
+
+        return rows.ToList();
+    }
+
+    public async Task<EvidenceProposalListItem?> TryGetEvidenceProposalAsync(
+        string resultId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(resultId);
+
+        const string sql = """
+                           SELECT TOP (1)
+                               ar.ResultId,
+                               ar.RunId,
+                               ar.AgentType,
+                               ar.ProposedEvidenceJson,
+                               ar.CreatedUtc,
+                               CASE
+                                   WHEN EXISTS (
+                                       SELECT 1
+                                       FROM TenantCuratedEvidenceEntries AS tce
+                                       WHERE tce.SourceResultId = ar.ResultId)
+                                   THEN CAST(1 AS BIT)
+                                   ELSE CAST(0 AS BIT)
+                               END AS IsPromoted
+                           FROM AgentResults AS ar
+                           WHERE ar.ResultId = @ResultId
+                             AND ar.ProposedEvidenceJson IS NOT NULL;
+                           """;
+
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, null, cancellationToken);
+
+        try
+        {
+            return await conn.QuerySingleOrDefaultAsync<EvidenceProposalListItem>(new CommandDefinition(
+                sql,
+                new { ResultId = resultId },
+                cancellationToken: cancellationToken));
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
+    }
+
+    public Task MarkEvidenceProposalPromotedAsync(string resultId, CancellationToken cancellationToken = default) =>
+        Task.CompletedTask;
 }

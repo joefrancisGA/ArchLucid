@@ -7,7 +7,12 @@ namespace ArchLucid.Contracts.Agents;
 public interface IAgentOutputQualityGate
 {
     /// <summary>Maps scores to <see cref="AgentOutputQualityGateOutcome" /> using configured thresholds.</summary>
+    /// <param name="calibratedConfidence">
+    ///     When set, used in place of <paramref name="semanticScore" />.<see cref="AgentOutputSemanticScore.OverallSemanticScore" />
+    ///     for semantic warn/reject floor comparisons.
+    /// </param>
     AgentOutputQualityGateOutcome Evaluate(
         AgentOutputEvaluationScore structuralScore,
-        AgentOutputSemanticScore semanticScore);
+        AgentOutputSemanticScore semanticScore,
+        double? calibratedConfidence = null);
 }

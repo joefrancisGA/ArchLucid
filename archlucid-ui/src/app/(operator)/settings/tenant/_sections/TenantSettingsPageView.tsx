@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ContextualHelp } from "@/components/ContextualHelp";
+import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -212,6 +213,16 @@ export function TenantSettingsPageView(props: Props) {
               </div>
             </form>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Support bundle</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm text-neutral-600 dark:text-neutral-300">
+          <p className="m-0">Download a redacted diagnostics ZIP when opening a support ticket.</p>
+          <SupportBundleDownloadButton />
         </CardContent>
       </Card>
 

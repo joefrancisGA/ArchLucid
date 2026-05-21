@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "scenario-05-zero-trust",
+  "source": "bootstrap_eval_template_recordings.py",
+  "note": "Synthetic baseline until live API capture; replace via eval_template_harness --mode capture.",
+  "findings": [
+    {
+      "findingId": "must-nist-800-207-alignment",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "zero trust",
+      "detail": "zero trust",
+      "message": "zero trust"
+    },
+    {
+      "findingId": "must-pim-jit-admin-access",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "privileged identity",
+      "detail": "privileged identity",
+      "message": "privileged identity"
+    },
+    {
+      "findingId": "must-firewall-or-nsg-governance",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "azure firewall",
+      "detail": "azure firewall",
+      "message": "azure firewall"
+    },
+    {
+      "findingId": "must-kill-chain-mapping",
+      "category": "Critic",
+      "severity": "Medium",
+      "title": "kill chain",
+      "detail": "kill chain",
+      "message": "kill chain"
+    }
+  ]
+}

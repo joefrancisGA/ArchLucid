@@ -3,8 +3,10 @@ using System.Text;
 
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Exports.ArchitectureReviewBoard;
@@ -32,6 +34,17 @@ public static class ArchitectureReviewBoardExportDocumentFactory
 
         return new Guid(hash.AsSpan(0, 16), true);
     }
+
+    /// <summary>Builds the executive one-pager model (severity counts + AI summary + top finding titles).</summary>
+    public static RunSummaryOnePagerDocumentModel CreateRunSummaryOnePager(
+        ArchitectureRunDetail detail,
+        string executiveSummary,
+        IReadOnlyList<string> topFindingTitles)
+        => RunSummaryOnePagerDocumentFactory.Create(detail, executiveSummary, topFindingTitles);
+
+    /// <summary>Selects top High/Critical findings for the one-pager LLM prompt.</summary>
+    public static IReadOnlyList<ArchitectureFinding> SelectRunSummaryTopFindings(ArchitectureRunDetail detail, int maxCount)
+        => RunSummaryOnePagerDocumentFactory.SelectTopHighCriticalFindings(detail, maxCount);
 
     public static ArchitectureReviewBoardExportDocumentModel Create(
         ArchitectureRunDetail detail,

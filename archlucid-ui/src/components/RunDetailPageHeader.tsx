@@ -13,6 +13,7 @@ import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { RUN_PACKAGE_EXPORT_LABELS } from "@/lib/i18n";
+import { runExecutiveSummaryExportHref } from "@/lib/api/run-summary-export-api";
 import type { RunSummary } from "@/types/authority";
 
 function runPackageExportHref(runId: string, format: "docx" | "pdf" | "html"): string {
@@ -38,6 +39,12 @@ function RunPackageExportButtons({ runId }: { runId: string }) {
         <Link href={runPackageExportHref(runId, "html")} prefetch={false} target="_blank">
           <Download className="mr-2 h-4 w-4" />
           {RUN_PACKAGE_EXPORT_LABELS.html}
+        </Link>
+      </Button>
+      <Button variant="outline" size="sm" asChild>
+        <Link href={runExecutiveSummaryExportHref(runId)} prefetch={false} target="_blank">
+          <Download className="mr-2 h-4 w-4" />
+          Download Executive Summary
         </Link>
       </Button>
     </div>

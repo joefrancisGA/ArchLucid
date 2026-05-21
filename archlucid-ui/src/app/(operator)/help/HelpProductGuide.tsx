@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 /**
@@ -118,12 +119,15 @@ export function HelpProductGuide() {
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Troubleshooting</CardTitle>
           </CardHeader>
-          <CardContent className="pt-0 text-sm text-neutral-800 dark:text-neutral-200">
-            If a page fails to load, refresh once; for sign-in issues, return to{" "}
-            <Link className="text-teal-700 underline dark:text-teal-300" href="/auth/signin">
-              Sign in
-            </Link>
-            .
+          <CardContent className="space-y-3 pt-0 text-sm text-neutral-800 dark:text-neutral-200">
+            <p className="m-0">
+              If a page fails to load, refresh once; for sign-in issues, return to{" "}
+              <Link className="text-teal-700 underline dark:text-teal-300" href="/auth/signin">
+                Sign in
+              </Link>
+              .
+            </p>
+            <SupportBundleDownloadButton />
           </CardContent>
         </Card>
       </div>

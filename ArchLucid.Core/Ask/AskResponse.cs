@@ -37,4 +37,11 @@ public sealed class AskResponse
         get;
         set;
     } = [];
+
+    /// <summary>LLM narrative when the request compares two runs (<see cref="AskRequest.BaseRunId" /> + <see cref="AskRequest.TargetRunId" />).</summary>
+    public string? ComparisonNarrative
+    {
+        get;
+        set;
+    }
 }

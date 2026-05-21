@@ -38,7 +38,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:133 -->
+<!-- route-tier-policy-nav-registry-count:135 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -55,6 +55,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/DemoController.cs` | `/v1/demo` | none | ExecuteAuthority |  | demo_tooling |
 | `Admin/DiagnosticsController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Admin/DocsController.cs` | `/docs` | none | ReadAuthority |  | static_operator_docs_html |
+| `Admin/EvidenceProposalsController.cs` | `/v1/admin/evidence` | none | AdminAuthority |  |  |
 | `Admin/JobsController.cs` | `/v1/jobs` | none | ReadAuthority |  |  |
 | `Admin/MeteringAdminController.cs` | `/v1/admin/metering` | none | AdminAuthority | /settings/tenant-cost |  |
 | `Admin/ReferenceEvidenceAdminController.cs` | `/v1/admin/tenants/{tenantId:guid}/reference-evidence` | none | AdminAuthority |  |  |
@@ -83,6 +84,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Auth/TrialLocalIdentityAuthController.cs` | `/v1/auth/trial/local` | none | AllowAnonymous |  | trial_local_identity_auth |
 | `Authority/AnalysisReportsController.cs` | `/v1/architecture` | standard | ExecuteAuthority |  |  |
 | `Authority/ArchitectureDefinitionImportController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
+| `Authority/ArchitectureExportController.cs` | `/v1/architecture` | standard | ReadAuthority |  |  |
 | `Authority/ArchitectureQuickScanController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Authority/ArtifactExportController.cs` | `/v1/artifacts` | standard | ReadAuthority |  |  |
 | `Authority/AuthorityCompareController.cs` | `/v1/authority/compare` | standard | ReadAuthority |  |  |

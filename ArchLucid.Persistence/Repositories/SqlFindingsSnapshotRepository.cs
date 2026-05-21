@@ -146,10 +146,12 @@ public sealed class SqlFindingsSnapshotRepository(
         Guid findingsSnapshotId,
         int? cursorSortOrder,
         Guid? cursorFindingRecordId,
+        int? cursorPriorityRank,
         string? severity,
         string? category,
         string? findingType,
         int take,
+        bool orderByPriority,
         CancellationToken ct)
     {
         if (cursorSortOrder.HasValue ^ cursorFindingRecordId.HasValue)
@@ -158,26 +160,50 @@ public sealed class SqlFindingsSnapshotRepository(
         int cappedTake = Math.Clamp(take <= 0 ? FindingPagination.DefaultTake : take, 1, FindingPagination.MaxTake);
         int fetchLimit = cappedTake + 1;
 
-        const string sql = """
-                           SELECT TOP (@Limit)
-                                  FindingRecordId, SortOrder, FindingId, FindingType, Category, EngineType, Severity, Title
-                           FROM dbo.FindingRecords
-                           WHERE FindingsSnapshotId = @FsId
-                             AND (@Severity IS NULL OR Severity = @Severity)
-                             AND (@Category IS NULL OR Category = @Category)
-                             AND (@FindingType IS NULL OR FindingType = @FindingType)
-                             AND (
-                               @HasCursor = 0
-                               OR (
-                                 SortOrder > @CurSo OR (SortOrder = @CurSo AND FindingRecordId > @CurFrid)
-                               )
-                             )
-                           ORDER BY SortOrder ASC, FindingRecordId ASC;
-                           """;
+        string sql = orderByPriority
+            ? """
+              SELECT TOP (@Limit)
+                     FindingRecordId, SortOrder, FindingId, FindingType, Category, EngineType, Severity, Title, PriorityRank
+              FROM dbo.FindingRecords
+              WHERE FindingsSnapshotId = @FsId
+                AND (@Severity IS NULL OR Severity = @Severity)
+                AND (@Category IS NULL OR Category = @Category)
+                AND (@FindingType IS NULL OR FindingType = @FindingType)
+                AND (
+                  @HasCursor = 0
+                  OR (
+                    COALESCE(PriorityRank, 2147483647) > COALESCE(@CurPr, 2147483647)
+                    OR (
+                      COALESCE(PriorityRank, 2147483647) = COALESCE(@CurPr, 2147483647)
+                      AND (
+                        SortOrder > @CurSo OR (SortOrder = @CurSo AND FindingRecordId > @CurFrid)
+                      )
+                    )
+                  )
+                )
+              ORDER BY COALESCE(PriorityRank, 2147483647) ASC, SortOrder ASC, FindingRecordId ASC;
+              """
+            : """
+              SELECT TOP (@Limit)
+                     FindingRecordId, SortOrder, FindingId, FindingType, Category, EngineType, Severity, Title, PriorityRank
+              FROM dbo.FindingRecords
+              WHERE FindingsSnapshotId = @FsId
+                AND (@Severity IS NULL OR Severity = @Severity)
+                AND (@Category IS NULL OR Category = @Category)
+                AND (@FindingType IS NULL OR FindingType = @FindingType)
+                AND (
+                  @HasCursor = 0
+                  OR (
+                    SortOrder > @CurSo OR (SortOrder = @CurSo AND FindingRecordId > @CurFrid)
+                  )
+                )
+              ORDER BY SortOrder ASC, FindingRecordId ASC;
+              """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         bool hasCursor = cursorSortOrder.HasValue && cursorFindingRecordId.HasValue;
+        int cursorSort = cursorSortOrder ?? 0;
 
         List<FindingMetaSqlRow> rows = (
             await connection.QueryAsync<FindingMetaSqlRow>(
@@ -190,7 +216,8 @@ public sealed class SqlFindingsSnapshotRepository(
                         Category = OptionalEqualityFilter(category),
                         FindingType = OptionalEqualityFilter(findingType),
                         HasCursor = hasCursor ? 1 : 0,
-                        CurSo = cursorSortOrder ?? 0,
+                        CurPr = cursorPriorityRank,
+                        CurSo = cursorSort,
                         CurFrid = cursorFindingRecordId ?? Guid.Empty,
                         Limit = fetchLimit
                     },
@@ -212,9 +239,44 @@ public sealed class SqlFindingsSnapshotRepository(
                     r.Category,
                     r.EngineType,
                     r.Severity,
-                    r.Title)).ToArray();
+                    r.Title,
+                    r.PriorityRank)).ToArray();
 
         return new FindingRecordMetadataPage(mapped, hasMore);
+    }
+
+    public async Task UpdatePriorityRanksAsync(
+        Guid findingsSnapshotId,
+        IReadOnlyList<(string FindingId, int PriorityRank)> ranks,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(ranks);
+
+        if (ranks.Count == 0)
+            return;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+
+        foreach ((string findingId, int priorityRank) in ranks)
+        {
+            if (string.IsNullOrWhiteSpace(findingId))
+                continue;
+
+            await connection.ExecuteAsync(
+                new CommandDefinition(
+                    """
+                    UPDATE dbo.FindingRecords
+                    SET PriorityRank = @PriorityRank
+                    WHERE FindingsSnapshotId = @FsId AND FindingId = @FindingId;
+                    """,
+                    new
+                    {
+                        FsId = findingsSnapshotId,
+                        FindingId = findingId.Trim(),
+                        PriorityRank = priorityRank
+                    },
+                    cancellationToken: ct));
+        }
     }
 
     private sealed class FindingMetaSqlRow
@@ -266,6 +328,12 @@ public sealed class SqlFindingsSnapshotRepository(
             get;
             init;
         } = null!;
+
+        public int? PriorityRank
+        {
+            get;
+            init;
+        }
     }
 
     private async Task SaveCoreAsync(

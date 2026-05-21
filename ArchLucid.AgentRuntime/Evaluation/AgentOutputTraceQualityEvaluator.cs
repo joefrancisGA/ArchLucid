@@ -37,7 +37,8 @@ public static class AgentOutputTraceQualityEvaluator
         CancellationToken cancellationToken,
         AgentEvidencePackage? evidencePackage = null,
         IAgentResultEvidenceFaithfulnessChecker? agentResultFaithfulnessChecker = null,
-        IAgentResultEmbeddingFaithfulnessScorer? embeddingFaithfulnessScorer = null) =>
+        IAgentResultEmbeddingFaithfulnessScorer? embeddingFaithfulnessScorer = null,
+        IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId = null) =>
         TryEvaluateTraceAsyncCore(
             trace,
             options,
@@ -47,7 +48,8 @@ public static class AgentOutputTraceQualityEvaluator
             cancellationToken,
             evidencePackage,
             agentResultFaithfulnessChecker,
-            embeddingFaithfulnessScorer);
+            embeddingFaithfulnessScorer,
+            calibratedConfidenceByTaskId);
 
     private static async Task<TraceQualityEvaluationResult?> TryEvaluateTraceAsyncCore(
         AgentExecutionTrace trace,
@@ -58,7 +60,8 @@ public static class AgentOutputTraceQualityEvaluator
         CancellationToken cancellationToken,
         AgentEvidencePackage? evidencePackage,
         IAgentResultEvidenceFaithfulnessChecker? agentResultFaithfulnessChecker,
-        IAgentResultEmbeddingFaithfulnessScorer? embeddingFaithfulnessScorer)
+        IAgentResultEmbeddingFaithfulnessScorer? embeddingFaithfulnessScorer,
+        IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId)
     {
         ArgumentNullException.ThrowIfNull(trace);
         ArgumentNullException.ThrowIfNull(options);
@@ -112,7 +115,13 @@ public static class AgentOutputTraceQualityEvaluator
             await semanticEvaluator.EvaluateAsync(trace.TraceId, trace.ParsedResultJson, trace.AgentType, cancellationToken)
                 .ConfigureAwait(false);
 
-        AgentOutputQualityGateOutcome gateOutcome = qualityGate.Evaluate(structuralScore, semanticScore);
+        double? calibratedConfidence = null;
+
+        if (calibratedConfidenceByTaskId is not null)
+            calibratedConfidenceByTaskId.TryGetValue(trace.TaskId, out calibratedConfidence);
+
+        AgentOutputQualityGateOutcome gateOutcome =
+            qualityGate.Evaluate(structuralScore, semanticScore, calibratedConfidence);
 
         ApplyPilotStrictScoreFloors(options, pilotStrict, structuralScore, semanticScore, ref gateOutcome);
 

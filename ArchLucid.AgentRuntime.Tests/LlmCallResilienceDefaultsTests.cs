@@ -260,15 +260,49 @@ public sealed class LlmCallResilienceDefaultsTests
     {
         Mock<PipelineResponseHeaders> headers = new();
         headers
-            .Setup(h => h.TryGetValue(It.IsAny<string>(), out It.Ref<string?>.IsAny))
-            .Callback((string _, out string? value) => value = retryAfter)
-            .Returns(true);
+            .Setup(h => h.TryGetValue("Retry-After", out It.Ref<string?>.IsAny))
+            .Returns((string _, out string? value) =>
+            {
+                value = retryAfter;
+                return true;
+            });
 
-        Mock<PipelineResponse> response = new();
-        response.SetupGet(r => r.Status).Returns((int)status);
-        response.SetupGet(r => r.Headers).Returns(headers.Object);
+        UnitPipelineResponse response = new((int)status, headers.Object);
 
-        return new ClientResultException("test", response.Object);
+        return new ClientResultException("test", response);
+    }
+
+    /// <summary>Minimal <see cref="PipelineResponse" /> for exercising Retry-After header parsing without the live SDK.</summary>
+    private sealed class UnitPipelineResponse(int status, PipelineResponseHeaders headers) : PipelineResponse
+    {
+        public override int Status
+        {
+            get;
+        } = status;
+
+        public override string ReasonPhrase => "unit";
+
+        public override BinaryData Content => BinaryData.Empty;
+
+        public override Stream? ContentStream
+        {
+            get;
+            set;
+        } = Stream.Null;
+
+        protected override PipelineResponseHeaders HeadersCore
+        {
+            get;
+        } = headers;
+
+        public override BinaryData BufferContent(CancellationToken cancellationToken = default) => BinaryData.Empty;
+
+        public override ValueTask<BinaryData> BufferContentAsync(CancellationToken cancellationToken = default) =>
+            ValueTask.FromResult(BinaryData.Empty);
+
+        public override void Dispose()
+        {
+        }
     }
 
 }

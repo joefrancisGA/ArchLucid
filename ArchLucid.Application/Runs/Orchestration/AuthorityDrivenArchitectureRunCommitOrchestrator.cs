@@ -6,6 +6,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Telemetry;
 using ArchLucid.Contracts.Agents;
@@ -68,9 +69,11 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     ITrialFunnelCommitHook trialFunnelCommitHook,
     IFirstSessionLifecycleHook firstSessionLifecycleHook,
     IFindingIacStubGenerator findingIacStubGenerator,
+    IFindingPriorityReranker findingPriorityReranker,
     IDbConnectionFactory dbConnectionFactory,
     IRunStateTransitionService runStateTransitionService,
     IOptions<GenerateIacStubsOptions> generateIacStubsOptions,
+    IOptions<RerankFindingsOptions> rerankFindingsOptions,
     ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
     private const int CommitRunTransientMaxAttempts = 5;
@@ -109,6 +112,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private readonly IOptions<GenerateIacStubsOptions> _generateIacStubsOptions =
         generateIacStubsOptions ?? throw new ArgumentNullException(nameof(generateIacStubsOptions));
+
+    private readonly IFindingPriorityReranker _findingPriorityReranker =
+        findingPriorityReranker ?? throw new ArgumentNullException(nameof(findingPriorityReranker));
+
+    private readonly IOptions<RerankFindingsOptions> _rerankFindingsOptions =
+        rerankFindingsOptions ?? throw new ArgumentNullException(nameof(rerankFindingsOptions));
 
     private readonly IDbConnectionFactory _dbConnectionFactory = dbConnectionFactory ?? throw new ArgumentNullException(nameof(dbConnectionFactory));
 
@@ -376,8 +385,29 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         }
 
         TryScheduleIacStubGeneration(runId);
+        TryScheduleFindingPriorityRerank(runId);
 
         return new CommitRunResult { Manifest = contract, DecisionTraces = [trace], Warnings = persisted.Warnings.Count == 0 ? [] : [.. persisted.Warnings] };
+    }
+
+    private void TryScheduleFindingPriorityRerank(string runId)
+    {
+        if (!_rerankFindingsOptions.Value.Enabled)
+            return;
+
+        _ = Task.Run(
+            async () =>
+            {
+                try
+                {
+                    await _findingPriorityReranker.RerankForRunAsync(runId, CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarningWithSanitizedUserArg(ex, "Post-commit finding priority re-rank failed for RunId={RunId}", runId);
+                }
+            },
+            CancellationToken.None);
     }
 
     private void TryScheduleIacStubGeneration(string runId)

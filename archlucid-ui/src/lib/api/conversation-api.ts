@@ -23,6 +23,23 @@ export async function askArchLucid(payload: {
   return apiPostJson<AskResponse>("/v1/ask", body);
 }
 
+/** Loads ComparisonNarrative via POST /v1/ask (base + target runs, advisory prompt). */
+export async function fetchComparisonNarrativeViaAsk(
+  baseRunId: string,
+  targetRunId: string,
+): Promise<string | null> {
+  const response = await askArchLucid({
+    runId: targetRunId,
+    baseRunId,
+    targetRunId,
+    question:
+      "Summarize the most important architectural change between these two runs for an executive audience.",
+  });
+
+  const narrative = response.comparisonNarrative?.trim();
+  return narrative && narrative.length > 0 ? narrative : null;
+}
+
 /** Lists recent conversation threads for the current scope. */
 export async function listConversationThreads(take = 50): Promise<ConversationThread[]> {
   return apiGet(`/v1/conversations?take=${take}`);

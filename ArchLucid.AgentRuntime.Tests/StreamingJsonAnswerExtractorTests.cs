@@ -4,6 +4,7 @@ using FluentAssertions;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
+[Trait("Suite", "Core")]
 public sealed class StreamingJsonAnswerExtractorTests
 {
     [Fact]

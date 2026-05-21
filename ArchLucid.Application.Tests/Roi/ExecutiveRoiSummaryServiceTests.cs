@@ -17,6 +17,7 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.Roi;
 
+[Trait("Suite", "Core")]
 public sealed class ExecutiveRoiSummaryServiceTests
 {
     [Fact]

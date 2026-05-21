@@ -146,6 +146,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecuteFailureSummaryTests
             auditService.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             new NoOpAgentOutputTraceEvaluationHook(),
+            new ArchLucid.Application.Agents.Evidence.NoOpAgentResultPostExecutionEnricher(),
             new NoOpEvidencePackageInjectionMitigator(),
             contentSafety.Object,
             Options.Create(new AgentExecutionOptions()),

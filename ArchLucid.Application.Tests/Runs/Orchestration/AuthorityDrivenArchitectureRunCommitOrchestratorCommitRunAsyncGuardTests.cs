@@ -162,9 +162,11 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             Mock.Of<ITrialFunnelCommitHook>(),
             Mock.Of<IFirstSessionLifecycleHook>(),
             Mock.Of<IFindingIacStubGenerator>(),
+            Mock.Of<ArchLucid.Application.Findings.IFindingPriorityReranker>(),
             Mock.Of<IDbConnectionFactory>(),
             new RunStateTransitionService(),
             Options.Create(new ArchLucid.Core.Configuration.GenerateIacStubsOptions()),
+            Options.Create(new ArchLucid.Core.Configuration.RerankFindingsOptions()),
             Mock.Of<ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator>>());
     }
 }

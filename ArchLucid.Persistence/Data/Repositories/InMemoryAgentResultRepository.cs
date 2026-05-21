@@ -13,6 +13,7 @@ public sealed class InMemoryAgentResultRepository : IAgentResultRepository
 {
     private readonly Lock _gate = new();
     private readonly List<AgentResult> _results = [];
+    private readonly HashSet<string> _promotedProposalResultIds = new(StringComparer.Ordinal);
 
     /// <inheritdoc />
     public Task CreateAsync(
@@ -91,5 +92,98 @@ public sealed class InMemoryAgentResultRepository : IAgentResultRepository
         AgentResult? copy = JsonSerializer.Deserialize<AgentResult>(json, ContractJson.Default);
 
         return copy ?? throw new InvalidOperationException("Clone produced null AgentResult.");
+    }
+
+    public Task PatchCalibratedConfidenceAsync(
+        string resultId,
+        double calibratedConfidence,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            AgentResult? row = _results.FirstOrDefault(r => r.ResultId == resultId);
+
+            if (row is not null)
+                row.CalibratedConfidence = calibratedConfidence;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task PatchProposedEvidenceJsonAsync(
+        string resultId,
+        string proposedEvidenceJson,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            AgentResult? row = _results.FirstOrDefault(r => r.ResultId == resultId);
+
+            if (row is not null)
+                row.ProposedEvidenceJson = proposedEvidenceJson;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task<IReadOnlyList<EvidenceProposalListItem>> ListEvidenceProposalsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            List<EvidenceProposalListItem> items = _results
+                .Where(r => !string.IsNullOrWhiteSpace(r.ProposedEvidenceJson))
+                .OrderByDescending(r => r.CreatedUtc)
+                .Select(r => new EvidenceProposalListItem
+                {
+                    ResultId = r.ResultId,
+                    RunId = r.RunId,
+                    AgentType = r.AgentType.ToString(),
+                    ProposedEvidenceJson = r.ProposedEvidenceJson!,
+                    CreatedUtc = r.CreatedUtc,
+                    IsPromoted = _promotedProposalResultIds.Contains(r.ResultId)
+                })
+                .ToList();
+
+            return Task.FromResult<IReadOnlyList<EvidenceProposalListItem>>(items);
+        }
+    }
+
+    public Task<EvidenceProposalListItem?> TryGetEvidenceProposalAsync(
+        string resultId,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            AgentResult? row = _results.FirstOrDefault(r => r.ResultId == resultId);
+
+            if (row is null || string.IsNullOrWhiteSpace(row.ProposedEvidenceJson))
+                return Task.FromResult<EvidenceProposalListItem?>(null);
+
+            return Task.FromResult<EvidenceProposalListItem?>(new EvidenceProposalListItem
+            {
+                ResultId = row.ResultId,
+                RunId = row.RunId,
+                AgentType = row.AgentType.ToString(),
+                ProposedEvidenceJson = row.ProposedEvidenceJson!,
+                CreatedUtc = row.CreatedUtc,
+                IsPromoted = _promotedProposalResultIds.Contains(row.ResultId)
+            });
+        }
+    }
+
+    public Task MarkEvidenceProposalPromotedAsync(string resultId, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            _promotedProposalResultIds.Add(resultId);
+        }
+
+        return Task.CompletedTask;
     }
 }

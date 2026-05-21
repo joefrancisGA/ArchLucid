@@ -12,6 +12,10 @@ resulting findings against expected/unexpected rules.
    a live ArchLucid API. The script POSTs each template, polls for
    `ReadyForCommit`, commits, and saves the findings to
    `recordings/<scenario-id>.findings.json`.
+
+   **Bootstrap (no API):** `python scripts/ci/bootstrap_eval_template_recordings.py`
+   generates synthetic recordings from each scenario's `expectedFindings` so CI
+   score mode can run until live capture is available.
 2. **Score (every CI run after capture):**
    `scripts/ci/eval_template_harness.py --mode score` loads the committed
    recordings and applies the `expectedFindings` / `unexpectedFindings` rules

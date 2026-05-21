@@ -1,4 +1,5 @@
-﻿using ArchLucid.Application.Value;
+using ArchLucid.Application.Value;
+using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Value;
 
@@ -6,11 +7,10 @@ using FluentAssertions;
 
 using Microsoft.Extensions.Options;
 
-using ArchLucid.Contracts.ValueReports;
-
 using Moq;
 
 namespace ArchLucid.Application.Tests.Value;
+
 [Trait("Category", "Unit")]
 
 public sealed class ValueReportBuilderTests
@@ -78,7 +78,7 @@ public sealed class ValueReportBuilderTests
         snap.DriftAlertEventsCaughtCount.Should().Be(8);
         snap.EstimatedLlmCostForWindowUsd.Should().Be(10m);
 
-        decimal expectedManifestHours = 4m * 8m * 0.5m;
+        const decimal expectedManifestHours = 4m * 8m * 0.5m;
         snap.EstimatedArchitectHoursSavedFromManifests.Should().Be(expectedManifestHours);
         snap.EstimatedArchitectHoursSavedFromGovernanceEvents.Should().Be(5m);
         snap.EstimatedArchitectHoursSavedFromDriftEvents.Should().Be(2m);

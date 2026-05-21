@@ -20,6 +20,8 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
@@ -68,7 +70,8 @@ public sealed class RunQueryController(
     IAuthorityQueryService authorityQueryService,
     IConfiguration configuration,
     IAuditService auditService,
-    ExportFormatterService exportFormatter) : ControllerBase
+    ExportFormatterService exportFormatter,
+    IFindingsSnapshotRepository findingsSnapshotRepository) : ControllerBase
 {
     /// <summary>
     ///     Returns the canonical run aggregate (tasks, results, manifest, decision traces) for <paramref name="runId" />.
@@ -136,6 +139,79 @@ public sealed class RunQueryController(
         RunRoiScorecardDto estimate = runRoiEstimator.Estimate(detail);
 
         return Ok(estimate);
+    }
+
+    /// <summary>Keyset list of relational finding metadata for <paramref name="runId" />.</summary>
+    [HttpGet("run/{runId}/findings")]
+    [ProducesResponseType(typeof(RunFindingsListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ListRunFindings(
+        [FromRoute] string runId,
+        [FromQuery] string? orderBy,
+        [FromQuery] int? take,
+        [FromQuery] int? cursorSortOrder,
+        [FromQuery] int? cursorPriorityRank,
+        [FromQuery] Guid? cursorFindingRecordId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+
+        if (!TryParseRunId(runId, out Guid runGuid))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        Persistence.Models.RunRecord? run = await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (run?.FindingsSnapshotId is not Guid snapshotId)
+            return this.NotFoundProblem($"Run '{runId}' has no findings snapshot.", ProblemTypes.ResourceNotFound);
+
+        bool orderByPriority = string.Equals(orderBy, "priority", StringComparison.OrdinalIgnoreCase);
+        int pageTake = take ?? FindingPagination.DefaultTake;
+
+        FindingRecordMetadataPage page = await findingsSnapshotRepository.ListFindingRecordsKeysetAsync(
+            snapshotId,
+            cursorSortOrder,
+            cursorFindingRecordId,
+            cursorPriorityRank,
+            severity: null,
+            category: null,
+            findingType: null,
+            pageTake,
+            orderByPriority,
+            cancellationToken);
+
+        RunFindingListItem[] items = page.Items
+            .Select(static row => new RunFindingListItem
+            {
+                FindingRecordId = row.FindingRecordId,
+                FindingId = row.FindingId,
+                Severity = row.Severity,
+                Category = row.Category,
+                FindingType = row.FindingType,
+                Title = row.Title,
+                SortOrder = row.SortOrder,
+                PriorityRank = row.PriorityRank
+            })
+            .ToArray();
+
+        RunFindingsListResponse body = new()
+        {
+            RunId = runId.Trim(),
+            OrderBy = orderByPriority ? "priority" : "sortOrder",
+            Items = items,
+            HasMore = page.HasMore
+        };
+
+        if (page.HasMore && items.Length > 0)
+        {
+            RunFindingListItem last = items[^1];
+            body.NextCursorSortOrder = last.SortOrder;
+            body.NextCursorPriorityRank = last.PriorityRank;
+            body.NextCursorFindingRecordId = last.FindingRecordId;
+        }
+
+        return Ok(body);
     }
 
     /// <summary>

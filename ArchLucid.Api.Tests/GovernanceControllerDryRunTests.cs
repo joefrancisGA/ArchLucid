@@ -69,6 +69,7 @@ public sealed class GovernanceControllerDryRunTests
             Mock.Of<IPolicyPackGovernanceDryRunService>(),
             Mock.Of<IPolicyPackSchemaKeysService>(),
             Mock.Of<IAuditService>(),
+            Mock.Of<IPolicyPackDraftService>(),
             NullLogger<GovernanceController>.Instance);
 
         DefaultHttpContext http = new()
@@ -135,6 +136,7 @@ public sealed class GovernanceControllerDryRunTests
             Mock.Of<IPolicyPackGovernanceDryRunService>(),
             Mock.Of<IPolicyPackSchemaKeysService>(),
             Mock.Of<IAuditService>(),
+            Mock.Of<IPolicyPackDraftService>(),
             NullLogger<GovernanceController>.Instance);
 
         DefaultHttpContext http = new()

@@ -9,6 +9,7 @@ import {
   LifeBuoy,
   LineChart,
   Settings2,
+  BookOpen,
   Shield,
   Users,
   Wallet,
@@ -116,6 +117,14 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           icon: LifeBuoy,
           tier: "extended",
           requiredAuthority: "ExecuteAuthority",
+        },
+        {
+          href: "/admin/evidence-proposals",
+          label: "Evidence proposals",
+          title: "Evidence proposals — review and promote agent-curated catalog entries",
+          icon: BookOpen,
+          tier: "extended",
+          requiredAuthority: "AdminAuthority",
         },
         {
           href: "/settings/cost-reporting",

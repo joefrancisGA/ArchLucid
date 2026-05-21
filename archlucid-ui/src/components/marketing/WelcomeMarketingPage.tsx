@@ -7,16 +7,17 @@ import { HeroEarlyAccessCta } from "@/components/marketing/HeroEarlyAccessCta";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
 import { SelfDemoRequestCta } from "@/components/marketing/SelfDemoRequestCta";
 import { WalkthroughRequestCta } from "@/components/marketing/WalkthroughRequestCta";
+import { WelcomeMarketingProblemSolutionSection } from "@/components/marketing/WelcomeMarketingProblemSolutionSection";
+import { WelcomeMarketingUseCasesSection } from "@/components/marketing/WelcomeMarketingUseCasesSection";
+import { WelcomeMarketingWorkflowSection } from "@/components/marketing/WelcomeMarketingWorkflowSection";
+import {
+  WELCOME_HERO_CTA_SUBHEADING,
+  WELCOME_HERO_PITCH,
+} from "@/components/marketing/welcome-marketing-copy";
 import { Button } from "@/components/ui/button";
 import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
 import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
-
-/** Homepage hero pitch — category label flows through `BRAND_CATEGORY`. */
-const HERO_PITCH = `ArchLucid is an ${BRAND_CATEGORY} platform. You bring real architecture context, and our AI agents analyze it for topology, cost, compliance, and design quality — then produce a versioned manifest with every finding traced and explained. You get a defensible package in minutes instead of weeks: evidence, stated limits, and a governance-ready audit trail — without a founder narrating why it matters.`;
-
-/** Hero CTA subheading — ARB / governance positioning (above primary + secondary buttons). */
-const HERO_CTA_SUBHEADING = "See how ArchLucid delivers architecture reviews your ARB trusts.";
 
 type WelcomeVerifyLink = {
   readonly label: string;
@@ -65,7 +66,7 @@ function WelcomePillarVerifyLinks(props: { readonly links: readonly WelcomeVerif
 const PILLARS: readonly WelcomePillar[] = [
   {
     title: "AI-native architecture analysis",
-    body: "ArchLucid is not an architecture documentation tool with AI bolted on. It was built from day one around a multi-agent pipeline — specialized agents analyze architecture requests through a structured flow from intake to evidence graph, findings, decisioning, and artifact synthesis. The result is a versioned, finalized architecture manifest with structured findings, not a chat conversation that disappears.",
+    body: "Specialized agents run the Capture → Evidence → Review path on real architecture context — topology, cost, compliance, and design quality — and produce a versioned manifest with structured findings, not a chat thread that disappears.",
     verify: [
       { label: "See it in 30 seconds", href: "/see-it" },
       { label: "Security & trust", href: "/security-trust" },
@@ -75,7 +76,7 @@ const PILLARS: readonly WelcomePillar[] = [
   },
   {
     title: "Auditable decision trail",
-    body: "Every architecture recommendation ArchLucid produces is designed to ship with a chain of evidence: explainability metadata on findings records what was examined, what rules were applied, what decisions were taken, and why. Provenance and graph surfaces connect evidence to decisions and artifacts for investigation in the operator shell — not an anonymous “AI said so” reply.",
+    body: "Every recommendation ships with a chain of evidence: what was examined, which rules fired, what was decided, and why. Provenance and graph surfaces connect evidence to decisions for investigation — not an anonymous “AI said so” reply.",
     verify: [
       { label: "Evidence trail demo", href: "/demo/preview" },
       { label: "Knowledge graph overview", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/KNOWLEDGE_GRAPH.md` },
@@ -83,7 +84,7 @@ const PILLARS: readonly WelcomePillar[] = [
   },
   {
     title: "Enterprise governance",
-    body: "Operate-layer governance is configuration-driven: policy packs, approval workflows with segregation of duties, optional pre-commit gates that block commits when findings exceed thresholds, SLA tracking with webhook escalation on breach, and typed audit events in an append-only store with CSV export — all within the published V1 operator surface. That is the evidence profile buyers use for diligence; it is not a disposable chat log.",
+    body: "Policy packs, approval workflows with segregation of duties, optional pre-commit gates, SLA tracking with webhook escalation, and typed audit events in an append-only store — the evidence profile buyers use for diligence.",
     verify: [
       { label: "Trust center", href: "/trust" },
       { label: "Evidence pack (ZIP)", href: "/v1/marketing/trust-center/evidence-pack.zip" },
@@ -92,7 +93,8 @@ const PILLARS: readonly WelcomePillar[] = [
     ],
   },
 ];
-/** Public marketing landing: hero (primary walkthrough CTA), pillars, pricing cards from `/pricing.json`. */
+
+/** Public marketing landing: hero, problem/solution, workflow, use cases, proof, pillars, pricing. */
 export function WelcomeMarketingPage() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
@@ -108,9 +110,9 @@ export function WelcomeMarketingPage() {
         </h1>
         <p
           className="mx-auto mt-4 max-w-3xl text-left text-base leading-relaxed text-neutral-700 dark:text-neutral-300 sm:text-center"
-          data-testid="welcome-brand-category-paragraph"
+          data-testid="welcome-hero-pitch"
         >
-          {HERO_PITCH}
+          {WELCOME_HERO_PITCH}
         </p>
         <div data-testid="welcome-hero-cta-stack" className="mt-8 flex w-full flex-col items-center gap-5">
           <p
@@ -118,7 +120,7 @@ export function WelcomeMarketingPage() {
             className="max-w-2xl text-lg font-semibold leading-snug text-neutral-800 dark:text-neutral-100 sm:text-xl"
             data-testid="welcome-hero-cta-subheading"
           >
-            {HERO_CTA_SUBHEADING}
+            {WELCOME_HERO_CTA_SUBHEADING}
           </p>
 
           <div
@@ -196,12 +198,18 @@ export function WelcomeMarketingPage() {
         </div>
       </section>
 
+      <WelcomeMarketingProblemSolutionSection />
+
+      <WelcomeMarketingWorkflowSection />
+
+      <WelcomeMarketingUseCasesSection />
+
       <section
         aria-labelledby="welcome-proof-heading"
         className="mb-12"
         data-testid="welcome-proof-at-a-glance"
       >
-        <h2 id="welcome-proof-heading" className="sr-only">
+        <h2 id="welcome-proof-heading" className="mb-4 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
           Proof at a glance
         </h2>
         <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-3">

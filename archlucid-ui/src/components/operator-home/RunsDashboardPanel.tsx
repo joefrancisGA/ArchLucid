@@ -24,7 +24,6 @@ import {
 } from "@/lib/operator-home-example-request";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import {
-  BUYER_AUDIT_TIMELINE_INTRO,
   BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK,
   BUYER_RUNS_DASHBOARD_RECENT_LABEL,
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,

@@ -10,7 +10,9 @@ using ArchLucid.AgentRuntime.QuickScan;
 using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Application.Agents.IaC;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.Contracts.Abstractions.Agents;
@@ -54,7 +56,19 @@ public static partial class ServiceCollectionExtensions
     private static void RegisterAgentExecution(IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<GenerateIacStubsOptions>(configuration.GetSection(GenerateIacStubsOptions.SectionPath));
+        services.Configure<RerankFindingsOptions>(configuration.GetSection(RerankFindingsOptions.SectionPath));
         services.AddScoped<IFindingIacStubGenerator, FindingIacStubGenerator>();
+        services.AddScoped<IFindingPriorityReranker, FindingPriorityReranker>();
+        services.Configure<AgentConfidenceCalibrationOptions>(
+            configuration.GetSection(AgentConfidenceCalibrationOptions.SectionPath));
+        services.Configure<AgentCuratedEvidenceProposalOptions>(
+            configuration.GetSection(AgentCuratedEvidenceProposalOptions.SectionPath));
+        services.AddScoped<IAgentConfidenceCalibrator, AgentConfidenceCalibrator>();
+        services.AddScoped<IAgentConfidenceCalibrationService, AgentConfidenceCalibrationService>();
+        services.AddScoped<IAgentCuratedEvidenceProposer, AgentCuratedEvidenceProposer>();
+        services.AddScoped<IAgentResultPostExecutionEnricher, AgentResultPostExecutionEnricher>();
+        services.AddScoped<IEvidenceProposalQueryService, EvidenceProposalQueryService>();
+        services.AddScoped<IEvidenceProposalPromoter, EvidenceProposalPromoter>();
         services.Configure<AgentExecutionOptions>(configuration.GetSection(AgentExecutionOptions.SectionName));
         services.Configure<StagedCriticAgentOptions>(
             configuration.GetSection(StagedCriticAgentOptions.SectionPath));

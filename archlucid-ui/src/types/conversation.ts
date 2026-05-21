@@ -29,4 +29,6 @@ export type AskResponse = {
   referencedDecisions: string[];
   referencedFindings: string[];
   referencedArtifacts: string[];
+  /** Present when the ask request compared baseRunId and targetRunId. */
+  comparisonNarrative?: string | null;
 };

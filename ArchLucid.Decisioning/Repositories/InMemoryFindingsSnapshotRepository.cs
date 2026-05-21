@@ -26,6 +26,8 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
 
     private readonly Dictionary<Guid, string> _store = [];
 
+    private readonly Dictionary<(Guid SnapshotId, string FindingId), int> _priorityRanks = new();
+
     public Task SaveAsync(
         FindingsSnapshot snapshot,
         CancellationToken ct,
@@ -72,10 +74,12 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         Guid findingsSnapshotId,
         int? cursorSortOrder,
         Guid? cursorFindingRecordId,
+        int? cursorPriorityRank,
         string? severity,
         string? category,
         string? findingType,
         int take,
+        bool orderByPriority,
         CancellationToken ct)
     {
         _ = ct;
@@ -103,11 +107,13 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
                 {
                     Finding f = snapshot.Findings[i];
                     Guid recordId = StableFindingRecordId(findingsSnapshotId, i, f.FindingId);
+                    int? priorityRank = ResolvePriorityRank(findingsSnapshotId, f.FindingId);
 
                     return new FindingEnvelope(
                         SortOrder: i,
                         RecordId: recordId,
-                        Finding: f);
+                        Finding: f,
+                        PriorityRank: priorityRank);
                 });
 
         string? sev = NormalizeFilter(severity);
@@ -127,8 +133,13 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
             return ftype is null || string.Equals(f.FindingType, ftype, StringComparison.OrdinalIgnoreCase);
         });
 
-        List<FindingEnvelope> ordered =
-            envelopes.OrderBy(e => e.SortOrder).ThenBy(e => e.RecordId).ToList();
+        List<FindingEnvelope> ordered = orderByPriority
+            ? envelopes
+                .OrderBy(e => e.PriorityRank ?? int.MaxValue)
+                .ThenBy(e => e.SortOrder)
+                .ThenBy(e => e.RecordId)
+                .ToList()
+            : envelopes.OrderBy(e => e.SortOrder).ThenBy(e => e.RecordId).ToList();
 
         bool hasCursor = cursorSortOrder.HasValue && cursorFindingRecordId.HasValue;
 
@@ -140,9 +151,21 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
             int cs = cursorSortOrder!.Value;
             Guid cid = cursorFindingRecordId!.Value;
 
-            pageSource =
-                ordered.Where(e =>
-                    e.SortOrder > cs || (e.SortOrder == cs && e.RecordId.CompareTo(cid) > 0));
+            if (orderByPriority)
+            {
+                int cpr = cursorPriorityRank ?? int.MaxValue;
+
+                pageSource = ordered.Where(e =>
+                    (e.PriorityRank ?? int.MaxValue) > cpr
+                    || ((e.PriorityRank ?? int.MaxValue) == cpr
+                        && (e.SortOrder > cs || (e.SortOrder == cs && e.RecordId.CompareTo(cid) > 0))));
+            }
+            else
+            {
+                pageSource =
+                    ordered.Where(e =>
+                        e.SortOrder > cs || (e.SortOrder == cs && e.RecordId.CompareTo(cid) > 0));
+            }
         }
 
         List<FindingEnvelope> slice = pageSource.Take(fetch).ToList();
@@ -162,14 +185,44 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
                         e.Finding.Category,
                         e.Finding.EngineType,
                         e.Finding.Severity.ToString(),
-                        e.Finding.Title))
+                        e.Finding.Title,
+                        e.PriorityRank))
                 .ToArray();
 
         return Task.FromResult(new FindingRecordMetadataPage(rows, hasMore));
     }
 
+    public Task UpdatePriorityRanksAsync(
+        Guid findingsSnapshotId,
+        IReadOnlyList<(string FindingId, int PriorityRank)> ranks,
+        CancellationToken ct)
+    {
+        _ = ct;
+        ArgumentNullException.ThrowIfNull(ranks);
+
+        lock (_lock)
+        {
+            foreach ((string findingId, int priorityRank) in ranks)
+            {
+                if (string.IsNullOrWhiteSpace(findingId))
+                    continue;
+
+                _priorityRanks[(findingsSnapshotId, findingId.Trim())] = priorityRank;
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private int? ResolvePriorityRank(Guid findingsSnapshotId, string findingId)
+    {
+        lock (_lock)
+
+            return _priorityRanks.TryGetValue((findingsSnapshotId, findingId), out int rank) ? rank : null;
+    }
+
     /// <remarks>Stable surrogate key for deterministic in-memory paging (differs from SQL <c>NewGuid()</c> row ids).</remarks>
-    private sealed record FindingEnvelope(int SortOrder, Guid RecordId, Finding Finding);
+    private sealed record FindingEnvelope(int SortOrder, Guid RecordId, Finding Finding, int? PriorityRank);
 
     /// <remarks>Matches SQL surrogate key stability for deterministic in-memory paging / tests.</remarks>
     private static Guid StableFindingRecordId(Guid findingsSnapshotId, int sortOrder, string findingId)

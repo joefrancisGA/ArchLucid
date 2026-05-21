@@ -132,6 +132,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/EvidenceProposalsController.cs",
+      "class_name": "EvidenceProposalsController",
+      "route_template": "v{version:apiVersion}/admin/evidence",
+      "normalized_prefix": "/v1/admin/evidence",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/JobsController.cs",
       "class_name": "JobsController",
       "route_template": "v{version:apiVersion}/jobs",
@@ -407,6 +417,16 @@
       "route_template": "v{version:apiVersion}/architecture",
       "normalized_prefix": "/v1/architecture",
       "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/ArchitectureExportController.cs",
+      "class_name": "ArchitectureExportController",
+      "route_template": "v{version:apiVersion}/architecture",
+      "normalized_prefix": "/v1/architecture",
+      "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
       "nav_operator_href": null

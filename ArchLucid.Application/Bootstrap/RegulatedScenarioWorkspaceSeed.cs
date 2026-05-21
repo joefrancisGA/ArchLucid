@@ -1,11 +1,8 @@
-using System.IO;
-
 using ArchLucid.Application.Authority;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
-using ArchLucid.Contracts.Metadata;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 
@@ -55,8 +52,8 @@ internal static class RegulatedScenarioWorkspaceSeed
         const string svcInfer = "svc-alpine-inference-endpoint";
         const string svcTraining = "svc-alpine-aml-training";
         const string svcFeature = "svc-alpine-feature-store";
-        string lakeCurated = "ds-adl-gen2-curated-features";
-        string lakeRaw = "ds-adl-raw-ingest-synth";
+        const string lakeCurated = "ds-adl-gen2-curated-features";
+        const string lakeRaw = "ds-adl-raw-ingest-synth";
         string modelReg = "ds-aml-model-registry";
 
         List<ManifestService> services =

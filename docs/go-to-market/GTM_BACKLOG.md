@@ -1,4 +1,4 @@
-> **Scope:** Internal GTM execution backlog for V1 marketing activities — task owners, priorities, milestones, and technical dependencies; not a buyer-facing document. For weighted readiness **workflow**, see **[`docs/library/ASSESSMENT_INPUTS.md`](../library/ASSESSMENT_INPUTS.md)** (rolling summary under **`docs/assessments/`**). This file is **not** a scorecard.
+﻿> **Scope:** Internal GTM execution backlog for V1 marketing activities — task owners, priorities, milestones, and technical dependencies; not a buyer-facing document. For weighted readiness **workflow**, see **[`docs/library/ASSESSMENT_INPUTS.md`](../library/ASSESSMENT_INPUTS.md)** (rolling summary under **`docs/assessments/`**). This file is **not** a scorecard.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -41,8 +41,8 @@
 | # | Task | Type | Priority | Status | Depends on (technical) |
 |---|------|------|----------|--------|------------------------|
 | M-01 | Finalize one-sentence positioning tagline and update `POSITIONING.md` | Copy | P0 | Done | None — `POSITIONING.md` exists as basis |
-| M-02 | Write one-minute verbal pitch (elevator script) | Copy | P0 | Not started | None — `EXECUTIVE_SPONSOR_BRIEF.md` as basis |
-| M-03 | Write five-minute demo script aligned to marketing vocabulary (Capture → Evidence → Review → Findings → Decisions → Report) | Copy | P0 | Not started | None — `DEMO_VIDEO_SCRIPT.md` exists; validate against Workspace A/B flows |
+| M-02 | Write one-minute verbal pitch (elevator script) | Copy | P0 | Done | `ELEVATOR_PITCH.md` written 2026-05-21 — 30-sec, 1-min, 2-min, and consulting-line variants — `EXECUTIVE_SPONSOR_BRIEF.md` as basis |
+| M-03 | Write five-minute demo script aligned to marketing vocabulary (Capture → Evidence → Review → Findings → Decisions → Report) | Copy | P0 | Done | Five-minute live-call script added to `DEMO_VIDEO_SCRIPT.md` 2026-05-21; includes Q&A prompts |
 | M-04 | Verify self-demo workspace (Workspace A — ArchLucid reviews ArchLucid) passes Playwright smoke | QA sign-off | P0 | Not started | **Improvement #30 — COMPLETED (2026-05-17)** |
 | M-05 | Verify synthetic regulated scenario workspace (Workspace B — AI governance + cloud posture) passes Playwright smoke | QA sign-off | P0 | Not started | **Improvement #30 — COMPLETED (2026-05-17)** |
 | M-06 | Download and review generated sample architecture review report from Workspace B; confirm section coverage matches landing-page narrative | Content review | P0 | Not started | **Improvement #28 — COMPLETED (2026-05-17)** |
@@ -53,14 +53,14 @@
 
 | # | Task | Type | Priority | Status | Depends on (technical) |
 |---|------|------|----------|--------|------------------------|
-| M-09 | Landing page full content — hero copy, problem/solution sections, core workflow narrative, use cases (include Azure WAF + CAF/LZ bundled packs with disclaimer), proof section | Copy + UI | P1 | Not started | **Improvements #31 + #32 — COMPLETED (2026-05-17)**; packs per **`DEFAULT_POLICY_PACKS_V1.md`** |
+| M-09 | Landing page full content — hero copy, problem/solution sections, core workflow narrative, use cases (include Azure WAF + CAF/LZ bundled packs with disclaimer), proof section | Copy + UI | P1 | In progress | **Improvements #31 + #32 — COMPLETED (2026-05-17)**; homepage copy/sections landed 2026-05-21 (`WelcomeMarketingPage` + modular sections). **Remaining:** owner sign-off, M-06 sample report review, M-07 screenshots, deploy. |
 | M-10 | LinkedIn post 1: "Architecture review is broken — diagrams are not evidence" | Content | P1 | Not started | None |
 | M-11 | LinkedIn post 2: "Architecture decisions need provenance — not just Confluence pages" | Content | P1 | Not started | None |
 | M-12 | LinkedIn post 3: "Why AI-assisted architecture review needs human signoff" | Content | P1 | Not started | None |
 | M-13 | LinkedIn post 4: "The next architecture artifact is the evidence graph" | Content | P1 | Not started | None |
 | M-14 | LinkedIn post 5: "Why regulated teams need reviewable architecture records" | Content | P1 | Not started | None |
-| M-15 | Publish long-form article: "Architecture Review Is Broken: Why Diagrams Are Not Evidence" | Content | P1 | Not started | None — draft from `POSITIONING.md` + `COMPETITIVE_LANDSCAPE.md` |
-| M-16 | Create one short demo video (screen recording of Workspace A self-demo flow) | Production | P1 | Not started | **Improvement #30 — COMPLETED (2026-05-17)** |
+| M-15 | Publish long-form article: "Architecture Review Is Broken: Why Diagrams Are Not Evidence" | Content | P1 | Done | Full article draft in `LINKEDIN_CONTENT_V1.md` 2026-05-21 (~1,800 words + link-post); owner to publish. Was: None — draft from `POSITIONING.md` + `COMPETITIVE_LANDSCAPE.md` |
+| M-16 | Create one short demo video (screen recording of Workspace A self-demo flow) | Production | P1 | Not started | **Improvement #30 — COMPLETED (2026-05-17)**. **Deferred (planning 2026-05-21):** record after M-04 smoke + M-07 screenshots; M-18 may use live demo until video exists. |
 
 ### Phase 3 — Early conversations (Days 31–60)
 

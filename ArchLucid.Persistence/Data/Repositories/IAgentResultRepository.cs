@@ -42,4 +42,23 @@ public interface IAgentResultRepository
         CancellationToken cancellationToken = default,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null);
+
+    Task PatchCalibratedConfidenceAsync(
+        string resultId,
+        double calibratedConfidence,
+        CancellationToken cancellationToken = default);
+
+    Task PatchProposedEvidenceJsonAsync(
+        string resultId,
+        string proposedEvidenceJson,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<EvidenceProposalListItem>> ListEvidenceProposalsAsync(
+        CancellationToken cancellationToken = default);
+
+    Task<EvidenceProposalListItem?> TryGetEvidenceProposalAsync(
+        string resultId,
+        CancellationToken cancellationToken = default);
+
+    Task MarkEvidenceProposalPromotedAsync(string resultId, CancellationToken cancellationToken = default);
 }

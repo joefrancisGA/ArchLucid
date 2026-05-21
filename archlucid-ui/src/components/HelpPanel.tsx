@@ -20,6 +20,7 @@ import { corePilotHelpStepForPath } from "@/lib/core-pilot-help-step-for-path";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { getDocHref, helpTopicsForGuidesTab, helpTopicsForTroubleshootingTab, type HelpTopic } from "@/lib/help-topics";
 import { cn } from "@/lib/utils";
+import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
 
 export type HelpPanelProps = {
@@ -325,6 +326,13 @@ export function HelpPanel({ open, onOpenChange }: HelpPanelProps) {
 
           {tab === "troubleshooting" ? (
             <div className="space-y-3">
+              <div className="rounded-md border border-teal-200/90 bg-teal-50/40 p-3 dark:border-teal-900/60 dark:bg-teal-950/30">
+                <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">Support bundle</p>
+                <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
+                  Download a redacted diagnostics ZIP for support tickets (same artefact as Admin → Support).
+                </p>
+                <SupportBundleDownloadButton className="mt-3 space-y-2" />
+              </div>
               {troubleshootingFiltered.length === 0 ? (
                 <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">No topics match your search.</p>
               ) : (

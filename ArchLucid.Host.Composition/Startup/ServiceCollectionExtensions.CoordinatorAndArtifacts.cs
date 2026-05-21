@@ -101,6 +101,8 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<IAgentEvidencePackageRepository, InMemoryAgentEvidencePackageRepository>();
             services.AddSingleton<IAgentExecutionTraceRepository, InMemoryAgentExecutionTraceRepository>();
             services.AddSingleton<IAgentOutputEvaluationResultRepository, NoOpAgentOutputEvaluationResultRepository>();
+            services.AddSingleton<IAgentConfidenceCalibrationSampleRepository, NoOpAgentConfidenceCalibrationSampleRepository>();
+            services.AddSingleton<ITenantCuratedEvidenceRepository, NoOpTenantCuratedEvidenceRepository>();
             return;
         }
 
@@ -117,6 +119,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAgentEvidencePackageRepository, AgentEvidencePackageRepository>();
         services.AddScoped<IAgentExecutionTraceRepository, AgentExecutionTraceRepository>();
         services.AddScoped<IAgentOutputEvaluationResultRepository, AgentOutputEvaluationResultRepository>();
+        services.AddScoped<IAgentConfidenceCalibrationSampleRepository, AgentConfidenceCalibrationSampleRepository>();
+        services.AddScoped<ITenantCuratedEvidenceRepository, TenantCuratedEvidenceRepository>();
     }
 
     private static void RegisterRunExplanationSummaryService(
