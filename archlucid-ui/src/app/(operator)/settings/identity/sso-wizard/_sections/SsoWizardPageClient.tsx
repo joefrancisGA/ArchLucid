@@ -262,7 +262,7 @@ export function SsoWizardPageClient() {
 
       <WizardStepper steps={[...SSO_WIZARD_STEPS]} currentStep={step} completedSteps={completedSteps} />
 
-      {error ? <OperatorApiProblem title="SSO wizard" detail={error} /> : null}
+      {error ? <OperatorApiProblem problem={null} fallbackMessage={error} /> : null}
 
       <Card>
         <CardHeader>
