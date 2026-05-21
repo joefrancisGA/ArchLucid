@@ -102,6 +102,7 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<IAgentExecutionTraceRepository, InMemoryAgentExecutionTraceRepository>();
             services.AddSingleton<IAgentOutputEvaluationResultRepository, NoOpAgentOutputEvaluationResultRepository>();
             services.AddSingleton<IAgentOutputEvaluationRepository, NoOpAgentOutputEvaluationRepository>();
+            services.AddSingleton<IPromptVariantStatsRepository, NoOpPromptVariantStatsRepository>();
             services.AddSingleton<IAgentConfidenceCalibrationSampleRepository, NoOpAgentConfidenceCalibrationSampleRepository>();
             services.AddSingleton<ITenantCuratedEvidenceRepository, NoOpTenantCuratedEvidenceRepository>();
             return;
