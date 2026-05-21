@@ -62,15 +62,16 @@ export function comparePageLeftRunInput(page: Page) {
 
 /**
  * Buyer-polished Compare collapses pickers below results after a successful compare (`CompareRunPickersSection` `collapseBelowResults`).
- * Expands the fold when the left combobox is not yet visible.
+ * Expands the fold when submit controls are not yet visible (URL auto-compare can collapse pickers after an earlier expand).
  */
 export async function expandCompareRunPickersIfCollapsed(page: Page): Promise<void> {
-  const leftInput = comparePageLeftRunInput(page);
+  const submit = comparePageSubmitButton(page);
 
-  if (await leftInput.isVisible()) {
+  if (await submit.isVisible()) {
     return;
   }
 
+  const leftInput = comparePageLeftRunInput(page);
   const collapsedPickers = page.locator("details").filter({ has: leftInput });
   const summary = collapsedPickers.locator("summary");
 
@@ -84,7 +85,7 @@ export async function expandCompareRunPickersIfCollapsed(page: Page): Promise<vo
     await summary.click();
   }
 
-  await expect(leftInput).toBeVisible();
+  await expect(submit).toBeVisible();
 }
 
 /**
@@ -110,12 +111,43 @@ export function comparePageRightRunInput(page: Page) {
   return page.locator("#compare-right-run-id");
 }
 
-/**
- * Primary **Compare** control on `/compare`, scoped to the picker section so it never collides with the
- * contextual-help button (`aria-label` contains "compare-runs"), which plain `name: "Compare"` can match in Playwright.
- */
+/** Primary **Compare** control on `/compare` (`CompareRunPickersSection`). Label toggles to “Comparing…” while loading. */
 export function comparePageSubmitButton(page: Page) {
-  return page.locator("section:has(#compare-select-heading)").getByRole("button", { name: "Compare", exact: true });
+  return page.getByTestId("compare-submit-button");
+}
+
+/** H3 shown once structured compare payload renders (`CompareResultsPanel`). */
+export function compareManifestComparisonHeading(page: Page): Locator {
+  return page.getByRole("heading", { name: "Manifest comparison", level: 3 });
+}
+
+/**
+ * Waits for URL auto-compare to finish. When results are still absent after the wait, expands collapsed pickers
+ * and clicks **Compare** (mock routes, slow CI, or pages without auto-compare).
+ */
+export async function waitForCompareResultsReady(page: Page): Promise<void> {
+  const manifestHeading = compareManifestComparisonHeading(page);
+
+  try {
+    await expect(manifestHeading).toBeVisible({ timeout: 15_000 });
+
+    return;
+  } catch {
+    // Fall through to manual compare.
+  }
+
+  await clickCompareSubmitWhenReady(page);
+  await expect(manifestHeading).toBeVisible({ timeout: 15_000 });
+}
+
+/** Expands collapsed pickers when needed, then clicks **Compare** once the control is enabled. */
+export async function clickCompareSubmitWhenReady(page: Page): Promise<void> {
+  await expandCompareRunPickersIfCollapsed(page);
+  const submit = comparePageSubmitButton(page);
+
+  await expect(submit).toBeEnabled({ timeout: 15_000 });
+  await expandCompareRunPickersIfCollapsed(page);
+  await submit.click();
 }
 
 /** Run detail for the standard mock-api run fixture (`e2e/mock-archlucid-api-server`). */

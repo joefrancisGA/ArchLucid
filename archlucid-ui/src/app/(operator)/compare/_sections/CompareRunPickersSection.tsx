@@ -106,6 +106,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
+            data-testid="compare-submit-button"
             className="rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 shadow-sm hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
             onClick={() => void onCompare()}
             disabled={loading || !leftTrim || !rightTrim || sameCanonicalRunIdsBlocked}

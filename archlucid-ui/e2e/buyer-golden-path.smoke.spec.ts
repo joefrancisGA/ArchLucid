@@ -68,11 +68,10 @@ test.describe("buyer golden path — Claims Intake spine", () => {
     await expect(
       page.getByRole("heading", { level: 2, name: BUYER_SHOWCASE_AUDIT_TRAIL_HEADING }),
     ).toBeVisible();
-    await expect(
-      page
-        .getByTestId("audit-buyer-metric-tiles")
-        .or(page.getByTestId("audit-timeline-event-card").first()),
-    ).toBeVisible();
+    // Buyer-polished audit renders metric tiles and timeline cards together; assert each separately
+    // because Playwright `.or()` strict mode fails when both locators match.
+    await expect(page.getByTestId("audit-buyer-metric-tiles")).toBeVisible();
+    await expect(page.getByTestId("audit-timeline-event-card").first()).toBeVisible();
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 

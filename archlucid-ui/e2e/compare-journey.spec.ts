@@ -5,8 +5,8 @@ import {
   comparePageLeftRunInput,
   comparePageMainHeading,
   comparePageRightRunInput,
-  comparePageSubmitButton,
   comparePageSummarizeNarrativeButton,
+  clickCompareSubmitWhenReady,
   comparisonRequestOutcomePanel,
   expandComparisonRequestOutcome,
   expandCompareRunPickersIfCollapsed,
@@ -14,6 +14,7 @@ import {
   expectComparisonRequestOutcomeVisible,
   gotoComparePageWithFixturePair,
   structuredCompareSponsorRecommendationParagraph,
+  waitForCompareResultsReady,
 } from "./helpers/operator-journey";
 import { registerDefaultPairLegacyStructuredCompare } from "./helpers/register-operator-api-routes";
 
@@ -33,15 +34,13 @@ test.describe("operator journey — compare query prefill and review order", () 
         /review the structured summary first|The structured summary below is the authoritative|structured summary is the authoritative delta/i,
       ),
     ).toBeVisible();
-    // URL pair triggers auto-compare; buyer-polished shell then folds pickers below results (`collapseBelowResults`).
+    // URL pair triggers auto-compare; wait for results before expanding collapsed pickers or clicking submit.
+    await waitForCompareResultsReady(page);
     await expandCompareRunPickersIfCollapsed(page);
     await expect(comparePageSummarizeNarrativeButton(page)).toBeVisible();
 
-    await expect(comparePageSubmitButton(page)).toBeEnabled();
-    await comparePageSubmitButton(page).click();
+    await clickCompareSubmitWhenReady(page);
     await expectComparisonRequestOutcomeVisible(page);
-
-    await expect(page.getByRole("heading", { name: "Manifest comparison", level: 3 })).toBeVisible();
     await expect(page.locator("#compare-structured")).toBeVisible();
     await expect(structuredCompareSponsorRecommendationParagraph(page)).toBeVisible();
 

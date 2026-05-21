@@ -2,10 +2,10 @@ import { expect, test } from "@playwright/test";
 
 import { FIXTURE_LEFT_RUN_ID, FIXTURE_RIGHT_RUN_ID, fixtureComparisonExplanation } from "./fixtures";
 import {
-  comparePageSubmitButton,
   comparePageSummarizeNarrativeButton,
   expandCompareRunPickersIfCollapsed,
   structuredCompareSponsorRecommendationParagraph,
+  waitForCompareResultsReady,
 } from "./helpers/operator-journey";
 import { registerCompareAndExplainRoutes } from "./helpers/register-operator-api-routes";
 
@@ -21,15 +21,9 @@ test.describe("operator journey — compare proxy mocks", () => {
     });
     await page.goto(`/compare?${q.toString()}`);
 
+    await waitForCompareResultsReady(page);
+
     const structuredSummary = structuredCompareSponsorRecommendationParagraph(page);
-
-    if (!(await structuredSummary.isVisible())) {
-      await expandCompareRunPickersIfCollapsed(page);
-      const compareSubmit = comparePageSubmitButton(page);
-      await expect(compareSubmit).toBeEnabled();
-      await compareSubmit.click();
-    }
-
     await expect(structuredSummary).toBeVisible();
 
     await expandCompareRunPickersIfCollapsed(page);
