@@ -89,7 +89,7 @@ public sealed class DemoWorkspaceFixtureManifestParityTests
 
         public string WorkspaceId { get; init; } = "";
 
-        public string ProjectId { get; } = "";
+        public string ProjectId { get; init; } = "";
 
         public int ExpectedCommittedFindingCount { get; init; }
 
