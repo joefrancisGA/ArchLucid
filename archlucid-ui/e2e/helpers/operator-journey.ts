@@ -173,6 +173,17 @@ export function comparisonRequestOutcomePanel(page: Page) {
   return page.locator('details[aria-label="Comparison request outcome"]');
 }
 
+/**
+ * `<summary>` on {@link CompareLastRequestOutcomeDetails}: buyer-polished mock E2E uses
+ * **Comparison details (technical appendix)**; full-operator uses **Last compare request (technical)**.
+ */
+export const COMPARISON_REQUEST_OUTCOME_SUMMARY_PATTERN =
+  /Last compare request \(technical\)|Comparison details \(technical appendix\)/;
+
+export function comparisonRequestOutcomeSummary(page: Page): Locator {
+  return comparisonRequestOutcomePanel(page).getByText(COMPARISON_REQUEST_OUTCOME_SUMMARY_PATTERN);
+}
+
 /** After Compare succeeds, the collapsed technical outcome strip is visible. */
 export async function expectComparisonRequestOutcomeVisible(page: Page): Promise<void> {
   await expect(comparisonRequestOutcomePanel(page)).toBeVisible();

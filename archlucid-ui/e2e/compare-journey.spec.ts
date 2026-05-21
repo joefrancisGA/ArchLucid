@@ -8,6 +8,7 @@ import {
   comparePageSummarizeNarrativeButton,
   clickCompareSubmitWhenReady,
   comparisonRequestOutcomePanel,
+  comparisonRequestOutcomeSummary,
   expandComparisonRequestOutcome,
   expandCompareRunPickersIfCollapsed,
   expandCompareTechnicalDetails,
@@ -67,7 +68,7 @@ test.describe("operator journey — compare query prefill and review order", () 
     await expandComparisonRequestOutcome(page);
 
     const outcome = comparisonRequestOutcomePanel(page);
-    await expect(outcome.getByText(/Last compare request \(technical\)/)).toBeVisible();
+    await expect(comparisonRequestOutcomeSummary(page)).toBeVisible();
     await expect(outcome).toContainText(FIXTURE_LEFT_RUN_ID);
     await expect(outcome).toContainText(FIXTURE_RIGHT_RUN_ID);
     await expect(outcome.getByText("Manifest comparison")).toBeVisible();
