@@ -6,6 +6,7 @@ using ArchLucid.AgentRuntime.Caching;
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.Contracts.Agents.PromptVariants;
 using ArchLucid.AgentRuntime.QuickScan;
 using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.AgentSimulator.Services;
@@ -65,6 +66,7 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(AgentCuratedEvidenceProposalOptions.SectionPath));
         services.AddScoped<IAgentConfidenceCalibrator, AgentConfidenceCalibrator>();
         services.AddScoped<IAgentConfidenceCalibrationService, AgentConfidenceCalibrationService>();
+        services.AddScoped<IPromptVariantStatsService, PromptVariantStatsService>();
         services.AddScoped<IAgentCuratedEvidenceProposer, AgentCuratedEvidenceProposer>();
         services.AddScoped<IAgentResultPostExecutionEnricher, AgentResultPostExecutionEnricher>();
         services.AddScoped<IEvidenceProposalQueryService, EvidenceProposalQueryService>();
@@ -166,7 +168,11 @@ public static partial class ServiceCollectionExtensions
 
         services.Configure<AgentPromptCatalogOptions>(
             configuration.GetSection(AgentPromptCatalogOptions.SectionName));
-        services.AddSingleton<IAgentSystemPromptCatalog, CachedAgentSystemPromptCatalog>();
+        services.Configure<PromptVariantOptions>(configuration.GetSection(PromptVariantOptions.SectionPath));
+        services.AddSingleton<CachedAgentSystemPromptCatalog>();
+        services.AddSingleton<IPromptVariantRegistry, SqlPromptVariantRegistry>();
+        services.AddSingleton<IPromptVariantSelector, PromptVariantSelector>();
+        services.AddSingleton<IAgentSystemPromptCatalog, VariantAwareAgentSystemPromptCatalog>();
         services.Configure<AgentExecutionResilienceOptions>(
             configuration.GetSection(AgentExecutionResilienceOptions.SectionName));
         services.PostConfigure<AgentExecutionResilienceOptions>(static o => o.Normalize());

@@ -35,6 +35,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
                                      Confidence,
                                      CalibratedConfidence,
                                      ProposedEvidenceJson,
+                                     PromptVariantKey,
                                      ResultJson,
                                      CreatedUtc
                                  )
@@ -47,6 +48,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
                                      @Confidence,
                                      @CalibratedConfidence,
                                      @ProposedEvidenceJson,
+                                     @PromptVariantKey,
                                      @ResultJson,
                                      @CreatedUtc
                                  );
@@ -62,6 +64,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             result.Confidence,
             result.CalibratedConfidence,
             ProposedEvidenceJson = result.ProposedEvidenceJson,
+            PromptVariantKey = result.PromptVariantKey,
             ResultJson = json,
             result.CreatedUtc
         };
@@ -143,6 +146,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
                                      Confidence,
                                      CalibratedConfidence,
                                      ProposedEvidenceJson,
+                                     PromptVariantKey,
                                      ResultJson,
                                      CreatedUtc
                                  )
@@ -155,6 +159,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
                                      @Confidence,
                                      @CalibratedConfidence,
                                      @ProposedEvidenceJson,
+                                     @PromptVariantKey,
                                      @ResultJson,
                                      @CreatedUtc
                                  );
@@ -169,6 +174,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             result.Confidence,
             result.CalibratedConfidence,
             ProposedEvidenceJson = result.ProposedEvidenceJson,
+            PromptVariantKey = result.PromptVariantKey,
             ResultJson = JsonSerializer.Serialize(result, ContractJson.Default),
             result.CreatedUtc
         });

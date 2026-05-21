@@ -1,8 +1,8 @@
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.WeeklyExecutiveSummary;
-using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Composition.Configuration;
+using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Jobs;

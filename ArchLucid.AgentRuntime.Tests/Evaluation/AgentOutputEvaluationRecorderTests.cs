@@ -84,6 +84,7 @@ public sealed class AgentOutputEvaluationRecorderTests
             archFindingConfidence.Object,
             new AgentResultEvidenceFaithfulnessChecker(),
             embeddingFaithfulness.Object,
+            new NoOpAgentOutputEvaluationRepository(),
             logger);
     }
 

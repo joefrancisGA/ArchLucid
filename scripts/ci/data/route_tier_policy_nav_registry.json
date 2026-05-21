@@ -182,6 +182,16 @@
       "nav_operator_href": "/settings/tenant-cost"
     },
     {
+      "controller_file": "Admin/PromptVariantsAdminController.cs",
+      "class_name": "PromptVariantsAdminController",
+      "route_template": "v{version:apiVersion}/admin/prompt-variants",
+      "normalized_prefix": "/v1/admin/prompt-variants",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/ReferenceEvidenceAdminController.cs",
       "class_name": "ReferenceEvidenceAdminController",
       "route_template": "v{version:apiVersion}/admin/tenants/{tenantId:guid}/reference-evidence",

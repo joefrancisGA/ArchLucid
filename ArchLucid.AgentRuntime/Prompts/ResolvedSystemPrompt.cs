@@ -8,7 +8,8 @@ public sealed record ResolvedSystemPrompt(
     string TemplateId,
     string TemplateVersion,
     string ContentSha256Hex,
-    string? ReleaseLabel)
+    string? ReleaseLabel,
+    string? PromptVariantKey = null)
 {
     public AgentPromptReproMetadata ToReproMetadata()
     {

@@ -49,7 +49,13 @@ public sealed class CriticAgentHandler(
         ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(task);
 
-        ResolvedSystemPrompt systemResolved = systemPromptCatalog.Resolve(AgentType.Critic);
+        Guid tenantId = scopeContextProvider.GetCurrentScope().TenantId;
+
+        if (!AgentRunIdParser.TryParse(runId, out Guid runGuid))
+            throw new InvalidOperationException($"Run id '{runId}' is not a valid GUID for prompt variant resolution.");
+
+        ResolvedSystemPrompt systemResolved = await systemPromptCatalog
+            .ResolveAsync(AgentType.Critic, tenantId, runGuid, cancellationToken);
         string systemPrompt = systemResolved.Text;
         AgentPromptActivityTags.Apply(systemResolved);
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
@@ -100,6 +106,8 @@ public sealed class CriticAgentHandler(
                 modelDeploy,
                 modelVer,
                 cancellationToken: cancellationToken);
+
+            parsed.PromptVariantKey = systemResolved.PromptVariantKey;
 
             return parsed;
         }

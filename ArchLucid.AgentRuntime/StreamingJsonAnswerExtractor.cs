@@ -61,6 +61,10 @@ public sealed class StreamingJsonAnswerExtractor
                 return null;
 
             int cursor = keyIndex + "answer".Length;
+
+            if (cursor < span.Length && span[cursor] == '"')
+                cursor++;
+
             cursor = SkipJsonWhitespace(span, cursor);
 
             if (cursor >= span.Length || span[cursor] != ':')

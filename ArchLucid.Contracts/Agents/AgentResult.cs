@@ -141,4 +141,15 @@ public sealed class AgentResult
         get;
         set;
     }
+
+    /// <summary>
+    ///     Prompt A/B variant key when <c>AgentRuntime:PromptVariants:Enabled</c> is true (also stored in
+    ///     <c>dbo.AgentResults.PromptVariantKey</c>).
+    /// </summary>
+    [JsonIgnore]
+    public string? PromptVariantKey
+    {
+        get;
+        set;
+    }
 }

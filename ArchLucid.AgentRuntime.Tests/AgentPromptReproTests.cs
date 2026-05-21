@@ -22,7 +22,7 @@ public sealed class AgentPromptReproTests
     }
 
     [SkippableFact]
-    public void CachedCatalog_applies_release_label_from_options()
+    public async Task CachedCatalog_applies_release_label_from_options()
     {
         AgentPromptCatalogOptions opts = new()
         {
@@ -30,7 +30,7 @@ public sealed class AgentPromptReproTests
         };
         IAgentSystemPromptCatalog catalog = AgentPromptCatalogTestFactory.Create(opts);
 
-        ResolvedSystemPrompt r = catalog.Resolve(AgentType.Topology);
+        ResolvedSystemPrompt r = await catalog.ResolveAsync(AgentType.Topology);
 
         r.TemplateId.Should().Be(TopologySystemPromptTemplate.TemplateId);
         r.TemplateVersion.Should().Be(TopologySystemPromptTemplate.Version);

@@ -2,6 +2,7 @@ using System.Diagnostics;
 
 using ArchLucid.Application.Agents;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
+using ArchLucid.AgentRuntime.Prompts.Variants;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
@@ -31,6 +32,7 @@ public sealed class AgentOutputEvaluationRecorder(
     Contracts.Findings.IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher,
     IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
     IAgentResultEmbeddingFaithfulnessScorer embeddingFaithfulnessScorer,
+    IAgentOutputEvaluationRepository agentOutputEvaluationRepository,
     ILogger<AgentOutputEvaluationRecorder> logger)
 {
     private const double LowStructuralScoreThreshold = 0.5;
@@ -65,6 +67,9 @@ public sealed class AgentOutputEvaluationRecorder(
 
     private readonly IAgentResultEmbeddingFaithfulnessScorer _embeddingFaithfulnessScorer =
         embeddingFaithfulnessScorer ?? throw new ArgumentNullException(nameof(embeddingFaithfulnessScorer));
+
+    private readonly IAgentOutputEvaluationRepository _agentOutputEvaluationRepository =
+        agentOutputEvaluationRepository ?? throw new ArgumentNullException(nameof(agentOutputEvaluationRepository));
 
     /// <summary>
     ///     Evaluates all traces with successful parses and records histogram/counter metrics.
@@ -134,6 +139,29 @@ public sealed class AgentOutputEvaluationRecorder(
                         trace.AgentType,
                         matchingResult.Confidence,
                         evaluated.Semantic.OverallSemanticScore,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
+            if (matchingResult is not null
+                && !string.IsNullOrWhiteSpace(matchingResult.PromptVariantKey))
+            {
+                string templateName = PromptTemplateNameResolver.FromAgentType(trace.AgentType);
+                bool qualityGatePassed = evaluated.GateOutcome != AgentOutputQualityGateOutcome.Rejected;
+
+                await _agentOutputEvaluationRepository
+                    .AppendAsync(
+                        new AgentOutputEvaluationInsert
+                        {
+                            ResultId = matchingResult.ResultId,
+                            RunId = runId,
+                            PromptTemplateName = templateName,
+                            PromptVariantKey = matchingResult.PromptVariantKey,
+                            AgentType = trace.AgentType,
+                            SemanticScore = evaluated.Semantic.OverallSemanticScore,
+                            QualityGatePassed = qualityGatePassed,
+                            CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                        },
                         cancellationToken)
                     .ConfigureAwait(false);
             }

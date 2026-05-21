@@ -18,8 +18,16 @@ public sealed class CachedAgentSystemPromptCatalog(IOptionsMonitor<AgentPromptCa
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
     /// <inheritdoc />
-    public ResolvedSystemPrompt Resolve(AgentType agentType)
+    public Task<ResolvedSystemPrompt> ResolveAsync(
+        AgentType agentType,
+        Guid? tenantId = null,
+        Guid? runId = null,
+        CancellationToken cancellationToken = default)
     {
+        _ = tenantId;
+        _ = runId;
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!Templates.TryGetValue(agentType, out PromptTemplateCore? core))
 
             throw new InvalidOperationException(
@@ -33,8 +41,14 @@ public sealed class CachedAgentSystemPromptCatalog(IOptionsMonitor<AgentPromptCa
 
             release = configured.Trim();
 
-        return new ResolvedSystemPrompt(core.Text, core.TemplateId, core.TemplateVersion, core.ContentSha256Hex,
+        ResolvedSystemPrompt resolved = new(
+            core.Text,
+            core.TemplateId,
+            core.TemplateVersion,
+            core.ContentSha256Hex,
             release);
+
+        return Task.FromResult(resolved);
     }
 
     private static IReadOnlyDictionary<AgentType, PromptTemplateCore> BuildTemplates()

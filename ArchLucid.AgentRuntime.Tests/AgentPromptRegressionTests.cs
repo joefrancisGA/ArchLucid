@@ -28,21 +28,21 @@ public sealed class AgentPromptRegressionTests
     private static readonly IAgentSystemPromptCatalog PromptCatalog = AgentPromptCatalogTestFactory.Create();
 
     [SkippableFact]
-    public void Topology_system_prompt_hash_matches_baseline()
+    public async Task Topology_system_prompt_hash_matches_baseline()
     {
-        AssertPromptHash(AgentType.Topology, "topology");
+        await AssertPromptHashAsync(AgentType.Topology, "topology");
     }
 
     [SkippableFact]
-    public void Compliance_system_prompt_hash_matches_baseline()
+    public async Task Compliance_system_prompt_hash_matches_baseline()
     {
-        AssertPromptHash(AgentType.Compliance, "compliance");
+        await AssertPromptHashAsync(AgentType.Compliance, "compliance");
     }
 
     [SkippableFact]
-    public void Critic_system_prompt_hash_matches_baseline()
+    public async Task Critic_system_prompt_hash_matches_baseline()
     {
-        AssertPromptHash(AgentType.Critic, "critic");
+        await AssertPromptHashAsync(AgentType.Critic, "critic");
     }
 
     [SkippableFact]
@@ -50,10 +50,10 @@ public sealed class AgentPromptRegressionTests
     {
         IAgentHandler handler = new CostAgentHandler();
 
-        Action act = () => PromptCatalog.Resolve(AgentType.Cost);
-        act.Should()
-            .Throw<InvalidOperationException>(
-                "CostAgentHandler does not use IAgentSystemPromptCatalog â€” there is no built-in Cost template in CachedAgentSystemPromptCatalog.");
+        Func<Task> act = () => PromptCatalog.ResolveAsync(AgentType.Cost);
+        await act.Should()
+            .ThrowAsync<InvalidOperationException>(
+                "CostAgentHandler does not use IAgentSystemPromptCatalog — there is no built-in Cost template in CachedAgentSystemPromptCatalog.");
 
         AgentResult result = await handler.ExecuteAsync(
             RegressionRunId,
@@ -96,8 +96,8 @@ public sealed class AgentPromptRegressionTests
     {
         if (type != AgentType.Cost)
         {
-            ResolvedSystemPrompt r = PromptCatalog.Resolve(type);
-            r.Text.Should().NotBeNullOrWhiteSpace("same IAgentSystemPromptCatalog.Resolve path as LLM agent handlers");
+            ResolvedSystemPrompt r = await PromptCatalog.ResolveAsync(type);
+            r.Text.Should().NotBeNullOrWhiteSpace("same IAgentSystemPromptCatalog.ResolveAsync path as LLM agent handlers");
         }
 
         DeterministicAgentSimulator sim = new();
@@ -128,7 +128,7 @@ public sealed class AgentPromptRegressionTests
                     v.Checks.Select(static c => $"{c.Name}={(c.Passed ? "ok" : c.Message)}")));
     }
 
-    private static void AssertPromptHash(AgentType type, string baselineProperty)
+    private static async Task AssertPromptHashAsync(AgentType type, string baselineProperty)
     {
         string baselinePath = Path.Combine(AppContext.BaseDirectory, BaselineFileName);
         File.Exists(baselinePath).Should()
@@ -142,7 +142,7 @@ public sealed class AgentPromptRegressionTests
         string? expected = expectedEl.GetString();
         expected.Should().NotBeNullOrWhiteSpace("baseline for {0} must be a non-empty string.", baselineProperty);
 
-        ResolvedSystemPrompt resolved = PromptCatalog.Resolve(type);
+        ResolvedSystemPrompt resolved = await PromptCatalog.ResolveAsync(type);
         string actual = resolved.ContentSha256Hex;
         string templateLabel = resolved.TemplateId + "@" + resolved.TemplateVersion;
         string failHint =
