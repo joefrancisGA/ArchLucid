@@ -72,7 +72,7 @@ public static class SamlMetadataDiscoveryParser
                 try
                 {
                     byte[] raw = Convert.FromBase64String(CompressBase64Whitespace(base64));
-                    using X509Certificate2 certificate = new(raw);
+                    using X509Certificate2 certificate = X509CertificateLoader.LoadCertificate(raw);
 
                     string thumbprint = certificate.Thumbprint ?? string.Empty;
 

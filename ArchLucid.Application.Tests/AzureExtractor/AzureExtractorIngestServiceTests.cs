@@ -1,9 +1,7 @@
-using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Common;
-using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -26,10 +24,10 @@ public sealed class AzureExtractorIngestServiceTests
     [Fact]
     public async Task IngestZipAsync_when_file_is_null_returns_failure()
     {
-        var sut = CreateService(out _, out _, out _);
-        
+        var sut = CreateService(out _, out _);
+
         var result = await sut.IngestZipAsync(null, Guid.NewGuid(), CancellationToken.None);
-        
+
         result.Succeeded.Should().BeFalse();
         result.FailureDetail.Should().Contain("No file uploaded");
     }
@@ -37,7 +35,7 @@ public sealed class AzureExtractorIngestServiceTests
     [Fact]
     public async Task IngestZipAsync_when_file_too_large_returns_failure()
     {
-        var sut = CreateService(out _, out _, out _);
+        var sut = CreateService(out _, out _);
         Mock<IFormFile> file = new();
         file.Setup(f => f.Length).Returns(AzureExtractorUploadLimits.MaxZipBytes + 1);
         file.Setup(f => f.FileName).Returns("test.zip");
@@ -51,10 +49,10 @@ public sealed class AzureExtractorIngestServiceTests
     [Fact]
     public async Task IngestZipBytesAsync_when_zip_invalid_returns_failure()
     {
-        var sut = CreateService(out _, out _, out _);
-        
+        var sut = CreateService(out _, out _);
+
         byte[] badBytes = "not-a-zip"u8.ToArray();
-        
+
         var result = await sut.IngestZipBytesAsync(
             badBytes,
             "bad.zip",
@@ -72,21 +70,24 @@ public sealed class AzureExtractorIngestServiceTests
     public async Task IngestZipBytesAsync_when_schema_unsupported_returns_schema_rejection()
     {
         // Mock a zip stream that returns an unsupported schema version
-        var manifest = new { schemaVersion = 99 };
+        var manifest = new
+        {
+            schemaVersion = 99
+        };
         var manifestJson = JsonSerializer.Serialize(manifest);
-        
+
         using var ms = new MemoryStream();
-        using (var archive = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Create, true))
+        await using (var archive = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Create, true))
         {
             var entry = archive.CreateEntry("manifest.json");
-            using var entryStream = entry.Open();
-            using var writer = new StreamWriter(entryStream);
-            writer.Write(manifestJson);
+            await using var entryStream = await entry.OpenAsync();
+            await using var writer = new StreamWriter(entryStream);
+            await writer.WriteAsync(manifestJson);
         }
-        
+
         var zipBytes = ms.ToArray();
-        
-        var sut = CreateService(out _, out _, out _);
+
+        var sut = CreateService(out _, out _);
 
         var result = await sut.IngestZipBytesAsync(
             zipBytes,
@@ -113,20 +114,20 @@ public sealed class AzureExtractorIngestServiceTests
             subscriptionId = Guid.NewGuid().ToString(),
         };
         var manifestJson = JsonSerializer.Serialize(manifest);
-        
+
         using var ms = new MemoryStream();
-        using (var archive = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Create, true))
+        await using (var archive = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Create, true))
         {
             var entry = archive.CreateEntry("manifest.json");
-            using var entryStream = entry.Open();
-            using var writer = new StreamWriter(entryStream);
-            writer.Write(manifestJson);
+            await using var entryStream = await entry.OpenAsync();
+            await using var writer = new StreamWriter(entryStream);
+            await writer.WriteAsync(manifestJson);
         }
-        
+
         var zipBytes = ms.ToArray();
-        
-        var sut = CreateService(out var packageRepo, out var runRepo, out _);
-        
+
+        var sut = CreateService(out var packageRepo, out var runRepo);
+
         runRepo.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = runId });
 
@@ -144,19 +145,18 @@ public sealed class AzureExtractorIngestServiceTests
 
         packageRepo.Verify(p => p.InsertAsync(It.Is<AzureExtractorPackageRecord>(r => r.OriginalFileName == "valid.zip" && r.SchemaVersion == 1 && r.PackageId == result.PackageId), It.IsAny<CancellationToken>()), Times.Once);
     }
-    
+
     private static AzureExtractorIngestService CreateService(
         out Mock<IAzureExtractorPackageRepository> packageRepo,
-        out Mock<IRunRepository> runRepo,
-        out Mock<IAuditService> auditService)
+        out Mock<IRunRepository> runRepo)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid() });
-        
+
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("test-user");
 
-        auditService = new();
+        Mock<IAuditService> auditService = new();
         packageRepo = new();
         runRepo = new();
         Mock<IAgentTaskRepository> tasks = new();

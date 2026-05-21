@@ -211,7 +211,7 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
         try
         {
             byte[] raw = Convert.FromBase64String(certBase64);
-            using X509Certificate2 certificate = new(raw);
+            using X509Certificate2 certificate = X509CertificateLoader.LoadCertificate(raw);
 
             return certificate.Thumbprint;
         }

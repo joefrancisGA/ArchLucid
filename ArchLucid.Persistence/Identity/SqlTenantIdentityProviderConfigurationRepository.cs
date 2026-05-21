@@ -63,7 +63,7 @@ public sealed class SqlTenantIdentityProviderConfigurationRepository(
         CancellationToken cancellationToken)
     {
         if (record.TenantId == Guid.Empty)
-            throw new ArgumentException("TenantId is required.", record.TenantId);
+            throw new ArgumentException("TenantId is required.", nameof(record));
 
         ArgumentException.ThrowIfNullOrWhiteSpace(record.IssuerUri);
         ArgumentException.ThrowIfNullOrWhiteSpace(record.ClaimMappingJson);

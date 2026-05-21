@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:211 -->
+<!-- audit-core-const-count:212 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -172,6 +172,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | SCIM resolved role overridden by group mapping | `ScimUserService` (flat PATCH `manualResolvedRole` loses to group-derived role) | `RoleOverriddenByScim` | Tenant from scope | prior vs resolved role + **`ScimResolvedRoleOrigin`** (manual vs group) |
 | SAML 2.0 SP session cookie issued (ITfoxtec assertion validated; minimal payload — name id prefix + tenant claim hint) | `ArchLucidSaml2SignInAudit` (`CookieSignedInContext` / SAML2 cookie scheme) | `Saml2ServiceProviderSignInSucceeded` | Tenant from `tenant_id` claim when parseable | `{ scheme, nameIdPrefix, hasTenantIdClaim, tenantIdClaim }` — **no** raw assertion XML |
 | SAML 2.0 SP sign-in failed (`/Auth/*`, ITfoxtec protocol exception on global error path) | `ArchLucidSaml2SignInAudit.TryAppendProtocolFailureAudit` | `Saml2ServiceProviderSignInFailed` | Tenant scope when resolvable (often empty on fault path) | `{ scheme, exceptionType, path }` — best-effort; never masks underlying error |
+| Admin SSO wizard activated tenant identity provider configuration | `IdentityProviderConfigurationController` (`POST /v1/admin/identity/activate`) | `IdentitySsoConfigurationActivated` | Tenant/Workspace/Project from ambient scope | `{ protocol, issuerUri, keyVaultSecretName }` — **no** certificate or client secret material |
 | Pilot `try --real` execute started (Development; real AOAI path) | `RunsController` (`POST .../execute`) when pilot real headers present | `FirstRealValueRunStarted` | RunId | pilot / real-mode context (JSON) |
 | Pilot `try --real` execute completed without fallback | `RunsController` | `FirstRealValueRunCompleted` | RunId | completion summary (JSON) |
 | Pilot `try --real` seed after AOAI fallback | `ArchitectureApplicationService` (`SeedFakeResultsAsync` with `PilotSeedFakeResultsOptions.MarkRealModeFellBackToSimulator`) | `FirstRealValueRunFellBackToSimulator` | RunId | marks run row + deployment snapshot; see [`docs/library/FIRST_REAL_VALUE.md`](FIRST_REAL_VALUE.md) |
@@ -418,6 +419,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `RoleOverriddenByScim` | `RoleOverriddenByScim` | `ScimUserService` (group-derived role replaces manual PATCH resolution; provenance payload) |
 | `Saml2ServiceProviderSignInSucceeded` | `Saml2ServiceProviderSignInSucceeded` | `ArchLucidSaml2SignInAudit` (SAML2 `CookieSignedInContext`; minimal name-id / tenant payload) |
 | `Saml2ServiceProviderSignInFailed` | `Saml2ServiceProviderSignInFailed` | `ArchLucidSaml2SignInAudit.TryAppendProtocolFailureAudit` (`/Auth/*` ITfoxtec protocol faults; best-effort) |
+| `IdentitySsoConfigurationActivated` | `Identity.SsoConfigurationActivated` | `IdentityProviderConfigurationController` (`POST /v1/admin/identity/activate`) |
 | `FirstRealValueRunStarted` | `FirstRealValueRunStarted` | `RunsController` (pilot real execute) |
 | `FirstRealValueRunCompleted` | `FirstRealValueRunCompleted` | `RunsController` (pilot real execute success) |
 | `FirstRealValueRunFellBackToSimulator` | `FirstRealValueRunFellBackToSimulator` | `ArchitectureApplicationService` (pilot seed after real-mode fallback) |

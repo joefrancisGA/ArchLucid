@@ -57,9 +57,10 @@ public sealed class IdentityProviderConfigurationController(
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     [HttpPost("discover")]
+    [MutatingAuditExcluded("Read-only metadata discovery for SSO wizard; no domain mutation.")]
     [ProducesResponseType(typeof(IdentityProviderDiscoverResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<IdentityProviderDiscoverResponse>> DiscoverAsync(
+    public async Task<IActionResult> DiscoverAsync(
         [FromBody] IdentityProviderDiscoverRequest request,
         CancellationToken cancellationToken)
     {
@@ -73,9 +74,10 @@ public sealed class IdentityProviderConfigurationController(
     }
 
     [HttpPost("test-login")]
+    [MutatingAuditExcluded("Sandbox JWT preview only; no tenant configuration persisted.")]
     [ProducesResponseType(typeof(IdentityProviderTestLoginResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
-    public ActionResult<IdentityProviderTestLoginResponse> TestLogin([FromBody] IdentityProviderTestLoginRequest request)
+    public IActionResult TestLogin([FromBody] IdentityProviderTestLoginRequest request)
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
