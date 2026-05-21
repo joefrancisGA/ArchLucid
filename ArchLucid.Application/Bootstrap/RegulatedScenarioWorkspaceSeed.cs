@@ -54,7 +54,7 @@ internal static class RegulatedScenarioWorkspaceSeed
         const string svcFeature = "svc-alpine-feature-store";
         const string lakeCurated = "ds-adl-gen2-curated-features";
         const string lakeRaw = "ds-adl-raw-ingest-synth";
-        string modelReg = "ds-aml-model-registry";
+        const string modelReg = "ds-aml-model-registry";
 
         List<ManifestService> services =
         [

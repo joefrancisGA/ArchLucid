@@ -48,7 +48,12 @@ public sealed class EndToEndReplayComparisonService(
             await runDetailQueryService.GetRunDetailAsync(rightRunId, cancellationToken) ?? throw new RunNotFoundException(rightRunId);
         ArchitectureRun leftRun = leftDetail.Run;
         ArchitectureRun rightRun = rightDetail.Run;
-        EndToEndReplayComparisonReport report = new() { LeftRunId = leftRunId, RightRunId = rightRunId, RunDiff = BuildRunDiff(leftRun, rightRun) };
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = leftRunId,
+            RightRunId = rightRunId,
+            RunDiff = BuildRunDiff(leftRun, rightRun)
+        };
         List<AgentResult> leftResults = leftDetail.Results;
         List<AgentResult> rightResults = rightDetail.Results;
         if (leftResults.Count > 0 || rightResults.Count > 0)
@@ -73,7 +78,7 @@ public sealed class EndToEndReplayComparisonService(
             bool hasLeft = leftByType.TryGetValue(exportType, out RunExportRecord? leftRecord);
             bool hasRight = rightByType.TryGetValue(exportType, out RunExportRecord? rightRecord);
             if (hasLeft && hasRight)
-                report.ExportDiffs.Add(exportRecordDiffService.Compare(leftRecord!, rightRecord!));
+                report.ExportDiffs.Add(await exportRecordDiffService.CompareAsync(leftRecord!, rightRecord!, cancellationToken));
             else if (!hasLeft)
                 report.Warnings.Add($"Export type '{exportType}' exists on the right run but not the left.");
             else

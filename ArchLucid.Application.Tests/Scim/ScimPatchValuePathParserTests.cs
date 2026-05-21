@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Scim.Patching;
+using ArchLucid.Application.Scim.Patching;
 
 using FluentAssertions;
 
@@ -81,7 +81,7 @@ public sealed class ScimPatchValuePathParserTests
     [SkippableFact]
     public void ParseForUser_other_attribute_value_eq_guid_not_implemented()
     {
-        string path = """emails[value eq "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"]""";
+        const string path = """emails[value eq "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"]""";
 
         Action act = () => ScimPatchValuePathParser.ParseForUserFlatPatchPath(path);
 

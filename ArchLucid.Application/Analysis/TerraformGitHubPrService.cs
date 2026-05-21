@@ -122,7 +122,7 @@ public sealed class TerraformGitHubPrService(
                ?? throw new InvalidOperationException($"Could not read SHA for branch '{baseBranch}'.");
     }
 
-    private async Task CreateBranchAsync(
+    private static async Task CreateBranchAsync(
         HttpClient client,
         string owner,
         string repo,
@@ -141,7 +141,7 @@ public sealed class TerraformGitHubPrService(
         response.EnsureSuccessStatusCode();
     }
 
-    private async Task CommitFileAsync(
+    private static async Task CommitFileAsync(
         HttpClient client,
         string owner,
         string repo,

@@ -97,7 +97,7 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
             NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
 
         Guid tenantId = Guid.NewGuid();
-        string raw = """{"planId":"archlucid-stripe-team"}""";
+        const string raw = """{"planId":"archlucid-stripe-team"}""";
         using JsonDocument doc = JsonDocument.Parse(raw);
 
         MarketplaceWebhookMutationOutcome outcome =

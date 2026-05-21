@@ -126,7 +126,7 @@ public sealed class DemoSeedService(
 
         await EnsureTrialWelcomeRequestAsync(requestId, cancellationToken);
         string legacyRunId = welcomeRunGuid.ToString("N");
-        string systemName = "Contoso Online Store";
+        const string systemName = "Contoso Online Store";
         RunRecord authorityRow = new()
         {
             TenantId = scope.TenantId,
@@ -906,7 +906,12 @@ public sealed class DemoSeedService(
         Guid ws = DemoTourWorkspaceIds.WorkspaceRowId(contosoBaselineScope.TenantId);
         Guid scopeProjectId = DemoTourWorkspaceIds.ProjectScopeRowId(contosoBaselineScope.TenantId);
         ScopeContext workspaceScope =
-            new() { TenantId = contosoBaselineScope.TenantId, WorkspaceId = ws, ProjectId = scopeProjectId };
+            new()
+            {
+                TenantId = contosoBaselineScope.TenantId,
+                WorkspaceId = ws,
+                ProjectId = scopeProjectId
+            };
 
         using (AmbientScopeContext.Push(workspaceScope))
 
@@ -1119,7 +1124,12 @@ public sealed class DemoSeedService(
         Guid ws = DemoRegulatedScenarioWorkspaceIds.WorkspaceRowId(contosoBaselineScope.TenantId);
         Guid scopeProjectId = DemoRegulatedScenarioWorkspaceIds.ProjectScopeRowId(contosoBaselineScope.TenantId);
         ScopeContext workspaceScope =
-            new() { TenantId = contosoBaselineScope.TenantId, WorkspaceId = ws, ProjectId = scopeProjectId };
+            new()
+            {
+                TenantId = contosoBaselineScope.TenantId,
+                WorkspaceId = ws,
+                ProjectId = scopeProjectId
+            };
 
         using (AmbientScopeContext.Push(workspaceScope))
             await EnsureMeridianAlpineRegulatedCommittedScenarioAsync(workspaceScope, cancellationToken);
