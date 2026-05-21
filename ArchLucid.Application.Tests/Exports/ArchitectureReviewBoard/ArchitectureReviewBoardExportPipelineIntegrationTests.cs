@@ -25,7 +25,7 @@ public sealed class ArchitectureReviewBoardExportPipelineIntegrationTests
         IReadOnlyList<string> expectedHeadings = ArchitectureReviewBoardExportTestModels.LoadGoldenSectionHeadingOrder();
 
         ArchitectureReviewDocxBuilder docxBuilder = new();
-        byte[] docx = await docxBuilder.BuildAsync(model, whitelabel: null, logoImageBytes: null, CancellationToken.None);
+        byte[] docx = await docxBuilder.BuildAsync(model, whitelabel: null, logoImageBytes: null, cancellationToken: CancellationToken.None);
 
         IReadOnlyList<string> docxHeadings = ArchitectureReviewBoardDocxTestHelpers.ExtractSectionHeadingsInOrder(docx);
 
@@ -58,7 +58,7 @@ public sealed class ArchitectureReviewBoardExportPipelineIntegrationTests
         };
 
         ArchitectureReviewDocxBuilder docxBuilder = new();
-        byte[] docx = await docxBuilder.BuildAsync(model, whitelabel, logoImageBytes: null, CancellationToken.None);
+        byte[] docx = await docxBuilder.BuildAsync(model, whitelabel, logoImageBytes: null, cancellationToken: CancellationToken.None);
 
         string docxXml = ArchitectureReviewBoardDocxTestHelpers.ExtractMainDocumentXml(docx);
 

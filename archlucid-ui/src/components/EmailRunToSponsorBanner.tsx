@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+import { formatUsd } from "@/components/BeforeAfterDelta/formatDelta";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ export type EmailRunToSponsorBannerProps = {
 
 type TrialStatusPayload = {
   firstCommitUtc?: string | null;
+  timeToFirstCommittedManifestTotalSeconds?: number | null;
 };
 
 type TenantBaselineRoiGatePayload = {
@@ -82,6 +84,8 @@ export function EmailRunToSponsorBanner({
     correlationId: string | null;
   } | null>(null);
   const [badgeDayN, setBadgeDayN] = useState<number | null>(null);
+  const [timeToFirstCommitHours, setTimeToFirstCommitHours] = useState<number | null>(null);
+  const [estimatedUsdSavings, setEstimatedUsdSavings] = useState<number | null>(null);
   const [proofGate, setProofGate] = useState<ProofGateState>({ status: "loading" });
   const [roiBaselineGate, setRoiBaselineGate] = useState<boolean | null>(null);
   const telemetrySentRef = useRef(false);
@@ -142,6 +146,14 @@ export function EmailRunToSponsorBanner({
             const json = (await trialRes.json()) as TrialStatusPayload;
             const iso = json.firstCommitUtc;
 
+            if (typeof json.timeToFirstCommittedManifestTotalSeconds === "number" &&
+                Number.isFinite(json.timeToFirstCommittedManifestTotalSeconds) &&
+                json.timeToFirstCommittedManifestTotalSeconds > 0) {
+              setTimeToFirstCommitHours(json.timeToFirstCommittedManifestTotalSeconds / 3600);
+            } else {
+              setTimeToFirstCommitHours(null);
+            }
+
             if (typeof iso !== "string" || iso.length === 0) {
               setBadgeDayN(null);
             } else {
@@ -166,6 +178,12 @@ export function EmailRunToSponsorBanner({
         if (deltasRes.ok) {
           try {
             const deltasJson = (await deltasRes.json()) as PilotRunDeltasProofSummaryJson;
+
+            if (typeof deltasJson.estimatedUsdSavings === "number" && Number.isFinite(deltasJson.estimatedUsdSavings)) {
+              setEstimatedUsdSavings(deltasJson.estimatedUsdSavings);
+            } else {
+              setEstimatedUsdSavings(null);
+            }
 
             if (!cancelled) setProofGate({ status: "ok", payload: deltasJson });
           } catch {
@@ -254,6 +272,22 @@ export function EmailRunToSponsorBanner({
             className="ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-[11px] font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100"
           >
             Day {badgeDayN} since first finalization
+          </span>
+        ) : null}
+        {timeToFirstCommitHours !== null ? (
+          <span
+            data-testid="email-run-to-sponsor-time-to-first-commit"
+            className="ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-[11px] font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100"
+          >
+            {timeToFirstCommitHours.toFixed(2)} h to first finalization
+          </span>
+        ) : null}
+        {estimatedUsdSavings !== null ? (
+          <span
+            data-testid="email-run-to-sponsor-estimated-usd-savings"
+            className="ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-[11px] font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100"
+          >
+            {formatUsd(estimatedUsdSavings)} projected savings
           </span>
         ) : null}
       </p>

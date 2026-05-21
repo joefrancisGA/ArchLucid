@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
@@ -79,7 +80,7 @@ public sealed class GovernanceEnvironmentActivationRepository(
                     commandText: sql,
                     parameters: parameters,
                     transaction: transaction,
-                    commandTimeout: null,
+                    commandTimeout: DapperCommandTimeoutSeconds.Standard,
                     commandType: null,
                     flags: CommandFlags.Buffered,
                     cancellationToken: cancellationToken));

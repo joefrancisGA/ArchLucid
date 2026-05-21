@@ -12,6 +12,16 @@
 
 Full build and CI alignment: **`docs/engineering/BUILD.md`**.
 
+## Local git hooks (recommended once per clone)
+
+Install shared hooks so common CI guards run before commit:
+
+```powershell
+pwsh scripts/install-git-hooks.ps1
+```
+
+The **`pre-commit`** hook syncs the route/tier/policy/nav registry when you change **`ArchLucid.Api/Controllers/*Controller.cs`** (see **`docs/library/ROUTE_TIER_POLICY_NAV_MATRIX.md`**). Manual fallback: **`python scripts/ci/assert_route_tier_policy_nav.py --sync`**.
+
 ## Reduce context before deep reads
 
 - **Assessments / readiness passes:** **`docs/library/REPO_DIGEST.md`** (skim; regenerate with **`python scripts/repo_digest/build_repo_digest.py`**), **`docs/library/ASSESSMENT_INPUTS.md`** (workflow + rolling pass under **`docs/assessments/`**), `.cursor/rules/Assessment-Read-First.mdc`, and attach **`.cursor/rules/Assessment-Scope-V1_1.mdc`** (**`@Assessment-Scope-V1_1`**) for scoring rules (not always injected).

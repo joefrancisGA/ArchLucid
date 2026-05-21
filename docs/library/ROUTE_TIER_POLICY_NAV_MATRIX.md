@@ -24,7 +24,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 ## Single source of truth order
 
 1. **Code:** `ArchLucid.Api` controllers + **`CommercialTenantTierFilter`**.  
-2. **Executable registry + CI:** `scripts/ci/data/route_tier_policy_nav_registry.json` + **`assert_route_tier_policy_nav.py`** (appendix table below).  
+2. **Executable registry + CI:** `scripts/ci/data/route_tier_policy_nav_registry.json` + **`assert_route_tier_policy_nav.py`** (appendix table below). After adding or changing a controller, run **`python scripts/ci/assert_route_tier_policy_nav.py --sync`** (or rely on the installed **`pre-commit`** hook — **`pwsh scripts/install-git-hooks.ps1`**). Set **`nav_operator_href`** / exemption overrides in **`scripts/ci/data/route_tier_policy_nav_overrides.json`** when the API maps to operator nav or is exempt from nav parity.  
 3. **Nav:** `nav-config` builders + **`nav-shell-visibility`**.  
 4. **Narrative:** **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** — update the sample tables in this doc when buyer-visible behavior changes; refresh the appendix when controllers ship.
 
@@ -34,17 +34,17 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after editing controllers, overrides, or this table.
 
-- **Registry JSON:** `scripts/ci/data/route_tier_policy_nav_registry.json` (regenerate: `python scripts/ci/assert_route_tier_policy_nav.py --materialize-registry`).
+- **Registry JSON:** `scripts/ci/data/route_tier_policy_nav_registry.json` (regenerate: `python scripts/ci/assert_route_tier_policy_nav.py --sync`).
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:131 -->
+<!-- route-tier-policy-nav-registry-count:132 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
-| `Admin/AdminController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
-| `Admin/AdminAuthDiagnosticsController.cs` | `/v1/admin` | none | AdminAuthority |  | auth_debug_api |
 | `Admin/AdminApiKeySettingsController.cs` | `/v1/admin/settings/api-keys` | none | AdminAuthority | /settings/api-keys |  |
+| `Admin/AdminAuthDiagnosticsController.cs` | `/v1/admin` | none | AdminAuthority |  | auth_debug_api |
+| `Admin/AdminController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
 | `Admin/AdminLlmCostTuningController.cs` | `/v1/admin` | none | AdminAuthority | /settings/tenant-cost |  |
 | `Admin/AdminLlmMonthlyDollarBudgetStatusController.cs` | `/v1/admin` | none | ExecuteAuthority |  |  |
 | `Admin/AdminTenantsController.cs` | `/v1/admin/tenants` | none | PlatformTenantDeletionAuthority | /admin/users |  |
@@ -65,7 +65,6 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/SettingsController.cs` | `/v1/admin/settings` | none | AdminAuthority | /settings/tenant |  |
 | `Admin/SupportBundleController.cs` | `/v1/admin` | none | AdminAuthority | /admin/support |  |
 | `Admin/TenantsAdminController.cs` | `/v1/admin/tenants` | none | AdminAuthority | /admin/users |  |
-| `VersionController.cs` | `/version` | none | AllowAnonymous |  | unversioned_version_probe |
 | `Advisory/AdvisoryController.cs` | `/v1/advisory` | standard | ReadAuthority | /advisory |  |
 | `Advisory/AdvisorySchedulingController.cs` | `/v1/advisory-scheduling` | standard | ReadAuthority |  |  |
 | `Advisory/DigestSubscriptionsController.cs` | `/v1/digest-subscriptions` | standard | ReadAuthority | /digests |  |
@@ -92,7 +91,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Authority/AuthorityRunEventsController.cs` | `/v1/authority` | none | ReadAuthority |  |  |
 | `Authority/AzureExtractorUploadController.cs` | `/v1/azure-extractor` | none | ReadAuthority |  |  |
 | `Authority/DocxExportController.cs` | `/v1/docx` | standard | ReadAuthority |  |  |
-| `Authority/EvidenceBulkUploadController.cs` | `/v1/architecture/run/{runId:guid}/evidence` | none | ReadAuthority |  |  |
+| `Authority/EvidenceBulkUploadController.cs` | `/v1/architecture/run/{runId:guid}/evidence` | none | ExecuteAuthority |  |  |
 | `Authority/ExecutiveSummaryController.cs` | `/api/authority/executive-summary` | none | ReadAuthority |  | non_versioned_executive_api |
 | `Authority/ExportsController.cs` | `/v1/architecture` | standard | ReadAuthority |  |  |
 | `Authority/FastPathContextController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
@@ -154,6 +153,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Planning/ProvenanceQueryController.cs` | `/v1/authority` | standard | ReadAuthority |  |  |
 | `Planning/RetrievalController.cs` | `/v1/retrieval` | standard | ReadAuthority | /search |  |
 | `RegistrationController.cs` | `/v1/register` | none | AllowAnonymous |  | registration_public_flow |
+| `Roi/RoiController.cs` | `/v1/roi` | none | ReadAuthority | /dashboard |  |
 | `Scim/ScimDiscoveryController.cs` | `/scim/v2` | none | ScimWrite |  | scim_idp_automation |
 | `Scim/ScimGroupsController.cs` | `/scim/v2/Groups` | none | ScimWrite |  | scim_idp_automation |
 | `Scim/ScimUsersController.cs` | `/scim/v2/Users` | none | ScimWrite |  | scim_idp_automation |
@@ -163,13 +163,14 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Tenancy/TenantCustomerSuccessController.cs` | `/v1/tenant/customer-success` | standard | Authorize |  |  |
 | `Tenancy/TenantErasureLegalHoldController.cs` | `/v1/tenant/erasure` | none | Authorize |  |  |
 | `Tenancy/TenantExecDigestPreferencesController.cs` | `/v1/tenant` | standard | Authorize |  |  |
-| `Tenancy/TenantIntegrationsOperationsController.cs` | `/v1/tenant/integrations/operations` | standard | Authorize | /integrations/operations |  |
+| `Tenancy/TenantIntegrationsOperationsController.cs` | `/v1/tenant/integrations/operations` | standard | Authorize |  |  |
 | `Tenancy/TenantMeasuredRoiController.cs` | `/v1/tenant/measured-roi` | standard | Authorize | /value-report/roi |  |
 | `Tenancy/TenantPilotValueReportController.cs` | `/v1/tenant` | none | Authorize | /value-report/pilot |  |
 | `Tenancy/TenantTrialController.cs` | `/v1/tenant` | none | Authorize | /settings/tenant |  |
-| `Tenancy/TenantWeeklyDigestHealthController.cs` | `/v1/tenant/operate/weekly-digest-health` | standard | Authorize | /digests |  |
+| `Tenancy/TenantWeeklyDigestHealthController.cs` | `/v1/tenant/operate/weekly-digest-health` | standard | Authorize |  |  |
 | `Tenancy/TenantWorkspaceBaselineArtifactsController.cs` | `/v1/tenant/workspace-baseline-artifacts` | none | Authorize |  |  |
 | `Tenancy/TenantWorkspacesController.cs` | `/v1/tenant/workspaces` | none | Authorize |  |  |
 | `ValueReports/ValueReportController.cs` | `/v1/value-report` | standard | ExecuteAuthority | /value-report |  |
+| `VersionController.cs` | `/version` | none | AllowAnonymous |  | unversioned_version_probe |
 | `Webhooks/OutboundWebhookDryRunController.cs` | `/v1/webhooks` | none | ExecuteAuthority |  |  |
 | `Webhooks/WebhooksController.cs` | `/v1/webhooks/subscriptions` | standard | ReadAuthority |  |  |

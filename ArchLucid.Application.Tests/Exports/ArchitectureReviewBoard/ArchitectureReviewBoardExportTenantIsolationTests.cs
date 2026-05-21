@@ -37,8 +37,8 @@ public sealed class ArchitectureReviewBoardExportTenantIsolationTests
 
         ArchitectureReviewDocxBuilder sut = new();
 
-        byte[] bytesA = await sut.BuildAsync(model, tenantA, MinimalLogo, CancellationToken.None);
-        byte[] bytesB = await sut.BuildAsync(model, tenantB, MinimalLogo, CancellationToken.None);
+        byte[] bytesA = await sut.BuildAsync(model, tenantA, MinimalLogo, cancellationToken: CancellationToken.None);
+        byte[] bytesB = await sut.BuildAsync(model, tenantB, MinimalLogo, cancellationToken: CancellationToken.None);
 
         bytesA.Should().NotBeEquivalentTo(bytesB);
 

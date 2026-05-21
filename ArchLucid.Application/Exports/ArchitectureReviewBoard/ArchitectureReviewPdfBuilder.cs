@@ -13,8 +13,6 @@ namespace ArchLucid.Application.Exports.ArchitectureReviewBoard;
 /// </summary>
 public sealed class ArchitectureReviewPdfBuilder
 {
-    internal const string ActiveTrialExportFooterSuffix = "Generated during ArchLucid Trial";
-
     internal const string DemoTenantExportWatermark = "DEMO — NOT A CUSTOMER OUTCOME";
 
     /// <summary>
@@ -25,7 +23,7 @@ public sealed class ArchitectureReviewPdfBuilder
         ArchitectureReviewBoardExportDocumentModel model,
         WhitelabelConfiguration? whitelabel,
         byte[]? logoImageBytes,
-        bool includeActiveTrialExportNotice = false,
+        string? activeTrialExportNotice = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(model);
@@ -36,11 +34,11 @@ public sealed class ArchitectureReviewPdfBuilder
 
         WhitelabelConfigurationValidator.ValidateIfProvided(whitelabel);
 
-        string footerText = ComposePageFooterText(ArchitectureReviewDocxBuilder.ResolveFooterText(whitelabel), includeActiveTrialExportNotice);
+        string footerText = ComposePageFooterText(ArchitectureReviewDocxBuilder.ResolveFooterText(whitelabel), activeTrialExportNotice);
 
         byte[] pdf = QuestPdfDocumentBytes.Generate(container =>
         {
-            container.Page(page => ComposeCoverPage(page, model, whitelabel, logoImageBytes, footerText, includeActiveTrialExportNotice));
+            container.Page(page => ComposeCoverPage(page, model, whitelabel, logoImageBytes, footerText, activeTrialExportNotice));
 
             container.Page(page => ComposeDocumentBody(page, model, footerText));
         });
@@ -48,14 +46,14 @@ public sealed class ArchitectureReviewPdfBuilder
         return Task.FromResult(pdf);
     }
 
-    internal static string ComposePageFooterText(string baseFooter, bool includeActiveTrialExportNotice)
+    internal static string ComposePageFooterText(string baseFooter, string? activeTrialExportNotice)
     {
-        if (!includeActiveTrialExportNotice)
+        if (string.IsNullOrWhiteSpace(activeTrialExportNotice))
             return baseFooter;
 
         return string.IsNullOrWhiteSpace(baseFooter)
-            ? ActiveTrialExportFooterSuffix
-            : $"{baseFooter} · {ActiveTrialExportFooterSuffix}";
+            ? activeTrialExportNotice
+            : $"{baseFooter} · {activeTrialExportNotice}";
     }
 
     private static void ComposeCoverPage(
@@ -64,7 +62,7 @@ public sealed class ArchitectureReviewPdfBuilder
         WhitelabelConfiguration? whitelabel,
         byte[]? logoImageBytes,
         string footerText,
-        bool includeActiveTrialExportNotice)
+        string? activeTrialExportNotice)
     {
         page.Size(PageSizes.A4);
         page.Margin(2, Unit.Centimetre);
@@ -72,12 +70,12 @@ public sealed class ArchitectureReviewPdfBuilder
 
         page.Footer().AlignCenter().Text(footerText).FontSize(8).FontColor(Colors.Grey.Darken1);
 
-        if (includeActiveTrialExportNotice)
+        if (!string.IsNullOrWhiteSpace(activeTrialExportNotice))
         {
             page.Background()
                 .AlignCenter()
                 .AlignMiddle()
-                .Text(ActiveTrialExportFooterSuffix)
+                .Text(activeTrialExportNotice)
                 .FontSize(36)
                 .FontColor(Colors.Grey.Lighten3)
                 .Italic();

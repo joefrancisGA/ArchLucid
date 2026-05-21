@@ -1,6 +1,7 @@
 using ArchLucid.Application.Billing;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Http;
 using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.Billing.AzureMarketplace;
 using ArchLucid.Persistence.Billing.Stripe;
@@ -14,7 +15,9 @@ public static partial class ServiceCollectionExtensions
         services.Configure<BillingOptions>(configuration.GetSection(BillingOptions.SectionName));
         services.Configure<BillingUnitRatesOptions>(configuration.GetSection(BillingUnitRatesOptions.SectionPath));
         services.AddScoped<ITenantCostEstimateService, TenantCostEstimateService>();
-        services.AddHttpClient(nameof(AzureMarketplaceBillingProvider));
+        services.AddHttpClient(
+            nameof(AzureMarketplaceBillingProvider),
+            static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration));
         services.AddScoped<BillingWebhookTrialActivator>();
         services.AddScoped<StripeBillingProvider>();
         services.AddScoped<NoopBillingProvider>();

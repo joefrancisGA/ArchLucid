@@ -142,6 +142,8 @@ public sealed class TenantTrialControllerTests
         TenantTrialStatusResponse body = ok.Value.Should().BeOfType<TenantTrialStatusResponse>().Subject;
         body.Status.Should().Be("None");
         body.FirstCommitUtc.Should().Be(committed);
+        body.TimeToFirstCommittedManifestTotalSeconds.Should().NotBeNull();
+        body.TimeToFirstCommittedManifestTotalSeconds!.Value.Should().BeGreaterThan(0);
     }
 
     [SkippableFact]
@@ -154,7 +156,8 @@ public sealed class TenantTrialControllerTests
             ProjectId = Guid.Parse("ffffffff-0000-1111-2222-333333333333")
         };
         DateTimeOffset expires = TimeProvider.System.GetUtcNow().AddDays(9);
-        DateTimeOffset committed = DateTimeOffset.Parse("2026-03-01T00:00:00+00:00");
+        DateTimeOffset trialStart = TimeProvider.System.GetUtcNow().AddDays(-1);
+        DateTimeOffset committed = trialStart.AddHours(4);
         TenantRecord tenant = new()
         {
             Id = scope.TenantId,
@@ -165,7 +168,7 @@ public sealed class TenantTrialControllerTests
             TrialRunsUsed = 0,
             TrialSeatsUsed = 0,
             TrialStatus = TrialLifecycleStatus.Active,
-            TrialStartUtc = TimeProvider.System.GetUtcNow().AddDays(-1),
+            TrialStartUtc = trialStart,
             TrialExpiresUtc = expires,
             TrialRunsLimit = 5,
             TrialSeatsLimit = 10,
@@ -193,6 +196,7 @@ public sealed class TenantTrialControllerTests
         TenantTrialStatusResponse body = ok.Value.Should().BeOfType<TenantTrialStatusResponse>().Subject;
         body.Status.Should().Be(TrialLifecycleStatus.Active);
         body.FirstCommitUtc.Should().Be(committed);
+        body.TimeToFirstCommittedManifestTotalSeconds.Should().BeApproximately(4 * 3600, 1);
     }
 
     [SkippableFact]

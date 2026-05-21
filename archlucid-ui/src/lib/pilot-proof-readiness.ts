@@ -13,6 +13,7 @@ export type ProofPackageCompletenessJson = {
 
 export type PilotRunDeltasProofSummaryJson = {
   readonly isDemoTenant?: boolean;
+  readonly estimatedUsdSavings?: number | null;
   readonly proofPackageCompleteness?: ProofPackageCompletenessJson | null;
 };
 

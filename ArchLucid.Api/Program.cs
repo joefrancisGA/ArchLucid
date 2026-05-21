@@ -12,6 +12,7 @@ using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Hosting;
+using ArchLucid.Core.Http;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Auth.Services;
@@ -115,6 +116,7 @@ public partial class Program
                 static client =>
                 {
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.InternalLoopbackProbe);
                 });
             builder.Services.AddHostedService<TrialFunnelHealthProbe>();
         }

@@ -14,3 +14,14 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 echo "[pre-commit] Running mutating-controller audit guard..."
 python "$REPO_ROOT/scripts/ci/assert_controller_mutations_have_audit.py" \
   --repo-root "$REPO_ROOT"
+
+STAGED="$(git diff --cached --name-only --diff-filter=ACMR)"
+if [ -n "$STAGED" ] && echo "$STAGED" | grep -qE \
+  '(^|/)ArchLucid\.Api/Controllers/.*Controller\.cs$|route_tier_policy_nav_(overrides|registry|exemptions)\.json$|docs/library/ROUTE_TIER_POLICY_NAV_MATRIX\.md$'; then
+  echo "[pre-commit] Syncing route/tier/policy/nav registry for controller changes..."
+  python "$REPO_ROOT/scripts/ci/assert_route_tier_policy_nav.py" --sync
+  git add \
+    "$REPO_ROOT/scripts/ci/data/route_tier_policy_nav_registry.json" \
+    "$REPO_ROOT/docs/library/ROUTE_TIER_POLICY_NAV_MATRIX.md" \
+    2>/dev/null || true
+fi

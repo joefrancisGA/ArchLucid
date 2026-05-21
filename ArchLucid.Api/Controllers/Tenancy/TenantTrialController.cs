@@ -73,6 +73,8 @@ public sealed class TenantTrialController(
                     TrialSeatsUsed = tenant.TrialSeatsUsed,
                     TrialWelcomeRunId = tenant.TrialWelcomeRunId,
                     FirstCommitUtc = tenant.TrialFirstManifestCommittedUtc,
+                    TimeToFirstCommittedManifestTotalSeconds =
+                        ComputeTimeToFirstCommittedManifestTotalSeconds(tenant),
                     BaselineReviewCycleHours = tenant.BaselineReviewCycleHours,
                     BaselineReviewCycleSource = tenant.BaselineReviewCycleSource,
                     BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc,
@@ -113,6 +115,8 @@ public sealed class TenantTrialController(
                 TrialSampleRunId = tenant.TrialSampleRunId,
                 TrialWelcomeRunId = tenant.TrialWelcomeRunId,
                 FirstCommitUtc = tenant.TrialFirstManifestCommittedUtc,
+                TimeToFirstCommittedManifestTotalSeconds =
+                    ComputeTimeToFirstCommittedManifestTotalSeconds(tenant),
                 BaselineReviewCycleHours = tenant.BaselineReviewCycleHours,
                 BaselineReviewCycleSource = tenant.BaselineReviewCycleSource,
                 BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc,
@@ -284,6 +288,16 @@ public sealed class TenantTrialController(
     {
         return string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal)
                && tenant.EntraTenantId is null;
+    }
+
+    private static double? ComputeTimeToFirstCommittedManifestTotalSeconds(TenantRecord tenant)
+    {
+        if (tenant.TrialFirstManifestCommittedUtc is not { } committedUtc)
+            return null;
+
+        DateTimeOffset anchor = tenant.TrialStartUtc ?? tenant.CreatedUtc;
+
+        return (committedUtc - anchor).TotalSeconds;
     }
 
     private static TenantTier? MapRequestTier(string? label)

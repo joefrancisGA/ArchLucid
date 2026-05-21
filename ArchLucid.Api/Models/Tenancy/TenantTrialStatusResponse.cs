@@ -74,6 +74,16 @@ public sealed class TenantTrialStatusResponse
         init;
     }
 
+    /// <summary>
+    ///     Seconds from tenant signup (<c>TrialStartUtc</c> when set, else <c>CreatedUtc</c>) to the first committed
+    ///     golden manifest. Populated when <see cref="FirstCommitUtc" /> is known.
+    /// </summary>
+    public double? TimeToFirstCommittedManifestTotalSeconds
+    {
+        get;
+        init;
+    }
+
     /// <summary>Tenant-supplied median review-cycle hours at signup, when captured.</summary>
     public decimal? BaselineReviewCycleHours
     {

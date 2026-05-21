@@ -6,6 +6,18 @@
 
 const SECONDS_PER_HOUR = 3600;
 
+/** USD savings from findings snapshot — whole dollars or em-dash when unknown. */
+export function formatUsd(value: number | null | undefined): string {
+  if (value === null || value === undefined) return "—";
+  if (!Number.isFinite(value)) return "—";
+
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
 /** "12.34 h" or em-dash when the input is null / non-finite. */
 export function formatHours(seconds: number | null | undefined): string {
   if (seconds === null || seconds === undefined) return "—";

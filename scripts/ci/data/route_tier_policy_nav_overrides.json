@@ -74,6 +74,7 @@
     "Planning/ComparisonsController.cs": "/replay",
     "Planning/GraphController.cs": "/graph",
     "Planning/RetrievalController.cs": "/search",
+    "Roi/RoiController.cs": "/dashboard",
     "Tenancy/CorePilotTeamChecklistController.cs": "/onboarding",
     "Tenancy/TenantBaselineController.cs": "/settings/baseline",
     "Tenancy/TenantCostEstimateController.cs": "/settings/tenant-cost",

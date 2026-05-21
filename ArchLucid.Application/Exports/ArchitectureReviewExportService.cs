@@ -82,6 +82,8 @@ public sealed class ArchitectureReviewExportService(
         ArchitectureReviewBoardExportDocumentModel documentModel =
             ArchitectureReviewBoardExportDocumentFactory.Create(detail, report, httpCorrelationId, extractorTimestampUtcLabel: null);
 
+        string? activeTrialExportNotice = await ResolveActiveTrialExportNoticeAsync(cancellationToken).ConfigureAwait(false);
+
         byte[]? resolvedLogoBytes = logoImageBytes;
 
         if (resolvedLogoBytes is null && _tenantReviewBoardCoverLogoStore is not null)
@@ -93,7 +95,12 @@ public sealed class ArchitectureReviewExportService(
         {
             case ExportFormat.Docx:
             {
-                byte[] bytes = await _docxBuilder.BuildAsync(documentModel, whitelabel, resolvedLogoBytes, cancellationToken);
+                byte[] bytes = await _docxBuilder.BuildAsync(
+                    documentModel,
+                    whitelabel,
+                    resolvedLogoBytes,
+                    activeTrialExportNotice,
+                    cancellationToken);
 
                 MemoryStream stream = new(bytes);
 
@@ -103,12 +110,11 @@ public sealed class ArchitectureReviewExportService(
 
             case ExportFormat.Pdf:
             {
-                bool includeActiveTrialExportNotice = await ShouldIncludeActiveTrialExportNoticeAsync(cancellationToken);
                 byte[] bytes = await _pdfBuilder.BuildAsync(
                     documentModel,
                     whitelabel,
                     resolvedLogoBytes,
-                    includeActiveTrialExportNotice,
+                    activeTrialExportNotice,
                     cancellationToken);
 
                 MemoryStream stream = new(bytes);
@@ -129,19 +135,16 @@ public sealed class ArchitectureReviewExportService(
         }
     }
 
-    private async Task<bool> ShouldIncludeActiveTrialExportNoticeAsync(CancellationToken cancellationToken)
+    private async Task<string?> ResolveActiveTrialExportNoticeAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         if (scope.TenantId == Guid.Empty)
-            return false;
+            return null;
 
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
-        if (tenant is null)
-            return false;
-
-        return string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal);
+        return ActiveTrialExportNoticeFormatter.Format(tenant);
     }
 
     private static string BuildMinimalHtml(ArchitectureReviewBoardExportDocumentModel documentModel)

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { BeforeAfterDeltaInlinePanel } from "@/components/BeforeAfterDelta/BeforeAfterDeltaInlinePanel";
 import { BeforeAfterDeltaSidebarPanel } from "@/components/BeforeAfterDelta/BeforeAfterDeltaSidebarPanel";
 import { BeforeAfterDeltaTopPanel } from "@/components/BeforeAfterDelta/BeforeAfterDeltaTopPanel";
+import { formatUsd } from "@/components/BeforeAfterDelta/formatDelta";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 /**
@@ -53,6 +54,7 @@ type TrialStatusPayload = {
 type PilotRunDeltasPayload = {
   timeToCommittedManifestTotalSeconds?: number | null;
   manifestCommittedUtc?: string | null;
+  estimatedUsdSavings?: number | null;
 };
 
 type PanelData = {
@@ -60,6 +62,7 @@ type PanelData = {
   baselineSource: string | null;
   baselineCapturedUtc: string | null;
   measuredHours: number | null;
+  estimatedUsdSavings: number | null;
   effectiveRunId: string | null;
   measuredAvailable: boolean;
 };
@@ -141,6 +144,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
                 baselineSource,
                 baselineCapturedUtc,
                 measuredHours: null,
+                estimatedUsdSavings: null,
                 effectiveRunId: null,
                 measuredAvailable: false,
               },
@@ -157,6 +161,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
 
         let measuredHours: number | null = null;
         let measuredAvailable = false;
+        let estimatedUsdSavings: number | null = null;
 
         if (deltasRes.ok) {
           const deltas = (await deltasRes.json()) as PilotRunDeltasPayload;
@@ -165,6 +170,10 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
           if (typeof seconds === "number" && Number.isFinite(seconds) && seconds > 0) {
             measuredHours = seconds / SECONDS_PER_HOUR;
             measuredAvailable = true;
+          }
+
+          if (typeof deltas.estimatedUsdSavings === "number" && Number.isFinite(deltas.estimatedUsdSavings)) {
+            estimatedUsdSavings = deltas.estimatedUsdSavings;
           }
         }
 
@@ -177,6 +186,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
             baselineSource,
             baselineCapturedUtc,
             measuredHours,
+            estimatedUsdSavings,
             effectiveRunId,
             measuredAvailable,
           },
@@ -199,7 +209,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
 
   if (data === null) return null;
 
-  if (data.baselineHours === null && !data.measuredAvailable) return null;
+  if (data.baselineHours === null && !data.measuredAvailable && data.estimatedUsdSavings === null) return null;
 
   const delta = computeDelta(data.baselineHours, data.measuredHours);
 
@@ -219,7 +229,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
         as <code>ValueReportReviewCycleSectionFormatter</code> in the value-report PDF.
       </p>
 
-      <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
           <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">Baseline (before)</dt>
           <dd
@@ -248,6 +258,18 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
             {data.measuredAvailable
               ? `From GET /v1/pilots/runs/${data.effectiveRunId}/pilot-run-deltas.`
               : "No finalized manifest yet — finalize your first review to populate the measurement."}
+          </dd>
+        </div>
+        <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
+          <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">Estimated USD savings</dt>
+          <dd
+            data-testid="before-after-delta-estimated-usd-savings"
+            className="mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
+          >
+            {formatUsd(data.estimatedUsdSavings)}
+          </dd>
+          <dd className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+            Sum of accepted Cost-category findings from the run findings snapshot.
           </dd>
         </div>
       </dl>

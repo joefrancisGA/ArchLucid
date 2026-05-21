@@ -62,9 +62,11 @@ public sealed class ArchitectureReviewBoardExportPdfStructureTests
     [Fact]
     public void ComposePageFooterText_appends_active_trial_suffix_when_requested()
     {
-        ArchitectureReviewPdfBuilder.ComposePageFooterText("Prepared by ArchLucid", true)
+        string notice = ActiveTrialExportNoticeFormatter.BaseSuffix;
+
+        ArchitectureReviewPdfBuilder.ComposePageFooterText("Prepared by ArchLucid", notice)
             .Should()
-            .Be($"Prepared by ArchLucid · {ArchitectureReviewPdfBuilder.ActiveTrialExportFooterSuffix}");
+            .Be($"Prepared by ArchLucid · {notice}");
     }
 
     [Fact]
@@ -72,6 +74,7 @@ public sealed class ArchitectureReviewBoardExportPdfStructureTests
     {
         ArchitectureReviewBoardExportDocumentModel model = ArchitectureReviewBoardExportTestModels.CreateFullyPopulatedModel();
         ArchitectureReviewPdfBuilder sut = new();
+        string notice = "Generated during ArchLucid Trial — Expires on 2026-06-15 UTC";
 
         byte[] withoutNotice = await sut.BuildAsync(model, whitelabel: null, logoImageBytes: null, cancellationToken: CancellationToken.None);
 
@@ -79,7 +82,7 @@ public sealed class ArchitectureReviewBoardExportPdfStructureTests
             model,
             whitelabel: null,
             logoImageBytes: null,
-            includeActiveTrialExportNotice: true,
+            activeTrialExportNotice: notice,
             cancellationToken: CancellationToken.None);
 
         withNotice.Should().NotBeEquivalentTo(withoutNotice);

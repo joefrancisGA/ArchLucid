@@ -1,6 +1,7 @@
 using ArchLucid.Application.Advisory;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Http;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Decisioning.Alerts;
@@ -131,7 +132,8 @@ public static partial class ServiceCollectionExtensions
 
 
         services.Configure<AzureDevOpsIntegrationOptions>(configuration.GetSection(AzureDevOpsIntegrationOptions.SectionName));
-        services.AddHttpClient<IAzureDevOpsPullRequestDecorator, AzureDevOpsPullRequestDecorator>();
+        services.AddHttpClient<IAzureDevOpsPullRequestDecorator, AzureDevOpsPullRequestDecorator>(
+            static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.DevOpsIntegration));
         services.AddSingleton<IIntegrationEventHandler, AuthorityRunCompletedAzureDevOpsIntegrationEventHandler>();
         services.AddSingleton<IIntegrationEventHandler, TrialLifecycleEmailIntegrationEventHandler>();
         services.AddSingleton<IIntegrationEventHandler, LoggingIntegrationEventHandler>();

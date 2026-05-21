@@ -53,6 +53,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Diagrams;
+using ArchLucid.Core.Http;
 using ArchLucid.Host.Composition.ValueReports;
 using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Host.Core.Configuration;
@@ -209,7 +210,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IFirstValueReportBuilder>(static sp => sp.GetRequiredService<FirstValueReportBuilder>());
         services.AddScoped<IExecutiveSummaryService, ExecutiveSummaryService>();
         services.AddScoped<IExecutiveRoiSummaryService, ExecutiveRoiSummaryService>();
-        services.AddHttpClient<IPublisherConnector, ConfluenceCloudPublisherConnector>();
+        services.AddHttpClient<IPublisherConnector, ConfluenceCloudPublisherConnector>(
+            static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration));
         services.AddScoped<IConfluenceFirstValueReportPublisher, ConfluenceFirstValueReportPublisher>();
         services.AddScoped<FirstValueReportPdfBuilder>();
         services.AddScoped<WhyArchLucidPackPdfBuilder>();

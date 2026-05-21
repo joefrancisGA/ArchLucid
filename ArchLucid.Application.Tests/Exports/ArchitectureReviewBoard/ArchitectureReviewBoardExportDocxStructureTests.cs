@@ -17,7 +17,7 @@ public sealed class ArchitectureReviewBoardExportDocxStructureTests
         IReadOnlyList<string> expected = ArchitectureReviewBoardExportTestModels.LoadGoldenSectionHeadingOrder();
 
         ArchitectureReviewDocxBuilder sut = new();
-        byte[] bytes = await sut.BuildAsync(model, whitelabel: null, logoImageBytes: null, CancellationToken.None);
+        byte[] bytes = await sut.BuildAsync(model, whitelabel: null, logoImageBytes: null, cancellationToken: CancellationToken.None);
 
         IReadOnlyList<string> headings = ArchitectureReviewBoardDocxTestHelpers.ExtractSectionHeadingsInOrder(bytes);
 
@@ -31,7 +31,7 @@ public sealed class ArchitectureReviewBoardExportDocxStructureTests
         ArchitectureReviewBoardExportDocumentModel model = ArchitectureReviewBoardExportTestModels.CreateEmptySectionsModel();
 
         ArchitectureReviewDocxBuilder sut = new();
-        byte[] bytes = await sut.BuildAsync(model, whitelabel: null, logoImageBytes: null, CancellationToken.None);
+        byte[] bytes = await sut.BuildAsync(model, whitelabel: null, logoImageBytes: null, cancellationToken: CancellationToken.None);
 
         bytes.Should().NotBeNull();
         bytes.Length.Should().BeGreaterThan(200);
@@ -64,7 +64,7 @@ public sealed class ArchitectureReviewBoardExportDocxStructureTests
         };
 
         ArchitectureReviewDocxBuilder sut = new();
-        byte[] bytes = await sut.BuildAsync(model, whitelabel, png, CancellationToken.None);
+        byte[] bytes = await sut.BuildAsync(model, whitelabel, png, cancellationToken: CancellationToken.None);
 
         ArchitectureReviewBoardDocxTestHelpers.CountImageParts(bytes).Should().BeGreaterThan(0);
 
@@ -80,7 +80,7 @@ public sealed class ArchitectureReviewBoardExportDocxStructureTests
         ArchitectureReviewBoardExportDocumentModel model = ArchitectureReviewBoardExportTestModels.CreateFullyPopulatedModel();
 
         ArchitectureReviewDocxBuilder sut = new();
-        byte[] bytes = await sut.BuildAsync(model, whitelabel: null, logoImageBytes: null, CancellationToken.None);
+        byte[] bytes = await sut.BuildAsync(model, whitelabel: null, logoImageBytes: null, cancellationToken: CancellationToken.None);
 
         string xml = ArchitectureReviewBoardDocxTestHelpers.ExtractMainDocumentXml(bytes);
 
@@ -95,7 +95,7 @@ public sealed class ArchitectureReviewBoardExportDocxStructureTests
         ArchitectureReviewBoardExportDocumentModel model = ArchitectureReviewBoardExportTestModels.CreateFullyPopulatedModel();
 
         ArchitectureReviewDocxBuilder sut = new();
-        byte[] bytes = await sut.BuildAsync(model, whitelabel: null, logoImageBytes: null, CancellationToken.None);
+        byte[] bytes = await sut.BuildAsync(model, whitelabel: null, logoImageBytes: null, cancellationToken: CancellationToken.None);
 
         string xml = ArchitectureReviewBoardDocxTestHelpers.ExtractMainDocumentXml(bytes);
 

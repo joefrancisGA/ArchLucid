@@ -6,6 +6,7 @@ using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Templates;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Http;
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Diagnostics;
@@ -38,7 +39,7 @@ public static partial class ServiceCollectionExtensions
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
         services.AddHttpClient(nameof(ConfigurationHealthProbe), static client =>
         {
-            client.Timeout = TimeSpan.FromSeconds(15);
+            client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.InternalLoopbackProbe);
         });
         services.AddScoped<IConfigurationHealthProbe>(sp =>
             new ConfigurationHealthProbe(

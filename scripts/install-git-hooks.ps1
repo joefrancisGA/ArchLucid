@@ -6,8 +6,17 @@ $ErrorActionPreference = 'Stop'
 
 $ScriptDir  = Split-Path -Parent $MyInvocation.MyCommand.Path
 $HooksSrc   = Join-Path $ScriptDir 'hooks'
-$GitDir     = & git -C $ScriptDir rev-parse --git-dir
-$GitHooksDir = Join-Path $ScriptDir $GitDir 'hooks'
+$RepoRoot   = (& git -C $ScriptDir rev-parse --show-toplevel).Trim()
+$GitDirName = (& git -C $ScriptDir rev-parse --git-dir).Trim()
+
+if ([System.IO.Path]::IsPathRooted($GitDirName)) {
+    $GitDir = $GitDirName
+}
+else {
+    $GitDir = Join-Path $RepoRoot $GitDirName
+}
+
+$GitHooksDir = Join-Path $GitDir 'hooks'
 
 function Install-Hook {
     param([string]$Name)

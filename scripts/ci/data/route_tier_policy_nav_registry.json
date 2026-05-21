@@ -1112,6 +1112,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Roi/RoiController.cs",
+      "class_name": "RoiController",
+      "route_template": "v{version:apiVersion}/roi",
+      "normalized_prefix": "/v1/roi",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/dashboard"
+    },
+    {
       "controller_file": "Scim/ScimDiscoveryController.cs",
       "class_name": "ScimDiscoveryController",
       "route_template": "scim/v2",

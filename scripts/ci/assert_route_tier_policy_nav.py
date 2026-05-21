@@ -159,6 +159,13 @@ def overrides_path(root: Path) -> Path:
     return root / "scripts" / "ci" / "data" / "route_tier_policy_nav_overrides.json"
 
 
+def matrix_doc_path(root: Path) -> Path:
+    return root / "docs" / "library" / "ROUTE_TIER_POLICY_NAV_MATRIX.md"
+
+
+MATRIX_APPENDIX_HEADING = "## Appendix — per-controller registry (CI)"
+
+
 def materialize_registry(root: Path) -> None:
     raw = overrides_path(root).read_text(encoding="utf-8")
     ov = json.loads(raw)
@@ -189,6 +196,59 @@ def materialize_registry(root: Path) -> None:
         json.dumps({"version": 1, "entries": rows}, indent=2) + "\n",
         encoding="utf-8",
     )
+
+
+def render_matrix_appendix(root: Path) -> str:
+    data = load_registry(root)
+    entries = data.get("entries")
+    if not isinstance(entries, list):
+        raise ValueError("registry: 'entries' must be a list")
+
+    entry_count = len(entries)
+    lines = [
+        MATRIX_APPENDIX_HEADING,
+        "",
+        "Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after editing controllers, overrides, or this table.",
+        "",
+        "- **Registry JSON:** `scripts/ci/data/route_tier_policy_nav_registry.json` (regenerate: `python scripts/ci/assert_route_tier_policy_nav.py --sync`).",
+        "- **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.",
+        "- **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.",
+        "",
+        f"<!-- route-tier-policy-nav-registry-count:{entry_count} -->",
+        "",
+        "| Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for entry in sorted(entries, key=lambda item: item["controller_file"]):
+        controller_file = entry["controller_file"]
+        normalized_prefix = entry["normalized_prefix"]
+        exemption = entry.get("exemption") or ""
+        nav_href = entry.get("nav_operator_href") or ""
+        commercial_tier = entry["commercial_tier"]
+        class_policy = entry["class_policy"]
+        lines.append(
+            f"| `{controller_file}` | `{normalized_prefix}` | {commercial_tier} | {class_policy} | {nav_href} | {exemption} |"
+        )
+
+    return "\n".join(lines) + "\n"
+
+
+def sync_matrix_doc(root: Path) -> None:
+    doc_path = matrix_doc_path(root)
+    matrix_text = doc_path.read_text(encoding="utf-8")
+
+    if MATRIX_APPENDIX_HEADING not in matrix_text:
+        raise ValueError(f"matrix doc missing appendix heading: {MATRIX_APPENDIX_HEADING!r}")
+
+    head = matrix_text.split(MATRIX_APPENDIX_HEADING)[0].rstrip() + "\n\n"
+    doc_path.write_text(head + render_matrix_appendix(root), encoding="utf-8")
+
+
+def run_sync(root: Path) -> list[str]:
+    """Regenerate registry JSON + matrix appendix from controllers, then re-check."""
+    materialize_registry(root)
+    sync_matrix_doc(root)
+    return run_check(root)
 
 
 def effective_policy(entry_class_policy: str | None, bare: bool, allow_anonymous: bool) -> str:
@@ -251,8 +311,7 @@ def run_check(root: Path) -> list[str]:
     discovered = discover_controllers(controllers_dir)
     by_disc: dict[str, ControllerSurface] = {c.relative_path: c for c in discovered}
 
-    matrix_doc_path = root / "docs" / "library" / "ROUTE_TIER_POLICY_NAV_MATRIX.md"
-    matrix_text = matrix_doc_path.read_text(encoding="utf-8")
+    matrix_text = matrix_doc_path(root).read_text(encoding="utf-8")
     exempt_codes_path = root / "scripts" / "ci" / "data" / "route_tier_policy_nav_exemptions.json"
     known_exempt_codes: set[str] = set()
     if exempt_codes_path.is_file():
@@ -264,7 +323,10 @@ def run_check(root: Path) -> list[str]:
     for rel, actual in by_disc.items():
         expected = by_file.get(rel)
         if expected is None:
-            errors.append(f"no registry row for controller file {rel} (run with --dump-registry scaffold)")
+            errors.append(
+                f"no registry row for controller file {rel} "
+                f"(run: python scripts/ci/assert_route_tier_policy_nav.py --sync)"
+            )
             continue
 
         exp_route = expected.get("route_template")
@@ -346,6 +408,11 @@ def main() -> int:
         action="store_true",
         help="write scripts/ci/data/route_tier_policy_nav_registry.json from controllers + overrides JSON",
     )
+    parser.add_argument(
+        "--sync",
+        action="store_true",
+        help="materialize registry JSON, refresh ROUTE_TIER_POLICY_NAV_MATRIX.md appendix, then verify",
+    )
     args = parser.parse_args()
     root = repo_root()
     controllers_dir = root / "ArchLucid.Api" / "Controllers"
@@ -358,6 +425,22 @@ def main() -> int:
         materialize_registry(root)
         print(f"wrote {registry_path(root)}")
         return 0
+
+    if args.sync:
+        errors = run_sync(root)
+        if not errors:
+            print("assert_route_tier_policy_nav: synced registry + matrix appendix")
+            return 0
+
+        print("assert_route_tier_policy_nav sync failures (manual follow-up required):", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        print(
+            "  Hint: add nav/exemption overrides in scripts/ci/data/route_tier_policy_nav_overrides.json "
+            "or exemption codes in route_tier_policy_nav_exemptions.json, then re-run --sync.",
+            file=sys.stderr,
+        )
+        return 1
 
     errors = run_check(root)
     if errors:

@@ -31,7 +31,7 @@ public sealed class ArchitectureReviewDocxBuilderTests
 
         ArchitectureReviewDocxBuilder sut = new();
         byte[] bytes =
-            await sut.BuildAsync(model, whitelabel: null, logoImageBytes: null, CancellationToken.None);
+            await sut.BuildAsync(model, whitelabel: null, logoImageBytes: null, cancellationToken: CancellationToken.None);
 
         bytes.Should().NotBeNull();
         bytes.Length.Should().BeGreaterThan(200);
@@ -59,7 +59,7 @@ public sealed class ArchitectureReviewDocxBuilderTests
         };
 
         ArchitectureReviewDocxBuilder sut = new();
-        byte[] bytes = await sut.BuildAsync(model, whitelabel, logoImageBytes: null, CancellationToken.None);
+        byte[] bytes = await sut.BuildAsync(model, whitelabel, logoImageBytes: null, cancellationToken: CancellationToken.None);
 
         using MemoryStream ms = new(bytes);
         using WordprocessingDocument doc = WordprocessingDocument.Open(ms, false);

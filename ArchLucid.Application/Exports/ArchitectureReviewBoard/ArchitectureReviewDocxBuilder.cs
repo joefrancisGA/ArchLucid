@@ -19,7 +19,8 @@ public sealed class ArchitectureReviewDocxBuilder
         ArchitectureReviewBoardExportDocumentModel model,
         WhitelabelConfiguration? whitelabel,
         byte[]? logoImageBytes,
-        CancellationToken cancellationToken)
+        string? activeTrialExportNotice = null,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(model);
         cancellationToken.ThrowIfCancellationRequested();
@@ -39,9 +40,9 @@ public sealed class ArchitectureReviewDocxBuilder
 
             ArchitectureReviewDocxOpenXmlPrimitives.AddStylesPart(mainPart);
 
-            string footerText = ResolveFooterText(whitelabel);
+            string footerText = ComposeFooterText(whitelabel, activeTrialExportNotice);
 
-            AddCoverPageSection(mainPart, body, model, whitelabel, logoImageBytes);
+            AddCoverPageSection(mainPart, body, model, whitelabel, logoImageBytes, activeTrialExportNotice);
             ArchitectureReviewDocxOpenXmlPrimitives.AddPageBreak(body);
 
             AddExecutiveSummarySection(body, model);
@@ -69,12 +70,18 @@ public sealed class ArchitectureReviewDocxBuilder
         return whitelabel.ResolveFooterAttribution();
     }
 
+    internal static string ComposeFooterText(WhitelabelConfiguration? whitelabel, string? activeTrialExportNotice)
+    {
+        return ArchitectureReviewPdfBuilder.ComposePageFooterText(ResolveFooterText(whitelabel), activeTrialExportNotice);
+    }
+
     internal void AddCoverPageSection(
         MainDocumentPart mainPart,
         Body body,
         ArchitectureReviewBoardExportDocumentModel model,
         WhitelabelConfiguration? whitelabel,
-        byte[]? logoImageBytes)
+        byte[]? logoImageBytes,
+        string? activeTrialExportNotice = null)
     {
         if (logoImageBytes is { Length: > 0 })
         {
@@ -112,6 +119,12 @@ public sealed class ArchitectureReviewDocxBuilder
                 body,
                 "Demo tenant — replace before publishing to executives.",
                 "Subtle");
+        }
+
+        if (!string.IsNullOrWhiteSpace(activeTrialExportNotice))
+        {
+            ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
+            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, activeTrialExportNotice.Trim(), "Subtle");
         }
 
         ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 2);

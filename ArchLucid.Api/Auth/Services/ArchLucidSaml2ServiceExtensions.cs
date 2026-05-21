@@ -2,6 +2,8 @@ using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Authentication;
 using ArchLucid.Api.Configuration;
 
+using ArchLucid.Core.Http;
+
 using ITfoxtec.Identity.Saml2;
 using ITfoxtec.Identity.Saml2.MvcCore.Configuration;
 using ITfoxtec.Identity.Saml2.Schemas;
@@ -43,7 +45,12 @@ public static class ArchLucidSaml2ServiceExtensions
             throw new InvalidOperationException(
                 "ArchLucidAuth:Saml2:Enabled is true but IdPMetadata URL is empty.");
 
-        services.AddHttpClient();
+        services.AddHttpClient(
+            Options.DefaultName,
+            static client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.InternalDiagnostics);
+            });
 
         services.AddOptions<Saml2Configuration>()
             .Bind(configuration.GetSection(ArchLucidSamlAuthOptions.ConfigurationSectionPath))

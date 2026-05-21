@@ -5,7 +5,12 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HOOKS_SRC="$SCRIPT_DIR/hooks"
-GIT_HOOKS_DIR="$(git -C "$SCRIPT_DIR" rev-parse --git-dir)/hooks"
+REPO_ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel)"
+GIT_DIR="$(git -C "$SCRIPT_DIR" rev-parse --git-dir)"
+if [[ "$GIT_DIR" != /* && "$GIT_DIR" != [a-zA-Z]:* ]]; then
+  GIT_DIR="$REPO_ROOT/$GIT_DIR"
+fi
+GIT_HOOKS_DIR="$GIT_DIR/hooks"
 
 install_hook() {
   local name="$1"

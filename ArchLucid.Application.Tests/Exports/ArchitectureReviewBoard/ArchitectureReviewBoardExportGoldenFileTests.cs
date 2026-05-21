@@ -19,7 +19,7 @@ public sealed class ArchitectureReviewBoardExportGoldenFileTests
         ArchitectureReviewBoardExportDocumentModel model = ArchitectureReviewBoardExportTestModels.CreateFullyPopulatedModel();
 
         ArchitectureReviewDocxBuilder sut = new();
-        byte[] bytes = await sut.BuildAsync(model, whitelabel: null, logoImageBytes: null, CancellationToken.None);
+        byte[] bytes = await sut.BuildAsync(model, whitelabel: null, logoImageBytes: null, cancellationToken: CancellationToken.None);
 
         IReadOnlyList<string> actual = ArchitectureReviewBoardDocxTestHelpers.ExtractSectionHeadingsInOrder(bytes);
 

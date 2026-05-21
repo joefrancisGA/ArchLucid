@@ -6,6 +6,8 @@ using ArchLucid.Core.Tenancy;
 
 using Microsoft.Extensions.Logging;
 
+using ArchLucid.Application.Tenancy;
+
 namespace ArchLucid.Application;
 
 /// <summary>Creates, executes (simulator), and commits one authority run for trial welcome UX.</summary>
@@ -38,10 +40,20 @@ public sealed class TrialArchitecturePreseedExecutor(
             return;
         }
 
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenant is null)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+                _logger.LogWarning("Trial pre-seed skipped: tenant {TenantId} not found.", tenantId);
+
+            return;
+        }
+
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = link.WorkspaceId, ProjectId = link.DefaultProjectId };
         using (AmbientScopeContext.Push(scope))
         {
-            ArchitectureRequest request = BuildRequest(tenantId);
+            ArchitectureRequest request = TrialVerticalWelcomeRequestFactory.Create(tenantId, tenant.IndustryVertical);
             CreateRunResult created = await _architectureRunCreateOrchestrator.CreateRunAsync(request, null, cancellationToken);
             string runId = created.Run.RunId;
             await _architectureRunExecuteOrchestrator.ExecuteRunAsync(runId, cancellationToken);
@@ -56,24 +68,13 @@ public sealed class TrialArchitecturePreseedExecutor(
             await _tenantRepository.MarkTrialArchitecturePreseedCompletedAsync(tenantId, welcomeRunId, cancellationToken);
             if (_logger.IsEnabled(LogLevel.Information))
             {
-                _logger.LogInformation("Trial architecture pre-seed completed for tenant {TenantId}: run {RunId}, manifest {Version}.", tenantId, runId,
-                    committed.Manifest.Metadata.ManifestVersion);
+                _logger.LogInformation(
+                    "Trial architecture pre-seed completed for tenant {TenantId}: run {RunId}, manifest {Version}, vertical {Vertical}.",
+                    tenantId,
+                    runId,
+                    committed.Manifest.Metadata.ManifestVersion,
+                    tenant.IndustryVertical ?? "(default)");
             }
         }
-    }
-
-    private static ArchitectureRequest BuildRequest(Guid tenantId)
-    {
-        string requestId = $"trial-welcome-{tenantId:N}".ToLowerInvariant();
-        return new ArchitectureRequest
-        {
-            RequestId = requestId.Length > 64 ? requestId[..64] : requestId,
-            Description = "Design a minimal secure Azure web API with private SQL connectivity and managed identity for secrets — trial welcome pre-seed.",
-            SystemName = "TrialWelcomeApi",
-            Environment = "prod",
-            CloudProvider = CloudProvider.Azure,
-            Constraints = ["Private connectivity", "Managed identity"],
-            RequiredCapabilities = ["Azure SQL", "App Service or Container Apps"]
-        };
     }
 }
