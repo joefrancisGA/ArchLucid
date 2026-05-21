@@ -20,7 +20,9 @@ public sealed class DapperAuditRepositoryContractTests(SqlServerPersistenceFixtu
 
     protected override IAuditRepository CreateRepository()
     {
-        return new DapperAuditRepository(new TestSqlConnectionFactory(fixture.ConnectionString));
+        return new DapperAuditRepository(
+            new TestSqlConnectionFactory(fixture.ConnectionString),
+            new TestReadOnlyDbConnectionFactory(new TestSqlConnectionFactory(fixture.ConnectionString)));
     }
 
     protected override async Task EnsureAuditParentRunExistsAsync(

@@ -21,8 +21,16 @@ namespace ArchLucid.Persistence.Audit;
 ///     scoped to tenant/workspace/project with a configurable paged cap.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactory) : IAuditRepository
+public sealed class DapperAuditRepository(
+    ISqlConnectionFactory writeConnectionFactory,
+    IReadOnlyDbConnectionFactory readConnectionFactory) : IAuditRepository
 {
+    private readonly ISqlConnectionFactory _writeConnectionFactory =
+        writeConnectionFactory ?? throw new ArgumentNullException(nameof(writeConnectionFactory));
+
+    private readonly IReadOnlyDbConnectionFactory _readConnectionFactory =
+        readConnectionFactory ?? throw new ArgumentNullException(nameof(readConnectionFactory));
+
     public async Task AppendAsync(AuditEvent auditEvent, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(auditEvent);
@@ -48,7 +56,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
 
         try
         {
-            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+            await using SqlConnection connection = await _writeConnectionFactory.CreateOpenConnectionAsync(ct);
             await connection.ExecuteAsync(new CommandDefinition(sql, auditEvent, cancellationToken: ct));
         }
         finally
@@ -71,7 +79,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
 
         try
         {
-            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+            await using SqlConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(ct);
             IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
                 new CommandDefinition(
                     HotPathRelationalQueryShapes.AuditEventsGetByScope,
@@ -123,7 +131,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
 
         try
         {
-            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+            await using SqlConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(ct);
             IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
                 new CommandDefinition(sql.ToString(), parameters, cancellationToken: ct));
 
@@ -157,7 +165,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
 
         try
         {
-            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+            await using SqlConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(ct);
             int count = await connection.ExecuteScalarAsync<int>(
                 new CommandDefinition(sql.ToString(), parameters, cancellationToken: ct));
 
@@ -199,7 +207,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
                            ORDER BY OccurredUtc ASC;
                            """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
             new CommandDefinition(
                 sql,
@@ -256,7 +264,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
 
         try
         {
-            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+            await using SqlConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(ct);
 
             await foreach (AuditEvent row in connection
                                .QueryUnbufferedAsync<AuditEvent>(sql.ToString(), parameters)

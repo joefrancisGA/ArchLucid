@@ -31,9 +31,16 @@ namespace ArchLucid.Persistence.Repositories;
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlFindingsSnapshotRepository(
-    ISqlConnectionFactory connectionFactory,
+    ISqlConnectionFactory writeConnectionFactory,
+    IReadOnlyDbConnectionFactory readConnectionFactory,
     IScopeContextProvider scopeContextProvider) : IFindingsSnapshotRepository
 {
+    private readonly ISqlConnectionFactory _writeConnectionFactory =
+        writeConnectionFactory ?? throw new ArgumentNullException(nameof(writeConnectionFactory));
+
+    private readonly IReadOnlyDbConnectionFactory _readConnectionFactory =
+        readConnectionFactory ?? throw new ArgumentNullException(nameof(readConnectionFactory));
+
     private const int FindingChildTripleColumnInsertRows = 650;
     private const int FindingChildPropertyInsertRows = 650;
 
@@ -54,7 +61,7 @@ public sealed class SqlFindingsSnapshotRepository(
             return;
         }
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection owned = await _writeConnectionFactory.CreateOpenConnectionAsync(ct);
         await using SqlTransaction tx = owned.BeginTransaction();
 
         try
@@ -83,7 +90,7 @@ public sealed class SqlFindingsSnapshotRepository(
 
         try
         {
-            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+            await using SqlConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(ct);
             FindingsSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<FindingsSnapshotStorageRow>(
                 new CommandDefinition(
                     sql,
@@ -200,7 +207,7 @@ public sealed class SqlFindingsSnapshotRepository(
               ORDER BY SortOrder ASC, FindingRecordId ASC;
               """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(ct);
 
         bool hasCursor = cursorSortOrder.HasValue && cursorFindingRecordId.HasValue;
         int cursorSort = cursorSortOrder ?? 0;
@@ -255,7 +262,7 @@ public sealed class SqlFindingsSnapshotRepository(
         if (ranks.Count == 0)
             return;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _writeConnectionFactory.CreateOpenConnectionAsync(ct);
 
         foreach ((string findingId, int priorityRank) in ranks)
         {

@@ -24,7 +24,9 @@ public sealed class TenantDatabaseResolverUnitTests
         const string primary =
             "Server=localhost;Database=SharedCatalog;User Id=x;Password=y;Encrypt=True;TrustServerCertificate=True;";
         string normalizedPrimary = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(primary);
-        TenantDatabaseResolver resolver = new(bindings, cache, topology, primary);
+        IOptionsMonitor<ArchLucidPersistenceOptions> persistence =
+            new StubOptionsMonitor<ArchLucidPersistenceOptions>(new ArchLucidPersistenceOptions());
+        TenantDatabaseResolver resolver = new(bindings, cache, topology, persistence, primary);
 
         string resolved =
             await resolver.ResolveTenantConnectionStringAsync(Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
@@ -57,12 +59,85 @@ public sealed class TenantDatabaseResolverUnitTests
 
         const string primary =
             "Server=localhost;Database=SystemCatalog;User Id=x;Password=y;Encrypt=True;TrustServerCertificate=True;";
-        TenantDatabaseResolver resolver = new(bindings, cache, topology, primary);
+        IOptionsMonitor<ArchLucidPersistenceOptions> persistence =
+            new StubOptionsMonitor<ArchLucidPersistenceOptions>(new ArchLucidPersistenceOptions());
+        TenantDatabaseResolver resolver = new(bindings, cache, topology, persistence, primary);
 
         string resolved = await resolver.ResolveTenantConnectionStringAsync(tenantId, CancellationToken.None);
 
         SqlConnectionStringBuilder builder = new(resolved);
         builder.InitialCatalog.Should().Be("TenantCatalogA");
+    }
+
+    [Fact]
+    public async Task TryResolveReadOnly_returns_null_when_template_unset()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        ITenantDatabaseBindingRepository bindings = new RecordingBindingsRepository(
+            new TenantDatabaseBindingRecord
+            {
+                TenantId = tenantId,
+                SqlLogicalDatabaseName = "TenantCatalogB",
+                ProvisioningState = TenantDatabaseProvisioningState.Active,
+            });
+
+        IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
+        IOptionsMonitor<SqlTopologyOptions> topology = new StubOptionsMonitor<SqlTopologyOptions>(
+            new SqlTopologyOptions
+            {
+                Mode = SqlTopologyMode.SystemWithPerTenantCatalogs,
+                TenantCatalogConnectionStringTemplate =
+                    "Server=localhost;Database=__placeholder;User Id=x;Password=y;Encrypt=True;TrustServerCertificate=True;",
+            });
+
+        IOptionsMonitor<ArchLucidPersistenceOptions> persistence =
+            new StubOptionsMonitor<ArchLucidPersistenceOptions>(new ArchLucidPersistenceOptions());
+
+        const string primary =
+            "Server=localhost;Database=SystemCatalog;User Id=x;Password=y;Encrypt=True;TrustServerCertificate=True;";
+        TenantDatabaseResolver resolver = new(bindings, cache, topology, persistence, primary);
+
+        string? readOnly = await resolver.TryResolveReadOnlyConnectionStringAsync(tenantId, CancellationToken.None);
+
+        readOnly.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task TryResolveReadOnly_applies_template_with_bound_logical_database_name()
+    {
+        Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        ITenantDatabaseBindingRepository bindings = new RecordingBindingsRepository(
+            new TenantDatabaseBindingRecord
+            {
+                TenantId = tenantId,
+                SqlLogicalDatabaseName = "TenantCatalogRead",
+                ProvisioningState = TenantDatabaseProvisioningState.Active,
+            });
+
+        IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
+        const string readTemplate =
+            "Server=replica.local;Database=__placeholder;Application Intent=ReadOnly;User Id=x;Password=y;Encrypt=True;TrustServerCertificate=True;";
+        IOptionsMonitor<SqlTopologyOptions> topology = new StubOptionsMonitor<SqlTopologyOptions>(
+            new SqlTopologyOptions
+            {
+                Mode = SqlTopologyMode.SystemWithPerTenantCatalogs,
+                TenantCatalogConnectionStringTemplate =
+                    "Server=localhost;Database=__placeholder;User Id=x;Password=y;Encrypt=True;TrustServerCertificate=True;",
+            });
+
+        IOptionsMonitor<ArchLucidPersistenceOptions> persistence =
+            new StubOptionsMonitor<ArchLucidPersistenceOptions>(
+                new ArchLucidPersistenceOptions { ReadOnlyConnectionStringTemplate = readTemplate });
+
+        const string primary =
+            "Server=localhost;Database=SystemCatalog;User Id=x;Password=y;Encrypt=True;TrustServerCertificate=True;";
+        TenantDatabaseResolver resolver = new(bindings, cache, topology, persistence, primary);
+
+        string? readOnly = await resolver.TryResolveReadOnlyConnectionStringAsync(tenantId, CancellationToken.None);
+
+        SqlConnectionStringBuilder builder = new(readOnly!);
+        builder.InitialCatalog.Should().Be("TenantCatalogRead");
+        builder.ApplicationIntent.Should().Be(ApplicationIntent.ReadOnly);
     }
 
     private sealed class ThrowingTenantDatabaseBindingRepository : ITenantDatabaseBindingRepository

@@ -1,6 +1,7 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Common;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 

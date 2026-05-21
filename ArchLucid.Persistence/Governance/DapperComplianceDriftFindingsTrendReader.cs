@@ -8,11 +8,11 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Governance;
 
 /// <summary>SQL aggregation for findings opened/resolved audit buckets (tenant-scoped).</summary>
-public sealed class DapperComplianceDriftFindingsTrendReader(ISqlConnectionFactory connectionFactory)
+public sealed class DapperComplianceDriftFindingsTrendReader(IReadOnlyDbConnectionFactory readConnectionFactory)
     : IComplianceDriftFindingsTrendReader
 {
-    private readonly ISqlConnectionFactory _connectionFactory =
-        connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+    private readonly IReadOnlyDbConnectionFactory _readConnectionFactory =
+        readConnectionFactory ?? throw new ArgumentNullException(nameof(readConnectionFactory));
 
     /// <inheritdoc />
     public async Task<IReadOnlyDictionary<DateTime, ComplianceDriftFindingsBucketCounts>> GetBucketCountsAsync(
@@ -56,7 +56,7 @@ public sealed class DapperComplianceDriftFindingsTrendReader(ISqlConnectionFacto
             .Concat(ComplianceDriftFindingsTrendAuditTypes.Resolved)
             .ToArray();
 
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         IEnumerable<BucketRow> rows = await connection.QueryAsync<BucketRow>(
             new CommandDefinition(

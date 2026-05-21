@@ -31,7 +31,7 @@ public sealed class SamlMetadataDiscoveryParserTests
             """;
 
         // Use minimal valid cert from test helper - the parser skips malformed certs gracefully.
-        string minimalXml = """
+        const string minimalXml = """
             <EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
                               entityID="https://idp.example/metadata">
               <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" />

@@ -35,7 +35,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         Guid graphId = Guid.NewGuid();
         await SeedAuthorityParentsAsync(connection, runId, contextId, graphId, CancellationToken.None);
 
-        SqlFindingsSnapshotRepository repository = new(factory, Empty);
+        SqlFindingsSnapshotRepository repository = new(factory, new TestReadOnlyDbConnectionFactory(factory), Empty);
 
         Guid findingsId = Guid.NewGuid();
         FindingsSnapshot snapshot = new()
@@ -182,7 +182,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                 },
                 cancellationToken: CancellationToken.None));
 
-        SqlFindingsSnapshotRepository repository = new(factory, Empty);
+        SqlFindingsSnapshotRepository repository = new(factory, new TestReadOnlyDbConnectionFactory(factory), Empty);
         FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
@@ -342,7 +342,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                 },
                 cancellationToken: CancellationToken.None));
 
-        SqlFindingsSnapshotRepository repository = new(factory, Empty);
+        SqlFindingsSnapshotRepository repository = new(factory, new TestReadOnlyDbConnectionFactory(factory), Empty);
         FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
@@ -517,7 +517,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                 },
                 cancellationToken: CancellationToken.None));
 
-        SqlFindingsSnapshotRepository repository = new(factory, Empty);
+        SqlFindingsSnapshotRepository repository = new(factory, new TestReadOnlyDbConnectionFactory(factory), Empty);
         FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
@@ -589,7 +589,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                 },
                 cancellationToken: CancellationToken.None));
 
-        SqlFindingsSnapshotRepository repository = new(factory, Empty);
+        SqlFindingsSnapshotRepository repository = new(factory, new TestReadOnlyDbConnectionFactory(factory), Empty);
         FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
@@ -646,7 +646,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                 },
                 cancellationToken: CancellationToken.None));
 
-        SqlFindingsSnapshotRepository repository = new(factory, Empty);
+        SqlFindingsSnapshotRepository repository = new(factory, new TestReadOnlyDbConnectionFactory(factory), Empty);
         FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
@@ -716,7 +716,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                 },
                 cancellationToken: CancellationToken.None));
 
-        SqlFindingsSnapshotRepository repository = new(factory, Empty);
+        SqlFindingsSnapshotRepository repository = new(factory, new TestReadOnlyDbConnectionFactory(factory), Empty);
         FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
@@ -742,7 +742,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         Guid graphId = Guid.NewGuid();
         await SeedAuthorityParentsAsync(connection, runId, contextId, graphId, CancellationToken.None);
 
-        SqlFindingsSnapshotRepository repository = new(factory, Empty);
+        SqlFindingsSnapshotRepository repository = new(factory, new TestReadOnlyDbConnectionFactory(factory), Empty);
         Guid findingsId = Guid.NewGuid();
         FindingsSnapshot snapshot = new()
         {

@@ -30,8 +30,10 @@ internal static class DapperTenantRepositoryTestFactory
         IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
         string securedCatalog =
             SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(tenantPlaneFactory.ConnectionString);
+        IOptionsMonitor<ArchLucidPersistenceOptions> persistence =
+            new StaticOptionsMonitor<ArchLucidPersistenceOptions>(new ArchLucidPersistenceOptions());
         TenantDatabaseResolver resolver =
-            new(bindings, cache, topology, securedCatalog);
+            new(bindings, cache, topology, persistence, securedCatalog);
 
         return new DapperTenantRepository(
             system,
@@ -71,7 +73,9 @@ internal static class DapperTenantRepositoryTestFactory
 
         ITenantDatabaseBindingRepository bindings = new DapperTenantDatabaseBindingRepository(system);
         IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
-        TenantDatabaseResolver resolver = new(bindings, cache, topology, secured);
+        IOptionsMonitor<ArchLucidPersistenceOptions> persistence =
+            new StaticOptionsMonitor<ArchLucidPersistenceOptions>(new ArchLucidPersistenceOptions());
+        TenantDatabaseResolver resolver = new(bindings, cache, topology, persistence, secured);
 
         return new DapperTenantRepository(
             system,

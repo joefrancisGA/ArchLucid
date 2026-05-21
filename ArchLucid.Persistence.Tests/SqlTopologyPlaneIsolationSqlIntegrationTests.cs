@@ -60,8 +60,10 @@ public sealed class SqlTopologyPlaneIsolationSqlIntegrationTests
             new DedicatedSystemSqlConnectionFactory(d.SystemCatalogConnectionString);
         ITenantDatabaseBindingRepository bindings = new DapperTenantDatabaseBindingRepository(systemFactory);
         IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
+        IOptionsMonitor<ArchLucidPersistenceOptions> persistence =
+            new StubPersistenceOptionsMonitor(new ArchLucidPersistenceOptions());
         TenantDatabaseResolver resolver =
-            new(bindings, cache, topologyMonitor, d.SystemCatalogConnectionString);
+            new(bindings, cache, topologyMonitor, persistence, d.SystemCatalogConnectionString);
 
         ScopedRoutingSqlConnectionFactory routingWithTenant = new(
             d.SystemCatalogConnectionString,
@@ -224,8 +226,10 @@ public sealed class SqlTopologyPlaneIsolationSqlIntegrationTests
             new DedicatedSystemSqlConnectionFactory(systemCatalogConnectionString);
         ITenantDatabaseBindingRepository bindings = new DapperTenantDatabaseBindingRepository(systemFactory);
         IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
+        IOptionsMonitor<ArchLucidPersistenceOptions> persistence =
+            new StubPersistenceOptionsMonitor(new ArchLucidPersistenceOptions());
         TenantDatabaseResolver resolver =
-            new(bindings, cache, topologyMonitor, systemCatalogConnectionString);
+            new(bindings, cache, topologyMonitor, persistence, systemCatalogConnectionString);
 
         ScopedRoutingSqlConnectionFactory routingTenantA = new(
             systemCatalogConnectionString,
@@ -358,6 +362,18 @@ public sealed class SqlTopologyPlaneIsolationSqlIntegrationTests
         public SqlTopologyOptions Get(string? name) => _value;
 
         public IDisposable OnChange(Action<SqlTopologyOptions, string?> listener) => new EmptyDisposable();
+    }
+
+    private sealed class StubPersistenceOptionsMonitor(ArchLucidPersistenceOptions value)
+        : IOptionsMonitor<ArchLucidPersistenceOptions>
+    {
+        private readonly ArchLucidPersistenceOptions _value = value ?? throw new ArgumentNullException(nameof(value));
+
+        public ArchLucidPersistenceOptions CurrentValue => _value;
+
+        public ArchLucidPersistenceOptions Get(string? name) => _value;
+
+        public IDisposable OnChange(Action<ArchLucidPersistenceOptions, string?> listener) => new EmptyDisposable();
     }
 
     private sealed class EmptyDisposable : IDisposable

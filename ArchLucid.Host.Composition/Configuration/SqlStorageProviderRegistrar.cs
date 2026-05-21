@@ -174,6 +174,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
                 sp.GetRequiredService<ITenantDatabaseBindingRepository>(),
                 sp.GetRequiredService<IMemoryCache>(),
                 sp.GetRequiredService<IOptionsMonitor<SqlTopologyOptions>>(),
+                sp.GetRequiredService<IOptionsMonitor<ArchLucidPersistenceOptions>>(),
                 connectionString));
 
         services.AddScoped<ITenantSqlCatalogProvisioner, SqlTenantSqlCatalogProvisioner>();
@@ -225,6 +226,15 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
 
         services.AddScoped<ISqlConnectionFactory>(static sp =>
             sp.GetRequiredService<ResilientSqlConnectionFactory>());
+
+        services.AddScoped<IReadOnlyDbConnectionFactory>(sp => new ReadOnlyDbConnectionFactory(
+            sp.GetRequiredService<ResilientSqlConnectionFactory>(),
+            sp.GetRequiredService<ITenantDatabaseResolver>(),
+            sp.GetRequiredService<IScopeContextProvider>(),
+            sp.GetRequiredService<IOptionsMonitor<ArchLucidPersistenceOptions>>(),
+            sp.GetRequiredService<IOptionsMonitor<SqlTopologyOptions>>(),
+            sp.GetRequiredService<IOptions<SqlOpenResilienceOptions>>(),
+            sp.GetRequiredService<ILogger<ReadOnlyDbConnectionFactory>>()));
 
         services.AddScoped<ITenantSqlConnectionFactory>(sp =>
             new DelegatingTenantSqlConnectionFactory(sp.GetRequiredService<ISqlConnectionFactory>()));

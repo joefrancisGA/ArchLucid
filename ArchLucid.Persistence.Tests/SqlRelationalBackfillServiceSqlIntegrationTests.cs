@@ -156,7 +156,10 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
             factory,
             new SqlContextSnapshotRepository(factory, Empty),
             new SqlGraphSnapshotRepository(factory, Empty),
-            new SqlFindingsSnapshotRepository(factory, Empty),
+            new SqlFindingsSnapshotRepository(
+                factory,
+                new TestReadOnlyDbConnectionFactory(factory),
+                Empty),
             SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory),
             SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory),
             NonCachingGraphSnapshotProjectionCache.Instance,

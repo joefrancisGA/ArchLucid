@@ -34,4 +34,16 @@ public sealed class ArchLucidPersistenceOptions
         get;
         set;
     }
+
+    /// <summary>
+    ///     Optional read-scale-out connection string template for analytical queries. In per-tenant catalog mode this
+    ///     mirrors <c>ArchLucid:SqlTopology:TenantCatalogConnectionStringTemplate</c> but should include
+    ///     <c>Application Intent=ReadOnly</c> for Azure SQL read scale-out. When empty, analytical repositories use the
+    ///     primary connection (no-op fallback).
+    /// </summary>
+    public string ReadOnlyConnectionStringTemplate
+    {
+        get;
+        set;
+    } = string.Empty;
 }
