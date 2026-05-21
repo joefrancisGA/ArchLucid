@@ -84,6 +84,7 @@
     <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
     <ProjectReference Include="..\ArchLucid.KnowledgeGraph\ArchLucid.KnowledgeGraph.csproj" />
     <ProjectReference Include="..\ArchLucid.Provenance\ArchLucid.Provenance.csproj" />
+    <ProjectReference Include="..\ArchLucid.Integrations.AzureExtractor\ArchLucid.Integrations.AzureExtractor.csproj" />
   </ItemGroup>
 
   <ItemGroup>

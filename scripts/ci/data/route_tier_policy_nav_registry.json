@@ -152,6 +152,26 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/HostedAzureExtractorAdminController.cs",
+      "class_name": "HostedAzureExtractorAdminController",
+      "route_template": "v{version:apiVersion}/admin/azure-extractor/hosted",
+      "normalized_prefix": "/v1/admin/azure-extractor/hosted",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/HostedAzureExtractorRunController.cs",
+      "class_name": "HostedAzureExtractorRunController",
+      "route_template": "v{version:apiVersion}/admin/azure-extractor/hosted",
+      "normalized_prefix": "/v1/admin/azure-extractor/hosted",
+      "commercial_tier": "none",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/IdentityProviderConfigurationController.cs",
       "class_name": "IdentityProviderConfigurationController",
       "route_template": "v{version:apiVersion}/admin/identity",

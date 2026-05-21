@@ -604,6 +604,9 @@ public static class AuditEventTypes
     /// <summary>Admin SSO wizard activated a tenant-scoped identity provider configuration row.</summary>
     public const string IdentitySsoConfigurationActivated = "Identity.SsoConfigurationActivated";
 
+    /// <summary>Admin configured Tier 2 hosted Azure extractor (customer SP + subscription scope via WIF).</summary>
+    public const string IntegrationHostedAzureExtractorConfigured = "Integration.HostedAzureExtractorConfigured";
+
     /// <summary>Admin created a tenant custom role.</summary>
     public const string IdentityCustomRoleCreated = "Identity.CustomRoleCreated";
 
