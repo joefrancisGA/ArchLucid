@@ -52,6 +52,12 @@ public sealed class PreCommitGateResult
         init;
     } = [];
 
+    public string? BlockExplanation
+    {
+        get;
+        init;
+    }
+
     public static PreCommitGateResult Allowed()
     {
         return new PreCommitGateResult { Blocked = false };

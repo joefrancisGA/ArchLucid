@@ -10,6 +10,7 @@ using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 using ArchLucid.Retrieval.Indexing;
@@ -30,6 +31,7 @@ public sealed class AskService(
     IComparisonService comparison,
     IAgentCompletionClient llm,
     IConversationService conversationService,
+    IFindingInspectReadRepository findingInspectReadRepository,
     IRetrievalQueryService retrievalQuery,
     IRetrievalDocumentBuilder retrievalDocumentBuilder,
     IRetrievalIndexingService retrievalIndexingService,
@@ -56,6 +58,13 @@ public sealed class AskService(
         "Respond with a single JSON object only (no markdown fences), keys: " +
         "answer (string), referencedDecisions (array of strings), referencedFindings (array of strings), " +
         "referencedArtifacts (array of strings; use provenance graph node labels where Type suggests an artifact, or empty array).";
+
+    private const string FindingArchitectSystemPrompt =
+        "You are an enterprise architect. Explain this specific architecture finding clearly: " +
+        "why it matters, what evidence supports it, and what the smallest concrete fix is. " +
+        "Use only the supplied finding data and conversation history. " +
+        "Respond with a single JSON object only (no markdown fences), keys: " +
+        "answer (string), referencedDecisions (array of strings), referencedFindings (array of strings), referencedArtifacts (array of strings).";
 
     /// <inheritdoc />
     public async Task<AskResponse> AskAsync(AskRequest request, ScopeContext scope, CancellationToken ct)
@@ -131,6 +140,87 @@ public sealed class AskService(
         }
 
         return await FinalizeAskResponseAsync(prepared, raw, ct);
+    }
+
+    /// <inheritdoc />
+    public async Task<AskResponse> AskAboutFindingAsync(FindingAskRequest request, ScopeContext scope, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(scope);
+
+
+        if (request.FindingId == Guid.Empty)
+            throw new ArgumentException("FindingId is required.", nameof(request));
+
+
+        if (string.IsNullOrWhiteSpace(request.Question))
+            throw new ArgumentException("Question is required.", nameof(request));
+
+        string findingId = request.FindingId.ToString("N");
+        ConversationThread thread = await conversationService.GetOrCreateThreadAsync(
+            request.ThreadId,
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            runId: null,
+            baseRunId: null,
+            targetRunId: null,
+            ct);
+
+        string question = request.Question.Trim();
+        await conversationService.AppendUserMessageAsync(thread.ThreadId, question, ct);
+
+        IReadOnlyList<ConversationMessage> historyWindow = await conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, ct);
+        IReadOnlyList<ConversationMessage> priorMessages = TrimCurrentUserTurn(historyWindow, question);
+        string historyText = BuildConversationHistory(priorMessages);
+
+        Contracts.Findings.FindingInspectResponse? finding = await findingInspectReadRepository.GetInspectAsync(scope, findingId, ct);
+
+        if (finding is null)
+            throw new InvalidOperationException($"Finding '{findingId}' was not found in the current scope.");
+
+        object findingContext = new
+        {
+            findingId = finding.FindingId,
+            severity = finding.Severity.ToString(),
+            typedPayload = finding.TypedPayload,
+            evidenceRefs = finding.Evidence.Select(e => e.Excerpt).Where(static e => !string.IsNullOrWhiteSpace(e)).ToArray(),
+            recommendedActions = finding.RecommendedActions,
+            reasoningSummary = finding.ReasoningSummary
+        };
+
+        string contextJson = JsonSerializer.Serialize(findingContext, ContractJson.CamelCaseIgnoreNullCompact);
+        string userPrompt =
+            "Conversation History:\n" +
+            (string.IsNullOrWhiteSpace(historyText) ? "(none)\n" : historyText + "\n") +
+            "\nFinding Context:\n" +
+            contextJson +
+            "\n\nUser Question:\n" +
+            question;
+
+        string? raw;
+        try
+        {
+            raw = await llm.CompleteJsonAsync(
+                FindingArchitectSystemPrompt,
+                userPrompt,
+                maxTokens: null,
+                cancellationToken: ct);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "LLM completion failed for finding ask (ThreadId={ThreadId}); returning fallback response.",
+                LogSanitizer.Sanitize(thread.ThreadId.ToString()));
+            return await PersistFindingFallbackResponseAsync(thread.ThreadId, question, ct);
+        }
+
+        AskResponse response = ParseAskResponse(thread.ThreadId, raw);
+        await PersistFindingAssistantTurnAsync(thread.ThreadId, question, response, ct);
+        return response;
     }
 
     private async Task<AskPreparedContext> PrepareAskContextAsync(
@@ -249,37 +339,105 @@ public sealed class AskService(
 
     private async Task<AskResponse> FinalizeAskResponseAsync(AskPreparedContext prepared, string? raw, CancellationToken ct)
     {
-        raw = UnwrapJsonFence(raw);
-        LlmAskShape? parsed = TryDeserialize(raw);
-
-        AskResponse response;
-        if (parsed is null || string.IsNullOrWhiteSpace(parsed.Answer))
-
-            response = new AskResponse
-            {
-                ThreadId = prepared.Thread.ThreadId,
-                Answer = string.IsNullOrWhiteSpace(raw)
-                    ? "No answer produced."
-                    : raw.Trim(),
-                ReferencedDecisions = [],
-                ReferencedFindings = [],
-                ReferencedArtifacts = []
-            };
-
-        else
-
-            response = new AskResponse
-            {
-                ThreadId = prepared.Thread.ThreadId,
-                Answer = parsed.Answer.Trim(),
-                ReferencedDecisions = NormalizeList(parsed.ReferencedDecisions),
-                ReferencedFindings = NormalizeList(parsed.ReferencedFindings),
-                ReferencedArtifacts = NormalizeList(parsed.ReferencedArtifacts)
-            };
+        AskResponse response = ParseAskResponse(prepared.Thread.ThreadId, raw);
 
         await PersistAssistantTurnAsync(prepared, response, ct);
 
         return response;
+    }
+
+    private async Task<AskResponse> PersistFindingFallbackResponseAsync(Guid threadId, string question, CancellationToken ct)
+    {
+        AskResponse response = new()
+        {
+            ThreadId = threadId,
+            Answer = "The assistant could not be reached. Review the finding details and retry."
+        };
+
+        await PersistFindingAssistantTurnAsync(threadId, question, response, ct);
+        return response;
+    }
+
+    private async Task PersistFindingAssistantTurnAsync(Guid threadId, string question, AskResponse response, CancellationToken ct)
+    {
+        string metadataJson = JsonSerializer.Serialize(
+            new { response.ReferencedDecisions, response.ReferencedFindings, response.ReferencedArtifacts },
+            ContractJson.CamelCaseCompact);
+
+        await conversationService.AppendAssistantMessageAsync(
+            threadId,
+            response.Answer,
+            metadataJson,
+            ct);
+
+        try
+        {
+            DateTime now = TimeProvider.System.UtcNowDateTime();
+            List<ConversationMessage> conversationTurn =
+            [
+                new()
+                {
+                    MessageId = Guid.NewGuid(),
+                    ThreadId = threadId,
+                    Role = ConversationMessageRole.User,
+                    Content = question,
+                    CreatedUtc = now,
+                    MetadataJson = "{}"
+                },
+
+                new()
+                {
+                    MessageId = Guid.NewGuid(),
+                    ThreadId = threadId,
+                    Role = ConversationMessageRole.Assistant,
+                    Content = response.Answer,
+                    CreatedUtc = now,
+                    MetadataJson = metadataJson
+                }
+            ];
+
+            IReadOnlyList<RetrievalDocument> convDocs = retrievalDocumentBuilder.BuildForConversation(
+                Guid.Empty,
+                Guid.Empty,
+                Guid.Empty,
+                null,
+                conversationTurn);
+
+            await retrievalIndexingService.IndexDocumentsAsync(convDocs, ct);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to index finding-ask conversation turn for retrieval.");
+        }
+    }
+
+    private AskResponse ParseAskResponse(Guid threadId, string? raw)
+    {
+        string? unwrapped = UnwrapJsonFence(raw);
+        LlmAskShape? parsed = TryDeserialize(unwrapped);
+
+        if (parsed is null || string.IsNullOrWhiteSpace(parsed.Answer))
+        {
+            return new AskResponse
+            {
+                ThreadId = threadId,
+                Answer = string.IsNullOrWhiteSpace(unwrapped)
+                    ? "No answer produced."
+                    : unwrapped.Trim(),
+                ReferencedDecisions = [],
+                ReferencedFindings = [],
+                ReferencedArtifacts = []
+            };
+        }
+
+        return new AskResponse
+        {
+            ThreadId = threadId,
+            Answer = parsed.Answer.Trim(),
+            ReferencedDecisions = NormalizeList(parsed.ReferencedDecisions),
+            ReferencedFindings = NormalizeList(parsed.ReferencedFindings),
+            ReferencedArtifacts = NormalizeList(parsed.ReferencedArtifacts)
+        };
     }
 
     private async Task PersistAssistantTurnAsync(AskPreparedContext prepared, AskResponse response, CancellationToken ct)

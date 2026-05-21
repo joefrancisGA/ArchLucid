@@ -99,11 +99,23 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
       </div>
 
       {error !== null ? (
-        <OperatorApiProblem
-          problem={error.problem}
-          fallbackMessage={error.message}
-          correlationId={error.correlationId}
-        />
+        <>
+          {error.problem?.blockExplanation !== undefined &&
+          error.problem.blockExplanation.trim().length > 0 ? (
+            <div
+              className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-50"
+              data-testid="commit-governance-block-explanation"
+            >
+              <p className="m-0 font-semibold">Why governance blocked finalization</p>
+              <p className="m-0 mt-2 leading-relaxed">{error.problem.blockExplanation}</p>
+            </div>
+          ) : null}
+          <OperatorApiProblem
+            problem={error.problem}
+            fallbackMessage={error.message}
+            correlationId={error.correlationId}
+          />
+        </>
       ) : null}
 
       <ConfirmationDialog

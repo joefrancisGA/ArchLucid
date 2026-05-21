@@ -33,7 +33,12 @@ import {
   OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
   OPERATOR_HOME_EXAMPLE_SYSTEM_NAME,
 } from "@/lib/operator-home-example-request";
-import { buildDefaultWizardValues, wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
+import {
+  buildDefaultWizardValues,
+  wizardFormSchema,
+  type WizardFormValues,
+} from "@/lib/wizard-schema";
+import { WizardAiSuggestedFieldsProvider } from "@/lib/wizard-ai-suggested-fields";
 
 import { QuickStartWizard } from "./QuickStartWizard";
 
@@ -395,6 +400,7 @@ export function NewRunWizardClient() {
 
   return (
     <FormProvider {...form}>
+      <WizardAiSuggestedFieldsProvider>
       <div ref={wizardReadyRef} className="mx-auto w-full max-w-4xl space-y-4 pb-36">
           {!wizardModeReady ? (
             <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading wizard…</p>
@@ -603,6 +609,7 @@ export function NewRunWizardClient() {
             </div>
           ) : null}
         </div>
+      </WizardAiSuggestedFieldsProvider>
       </FormProvider>
   );
 }

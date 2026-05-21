@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { WizardFieldError } from "@/components/wizard/WizardFieldError";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
+import { useWizardAiSuggestedFields, type WizardAiSuggestedFieldName } from "@/lib/wizard-ai-suggested-fields";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 type ChipFieldName = "constraints" | "requiredCapabilities" | "assumptions";
@@ -22,6 +23,7 @@ function ChipListBlock(props: {
   inputId: string;
 }) {
   const { watch, setValue, formState, clearErrors } = useFormContext<WizardFormValues>();
+  const { isAiSuggested, clearAiSuggested } = useWizardAiSuggestedFields();
   const { errors } = formState;
   const items: string[] = watch(props.fieldName) ?? [];
   const [draft, setDraft] = useState("");
@@ -40,6 +42,7 @@ function ChipListBlock(props: {
   };
 
   const removeItem = (index: number) => {
+    clearAiSuggested(props.fieldName as WizardAiSuggestedFieldName, items[index] ?? "");
     clearErrors(props.fieldName);
     setValue(
       props.fieldName,
@@ -82,6 +85,11 @@ function ChipListBlock(props: {
             <li key={`${props.fieldName}-${index}-${item.slice(0, 12)}`}>
               <Badge variant="outline" className="gap-1 py-1 pl-2 pr-1 font-normal">
                 <span className="max-w-[240px] truncate">{item}</span>
+                {isAiSuggested(props.fieldName as WizardAiSuggestedFieldName, item) ? (
+                  <span className="rounded bg-violet-100 px-1 text-[10px] font-semibold uppercase tracking-wide text-violet-900 dark:bg-violet-950 dark:text-violet-100">
+                    AI
+                  </span>
+                ) : null}
                 <Button
                   type="button"
                   variant="ghost"

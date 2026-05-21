@@ -224,9 +224,29 @@ def main() -> int:
         action="store_true",
         help="Print machine-readable FQ method names (for allowlist bootstrap).",
     )
+    parser.add_argument(
+        "--controller",
+        action="append",
+        type=Path,
+        default=None,
+        help=(
+            "Limit scan to this controller .cs path (repeatable). "
+            "Relative to --repo-root or absolute. Omit to scan all controllers (CI default)."
+        ),
+    )
     args = parser.parse_args()
     root: Path = args.repo_root
-    controllers = sorted((root / "ArchLucid.Api" / "Controllers").rglob("*.cs"))
+    if args.controller:
+        controllers: list[Path] = []
+        for raw in args.controller:
+            resolved = raw if raw.is_absolute() else root / raw
+            if not resolved.is_file():
+                print(f"ERROR: controller path not found: {resolved}", file=sys.stderr)
+                return 2
+            controllers.append(resolved)
+        controllers = sorted(controllers)
+    else:
+        controllers = sorted((root / "ArchLucid.Api" / "Controllers").rglob("*.cs"))
     allow_path = root / "scripts" / "ci" / "controller_action_audit_allowlist.txt"
     allow = _load_allowlist(allow_path)
 

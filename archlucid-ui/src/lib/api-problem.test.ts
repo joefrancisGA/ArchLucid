@@ -132,4 +132,31 @@ describe("tryParseApiProblemDetails", () => {
 
     expect(problem).toEqual({ title: "T" });
   });
+
+  it("reads blockExplanation from root and extensions", () => {
+    const fromRoot = tryParseApiProblemDetails(
+      JSON.stringify({
+        title: "Conflict",
+        detail: "Blocked",
+        blockExplanation: "Rule requires private endpoints.",
+      }),
+      "application/json",
+    );
+
+    expect(fromRoot).toMatchObject({
+      blockExplanation: "Rule requires private endpoints.",
+    });
+
+    const fromExtensions = tryParseApiProblemDetails(
+      JSON.stringify({
+        title: "Conflict",
+        extensions: { blockExplanation: "Add subnet delegation." },
+      }),
+      "application/json",
+    );
+
+    expect(fromExtensions).toMatchObject({
+      blockExplanation: "Add subnet delegation.",
+    });
+  });
 });

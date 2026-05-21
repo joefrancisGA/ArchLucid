@@ -10,6 +10,7 @@ using ArchLucid.AgentRuntime.QuickScan;
 using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Agents.IaC;
 using ArchLucid.Application.Governance;
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.Contracts.Abstractions.Agents;
@@ -52,6 +53,8 @@ public static partial class ServiceCollectionExtensions
 {
     private static void RegisterAgentExecution(IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<GenerateIacStubsOptions>(configuration.GetSection(GenerateIacStubsOptions.SectionPath));
+        services.AddScoped<IFindingIacStubGenerator, FindingIacStubGenerator>();
         services.Configure<AgentExecutionOptions>(configuration.GetSection(AgentExecutionOptions.SectionName));
         services.Configure<StagedCriticAgentOptions>(
             configuration.GetSection(StagedCriticAgentOptions.SectionPath));

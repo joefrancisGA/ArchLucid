@@ -4,7 +4,7 @@
 
 # Consolidated planning backlog
 
-**Last reviewed:** 2026-05-21 (session 1 — §3 CPB-A01–A02 **Keep**)
+**Last reviewed:** 2026-05-21 (session 1 — §3 **complete**; §5 started)
 
 **How to use:** Each row has a stable `CPB-*` ID. **Decision** values: `Keep` · `Promote` · `Defer` · `Cut` · `Merge` · `Blocked`. **Horizon:** `V1-now` · `V1.1` · `V2` · `GTM-only` · `Principle`.
 
@@ -76,10 +76,10 @@ Ordered by weighted deficiency (highest first). Source: [`assessments/LATEST.md`
 | CPB-A08 | **Reliability** — Dapper `CommandTimeout`, HttpClient timeouts, failover drill doc | LATEST category 7; weakness #7 | **Keep** | V1-now | Confirmed 2026-05-21. |
 | CPB-A09 | **Maintainability** — `GovernanceConstants`; planning doc hygiene | LATEST category 8; weakness #10 | **Keep** | V1-now | Confirmed 2026-05-21. Constants extraction + treat this file as active planning spine (archive stays historical). |
 | CPB-A10 | **Decision Velocity** — `POST /v1/governance/simulate` dry-run | LATEST category 9; enterprise blocker #6 | **Keep** | V1-now | Confirmed 2026-05-21. |
-| CPB-A11 | **Performance** — k6 CI smoke + p95 gate; replay diagnostics pruning | LATEST category 10; weakness #5, #11 | *Pending review* | V1-now | |
-| CPB-A12 | **Scalability** — publish load-test baselines; bulk payload limits | LATEST category 11; weakness #5, #8 | *Pending review* | V1-now | |
-| CPB-A13 | **Stickiness** — Saved Views (Audit, Graph) | LATEST category 12 | *Pending review* | V1-now | |
-| CPB-A14 | **Supportability** — UI download support bundle | LATEST category 13 | *Pending review* | V1-now | |
+| CPB-A11 | **Performance** — k6 CI smoke + p95 gate; replay diagnostics pruning | LATEST category 10; weakness #5, #11 | **Keep** | V1-now | Confirmed 2026-05-21. |
+| CPB-A12 | **Scalability** — publish load-test baselines; bulk payload limits | LATEST category 11; weakness #5, #8 | **Keep** | V1-now | Confirmed 2026-05-21. |
+| CPB-A13 | **Stickiness** — Saved Views (Audit, Graph) | LATEST category 12 | **Keep** | V1-now | Confirmed 2026-05-21. |
+| CPB-A14 | **Supportability** — UI download support bundle | LATEST category 13 | **Keep** | V1-now | Confirmed 2026-05-21. |
 
 ---
 
@@ -91,7 +91,38 @@ Ordered by weighted deficiency (highest first). Source: [`assessments/LATEST.md`
 
 ## §5 GTM backlog (`GTM_BACKLOG`)
 
-*To be filled during review — M-01–M-35.*
+Source: [`go-to-market/GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md). **GTM-only** unless noted.
+
+| ID | Task | Priority | Source status | Decision | Horizon | Notes |
+|----|------|----------|---------------|----------|---------|-------|
+| CPB-M01 | Positioning tagline → `POSITIONING.md` | P0 | Done | **Keep** (done) | — | Already complete. |
+| CPB-M02 | One-minute elevator pitch | P0 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. P0 copy; basis `EXECUTIVE_SPONSOR_BRIEF.md`. |
+| CPB-M03 | Five-minute demo script | P0 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. Marketing vocabulary; blocks M-19. |
+| CPB-M04 | Workspace A Playwright smoke sign-off | P0 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. QA sign-off only; #30 shipped. |
+| CPB-M05 | Workspace B Playwright smoke sign-off | P0 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. |
+| CPB-M06 | Review sample report from Workspace B | P0 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. Content review; #28 done. |
+| CPB-M07 | 6–8 workflow screenshots | P0 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. Production asset; #30 done. |
+| CPB-M08 | Align audit-chain differentiator copy | P0 | Not started | *Pending review* | GTM-only | Depends finding-confidence UI (#24). |
+| CPB-M09 | Landing page full content | P1 | Not started | *Pending review* | GTM-only | #31+#32 done. |
+| CPB-M10–M14 | LinkedIn posts 1–5 | P1 | Not started | *Pending review* | GTM-only | Batch candidate. |
+| CPB-M15 | Long-form article (diagrams ≠ evidence) | P1 | Not started | *Pending review* | GTM-only | |
+| CPB-M16 | Short demo video (Workspace A) | P1 | Not started | *Pending review* | GTM-only | |
+| CPB-M17 | Outreach list (20 contacts) | P2 | Not started | *Pending review* | GTM-only | |
+| CPB-M18 | 20 outreach messages | P2 | Not started | *Pending review* | GTM-only | Needs M-09, M-16. |
+| CPB-M19 | 5–10 live demos | P2 | Not started | *Pending review* | GTM-only | Needs M-03. |
+| CPB-M20 | Refine positioning from demo objections | P2 | Not started | *Pending review* | GTM-only | |
+| CPB-M21 | Identify strongest buyer segment | P2 | Not started | *Pending review* | GTM-only | |
+| CPB-M34 | SOWs / talk track → `SERVICE_LED_OFFERS.md` | P2 | Not started | *Pending review* | GTM-only | |
+| CPB-M35 | ARC-AMPE policy pack #24 | P1 | Not started | *Pending review* | GTM-only | Content + eng. |
+| CPB-M22–M23 | Paid pilot offer drafts A/B | P3 | Not started | *Pending review* | GTM-only | |
+| CPB-M24–M26 | Upwork listings (3 SKUs) | P3 | Not started | *Pending review* | GTM-only | |
+| CPB-M27 | One paid pilot or Upwork engagement | P3 | Not started | *Pending review* | GTM-only | |
+| CPB-M28 | Testimonial request | P3 | Not started | *Pending review* | GTM-only | |
+| CPB-M29 | ServiceNow integration LinkedIn post | V1.1 | Deferred | *Pending review* | V1.1 | |
+| CPB-M30 | CAF/LZ use case claim | V1 GA | Not started | *Pending review* | GTM-only | Disclaimer required. |
+| CPB-M31 | Self-serve pricing + checkout page | V2 | Deferred | *Pending review* | V2 | Align CPB-P04. |
+| CPB-M32 | Reference customer case study | V1.1 | Deferred | *Pending review* | V1.1 | |
+| CPB-M33 | Cross-tenant ROI marketing claim | V2 | Deferred | *Pending review* | V2 | |
 
 ---
 

@@ -12,6 +12,8 @@ export type ApiProblemDetails = {
   supportHint?: string;
   /** Echoes API **X-Correlation-ID** / proxy **correlationId** when present in JSON (RFC 9457 extension promoted to root). */
   correlationId?: string;
+  /** Governance pre-commit block narrative when commit is rejected (HTTP 409). */
+  blockExplanation?: string;
 };
 
 function readTrimmedString(obj: Record<string, unknown>, key: string): string | undefined {
@@ -30,6 +32,7 @@ function readExtensions(obj: Record<string, unknown>): {
   errorCode?: string;
   supportHint?: string;
   correlationId?: string;
+  blockExplanation?: string;
 } {
   const extensions = obj.extensions;
 
@@ -47,6 +50,7 @@ function readExtensions(obj: Record<string, unknown>): {
     errorCode: readTrimmedString(ext, "errorCode"),
     supportHint: readTrimmedString(ext, "supportHint"),
     correlationId: readTrimmedString(ext, "correlationId"),
+    blockExplanation: readTrimmedString(ext, "blockExplanation"),
   };
 }
 
@@ -104,6 +108,8 @@ export function tryParseApiProblemDetails(text: string, contentType: string | nu
   const supportHint = readTrimmedString(record, "supportHint") ?? fromExt.supportHint;
   const correlationId =
     readTrimmedString(record, "correlationId") ?? fromExt.correlationId;
+  const blockExplanation =
+    readTrimmedString(record, "blockExplanation") ?? fromExt.blockExplanation;
   const status = readOptionalNumber(record, "status");
 
   if (!title && !detail && !type && !errorCode) {
@@ -142,6 +148,10 @@ export function tryParseApiProblemDetails(text: string, contentType: string | nu
 
   if (correlationId) {
     problem.correlationId = correlationId;
+  }
+
+  if (blockExplanation) {
+    problem.blockExplanation = blockExplanation;
   }
 
   return problem;

@@ -1,5 +1,7 @@
 ﻿using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
+using ArchLucid.Application.Agents.IaC;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
@@ -18,6 +20,7 @@ using ArchLucid.Persistence.Models;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -152,13 +155,16 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             Mock.Of<IAuthorityCommitProjectionBuilder>(),
             Mock.Of<IManifestFinalizationService>(),
             Mock.Of<IPreCommitGovernanceGate>(),
+            Mock.Of<IPreCommitGovernanceBlockExplainer>(),
             actor.Object,
             baselineAudit.Object,
             Mock.Of<IAuditService>(),
             Mock.Of<ITrialFunnelCommitHook>(),
             Mock.Of<IFirstSessionLifecycleHook>(),
+            Mock.Of<IFindingIacStubGenerator>(),
             Mock.Of<IDbConnectionFactory>(),
             new RunStateTransitionService(),
+            Options.Create(new ArchLucid.Core.Configuration.GenerateIacStubsOptions()),
             Mock.Of<ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator>>());
     }
 }

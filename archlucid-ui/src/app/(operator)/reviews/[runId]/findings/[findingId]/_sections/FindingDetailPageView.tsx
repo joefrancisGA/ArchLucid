@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
+import { FindingIacStubPanel } from "@/components/FindingIacStubPanel";
 import { CopyFindingAsWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -294,6 +296,14 @@ export function FindingDetailPageView(props: Props) {
           payload={inspectPayload}
           variant="detail"
         />
+      ) : null}
+
+      {inspectPayload !== null ? (
+        <FindingAskInlinePanel findingId={decodedFindingId} />
+      ) : null}
+
+      {inspectPayload !== null ? (
+        <FindingIacStubPanel runId={runId} findingId={decodedFindingId} />
       ) : null}
 
       {inspectPayload !== null ? (

@@ -1,8 +1,10 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Agents.IaC;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Telemetry;
@@ -14,6 +16,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
@@ -30,6 +33,7 @@ using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using Cm = ArchLucid.Contracts.Manifest;
 using DecisioningIdTraceRepository = ArchLucid.Decisioning.Interfaces.IDecisionTraceRepository;
@@ -57,13 +61,16 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IAuthorityCommitProjectionBuilder projectionBuilder,
     IManifestFinalizationService manifestFinalizationService,
     IPreCommitGovernanceGate preCommitGovernanceGate,
+    IPreCommitGovernanceBlockExplainer preCommitGovernanceBlockExplainer,
     IActorContext actorContext,
     IBaselineMutationAuditService baselineMutationAudit,
     IAuditService auditService,
     ITrialFunnelCommitHook trialFunnelCommitHook,
     IFirstSessionLifecycleHook firstSessionLifecycleHook,
+    IFindingIacStubGenerator findingIacStubGenerator,
     IDbConnectionFactory dbConnectionFactory,
     IRunStateTransitionService runStateTransitionService,
+    IOptions<GenerateIacStubsOptions> generateIacStubsOptions,
     ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
     private const int CommitRunTransientMaxAttempts = 5;
@@ -97,6 +104,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     private readonly IFirstSessionLifecycleHook _firstSessionLifecycleHook =
         firstSessionLifecycleHook ?? throw new ArgumentNullException(nameof(firstSessionLifecycleHook));
 
+    private readonly IFindingIacStubGenerator _findingIacStubGenerator =
+        findingIacStubGenerator ?? throw new ArgumentNullException(nameof(findingIacStubGenerator));
+
+    private readonly IOptions<GenerateIacStubsOptions> _generateIacStubsOptions =
+        generateIacStubsOptions ?? throw new ArgumentNullException(nameof(generateIacStubsOptions));
+
     private readonly IDbConnectionFactory _dbConnectionFactory = dbConnectionFactory ?? throw new ArgumentNullException(nameof(dbConnectionFactory));
 
     private readonly DecisioningIGoldenManifestRepository _goldenManifestRepository =
@@ -112,6 +125,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private readonly IPreCommitGovernanceGate _preCommitGovernanceGate =
         preCommitGovernanceGate ?? throw new ArgumentNullException(nameof(preCommitGovernanceGate));
+
+    private readonly IPreCommitGovernanceBlockExplainer _preCommitGovernanceBlockExplainer =
+        preCommitGovernanceBlockExplainer ?? throw new ArgumentNullException(nameof(preCommitGovernanceBlockExplainer));
 
     private readonly IAuthorityCommitProjectionBuilder _projectionBuilder = projectionBuilder ?? throw new ArgumentNullException(nameof(projectionBuilder));
     private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
@@ -359,7 +375,29 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             _logger.LogWarningWithSanitizedUserArg(ex, "Failed to insert RunTelemetry for RunId={RunId}", runId);
         }
 
+        TryScheduleIacStubGeneration(runId);
+
         return new CommitRunResult { Manifest = contract, DecisionTraces = [trace], Warnings = persisted.Warnings.Count == 0 ? [] : [.. persisted.Warnings] };
+    }
+
+    private void TryScheduleIacStubGeneration(string runId)
+    {
+        if (!_generateIacStubsOptions.Value.Enabled)
+            return;
+
+        _ = Task.Run(
+            async () =>
+            {
+                try
+                {
+                    await _findingIacStubGenerator.GenerateAndPersistStubsForRunAsync(runId, CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarningWithSanitizedUserArg(ex, "Post-commit IaC stub generation failed for RunId={RunId}", runId);
+                }
+            },
+            CancellationToken.None);
     }
 
     private static SaveContractsManifestOptions BuildSaveContractsManifestOptions(ManifestDocument manifestModel, DecisionTrace trace)
@@ -552,7 +590,62 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         preCommitBlocked.RunId = runGuid;
 
         await _auditService.LogAsync(preCommitBlocked, cancellationToken);
-        throw new PreCommitGovernanceBlockedException(gateResult);
+        PreCommitGateResult resultWithExplanation = await TryAttachGovernanceBlockExplanationAsync(
+            runId,
+            gateResult,
+            goldenManifestWireJson,
+            cancellationToken);
+        throw new PreCommitGovernanceBlockedException(resultWithExplanation);
+    }
+
+    private async Task<PreCommitGateResult> TryAttachGovernanceBlockExplanationAsync(
+        string runId,
+        PreCommitGateResult gateResult,
+        string goldenManifestWireJson,
+        CancellationToken cancellationToken)
+    {
+        string manifestExcerpt = TruncateForGovernanceExplanation(goldenManifestWireJson);
+        if (manifestExcerpt.Length == 0)
+            return gateResult;
+
+        try
+        {
+            string? explanation = await _preCommitGovernanceBlockExplainer.ExplainAsync(gateResult, manifestExcerpt, cancellationToken);
+            if (string.IsNullOrWhiteSpace(explanation))
+                return gateResult;
+
+            return new PreCommitGateResult
+            {
+                Blocked = gateResult.Blocked,
+                Reason = gateResult.Reason,
+                BlockingFindingIds = gateResult.BlockingFindingIds,
+                PolicyPackId = gateResult.PolicyPackId,
+                MinimumBlockingSeverity = gateResult.MinimumBlockingSeverity,
+                WarnOnly = gateResult.WarnOnly,
+                Warnings = gateResult.Warnings,
+                BlockExplanation = explanation
+            };
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarningWithSanitizedUserArg(ex, "Failed to generate governance block explanation for RunId={RunId}", runId);
+            return gateResult;
+        }
+    }
+
+    private static string TruncateForGovernanceExplanation(string manifestJson)
+    {
+        if (string.IsNullOrWhiteSpace(manifestJson))
+            return string.Empty;
+
+        const int maxLength = 4000;
+        return manifestJson.Length <= maxLength
+            ? manifestJson
+            : manifestJson[..maxLength];
     }
 
     private static string? NormalizeGovernanceBypassJustification(string? raw)

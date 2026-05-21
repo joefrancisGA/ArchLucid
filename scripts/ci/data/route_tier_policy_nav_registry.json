@@ -732,6 +732,16 @@
       "nav_operator_href": "/evolution-review"
     },
     {
+      "controller_file": "Findings/ArchitectureFindingAskController.cs",
+      "class_name": "ArchitectureFindingAskController",
+      "route_template": "v{version:apiVersion}/architecture/finding",
+      "normalized_prefix": "/v1/architecture/finding",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Findings/FindingInspectController.cs",
       "class_name": "FindingInspectController",
       "route_template": "v{version:apiVersion}/findings",

@@ -34,4 +34,6 @@ public interface IAskService
         ScopeContext scope,
         Func<string, CancellationToken, Task> onAnswerTokenAsync,
         CancellationToken ct);
+
+    Task<AskResponse> AskAboutFindingAsync(FindingAskRequest request, ScopeContext scope, CancellationToken ct);
 }

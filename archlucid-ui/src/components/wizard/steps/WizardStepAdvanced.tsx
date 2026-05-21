@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { WizardFieldError } from "@/components/wizard/WizardFieldError";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
+import { useWizardAiSuggestedFields, type WizardAiSuggestedFieldName } from "@/lib/wizard-ai-suggested-fields";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 type StringListName = "policyReferences" | "topologyHints" | "securityBaselineHints";
@@ -31,6 +32,7 @@ function AdvancedChipList(props: {
   inputId: string;
 }) {
   const { watch, setValue, formState, clearErrors } = useFormContext<WizardFormValues>();
+  const { isAiSuggested, clearAiSuggested } = useWizardAiSuggestedFields();
   const { errors } = formState;
   const items: string[] = watch(props.fieldName) ?? [];
   const [draft, setDraft] = useState("");
@@ -49,6 +51,7 @@ function AdvancedChipList(props: {
   };
 
   const removeItem = (index: number) => {
+    clearAiSuggested(props.fieldName as WizardAiSuggestedFieldName, items[index] ?? "");
     clearErrors(props.fieldName);
     setValue(
       props.fieldName,
@@ -90,6 +93,11 @@ function AdvancedChipList(props: {
             <li key={`${props.fieldName}-${index}`}>
               <Badge variant="outline" className="gap-1 py-1 pl-2 pr-1 font-normal">
                 <span className="max-w-[220px] truncate">{item}</span>
+                {isAiSuggested(props.fieldName as WizardAiSuggestedFieldName, item) ? (
+                  <span className="rounded bg-violet-100 px-1 text-[10px] font-semibold uppercase tracking-wide text-violet-900 dark:bg-violet-950 dark:text-violet-100">
+                    AI
+                  </span>
+                ) : null}
                 <Button
                   type="button"
                   variant="ghost"

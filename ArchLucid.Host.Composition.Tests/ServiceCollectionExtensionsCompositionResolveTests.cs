@@ -2,6 +2,9 @@ using System.Reflection;
 
 using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Safety;
+using ArchLucid.Application.Agents.IaC;
+using ArchLucid.Application.Governance;
+using ArchLucid.Application.Planning;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Safety;
@@ -45,6 +48,21 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
         client.Should().BeOfType<CostGuardrailInterceptor>();
         DecoratorChainContains<CircuitBreakingAgentCompletionClient>(client).Should().BeTrue(
             "the Azure completion pipeline wraps telemetry/budget layers with a circuit breaker");
+    }
+
+    [Fact]
+    public async Task AddArchLucidApplicationServices_resolves_ai_batch_b_services()
+    {
+        IConfiguration configuration = CreateSimulatorCompositionDictionaryConfiguration();
+        ServiceCollection services = CreateCoreServices(configuration);
+        services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider();
+        await using AsyncServiceScope scope = provider.CreateAsyncScope();
+
+        scope.ServiceProvider.GetRequiredService<IFindingIacStubGenerator>().Should().NotBeNull();
+        scope.ServiceProvider.GetRequiredService<IArchitectureRequestDraftService>().Should().NotBeNull();
+        scope.ServiceProvider.GetRequiredService<IPreCommitGovernanceBlockExplainer>().Should().NotBeNull();
     }
 
     [Fact]
@@ -318,6 +336,13 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
             ["LlmCompletionCache:Enabled"] = "false",
             ["HotPathCache:Enabled"] = "false"
         };
+    }
+
+    private static IConfiguration CreateSimulatorCompositionDictionaryConfiguration()
+    {
+        return new ConfigurationBuilder()
+            .AddInMemoryCollection(CreateSimulatorCompositionDictionary())
+            .Build();
     }
 
     private sealed class FixedCompositionScopeContextProvider : IScopeContextProvider

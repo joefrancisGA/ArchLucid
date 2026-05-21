@@ -81,4 +81,11 @@ public sealed class ArchitectureFinding
         get;
         set;
     } = [];
+
+    /// <summary>Optional minimal IaC remediation snippet (for example, Azure Bicep) generated for this finding.</summary>
+    public string? IacStub
+    {
+        get;
+        set;
+    }
 }

@@ -1,27 +1,71 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Pre-commit hook: guards that prevent CI failures before they leave the developer machine.
 #
 # Install with:
 #   bash scripts/install-git-hooks.sh    (Linux / macOS / Git Bash on Windows)
 #   pwsh scripts/install-git-hooks.ps1   (PowerShell on Windows)
 #
-# To bypass in emergencies (must be intentional):
-#   git commit --no-verify -m "..."
-set -euo pipefail
+# Opt out (current commit only): ARCHLUCID_SKIP_PRE_COMMIT=1 git commit ...
+# Full controller scan (slow): ARCHLUCID_PRE_COMMIT_FULL_AUDIT=1 git commit ...
+# To bypass all hooks: git commit --no-verify -m "..."
+set -eu
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
+HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+RESOLVER="$REPO_ROOT/scripts/hooks/resolve-python.sh"
+if [ ! -f "$RESOLVER" ]; then
+    RESOLVER="$HOOK_DIR/resolve-python.sh"
+fi
 
-echo "[pre-commit] Running mutating-controller audit guard..."
-python "$REPO_ROOT/scripts/ci/assert_controller_mutations_have_audit.py" \
-  --repo-root "$REPO_ROOT"
+# shellcheck source=scripts/hooks/resolve-python.sh
+. "$RESOLVER"
+
+if [ "${ARCHLUCID_SKIP_PRE_COMMIT:-}" = "1" ]; then
+    exit 0
+fi
+
+if ! archlucid_resolve_python; then
+    archlucid_run_python
+fi
 
 STAGED="$(git diff --cached --name-only --diff-filter=ACMR)"
-if [ -n "$STAGED" ] && echo "$STAGED" | grep -qE \
+STAGED_CONTROLLERS=""
+if [ -n "$STAGED" ]; then
+    STAGED_CONTROLLERS="$(printf '%s\n' "$STAGED" | grep -E '^ArchLucid\.Api/Controllers/.*Controller\.cs$' || true)"
+fi
+
+needs_route_sync=0
+if [ -n "$STAGED" ] && printf '%s\n' "$STAGED" | grep -qE \
   '(^|/)ArchLucid\.Api/Controllers/.*Controller\.cs$|route_tier_policy_nav_(overrides|registry|exemptions)\.json$|docs/library/ROUTE_TIER_POLICY_NAV_MATRIX\.md$'; then
-  echo "[pre-commit] Syncing route/tier/policy/nav registry for controller changes..."
-  python "$REPO_ROOT/scripts/ci/assert_route_tier_policy_nav.py" --sync
-  git add \
-    "$REPO_ROOT/scripts/ci/data/route_tier_policy_nav_registry.json" \
-    "$REPO_ROOT/docs/library/ROUTE_TIER_POLICY_NAV_MATRIX.md" \
-    2>/dev/null || true
+    needs_route_sync=1
+fi
+
+run_audit=0
+if [ "${ARCHLUCID_PRE_COMMIT_FULL_AUDIT:-}" = "1" ]; then
+    run_audit=1
+elif [ -n "$STAGED_CONTROLLERS" ]; then
+    run_audit=1
+fi
+
+if [ "$run_audit" = "1" ]; then
+    echo "[pre-commit] Running mutating-controller audit guard..."
+    audit_args=(--repo-root "$REPO_ROOT")
+    if [ "${ARCHLUCID_PRE_COMMIT_FULL_AUDIT:-}" != "1" ]; then
+        while IFS= read -r path; do
+            [ -n "$path" ] || continue
+            audit_args+=(--controller "$path")
+        done <<EOF
+$STAGED_CONTROLLERS
+EOF
+    fi
+    archlucid_run_python "$REPO_ROOT/scripts/ci/assert_controller_mutations_have_audit.py" "${audit_args[@]}"
+fi
+
+if [ "$needs_route_sync" = "1" ]; then
+    echo "[pre-commit] Syncing route/tier/policy/nav registry for controller changes..."
+    archlucid_run_python "$REPO_ROOT/scripts/ci/assert_route_tier_policy_nav.py" --sync
+    git add \
+        "$REPO_ROOT/scripts/ci/data/route_tier_policy_nav_registry.json" \
+        "$REPO_ROOT/docs/library/ROUTE_TIER_POLICY_NAV_MATRIX.md" \
+        2>/dev/null || true
 fi

@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { ReactElement } from "react";
 
 import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
+import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -77,6 +78,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   const [muteReason, setMuteReason] = useState("");
   const [muteBusy, setMuteBusy] = useState(false);
   const [muteError, setMuteError] = useState<string | null>(null);
+  const [askFindingId, setAskFindingId] = useState<string | null>(null);
 
   function renderEmptySummary(): ReactElement {
     if (
@@ -197,6 +199,24 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                       >
                         View AI reasoning
                       </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-8 shrink-0 text-xs"
+                        onClick={() => {
+                          setAskFindingId((current) => (current === f.findingId ? null : f.findingId));
+                        }}
+                        aria-pressed={askFindingId === f.findingId}
+                        title="Ask about this finding"
+                      >
+                        Ask
+                      </Button>
+                      {f.iacStub !== null && f.iacStub !== undefined && f.iacStub.length > 0 ? (
+                        <span className={`${badgeBase} border-sky-300 bg-sky-50 text-sky-950 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-100`}>
+                          Bicep stub
+                        </span>
+                      ) : null}
                       {canMutate && !f.isMuted ? (
                         <Button
                           type="button"
@@ -234,6 +254,11 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                     ) : null}
                     {snippet.length > 0 ? (
                       <p className="m-0 mt-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{snippet}</p>
+                    ) : null}
+                    {askFindingId === f.findingId ? (
+                      <div className="mt-3">
+                        <FindingAskInlinePanel findingId={f.findingId} defaultOpen />
+                      </div>
                     ) : null}
                   </li>
                 );

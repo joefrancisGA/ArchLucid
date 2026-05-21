@@ -33,6 +33,8 @@ export type QuickDecisionFinding = {
   traceConfidenceLabel?: string | null;
   /** Evidence reference count (finding `evidenceRefs` or explainability row); used for graph deep-link UX. */
   evidenceRefCount?: number | null;
+  /** Optional Azure Bicep remediation snippet from agent results (`iacStub`). */
+  iacStub?: string | null;
 };
 
 function normalizeConfidenceLevelFromWire(raw: unknown): FindingConfidenceLevel | null {
@@ -328,6 +330,10 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
 
       const confidenceLevel = normalizeConfidenceLevelFromWire(fr.confidenceLevel);
 
+      const iacStubRaw = fr.iacStub;
+      const iacStub =
+        typeof iacStubRaw === "string" && iacStubRaw.trim().length > 0 ? iacStubRaw.trim() : null;
+
       out.push({
         findingId,
         title,
@@ -341,6 +347,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         evaluationConfidenceScore,
         traceConfidenceLabel: null,
         evidenceRefCount,
+        iacStub,
       });
     }
   }
@@ -483,6 +490,19 @@ export function buildFindingWireSnapshotsForRunDetail(
   }
 
   return record;
+}
+
+/** Reads `iacStub` for one finding from run detail agent results (no extra HTTP when detail is already loaded). */
+export function extractIacStubForFinding(detail: RunDetail, findingId: string): string | null {
+  const normalizedId = findingId.trim().toLowerCase();
+  const findings = extractQuickDecisionFindingsFromRunDetail(detail);
+  const match = findings.find((row) => row.findingId.trim().toLowerCase() === normalizedId);
+
+  if (match === undefined) {
+    return null;
+  }
+
+  return match.iacStub ?? null;
 }
 
 /** Highest severity first, then original finding order. */

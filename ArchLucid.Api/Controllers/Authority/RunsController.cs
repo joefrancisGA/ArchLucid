@@ -8,6 +8,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Notifications.Email;
+using ArchLucid.Application.Planning;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Pilots;
@@ -55,6 +56,7 @@ public sealed partial class RunsController(
     IArchitectureRunExecuteOrchestrator architectureRunExecuteOrchestrator,
     IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator,
     IArchitectureApplicationService architectureApplicationService,
+    IArchitectureRequestDraftService architectureRequestDraftService,
     IReplayRunService replayRunService,
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext,
@@ -141,6 +143,28 @@ public sealed partial class RunsController(
             logger.LogWarningWithSanitizedUserArg(ex, "CreateRun failed for request '{RequestId}'.", request.RequestId);
             return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
+    }
+
+    [HttpPost("request/draft")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Draft endpoint is advisory-only and does not persist domain mutations.")]
+    [ProducesResponseType(typeof(DraftArchitectureRequestResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DraftRequest(
+        [FromBody] DraftArchitectureRequestInput? input,
+        CancellationToken cancellationToken)
+    {
+        if (input is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (string.IsNullOrWhiteSpace(input.FreeTextDescription))
+            return this.BadRequestProblem("FreeTextDescription is required.", ProblemTypes.ValidationFailed);
+
+        if (input.FreeTextDescription.Trim().Length < 20)
+            return this.BadRequestProblem("FreeTextDescription must be at least 20 characters.", ProblemTypes.ValidationFailed);
+
+        DraftArchitectureRequestResponse response = await architectureRequestDraftService.DraftAsync(input, cancellationToken);
+        return Ok(response);
     }
 
     /// <summary>
@@ -249,8 +273,7 @@ public sealed partial class RunsController(
             try
             {
                 CreateRunResult result = await architectureRunCreateOrchestrator
-                    .CreateRunAsync(request, idempotency: null, cancellationToken)
-                    .ConfigureAwait(false);
+                    .CreateRunAsync(request, idempotency: null, cancellationToken);
 
                 results.Add(new BatchCreateRunItemResult
                 {
@@ -474,8 +497,7 @@ public sealed partial class RunsController(
             if (!markIdempotencyReplayHeader)
             {
                 await commitSponsorEmailNotifier
-                    .NotifyAfterCommitAsync(scope.TenantId, runId, cancellationToken)
-                    .ConfigureAwait(false);
+                    .NotifyAfterCommitAsync(scope.TenantId, runId, cancellationToken);
             }
 
             return Ok(response);
@@ -545,8 +567,7 @@ public sealed partial class RunsController(
         CancellationToken cancellationToken)
     {
         CommitRunIdempotencyLookup? lookup = await commitRunIdempotencyRepository
-            .TryGetAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, canonicalRunKey, idempotencyKeyHash, cancellationToken)
-            .ConfigureAwait(false);
+            .TryGetAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, canonicalRunKey, idempotencyKeyHash, cancellationToken);
 
         if (lookup is null)
             return false;

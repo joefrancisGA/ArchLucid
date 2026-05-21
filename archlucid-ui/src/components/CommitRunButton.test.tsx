@@ -2,8 +2,8 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
-  useRouter: (): { refresh: () => void } => ({
-    refresh: vi.fn(),
+  useRouter: (): { push: (path: string) => void } => ({
+    push: vi.fn(),
   }),
 }));
 
@@ -12,6 +12,7 @@ vi.mock("@/lib/api", () => ({
 }));
 
 import { commitArchitectureRun } from "@/lib/api";
+import { ApiRequestError } from "@/lib/api-request-error";
 
 import { CommitRunButton } from "./CommitRunButton";
 
@@ -65,5 +66,30 @@ describe("CommitRunButton", () => {
     await waitFor(() => {
       expect(mockCommit).toHaveBeenCalledWith("run-2", { notifySponsor: true });
     });
+  });
+
+  it("surfaces governance blockExplanation when finalize returns 409", async () => {
+    mockCommit.mockRejectedValue(
+      new ApiRequestError("Commit blocked by governance policy.", {
+        httpStatus: 409,
+        correlationId: "cid-409",
+        problem: {
+          title: "Conflict",
+          detail: "Commit blocked by governance policy.",
+          blockExplanation: "Add a private endpoint before finalizing.",
+        },
+      }),
+    );
+
+    render(<CommitRunButton runId="run-blocked" disabled={false} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /^finalize review$/i }));
+
+    const dialog = await screen.findByRole("alertdialog");
+    fireEvent.click(within(dialog).getByRole("button", { name: /^finalize review$/i }));
+
+    expect(await screen.findByTestId("commit-governance-block-explanation")).toHaveTextContent(
+      "Add a private endpoint before finalizing.",
+    );
   });
 });

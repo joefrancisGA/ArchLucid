@@ -24,6 +24,7 @@ using ArchLucid.Application.Governance.FindingReview;
 using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Configuration;
 using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Planning;
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Application.Runs;
@@ -247,6 +248,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IReplayRunService, ReplayRunService>();
         services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();
         services.AddScoped<IExportReplayService, ExportReplayService>();
+        services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
         services.AddScoped<IAgentExecutorResolver, DefaultAgentExecutorResolver>();
         services.AddScoped<IDiagramGenerator, MermaidDiagramGenerator>();
         services.AddScoped<IManifestDiagramService, ManifestDiagramService>();

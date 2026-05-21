@@ -6,6 +6,10 @@
 # Bash scripts run on ubuntu-latest in GitHub Actions; LF avoids CRLF/shebang issues.
 *.sh text eol=lf
 
+# Git hook scripts (no extension) must stay LF on Windows or bash reports "$'\r': command not found".
+scripts/hooks/** text eol=lf
+scripts/git-hooks/** text eol=lf
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #

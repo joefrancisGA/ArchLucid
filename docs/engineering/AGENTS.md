@@ -20,7 +20,7 @@ Install shared hooks so common CI guards run before commit:
 pwsh scripts/install-git-hooks.ps1
 ```
 
-The **`pre-commit`** hook syncs the route/tier/policy/nav registry when you change **`ArchLucid.Api/Controllers/*Controller.cs`** (see **`docs/library/ROUTE_TIER_POLICY_NAV_MATRIX.md`**). Manual fallback: **`python scripts/ci/assert_route_tier_policy_nav.py --sync`**.
+The **`pre-commit`** hook runs a **scoped** mutating-controller audit only when staged files include **`ArchLucid.Api/Controllers/*Controller.cs`** (full-repo scan is ~20s+ on Windows — use **`ARCHLUCID_PRE_COMMIT_FULL_AUDIT=1`** only when needed). It syncs the route/tier/policy/nav registry for the same controller changes (see **`docs/library/ROUTE_TIER_POLICY_NAV_MATRIX.md`**). Skip once: **`ARCHLUCID_SKIP_PRE_COMMIT=1 git commit`**. If the hook reports **`python: command not found`**, set **`git config --local archlucid.python "C:/Python313/python.exe"`** (or your install path) or **`ARCHLUCID_PYTHON`** for the session.
 
 ## Reduce context before deep reads
 

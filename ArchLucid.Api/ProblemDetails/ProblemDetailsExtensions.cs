@@ -170,6 +170,9 @@ public static class ProblemDetailsExtensions
 
             problem.Extensions["policyPackId"] = result.PolicyPackId;
 
+        if (!string.IsNullOrWhiteSpace(result.BlockExplanation))
+            problem.Extensions["blockExplanation"] = result.BlockExplanation;
+
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
