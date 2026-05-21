@@ -39,11 +39,11 @@ describe("Welcome marketing brand category", () => {
     vi.restoreAllMocks();
   });
 
-  it("renders the brand-category paragraph using BRAND_CATEGORY (not the legacy string)", () => {
+  it("renders the brand-category eyebrow using BRAND_CATEGORY (not the legacy string)", () => {
     const { getByTestId } = render(<WelcomeMarketingPage />);
 
-    const paragraph = getByTestId("welcome-brand-category-paragraph");
-    const text = paragraph.textContent ?? "";
+    const eyebrow = getByTestId("welcome-brand-category-eyebrow");
+    const text = eyebrow.textContent ?? "";
 
     expect(text).toContain(BRAND_CATEGORY);
     expect(text).not.toContain(BRAND_CATEGORY_LEGACY);
