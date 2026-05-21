@@ -99,6 +99,8 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
     (results?.findings?.length ?? 0) > 0 ||
     (results?.policyPacks?.length ?? 0) > 0;
 
+  const resultsPanelOpen = open && query.trim().length >= 2;
+
   return (
     <div ref={rootRef} className={props.className ?? "relative min-w-[12rem] flex-1 max-w-md"} data-testid="global-search">
       <label htmlFor={inputId} className="sr-only">
@@ -115,12 +117,15 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
-        aria-expanded={open && hasResults}
-        aria-controls={`${inputId}-results`}
+        role="combobox"
+        aria-autocomplete="list"
+        aria-haspopup="listbox"
+        aria-expanded={resultsPanelOpen}
+        aria-controls={resultsPanelOpen ? `${inputId}-results` : undefined}
         autoComplete="off"
         className="h-8"
       />
-      {open && query.trim().length >= 2 ? (
+      {resultsPanelOpen ? (
         <div
           id={`${inputId}-results`}
           role="listbox"
