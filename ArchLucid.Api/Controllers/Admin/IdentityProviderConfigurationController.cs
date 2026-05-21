@@ -153,7 +153,11 @@ public sealed class IdentityProviderConfigurationController(
             await _configurationRepository.TryGetAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
         if (record is null)
-            return NotFound();
+        {
+            return this.NotFoundProblem(
+                "Identity provider configuration was not found for the current tenant.",
+                ProblemTypes.ResourceNotFound);
+        }
 
         return Ok(record);
     }

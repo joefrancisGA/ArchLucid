@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Audit;
@@ -64,7 +65,7 @@ public sealed class EvidenceProposalsController(
         }
         catch (InvalidOperationException ex)
         {
-            return NotFound(new { message = ex.Message });
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
         }
     }
 }

@@ -126,7 +126,9 @@ public sealed class CustomRolesAdminController(
         }
         catch (KeyNotFoundException)
         {
-            return NotFound();
+            return this.NotFoundProblem(
+                $"Custom role '{roleId:D}' was not found.",
+                ProblemTypes.ResourceNotFound);
         }
         catch (ArgumentException ex)
         {
@@ -172,7 +174,9 @@ public sealed class CustomRolesAdminController(
         }
         catch (KeyNotFoundException)
         {
-            return NotFound();
+            return this.NotFoundProblem(
+                $"Custom role '{roleId:D}' was not found.",
+                ProblemTypes.ResourceNotFound);
         }
     }
 }
