@@ -125,39 +125,33 @@ public sealed class RunTrustEvidenceCardBuilder(
             },
         ];
         if (!string.IsNullOrWhiteSpace(topFindingId))
-        {
             links.Add(new RunTrustEvidenceRouteRef
             {
                 Rel = "topFindingEvidenceChain",
                 Path = FormattableString.Invariant($"/v1/architecture/run/{enc}/findings/{Uri.EscapeDataString(topFindingId)}/evidence-chain"),
                 Label = "Top finding evidence chain",
             });
-        }
 
         return links;
     }
 
-    private TrustEvidenceFieldSnapshot BuildExecutionModeField(ArchitectureRun run, string? hostAgentExecutionMode, bool isDemo)
+    private static TrustEvidenceFieldSnapshot BuildExecutionModeField(ArchitectureRun run, string? hostAgentExecutionMode, bool isDemo)
     {
         if (isDemo)
-        {
             return new TrustEvidenceFieldSnapshot
             {
                 Title = "Execution mode",
                 Status = TrustEvidenceStatusValue.DemoOnly,
                 Detail = BuildBuyerExecutionSummary(run, hostAgentExecutionMode),
             };
-        }
 
         if (run.RealModeFellBackToSimulator)
-        {
             return new TrustEvidenceFieldSnapshot
             {
                 Title = "Execution mode",
                 Status = TrustEvidenceStatusValue.LowConfidence,
                 Detail = BuildBuyerExecutionSummary(run, hostAgentExecutionMode),
             };
-        }
 
         string mode = string.IsNullOrWhiteSpace(hostAgentExecutionMode) ? "Simulator" : hostAgentExecutionMode.Trim();
         bool simulator = !string.Equals(mode, "Real", StringComparison.OrdinalIgnoreCase);
@@ -177,16 +171,13 @@ public sealed class RunTrustEvidenceCardBuilder(
         TrustEvidenceFieldSnapshot audit;
 
         if (runGuid is null)
-        {
             audit = new TrustEvidenceFieldSnapshot
             {
                 Title = "Audit events (run-scoped)",
                 Status = TrustEvidenceStatusValue.Missing,
                 Detail = "Run id is not a GUID; durable audit correlation is unavailable.",
             };
-        }
         else
-        {
             try
             {
                 ScopeContext scope = _scopeContextProvider.GetCurrentScope();
@@ -213,7 +204,6 @@ public sealed class RunTrustEvidenceCardBuilder(
                     Detail = "Audit count could not be loaded for this scope.",
                 };
             }
-        }
 
         TrustEvidenceFieldSnapshot traces;
 
@@ -256,45 +246,37 @@ public sealed class RunTrustEvidenceCardBuilder(
     private static TrustEvidenceFieldSnapshot BuildAiField(RunExplanationSummary? explanation)
     {
         if (explanation is null)
-        {
             return new TrustEvidenceFieldSnapshot
             {
                 Title = "AI explainability rollup",
                 Status = TrustEvidenceStatusValue.LowConfidence,
                 Detail = "Faithfulness / trace completeness rollup was not available.",
             };
-        }
 
         if (explanation.DeterministicFallbackUsed)
-        {
             return new TrustEvidenceFieldSnapshot
             {
                 Title = "AI explainability rollup",
                 Status = TrustEvidenceStatusValue.LowConfidence,
                 Detail = "Deterministic narrative fallback was used for weak faithfulness.",
             };
-        }
 
         if (!string.IsNullOrWhiteSpace(explanation.FaithfulnessWarning))
-        {
             return new TrustEvidenceFieldSnapshot
             {
                 Title = "AI explainability rollup",
                 Status = TrustEvidenceStatusValue.LowConfidence,
                 Detail = explanation.FaithfulnessWarning.Trim(),
             };
-        }
 
         FindingTraceConfidenceDto? first = explanation.FindingTraceConfidences?.FirstOrDefault();
         if (first is not null && string.Equals(first.TraceConfidenceLabel, "Low", StringComparison.OrdinalIgnoreCase))
-        {
             return new TrustEvidenceFieldSnapshot
             {
                 Title = "AI explainability rollup",
                 Status = TrustEvidenceStatusValue.LowConfidence,
                 Detail = FormattableString.Invariant($"Low trace completeness on finding {first.FindingId} (ratio {first.TraceCompletenessRatio:0.##})."),
             };
-        }
 
         double? ratio = explanation.FaithfulnessSupportRatio;
         return new TrustEvidenceFieldSnapshot
@@ -348,10 +330,8 @@ public sealed class RunTrustEvidenceCardBuilder(
         ArgumentNullException.ThrowIfNull(run);
         string mode = string.IsNullOrWhiteSpace(hostAgentExecutionMode) ? "Simulator" : hostAgentExecutionMode.Trim();
         if (run.RealModeFellBackToSimulator)
-        {
             return
                 "Part of this review used a documented deterministic analysis path after the primary path did not complete. Treat numeric highlights conservatively and use sponsor exports for the full provenance table.";
-        }
 
         return string.Equals(mode, "Real", StringComparison.OrdinalIgnoreCase)
             ? "Agent-assisted steps used your API host's configured model path when this page was loaded."

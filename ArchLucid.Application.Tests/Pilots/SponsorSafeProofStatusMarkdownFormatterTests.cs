@@ -14,7 +14,13 @@ namespace ArchLucid.Application.Tests.Pilots;
 public sealed class SponsorSafeProofStatusMarkdownFormatterTests
 {
     private static ArchitectureRun NonSimulatorRun() =>
-        new() { RunId = "r", RequestId = "q", Status = ArchitectureRunStatus.Committed, CreatedUtc = DateTime.UtcNow };
+        new()
+        {
+            RunId = "r",
+            RequestId = "q",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = DateTime.UtcNow
+        };
 
     [Fact]
     public void AppendMarkdownSection_includes_sponsor_proof_readiness_sendable()
@@ -97,7 +103,7 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
     {
         ProofPackageCompletenessResponse proof = StrongProof();
         PilotRunDeltas deltas = CompleteDeltas(topFindingId: null);
-        SponsorSafeProofDisposition d = SponsorSafeProofDisposition.Sendable;
+        const SponsorSafeProofDisposition d = SponsorSafeProofDisposition.Sendable;
 
         List<string> gaps = SponsorSafeProofStatusMarkdownFormatter.EnumerateConcreteGapsEnumerable(
             d,

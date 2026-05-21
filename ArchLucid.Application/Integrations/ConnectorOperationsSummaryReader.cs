@@ -1,3 +1,4 @@
+using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Contracts.Integrations;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
@@ -7,7 +8,6 @@ using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Persistence.Integrations;
 
 using Microsoft.Extensions.Options;
@@ -148,7 +148,7 @@ public sealed class ConnectorOperationsSummaryReader(
         return new ConnectorOperationsSummary { Surfaces = surfaces, IntegrationEventBus = busSummary };
     }
 
-    private ConnectorSurfaceSummary BuildDigestAdvisorySurface(
+    private static ConnectorSurfaceSummary BuildDigestAdvisorySurface(
         IReadOnlyList<DigestSubscription> digests,
         IReadOnlyList<AdvisoryScanSchedule> schedules)
     {

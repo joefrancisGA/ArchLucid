@@ -130,7 +130,7 @@ public sealed class ScimUserService(IScimUserRepository users, ITenantRepository
         return core;
     }
 
-    private ResolveRoleChoices DecideResolvedRole(ScimUserRecord existing, string? manualFromRequest, string? groupMapped)
+    private static ResolveRoleChoices DecideResolvedRole(ScimUserRecord existing, string? manualFromRequest, string? groupMapped)
     {
         if (groupMapped is null)
             return manualFromRequest is not null
@@ -156,6 +156,7 @@ public sealed class ScimUserService(IScimUserRepository users, ITenantRepository
     {
         if (wasActive == willBeActive)
             return;
+
         if (willBeActive)
         {
             bool ok = await _tenants.TryIncrementEnterpriseScimSeatAsync(tenantId, ct);

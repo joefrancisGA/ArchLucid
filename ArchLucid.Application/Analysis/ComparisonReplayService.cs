@@ -165,7 +165,7 @@ public sealed class ComparisonReplayService(
         return BuildBinaryResult(record, "pdf", $"comparison_{record.ComparisonRecordId}.pdf", pdfBytes, profile);
     }
 
-    private ReplayComparisonResult BuildTextResult(ComparisonRecord record, string format, string fileName, string content, string? profile)
+    private static ReplayComparisonResult BuildTextResult(ComparisonRecord record, string format, string fileName, string content, string? profile)
     {
         ReplayComparisonResult r = new()
         {
@@ -179,7 +179,7 @@ public sealed class ComparisonReplayService(
         return r;
     }
 
-    private ReplayComparisonResult BuildBinaryResult(ComparisonRecord record, string format, string fileName, byte[] bytes, string? profile)
+    private static ReplayComparisonResult BuildBinaryResult(ComparisonRecord record, string format, string fileName, byte[] bytes, string? profile)
     {
         ReplayComparisonResult r = new()
         {

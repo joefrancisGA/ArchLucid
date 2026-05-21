@@ -115,7 +115,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         ItsmInboundWebhookSyncService sut =
             new(correlations.Object, monitor.Object, NullLogger<ItsmInboundWebhookSyncService>.Instance);
 
-        string json = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":"99"}""";
+        const string json = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":"99"}""";
         using JsonDocument doc = JsonDocument.Parse(json);
         ItsmInboundWebhookProcessResult r =
             await sut.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, CancellationToken.None, Encoding.UTF8.GetByteCount(json));
@@ -289,7 +289,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
             .ReturnsAsync(1);
         ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions());
 
-        string json = $$"""{"sys_id":"{{ServiceNowSysId2}}","state":6}""";
+        const string json = $$"""{"sys_id":"{{ServiceNowSysId2}}","state":6}""";
         using JsonDocument doc = JsonDocument.Parse(json);
         ItsmInboundWebhookProcessResult r =
             await sut.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, CancellationToken.None, Encoding.UTF8.GetByteCount(json));
@@ -391,7 +391,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         monitor.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions());
         ItsmInboundWebhookSyncService sut = new(correlations.Object, monitor.Object, logger.Object);
 
-        string json = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":"88"}""";
+        const string json = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":"88"}""";
         using JsonDocument doc = JsonDocument.Parse(json);
         ItsmInboundWebhookProcessResult r =
             await sut.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, CancellationToken.None, Encoding.UTF8.GetByteCount(json));
@@ -427,9 +427,9 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         Mock<IItsmFindingCorrelationRepository> correlations = new();
         ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions());
 
-        string json = """{"issue":{"key":"KK-1","fields":{"status":{"name":"Done"}}}}""";
+        const string json = """{"issue":{"key":"KK-1","fields":{"status":{"name":"Done"}}}}""";
         using JsonDocument doc = JsonDocument.Parse(json);
-        int over = ItsmInboundWebhookSyncService.MaxInboundWebhookPayloadUtf8Bytes + 1;
+        const int over = ItsmInboundWebhookSyncService.MaxInboundWebhookPayloadUtf8Bytes + 1;
         ItsmInboundWebhookProcessResult r = await sut.TryProcessJiraIssueUpdateAsync(doc.RootElement, CancellationToken.None, over);
 
         r.Accepted.Should().BeFalse();
@@ -504,14 +504,14 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     [Fact]
     public async Task ServiceNow_when_no_correlation_row_inbound_is_acknowledged_without_audit_or_finding_update()
     {
-        string orphanId = "c1c2c3d4e5f6789012345678abcdef01";
+        const string orphanId = "c1c2c3d4e5f6789012345678abcdef01";
         Mock<IItsmFindingCorrelationRepository> correlations = new();
         correlations
             .Setup(c => c.TryGetByExternalKeyAsync("ServiceNow", orphanId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ItsmFindingCorrelationRecord?)null);
         ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions());
 
-        string json = $$"""{"sys_id":"{{orphanId}}","state":"resolved"}""";
+        const string json = $$"""{"sys_id":"{{orphanId}}","state":"resolved"}""";
         using JsonDocument doc = JsonDocument.Parse(json);
         ItsmInboundWebhookProcessResult r =
             await sut.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, CancellationToken.None, Encoding.UTF8.GetByteCount(json));
@@ -620,11 +620,9 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         bool configureDefaultFindingExists = true)
     {
         if (configureDefaultFindingExists)
-        {
             correlations
                 .Setup(c => c.FindingRecordExistsAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
-        }
 
         Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(inboundOptions);

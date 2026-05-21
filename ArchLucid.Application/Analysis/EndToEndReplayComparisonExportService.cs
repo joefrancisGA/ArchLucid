@@ -422,7 +422,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         return sb.ToString();
     }
 
-    private void AppendHtmlExecutiveSummary(StringBuilder sb, EndToEndReplayComparisonReport report)
+    private static void AppendHtmlExecutiveSummary(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
         sb.AppendLine("<h2>Key counts</h2><ul>");
         sb.AppendLine("<li>Run metadata: " + report.RunDiff.ChangedFields.Count + " changed field(s); Request IDs differ: " +
@@ -518,7 +518,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         sb.AppendLine("</ul>");
     }
 
-    private void AddDocxExecutiveSummary(Body body, EndToEndReplayComparisonReport report)
+    private static void AddDocxExecutiveSummary(Body body, EndToEndReplayComparisonReport report)
     {
         AddHeading(body, "Key counts", 2);
         AddBullet(body,

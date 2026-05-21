@@ -86,7 +86,7 @@ public sealed class TrialLifecycleEmailDispatcher(
         {
             await _emailProvider.SendAsync(message, cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)when (!cancellationToken.IsCancellationRequested)
+        catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
             if (_logger.IsEnabled(LogLevel.Error))
                 _logger.LogError(ex, "Trial lifecycle email send failed after idempotency reservation for tenant {TenantId}, template {TemplateId}.",
@@ -138,7 +138,7 @@ public sealed class TrialLifecycleEmailDispatcher(
         return expEnd <= utcNow;
     }
 
-    private TrialDispatchPlan? TryBuildPlan(TrialLifecycleEmailIntegrationEnvelope envelope, TenantRecord tenant, string productName, string? baseUrl,
+    private static TrialDispatchPlan? TryBuildPlan(TrialLifecycleEmailIntegrationEnvelope envelope, TenantRecord tenant, string productName, string? baseUrl,
         DateTimeOffset utcNow)
     {
         string idempotencyKey = TrialEmailIdempotencyKeys.ForTrigger(envelope.Trigger, envelope.TenantId);

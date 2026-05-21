@@ -134,7 +134,7 @@ public sealed class EvidencePackageInjectionMitigator(
         return 1;
     }
 
-    private bool TryReplaceIfInjection(string? text, string marker, out string replaced)
+    private static bool TryReplaceIfInjection(string? text, string marker, out string replaced)
     {
         replaced = text ?? string.Empty;
 

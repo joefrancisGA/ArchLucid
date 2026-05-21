@@ -106,7 +106,7 @@ public sealed class TerraformGitHubPrService(
         return client;
     }
 
-    private async Task<string> GetBaseShaAsync(
+    private static async Task<string> GetBaseShaAsync(
         HttpClient client,
         string owner,
         string repo,
@@ -131,7 +131,11 @@ public sealed class TerraformGitHubPrService(
         CancellationToken ct)
     {
         string url = $"https://api.github.com/repos/{owner}/{repo}/git/refs";
-        object body = new { @ref = $"refs/heads/{branch}", sha = baseSha };
+        object body = new
+        {
+            @ref = $"refs/heads/{branch}",
+            sha = baseSha
+        };
         StringContent content = Serialize(body);
         HttpResponseMessage response = await client.PostAsync(url, content, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
@@ -189,7 +193,7 @@ public sealed class TerraformGitHubPrService(
     {
         string baseUrl = _optionsMonitor.CurrentValue.OperatorUiBaseUrl ?? "https://archlucid.local";
         string approveUrl = $"{baseUrl}/reviews/{runId:D}/finalize";
-        
+
         return $"""
          ## ArchLucid Advisory Terraform Export
 
