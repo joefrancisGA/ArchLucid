@@ -1,4 +1,3 @@
-using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
@@ -57,12 +56,18 @@ public sealed class ArchitectureReviewExportServiceTests
         IScopeContextProvider? scopeContextProvider = null,
         ITenantRepository? tenantRepository = null)
     {
-        if (scopeContextProvider is null)
-        {
-            Mock<IScopeContextProvider> scopeMock = new();
-            scopeMock.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
-            scopeContextProvider = scopeMock.Object;
-        }
+        if (scopeContextProvider is not null)
+            return new ArchitectureReviewExportService(
+                runDetailQuery,
+                analysis,
+                scopeContextProvider,
+                tenantRepository ?? Mock.Of<ITenantRepository>(),
+                tenantReviewBoardCoverLogoStore: null,
+                new ArchitectureReviewDocxBuilder(),
+                new ArchitectureReviewPdfBuilder());
+        Mock<IScopeContextProvider> scopeMock = new();
+        scopeMock.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+        scopeContextProvider = scopeMock.Object;
 
         return new ArchitectureReviewExportService(
             runDetailQuery,
@@ -77,7 +82,7 @@ public sealed class ArchitectureReviewExportServiceTests
     [Fact]
     public async Task GenerateReportAsync_returns_pdf_when_finalized()
     {
-        string runId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        const string runId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
         ArchitectureRunDetail detail = CreateCommittedDetail(runId);
 
@@ -85,7 +90,12 @@ public sealed class ArchitectureReviewExportServiceTests
         runDetailQuery.Setup(x => x.GetRunDetailAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
 
         GoldenManifest manifest = detail.Manifest!;
-        ArchitectureAnalysisReport report = new() { Run = detail.Run, Manifest = manifest, Summary = "Summary text." };
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = detail.Run,
+            Manifest = manifest,
+            Summary = "Summary text."
+        };
 
         Mock<IArchitectureAnalysisService> analysis = new();
         analysis.Setup(x => x.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(report);
@@ -113,7 +123,7 @@ public sealed class ArchitectureReviewExportServiceTests
     [Fact]
     public async Task GenerateReportAsync_pdf_embeds_active_trial_notice_when_tenant_on_active_trial()
     {
-        string runId = "dddddddddddddddddddddddddddddddd";
+        const string runId = "dddddddddddddddddddddddddddddddd";
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
         ArchitectureRunDetail detail = CreateCommittedDetail(runId);
 
@@ -121,7 +131,12 @@ public sealed class ArchitectureReviewExportServiceTests
         runDetailQuery.Setup(x => x.GetRunDetailAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
 
         GoldenManifest manifest = detail.Manifest!;
-        ArchitectureAnalysisReport report = new() { Run = detail.Run, Manifest = manifest, Summary = "Summary text." };
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = detail.Run,
+            Manifest = manifest,
+            Summary = "Summary text."
+        };
 
         Mock<IArchitectureAnalysisService> analysis = new();
         analysis.Setup(x => x.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(report);
