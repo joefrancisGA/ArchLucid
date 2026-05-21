@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
@@ -24,14 +25,14 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
   build(): NavGroupConfig {
     return {
       id: "operate-analysis",
-      label: "Analysis",
+      label: OPERATOR_NAV_GROUP_LABELS.analysis,
       surface: "review-workflow",
       caption:
         "Comparisons, replay, advisory (advanced), Ask, extended reporting, and digests once you leave the baseline review lane. Evidence trail is on the pilot path.",
       links: [
         {
           href: "/compare",
-          label: "Compare two reviews",
+          label: OPERATOR_NAV_LINK_LABELS.compareTwoReviews,
           title: this.shortcutTitle("Diff two reviews (base vs target)", "alt+c"),
           keyShortcut: "alt+c",
           icon: GitCompare,
@@ -40,7 +41,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/replay",
-          label: "Replay a review",
+          label: OPERATOR_NAV_LINK_LABELS.replayReview,
           title: this.shortcutTitle("Replay a review — re-validate stored pipeline output", "alt+p"),
           keyShortcut: "alt+p",
           icon: Play,
@@ -49,7 +50,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/ask",
-          label: "Ask this review",
+          label: OPERATOR_NAV_LINK_LABELS.askReview,
           title: this.shortcutTitle("Ask — natural language Q&A over architecture context", "alt+a"),
           keyShortcut: "alt+a",
           icon: MessageSquare,
@@ -58,7 +59,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/search",
-          label: "Search review evidence",
+          label: OPERATOR_NAV_LINK_LABELS.searchEvidence,
           title: "Search — indexed architecture content (optional review run filter)",
           icon: Search,
           tier: "advanced",
@@ -66,7 +67,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/advisory",
-          label: "Architecture advisory",
+          label: OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
           title: "Architecture advisory — architecture scans and scan schedules",
           icon: Activity,
           tier: "advanced",
@@ -74,7 +75,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/recommendation-learning",
-          label: "Recommendation tuning",
+          label: OPERATOR_NAV_LINK_LABELS.recommendationTuning,
           title: "Recommendation tuning — profiles and ranking signals",
           icon: Sparkles,
           tier: "advanced",
@@ -82,7 +83,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/product-learning",
-          label: "Pilot feedback",
+          label: OPERATOR_NAV_LINK_LABELS.pilotFeedback,
           title: "Pilot feedback — rollups and triage (58R)",
           icon: ClipboardList,
           tier: "advanced",
@@ -90,7 +91,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/planning",
-          label: "Planning",
+          label: OPERATOR_NAV_LINK_LABELS.planning,
           title: "Planning — improvement themes and prioritized plans (59R)",
           icon: BarChart3,
           tier: "advanced",
@@ -98,7 +99,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/evolution-review",
-          label: "Evolution candidates",
+          label: OPERATOR_NAV_LINK_LABELS.evolutionCandidates,
           title: "Evolution candidates — simulations and before/after review (60R)",
           icon: GitBranch,
           tier: "advanced",
@@ -106,7 +107,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/value-report/pilot",
-          label: "Pilot value report",
+          label: OPERATOR_NAV_LINK_LABELS.pilotValueReport,
           title: "Pilot value report — finalized-review metrics, governance signals, Markdown export",
           icon: FileText,
           tier: "extended",
@@ -114,7 +115,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/value-report/roi",
-          label: "ROI report",
+          label: OPERATOR_NAV_LINK_LABELS.roiReport,
           title: "ROI report — hours estimate from severities and pre-finalize audit blocks",
           icon: LineChart,
           tier: "extended",
@@ -122,7 +123,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/integrations/operations",
-          label: "Connector operations",
+          label: OPERATOR_NAV_LINK_LABELS.connectorOperations,
           title: "Connector operations — readiness, smoke signals, and Service Bus posture",
           icon: Plug,
           tier: "extended",
@@ -130,7 +131,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/health",
-          label: "System health",
+          label: OPERATOR_NAV_LINK_LABELS.systemHealth,
           title: "System health — API liveness, readiness, and critical dependencies",
           icon: HeartPulse,
           tier: "extended",
@@ -138,7 +139,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/digests",
-          label: "Digests",
+          label: OPERATOR_NAV_LINK_LABELS.digests,
           title: "Digests — generated digests, subscriptions, and sponsor schedule",
           icon: FileSearch,
           tier: "advanced",

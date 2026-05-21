@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
@@ -20,14 +20,14 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
   build(): NavGroupConfig {
     return {
       id: "pilot",
-      label: "Review work",
+      label: OPERATOR_NAV_GROUP_LABELS.reviewWork,
       surface: "review-workflow",
       caption:
         "Buyer-first path: Executive summary → Review package → Evidence trail → Capture for net-new input; then onboarding, findings, help, and scorecard.",
       links: [
         {
           href: "/",
-          label: "Home",
+          label: OPERATOR_NAV_LINK_LABELS.home,
           title: this.shortcutTitle("Home — V1 checklist and quick links", "alt+h"),
           keyShortcut: "alt+h",
           icon: Home,
@@ -36,7 +36,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/dashboard",
-          label: "Executive summary",
+          label: OPERATOR_NAV_LINK_LABELS.executiveSummary,
           title:
             "Executive summary — sponsor-facing ROI snapshot and package overview (illustrative metrics until API lands)",
           icon: LayoutDashboard,
@@ -45,7 +45,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/reviews?projectId=default",
-          label: "Review package",
+          label: OPERATOR_NAV_LINK_LABELS.reviewPackage,
           title: this.shortcutTitle(
             "Review package — open review detail, architecture package, artifacts, exports",
             "alt+r",
@@ -57,9 +57,9 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/graph",
-          label: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
+          label: OPERATOR_NAV_LINK_LABELS.evidenceTrail,
           title: this.shortcutTitle(
-            `${BUYER_SURFACE_VOCABULARY.evidenceGraphNav} — decision traceability graph for one review`,
+            `${OPERATOR_NAV_LINK_LABELS.evidenceTrail} — decision traceability graph for one review`,
             "alt+y",
           ),
           keyShortcut: "alt+y",
@@ -69,7 +69,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/reviews/new",
-          label: "Capture",
+          label: OPERATOR_NAV_LINK_LABELS.capture,
           title: this.shortcutTitle(
             "Capture — start a new architecture review (guided wizard through pipeline tracking)",
             "alt+n",
@@ -81,7 +81,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/onboarding",
-          label: "Onboarding",
+          label: OPERATOR_NAV_LINK_LABELS.onboarding,
           title: "Onboarding — checklist and milestones",
           tier: "essential",
           icon: ClipboardList,
@@ -89,7 +89,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/governance/findings",
-          label: "Findings",
+          label: OPERATOR_NAV_LINK_LABELS.findings,
           title: this.shortcutTitle(
             "Findings — open risks from completed reviews, severity and recommended actions",
             "alt+f",
@@ -103,7 +103,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/help",
-          label: "Help",
+          label: OPERATOR_NAV_LINK_LABELS.help,
           title: "Help — using ArchLucid and reference documentation",
           icon: LifeBuoy,
           tier: "essential",
@@ -111,7 +111,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/scorecard",
-          label: "Scorecard",
+          label: OPERATOR_NAV_LINK_LABELS.scorecard,
           title: "Pilot scorecard — finalized-review metrics and ROI baselines",
           icon: BarChart3,
           tier: "extended",

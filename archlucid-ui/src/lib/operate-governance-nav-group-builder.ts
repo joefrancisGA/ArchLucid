@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
@@ -18,13 +19,13 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
   build(): NavGroupConfig {
     return {
       id: "operate-governance",
-      label: "Governance",
+      label: OPERATOR_NAV_GROUP_LABELS.governance,
       surface: "review-workflow",
       caption: "Policy, audit, alerts, and trust controls.",
       links: [
         {
           href: "/alerts",
-          label: "Alerts",
+          label: OPERATOR_NAV_LINK_LABELS.alerts,
           title: this.shortcutTitle("Alerts — inbox, rules, routing, simulation, and tuning", "alt+l"),
           keyShortcut: "alt+l",
           icon: Bell,
@@ -33,7 +34,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/policy-packs",
-          label: "Policy packs",
+          label: OPERATOR_NAV_LINK_LABELS.policyPacks,
           title: "Policy packs — versions, effective content, and assignments",
           icon: Shield,
           tier: "extended",
@@ -41,7 +42,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/governance-resolution",
-          label: "Governance resolution",
+          label: OPERATOR_NAV_LINK_LABELS.governanceResolution,
           title: "Governance resolution — effective policy for this scope (read view)",
           icon: Scale,
           tier: "extended",
@@ -49,7 +50,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/governance",
-          label: "Governance workflow",
+          label: OPERATOR_NAV_LINK_LABELS.governanceWorkflow,
           title: "Governance workflow — approvals, promotions, and environment activation",
           icon: GitBranch,
           tier: "advanced",
@@ -57,15 +58,15 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/audit",
-          label: "Audit Trail",
-          title: "Audit Trail — search and export scoped audit events",
+          label: OPERATOR_NAV_LINK_LABELS.auditTrail,
+          title: `${OPERATOR_NAV_LINK_LABELS.auditTrail} — search and export scoped audit events`,
           icon: FileSearch,
           tier: "advanced",
           requiredAuthority: "ReadAuthority",
         },
         {
           href: "/governance/first-30-days",
-          label: "First 30 days (governance)",
+          label: OPERATOR_NAV_LINK_LABELS.first30DaysGovernance,
           title: "First 30 days — minimal governance operating preset after pilot",
           icon: ShieldCheck,
           tier: "extended",
@@ -73,7 +74,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/workspace/security-trust",
-          label: "Security & trust",
+          label: OPERATOR_NAV_LINK_LABELS.securityTrust,
           title: "Security & trust — published assessments, CAIQ/SIG, trust-center links",
           icon: ShieldCheck,
           tier: "extended",
@@ -81,7 +82,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/integrations/teams",
-          label: "Teams notifications",
+          label: OPERATOR_NAV_LINK_LABELS.teamsNotifications,
           title: "Teams notifications — Key Vault reference for incoming webhook fan-out",
           icon: MessageSquare,
           tier: "extended",
@@ -89,7 +90,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/value-report",
-          label: "Value report",
+          label: OPERATOR_NAV_LINK_LABELS.valueReport,
           title: "Value report — sponsor DOCX from ROI_MODEL-aligned tenant metrics",
           icon: FileText,
           tier: "advanced",

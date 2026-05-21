@@ -74,8 +74,8 @@ Ordered by weighted deficiency (highest first). Source: [`assessments/LATEST.md`
 | CPB-A06 | **Proof-of-ROI** — surface `EstimatedUsdSavings` in pilot deltas; customer baselines | LATEST category 5 | **Keep** | V1-now | Confirmed 2026-05-21. Empirical ROI narrative for service-led wedge. |
 | CPB-A07 | **Executive Value Visibility** — UI discoverability for pilot exports; demo vs real indicators | LATEST category 6 | **Keep** | V1-now | Confirmed 2026-05-21. Executive summary API shipped; UI polish only. |
 | CPB-A08 | **Reliability** — Dapper `CommandTimeout`, HttpClient timeouts, failover drill doc | LATEST category 7; weakness #7 | **Keep** | V1-now | Confirmed 2026-05-21. |
-| CPB-A09 | **Maintainability** — `GovernanceConstants`; trim `NEXT_REFACTORINGS` active surface | LATEST category 8; weakness #10 | *Pending review* | V1-now | §1 refactor list now canonical here. |
-| CPB-A10 | **Decision Velocity** — `POST /v1/governance/simulate` dry-run | LATEST category 9; enterprise blocker #6 | *Pending review* | V1-now | |
+| CPB-A09 | **Maintainability** — `GovernanceConstants`; planning doc hygiene | LATEST category 8; weakness #10 | **Keep** | V1-now | Confirmed 2026-05-21. Constants extraction + treat this file as active planning spine (archive stays historical). |
+| CPB-A10 | **Decision Velocity** — `POST /v1/governance/simulate` dry-run | LATEST category 9; enterprise blocker #6 | **Keep** | V1-now | Confirmed 2026-05-21. |
 | CPB-A11 | **Performance** — k6 CI smoke + p95 gate; replay diagnostics pruning | LATEST category 10; weakness #5, #11 | *Pending review* | V1-now | |
 | CPB-A12 | **Scalability** — publish load-test baselines; bulk payload limits | LATEST category 11; weakness #5, #8 | *Pending review* | V1-now | |
 | CPB-A13 | **Stickiness** — Saved Views (Audit, Graph) | LATEST category 12 | *Pending review* | V1-now | |

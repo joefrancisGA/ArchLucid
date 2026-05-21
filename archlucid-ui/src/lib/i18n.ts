@@ -2,6 +2,8 @@
  * Central dictionary for operator-facing domain terms and reusable UI labels.
  * @see docs/assessments/LATEST.md — simplify abstract nomenclature without hunting literals in components.
  */
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+
 export const DOMAIN_TERMS = {
   goldenManifest: "Golden Manifest",
   decisionTrace: "Decision Trace",
@@ -93,4 +95,47 @@ export const SERVICE_BUS_HEALTH_LABELS = {
   bannerBody:
     "Background jobs and integration events may be delayed or failing. Review worker logs and open System health for the azure_service_bus readiness check.",
   systemHealthLink: "System health",
+} as const;
+
+/** Sidebar group headings — single source for `*-nav-group-builder.ts` files. */
+export const OPERATOR_NAV_GROUP_LABELS = {
+  reviewWork: "Review work",
+  analysis: "Analysis",
+  governance: "Governance",
+} as const;
+
+/** Primary sidebar link labels — adapt terminology here without editing each nav builder. */
+export const OPERATOR_NAV_LINK_LABELS = {
+  home: "Home",
+  executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
+  reviewPackage: "Review package",
+  evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
+  capture: "Capture",
+  onboarding: "Onboarding",
+  findings: "Findings",
+  help: "Help",
+  scorecard: "Scorecard",
+  alerts: "Alerts",
+  policyPacks: "Policy packs",
+  governanceResolution: "Governance resolution",
+  governanceWorkflow: "Governance workflow",
+  auditTrail: BUYER_SURFACE_VOCABULARY.auditTrail,
+  first30DaysGovernance: "First 30 days (governance)",
+  securityTrust: "Security & trust",
+  teamsNotifications: "Teams notifications",
+  valueReport: "Value report",
+  compareTwoReviews: "Compare two reviews",
+  replayReview: "Replay a review",
+  askReview: "Ask this review",
+  searchEvidence: "Search review evidence",
+  architectureAdvisory: "Architecture advisory",
+  recommendationTuning: "Recommendation tuning",
+  pilotFeedback: "Pilot feedback",
+  planning: "Planning",
+  evolutionCandidates: "Evolution candidates",
+  pilotValueReport: "Pilot value report",
+  roiReport: "ROI report",
+  connectorOperations: "Connector operations",
+  systemHealth: "System health",
+  digests: "Digests",
 } as const;

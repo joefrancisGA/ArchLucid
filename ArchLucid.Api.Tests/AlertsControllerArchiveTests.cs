@@ -42,7 +42,15 @@ public sealed class AlertsControllerArchiveTests
             IsArchived = false,
         };
 
-        AlertRecord archived = existing with { IsArchived = true };
+        AlertRecord archived = new()
+        {
+            AlertId = alertId,
+            TenantId = Scope.TenantId,
+            WorkspaceId = Scope.WorkspaceId,
+            ProjectId = Scope.ProjectId,
+            RunId = runId,
+            IsArchived = true,
+        };
 
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);

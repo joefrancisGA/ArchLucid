@@ -601,6 +601,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
           return (
             <li
               key={step.title}
+              data-testid={`operator-first-run-wizard-step-${index + 1}`}
               className={cn(
                 "border-b border-neutral-200/80 pb-2.5 last:border-b-0 dark:border-neutral-800/80",
                 done ? "opacity-60" : "",
