@@ -28,6 +28,8 @@ export const ApiV1Routes = {
   tenantPilotValueReport: "v1/tenant/pilot-value-report",
   /** Executive ROI dashboard aggregates (mocked upstream until analytics persistence lands). */
   analyticsRoi: "v1/analytics/roi",
+  /** Cross-run executive ROI summary (latest run per system, savings rollup, top issues). */
+  roiExecutiveSummary: "v1/roi/executive-summary",
   /** Sponsor evidence bundle (Standard tier): explainability completeness, deltas, governance counts. */
   pilotsSponsorEvidencePack: "v1/pilots/sponsor-evidence-pack",
   /** In-product pilot scorecard metrics + ROI baselines (`GET` / `PUT baselines`). */

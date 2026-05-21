@@ -24,6 +24,7 @@ using ArchLucid.Application.Governance.FindingReview;
 using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Configuration;
 using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Roi;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
@@ -207,6 +208,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<FirstValueReportBuilder>();
         services.AddScoped<IFirstValueReportBuilder>(static sp => sp.GetRequiredService<FirstValueReportBuilder>());
         services.AddScoped<IExecutiveSummaryService, ExecutiveSummaryService>();
+        services.AddScoped<IExecutiveRoiSummaryService, ExecutiveRoiSummaryService>();
         services.AddHttpClient<IPublisherConnector, ConfluenceCloudPublisherConnector>();
         services.AddScoped<IConfluenceFirstValueReportPublisher, ConfluenceFirstValueReportPublisher>();
         services.AddScoped<FirstValueReportPdfBuilder>();

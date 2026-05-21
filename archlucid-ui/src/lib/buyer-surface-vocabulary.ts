@@ -23,7 +23,7 @@ export const BUYER_SURFACE_VOCABULARY = {
 export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   pageTitle: "Executive summary",
   pageLead:
-    "High-level ROI indicators for sponsors. Figures below are illustrative placeholders until live workspace metrics are wired.",
+    "High-level ROI indicators for sponsors. Portfolio savings and systemic issues load from committed runs; remaining KPI tiles stay illustrative until additional analytics land.",
   roiMetricsSrOnly: "Executive ROI metrics",
   architecturalDriftsPreventedMetric: {
     title: "Architectural drifts prevented",

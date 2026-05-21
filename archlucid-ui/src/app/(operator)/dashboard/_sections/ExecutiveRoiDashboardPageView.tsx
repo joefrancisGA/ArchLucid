@@ -4,6 +4,7 @@ import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabula
 
 import { ExecutiveComplianceDriftTrendSection } from "./ExecutiveComplianceDriftTrendSection";
 import { ExecutiveDashboardBaselineWarningBanner } from "./ExecutiveDashboardBaselineWarningBanner";
+import { ExecutiveRoiSummarySection } from "./ExecutiveRoiSummarySection";
 import { ExecutiveSqlBackupRegionVerificationCard } from "./ExecutiveSqlBackupRegionVerificationCard";
 import { executiveRoiDashboardMockKpis } from "./executive-roi-dashboard-mock-kpis";
 export function ExecutiveRoiDashboardPageView() {
@@ -78,6 +79,8 @@ export function ExecutiveRoiDashboardPageView() {
           </Card>
         </div>
       </section>
+
+      <ExecutiveRoiSummarySection />
 
       <ExecutiveComplianceDriftTrendSection />
     </div>

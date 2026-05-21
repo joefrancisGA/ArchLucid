@@ -46,6 +46,9 @@ public static class ApiV1Routes
     /// <summary>Mocked executive ROI aggregates until analytics persistence is wired.</summary>
     public const string AnalyticsRoi = "v1/analytics/roi";
 
+    /// <summary>Cross-run executive ROI summary (latest run per system + top systemic issues).</summary>
+    public const string RoiExecutiveSummary = "v1/roi/executive-summary";
+
     /// <summary>Operator-only anonymized cross-tenant SQL aggregates.</summary>
     public const string InternalCrossTenantAnalytics = "v1/internal/analytics/cross-tenant";
 
