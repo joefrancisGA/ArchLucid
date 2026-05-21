@@ -2,7 +2,10 @@ using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Auth.Scim;
 using ArchLucid.Api.Authentication;
 using ArchLucid.Api.Configuration;
+using ArchLucid.Application.Authorization;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scim;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Host.Core.Services;
 
@@ -123,6 +126,9 @@ public static class AuthServiceCollectionExtensions
         services.AddScoped<IRoleSyncService, NoOpRoleSyncService>();
 
         services.AddHttpContextAccessor();
+        services.TryAddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
+        services.TryAddScoped<IScimUserRepository, NoOpScimUserRepository>();
+        services.TryAddScoped<ICustomRolePermissionEvaluator, NoOpCustomRolePermissionEvaluator>();
 
         services.AddSingleton<IAuthDiagnosticsRingBuffer, AuthDiagnosticsRingBuffer>();
         services.AddScoped<ArchLucidRoleClaimsTransformation>();
