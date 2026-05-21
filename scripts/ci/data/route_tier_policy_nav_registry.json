@@ -142,6 +142,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/IdentityProviderConfigurationController.cs",
+      "class_name": "IdentityProviderConfigurationController",
+      "route_template": "v{version:apiVersion}/admin/identity",
+      "normalized_prefix": "/v1/admin/identity",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/JobsController.cs",
       "class_name": "JobsController",
       "route_template": "v{version:apiVersion}/jobs",

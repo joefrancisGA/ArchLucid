@@ -51,6 +51,12 @@ public static class ApiWebLayerServiceCollectionExtensions
         {
             client.Timeout = TimeSpan.FromSeconds(10);
         });
+        services.AddHttpClient<IIdentityProviderDiscoveryService, IdentityProviderDiscoveryService>(static client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(15);
+        });
+        services.AddScoped<ISsoWizardTestLoginService, SsoWizardTestLoginService>();
+        services.AddScoped<IIdentityProviderActivationService, IdentityProviderActivationService>();
         services.AddScoped<ApiRequestMeteringMiddleware>();
         services.AddSingleton<ILocalTrialJwtIssuer, LocalTrialJwtIssuer>();
         services.AddScoped<IArchitectureRequestImportValidator, FluentArchitectureRequestImportValidator>();

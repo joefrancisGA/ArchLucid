@@ -54,6 +54,14 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "AdminAuthority",
         },
         {
+          href: "/settings/identity/sso-wizard",
+          label: "SSO wizard",
+          title: "SSO wizard — guided OIDC / SAML 2.0 tenant configuration",
+          icon: Fingerprint,
+          tier: "advanced",
+          requiredAuthority: "AdminAuthority",
+        },
+        {
           href: "/settings/api-keys",
           label: "API keys",
           title: "API keys — host Authentication:ApiKey status and rotation material",

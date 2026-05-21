@@ -19,7 +19,11 @@ export function IdentityProvidersSettingsPageView({ model }: IdentityProvidersSe
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
           Read-only view of <strong className="font-medium text-neutral-800 dark:text-neutral-200">ArchLucidAuth</strong>{" "}
           catalog rows (authority, audience, mode). Effective values are masked server-side — configure secrets only in
-          your hosting environment or Key Vault, not in this UI.
+          your hosting environment or Key Vault, not in this UI. For guided tenant SSO setup, use the{" "}
+          <a href="/settings/identity/sso-wizard" className="text-teal-700 underline-offset-2 hover:underline">
+            SSO configuration wizard
+          </a>
+          .
         </p>
       </div>
 

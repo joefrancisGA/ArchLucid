@@ -598,6 +598,9 @@ public static class AuditEventTypes
     /// </summary>
     public const string Saml2ServiceProviderSignInFailed = "Saml2ServiceProviderSignInFailed";
 
+    /// <summary>Admin SSO wizard activated a tenant-scoped identity provider configuration row.</summary>
+    public const string IdentitySsoConfigurationActivated = "Identity.SsoConfigurationActivated";
+
     /// <summary>Pilot <c>archlucid try --real</c>: POST execute received with pilot try header (real AOAI attempt).</summary>
     public const string FirstRealValueRunStarted = "FirstRealValueRunStarted";
 

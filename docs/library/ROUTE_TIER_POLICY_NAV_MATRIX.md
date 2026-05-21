@@ -38,7 +38,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:135 -->
+<!-- route-tier-policy-nav-registry-count:136 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -56,6 +56,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/DiagnosticsController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Admin/DocsController.cs` | `/docs` | none | ReadAuthority |  | static_operator_docs_html |
 | `Admin/EvidenceProposalsController.cs` | `/v1/admin/evidence` | none | AdminAuthority |  |  |
+| `Admin/IdentityProviderConfigurationController.cs` | `/v1/admin/identity` | none | AdminAuthority |  |  |
 | `Admin/JobsController.cs` | `/v1/jobs` | none | ReadAuthority |  |  |
 | `Admin/MeteringAdminController.cs` | `/v1/admin/metering` | none | AdminAuthority | /settings/tenant-cost |  |
 | `Admin/ReferenceEvidenceAdminController.cs` | `/v1/admin/tenants/{tenantId:guid}/reference-evidence` | none | AdminAuthority |  |  |
