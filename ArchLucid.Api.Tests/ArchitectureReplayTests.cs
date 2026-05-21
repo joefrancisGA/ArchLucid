@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -22,7 +22,9 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
 
         var replayRequest = new
         {
-            commitReplay = false, executionMode = "Current", manifestVersionOverride = (string?)null
+            commitReplay = false,
+            executionMode = "Current",
+            manifestVersionOverride = (string?)null
         };
 
         HttpResponseMessage replayResponse = await Client.PostAsync(
@@ -56,11 +58,13 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
         await executeResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         await commitResponse.EnsureSuccessForTestAsync();
-        string rightVersion = "v1-replay";
+        const string rightVersion = "v1-replay";
 
         var replayRequest = new
         {
-            commitReplay = true, executionMode = "Current", manifestVersionOverride = rightVersion
+            commitReplay = true,
+            executionMode = "Current",
+            manifestVersionOverride = rightVersion
         };
 
         HttpResponseMessage replayResponse = await Client.PostAsync(

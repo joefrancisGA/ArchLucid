@@ -58,35 +58,34 @@ public sealed class CriticAgentResultGoldenJsonTests
     public void Critic_json_unicode_and_whitespace_in_strings_round_trips_and_passes_validation()
     {
         // Exercise non-ASCII in claim and finding message; severity uses PascalCase enum string (FindingSeverity).
-        string inner =
-            $$"""
-            {
-              "resultId": "{{ResultId}}",
-              "taskId": "{{TaskId}}",
-              "runId": "{{RunId}}",
-              "agentType": "Critic",
-              "claims": [ "peer-review\u200F 日本語 🔍" ],
-              "evidenceRefs": [ "e1" ],
-              "confidence": 0.91,
-              "createdUtc": "2026-05-08T12:34:56Z",
-              
-              "findings": [
-                {
-                  "findingId": "f-u",
-                  "severity": "Info",
-                  "message": "Mixed scripts: \u03B1\u00DF \u042F.",
-                  "trace": {
-                    "sourceAgentExecutionTraceId": null,
-                    "graphNodeIdsExamined": [],
-                    "rulesApplied": [],
-                    "decisionsTaken": [],
-                    "alternativePathsConsidered": [],
-                    "notes": []
-                  }
-                }
-              ]
-            }
-            """;
+        const string inner = $$"""
+                               {
+                                 "resultId": "{{ResultId}}",
+                                 "taskId": "{{TaskId}}",
+                                 "runId": "{{RunId}}",
+                                 "agentType": "Critic",
+                                 "claims": [ "peer-review\u200F 日本語 🔍" ],
+                                 "evidenceRefs": [ "e1" ],
+                                 "confidence": 0.91,
+                                 "createdUtc": "2026-05-08T12:34:56Z",
+                                 
+                                 "findings": [
+                                   {
+                                     "findingId": "f-u",
+                                     "severity": "Info",
+                                     "message": "Mixed scripts: \u03B1\u00DF \u042F.",
+                                     "trace": {
+                                       "sourceAgentExecutionTraceId": null,
+                                       "graphNodeIdsExamined": [],
+                                       "rulesApplied": [],
+                                       "decisionsTaken": [],
+                                       "alternativePathsConsidered": [],
+                                       "notes": []
+                                     }
+                                   }
+                                 ]
+                               }
+                               """;
 
         string json = inner.ReplaceLineEndings("\n").Trim();
         AgentResultParser sut = CreateStrictSchemaParser();

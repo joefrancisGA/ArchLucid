@@ -18,8 +18,11 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         new(globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
             typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
-        ImmutableArray.Create(Al0003MutatingControllerAuditDescriptor.Rule);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+    {
+        get;
+    } =
+        [Al0003MutatingControllerAuditDescriptor.Rule];
 
     public override void Initialize(AnalysisContext analysisContext)
     {
@@ -57,6 +60,7 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                 compilationStartAnalysisContext.CancellationToken);
 
         compilationStartAnalysisContext.RegisterSemanticModelAction(AnalyzeSemanticModel);
+        return;
 
         void AnalyzeSemanticModel(SemanticModelAnalysisContext semanticModelAnalysisContext)
         {
@@ -85,36 +89,35 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                     semanticModelScoped.GetDeclaredSymbol(methodDeclarationScoped, cancellationTokenScoped);
 
                 if (methodDeclaredSymbol is null ||
-                    !MutatingControllerAuditAnalyzer.MethodIsCandidateApiAction(methodDeclaredSymbol,
+                    !MethodIsCandidateApiAction(methodDeclaredSymbol,
                         controllerBaseType,
                         nonActionAttributeType))
                 {
                     continue;
                 }
 
-                if (!MutatingControllerAuditAnalyzer.MethodSpecifiesTrackedVerb(methodDeclaredSymbol))
+                if (!MethodSpecifiesTrackedVerb(methodDeclaredSymbol))
                     continue;
 
-                string fqAllowlistKeyScoped = MutatingControllerAuditAnalyzer.FormatAllowlistKey(methodDeclaredSymbol);
+                string fqAllowlistKeyScoped = FormatAllowlistKey(methodDeclaredSymbol);
 
                 if (allowFqEntries.Contains(fqAllowlistKeyScoped))
                     continue;
 
-                if (MutatingControllerAuditAnalyzer.MutatingAuditExcludeApplies(exclusionAttribute, methodDeclaredSymbol))
+                if (MutatingAuditExcludeApplies(exclusionAttribute, methodDeclaredSymbol))
                     continue;
 
-                if (!MutatingControllerAuditAnalyzer.SemanticBodiesInvokeAuditLogAsync(
+                if (SemanticBodiesInvokeAuditLogAsync(
                         semanticModelScoped,
                         auditInterfaceType,
                         methodDeclaredSymbol,
                         cancellationTokenScoped))
-                {
-                    Location identifierLocationScoped = methodDeclarationScoped.Identifier.GetLocation();
+                    continue;
+                Location identifierLocationScoped = methodDeclarationScoped.Identifier.GetLocation();
 
-                    semanticModelAnalysisContext.ReportDiagnostic(
-                        Al0003MutatingControllerAuditDescriptor.Create(identifierLocationScoped,
-                            fqAllowlistKeyScoped));
-                }
+                semanticModelAnalysisContext.ReportDiagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Create(identifierLocationScoped,
+                        fqAllowlistKeyScoped));
             }
         }
     }
@@ -188,13 +191,12 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
     internal static bool TrackedVerbAttribute(string attributeSimpleNameScoped)
     {
-        return attributeSimpleNameScoped == HttpPostAttributeShortName ||
-               attributeSimpleNameScoped == HttpPutAttributeShortName ||
-               attributeSimpleNameScoped == HttpDeleteAttributeShortName;
+        return attributeSimpleNameScoped is HttpPostAttributeShortName or HttpPutAttributeShortName or HttpDeleteAttributeShortName;
     }
 
     private static bool MethodSpecifiesTrackedVerb(IMethodSymbol methodDeclaredSymbolScoped)
     {
+        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (AttributeData attributeDataScoped in methodDeclaredSymbolScoped.GetAttributes())
         {
             INamedTypeSymbol? attributeWalkerNameScoped = attributeDataScoped.AttributeClass;
@@ -249,36 +251,25 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
     {
         SyntaxTree semanticModelTreeScoped = semanticModelScoped.SyntaxTree;
 
-        foreach (SyntaxReference declaringReferenceScoped in controllerActionDeclaredSymbolScoped
-                     .DeclaringSyntaxReferences)
+        foreach (SyntaxNode? syntaxFromReferenceScoped in from declaringReferenceScoped in controllerActionDeclaredSymbolScoped
+                     .DeclaringSyntaxReferences
+                                                          where ReferenceEquals(declaringReferenceScoped.SyntaxTree, semanticModelTreeScoped)
+                                                          select declaringReferenceScoped.GetSyntax(cancellationTokenScoped))
         {
-            if (!ReferenceEquals(declaringReferenceScoped.SyntaxTree, semanticModelTreeScoped))
-                continue;
-
-            SyntaxNode syntaxFromReferenceScoped =
-                declaringReferenceScoped.GetSyntax(cancellationTokenScoped);
-
-            if (syntaxFromReferenceScoped.FirstAncestorOrSelf<MethodDeclarationSyntax>() is not
-                MethodDeclarationSyntax methodAnchorSyntax)
+            if (syntaxFromReferenceScoped.FirstAncestorOrSelf<MethodDeclarationSyntax>() is not { } methodAnchorSyntax)
             {
                 continue;
             }
 
-            foreach (SyntaxNode bodySubtreeScoped in EnumerateMethodBodies(methodAnchorSyntax))
+            if (EnumerateMethodBodies(methodAnchorSyntax).SelectMany(bodySubtreeScoped => bodySubtreeScoped
+                    .DescendantNodesAndSelf()
+                    .OfType<InvocationExpressionSyntax>()).Any(invocationSyntaxScoped => InvocationMatchesAuditInterfaceSemantic(
+                    semanticModelScoped,
+                    auditInterfaceDeclaredTypeSymbolScoped,
+                    invocationSyntaxScoped,
+                    cancellationTokenScoped)))
             {
-                foreach (InvocationExpressionSyntax invocationSyntaxScoped in bodySubtreeScoped
-                             .DescendantNodesAndSelf()
-                             .OfType<InvocationExpressionSyntax>())
-                {
-                    if (InvocationMatchesAuditInterfaceSemantic(
-                            semanticModelScoped,
-                            auditInterfaceDeclaredTypeSymbolScoped,
-                            invocationSyntaxScoped,
-                            cancellationTokenScoped))
-                    {
-                        return true;
-                    }
-                }
+                return true;
             }
         }
 
@@ -300,13 +291,8 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         if (!string.Equals(calleeSemantic.Name, "LogAsync", StringComparison.Ordinal))
             return false;
 
-        if (!SymbolEqualityComparer.Default.Equals(
-                calleeSemantic.ContainingType?.OriginalDefinition,
-                auditInterfaceDeclaredTypeSymbolScopedSemantic.OriginalDefinition))
-        {
-            return false;
-        }
-
-        return true;
+        return SymbolEqualityComparer.Default.Equals(
+            calleeSemantic.ContainingType?.OriginalDefinition,
+            auditInterfaceDeclaredTypeSymbolScopedSemantic.OriginalDefinition);
     }
 }

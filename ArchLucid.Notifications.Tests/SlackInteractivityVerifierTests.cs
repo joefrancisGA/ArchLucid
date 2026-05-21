@@ -70,7 +70,7 @@ public sealed class SlackInteractivityVerifierTests
     {
         const string signingSecret = "secret";
         const string body = "{}";
-        long now = 1_700_000_000;
+        const long now = 1_700_000_000;
 
         FakeTimeProvider fakeClock = new();
         fakeClock.SetUtcNow(DateTimeOffset.FromUnixTimeSeconds(now));

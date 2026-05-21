@@ -56,7 +56,7 @@ public sealed class MarketingEarlyAccessSalesNotifier(
         string safeEmail = WebUtility.HtmlEncode(email);
         string safeCompany = string.IsNullOrWhiteSpace(companyName) ? "—" : WebUtility.HtmlEncode(companyName);
         string safeRole = string.IsNullOrWhiteSpace(role) ? "—" : WebUtility.HtmlEncode(role);
-        string subject = "ArchLucid: early access / waitlist request";
+        const string subject = "ArchLucid: early access / waitlist request";
         string html = "<p>A new <strong>early access</strong> submission was captured from the public <strong>/welcome</strong> hero " +
                       "(not a tenant signup — manual follow-up).</p>" +
                       $"<p><strong>Request id:</strong> {insert.Id:N}</p>" + $"<p><strong>Created (UTC):</strong> {insert.CreatedUtc:O}</p>" +

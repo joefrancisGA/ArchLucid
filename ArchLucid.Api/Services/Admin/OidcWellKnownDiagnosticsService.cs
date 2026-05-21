@@ -1,4 +1,3 @@
-using System.Net.Http;
 using System.Text.Json;
 
 using ArchLucid.Api.Auth.Models;
@@ -66,7 +65,7 @@ public sealed class OidcWellKnownDiagnosticsService(
 
         if (!TryBuildDiscoveryUri(authorityConfigured, out Uri? discoveryUri))
         {
-            string msg = "ArchLucidAuth:Authority is not a valid absolute HTTP(S) URL.";
+            const string msg = "ArchLucidAuth:Authority is not a valid absolute HTTP(S) URL.";
 
             return baseline with
             {

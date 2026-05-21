@@ -15,9 +15,9 @@ public sealed class HostedAzureExtractorConfigurationServiceTests
         HostedAzureExtractorConfigurationService service = new(repository);
 
         Guid tenantId = Guid.NewGuid();
-        string customerTenantId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
-        string customerAppId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
-        string subscriptionId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+        const string customerTenantId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        const string customerAppId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+        const string subscriptionId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
 
         TenantHostedExtractorConfigurationRecord record = await service.ConfigureAsync(
             tenantId,
@@ -41,7 +41,7 @@ public sealed class HostedAzureExtractorConfigurationServiceTests
             CancellationToken.None);
 
         Assert.NotNull(loaded);
-        Assert.True(loaded!.IncludeCost);
+        Assert.True(loaded.IncludeCost);
     }
 
     [Fact]

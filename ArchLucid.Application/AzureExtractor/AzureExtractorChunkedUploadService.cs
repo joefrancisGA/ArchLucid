@@ -53,13 +53,9 @@ public sealed class AzureExtractorChunkedUploadService(
         CancellationToken ct,
         string? correlationId)
     {
-        AzureExtractorChunkSessionMetadata meta;
-
-        byte[] zipBytes;
-
         try
         {
-            (meta, zipBytes) = await _chunkStore.FinalizeAndReadAssemblyAsync(sessionId, ct);
+            (AzureExtractorChunkSessionMetadata meta, byte[] zipBytes) = await _chunkStore.FinalizeAndReadAssemblyAsync(sessionId, ct);
 
             return await _ingestService.IngestZipBytesAsync(
                 zipBytes,

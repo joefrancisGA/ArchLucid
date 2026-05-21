@@ -62,7 +62,7 @@ public sealed class ArchitectureReviewBoardExportPdfStructureTests
     [Fact]
     public void ComposePageFooterText_appends_active_trial_suffix_when_requested()
     {
-        string notice = ActiveTrialExportNoticeFormatter.BaseSuffix;
+        const string notice = ActiveTrialExportNoticeFormatter.BaseSuffix;
 
         ArchitectureReviewPdfBuilder.ComposePageFooterText("Prepared by ArchLucid", notice)
             .Should()

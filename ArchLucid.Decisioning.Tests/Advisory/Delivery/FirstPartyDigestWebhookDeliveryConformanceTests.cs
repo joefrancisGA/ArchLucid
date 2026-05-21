@@ -63,7 +63,7 @@ public sealed class FirstPartyDigestWebhookDeliveryConformanceTests
                     captured = msg)
             .Returns(Task.CompletedTask);
 
-        string destination = "https://outlook.office.com/webhook/digest-fake";
+        const string destination = "https://outlook.office.com/webhook/digest-fake";
 
         DigestTeamsWebhookDeliveryChannel sut = new(delivery.Object);
         await sut.SendAsync(CreateDigestPayload(destination, DigestDeliveryChannelType.TeamsWebhook), CancellationToken.None);
