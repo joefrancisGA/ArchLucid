@@ -1,3 +1,5 @@
+> **Scope:** Read-scale-out and `SqlServer:ReadReplica` routing for analytical SQL — audience is operators and backend engineers configuring persistence; not the full consistency model (see **`DATA_CONSISTENCY_MATRIX.md`**) or customer-facing SLA text.
+
 # Read replica routing (analytical queries)
 
 ArchLucid can offload read-mostly analytical SQL from the primary using Azure SQL Database **Read Scale-Out** (`Application Intent=ReadOnly`) or an equivalent read-only endpoint.
