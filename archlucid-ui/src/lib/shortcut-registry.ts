@@ -14,6 +14,22 @@ export type ShortcutEntry = {
 
 export const SHORTCUTS: ShortcutEntry[] = [
   {
+    key: "c",
+    label: "Create review",
+    route: "/reviews/new",
+    description: "Create a new architecture review",
+  },
+  {
+    key: "/",
+    label: "Focus search",
+    description: "Focus the global search bar",
+  },
+  {
+    key: "?",
+    label: "Keyboard shortcuts",
+    description: "Show keyboard shortcuts help",
+  },
+  {
     key: "alt+n",
     label: "New request",
     route: "/reviews/new",

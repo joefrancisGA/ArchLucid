@@ -21,6 +21,10 @@ using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Feedback;
 using ArchLucid.Core.GoToMarket;
 using ArchLucid.Core.Identity;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Search;
+using ArchLucid.Persistence.Authorization;
+using ArchLucid.Persistence.Search;
 using ArchLucid.Core.Pilots;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Tenancy;
@@ -207,6 +211,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<ITenantItsmOutboundSettingsRepository, InMemoryTenantItsmOutboundSettingsRepository>();
         services.AddSingleton<ITenantSettingsRepository, InMemoryTenantSettingsRepository>();
         services.AddSingleton<ITenantIdentityProviderConfigurationRepository, InMemoryTenantIdentityProviderConfigurationRepository>();
+        services.AddSingleton<ICustomRoleRepository, InMemoryCustomRoleRepository>();
+        services.AddSingleton<IGlobalSearchRepository, InMemoryGlobalSearchRepository>();
         services.AddSingleton<ITenantFirstValueReportBrandingRepository, InMemoryTenantFirstValueReportBrandingRepository>();
         services.AddScoped<ItsmInboundWebhookSyncService>();
 

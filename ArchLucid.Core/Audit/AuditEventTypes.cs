@@ -604,6 +604,15 @@ public static class AuditEventTypes
     /// <summary>Admin SSO wizard activated a tenant-scoped identity provider configuration row.</summary>
     public const string IdentitySsoConfigurationActivated = "Identity.SsoConfigurationActivated";
 
+    /// <summary>Admin created a tenant custom role.</summary>
+    public const string IdentityCustomRoleCreated = "Identity.CustomRoleCreated";
+
+    /// <summary>Admin updated a tenant custom role.</summary>
+    public const string IdentityCustomRoleUpdated = "Identity.CustomRoleUpdated";
+
+    /// <summary>Admin assigned a custom role to a directory user.</summary>
+    public const string IdentityCustomRoleAssigned = "Identity.CustomRoleAssigned";
+
     /// <summary>Pilot <c>archlucid try --real</c>: POST execute received with pilot try header (real AOAI attempt).</summary>
     public const string FirstRealValueRunStarted = "FirstRealValueRunStarted";
 

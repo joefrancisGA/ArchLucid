@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:212 -->
+<!-- audit-core-const-count:216 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -385,6 +385,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TrialBaselineReviewCycleUpdated` | `TrialBaselineReviewCycleUpdated` | `TenantBaselineController` (operator updated review-cycle baseline hours after an earlier capture) |
 | `TrialBaselineManualPrepCaptured` | `TrialBaselineManualPrepCaptured` | `TenantBaselineController` (first save of `BaselineManualPrep*` on `dbo.Tenants`) |
 | `TrialBaselineManualPrepUpdated` | `TrialBaselineManualPrepUpdated` | `TenantBaselineController` (subsequent edits after first capture) |
+| `TenantCostSettingsUpdated` | `TenantCostSettingsUpdated` | `TenantCostSettingsController` (`PUT /v1/tenant/cost-settings`; per-tenant ROI cost assumptions on `dbo.TenantCostSettings`) |
 | `TrialSignupFailed` | `TrialSignupFailed` | `TrialLocalIdentityAuthController`, `TrialTenantBootstrapService` |
 | `TrialFirstRunCompleted` | `TrialFirstRunCompleted` | `SqlTrialFunnelCommitHook` |
 | `BillingCheckoutInitiated` | `BillingCheckoutInitiated` | `BillingCheckoutController` |
@@ -422,6 +423,9 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `Saml2ServiceProviderSignInSucceeded` | `Saml2ServiceProviderSignInSucceeded` | `ArchLucidSaml2SignInAudit` (SAML2 `CookieSignedInContext`; minimal name-id / tenant payload) |
 | `Saml2ServiceProviderSignInFailed` | `Saml2ServiceProviderSignInFailed` | `ArchLucidSaml2SignInAudit.TryAppendProtocolFailureAudit` (`/Auth/*` ITfoxtec protocol faults; best-effort) |
 | `IdentitySsoConfigurationActivated` | `Identity.SsoConfigurationActivated` | `IdentityProviderConfigurationController` (`POST /v1/admin/identity/activate`) |
+| `IdentityCustomRoleCreated` | `Identity.CustomRoleCreated` | `CustomRolesAdminController` (`POST /v1/admin/roles`) |
+| `IdentityCustomRoleUpdated` | `Identity.CustomRoleUpdated` | `CustomRolesAdminController` (`PUT /v1/admin/roles/{roleId}`) |
+| `IdentityCustomRoleAssigned` | `Identity.CustomRoleAssigned` | `CustomRolesAdminController` (`POST /v1/admin/roles/{roleId}/assign`) |
 | `FirstRealValueRunStarted` | `FirstRealValueRunStarted` | `RunsController` (pilot real execute) |
 | `FirstRealValueRunCompleted` | `FirstRealValueRunCompleted` | `RunsController` (pilot real execute success) |
 | `FirstRealValueRunFellBackToSimulator` | `FirstRealValueRunFellBackToSimulator` | `ArchitectureApplicationService` (pilot seed after real-mode fallback) |

@@ -102,6 +102,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/CustomRolesAdminController.cs",
+      "class_name": "CustomRolesAdminController",
+      "route_template": "v{version:apiVersion}/admin/roles",
+      "normalized_prefix": "/v1/admin/roles",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/DemoController.cs",
       "class_name": "DemoController",
       "route_template": "v{version:apiVersion}/demo",
@@ -1189,6 +1199,16 @@
       "commercial_tier": "none",
       "class_policy": "ScimWrite",
       "exemption": "scim_idp_automation",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "SearchController.cs",
+      "class_name": "SearchController",
+      "route_template": "v{version:apiVersion}/search",
+      "normalized_prefix": "/v1/search",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
       "nav_operator_href": null
     },
     {

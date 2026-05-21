@@ -12,6 +12,7 @@ import { AuthPanel } from "@/components/AuthPanel";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { CommandPalette } from "@/components/CommandPalette";
+import { GlobalSearchBar } from "@/components/GlobalSearchBar";
 import { HelpPanel } from "@/components/HelpPanel";
 import { HelpSearchPanel } from "@/components/HelpSearchPanel";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
@@ -231,6 +232,9 @@ function AppShellInner({ children }: AppShellClientProps) {
                   <div className="hidden min-w-0 flex-1 items-center gap-1.5 pl-2 lg:flex">
                     <Breadcrumbs />
                   </div>
+                  <div className="hidden min-w-0 flex-1 lg:block">
+                    <GlobalSearchBar />
+                  </div>
                 </div>
                 <div className="flex max-w-[min(100%,42rem)] shrink-0 flex-wrap items-center justify-end gap-2">
                   <AuthPanel />
@@ -274,11 +278,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               <ServiceBusHealthBanner />
               <TrialExpiryBanner />
               <TrialBanner />
-              <KeyboardShortcutProvider
-                onHelpRequested={() => {
-                  setHelpDocSearchOpen(true);
-                }}
-              >
+              <KeyboardShortcutProvider>
                 <main
                   id="main-content"
                   tabIndex={-1}

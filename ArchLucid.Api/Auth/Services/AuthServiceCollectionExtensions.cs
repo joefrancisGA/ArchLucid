@@ -125,7 +125,9 @@ public static class AuthServiceCollectionExtensions
         services.AddHttpContextAccessor();
 
         services.AddSingleton<IAuthDiagnosticsRingBuffer, AuthDiagnosticsRingBuffer>();
-        services.AddScoped<IClaimsTransformation, ArchLucidRoleClaimsTransformation>();
+        services.AddScoped<ArchLucidRoleClaimsTransformation>();
+        services.AddScoped<CustomRoleClaimsTransformation>();
+        services.AddScoped<IClaimsTransformation, CompositeClaimsTransformation>();
 
         return services;
     }

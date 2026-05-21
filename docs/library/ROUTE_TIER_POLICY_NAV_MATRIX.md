@@ -38,7 +38,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:137 -->
+<!-- route-tier-policy-nav-registry-count:139 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -52,6 +52,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/AuthDebugController.cs` | `/api/auth` | none | ReadAuthority |  | auth_debug_api |
 | `Admin/ClientErrorTelemetryController.cs` | `/v1/diagnostics` | none | ReadAuthority |  |  |
 | `Admin/ConfluencePublishingAdminController.cs` | `/v1/admin/integrations/confluence` | none | AdminAuthority |  |  |
+| `Admin/CustomRolesAdminController.cs` | `/v1/admin/roles` | none | AdminAuthority |  |  |
 | `Admin/DemoController.cs` | `/v1/demo` | none | ExecuteAuthority |  | demo_tooling |
 | `Admin/DiagnosticsController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Admin/DocsController.cs` | `/docs` | none | ReadAuthority |  | static_operator_docs_html |
@@ -161,6 +162,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Scim/ScimDiscoveryController.cs` | `/scim/v2` | none | ScimWrite |  | scim_idp_automation |
 | `Scim/ScimGroupsController.cs` | `/scim/v2/Groups` | none | ScimWrite |  | scim_idp_automation |
 | `Scim/ScimUsersController.cs` | `/scim/v2/Users` | none | ScimWrite |  | scim_idp_automation |
+| `SearchController.cs` | `/v1/search` | none | ReadAuthority |  |  |
 | `Tenancy/CorePilotTeamChecklistController.cs` | `/v1/tenant/core-pilot-checklist` | standard | Authorize | /onboarding |  |
 | `Tenancy/TenantBaselineController.cs` | `/v1/tenant/baseline` | none | Authorize | /settings/baseline |  |
 | `Tenancy/TenantCostEstimateController.cs` | `/v1/tenant/cost-estimate` | standard | Authorize | /settings/tenant-cost |  |

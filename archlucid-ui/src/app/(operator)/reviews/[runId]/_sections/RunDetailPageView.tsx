@@ -16,6 +16,7 @@ import { SampleReviewPackageSummary } from "@/components/SampleReviewPackageSumm
 import {
   buyerHeaderStatusTwinPillCaption,
 } from "@/lib/review-buyer-disposition-line";
+import { deriveRunDetailBaselineAnnualCostUsd } from "@/lib/derive-run-detail-baseline-cost";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
@@ -44,6 +45,10 @@ import type { RunDetailPageModel } from "./run-detail-page-model";
 /** Server component: renders the main run detail chrome from a preloaded `RunDetailPageModel`. */
 export function RunDetailPageView(props: { readonly model: RunDetailPageModel }): React.JSX.Element {
   const m = props.model;
+  const baselineAnnualCostUsd = deriveRunDetailBaselineAnnualCostUsd({
+    savingsSummaryAnnualizedUsd: m.savingsSummary?.annualizedUsd,
+    goldenManifestJson: m.goldenManifestJsonForExport,
+  });
   const runSummaryForBadge = m.progressForPipelineUi;
 
   const sampleReviewPackageSummaryEl =
@@ -193,6 +198,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           warningCountDisplay={m.warningCountDisplay}
           explanationSummary={m.explanationSummary}
           explanationFailure={m.explanationFailure}
+          baselineAnnualCostUsd={baselineAnnualCostUsd}
         />
       ) : null}
 
@@ -265,6 +271,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           warningCountDisplay={m.warningCountDisplay}
           explanationSummary={m.explanationSummary}
           explanationFailure={m.explanationFailure}
+          baselineAnnualCostUsd={baselineAnnualCostUsd}
         />
       ) : null}
 

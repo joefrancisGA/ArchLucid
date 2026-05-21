@@ -17,6 +17,7 @@ import type { ArchLucidAppRole } from "@/lib/current-principal";
 
 import { SETTINGS_ROLES_ASSIGNABLE } from "./settings-roles-page-constants";
 import { settingsRolesEmptyStateDescription, settingsRolesEmptyStateTitle } from "./settings-roles-page-empty-copy";
+import { SettingsRolesMatrixSection } from "./SettingsRolesMatrixSection";
 import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-model";
 
 type Props = {
@@ -66,14 +67,18 @@ export function SettingsRolesPageView(props: Props) {
           <ContextualHelp helpKey="settings-roles-page" />
         </div>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Assign ArchLucid app roles (Admin, Operator, Reader, Auditor) to tenant users and API keys. API policies remain
-          authoritative; use{" "}
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/admin/users">
-            Users &amp; roles
-          </Link>{" "}
-          for a read-only directory.
+          Define custom roles with fine-grained permissions and assign ArchLucid app roles to tenant users and API keys.
         </p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Custom role matrix</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <SettingsRolesMatrixSection />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

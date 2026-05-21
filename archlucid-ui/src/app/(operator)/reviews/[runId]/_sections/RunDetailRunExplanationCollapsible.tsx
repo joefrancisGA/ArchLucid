@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { FindingsWhatIfAnalysisPanel } from "@/components/FindingsWhatIfAnalysisPanel";
 import { QuickDecisionSummary } from "@/components/QuickDecisionSummary";
 import { RunExplanationSection } from "@/components/RunExplanationSection";
 import { RunFindingExplainabilityTable } from "@/components/RunFindingExplainabilityTable";
@@ -19,6 +20,7 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly warningCountDisplay: number | null;
   readonly explanationSummary: RunExplanationSummary | null;
   readonly explanationFailure: ApiLoadFailureState | null;
+  readonly baselineAnnualCostUsd: number | null;
 };
 
 export function RunDetailRunExplanationCollapsible(
@@ -33,6 +35,7 @@ export function RunDetailRunExplanationCollapsible(
     warningCountDisplay,
     explanationSummary,
     explanationFailure,
+    baselineAnnualCostUsd,
   } = props;
 
   return (
@@ -41,6 +44,7 @@ export function RunDetailRunExplanationCollapsible(
         title={buyerPolishedArtifactTable ? "Findings & assessment" : "Architecture review summary"}
         defaultOpen={buyerPolishedArtifactTable}
       >
+        <FindingsWhatIfAnalysisPanel findings={quickDecisionFindings} baselineAnnualCostUsd={baselineAnnualCostUsd} />
         <QuickDecisionSummary
           runId={runId}
           findings={quickDecisionFindings}
