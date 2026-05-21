@@ -2,6 +2,8 @@
 
 # ArchLucid.Persistence Consolidation Plan
 
+> **Phase 1 complete (2026-05-21):** `ArchLucid.Persistence.MigrateVerify` library types moved to `ArchLucid.Persistence/MigrateVerify/` (`MigrateVerifyConnectionStringReader`); tests consolidated into `ArchLucid.Persistence.Tests/MigrateVerify/`; `ArchLucid.Persistence.MigrateVerify.Tests` removed from the solution. The `ArchLucid.Persistence.MigrateVerify` executable remains as a thin CI/operator entrypoint calling into the consolidated library.
+
 ## Objective
 Reduce the cognitive load and maintenance burden of navigating 6 overlapping `ArchLucid.Persistence.*` sub-assemblies by merging them into a single cohesive `ArchLucid.Persistence` project.
 

@@ -5,12 +5,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>ArchLucid.Persistence.MigrateVerify</RootNamespace>
+    <RootNamespace>ArchLucid.Persistence.MigrateVerify.Cli</RootNamespace>
   </PropertyGroup>
-
-  <ItemGroup>
-    <InternalsVisibleTo Include="ArchLucid.Persistence.MigrateVerify.Tests" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ArchLucid.Persistence\ArchLucid.Persistence.csproj" />

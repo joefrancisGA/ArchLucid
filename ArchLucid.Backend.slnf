@@ -41,7 +41,6 @@
       "ArchLucid.Notifications.Tests/ArchLucid.Notifications.Tests.csproj",
       "ArchLucid.Persistence/ArchLucid.Persistence.csproj",
       "ArchLucid.Persistence.MigrateVerify/ArchLucid.Persistence.MigrateVerify.csproj",
-      "ArchLucid.Persistence.MigrateVerify.Tests/ArchLucid.Persistence.MigrateVerify.Tests.csproj",
       "ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj",
       "ArchLucid.Provenance/ArchLucid.Provenance.csproj",
       "ArchLucid.Provenance.Tests/ArchLucid.Provenance.Tests.csproj",

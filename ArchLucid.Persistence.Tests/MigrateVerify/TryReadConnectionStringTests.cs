@@ -1,11 +1,13 @@
+using ArchLucid.Persistence.MigrateVerify;
+
 using FluentAssertions;
 
-namespace ArchLucid.Persistence.MigrateVerify.Tests;
-[Trait("Category", "Unit")]
+namespace ArchLucid.Persistence.Tests.MigrateVerify;
 
+[Trait("Category", "Unit")]
 /// <summary>
 ///     Process env is mutated per-instance to avoid flaky parallel workers when multiple tests toggle
-///     <see cref="Program.ConnectionStringEnvironmentVariableName" />.
+///     <see cref="MigrateVerifyConnectionStringReader.ConnectionStringEnvironmentVariableName" />.
 /// </summary>
 public sealed class TryReadConnectionStringTests : IDisposable
 {
@@ -14,15 +16,15 @@ public sealed class TryReadConnectionStringTests : IDisposable
     public TryReadConnectionStringTests()
     {
         _savedConnectionStringEnvironmentValue =
-            Environment.GetEnvironmentVariable(Program.ConnectionStringEnvironmentVariableName);
+            Environment.GetEnvironmentVariable(MigrateVerifyConnectionStringReader.ConnectionStringEnvironmentVariableName);
 
-        Environment.SetEnvironmentVariable(Program.ConnectionStringEnvironmentVariableName, null);
+        Environment.SetEnvironmentVariable(MigrateVerifyConnectionStringReader.ConnectionStringEnvironmentVariableName, null);
     }
 
     public void Dispose()
     {
         Environment.SetEnvironmentVariable(
-            Program.ConnectionStringEnvironmentVariableName,
+            MigrateVerifyConnectionStringReader.ConnectionStringEnvironmentVariableName,
             _savedConnectionStringEnvironmentValue);
     }
 
@@ -30,11 +32,11 @@ public sealed class TryReadConnectionStringTests : IDisposable
     public void When_environment_and_arguments_absent_returns_false()
     {
         bool ok =
-            Program.TryReadConnectionString([], out string cs, out string err);
+            MigrateVerifyConnectionStringReader.TryReadConnectionString([], out string cs, out string err);
 
         ok.Should().BeFalse();
         cs.Should().BeEmpty();
-        err.Should().Contain(Program.ConnectionStringEnvironmentVariableName);
+        err.Should().Contain(MigrateVerifyConnectionStringReader.ConnectionStringEnvironmentVariableName);
     }
 
     [Fact]
@@ -43,7 +45,7 @@ public sealed class TryReadConnectionStringTests : IDisposable
         const string expected = "Server=127.0.0.1,1433;User Id=sa;Password=test;Encrypt=True;TrustServerCertificate=True;"
                                 + "Initial Catalog=ArchLucidMigrateVerify";
 
-        bool ok = Program.TryReadConnectionString([expected], out string cs, out string err);
+        bool ok = MigrateVerifyConnectionStringReader.TryReadConnectionString([expected], out string cs, out string err);
 
         ok.Should().BeTrue();
         err.Should().BeEmpty();
@@ -55,7 +57,7 @@ public sealed class TryReadConnectionStringTests : IDisposable
     {
         const string missingCatalog = "Server=127.0.0.1,1433;User Id=sa;Password=test;Encrypt=True;TrustServerCertificate=True";
 
-        bool ok = Program.TryReadConnectionString([missingCatalog], out string cs, out string err);
+        bool ok = MigrateVerifyConnectionStringReader.TryReadConnectionString([missingCatalog], out string cs, out string err);
 
         ok.Should().BeFalse();
         cs.Should().BeEmpty();
@@ -68,12 +70,11 @@ public sealed class TryReadConnectionStringTests : IDisposable
         const string expected = "Server=127.0.0.1,1433;User Id=sa;Password=test;Encrypt=True;TrustServerCertificate=True;"
                                 + "Initial Catalog=FromEnv";
 
-
         Environment.SetEnvironmentVariable(
-            Program.ConnectionStringEnvironmentVariableName,
+            MigrateVerifyConnectionStringReader.ConnectionStringEnvironmentVariableName,
             expected);
 
-        bool ok = Program.TryReadConnectionString([], out string cs, out string err);
+        bool ok = MigrateVerifyConnectionStringReader.TryReadConnectionString([], out string cs, out string err);
 
         ok.Should().BeTrue();
         err.Should().BeEmpty();

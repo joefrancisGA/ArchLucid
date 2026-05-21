@@ -1,6 +1,6 @@
 > **Scope:** Generated skim for coding agents and contributors; not a buyer document. Regenerate after large project-tree changes. Does not replace **`V1_SCOPE.md`** or **`V1_DEFERRED.md`**.
 
-**Generated:** 2026-05-17 14:59 UTC (`python scripts/repo_digest/build_repo_digest.py`)
+**Generated:** 2026-05-21 21:28 UTC (`python scripts/repo_digest/build_repo_digest.py`)
 
 ## Root .NET projects
 
@@ -42,6 +42,8 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 | `ArchLucid.Host.Core.Tests/` | `ArchLucid.Host.Core.Tests/ArchLucid.Host.Core.Tests.csproj` |
 | `ArchLucid.Integrations.AzureDevOps/` | `ArchLucid.Integrations.AzureDevOps/ArchLucid.Integrations.AzureDevOps.csproj` |
 | `ArchLucid.Integrations.AzureDevOps.Tests/` | `ArchLucid.Integrations.AzureDevOps.Tests/ArchLucid.Integrations.AzureDevOps.Tests.csproj` |
+| `ArchLucid.Integrations.AzureExtractor/` | `ArchLucid.Integrations.AzureExtractor/ArchLucid.Integrations.AzureExtractor.csproj` |
+| `ArchLucid.Integrations.AzureExtractor.Tests/` | `ArchLucid.Integrations.AzureExtractor.Tests/ArchLucid.Integrations.AzureExtractor.Tests.csproj` |
 | `ArchLucid.Jobs.Cli/` | `ArchLucid.Jobs.Cli/ArchLucid.Jobs.Cli.csproj` |
 | `ArchLucid.Jobs.Cli.Tests/` | `ArchLucid.Jobs.Cli.Tests/ArchLucid.Jobs.Cli.Tests.csproj` |
 | `ArchLucid.KnowledgeGraph/` | `ArchLucid.KnowledgeGraph/ArchLucid.KnowledgeGraph.csproj` |
@@ -50,7 +52,6 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 | `ArchLucid.Notifications.Tests/` | `ArchLucid.Notifications.Tests/ArchLucid.Notifications.Tests.csproj` |
 | `ArchLucid.Persistence/` | `ArchLucid.Persistence/ArchLucid.Persistence.csproj` |
 | `ArchLucid.Persistence.MigrateVerify/` | `ArchLucid.Persistence.MigrateVerify/ArchLucid.Persistence.MigrateVerify.csproj` |
-| `ArchLucid.Persistence.MigrateVerify.Tests/` | `ArchLucid.Persistence.MigrateVerify.Tests/ArchLucid.Persistence.MigrateVerify.Tests.csproj` |
 | `ArchLucid.Persistence.Tests/` | `ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj` |
 | `ArchLucid.Provenance/` | `ArchLucid.Provenance/ArchLucid.Provenance.csproj` |
 | `ArchLucid.Provenance.Tests/` | `ArchLucid.Provenance.Tests/ArchLucid.Provenance.Tests.csproj` |
@@ -63,8 +64,6 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 ## Canonical terminology
 
 - [`GLOSSARY.md`](GLOSSARY.md) — domain terms (review package, signed manifest, audit trail, …).
-- [`CONCEPT_VOCABULARY.md`](CONCEPT_VOCABULARY.md) — canonical-vs-rejected phrasing for writers and agents; CI-enforced rules in §1.1, reviewer-enforced in §1.2 (**§1.2** includes **review** vs **run** for product copy; promoting that rule to CI is optional until `check_concept_vocabulary.py` catches manageable volume).
-- [`AUDIT_EVENT_MODEL.md`](AUDIT_EVENT_MODEL.md) — durable audit event fields, channel taxonomy, immutability (read before deep-diving [`AUDIT_COVERAGE_MATRIX.md`](AUDIT_COVERAGE_MATRIX.md)).
 
 ## Architecture invariants (**INV-***)
 
@@ -77,12 +76,11 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 - [`V1_SCOPE.md`](V1_SCOPE.md) — in-contract V1 / V1.1 engineering.
 - [`V1_DEFERRED.md`](V1_DEFERRED.md) — deferrals and non-gates for assessments.
 - [`../go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md).
-- [`../go-to-market/GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) — founder marketing tasks; [`../go-to-market/SERVICE_LED_OFFERS.md`](../go-to-market/SERVICE_LED_OFFERS.md) — productized review SKUs.
 
 ## Weighted readiness assessments (canonical vs archive)
 
 - **Evidence contract:** [`ASSESSMENT_INPUTS.md`](ASSESSMENT_INPUTS.md) — ordered reads before broad scans; **`@Assessment-Scope-V1_1`** for **`(A)` / `(B)`** rules.
-- **Current score + backlog:** follow **One workflow** in [`ASSESSMENT_INPUTS.md`](ASSESSMENT_INPUTS.md) — **rolling** weighted pass maintained under **`docs/assessments/`** (filenames may change; do not treat any one file as an external API contract).
+- **Current score + backlog:** [`../assessments/LATEST.md`](../assessments/LATEST.md) only — **one** standing weighted pass.
 - **History:** [`../archive/assessments/`](../archive/assessments/) and archived quality narratives — **not** for quoting today's headline readiness (see **"One workflow"** in **`ASSESSMENT_INPUTS.md`**).
 
 ## HTTP / OpenAPI (refresh when changing wire shape)
