@@ -73,6 +73,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Architecture run pin / unpin | `RunsController` (`PATCH /v1/architecture/run/{runId}/pin`) | `AuditEventTypes.RunPinStateChanged` | RunId | `{ isPinned }` |
 | Architecture request soft-delete (DELETE alias of archive) | `RunsController` (`DELETE /v1/architecture/request/{requestId}`) | `ArchitectureRequestDeleted` | Tenant/Workspace/Project from ambient scope | `{ requestId }` |
 | Architecture request restore (un-archive) | `RunsController` (`POST /v1/architecture/request/{requestId}/restore`) | `ArchitectureRequestRestored` | Tenant/Workspace/Project from ambient scope | `{ requestId }` |
+| Architecture request draft (LLM field suggest, no persistence) | `RunsController` (`POST /v1/architecture/request/draft`); `ArchitectureRequestDraftService` | — | — | Read-auth + execute-auth gated LLM assist; returns suggested wizard chips only — **no** durable audit row (same class as `POST /v1/architecture/request/{requestId}/clone`) |
+| Finding-scoped Ask (conversation persist only) | `ArchitectureFindingAskController` (`POST /v1/architecture/finding/{findingId}/ask`); `IAskService.AskAboutFindingAsync` | — | — | Persists `ConversationThread` / messages via `IConversationService`; **no** durable `IAuditService` row (authority-domain state unchanged; `[MutatingAuditExcluded]` on controller) |
 | Advisory scan lifecycle | `AdvisoryScanRunner` | `AdvisoryScanScheduled`, `AdvisoryScanExecuted`, `ArchitectureDigestGenerated`, … | varies by path | scan / digest payloads (JSON) |
 | Advisory scheduling API | `AdvisorySchedulingController` | `AdvisoryScanScheduled` (and related) | per request | schedule metadata |
 | Advisory API mutations | `AdvisoryController` | digest / scan event types; `RecommendationGenerated` + accept/reject/defer/implement | per action | per action |
@@ -190,7 +192,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 ## Known gaps (mutating behavior without durable `IAuditService` event)
 
-**Last reviewed:** 2026-05-18.
+**Last reviewed:** 2026-05-21.
 
 ### Mutating / lifecycle — verified
 
@@ -198,7 +200,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 ### Read-path / reserved observability (not an append-only weakness)
 
-**None** (as of **2026-05-18**). `FindingsListAccessed` is emitted when operators call **`GET /v1/architecture/run/{runId}/findings/export/csv`** (see durable table; `DataJson` carries `format` and `findingCount`). The `POST /v1/architecture/request/{requestId}/clone` endpoint reads a request and returns a transient stripped template without persisting state. **`POST /v1/policy-packs/validate`** validates pack content JSON in-process only (no pack row, no audit row). **`POST /v1/policy-packs/{policyPackId}/simulate-bulk`** evaluates dry-run gates for up to 50 run ids without persisting pack or run state (no audit row).
+**None** (as of **2026-05-21**). `FindingsListAccessed` is emitted when operators call **`GET /v1/architecture/run/{runId}/findings/export/csv`** (see durable table; `DataJson` carries `format` and `findingCount`). The `POST /v1/architecture/request/{requestId}/clone` endpoint reads a request and returns a transient stripped template without persisting state. **`POST /v1/architecture/request/draft`** returns LLM-suggested wizard chips without persisting an architecture request. **`POST /v1/architecture/finding/{findingId}/ask`** persists conversation messages only (no `IAuditService` row). **`POST /v1/policy-packs/validate`** validates pack content JSON in-process only (no pack row, no audit row). **`POST /v1/policy-packs/{policyPackId}/simulate-bulk`** evaluates dry-run gates for up to 50 run ids without persisting pack or run state (no audit row).
 
 **Open catalogued-only items: 0**
 
