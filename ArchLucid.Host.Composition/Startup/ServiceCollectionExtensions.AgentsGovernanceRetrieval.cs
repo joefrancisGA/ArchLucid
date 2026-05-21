@@ -6,6 +6,7 @@ using ArchLucid.AgentRuntime.Caching;
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.AgentRuntime.Prompts.Variants;
 using ArchLucid.Contracts.Agents.PromptVariants;
 using ArchLucid.AgentRuntime.QuickScan;
 using ArchLucid.AgentRuntime.Safety;
