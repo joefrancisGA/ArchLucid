@@ -35,6 +35,26 @@ public static class SanitizedLoggerDebugExtensions
             durationMs);
     }
 
+    /// <summary>Logs a curated evidence proposal skip with two user-derived strings sanitized.</summary>
+    public static void LogDebugCuratedEvidenceProposalSkipped(
+        this ILogger logger,
+        Exception exception,
+        string userRunId,
+        string userAgentType)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeRunId = LogSanitizer.Sanitize(userRunId);
+        string safeAgentType = LogSanitizer.Sanitize(userAgentType);
+
+        // codeql[cs/log-forging]: string placeholders sanitized immediately above (params boxing breaks barrier at call sites).
+        logger.LogDebug(
+            exception,
+            "Curated evidence proposal skipped for RunId={RunId}, AgentType={AgentType}.",
+            safeRunId,
+            safeAgentType);
+    }
+
     /// <summary>Logs a reference-case evaluation failure with four user-derived strings sanitized.</summary>
     public static void LogDebugReferenceCaseEvaluationFailed(
         this ILogger logger,

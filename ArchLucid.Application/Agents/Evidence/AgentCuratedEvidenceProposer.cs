@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm;
 
 using Microsoft.Extensions.Logging;
@@ -63,7 +64,7 @@ public sealed class AgentCuratedEvidenceProposer(
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             if (_logger.IsEnabled(LogLevel.Debug))
-                _logger.LogDebug(ex, "Curated evidence proposal skipped for RunId={RunId}, AgentType={AgentType}.", runId, result.AgentType);
+                _logger.LogDebugCuratedEvidenceProposalSkipped(ex, runId, result.AgentType);
 
             return null;
         }

@@ -49,6 +49,49 @@ public sealed class SanitizedLoggerDebugExtensionsTests
     }
 
     [Fact]
+    public void LogDebugCuratedEvidenceProposalSkipped_strips_control_chars_in_user_strings()
+    {
+        Mock<ILogger> mock = new();
+        mock.Setup(l => l.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+
+        string? rendered = null;
+
+        mock.Setup(m => m.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(new InvocationAction(invocation =>
+            {
+                Delegate formatter = (Delegate)invocation.Arguments[4];
+                object state = invocation.Arguments[2];
+                object ex = invocation.Arguments[3];
+                rendered = formatter.DynamicInvoke(state, ex) as string;
+            }));
+
+        mock.Object.LogDebugCuratedEvidenceProposalSkipped(new Exception("oops"), "run\nid", "agent\rtype");
+
+        rendered.Should().NotBeNull();
+        string text = rendered!;
+
+        text.Should().Contain("run_id");
+        text.Should().Contain("agent_type");
+        text.Should().NotContain("\n");
+        text.Should().NotContain("\r");
+    }
+
+    [Fact]
+    public void LogDebugCuratedEvidenceProposalSkipped_throws_when_logger_null()
+    {
+        ILogger logger = null!;
+
+        Action act = () => logger.LogDebugCuratedEvidenceProposalSkipped(new Exception(), "a", "b");
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("logger");
+    }
+
+    [Fact]
     public void LogDebugAgentTaskFinished_throws_when_logger_null()
     {
         ILogger logger = null!;
