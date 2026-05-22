@@ -386,10 +386,16 @@ public sealed class AuthorityPipelineStagesExecutor(
         try
         {
             int stageIndex = Array.IndexOf(PipelineStageSequence, stageName);
+            string fromState = stageIndex > 0
+                ? PipelineStageSequence[stageIndex - 1]
+                : "inline_authority_pipeline_stages";
+
             string nextStage =
                 stageIndex >= 0 && stageIndex + 1 < PipelineStageSequence.Length
                     ? PipelineStageSequence[stageIndex + 1]
                     : "(finalize_authority_pipeline)";
+
+            ArchLucidInstrumentation.RecordOrchestratorStateTransition(ctx.Run.RunId, fromState, stageName);
 
             if (_logger.IsEnabled(LogLevel.Information))
 

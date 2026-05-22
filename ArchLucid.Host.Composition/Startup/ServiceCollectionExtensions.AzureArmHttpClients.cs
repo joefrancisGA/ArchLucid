@@ -1,5 +1,4 @@
 using ArchLucid.Core.Http;
-using ArchLucid.Host.Core.Http;
 
 namespace ArchLucid.Host.Composition.Startup;
 
@@ -37,7 +36,7 @@ public static partial class ServiceCollectionExtensions
                 })
             .AddPolicyHandler(
                 static (serviceProvider, _) =>
-                    AzureRetailPricesHttpResiliencePolicy.Create(
+                    ArchLucid.Host.Core.Http.AzureRetailPricesHttpResiliencePolicy.Create(
                         serviceProvider
                             .GetRequiredService<ILoggerFactory>()
                             .CreateLogger($"{ArchLucidAzurePublicHttpClients.RetailPricesHttpClientName}.Policies")));

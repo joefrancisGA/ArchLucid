@@ -102,6 +102,53 @@ public sealed class AuthorityPipelineStagesExecutorTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAfterRunPersistedAsync_records_orchestrator_state_transition_events()
+    {
+        List<Activity> stopped = [];
+
+        using ActivityListener listener = new();
+        listener.ShouldListenTo = s => s.Name == AuthorityRunSourceName;
+        listener.Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded;
+        listener.ActivityStopped = stopped.Add;
+
+        ActivitySource.AddActivityListener(listener);
+
+        using Activity? parent = ArchLucidInstrumentation.AuthorityRun.StartActivity("authority.run.test");
+        parent.Should().NotBeNull();
+
+        (AuthorityPipelineStagesExecutor sut, _, _) = CreateExecutor();
+        AuthorityPipelineContext ctx = CreateContext(parent, Guid.NewGuid());
+
+        await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
+
+        List<ActivityEvent> transitionEvents = stopped
+            .SelectMany(a => a.Events)
+            .Where(e => e.Name == "orchestrator.state_transition")
+            .ToList();
+
+        transitionEvents.Should().HaveCount(5);
+
+        (string From, string To)[] expectedTransitions =
+        [
+            ("inline_authority_pipeline_stages", "context_ingestion"),
+            ("context_ingestion", "graph"),
+            ("graph", "findings"),
+            ("findings", "decisioning"),
+            ("decisioning", "artifacts"),
+        ];
+
+        for (int i = 0; i < expectedTransitions.Length; i++)
+        {
+            ActivityEvent evt = transitionEvents[i];
+            (string from, string to) = expectedTransitions[i];
+
+            evt.Tags.Should().Contain(t => t.Key == "from_state" && (string?)t.Value == from);
+            evt.Tags.Should().Contain(t => t.Key == "to_state" && (string?)t.Value == to);
+            evt.Tags.Should().Contain(t => t.Key == "archlucid.run_id" && (string?)t.Value == ctx.Run.RunId.ToString("D"));
+        }
+    }
+
+    [SkippableFact]
     public async Task ExecuteAfterRunPersistedAsync_records_stage_duration_metrics()
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;

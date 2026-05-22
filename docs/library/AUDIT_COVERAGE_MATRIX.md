@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:220 -->
+<!-- audit-core-const-count:221 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -100,6 +100,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Governance policy-pack dry-run (what-if) | `PolicyPackDryRunService` (`POST /v1/governance/policy-packs/{id}/dry-run`); `GovernanceController` (`POST /v1/governance/simulate`) | `GovernanceDryRunRequested` | Tenant/Workspace/Project from ambient scope | `{ policyPackId, proposedThresholdsRedacted (string — proposedThresholds JSON after `LlmPromptRedaction`), evaluatedRunIds[], deltaCounts: { evaluated, wouldBlock, wouldAllow, runMissing } }` — payload **must** flow through the redaction pipeline (PENDING_QUESTIONS Q37); read-auth gated, no real commit. |
 | Pre-commit synthetic simulation (what-if) | `GovernancePreCommitSimulationController` (`POST /v1/governance/pre-commit/simulate`) | `GovernancePreCommitSimulationEvaluated` | RunId when parseable | `runId`, synthetic parameters, gate outcome summary (`blocked`, `warnOnly`, counts, sample blocking finding ids — no manifest commit) |
 | Outbound webhook URL probe (no persistence) | `OutboundWebhookDryRunController` (`POST /v1/webhooks/dry-run`) | `OutboundWebhookDryRunProbeExecuted` | — | Target authority/path and scheme only (no query string), `hasSharedSecret` flag, transport/status — **no** shared secret or response body in payload |
+| Synthetic `AuthorityRunCompleted` webhook simulation (no persistence) | `WebhookSimulationController` (`POST /v1/integrations/webhooks/simulate`) | `WebhookAuthorityRunCompletedSimulationExecuted` | — | Target authority/path and scheme only (no query string), `hasSharedSecret` flag, transport/status — **no** shared secret or response body in payload |
 | Alert-routing webhook subscription connectivity test | `WebhooksController` (`POST /v1/webhooks/subscriptions/{subscriptionId}/test`); legacy alias `WebhookConnectionsController` (`POST /v1/integrations/webhooks/{routingSubscriptionId}/test`) | `AlertRoutingWebhookPingExecuted` | — | Subscription id, transport outcome, HTTP status code — **no** destination URL or response body in payload |
 | Pre-commit governance warn | `ArchitectureRunCommitOrchestrator` | `GovernancePreCommitWarned` | RunId when parseable | `reason`, `warnings`, `blockingFindingIds`, `policyPackId`, `minimumBlockingSeverity` |
 | Recommendation learning rebuild | `RecommendationLearningController` | `RecommendationLearningProfileRebuilt` | — | profile id |
@@ -342,6 +343,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `AlertRuleCandidateComparisonExecuted` | `AlertRuleCandidateComparisonExecuted` | `AlertSimulationController` |
 | `AlertThresholdRecommendationExecuted` | `AlertThresholdRecommendationExecuted` | `AlertTuningController` |
 | `OutboundWebhookDryRunProbeExecuted` | `OutboundWebhookDryRunProbeExecuted` | `OutboundWebhookDryRunController` (`POST /v1/webhooks/dry-run`) |
+| `WebhookAuthorityRunCompletedSimulationExecuted` | `WebhookAuthorityRunCompletedSimulationExecuted` | `WebhookSimulationController` (`POST /v1/integrations/webhooks/simulate`) |
 | `EvidenceBulkAttached` | `EvidenceBulkAttached` | `EvidenceBulkUploadController` (`POST /v1/architecture/run/{runId}/evidence/bulk`) |
 | `EvidenceProposalPromoted` | `EvidenceProposalPromoted` | `EvidenceProposalsController` (`POST /v1/admin/evidence/proposals/{resultId}/promote`) |
 | `PolicyPackCreated` | `PolicyPackCreated` | `PolicyPacksAppService` |
