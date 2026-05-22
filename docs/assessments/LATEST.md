@@ -1,6 +1,6 @@
 > **Scope:** One sentence: audience, intent, and what this doc is not.
 
-# ArchLucid Assessment – (A) Headline Readiness: 80.47%
+# ArchLucid Assessment – (A) Headline Readiness: 80.53%
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, scoring **in-contract V1 GA only**. Out-of-scope commitments in [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) are **excluded** and **must not** reduce this headline.
 
 ## Executive Summary
@@ -8,7 +8,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 
 **`(B)` Procurement/Market-Motion Realism:** The lack of a SOC 2 CPA attestation (currently relying on a self-assessment) will introduce significant friction in enterprise procurement. While the Trust Center is transparent, large enterprises often treat a formal SOC 2 Type II report as a hard gate. The manual Azure extraction script, while avoiding credential sharing, may face pushback from enterprise IT teams who prefer automated, role-based, continuous ingestion.
 
-**Commercial Picture:** The pricing model (platform fee + seats + review overage) is well-aligned with the value delivered. **Cross-run executive ROI** (`GET /v1/roi/executive-summary` + Home dashboard panel) is **in V1 contract** ([V1_SCOPE.md](../library/V1_SCOPE.md) §2.8). Remaining CFO narrative gaps are export discoverability and optional **`FindingId`** dedup hardening—not a missing portfolio rollup API. The hard stops on LLM costs ($75/month) during trials could inadvertently cut off users before they experience the "aha" moment.
+**Commercial Picture:** The pricing model (platform fee + seats + review overage) is well-aligned with the value delivered. **Cross-run executive ROI** (`GET /v1/roi/executive-summary` + Home dashboard panel) is **in V1 contract** ([V1_SCOPE.md](../library/V1_SCOPE.md) §2.8). Remaining CFO narrative gaps are export discoverability and optional **`FindingId`** dedup hardening—not a missing portfolio rollup API. The hard stops on LLM costs ($75/month) during trials could inadvertently cut off users before they experience the "aha" moment; the V1 mitigation is a persistent budget badge in the operator shell (#26) paired with the 75% warning banner (#8).
 
 **Enterprise Picture:** The product is built for the Enterprise Architect (Persona 1) and Platform Engineering Lead (Persona 2). The deep integration with Azure, Entra ID, and explicit tenant isolation (database-per-tenant) are strong enterprise selling points. The buyer-default operator shell (`NEXT_PUBLIC_OPERATOR_EXPERIENCE` unset), progressive sidebar disclosure, and existing `OptInTour` / `GlossaryTooltip` infrastructure reduce—but do not eliminate—first-run friction; a focused V1 mitigation program (live sample seed + tour copy + empty-state polish) is the highest-leverage fix before broader UX investment.
 
@@ -74,10 +74,10 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
    - Status: Fixable in V1.
 
 9. **Supportability**
-   - Score: 85 | Weight: 1 | Weighted Deficiency: 15
-   - Justification: Excellent diagnostics, correlation IDs, health checks, and append-only audit logs.
+   - Score: 87 | Weight: 1 | Weighted Deficiency: 13
+   - Justification: Excellent diagnostics, correlation IDs, health checks, and append-only audit logs. LLM budget state is exposed via `GET /v1/admin/llm-monthly-dollar-budget-status` and rendered by `LlmBudgetUtilizationMeter` in Settings → Cost Reporting and the run wizards; persistent shell visibility is the remaining gap (#26).
    - Tradeoffs: None significant.
-   - Improvement recommendations: Ensure correlation IDs are prominently surfaced in the UI for easy copy-pasting by users when reporting issues.
+   - Improvement recommendations: Surface correlation IDs prominently in the UI (#7/#17); add persistent LLM budget badge to operator shell so budget pressure is visible at any time (#26).
    - Status: Fixable in V1.
 
 ## Top 12 Most Important Weaknesses
@@ -132,11 +132,13 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
 
 ## Top Improvement Opportunities
 
-1. **Live sample review seed in production SaaS (V1 Operator Shell — OS-1)**
+1. **Live sample review seed in production SaaS (V1 Operator Shell — OS-1)** *(Completed 2026-05-22)*
    - Why it matters: `DemoController` returns 404 outside Development; static showcase is read-only. Zero-review tenants hit an empty-state cliff before any “aha” moment.
    - Expected impact: Time-to-Value (+6-10 pts), Adoption Friction (+5-8 pts), Usability (+3-5 pts). Weighted readiness impact: +0.7-1.2%.
    - Affected qualities: Time-to-Value, Adoption Friction, Usability
    - Actionable: Yes — Batch **OS-1**
+   - **Completed.** Added `Demo:SaaSGuestSeedEnabled` to `DemoOptions` (`ArchLucid.Core/Configuration/DemoOptions.cs`); relaxed the `POST /v1/demo/seed` guard in `ArchLucid.Api/Controllers/Admin/DemoController.cs` to `IsDevelopment() || SaaSGuestSeedEnabled` (Demo:Enabled remains the master switch); flipped the SaaS host to opt-in via `ArchLucid.Api/appsettings.SaaS.json`. Wired the new internal Next.js route `archlucid-ui/src/app/api/seed-sample/route.ts` and `SeedSampleReviewButton` client component into the buyer-polished Reviews empty state in `RunsPageView.tsx`; updated `RUNS_EMPTY.title` to "No reviews yet". Added controller and UI vitest coverage (9/9 green); static showcase / `SampleFirstReviewPackageCard` flows untouched.
+   - **Status:** **Completed** (2026-05-22).
    - Prompt:
      ```text
      You are working in the ArchLucid monorepo. Enable production-hosted SaaS tenants with zero real reviews to seed interactive sample data via the existing DemoSeedService.
@@ -407,14 +409,51 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       In docs/library/ARCHITECTURE_FLOWS.md (or ORCHESTRATOR_RETRIES.md), document AuthorityRunOrchestrator retry behavior: transient DB retries, LLM timeout handling, manual resume of Failed runs. Docs only.
       ```
 
-26. **Document the exact retry policy for the custom orchestrator**
-    - Why it matters: Helps operators and support teams understand how the system recovers from failures.
-    - Expected impact: Supportability (+4-6 pts). Weighted readiness impact: +0.1-0.2%.
-    - Affected qualities: Supportability
-    - Actionable: Yes — Batch **DOCS-EXPORT**
+25. **Sample data auto-purge and `IsSample` marker (V1 Operator Shell — OS-1b)**
+    - Why it matters: Prevents seeded sample reviews from polluting tenant analytics permanently and fulfills the owner decision for a 7-day or first-real-commit purge.
+    - Expected impact: Reliability (+2-3 pts), Maintainability (+2-3 pts). Weighted readiness impact: +0.1-0.2%.
+    - Affected qualities: Reliability, Maintainability
+    - Actionable: Yes — Batch **OS-1b** (after OS-1)
     - Prompt:
       ```text
-      In docs/library/ARCHITECTURE_FLOWS.md (or ORCHESTRATOR_RETRIES.md), document AuthorityRunOrchestrator retry behavior: transient DB retries, LLM timeout handling, manual resume of Failed runs. Docs only.
+      Implement the sample data purge lifecycle (OS-1b):
+
+      1. Database: Add `IsSample BIT NOT NULL DEFAULT 0` to `dbo.Runs` via a new DbUp migration. Update RunRecord/RunSummary models and Dapper repos to propagate the flag.
+      2. Seeding: Update DemoSeedService so seeded runs set IsSample = true. Static showcase paths are unaffected.
+      3. Purge service: Create ISampleRunPurgeService in ArchLucid.Application that deletes runs where TenantId = @TenantId AND IsSample = 1 (cascade via existing run-scoped artifact cleanup). Do NOT reuse TenantDeletionService — that is the broader offboarding hammer.
+      4. Commit hook: In AuthorityDrivenArchitectureRunCommitOrchestrator, after a successful commit of a non-sample run (IsSample == false), enqueue a fire-and-forget ISampleRunPurgeService.PurgeAsync for that tenant.
+      5. TTL worker: Add SampleRunTtlHostedService (daily cadence, leader-elected) that calls the purge service for any IsSample = 1 rows where CreatedUtc < UtcNow.AddDays(-7).
+      6. Audit: emit a PlatformAuditEvent on each purge with row counts (no tenant payload).
+
+      Acceptance: zero sample rows survive past the first real commit OR 7 days, whichever is sooner.
+      ```
+
+26. **Persistent LLM budget badge in operator shell (V1 — UI-A)**
+    - Why it matters: Today operators only see the LLM monthly budget inside Settings → Cost Reporting or right before starting a run in the wizard. A persistent, ambient badge in the operator shell header eliminates the surprise of hard stops and lets buyers/operators check available budget at any time. **`GET /v1/admin/llm-monthly-dollar-budget-status`** and **`LlmBudgetUtilizationMeter`** already exist — this is a placement task, not a build.
+    - Expected impact: Supportability (+3-5 pts), Usability (+2-3 pts), AI/Agent Readiness (+1-2 pts). Weighted readiness impact: +0.05-0.15%.
+    - Affected qualities: Supportability, Usability, AI/Agent Readiness
+    - Actionable: Yes — Batch **UI-A** (pairs with #8 — banner is loud/one-time, badge is ambient)
+    - Prompt:
+      ```text
+      Add a persistent LLM budget status badge to the operator shell, reusing the existing meter component.
+
+      1. Create archlucid-ui/src/components/LlmBudgetStatusPill.tsx ("use client"):
+         - Calls fetchLlmMonthlyDollarBudgetStatusCached() with a 60s cache window.
+         - Renders a compact pill: teal (< warn fraction), amber (>= warn), rose (>= hard cap).
+         - Label: "Budget: NN%" — append " — paused" when at/over the cap.
+         - On click, opens a popover (use existing ui/popover) that embeds <LlmBudgetUtilizationMeter /> plus a "Manage budget" link to /settings/cost-reporting.
+         - When monthlyBudgetMonitoringActive === false, render nothing (no pill in environments without monitoring).
+         - When the auth probe says the caller lacks ExecuteAuthority, render nothing (no 403 noise).
+
+      2. Mount the pill in archlucid-ui/src/components/AppShellClient.tsx topbar area, RIGHT side of the header, only when:
+         - isBuyerPolishedOperatorShellEnv() === false (operator shell mode only — buyers do not see platform budget plumbing), AND
+         - the caller is authenticated.
+
+      3. Tests:
+         - LlmBudgetStatusPill.test.tsx: renders correct tone per fraction; renders nothing when monitoring inactive; popover opens with meter inside.
+         - AppShellClient.test.tsx: pill present in operator mode, absent in buyer-polished mode.
+
+      Acceptance: in operator mode, the badge is visible on every page; clicking expands to the full meter; matches existing meter colors/thresholds.
       ```
 
 ## Prompt Batching Guidance
@@ -424,15 +463,14 @@ Run batches in this order. **Operator Shell (OS)** batches are highest leverage 
 | Batch | Improvement IDs | Scope | Notes |
 |-------|-----------------|-------|-------|
 | **OS-1** | #1 | Backend `DemoController` + `DemoOptions` + `appsettings.SaaS.json`; UI `seed-sample` route + `SeedSampleReviewButton` + `RunsPageView` empty state | Run alone first — highest blast radius; verify CI before dependent UI batches |
-| **OS-1b** | #25 | `dbo.Runs`, `DemoSeedService`, `SampleRunPurgeService` | Sample data lifecycle; run after OS-1 |
-| **OS-1b** | #25 | `dbo.Runs`, `DemoSeedService`, `SampleRunPurgeService` | Sample data lifecycle; run after OS-1 |
+| **OS-1b** | #25 | `dbo.Runs`, `DemoSeedService`, `SampleRunPurgeService`, `SampleRunTtlHostedService` | Sample data lifecycle; run after OS-1 |
 | **OS-2** | #2, #3 | `OptInTour.tsx`, `WelcomeBanner.tsx` | Tour copy + launcher visibility; no overlap with OS-1 files except shared test fixtures |
 | **OS-3** | #4 | `empty-state-presets.ts`, graph page, `RunsPageView`, `ComparePageIntro` | Buyer-default glossary + empty states; safe after OS-2 |
 | **ROI-1** | #5 | `ExecutiveRoiSummaryService` + tests + `PILOT_SCORECARD_API.md` | V1 contract hardening; no overlap with OS batches — run immediately after OS-3 |
-| **UI-A** | #7, #8, #17 | Global error boundary, LLM budget banner, correlation copy (merge #7+#17 if same component) | General UI polish unrelated to OS program |
+| **UI-A** | #7, #8, #17, #26 | Correlation IDs (#7+#17), LLM budget warning banner (#8, loud/one-time), persistent LLM budget badge (#26, ambient) | Pair #8 + #26 in one PR — both reuse `LlmBudgetUtilizationMeter` |
 | **API-A** | #6, #9, #18 | Orchestrator retry, idempotency cache, orchestrator health check | `ArchLucid.Api` / `ArchLucid.Persistence` |
 | **ZIP** | #10, #12, #15, #19, #20 | Extractor upload, PowerShell dry-run, CLI validate, telemetry | Azure ingest path |
-| **DOCS-EXPORT** | #11, #26 | DOCX cover, orchestrator retry docs | Low coupling |
+| **DOCS-EXPORT** | #11, #24 | DOCX cover, orchestrator retry docs | Low coupling |
 
 **V2 only (not `(A)`):** #16 PRIV-1 tenant erasure automation. **Superseded:** old generic “guided tour / react-joyride” prompt — replaced by #2–#4 using existing `OptInTour` / `GlossaryTooltip`. **Resolved (2026-05-22):** cross-run ROI aggregation semantics — **unique `FindingId` dedup**; promoted to V1 ([V1_SCOPE.md](../library/V1_SCOPE.md) §2.8), improvement **#5** / batch **ROI-1**. **Resolved (2026-05-22):** tenant hard purge — purge identifiable data; **retain irreversibly anonymized aggregates only**; 30-day quarantine default ([`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6m). **Resolved (2026-05-22):** `IsSample` marker lives on `dbo.Runs`; purge uses dedicated `SampleRunPurgeService` (improvement **#25** / batch **OS-1b**).
 

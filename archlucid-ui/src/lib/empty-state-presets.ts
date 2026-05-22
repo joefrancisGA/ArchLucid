@@ -11,7 +11,7 @@ export { SEARCH_EMPTY } from "./search-empty-preset";
 
 export const RUNS_EMPTY: EmptyStateProps = {
   icon: FileText,
-  title: "No architecture runs yet",
+  title: "No reviews yet",
   description:
     "Core Pilot path: create an architecture review request, let the pipeline finish, finalize when ready, then open your review package. You can start here, open the sample review package, or submit via the CLI or API.",
   actions: [

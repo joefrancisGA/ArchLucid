@@ -51,4 +51,17 @@ public sealed class DemoOptions
         get;
         set;
     } = "vertical";
+
+    /// <summary>
+    ///     V1 Operator Shell — OS-1 (LATEST.md improvement #1). When <c>true</c>, the demo seed endpoint
+    ///     <c>POST /v1/demo/seed</c> is available outside Development so production-hosted SaaS tenants with zero
+    ///     real reviews can seed interactive sample data via <see cref="ArchLucid.Application.Bootstrap.IDemoSeedService"/>.
+    ///     <see cref="Enabled"/> must still be <c>true</c> for seeding to run. Static showcase / read-only demo paths
+    ///     are unaffected.
+    /// </summary>
+    public bool SaaSGuestSeedEnabled
+    {
+        get;
+        init;
+    }
 }

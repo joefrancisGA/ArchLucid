@@ -12,6 +12,7 @@ import { RunsIndexBeforeAfterPanel } from "@/components/RunsIndexBeforeAfterPane
 import { RunsListAggregateErrorBoundary } from "@/components/RunsListAggregateErrorBoundary";
 import { RunsListProofHeadline } from "@/components/RunsListProofHeadline";
 import { RunsPageBuyerHelpTip } from "@/components/RunsPageBuyerHelpTip";
+import { SeedSampleReviewButton } from "@/components/SeedSampleReviewButton";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { Button } from "@/components/ui/button";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
@@ -153,7 +154,7 @@ export function RunsPageView(props: Props) {
           </div>
           <EmptyState
             {...RUNS_EMPTY}
-            title="No architecture reviews yet"
+            title="No reviews yet"
             description={
               isBuyerPolishedOperatorShellEnv()
                 ? `Each review package is tracked in this workspace for manifest, evidence, findings, and deliverables.\n\n${RUNS_EMPTY.description}`
@@ -167,6 +168,15 @@ export function RunsPageView(props: Props) {
                   )
             }
           />
+          {isBuyerPolishedOperatorShellEnv() ? (
+            <div className="mt-3 flex flex-col items-center gap-2" data-testid="seed-sample-review-empty-state">
+              <SeedSampleReviewButton />
+              <p className="max-w-md text-center text-xs text-neutral-600 dark:text-neutral-400">
+                Seeds an interactive sample review so you can explore the workspace before uploading your own
+                architecture context.
+              </p>
+            </div>
+          ) : null}
         </>
       ) : null}
 

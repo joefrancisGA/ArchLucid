@@ -24,14 +24,21 @@ public sealed class DemoController(
     IWebHostEnvironment environment) : ControllerBase
 {
     /// <summary>Runs the Contoso Retail Modernization demo seed. No-op for missing rows; safe to repeat.</summary>
-    /// <remarks>Available only when <c>Demo:Enabled</c> is true and the host environment is Development.</remarks>
+    /// <remarks>
+    ///     Available when <c>Demo:Enabled</c> is true and either the host environment is Development OR
+    ///     <c>Demo:SaaSGuestSeedEnabled</c> is true (V1 Operator Shell — OS-1, LATEST.md improvement #1).
+    /// </remarks>
     [HttpPost("seed")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SeedAsync(CancellationToken cancellationToken = default)
     {
-        if (!environment.IsDevelopment())
+        // OS-1 guard: Development hosts always allow seeding; non-Dev hosts require Demo:SaaSGuestSeedEnabled
+        // (production-hosted SaaS tenants opt in via appsettings.SaaS.json). Demo:Enabled remains the master switch.
+        bool isDevOrSaaSEnabled = environment.IsDevelopment() || demoOptions.Value.SaaSGuestSeedEnabled;
+
+        if (!isDevOrSaaSEnabled)
             return this.NotFoundProblem(
                 "Demo seed is available only in Development environment.",
                 ProblemTypes.ResourceNotFound);
