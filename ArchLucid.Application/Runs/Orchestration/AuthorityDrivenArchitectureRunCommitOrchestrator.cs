@@ -8,6 +8,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Application.Runs.Telemetry;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -68,6 +69,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IAuditService auditService,
     ITrialFunnelCommitHook trialFunnelCommitHook,
     IFirstSessionLifecycleHook firstSessionLifecycleHook,
+    ISampleRunPurgeService sampleRunPurgeService,
     IFindingIacStubGenerator findingIacStubGenerator,
     IFindingPriorityReranker findingPriorityReranker,
     IDbConnectionFactory dbConnectionFactory,
@@ -106,6 +108,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private readonly IFirstSessionLifecycleHook _firstSessionLifecycleHook =
         firstSessionLifecycleHook ?? throw new ArgumentNullException(nameof(firstSessionLifecycleHook));
+
+    private readonly ISampleRunPurgeService _sampleRunPurgeService =
+        sampleRunPurgeService ?? throw new ArgumentNullException(nameof(sampleRunPurgeService));
 
     private readonly IFindingIacStubGenerator _findingIacStubGenerator =
         findingIacStubGenerator ?? throw new ArgumentNullException(nameof(findingIacStubGenerator));
@@ -346,6 +351,10 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         // Pins dbo.Tenants.TrialFirstManifestCommittedUtc for every tenant on first commit; trial-funnel audit/metrics stay inside the hook.
         await _trialFunnelCommitHook.OnTrialTenantManifestCommittedAsync(commitScope.TenantId, committedUtc, cancellationToken);
         await _firstSessionLifecycleHook.OnSuccessfulManifestCommitAsync(commitScope.TenantId, cancellationToken);
+
+        if (!runRecord.IsSample)
+            TryScheduleSampleRunPurgeForTenant(commitScope.TenantId);
+
         if (!string.IsNullOrWhiteSpace(run.RequestId))
         {
             int remainingActiveRuns = await _runRepository.CountActiveRunsForArchitectureRequestAsync(commitScope, run.RequestId, cancellationToken);
@@ -388,6 +397,26 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         TryScheduleFindingPriorityRerank(runId);
 
         return new CommitRunResult { Manifest = contract, DecisionTraces = [trace], Warnings = persisted.Warnings.Count == 0 ? [] : [.. persisted.Warnings] };
+    }
+
+    private void TryScheduleSampleRunPurgeForTenant(Guid tenantId)
+    {
+        _ = Task.Run(
+            async () =>
+            {
+                try
+                {
+                    await _sampleRunPurgeService.PurgeForTenantAsync(tenantId, CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarningWithSanitizedUserArg(
+                        ex,
+                        "Post-commit sample run purge failed for TenantId={TenantId}",
+                        tenantId.ToString("D"));
+                }
+            },
+            CancellationToken.None);
     }
 
     private void TryScheduleFindingPriorityRerank(string runId)

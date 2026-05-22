@@ -158,4 +158,15 @@ public interface IRunRepository
         DateTimeOffset createdBeforeUtc,
         int batchSize,
         CancellationToken ct);
+
+    /// <summary>
+    ///     Hard-deletes up to <paramref name="batchSize" /> runs with <c>IsSample = 1</c> via
+    ///     <c>dbo.SampleRunPurgeBatch</c>, optionally scoped to <paramref name="tenantId" /> and/or
+    ///     <paramref name="createdBeforeUtc" />.
+    /// </summary>
+    Task<RunSamplePurgeBatchResult> HardDeleteSampleRunsBatchAsync(
+        Guid? tenantId,
+        DateTimeOffset? createdBeforeUtc,
+        int batchSize,
+        CancellationToken ct);
 }

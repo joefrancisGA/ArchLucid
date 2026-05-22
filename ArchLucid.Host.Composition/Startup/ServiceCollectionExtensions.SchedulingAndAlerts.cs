@@ -66,6 +66,17 @@ public static partial class ServiceCollectionExtensions
         services.AddHostedService<ArchitectureProjectRetentionPurgeHostedService>();
     }
 
+    private static void RegisterSampleRunTtlHostedService(
+        IServiceCollection services,
+        ArchLucidHostingRole hostingRole)
+    {
+        // Api-only hosts register ArchLucid.Api.Workers.SampleRunTtlPurgeWorker in Program (same lease + purge logic).
+        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
+            return;
+
+        services.AddHostedService<SampleRunTtlHostedService>();
+    }
+
     private static void RegisterTenantErasureEligiblePurgeHostedService(
         IServiceCollection services,
         ArchLucidHostingRole hostingRole)

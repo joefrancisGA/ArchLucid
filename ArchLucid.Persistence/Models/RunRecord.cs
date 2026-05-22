@@ -132,6 +132,16 @@ public sealed class RunRecord
         set;
     }
 
+    /// <summary>
+    ///     When <see langword="true" />, this run was seeded as live sample data and is eligible for auto-purge on first
+    ///     real commit or TTL expiry (OS-1b).
+    /// </summary>
+    public bool IsSample
+    {
+        get;
+        set;
+    }
+
     /// <summary>When <see langword="true" />, the operator pinned this run as a workspace reference architecture.</summary>
     public bool IsPinned
     {

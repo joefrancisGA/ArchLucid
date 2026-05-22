@@ -64,6 +64,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(AzureExtractorAutoPullOptions.SectionName));
         services.Configure<ArchitectureProjectRetentionPurgeOptions>(
             configuration.GetSection(ArchitectureProjectRetentionPurgeOptions.SectionName));
+        services.Configure<SampleRunPurgeOptions>(
+            configuration.GetSection(SampleRunPurgeOptions.SectionName));
         services.Configure<TenantErasurePurgeOptions>(configuration.GetSection(TenantErasurePurgeOptions.SectionName));
         services.Configure<HostLeaderElectionOptions>(configuration.GetSection(HostLeaderElectionOptions.SectionName));
         services.AddScoped<IDemoSeedService, DemoSeedService>();
@@ -111,6 +113,7 @@ public static partial class ServiceCollectionExtensions
         RegisterDataArchivalHostedService(services, configuration, hostingRole);
         RegisterFirstTenantFunnelArchivalHostedService(services, configuration, hostingRole);
         RegisterArchitectureProjectRetentionPurgeHostedService(services, hostingRole);
+        RegisterSampleRunTtlHostedService(services, hostingRole);
         RegisterTenantErasureEligiblePurgeHostedService(services, hostingRole);
         RegisterAzureExtractorAutoPullHostedService(services, hostingRole);
         RegisterDataConsistencyReconciliation(services, configuration, hostingRole);

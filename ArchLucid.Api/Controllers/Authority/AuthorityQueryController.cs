@@ -374,6 +374,7 @@ public sealed class AuthorityQueryController(
             Description = x.Description,
             DisplayName = string.IsNullOrWhiteSpace(x.Description) ? null : x.Description.Trim(),
             IsDemoWelcomeRun = x.IsDemoWelcomeRun,
+            IsSample = x.IsSample,
             IsPinned = x.IsPinned,
             CreatedUtc = x.CreatedUtc,
             HasContextSnapshot = x.HasContextSnapshot,

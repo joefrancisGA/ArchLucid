@@ -5,6 +5,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -161,6 +162,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             Mock.Of<IAuditService>(),
             Mock.Of<ITrialFunnelCommitHook>(),
             Mock.Of<IFirstSessionLifecycleHook>(),
+            Mock.Of<ISampleRunPurgeService>(),
             Mock.Of<IFindingIacStubGenerator>(),
             Mock.Of<ArchLucid.Application.Findings.IFindingPriorityReranker>(),
             Mock.Of<IDbConnectionFactory>(),

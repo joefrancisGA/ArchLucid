@@ -42,4 +42,6 @@ public static class HostElectionLeaseNames
     public const string SamlCertExpiryNotification = "hosted:saml-cert-expiry-notification";
 
     public const string TenantErasureEligiblePurge = "hosted:tenant-erasure-eligible-purge";
+
+    public const string SampleRunTtlPurge = "hosted:sample-run-ttl-purge";
 }

@@ -34,6 +34,7 @@ using ArchLucid.Application.Tenancy;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Core.Runs;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Application.Support;
@@ -191,6 +192,7 @@ public static partial class ServiceCollectionExtensions
         // ADR 0030 PR A3 (2026-04-24): the legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector
         // + LegacyRunCommitPathOptions were deleted. The authority-driven orchestrator is the single commit implementation.
         services.AddScoped<IArchitectureRunCommitOrchestrator, AuthorityDrivenArchitectureRunCommitOrchestrator>();
+        services.AddScoped<ISampleRunPurgeService, SampleRunPurgeService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
         services.Configure<RunRoiEstimatorOptions>(configuration.GetSection(RunRoiEstimatorOptions.SectionPath));
         services.AddScoped<IRunRoiEstimator, RunRoiEstimator>();

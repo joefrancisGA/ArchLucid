@@ -138,7 +138,8 @@ public sealed class DemoSeedService(
             CreatedUtc = TrialWelcomeSeedUtc,
             ArchitectureRequestId = requestId,
             LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
-            IsDemoWelcomeRun = true
+            IsDemoWelcomeRun = true,
+            IsSample = true
         };
         await runRepository.SaveAsync(authorityRow, cancellationToken);
         AgentTask topoTask = new()
@@ -603,7 +604,8 @@ public sealed class DemoSeedService(
                     : "Demo — Contoso retail baseline manifest (trusted baseline seed).",
             CreatedUtc = DemoUtc,
             ArchitectureRequestId = demo.RequestId,
-            LegacyRunStatus = nameof(ArchitectureRunStatus.Created)
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+            IsSample = ShouldMarkSeededRunAsSample(scope.TenantId)
         };
         await runRepository.SaveAsync(authorityRow, cancellationToken);
         AgentTask task = new()
@@ -1398,6 +1400,12 @@ public sealed class DemoSeedService(
 
         return t.Length >= 12 ? t[..12] : t;
     }
+
+    /// <summary>
+    ///     Trusted-baseline Contoso fixtures on the canonical default tenant stay durable; guest-tenant demo seeds are
+    ///     sample data eligible for OS-1b auto-purge.
+    /// </summary>
+    private static bool ShouldMarkSeededRunAsSample(Guid tenantId) => tenantId != ScopeIds.DefaultTenant;
 
     /// <summary>
     ///     Optional export <strong>history</strong> row for demos — not wired to consulting DOCX replay (no

@@ -47,6 +47,13 @@ public class RunSummaryResponse
         set;
     }
 
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.IsSample" />
+    public bool IsSample
+    {
+        get;
+        set;
+    }
+
     /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.IsPinned" />
     public bool IsPinned
     {

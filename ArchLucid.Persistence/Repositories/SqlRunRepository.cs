@@ -50,7 +50,7 @@ public sealed class SqlRunRepository(
                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsDemoWelcomeRun, IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                               IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                StructuralExecutionMode,
                                RetryCount, LastFailureReason
                            )
@@ -61,7 +61,7 @@ public sealed class SqlRunRepository(
                                @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId,
                                @GoldenManifestId, @DecisionTraceId, @ArtifactBundleId, @ArchivedUtc,
                                @ArchitectureRequestId, @LegacyRunStatus, @CompletedUtc, @CurrentManifestVersion, @OtelTraceId,
-                               @IsDemoWelcomeRun, @IsPublicShowcase, @IsPinned, @RealModeFellBackToSimulator, @PilotAoaiDeploymentSnapshot,
+                               @IsDemoWelcomeRun, @IsPublicShowcase, @IsSample, @IsPinned, @RealModeFellBackToSimulator, @PilotAoaiDeploymentSnapshot,
                                @StructuralExecutionMode,
                                @RetryCount, @LastFailureReason
                            );
@@ -114,7 +114,7 @@ public sealed class SqlRunRepository(
                                    ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                    GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                    ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                   IsDemoWelcomeRun, IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                   IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                    StructuralExecutionMode,
                                    RetryCount, LastFailureReason,
                                    RowVersionStamp AS RowVersion,
@@ -162,7 +162,7 @@ public sealed class SqlRunRepository(
                                    ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                    GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                    ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                   IsDemoWelcomeRun, IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                   IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                    StructuralExecutionMode,
                                    RetryCount, LastFailureReason,
                                    RowVersionStamp AS RowVersion,
@@ -209,7 +209,7 @@ public sealed class SqlRunRepository(
                                    ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                    GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                    ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                   IsDemoWelcomeRun, IsPublicShowcase, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                   IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                    StructuralExecutionMode,
                                    RetryCount, LastFailureReason,
                                    RowVersionStamp AS RowVersion,
@@ -507,6 +507,7 @@ public sealed class SqlRunRepository(
                                CurrentManifestVersion = @CurrentManifestVersion,
                                IsDemoWelcomeRun = @IsDemoWelcomeRun,
                                IsPublicShowcase = @IsPublicShowcase,
+                               IsSample = @IsSample,
                                IsPinned = @IsPinned,
                                RealModeFellBackToSimulator = @RealModeFellBackToSimulator,
                                PilotAoaiDeploymentSnapshot = @PilotAoaiDeploymentSnapshot,
@@ -940,6 +941,37 @@ public sealed class SqlRunRepository(
         return new RunStaleUncommittedPurgeBatchResult { Deleted = list };
     }
 
+    /// <inheritdoc />
+    public async Task<RunSamplePurgeBatchResult> HardDeleteSampleRunsBatchAsync(
+        Guid? tenantId,
+        DateTimeOffset? createdBeforeUtc,
+        int batchSize,
+        CancellationToken ct)
+    {
+        if (batchSize < 1)
+            throw new ArgumentOutOfRangeException(nameof(batchSize), batchSize, "Batch size must be at least 1.");
+
+        int safeBatch = Math.Clamp(batchSize, 1, 10_000);
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+
+        IEnumerable<ArchivedRunScopeRow> rows = await connection.QueryAsync<ArchivedRunScopeRow>(
+            new CommandDefinition(
+                "dbo.SampleRunPurgeBatch",
+                new
+                {
+                    TenantId = tenantId,
+                    CreatedBeforeUtc = createdBeforeUtc?.UtcDateTime,
+                    BatchSize = safeBatch
+                },
+                commandType: CommandType.StoredProcedure,
+                cancellationToken: ct));
+
+        List<ArchivedRunScopeRow> list = rows.AsList();
+
+        return new RunSamplePurgeBatchResult { Deleted = list };
+    }
+
     private static void ValidateRunKeysetCursor(DateTime? cursorCreatedUtc, Guid? cursorRunId)
     {
         if (cursorCreatedUtc.HasValue != cursorRunId.HasValue)
@@ -978,6 +1010,7 @@ public sealed class SqlRunRepository(
             run.OtelTraceId,
             run.IsDemoWelcomeRun,
             run.IsPublicShowcase,
+            run.IsSample,
             run.IsPinned,
             run.RealModeFellBackToSimulator,
             run.PilotAoaiDeploymentSnapshot,
@@ -1018,6 +1051,7 @@ public sealed class SqlRunRepository(
                     run.CurrentManifestVersion,
                     run.IsDemoWelcomeRun,
                     run.IsPublicShowcase,
+                    run.IsSample,
                     run.IsPinned,
                     run.RealModeFellBackToSimulator,
                     run.PilotAoaiDeploymentSnapshot,

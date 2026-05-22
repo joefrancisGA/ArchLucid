@@ -450,6 +450,11 @@ public static class AuditEventTypes
     /// <summary>Retention job hard-deleted a soft-deleted <c>dbo.Projects</c> row (payload: project id).</summary>
     public const string ArchitectureProjectHardPurgedRetention = "ArchitectureProjectHardPurgedRetention";
 
+    /// <summary>
+    ///     Platform audit: sample-marked runs purged after first real commit or TTL (payload: row counts only — no tenant id).
+    /// </summary>
+    public const string SampleRunsPurged = "SampleRunsPurged";
+
     /// <summary>Self-service trial activated with sample data (demo seed + trial window metadata).</summary>
     public const string TrialProvisioned = "TrialProvisioned";
 

@@ -20,6 +20,7 @@ internal static class AuthorityRunMapper
             Description = run.Description,
             CreatedUtc = run.CreatedUtc,
             IsDemoWelcomeRun = run.IsDemoWelcomeRun,
+            IsSample = run.IsSample,
             IsPinned = run.IsPinned,
             ContextSnapshotId = run.ContextSnapshotId,
             GraphSnapshotId = run.GraphSnapshotId,

@@ -425,6 +425,52 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         return Task.FromResult(new RunStaleUncommittedPurgeBatchResult { Deleted = removed });
     }
 
+    /// <inheritdoc />
+    public Task<RunSamplePurgeBatchResult> HardDeleteSampleRunsBatchAsync(
+        Guid? tenantId,
+        DateTimeOffset? createdBeforeUtc,
+        int batchSize,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        if (batchSize < 1)
+            throw new ArgumentOutOfRangeException(nameof(batchSize), batchSize, "Batch size must be at least 1.");
+
+        DateTime? cutoff = createdBeforeUtc?.UtcDateTime;
+        int cap = Math.Clamp(batchSize, 1, 10_000);
+        List<ArchivedRunScopeRow> removed = [];
+
+        foreach (KeyValuePair<Guid, RunRecord> kv in _store.OrderBy(static p => p.Value.CreatedUtc).ToArray())
+        {
+            if (removed.Count >= cap)
+                break;
+
+            RunRecord r = kv.Value;
+
+            if (!r.IsSample)
+                continue;
+
+            if (tenantId.HasValue && r.TenantId != tenantId.Value)
+                continue;
+
+            if (cutoff.HasValue && r.CreatedUtc >= cutoff.Value)
+                continue;
+
+            removed.Add(new ArchivedRunScopeRow
+            {
+                RunId = r.RunId,
+                TenantId = r.TenantId,
+                WorkspaceId = r.WorkspaceId,
+                ScopeProjectId = r.ScopeProjectId
+            });
+
+            _store.TryRemove(kv.Key, out _);
+        }
+
+        return Task.FromResult(new RunSamplePurgeBatchResult { Deleted = removed });
+    }
+
     private static bool LegacyRunStatusIsNonTerminal(string? legacyRunStatus)
     {
         // Null/empty statuses are treated as active — safer than falsely releasing lifecycle while status is uninitialized.

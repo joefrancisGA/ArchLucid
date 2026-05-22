@@ -45,6 +45,13 @@ public class RunSummaryDto
         set;
     }
 
+    /// <summary>When <see langword="true" />, this run is seeded sample data eligible for auto-purge.</summary>
+    public bool IsSample
+    {
+        get;
+        set;
+    }
+
     /// <summary>When <see langword="true" />, the operator pinned this run in the workspace run list.</summary>
     public bool IsPinned
     {
