@@ -56,20 +56,55 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
     {
         base.ConfigureWebHost(builder);
 
-        // Minimal-hosting WebApplicationFactory can register DI before ConfigureAppConfiguration wins over
-        // appsettings.Development.json (StorageProvider=InMemory). Startup then runs SqlSchemaBootstrapper
-        // without ISchemaBootstrapper registered — same early-merge pattern as JwtLocalSigningWebAppFactory.
-        builder.UseSetting("ArchLucid:StorageProvider", "Sql");
-        builder.UseSetting("ConnectionStrings:ArchLucid", SqlConnectionString);
+        ApplySqlPersistenceHostOverrides(builder);
+    }
 
-        Dictionary<string, string?> sqlBootstrap = new()
+    /// <summary>Sql catalog overrides every greenfield host must apply before <see cref="Program" /> registers DI.</summary>
+    protected Dictionary<string, string?> CreateSqlPersistenceHostOverrides()
+    {
+        return new Dictionary<string, string?>
         {
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] = SqlConnectionString
         };
+    }
 
-        IConfiguration bootstrap = new ConfigurationBuilder().AddInMemoryCollection(sqlBootstrap).Build();
+    /// <summary>
+    ///     Minimal-hosting <see cref="WebApplicationFactory{TEntryPoint}" /> can register DI before
+    ///     <see cref="IWebHostBuilder.ConfigureAppConfiguration" /> wins over
+    ///     <c>appsettings.Development.json</c> (<c>StorageProvider=InMemory</c>). Startup then runs
+    ///     <c>ISchemaBootstrapper</c> without it registered — same early-merge pattern as
+    ///     <see cref="JwtLocalSigningWebAppFactory" /> and
+    ///     <see cref="Billing.BillingCheckoutEndToEndSqlJwtFactoryBase" />.
+    /// </summary>
+    protected void ApplySqlPersistenceHostOverrides(
+        IWebHostBuilder builder,
+        IReadOnlyDictionary<string, string?>? additionalOverrides = null)
+    {
+        Dictionary<string, string?> overrides = CreateSqlPersistenceHostOverrides();
+
+        if (additionalOverrides is not null)
+        {
+            foreach (KeyValuePair<string, string?> pair in additionalOverrides)
+            {
+                overrides[pair.Key] = pair.Value;
+            }
+        }
+
+        foreach (KeyValuePair<string, string?> pair in overrides)
+        {
+            if (pair.Value is null)
+            {
+                continue;
+            }
+
+            builder.UseSetting(pair.Key, pair.Value);
+        }
+
+        IConfiguration bootstrap = new ConfigurationBuilder().AddInMemoryCollection(overrides).Build();
         builder.UseConfiguration(bootstrap);
+
+        builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(overrides));
     }
 
     protected override void AddCustomSettings(Dictionary<string, string?> settings)
