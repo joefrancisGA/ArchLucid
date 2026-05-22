@@ -63,7 +63,6 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture
         settings["ConnectionStrings:ArchLucid"] = SqlConnectionString;
         settings["ArchLucidAuth:AllowTestActorHeaders"] = "true";
         settings["ArchLucid:EvidenceBulkUploadMaxFiles"] = "30";
-        settings["ArtifactLargePayload:BlobProvider"] = "Local";
     }
 
     /// <inheritdoc />

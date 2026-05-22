@@ -19,6 +19,8 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
 
         builder.UseSetting("DataConsistency:InitialDelaySeconds", "0");
         builder.UseSetting("HostLeaderElection:Enabled", "false");
+        // appsettings.Advanced.json defaults BlobProvider=None; bulk evidence writes require a writable store.
+        builder.UseSetting("ArtifactLargePayload:BlobProvider", "Local");
 
         builder.ConfigureAppConfiguration((_, config) =>
         {
@@ -42,7 +44,8 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
                 ["RateLimiting:EvidenceBulkUpload:PermitLimit"] = "100000",
                 ["RateLimiting:EvidenceBulkUpload:WindowMinutes"] = "1",
                 ["Billing:Provider"] = "Noop",
-                ["ASPNETCORE_URLS"] = "http://127.0.0.1:0"
+                ["ASPNETCORE_URLS"] = "http://127.0.0.1:0",
+                ["ArtifactLargePayload:BlobProvider"] = "Local"
             };
 
             AddCustomSettings(settings);

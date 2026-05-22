@@ -1,4 +1,4 @@
-using ArchLucid.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 

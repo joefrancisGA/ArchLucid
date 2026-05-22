@@ -105,10 +105,13 @@ public sealed class BulkEvidenceUploadService(
                     continue;
                 }
 
+                // Multipart section streams must be disposed before opening the next file part.
+                using Stream contentStream = file.OpenReadStream();
+
                 await UploadSingleEvidenceFileAsync(
                     runId,
                     safeBaseName,
-                    file.OpenReadStream(),
+                    contentStream,
                     uploadedIds,
                     fileNames,
                     cancellationToken);
