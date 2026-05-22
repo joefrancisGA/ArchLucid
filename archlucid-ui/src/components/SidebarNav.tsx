@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Label } from "@/components/ui/label";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHints";
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
@@ -662,37 +663,46 @@ export function SidebarNav() {
 
       {showProgressiveDisclosureChrome ? (
         <div className="mt-2 px-2" data-testid="sidebar-collapsed-toggle-wrap">
-          <button
-            type="button"
-            className="sidebar-disclosure-trigger w-full rounded-md border border-neutral-200 bg-white px-2 py-2 text-left text-xs font-medium text-neutral-900 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-50 dark:hover:bg-neutral-800"
-            aria-expanded={navAllFeaturesExpanded}
-            onClick={() => {
-              const next = !navAllFeaturesExpanded;
-              setNavAllFeaturesExpanded(next);
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  className="sidebar-disclosure-trigger w-full rounded-md border border-neutral-200 bg-white px-2 py-2 text-left text-xs font-medium text-neutral-900 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-50 dark:hover:bg-neutral-800"
+                  aria-expanded={navAllFeaturesExpanded}
+                  onClick={() => {
+                    const next = !navAllFeaturesExpanded;
+                    setNavAllFeaturesExpanded(next);
 
-              try {
-                window.localStorage.setItem(SIDEBAR_NAV_EXPAND_ALL_KEY, next ? "true" : "false");
-              } catch {
-                /* private mode */
-              }
-            }}
-          >
-            {navAllFeaturesExpanded ? (
-              "Fewer sidebar links"
-            ) : (
-              <>
-                Show all features
-                {extraLinksBehindCollapsedPilot > 0 ? (
-                  <>
-                    {" "}
-                    <span className="rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700 dark:bg-neutral-700 dark:text-neutral-200">
-                      {extraLinksBehindCollapsedPilot} more
-                    </span>
-                  </>
-                ) : null}
-              </>
-            )}
-          </button>
+                    try {
+                      window.localStorage.setItem(SIDEBAR_NAV_EXPAND_ALL_KEY, next ? "true" : "false");
+                    } catch {
+                      /* private mode */
+                    }
+                  }}
+                >
+                  {navAllFeaturesExpanded ? (
+                    "Fewer sidebar links"
+                  ) : (
+                    <>
+                      Show all features
+                      {extraLinksBehindCollapsedPilot > 0 ? (
+                        <>
+                          {" "}
+                          <span className="rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700 dark:bg-neutral-700 dark:text-neutral-200">
+                            {extraLinksBehindCollapsedPilot} more
+                          </span>
+                        </>
+                      ) : null}
+                    </>
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                Unlock advanced analysis and governance tools.
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       ) : null}
 

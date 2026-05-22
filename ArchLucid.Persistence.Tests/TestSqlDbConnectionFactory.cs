@@ -16,7 +16,12 @@ public sealed class TestSqlDbConnectionFactory : IDbConnectionFactory
     public TestSqlDbConnectionFactory(string connectionString)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
-        _connectionString = connectionString;
+        SqlConnectionStringBuilder builder = new(connectionString)
+        {
+            ConnectRetryCount = 3,
+            ConnectRetryInterval = 10
+        };
+        _connectionString = builder.ConnectionString;
     }
 
     /// <inheritdoc />

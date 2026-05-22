@@ -34,7 +34,7 @@ export function PlanningThemesTable(props: PlanningThemesTableProps) {
             <th className={planningThTdCls}>Title</th>
             <th className={planningThTdCls}>Severity</th>
             <th className={planningNumericCellCls}>Evidence signals</th>
-            <th className={planningNumericCellCls}>Runs</th>
+            <th className={planningNumericCellCls}>Reviews</th>
             <th className={planningThTdCls}>Area</th>
             <th className={planningThTdCls}>Plans</th>
             <th className={planningThTdCls}>Summary</th>

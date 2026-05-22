@@ -26,4 +26,13 @@ public static class TerraformAdvisorySnippetTemplates
         ArgumentNullException.ThrowIfNull(reason);
         return $"{AdvisoryHeaderLine}\n# Omitting terraform destroy for `{resourceTerraformAddress}` — {reason}\n";
     }
+
+    /// <summary>Sanitizes LLM-generated Terraform blocks to ensure no destructive operations are present.</summary>
+    public static string SanitizeLlmTerraformBlock(string llmOutput)
+    {
+        ArgumentNullException.ThrowIfNull(llmOutput);
+        if (llmOutput.Contains("destroy", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Validation failed: LLM generated a Terraform block containing the destructive verb 'destroy'.");
+        return llmOutput;
+    }
 }

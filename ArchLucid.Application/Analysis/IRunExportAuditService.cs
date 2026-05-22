@@ -18,4 +18,11 @@ public interface IRunExportAuditService
         string? notes = null,
         bool emitArchitectureDocxExportGeneratedAudit = true,
         CancellationToken cancellationToken = default);
+
+    Task RecordFailureAsync(
+        string runId,
+        string exportType,
+        string format,
+        string errorMessage,
+        CancellationToken cancellationToken = default);
 }

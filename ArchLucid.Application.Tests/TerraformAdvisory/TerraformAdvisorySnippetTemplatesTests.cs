@@ -53,4 +53,15 @@ public sealed class TerraformAdvisorySnippetTemplatesTests
 
         cite.Should().Contain("schemaVersion=1");
     }
+
+    [Fact]
+    public void SanitizeLlmTerraformBlock_when_llm_mock_returns_destroy_throws_validation_exception()
+    {
+        string llmOutput = "resource \"azurerm_resource_group\" \"rg\" {\n  # destroy this\n}";
+
+        Action act = () => TerraformAdvisorySnippetTemplates.SanitizeLlmTerraformBlock(llmOutput);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*destroy*");
+    }
 }

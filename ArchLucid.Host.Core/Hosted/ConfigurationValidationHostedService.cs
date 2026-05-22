@@ -27,9 +27,10 @@ public sealed class ConfigurationValidationHostedService(
             return Task.CompletedTask;
 
         foreach (string error in errors)
-
-            if (_logger.IsEnabled(LogLevel.Error))
-                _logger.LogError("Startup configuration error: {Error}", error);
+        {
+            if (_logger.IsEnabled(LogLevel.Critical))
+                _logger.LogCritical("Startup configuration error (Remediation required): {Error}", error);
+        }
 
         throw new InvalidOperationException(BuildInvalidOperationMessage(errors));
     }

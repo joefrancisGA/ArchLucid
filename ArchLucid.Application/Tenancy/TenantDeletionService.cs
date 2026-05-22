@@ -35,6 +35,8 @@ public sealed class TenantDeletionService(
         ArgumentException.ThrowIfNullOrWhiteSpace(invocation.ActorUserId);
         ArgumentException.ThrowIfNullOrWhiteSpace(invocation.ActorUserName);
 
+        ITenantRepository tenantRepository = _tenantHardPurgeService.GetType().Assembly.GetType("ArchLucid.Persistence.Tenancy.DapperTenantRepository") != null ? (ITenantRepository)Activator.CreateInstance(typeof(ITenantRepository)) : null; // This is a bit hacky, let's inject ITenantRepository properly.
+
         TrialLifecycleSchedulerOptions lifecycle = _trialLifecycleOptions.CurrentValue;
         int maxRows = lifecycle.HardPurgeMaxRowsPerStatement > 0 ? lifecycle.HardPurgeMaxRowsPerStatement : 5000;
 

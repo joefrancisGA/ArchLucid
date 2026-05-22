@@ -40,6 +40,16 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+try {
+    if (-not (Get-Module -ListAvailable -Name Az.Accounts)) { throw "Az.Accounts missing" }
+    if (-not (Get-Module -ListAvailable -Name Az.Resources)) { throw "Az.Resources missing" }
+    Import-Module Az.Accounts -ErrorAction Stop
+    Import-Module Az.Resources -ErrorAction Stop
+} catch {
+    Write-Host "WARNING: Required Azure modules (Az.Accounts, Az.Resources) are missing or failed to import. Please run 'Install-Module Az' to install them." -ForegroundColor Yellow
+    exit 1
+}
+
 function Write-Utf8NoBom([string] $Path, [string] $Content)
 {
     [System.IO.File]::WriteAllText($Path, $Content, [System.Text.UTF8Encoding]::new($false))
@@ -94,19 +104,6 @@ function New-ArchLucidCollectedArmResourceRecord([object] $AzResource)
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.PolicyCompliance.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.CostManagement.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ResourceGraph.helpers.ps1')
-
-if (-not (Get-Module -ListAvailable -Name Az.Resources))
-{
-    throw "Az.Resources module is required. Install: Install-Module Az -Scope CurrentUser"
-}
-
-if (-not (Get-Module -ListAvailable -Name Az.Accounts))
-{
-    throw "Az.Accounts module is required for policy compliance REST calls. Install: Install-Module Az -Scope CurrentUser"
-}
-
-Import-Module Az.Resources -ErrorAction Stop
-Import-Module Az.Accounts -ErrorAction Stop
 
 if ([string]::IsNullOrWhiteSpace($SubscriptionId) -and [string]::IsNullOrWhiteSpace($ManagementGroupId))
 {
@@ -198,6 +195,9 @@ try
             Get-AzResource -ResourceGroupName $ResourceGroupScope -Verbose:$false |
                 ForEach-Object { New-ArchLucidCollectedArmResourceRecord $_ }
     }
+
+    # SECURITY BOUNDARY: Explicitly filter out Key Vault secrets to ensure we strictly grab structural ARM metadata and NEVER request data plane or secret contents.
+    $resources = @($resources) | Where-Object { $_.resourceType -ne "Microsoft.KeyVault/vaults/secrets" }
 
     $manifest = [ordered]@{
         schemaVersion = $schemaVersion

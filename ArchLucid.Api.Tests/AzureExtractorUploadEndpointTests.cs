@@ -36,7 +36,7 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
 
     [SkippableFact]
 
-    public async Task Upload_missingManifest_returns422()
+    public async Task Upload_missingManifest_returns400()
     {
 
         using HttpClient client = fixture.CreateClient();
@@ -48,13 +48,13 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
 
         using HttpResponseMessage response = await client.PostAsync("/v1/azure-extractor/upload", form);
 
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.UnprocessableEntity);
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
 
     }
 
     [SkippableFact]
 
-    public async Task Upload_unknownSchema_returns422()
+    public async Task Upload_unknownSchema_returns400()
     {
 
         using HttpClient client = fixture.CreateClient();
@@ -66,7 +66,7 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
 
         using HttpResponseMessage response = await client.PostAsync("/v1/azure-extractor/upload", form);
 
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.UnprocessableEntity);
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
 
     }
 

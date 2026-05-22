@@ -160,6 +160,8 @@ public interface ITenantRepository
     /// <summary>Decrements <c>EnterpriseSeatsUsed</c> after a SCIM user transitions from active to inactive.</summary>
     Task DecrementEnterpriseScimSeatAsync(Guid tenantId, CancellationToken ct);
 
+    Task<bool> TryApproveTenantErasureAsync(Guid tenantId, DateTimeOffset approvedUtc, string approvedByUserId, CancellationToken ct);
+
     /// <summary>
     ///     Starts erasure quarantine when not already offboarded: sets <c>OffboardedUtc</c>, <c>ErasureEligibleUtc</c>.
     /// </summary>

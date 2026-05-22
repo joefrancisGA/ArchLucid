@@ -185,7 +185,7 @@ export function OnboardingStartClient() {
               </dd>
             </div>
             <div>
-              <dt className="text-neutral-500 dark:text-neutral-400">Runs used</dt>
+              <dt className="text-neutral-500 dark:text-neutral-400">Reviews used</dt>
               <dd className="font-medium">
                 {status.trialRunsUsed ?? 0}
                 {typeof status.trialRunsLimit === "number" ? ` / ${status.trialRunsLimit}` : ""}

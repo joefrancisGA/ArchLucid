@@ -54,6 +54,24 @@ public sealed class TenantRecord
     }
 
     /// <summary>When set, the tenant is in platform-scheduled erasure quarantine (API deny middleware).</summary>
+    public DateTimeOffset? TenantErasureRequestedUtc
+    {
+        get;
+        init;
+    }
+
+    public DateTimeOffset? TenantErasureApprovedUtc
+    {
+        get;
+        init;
+    }
+
+    public string? TenantErasureApprovedByUserId
+    {
+        get;
+        init;
+    }
+
     public DateTimeOffset? OffboardedUtc
     {
         get;

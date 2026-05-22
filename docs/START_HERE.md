@@ -22,7 +22,7 @@ START_HERE.md (you are here)
 │   ├─ architecture/README.md                  (poster + ownership; map after first **review**)
 │   ├─ PENDING_QUESTIONS.md                    (owner decisions + gates)
 │   ├─ library/CONTRIBUTOR_CODE_MAP.md         (1-page decision tree for where to change code)
-│   ├─ library/CUSTOM_AGENT_HANDLERS.md        (register custom agent handlers in Host.Composition)
+│   ├─ library/CUSTOM_AGENT_HANDLER_GUIDE.md   (register custom agent handlers in Host.Composition)
 │   └─ library/GLOSSARY.md                     (canonical product / governance vocabulary)
 │
 └─ Security / GRC — trust pack (hosted UI /trust mirrors narrative)

@@ -1192,6 +1192,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Reports/ExecutiveSummaryController.cs",
+      "class_name": "ExecutiveSummaryController",
+      "route_template": "v{version:apiVersion}/reports/executive-summary",
+      "normalized_prefix": "/v1/reports/executive-summary",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Roi/RoiController.cs",
       "class_name": "RoiController",
       "route_template": "v{version:apiVersion}/roi",

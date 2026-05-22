@@ -51,7 +51,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
               Operational metrics
             </h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <ScorecardMetricCard title="Runs committed" value={String(data.totalRunsCommitted)} provenance={data.metricSources?.totalRunsCommitted} />
+              <ScorecardMetricCard title="Reviews committed" value={String(data.totalRunsCommitted)} provenance={data.metricSources?.totalRunsCommitted} />
               <ScorecardMetricCard title="Manifests created" value={String(data.totalManifestsCreated)} provenance={data.metricSources?.totalManifestsCreated} />
               <ScorecardMetricCard
                 title="Findings affirmed"

@@ -83,6 +83,10 @@ public static class ApiWebLayerServiceCollectionExtensions
             "azure_service_bus",
             failureStatus: HealthStatus.Unhealthy,
             tags: [ReadinessTags.Ready])
+            .AddCheck<KeyVaultConnectivityHealthCheck>(
+                "azure_key_vault_connectivity",
+                failureStatus: HealthStatus.Unhealthy,
+                tags: [ReadinessTags.Ready])
             .AddCheck<StartupDatabaseMigrationHealthCheck>(
                 "startup_database_migration",
                 failureStatus: HealthStatus.Unhealthy,

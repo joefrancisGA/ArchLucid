@@ -137,7 +137,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
           ) : null}
           {!loading && (results?.runs?.length ?? 0) > 0 ? (
             <section className="border-b border-neutral-100 px-3 py-2 dark:border-neutral-800">
-              <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500">Runs</h3>
+              <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500">Reviews</h3>
               <ul className="m-0 list-none p-0">
                 {results?.runs?.map((run) => (
                   <li key={run.runId}>

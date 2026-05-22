@@ -38,7 +38,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:142 -->
+<!-- route-tier-policy-nav-registry-count:143 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -161,6 +161,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Planning/ProvenanceQueryController.cs` | `/v1/authority` | standard | ReadAuthority |  |  |
 | `Planning/RetrievalController.cs` | `/v1/retrieval` | standard | ReadAuthority | /search |  |
 | `RegistrationController.cs` | `/v1/register` | none | AllowAnonymous |  | registration_public_flow |
+| `Reports/ExecutiveSummaryController.cs` | `/v1/reports/executive-summary` | none | ReadAuthority |  |  |
 | `Roi/RoiController.cs` | `/v1/roi` | none | ReadAuthority | /dashboard |  |
 | `Scim/ScimDiscoveryController.cs` | `/scim/v2` | none | ScimWrite |  | scim_idp_automation |
 | `Scim/ScimGroupsController.cs` | `/scim/v2/Groups` | none | ScimWrite |  | scim_idp_automation |

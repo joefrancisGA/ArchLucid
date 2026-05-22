@@ -69,4 +69,30 @@ public sealed class RunExportAuditServiceTests
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task RecordFailureAsync_LogsExportFailedAudit()
+    {
+        Mock<IRunExportRecordRepository> repo = new();
+        Mock<IAuditService> audit = new();
+        RunExportAuditService sut = new(repo.Object, audit.Object);
+        const string runId = "deadbeefdeadbeefdeadbeefdeadbeef";
+
+        await sut.RecordFailureAsync(
+            runId,
+            "analysis-report-consulting-docx",
+            "docx",
+            "Mocked exception occurred",
+            CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.RunExportFailed &&
+                    e.RunId == Guid.ParseExact(runId, "N") &&
+                    e.OccurredUtc <= TimeProvider.System.UtcNowDateTime() &&
+                    e.DataJson.Contains("Mocked exception occurred", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
 }

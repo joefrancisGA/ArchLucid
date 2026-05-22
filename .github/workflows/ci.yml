@@ -3141,7 +3141,14 @@ jobs:
             -v "$ZAP_WRK:/zap/wrk" \
             -v "$GITHUB_WORKSPACE/infra/zap:/zap/wrk/config:ro" \
             ghcr.io/zaproxy/zaproxy:stable \
-            zap-baseline.py -t http://archlucid-zap-api:8080 -c config/baseline-pr.tsv
+            zap-baseline.py -t http://archlucid-zap-api:8080 -c config/baseline-pr.tsv -r zap-report.html -I
+
+      - name: Upload ZAP scan report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-scan-report
+          path: ${{ runner.temp }}/zap-wrk-zapci-${{ github.run_id }}-${{ github.run_attempt }}/zap-report.html
 
   # Lightweight per-PR API fuzz: Schemathesis examples-only phase (~1–2 min) to catch response
   # schema violations before merge. Full fuzz (fuzzing + stateful) runs weekly in schemathesis-scheduled.yml.

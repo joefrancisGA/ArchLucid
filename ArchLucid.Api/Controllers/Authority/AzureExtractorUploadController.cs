@@ -54,6 +54,32 @@ public sealed class AzureExtractorUploadController(
         [FromQuery] Guid? runId,
         CancellationToken cancellationToken)
     {
+        if (file != null)
+        {
+            try
+            {
+                using var stream = file.OpenReadStream();
+                using System.IO.Compression.ZipArchive archive = new(stream, System.IO.Compression.ZipArchiveMode.Read, leaveOpen: true);
+                System.IO.Compression.ZipArchiveEntry? manifestEntry = archive.GetEntry("manifest.json");
+                if (manifestEntry == null)
+                {
+                    return this.BadRequestProblem("Missing manifest.json", ProblemTypes.ValidationFailed);
+                }
+                
+                using var manifestStream = manifestEntry.Open();
+                using var doc = JsonDocument.Parse(manifestStream);
+                if (!doc.RootElement.TryGetProperty("schemaVersion", out JsonElement schemaVersionElement) || 
+                    schemaVersionElement.GetInt32() != 1)
+                {
+                    return this.BadRequestProblem("Missing or unsupported schemaVersion in manifest.json", ProblemTypes.ValidationFailed);
+                }
+            }
+            catch (Exception ex) when (ex is not InvalidOperationException)
+            {
+                // Fall back to existing pipeline if ZIP parsing fails here
+            }
+        }
+
         AzureExtractorIngestResult result =
             await ingestService.IngestZipAsync(file, runId, cancellationToken, HttpContext.TraceIdentifier);
 

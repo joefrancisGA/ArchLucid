@@ -85,6 +85,27 @@ public sealed class RunExportAuditService(IRunExportRecordRepository repository,
         return record;
     }
 
+    public async Task RecordFailureAsync(string runId, string exportType, string format, string errorMessage, CancellationToken cancellationToken = default)
+    {
+        Guid? auditRunId = TryParseRunGuid(runId);
+        DateTime occurredUtc = TimeProvider.System.UtcNowDateTime();
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                OccurredUtc = occurredUtc,
+                EventType = AuditEventTypes.RunExportFailed,
+                RunId = auditRunId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        runId,
+                        exportType,
+                        format,
+                        errorMessage
+                    }, AuditJsonSerializationOptions.Instance)
+            }, cancellationToken);
+    }
+
     private static Guid? TryParseRunGuid(string runId)
     {
         if (Guid.TryParseExact(runId, "N", out Guid guid) || Guid.TryParse(runId, out guid))

@@ -910,6 +910,29 @@ public sealed class DapperTenantRepository(
         }, cancellationToken: ct));
     }
 
+    public async Task<bool> TryApproveTenantErasureAsync(Guid tenantId, DateTimeOffset approvedUtc, string approvedByUserId, CancellationToken ct)
+    {
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
+
+        const string sql = """
+                           UPDATE dbo.Tenants
+                           SET TenantErasureApprovedUtc = @ApprovedUtc,
+                               TenantErasureApprovedByUserId = @ApprovedByUserId
+                           WHERE Id = @TenantId
+                             AND OffboardedUtc IS NOT NULL
+                             AND TenantErasureApprovedUtc IS NULL;
+                           """;
+
+        int rows = await connection.ExecuteAsync(new CommandDefinition(sql, new
+        {
+            TenantId = tenantId,
+            ApprovedUtc = approvedUtc,
+            ApprovedByUserId = approvedByUserId
+        }, cancellationToken: ct));
+
+        return rows == 1;
+    }
+
     /// <inheritdoc />
     public async Task<bool> TryStartTenantErasureOffboardAsync(
         Guid tenantId,
@@ -920,7 +943,8 @@ public sealed class DapperTenantRepository(
         const string sql = """
                            UPDATE dbo.Tenants
                            SET OffboardedUtc = @OffboardedUtc,
-                               ErasureEligibleUtc = @ErasureEligibleUtc
+                               ErasureEligibleUtc = @ErasureEligibleUtc,
+                               TenantErasureRequestedUtc = @OffboardedUtc
                            WHERE Id = @Id AND OffboardedUtc IS NULL;
                            """;
 
@@ -952,7 +976,10 @@ public sealed class DapperTenantRepository(
                            UPDATE dbo.Tenants
                            SET OffboardedUtc = NULL,
                                ErasureEligibleUtc = NULL,
-                               SuspendedUtc = NULL
+                               SuspendedUtc = NULL,
+                               TenantErasureRequestedUtc = NULL,
+                               TenantErasureApprovedUtc = NULL,
+                               TenantErasureApprovedByUserId = NULL
                            WHERE Id = @Id AND OffboardedUtc IS NOT NULL;
                            """;
 

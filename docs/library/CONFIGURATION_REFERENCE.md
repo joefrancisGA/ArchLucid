@@ -231,3 +231,36 @@ All other keys are optional unless **When required** in the detailed table says 
 **Scope:** `RealAgentExecutor` when `AgentExecution:Mode=Real` (deterministic simulator is unchanged).
 
 **Trade-off:** Turning this on adds batch wall-clock time because the Critic handler starts only after the other agents in the same `ExecuteAsync` batch complete. The benefit is a richer Critic prompt: a capped, redacted digest of those agents' structured `AgentResult` fields is appended under `EvidenceNoteTypes.StagedPriorAgentsSummary` and surfaced in the Critic user prompt. This is **execution sequencing and evidence-note injection** only; it does not add autonomous planning beyond the commitments in `docs/library/V1_SCOPE.md`.
+
+### Generic OIDC Setup (Okta / Auth0)
+
+When configuring a generic OIDC issuer (such as Okta or Auth0), use `JwtBearer` mode and specify the authority.
+
+**JSON snippet (`appsettings.json`):**
+
+```json
+{
+  "ArchLucidAuth": {
+    "Mode": "JwtBearer",
+    "Authority": "https://your-tenant.us.auth0.com/",
+    "Audience": "https://api.archlucid.yourdomain.com",
+    "RoleClaimSources": ["groups", "ArchLucidRoles"]
+  }
+}
+```
+
+**YAML snippet:**
+
+```yaml
+ArchLucidAuth:
+  Mode: JwtBearer
+  Authority: https://your-tenant.us.auth0.com/
+  Audience: https://api.archlucid.yourdomain.com
+  RoleClaimSources: 
+    - groups
+    - ArchLucidRoles
+```
+
+**Notes on mapping IdP claims:**
+Ensure your Identity Provider is configured to include the roles or groups in the token claims. You can map these IdP claims to `ArchLucidRoles` by adding the claim names to `ArchLucidAuth:RoleClaimSources`. The API will map these sources to `ClaimTypes.Role` for authorization.
+

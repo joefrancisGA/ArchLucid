@@ -101,7 +101,7 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <h3 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Runs</h3>
+            <h3 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Reviews</h3>
           </CardHeader>
           <CardContent className="space-y-1 text-sm text-neutral-700 dark:text-neutral-300">
             <p className="m-0 tabular-nums">

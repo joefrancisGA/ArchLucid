@@ -182,7 +182,7 @@ export function ProductLearningPageView(props: Props) {
                       <th className={productLearningNumericCellClass}>Revised</th>
                       <th className={productLearningNumericCellClass}>Rejected</th>
                       <th className={productLearningNumericCellClass}>Follow-up</th>
-                      <th className={productLearningNumericCellClass}>Runs</th>
+                      <th className={productLearningNumericCellClass}>Reviews</th>
                       <th className={productLearningThTdClass}>Revision / repeat hint</th>
                     </tr>
                   </thead>

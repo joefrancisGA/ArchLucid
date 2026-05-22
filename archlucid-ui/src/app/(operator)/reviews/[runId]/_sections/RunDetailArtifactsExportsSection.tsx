@@ -132,23 +132,13 @@ export function RunDetailArtifactsExportsSection(
           ) : null}
 
           {!artifactsFailure && !artifactsMalformed && artifacts.length === 0 ? (
-            <OperatorEmptyState
-              title={buyerPolishedArtifactTable ? "No deliverables listed yet" : "No artifacts for this manifest"}
-            >
-              <p className="m-0">
-                {buyerPolishedArtifactTable ? (
-                  <>
-                    The review loaded, but no individual files are listed yet. Try the ZIP if your workspace publishes a bundle
-                    for this review.
-                  </>
-                ) : (
-                  <>
-                    The manifest exists but the artifact descriptor list is empty (valid empty result). Bundle ZIP may return 404
-                    when there is no bundle; review export may still include other files.
-                  </>
-                )}
+          <OperatorEmptyState title="No artifacts generated yet">
+            <div className="flex flex-col items-center justify-center space-y-2 py-4 text-center">
+              <p className="m-0 text-sm font-medium text-neutral-500">
+                No artifacts generated yet. Wait for the review to commit.
               </p>
-            </OperatorEmptyState>
+            </div>
+          </OperatorEmptyState>
           ) : null}
 
           {!artifactsFailure && !artifactsMalformed && artifacts.length > 0 ? (

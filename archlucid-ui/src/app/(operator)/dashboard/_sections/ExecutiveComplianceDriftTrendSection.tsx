@@ -70,7 +70,17 @@ export function ExecutiveComplianceDriftTrendSection() {
             Compliance drift trend is unavailable right now.
           </p>
         ) : null}
-        {!loading && !error ? <ComplianceDriftOpenResolvedChart points={points} /> : null}
+        {!loading && !error ? (
+          points.length === 0 ? (
+            <div className="flex h-32 w-full items-center justify-center rounded-md border border-dashed border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                Data gathering in progress. Commit a review to see trends.
+              </p>
+            </div>
+          ) : (
+            <ComplianceDriftOpenResolvedChart points={points} />
+          )
+        ) : null}
         <p className="m-0 text-sm">
           <Link href="/governance/dashboard" className="font-medium text-blue-700 underline dark:text-blue-400">
             Open executive workspace health

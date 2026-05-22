@@ -120,6 +120,7 @@ public static class AuditEventTypes
     public const string SupportBundleDownloaded = "SupportBundleDownloaded";
 
     public const string RunExported = "RunExported";
+    public const string RunExportFailed = "Export.Failed";
 
     /// <summary>Run export ZIP was successfully pushed to a customer-provided Azure Blob SAS URL.</summary>
     public const string RunExportBlobPushSucceeded = "RunExportBlobPushSucceeded";

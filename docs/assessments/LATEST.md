@@ -1,4 +1,6 @@
-﻿# ArchLucid Assessment – (A) Headline Readiness: 82.74%
+> **Scope:** Canonical weighted V1 GA readiness assessment for coding agents and the owner — current `(A)` headline score and improvement backlog; not a buyer deliverable or historical archive.
+
+# ArchLucid Assessment – (A) Headline Readiness: 82.74%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred V1.1/V2 items.*
 
@@ -115,23 +117,20 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 
 ---
 
-## Top 6 Monetization Blockers
+## Top 4 Monetization Blockers
 1. **Deferred Stripe Live Keys Flip:** Actual self-serve revenue is physically blocked until owner un-holds the keys (V1.1).
 2. **Marketplace Unpublished State:** Transactability via Azure Marketplace is blocked until owner completes Partner Center validation (V1.1).
 3. **Missing Cross-Run Executive ROI API:** CFOs cannot easily see a rolled-up deduplicated view of savings across multiple architecture reviews (V1.1).
-4. **AWS/GCP Exclusion:** Inability to analyze AWS/GCP targets out-of-the-box halts deals with multi-cloud or non-Azure-centric buyers (V1.1).
-5. **No Built-in Native ITSM Sync:** The lack of bidirectional Jira/ServiceNow status sync limits stickiness in mature enterprise workflows (V1.1).
-6. **Board-Pack PDF Limitations:** Exporting highly formatted, C-level readouts requires manual intervention if the UI charts don't render perfectly to PDF.
+4. **Board-Pack PDF Limitations:** Exporting highly formatted, C-level readouts requires manual intervention if the UI charts don't render perfectly to PDF.
 
 ---
 
-## Top 6 Enterprise Adoption Blockers
+## Top 5 Enterprise Adoption Blockers
 1. **SOC 2 CPA Attestation Absence:** Procurement teams will mandate manual security questionnaires because the formal CPA SOC 2 report is deferred.
 2. **Third-Party Pen Test Absence:** Lack of an external, redacted vendor summary requires trust in the internal owner-conducted exercise.
 3. **Local PowerShell Execution Requirements:** InfoSec policies blocking local `.ps1` execution will force buyers to delay pilots while seeking endpoint exceptions.
 4. **Manual GDPR Tenant Erasure:** The lack of an automated quarantine/purge pipeline will cause friction during privacy compliance reviews.
 5. **OIDC/SAML Setup Ambiguity:** Enterprise IAM teams will struggle without concrete, vendor-specific mapping examples in the docs.
-6. **No Automated Teams/Slack ChatOps:** Enterprise teams relying on chat-driven approvals will have to wait for V1.1 for native integrations.
 
 ---
 
@@ -326,51 +325,86 @@ ArchLucid's V1 core is functionally complete and safely bounded, but its immedia
     - **Reason deferred:** Requires owner-only action in Stripe Dashboard and Partner Center to transition keys and verify tax profiles.
     - **Information needed:** Owner confirmation that Stripe live keys are ready and the Marketplace offer is set to 'Published'.
 
-19. **DEFERRED: Cross-run executive ROI summary aggregation logic**
-    - **Reason deferred:** Product logic for overlapping findings is undecided.
-    - **Information needed:** Do we aggregate overlapping findings by sum, max, or unique-finding identity?
+19. **Implement unique-finding deduplication for Executive ROI API**
+    - **Why it matters:** Prevents double-counting of savings across multiple architecture reviews, ensuring CFOs see an honest, defensible ROI.
+    - **Expected impact:** Strengthens Proof-of-ROI credibility and Executive Value Visibility.
+    - **Affected qualities:** Proof-of-ROI Readiness (+5-7 pts), Executive Value Visibility (+4-6 pts). Weighted impact: ~0.15%.
+    - **Actionable Now.**
+    - **Cursor Prompt:**
+      ```
+      Create a new API endpoint `GET /v1/reports/executive-summary` (or extend the existing pilot scorecard) that aggregates cost savings and risk reduction across multiple runs for a tenant. Implement deduplication logic based on unique finding identity (e.g., `FindingId` or resource signature) so that overlapping findings across runs are only counted once towards the total ROI. Write unit tests to verify the unique-finding aggregation logic.
+      ```
 
-20. **DEFERRED: Automated Tenant Erasure Quarantine Pipeline**
-    - **Reason deferred:** V2 candidate; specific legal hold workflows need definition.
-    - **Information needed:** What is the exact delay (e.g., 30 days) and who has the RBAC authority to lift a legal hold?
+20. **Implement 30-day Quarantine and Dual-Auth for Tenant Erasure**
+    - **Why it matters:** Automates GDPR/CCPA compliance while preventing accidental or malicious data loss.
+    - **Expected impact:** Reduces enterprise privacy friction.
+    - **Affected qualities:** Maintainability (+3-5 pts). Weighted impact: ~0.1%.
+    - **Actionable Now.**
+    - **Cursor Prompt:**
+      ```
+      Implement a tenant erasure quarantine pipeline. When a deletion is requested, set a `TenantErasureRequestedUtc` flag and enforce a 30-day delay. Create an approval gate requiring a user with the `Admin` ArchLucidRole to explicitly approve the legal hold release before the `TenantDeletionService` hard purge executes. Ensure durable audit events are emitted for both the request and the approval.
+      ```
 
-21. **DEFERRED: AWS/GCP inventory ZIP script structure**
-    - **Reason deferred:** V1.1 scope; requires mapping of AWS APIs to ArchLucid schema.
-    - **Information needed:** Which specific AWS/GCP CLI commands or APIs should we invoke for the illustrative cost fallbacks?
+21. **Automate OWASP ZAP Baseline validation in CI**
+    - **Why it matters:** Ensures continuous security posture and prevents regressions on the API image.
+    - **Expected impact:** Strengthens security and CI honesty.
+    - **Affected qualities:** Reliability (+2-3 pts), Maintainability (+2-3 pts). Weighted impact: ~0.08%.
+    - **Actionable Now.**
+    - **Cursor Prompt:**
+      ```
+      Update the GitHub Actions CI workflow (e.g., `.github/workflows/ci.yml`). Add a step that runs the OWASP ZAP baseline scan against the built API container image. Configure the step to fail the build if high-severity vulnerabilities are detected, and ensure the scan report is uploaded as a workflow artifact.
+      ```
 
-22. **DEFERRED: ServiceNow auto-create CMDB CI class selection**
-    - **Reason deferred:** V1.1 scope; CMDB taxonomy decisions.
-    - **Information needed:** Is the default `cmdb_ci_appl` class strictly sufficient, or should we build a custom taxonomy mapping table?
+22. **Enforce global SQL command timeouts for transient resilience**
+    - **Why it matters:** Prevents long-running queries from locking up the orchestrator during transient database load.
+    - **Expected impact:** Improves overall system reliability.
+    - **Affected qualities:** Reliability (+3-5 pts). Weighted impact: ~0.05%.
+    - **Actionable Now.**
+    - **Cursor Prompt:**
+      ```
+      Review the Dapper or EF Core database connection logic (e.g., `SqlDbConnectionFactory`). Implement a global default command timeout (e.g., 30 seconds) across all data access repositories to ensure queries fail fast and trigger the orchestrator's retry logic instead of hanging indefinitely. Add a unit test verifying this timeout configuration.
+      ```
 
-23. **DEFERRED: Confluence integration default space key dynamic routing**
-    - **Reason deferred:** V1.1 scope; routing complexity.
-    - **Information needed:** Do we ship the MVP with a single fixed space key, or do we implement dynamic routing based on tenant metadata immediately?
+23. **Add informative empty state to Artifacts list in Review UI**
+    - **Why it matters:** Improves the operator experience when a review is still executing or has no artifacts.
+    - **Expected impact:** Reduces UX friction.
+    - **Affected qualities:** Usability (+3-4 pts), Adoption Friction (+2-3 pts). Weighted impact: ~0.08%.
+    - **Actionable Now.**
+    - **Cursor Prompt:**
+      ```
+      Locate the Artifacts table component in the Review detail page (`archlucid-ui/src/app/(operator)/reviews/[runId]/`). Update the component to display a polished empty state (e.g., an icon and "No artifacts generated yet. Wait for the review to commit.") if the artifacts array is empty, rather than a collapsed or broken table.
+      ```
 
-24. **DEFERRED: Slack interactive buttons (Approve/Ack)**
-    - **Reason deferred:** Unpinned follow-on feature.
-    - **Information needed:** Should we prioritize interactive Slack actions for V1.1, or keep it deferred to V2?
+24. **Author Private Endpoint setup guide for Azure**
+    - **Why it matters:** Clarifies the network security configuration for enterprise deployments.
+    - **Expected impact:** Speeds up enterprise onboarding and InfoSec approvals.
+    - **Affected qualities:** Maintainability (+3-4 pts), Adoption Friction (+3-5 pts). Weighted impact: ~0.1%.
+    - **Actionable Now.**
+    - **Cursor Prompt:**
+      ```
+      Create a new markdown document at `docs/runbooks/PRIVATE_ENDPOINT_SETUP.md`. Write a concise guide explaining how to configure Azure Private Endpoints for the SQL and Blob storage resources using the provided Terraform modules. Link this guide from the `CUSTOMER_TRUST_AND_ACCESS.md` document.
+      ```
 
-25. **DEFERRED: Raising bulk upload cap beyond 30 files**
-    - **Reason deferred:** V1.1 scale testing required.
-    - **Information needed:** What is the target cap (e.g., 100 files, 500 files) and what is the maximum memory footprint allowed per request?
+25. **Implement Correlation ID propagation tests for Audit logs**
+    - **Why it matters:** Guarantees that cross-service requests can be accurately traced during incident response.
+    - **Expected impact:** Improves supportability and incident resolution time.
+    - **Affected qualities:** Supportability (+5-7 pts), Reliability (+2-3 pts). Weighted impact: ~0.05%.
+    - **Actionable Now.**
+    - **Cursor Prompt:**
+      ```
+      Create an integration test in the API test suite (e.g., `AuditEventCsvFormatterTests.cs` or similar) that sends an HTTP request with a specific `X-Correlation-ID` header. Assert that the resulting durable audit event written to the database contains this exact correlation ID, proving the middleware correctly propagates it to the audit service.
+      ```
 
 ---
 
 ## Prompt Batching Guidance
 To optimize context windows and cost:
-- **Batch 1 (UI & Terminology):** Run Prompts #1, #8, and #15 together, passing the `archlucid-ui/src/` context.
-- **Batch 2 (API Safety & Resilience):** Run Prompts #2, #4, #7, #11, and #17 together, providing the `.cs` test and controller files.
-- **Batch 3 (Powershell & Scripts):** Run Prompts #5, #10, and #14 together, providing `scripts/azure/` and `.github/workflows/`.
-- **Batch 4 (Documentation):** Run Prompts #3, #6, #12, and #16 together, providing the `docs/` directory context.
+- **Batch 1 (UI & Terminology):** Run Prompts #1, #8, #15, and #23 together, passing the `archlucid-ui/src/` context.
+- **Batch 2 (API Safety & Resilience):** Run Prompts #2, #4, #7, #11, #17, #19, #20, #22, and #25 together, providing the `.cs` test and controller files.
+- **Batch 3 (Powershell & Scripts):** Run Prompts #5, #10, #14, and #21 together, providing `scripts/azure/` and `.github/workflows/`.
+- **Batch 4 (Documentation):** Run Prompts #3, #6, #12, #16, and #24 together, providing the `docs/` directory context.
 
 ---
 
 ## Pending Questions for Later
 - **Stripe Live Keys Flip:** Are the live keys available and is the Marketplace profile fully verified?
-- **Cross-run executive ROI:** How should overlapping findings be aggregated (sum, max, unique)?
-- **Automated Tenant Erasure:** What is the legal hold duration and approval process?
-- **AWS/GCP inventory:** Which exact AWS/GCP APIs will we use for the cost fallback script?
-- **ServiceNow CMDB:** Will `cmdb_ci_appl` suffice for the MVP?
-- **Confluence routing:** Fixed space key or dynamic routing?
-- **Slack interactivity:** Are approval buttons a hard requirement for V1.1?
-- **Bulk upload cap:** What is the target file limit and memory threshold?

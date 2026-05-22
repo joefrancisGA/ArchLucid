@@ -301,3 +301,8 @@ Two failure shapes show **PASS** at the smoke layer:
 - [`SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`](../library/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md)
 - [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) § 3.1 — provenance of the baseline review-cycle hours when the form was skipped
 - [`adr/0021-coordinator-pipeline-strangler-plan.md`](../architecture/adrs/0021-coordinator-pipeline-strangler-plan.md) — `Run.CommitCompleted` dual-write window
+
+## V1 to V1.1 Migration (Upcoming)
+
+Instructions for migrating trial tenants to V1.1 will be linked here once `HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md` is finalized.
+
