@@ -5,12 +5,18 @@ import { useId, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { HelpLink } from "@/components/HelpLink";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { buildWizardPrefillFromArchLucidAzureManifest } from "@/lib/apply-arch-lucid-azure-package-manifest-to-wizard";
+import type { ArchLucidAzurePackageManifest } from "@/lib/arch-lucid-azure-package-manifest";
+import { getBundledArchLucidAzurePackageSampleZipBytes } from "@/lib/arch-lucid-azure-package-sample-zip";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
 import { recordPilotBaselineZipApplied } from "@/lib/pilot-baseline-zip-signal";
-import { readArchLucidAzurePackageZipFromFile } from "@/lib/read-arch-lucid-azure-package-zip";
+import {
+  readArchLucidAzurePackageZipFromBytes,
+  readArchLucidAzurePackageZipFromFile,
+} from "@/lib/read-arch-lucid-azure-package-zip";
 import { showError, showSuccess } from "@/lib/toast";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
@@ -33,6 +39,45 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
     variant === "baseline"
       ? "Extractor manifest applied — confirm system identity on the next step."
       : "Extractor manifest applied — review identity and brief on earlier steps if needed.";
+
+  function applyManifestToWizard(manifest: ArchLucidAzurePackageManifest): void {
+    const prefill = buildWizardPrefillFromArchLucidAzureManifest(manifest);
+
+    if (prefill.description !== undefined) {
+      setValue("description", prefill.description, { shouldValidate: true, shouldDirty: true });
+    }
+
+    if (prefill.systemName !== undefined) {
+      setValue("systemName", prefill.systemName, { shouldValidate: true, shouldDirty: true });
+    }
+
+    if (prefill.topologyHints !== undefined) {
+      setValue("topologyHints", prefill.topologyHints, { shouldValidate: true, shouldDirty: true });
+    }
+
+    recordPilotBaselineZipApplied();
+    showSuccess(successMessage);
+  }
+
+  function loadSampleZip(): void {
+    setLocalError(null);
+    setBusy(true);
+
+    try {
+      const result = readArchLucidAzurePackageZipFromBytes(getBundledArchLucidAzurePackageSampleZipBytes());
+
+      if (!result.ok) {
+        setLocalError(result.message);
+        showError("Extractor ZIP", result.message);
+
+        return;
+      }
+
+      applyManifestToWizard(result.manifest);
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <div
@@ -92,22 +137,7 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
                 return;
               }
 
-              const prefill = buildWizardPrefillFromArchLucidAzureManifest(result.manifest);
-
-              if (prefill.description !== undefined) {
-                setValue("description", prefill.description, { shouldValidate: true, shouldDirty: true });
-              }
-
-              if (prefill.systemName !== undefined) {
-                setValue("systemName", prefill.systemName, { shouldValidate: true, shouldDirty: true });
-              }
-
-              if (prefill.topologyHints !== undefined) {
-                setValue("topologyHints", prefill.topologyHints, { shouldValidate: true, shouldDirty: true });
-              }
-
-              recordPilotBaselineZipApplied();
-              showSuccess(successMessage);
+              applyManifestToWizard(result.manifest);
             } finally {
               setBusy(false);
               input.value = "";
@@ -115,6 +145,18 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
           })();
         }}
       />
+      {variant === "baseline" ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={busy}
+          data-testid="wizard-azure-zip-try-sample"
+          onClick={loadSampleZip}
+        >
+          Try with Sample Data
+        </Button>
+      ) : null}
       {busy ? (
         <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400" data-testid="wizard-azure-zip-busy">
           Reading manifest…

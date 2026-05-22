@@ -183,6 +183,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArtifactGenerator, InventoryArtifactGenerator>();
         services.AddScoped<IArtifactGenerator>(static sp =>
             new CostSummaryArtifactGenerator(sp.GetRequiredService<IInfrastructureCostArtifactAugmentationProvider>()));
+        services.AddSingleton<ArchLucid.Core.Terraform.ITerraformValidator, ArchLucid.ArtifactSynthesis.Validation.CompositeTerraformValidator>();
         services.AddScoped<IArtifactGenerator, TerraformAdvisoryArtifactGenerator>();
         services.AddScoped<IArtifactGenerator, UnresolvedIssuesArtifactGenerator>();
         services.AddScoped<IArtifactSynthesisService, ArtifactSynthesisService>();

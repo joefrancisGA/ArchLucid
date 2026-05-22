@@ -2,6 +2,7 @@ using ArchLucid.Application.TerraformAdvisory;
 using ArchLucid.ArtifactSynthesis.Generators;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Services;
+using ArchLucid.ArtifactSynthesis.Validation;
 using ArchLucid.Core.Manifest;
 
 using FluentAssertions;
@@ -156,7 +157,7 @@ public sealed class TerraformAdvisoryEmitSnapshotTests : VerifyBase
                 Rationale = "Improve availability",
             });
 
-        TerraformAdvisoryArtifactGenerator sut = new();
+        TerraformAdvisoryArtifactGenerator sut = new(CompositeTerraformValidator.Instance);
         SynthesizedArtifact artifact = await sut.GenerateAsync(manifest, CancellationToken.None);
 
         string snapshot = NormalizeForVerifySnapshot(artifact.Content);
@@ -191,7 +192,7 @@ public sealed class TerraformAdvisoryEmitSnapshotTests : VerifyBase
                 Rationale = "Remove compromised credentials",
             });
 
-        TerraformAdvisoryArtifactGenerator sut = new();
+        TerraformAdvisoryArtifactGenerator sut = new(CompositeTerraformValidator.Instance);
         SynthesizedArtifact artifact = await sut.GenerateAsync(manifest, CancellationToken.None);
 
         string snapshot = NormalizeForVerifySnapshot(artifact.Content);

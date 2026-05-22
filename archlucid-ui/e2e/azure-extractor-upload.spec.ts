@@ -32,7 +32,9 @@ test.describe("Azure extractor ZIP wizard field", () => {
     await expect(page.getByTestId("wizard-azure-zip-schema-warning")).toHaveCount(0);
 
     await page.getByRole("button", { name: /^(Continue|Next)$/ }).click();
-    await expect(page.getByLabel("System name")).toHaveValue("E2eMockRg", { timeout: 15_000 });
+    await expect(page.getByRole("textbox", { name: "System name" })).toHaveValue("E2eMockRg", {
+      timeout: 15_000,
+    });
   });
 
   test("rejects ZIP without manifest.json", async ({ page }) => {
@@ -70,12 +72,15 @@ test.describe("Azure extractor ZIP wizard field", () => {
   });
 
   test("Try with Sample Data loads bundled sample ZIP", async ({ page }) => {
+    await expect(page.getByTestId("wizard-azure-zip-try-sample")).toBeVisible();
     await page.getByTestId("wizard-azure-zip-try-sample").click();
 
     await expect(page.getByTestId("wizard-azure-zip-error")).toHaveCount(0, { timeout: 15_000 });
     await expect(page.getByTestId("wizard-azure-zip-schema-warning")).toHaveCount(0);
 
     await page.getByRole("button", { name: /^(Continue|Next)$/ }).click();
-    await expect(page.getByLabel("System name")).toHaveValue("SampleRg", { timeout: 15_000 });
+    await expect(page.getByRole("textbox", { name: "System name" })).toHaveValue("SampleRg", {
+      timeout: 15_000,
+    });
   });
 });

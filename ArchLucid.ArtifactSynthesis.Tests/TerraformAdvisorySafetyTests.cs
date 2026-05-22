@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Generators;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Services;
+using ArchLucid.ArtifactSynthesis.Validation;
 using ArchLucid.Core.Manifest;
 
 using FluentAssertions;
@@ -33,7 +34,7 @@ public sealed class TerraformAdvisorySafetyTests
             ],
         };
 
-        TerraformAdvisoryArtifactGenerator sut = new();
+        TerraformAdvisoryArtifactGenerator sut = new(CompositeTerraformValidator.Instance);
 
         SynthesizedArtifact artifact = await sut.GenerateAsync(manifest, CancellationToken.None);
 

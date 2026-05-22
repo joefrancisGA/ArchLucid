@@ -1,3 +1,5 @@
+using ArchLucid.ArtifactSynthesis.Validation;
+
 namespace ArchLucid.Application.TerraformAdvisory;
 
 /// <summary>Reusable advisory-only Terraform fragments (never applied by ArchLucid; customer runs plan/apply).</summary>
@@ -31,8 +33,10 @@ public static class TerraformAdvisorySnippetTemplates
     public static string SanitizeLlmTerraformBlock(string llmOutput)
     {
         ArgumentNullException.ThrowIfNull(llmOutput);
+
         if (llmOutput.Contains("destroy", StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("Validation failed: LLM generated a Terraform block containing the destructive verb 'destroy'.");
-        return llmOutput;
+
+        return TerraformAdvisoryHclSanitizer.ValidateAndSanitize(llmOutput);
     }
 }

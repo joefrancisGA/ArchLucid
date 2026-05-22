@@ -157,7 +157,7 @@ test.describe("live-api-smoke", () => {
 
     await forward.click();
 
-    await expect(page.getByLabel("System name")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole("textbox", { name: "System name" })).toBeVisible({ timeout: 30_000 });
 
     for (let i = 0; i < 4; i += 1) {
       await forward.click();

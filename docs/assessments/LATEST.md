@@ -480,7 +480,7 @@ To optimize context window usage and cursor cost-effectiveness, execute the acti
 
    - **Batch 1 (High-Leverage UI & UX):** Prompts #5, #9, #10, #12, #15, #16, #18, #22, #24. (Focuses on `archlucid-ui` components, badges, validations, and guided tours). **[COMPLETED]**
 - **Batch 2 (Core Reliability & Telemetry):** Prompts #3, #4, #8, #13, #14, #17, #25. (Focuses on `ArchLucid.Worker`, `ArchLucid.Api`, Polly retry policies, circuit breakers, and chunking strategies). **[COMPLETED]**
-- **Batch 3 (Agent Safety & Documentation):** Prompts #6, #7, #23. (Focuses on Terraform validation, Extractor execution bypass docs, and sample outputs).
+- **Batch 3 (Agent Safety & Documentation):** Prompts #6, #7, #23. (Focuses on Terraform validation, Extractor execution bypass docs, and sample outputs). **[COMPLETED]**
 - **Batch 4 (Audit & Diagnostics):** Prompts #11, #19, #20, #21. (Focuses on DbUp health checks, DOCX builders, audit events, and API testing).
 
 ---

@@ -45,6 +45,8 @@ ArchLucid never calls **`terraform apply`** or **`terraform destroy`**. Microsof
 
 ## Links
 
+- **PowerShell execution policy blocked?** [EXTRACTOR_EXECUTION_POLICY_BYPASS.md](./EXTRACTOR_EXECUTION_POLICY_BYPASS.md)
+- **Sample ZIP contents (redacted):** [../samples/AZURE_EXTRACTOR_SAMPLE_OUTPUT.md](../samples/AZURE_EXTRACTOR_SAMPLE_OUTPUT.md)
 - Buyer RBAC posture: **`docs/go-to-market/TRUST_CENTER.md`**
 - Outstanding engineering: **`docs/library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`**
 - Product scope: **`docs/library/V1_SCOPE.md`** sections 2.16–2.17

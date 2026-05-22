@@ -13,11 +13,11 @@ public sealed class ExecutiveSummaryAggregatorTests
         // Arrange
         var findings = new List<ExecutiveSummaryFinding>
         {
-            new("finding-1", "run-1", 100m, 5),
-            new("finding-1", "run-2", 150m, 8), // Same finding, higher values
-            new("finding-1", "run-3", 120m, 6), // Same finding, lower values
-            new("finding-2", "run-1", 200m, 10),
-            new("finding-3", "run-2", 150m, 2)
+            new("finding-1", "run-1", "Cost", 100m, 5),
+            new("finding-1", "run-2", "Cost", 150m, 8), // Same finding, higher values
+            new("finding-1", "run-3", "Cost", 120m, 6), // Same finding, lower values
+            new("finding-2", "run-1", "Security", 200m, 10),
+            new("finding-3", "run-2", "Reliability", 150m, 2)
         };
 
         // Act

@@ -1,13 +1,23 @@
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Services;
+using ArchLucid.ArtifactSynthesis.Validation;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Terraform;
 
 namespace ArchLucid.ArtifactSynthesis.Generators;
 
 /// <summary>Emits advisory <c>.tf</c> comments for decommission-style decisions; never emits resource or removal blocks.</summary>
 public sealed class TerraformAdvisoryArtifactGenerator : IArtifactGenerator
 {
+    private readonly ITerraformValidator _terraformValidator;
+
+    public TerraformAdvisoryArtifactGenerator(ITerraformValidator terraformValidator)
+    {
+        ArgumentNullException.ThrowIfNull(terraformValidator);
+        _terraformValidator = terraformValidator;
+    }
+
     public string ArtifactType => Models.ArtifactType.TerraformAdvisory;
 
     public Task<SynthesizedArtifact> GenerateAsync(ManifestDocument manifest, CancellationToken ct)
@@ -24,6 +34,8 @@ public sealed class TerraformAdvisoryArtifactGenerator : IArtifactGenerator
                 $"{Environment.NewLine}{Environment.NewLine}",
                 decommission.Select(TerraformAdvisoryDecommissionSnippetBuilder.BuildDecisionSection))
             : TerraformAdvisoryDecommissionSnippetBuilder.BuildNoDecommissionManifestStub();
+
+        content = TerraformAdvisoryHclSanitizer.ValidateAndSanitize(content, _terraformValidator);
 
         SynthesizedArtifact artifact = new()
         {
