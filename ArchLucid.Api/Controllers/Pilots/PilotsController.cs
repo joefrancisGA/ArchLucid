@@ -272,13 +272,49 @@ public sealed class PilotsController(
 
         PilotScorecardSummary summary = await pilotScorecardBuilder.BuildAsync(start, end, cancellationToken);
 
+        decimal? hoursSaved = body?.HoursSaved;
+        int? risksMitigated = body?.RisksMitigated;
+        string? qualitativeNotes = body?.QualitativeNotes?.Trim();
+
+        if (hoursSaved.HasValue || risksMitigated.HasValue || !string.IsNullOrWhiteSpace(qualitativeNotes))
+        {
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
+            string actor = actorContext.GetActor();
+            string payload = JsonSerializer.Serialize(
+                new
+                {
+                    hoursSaved,
+                    risksMitigated,
+                    qualitativeNotes,
+                    periodStart = start,
+                    periodEnd = end
+                });
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.PilotScorecardValueMetricsSubmitted,
+                    ActorUserId = actor,
+                    ActorUserName = actor,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    DataJson = payload,
+                    CorrelationId = "pilot-scorecard-value-metrics"
+                },
+                cancellationToken);
+        }
+
         PilotScorecardResponse response = new()
         {
             TenantId = summary.TenantId,
             PeriodStart = summary.PeriodStart,
             PeriodEnd = summary.PeriodEnd,
             RunsInPeriod = summary.RunsInPeriod,
-            RunsWithCommittedManifest = summary.RunsWithCommittedManifest
+            RunsWithCommittedManifest = summary.RunsWithCommittedManifest,
+            HoursSaved = hoursSaved,
+            RisksMitigated = risksMitigated,
+            QualitativeNotes = qualitativeNotes
         };
 
         return Ok(response);

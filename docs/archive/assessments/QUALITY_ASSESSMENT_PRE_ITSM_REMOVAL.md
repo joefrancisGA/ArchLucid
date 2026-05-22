@@ -1,11 +1,11 @@
-﻿# ArchLucid Assessment – (A) Headline Readiness: 77.89%
+﻿# ArchLucid Assessment – (A) Headline Readiness: 75.53%
 
-*Note: This score explicitly represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items deferred beyond V1.1. It evaluates only in-contract V1 GA constraints and named V1.1 release-window engineering items. Multi-cloud (AWS/GCP), ITSM connectors (Jira/ServiceNow), Confluence, and Chat-Ops (Slack/Teams) capabilities have been intentionally excluded from this assessment per the latest owner directives and do not penalize the current readiness posture.*
+*Note: This score explicitly represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items deferred beyond V1.1. It evaluates only in-contract V1 GA constraints and named V1.1 release-window engineering items. Multi-cloud (AWS/GCP) capabilities have been intentionally excluded from this assessment per the latest owner directives and do not penalize the current readiness posture.*
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**  
-The core platform (API, SQL persistence, UI, CLI) is stable, well-isolated, and capable of executing its designated V1 "Pilot" loop end-to-end flawlessly on Azure footprints. However, the V1.1 headline readiness score is dragged down by unfulfilled commitments in the V1.1 release window, specifically around the MCP membrane and cross-run executive reporting. Until these are shipped, the product meets the bare V1 threshold but falls short of its stated V1.1 contractual capability.
+The core platform (API, SQL persistence, UI, CLI) is stable, well-isolated, and capable of executing its designated V1 "Pilot" loop end-to-end flawlessly on Azure footprints. However, the V1.1 headline readiness score is dragged down by unfulfilled commitments in the V1.1 release window, specifically around the MCP membrane, cross-run executive reporting, and the first-party ITSM/chat-ops integrations. Until these are shipped, the product meets the bare V1 threshold but falls short of its stated V1.1 contractual capability.
 
 **`(B)` Procurement / Market-Motion Realism (Informational)**  
 Enterprise procurement will experience significant friction. The absence of an issued SOC 2 CPA attestation is an immediate red flag for infosec teams. While the “no ArchLucid credentials in customer cloud” Tier 1 extractor mitigates risk, security officers will heavily scrutinize the lack of a third-party penetration test (deferred to V2) and an automated tenant erasure quarantine pipeline. The platform relies heavily on trust-center honesty and self-assessments to bridge this gap today.
@@ -14,7 +14,7 @@ Enterprise procurement will experience significant friction. The absence of an i
 Monetization is bottlenecked by the pending "Commerce Un-hold" (Stripe live keys and Marketplace publication). Until flipped, the motion is purely sales-led. Without cross-run executive ROI rollups, demonstrating strategic value to CFOs post-pilot remains manual and fractured.
 
 **Enterprise Picture**  
-The baseline wizard and core pilot paths are clean, but usability and operational scale drop off sharply when bulk evidence processing is required. Buyers requiring native SAML 2.0 SP out-of-the-box (V1 GA pending) or automated SCIM 2.0 inbound provisioning may stall implementations due to manual user-lifecycle management friction.
+The baseline wizard and core pilot paths are clean, but usability and operational scale drop off sharply when bulk evidence processing is required. Buyers expecting seamless native integrations (Jira, ServiceNow, Slack, Teams) will face immediate workflow disruption, and those requiring SAML 2.0 SP out-of-the-box (V1 GA pending) may stall implementations. 
 
 **Engineering Picture**  
 The architecture is solid—adhering strictly to Azure native services, DbUp migrations, and the Outbox pattern—but limits scale through its choices. The heavy reliance on SQL Server for audit trails, traces, and messaging queues is a ticking time bomb for high-throughput environments without a mandated distributed cache (Redis) or offloaded orchestrator (DTF). Multi-region High Availability is explicitly out of scope, capping enterprise SLA guarantees.
@@ -35,11 +35,11 @@ The architecture is solid—adhering strictly to Azure native services, DbUp mig
 - **Tradeoffs:** Per-run ROI is easy to calculate but fails to demonstrate systemic portfolio-level value to executive sponsors.
 - **Recommendations:** Implement the `GET /v1/reports/executive-summary` endpoint (even if deduplication logic is stubbed) to begin serving CFO-level board packs.
 
-### 3. Adoption Friction (Score: 85/100, Weight: 6)
-- **Weighted Impact:** -0.24%
-- **Justification:** While the Tier 1 extractor eliminates cloud credential negotiations, requiring users to run PowerShell scripts creates human-in-the-loop operational drag. The absence of native SAML 2.0 SP requires generic OIDC bridge configuration, introducing friction for identity admins.
+### 3. Adoption Friction (Score: 70/100, Weight: 6)
+- **Weighted Impact:** -0.47%
+- **Justification:** Requiring users to run PowerShell scripts (`Get-ArchLucidAzurePackage.ps1`) for extraction creates human-in-the-loop operational drag. The absence of native SAML 2.0 SP and V1.1 first-party integrations (Jira, ServiceNow, Slack, Teams, Confluence) breaks automated remediation workflows.
 - **Tradeoffs:** The Tier 1 extraction strategy maximizes security (no vendor creds needed) at the direct expense of operational friction.
-- **Recommendations:** Fast-track the SAML 2.0 SP implementation and document Tier 2 automated extractor pipelines.
+- **Recommendations:** Fast-track the SAML 2.0 SP implementation and the V1.1 ITSM/Chat-Ops delivery sinks.
 
 ### 4. Executive Value Visibility (Score: 65/100, Weight: 4)
 - **Weighted Impact:** -0.37%
@@ -83,16 +83,16 @@ The architecture is solid—adhering strictly to Azure native services, DbUp mig
 
 1. **Missing Cross-Run Executive ROI rollup:** Restricts executive buy-in and CFO-level purchasing justification.
 2. **Lack of Agent Ecosystem / MCP Membrane:** Blocks third-party tools from interacting with the architecture graph.
-3. **Pending Commerce Un-hold (Stripe/Marketplace):** Retains the sales-led motion bottleneck; blocks PLG transactability.
-4. **Missing Evidence Bulk Upload capabilities (ZIP expansion/recursion):** Causes massive adoption friction during manual artifact ingestion.
-5. **Pending SAML 2.0 SP implementation:** Disqualifies the platform in enterprises strictly enforcing SAML over generic OIDC bridges.
-6. **Missing SCIM 2.0 Inbound Provisioning:** Forces manual user-lifecycle management for large enterprise rollouts.
-7. **Lack of PGP key drop:** Weakens the coordinated vulnerability disclosure posture.
-8. **Missing automated tenant erasure pipeline (V2):** Creates GDPR/CCPA friction for enterprise privacy reviews.
-9. **Dependence on SQL for outbox/audit/traces:** Poses a severe throughput scaling bottleneck for large enterprise fleets without a distributed cache baseline.
-10. **Lack of Generic OIDC IdP wizard/documented paths:** Only Entra is the default documented path, making Okta/Ping integrations reliant on self-service configuration.
-11. **Missing LLM Prompt Redaction Pipeline:** Latent risk of PII/PHI leaking into Azure OpenAI traces without explicit redaction checks.
-12. **Missing OWASP ZAP Baseline Automation:** CI pipeline lacks continuous automated DAST scanning to enforce security invariants.
+3. **Absence of First-Party ITSM connectors (Jira/ServiceNow):** Breaks automated operational remediation workflows.
+4. **Absence of Chat-Ops (Slack/Teams):** Increases response latency for critical architecture approvals and alerts.
+5. **Missing Evidence Bulk Upload capabilities (ZIP expansion/recursion):** Causes massive adoption friction during manual artifact ingestion.
+6. **Pending Commerce Un-hold (Stripe/Marketplace):** Retains the sales-led motion bottleneck; blocks PLG transactability.
+7. **Pending SAML 2.0 SP implementation:** Disqualifies the platform in enterprises strictly enforcing SAML over generic OIDC bridges.
+8. **Unimplemented Confluence export:** Hinders broader organizational knowledge dissemination.
+9. **Lack of PGP key drop:** Weakens the coordinated vulnerability disclosure posture.
+10. **Missing automated tenant erasure pipeline (V2):** Creates GDPR/CCPA friction for enterprise privacy reviews.
+11. **Dependence on SQL for outbox/audit/traces:** Poses a severe throughput scaling bottleneck for large enterprise fleets without a distributed cache baseline.
+12. **Lack of Generic OIDC IdP wizard/documented paths:** Only Entra is the default documented path, making Okta/Ping integrations reliant on self-service configuration.
 
 ---
 
@@ -102,8 +102,8 @@ The architecture is solid—adhering strictly to Azure native services, DbUp mig
 2. **Missing Cross-Run Executive ROI Endpoint:** Prevents the platform from automatically generating the CFO value-justification required to renew or expand licenses.
 3. **No MCP Membrane:** Blocks the creation of a billable third-party plugin ecosystem.
 4. **No First-Party Public Reference Customer:** Weakens marketing leverage and slows enterprise consensus.
-5. **Missing SAML 2.0 SP:** Acts as a hard blocker for enterprise IAM sign-offs during procurement.
-6. **Lack of Automated User Provisioning (SCIM):** Creates friction for seat-based expansion in large enterprises.
+5. **Missing ITSM Integrations:** Reduces product "stickiness" by failing to embed ArchLucid deeply into the daily operational toolchain.
+6. **Missing SAML 2.0 SP:** Acts as a hard blocker for enterprise IAM sign-offs during procurement.
 
 ---
 
@@ -131,7 +131,7 @@ The architecture is solid—adhering strictly to Azure native services, DbUp mig
 
 ## Most Important Truth
 
-ArchLucid possesses a robust, secure, and well-isolated V1 core with a brilliant "no vendor access" ingestion doctrine, but its headline V1.1 readiness is materially depressed by the gap between its stated V1.1 product commitments (MCP, Executive ROI) and the actual shipped code.
+ArchLucid possesses a robust, secure, and well-isolated V1 core with a brilliant "no vendor access" ingestion doctrine, but its headline V1.1 readiness is heavily depressed by the gap between its stated V1.1 product commitments (MCP, ITSM, Executive ROI) and the actual shipped code.
 
 ---
 
@@ -165,61 +165,61 @@ ArchLucid possesses a robust, secure, and well-isolated V1 core with a brilliant
    - **Actionable:** Yes.
    - **Prompt:** Implement `ArchLucidAuth:Mode=Saml2` in the auth startup extensions. Configure the ASP.NET Core SAML2 middleware to act as a Service Provider. Map incoming SAML assertions to `ArchLucidRoles`. Ensure mutually exclusive coexistence with `JwtBearer`. Acceptance: Integration tests verify successful SAML sign-in.
 
-5. **Implement SCIM 2.0 Inbound Provisioning API**
-   - **Why it matters:** Automates user-lifecycle management for enterprise rollouts.
+5. **Implement Jira Outbound Issue Creator**
+   - **Why it matters:** Critical for automated remediation workflow stickiness.
    - **Expected impact:** Directly improves Adoption Friction (+3-5 pts). Weighted readiness impact: +0.5%.
    - **Affected qualities:** Adoption Friction.
    - **Actionable:** Yes.
-   - **Prompt:** Implement the `/scim/v2/Users` and `/scim/v2/Groups` endpoints using `ScimBearer` authentication. Support creating, updating, and deactivating users, and map incoming SCIM groups to `ArchLucidRoles`. Acceptance: Endpoints pass standard Azure AD SCIM validator payloads.
+   - **Prompt:** Create `ItsmOutboundJiraIssueCreator.cs` implementing `IItsmOutboundIssueProvider` in `ArchLucid.Application`. Use `ItsmFindingAuthorityPayloadMapper` to map findings to Jira REST API payloads using basic auth/API tokens. Do not implement OAuth 2.0. Acceptance: Unit tests mock Jira's API and verify mapping.
 
-6. **Implement LLM Prompt Redaction Middleware**
-   - **Why it matters:** Ensures PII/PHI does not leak to Azure OpenAI traces.
-   - **Expected impact:** Directly improves Reliability/Security (+3-5 pts). Weighted readiness impact: +0.2%.
-   - **Affected qualities:** Reliability.
+6. **Implement ServiceNow Outbound Incident Creator**
+   - **Why it matters:** Required for enterprise ITSM integration.
+   - **Expected impact:** Directly improves Adoption Friction (+3-5 pts). Weighted readiness impact: +0.5%.
+   - **Affected qualities:** Adoption Friction.
    - **Actionable:** Yes.
-   - **Prompt:** Implement an `ILlmPromptRedactionService` injected into the completion pipeline. Use regular expressions to redact standard PII/PHI patterns (SSN, credit cards, emails) before the prompt is sent to Azure OpenAI and before traces are persisted. Acceptance: Unit tests verify PII strings are replaced with `[REDACTED]` prior to submission.
+   - **Prompt:** Create `ItsmOutboundServiceNowIncidentCreator.cs` implementing `IItsmOutboundIssueProvider` in `ArchLucid.Application`. Post to the `incident` table via REST using basic auth. Leave `cmdb_ci` empty if no exact match is found. Acceptance: Unit tests verify incident formatting.
 
-7. **Document Microsoft Sentinel SIEM Export Pipeline (JSON / Log Analytics)**
-   - **Why it matters:** Needed to properly format SIEM log ingestion for the chosen enterprise SOC platform.
-   - **Expected impact:** Unblocks generalized SIEM export documentation and accelerates SOC onboarding (+3-4 pts Supportability). Weighted readiness impact: +0.1%.
-   - **Affected qualities:** Supportability.
+7. **DEFERRED ServiceNow Auto-Create CMDB CI Logic**
+   - **Why it matters:** Engineering cannot validate ServiceNow bidirectional sync.
+   - **Expected impact:** Unblocks full ServiceNow validation.
+   - **Affected qualities:** Adoption Friction.
+   - **Actionable:** DEFERRED
+   - **Input needed from me:** Provision and provide credentials for a cost-free ServiceNow Developer Program instance.
+
+8. **Implement Bi-directional Status Sync for Jira**
+   - **Why it matters:** Keeps the system of record accurate without double-data entry.
+   - **Expected impact:** Directly improves Adoption Friction (+3-5 pts). Weighted readiness impact: +0.5%.
+   - **Affected qualities:** Adoption Friction.
    - **Actionable:** Yes.
-   - **Prompt:** Update `docs/library/SIEM_EXPORT.md`. Document the exact architectural pattern for exporting `dbo.AuditEvents` to Microsoft Sentinel. Specify the use of an Azure Monitor Data Collection Endpoint (DCE) and Data Collection Rule (DCR) to ingest JSON-formatted payloads. Include a sample JSON schema mapping from ArchLucid's internal audit format to the required Sentinel custom log table fields. Acceptance: Documentation is complete with a JSON schema mapping and a clear DCR setup guide.
+   - **Prompt:** Create a webhook handler to sync Jira issue status changes back to ArchLucid finding state. Map `To Do` -> `Open`, `In Progress` -> `InProgress`, `Done` -> `Resolved`. Update `ItsmFindingCorrelationRecord`. Acceptance: Unit tests verify status transitions correctly map and save.
 
-8. **Implement Audit Log Filter by Correlation ID in UI**
-   - **Why it matters:** Greatly accelerates incident triage for support engineers.
-   - **Expected impact:** Directly improves Supportability (+3-5 pts). Weighted readiness impact: +0.1%.
-   - **Affected qualities:** Supportability.
+9. **Implement Bi-directional Status Sync for ServiceNow**
+   - **Why it matters:** Enterprise standardization for resolving tickets.
+   - **Expected impact:** Directly improves Adoption Friction (+3-5 pts). Weighted readiness impact: +0.5%.
+   - **Affected qualities:** Adoption Friction.
    - **Actionable:** Yes.
-   - **Prompt:** Update the operator UI Audit page to include an input field for filtering by `correlationId`. Ensure this parameter correctly propagates to the `GET /v1/audit/search` API endpoint. Acceptance: Playwright tests successfully filter the audit log using a known correlation ID.
+   - **Prompt:** Create a webhook handler to sync ServiceNow incident status changes back to ArchLucid finding state. Map `New`/`In Progress` -> `Open`/`InProgress`, `Resolved`/`Closed` -> `Resolved`. Acceptance: Unit tests verify status transitions correctly map and save.
 
-9. **Enhance Pilot Scorecard API with Value Tracking**
-   - **Why it matters:** Captures empirical proof of value during the pilot phase.
-   - **Expected impact:** Directly improves Proof-of-ROI Readiness (+3-5 pts). Weighted readiness impact: +0.4%.
-   - **Affected qualities:** Proof-of-ROI Readiness.
-   - **Actionable:** Yes.
-   - **Prompt:** Extend `POST /v1/pilots/scorecard` to accept quantitative value metrics (e.g., hours saved, risks mitigated) alongside qualitative feedback. Persist these metrics to the tenant's scorecard record. Acceptance: API accepts and stores the extended value DTO.
-
-10. **Add OWASP ZAP Baseline to CI Pipeline**
-    - **Why it matters:** Continuously enforces security invariants against regressions.
-    - **Expected impact:** Directly improves Reliability/Security (+2-3 pts). Weighted readiness impact: +0.1%.
-    - **Affected qualities:** Reliability.
+10. **Implement Microsoft Teams Incoming Webhook Delivery Sink**
+    - **Why it matters:** Reduces alert latency for operators.
+    - **Expected impact:** Directly improves Adoption Friction (+2-3 pts). Weighted readiness impact: +0.4%.
+    - **Affected qualities:** Adoption Friction.
     - **Actionable:** Yes.
-    - **Prompt:** Create `.github/workflows/zap-baseline.yml`. Configure the official OWASP ZAP baseline scan GitHub Action to target the API container during the build phase. Fail the build on high/critical findings. Acceptance: CI pipeline successfully executes the ZAP scan and surfaces a report.
+    - **Prompt:** Create a Teams webhook delivery channel under `ArchLucid.Application/Integrations/Teams`. Subscribe to the canonical `IntegrationEvents` catalog. Format payloads into Teams Adaptive Cards utilizing Key Vault secret references. Acceptance: Integration tests verify Adaptive Card JSON schema.
 
-11. **Extend Azure Extractor to Support Management Group Scope**
-    - **Why it matters:** Allows enterprises to extract architecture data across their entire hierarchy at once.
-    - **Expected impact:** Directly improves Usability (+2-3 pts). Weighted readiness impact: +0.2%.
-    - **Affected qualities:** Usability.
+11. **Implement Slack Outbound Chat-Ops Delivery Sink**
+    - **Why it matters:** Captures the Slack-heavy startup and enterprise market.
+    - **Expected impact:** Directly improves Adoption Friction (+2-3 pts). Weighted readiness impact: +0.4%.
+    - **Affected qualities:** Adoption Friction.
     - **Actionable:** Yes.
-    - **Prompt:** Update `Get-ArchLucidAzurePackage.ps1` to accept a `-ManagementGroupId` parameter. Modify the underlying `Get-AzResource` queries to recursively fetch resources across all subscriptions within that management group. Acceptance: Script successfully extracts resources when passed a valid Management Group ID.
+    - **Prompt:** Create `DigestSlackWebhookDeliveryChannel` and `AlertSlackWebhookDeliveryChannel` under `ArchLucid.Application/Integrations/Slack`. Subscribe to the `EnabledTriggersJson` matrix. Format payloads for Slack Block Kit. Do not add OAuth UX or interactive buttons. Acceptance: Unit tests verify Block Kit formatting.
 
-12. **Implement Key Vault Expiration Audit Script**
-    - **Why it matters:** Prevents outages caused by silently expiring secrets and certificates.
-    - **Expected impact:** Directly improves Maintainability (+2-3 pts). Weighted readiness impact: +0.1%.
-    - **Affected qualities:** Maintainability.
+12. **Implement Confluence Cloud Page Publisher**
+    - **Why it matters:** Disseminates architecture findings across the organization.
+    - **Expected impact:** Directly improves Adoption Friction (+2-3 pts). Weighted readiness impact: +0.4%.
+    - **Affected qualities:** Adoption Friction.
     - **Actionable:** Yes.
-    - **Prompt:** Create `scripts/azure/Audit-KeyVaultExpirations.ps1`. Query the configured Azure Key Vault for any secrets, certificates, or keys expiring within the next 30 days and output the results as a structured warning. Acceptance: Script runs locally and correctly flags impending expirations.
+    - **Prompt:** Create `ConfluencePagePublisher.cs` in `ArchLucid.Application/Integrations/Confluence`. Authenticate using basic auth/API token. Publish architecture findings to the tenant's `Confluence:DefaultSpaceKey`. Do not add multi-space dynamic routing. Acceptance: Successful mapping of a finding into Atlassian Document Format.
 
 13. **Implement ZIP Archive Expansion for Evidence Upload**
     - **Why it matters:** Massively reduces operator toil when uploading artifacts.
@@ -247,7 +247,7 @@ ArchLucid possesses a robust, secure, and well-isolated V1 core with a brilliant
     - **Expected impact:** Directly improves Maintainability (+2-3 pts). Weighted readiness impact: +0.1%.
     - **Affected qualities:** Maintainability.
     - **Actionable:** Yes.
-    - **Prompt:** Create `docs/library/HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md`. Summarize vendor-managed upgrades, breaking changes, new MCP features, and the flip to live Stripe keys. Link this in `docs/runbooks/TRIAL_END_TO_END.md`. Acceptance: Markdown is generated and links correctly.
+    - **Prompt:** Create `docs/library/HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md`. Summarize vendor-managed upgrades, breaking changes, new MCP/Slack/Teams features, and the flip to live Stripe keys. Link this in `docs/runbooks/TRIAL_END_TO_END.md`. Acceptance: Markdown is generated and links correctly.
 
 17. **Strip `archiforge` legacy configuration tokens from Terraform docs**
     - **Why it matters:** Prevents operator confusion and catastrophic state destruction.
@@ -316,16 +316,16 @@ ArchLucid possesses a robust, secure, and well-isolated V1 core with a brilliant
 
 ## Prompt Batching Guidance
 
-- **Batch 1: Core Identity & Compliance** (Items 4, 5, 21)
-  *Optimizes context window around Auth/Identity startup extensions, SCIM, and OIDC tests.*
-- **Batch 2: Extensibility, MCP & Security** (Items 3, 6, 10, 20)
-  *Groups MCP API construction, prompt redaction, custom handler docs, and ZAP baseline config.*
-- **Batch 3: Upload UX & UI Improvements** (Items 8, 13, 14)
-  *Focused solely on the `EvidenceUploadController` stream, ZIP expansion, and operator UI filtering.*
-- **Batch 4: Azure Extractor & Operations** (Items 11, 12, 22, 23)
-  *Groups Extractor script enhancements, Key Vault auditing, HTTP resilience, and continuous setup documentation.*
-- **Batch 5: Executive ROI, Governance & Admin** (Items 2, 9, 15, 16, 17, 18, 24, 25)
-  *Groups reporting endpoints, billing safety rules, threshold logic, documentation, and purge tests.*
+- **Batch 1: Core Integrations & Identity** (Items 4, 21, 22)
+  *Optimizes context window around Auth/Identity startup extensions and documentation for Tier 2.*
+- **Batch 2: ITSM & Collaboration Sync** (Items 5, 6, 8, 9, 10, 11, 12)
+  *Groups all webhook, REST outbound delivery sinks, and bidirectional sync for efficient `ArchLucid.Application/Integrations` modification.*
+- **Batch 3: Extensibility & Agent API** (Items 3, 20)
+  *Groups MCP API construction and the custom handler documentation.*
+- **Batch 4: Upload UX Improvements** (Items 13, 14)
+  *Focused solely on the `EvidenceUploadController` stream and ZIP byte-manipulation.*
+- **Batch 5: Executive ROI, Governance & Admin** (Items 2, 15, 16, 17, 18, 23, 24, 25)
+  *Groups reporting endpoints, billing safety rules, threshold logic, Polly retries, and purge tests.*
 
 ---
 
@@ -333,5 +333,7 @@ ArchLucid possesses a robust, secure, and well-isolated V1 core with a brilliant
 
 - **Cross-Run Executive ROI Aggregation Rules**
   - When multiple runs surface the exact same systemic issue, should the financial impact be summed, capped at maximum, or resolved via unique-finding identity?
+- **ServiceNow Auto-Create CMDB CI Logic**
+  - Is the cost-free ServiceNow Developer instance provisioned and ready for testing bidirectional sync?
 - **PGP Key Generation**
   - What is the timeline for `archlucid.net` domain acquisition and `security@archlucid.net` mailbox provisioning?

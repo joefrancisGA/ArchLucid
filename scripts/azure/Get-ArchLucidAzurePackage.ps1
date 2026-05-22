@@ -15,8 +15,11 @@
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory = $true)]
-    [string] $SubscriptionId,
+    [Parameter(Mandatory = $false)]
+    [string] $SubscriptionId = "",
+
+    [Parameter(Mandatory = $false)]
+    [string] $ManagementGroupId = "",
 
     [Parameter(Mandatory = $false)]
     [string] $ResourceGroupScope = "",
@@ -105,8 +108,26 @@ if (-not (Get-Module -ListAvailable -Name Az.Accounts))
 Import-Module Az.Resources -ErrorAction Stop
 Import-Module Az.Accounts -ErrorAction Stop
 
-$null = Get-AzSubscription -SubscriptionId $SubscriptionId -ErrorAction Stop
-Set-AzContext -SubscriptionId $SubscriptionId | Out-Null
+if ([string]::IsNullOrWhiteSpace($SubscriptionId) -and [string]::IsNullOrWhiteSpace($ManagementGroupId))
+{
+    throw "Specify -SubscriptionId or -ManagementGroupId."
+}
+
+if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)) -and -not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
+{
+    throw "Specify only one of -SubscriptionId or -ManagementGroupId."
+}
+
+if ($IncludeCost -and [string]::IsNullOrWhiteSpace($SubscriptionId))
+{
+    throw "-IncludeCost requires -SubscriptionId (management-group inventory does not aggregate cost in one call)."
+}
+
+if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
+{
+    $null = Get-AzSubscription -SubscriptionId $SubscriptionId -ErrorAction Stop
+    Set-AzContext -SubscriptionId $SubscriptionId | Out-Null
+}
 
 $scriptVersion = "0.3.2"
 $schemaVersion = 1
@@ -119,7 +140,18 @@ if ($IncludeCost) { $switchesUsed += "IncludeCost" }
 if ($IncludeAdvisor) { $switchesUsed += "IncludeAdvisor" }
 if ($IncludeRetailPrices) { $switchesUsed += "IncludeRetailPrices" }
 
-$scopeDescriptor = if ([string]::IsNullOrWhiteSpace($ResourceGroupScope))
+$scopeDescriptor = if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
+{
+    if ([string]::IsNullOrWhiteSpace($ResourceGroupScope))
+    {
+        "/providers/Microsoft.Management/managementGroups/$ManagementGroupId"
+    }
+    else
+    {
+        "/providers/Microsoft.Management/managementGroups/$ManagementGroupId/resourceGroups/$ResourceGroupScope"
+    }
+}
+elseif ([string]::IsNullOrWhiteSpace($ResourceGroupScope))
 {
     "/subscriptions/$SubscriptionId"
 }
@@ -139,7 +171,18 @@ New-Item -ItemType Directory -Path $staging | Out-Null
 
 try
 {
-    if (Get-Module -ListAvailable -Name Az.ResourceGraph)
+    if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
+    {
+        if (-not (Get-Module -ListAvailable -Name Az.ResourceGraph))
+        {
+            throw "Az.ResourceGraph module is required for -ManagementGroupId. Install: Install-Module Az -Scope CurrentUser"
+        }
+
+        $resources = Get-ArchLucidAzureResourcesViaResourceGraphManagementGroup `
+            -ManagementGroupId $ManagementGroupId `
+            -ResourceGroupScope $ResourceGroupScope
+    }
+    elseif (Get-Module -ListAvailable -Name Az.ResourceGraph)
     {
         $resources = Get-ArchLucidAzureResourcesViaResourceGraph `
             -SubscriptionId $SubscriptionId `
@@ -160,7 +203,8 @@ try
         schemaVersion = $schemaVersion
         scriptVersion = $scriptVersion
         collectionTimestamp = $collectionTimestamp
-        subscriptionId = $SubscriptionId
+        subscriptionId = if ([string]::IsNullOrWhiteSpace($SubscriptionId)) { $null } else { $SubscriptionId }
+        managementGroupId = if ([string]::IsNullOrWhiteSpace($ManagementGroupId)) { $null } else { $ManagementGroupId }
         scope = $scopeDescriptor
         switchesUsed = $switchesUsed
         azModuleVersion = $azModuleVersion

@@ -1165,6 +1165,75 @@ public sealed class PreCommitGovernanceGateTests
         schema.Verify(s => s.ValidateGoldenManifestJson(It.IsAny<string>()), Times.Never);
     }
 
+    [Fact]
+    public async Task EvaluateAsync_uses_global_pre_commit_threshold_when_no_enforcing_assignment()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("N");
+        Guid snapshotId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-global",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository findings = new();
+        await findings.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runGuid,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "f-error",
+                        FindingType = "Compliance",
+                        Category = "c",
+                        EngineType = "e",
+                        Severity = FindingSeverity.Error,
+                        Title = "t",
+                        Rationale = "r",
+                    },
+                ],
+            },
+            CancellationToken.None);
+
+        InMemoryPolicyPackAssignmentRepository assignments = new();
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        PreCommitGovernanceGate sut = CreateGate(
+            Options.Create(new PreCommitGovernanceGateOptions
+            {
+                PreCommitGateEnabled = true,
+                PreCommitGateThreshold = "Error"
+            }),
+            scopeProvider.Object,
+            runs,
+            findings,
+            assignments);
+
+        PreCommitGateResult result = await sut.EvaluateAsync(runId, CancellationToken.None);
+
+        result.Blocked.Should().BeTrue();
+        result.BlockingFindingIds.Should().ContainSingle().Which.Should().Be("f-error");
+    }
+
     private static PreCommitGovernanceGate CreateGate(
         IOptions<PreCommitGovernanceGateOptions> gateOptions,
         IScopeContextProvider scopeProvider,

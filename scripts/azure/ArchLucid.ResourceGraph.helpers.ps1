@@ -55,6 +55,60 @@ function New-ArchLucidCollectedResourceGraphRecord([PSObject] $Row)
     }
 }
 
+function Get-ArchLucidManagementGroupSubscriptionIds(
+    [Parameter(Mandatory = $true)]
+    [string] $ManagementGroupId)
+{
+    if (-not (Get-Module -ListAvailable -Name Az.ResourceGraph))
+    {
+        throw "Az.ResourceGraph module is required for management group scope. Install: Install-Module Az -Scope CurrentUser"
+    }
+
+    Import-Module Az.ResourceGraph -ErrorAction Stop
+
+    [string]$mg = "$ManagementGroupId".Trim()
+    [string]$query = @"
+ResourceContainers
+| where type =~ 'microsoft.resources/subscriptions'
+| where properties.managementGroupAncestorsChain has '$mg' or properties.managementGroupChain has '$mg'
+| project subscriptionId
+"@
+
+    [System.Collections.Generic.HashSet[string]]$ids = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    [string]$skipToken = $null
+
+    do
+    {
+        [hashtable]$searchParams = @{
+            Query = $query
+            ManagementGroup = $mg
+            First = 1000
+        }
+
+        if (-not ([string]::IsNullOrWhiteSpace($skipToken)))
+        {
+            $searchParams['SkipToken'] = $skipToken
+        }
+
+        [object]$page = Search-AzGraph @searchParams
+
+        foreach ($row in @(Get-ArchLucidResourceGraphPageDataArray $page))
+        {
+            [string]$subId = "$( $row.subscriptionId )".Trim()
+
+            if (-not ([string]::IsNullOrWhiteSpace($subId)))
+            {
+                [void]$ids.Add($subId)
+            }
+        }
+
+        $skipToken = Get-ArchLucidResourceGraphPageSkipToken $page
+    }
+    while (-not ([string]::IsNullOrWhiteSpace($skipToken)))
+
+    return @($ids)
+}
+
 function Get-ArchLucidAzureResourcesViaResourceGraph(
     [Parameter(Mandatory = $true)]
     [string] $SubscriptionId,
@@ -110,6 +164,40 @@ function Get-ArchLucidAzureResourcesViaResourceGraph(
         $skipToken = Get-ArchLucidResourceGraphPageSkipToken $page
     }
     while (-not ([string]::IsNullOrWhiteSpace($skipToken)))
+
+    return @($accumulator)
+}
+
+function Get-ArchLucidAzureResourcesViaResourceGraphManagementGroup(
+    [Parameter(Mandatory = $true)]
+    [string] $ManagementGroupId,
+
+    [string] $ResourceGroupScope = "",
+
+    [ValidateRange(100, 1000)]
+    [int] $PageSize = 1000)
+{
+    [string[]]$subscriptionIds = Get-ArchLucidManagementGroupSubscriptionIds -ManagementGroupId $ManagementGroupId
+
+    if ($subscriptionIds.Count -eq 0)
+    {
+        throw "No subscriptions discovered under management group '$ManagementGroupId'."
+    }
+
+    [System.Collections.Generic.List[object]]$accumulator = [System.Collections.Generic.List[object]]::new()
+
+    foreach ($subscriptionId in $subscriptionIds)
+    {
+        [object[]]$page = Get-ArchLucidAzureResourcesViaResourceGraph `
+            -SubscriptionId $subscriptionId `
+            -ResourceGroupScope $ResourceGroupScope `
+            -PageSize $PageSize
+
+        foreach ($record in $page)
+        {
+            [void]$accumulator.Add($record)
+        }
+    }
 
     return @($accumulator)
 }

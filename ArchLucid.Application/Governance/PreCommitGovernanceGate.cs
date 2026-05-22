@@ -94,19 +94,29 @@ public sealed class PreCommitGovernanceGate(
         PolicyPackAssignment? enforcing = assignments.Where(static a => a.IsEnabled && (a.BlockCommitOnCritical || a.BlockCommitMinimumSeverity.HasValue))
             .OrderByDescending(static a => a.AssignedUtc).FirstOrDefault();
 
-        if (enforcing is null)
-            return PreCommitGateResult.Allowed();
-
         FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, cancellationToken);
         List<Finding> findings = snapshot?.Findings is { Count: > 0 } ? snapshot.Findings.ToList() : [];
 
-        if (syntheticSeverity is not { } sev || syntheticCount <= 0)
+        if (syntheticSeverity is { } sev && syntheticCount > 0)
+        {
+            for (int i = 0; i < syntheticCount; i++)
+                findings.Add(CreateSyntheticFinding(runId, i, sev));
+        }
+
+        if (enforcing is not null)
             return PreCommitGateEvaluator.EvaluateForAssignment(findings, enforcing, _options.Value);
 
-        for (int i = 0; i < syntheticCount; i++)
-            findings.Add(CreateSyntheticFinding(runId, i, sev));
+        FindingSeverity? globalThreshold = PreCommitGateThresholdParser.TryParseMinimumSeverity(_options.Value.PreCommitGateThreshold);
 
-        return PreCommitGateEvaluator.EvaluateForAssignment(findings, enforcing, _options.Value);
+        if (globalThreshold is null)
+            return PreCommitGateResult.Allowed();
+
+        return PreCommitGateEvaluator.Evaluate(
+            findings,
+            blockCommitOnCritical: false,
+            blockCommitMinimumSeverity: (int)globalThreshold.Value,
+            policyPackIdLabel: "global-pre-commit-threshold",
+            _options.Value.WarnOnlySeverities);
     }
 
     private static Finding CreateSyntheticFinding(string runId, int index, FindingSeverity severity)

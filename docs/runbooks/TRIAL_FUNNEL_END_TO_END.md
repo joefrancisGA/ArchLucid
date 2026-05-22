@@ -14,6 +14,8 @@
 - [`docs/runbooks/TRIAL_FUNNEL.md`](TRIAL_FUNNEL.md) — Prometheus + Grafana **observability** runbook.
 - [`docs/runbooks/TRIAL_LIFECYCLE.md`](TRIAL_LIFECYCLE.md) — what happens **after** day 14.
 - [`docs/security/TRIAL_AUTH.md`](../security/TRIAL_AUTH.md) and [`docs/security/TRIAL_LIMITS.md`](../security/TRIAL_LIMITS.md) — auth + write-gate boundaries.
+- [`docs/library/HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md`](../library/HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md) — hosted trial expectations when **V1.1** ships.
+- [`docs/runbooks/AZURE_EXTRACTOR_TIER2_CONTINUOUS.md`](AZURE_EXTRACTOR_TIER2_CONTINUOUS.md) — scheduled Azure package collection for mature trials.
 
 This document is the **operational map** that ties those together for someone debugging the funnel locally or in staging.
 

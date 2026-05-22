@@ -32,4 +32,25 @@ public sealed class PilotScorecardResponse
         get;
         set;
     }
+
+    /// <summary>Last submitted hours saved (from POST body when provided).</summary>
+    public decimal? HoursSaved
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Last submitted risks mitigated count (from POST body when provided).</summary>
+    public int? RisksMitigated
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Last submitted qualitative notes (from POST body when provided).</summary>
+    public string? QualitativeNotes
+    {
+        get;
+        set;
+    }
 }

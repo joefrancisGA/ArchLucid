@@ -1,4 +1,3 @@
-using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -25,7 +24,7 @@ public sealed class AdminApiKeySettingsEndpointTests(ApiKeyReaderAndAdminArchLuc
 
         using HttpResponseMessage response = await client.GetAsync("/v1/admin/settings/api-keys");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        await response.EnsureSuccessForTestAsync();
         AdminApiKeySettingsResponse? body =
             await response.Content.ReadFromJsonAsync<AdminApiKeySettingsResponse>(JsonOptions);
 
@@ -47,7 +46,7 @@ public sealed class AdminApiKeySettingsEndpointTests(ApiKeyReaderAndAdminArchLuc
             "/v1/admin/settings/api-keys/rotate",
             new AdminApiKeyRotateRequest { Slot = "Admin", InvalidatePrevious = true });
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        await response.EnsureSuccessForTestAsync();
         AdminApiKeyRotateResponse? body =
             await response.Content.ReadFromJsonAsync<AdminApiKeyRotateResponse>(JsonOptions);
 

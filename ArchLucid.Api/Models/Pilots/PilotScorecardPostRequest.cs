@@ -16,4 +16,25 @@ public sealed class PilotScorecardPostRequest
         get;
         set;
     }
+
+    /// <summary>Operator-reported hours saved during the pilot window (optional).</summary>
+    public decimal? HoursSaved
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Operator-reported risks mitigated count (optional).</summary>
+    public int? RisksMitigated
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Qualitative pilot feedback (optional).</summary>
+    public string? QualitativeNotes
+    {
+        get;
+        set;
+    }
 }

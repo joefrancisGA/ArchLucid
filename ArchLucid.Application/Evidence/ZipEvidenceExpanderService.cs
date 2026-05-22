@@ -45,7 +45,7 @@ public sealed class ZipEvidenceExpanderService(
                 continue;
             }
 
-            string fileName = Path.GetFileName(entry.FullName);
+            string fileName = NormalizeZipEntryFileName(entry.FullName);
 
             if (string.IsNullOrEmpty(fileName))
             {
@@ -110,6 +110,28 @@ public sealed class ZipEvidenceExpanderService(
         activity?.SetTag("archlucid.evidence.total_uncompressed_bytes", totalUncompressedBytes);
 
         return result;
+    }
+
+    /// <summary>Flattens nested ZIP paths so folder recursion becomes unique leaf file names.</summary>
+    private static string NormalizeZipEntryFileName(string fullName)
+    {
+        if (string.IsNullOrWhiteSpace(fullName))
+            return string.Empty;
+
+        string normalized = fullName.Replace('\\', '/').Trim('/');
+
+        if (string.IsNullOrEmpty(normalized))
+            return string.Empty;
+
+        string[] segments = normalized.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        if (segments.Length == 0)
+            return string.Empty;
+
+        if (segments.Length == 1)
+            return segments[0];
+
+        return string.Join('_', segments);
     }
 
     private static HashSet<string> BuildAllowedExtensionSet(IReadOnlyList<string> configuredExtensions)

@@ -12,6 +12,16 @@ public sealed class PreCommitGovernanceGateOptions
         set;
     }
 
+    /// <summary>
+    ///     Global minimum severity that blocks commit when no policy-pack assignment enforces thresholds
+    ///     (e.g. <c>Error</c>, <c>Critical</c>, or <c>High</c> mapped to <see cref="Findings.FindingSeverity.Error" />).
+    /// </summary>
+    public string? PreCommitGateThreshold
+    {
+        get;
+        set;
+    }
+
     /// <summary>Severity names where the gate warns but does not block (e.g. ["Warning", "Error"]).</summary>
     public string[]? WarnOnlySeverities
     {

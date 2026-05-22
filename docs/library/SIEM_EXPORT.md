@@ -145,6 +145,45 @@ ArchLucidAudit_CL
 
 ---
 
+### 4.3 Microsoft Sentinel — Data Collection Endpoint (DCE) + Data Collection Rule (DCR)
+
+**Preferred ingestion path for Azure-native SOCs:** push normalized audit JSON into a Log Analytics workspace using **Azure Monitor Agent (AMA)** with a **Data Collection Endpoint** and **Data Collection Rule**. This avoids maintaining a long-lived forwarder VM when you already standardize on AMA.
+
+**High-level flow:**
+
+1. **Export** — scheduled job calls `GET /v1/audit/export?format=json` (Auditor/Admin role).
+2. **Transform** — map each `AuditEvent` row to the flattened Sentinel schema in §4.2 (`TimeGenerated`, `ArchLucidEventType_s`, …).
+3. **Ingest** — AMA reads JSON Lines files or your forwarder writes batches to the DCE ingestion URL configured on the DCR.
+
+**DCR transform (conceptual):** use a **transformKql** or **json** input mapping so `occurredUtc` → `TimeGenerated`, and preserve `dataJson` as `DataJson_s` for `parse_json` in KQL.
+
+**Sample DCR destination table:** `ArchLucidAudit_CL` (custom table name chosen by your workspace admin).
+
+**DCE checklist:**
+
+| Step | Action |
+|------|--------|
+| 1 | Create a **Data Collection Endpoint** in the same region as the Log Analytics workspace. |
+| 2 | Create a **Data Collection Rule** targeting the workspace, linked to the DCE. |
+| 3 | Add a **Custom Text** or **Log Analytics** destination with JSON mapping aligned to §4.2. |
+| 4 | Associate the DCR with a **Data Collection Rule Association** on the forwarder VM scale set, Arc-enabled server, or Azure Function host that runs the export poller. |
+| 5 | Validate with KQL: `ArchLucidAudit_CL | take 10` and confirm `CorrelationId_s` matches ArchLucid support bundles. |
+
+**Logs Ingestion API (alternative):** for serverless forwarders, use the [Logs ingestion API](https://learn.microsoft.com/azure/azure-monitor/logs/logs-ingestion-api-overview) with the same JSON row shape as §4.2 — preferred when you already emit NDJSON from an Azure Function after calling the ArchLucid export API.
+
+**Schema reference (ArchLucid export → Sentinel custom log):**
+
+| ArchLucid (`AuditEvent`) | Sentinel column (example) | Type |
+|--------------------------|-----------------------------|------|
+| `occurredUtc` | `TimeGenerated` | datetime |
+| `eventId` | `ArchLucidEventId_g` | string |
+| `eventType` | `ArchLucidEventType_s` | string |
+| `tenantId` | `TenantId_g` | string |
+| `correlationId` | `CorrelationId_s` | string |
+| `dataJson` | `DataJson_s` | string (parse in KQL) |
+
+---
+
 ## 5. Retention
 
 - **In ArchLucid:** Audit events are retained until archived or deleted by operator workflows. Default posture is **keep indefinitely** — see [SECURITY.md](SECURITY.md) (PII and retention).
@@ -158,7 +197,7 @@ ArchLucidAudit_CL
 |------------|--------|
 | Native **CEF** (Common Event Format) output (export) | Supported via `format=cef` on `GET /v1/audit/export` for ArcSight `.cef` lines |
 | Native **syslog** output (RFC 5424) | [Planned] (see go-to-market summary) |
-| Dedicated SIEM connector (Splunk, Sentinel) | [Planned] |
+| Dedicated SIEM connector (Splunk, Sentinel) | **Sentinel:** DCE/DCR pattern documented in §4.3; Splunk HEC in §4.1 |
 | Streaming export API (WebSocket / SSE) | Under consideration |
 
 ---
