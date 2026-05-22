@@ -206,11 +206,13 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
      Add WelcomeBanner.test.tsx coverage for the callout when buyer-polished and zero reviews.
      ```
 
-4. **Buyer-default empty states and glossary on mid-depth pages (V1 Operator Shell — OS-3)**
+4. **Buyer-default empty states and glossary on mid-depth pages (V1 Operator Shell — OS-3)** *(Completed 2026-05-22)*
    - Why it matters: `GRAPH_IDLE` and some Compare/Runs copy still use internal terms; `GlossaryTooltip` exists but is not applied uniformly.
    - Expected impact: Usability (+4-6 pts), Adoption Friction (+2-3 pts). Weighted readiness impact: +0.3-0.5%.
    - Affected qualities: Usability, Adoption Friction
    - Actionable: Yes — Batch **OS-3**
+   - **Completed.** Added `GRAPH_IDLE_BUYER` in `empty-state-presets.ts` and `resolveGraphIdleEmptyPreset` in `graph-page-helpers.ts` (wired from `GraphPageContent.tsx`). Operator-mode Reviews empty state wraps the first **Review ID** with `GlossaryTooltip termKey="run"`; `ComparePageIntro.tsx` wraps **architecture snapshot** / **manifest diff** on buyer and operator intro copy. Extended `EmptyState` description to `ReactNode`. Vitest: `graph-page-helpers.test.ts` asserts buyer-polished idle title.
+   - **Status:** **Completed** (2026-05-22).
    - Prompt:
      ```text
      PART A — archlucid-ui/src/lib/empty-state-presets.ts

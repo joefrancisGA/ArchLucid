@@ -14,7 +14,6 @@ import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
-import { GRAPH_IDLE } from "@/lib/empty-state-presets";
 import {
   getArchitectureGraph,
   getDecisionSubgraph,
@@ -31,7 +30,6 @@ import { coerceGraphViewModel } from "@/lib/operator-response-guards";
 import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
 import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
-  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 import type { GraphViewModel } from "@/types/graph";
@@ -41,6 +39,7 @@ import { GraphIdlePlaceholder } from "@/app/(operator)/graph/_sections/GraphIdle
 import {
   applyProvenanceDemoPresentationIfEligible,
   buildGraphSavedViewPayload,
+  resolveGraphIdleEmptyPreset,
   type GraphMode,
   type GraphSavedViewState,
 } from "@/app/(operator)/graph/_sections/graph-page-helpers";
@@ -352,24 +351,15 @@ export function GraphPageContent() {
     setMode("provenance-full");
   }, [buyerPolishedShell, demoUi]);
 
-  const graphIdlePreset = useMemo((): EmptyStateProps => {
-    if (demoUi && showIdleCard) {
-      const manifestHref = `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`;
-      const auditHref = `/audit?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
-
-      return {
-        ...GRAPH_IDLE,
-        title: BUYER_SURFACE_VOCABULARY.evidenceGraph,
-        description: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} traces evidence from captured context through monitored risks to the signed manifest and deliverables. Choose Open signed manifest or Open audit trail if the canvas is taking longer than expected.`,
-        actions: [
-          { label: "Open signed manifest", href: manifestHref },
-          { label: "Open audit trail", href: auditHref, variant: "outline" as const },
-        ],
-      };
-    }
-
-    return GRAPH_IDLE;
-  }, [demoUi, showIdleCard]);
+  const graphIdlePreset = useMemo(
+    (): EmptyStateProps =>
+      resolveGraphIdleEmptyPreset({
+        buyerPolished: buyerPolishedShell,
+        demoUi,
+        showIdleCard,
+      }),
+    [buyerPolishedShell, demoUi, showIdleCard],
+  );
 
   const leadIntro =
     demoUi || buyerPolishedShell

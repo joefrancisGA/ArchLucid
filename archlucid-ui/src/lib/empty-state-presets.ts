@@ -48,6 +48,15 @@ export const GRAPH_IDLE: EmptyStateProps = {
   ],
 };
 
+/** Buyer-polished graph idle: no runId/query jargon or signed-manifest shortcut. */
+export const GRAPH_IDLE_BUYER: EmptyStateProps = {
+  icon: Network,
+  title: "No evidence graph loaded",
+  description:
+    "Choose a finalized review above to see how captured context, findings, and decisions connect. If you have not started a review yet, open the reviews list first.",
+  actions: [{ label: "View reviews", href: "/reviews?projectId=default" }],
+};
+
 export const COMPARE_WAITING: EmptyStateProps = {
   icon: GitCompareArrows,
   title: "Waiting for both review IDs",

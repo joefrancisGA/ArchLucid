@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,7 @@ export type EmptyStateGettingStarted = {
 export type EmptyStateProps = {
   icon?: LucideIcon;
   title: string;
-  description: string;
+  description: ReactNode;
   actions?: EmptyStateAction[];
   helpTopicPath?: string;
   /** Optional first-run “how it works” list shown below the description. */
