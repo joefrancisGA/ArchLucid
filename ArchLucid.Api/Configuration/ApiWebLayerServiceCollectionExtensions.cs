@@ -60,6 +60,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<ISsoWizardTestLoginService, SsoWizardTestLoginService>();
         services.AddScoped<IIdentityProviderActivationService, IdentityProviderActivationService>();
         services.AddScoped<ApiRequestMeteringMiddleware>();
+        services.AddScoped<LlmTokenUsageResponseMiddleware>();
         services.AddSingleton<ILocalTrialJwtIssuer, LocalTrialJwtIssuer>();
         services.AddScoped<IArchitectureRequestImportValidator, FluentArchitectureRequestImportValidator>();
         services.AddScoped<IImportRequestFileService, ImportRequestFileService>();

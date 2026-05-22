@@ -132,6 +132,7 @@ internal static class PipelineExtensions
         app.UseMiddleware<TrialSeatReservationMiddleware>();
         app.UseMiddleware<TenantErasureQuarantineMiddleware>();
         app.UseAuthorization();
+        app.UseMiddleware<LlmTokenUsageResponseMiddleware>();
         app.UseMiddleware<ApiRequestMeteringMiddleware>();
         app.MapHealthChecks("/health/live",
                 new HealthCheckOptions { Predicate = static check => check.Tags.Contains(ReadinessTags.Live) })

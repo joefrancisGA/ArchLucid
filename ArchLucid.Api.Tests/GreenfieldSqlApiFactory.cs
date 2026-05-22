@@ -1,6 +1,8 @@
 using ArchLucid.TestSupport;
 
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Api.Tests;
 
@@ -47,6 +49,27 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
     public string SqlConnectionString
     {
         get;
+    }
+
+    /// <inheritdoc />
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        base.ConfigureWebHost(builder);
+
+        // Minimal-hosting WebApplicationFactory can register DI before ConfigureAppConfiguration wins over
+        // appsettings.Development.json (StorageProvider=InMemory). Startup then runs SqlSchemaBootstrapper
+        // without ISchemaBootstrapper registered — same early-merge pattern as JwtLocalSigningWebAppFactory.
+        builder.UseSetting("ArchLucid:StorageProvider", "Sql");
+        builder.UseSetting("ConnectionStrings:ArchLucid", SqlConnectionString);
+
+        Dictionary<string, string?> sqlBootstrap = new()
+        {
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ConnectionStrings:ArchLucid"] = SqlConnectionString
+        };
+
+        IConfiguration bootstrap = new ConfigurationBuilder().AddInMemoryCollection(sqlBootstrap).Build();
+        builder.UseConfiguration(bootstrap);
     }
 
     protected override void AddCustomSettings(Dictionary<string, string?> settings)

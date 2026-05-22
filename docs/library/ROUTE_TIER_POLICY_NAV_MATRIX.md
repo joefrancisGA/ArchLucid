@@ -38,7 +38,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:143 -->
+<!-- route-tier-policy-nav-registry-count:144 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -138,6 +138,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Integrations/SlackInteractivityController.cs` | `/v1/integrations/webhooks/slack` | none | AllowAnonymous |  | partner_webhook_ingest |
 | `Integrations/TeamsIncomingWebhookConnectionsController.cs` | `/v1/integrations/teams` | standard | Authorize | /integrations/teams |  |
 | `Integrations/WebhookConnectionsController.cs` | `/v1/integrations/webhooks` | standard | ReadAuthority |  |  |
+| `Integrations/WebhookSimulationController.cs` | `/v1/integrations/webhooks` | none | ExecuteAuthority |  |  |
 | `Marketing/EnterpriseComparisonMarketingController.cs` | `/v1/marketing` | none | AllowAnonymous |  | marketing_public_api |
 | `Marketing/MarketingEarlyAccessRequestController.cs` | `/v1/marketing/early-access` | none | AllowAnonymous |  | marketing_public_api |
 | `Marketing/MarketingPricingQuoteRequestController.cs` | `/v1/marketing/pricing` | none | AllowAnonymous |  | marketing_public_api |

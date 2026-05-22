@@ -1,8 +1,4 @@
----
-description: >-
-  ArchLucid assessment – first-principles weighted evaluation.
-alwaysApply: false
----
+> **Scope:** Canonical weighted V1 GA readiness assessment for coding agents and the owner — current `(A)` headline score and improvement backlog; not a buyer deliverable or historical archive.
 
 # ArchLucid Assessment – (A) Headline Readiness: 82.05%
 

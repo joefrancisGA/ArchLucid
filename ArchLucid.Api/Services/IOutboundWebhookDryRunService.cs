@@ -7,4 +7,10 @@ public interface IOutboundWebhookDryRunService
         Uri targetUrl,
         string? sharedSecret,
         CancellationToken cancellationToken = default);
+
+    /// <summary>POSTs a synthetic <c>AuthorityRunCompleted</c> CloudEvents payload to the subscriber URL.</summary>
+    Task<OutboundWebhookDryRunResult> ProbeAuthorityRunCompletedAsync(
+        Uri targetUrl,
+        string? sharedSecret,
+        CancellationToken cancellationToken = default);
 }

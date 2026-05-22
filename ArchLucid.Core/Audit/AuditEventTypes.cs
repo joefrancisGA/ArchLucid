@@ -529,6 +529,9 @@ public static class AuditEventTypes
     /// </summary>
     public const string OutboundWebhookDryRunProbeExecuted = "OutboundWebhookDryRunProbeExecuted";
 
+    /// <summary>Synthetic <c>AuthorityRunCompleted</c> webhook simulation executed via integrations API.</summary>
+    public const string WebhookAuthorityRunCompletedSimulationExecuted = "WebhookAuthorityRunCompletedSimulationExecuted";
+
     /// <summary>Bulk evidence files were attached to a run.</summary>
     public const string EvidenceBulkAttached = "EvidenceBulkAttached";
 

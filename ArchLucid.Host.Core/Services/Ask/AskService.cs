@@ -17,6 +17,8 @@ using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Models;
 using ArchLucid.Retrieval.Queries;
 
+using ArchLucid.Retrieval.Chunking;
+
 namespace ArchLucid.Host.Core.Services.Ask;
 
 /// <summary>
@@ -284,6 +286,15 @@ public sealed class AskService(
 
         object context = ContextBuilder.BuildContext(manifest, graph, comparisonResult);
         string contextJson = JsonSerializer.Serialize(context, ContractJson.CamelCaseIgnoreNullCompact);
+        contextJson = TokenAwareContextBudget.TruncateToTokenBudget(contextJson, out bool contextTruncated);
+
+        if (contextTruncated)
+        {
+            logger.LogWarning(
+                "Ask structured context truncated for token budget (ThreadId={ThreadId}, RunId={RunId}).",
+                LogSanitizer.Sanitize(thread.ThreadId.ToString()),
+                LogSanitizer.Sanitize(effectiveRunId.Value.ToString()));
+        }
 
         IReadOnlyList<RetrievalHit> retrievalHits = [];
         try

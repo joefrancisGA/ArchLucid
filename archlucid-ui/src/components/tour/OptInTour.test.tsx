@@ -10,8 +10,8 @@ afterEach(() => {
 });
 
 describe("OptInTour script", () => {
-  it("contains exactly five steps (PENDING_QUESTIONS.md item 38, owner Q8 — 2026-04-23)", () => {
-    expect(DRAFT_TOUR_STEPS).toHaveLength(5);
+  it("contains exactly six steps (PENDING_QUESTIONS.md item 38, owner Q8 — 2026-04-23; API Key Setup added as step 2)", () => {
+    expect(DRAFT_TOUR_STEPS).toHaveLength(6);
   });
 
   it("every step body is non-empty", () => {
@@ -68,7 +68,7 @@ describe("OptInTour rendering (controlled)", () => {
     expect(step0.textContent).not.toContain("<<tour");
   });
 
-  it("renders approved title and body for all five steps (no pending-approval placeholders)", () => {
+  it("renders approved title and body for all six steps (no pending-approval placeholders)", () => {
     render(<OptInTour isOpen={true} onClose={() => {}} />);
 
     for (let i = 0; i < DRAFT_TOUR_STEPS.length; i++) {

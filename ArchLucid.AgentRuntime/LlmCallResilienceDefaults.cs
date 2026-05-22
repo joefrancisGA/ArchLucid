@@ -35,7 +35,7 @@ public static class LlmCallResilienceDefaults
         if (maxRetryAttempts <= 0)
             return ResiliencePipeline.Empty;
 
-        TimeSpan delay = baseDelay ?? TimeSpan.FromMilliseconds(500);
+        TimeSpan delay = baseDelay ?? TimeSpan.FromSeconds(2);
         TimeSpan cap = maxDelay ?? TimeSpan.FromSeconds(10);
 
         return new ResiliencePipelineBuilder()
@@ -119,9 +119,6 @@ public static class LlmCallResilienceDefaults
 
         int status = cre.Status;
 
-        if (status == 429)
-            return false;
-
-        return status is 500 or 502 or 503 or 504;
+        return status is 429 or 500 or 502 or 503 or 504;
     }
 }

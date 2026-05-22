@@ -1,4 +1,5 @@
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Models;
 
@@ -50,6 +51,7 @@ public sealed class SqlAzureExtractorPackageRepository(ISqlConnectionFactory con
                     record.ManifestJson,
                     record.PackageBytes,
                 },
+                commandTimeout: DapperCommandTimeoutSeconds.Report,
                 cancellationToken: cancellationToken));
     }
 

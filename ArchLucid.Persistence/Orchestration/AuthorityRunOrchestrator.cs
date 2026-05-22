@@ -465,5 +465,6 @@ public sealed class AuthorityRunOrchestrator(
     private void LogAgentExecutionStateTransition(Guid runId, string currentState, string nextState, string taskIds)
     {
         logger.LogInformationAgentExecutionStateTransition(runId, currentState, nextState, taskIds);
+        ArchLucidInstrumentation.RecordOrchestratorStateTransition(runId, currentState, nextState);
     }
 }

@@ -222,6 +222,12 @@ public static class ArchLucidInstrumentation
             "archlucid_authority_runs_completed_total",
             description: "Authority runs completed through FinalizeCommittedPipelineAsync.");
 
+    /// <summary>Authority pipeline orchestrator state transitions (labels: <c>from_state</c>, <c>to_state</c>).</summary>
+    public static readonly Counter<long> OrchestratorTransitionTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_orchestrator_transition_total",
+            description: "Authority pipeline orchestrator state transitions (labels: from_state, to_state).");
+
     /// <summary>Authority runs created (pre-pipeline, at <c>RunRecord</c> insertion).</summary>
     public static readonly Counter<long> RunsCreatedTotal =
         AppMeter.CreateCounter<long>(
@@ -1414,6 +1420,33 @@ public static class ArchLucidInstrumentation
 
             return tags;
         }
+    }
+
+    /// <summary>Records orchestrator state transitions on the active trace and Prometheus counter.</summary>
+    public static void RecordOrchestratorStateTransition(Guid runId, string fromState, string toState)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fromState);
+        ArgumentException.ThrowIfNullOrWhiteSpace(toState);
+
+        TagList tags = new();
+        tags.Add("from_state", fromState);
+        tags.Add("to_state", toState);
+        OrchestratorTransitionTotal.Add(1, tags);
+
+        Activity? activity = Activity.Current;
+
+        if (activity is null)
+            return;
+
+        activity.AddEvent(
+            new ActivityEvent(
+                "orchestrator.state_transition",
+                tags: new ActivityTagsCollection
+                {
+                    { "archlucid.run_id", runId.ToString("D") },
+                    { "from_state", fromState },
+                    { "to_state", toState },
+                }));
     }
 
     /// <summary>Increments embedding input-token counter (orthogonal to chat <see cref="RecordLlmTokenUsage" />).</summary>

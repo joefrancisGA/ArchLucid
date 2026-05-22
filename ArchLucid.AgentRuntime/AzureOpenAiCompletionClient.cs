@@ -610,6 +610,12 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
         LastModelMetadata.Value = (deploymentName, modelId);
     }
 
+    /// <summary>Test hook: seeds token usage read by <see cref="TryPeekLastCompletionTokenUsage" />.</summary>
+    internal static void TestingSetLastCompletionTokenUsage(int promptTokens, int completionTokens, int reasoningTokens = 0)
+    {
+        LastCompletionTokenUsage.Value = (promptTokens, completionTokens, reasoningTokens);
+    }
+
     /// <summary>
     ///     Consumes deployment name and provider-reported model id from the last successful
     ///     <see cref="CompleteJsonAsync" /> on this async flow, if any.

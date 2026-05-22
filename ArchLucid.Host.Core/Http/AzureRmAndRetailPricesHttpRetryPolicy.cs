@@ -46,7 +46,7 @@ public static class AzureRmAndRetailPricesHttpRetryPolicy
                 },
                 OnRetry = args =>
                 {
-                    TryLog(logger, args);
+                    TryLogRetry(logger, args);
 
                     return ValueTask.CompletedTask;
                 },
@@ -58,7 +58,7 @@ public static class AzureRmAndRetailPricesHttpRetryPolicy
 
     private static TimeSpan ProductionSleepDurationProvider(int attemptNumber) => TimeSpan.FromSeconds(Math.Pow(2, attemptNumber));
 
-    private static bool ShouldRetryHttpResponse(HttpResponseMessage response)
+    internal static bool ShouldRetryHttpResponse(HttpResponseMessage response)
     {
         HttpStatusCode code = response.StatusCode;
 
@@ -71,7 +71,7 @@ public static class AzureRmAndRetailPricesHttpRetryPolicy
         return (int)code >= 500 && (int)code <= 599;
     }
 
-    private static void TryLog(ILogger logger, OnRetryArguments<HttpResponseMessage> args)
+    internal static void TryLogRetry(ILogger logger, OnRetryArguments<HttpResponseMessage> args)
     {
         if (!logger.IsEnabled(LogLevel.Warning))
 

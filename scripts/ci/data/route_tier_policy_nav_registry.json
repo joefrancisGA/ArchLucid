@@ -962,6 +962,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Integrations/WebhookSimulationController.cs",
+      "class_name": "WebhookSimulationController",
+      "route_template": "v{version:apiVersion}/integrations/webhooks",
+      "normalized_prefix": "/v1/integrations/webhooks",
+      "commercial_tier": "none",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Marketing/EnterpriseComparisonMarketingController.cs",
       "class_name": "EnterpriseComparisonMarketingController",
       "route_template": "v{version:apiVersion}/marketing",
