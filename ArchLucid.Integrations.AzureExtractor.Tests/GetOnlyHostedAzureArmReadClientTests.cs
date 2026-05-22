@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace ArchLucid.Integrations.AzureExtractor.Tests;
+[Trait("Category", "Unit")]
 
 public sealed class GetOnlyHostedAzureArmReadClientTests
 {
