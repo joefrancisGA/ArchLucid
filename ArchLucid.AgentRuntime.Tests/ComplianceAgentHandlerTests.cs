@@ -20,11 +20,13 @@ public sealed class ComplianceAgentHandlerTests
     [SkippableFact]
     public async Task ExecuteAsync_ShouldReturnParsedComplianceAgentResult()
     {
+        const string runId = AgentHandlerTestRunIds.Run001;
+
         const string json = """
                             {
                               "resultId": "RES-COMP-001",
                               "taskId": "TASK-COMP-001",
-                              "runId": "RUN-001",
+                              "runId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                               "agentType": "Compliance",
                               "claims": [
                                 "Managed identity is required.",
@@ -119,14 +121,14 @@ public sealed class ComplianceAgentHandlerTests
         AgentTask task = new()
         {
             TaskId = "TASK-COMP-001",
-            RunId = "RUN-001",
+            RunId = runId,
             AgentType = AgentType.Compliance,
             Objective = "Produce a compliance proposal."
         };
 
         AgentEvidencePackage evidence = new()
         {
-            RunId = "RUN-001",
+            RunId = runId,
             RequestId = request.RequestId,
             SystemName = request.SystemName,
             Environment = request.Environment,
@@ -140,10 +142,10 @@ public sealed class ComplianceAgentHandlerTests
             }
         };
 
-        AgentResult result = await handler.ExecuteAsync("RUN-001", request, evidence, task);
+        AgentResult result = await handler.ExecuteAsync(runId, request, evidence, task);
 
         result.AgentType.Should().Be(AgentType.Compliance);
-        result.RunId.Should().Be("RUN-001");
+        result.RunId.Should().Be(runId);
         result.TaskId.Should().Be("TASK-COMP-001");
         result.ProposedChanges.Should().NotBeNull();
         result.ProposedChanges!.RequiredControls.Should().Contain("Managed Identity");

@@ -20,11 +20,13 @@ public sealed class TopologyAgentHandlerTests
     [SkippableFact]
     public async Task ExecuteAsync_ShouldReturnParsedTopologyAgentResult()
     {
+        const string runId = AgentHandlerTestRunIds.Run001;
+
         const string json = """
                             {
                               "resultId": "RES-TOPO-001",
                               "taskId": "TASK-TOPO-001",
-                              "runId": "RUN-001",
+                              "runId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                               "agentType": "Topology",
                               "claims": [
                                 "Use App Service for the API.",
@@ -125,14 +127,14 @@ public sealed class TopologyAgentHandlerTests
         AgentTask task = new()
         {
             TaskId = "TASK-TOPO-001",
-            RunId = "RUN-001",
+            RunId = runId,
             AgentType = AgentType.Topology,
             Objective = "Produce a topology proposal."
         };
 
         AgentEvidencePackage evidence = new()
         {
-            RunId = "RUN-001",
+            RunId = runId,
             RequestId = request.RequestId,
             SystemName = request.SystemName,
             Environment = request.Environment,
@@ -146,10 +148,10 @@ public sealed class TopologyAgentHandlerTests
             }
         };
 
-        AgentResult result = await handler.ExecuteAsync("RUN-001", request, evidence, task);
+        AgentResult result = await handler.ExecuteAsync(runId, request, evidence, task);
 
         result.AgentType.Should().Be(AgentType.Topology);
-        result.RunId.Should().Be("RUN-001");
+        result.RunId.Should().Be(runId);
         result.TaskId.Should().Be("TASK-TOPO-001");
         result.ProposedChanges.Should().NotBeNull();
         result.ProposedChanges!.AddedServices.Should().Contain(s => s.ServiceName == "rag-api");

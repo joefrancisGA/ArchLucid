@@ -36,11 +36,13 @@ public sealed class RealRuntimeMixedModeTests
     [SkippableFact]
     public async Task RealTopologyAndCompliance_WithDeterministicCost_ShouldProduceManifest()
     {
+        const string runId = AgentHandlerTestRunIds.Run001;
+
         const string topologyJson = """
                                     {
                                       "resultId": "RES-TOPO-001",
                                       "taskId": "TASK-TOPO-001",
-                                      "runId": "RUN-001",
+                                      "runId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                                       "agentType": "Topology",
                                       "claims": [
                                         "Use App Service for the API.",
@@ -113,7 +115,7 @@ public sealed class RealRuntimeMixedModeTests
                                       {
                                         "resultId": "RES-COMP-001",
                                         "taskId": "TASK-COMP-001",
-                                        "runId": "RUN-001",
+                                        "runId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                                         "agentType": "Compliance",
                                         "claims": [
                                           "Managed identity is required.",
@@ -156,7 +158,7 @@ public sealed class RealRuntimeMixedModeTests
                                   {
                                     "resultId": "RES-CRITIC-001",
                                     "taskId": "TASK-CRITIC-001",
-                                    "runId": "RUN-001",
+                                    "runId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                                     "agentType": "Critic",
                                     "claims": [
                                       "Observability should be explicit."
@@ -302,15 +304,15 @@ public sealed class RealRuntimeMixedModeTests
 
         AgentTask criticTask = coordination.Tasks.Single(t => t.AgentType == AgentType.Critic);
         criticTask.TaskId = "TASK-CRITIC-001";
-        criticTask.RunId = "RUN-001";
+        criticTask.RunId = runId;
 
         foreach (AgentTask task in coordination.Tasks)
 
-            task.RunId = "RUN-001";
+            task.RunId = runId;
 
         AgentEvidencePackage evidence = new()
         {
-            RunId = "RUN-001",
+            RunId = runId,
             RequestId = request.RequestId,
             SystemName = request.SystemName,
             Environment = request.Environment,
@@ -325,7 +327,7 @@ public sealed class RealRuntimeMixedModeTests
         };
 
         IReadOnlyList<AgentResult> results =
-            await executor.ExecuteAsync("RUN-001", request, evidence, coordination.Tasks);
+            await executor.ExecuteAsync(runId, request, evidence, coordination.Tasks);
 
         SchemaValidationService validationService = new(
             NullLogger<SchemaValidationService>.Instance,
@@ -333,7 +335,7 @@ public sealed class RealRuntimeMixedModeTests
 
         DecisionEngineService engine = new(validationService);
         DecisionMergeResult merge = engine.MergeResults(
-            "RUN-001",
+            runId,
             request,
             "v1",
             results,

@@ -109,7 +109,7 @@ public sealed class HostedAzureExtractorAdminController(
     [HttpGet("configuration")]
     [MutatingAuditExcluded("Read-only hosted extractor configuration lookup.")]
     [ProducesResponseType(typeof(HostedAzureExtractorConfigurationResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetConfigurationAsync(
         [FromQuery] string subscriptionId,
         CancellationToken cancellationToken)
@@ -124,7 +124,11 @@ public sealed class HostedAzureExtractorAdminController(
             .ConfigureAwait(false);
 
         if (record is null)
-            return NotFound();
+        {
+            return this.NotFoundProblem(
+                $"Hosted Azure extractor configuration for subscription '{subscriptionId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
 
         return Ok(ToResponse(record));
     }

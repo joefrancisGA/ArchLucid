@@ -37,7 +37,7 @@ public sealed class HostedAzureExtractorRunController(
     [MutatingAuditExcluded("AzureExtractorIngestService emits AzureExtractorPackage.* audit events on successful ingest.")]
     [ProducesResponseType(typeof(HostedAzureExtractorRunResponse), StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> RunAsync(
@@ -62,13 +62,18 @@ public sealed class HostedAzureExtractorRunController(
 
         if (result.FailureKind == HostedAzureExtractorRunFailureKind.FeatureDisabled)
         {
-            return StatusCode(
-                StatusCodes.Status503ServiceUnavailable,
-                new { detail = result.FailureDetail });
+            return this.ServiceUnavailableProblem(
+                result.FailureDetail ?? "Hosted Azure extractor is disabled.",
+                ProblemTypes.UnavailableInProduction);
         }
 
         if (result.FailureKind == HostedAzureExtractorRunFailureKind.NotConfigured)
-            return NotFound(new { detail = result.FailureDetail });
+        {
+            return this.NotFoundProblem(
+                result.FailureDetail
+                ?? "No hosted Azure extractor configuration exists for this tenant and subscription.",
+                ProblemTypes.ResourceNotFound);
+        }
 
         if (!result.Succeeded)
             return this.UnprocessableEntityProblem(result.FailureDetail ?? "Hosted extractor run failed.");
