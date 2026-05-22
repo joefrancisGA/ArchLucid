@@ -12,6 +12,9 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        // JWT E2E factories set process env vars that win over in-memory DevelopmentBypass settings in Program.cs.
+        JwtIntegrationTestEnvironmentOverrides.Clear();
+
         builder.UseEnvironment("Development");
 
         builder.UseSetting("DataConsistency:InitialDelaySeconds", "0");

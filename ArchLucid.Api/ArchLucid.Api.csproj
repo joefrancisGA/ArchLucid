@@ -27,6 +27,8 @@
     <PackageReference Include="Microsoft.OpenApi" />
     <PackageReference Include="OpenTelemetry" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     <PackageReference Include="FluentValidation.AspNetCore" />
     <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />

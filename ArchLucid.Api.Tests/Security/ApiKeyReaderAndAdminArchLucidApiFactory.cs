@@ -1,3 +1,5 @@
+using ArchLucid.Api.Tests;
+
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 
@@ -29,11 +31,23 @@ public sealed class ApiKeyReaderAndAdminArchLucidApiFactory : ArchLucidApiFactor
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
+
+        JwtIntegrationTestEnvironmentOverrides.ApplyApiKey(IntegrationTestAdminApiKey, IntegrationTestReaderApiKey);
+
         IConfiguration bootstrap = new ConfigurationBuilder().AddInMemoryCollection(KeyModeConfiguration).Build();
         builder.UseConfiguration(bootstrap);
         builder.ConfigureAppConfiguration((_, config) =>
         {
             config.AddInMemoryCollection(KeyModeConfiguration);
         });
+    }
+
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+            JwtIntegrationTestEnvironmentOverrides.Clear();
+
+        base.Dispose(disposing);
     }
 }

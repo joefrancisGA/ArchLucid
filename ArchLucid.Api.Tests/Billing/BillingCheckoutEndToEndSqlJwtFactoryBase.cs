@@ -33,7 +33,10 @@ internal abstract class BillingCheckoutEndToEndSqlJwtFactoryBase : GreenfieldSql
         File.WriteAllText(_privatePemPath, privatePem, Encoding.UTF8);
         File.WriteAllText(_publicPemPath, publicPem, Encoding.UTF8);
 
-        ApplyJwtEnvironmentOverrides();
+        JwtIntegrationTestEnvironmentOverrides.Apply(
+            _publicPemPath,
+            JwtLocalSigningWebAppFactory.JwtLocalTestIssuer,
+            JwtLocalSigningWebAppFactory.JwtLocalTestAudience);
     }
 
     /// <summary>PKCS#8 private key PEM path configured for <c>Auth:Trial:LocalIdentity:JwtPrivateKeyPemPath</c>.</summary>
@@ -42,6 +45,11 @@ internal abstract class BillingCheckoutEndToEndSqlJwtFactoryBase : GreenfieldSql
     protected sealed override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
+
+        JwtIntegrationTestEnvironmentOverrides.Apply(
+            _publicPemPath,
+            JwtLocalSigningWebAppFactory.JwtLocalTestIssuer,
+            JwtLocalSigningWebAppFactory.JwtLocalTestAudience);
 
         Dictionary<string, string?> overrides = BuildJwtAndBillingConfigurationOverrides();
 
@@ -90,22 +98,12 @@ internal abstract class BillingCheckoutEndToEndSqlJwtFactoryBase : GreenfieldSql
     {
         if (disposing)
         {
+            JwtIntegrationTestEnvironmentOverrides.Clear();
             TryDeleteFile(_privatePemPath);
             TryDeleteFile(_publicPemPath);
         }
 
         base.Dispose(disposing);
-    }
-
-    private void ApplyJwtEnvironmentOverrides()
-    {
-        Environment.SetEnvironmentVariable("ArchLucidAuth__Mode", "JwtBearer");
-        Environment.SetEnvironmentVariable("ArchLucidAuth__Authority", string.Empty);
-        Environment.SetEnvironmentVariable("ArchLucidAuth__Audience", string.Empty);
-        Environment.SetEnvironmentVariable("ArchLucidAuth__JwtSigningPublicKeyPemPath", _publicPemPath);
-        Environment.SetEnvironmentVariable("ArchLucidAuth__JwtLocalIssuer", JwtLocalSigningWebAppFactory.JwtLocalTestIssuer);
-        Environment.SetEnvironmentVariable("ArchLucidAuth__JwtLocalAudience", JwtLocalSigningWebAppFactory.JwtLocalTestAudience);
-        Environment.SetEnvironmentVariable("Authentication__ApiKey__DevelopmentBypassAll", "false");
     }
 
     private Dictionary<string, string?> BuildJwtAndBillingConfigurationOverrides()

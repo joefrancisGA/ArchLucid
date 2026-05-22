@@ -44,6 +44,8 @@ public sealed class HealthEndpointSecurityApiFactory : ArchLucidApiFactory
     {
         base.ConfigureWebHost(builder);
 
+        JwtIntegrationTestEnvironmentOverrides.ApplyApiKey(IntegrationTestAdminApiKey, IntegrationTestReaderApiKey);
+
         IConfiguration bootstrap = new ConfigurationBuilder()
             .AddInMemoryCollection(ApiKeyAuthConfiguration)
             .Build();
@@ -53,5 +55,14 @@ public sealed class HealthEndpointSecurityApiFactory : ArchLucidApiFactory
         {
             config.AddInMemoryCollection(ApiKeyAuthConfiguration);
         });
+    }
+
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+            JwtIntegrationTestEnvironmentOverrides.Clear();
+
+        base.Dispose(disposing);
     }
 }

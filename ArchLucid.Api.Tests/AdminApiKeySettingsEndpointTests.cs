@@ -2,7 +2,9 @@ using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Api.Tests.Security;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration.Summary;
+using ArchLucid.Core.Pagination;
 
 using FluentAssertions;
 
@@ -55,5 +57,23 @@ public sealed class AdminApiKeySettingsEndpointTests(ApiKeyReaderAndAdminArchLuc
         body.PlaintextKey.Length.Should().BeGreaterThanOrEqualTo(32);
         body.DeploymentAction.Should().Be("Replace");
         body.ReplaceConfigValue.Should().Be(body.PlaintextKey);
+
+        using HttpResponseMessage auditResponse = await client.GetAsync(
+            $"/v1/audit/search?eventType={AuditEventTypes.AdminApiKeyRotationMaterialIssued}&take=10");
+
+        await auditResponse.EnsureSuccessForTestAsync();
+        CursorPagedResponse<AuditEvent>? auditPage =
+            await auditResponse.Content.ReadFromJsonAsync<CursorPagedResponse<AuditEvent>>(JsonOptions);
+
+        auditPage.Should().NotBeNull();
+        auditPage!.Items.Should().NotBeEmpty();
+
+        AuditEvent issued = auditPage.Items.First(static e =>
+            string.Equals(e.EventType, AuditEventTypes.AdminApiKeyRotationMaterialIssued, StringComparison.Ordinal));
+
+        issued.DataJson.Should().NotBeNullOrWhiteSpace();
+        issued.DataJson.Should().NotContain(body.PlaintextKey, "rotation audit must not persist key material");
+        issued.DataJson.Should().Contain("deploymentAction");
+        issued.DataJson.Should().Contain("configPath");
     }
 }
