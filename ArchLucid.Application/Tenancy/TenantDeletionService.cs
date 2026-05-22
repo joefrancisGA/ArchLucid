@@ -10,7 +10,8 @@ public sealed class TenantDeletionService(
     ITenantHardPurgeService tenantHardPurgeService,
     ITenantBlobPrefixDeletionService tenantBlobPrefixDeletionService,
     IPlatformAuditRepository platformAuditRepository,
-    IOptionsMonitor<TrialLifecycleSchedulerOptions> trialLifecycleOptions)
+    IOptionsMonitor<TrialLifecycleSchedulerOptions> trialLifecycleOptions,
+    ITenantRepository tenantRepository)
     : ITenantDeletionService
 {
     private readonly ITenantHardPurgeService _tenantHardPurgeService =
@@ -25,6 +26,9 @@ public sealed class TenantDeletionService(
     private readonly IOptionsMonitor<TrialLifecycleSchedulerOptions> _trialLifecycleOptions =
         trialLifecycleOptions ?? throw new ArgumentNullException(nameof(trialLifecycleOptions));
 
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     public async Task<TenantDeletionResult> DeleteTenantAsync(
         Guid tenantId,
         TenantDeletionInvocation invocation,
@@ -35,7 +39,11 @@ public sealed class TenantDeletionService(
         ArgumentException.ThrowIfNullOrWhiteSpace(invocation.ActorUserId);
         ArgumentException.ThrowIfNullOrWhiteSpace(invocation.ActorUserName);
 
-        ITenantRepository tenantRepository = _tenantHardPurgeService.GetType().Assembly.GetType("ArchLucid.Persistence.Tenancy.DapperTenantRepository") != null ? (ITenantRepository)Activator.CreateInstance(typeof(ITenantRepository)) : null; // This is a bit hacky, let's inject ITenantRepository properly.
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+        if (tenant?.TenantErasureApprovedUtc == null)
+        {
+            throw new InvalidOperationException("Tenant erasure must be explicitly approved by an Admin before hard purge.");
+        }
 
         TrialLifecycleSchedulerOptions lifecycle = _trialLifecycleOptions.CurrentValue;
         int maxRows = lifecycle.HardPurgeMaxRowsPerStatement > 0 ? lifecycle.HardPurgeMaxRowsPerStatement : 5000;

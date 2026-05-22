@@ -162,6 +162,38 @@ public sealed class TenantErasureCommandService(
     }
 
     /// <inheritdoc />
+    public async Task<bool> TryApproveErasureAsync(
+        Guid tenantId,
+        string actorUserId,
+        string actorUserName,
+        string? correlationId,
+        CancellationToken cancellationToken)
+    {
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenant is null || tenant.OffboardedUtc is null || tenant.TenantErasureApprovedUtc is not null)
+            return false;
+
+        DateTimeOffset now = _timeProvider.GetUtcNow();
+
+        bool approved = await _tenantRepository.TryApproveTenantErasureAsync(tenantId, now, actorUserId, cancellationToken);
+
+        if (!approved)
+            return false;
+
+        await AppendPlatformAuditAsync(
+            AuditEventTypes.TenantErasureApproved,
+            tenantId,
+            actorUserId,
+            actorUserName,
+            correlationId,
+            new { approvedUtc = now },
+            cancellationToken);
+
+        return true;
+    }
+
+    /// <inheritdoc />
     public async Task<bool> TryClearLegalHoldAsync(
         Guid tenantId,
         string actorUserId,

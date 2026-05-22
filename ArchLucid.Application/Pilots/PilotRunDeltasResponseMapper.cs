@@ -11,7 +11,7 @@ public static class PilotRunDeltasResponseMapper
     public static PilotRunDeltasResponse ToResponse(PilotRunDeltas deltas)
     {
         ArgumentNullException.ThrowIfNull(deltas);
-        return MapCore(deltas, proofPackage: null);
+        return MapCore(deltas, null, proofPackage: null);
     }
 
     /// <summary>
@@ -32,13 +32,21 @@ public static class PilotRunDeltasResponseMapper
         ProofPackageCompletenessResponse completeness =
             PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, valueWindowSnapshot);
 
-        return MapCore(deltas, completeness);
+        DateTime? extractorTs = null;
+        if (manifest?.Metadata != null && manifest.Metadata.TryGetValue(ArchLucid.Application.AzureExtractor.AzureExtractorEvidenceBundleMerger.MetadataCollectionTimestampUtcKey, out string? tsStr))
+        {
+            if (DateTime.TryParse(tsStr, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime parsed))
+                extractorTs = parsed;
+        }
+
+        return MapCore(deltas, extractorTs, completeness);
     }
 
-    private static PilotRunDeltasResponse MapCore(PilotRunDeltas deltas, ProofPackageCompletenessResponse? proofPackage)
+    private static PilotRunDeltasResponse MapCore(PilotRunDeltas deltas, DateTime? extractorCollectionTimestampUtc, ProofPackageCompletenessResponse? proofPackage)
     {
         return new PilotRunDeltasResponse
         {
+            ExtractorCollectionTimestampUtc = extractorCollectionTimestampUtc,
             TimeToCommittedManifestTotalSeconds = deltas.TimeToCommittedManifest?.TotalSeconds,
             ManifestCommittedUtc = deltas.ManifestCommittedUtc,
             RunCreatedUtc = deltas.RunCreatedUtc,

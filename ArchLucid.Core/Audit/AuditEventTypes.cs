@@ -424,6 +424,8 @@ public static class AuditEventTypes
     /// <summary>Platform audit: tenant entered scheduled erasure quarantine (<c>dbo.Tenants.OffboardedUtc</c> set).</summary>
     public const string TenantErasureOffboarded = "TenantErasureOffboarded";
 
+    public const string TenantErasureApproved = "TenantErasureApproved";
+
     /// <summary>Platform audit: quarantine cleared before hard purge (break-glass restore).</summary>
     public const string TenantErasureQuarantineRestored = "TenantErasureQuarantineRestored";
 

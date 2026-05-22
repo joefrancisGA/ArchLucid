@@ -28,6 +28,13 @@ public interface ITenantErasureCommandService
         string? correlationId,
         CancellationToken cancellationToken);
 
+    Task<bool> TryApproveErasureAsync(
+        Guid tenantId,
+        string actorUserId,
+        string actorUserName,
+        string? correlationId,
+        CancellationToken cancellationToken);
+
     Task<bool> TryClearLegalHoldAsync(
         Guid tenantId,
         string actorUserId,

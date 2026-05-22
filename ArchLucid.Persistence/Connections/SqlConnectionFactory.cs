@@ -14,7 +14,12 @@ public sealed class SqlConnectionFactory : ISqlConnectionFactory
     public SqlConnectionFactory(string connectionString)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
-        _connectionString = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+        string secureString = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+        SqlConnectionStringBuilder builder = new(secureString)
+        {
+            CommandTimeout = 30
+        };
+        _connectionString = builder.ConnectionString;
     }
 
     public async Task<SqlConnection> CreateOpenConnectionAsync(CancellationToken ct)

@@ -113,3 +113,4 @@ ArchLucid.Api.Controllers.Governance.GovernanceController.Simulate
 ArchLucid.Api.Controllers.Governance.PolicyPacksController.DeletePack
 ArchLucid.Api.Controllers.Operator.OperatorSavedViewsController.CreateSavedView
 ArchLucid.Api.Controllers.Operator.OperatorSavedViewsController.DeleteSavedView
+ArchLucid.Api.Controllers.Tenancy.TenantErasureLegalHoldController.ApproveErasureAsync

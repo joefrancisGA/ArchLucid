@@ -7,6 +7,12 @@ namespace ArchLucid.Contracts.Pilots;
 /// </summary>
 public sealed class PilotRunDeltasResponse
 {
+    public DateTime? ExtractorCollectionTimestampUtc
+    {
+        get;
+        init;
+    }
+
     public double? TimeToCommittedManifestTotalSeconds
     {
         get;

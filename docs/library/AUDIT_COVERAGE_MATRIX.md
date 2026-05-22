@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:218 -->
+<!-- audit-core-const-count:220 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -284,6 +284,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `SyntheticOperatorDemoPackMarker` | `SyntheticOperatorDemoPack.Marker` | `SyntheticOperatorDemoPackWriter` (`POST /v1/diagnostics/synthetic-operator-demo-pack`) |
 | `SyntheticOperatorDemoPackInvoked` | `SyntheticOperatorDemoPack.Invoked` | `SyntheticOperatorDemoPackController` (`POST /v1/diagnostics/synthetic-operator-demo-pack`) |
 | `RunExported` | `RunExported` | `ArtifactExportController` |
+| `RunExportFailed` | `Export.Failed` | `ArtifactExportController` |
 | `RunExportBlobPushQueued` | `RunExportBlobPushQueued` | `ArtifactExportController` (HTTP 202 accepts enqueue; background `RunExportBlobPushService` emits succeeded/failed) |
 | `RunExportBlobPushSucceeded` | `RunExportBlobPushSucceeded` | `RunExportBlobPushService` (`ArtifactExportController` queues background PUT to customer SAS) |
 | `RunExportBlobPushFailed` | `RunExportBlobPushFailed` | `RunExportBlobPushService` (non-success HTTP or exception; same enqueue path as succeeded) |
@@ -374,6 +375,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantSelfRegistered` | `TenantSelfRegistered` | `RegistrationController` |
 | `TenantDataDeleted` | `TenantDataDeleted` | `TenantDeletionService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; offboarding background job) |
 | `TenantErasureOffboarded` | `TenantErasureOffboarded` | `TenantErasureCommandService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; `AdminTenantsController` `POST …/admin/tenants/{id}/delete`) |
+| `TenantErasureApproved` | `TenantErasureApproved` | `TenantErasureCommandService` → `IPlatformAuditRepository` |
 | `TenantErasureQuarantineRestored` | `TenantErasureQuarantineRestored` | `TenantErasureCommandService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; `AdminTenantsController` `POST …/admin/tenants/{id}/erasure/restore`) |
 | `TenantErasureLegalHoldSet` | `TenantErasureLegalHoldSet` | `TenantErasureCommandService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; `AdminTenantsController` `POST …/admin/tenants/{id}/erasure/legal-hold`; `TenantErasureLegalHoldController` `POST …/tenant/erasure/legal-hold`) |
 | `TenantErasureLegalHoldCleared` | `TenantErasureLegalHoldCleared` | `TenantErasureCommandService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; `AdminTenantsController` `DELETE …/admin/tenants/{id}/erasure/legal-hold`) |

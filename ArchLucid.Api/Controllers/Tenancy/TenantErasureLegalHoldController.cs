@@ -66,4 +66,33 @@ public sealed class TenantErasureLegalHoldController(
 
         return NoContent();
     }
+
+    /// <summary>Approve tenant erasure (tenant <c>Admin</c>).</summary>
+    [HttpPost("approve")]
+    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+    [EnableRateLimiting("expensive")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ApproveErasureAsync(CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        ClaimsPrincipal user = User;
+        string userId = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "unknown";
+        string userName = user.Identity?.Name ?? "unknown";
+        string? correlation = HttpContext.TraceIdentifier;
+
+        bool ok = await _tenantErasureCommands.TryApproveErasureAsync(
+            scope.TenantId,
+            userId,
+            userName,
+            correlation,
+            cancellationToken);
+
+        if (!ok)
+            return this.ConflictProblem(
+                "Erasure could not be approved (tenant missing, not in erasure quarantine, or already approved).",
+                ProblemTypes.Conflict);
+
+        return NoContent();
+    }
 }
