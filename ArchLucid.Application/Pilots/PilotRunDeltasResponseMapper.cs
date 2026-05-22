@@ -33,10 +33,14 @@ public static class PilotRunDeltasResponseMapper
             PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, valueWindowSnapshot);
 
         DateTime? extractorTs = null;
-        if (manifest?.Metadata != null && manifest.Metadata.TryGetValue(ArchLucid.Application.AzureExtractor.AzureExtractorEvidenceBundleMerger.MetadataCollectionTimestampUtcKey, out string? tsStr))
+        if (manifest?.Metadata != null)
         {
-            if (DateTime.TryParse(tsStr, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime parsed))
-                extractorTs = parsed;
+            var meta = manifest.Metadata as System.Collections.Generic.IDictionary<string, string>;
+            if (meta != null && meta.TryGetValue(ArchLucid.Application.AzureExtractor.AzureExtractorEvidenceBundleMerger.MetadataCollectionTimestampUtcKey, out string? tsStr))
+            {
+                if (DateTime.TryParse(tsStr, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime parsed))
+                    extractorTs = parsed;
+            }
         }
 
         return MapCore(deltas, extractorTs, completeness);
