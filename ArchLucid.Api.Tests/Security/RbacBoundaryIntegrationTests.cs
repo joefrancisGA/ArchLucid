@@ -331,6 +331,13 @@ public sealed class RbacBoundaryIntegrationTests(ApiKeyReaderAndAdminArchLucidAp
             return true;
         }
 
+        if (string.Equals(name, "format", StringComparison.OrdinalIgnoreCase))
+        {
+            value = "docx";
+
+            return true;
+        }
+
         failureReason = $"unsupported route parameter '{name}' (constraint '{constraint}')";
 
         return false;
