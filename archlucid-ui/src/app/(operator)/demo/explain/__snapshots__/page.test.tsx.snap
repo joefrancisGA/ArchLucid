@@ -82,12 +82,12 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
           <p
             class="font-medium text-neutral-900 dark:text-neutral-100"
           >
-            Run baseline
+            Review baseline
              
             <span
               class="rounded bg-neutral-200 px-1 py-0.5 text-xs font-normal text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
             >
-              Run
+              Review
             </span>
           </p>
           <p
