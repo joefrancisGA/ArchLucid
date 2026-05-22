@@ -8,6 +8,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests.Billing;
 
 /// <summary>HTTP-level tests for <c>/v1/billing/webhooks/marketplace</c> (SQL-backed ledger + stub JWT verifier).</summary>
+[Collection("ArchLucidEnvMutation")]
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
 public sealed class BillingMarketplaceWebhookHttpTests

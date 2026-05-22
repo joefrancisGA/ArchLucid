@@ -30,6 +30,7 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
 
             SqlConnectionString = builder.ConnectionString;
             SqlServerTestCatalogCommands.EnsureCatalogExists(SqlConnectionString);
+            GreenfieldSqlIntegrationTestEnvironmentOverrides.Apply();
         }
         catch (Exception ex)
         {
@@ -56,7 +57,13 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
     {
         base.ConfigureWebHost(builder);
 
-        ApplySqlPersistenceHostOverrides(builder);
+        ApplySqlPersistenceHostOverrides(builder, GetAdditionalHostConfigurationOverrides());
+    }
+
+    /// <summary>Subclasses add test-only host keys merged into the single early Sql <c>UseConfiguration</c> bootstrap.</summary>
+    protected virtual IReadOnlyDictionary<string, string?>? GetAdditionalHostConfigurationOverrides()
+    {
+        return null;
     }
 
     /// <summary>Sql catalog overrides every greenfield host must apply before <see cref="Program" /> registers DI.</summary>
@@ -82,14 +89,7 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
         IReadOnlyDictionary<string, string?>? additionalOverrides = null)
     {
         Dictionary<string, string?> overrides = CreateSqlPersistenceHostOverrides();
-
-        if (additionalOverrides is not null)
-        {
-            foreach (KeyValuePair<string, string?> pair in additionalOverrides)
-            {
-                overrides[pair.Key] = pair.Value;
-            }
-        }
+        MergeHostConfigurationOverrides(overrides, additionalOverrides);
 
         foreach (KeyValuePair<string, string?> pair in overrides)
         {
@@ -128,6 +128,29 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
         builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(additionalOverrides));
     }
 
+    private void MergeHostConfigurationOverrides(
+        Dictionary<string, string?> overrides,
+        IReadOnlyDictionary<string, string?>? additionalOverrides)
+    {
+        Dictionary<string, string?> customSettings = new();
+        AddCustomSettings(customSettings);
+
+        foreach (KeyValuePair<string, string?> pair in customSettings)
+        {
+            overrides[pair.Key] = pair.Value;
+        }
+
+        if (additionalOverrides is null)
+        {
+            return;
+        }
+
+        foreach (KeyValuePair<string, string?> pair in additionalOverrides)
+        {
+            overrides[pair.Key] = pair.Value;
+        }
+    }
+
     protected override void AddCustomSettings(Dictionary<string, string?> settings)
     {
         settings["ArchLucid:StorageProvider"] = "Sql";
@@ -156,6 +179,8 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
 
         if (!disposing)
             return;
+
+        GreenfieldSqlIntegrationTestEnvironmentOverrides.Clear();
 
         try
         {
