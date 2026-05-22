@@ -6,6 +6,7 @@ import { ExecutiveComplianceDriftTrendSection } from "./ExecutiveComplianceDrift
 import { ExecutiveDashboardBaselineWarningBanner } from "./ExecutiveDashboardBaselineWarningBanner";
 import { ExecutiveRoiSummarySection } from "./ExecutiveRoiSummarySection";
 import { ExecutiveSqlBackupRegionVerificationCard } from "./ExecutiveSqlBackupRegionVerificationCard";
+import { BusinessImpactSummaryWidget } from "./BusinessImpactSummaryWidget";
 import { executiveRoiDashboardMockKpis } from "./executive-roi-dashboard-mock-kpis";
 export function ExecutiveRoiDashboardPageView() {
   const k = executiveRoiDashboardMockKpis;
@@ -79,6 +80,8 @@ export function ExecutiveRoiDashboardPageView() {
           </Card>
         </div>
       </section>
+
+      <BusinessImpactSummaryWidget />
 
       <ExecutiveRoiSummarySection />
 

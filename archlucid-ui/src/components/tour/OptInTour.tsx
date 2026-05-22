@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
  * In-product opt-in tour (PENDING_QUESTIONS.md item 38 — owner Q8 + Q9; copy approved 2026-04-24).
  *
  * Hard-wired contract:
- * - Five steps. Approved copy (Improvement 5, option B — single batch PR).
+ * - Six steps. Approved copy (Improvement 5, option B — single batch PR).
  * - Tour NEVER auto-launches (owner Q9). The component is purely controlled — render
  *   it conditionally on `isOpen` and trigger via the parent's button.
  * - Closing the tour persists a dismissal flag in `localStorage`. The flag is a
@@ -23,7 +23,7 @@ export interface OptInTourStep {
 }
 
 /**
- * Five-step opt-in tour script (owner-approved 2026-04-24).
+ * Six-step opt-in tour script (owner-approved 2026-04-24).
  */
 export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
   {
@@ -33,25 +33,30 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
       "The analysis and governance sections below are optional until your first review is finalized.",
   },
   {
-    title: "2. Start a review",
+    title: "2. API Key Setup",
+    body:
+      "Before starting a review, you need to configure your API keys. Go to Settings → API Keys to set up your Azure OpenAI and other required credentials.",
+  },
+  {
+    title: "3. Start a review",
     body:
       "Click New request (or press Alt+N) to open the wizard. It guides you through system identity, requirements, and " +
       "constraints, then kicks off the analysis pipeline for this architecture review. You will see live progress on step 7.",
   },
   {
-    title: "3. Review and finalize",
+    title: "4. Review and finalize",
     body:
       "When the pipeline finishes, open your review from the Reviews list. Review findings and evidence, then click " +
       "Finalize manifest to produce the versioned manifest — the review package you can export and share.",
   },
   {
-    title: "4. Governance and alerts",
+    title: "5. Governance and alerts",
     body:
       "After finalizing your first manifest, dashboards and alerts can highlight policy gaps and approval queues. These are " +
       "available when you are ready — they are not required for a successful first pilot.",
   },
   {
-    title: "5. Get help",
+    title: "6. Get help",
     body:
       "If something is not working, go to Admin → Support to download a redacted diagnostics bundle for support " +
       "tickets. Most pages also include a link to the relevant documentation.",

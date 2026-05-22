@@ -2,12 +2,21 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Link from "next/link";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { commitArchitectureRun } from "@/lib/api";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { commitArchitectureRun, getRunSummary } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
@@ -30,6 +39,8 @@ export type CommitRunButtonProps = {
 export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [findingsCount, setFindingsCount] = useState<number | null>(null);
   const [notifySponsor, setNotifySponsor] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{
@@ -48,8 +59,15 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
       await commitArchitectureRun(runId, { notifySponsor });
       recordFirstTenantFunnelEvent("first_run_committed");
       setDialogOpen(false);
-      // Land on the findings board so the architect sees risks immediately after finalizing.
-      router.push("/governance/findings");
+      
+      try {
+        const summary = await getRunSummary(runId);
+        setFindingsCount(summary.findingCount ?? null);
+      } catch {
+        // Ignore error fetching summary
+      }
+      
+      setSuccessModalOpen(true);
     } catch (e: unknown) {
       if (isApiRequestError(e)) {
         setError({
@@ -152,6 +170,66 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
           </div>
         }
       />
+
+      <Dialog open={successModalOpen} onOpenChange={setSuccessModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Review Finalized</DialogTitle>
+            <DialogDescription>
+              The architecture snapshot has been saved successfully.
+              {findingsCount !== null && (
+                <span className="block mt-2 font-medium text-neutral-900 dark:text-neutral-100">
+                  Total findings: {findingsCount}
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 py-4">
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+              Continue your analysis with advanced tools:
+            </p>
+            <div className="flex flex-col gap-2">
+              <Button variant="outline" asChild className="justify-start">
+                <Link href={`/reviews/${encodeURIComponent(runId)}#artifacts-export`}>
+                  Artifacts Export
+                </Link>
+              </Button>
+              <Button variant="outline" asChild className="justify-start">
+                <Link href={`/reviews/${encodeURIComponent(runId)}/compare`}>
+                  Compare
+                </Link>
+              </Button>
+              <Button variant="outline" asChild className="justify-start">
+                <Link href={`/reviews/${encodeURIComponent(runId)}/graph`}>
+                  Knowledge Graph
+                </Link>
+              </Button>
+            </div>
+          </div>
+          <DialogFooter className="sm:justify-between">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setSuccessModalOpen(false);
+                router.push("/governance/findings");
+              }}
+            >
+              Go to Findings
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              onClick={() => {
+                setSuccessModalOpen(false);
+                router.refresh();
+              }}
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

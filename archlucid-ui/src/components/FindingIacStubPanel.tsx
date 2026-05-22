@@ -31,6 +31,8 @@ export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ message: string; correlationId: string | null } | null>(null);
 
+  const [hasCopied, setHasCopied] = useState(false);
+
   async function loadStub(): Promise<void> {
     if (loaded || busy) {
       return;
@@ -106,10 +108,33 @@ export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
             variant="outline"
             size="sm"
             onClick={() => {
-              void navigator.clipboard.writeText(iacStub);
+              void navigator.clipboard.writeText(iacStub).then(() => {
+                setHasCopied(true);
+                setTimeout(() => setHasCopied(false), 2000);
+              });
             }}
           >
-            Copy Bicep
+            {hasCopied ? (
+              <span className="flex items-center gap-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-green-500"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Copied
+              </span>
+            ) : (
+              "Copy to Clipboard"
+            )}
           </Button>
         </div>
       ) : null}

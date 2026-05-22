@@ -80,10 +80,11 @@
 |---|------|------|----------|--------|------------------------|
 | M-22 | Draft paid pilot offer (Option A: architecture review package using ArchLucid) — align scope and **SKU name** to **`SERVICE_LED_OFFERS.md`**; use `ORDER_FORM_TEMPLATE.md` as starting point; private quote bands may use indicative rows in that doc | Business | P3 | Not started | M-34 (recommended before first paid signature) |
 | M-23 | Draft paid pilot offer (Option B: 30–60 day pilot with setup, demo workspace, review workflow, sample reports) — align deliverables to **`SERVICE_LED_OFFERS.md`** where overlapping | Business | P3 | Not started | M-34 (recommended) |
-| M-24 | Create Upwork service listing: "AI Architecture Governance Review" (evidence-backed process + structured architecture review report) | Business | P3 | Not started | **Improvement #28 — COMPLETED (2026-05-17)** |
-| M-25 | Create Upwork service listing: "Azure Architecture Readiness Review" (Azure extractor + security baseline + cost findings) | Business | P3 | Not started | **Improvement #29 — COMPLETED (2026-05-17)** |
-| M-26 | Create Upwork service listing: "Architecture Decision Record Cleanup" (capture + decisioning flow) | Business | P3 | Not started | **Improvement #30 — COMPLETED (2026-05-17)** |
-| M-27 | Run at least one paid pilot or Upwork engagement with ArchLucid as internal tool + demo asset | Business | P3 | Not started | M-22 or M-23; **`SERVICE_LED_OFFERS.md`** defines SKU names deliverables |
+| M-24 | Create Upwork service listing: "AI Architecture Governance Review" (evidence-backed process + structured architecture review report) | Business | P2 | Not started | **Improvement #28 — COMPLETED (2026-05-17)** |
+| M-25 | Create Upwork service listing: "Azure Architecture Readiness Review" (Azure extractor + security baseline + cost findings) | Business | P2 | Not started | **Improvement #29 — COMPLETED (2026-05-17)** |
+| M-26 | Create Upwork service listing: "Architecture Decision Record Cleanup" (capture + decisioning flow) | Business | P2 | Not started | **Improvement #30 — COMPLETED (2026-05-17)** |
+| M-27 | Run at least one Upwork engagement with ArchLucid as internal tool + demo asset | Business | P2 | Not started | M-24, M-25, or M-26; lean in to test production system. |
+| M-36 | Run at least one paid pilot with ArchLucid as internal tool + demo asset | Business | P3 | Not started | M-22 or M-23; **`SERVICE_LED_OFFERS.md`** defines SKU names deliverables |
 | M-28 | Request testimonial from any non-NDA-conflicted early user or pilot participant | Relationship | P3 | Not started | M-27 |
 
 ---

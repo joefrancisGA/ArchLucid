@@ -4,11 +4,11 @@
 
 # Consolidated planning backlog
 
-**Last reviewed:** 2026-05-21 (session 1 — §3 **complete**; §5 started)
+**Last reviewed:** 2026-05-22 (session 2 — complete)
 
 **How to use:** Each row has a stable `CPB-*` ID. **Decision** values: `Keep` · `Promote` · `Defer` · `Cut` · `Merge` · `Blocked`. **Horizon:** `V1-now` · `V1.1` · `V2` · `GTM-only` · `Principle`.
 
-**Review status:** In progress — items below Item 1 are pending pairwise review unless marked **Decided**.
+**Review status:** Complete — all backlog source documents have been reviewed and consolidated.
 
 ---
 
@@ -113,22 +113,41 @@ Source: [`go-to-market/GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md). **GTM-only
 | CPB-M20 | Refine positioning from demo objections | P2 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. After M-19; update `POSITIONING.md` + pitch/demo scripts from real objections. |
 | CPB-M21 | Identify strongest buyer segment | P2 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. After M-20; narrows CPB-P02 ICP from demo evidence. Feeds M-22+ monetization focus. |
 | CPB-M34 | SOWs / talk track → `SERVICE_LED_OFFERS.md` | P2 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. Align `ORDER_FORM_TEMPLATE.md` + outreach to named SKUs; recommended before M-22/M-23 paid signature. |
-| CPB-M35 | ARC-AMPE policy pack #24 | P1 | Not started | *Pending review* | GTM-only | Content + eng. |
-| CPB-M22–M23 | Paid pilot offer drafts A/B | P3 | Not started | *Pending review* | GTM-only | |
-| CPB-M24–M26 | Upwork listings (3 SKUs) | P3 | Not started | *Pending review* | GTM-only | |
-| CPB-M27 | One paid pilot or Upwork engagement | P3 | Not started | *Pending review* | GTM-only | |
-| CPB-M28 | Testimonial request | P3 | Not started | *Pending review* | GTM-only | |
-| CPB-M29 | ServiceNow integration LinkedIn post | V1.1 | Deferred | *Pending review* | V1.1 | |
-| CPB-M30 | CAF/LZ use case claim | V1 GA | Not started | *Pending review* | GTM-only | Disclaimer required. |
-| CPB-M31 | Self-serve pricing + checkout page | V2 | Deferred | *Pending review* | V2 | Align CPB-P04. |
-| CPB-M32 | Reference customer case study | V1.1 | Deferred | *Pending review* | V1.1 | |
-| CPB-M33 | Cross-tenant ROI marketing claim | V2 | Deferred | *Pending review* | V2 | |
+| CPB-M35 | ARC-AMPE policy pack #24 | P1 | Not started | **Keep** | **V1-now** | Confirmed 2026-05-21. CMS ACA / Medicaid Partner Entities per `POLICY_PACK_ARC_AMPE_DESIGN.md`; LLM → critic → human; bundle 23→24 + disclaimer test. Content + eng in V1 scope (not V1.1). |
+| CPB-M22–M23 | Paid pilot offer drafts A/B | P3 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. M-22: review package (Readiness Review SKU); M-23: 30–60d pilot. Both from `ORDER_FORM_TEMPLATE.md` + `SERVICE_LED_OFFERS.md`; after M-34 recommended. |
+| CPB-M24–M26 | Upwork listings (3 SKUs) | P2 | Not started | **Keep / Promote** | GTM-only | Confirmed 2026-05-21. Promoted to P2 to test production system ASAP. M-24 AI gov; M-25 Azure readiness; M-26 ADR cleanup. |
+| CPB-M27 | One Upwork engagement | P2 | Not started | **Keep / Promote** | GTM-only | Confirmed 2026-05-21. Promoted to P2 to lean in and test the system in production early. |
+| CPB-M36 | One paid pilot | P3 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. Validates service-led wedge and feeds commerce-un-hold (CPB-P04). |
+| CPB-M28 | Testimonial request | P3 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. Social proof to validate service-led claims. After first Upwork or paid pilot engagement. |
+| CPB-M29 | ServiceNow integration LinkedIn post | V1.1 | Deferred | **Defer** | V1.1 | Confirmed 2026-05-21. Waits on first-party ServiceNow integration. |
+| CPB-M30 | CAF/LZ use case claim | V1 GA | Not started | **Keep** | **V1-now** | Confirmed 2026-05-21. Pulled into V1 deliverables. Disclaimer required. |
+| CPB-M31 | Self-serve pricing + checkout page | V2 | Deferred | **Keep / Promote** | **V1-now** | Confirmed 2026-05-21. Promoted to V1 deliverables. Requires earlier alignment with CPB-P04 (commerce un-hold). |
+| CPB-M32 | Reference customer case study | V1.1 | Deferred | **Defer** | V1.1 | Confirmed 2026-05-21. Depends on a completed, signed pilot. |
+| CPB-M33 | Cross-tenant ROI marketing claim | V2 | Deferred | **Defer** | V2 | Confirmed 2026-05-21. Analytics deferred to V2. |
 
 ---
 
 ## §6 V1.1 / V2 deferred (`V1_DEFERRED`, MCP, policy packs, extractor)
 
-*To be filled during review.*
+| ID | Title | Source | Decision | Horizon | Notes |
+|----|-------|--------|----------|---------|-------|
+| CPB-D01 | First-party ITSM & Chat-ops (ServiceNow, Jira, Confluence, Slack, Teams) | `V1_DEFERRED.md` §6, §6a | **Keep** | V1.1 | Confirmed 2026-05-22. Includes inbound HTTPS webhooks (CloudEvents). |
+| CPB-D02 | Inbound MCP server (membrane) with 7 read-only tools | `V1_DEFERRED.md` §6d | **Keep** | V1.1 | Confirmed 2026-05-22. Outbound client remains V2. |
+| CPB-D03 | Multi-cloud architecture analysis (AWS, GCP targets) | `V1_DEFERRED.md` §6n | **Keep** | V1.1 | Confirmed 2026-05-22. Phases 1-4. ArchLucid stays on Azure. |
+| CPB-D04 | Signed design partner engagement | `V1_DEFERRED.md` §6b | **Keep** | V1.1 | Confirmed 2026-05-22. Commercial milestone. |
+| CPB-D05 | PGP key drop for coordinated disclosure | `V1_DEFERRED.md` §6c | **Keep** | V1.1 | Confirmed 2026-05-22. |
+| CPB-D06 | First-tenant funnel SQL retention/purge | `V1_DEFERRED.md` §1 | **Keep** | V1.1 | Confirmed 2026-05-22. Window/purge for `dbo.FirstTenantFunnelEvents`. |
+| CPB-D07 | Baseline wizard enrichments | `V1_DEFERRED.md` §4 | **Keep** | V1.1 | Confirmed 2026-05-22. AWS/GCP targets, guided datastore review, tag gates. |
+| CPB-D08 | CI test coverage ratchet to 95% | `V1_DEFERRED.md` §4 | **Keep** | V1.1 | Confirmed 2026-05-22. |
+| CPB-D09 | Hosted trials V1→V1.1 migration doc | `V1_DEFERRED.md` §6i | **Keep** | V1.1 | Confirmed 2026-05-22. Rollup memo of breaking changes. |
+| CPB-D10 | Evidence Bulk Upload enhancements | `V1_DEFERRED.md` §6k | **Keep** | V1.1 | Confirmed 2026-05-22. >30 cap, ZIP expansion, folder recursion. |
+| CPB-D11 | Executive ROI summary endpoint (cross-run dedup) | `V1_DEFERRED.md` §6o | **Keep** | V1.1 | Confirmed 2026-05-22. |
+| CPB-D12 | Outbound MCP client (ArchLucid calls external) | `V1_DEFERRED.md` §6d | **Keep** | V2 | Confirmed 2026-05-22. Requires explicit allowlist and approval-class mapping. |
+| CPB-D13 | Platform scale-out (Redis defaults, distributed graph) | `V1_DEFERRED.md` §6e | **Keep** | V2 | Confirmed 2026-05-22. Redis as expected baseline for scaled fleets. |
+| CPB-D14 | Azure Container Apps Jobs + Durable Task Framework | `V1_DEFERRED.md` §6f | **Keep** | V2 | Confirmed 2026-05-22. Situational — only if pipeline complexity exceeds current limits. |
+| CPB-D15 | Automated tenant erasure quarantine pipeline | `V1_DEFERRED.md` §6m | **Keep** | V2 | Confirmed 2026-05-22. |
+| CPB-D16 | Multi-region active/active guarantees | `V1_DEFERRED.md` §6l | **Keep** | V2 | Confirmed 2026-05-22. |
+| CPB-D17 | Third-party pen-test execution + redacted summary | `V1_DEFERRED.md` §6c | **Keep** | V2 | Confirmed 2026-05-22. |
 
 ---
 

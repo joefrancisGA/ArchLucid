@@ -35,10 +35,10 @@ public sealed class ExecutiveSummaryController : ControllerBase
         // Mock data retrieval for the tenant's findings across runs
         var mockFindings = new List<ExecutiveSummaryFinding>
         {
-            new("finding-1", "run-1", 100m, 5),
-            new("finding-1", "run-2", 100m, 5),
-            new("finding-2", "run-1", 200m, 10),
-            new("finding-3", "run-2", 150m, 2)
+            new("finding-1", "run-1", "Cost", 100m, 5),
+            new("finding-1", "run-2", "Cost", 100m, 5),
+            new("finding-2", "run-1", "Security", 200m, 10),
+            new("finding-3", "run-2", "Reliability", 150m, 2)
         };
 
         ExecutiveSummaryResult result = ExecutiveSummaryAggregator.Aggregate(mockFindings);

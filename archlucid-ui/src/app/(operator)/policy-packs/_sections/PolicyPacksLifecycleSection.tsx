@@ -1,4 +1,6 @@
 import { PolicyPackContentJsonEditor } from "@/components/PolicyPackContentJsonEditor";
+import { InfoTooltip } from "@/components/InfoTooltip";
+import { GovernanceDryRunModal } from "@/components/GovernanceDryRunModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -83,6 +85,9 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
         </p>
       )}
       <div className={cn(!canMutatePacks && "opacity-90")}>
+        <div className="mb-8">
+          <GovernanceDryRunModal policyPackId={selectedPackId} />
+        </div>
         <section className="mb-8" aria-labelledby="policy-packs-vertical-import-heading">
           <h4 id="policy-packs-vertical-import-heading" className="mt-0 mb-2">
             Import a vertical policy pack
@@ -147,8 +152,9 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
                 className="mt-1"
               />
             </div>
-            <label>
+            <label className="flex items-center gap-2">
               Pack type
+              <InfoTooltip text="Determines the pack's origin and mutability. ProjectCustom allows full editing." />
               <select
                 value={packType}
                 onChange={(e) => {
@@ -272,8 +278,9 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
                 className="mt-1 w-40"
               />
             </div>
-            <label>
+            <label className="flex items-center gap-2">
               Scope level
+              <InfoTooltip text="The organizational level where this policy pack applies (Tenant, Workspace, or Project)." />
               <select
                 value={assignScopeLevel}
                 onChange={(e) => onAssignScopeLevelChange(e.target.value)}
@@ -295,6 +302,7 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
                 onChange={(e) => onAssignPinnedChange(e.target.checked)}
               />
               Pinned
+              <InfoTooltip text="Pinned assignments prevent lower scopes from overriding this policy pack." />
             </label>
             <button
               type="button"

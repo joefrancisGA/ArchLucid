@@ -21,6 +21,7 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly explanationSummary: RunExplanationSummary | null;
   readonly explanationFailure: ApiLoadFailureState | null;
   readonly baselineAnnualCostUsd: number | null;
+  readonly isIllustrativePricing?: boolean;
 };
 
 export function RunDetailRunExplanationCollapsible(
@@ -36,6 +37,7 @@ export function RunDetailRunExplanationCollapsible(
     explanationSummary,
     explanationFailure,
     baselineAnnualCostUsd,
+    isIllustrativePricing,
   } = props;
 
   return (
@@ -44,7 +46,7 @@ export function RunDetailRunExplanationCollapsible(
         title={buyerPolishedArtifactTable ? "Findings & assessment" : "Architecture review summary"}
         defaultOpen={buyerPolishedArtifactTable}
       >
-        <FindingsWhatIfAnalysisPanel findings={quickDecisionFindings} baselineAnnualCostUsd={baselineAnnualCostUsd} />
+        <FindingsWhatIfAnalysisPanel findings={quickDecisionFindings} baselineAnnualCostUsd={baselineAnnualCostUsd} isIllustrativePricing={isIllustrativePricing} />
         <QuickDecisionSummary
           runId={runId}
           findings={quickDecisionFindings}

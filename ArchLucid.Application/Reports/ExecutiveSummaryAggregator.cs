@@ -6,6 +6,7 @@ namespace ArchLucid.Application.Reports;
 public sealed record ExecutiveSummaryFinding(
     string FindingId,
     string RunId,
+    string Category,
     decimal CostSavingsUsd,
     int RiskReductionScore);
 
@@ -13,7 +14,10 @@ public sealed record ExecutiveSummaryResult(
     decimal TotalCostSavingsUsd,
     int TotalRiskReductionScore,
     int UniqueFindingCount,
-    int RawFindingCount);
+    int RawFindingCount,
+    decimal CostWasteUsd,
+    int SecurityRiskCount,
+    int ReliabilityGapCount);
 
 public static class ExecutiveSummaryAggregator
 {
@@ -28,6 +32,7 @@ public static class ExecutiveSummaryAggregator
             .Select(g => new ExecutiveSummaryFinding(
                 g.Key,
                 g.First().RunId,
+                g.First().Category,
                 g.Max(f => f.CostSavingsUsd),
                 g.Max(f => f.RiskReductionScore)
             ))
@@ -37,7 +42,10 @@ public static class ExecutiveSummaryAggregator
             TotalCostSavingsUsd: uniqueFindings.Sum(f => f.CostSavingsUsd),
             TotalRiskReductionScore: uniqueFindings.Sum(f => f.RiskReductionScore),
             UniqueFindingCount: uniqueFindings.Count,
-            RawFindingCount: rawFindings.Count
+            RawFindingCount: rawFindings.Count,
+            CostWasteUsd: uniqueFindings.Where(f => f.Category == "Cost").Sum(f => f.CostSavingsUsd),
+            SecurityRiskCount: uniqueFindings.Count(f => f.Category == "Security"),
+            ReliabilityGapCount: uniqueFindings.Count(f => f.Category == "Reliability")
         );
     }
 }

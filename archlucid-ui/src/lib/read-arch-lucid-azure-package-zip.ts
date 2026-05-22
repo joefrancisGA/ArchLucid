@@ -3,6 +3,7 @@ import { strFromU8, unzipSync } from "fflate";
 import type { ArchLucidAzurePackageManifest } from "@/lib/arch-lucid-azure-package-manifest";
 import { archLucidAzurePackageManifestSchema } from "@/lib/arch-lucid-azure-package-manifest";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
+import { isSupportedAzureExtractorZipSchemaVersion } from "@/lib/azure-extractor-zip-schema";
 
 export type ReadArchLucidAzurePackageZipOk = {
   ok: true;
@@ -73,6 +74,10 @@ export function readArchLucidAzurePackageZipFromBytes(bytes: Uint8Array): ReadAr
 
   if (!parsed.success) {
     return { ok: false, message: "manifest.json does not match the ArchLucid Azure packager shape." };
+  }
+
+  if (!isSupportedAzureExtractorZipSchemaVersion(parsed.data.schemaVersion)) {
+    return { ok: false, message: `Unsupported schema version: ${parsed.data.schemaVersion}. Please use the latest Get-ArchLucidAzurePackage.ps1 script.` };
   }
 
   return { ok: true, manifest: parsed.data };

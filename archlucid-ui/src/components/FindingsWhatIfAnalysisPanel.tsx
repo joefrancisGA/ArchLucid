@@ -10,6 +10,7 @@ export type FindingsWhatIfAnalysisPanelProps = {
   readonly findings: readonly QuickDecisionFinding[];
   /** Annualized baseline architecture cost (typically manifest max monthly × 12). */
   readonly baselineAnnualCostUsd: number | null;
+  readonly isIllustrativePricing?: boolean;
 };
 
 function readEstimatedUsdSavings(finding: QuickDecisionFinding): number {
@@ -75,7 +76,18 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">What-if cost analysis</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">What-if cost analysis</h3>
+            {props.isIllustrativePricing && (
+              <span 
+                className="inline-flex items-center rounded-md bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-600/20 dark:bg-amber-900/30 dark:text-amber-300 dark:ring-amber-500/20"
+                title="Illustrative Retail Pricing: Actual EA discounts may vary"
+                data-testid="illustrative-pricing-badge"
+              >
+                Illustrative Retail Pricing
+              </span>
+            )}
+          </div>
           <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
             Select findings to model projected annual architecture cost after applying recommendations.
           </p>

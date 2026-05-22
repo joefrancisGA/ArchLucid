@@ -174,6 +174,13 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "excerpt": "Scope: `RealAgentExecutor` when `AgentExecution:Mode=Real` (deterministic simulator is unchanged)."
   },
   {
+    "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
+    "docTitle": "Configuration reference",
+    "sectionSlug": "generic-oidc-setup-okta-auth0",
+    "sectionHeading": "Generic OIDC Setup (Okta / Auth0)",
+    "excerpt": "When configuring a generic OIDC issuer (such as Okta or Auth0), use `JwtBearer` mode and specify the authority."
+  },
+  {
     "docPath": "docs/library/CORE_PILOT.md",
     "docTitle": "Core Pilot (pointer)",
     "sectionSlug": "",

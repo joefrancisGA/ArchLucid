@@ -78,6 +78,11 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
 
           void (async () => {
             try {
+              if (file.size > 50 * 1024 * 1024) {
+                // Warning toast for files > 50MB
+                showError("Large file detected", "Processing may take longer than usual.", { type: "warning" });
+              }
+
               const result = await readArchLucidAzurePackageZipFromFile(file);
 
               if (!result.ok) {

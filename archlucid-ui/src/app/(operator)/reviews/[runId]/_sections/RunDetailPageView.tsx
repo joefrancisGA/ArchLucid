@@ -45,7 +45,7 @@ import type { RunDetailPageModel } from "./run-detail-page-model";
 /** Server component: renders the main run detail chrome from a preloaded `RunDetailPageModel`. */
 export function RunDetailPageView(props: { readonly model: RunDetailPageModel }): React.JSX.Element {
   const m = props.model;
-  const baselineAnnualCostUsd = deriveRunDetailBaselineAnnualCostUsd({
+  const { baselineAnnualCostUsd, isIllustrativePricing } = deriveRunDetailBaselineAnnualCostUsd({
     savingsSummaryAnnualizedUsd: m.savingsSummary?.annualizedUsd,
     goldenManifestJson: m.goldenManifestJsonForExport,
   });
@@ -199,6 +199,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           explanationSummary={m.explanationSummary}
           explanationFailure={m.explanationFailure}
           baselineAnnualCostUsd={baselineAnnualCostUsd}
+          isIllustrativePricing={isIllustrativePricing}
         />
       ) : null}
 
@@ -272,6 +273,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           explanationSummary={m.explanationSummary}
           explanationFailure={m.explanationFailure}
           baselineAnnualCostUsd={baselineAnnualCostUsd}
+          isIllustrativePricing={isIllustrativePricing}
         />
       ) : null}
 
