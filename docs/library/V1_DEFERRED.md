@@ -303,9 +303,11 @@ The following bulk processing features are explicitly deferred to **V1.1**:
 
 ## 6m. Privacy — automated tenant erasure quarantine pipeline (**V2**) (product decision 2026-05-17)
 
-**Scope:** A **fully automated** tenant erasure product path: verified request → **quarantine** (`TenantErasureRequestedUtc` or equivalent) → **30-day** (or policy-configured) delay → **legal hold** gate → orchestrated **hard purge** (per-tenant SQL catalog, tenant-scoped blobs, control-plane bindings) with durable audit. **Normative intent is this section** — do not mirror lifecycle claims into rolling assessment drafts as if they were contractual API.
+**Scope:** A **fully automated** tenant erasure product path: verified request → **quarantine** (`TenantErasureRequestedUtc` or equivalent) → **30-day** (or policy-configured) delay → **legal hold** gate → orchestrated **hard purge** (per-tenant SQL catalog, tenant-scoped blobs, control-plane bindings, subject-identifiable audit) with durable audit.
 
-**V1 GA / `(A)` headline posture:** This pipeline is **not** a V1 or V1.1 **weighted readiness** commitment. **Independent assessments must not** reduce **`(A)` Compliance Readiness** (or other pillars) solely because the **automated** quarantine/hold/purge product is absent. **V1** already ships **operator/trial offboarding** mechanics (`TenantDeletionService` — blobs + SQL hard purge + `PlatformAuditEvents`; trial lifecycle hard purge via `ITenantHardPurgeService`) — sufficient for honest pilot and sales-led motion when combined with process and documentation.
+**Owner decision (2026-05-22):** After hard purge, **retain irreversibly anonymized aggregates only** — no tenant id, no re-identification keys, **`k ≥ 5`** for any cross-tenant statistical surfaces — consistent with GDPR when data are truly anonymous (Art. 4(1) / Recital 26). Do **not** retain row-level tenant copies “for analytics.”
+
+**V1 GA / `(A)` headline posture:** This automated pipeline is **not** a V1 weighted-readiness commitment. **Independent assessments must not** reduce **`(A)`** solely because automation is absent. **V1** ships **operator/trial offboarding** via `TenantDeletionService` / `ITenantHardPurgeService` under the policy above.
 
 **`(B)` procurement / privacy realism:** Some buyers will still ask GDPR/CCPA deletion questions. Answer with **current** controls, **trust center** posture, and this **V2** roadmap pointer — zero weight on **`(A)`** unless an in-contract commitment supersedes this doc.
 

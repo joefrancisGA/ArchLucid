@@ -1,5 +1,7 @@
-# ArchLucid Assessment – (A) Headline Readiness: 80.16%
-This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (including multi-region active/active — **V1.1** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6l; **not** an `(A)` V1 deduction).
+> **Scope:** One sentence: audience, intent, and what this doc is not.
+
+# ArchLucid Assessment – (A) Headline Readiness: 80.47%
+This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, scoring **in-contract V1 GA only**. Out-of-scope commitments in [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) are **excluded** and **must not** reduce this headline.
 
 ## Executive Summary
 **`(A)` Overall Headline Readiness:** ArchLucid V1 is a technically robust, highly capable architecture review engine. It scores well on AI/Agent Readiness, Proof-of-ROI, and Supportability. However, its operator-heavy UX and manual data ingestion (PowerShell script to ZIP) drag down its Time-to-Value and Adoption Friction scores. It is functionally complete for its V1 scope but requires a highly technical user to extract that value.
@@ -34,7 +36,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
    - Justification: Once the ZIP is uploaded, value generation is fast. However, the initial setup and the manual extraction step delay the initial "aha" moment for new pilots.
    - Tradeoffs: Security/Trust vs. Speed of onboarding.
    - Improvement recommendations: **OS-1** live sample seed (#1) removes the empty-state cliff; extractor ZIP upload polish remains a separate follow-on.
-   - Status: Fixable in V1 (OS program); continuous ingestion is V1.1/V2.
+   - Status: Fixable in V1 (OS program); automated continuous ingestion is outside `(A)` V1 scope.
 
 4. **Executive Value Visibility**
    - Score: 82 | Weight: 4 | Weighted Deficiency: 72
@@ -58,9 +60,9 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
    - Status: Fixable in V1.
 
 7. **Reliability**
-   - Score: 85 | Weight: 2 | Weighted Deficiency: 30
+   - Score: 90 | Weight: 2 | Weighted Deficiency: 20
    - Justification: Solid V1 baseline: SQL Server persistence, health/live/ready probes, resilient SQL connection factory, and append-only audit. Custom orchestration for long-running tasks is the main in-scope reliability concern (stall risk on transient failures).
-   - Tradeoffs: Custom orchestration vs. Durable Task Framework (V2). **Multi-region active/active product topology is V1.1** ([`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6l) — **not** scored as a V1 gap.
+   - Tradeoffs: Custom orchestration vs. Durable Task Framework (out of `(A)` V1 scope).
    - Improvement recommendations: Ensure the custom orchestrator handles transient database failures gracefully with exponential backoff.
    - Status: Fixable in V1.
 
@@ -85,36 +87,35 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 4. Opt-in tour Step 2 still references API-key / Azure OpenAI setup—misleading on hosted SaaS where LLM is platform-provisioned.
 5. Hard stops on LLM costs ($75/month) could abruptly halt pilot runs, causing frustration and lost momentum.
 6. Heavy reliance on static document exports (DOCX/PDF) rather than interactive, drill-down dashboards.
-7. Lack of automated tenant erasure (deferred to V2) complicates privacy compliance (GDPR/CCPA).
-8. No built-in cross-tenant analytics limits ArchLucid's own ability to understand usage patterns.
-9. AWS/GCP support is deferred to V1.1, limiting the addressable market to Azure-only shops.
-10. Lack of a public extension SDK prevents community-driven integrations and ecosystem growth.
-11. Cross-run ROI **`FindingId`** dedup may need hardening/tests beyond latest-run-per-system savings rollup.
-12. Server-side idempotency for run creation remains advisory rather than strictly enforced under retry storms.
+7. No built-in cross-tenant analytics limits ArchLucid's own ability to understand usage patterns.
+8. Lack of a public extension SDK prevents community-driven integrations and ecosystem growth.
+9. Cross-run ROI **`FindingId`** dedup may need hardening/tests beyond latest-run-per-system savings rollup.
+10. Server-side idempotency for run creation remains advisory rather than strictly enforced under retry storms.
+11. Sample-data **`IsSample`** marking and auto-purge hook not yet implemented (designed in OS-1b).
+12. Orchestrator stall detection is not yet exposed via a dedicated `/health` check (improvement #18).
 
 ## Top 6 Monetization Blockers
 1. Manual Azure extraction script creates a hurdle for quick, self-serve Team-tier trials.
 2. Hard stops on LLM costs during trials could prevent users from seeing the full value before they are asked to pay.
 3. First-run activation gap (empty tenant + misleading tour copy)—addressed by V1 Operator Shell program #1–#4, not generic “training.”
-4. Lack of AWS/GCP support excludes multi-cloud enterprises from the initial target market.
-5. Absence of a SOC 2 CPA attestation (currently self-assessment) will block procurement at large enterprises.
-6. Uneven discoverability of sponsor exports (scorecard, value report, executive ROI panel) from operator surfaces.
+4. Absence of a SOC 2 CPA attestation (currently self-assessment) will block procurement at large enterprises.
+5. Uneven discoverability of sponsor exports (scorecard, value report, executive ROI panel) from operator surfaces.
+6. Team-tier self-serve trials depend on technical comfort with PowerShell + ZIP upload before value proof.
 
 ## Top 6 Enterprise Adoption Blockers
 1. Absence of SOC 2 CPA attestation (Type I/II).
-2. Lack of automated tenant erasure (GDPR/CCPA compliance friction).
-3. Manual Azure extraction script (enterprises prefer automated, continuous, role-based ingestion).
-4. Mid-depth operator pages still surface internal terms (`runId`, `manifest`) without inline glossary on every surface—buyer-default mode helps at the shell level but not uniformly.
-5. AWS/GCP-primary architecture analysis deferred to V1.1 for multi-cloud enterprises.
-6. First-party ITSM and chat-ops connectors (ServiceNow, Jira, Teams) are **V1.1** — enterprises that require in-tool workflows may defer until those surfaces ship.
+2. Manual Azure extraction script (enterprises prefer automated, continuous, role-based ingestion).
+3. Mid-depth operator pages still surface internal terms (`runId`, `manifest`) without inline glossary on every surface—buyer-default mode helps at the shell level but not uniformly.
+4. Hard LLM budget caps during pilots can stall reviews before sponsors see committed manifests.
+5. Uneven paths from operator UI to sponsor-ready exports (scorecard, value report, executive ROI panel).
+6. Operate-mode IAM and governance enablement still require deliberate tenant configuration beyond the Pilot wedge.
 
-## Top 6 Engineering Risks
+## Top 5 Engineering Risks
 1. Custom orchestration for long-running tasks (fragile state transitions, lack of built-in replayability).
 2. LLM cost estimation inaccuracies leading to unexpected hard stops or budget overruns.
-3. Sample-data purge and `IsSample` marking not yet implemented (OS-1 follow-on after live seed ships).
+3. Sample-data purge and `IsSample` marking not yet implemented (designed in OS-1b, pending execution).
 4. Idempotency relies on retry-safe client behavior rather than a strict server-side store, risking duplicate runs under heavy load.
 5. High memory usage during large ZIP extraction and parsing (max 52 MiB zipped payload).
-6. Lack of distributed cache (Redis) as a mandatory baseline for scaled fleets, risking performance bottlenecks.
 
 ## Most Important Truth
 ArchLucid V1 is a highly capable, technically sound product with strong Pilot-layer infrastructure already in the repo (`OptInTour`, `GlossaryTooltip`, buyer-default shell, progressive nav). The remaining adoption gap is not “missing UX entirely”—it is **first-run activation**: zero-review tenants cannot seed live sample data in production, and a few tour/empty-state surfaces still assume self-hosted API-key setup.
@@ -122,6 +123,8 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
 ## V1 Operator Shell Mitigation Program
 
 **Owner decisions (2026-05-22):** Sample seed available to **all** tenants when review count = 0 (not trial-only). Sample data auto-purges on **first real review commit** or **7 days**, whichever is sooner. Glossary uses existing **`GlossaryTooltip`** (hover desktop / tap mobile on first occurrence per page)—no new library.
+
+**Owner decision — tenant hard purge (2026-05-22):** On erasure/offboarding, **hard-purge all tenant-identifiable data** (per-tenant SQL catalog, tenant-scoped blobs, control-plane bindings, subject-linked audit). **Retain anonymized aggregates only** — irreversible anonymization, no tenant id or re-link keys, **`k ≥ 5`** for any published cross-tenant statistical surfaces — consistent with GDPR erasure obligations when data are truly anonymous (Art. 4(1) / Recital 26). Default **30-day quarantine** before purge unless legal hold. V1 ships operator-led purge via **`TenantDeletionService`**; fully automated quarantine pipeline is **V2** ([`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6m) — **not** an `(A)` V1 deduction.
 
 **Existing assets this program extends (do not rebuild):** `DemoSeedService`, `OptInTour` / `OptInTourLauncher`, `SampleFirstReviewPackageCard` (static showcase), `GlossaryTooltip` + `glossary-terms.ts`, `EmptyState` + `empty-state-presets.ts`, `WelcomeBanner`, `COMPARE_WAITING_BUYER`.
 
@@ -280,11 +283,7 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       In the service handling POST /v1/azure-extractor/upload, ensure ZIP extraction uses ZipArchiveMode.Read and streams entries to the parser without loading full uncompressed contents into memory. Acceptance criteria: Memory usage stays flat during large uploads.
       ```
 
-11. **DEFERRED: AWS/GCP extractor schema design**
-    - Reason: Needs user input on the exact JSON schema and required fields for AWS/GCP resources.
-    - Input needed: Please provide the draft JSON schema or a list of required resource types for the AWS and GCP extractors (Phase 1 of V1.1).
-
-12. **Enhance DOCX/PDF export cover pages for executive polish**
+11. **Enhance DOCX/PDF export cover pages for executive polish**
     - Why it matters: Improves perceived value for executive sponsors.
     - Expected impact: Proof-of-ROI Readiness (+3-5 pts), Executive Value Visibility (+2-4 pts). Weighted readiness impact: +0.2-0.4%.
     - Affected qualities: Proof-of-ROI Readiness, Executive Value Visibility
@@ -294,7 +293,7 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       In ArchLucid.Application/ArchitectureReviewDocxBuilder.cs (and PDF equivalent), enhance cover page: bold centered title, Generated on [Date], Prepared for [Tenant Name], scaled logo. Do not change section bodies.
       ```
 
-13. **Implement a "dry run" mode for the Azure extractor script**
+12. **Implement a "dry run" mode for the Azure extractor script**
     - Why it matters: Builds trust with enterprise security teams before they run the actual extraction.
     - Expected impact: Directly improves Adoption Friction (+4-6 pts). Weighted readiness impact: +0.2-0.4%.
     - Prompt:
@@ -302,7 +301,7 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       In `scripts/azure/Get-ArchLucidAzurePackage.ps1`, add a `-DryRun` switch. When specified, the script should only list the Azure resources and API calls it *would* make, outputting them to the console, without actually fetching the deep configuration data or creating a ZIP file. Do not change the default execution behavior. Acceptance criteria: Security teams can audit the script's intended actions easily.
       ```
 
-14. **Add explicit logging for LLM cost estimation discrepancies**
+13. **Add explicit logging for LLM cost estimation discrepancies**
     - Why it matters: Helps engineering tune the cost estimation models to prevent budget overruns.
     - Expected impact: Directly improves AI/Agent Readiness (+2-4 pts), Maintainability (+2-3 pts). Weighted readiness impact: +0.2-0.4%.
     - Prompt:
@@ -310,7 +309,7 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       In the component that handles LLM completions (e.g., `LlmCostEstimator` or the OpenAI client wrapper), add a structured log event (`LogInformation` or `LogWarning`) that compares the *estimated* token count/cost before the call with the *actual* token count returned by the Azure OpenAI API. Include the `runId` and `agentType`. Do not change the billing logic. Acceptance criteria: Discrepancies between estimated and actual LLM costs are easily queryable in the logs.
       ```
 
-15. **Create a dedicated "Pilot Status" dashboard in the UI**
+14. **Create a dedicated "Pilot Status" dashboard in the UI**
     - Why it matters: Gives operators a clear view of their progress through the 6-week pilot.
     - Expected impact: Directly improves Time-to-Value (+3-5 pts), Usability (+3-4 pts). Weighted readiness impact: +0.3-0.5%.
     - Prompt:
@@ -318,7 +317,7 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       In the `archlucid-ui` project, create a new "Pilot Status" component on the Home page. It should display a simple checklist based on the `CORE_PILOT.md` steps: 1. Configure Storage, 2. Create Review, 3. Execute Review, 4. Commit Manifest. Check off items based on the existence of runs/manifests in the API responses. Do not create new backend endpoints for this. Acceptance criteria: Users can see their pilot progress at a glance.
       ```
 
-16. **Enforce strict validation on uploaded ZIP manifest schemas**
+15. **Enforce strict validation on uploaded ZIP manifest schemas**
     - Why it matters: Prevents downstream pipeline failures caused by malformed extractor data.
     - Expected impact: Directly improves Reliability (+3-5 pts). Weighted readiness impact: +0.1-0.3%.
     - Prompt:
@@ -326,11 +325,23 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       In `AzureExtractorUploadController.cs` (or the parsing service), add strict JSON schema validation for the `manifest.json` inside the uploaded ZIP. If the `schemaVersion` is missing or not exactly `1`, immediately return a 422 Unprocessable Entity with a Problem Details response explaining the required schema version. Do not process the rest of the ZIP if the manifest is invalid. Acceptance criteria: Malformed ZIPs are rejected fast and loud.
       ```
 
-17. **DEFERRED: Automated tenant erasure pipeline design**
-    - Reason: Needs user input on the exact legal hold duration and the specific tables/blobs to be hard-purged.
-    - Input needed: Please specify the legal hold duration (e.g., 30 days) and confirm if any aggregated, anonymized data should be retained after the hard purge.
+16. **Automated tenant erasure pipeline with anonymized retention (V2 — PRIV-1)**
+    - Why it matters: Owner policy (2026-05-22): hard purge identifiable tenant data; retain only irreversibly anonymized aggregates. V1 has **`TenantDeletionService`** for operator-led purge — automation is V2, not an `(A)` V1 gap.
+    - Expected impact: Supports procurement `(B)` privacy narrative; zero `(A)` V1 impact when documented.
+    - Actionable: Yes — **V2** (out of `(A)` batching)
+    - Prompt:
+      ```text
+      Design and implement the V2 automated tenant erasure pipeline per V1_DEFERRED.md §6m and owner decision 2026-05-22:
 
-18. **Add a "copy to clipboard" button for all error correlation IDs**
+      1. verified erasure request → quarantine flag → default 30-day delay (legal hold gate)
+      2. hard purge: drop per-tenant SQL catalog, tenant blobs, control-plane bindings, subject-identifiable audit rows
+      3. retain ONLY anonymized aggregate rows with no tenant id, no re-link keys, k≥5 for any cross-tenant stats
+      4. durable PlatformAuditEvents for purge completion; document in trust center / DPA template
+
+      Do not block V1 GA on this — extend TenantDeletionService patterns.
+      ```
+
+17. **Add a "copy to clipboard" button for all error correlation IDs**
     - Why it matters: Reduces friction when users need to contact support.
     - Expected impact: Directly improves Supportability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
     - Prompt:
@@ -338,7 +349,7 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       In the `archlucid-ui` project, locate the shared Error/Problem Details display component. Add a small clipboard icon button next to the `traceId` or `correlationId`. Use the standard browser clipboard API to copy the ID when clicked, and show a brief "Copied!" tooltip. Do not change the error layout significantly. Acceptance criteria: Users can copy correlation IDs with one click.
       ```
 
-19. **Implement a health check specifically for the custom orchestrator state**
+18. **Implement a health check specifically for the custom orchestrator state**
     - Why it matters: Allows operators to detect if the background orchestrator has stalled.
     - Expected impact: Directly improves Supportability (+4-6 pts), Reliability (+2-3 pts). Weighted readiness impact: +0.1-0.3%.
     - Prompt:
@@ -346,15 +357,15 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       In `ArchLucid.Api` or `ArchLucid.Worker`, add a new `IHealthCheck` implementation named `OrchestratorHealthCheck`. It should query the database (or a singleton state tracker) to check if there are any runs in the `Executing` state that haven't been updated in over 2 hours. If so, return `HealthCheckResult.Degraded`. Register this check in `Program.cs`. Do not change the orchestrator logic. Acceptance criteria: Stalled orchestrations are visible in the `/health` endpoint.
       ```
 
-20. **Add a telemetry event for manual ZIP upload duration/size**
-    - Why it matters: Provides data to justify and prioritize the V1.1 continuous ingestion feature.
+19. **Add a telemetry event for manual ZIP upload duration/size**
+    - Why it matters: Provides data to prioritize future automated ingestion investments.
     - Expected impact: Directly improves Maintainability (+2-3 pts). Weighted readiness impact: +0.1-0.2%.
     - Prompt:
       ```text
       In `AzureExtractorUploadController.cs`, wrap the ZIP extraction and storage process in a standard `System.Diagnostics.Activity`. Add tags for the `FileSizeInBytes` and `NumberOfFilesExtracted`. Do not log any sensitive file names or contents. Acceptance criteria: Upload performance and size metrics are available in OpenTelemetry traces.
       ```
 
-21. **Create a CLI command to validate the extractor ZIP locally before upload**
+20. **Create a CLI command to validate the extractor ZIP locally before upload**
     - Why it matters: Saves time and bandwidth by catching errors before uploading a 50MB file.
     - Expected impact: Directly improves Adoption Friction (+3-5 pts), Usability (+2-4 pts). Weighted readiness impact: +0.2-0.4%.
     - Prompt:
@@ -362,7 +373,7 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       In the `ArchLucid.Cli` project, add a new command: `archlucid azure validate-zip --path <file>`. This command should open the ZIP locally, verify that `manifest.json` exists, check that `schemaVersion` is 1, and ensure the basic folder structure is correct. It should output a success or error message to the console. Do not upload the file. Acceptance criteria: Operators can validate ZIPs locally.
       ```
 
-22. **Add a visual indicator in the UI for "Idempotency-Replayed" responses**
+21. **Add a visual indicator in the UI for "Idempotency-Replayed" responses**
     - Why it matters: Helps users understand when a request was safely retried vs newly created.
     - Expected impact: Directly improves Usability (+2-4 pts). Weighted readiness impact: +0.1-0.2%.
     - Prompt:
@@ -370,7 +381,7 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       In the `archlucid-ui` project, when an API response includes the `Idempotency-Replayed: true` header or a similar flag in the JSON, display a small, non-intrusive badge or toast saying "Replayed from previous request". Do not block the user flow. Acceptance criteria: Users are informed when idempotency kicks in.
       ```
 
-23. **Standardize error messages for rate-limiting across all controllers**
+22. **Standardize error messages for rate-limiting across all controllers**
     - Why it matters: Provides a consistent experience when users hit API limits.
     - Expected impact: Directly improves Supportability (+2-4 pts). Weighted readiness impact: +0.1-0.2%.
     - Prompt:
@@ -378,7 +389,7 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       In `ArchLucid.Api/Startup/RateLimitingExtensions.cs` (or where rate limiting is configured), configure the `OnRejected` callback to return a standard RFC 9457 Problem Details JSON response (e.g., `type: "#rate-limit-exceeded"`, status 429). Include the `Retry-After` header value in the JSON body if available. Do not change the actual rate limits. Acceptance criteria: 429 responses use the standard Problem Details format.
       ```
 
-24. **Add a configuration flag to simulate LLM hard stops in staging**
+23. **Add a configuration flag to simulate LLM hard stops in staging**
     - Why it matters: Allows developers and QA to test the UI and orchestrator behavior when the budget is exhausted.
     - Expected impact: Directly improves Maintainability (+3-4 pts), Reliability (+2-3 pts). Weighted readiness impact: +0.1-0.2%.
     - Prompt:
@@ -386,9 +397,15 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       In the LLM cost estimation/quota service, add a configuration flag `ArchLucid:Testing:SimulateLlmBudgetExhausted`. When set to true, the service should immediately throw the budget exhausted exception or return the quota exceeded result, regardless of actual usage. Ensure this flag is ignored if `IWebHostEnvironment.IsProduction()` is true. Acceptance criteria: QA can easily test budget exhaustion flows.
       ```
 
-25. **DEFERRED: Distributed cache (Redis) mandatory baseline design**
-    - Reason: Needs user input on whether Redis will be strictly required for multi-replica setups in V2, or if a fallback will still be supported.
-    - Input needed: Please confirm if Redis will be a hard requirement for V2 multi-replica deployments, or if we need to maintain an in-memory fallback with sticky sessions.
+24. **Document the exact retry policy for the custom orchestrator**
+    - Why it matters: Helps operators and support teams understand how the system recovers from failures.
+    - Expected impact: Supportability (+4-6 pts). Weighted readiness impact: +0.1-0.2%.
+    - Affected qualities: Supportability
+    - Actionable: Yes — Batch **DOCS-EXPORT**
+    - Prompt:
+      ```text
+      In docs/library/ARCHITECTURE_FLOWS.md (or ORCHESTRATOR_RETRIES.md), document AuthorityRunOrchestrator retry behavior: transient DB retries, LLM timeout handling, manual resume of Failed runs. Docs only.
+      ```
 
 26. **Document the exact retry policy for the custom orchestrator**
     - Why it matters: Helps operators and support teams understand how the system recovers from failures.
@@ -407,26 +424,18 @@ Run batches in this order. **Operator Shell (OS)** batches are highest leverage 
 | Batch | Improvement IDs | Scope | Notes |
 |-------|-----------------|-------|-------|
 | **OS-1** | #1 | Backend `DemoController` + `DemoOptions` + `appsettings.SaaS.json`; UI `seed-sample` route + `SeedSampleReviewButton` + `RunsPageView` empty state | Run alone first — highest blast radius; verify CI before dependent UI batches |
+| **OS-1b** | #25 | `dbo.Runs`, `DemoSeedService`, `SampleRunPurgeService` | Sample data lifecycle; run after OS-1 |
+| **OS-1b** | #25 | `dbo.Runs`, `DemoSeedService`, `SampleRunPurgeService` | Sample data lifecycle; run after OS-1 |
 | **OS-2** | #2, #3 | `OptInTour.tsx`, `WelcomeBanner.tsx` | Tour copy + launcher visibility; no overlap with OS-1 files except shared test fixtures |
 | **OS-3** | #4 | `empty-state-presets.ts`, graph page, `RunsPageView`, `ComparePageIntro` | Buyer-default glossary + empty states; safe after OS-2 |
 | **ROI-1** | #5 | `ExecutiveRoiSummaryService` + tests + `PILOT_SCORECARD_API.md` | V1 contract hardening; no overlap with OS batches — run immediately after OS-3 |
-| **UI-A** | #7, #8, #18 | Global error boundary, LLM budget banner, correlation copy (merge #7+#18 if same component) | General UI polish unrelated to OS program |
-| **API-A** | #6, #9, #19 | Orchestrator retry, idempotency cache, orchestrator health check | `ArchLucid.Api` / `ArchLucid.Persistence` |
-| **ZIP** | #10, #13, #16, #20, #21 | Extractor upload, PowerShell dry-run, CLI validate, telemetry | Azure ingest path |
-| **DOCS-EXPORT** | #12, #26 | DOCX cover, orchestrator retry docs | Low coupling |
+| **UI-A** | #7, #8, #17 | Global error boundary, LLM budget banner, correlation copy (merge #7+#17 if same component) | General UI polish unrelated to OS program |
+| **API-A** | #6, #9, #18 | Orchestrator retry, idempotency cache, orchestrator health check | `ArchLucid.Api` / `ArchLucid.Persistence` |
+| **ZIP** | #10, #12, #15, #19, #20 | Extractor upload, PowerShell dry-run, CLI validate, telemetry | Azure ingest path |
+| **DOCS-EXPORT** | #11, #26 | DOCX cover, orchestrator retry docs | Low coupling |
 
-**Do not batch:** #11/#17/#25 (DEFERRED). **Superseded:** old generic “guided tour / react-joyride” prompt — replaced by #2–#4 using existing `OptInTour` / `GlossaryTooltip`. **Resolved (2026-05-22):** cross-run ROI aggregation semantics — **unique `FindingId` dedup**; promoted to V1 ([V1_SCOPE.md](../library/V1_SCOPE.md) §2.8), improvement **#5** / batch **ROI-1**.
+**V2 only (not `(A)`):** #16 PRIV-1 tenant erasure automation. **Superseded:** old generic “guided tour / react-joyride” prompt — replaced by #2–#4 using existing `OptInTour` / `GlossaryTooltip`. **Resolved (2026-05-22):** cross-run ROI aggregation semantics — **unique `FindingId` dedup**; promoted to V1 ([V1_SCOPE.md](../library/V1_SCOPE.md) §2.8), improvement **#5** / batch **ROI-1**. **Resolved (2026-05-22):** tenant hard purge — purge identifiable data; **retain irreversibly anonymized aggregates only**; 30-day quarantine default ([`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6m). **Resolved (2026-05-22):** `IsSample` marker lives on `dbo.Runs`; purge uses dedicated `SampleRunPurgeService` (improvement **#25** / batch **OS-1b**).
 
 ## Pending Questions for Later
 
-**Live sample seed — IsSample marker and purge hook**
-- For OS-1 follow-on: confirm `IsSample` lives on `dbo.Runs` (preferred) vs a sidecar table, and which service performs auto-purge on first real commit or 7-day TTL (reuse `TenantDeletionService` vs scoped purge endpoint).
-
-**AWS/GCP extractor schema design**
-- What is the draft JSON schema or the list of required resource types for the AWS and GCP extractors (Phase 1 of V1.1)?
-
-**Automated tenant erasure pipeline design**
-- What is the required legal hold duration (e.g., 30 days) before hard purge? Should any aggregated, anonymized data be retained after the hard purge?
-
-**Distributed cache (Redis) mandatory baseline design**
-- Will Redis be a hard requirement for V2 multi-replica deployments, or do we need to maintain an in-memory fallback with sticky sessions?
+*(None at this time)*
