@@ -953,6 +953,13 @@ IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_FindingsSna
         CHECK (GenerationStatus IN (N'Generating', N'Complete', N'PartiallyComplete', N'Failed'));
 GO
 
+/* Brownfield: denormalized warning flag for hot-path run list queries (SqlRunRepository / HotPathRelationalQueryShapes). */
+IF OBJECT_ID(N'dbo.FindingsSnapshots', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.FindingsSnapshots', N'HasWarnings') IS NULL
+    ALTER TABLE dbo.FindingsSnapshots ADD HasWarnings BIT NOT NULL
+        CONSTRAINT DF_FindingsSnapshots_HasWarnings_Master DEFAULT (0);
+GO
+
 /* Relational findings — greenfield CREATE TABLE parity with DbUp 129 (scope columns on child/authority-path tables).
    DbUp 129 replay backfills and SECURITY POLICY binds are brownfield-only (dynamic SQL / replay guards); keep this file aligned
    with 129's final column layout. DbUp 148 may remove RLS after migrate (MULTI_TENANT_RLS.md). */
@@ -7334,4 +7341,113 @@ BEGIN
         ON dbo.TenantIdentityProviderConfigurations (IsActive)
         INCLUDE (TenantId, Protocol, UpdatedUtc);
 END;
+GO
+
+/* ---- DbUp 189 parity: hosted Azure extractor configuration (see Migrations/189_TenantHostedExtractorConfigurations.sql) ---- */
+IF OBJECT_ID(N'dbo.TenantHostedExtractorConfigurations', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantHostedExtractorConfigurations
+    (
+        TenantId            UNIQUEIDENTIFIER  NOT NULL,
+        SubscriptionId      NVARCHAR(64)      NOT NULL,
+        CustomerTenantId    NVARCHAR(64)      NOT NULL,
+        CustomerAppId       NVARCHAR(64)      NOT NULL,
+        IncludeCost         BIT               NOT NULL
+            CONSTRAINT DF_TenantHostedExtractorConfigurations_IncludeCost DEFAULT (0),
+        UpdatedUtc          DATETIMEOFFSET(7) NOT NULL
+            CONSTRAINT DF_TenantHostedExtractorConfigurations_UpdatedUtc DEFAULT (SYSUTCDATETIME()),
+        UpdatedByActorId    NVARCHAR(256)     NOT NULL,
+        CONSTRAINT PK_TenantHostedExtractorConfigurations PRIMARY KEY (TenantId, SubscriptionId),
+        CONSTRAINT FK_TenantHostedExtractorConfigurations_Tenants
+            FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+
+    CREATE INDEX IX_TenantHostedExtractorConfigurations_TenantId
+        ON dbo.TenantHostedExtractorConfigurations (TenantId)
+        INCLUDE (SubscriptionId, CustomerAppId, UpdatedUtc);
+END;
+GO
+
+/* ---- DbUp 190 parity: orphaned ITSM row cleanup (see Migrations/190_CleanupOrphanedTenantItsmRecords.sql) ---- */
+IF OBJECT_ID(N'dbo.ItsmFindingCorrelations', N'U') IS NOT NULL
+BEGIN
+    DELETE c
+    FROM dbo.ItsmFindingCorrelations AS c
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM dbo.Tenants AS t
+        WHERE t.Id = c.TenantId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.TenantItsmOutboundSettings', N'U') IS NOT NULL
+BEGIN
+    DELETE s
+    FROM dbo.TenantItsmOutboundSettings AS s
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM dbo.Tenants AS t
+        WHERE t.Id = s.TenantId);
+END;
+GO
+
+/* ---- DbUp 191 parity: AuditEvents correlation/run indexes (see Migrations/191_AuditEvents_CorrelationRunId_Indexes.sql) ---- */
+IF OBJECT_ID(N'dbo.AuditEvents', N'U') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE name = N'IX_AuditEvents_CorrelationId'
+          AND object_id = OBJECT_ID(N'dbo.AuditEvents'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_AuditEvents_CorrelationId
+        ON dbo.AuditEvents (CorrelationId)
+        WHERE CorrelationId IS NOT NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AuditEvents', N'U') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE name = N'IX_AuditEvents_RunId_OccurredUtc'
+          AND object_id = OBJECT_ID(N'dbo.AuditEvents'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_AuditEvents_RunId_OccurredUtc
+        ON dbo.AuditEvents (RunId, OccurredUtc DESC)
+        WHERE RunId IS NOT NULL;
+END;
+GO
+
+/* ---- DbUp 192 parity: drop legacy archiforge RLS predicates (see Migrations/192_DropLegacyArchiforgeRlsFunctions.sql) ---- */
+SET XACT_ABORT ON;
+GO
+
+IF OBJECT_ID(N'rls.archiforge_scope_predicate', N'IF') IS NOT NULL
+   AND OBJECT_ID(N'sys.security_predicates', N'V') IS NOT NULL
+   AND EXISTS (
+        SELECT 1
+        FROM sys.columns AS c
+        WHERE c.object_id = OBJECT_ID(N'sys.security_predicates', N'V')
+          AND c.name = N'predicate_definition')
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.security_predicates AS sp
+        WHERE CHARINDEX(N'rls.archiforge_scope_predicate', sp.predicate_definition COLLATE Latin1_General_CI_AI) > 0
+           OR CHARINDEX(N'[rls].[archiforge_scope_predicate]', sp.predicate_definition COLLATE Latin1_General_CI_AI) > 0)
+    EXEC (N'DROP FUNCTION rls.archiforge_scope_predicate;');
+GO
+
+IF OBJECT_ID(N'rls.archiforge_tenant_predicate', N'IF') IS NOT NULL
+   AND OBJECT_ID(N'sys.security_predicates', N'V') IS NOT NULL
+   AND EXISTS (
+        SELECT 1
+        FROM sys.columns AS c
+        WHERE c.object_id = OBJECT_ID(N'sys.security_predicates', N'V')
+          AND c.name = N'predicate_definition')
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.security_predicates AS sp
+        WHERE CHARINDEX(N'rls.archiforge_tenant_predicate', sp.predicate_definition COLLATE Latin1_General_CI_AI) > 0
+           OR CHARINDEX(N'[rls].[archiforge_tenant_predicate]', sp.predicate_definition COLLATE Latin1_General_CI_AI) > 0)
+    EXEC (N'DROP FUNCTION rls.archiforge_tenant_predicate;');
 GO

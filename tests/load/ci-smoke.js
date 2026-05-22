@@ -81,6 +81,12 @@ export function createRunFn() {
 
 export function listRunsFn() {
   const r = req("list_runs", "GET", `${BASE}/v1/architecture/runs`);
+
+  if (r.status !== 200) {
+    const snippet = typeof r.body === "string" ? r.body.slice(0, 500) : String(r.body);
+    console.error(`list_runs: status=${r.status} body_snippet=${snippet}`);
+  }
+
   check(r, { "list runs 200": (res) => res.status === 200 });
 }
 

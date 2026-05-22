@@ -47,6 +47,13 @@ for i in $(seq 1 90); do
       exit 1
     fi
 
+    list_runs_code="$(curl -sS -o /dev/null -w "%{http_code}" "${API_URL}/v1/architecture/runs?limit=1" -H "Accept: application/json")"
+    if [ "${list_runs_code}" != "200" ]; then
+      echo "::error::GET /v1/architecture/runs (smoke) returned HTTP ${list_runs_code} — check API log for SQL/auth/RLS errors"
+      tail -n 200 "${LOG_FILE}" || true
+      exit 1
+    fi
+
     echo "API ready."
     exit 0
   fi
