@@ -109,6 +109,72 @@ public sealed class ExecutiveRoiSummaryServiceTests
         response.TopSystemicIssues[0].Count.Should().Be(2);
     }
 
+    [Fact]
+    public async Task BuildAsync_deduplicates_top_systemic_issues_by_stable_finding_id_across_runs()
+    {
+        DateTime committedUtc = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
+        const string sharedFindingId = "finding-shared-across-systems";
+        Guid paymentsRunId = Guid.Parse("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        Guid claimsRunId = Guid.Parse("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+
+        RunSummary paymentsSummary = new()
+        {
+            RunId = paymentsRunId.ToString("N"),
+            SystemName = "Payments",
+            Status = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = committedUtc,
+            CurrentManifestVersion = "v1",
+        };
+
+        RunSummary claimsSummary = new()
+        {
+            RunId = claimsRunId.ToString("N"),
+            SystemName = "Claims",
+            Status = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = committedUtc,
+            CurrentManifestVersion = "v1",
+        };
+
+        Mock<IRunDetailQueryService> runQuery = new();
+        runQuery
+            .Setup(query => query.ListRunSummariesKeysetAsync(null, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((new[] { paymentsSummary, claimsSummary }, false, null));
+
+        runQuery
+            .Setup(query => query.GetRunDetailAsync(paymentsRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildDetail(paymentsRunId, "Payments", null, committedUtc, [
+                new ArchitectureFinding
+                {
+                    FindingId = sharedFindingId,
+                    Category = "Security",
+                    Severity = FindingSeverity.Error,
+                    Message = "shared issue",
+                },
+            ]));
+
+        runQuery
+            .Setup(query => query.GetRunDetailAsync(claimsRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildDetail(claimsRunId, "Claims", null, committedUtc, [
+                new ArchitectureFinding
+                {
+                    FindingId = sharedFindingId.ToUpperInvariant(),
+                    Category = "Security",
+                    Severity = FindingSeverity.Error,
+                    Message = "same stable id on another system",
+                },
+            ]));
+
+        ExecutiveRoiSummaryService sut = CreateSut(runQuery.Object, Mock.Of<ITenantEstimatedUsdSavingsResolver>());
+
+        ExecutiveRoiSummaryResponse response = await sut.BuildAsync(CancellationToken.None);
+
+        response.SystemCount.Should().Be(2);
+        response.TopSystemicIssues.Should().ContainSingle();
+        response.TopSystemicIssues[0].Category.Should().Be("Security");
+        response.TopSystemicIssues[0].Severity.Should().Be(nameof(FindingSeverity.Error));
+        response.TopSystemicIssues[0].Count.Should().Be(1);
+    }
+
     private static ExecutiveRoiSummaryService CreateSut(
         IRunDetailQueryService runDetailQueryService,
         ITenantEstimatedUsdSavingsResolver tenantEstimatedUsdSavingsResolver)

@@ -113,9 +113,11 @@ public sealed class ExecutiveRoiSummaryService(
 
     private static List<SystemicIssueSummary> AggregateTopSystemicIssues(IReadOnlyList<ArchitectureRunDetail> latestDetails)
     {
-        return latestDetails
+        IEnumerable<ArchitectureFinding> activeFindings = latestDetails
             .SelectMany(static detail => detail.Results.SelectMany(static result => result.Findings))
-            .Where(static finding => !finding.IsMuted)
+            .Where(static finding => !finding.IsMuted);
+
+        return DeduplicateFindingsByStableIdentity(activeFindings)
             .GroupBy(static finding => (Category: NormalizeCategory(finding.Category), Severity: finding.Severity.ToString()))
             .Select(static group => new SystemicIssueSummary
             {
@@ -128,6 +130,28 @@ public sealed class ExecutiveRoiSummaryService(
             .ThenBy(static issue => issue.Severity, StringComparer.OrdinalIgnoreCase)
             .Take(5)
             .ToList();
+    }
+
+    /// <summary>
+    /// Collapses overlapping CI reruns: the same stable <see cref="ArchitectureFinding.FindingId"/> across
+    /// included runs counts once toward portfolio systemic-issue totals (V1 §2.8).
+    /// Findings without a stable id are never deduplicated against each other.
+    /// </summary>
+    private static IEnumerable<ArchitectureFinding> DeduplicateFindingsByStableIdentity(IEnumerable<ArchitectureFinding> findings)
+    {
+        HashSet<string> seenFindingIds = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (ArchitectureFinding finding in findings)
+        {
+            if (string.IsNullOrWhiteSpace(finding.FindingId))
+            {
+                yield return finding;
+                continue;
+            }
+
+            if (seenFindingIds.Add(finding.FindingId))
+                yield return finding;
+        }
     }
 
     private Task<decimal?> TryResolveEstimatedUsdSavingsAsync(Guid? findingsSnapshotId, CancellationToken cancellationToken) =>
