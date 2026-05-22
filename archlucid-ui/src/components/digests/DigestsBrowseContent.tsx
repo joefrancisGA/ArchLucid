@@ -142,7 +142,7 @@ export function DigestsBrowseContent() {
               </h2>
               <p className="m-0 text-base leading-relaxed text-neutral-800 dark:text-neutral-200">{selected.summary}</p>
               <p id="digest-meta" className="doc-meta m-0 text-sm text-neutral-600 dark:text-neutral-400">
-                Run: {selected.runId ?? "—"}
+                Review: {selected.runId ?? "—"}
                 {selected.comparedToRunId ? ` · Compared to: ${selected.comparedToRunId}` : null}
               </p>
               <pre className="whitespace-pre-wrap rounded-md border border-neutral-200 bg-neutral-100 p-3 font-mono text-sm text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">

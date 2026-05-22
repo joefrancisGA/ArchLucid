@@ -442,7 +442,7 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
 
       <div className="flex flex-wrap items-end gap-3 border-t border-border pt-3">
         <label className="text-sm">
-          Run id for validate
+          Review ID for validate
           <Input
             className="mt-1 w-72 font-mono text-xs"
             value={simulateRunId}

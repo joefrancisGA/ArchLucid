@@ -61,7 +61,7 @@ export function PlanningPlanDetailSections({ plan }: PlanningPlanDetailSectionsP
           <p className="mb-2 font-semibold">{plan.theme.title}</p>
           <p className="mb-2 text-sm text-neutral-600 dark:text-neutral-400">{plan.theme.summary}</p>
           <p className="m-0 text-[13px] text-neutral-500 dark:text-neutral-400">
-            Evidence signals: {plan.theme.evidenceSignalCount} · Runs: {plan.theme.distinctRunCount} · Severity:{" "}
+            Evidence signals: {plan.theme.evidenceSignalCount} · Reviews: {plan.theme.distinctRunCount} · Severity:{" "}
             {plan.theme.severityBand}
           </p>
         </section>

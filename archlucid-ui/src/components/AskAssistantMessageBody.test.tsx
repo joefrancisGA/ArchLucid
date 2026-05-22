@@ -41,7 +41,7 @@ describe("AskAssistantMessageBody", () => {
 
   it("uses buyer-polished link labels while preserving distinct accessible names", () => {
     render(
-      <AskAssistantMessageBody buyerPolishedLinks content={`Runs ${sampleId} and 22222222-2222-4222-8222-222222222222.`} />,
+      <AskAssistantMessageBody buyerPolishedLinks content={`Reviews ${sampleId} and 22222222-2222-4222-8222-222222222222.`} />,
     );
 
     const links = screen.getAllByRole("link");

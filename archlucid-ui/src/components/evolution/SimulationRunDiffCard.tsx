@@ -96,7 +96,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
                 </p>
               ) : null}
               <dl className="m-0 grid grid-cols-[auto_1fr] items-baseline gap-x-3 gap-y-1">
-                <dt className="text-neutral-500 dark:text-neutral-400">Run status</dt>
+                <dt className="text-neutral-500 dark:text-neutral-400">Review status</dt>
                 <dd className="m-0">{parsed.shadow.runStatus ?? "—"}</dd>
                 <dt className="text-neutral-500 dark:text-neutral-400">Manifest version</dt>
                 <dd className={`m-0 ${monoCls}`}>{parsed.shadow.manifestVersion ?? "—"}</dd>

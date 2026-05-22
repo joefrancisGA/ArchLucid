@@ -30,10 +30,10 @@ describe("RunIdPicker", () => {
 
     const onChange = vi.fn();
     render(
-      <RunIdPicker preferAutoPick={false} value="" onChange={onChange} label="Run" placeholder="Run ID" />,
+      <RunIdPicker preferAutoPick={false} value="" onChange={onChange} label="Review" placeholder="Review ID" />,
     );
 
-    fireEvent.focus(screen.getByPlaceholderText("Run ID"));
+    fireEvent.focus(screen.getByPlaceholderText("Review ID"));
 
     await waitFor(() => {
       expect(mockList).toHaveBeenCalledWith("default", 1, 50);
@@ -58,7 +58,7 @@ describe("RunIdPicker", () => {
 
     const onChange = vi.fn();
     render(
-      <RunIdPicker preferAutoPick={false} value="" onChange={onChange} label="Run" placeholder="Pick" />,
+      <RunIdPicker preferAutoPick={false} value="" onChange={onChange} label="Review" placeholder="Pick" />,
     );
 
     fireEvent.focus(screen.getByPlaceholderText("Pick"));
@@ -97,7 +97,7 @@ describe("RunIdPicker", () => {
         preferAutoPick={false}
         value="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
         onChange={onChange}
-        label="Run"
+        label="Review"
         placeholder="Pick"
         useBuyerFacingRunLabels
       />,

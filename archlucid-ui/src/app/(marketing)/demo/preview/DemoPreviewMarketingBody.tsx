@@ -109,7 +109,7 @@ function DemoStatusBanner({
       data-testid="demo-preview-status-banner"
       className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200"
     >
-      <span className="font-semibold">{payload.demoStatusMessage ?? "Demonstration preview"}</span> · run{" "}
+      <span className="font-semibold">{payload.demoStatusMessage ?? "Demonstration preview"}</span> · review{" "}
       <code>{runIdLabel}</code> · generated{" "}
       <code>
         {generatedUtc === "—"
@@ -194,7 +194,7 @@ export function DemoPreviewMarketingBody({
 
       <section data-testid="demo-preview-run">
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
-          {demoMode ? "Sample review" : "Run"}
+          {demoMode ? "Sample review" : "Review"}
         </h2>
         {demoMode ? (
           <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">

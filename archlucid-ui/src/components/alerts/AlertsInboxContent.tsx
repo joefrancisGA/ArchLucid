@@ -839,7 +839,7 @@ export function AlertsInboxContent() {
                 {actionLoopData.runId ? (
                   <>
                     {" "}
-                    · Run:{" "}
+                    · Review:{" "}
                     <Link
                       className="font-medium text-teal-800 underline dark:text-teal-300"
                       href={

@@ -487,7 +487,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
   });
 
   it(
-    "Governance workflow: submit Run ID and manifest inputs stay read-only when mutation capability is false",
+    "Governance workflow: submit Review ID and manifest inputs stay read-only when mutation capability is false",
     async () => {
       mutateCapability.current = false;
       render(<GovernanceWorkflowPage />);
@@ -528,7 +528,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     15_000,
   );
 
-  it("Governance workflow: submit Run ID is editable when mutation capability is true", async () => {
+  it("Governance workflow: submit Review ID is editable when mutation capability is true", async () => {
     mutateCapability.current = true;
     render(<GovernanceWorkflowPage />);
 

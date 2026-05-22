@@ -51,7 +51,7 @@ const fixedPayload: DemoExplainResponse = {
   },
   provenanceGraph: {
     nodes: [
-      { id: "n-run", label: "Run baseline", type: "Run" },
+      { id: "n-run", label: "Review baseline", type: "Review" },
       { id: "n-manifest", label: "Golden manifest v3", type: "Manifest" },
       { id: "n-finding", label: "Public storage", type: "Finding" },
     ],
@@ -77,7 +77,7 @@ describe("DemoExplainPage (proof page snapshot)", () => {
         "demo tenant — replace before publishing",
       );
       expect(screen.getByTestId("demo-explain-provenance-graph-nodes")).toHaveTextContent(
-        "Run baseline",
+        "Review baseline",
       );
       expect(screen.getByTestId("demo-explain-citations")).toHaveTextContent("contoso-baseline-v1");
     });

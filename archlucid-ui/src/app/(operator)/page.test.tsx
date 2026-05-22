@@ -105,7 +105,7 @@ describe("HomePage — buyer-polished shell", () => {
 });
 
 describe("HomePage (55R smoke — landing)", () => {
-  it("renders Runs panel, maturity layer cards, and workflow panel", async () => {
+  it("renders Reviews panel, maturity layer cards, and workflow panel", async () => {
     render(<HomePage />);
 
     expect(screen.getByRole("heading", { name: "Architecture reviews" })).toBeInTheDocument();

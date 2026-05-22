@@ -75,7 +75,7 @@ export function PostCommitRetentionRail({
         ) : (
           <Button type="button" asChild variant="default" size="sm" className="justify-center sm:justify-start">
             <Link href="/reviews/new" title="Start another architecture review with your repository inputs">
-              Run again
+              Review again
             </Link>
           </Button>
         )}
