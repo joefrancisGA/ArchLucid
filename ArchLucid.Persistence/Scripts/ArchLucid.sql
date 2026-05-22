@@ -1,19 +1,19 @@
 /*
-  ArchiForge — SQL Server consolidated schema (idempotent)
+  ArchLucid — SQL Server consolidated schema (idempotent)
 
   DOCUMENTATION
     Full guide: docs/SQL_SCRIPTS.md (DbUp vs this file; migration catalog;
     run header model; change checklist; troubleshooting).
 
   EXECUTION
-    - Persistence: SqlSchemaBootstrapper reads ArchiForge.Persistence/Scripts/ArchiForge.sql
+    - Persistence: SqlSchemaBootstrapper reads ArchLucid.Persistence/Scripts/ArchLucid.sql
       (MSBuild-linked copy of this file), splits on GO, executes each batch via Dapper.
     - Manual / SSMS: run as-is; requires SQL Server 2014+ style inline INDEX on CREATE TABLE.
 
   SEMANTICS
     - Safe to run multiple times: CREATE TABLE only if missing (IF OBJECT_ID … IS NULL).
     - Nonclustered indexes: inline INDEX … NONCLUSTERED inside CREATE TABLE (incl. filtered).
-    - Column additions for existing DBs: use DbUp migrations in ArchiForge.Persistence/Migrations/;
+    - Column additions for existing DBs: use DbUp migrations in ArchLucid.Persistence/Migrations/;
       this script assumes greenfield CREATE or migrations already applied.
     - FK repair: some batches ALTER TABLE ADD CONSTRAINT FK … IF NOT EXISTS (sys.foreign_keys).
 

@@ -70,10 +70,21 @@ public sealed class AzureContentSafetyGuard : IContentSafetyGuard
                 _logger.LogWarning(ex, "Content safety {Kind} analysis failed; FailClosedOnSdkError={FailClosed}.",
                     kind, options.FailClosedOnSdkError);
 
-            return options.FailClosedOnSdkError
-                ? new ContentSafetyResult(false, "Content safety service error.", "SdkError", null)
-                : Allowed;
+            return HandleSdkFailure(ex, options.FailClosedOnSdkError);
         }
+    }
+
+    /// <summary>
+    ///     Maps Azure Content Safety SDK/HTTP failures (503, 429, etc.) to allow or block per
+    ///     <paramref name="failClosedOnSdkError"/>.
+    /// </summary>
+    internal static ContentSafetyResult HandleSdkFailure(Exception ex, bool failClosedOnSdkError)
+    {
+        ArgumentNullException.ThrowIfNull(ex);
+
+        return failClosedOnSdkError
+            ? new ContentSafetyResult(false, "Content safety service error.", "SdkError", null)
+            : Allowed;
     }
 
     internal static ContentSafetyResult MapResult(AnalyzeTextResult result, int blockSeverityThreshold)

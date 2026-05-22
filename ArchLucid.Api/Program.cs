@@ -141,16 +141,7 @@ public partial class Program
 
         if (configurationErrors.Count > 0)
         {
-            foreach (string error in configurationErrors)
-
-                if (app.Logger.IsEnabled(LogLevel.Error))
-
-                    app.Logger.LogError(
-                        "Startup configuration error: {Error}",
-                        LogSanitizer.Sanitize(error));
-
-            throw new InvalidOperationException(
-                "ArchLucid configuration is invalid. Fix the settings listed in the logs above, then restart.");
+            StartupConfigurationFailureLogger.LogCriticalAndThrow(configurationErrors, app.Logger);
         }
 
         ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation(app.Configuration, app.Logger);

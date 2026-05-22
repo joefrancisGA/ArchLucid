@@ -15,6 +15,8 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pilots;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Models;
 
 using Asp.Versioning;
 
@@ -40,6 +42,7 @@ public sealed class PilotsController(
     PilotScorecardBuilder pilotScorecardBuilder,
     IPilotInProductScorecardService pilotInProductScorecardService,
     PilotOutcomeSummaryService pilotOutcomeSummaryService,
+    IAzureExtractorPackageRepository azureExtractorPackageRepository,
     IPilotReportCardService pilotReportCardService,
     SponsorOnePagerPdfBuilder sponsorOnePagerPdfBuilder,
     IWhyArchLucidSnapshotService whyArchLucidSnapshotService,
@@ -151,7 +154,8 @@ public sealed class PilotsController(
             PeriodStart = summary.PeriodStart,
             PeriodEnd = summary.PeriodEnd,
             RunsInPeriod = summary.RunsInPeriod,
-            RunsWithCommittedManifest = summary.RunsWithCommittedManifest
+            RunsWithCommittedManifest = summary.RunsWithCommittedManifest,
+            ExtractorCollectionTimestampUtc = summary.ExtractorCollectionTimestampUtc,
         };
 
         return Ok(response);
@@ -212,7 +216,17 @@ public sealed class PilotsController(
         ValueReportSnapshot snapshot =
             await valueReportBuilder.BuildAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, start, end, cancellationToken);
 
-        return Ok(PilotRunDeltasResponseMapper.ToResponseWithProofPackage(detail.Run, detail.Manifest, deltas, snapshot));
+        DateTime? extractorCollectionTimestampUtc = await TryResolveExtractorCollectionTimestampUtcAsync(
+            scope,
+            detail.Run.RunId,
+            cancellationToken);
+
+        return Ok(PilotRunDeltasResponseMapper.ToResponseWithProofPackage(
+            detail.Run,
+            detail.Manifest,
+            deltas,
+            snapshot,
+            extractorCollectionTimestampUtc));
     }
 
     /// <summary>
@@ -312,12 +326,30 @@ public sealed class PilotsController(
             PeriodEnd = summary.PeriodEnd,
             RunsInPeriod = summary.RunsInPeriod,
             RunsWithCommittedManifest = summary.RunsWithCommittedManifest,
+            ExtractorCollectionTimestampUtc = summary.ExtractorCollectionTimestampUtc,
             HoursSaved = hoursSaved,
             RisksMitigated = risksMitigated,
             QualitativeNotes = qualitativeNotes
         };
 
         return Ok(response);
+    }
+
+    private async Task<DateTime?> TryResolveExtractorCollectionTimestampUtcAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (Guid.TryParse(runId, out Guid runGuid))
+        {
+            AzureExtractorPackageProvenance? provenance =
+                await azureExtractorPackageRepository.TryGetLatestProvenanceByRunIdAsync(scope, runGuid, cancellationToken);
+
+            if (provenance?.CollectionTimestampUtc is not null)
+                return provenance.CollectionTimestampUtc;
+        }
+
+        return await azureExtractorPackageRepository.TryGetLatestCollectionTimestampUtcInScopeAsync(scope, cancellationToken);
     }
 
     /// <summary>

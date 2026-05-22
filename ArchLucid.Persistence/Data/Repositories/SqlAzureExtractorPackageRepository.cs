@@ -132,6 +132,37 @@ public sealed class SqlAzureExtractorPackageRepository(ISqlConnectionFactory con
         return exists;
     }
 
+    public async Task<DateTime?> TryGetLatestCollectionTimestampUtcInScopeAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        const string sql = """
+                           SELECT TOP (1) CollectionTimestampUtc
+                           FROM dbo.AzureExtractorPackages
+                           WHERE TenantId = @TenantId
+                               AND WorkspaceId = @WorkspaceId
+                               AND ProjectId = @ProjectId
+                               AND CollectionTimestampUtc IS NOT NULL
+                           ORDER BY CollectionTimestampUtc DESC, CreatedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        DateTime? row = await conn.ExecuteScalarAsync<DateTime?>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId },
+                cancellationToken: cancellationToken));
+
+        if (row is null)
+            return null;
+
+        return DateTime.SpecifyKind(row.Value, DateTimeKind.Utc);
+    }
+
 
     private sealed class Row
 

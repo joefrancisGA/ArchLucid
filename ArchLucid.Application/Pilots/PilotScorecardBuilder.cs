@@ -1,4 +1,5 @@
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -7,8 +8,15 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application.Pilots;
 
 /// <summary>Builds tenant-scoped pilot scorecard aggregates from <see cref = "IRunRepository"/> (read-only).</summary>
-public sealed class PilotScorecardBuilder(IRunRepository runRepository, IScopeContextProvider scopeContextProvider, ILogger<PilotScorecardBuilder> logger)
+public sealed class PilotScorecardBuilder(
+    IRunRepository runRepository,
+    IAzureExtractorPackageRepository azureExtractorPackageRepository,
+    IScopeContextProvider scopeContextProvider,
+    ILogger<PilotScorecardBuilder> logger)
 {
+    private readonly IAzureExtractorPackageRepository _azureExtractorPackageRepository =
+        azureExtractorPackageRepository ?? throw new ArgumentNullException(nameof(azureExtractorPackageRepository));
+
     private readonly ILogger<PilotScorecardBuilder> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -31,13 +39,18 @@ public sealed class PilotScorecardBuilder(IRunRepository runRepository, IScopeCo
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation("Pilot scorecard: tenant {TenantId}, window {Start:o}–{End:o}, runs {RunCount}, committed {Committed}.", scope.TenantId,
                 startUtc, endUtc, inWindow.Count, committed);
+
+        DateTime? extractorCollectionTimestampUtc =
+            await _azureExtractorPackageRepository.TryGetLatestCollectionTimestampUtcInScopeAsync(scope, cancellationToken);
+
         return new PilotScorecardSummary
         {
             TenantId = scope.TenantId,
             PeriodStart = periodStart,
             PeriodEnd = periodEnd,
             RunsInPeriod = inWindow.Count,
-            RunsWithCommittedManifest = committed
+            RunsWithCommittedManifest = committed,
+            ExtractorCollectionTimestampUtc = extractorCollectionTimestampUtc,
         };
     }
 }

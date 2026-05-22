@@ -32,4 +32,11 @@ public sealed class PilotScorecardSummary
         get;
         init;
     }
+
+    /// <summary>Latest Azure extractor package collection timestamp in scope (pricing baseline citation).</summary>
+    public DateTime? ExtractorCollectionTimestampUtc
+    {
+        get;
+        init;
+    }
 }

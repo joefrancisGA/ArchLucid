@@ -33,6 +33,13 @@ public sealed class PilotScorecardResponse
         set;
     }
 
+    /// <summary>Latest Azure extractor package collection timestamp in scope (pricing baseline citation).</summary>
+    public DateTime? ExtractorCollectionTimestampUtc
+    {
+        get;
+        set;
+    }
+
     /// <summary>Last submitted hours saved (from POST body when provided).</summary>
     public decimal? HoursSaved
     {

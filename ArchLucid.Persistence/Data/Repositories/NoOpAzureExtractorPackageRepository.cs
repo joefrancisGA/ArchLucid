@@ -17,4 +17,9 @@ public sealed class NoOpAzureExtractorPackageRepository : IAzureExtractorPackage
 
     public Task<bool> HasAnyInWorkspaceAsync(ScopeContext scope, CancellationToken cancellationToken = default)
         => Task.FromResult(false);
+
+    public Task<DateTime?> TryGetLatestCollectionTimestampUtcInScopeAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<DateTime?>(null);
 }

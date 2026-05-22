@@ -22,7 +22,8 @@ public static class PilotRunDeltasResponseMapper
         ArchitectureRun run,
         GoldenManifest? manifest,
         PilotRunDeltas deltas,
-        ValueReportSnapshot valueWindowSnapshot)
+        ValueReportSnapshot valueWindowSnapshot,
+        DateTime? extractorCollectionTimestampUtc = null)
     {
         ArgumentNullException.ThrowIfNull(run);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -32,11 +33,7 @@ public static class PilotRunDeltasResponseMapper
         ProofPackageCompletenessResponse completeness =
             PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, valueWindowSnapshot);
 
-        DateTime? extractorTs = null;
-        // The manifest metadata does not have a dictionary to query for the collection timestamp.
-        // We will leave extractorTs as null.
-
-        return MapCore(deltas, extractorTs, completeness);
+        return MapCore(deltas, extractorCollectionTimestampUtc, completeness);
     }
 
     private static PilotRunDeltasResponse MapCore(PilotRunDeltas deltas, DateTime? extractorCollectionTimestampUtc, ProofPackageCompletenessResponse? proofPackage)

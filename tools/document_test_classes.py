@@ -9,17 +9,15 @@ ROOT = Path(__file__).resolve().parents[1]
 
 # Only these test project roots (under solution root).
 TEST_ROOTS = [
-    ROOT / "ArchiForge.Api.Tests",
-    ROOT / "ArchiForge.Persistence.Tests",
-    ROOT / "ArchiForge.AgentRuntime.Tests",
-    ROOT / "ArchiForge.Coordinator.Tests",
-    ROOT / "ArchiForge.ContextIngestion.Tests",
-    ROOT / "ArchiForge.Contracts.Tests",
-    ROOT / "ArchiForge.Decisioning.Tests",
-    ROOT / "ArchiForge.Decisioning.Tests",
-    ROOT / "ArchiForge.KnowledgeGraph.Tests",
-    ROOT / "ArchiForge.Retrieval.Tests",
-    ROOT / "ArchiForge.Cli.Tests",
+    ROOT / "ArchLucid.Api.Tests",
+    ROOT / "ArchLucid.Persistence.Tests",
+    ROOT / "ArchLucid.AgentRuntime.Tests",
+    ROOT / "ArchLucid.ContextIngestion.Tests",
+    ROOT / "ArchLucid.Contracts.Tests",
+    ROOT / "ArchLucid.Decisioning.Tests",
+    ROOT / "ArchLucid.KnowledgeGraph.Tests",
+    ROOT / "ArchLucid.Retrieval.Tests",
+    ROOT / "ArchLucid.Cli.Tests",
 ]
 
 CLASS_RE = re.compile(

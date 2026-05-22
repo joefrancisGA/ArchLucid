@@ -25,6 +25,7 @@ public sealed class PilotOutcomeSummaryEndpointTests(ArchLucidApiFactory factory
         body.TenantId.Should().NotBeEmpty();
         body.RunsInPeriod.Should().BeGreaterThanOrEqualTo(0);
         body.RunsWithCommittedManifest.Should().BeGreaterThanOrEqualTo(0);
+        body.ExtractorCollectionTimestampUtc.Should().BeNull();
         (body.PeriodEnd > body.PeriodStart).Should().BeTrue();
     }
 }

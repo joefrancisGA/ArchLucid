@@ -12,17 +12,15 @@ TRX_NS = {"t": "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}
 
 # Map assembly name (root namespace ending in .Tests) -> csproj path relative to ROOT.
 ASSEMBLY_TO_CSPROJ: dict[str, str] = {
-    "ArchiForge.Api.Tests": "ArchiForge.Api.Tests/ArchiForge.Api.Tests.csproj",
-    "ArchiForge.Persistence.Tests": "ArchiForge.Persistence.Tests/ArchiForge.Persistence.Tests.csproj",
-    "ArchiForge.AgentRuntime.Tests": "ArchiForge.AgentRuntime.Tests/ArchiForge.AgentRuntime.Tests.csproj",
-    "ArchiForge.Coordinator.Tests": "ArchiForge.Coordinator.Tests/ArchiForge.Coordinator.Tests.csproj",
-    "ArchiForge.ContextIngestion.Tests": "ArchiForge.ContextIngestion.Tests/ArchiForge.ContextIngestion.Tests.csproj",
-    "ArchiForge.Contracts.Tests": "ArchiForge.Contracts.Tests/ArchiForge.Contracts.Tests.csproj",
-    "ArchiForge.Decisioning.Tests": "ArchiForge.Decisioning.Tests/ArchiForge.Decisioning.Tests.csproj",
-    "ArchiForge.Decisioning.Tests": "ArchiForge.Decisioning.Tests/ArchiForge.Decisioning.Tests.csproj",
-    "ArchiForge.KnowledgeGraph.Tests": "ArchiForge.KnowledgeGraph.Tests/ArchiForge.KnowledgeGraph.Tests.csproj",
-    "ArchiForge.Retrieval.Tests": "ArchiForge.Retrieval.Tests/ArchiForge.Retrieval.Tests.csproj",
-    "ArchiForge.Cli.Tests": "ArchiForge.Cli.Tests/ArchiForge.Cli.Tests.csproj",
+    "ArchLucid.Api.Tests": "ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj",
+    "ArchLucid.Persistence.Tests": "ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj",
+    "ArchLucid.AgentRuntime.Tests": "ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj",
+    "ArchLucid.ContextIngestion.Tests": "ArchLucid.ContextIngestion.Tests/ArchLucid.ContextIngestion.Tests.csproj",
+    "ArchLucid.Contracts.Tests": "ArchLucid.Contracts.Tests/ArchLucid.Contracts.Tests.csproj",
+    "ArchLucid.Decisioning.Tests": "ArchLucid.Decisioning.Tests/ArchLucid.Decisioning.Tests.csproj",
+    "ArchLucid.KnowledgeGraph.Tests": "ArchLucid.KnowledgeGraph.Tests/ArchLucid.KnowledgeGraph.Tests.csproj",
+    "ArchLucid.Retrieval.Tests": "ArchLucid.Retrieval.Tests/ArchLucid.Retrieval.Tests.csproj",
+    "ArchLucid.Cli.Tests": "ArchLucid.Cli.Tests/ArchLucid.Cli.Tests.csproj",
 }
 
 

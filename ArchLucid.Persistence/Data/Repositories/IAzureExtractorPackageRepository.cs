@@ -12,6 +12,10 @@ public interface IAzureExtractorPackageRepository
         Guid runId,
         CancellationToken cancellationToken = default);
 
+    Task<DateTime?> TryGetLatestCollectionTimestampUtcInScopeAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default);
+
     /// <summary>True when at least one persisted extractor package exists for the scoped tenant and workspace.</summary>
     Task<bool> HasAnyInWorkspaceAsync(ScopeContext scope, CancellationToken cancellationToken = default);
 }

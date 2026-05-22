@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -36,7 +37,12 @@ public sealed class SponsorOnePagerPdfBuilderTests
         Mock<IOptionsMonitor<PublicSiteOptions>> site = new();
         site.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
 
-        PilotScorecardBuilder scorecard = new(runs.Object, scope.Object, NullLogger<PilotScorecardBuilder>.Instance);
+        Mock<IAzureExtractorPackageRepository> extractorPackages = new();
+        PilotScorecardBuilder scorecard = new(
+            runs.Object,
+            extractorPackages.Object,
+            scope.Object,
+            NullLogger<PilotScorecardBuilder>.Instance);
         Mock<IPilotRunDeltaComputer> deltas = new();
         SponsorOnePagerPdfBuilder sut = new(query.Object, scorecard, deltas.Object, site.Object);
 
@@ -95,7 +101,12 @@ public sealed class SponsorOnePagerPdfBuilderTests
                 },
             ]);
 
-        PilotScorecardBuilder scorecard = new(runs.Object, scope.Object, NullLogger<PilotScorecardBuilder>.Instance);
+        Mock<IAzureExtractorPackageRepository> extractorPackages = new();
+        PilotScorecardBuilder scorecard = new(
+            runs.Object,
+            extractorPackages.Object,
+            scope.Object,
+            NullLogger<PilotScorecardBuilder>.Instance);
         Mock<IPilotRunDeltaComputer> deltas = new();
         deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PilotRunDeltas
@@ -161,7 +172,12 @@ public sealed class SponsorOnePagerPdfBuilderTests
         scope.Setup(s => s.GetCurrentScope()).Returns(sc);
         runs.Setup(r => r.ListRecentInScopeAsync(sc, It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
-        PilotScorecardBuilder scorecard = new(runs.Object, scope.Object, NullLogger<PilotScorecardBuilder>.Instance);
+        Mock<IAzureExtractorPackageRepository> extractorPackages = new();
+        PilotScorecardBuilder scorecard = new(
+            runs.Object,
+            extractorPackages.Object,
+            scope.Object,
+            NullLogger<PilotScorecardBuilder>.Instance);
         Mock<IPilotRunDeltaComputer> deltas = new();
         deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PilotRunDeltas

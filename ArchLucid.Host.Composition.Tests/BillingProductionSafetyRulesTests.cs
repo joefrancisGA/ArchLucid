@@ -4,6 +4,8 @@ using ArchLucid.Host.Core.Startup.Validation.Rules;
 using FluentAssertions;
 
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchLucid.Host.Composition.Tests;
 
@@ -149,5 +151,68 @@ public sealed class BillingProductionSafetyRulesTests
         BillingProductionSafetyRules.CollectAzureMarketplaceGaRequiresOfferId(configuration, errors);
 
         errors.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void IsBillingSafetyError_when_prefixed_returns_true()
+    {
+        string error = BillingProductionSafetyRules.ErrorPrefix + "Billing:Stripe:SecretKey uses Stripe test prefix sk_test_.";
+
+        BillingProductionSafetyRules.IsBillingSafetyError(error).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsBillingSafetyError_when_not_prefixed_returns_false()
+    {
+        BillingProductionSafetyRules.IsBillingSafetyError("ConnectionStrings:ArchLucid is missing.").Should().BeFalse();
+    }
+
+    [Fact]
+    public void LogCriticalForMatchingErrors_logs_only_billing_prefixed_messages()
+    {
+        List<string> errors =
+        [
+            BillingProductionSafetyRules.ErrorPrefix + "Billing:AzureMarketplace:LandingPageUrl must not use localhost.",
+            "AgentExecution:Mode is invalid.",
+        ];
+
+        TestLogger logger = new();
+
+        BillingProductionSafetyRules.LogCriticalForMatchingErrors(errors, logger);
+
+        logger.CriticalMessages.Should().ContainSingle(message =>
+            message.Contains("Billing production safety validation failed", StringComparison.Ordinal)
+            && message.Contains("localhost", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private sealed class TestLogger : ILogger
+    {
+        public List<string> CriticalMessages { get; } = [];
+
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => NullScope.Instance;
+
+        public bool IsEnabled(LogLevel logLevel) => true;
+
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
+        {
+            if (logLevel != LogLevel.Critical)
+                return;
+
+            CriticalMessages.Add(formatter(state, exception));
+        }
+
+        private sealed class NullScope : IDisposable
+        {
+            public static readonly NullScope Instance = new();
+
+            public void Dispose()
+            {
+            }
+        }
     }
 }

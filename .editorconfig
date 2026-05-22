@@ -1,4 +1,4 @@
-# ArchiForge — formatting and style (Roslyn / dotnet format)
+# ArchLucid — formatting and style (Roslyn / dotnet format)
 # Run from repo root:  dotnet format ArchLucid.sln
 # See docs/library/FORMATTING.md
 #
