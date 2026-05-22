@@ -16,4 +16,4 @@ ArchLucid implements the standard SCIM 2.0 endpoints for user and group manageme
 - `PATCH /scim/v2/Users/{id}`
 
 ## Group-to-role mapping for Entra ID SCIM clients
-When integrating with Entra ID, you can map Azure AD groups to ArchLucid roles. Configure your Entra ID SCIM enterprise application to map the group membership to the standard SCIM roles attribute. ArchLucid will automatically process the SCIM groups and apply the equivalent `Admin`, `Operator`, or `Reader` roles to the provisioned users.
+When integrating with Entra ID, you can map Entra ID groups to ArchLucid roles. Configure your Entra ID SCIM enterprise application to map the group membership to the standard SCIM roles attribute. ArchLucid will automatically process the SCIM groups and apply the equivalent `Admin`, `Operator`, or `Reader` roles to the provisioned users.
