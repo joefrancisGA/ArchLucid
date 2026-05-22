@@ -62,6 +62,11 @@ public sealed class AgentOutputEvaluationRecorderTests
 
         InMemoryAgentResultRepository agentResults = new();
 
+        Mock<IAgentConfidenceCalibrationService> confidenceCalibration = new();
+        confidenceCalibration
+            .Setup(s => s.ApplyCalibratedConfidenceForRunAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         return new AgentOutputEvaluationRecorder(
             traceRepository,
             new InMemoryAgentEvidencePackageRepository(),
@@ -70,13 +75,7 @@ public sealed class AgentOutputEvaluationRecorderTests
             semanticFacade,
             new AgentOutputQualityGate(Options.Create(opts)),
             CreateGateOptionsResolver(opts),
-            new AgentConfidenceCalibrationService(
-                agentResults,
-                new AgentConfidenceCalibrator(
-                    new NoOpAgentConfidenceCalibrationSampleRepository(),
-                    Options.Create(new AgentConfidenceCalibrationOptions { Enabled = false })),
-                Options.Create(new AgentConfidenceCalibrationOptions { Enabled = false }),
-                NullLogger<AgentConfidenceCalibrationService>.Instance),
+            confidenceCalibration.Object,
             new NoOpAgentConfidenceCalibrationSampleRepository(),
             Options.Create(new AgentConfidenceCalibrationOptions { Enabled = false }),
             referenceEvaluator,
