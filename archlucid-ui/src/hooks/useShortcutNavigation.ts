@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 
-import { FOCUS_GLOBAL_SEARCH_EVENT } from "@/components/GlobalSearchBar";
 import { SHORTCUTS } from "@/lib/shortcut-registry";
 
 import { useKeyboardShortcuts, type KeyboardShortcutsMap } from "./useKeyboardShortcuts";
@@ -35,13 +34,6 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
           },
           description: entry.description,
         };
-      } else if (entry.key === "/") {
-        next[entry.key] = {
-          handler: () => {
-            window.dispatchEvent(new Event(FOCUS_GLOBAL_SEARCH_EVENT));
-          },
-          description: entry.description,
-        };
       } else if (isHelpShortcutKey(entry.key)) {
         next[entry.key] = {
           handler: () => {
@@ -63,7 +55,7 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
 function isHelpShortcutKey(key: string): boolean {
   const normalized = key.toLowerCase().trim();
 
-  return normalized === "shift+?" || normalized === "?";
+  return normalized === "shift+?";
 }
 
 function noop(): void {
