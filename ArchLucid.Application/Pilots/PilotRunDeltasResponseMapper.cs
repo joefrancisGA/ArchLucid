@@ -35,7 +35,7 @@ public static class PilotRunDeltasResponseMapper
         DateTime? extractorTs = null;
         if (manifest?.Metadata != null)
         {
-            var meta = manifest.Metadata as System.Collections.Generic.IDictionary<string, string>;
+            var meta = manifest.Metadata.AdditionalProperties;
             if (meta != null && meta.TryGetValue(ArchLucid.Application.AzureExtractor.AzureExtractorEvidenceBundleMerger.MetadataCollectionTimestampUtcKey, out string? tsStr))
             {
                 if (DateTime.TryParse(tsStr, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime parsed))

@@ -759,7 +759,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
     public Task<bool> TryApproveTenantErasureAsync(Guid tenantId, DateTimeOffset approvedUtc, string approvedByUserId, CancellationToken ct)
     {
-        lock (_gate)
+        lock (_trialGate)
         {
             if (!_byId.TryGetValue(tenantId, out TenantRecord? t) || t.OffboardedUtc is null || t.TenantErasureApprovedUtc is not null)
                 return Task.FromResult(false);
