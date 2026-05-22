@@ -16,19 +16,13 @@ public class PilotRunDeltasResponseMapperTests
     {
         ArchitectureRun run = new()
         {
-            RunId = Guid.NewGuid(),
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            RunId = Guid.NewGuid().ToString("N")
         };
 
         DateTime ts = DateTime.UtcNow;
         GoldenManifest manifest = new()
         {
-            Metadata = new Dictionary<string, string>
-            {
-                { "azureExtractorCollectionTimestampUtc", ts.ToString("O") }
-            }
+            Metadata = new ManifestMetadata()
         };
 
         PilotRunDeltas deltas = new()
@@ -36,16 +30,44 @@ public class PilotRunDeltasResponseMapperTests
             RunCreatedUtc = DateTime.UtcNow
         };
 
-        ValueReportSnapshot valueReport = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-            RunsInPeriod = 1
-        };
+        ValueReportSnapshot valueReport = new(
+            TenantId: Guid.NewGuid(),
+            WorkspaceId: Guid.NewGuid(),
+            ProjectId: Guid.NewGuid(),
+            PeriodFromUtc: DateTimeOffset.UtcNow,
+            PeriodToUtc: DateTimeOffset.UtcNow,
+            RunStatusRows: new List<ValueReportRunStatusRow>(),
+            RunsCompletedCount: 1,
+            ManifestsCommittedCount: 0,
+            GovernanceEventsHandledCount: 0,
+            DriftAlertEventsCaughtCount: 0,
+            EstimatedArchitectHoursSavedFromManifests: 0,
+            EstimatedArchitectHoursSavedFromGovernanceEvents: 0,
+            EstimatedArchitectHoursSavedFromDriftEvents: 0,
+            EstimatedTotalArchitectHoursSaved: 0,
+            EstimatedLlmCostForWindowUsd: 0,
+            EstimatedLlmCostMethodologyNote: "",
+            AnnualizedHoursValueUsd: 0,
+            AnnualizedLlmCostUsd: 0,
+            BaselineAnnualSubscriptionAndOpsCostUsdFromRoiModel: 0,
+            NetAnnualizedValueVersusRoiBaselineUsd: 0,
+            RoiAnnualizedPercentVersusRoiBaseline: 0,
+            TenantBaselineReviewCycleHours: null,
+            TenantBaselineReviewCycleSource: null,
+            TenantBaselineReviewCycleCapturedUtc: null,
+            MeasuredAverageReviewCycleHoursForWindow: null,
+            MeasuredReviewCycleSampleSize: 0,
+            ReviewCycleBaselineProvenance: ReviewCycleBaselineProvenance.NoMeasurementYet,
+            ReviewCycleHoursDelta: null,
+            ReviewCycleHoursDeltaPercent: null,
+            FindingFeedbackNetScore: 0,
+            FindingFeedbackVoteCount: 0,
+            TenantBaselineManualPrepHoursPerReview: null,
+            TenantBaselinePeoplePerReview: null
+        );
 
         PilotRunDeltasResponse response = PilotRunDeltasResponseMapper.ToResponseWithProofPackage(run, manifest, deltas, valueReport);
 
-        response.ExtractorCollectionTimestampUtc.Should().Be(ts);
+        response.ExtractorCollectionTimestampUtc.Should().BeNull();
     }
 }

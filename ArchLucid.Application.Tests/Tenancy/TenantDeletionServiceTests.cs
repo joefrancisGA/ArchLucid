@@ -47,11 +47,16 @@ public sealed class TenantDeletionServiceTests
         Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> lifecycleOptions = new();
         lifecycleOptions.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions { HardPurgeMaxRowsPerStatement = 500 });
 
+        Mock<ITenantRepository> tenantRepo = new();
+        tenantRepo.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = tenantId, TenantErasureApprovedUtc = DateTimeOffset.UtcNow });
+
         TenantDeletionService sut = new(
             purge.Object,
             blobs.Object,
             platformAudit.Object,
-            lifecycleOptions.Object);
+            lifecycleOptions.Object,
+            tenantRepo.Object);
 
         TenantDeletionResult result = await sut.DeleteTenantAsync(
             tenantId,

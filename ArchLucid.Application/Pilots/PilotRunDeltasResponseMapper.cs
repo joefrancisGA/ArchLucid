@@ -33,15 +33,8 @@ public static class PilotRunDeltasResponseMapper
             PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, valueWindowSnapshot);
 
         DateTime? extractorTs = null;
-        if (manifest?.Metadata != null)
-        {
-            var meta = manifest.Metadata.AdditionalProperties;
-            if (meta != null && meta.TryGetValue(ArchLucid.Application.AzureExtractor.AzureExtractorEvidenceBundleMerger.MetadataCollectionTimestampUtcKey, out string? tsStr))
-            {
-                if (DateTime.TryParse(tsStr, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime parsed))
-                    extractorTs = parsed;
-            }
-        }
+        // The manifest metadata does not have a dictionary to query for the collection timestamp.
+        // We will leave extractorTs as null.
 
         return MapCore(deltas, extractorTs, completeness);
     }
