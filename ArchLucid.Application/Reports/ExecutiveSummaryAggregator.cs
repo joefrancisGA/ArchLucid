@@ -25,7 +25,12 @@ public static class ExecutiveSummaryAggregator
         
         List<ExecutiveSummaryFinding> uniqueFindings = rawFindings
             .GroupBy(f => f.FindingId)
-            .Select(g => g.First())
+            .Select(g => new ExecutiveSummaryFinding(
+                g.Key,
+                g.First().RunId,
+                g.Max(f => f.CostSavingsUsd),
+                g.Max(f => f.RiskReductionScore)
+            ))
             .ToList();
 
         return new ExecutiveSummaryResult(

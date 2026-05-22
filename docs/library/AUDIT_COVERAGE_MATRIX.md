@@ -375,7 +375,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantSelfRegistered` | `TenantSelfRegistered` | `RegistrationController` |
 | `TenantDataDeleted` | `TenantDataDeleted` | `TenantDeletionService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; offboarding background job) |
 | `TenantErasureOffboarded` | `TenantErasureOffboarded` | `TenantErasureCommandService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; `AdminTenantsController` `POST …/admin/tenants/{id}/delete`) |
-| `TenantErasureApproved` | `TenantErasureApproved` | `TenantErasureCommandService` → `IPlatformAuditRepository` |
+| `TenantErasureApproved` | `TenantErasureApproved` | `TenantErasureCommandService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; `TenantErasureLegalHoldController` `POST …/tenant/erasure/approve`) |
 | `TenantErasureQuarantineRestored` | `TenantErasureQuarantineRestored` | `TenantErasureCommandService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; `AdminTenantsController` `POST …/admin/tenants/{id}/erasure/restore`) |
 | `TenantErasureLegalHoldSet` | `TenantErasureLegalHoldSet` | `TenantErasureCommandService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; `AdminTenantsController` `POST …/admin/tenants/{id}/erasure/legal-hold`; `TenantErasureLegalHoldController` `POST …/tenant/erasure/legal-hold`) |
 | `TenantErasureLegalHoldCleared` | `TenantErasureLegalHoldCleared` | `TenantErasureCommandService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; `AdminTenantsController` `DELETE …/admin/tenants/{id}/erasure/legal-hold`) |

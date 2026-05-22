@@ -118,7 +118,16 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             IndustryVertical = null,
             IndustryVerticalOther = null,
             EnterpriseSeatsLimit = enterpriseScimSeatsLimit,
-            EnterpriseSeatsUsed = 0
+            EnterpriseSeatsUsed = 0,
+            OffboardedUtc = null,
+            ErasureEligibleUtc = null,
+            LegalHoldUntilUtc = null,
+            LegalHoldReason = null,
+            LegalHoldSetByUserId = null,
+            LegalHoldSetUtc = null,
+            TenantErasureRequestedUtc = null,
+            TenantErasureApprovedUtc = null,
+            TenantErasureApprovedByUserId = null
         };
 
         lock (_trialGate)
@@ -253,7 +262,16 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             BaselinePeoplePerReview = existing.BaselinePeoplePerReview,
             BaselineManualPrepCapturedUtc = existing.BaselineManualPrepCapturedUtc,
             EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
-            EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
+            EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed,
+            OffboardedUtc = existing.OffboardedUtc,
+            ErasureEligibleUtc = existing.ErasureEligibleUtc,
+            LegalHoldUntilUtc = existing.LegalHoldUntilUtc,
+            LegalHoldReason = existing.LegalHoldReason,
+            LegalHoldSetByUserId = existing.LegalHoldSetByUserId,
+            LegalHoldSetUtc = existing.LegalHoldSetUtc,
+            TenantErasureRequestedUtc = existing.TenantErasureRequestedUtc,
+            TenantErasureApprovedUtc = existing.TenantErasureApprovedUtc,
+            TenantErasureApprovedByUserId = existing.TenantErasureApprovedByUserId
         };
 
         lock (_trialGate)
@@ -312,7 +330,16 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             IndustryVertical = existing.IndustryVertical,
             IndustryVerticalOther = existing.IndustryVerticalOther,
             EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
-            EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
+            EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed,
+            OffboardedUtc = existing.OffboardedUtc,
+            ErasureEligibleUtc = existing.ErasureEligibleUtc,
+            LegalHoldUntilUtc = existing.LegalHoldUntilUtc,
+            LegalHoldReason = existing.LegalHoldReason,
+            LegalHoldSetByUserId = existing.LegalHoldSetByUserId,
+            LegalHoldSetUtc = existing.LegalHoldSetUtc,
+            TenantErasureRequestedUtc = existing.TenantErasureRequestedUtc,
+            TenantErasureApprovedUtc = existing.TenantErasureApprovedUtc,
+            TenantErasureApprovedByUserId = existing.TenantErasureApprovedByUserId
         };
 
         lock (_trialGate)
@@ -373,7 +400,16 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                 IndustryVertical = existing.IndustryVertical,
                 IndustryVerticalOther = existing.IndustryVerticalOther,
                 EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
-                EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
+                EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed,
+                OffboardedUtc = existing.OffboardedUtc,
+                ErasureEligibleUtc = existing.ErasureEligibleUtc,
+                LegalHoldUntilUtc = existing.LegalHoldUntilUtc,
+                LegalHoldReason = existing.LegalHoldReason,
+                LegalHoldSetByUserId = existing.LegalHoldSetByUserId,
+                LegalHoldSetUtc = existing.LegalHoldSetUtc,
+                TenantErasureRequestedUtc = existing.TenantErasureRequestedUtc,
+                TenantErasureApprovedUtc = existing.TenantErasureApprovedUtc,
+                TenantErasureApprovedByUserId = existing.TenantErasureApprovedByUserId
             };
         }
 
@@ -428,7 +464,16 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             IndustryVertical = existing.IndustryVertical,
             IndustryVerticalOther = existing.IndustryVerticalOther,
             EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
-            EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
+            EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed,
+            OffboardedUtc = existing.OffboardedUtc,
+            ErasureEligibleUtc = existing.ErasureEligibleUtc,
+            LegalHoldUntilUtc = existing.LegalHoldUntilUtc,
+            LegalHoldReason = existing.LegalHoldReason,
+            LegalHoldSetByUserId = existing.LegalHoldSetByUserId,
+            LegalHoldSetUtc = existing.LegalHoldSetUtc,
+            TenantErasureRequestedUtc = existing.TenantErasureRequestedUtc,
+            TenantErasureApprovedUtc = existing.TenantErasureApprovedUtc,
+            TenantErasureApprovedByUserId = existing.TenantErasureApprovedByUserId
         };
 
         lock (_trialGate)
@@ -497,7 +542,16 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                 IndustryVertical = tenant.IndustryVertical,
                 IndustryVerticalOther = tenant.IndustryVerticalOther,
                 EnterpriseSeatsLimit = tenant.EnterpriseSeatsLimit,
-                EnterpriseSeatsUsed = tenant.EnterpriseSeatsUsed
+                EnterpriseSeatsUsed = tenant.EnterpriseSeatsUsed,
+                OffboardedUtc = tenant.OffboardedUtc,
+                ErasureEligibleUtc = tenant.ErasureEligibleUtc,
+                LegalHoldUntilUtc = tenant.LegalHoldUntilUtc,
+                LegalHoldReason = tenant.LegalHoldReason,
+                LegalHoldSetByUserId = tenant.LegalHoldSetByUserId,
+                LegalHoldSetUtc = tenant.LegalHoldSetUtc,
+                TenantErasureRequestedUtc = tenant.TenantErasureRequestedUtc,
+                TenantErasureApprovedUtc = tenant.TenantErasureApprovedUtc,
+                TenantErasureApprovedByUserId = tenant.TenantErasureApprovedByUserId
             };
         }
 
@@ -705,12 +759,12 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
     public Task<bool> TryApproveTenantErasureAsync(Guid tenantId, DateTimeOffset approvedUtc, string approvedByUserId, CancellationToken ct)
     {
-        lock (_sync)
+        lock (_gate)
         {
-            if (!_records.TryGetValue(tenantId, out TenantRecord? t) || t.OffboardedUtc is null || t.TenantErasureApprovedUtc is not null)
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? t) || t.OffboardedUtc is null || t.TenantErasureApprovedUtc is not null)
                 return Task.FromResult(false);
 
-            _records[tenantId] = new TenantRecord
+            _byId[tenantId] = new TenantRecord
             {
                 Id = t.Id,
                 Name = t.Name,
@@ -1024,7 +1078,16 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             IndustryVertical = null,
             IndustryVerticalOther = null,
             EnterpriseSeatsLimit = null,
-            EnterpriseSeatsUsed = 0
+            EnterpriseSeatsUsed = 0,
+            OffboardedUtc = null,
+            ErasureEligibleUtc = null,
+            LegalHoldUntilUtc = null,
+            LegalHoldReason = null,
+            LegalHoldSetByUserId = null,
+            LegalHoldSetUtc = null,
+            TenantErasureRequestedUtc = null,
+            TenantErasureApprovedUtc = null,
+            TenantErasureApprovedByUserId = null
         };
 
         lock (_trialGate)
@@ -1096,7 +1159,10 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             IndustryVertical = source.IndustryVertical,
             IndustryVerticalOther = source.IndustryVerticalOther,
             EnterpriseSeatsLimit = source.EnterpriseSeatsLimit,
-            EnterpriseSeatsUsed = enterpriseSeatsUsedOverride ?? source.EnterpriseSeatsUsed
+            EnterpriseSeatsUsed = enterpriseSeatsUsedOverride ?? source.EnterpriseSeatsUsed,
+            TenantErasureRequestedUtc = source.TenantErasureRequestedUtc,
+            TenantErasureApprovedUtc = source.TenantErasureApprovedUtc,
+            TenantErasureApprovedByUserId = source.TenantErasureApprovedByUserId
         };
     }
 

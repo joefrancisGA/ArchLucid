@@ -8,13 +8,14 @@ namespace ArchLucid.Application.Tests.Reports;
 public sealed class ExecutiveSummaryAggregatorTests
 {
     [Fact]
-    public void Aggregate_WithOverlappingFindings_DeduplicatesByFindingId()
+    public void Aggregate_WithOverlappingFindings_TakesMaxValuesPerFinding()
     {
         // Arrange
         var findings = new List<ExecutiveSummaryFinding>
         {
             new("finding-1", "run-1", 100m, 5),
-            new("finding-1", "run-2", 100m, 5), // Duplicate
+            new("finding-1", "run-2", 150m, 8), // Same finding, higher values
+            new("finding-1", "run-3", 120m, 6), // Same finding, lower values
             new("finding-2", "run-1", 200m, 10),
             new("finding-3", "run-2", 150m, 2)
         };
@@ -23,10 +24,10 @@ public sealed class ExecutiveSummaryAggregatorTests
         var result = ExecutiveSummaryAggregator.Aggregate(findings);
 
         // Assert
-        result.RawFindingCount.Should().Be(4);
+        result.RawFindingCount.Should().Be(5);
         result.UniqueFindingCount.Should().Be(3);
-        result.TotalCostSavingsUsd.Should().Be(450m); // 100 + 200 + 150
-        result.TotalRiskReductionScore.Should().Be(17); // 5 + 10 + 2
+        result.TotalCostSavingsUsd.Should().Be(500m); // 150 + 200 + 150
+        result.TotalRiskReductionScore.Should().Be(20); // 8 + 10 + 2
     }
 
     [Fact]
