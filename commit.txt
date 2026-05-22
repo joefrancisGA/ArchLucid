@@ -1,8 +1,0 @@
-Fix audit matrix CI failures and add TenantErasureApproved audit event
-
-- Add `TenantErasureApproved` and `RunExportFailed` to `AuditEventTypes.cs` and `AUDIT_COVERAGE_MATRIX.md`
-- Bump the audit-core-const-count marker to 220 to fix CI.
-- Implement `ApproveErasureAsync` logic in tenant erasure services and `TenantErasureLegalHoldController`.
-- Map `ExtractorCollectionTimestampUtc` in `PilotRunDeltasResponseMapper`.
-- Update `SqlConnectionFactory` to apply secure connection string builder settings.
-- Add `ApproveErasureAsync` to `controller_action_audit_allowlist.txt`.
