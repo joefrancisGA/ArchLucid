@@ -5,6 +5,7 @@ using ArchLucid.Core.Audit;
 
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
@@ -71,6 +72,7 @@ public sealed class WebhookSimulationControllerTests
     public async Task SimulateAsync_returns_bad_request_when_body_missing()
     {
         WebhookSimulationController sut = new(Mock.Of<IOutboundWebhookDryRunService>(), Mock.Of<IAuditService>());
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult action = await sut.SimulateAsync(body: null, CancellationToken.None);
 
