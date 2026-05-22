@@ -18,4 +18,9 @@ public interface IAzureExtractorPackageRepository
 
     /// <summary>True when at least one persisted extractor package exists for the scoped tenant and workspace.</summary>
     Task<bool> HasAnyInWorkspaceAsync(ScopeContext scope, CancellationToken cancellationToken = default);
+
+    Task<AzureExtractorPackageDownloadRecord?> TryGetDownloadByPackageIdAsync(
+        ScopeContext scope,
+        Guid packageId,
+        CancellationToken cancellationToken = default);
 }

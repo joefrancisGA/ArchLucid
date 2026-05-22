@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
@@ -6,6 +7,8 @@ using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
 
 using static ArchLucid.Application.AzureExtractor.AzureExtractorUploadLimits;
@@ -29,6 +32,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 public sealed class AzureExtractorUploadController(
     IAzureExtractorIngestService ingestService,
     AzureExtractorChunkedUploadService chunkedUpload,
+    IAzureExtractorPackageRepository packageRepository,
     IActorContext actorContext,
     IScopeContextProvider scopeContextProvider,
     IAuditService auditService,
@@ -58,21 +62,29 @@ public sealed class AzureExtractorUploadController(
         {
             try
             {
-                using var stream = file.OpenReadStream();
-                using System.IO.Compression.ZipArchive archive = new(stream, System.IO.Compression.ZipArchiveMode.Read, leaveOpen: true);
-                System.IO.Compression.ZipArchiveEntry? manifestEntry = archive.GetEntry("manifest.json");
+                using Stream stream = file.OpenReadStream();
+                using ZipArchive archive = new(stream, ZipArchiveMode.Read, leaveOpen: true);
+                ZipArchiveEntry? manifestEntry = archive.GetEntry("manifest.json");
+
                 if (manifestEntry == null)
                 {
                     return this.BadRequestProblem("Missing manifest.json", ProblemTypes.ValidationFailed);
                 }
-                
-                using var manifestStream = manifestEntry.Open();
-                using var doc = JsonDocument.Parse(manifestStream);
-                if (!doc.RootElement.TryGetProperty("schemaVersion", out JsonElement schemaVersionElement) || 
+
+                using Stream manifestStream = manifestEntry.Open();
+                using JsonDocument doc = JsonDocument.Parse(manifestStream);
+
+                if (!doc.RootElement.TryGetProperty("schemaVersion", out JsonElement schemaVersionElement) ||
                     schemaVersionElement.GetInt32() != 1)
                 {
-                    return this.BadRequestProblem("Missing or unsupported schemaVersion in manifest.json", ProblemTypes.ValidationFailed);
+                    return this.BadRequestProblem(
+                        "Missing or unsupported schemaVersion in manifest.json",
+                        ProblemTypes.ValidationFailed);
                 }
+            }
+            catch (InvalidDataException)
+            {
+                return this.BadRequestProblem("Invalid or corrupted ZIP archive.", ProblemTypes.ValidationFailed);
             }
             catch (Exception ex) when (ex is not InvalidOperationException)
             {
@@ -95,6 +107,55 @@ public sealed class AzureExtractorUploadController(
 
         return this.UnprocessableEntityProblem(detail);
 
+    }
+
+    /// <summary>Downloads a persisted Azure extractor ZIP package for the current workspace scope.</summary>
+    [HttpGet("packages/{packageId:guid}")]
+    [Produces("application/zip")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DownloadPackageAsync(Guid packageId, CancellationToken cancellationToken)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        AzureExtractorPackageDownloadRecord? package =
+            await packageRepository.TryGetDownloadByPackageIdAsync(scope, packageId, cancellationToken);
+
+        if (package is null)
+            return this.NotFoundProblem(
+                $"Azure extractor package '{packageId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
+
+        string auditActor = actorContext.GetActor();
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.AzureExtractorPackageDownloaded,
+                ActorUserId = auditActor,
+                ActorUserName = auditActor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = package.RunId,
+                CorrelationId = HttpContext.TraceIdentifier,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        packageId = package.PackageId,
+                        runId = package.RunId,
+                        originalFileName = package.OriginalFileName,
+                        sizeBytes = package.PackageBytes.LongLength,
+                    },
+                    AuditJsonSerializationOptions.Instance),
+            },
+            cancellationToken);
+
+        string fileName = string.IsNullOrWhiteSpace(package.OriginalFileName)
+            ? "azure-extractor-package.zip"
+            : package.OriginalFileName.Trim();
+
+        return File(package.PackageBytes, "application/zip", fileName);
     }
 
     /// <summary>

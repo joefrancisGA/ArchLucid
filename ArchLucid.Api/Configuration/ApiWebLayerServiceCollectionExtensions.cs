@@ -92,6 +92,10 @@ public static class ApiWebLayerServiceCollectionExtensions
                 "startup_database_migration",
                 failureStatus: HealthStatus.Unhealthy,
                 tags: [ReadinessTags.Ready])
+            .AddCheck<DbUpMigrationHealthCheck>(
+                "dbup_migration_status",
+                failureStatus: HealthStatus.Unhealthy,
+                tags: [ReadinessTags.Ready])
             .AddCheck<ContentSafetyHealthCheck>(
                 "azure_content_safety",
                 failureStatus: HealthStatus.Unhealthy,

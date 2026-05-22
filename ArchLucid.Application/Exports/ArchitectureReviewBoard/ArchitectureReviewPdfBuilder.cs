@@ -34,11 +34,17 @@ public sealed class ArchitectureReviewPdfBuilder
 
         WhitelabelConfigurationValidator.ValidateIfProvided(whitelabel);
 
-        string footerText = ComposePageFooterText(ArchitectureReviewDocxBuilder.ResolveFooterText(whitelabel), activeTrialExportNotice);
+        DateTimeOffset exportTimestampUtc = TimeProvider.System.GetUtcNow();
+
+        string footerText = ArchitectureReviewBoardExportTraceFooter.ComposePageFooterText(
+            ArchitectureReviewDocxBuilder.ResolveFooterText(whitelabel),
+            model.RunId,
+            exportTimestampUtc,
+            activeTrialExportNotice);
 
         byte[] pdf = QuestPdfDocumentBytes.Generate(container =>
         {
-            container.Page(page => ComposeCoverPage(page, model, whitelabel, logoImageBytes, footerText, activeTrialExportNotice));
+            container.Page(page => ComposeCoverPage(page, model, whitelabel, logoImageBytes, footerText, activeTrialExportNotice, exportTimestampUtc));
 
             container.Page(page => ComposeDocumentBody(page, model, footerText));
         });
@@ -62,7 +68,8 @@ public sealed class ArchitectureReviewPdfBuilder
         WhitelabelConfiguration? whitelabel,
         byte[]? logoImageBytes,
         string footerText,
-        string? activeTrialExportNotice)
+        string? activeTrialExportNotice,
+        DateTimeOffset exportTimestampUtc)
     {
         page.Size(PageSizes.A4);
         page.Margin(2, Unit.Centimetre);
@@ -144,7 +151,7 @@ public sealed class ArchitectureReviewPdfBuilder
             if (!string.IsNullOrWhiteSpace(model.ManifestVersion))
                 column.Item().Text($"Architecture snapshot version: {model.ManifestVersion.Trim()}");
 
-            column.Item().Text($"Generated UTC: {TimeProvider.System.GetUtcNow():O}");
+            column.Item().Text($"Generated UTC: {exportTimestampUtc:O}");
 
             column.Item().Height(36);
 

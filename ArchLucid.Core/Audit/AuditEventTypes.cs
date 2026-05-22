@@ -195,6 +195,12 @@ public static class AuditEventTypes
     public const string AzureExtractorPackageChunkSessionStarted = "AzureExtractorPackage.ChunkSessionStarted";
 
     /// <summary>
+    ///     Operator downloaded a persisted Azure extractor ZIP (
+    ///     <c>GET /v1/azure-extractor/packages/{packageId}</c>).
+    /// </summary>
+    public const string AzureExtractorPackageDownloaded = "Export.AzureExtractorPackageDownloaded";
+
+    /// <summary>
     ///     Architecture request draft imported from an uploaded TOML/JSON file (
     ///     <c>POST .../architecture/request/import</c>).
     /// </summary>

@@ -97,6 +97,80 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
 
     [SkippableFact]
 
+    public async Task Upload_CorruptedZipFile_Returns400BadRequest()
+    {
+        using HttpClient client = fixture.CreateClient();
+
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+
+        byte[] garbage = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08 };
+
+        using MultipartFormDataContent form = UploadForm(garbage);
+
+        using HttpResponseMessage response = await client.PostAsync("/v1/azure-extractor/upload", form);
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+    }
+
+    [SkippableFact]
+
+    public async Task DownloadPackage_after_upload_returns_zip_and_audit_event()
+    {
+        using HttpClient client = fixture.CreateClient();
+
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+
+        byte[] zipBytes = BuildValidZip(includeManifest: true, schemaVersionOverride: null);
+
+        using MultipartFormDataContent form = UploadForm(zipBytes);
+
+        using HttpResponseMessage upload = await client.PostAsync("/v1/azure-extractor/upload", form);
+
+        upload.StatusCode.Should().Be(System.Net.HttpStatusCode.Accepted);
+
+        using System.Text.Json.JsonDocument uploadDoc =
+            System.Text.Json.JsonDocument.Parse(await upload.Content.ReadAsStringAsync());
+
+        Guid packageId = uploadDoc.RootElement.GetProperty("packageId").GetGuid();
+
+        using HttpResponseMessage download =
+            await client.GetAsync($"/v1/azure-extractor/packages/{packageId:D}");
+
+        download.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        download.Content.Headers.ContentType?.MediaType.Should().Be("application/zip");
+
+        byte[] downloaded = await download.Content.ReadAsByteArrayAsync();
+
+        downloaded.Should().Equal(zipBytes);
+
+        await using SqlConnection conn = new(fixture.SqlConnectionString);
+
+        await conn.OpenAsync();
+
+        await using SqlCommand cmd = conn.CreateCommand();
+
+        cmd.CommandText = """
+
+            SELECT COUNT(1)
+
+            FROM dbo.AuditEvents
+
+            WHERE EventType = @eventType
+
+              AND JSON_VALUE(DataJson, '$.packageId') = @packageId
+
+            """;
+
+        _ = cmd.Parameters.AddWithValue("@eventType", "Export.AzureExtractorPackageDownloaded");
+        _ = cmd.Parameters.AddWithValue("@packageId", packageId.ToString("D"));
+
+        object? scalar = await cmd.ExecuteScalarAsync();
+
+        scalar.Should().Be(1);
+    }
+
+    [SkippableFact]
+
     public async Task Chunked_begin_when_staging_disabled_returns503()
     {
         using HttpClient client = fixture.CreateClient();

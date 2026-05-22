@@ -165,6 +165,78 @@ public sealed class SqlAzureExtractorPackageRepository(ISqlConnectionFactory con
         return DateTime.SpecifyKind(row.Value, DateTimeKind.Utc);
     }
 
+    public async Task<AzureExtractorPackageDownloadRecord?> TryGetDownloadByPackageIdAsync(
+        ScopeContext scope,
+        Guid packageId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        const string sql = """
+                           SELECT PackageId, RunId, OriginalFileName, PackageBytes
+                           FROM dbo.AzureExtractorPackages
+                           WHERE TenantId = @TenantId
+                               AND WorkspaceId = @WorkspaceId
+                               AND ProjectId = @ProjectId
+                               AND PackageId = @PackageId;
+                           """;
+
+        using System.Data.IDbConnection conn =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        DownloadRow? row = await conn.QuerySingleOrDefaultAsync<DownloadRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    PackageId = packageId,
+                },
+                commandTimeout: DapperCommandTimeoutSeconds.Report,
+                cancellationToken: cancellationToken));
+
+        if (row is null || row.PackageId == Guid.Empty)
+            return null;
+
+        return new AzureExtractorPackageDownloadRecord
+        {
+            PackageId = row.PackageId,
+            RunId = row.RunId,
+            OriginalFileName = row.OriginalFileName ?? string.Empty,
+            PackageBytes = row.PackageBytes ?? [],
+        };
+    }
+
+
+    private sealed class DownloadRow
+    {
+        public Guid PackageId
+        {
+            get;
+            init;
+        }
+
+        public Guid? RunId
+        {
+            get;
+            init;
+        }
+
+        public string? OriginalFileName
+        {
+            get;
+            init;
+        }
+
+        public byte[]? PackageBytes
+        {
+            get;
+            init;
+        }
+    }
+
 
     private sealed class Row
 

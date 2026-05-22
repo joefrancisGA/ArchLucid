@@ -281,11 +281,12 @@ ArchLucid is exceptionally well-architected for V1, utilizing safe agent boundar
         Acceptance Criteria: The UI must block the upload and show an error if `manifest.json` is missing or has an unsupported schema version.
         ```
 
-11. **Expose DbUp migration status in the `/health` endpoint**
+11. **Expose DbUp migration status in the `/health` endpoint** *(Completed 2026-05-22)*
     - **Why it matters:** Operators need to know if the application is pending database schema updates.
     - **Expected impact:** Reduces support burden during upgrades.
     - **Affected qualities:** Supportability (+5-7 pts), Maintainability (+2-4 pts). Weighted readiness impact: ~0.06%.
-    - **Actionable now.**
+    - **Completed.** `DbUpMigrationHealthCheck` compares embedded DbUp scripts against `dbo.SchemaVersions` and registers on `/health/ready` as `dbup_migration_status` (Degraded when migrations are pending).
+    - **Status:** **Completed** (2026-05-22).
     - **Prompt:**
         ```
         In `ArchLucid.Api`, create a new `IHealthCheck` implementation named `DbUpMigrationHealthCheck`.
@@ -384,11 +385,12 @@ ArchLucid is exceptionally well-architected for V1, utilizing safe agent boundar
         Acceptance Criteria: The warning must appear correctly for files over the limit.
         ```
 
-19. **Expose `RunId` prominently in all exported DOCX/PDF artifacts**
+19. **Expose `RunId` prominently in all exported DOCX/PDF artifacts** *(Completed 2026-05-22)*
     - **Why it matters:** Correlating a printed report back to the system is currently difficult.
     - **Expected impact:** Enhances Supportability and Usability.
     - **Affected qualities:** Supportability (+3-5 pts), Usability (+2-3 pts). Weighted readiness impact: ~0.05%.
-    - **Actionable now.**
+    - **Completed.** `ArchitectureReviewBoardExportTraceFooter` injects Run ID and Exported UTC into DOCX/PDF page footers; cover pages share the same export timestamp.
+    - **Status:** **Completed** (2026-05-22).
     - **Prompt:**
         ```
         In `ArchLucid.Application` (specifically `ArchitectureReviewDocxBuilder` and `ArchitectureReviewPdfBuilder`), modify the cover page generation logic.
@@ -396,11 +398,12 @@ ArchLucid is exceptionally well-architected for V1, utilizing safe agent boundar
         Acceptance Criteria: Generated exports must clearly display the `RunId`.
         ```
 
-20. **Add specific audit event for Extractor ZIP downloads**
+20. **Add specific audit event for Extractor ZIP downloads** *(Completed 2026-05-22)*
     - **Why it matters:** Tracks exactly who is downloading sensitive infrastructure metadata.
     - **Expected impact:** Increases enterprise trust.
     - **Affected qualities:** Supportability (+4-6 pts). Weighted readiness impact: ~0.03%.
-    - **Actionable now.**
+    - **Completed.** `GET /v1/azure-extractor/packages/{packageId}` serves scoped ZIP bytes and emits `Export.AzureExtractorPackageDownloaded`; `AUDIT_COVERAGE_MATRIX.md` updated.
+    - **Status:** **Completed** (2026-05-22).
     - **Prompt:**
         ```
         In `ArchLucid.Api` where Extractor ZIPs are served to the user (e.g., a download endpoint), invoke the `IAuditService`.
@@ -409,11 +412,12 @@ ArchLucid is exceptionally well-architected for V1, utilizing safe agent boundar
         Acceptance Criteria: Downloading the ZIP must reliably emit the durable audit event.
         ```
 
-21. **Create an automated test simulating a corrupted Extractor ZIP upload**
+21. **Create an automated test simulating a corrupted Extractor ZIP upload** *(Completed 2026-05-22)*
     - **Why it matters:** Proves the system handles garbage data gracefully without throwing 500s.
     - **Expected impact:** Hardens reliability.
     - **Affected qualities:** Reliability (+2-4 pts), Supportability (+2-3 pts). Weighted readiness impact: ~0.03%.
-    - **Actionable now.**
+    - **Completed.** `Upload_CorruptedZipFile_Returns400BadRequest` integration test; upload pre-check returns 400 for invalid ZIP archives.
+    - **Status:** **Completed** (2026-05-22).
     - **Prompt:**
         ```
         In `ArchLucid.Integrations.AzureExtractor.Tests` or the API integration test suite, write a test case named `Upload_CorruptedZipFile_Returns400BadRequest`.
@@ -481,7 +485,7 @@ To optimize context window usage and cursor cost-effectiveness, execute the acti
    - **Batch 1 (High-Leverage UI & UX):** Prompts #5, #9, #10, #12, #15, #16, #18, #22, #24. (Focuses on `archlucid-ui` components, badges, validations, and guided tours). **[COMPLETED]**
 - **Batch 2 (Core Reliability & Telemetry):** Prompts #3, #4, #8, #13, #14, #17, #25. (Focuses on `ArchLucid.Worker`, `ArchLucid.Api`, Polly retry policies, circuit breakers, and chunking strategies). **[COMPLETED]**
 - **Batch 3 (Agent Safety & Documentation):** Prompts #6, #7, #23. (Focuses on Terraform validation, Extractor execution bypass docs, and sample outputs). **[COMPLETED]**
-- **Batch 4 (Audit & Diagnostics):** Prompts #11, #19, #20, #21. (Focuses on DbUp health checks, DOCX builders, audit events, and API testing).
+- **Batch 4 (Audit & Diagnostics):** Prompts #11, #19, #20, #21. (Focuses on DbUp health checks, DOCX builders, audit events, and API testing). **[COMPLETED]**
 
 ---
 

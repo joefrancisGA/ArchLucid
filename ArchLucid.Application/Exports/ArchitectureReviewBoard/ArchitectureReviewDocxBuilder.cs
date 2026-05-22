@@ -30,6 +30,9 @@ public sealed class ArchitectureReviewDocxBuilder
 
         WhitelabelConfigurationValidator.ValidateIfProvided(whitelabel);
 
+        DateTimeOffset exportTimestampUtc = TimeProvider.System.GetUtcNow();
+        string footerText = ComposeFooterText(whitelabel, activeTrialExportNotice, model.RunId, exportTimestampUtc);
+
         MemoryStream stream = new();
 
         using (WordprocessingDocument document = WordprocessingDocument.Create(stream, WordprocessingDocumentType.Document, true))
@@ -40,9 +43,7 @@ public sealed class ArchitectureReviewDocxBuilder
 
             ArchitectureReviewDocxOpenXmlPrimitives.AddStylesPart(mainPart);
 
-            string footerText = ComposeFooterText(whitelabel, activeTrialExportNotice);
-
-            AddCoverPageSection(mainPart, body, model, whitelabel, logoImageBytes, activeTrialExportNotice);
+            AddCoverPageSection(mainPart, body, model, whitelabel, logoImageBytes, activeTrialExportNotice, exportTimestampUtc);
             ArchitectureReviewDocxOpenXmlPrimitives.AddPageBreak(body);
 
             AddExecutiveSummarySection(body, model);
@@ -70,9 +71,17 @@ public sealed class ArchitectureReviewDocxBuilder
         return whitelabel.ResolveFooterAttribution();
     }
 
-    internal static string ComposeFooterText(WhitelabelConfiguration? whitelabel, string? activeTrialExportNotice)
+    internal static string ComposeFooterText(
+        WhitelabelConfiguration? whitelabel,
+        string? activeTrialExportNotice,
+        string runId,
+        DateTimeOffset exportTimestampUtc)
     {
-        return ArchitectureReviewPdfBuilder.ComposePageFooterText(ResolveFooterText(whitelabel), activeTrialExportNotice);
+        return ArchitectureReviewBoardExportTraceFooter.ComposePageFooterText(
+            ResolveFooterText(whitelabel),
+            runId,
+            exportTimestampUtc,
+            activeTrialExportNotice);
     }
 
     internal void AddCoverPageSection(
@@ -81,7 +90,8 @@ public sealed class ArchitectureReviewDocxBuilder
         ArchitectureReviewBoardExportDocumentModel model,
         WhitelabelConfiguration? whitelabel,
         byte[]? logoImageBytes,
-        string? activeTrialExportNotice = null)
+        string? activeTrialExportNotice = null,
+        DateTimeOffset? exportTimestampUtc = null)
     {
         if (logoImageBytes is { Length: > 0 })
         {
@@ -143,7 +153,7 @@ public sealed class ArchitectureReviewDocxBuilder
                 "BodyText");
 
         ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body,
-            $"Generated UTC: {TimeProvider.System.GetUtcNow():O}",
+            $"Generated UTC: {(exportTimestampUtc ?? TimeProvider.System.GetUtcNow()):O}",
             "BodyText");
 
         ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 4);
