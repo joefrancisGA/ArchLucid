@@ -107,6 +107,27 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
         builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(overrides));
     }
 
+    /// <summary>
+    ///     Merges test-only settings without replacing the early Sql <see cref="IWebHostBuilder.UseConfiguration" />
+    ///     bootstrap (subclasses such as marketplace webhook tests add billing keys this way).
+    /// </summary>
+    protected void ApplyAdditionalHostOverrides(
+        IWebHostBuilder builder,
+        IReadOnlyDictionary<string, string?> additionalOverrides)
+    {
+        foreach (KeyValuePair<string, string?> pair in additionalOverrides)
+        {
+            if (pair.Value is null)
+            {
+                continue;
+            }
+
+            builder.UseSetting(pair.Key, pair.Value);
+        }
+
+        builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(additionalOverrides));
+    }
+
     protected override void AddCustomSettings(Dictionary<string, string?> settings)
     {
         settings["ArchLucid:StorageProvider"] = "Sql";

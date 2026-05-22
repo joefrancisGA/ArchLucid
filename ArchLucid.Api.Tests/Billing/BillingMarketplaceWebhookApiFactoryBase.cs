@@ -22,7 +22,9 @@ internal abstract class BillingMarketplaceWebhookApiFactoryBase : GreenfieldSqlA
     {
         base.ConfigureWebHost(builder);
 
-        ApplySqlPersistenceHostOverrides(builder, CreateMarketplaceBillingHostOverrides());
+        // Do not call ApplySqlPersistenceHostOverrides again — a second UseConfiguration replaces the Sql bootstrap
+        // from GreenfieldSqlApiFactory and WebApplicationFactory can register InMemory DI while startup still sees Sql.
+        ApplyAdditionalHostOverrides(builder, CreateMarketplaceBillingHostOverrides());
 
         builder.ConfigureTestServices(services =>
         {
