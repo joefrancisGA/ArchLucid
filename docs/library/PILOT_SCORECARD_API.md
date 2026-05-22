@@ -11,6 +11,7 @@
 | `GET` | `/v1/pilots/outcome-summary` | Trailing 30-day rollup (`PilotScorecardResponse`) for the current tenant. |
 | `POST` | `/v1/pilots/scorecard` | JSON scorecard for a custom UTC window (`periodStart` / `periodEnd` in body). |
 | `GET` | `/v1/architecture/run/{runId}/roi` | Per-run directional analyst-hour estimate (`RunRoiScorecardDto`); multipliers **`Architecture:RunRoiEstimator`**. Complements tenant scorecard rollups; does not replace them. |
+| `GET` | `/v1/roi/executive-summary` | **Cross-run executive ROI summary** for the current tenant: latest committed run per system, summed estimated USD savings, top systemic issues ([`ExecutiveRoiSummaryService`](../../ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs)). Operator UI: Home dashboard **`ExecutiveRoiSummarySection`**. **V1 aggregation:** deduplicate overlapping findings by stable **`FindingId`** before portfolio counts ([V1_SCOPE.md](V1_SCOPE.md) §2.8). |
 
 Implementation aggregates from `IRunRepository` in scope (runs in period, count with committed manifest). See `PilotScorecardBuilder` and `PilotsController` in the API project.
 

@@ -22,7 +22,7 @@ This document zooms into the most important components inside each container/lib
 
 **Configuration:** SQL security and read-scale-out are grouped under **`SqlServer`** in appsettings (`RowLevelSecurity`, `ReadReplica`). See `ArchLucid.Persistence/Connections/SqlServerOptions.cs`.
 
-**Why two namespaces inside one assembly:** Decisioning/ingestion evolved with explicit persistence abstractions; the application layer uses **`ArchLucid.Persistence.Data.Repositories`** for the run/commit/agent workflow (distinct from Decisioning’s manifest/trace interfaces — see ADR 0010). When adding a feature, follow existing callers: authority chain → orchestration repos; HTTP application services → **`Persistence.Data`** + Application.
+**Why two namespaces inside one assembly:** The split is about ergonomics, not competing persistence models. **`ArchLucid.Persistence.Data.*`** hosts Dapper repositories for the run/commit/agent **HTTP workflow** (requests, runs, tasks, evidence, governance entities, background jobs, connection factory, DbUp migrator). The rest of **`ArchLucid.Persistence`** hosts **Authority** persistence ports (orchestration, snapshot/manifest/trace repositories, caching decorators, archival, RLS session context). When adding a feature, follow existing callers: authority chain → orchestration repos; HTTP application services → **`Persistence.Data`** + Application.
 
 ---
 
@@ -32,11 +32,13 @@ This document zooms into the most important components inside each container/lib
 
 - **`SqlScopedResolutionDbConnectionFactory`** (`ArchLucid.Api.DataAccess`): implements **`ArchLucid.Persistence.Data.Infrastructure.IDbConnectionFactory`** for the SQL storage path. **`CreateOpenConnectionAsync`** resolves scoped **`ISqlConnectionFactory`** ( **`ResilientSqlConnectionFactory`** and optional **`SessionContextSqlConnectionFactory`** ) so Dapper repositories under **`ArchLucid.Persistence.Data.Repositories`** share the same resilience/RLS path as **`ArchLucid.Persistence`** without registering **`IDbConnectionFactory`** as scoped (hosted health checks resolve from the root provider). **`CreateConnection`** returns an unopened **`SqlConnection`** for lightweight probes that open explicitly.
 
-#### Dual manifest / trace repository interfaces
+#### Manifest / trace repository interfaces
 
-- **`ArchLucid.Decisioning.Interfaces.IGoldenManifestRepository`** / **`IDecisionTraceRepository`**: authority-oriented contracts (`SaveAsync`, scoped `GetByIdAsync`). Implemented by **`SqlGoldenManifestRepository`**, **`SqlDecisionTraceRepository`**, and in-memory counterparts; registered in **`AddArchLucidStorage`**.
-- **`ArchLucid.Persistence.Data.Repositories.IGoldenManifestRepository`** / **`IDecisionTraceRepository`**: run/commit pipeline contracts (`CreateAsync`, `GetByVersionAsync`, batch traces). Implemented by **`GoldenManifestRepository`**, **`DecisionTraceRepository`** (Dapper); registered in **`RegisterCoordinatorDecisionEngineAndRepositories`** with **fully qualified** interface types so they are not confused with the Decisioning interfaces. When **`ArchLucid:StorageProvider=InMemory`**, the same registration block uses **`InMemoryCoordinatorGoldenManifestRepository`** and **`InMemoryCoordinatorDecisionTraceRepository`** (singleton), plus the other coordinator in-memory Data repos (**`InMemoryArchitectureRequestRepository`**, **`InMemoryArchitectureRunRepository`** with request lookup, **`InMemoryAgentEvaluationRepository`**, **`InMemoryDecisionNodeRepository`**, evidence/execution trace packages, tasks/results, idempotency). **`RegisterRunExportAndArchitectureAnalysis`** registers **`InMemoryRunExportRecordRepository`** in that mode so exports do not require SQL.
-- **`ArchLucid.Application.Runs.IRunCommitOrchestrator`** (ADR 0021 Phase 3 prep): write-side façade for **`CommitRunAsync`**. **`RunCommitOrchestratorFacade`** is scoped and delegates to **`IArchitectureRunCommitOrchestrator`** / **`ArchitectureRunCommitOrchestrator`** today so new callers can depend on the façade while the coordinator manifest repository family is retired behind the strangler plan.
+Manifest and decision-trace persistence use a single contract family under **`ArchLucid.Decisioning.Interfaces`**:
+
+- **`IGoldenManifestRepository`** / **`IDecisionTraceRepository`**: Authority-shape contracts (`SaveAsync`, scoped `GetByIdAsync`, `GetByContractManifestVersionAsync`). SQL implementations live in **`ArchLucid.Persistence.Repositories`** (**`SqlGoldenManifestRepository`**, **`SqlDecisionTraceRepository`**), wrapped by **`CachingGoldenManifestRepository`**. In-memory counterparts ship under **`ArchLucid.Decisioning.Repositories`** for tests and `StorageProvider=InMemory` builds. Registered in **`AddArchLucidStorage`**.
+- **`IArchitectureRunCommitOrchestrator`** resolves to **`AuthorityDrivenArchitectureRunCommitOrchestrator`** (**`ArchLucid.Application.Runs.Orchestration`**).
+- **`IUnifiedGoldenManifestReader`** (**`ArchLucid.Decisioning.Interfaces`**, implemented by **`UnifiedGoldenManifestReader`** in **`ArchLucid.Persistence.Reads`**) is the canonical read path for `ManifestsController` and other operator surfaces.
 
 #### Governance persistence
 
@@ -168,14 +170,14 @@ This document zooms into the most important components inside each container/lib
 
 #### Repository layer (Dapper)
 
-- **Role**: Persistence for runs, tasks, results, manifests, export records, comparison records, traces, evidence.
+- **Role**: Persistence for runs, tasks, results, export records, comparison records, and evidence used by the HTTP workflow. **Manifests** and **decision traces** are **`ArchLucid.Decisioning.Interfaces`** ports implemented in **`ArchLucid.Persistence.Repositories`** — not part of the data-layer Dapper repositories.
 - **Pattern**: Each aggregate has an `I*Repository` + `*Repository` implementation; queries are explicit SQL strings.
 - **SQL connectivity**: repositories take **`IDbConnectionFactory`**; on the API host with **`ArchLucid:StorageProvider`** = SQL, the registered factory is **`SqlScopedResolutionDbConnectionFactory`**, which delegates async opens to scoped **`ISqlConnectionFactory`** (see Api components above).
 
 #### Contract test coverage (persistence)
 
 - Shared suites under **`ArchLucid.Persistence.Tests/Contracts/`** include runs, comparison records, policy assignments, digests, alert rules, conversation threads/messages, **audit events**, **provenance snapshots**, **authority golden manifests**, **decision traces**, **policy packs**, **architecture run idempotency**, **agent tasks** / **agent results**, **architecture requests**, **architecture runs** (including list + join semantics), **evidence bundles**, **agent evidence packages**, **agent execution traces**, **advisory scan schedules**, and **alert delivery attempts** (each with InMemory + Dapper/SQL subclasses where applicable). SQL golden-manifest tests reuse **`AuthorityRunChainTestSeed`**; data-layer SQL tests reuse **`ArchitectureCommitTestSeed`** (request-only insert, request/run chain, and agent task FKs as needed).
-- **`ArchLucid.Persistence.Data.Repositories` — in-memory parity:** besides tasks/results/idempotency/comparison, the solution ships **in-memory** implementations for **requests**, **runs** (optional **`IArchitectureRequestRepository`** for **`ListAsync`** system names), **evidence bundles**, **agent evidence packages**, and **agent execution traces** to support fast contract tests without SQL.
+- **`ArchLucid.Persistence.Data.Repositories` — in-memory parity:** besides tasks/results/idempotency/comparison, the solution ships **in-memory** implementations for **requests**, **runs** (optional **`IArchitectureRequestRepository`** for **`ListAsync`** system names), **evidence bundles**, **agent evidence packages**, and **agent execution traces** to support fast contract tests without SQL. Authority **manifests** and **decision traces** have in-memory implementations under **`ArchLucid.Decisioning.Repositories`**.
 
 #### `ComparisonRecordRepository`
 

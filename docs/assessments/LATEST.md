@@ -1,497 +1,432 @@
-> **Scope:** Canonical weighted V1 GA readiness assessment for coding agents and the owner — current `(A)` headline score and improvement backlog; not a buyer deliverable or historical archive.
-
-# ArchLucid Assessment – (A) Headline Readiness: 82.05%
-
-*This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`. Note: Explicitly deferred V1.1/V2 items—such as the Stripe Live Keys flip and Azure Marketplace 'Published' status—are tracked below for visibility but **do not penalize this score in any way**.*
+# ArchLucid Assessment – (A) Headline Readiness: 80.16%
+This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (including multi-region active/active — **V1.1** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6l; **not** an `(A)` V1 deduction).
 
 ## Executive Summary
+**`(A)` Overall Headline Readiness:** ArchLucid V1 is a technically robust, highly capable architecture review engine. It scores well on AI/Agent Readiness, Proof-of-ROI, and Supportability. However, its operator-heavy UX and manual data ingestion (PowerShell script to ZIP) drag down its Time-to-Value and Adoption Friction scores. It is functionally complete for its V1 scope but requires a highly technical user to extract that value.
 
-### `(A)` Overall Headline Readiness
-The solution stands at an 82.05% weighted readiness score for the V1 headline. The core agent orchestration, tenant isolation model (database-per-tenant), and the Tier 1 Azure Extractor pipeline are structurally sound and complete. The remaining deductions stem mainly from first-mile friction (local PowerShell execution policies for the Extractor) and UX polish (empty states, missing UI badges for illustrative pricing).
+**`(B)` Procurement/Market-Motion Realism:** The lack of a SOC 2 CPA attestation (currently relying on a self-assessment) will introduce significant friction in enterprise procurement. While the Trust Center is transparent, large enterprises often treat a formal SOC 2 Type II report as a hard gate. The manual Azure extraction script, while avoiding credential sharing, may face pushback from enterprise IT teams who prefer automated, role-based, continuous ingestion.
 
-### `(B)` Procurement / Market-Motion Realism
-From a buyer friction perspective, the absence of a CPA-issued SOC 2 Type I/II report and external third-party penetration test will act as substantial friction in InfoSec reviews. Furthermore, enterprise endpoints often block local PowerShell execution (`Get-ArchLucidAzurePackage.ps1`), which will require security exemptions and increase the time to first successful extraction for evaluators.
+**Commercial Picture:** The pricing model (platform fee + seats + review overage) is well-aligned with the value delivered. **Cross-run executive ROI** (`GET /v1/roi/executive-summary` + Home dashboard panel) is **in V1 contract** ([V1_SCOPE.md](../library/V1_SCOPE.md) §2.8). Remaining CFO narrative gaps are export discoverability and optional **`FindingId`** dedup hardening—not a missing portfolio rollup API. The hard stops on LLM costs ($75/month) during trials could inadvertently cut off users before they experience the "aha" moment.
 
-### Commercial Picture
-The V1 commercial motion is well-defined as sales-led. Because the Stripe live keys flip and Azure Marketplace 'Published' status are intentionally deferred to V1.1 (owner-only actions), true self-serve credit-card revenue is gated. However, the trial funnel, pricing model, and reference customer processes provide a solid foundation for account executives and sales engineers to close initial pilot deals using manual quote-to-cash.
+**Enterprise Picture:** The product is built for the Enterprise Architect (Persona 1) and Platform Engineering Lead (Persona 2). The deep integration with Azure, Entra ID, and explicit tenant isolation (database-per-tenant) are strong enterprise selling points. The buyer-default operator shell (`NEXT_PUBLIC_OPERATOR_EXPERIENCE` unset), progressive sidebar disclosure, and existing `OptInTour` / `GlossaryTooltip` infrastructure reduce—but do not eliminate—first-run friction; a focused V1 mitigation program (live sample seed + tour copy + empty-state polish) is the highest-leverage fix before broader UX investment.
 
-### Enterprise Picture
-Enterprise readiness is a major strength. Database-per-tenant architecture, robust Row-Level Security (RLS) options, and comprehensive OIDC/SAML 2.0 integration paths drastically reduce architectural friction for integration. 
-
-### Engineering Picture
-The engineering foundation is highly constrained and resilient. Strict orchestration boundaries prevent destructive IaC operations, and DbUp migrations handle schema evolution cleanly. However, the reliance on a hand-rolled state machine for orchestrator logic introduces a maintainability overhead as multi-step agent logic scales. Furthermore, agent responses to API throttling require tight exponential backoff handling to maintain pipeline reliability.
-
----
+**Engineering Picture:** The architecture is clean, utilizing CQRS-like patterns and explicit persistence abstractions. The custom orchestration for long-running tasks is a slight risk compared to using a proven framework like Durable Task Framework (deferred to V2). Supportability is a strong point, with excellent diagnostics and audit logging.
 
 ## Weighted Quality Assessment
+*Ordered from most urgent to least urgent based on weighted deficiency.*
 
-### 1. AI/Agent Readiness
-- **Score:** 84
-- **Weight:** 8
-- **Weighted deficiency signal:** 128
-- **Justification:** Agents are safely bounded and operate deterministically, walled off from emitting `destroy` or `apply` actions. However, hallucination risks around Terraform snippet generation (e.g., accidentally suggesting an unsupported attribute) require aggressive validation at the API boundary before presentation.
-- **Tradeoffs:** Agent flexibility vs. strict output schema and safety validation.
-- **Recommendations:** Implement a background `terraform fmt` and `terraform validate` pass on generated snippets before returning them to the UI, stripping or warning on invalid blocks.
-- **Status:** Actionable now.
+1. **AI/Agent Readiness**
+   - Score: 80 | Weight: 8 | Weighted Deficiency: 160
+   - Justification: Strong foundation with `ArchLucid.Worker` and `AuthorityRunOrchestrator`. However, it relies on custom orchestration instead of the Durable Task Framework (deferred to V2), and LLM cost management relies on hard stops ($75/month) which could abruptly halt critical pilot runs.
+   - Tradeoffs: Custom orchestration avoids DTF dependency but risks state machine fragility during complex, long-running agent tasks.
+   - Improvement recommendations: Implement robust retry/resume mechanics for the custom orchestrator. Improve LLM cost estimation accuracy and add soft-warning notifications before hard stops.
+   - Status: Fixable in V1.
 
-### 2. Time-to-Value
-- **Score:** 78
-- **Weight:** 7
-- **Weighted deficiency signal:** 154
-- **Justification:** While the Tier 1 Azure Extractor removes the need for vendor IAM credentials, requiring customers to execute a PowerShell script locally introduces environment-specific friction (execution policies, missing Azure modules).
-- **Tradeoffs:** Zero-IAM access vs. script execution friction.
-- **Recommendations:** Add a dedicated troubleshooting document and UI pre-flight checklist specifically for bypassing local PowerShell execution policies securely.
-- **Status:** Actionable now.
+2. **Adoption Friction**
+   - Score: 75 | Weight: 6 | Weighted Deficiency: 150
+   - Justification: The Tier 1 Azure Extractor requires running a local PowerShell script and uploading a ZIP. While this avoids credential sharing, it introduces significant workflow friction. The UI is an "operator shell", requiring technical proficiency.
+   - Tradeoffs: Zero-credential ingestion (high trust) vs. automated continuous ingestion (low friction).
+   - Improvement recommendations: Execute **V1 Operator Shell Mitigation Program** (#1–#4): live sample seed, hosted-SaaS tour copy, prominent tour launcher, buyer empty states + glossary. Do not add a new tour library—extend `OptInTour` and `GlossaryTooltip`.
+   - Status: Fixable in V1.
 
-### 3. Executive Value Visibility
-- **Score:** 82
-- **Weight:** 4
-- **Weighted deficiency signal:** 72
-- **Justification:** The architecture exposes pilot scorecards and per-run ROI, but rolling up these detailed technical findings into a CFO-friendly narrative requires cognitive effort. The platform lacks pre-built widget summaries explicitly mapping technical risks to high-level business impact categories on the dashboard.
-- **Tradeoffs:** Deep technical analysis vs. executive narrative summarization.
-- **Recommendations:** Implement pre-built UI dashboard widgets that categorize findings strictly by business impact (e.g., "Cost Waste," "Compliance Risk").
-- **Status:** Actionable now.
+3. **Time-to-Value**
+   - Score: 82 | Weight: 7 | Weighted Deficiency: 126
+   - Justification: Once the ZIP is uploaded, value generation is fast. However, the initial setup and the manual extraction step delay the initial "aha" moment for new pilots.
+   - Tradeoffs: Security/Trust vs. Speed of onboarding.
+   - Improvement recommendations: **OS-1** live sample seed (#1) removes the empty-state cliff; extractor ZIP upload polish remains a separate follow-on.
+   - Status: Fixable in V1 (OS program); continuous ingestion is V1.1/V2.
 
-### 4. Proof-of-ROI Readiness
-- **Score:** 86
-- **Weight:** 5
-- **Weighted deficiency signal:** 70
-- **Justification:** The system uses the Azure Retail Prices API for illustrative fallback, which is excellent. However, there is no explicit UI warning alerting the user when illustrative prices are being used instead of their actual EA negotiated rates, potentially skewing perceived ROI.
-- **Tradeoffs:** Immediate cost visibility vs. precise EA pricing accuracy.
-- **Recommendations:** Add a prominent UI badge/warning on cost artifacts when illustrative Azure Retail prices are used instead of actual extracted cost data.
-- **Status:** Actionable now.
+4. **Executive Value Visibility**
+   - Score: 82 | Weight: 4 | Weighted Deficiency: 72
+   - Justification: **V1 ships** tenant-scoped cross-run executive ROI via **`GET /v1/roi/executive-summary`** and the Home **`ExecutiveRoiSummarySection`** panel, plus per-run ROI, pilot scorecard, value report, and DOCX/PDF exports. Portfolio rollups use latest committed run per system with pinned **`FindingId`** dedup semantics ([V1_SCOPE.md](../library/V1_SCOPE.md) §2.8).
+   - Tradeoffs: Interactive drill-down dashboards are lighter than static board-pack exports; dedup logic should stay aligned with scorecard math.
+   - Improvement recommendations: Harden **`FindingId`** deduplication in **`ExecutiveRoiSummaryService`** (#5, batch **ROI-1**); improve sponsor export discoverability from the dashboard panel.
+   - Status: Fixable in V1.
 
-### 5. Adoption Friction
-- **Score:** 80
-- **Weight:** 6
-- **Weighted deficiency signal:** 120
-- **Justification:** Outstanding identity support (OIDC/SAML) and strong tenant isolation drastically reduce friction. Minor friction remains in the initial Extractor upload step if the ZIP file is slightly malformed or excessively large without clear client-side validation.
-- **Tradeoffs:** Strict backend validation vs. client-side UX.
-- **Recommendations:** Add a client-side `manifest.json` schema validation check before uploading the ZIP.
-- **Status:** Actionable now.
+5. **Usability**
+   - Score: 65 | Weight: 3 | Weighted Deficiency: 105
+   - Justification: The UI is explicitly described as an "operator shell". It is built for technical users and lacks the polish expected of modern SaaS applications.
+   - Tradeoffs: Functionality and technical depth over UX polish for V1.
+   - Improvement recommendations: **OS-2** and **OS-3** (#2–#4). Improve ZIP upload error messaging separately.
+   - Status: Fixable in V1.
 
-### 6. Usability
-- **Score:** 82
-- **Weight:** 3
-- **Weighted deficiency signal:** 54
-- **Justification:** The operator UI is robust, but configuring policy packs and understanding their threshold impacts can be overwhelming for a first-time user without a "dry run" or impact simulation view.
-- **Tradeoffs:** Configuration power vs. simplicity.
-- **Recommendations:** Provide a UI "dry run" mode for policy packs to preview which existing resources would fail before enabling the policy.
-- **Status:** Actionable now.
+6. **Proof-of-ROI Readiness**
+   - Score: 88 | Weight: 5 | Weighted Deficiency: 60
+   - Justification: Very strong artifacts, including DOCX/PDF exports, pilot scorecards, and value reports.
+   - Tradeoffs: Heavy reliance on static document exports rather than interactive, drill-down dashboards in the UI.
+   - Improvement recommendations: Ensure the exported documents have a highly polished, executive-ready cover page and summary section.
+   - Status: Fixable in V1.
 
-### 7. Maintainability
-- **Score:** 75
-- **Weight:** 2
-- **Weighted deficiency signal:** 50
-- **Justification:** The custom state machine handling the orchestration pipeline is complex. While moving to Durable Task Framework is appropriately deferred, the current state transitions require significant cognitive load to debug.
-- **Tradeoffs:** Minimal dependencies vs. framework abstraction.
-- **Recommendations:** Introduce detailed telemetry attributes tracking agent state transitions and retry rates to ease debugging.
-- **Status:** Actionable now.
+7. **Reliability**
+   - Score: 85 | Weight: 2 | Weighted Deficiency: 30
+   - Justification: Solid V1 baseline: SQL Server persistence, health/live/ready probes, resilient SQL connection factory, and append-only audit. Custom orchestration for long-running tasks is the main in-scope reliability concern (stall risk on transient failures).
+   - Tradeoffs: Custom orchestration vs. Durable Task Framework (V2). **Multi-region active/active product topology is V1.1** ([`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6l) — **not** scored as a V1 gap.
+   - Improvement recommendations: Ensure the custom orchestrator handles transient database failures gracefully with exponential backoff.
+   - Status: Fixable in V1.
 
-### 8. Reliability
-- **Score:** 88
-- **Weight:** 2
-- **Weighted deficiency signal:** 24
-- **Justification:** DbUp and SQL boundaries are rock solid. However, if the Azure OpenAI endpoint is degraded, the LLM completion pipeline must ensure aggressive exponential backoff to prevent cascading failures.
-- **Tradeoffs:** Fast failure vs. patient retry.
-- **Recommendations:** Enhance LLM completion retry policies specifically targeting 429 and 503 errors with exponential backoff logic.
-- **Status:** Actionable now.
+8. **Maintainability**
+   - Score: 82 | Weight: 2 | Weighted Deficiency: 36
+   - Justification: Modular assembly layout, contract tests on persistence ports, and CI guardrails on API contracts. The main ongoing cost is keeping operator-facing copy and architecture docs aligned as the UI evolves.
+   - Tradeoffs: Depth of surface area vs. documentation freshness.
+   - Improvement recommendations: When touching persistence or commit paths, update `ARCHITECTURE_COMPONENTS.md` and related flow docs in the same PR.
+   - Status: Fixable in V1.
 
-### 9. Supportability
-- **Score:** 90
-- **Weight:** 1
-- **Weighted deficiency signal:** 10
-- **Justification:** The append-only audit trail and diagnostic tools are excellent. Supportability is only missing a few minor edge-case logs and health checks.
-- **Tradeoffs:** Exhaustive logging vs. storage efficiency.
-- **Recommendations:** Expose DbUp migration status explicitly in the `/health` endpoint payload.
-- **Status:** Actionable now.
-
----
+9. **Supportability**
+   - Score: 85 | Weight: 1 | Weighted Deficiency: 15
+   - Justification: Excellent diagnostics, correlation IDs, health checks, and append-only audit logs.
+   - Tradeoffs: None significant.
+   - Improvement recommendations: Ensure correlation IDs are prominently surfaced in the UI for easy copy-pasting by users when reporting issues.
+   - Status: Fixable in V1.
 
 ## Top 12 Most Important Weaknesses
-
-1. **Hallucinated Terraform Specifics:** Agents may emit valid HCL that contains hallucinated resource parameters, causing `terraform validate` failures for the user.
-2. **Local PowerShell Friction:** Enterprise endpoint security policies block the `.ps1` extractor script, delaying time-to-value.
-3. **Illustrative Pricing Ambiguity:** Users are not clearly warned when cost models use illustrative retail pricing instead of their actual EA rates.
-4. **Policy Pack Opaqueness:** Operators cannot preview the blast radius of a policy pack before enabling it.
-5. **LLM Throttling Resilience:** Insufficient exponential backoff on Azure OpenAI 429/503 responses can fail an entire review run.
-6. **Executive Narrative Gap:** Dashboard lacks high-level business impact widgets summarizing the technical findings for CFOs.
-7. **Client-Side Upload Validation:** Malformed Extractor ZIPs fail late on the backend rather than instantly on the frontend UI.
-8. **Complex State Machine Debugging:** The custom orchestrator pipeline lacks granular state-transition telemetry, making it hard to maintain.
-9. **Migration Visibility:** Pending DbUp migrations are not visible via standard health check endpoints, complicating deployments.
-10. **Context Overflow in Ask Feature:** Natural language queries against large architecture graphs risk hitting token limits without better chunking.
-11. **Retail API Circuit Breaker:** No explicit circuit breaker exists if the public Azure Retail Prices API becomes unreachable during analysis.
-12. **Missing Export Audit Trails:** The UI does not provide clear visual cues of when an Extractor ZIP download event is audited.
-
----
+1. Manual PowerShell script execution for Azure extraction introduces a high-friction first step.
+2. Custom orchestration for long-running agent tasks risks state machine fragility compared to standard frameworks.
+3. First-run empty-state cliff: static showcase reviews are read-only; live tenants with zero reviews cannot seed interactive sample data without Development-only `DemoController`.
+4. Opt-in tour Step 2 still references API-key / Azure OpenAI setup—misleading on hosted SaaS where LLM is platform-provisioned.
+5. Hard stops on LLM costs ($75/month) could abruptly halt pilot runs, causing frustration and lost momentum.
+6. Heavy reliance on static document exports (DOCX/PDF) rather than interactive, drill-down dashboards.
+7. Lack of automated tenant erasure (deferred to V2) complicates privacy compliance (GDPR/CCPA).
+8. No built-in cross-tenant analytics limits ArchLucid's own ability to understand usage patterns.
+9. AWS/GCP support is deferred to V1.1, limiting the addressable market to Azure-only shops.
+10. Lack of a public extension SDK prevents community-driven integrations and ecosystem growth.
+11. Cross-run ROI **`FindingId`** dedup may need hardening/tests beyond latest-run-per-system savings rollup.
+12. Server-side idempotency for run creation remains advisory rather than strictly enforced under retry storms.
 
 ## Top 6 Monetization Blockers
-
-1. **DEFERRED: Stripe Live Keys Flip:** True self-serve revenue is blocked until the owner transitions the Stripe keys from TEST to Live (V1.1). *(Note: Does not penalize readiness score).*
-2. **DEFERRED: Azure Marketplace Published Status:** The SaaS offer remains unpublished, preventing Marketplace-driven enterprise transactions (V1.1). *(Note: Does not penalize readiness score).*
-3. **PowerShell Execution Friction:** Technical evaluators abandoning the trial because they cannot easily bypass corporate PowerShell execution policies to run the Extractor.
-4. **Pricing Ambiguity in ROI:** The lack of UI warnings regarding illustrative pricing might cause a CFO to dispute the tool's ROI calculations during procurement.
-5. **Executive Dashboard Deficits:** The inability to instantly show a non-technical buyer a summarized "Cost Waste" widget slows down the purchasing decision.
-6. **Integration Validation Friction:** Evaluators can't quickly simulate webhooks without triggering full runs, stalling ITSM adoption.
-
----
+1. Manual Azure extraction script creates a hurdle for quick, self-serve Team-tier trials.
+2. Hard stops on LLM costs during trials could prevent users from seeing the full value before they are asked to pay.
+3. First-run activation gap (empty tenant + misleading tour copy)—addressed by V1 Operator Shell program #1–#4, not generic “training.”
+4. Lack of AWS/GCP support excludes multi-cloud enterprises from the initial target market.
+5. Absence of a SOC 2 CPA attestation (currently self-assessment) will block procurement at large enterprises.
+6. Uneven discoverability of sponsor exports (scorecard, value report, executive ROI panel) from operator surfaces.
 
 ## Top 6 Enterprise Adoption Blockers
-
-1. **Endpoint Security Blocking Extractor:** InfoSec teams blocking the execution of arbitrary local PowerShell scripts.
-2. **Policy Impact Uncertainty:** Risk teams will hesitate to enable governance policy packs without a dry-run feature to predict compliance failures.
-3. **Local Context Overflow:** Natural language queries against massive graphs failing due to token limits.
-4. **Illustrative Pricing Ambiguity:** Users are not clearly warned when cost models use illustrative retail pricing.
-5. **Complex State Machine Debugging:** The custom orchestrator pipeline lacks granular state-transition telemetry, making it hard to maintain.
-6. **Missing Export Audit Trails:** The UI does not provide clear visual cues of when an Extractor ZIP download event is audited.
-
----
+1. Absence of SOC 2 CPA attestation (Type I/II).
+2. Lack of automated tenant erasure (GDPR/CCPA compliance friction).
+3. Manual Azure extraction script (enterprises prefer automated, continuous, role-based ingestion).
+4. Mid-depth operator pages still surface internal terms (`runId`, `manifest`) without inline glossary on every surface—buyer-default mode helps at the shell level but not uniformly.
+5. AWS/GCP-primary architecture analysis deferred to V1.1 for multi-cloud enterprises.
+6. First-party ITSM and chat-ops connectors (ServiceNow, Jira, Teams) are **V1.1** — enterprises that require in-tool workflows may defer until those surfaces ship.
 
 ## Top 6 Engineering Risks
-
-1. **Terraform Apply Failures:** Emitting syntactically valid but functionally hallucinated Terraform degrades trust.
-2. **LLM Cascade Failures:** A lack of strict exponential backoff during Azure OpenAI rate limiting could cause system-wide review failures.
-3. **Context Window Exhaustion:** "Ask" queries against massive graphs failing due to token limits.
-4. **Retail API Dependency:** Extracting costs halting entirely if the Azure Retail Prices API goes offline without a circuit breaker.
-5. **Orchestrator State Corruption:** Without granular telemetry, debugging a stalled run in the custom state machine is incredibly difficult.
-6. **Silent Migration Failures:** Pending database migrations causing subtle runtime bugs because they aren't exposed in health endpoints.
-
----
+1. Custom orchestration for long-running tasks (fragile state transitions, lack of built-in replayability).
+2. LLM cost estimation inaccuracies leading to unexpected hard stops or budget overruns.
+3. Sample-data purge and `IsSample` marking not yet implemented (OS-1 follow-on after live seed ships).
+4. Idempotency relies on retry-safe client behavior rather than a strict server-side store, risking duplicate runs under heavy load.
+5. High memory usage during large ZIP extraction and parsing (max 52 MiB zipped payload).
+6. Lack of distributed cache (Redis) as a mandatory baseline for scaled fleets, risking performance bottlenecks.
 
 ## Most Important Truth
-ArchLucid is exceptionally well-architected for V1, utilizing safe agent boundaries and strong tenant isolation. The primary hurdles are no longer structural engineering flaws, but rather first-mile execution friction (running the local Extractor script) and the polishing of AI outputs (validating Terraform snippets, warning on illustrative pricing) to ensure absolute trust in the generated artifacts.
+ArchLucid V1 is a highly capable, technically sound product with strong Pilot-layer infrastructure already in the repo (`OptInTour`, `GlossaryTooltip`, buyer-default shell, progressive nav). The remaining adoption gap is not “missing UX entirely”—it is **first-run activation**: zero-review tenants cannot seed live sample data in production, and a few tour/empty-state surfaces still assume self-hosted API-key setup.
 
----
+## V1 Operator Shell Mitigation Program
+
+**Owner decisions (2026-05-22):** Sample seed available to **all** tenants when review count = 0 (not trial-only). Sample data auto-purges on **first real review commit** or **7 days**, whichever is sooner. Glossary uses existing **`GlossaryTooltip`** (hover desktop / tap mobile on first occurrence per page)—no new library.
+
+**Existing assets this program extends (do not rebuild):** `DemoSeedService`, `OptInTour` / `OptInTourLauncher`, `SampleFirstReviewPackageCard` (static showcase), `GlossaryTooltip` + `glossary-terms.ts`, `EmptyState` + `empty-state-presets.ts`, `WelcomeBanner`, `COMPARE_WAITING_BUYER`.
+
+**Execution order:** Batch **OS-1** → **OS-2** → **OS-3**, then **ROI-1** (#5). See Prompt Batching Guidance.
 
 ## Top Improvement Opportunities
 
-1. **DEFERRED Stripe Live Keys Flip**
-   - **Why it matters:** Required to transition from sales-led pilots to zero-touch self-serve credit-card revenue.
-   - **Reason deferred:** Requires owner-only action in Stripe Dashboard to transition keys and verify tax profiles.
-   - **Input needed:** Owner confirmation that Stripe live keys are ready to be enabled in production.
+1. **Live sample review seed in production SaaS (V1 Operator Shell — OS-1)**
+   - Why it matters: `DemoController` returns 404 outside Development; static showcase is read-only. Zero-review tenants hit an empty-state cliff before any “aha” moment.
+   - Expected impact: Time-to-Value (+6-10 pts), Adoption Friction (+5-8 pts), Usability (+3-5 pts). Weighted readiness impact: +0.7-1.2%.
+   - Affected qualities: Time-to-Value, Adoption Friction, Usability
+   - Actionable: Yes — Batch **OS-1**
+   - Prompt:
+     ```text
+     You are working in the ArchLucid monorepo. Enable production-hosted SaaS tenants with zero real reviews to seed interactive sample data via the existing DemoSeedService.
 
-2. **DEFERRED Azure Marketplace Published Status**
-   - **Why it matters:** Unlocks enterprise transactions via Azure Marketplace.
-   - **Reason deferred:** Requires owner-only submission and verification in Microsoft Partner Center.
-   - **Input needed:** Owner confirmation that the offer is set to 'Published'.
+     BACKEND
+     1. In DemoOptions (ArchLucid.Core/Configuration), add: public bool SaaSGuestSeedEnabled { get; init; } = false;
+     2. In ArchLucid.Api/Controllers/Admin/DemoController.cs, replace the IsDevelopment()-only guard with:
+        isDevOrSaaSEnabled = environment.IsDevelopment() || demoOptions.Value.SaaSGuestSeedEnabled;
+        Keep Demo:Enabled check unchanged. Do not change DemoSeedService or seed SQL.
+     3. In appsettings.SaaS.json set Demo:Enabled=true and Demo:SaaSGuestSeedEnabled=true.
+        In appsettings.json keep both false as safe defaults.
 
-3. **Implement a webhook payload simulation endpoint**
-   - **Why it matters:** Operators configuring ITSM/Teams webhooks need a way to test delivery without triggering a full architecture run.
-   - **Expected impact:** Reduces setup friction for integrations.
-   - **Affected qualities:** Usability (+3-5 pts), Time-to-Value (+2-3 pts). Weighted readiness impact: ~0.1%.
-   - **Actionable now.**
-   - **Prompt:**
-     ```
-     In `ArchLucid.Api`, add a new POST endpoint `/v1/integrations/webhooks/simulate`.
-     This endpoint should accept a `WebhookDeliveryConfiguration` and send a synthetic `AuthorityRunCompleted` payload.
-     Return the HTTP response code and body received from the target.
-     Acceptance Criteria: Unit tests demonstrate that the synthetic payload is dispatched and the response is accurately returned to the caller.
-     ```
+     FRONTEND
+     4. Create archlucid-ui/src/app/api/seed-sample/route.ts — POST to /api/proxy/v1/demo/seed; on 204 return { redirectTo: "/reviews" }.
+     5. Create archlucid-ui/src/components/SeedSampleReviewButton.tsx ("use client"): loading state, fetch POST /api/seed-sample, router.push on success, toast on error.
+     6. Wire into Reviews empty state (RunsPageView.tsx): when buyer-polished and zero reviews, render SeedSampleReviewButton alongside existing EmptyState actions. Update RUNS_EMPTY title to "No reviews yet" if not already.
 
-4. **Add explicit SQL timeout for large Extractor ZIP uploads**
-   - **Why it matters:** Very large environments can produce Extractor payloads that exceed the global 30s SQL command timeout during bulk insert.
-   - **Expected impact:** Prevents timeout failures for large enterprise pilots.
-   - **Affected qualities:** Reliability (+4-5 pts), Supportability (+2-3 pts). Weighted readiness impact: ~0.1%.
-   - **Actionable now.**
-   - **Prompt:**
-     ```
-     In `ArchLucid.Persistence.Data`, locate the repository method handling the bulk insert of Extractor payloads (e.g., `SaveAzureExtractorPackageAsync`).
-     Override the global `Dapper` command timeout specifically for this method to 120 seconds.
-     Acceptance Criteria: The code explicitly passes a higher `commandTimeout` parameter to the Dapper call for this specific operation.
+     ACCEPTANCE
+     - Dev: POST /v1/demo/seed unchanged.
+     - Prod with SaaSGuestSeedEnabled=true: returns 204.
+     - Prod default: returns 404.
+     - Do not change SampleFirstReviewPackageCard or static showcase flows.
      ```
 
-5. **Implement Review Completion confirmation modal in UI**
-   - **Why it matters:** After a review commits, operators aren't explicitly directed to the advanced analysis tools (Compare, Export, etc.).
-   - **Expected impact:** Increases discovery of "Operate" tier features.
-   - **Affected qualities:** Usability (+4-6 pts), Adoption Friction (+2-3 pts). Weighted readiness impact: ~0.1%.
-   - **Actionable now.**
-   - **Prompt:**
-     ```
-     In `archlucid-ui`, listen for the transition of a Review's status to `Committed` (or successful return from the commit API).
-     Display a confirmation modal summarizing the findings count and providing deep links to the "Artifacts Export", "Compare", and "Knowledge Graph" views.
-     Acceptance Criteria: The modal appears once upon commit success and accurately routes the user to the advanced views.
-     ```
+2. **Update opt-in tour copy for hosted SaaS (V1 Operator Shell — OS-2a)**
+   - Why it matters: Step 2 tells users to configure Azure OpenAI API keys—wrong on hosted SaaS (V1_SCOPE §2.4).
+   - Expected impact: Adoption Friction (+2-4 pts), Usability (+2-3 pts). Weighted readiness impact: +0.2-0.4%.
+   - Affected qualities: Adoption Friction, Usability
+   - Actionable: Yes — Batch **OS-2**
+   - Prompt:
+     ```text
+     In archlucid-ui/src/components/tour/OptInTour.tsx, update DRAFT_TOUR_STEPS (keep exactly 6 steps):
 
-6. **Create troubleshooting guide for PowerShell execution policy bypass**
-   - **Why it matters:** Directs users on how to safely run the Extractor script when blocked by corporate endpoint policies.
-   - **Expected impact:** Reduces Time-to-Value by unblocking frustrated evaluators.
-   - **Affected qualities:** Time-to-Value (+5-7 pts), Usability (+3-4 pts). Weighted readiness impact: ~0.12%.
-   - **Actionable now.**
-   - **Prompt:**
-     ```
-     Create a new markdown document at `docs/runbooks/EXTRACTOR_EXECUTION_POLICY_BYPASS.md`. 
-     Detail the steps for a user to temporarily bypass PowerShell execution policies (e.g., using `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`) in a secure manner.
-     Include warnings about organizational compliance.
-     Update `docs/START_HERE.md` or `docs/runbooks/AZURE_EXTRACTOR_INGEST.md` to link to this new troubleshooting guide.
-     Do not change the Extractor script itself.
-     Acceptance Criteria: The document must provide clear, copy-pasteable PowerShell commands and explicitly state that it only affects the current process scope.
+     STEP 2 — replace entirely:
+       title: "2. Upload your architecture context"
+       body: "ArchLucid needs to know about your Azure environment. Run Get-ArchLucidAzurePackage.ps1 from Settings → Extract & Upload, then upload the ZIP — or seed a sample review from the Reviews page to explore without setup."
+
+     STEP 4 — body only: replace "Finalize manifest to produce the versioned manifest" with "Finalize to produce your architecture snapshot — the reviewed package".
+
+     STEP 6 — append: " The How it works button on Home re-opens this tour anytime."
+
+     Update OptInTour.test.tsx assertions to match. Do not change OptInTourLauncher or auto-launch behavior (owner Q9: never auto-launch).
      ```
 
-7. **Implement background `terraform validate` logic for advisory snippets**
-   - **Why it matters:** Ensures emitted advisory IaC is syntactically valid and free of hallucinated resource names.
-   - **Expected impact:** Drastically increases trust in agent outputs.
-   - **Affected qualities:** AI/Agent Readiness (+5-8 pts), Reliability (+2-3 pts). Weighted readiness impact: ~0.15%.
-   - **Actionable now.**
-   - **Prompt:**
-     ```
-     Modify the Terraform advisory generation pipeline (likely within `ArchLucid.Decisioning` or `ArchLucid.ArtifactSynthesis`) to include a post-processing validation step.
-     If local terraform binaries are unavailable, implement a regex-based strict syntax linter for basic HCL validity on the generated snippets.
-     If invalid, the agent should strip the snippet and emit a warning comment instead.
-     Do not introduce a hard dependency on the `terraform` CLI for the API host, but provide an interface `ITerraformValidator` with a robust fallback.
-     Acceptance Criteria: Unit tests must demonstrate that malformed HCL is caught and sanitized before being committed to the manifest.
-     ```
+3. **Prominent tour launcher for zero-review tenants (V1 Operator Shell — OS-2b)**
+   - Why it matters: OptInTourLauncher exists but is easy to miss; owner banned auto-launch so visibility is the mitigation.
+   - Expected impact: Usability (+3-5 pts), Time-to-Value (+2-3 pts). Weighted readiness impact: +0.2-0.4%.
+   - Affected qualities: Usability, Time-to-Value
+   - Actionable: Yes — Batch **OS-2**
+   - Prompt:
+     ```text
+     In archlucid-ui/src/components/WelcomeBanner.tsx, when buyerPolishedShell && runsPresenceResolved && !hasExistingRuns, render a "New here?" callout:
 
-8. **Enhance LLM completion retry policies with exponential backoff**
-   - **Why it matters:** Azure OpenAI 429 and 503 errors currently cause hard failures if not retried patiently.
-   - **Expected impact:** Increases review pipeline reliability under API duress.
-   - **Affected qualities:** Reliability (+4-6 pts). Weighted readiness impact: ~0.08%.
-   - **Actionable now.**
-   - **Prompt:**
-     ```
-     Locate the Azure OpenAI client registration or resilience policies (likely using Polly in `ArchLucid.Api` or `ArchLucid.Host.Composition`).
-     Implement an exponential backoff retry policy specifically targeting HTTP 429 and 503 status codes.
-     Configure the policy with a jittered exponential backoff (e.g., up to 3 retries, starting at 2 seconds).
-     Acceptance Criteria: The resilience policy must be applied to the LLM completion HTTP client, and unit tests must verify the backoff timing.
+     - Heading: "New here?"
+     - Sentence: "Take a quick 6-step tour to see how a review goes from upload to architecture snapshot."
+     - <OptInTourLauncher buttonVariant="outline" /> (already imported — move here if duplicated elsewhere in the same branch)
+
+     Style: rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 dark:border-teal-900 dark:bg-teal-950/30
+
+     Do NOT auto-launch the tour. Do NOT change behavior when hasExistingRuns === true or in operator shell mode.
+     Add WelcomeBanner.test.tsx coverage for the callout when buyer-polished and zero reviews.
      ```
 
-9. **Add UI badge for Illustrative Azure Retail Pricing**
-   - **Why it matters:** Prevents users from assuming the displayed ROI matches their exact EA discounts if cost data wasn't extracted.
-   - **Expected impact:** Sets correct expectations and protects Proof-of-ROI credibility.
-   - **Affected qualities:** Proof-of-ROI Readiness (+4-6 pts), Usability (+2-3 pts). Weighted readiness impact: ~0.1%.
-   - **Actionable now.**
-   - **Prompt:**
+4. **Buyer-default empty states and glossary on mid-depth pages (V1 Operator Shell — OS-3)**
+   - Why it matters: `GRAPH_IDLE` and some Compare/Runs copy still use internal terms; `GlossaryTooltip` exists but is not applied uniformly.
+   - Expected impact: Usability (+4-6 pts), Adoption Friction (+2-3 pts). Weighted readiness impact: +0.3-0.5%.
+   - Affected qualities: Usability, Adoption Friction
+   - Actionable: Yes — Batch **OS-3**
+   - Prompt:
+     ```text
+     PART A — archlucid-ui/src/lib/empty-state-presets.ts
+     Add GRAPH_IDLE_BUYER (title: "No evidence graph loaded"; buyer-friendly description; actions: View reviews only).
+     In the graph page view, use isBuyerPolishedOperatorShellEnv() ? GRAPH_IDLE_BUYER : GRAPH_IDLE.
+
+     PART B — RunsPageView.tsx (operator mode branch only)
+     Wrap first "Review ID" with <GlossaryTooltip termKey="run">Review ID</GlossaryTooltip>.
+
+     PART C — ComparePageIntro.tsx (or compare intro copy)
+     Wrap first occurrence of "architecture snapshot" with termKey="architecture_manifest" and "manifest diff" with termKey="manifest_diff" if present and not already wrapped.
+
+     CONSTRAINTS: Do not change GRAPH_IDLE operator preset. Add Vitest: graph page shows buyer title in buyer-polished mode.
      ```
-     In the `archlucid-ui` project, locate the components responsible for rendering cost estimates (e.g., within the Artifacts or Run Detail views).
-     Add a distinct UI badge or warning banner when the `isIllustrativePricing` flag (or equivalent logic checking the presence of actual EA rates in the manifest) is true.
-     The badge should read "Illustrative Retail Pricing" with a tooltip explaining that actual EA discounts may vary.
-     Acceptance Criteria: The UI must clearly indicate when retail pricing is used, and a Storybook/unit test must verify the badge rendering condition.
+
+5. **Cross-run ROI: unique-finding identity dedup (V1 — ROI-1)**
+   - Why it matters: Cross-run executive ROI is **in V1 contract** ([V1_SCOPE.md](../library/V1_SCOPE.md) §2.8). **`GET /v1/roi/executive-summary`** and the Home dashboard panel ship today; **`FindingId`** dedup before portfolio counts must match the pinned owner rule (not raw sum across CI reruns).
+   - Expected impact: Executive Value Visibility (+3-5 pts), Proof-of-ROI Readiness (+2-3 pts). Weighted readiness impact: +0.2-0.4%.
+   - Affected qualities: Executive Value Visibility, Proof-of-ROI Readiness
+   - Actionable: Yes — Batch **ROI-1** (after **OS-3** — no file overlap with operator-shell batches)
+   - Prompt:
+     ```text
+     In ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs, harden AggregateTopSystemicIssues (and any savings attribution helpers) for V1 §2.8 semantics:
+
+     1. When flattening findings from latest committed runs, deduplicate by stable FindingId (case-insensitive) before grouping by (Category, Severity).
+     2. Keep latest-run-per-system selection unchanged for savings sums.
+     3. Add ExecutiveRoiSummaryServiceTests: two runs with the same FindingId must contribute count 1 to TopSystemicIssues, not 2.
+     4. Document aggregation rules in docs/library/PILOT_SCORECARD_API.md (executive-summary row).
+
+     Do not add new routes — extend the existing GET /v1/roi/executive-summary contract only if response fields are required for deduped counts.
      ```
 
-10. **Implement Client-side `manifest.json` schema validation for ZIP uploads**
-    - **Why it matters:** Fails fast on the client side before uploading a multi-megabyte ZIP file.
-    - **Expected impact:** Improves UX and reduces unnecessary backend load.
-    - **Affected qualities:** Adoption Friction (+3-5 pts), Usability (+3-4 pts). Weighted readiness impact: ~0.08%.
-    - **Actionable now.**
-    - **Prompt:**
-        ```
-        In the `archlucid-ui` project, update the Azure Extractor upload component.
-        Before dispatching the POST request to `/v1/azure-extractor/upload`, use JSZip (or similar existing dependency) to peek into the ZIP archive.
-        Read `manifest.json` and validate that the `schemaVersion` matches the expected format.
-        If invalid, display a localized error message immediately.
-        Acceptance Criteria: The UI must block the upload and show an error if `manifest.json` is missing or has an unsupported schema version.
-        ```
+6. **Improve custom orchestrator retry logic for transient DB errors**
+   - Why it matters: Prevents long-running agent tasks from failing due to brief database blips.
+   - Expected impact: Directly improves Reliability (+3-5 pts). Weighted readiness impact: +0.1-0.3%.
+   - Prompt:
+     ```text
+     In `ArchLucid.Persistence/AuthorityRunOrchestrator.cs` (or the relevant orchestrator file), wrap the state transition and database commit calls in a Polly `AsyncRetryPolicy`. The policy should handle `SqlException` (specifically transient error numbers like 1205, 4060) and `TimeoutException`. Use exponential backoff (e.g., 3 retries: 2s, 4s, 8s). Do not change the overall state machine logic. Acceptance criteria: Transient DB errors during orchestration are retried automatically.
+     ```
 
-11. **Expose DbUp migration status in the `/health` endpoint** *(Completed 2026-05-22)*
-    - **Why it matters:** Operators need to know if the application is pending database schema updates.
-    - **Expected impact:** Reduces support burden during upgrades.
-    - **Affected qualities:** Supportability (+5-7 pts), Maintainability (+2-4 pts). Weighted readiness impact: ~0.06%.
-    - **Completed.** `DbUpMigrationHealthCheck` compares embedded DbUp scripts against `dbo.SchemaVersions` and registers on `/health/ready` as `dbup_migration_status` (Degraded when migrations are pending).
-    - **Status:** **Completed** (2026-05-22).
-    - **Prompt:**
-        ```
-        In `ArchLucid.Api`, create a new `IHealthCheck` implementation named `DbUpMigrationHealthCheck`.
-        It should query the database (using `DbUp` APIs or checking the `SchemaVersions` table directly) to verify if all required scripts have been applied.
-        Register this health check on the `/health/ready` or `/health` endpoint.
-        Acceptance Criteria: The health check must return `Healthy` when migrations are up to date and `Degraded` or `Unhealthy` if migrations are pending.
-        ```
+7. **Surface correlation IDs clearly in the UI**
+   - Why it matters: Drastically improves supportability when users encounter errors.
+   - Expected impact: Supportability (+5-10 pts). Weighted readiness impact: +0.1-0.3%.
+   - Affected qualities: Supportability
+   - Actionable: Yes — Batch **UI-A**
+   - Prompt:
+     ```text
+     In the `archlucid-ui` project, update the global error boundary and API error interceptor. Whenever an API request fails and returns a Problem Details JSON containing a correlation ID (or `X-Correlation-ID` header), display this ID prominently in the error toast/modal with a "Copy to Clipboard" button. Do not change the backend error formatting. Acceptance criteria: Users can easily copy correlation IDs from the UI.
+     ```
 
-12. **Implement pre-built business impact widgets for the Dashboard**
-    - **Why it matters:** Translates deep technical findings into CFO-friendly summaries.
-    - **Expected impact:** Massively improves Executive Value Visibility.
-    - **Affected qualities:** Executive Value Visibility (+5-8 pts). Weighted readiness impact: ~0.1%.
-    - **Actionable now.**
-    - **Prompt:**
-        ```
-        In `archlucid-ui`, add a new component `BusinessImpactSummaryWidget.tsx` to the main dashboard.
-        It should aggregate findings from the `GET /v1/reports/executive-summary` (or pilot outcome APIs) into three distinct buckets: "Cost Waste," "Security/Compliance Risk," and "Reliability Gaps."
-        Display these as high-level summary cards.
-        Acceptance Criteria: The dashboard must successfully render these cards using data from the existing APIs, with zero visual layout breaks on empty states.
-        ```
+8. **Add a warning banner in the UI when LLM budget approaches 75%**
+   - Why it matters: Prevents pilot runs from abruptly failing due to the $75/month hard stop.
+   - Expected impact: AI/Agent Readiness (+3-5 pts), Usability (+2-4 pts). Weighted readiness impact: +0.3-0.5%.
+   - Affected qualities: AI/Agent Readiness, Usability
+   - Actionable: Yes — Batch **UI-A**
+   - Prompt:
+     ```text
+     In the `archlucid-ui` project, create a global banner component that fetches the tenant's current LLM budget usage (if exposed via an existing endpoint). If the usage exceeds 75% of the limit (e.g., $56.25 of $75), display a warning banner: "Approaching monthly LLM budget limit. Runs may be paused soon." Make it dismissible for the current session. Do not change backend billing logic. Acceptance criteria: Users are warned before hitting the hard stop.
+     ```
 
-13. **Add detailed telemetry tracking for orchestrator state transitions**
-    - **Why it matters:** Custom state machines are notoriously hard to debug without granular logs.
-    - **Expected impact:** Slashes MTTR (Mean Time To Resolution) for orchestrator bugs.
-    - **Affected qualities:** Maintainability (+4-6 pts), Supportability (+3-4 pts). Weighted readiness impact: ~0.08%.
-    - **Actionable now.**
-    - **Prompt:**
-        ```
-        In `ArchLucid.Worker` (specifically within `AuthorityRunOrchestrator`), add OpenTelemetry `ActivityEvent` calls for every major state transition.
-        Log the `fromState`, `toState`, and `runId`.
-        Also record a custom metric counter for `archlucid_orchestrator_transition_total` with tags for the state names.
-        Acceptance Criteria: State transitions must be observable in OpenTelemetry traces and Prometheus metric endpoints.
-        ```
+9. **Implement strict server-side idempotency keys for run creation**
+   - Why it matters: Prevents duplicate runs and wasted LLM tokens during network retries.
+   - Expected impact: Directly improves Reliability (+4-6 pts), AI/Agent Readiness (+2-3 pts). Weighted readiness impact: +0.2-0.5%.
+   - Prompt:
+     ```text
+     In `ArchLucid.Api.Controllers.Authority.ArchitectureController` (or `RunsController`), enhance the `POST /v1/architecture/request` endpoint. Use `IMemoryCache` (or a similar existing caching mechanism) to store the `Idempotency-Key` header value combined with the tenant/workspace ID for 24 hours. If a request arrives with an existing key, compare the SHA-256 hash of the request body. If it matches, return the cached `runId` (200 OK). If it differs, return 409 Conflict. Do not introduce new database tables for this yet. Acceptance criteria: Duplicate requests with the same key are handled safely.
+     ```
 
-14. **Implement circuit breaker for Azure Retail Prices API**
-    - **Why it matters:** Prevents extraction tasks from hanging indefinitely if the public API goes down.
-    - **Expected impact:** Protects system reliability.
-    - **Affected qualities:** Reliability (+4-5 pts). Weighted readiness impact: ~0.06%.
-    - **Actionable now.**
-    - **Prompt:**
-        ```
-        Locate the HTTP client configuration for the Azure Retail Prices API (likely in `ArchLucid.Capabilities.Cost` or `ArchLucid.Host.Composition`).
-        Add a Polly Circuit Breaker policy (e.g., break after 5 consecutive failures, break duration 30 seconds).
-        Ensure the cost estimation logic falls back gracefully (e.g., omitting costs with a warning) when the circuit is open.
-        Acceptance Criteria: Unit tests must simulate API failures, verify the circuit breaker trips, and ensure the pipeline continues without crashing.
-        ```
+10. **Optimize ZIP extraction memory usage (streaming)**
+    - Why it matters: Prevents OutOfMemory exceptions when processing large (52 MiB) Azure extractor ZIPs.
+    - Expected impact: Reliability (+3-5 pts). Weighted readiness impact: +0.1-0.3%.
+    - Affected qualities: Reliability
+    - Actionable: Yes — Batch **ZIP**
+    - Prompt:
+      ```text
+      In the service handling POST /v1/azure-extractor/upload, ensure ZIP extraction uses ZipArchiveMode.Read and streams entries to the parser without loading full uncompressed contents into memory. Acceptance criteria: Memory usage stays flat during large uploads.
+      ```
 
-15. **Add "Copy to Clipboard" button for generated Terraform snippets in UI**
-    - **Why it matters:** Drastically improves operator UX when acting on recommendations.
-    - **Expected impact:** Reduces Friction.
-    - **Affected qualities:** Usability (+4-6 pts). Weighted readiness impact: ~0.05%.
-    - **Actionable now.**
-    - **Prompt:**
-        ```
-        In `archlucid-ui`, locate the component that renders the Terraform advisory snippets (e.g., `TerraformAdvisoryBlock.tsx` or similar).
-        Implement a standard "Copy to Clipboard" button utilizing the `navigator.clipboard` API.
-        Include a brief visual confirmation (e.g., a checkmark icon) upon successful copy.
-        Acceptance Criteria: Users must be able to click the button and paste the exact snippet text.
-        ```
+11. **DEFERRED: AWS/GCP extractor schema design**
+    - Reason: Needs user input on the exact JSON schema and required fields for AWS/GCP resources.
+    - Input needed: Please provide the draft JSON schema or a list of required resource types for the AWS and GCP extractors (Phase 1 of V1.1).
 
-16. **Create a UI "Dry Run" preview mode for Policy Packs**
-    - **Why it matters:** Operators need to see the blast radius before enabling governance rules.
-    - **Expected impact:** Reduces enterprise adoption hesitation.
-    - **Affected qualities:** Usability (+5-7 pts), Adoption Friction (+2-4 pts). Weighted readiness impact: ~0.08%.
-    - **Actionable now.**
-    - **Prompt:**
-        ```
-        In the `archlucid-ui` Policy Packs configuration view, add a "Simulate Impact" or "Dry Run" button.
-        When clicked, call an existing analysis or preview endpoint (or simulate on the frontend if rules are known) to display how many recent runs would have failed under this policy pack.
-        If a backend endpoint doesn't exist, create a stub in `ArchLucid.Api` returning illustrative data for now, marked with a TODO.
-        Acceptance Criteria: The UI must provide a modal or panel displaying the projected impact (e.g., "This will flag 12 existing resources").
-        ```
+12. **Enhance DOCX/PDF export cover pages for executive polish**
+    - Why it matters: Improves perceived value for executive sponsors.
+    - Expected impact: Proof-of-ROI Readiness (+3-5 pts), Executive Value Visibility (+2-4 pts). Weighted readiness impact: +0.2-0.4%.
+    - Affected qualities: Proof-of-ROI Readiness, Executive Value Visibility
+    - Actionable: Yes — Batch **DOCS-EXPORT**
+    - Prompt:
+      ```text
+      In ArchLucid.Application/ArchitectureReviewDocxBuilder.cs (and PDF equivalent), enhance cover page: bold centered title, Generated on [Date], Prepared for [Tenant Name], scaled logo. Do not change section bodies.
+      ```
 
-17. **Implement context chunking strategy for "Ask" natural language queries**
-    - **Why it matters:** Prevents token limit exhaustion when querying massive architecture graphs.
-    - **Expected impact:** Improves AI feature reliability.
-    - **Affected qualities:** AI/Agent Readiness (+4-6 pts), Reliability (+2-3 pts). Weighted readiness impact: ~0.1%.
-    - **Actionable now.**
-    - **Prompt:**
-        ```
-        In `ArchLucid.Retrieval` or the relevant Agent context ingestion logic, implement a token-aware text chunking utility.
-        Before sending the graph representation to the LLM for the "Ask" feature, ensure the payload is split or truncated safely if it exceeds the configured maximum context window (e.g., 100k tokens).
-        Acceptance Criteria: Unit tests must demonstrate that oversized graph representations are safely truncated or chunked without crashing the LLM client.
-        ```
+13. **Implement a "dry run" mode for the Azure extractor script**
+    - Why it matters: Builds trust with enterprise security teams before they run the actual extraction.
+    - Expected impact: Directly improves Adoption Friction (+4-6 pts). Weighted readiness impact: +0.2-0.4%.
+    - Prompt:
+      ```text
+      In `scripts/azure/Get-ArchLucidAzurePackage.ps1`, add a `-DryRun` switch. When specified, the script should only list the Azure resources and API calls it *would* make, outputting them to the console, without actually fetching the deep configuration data or creating a ZIP file. Do not change the default execution behavior. Acceptance criteria: Security teams can audit the script's intended actions easily.
+      ```
 
-18. **Add explicit UI warning if uploaded Extractor ZIP exceeds expected size**
-    - **Why it matters:** Large ZIPs can cause timeouts; warning the user manages expectations.
-    - **Expected impact:** Better UX.
-    - **Affected qualities:** Usability (+3-4 pts). Weighted readiness impact: ~0.04%.
-    - **Actionable now.**
-    - **Prompt:**
-        ```
-        In the `archlucid-ui` Extractor upload component, check the File size before uploading.
-        If the file exceeds 50MB (or the configured safe limit), display a warning toast: "Large file detected. Processing may take longer than usual."
-        Do not block the upload, only warn.
-        Acceptance Criteria: The warning must appear correctly for files over the limit.
-        ```
+14. **Add explicit logging for LLM cost estimation discrepancies**
+    - Why it matters: Helps engineering tune the cost estimation models to prevent budget overruns.
+    - Expected impact: Directly improves AI/Agent Readiness (+2-4 pts), Maintainability (+2-3 pts). Weighted readiness impact: +0.2-0.4%.
+    - Prompt:
+      ```text
+      In the component that handles LLM completions (e.g., `LlmCostEstimator` or the OpenAI client wrapper), add a structured log event (`LogInformation` or `LogWarning`) that compares the *estimated* token count/cost before the call with the *actual* token count returned by the Azure OpenAI API. Include the `runId` and `agentType`. Do not change the billing logic. Acceptance criteria: Discrepancies between estimated and actual LLM costs are easily queryable in the logs.
+      ```
 
-19. **Expose `RunId` prominently in all exported DOCX/PDF artifacts** *(Completed 2026-05-22)*
-    - **Why it matters:** Correlating a printed report back to the system is currently difficult.
-    - **Expected impact:** Enhances Supportability and Usability.
-    - **Affected qualities:** Supportability (+3-5 pts), Usability (+2-3 pts). Weighted readiness impact: ~0.05%.
-    - **Completed.** `ArchitectureReviewBoardExportTraceFooter` injects Run ID and Exported UTC into DOCX/PDF page footers; cover pages share the same export timestamp.
-    - **Status:** **Completed** (2026-05-22).
-    - **Prompt:**
-        ```
-        In `ArchLucid.Application` (specifically `ArchitectureReviewDocxBuilder` and `ArchitectureReviewPdfBuilder`), modify the cover page generation logic.
-        Explicitly inject the `RunId` and `ExportTimestampUtc` into the document footer or cover page subtitle.
-        Acceptance Criteria: Generated exports must clearly display the `RunId`.
-        ```
+15. **Create a dedicated "Pilot Status" dashboard in the UI**
+    - Why it matters: Gives operators a clear view of their progress through the 6-week pilot.
+    - Expected impact: Directly improves Time-to-Value (+3-5 pts), Usability (+3-4 pts). Weighted readiness impact: +0.3-0.5%.
+    - Prompt:
+      ```text
+      In the `archlucid-ui` project, create a new "Pilot Status" component on the Home page. It should display a simple checklist based on the `CORE_PILOT.md` steps: 1. Configure Storage, 2. Create Review, 3. Execute Review, 4. Commit Manifest. Check off items based on the existence of runs/manifests in the API responses. Do not create new backend endpoints for this. Acceptance criteria: Users can see their pilot progress at a glance.
+      ```
 
-20. **Add specific audit event for Extractor ZIP downloads** *(Completed 2026-05-22)*
-    - **Why it matters:** Tracks exactly who is downloading sensitive infrastructure metadata.
-    - **Expected impact:** Increases enterprise trust.
-    - **Affected qualities:** Supportability (+4-6 pts). Weighted readiness impact: ~0.03%.
-    - **Completed.** `GET /v1/azure-extractor/packages/{packageId}` serves scoped ZIP bytes and emits `Export.AzureExtractorPackageDownloaded`; `AUDIT_COVERAGE_MATRIX.md` updated.
-    - **Status:** **Completed** (2026-05-22).
-    - **Prompt:**
-        ```
-        In `ArchLucid.Api` where Extractor ZIPs are served to the user (e.g., a download endpoint), invoke the `IAuditService`.
-        Log a new event type (e.g., `Export.AzureExtractorPackageDownloaded`) containing the user's ID, the package ID, and the RunId.
-        Update `AUDIT_COVERAGE_MATRIX.md` to reflect this new event.
-        Acceptance Criteria: Downloading the ZIP must reliably emit the durable audit event.
-        ```
+16. **Enforce strict validation on uploaded ZIP manifest schemas**
+    - Why it matters: Prevents downstream pipeline failures caused by malformed extractor data.
+    - Expected impact: Directly improves Reliability (+3-5 pts). Weighted readiness impact: +0.1-0.3%.
+    - Prompt:
+      ```text
+      In `AzureExtractorUploadController.cs` (or the parsing service), add strict JSON schema validation for the `manifest.json` inside the uploaded ZIP. If the `schemaVersion` is missing or not exactly `1`, immediately return a 422 Unprocessable Entity with a Problem Details response explaining the required schema version. Do not process the rest of the ZIP if the manifest is invalid. Acceptance criteria: Malformed ZIPs are rejected fast and loud.
+      ```
 
-21. **Create an automated test simulating a corrupted Extractor ZIP upload** *(Completed 2026-05-22)*
-    - **Why it matters:** Proves the system handles garbage data gracefully without throwing 500s.
-    - **Expected impact:** Hardens reliability.
-    - **Affected qualities:** Reliability (+2-4 pts), Supportability (+2-3 pts). Weighted readiness impact: ~0.03%.
-    - **Completed.** `Upload_CorruptedZipFile_Returns400BadRequest` integration test; upload pre-check returns 400 for invalid ZIP archives.
-    - **Status:** **Completed** (2026-05-22).
-    - **Prompt:**
-        ```
-        In `ArchLucid.Integrations.AzureExtractor.Tests` or the API integration test suite, write a test case named `Upload_CorruptedZipFile_Returns400BadRequest`.
-        Send a byte array of random data (not a valid ZIP) to the `POST /v1/azure-extractor/upload` endpoint.
-        Assert that the endpoint returns a `400 Bad Request` and does not crash or log a critical unhandled exception.
-        Acceptance Criteria: The test must pass and properly validate the error handling logic.
-        ```
+17. **DEFERRED: Automated tenant erasure pipeline design**
+    - Reason: Needs user input on the exact legal hold duration and the specific tables/blobs to be hard-purged.
+    - Input needed: Please specify the legal hold duration (e.g., 30 days) and confirm if any aggregated, anonymized data should be retained after the hard purge.
 
-22. **Add detailed tooltips in the Policy Pack configuration UI**
-    - **Why it matters:** Operators need clarity on what each threshold (e.g., High vs Medium severity) actually entails.
-    - **Expected impact:** Improves usability.
-    - **Affected qualities:** Usability (+4-5 pts). Weighted readiness impact: ~0.05%.
-    - **Actionable now.**
-    - **Prompt:**
-        ```
-        In `archlucid-ui`, locate the Policy Pack configuration screen.
-        Add info-circle icons with tooltips next to key configuration thresholds (e.g., Severity Thresholds, Scope Assignments).
-        The tooltips should briefly explain the impact of the setting based on `DEFAULT_POLICY_PACKS_V1.md` definitions.
-        Acceptance Criteria: Tooltips render correctly without overlapping other UI elements.
-        ```
+18. **Add a "copy to clipboard" button for all error correlation IDs**
+    - Why it matters: Reduces friction when users need to contact support.
+    - Expected impact: Directly improves Supportability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+    - Prompt:
+      ```text
+      In the `archlucid-ui` project, locate the shared Error/Problem Details display component. Add a small clipboard icon button next to the `traceId` or `correlationId`. Use the standard browser clipboard API to copy the ID when clicked, and show a brief "Copied!" tooltip. Do not change the error layout significantly. Acceptance criteria: Users can copy correlation IDs with one click.
+      ```
 
-23. **Provide a sample CSV/JSON of expected Extractor output in Docs**
-    - **Why it matters:** Evaluators want to know exactly what data is collected before running the script.
-    - **Expected impact:** Lowers adoption friction and builds trust.
-    - **Affected qualities:** Adoption Friction (+3-5 pts). Weighted readiness impact: ~0.06%.
-    - **Actionable now.**
-    - **Prompt:**
-        ```
-        Create a new document at `docs/samples/AZURE_EXTRACTOR_SAMPLE_OUTPUT.md`.
-        Include a heavily redacted, illustrative JSON snippet of what `manifest.json`, `resources.json`, and `cost-actual.json` look like.
-        Link to this sample from `AZURE_EXTRACTOR_INGEST.md`.
-        Acceptance Criteria: The document accurately reflects the schema generated by the script without exposing real data.
-        ```
+19. **Implement a health check specifically for the custom orchestrator state**
+    - Why it matters: Allows operators to detect if the background orchestrator has stalled.
+    - Expected impact: Directly improves Supportability (+4-6 pts), Reliability (+2-3 pts). Weighted readiness impact: +0.1-0.3%.
+    - Prompt:
+      ```text
+      In `ArchLucid.Api` or `ArchLucid.Worker`, add a new `IHealthCheck` implementation named `OrchestratorHealthCheck`. It should query the database (or a singleton state tracker) to check if there are any runs in the `Executing` state that haven't been updated in over 2 hours. If so, return `HealthCheckResult.Degraded`. Register this check in `Program.cs`. Do not change the orchestrator logic. Acceptance criteria: Stalled orchestrations are visible in the `/health` endpoint.
+      ```
 
-24. **Implement a "First-Run" guided tour pointing to API key setup**
-    - **Why it matters:** New operators often struggle to find where to configure their first API key.
-    - **Expected impact:** Speeds up Time-to-Value.
-    - **Affected qualities:** Time-to-Value (+4-6 pts), Usability (+3-4 pts). Weighted readiness impact: ~0.1%.
-    - **Actionable now.**
-    - **Prompt:**
-        ```
-        In `archlucid-ui`, implement a lightweight "First-Run" banner or modal that checks if the user has any configured API keys (or simply shows on first login).
-        The modal should say "Welcome to ArchLucid. To automate your reviews, set up your first API Key here," with a direct link to the Settings/Auth page.
-        Acceptance Criteria: The banner/modal directs the user correctly and can be permanently dismissed.
-        ```
+20. **Add a telemetry event for manual ZIP upload duration/size**
+    - Why it matters: Provides data to justify and prioritize the V1.1 continuous ingestion feature.
+    - Expected impact: Directly improves Maintainability (+2-3 pts). Weighted readiness impact: +0.1-0.2%.
+    - Prompt:
+      ```text
+      In `AzureExtractorUploadController.cs`, wrap the ZIP extraction and storage process in a standard `System.Diagnostics.Activity`. Add tags for the `FileSizeInBytes` and `NumberOfFilesExtracted`. Do not log any sensitive file names or contents. Acceptance criteria: Upload performance and size metrics are available in OpenTelemetry traces.
+      ```
 
-25. **Add explicit API response headers indicating token usage**
-    - **Why it matters:** Advanced operators need to monitor their LLM token usage closely for billing and quota purposes.
-    - **Expected impact:** Enhances Supportability and Maintainability.
-    - **Affected qualities:** Supportability (+4-5 pts). Weighted readiness impact: ~0.03%.
-    - **Actionable now.**
-    - **Prompt:**
-        ```
-        In `ArchLucid.Api`, implement an Action Filter or middleware that inspects the current request context for LLM token usage metrics (if available in the current scoped services).
-        Append a custom HTTP header (e.g., `X-ArchLucid-Token-Usage`) to the response of any endpoint that triggers an LLM call.
-        Acceptance Criteria: The header is present on relevant API responses containing accurate (or estimated) token counts.
-        ```
+21. **Create a CLI command to validate the extractor ZIP locally before upload**
+    - Why it matters: Saves time and bandwidth by catching errors before uploading a 50MB file.
+    - Expected impact: Directly improves Adoption Friction (+3-5 pts), Usability (+2-4 pts). Weighted readiness impact: +0.2-0.4%.
+    - Prompt:
+      ```text
+      In the `ArchLucid.Cli` project, add a new command: `archlucid azure validate-zip --path <file>`. This command should open the ZIP locally, verify that `manifest.json` exists, check that `schemaVersion` is 1, and ensure the basic folder structure is correct. It should output a success or error message to the console. Do not upload the file. Acceptance criteria: Operators can validate ZIPs locally.
+      ```
 
----
+22. **Add a visual indicator in the UI for "Idempotency-Replayed" responses**
+    - Why it matters: Helps users understand when a request was safely retried vs newly created.
+    - Expected impact: Directly improves Usability (+2-4 pts). Weighted readiness impact: +0.1-0.2%.
+    - Prompt:
+      ```text
+      In the `archlucid-ui` project, when an API response includes the `Idempotency-Replayed: true` header or a similar flag in the JSON, display a small, non-intrusive badge or toast saying "Replayed from previous request". Do not block the user flow. Acceptance criteria: Users are informed when idempotency kicks in.
+      ```
+
+23. **Standardize error messages for rate-limiting across all controllers**
+    - Why it matters: Provides a consistent experience when users hit API limits.
+    - Expected impact: Directly improves Supportability (+2-4 pts). Weighted readiness impact: +0.1-0.2%.
+    - Prompt:
+      ```text
+      In `ArchLucid.Api/Startup/RateLimitingExtensions.cs` (or where rate limiting is configured), configure the `OnRejected` callback to return a standard RFC 9457 Problem Details JSON response (e.g., `type: "#rate-limit-exceeded"`, status 429). Include the `Retry-After` header value in the JSON body if available. Do not change the actual rate limits. Acceptance criteria: 429 responses use the standard Problem Details format.
+      ```
+
+24. **Add a configuration flag to simulate LLM hard stops in staging**
+    - Why it matters: Allows developers and QA to test the UI and orchestrator behavior when the budget is exhausted.
+    - Expected impact: Directly improves Maintainability (+3-4 pts), Reliability (+2-3 pts). Weighted readiness impact: +0.1-0.2%.
+    - Prompt:
+      ```text
+      In the LLM cost estimation/quota service, add a configuration flag `ArchLucid:Testing:SimulateLlmBudgetExhausted`. When set to true, the service should immediately throw the budget exhausted exception or return the quota exceeded result, regardless of actual usage. Ensure this flag is ignored if `IWebHostEnvironment.IsProduction()` is true. Acceptance criteria: QA can easily test budget exhaustion flows.
+      ```
+
+25. **DEFERRED: Distributed cache (Redis) mandatory baseline design**
+    - Reason: Needs user input on whether Redis will be strictly required for multi-replica setups in V2, or if a fallback will still be supported.
+    - Input needed: Please confirm if Redis will be a hard requirement for V2 multi-replica deployments, or if we need to maintain an in-memory fallback with sticky sessions.
+
+26. **Document the exact retry policy for the custom orchestrator**
+    - Why it matters: Helps operators and support teams understand how the system recovers from failures.
+    - Expected impact: Supportability (+4-6 pts). Weighted readiness impact: +0.1-0.2%.
+    - Affected qualities: Supportability
+    - Actionable: Yes — Batch **DOCS-EXPORT**
+    - Prompt:
+      ```text
+      In docs/library/ARCHITECTURE_FLOWS.md (or ORCHESTRATOR_RETRIES.md), document AuthorityRunOrchestrator retry behavior: transient DB retries, LLM timeout handling, manual resume of Failed runs. Docs only.
+      ```
 
 ## Prompt Batching Guidance
 
-To optimize context window usage and cursor cost-effectiveness, execute the actionable prompts in the following batches:
+Run batches in this order. **Operator Shell (OS)** batches are highest leverage for V1 adoption; complete **OS-1** before **OS-2**/**OS-3**, then **ROI-1**.
 
-   - **Batch 1 (High-Leverage UI & UX):** Prompts #5, #9, #10, #12, #15, #16, #18, #22, #24. (Focuses on `archlucid-ui` components, badges, validations, and guided tours). **[COMPLETED]**
-- **Batch 2 (Core Reliability & Telemetry):** Prompts #3, #4, #8, #13, #14, #17, #25. (Focuses on `ArchLucid.Worker`, `ArchLucid.Api`, Polly retry policies, circuit breakers, and chunking strategies). **[COMPLETED]**
-- **Batch 3 (Agent Safety & Documentation):** Prompts #6, #7, #23. (Focuses on Terraform validation, Extractor execution bypass docs, and sample outputs). **[COMPLETED]**
-- **Batch 4 (Audit & Diagnostics):** Prompts #11, #19, #20, #21. (Focuses on DbUp health checks, DOCX builders, audit events, and API testing). **[COMPLETED]**
+| Batch | Improvement IDs | Scope | Notes |
+|-------|-----------------|-------|-------|
+| **OS-1** | #1 | Backend `DemoController` + `DemoOptions` + `appsettings.SaaS.json`; UI `seed-sample` route + `SeedSampleReviewButton` + `RunsPageView` empty state | Run alone first — highest blast radius; verify CI before dependent UI batches |
+| **OS-2** | #2, #3 | `OptInTour.tsx`, `WelcomeBanner.tsx` | Tour copy + launcher visibility; no overlap with OS-1 files except shared test fixtures |
+| **OS-3** | #4 | `empty-state-presets.ts`, graph page, `RunsPageView`, `ComparePageIntro` | Buyer-default glossary + empty states; safe after OS-2 |
+| **ROI-1** | #5 | `ExecutiveRoiSummaryService` + tests + `PILOT_SCORECARD_API.md` | V1 contract hardening; no overlap with OS batches — run immediately after OS-3 |
+| **UI-A** | #7, #8, #18 | Global error boundary, LLM budget banner, correlation copy (merge #7+#18 if same component) | General UI polish unrelated to OS program |
+| **API-A** | #6, #9, #19 | Orchestrator retry, idempotency cache, orchestrator health check | `ArchLucid.Api` / `ArchLucid.Persistence` |
+| **ZIP** | #10, #13, #16, #20, #21 | Extractor upload, PowerShell dry-run, CLI validate, telemetry | Azure ingest path |
+| **DOCS-EXPORT** | #12, #26 | DOCX cover, orchestrator retry docs | Low coupling |
 
----
+**Do not batch:** #11/#17/#25 (DEFERRED). **Superseded:** old generic “guided tour / react-joyride” prompt — replaced by #2–#4 using existing `OptInTour` / `GlossaryTooltip`. **Resolved (2026-05-22):** cross-run ROI aggregation semantics — **unique `FindingId` dedup**; promoted to V1 ([V1_SCOPE.md](../library/V1_SCOPE.md) §2.8), improvement **#5** / batch **ROI-1**.
 
 ## Pending Questions for Later
 
-- **DEFERRED Stripe Live Keys Flip**
-  - Are the live keys available and is the Marketplace profile fully verified in Partner Center?
-- **DEFERRED Azure Marketplace Published Status**
-  - Is the SaaS offer successfully marked as 'Published'?
+**Live sample seed — IsSample marker and purge hook**
+- For OS-1 follow-on: confirm `IsSample` lives on `dbo.Runs` (preferred) vs a sidecar table, and which service performs auto-purge on first real commit or 7-day TTL (reuse `TenantDeletionService` vs scoped purge endpoint).
+
+**AWS/GCP extractor schema design**
+- What is the draft JSON schema or the list of required resource types for the AWS and GCP extractors (Phase 1 of V1.1)?
+
+**Automated tenant erasure pipeline design**
+- What is the required legal hold duration (e.g., 30 days) before hard purge? Should any aggregated, anonymized data be retained after the hard purge?
+
+**Distributed cache (Redis) mandatory baseline design**
+- Will Redis be a hard requirement for V2 multi-replica deployments, or do we need to maintain an in-memory fallback with sticky sessions?

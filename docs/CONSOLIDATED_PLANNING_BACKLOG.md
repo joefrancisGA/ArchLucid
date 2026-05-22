@@ -141,12 +141,12 @@ Source: [`go-to-market/GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md). **GTM-only
 | CPB-D08 | CI test coverage ratchet to 95% | `V1_DEFERRED.md` §4 | **Keep** | V1.1 | Confirmed 2026-05-22. |
 | CPB-D09 | Hosted trials V1→V1.1 migration doc | `V1_DEFERRED.md` §6i | **Keep** | V1.1 | Confirmed 2026-05-22. Rollup memo of breaking changes. |
 | CPB-D10 | Evidence Bulk Upload enhancements | `V1_DEFERRED.md` §6k | **Keep** | V1.1 | Confirmed 2026-05-22. >30 cap, ZIP expansion, folder recursion. |
-| CPB-D11 | Executive ROI summary endpoint (cross-run dedup) | `V1_DEFERRED.md` §6o | **Keep** | V1.1 | Confirmed 2026-05-22. |
+| CPB-D11 | Executive ROI summary endpoint (cross-run dedup) | `V1_SCOPE.md` §2.8 (promoted from `V1_DEFERRED.md` §6o) | **Promoted** | **V1** | Owner 2026-05-22 — in V1 contract; harden `FindingId` dedup in `ExecutiveRoiSummaryService` if gaps remain. |
 | CPB-D12 | Outbound MCP client (ArchLucid calls external) | `V1_DEFERRED.md` §6d | **Keep** | V2 | Confirmed 2026-05-22. Requires explicit allowlist and approval-class mapping. |
 | CPB-D13 | Platform scale-out (Redis defaults, distributed graph) | `V1_DEFERRED.md` §6e | **Keep** | V2 | Confirmed 2026-05-22. Redis as expected baseline for scaled fleets. |
 | CPB-D14 | Azure Container Apps Jobs + Durable Task Framework | `V1_DEFERRED.md` §6f | **Keep** | V2 | Confirmed 2026-05-22. Situational — only if pipeline complexity exceeds current limits. |
 | CPB-D15 | Automated tenant erasure quarantine pipeline | `V1_DEFERRED.md` §6m | **Keep** | V2 | Confirmed 2026-05-22. |
-| CPB-D16 | Multi-region active/active guarantees | `V1_DEFERRED.md` §6l | **Keep** | V2 | Confirmed 2026-05-22. |
+| CPB-D16 | Multi-region active/active guarantees | `V1_DEFERRED.md` §6l | **Keep** | **V1.1** | Owner 2026-05-22 — not an `(A)` V1 penalty. |
 | CPB-D17 | Third-party pen-test execution + redacted summary | `V1_DEFERRED.md` §6c | **Keep** | V2 | Confirmed 2026-05-22. |
 
 ---

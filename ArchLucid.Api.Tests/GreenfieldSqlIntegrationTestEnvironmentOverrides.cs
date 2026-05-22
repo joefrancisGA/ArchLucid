@@ -5,20 +5,63 @@ namespace ArchLucid.Api.Tests;
 ///     <c>AddEnvironmentVariables()</c> after JSON files, so env wins over <c>appsettings.Development.json</c>
 ///     (<c>StorageProvider=InMemory</c>) when <see cref="Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory{TEntryPoint}" />
 ///     registers DI before late <see cref="Microsoft.AspNetCore.Hosting.IWebHostBuilder.ConfigureAppConfiguration" /> merges.
-///     Pair <see cref="Apply" /> with <see cref="Clear" /> on factory dispose so Sql and InMemory profiles do not leak
-///     across factories in one process.
+///     Reference-counted <see cref="Apply" /> / <see cref="Clear" /> pairs avoid clearing the variable while another
+///     factory in a parallel collection is still building its host (which would register InMemory DI but Sql startup).
 /// </summary>
 internal static class GreenfieldSqlIntegrationTestEnvironmentOverrides
 {
     private const string StorageProviderKey = "ArchLucid__StorageProvider";
 
+    private const string SqlValue = "Sql";
+
+    private static readonly object Gate = new();
+
+    private static int _activeFactories;
+
+    private static bool _mutatedEnvironment;
+
     internal static void Apply()
     {
-        Environment.SetEnvironmentVariable(StorageProviderKey, "Sql");
+        lock (Gate)
+        {
+            if (_activeFactories++ != 0)
+            {
+                return;
+            }
+
+            string? existing = Environment.GetEnvironmentVariable(StorageProviderKey);
+
+            if (!string.IsNullOrEmpty(existing))
+            {
+                _mutatedEnvironment = false;
+                return;
+            }
+
+            Environment.SetEnvironmentVariable(StorageProviderKey, SqlValue);
+            _mutatedEnvironment = true;
+        }
     }
 
     internal static void Clear()
     {
-        Environment.SetEnvironmentVariable(StorageProviderKey, null);
+        lock (Gate)
+        {
+            if (_activeFactories <= 0)
+            {
+                return;
+            }
+
+            if (--_activeFactories > 0)
+            {
+                return;
+            }
+
+            if (_mutatedEnvironment)
+            {
+                Environment.SetEnvironmentVariable(StorageProviderKey, null);
+            }
+
+            _mutatedEnvironment = false;
+        }
     }
 }

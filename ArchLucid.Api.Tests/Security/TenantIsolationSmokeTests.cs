@@ -19,6 +19,7 @@ namespace ArchLucid.Api.Tests.Security;
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
+[Collection("ArchLucidEnvMutation")]
 public sealed class TenantIsolationSmokeTests
 {
     // Unlike idempotent-create SQL tests, this one requires *explicit* SQL (env var). Windows+localhost only is too easy

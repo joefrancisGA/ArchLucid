@@ -188,6 +188,9 @@ Every pilot starts here. The operator UI presents this layer by default with no 
 | Bundle ZIP download | `GET /v1/artifacts/manifests/{id}/bundle` | Bundle ZIP button | — |
 | DOCX architecture package | `GET /v1/docx/runs/{runId}/architecture-package` | Export button on run detail | — |
 | Run-export ZIP | `GET /v1/artifacts/runs/{runId}/export` | Export ZIP button | — |
+| Cross-run executive ROI summary | `GET /v1/roi/executive-summary` | Home dashboard (`ExecutiveRoiSummarySection`) | — |
+| Per-run ROI scorecard | `GET /v1/architecture/run/{runId}/roi` | Run detail (when surfaced) | — |
+| Pilot scorecard (tenant window) | `GET /v1/pilots/outcome-summary`, `POST /v1/pilots/scorecard` | Pilot flows / exports | — |
 | Health and readiness | `GET /health/live`, `/health/ready`, `/health` | — | `archlucid doctor` |
 | Version identity | `GET /version` | — | `archlucid doctor` |
 | Support bundle | — | — | `archlucid support-bundle --zip` |

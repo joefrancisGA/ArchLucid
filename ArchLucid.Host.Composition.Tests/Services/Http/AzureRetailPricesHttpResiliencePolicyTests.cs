@@ -1,7 +1,5 @@
 using System.Net;
 
-using ArchLucid.Core.Http;
-
 using ArchLucid.Host.Core.Http;
 
 using FluentAssertions;

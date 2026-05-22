@@ -23,12 +23,14 @@ public sealed class OrchestratorStateTransitionTelemetryTests
 
         Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
 
-        using Activity activity = ArchLucidInstrumentation.AuthorityRun.StartActivity("test.orchestrator");
-        activity.Should().NotBeNull();
+        Activity? started = ArchLucidInstrumentation.AuthorityRun.StartActivity("test.orchestrator");
+        started.Should().NotBeNull();
+
+        using Activity activity = started!;
 
         ArchLucidInstrumentation.RecordOrchestratorStateTransition(runId, "run_persisted", "inline_authority_pipeline_stages");
 
-        activity!.Events.Should().ContainSingle(e =>
+        activity.Events.Should().ContainSingle(e =>
             e.Name == "orchestrator.state_transition"
             && e.Tags.Any(t => t.Key == "from_state" && (string?)t.Value == "run_persisted")
             && e.Tags.Any(t => t.Key == "to_state" && (string?)t.Value == "inline_authority_pipeline_stages")

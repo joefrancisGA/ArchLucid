@@ -30,7 +30,6 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
 
             SqlConnectionString = builder.ConnectionString;
             SqlServerTestCatalogCommands.EnsureCatalogExists(SqlConnectionString);
-            GreenfieldSqlIntegrationTestEnvironmentOverrides.Apply();
         }
         catch (Exception ex)
         {
@@ -55,6 +54,8 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
     /// <inheritdoc />
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        GreenfieldSqlIntegrationTestEnvironmentOverrides.Apply();
+
         base.ConfigureWebHost(builder);
 
         ApplySqlPersistenceHostOverrides(builder, GetAdditionalHostConfigurationOverrides());

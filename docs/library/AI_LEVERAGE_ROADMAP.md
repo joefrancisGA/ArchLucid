@@ -8,7 +8,7 @@
 
 **Scope boundaries:**
 - V1 items reuse existing agent runtime, LLM client, and transport — no new infra contracts, feature-flaggable.
-- V1.1 items coordinate with already-pinned V1.1 scope in `V1_DEFERRED.md` (MCP §6d, executive ROI §6o, multi-cloud §6n, ITSM §6/6a).
+- V1.1 items coordinate with already-pinned V1.1 scope in `V1_DEFERRED.md` (MCP §6d, multi-cloud §6n, ITSM §6/6a). Cross-run executive ROI is **V1** ([V1_SCOPE.md](V1_SCOPE.md) §2.8).
 - V2 items require new substrate, fine-tuning MLOps, or cross-tenant analytics (explicitly out of V1 per `V1_DEFERRED.md` §1).
 
 ---
@@ -273,7 +273,7 @@ Update .github/workflows/template-eval-harness.yml to add a scheduled trigger (c
 ### 20. Auto-tagged drift narratives between runs
 **Why it matters:** "You added a public IP to your web tier; this regressed a finding you fixed in Run 47." The product starts remembering and narrating your architectural history. Directly proves stickiness through product memory.
 
-**Why V1.1:** Needs cross-run state tracking and a narrative LLM pass. Sits alongside the executive ROI summary already pinned for V1.1 in `V1_DEFERRED.md` §6o — both are cross-run V1.1 features and should ship together.
+**Why V1.1:** Needs cross-run state tracking and a narrative LLM pass. Complements the V1 cross-run executive ROI summary ([V1_SCOPE.md](V1_SCOPE.md) §2.8) but does not depend on it.
 
 ---
 
@@ -346,6 +346,6 @@ The 25 items in this roadmap are additive to the 25 items in `docs/assessments/L
 |---|---|
 | #4 Streaming Ask | #2 Add Streaming Support for Ask Endpoint |
 | #5 Multi-model tiered orchestration | #3 Implement Multi-Model Orchestration |
-| #11 Compare-runs explainer | Partially covered by #4 Cross-Run Executive ROI Summary API |
+| #11 Compare-runs explainer | Partially covered by LATEST.md #5 (cross-run executive ROI — V1 §2.8) |
 
 LATEST.md items #2 and #3 carry the Cursor prompts needed for V1 delivery; this document provides the deeper rationale and sequencing context for all 25. For V1 items not yet in LATEST.md (#1, #3, #6–#15), Cursor prompts are included here and summarised in LATEST.md.
