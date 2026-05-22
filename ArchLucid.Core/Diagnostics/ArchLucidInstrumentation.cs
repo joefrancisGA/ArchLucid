@@ -36,7 +36,7 @@ public static class ArchLucidInstrumentation
     public const int SensitiveGenAiTelemetrySnapshotMaxChars = 65536;
 
     /// <summary>Meter name registered with OpenTelemetry in <c>AddArchLucidOpenTelemetry</c>.</summary>
-    public const string MeterName = "ArchLucid";
+    public const string MeterName = ArchLucidMeterNames.Meter;
 
     private static readonly Meter AppMeter = new(MeterName, "1.0.0");
 
@@ -61,41 +61,41 @@ public static class ArchLucidInstrumentation
 
     private static Func<long>? _auditRetryQueuePendingReader;
 
-    /// <summary>Scheduled advisory scan pipeline (<c>AdvisoryScanRunner</c>).</summary>
-    public static readonly ActivitySource AdvisoryScan = new("ArchLucid.AdvisoryScan", "1.0.0");
-
-    /// <summary>Authority run orchestration (ingestion → manifest).</summary>
-    public static readonly ActivitySource AuthorityRun = new("ArchLucid.AuthorityRun", "1.0.0");
-
     /// <summary>Root span name for <see cref="AuthorityRun" /> (matches <c>authority.*</c> stage naming for trace sampling).</summary>
     public const string AuthorityRunRootActivityName = "authority.run";
 
+    /// <summary>Scheduled advisory scan pipeline (<c>AdvisoryScanRunner</c>).</summary>
+    public static ActivitySource AdvisoryScan => ArchLucidActivitySources.AdvisoryScan;
+
+    /// <summary>Authority run orchestration (ingestion → manifest).</summary>
+    public static ActivitySource AuthorityRun => ArchLucidActivitySources.AuthorityRun;
+
     /// <summary>Post-commit retrieval indexing of committed runs.</summary>
-    public static readonly ActivitySource RetrievalIndex = new("ArchLucid.Retrieval.Index", "1.0.0");
+    public static ActivitySource RetrievalIndex => ArchLucidActivitySources.RetrievalIndex;
 
     /// <summary>One span per production agent handler invocation (<c>RealAgentExecutor</c>).</summary>
-    public static readonly ActivitySource AgentHandler = new("ArchLucid.Agent.Handler", "1.0.0");
+    public static ActivitySource AgentHandler => ArchLucidActivitySources.AgentHandler;
 
     /// <summary>Staged batch phases in <c>RealAgentExecutor</c> (e.g. Phase 1 vs Critic).</summary>
-    public static readonly ActivitySource AgentExecution = new("ArchLucid.Agent.Execution", "1.0.0");
+    public static ActivitySource AgentExecution => ArchLucidActivitySources.AgentExecution;
 
     /// <summary>Azure OpenAI chat completion calls (nested under agent handler when a trace is active).</summary>
-    public static readonly ActivitySource AgentLlmCompletion = new("ArchLucid.Agent.LlmCompletion", "1.0.0");
+    public static ActivitySource AgentLlmCompletion => ArchLucidActivitySources.AgentLlmCompletion;
 
     /// <summary>Azure OpenAI text-embedding RPCs (retrieval indexer / evidence embeddings).</summary>
-    public static readonly ActivitySource AgentLlmEmbedding = new("ArchLucid.Agent.LlmEmbedding", "1.0.0");
+    public static ActivitySource AgentLlmEmbedding => ArchLucidActivitySources.AgentLlmEmbedding;
 
     /// <summary>Retrieval indexing outbox batch processor (<c>RetrievalIndexingOutboxProcessor</c>).</summary>
-    public static readonly ActivitySource RetrievalIndexingOutbox = new("ArchLucid.RetrievalIndexing.Outbox", "1.0.0");
+    public static ActivitySource RetrievalIndexingOutbox => ArchLucidActivitySources.RetrievalIndexingOutbox;
 
     /// <summary>Integration event Service Bus publish outbox (<c>IntegrationEventOutboxProcessor</c>).</summary>
-    public static readonly ActivitySource IntegrationEventOutbox = new("ArchLucid.IntegrationEvent.Outbox", "1.0.0");
+    public static ActivitySource IntegrationEventOutbox => ArchLucidActivitySources.IntegrationEventOutbox;
 
     /// <summary>Scheduled data retention archival (<c>DataArchivalCoordinator</c>).</summary>
-    public static readonly ActivitySource DataArchival = new("ArchLucid.DataArchival", "1.0.0");
+    public static ActivitySource DataArchival => ArchLucidActivitySources.DataArchival;
 
     /// <summary>Evidence ZIP expansion (<c>ZipEvidenceExpanderService</c>).</summary>
-    public static readonly ActivitySource EvidenceZipExpansion = new("ArchLucid.Evidence.ZipExpansion", "1.0.0");
+    public static ActivitySource EvidenceZipExpansion => ArchLucidActivitySources.EvidenceZipExpansion;
 
     /// <summary>Digest channel send succeeded (labels: <c>channel</c>).</summary>
     public static readonly Counter<long> DigestDeliverySucceeded =

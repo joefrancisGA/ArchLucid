@@ -15,6 +15,17 @@ vi.mock("@/lib/operator-run-picker-client", () => ({
     loadProjectRunsMergedWithDemoFallbackMock(...args),
 }));
 
+const demoUiEnvMock = { buyerPolishedShell: false };
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => demoUiEnvMock.buyerPolishedShell,
+  };
+});
+
 import { OperatorCoArchitectHomeStrip } from "./OperatorCoArchitectHomeStrip";
 import { WelcomeBanner } from "./WelcomeBanner";
 
@@ -44,6 +55,7 @@ afterEach(() => {
 });
 
 beforeEach(() => {
+  demoUiEnvMock.buyerPolishedShell = false;
   listRunsByProjectPaged.mockResolvedValue(emptyRunsPage);
   loadProjectRunsMergedWithDemoFallbackMock.mockResolvedValue({ items: [], loadError: false });
   globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
@@ -143,6 +155,37 @@ describe("WelcomeBanner — dismiss hides banner", () => {
 
     expect(screen.queryByRole("banner", { name: "Welcome" })).not.toBeInTheDocument();
     expect(sessionStorage.getItem(SESSION_DISMISS_KEY)).toBe("1");
+  });
+});
+
+describe("WelcomeBanner — buyer-polished zero-review tour callout", () => {
+  it("shows New here callout with tour launcher when buyer-polished and zero reviews", async () => {
+    demoUiEnvMock.buyerPolishedShell = true;
+
+    render(<WelcomeBanner />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("banner", { name: "New here tour callout" })).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("heading", { name: "New here?" })).toBeInTheDocument();
+    expect(
+      screen.getByText(/Take a quick 6-step tour to see how a review goes from upload to architecture snapshot/i),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("opt-in-tour-launcher")).toBeInTheDocument();
+  });
+
+  it("does not show New here callout in operator shell mode", async () => {
+    demoUiEnvMock.buyerPolishedShell = false;
+
+    renderHomeWithCoArchitectStrip();
+
+    await waitFor(() => {
+      expect(screen.getByRole("banner", { name: "Welcome" })).toBeInTheDocument();
+    });
+
+    expect(screen.queryByRole("banner", { name: "New here tour callout" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "New here?" })).not.toBeInTheDocument();
   });
 });
 

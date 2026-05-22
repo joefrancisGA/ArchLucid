@@ -20,7 +20,7 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
     {
         List<Activity> stopped = [];
         using ActivityListener listener = new();
-        listener.ShouldListenTo = s => s.Name == "ArchLucid.IntegrationEvent.Outbox";
+        listener.ShouldListenTo = s => s.Name == ArchLucidMeterNames.IntegrationEventOutboxActivitySource;
         listener.Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded;
         listener.ActivityStopped = a => stopped.Add(a);
         ActivitySource.AddActivityListener(listener);
@@ -78,7 +78,7 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
     {
         List<Activity> stopped = [];
         using ActivityListener listener = new();
-        listener.ShouldListenTo = s => s.Name == "ArchLucid.IntegrationEvent.Outbox";
+        listener.ShouldListenTo = s => s.Name == ArchLucidMeterNames.IntegrationEventOutboxActivitySource;
         listener.Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded;
         listener.ActivityStopped = a => stopped.Add(a);
         ActivitySource.AddActivityListener(listener);

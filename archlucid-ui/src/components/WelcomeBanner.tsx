@@ -162,58 +162,31 @@ export function WelcomeBanner() {
     return null;
   }
 
-  if (
-    buyerPolishedShell &&
-    runsPresenceResolved &&
-    trialStatusResolved &&
-    !hasExistingRuns &&
-    trialActive
-  ) {
+  if (buyerPolishedShell && runsPresenceResolved && trialStatusResolved && !hasExistingRuns) {
     return (
-      <div
-        role="banner"
-        aria-label="Trial welcome"
-        className="mb-2 flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2 text-sm shadow-sm dark:border-amber-900 dark:bg-amber-950/40"
-      >
-        {typeof days === "number" ? (
-          <span className="inline-block rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
-            {days} day{days === 1 ? "" : "s"} left on trial
-          </span>
-        ) : (
-          <span className="inline-block rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
-            Trial active
-          </span>
-        )}
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7 text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-200"
-          aria-label="Dismiss welcome for this session"
-          onClick={() => {
-            setDismissed(true);
-
-            try {
-              window.sessionStorage.setItem(SESSION_DISMISS_KEY, "1");
-            } catch {
-              /* private mode */
-            }
-          }}
-        >
-          <X className="h-4 w-4" aria-hidden />
-        </Button>
+      <div role="banner" aria-label="New here tour callout" className="mb-4 space-y-2">
+        {trialActive ? (
+          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2 text-sm shadow-sm dark:border-amber-900 dark:bg-amber-950/40">
+            {typeof days === "number" ? (
+              <span className="inline-block rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+                {days} day{days === 1 ? "" : "s"} left on trial
+              </span>
+            ) : (
+              <span className="inline-block rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+                Trial active
+              </span>
+            )}
+          </div>
+        ) : null}
+        <div className="rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 dark:border-teal-900 dark:bg-teal-950/30">
+          <h2 className="mb-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">New here?</h2>
+          <p className="mb-3 text-sm text-neutral-700 dark:text-neutral-300">
+            Take a quick 6-step tour to see how a review goes from upload to architecture snapshot.
+          </p>
+          <OptInTourLauncher buttonVariant="outline" />
+        </div>
       </div>
     );
-  }
-
-  if (
-    buyerPolishedShell &&
-    runsPresenceResolved &&
-    trialStatusResolved &&
-    !hasExistingRuns &&
-    !trialActive
-  ) {
-    return null;
   }
 
   const headingText =

@@ -66,7 +66,7 @@ public sealed class CatalogMigration108ReplayNoteSqlScriptTests
 
         private static void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
-            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            if (instrument.Meter.Name != ArchLucidMeterNames.Meter)
                 return;
 
             if (instrument.Name == "archlucid_catalog_migration_rls_108_replay_notes_total")

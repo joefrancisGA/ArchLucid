@@ -163,11 +163,13 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
      - Do not change SampleFirstReviewPackageCard or static showcase flows.
      ```
 
-2. **Update opt-in tour copy for hosted SaaS (V1 Operator Shell — OS-2a)**
+2. **Update opt-in tour copy for hosted SaaS (V1 Operator Shell — OS-2a)** *(Completed 2026-05-22)*
    - Why it matters: Step 2 tells users to configure Azure OpenAI API keys—wrong on hosted SaaS (V1_SCOPE §2.4).
    - Expected impact: Adoption Friction (+2-4 pts), Usability (+2-3 pts). Weighted readiness impact: +0.2-0.4%.
    - Affected qualities: Adoption Friction, Usability
    - Actionable: Yes — Batch **OS-2**
+   - **Completed.** Updated `DRAFT_TOUR_STEPS` in `archlucid-ui/src/components/tour/OptInTour.tsx`: step 2 now covers Azure ZIP upload / sample seed (not API keys); step 4 uses architecture snapshot wording; step 6 notes the Home "How it works" re-open path. Extended `OptInTour.test.tsx` assertions for all three copy changes.
+   - **Status:** **Completed** (2026-05-22).
    - Prompt:
      ```text
      In archlucid-ui/src/components/tour/OptInTour.tsx, update DRAFT_TOUR_STEPS (keep exactly 6 steps):
@@ -183,11 +185,13 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
      Update OptInTour.test.tsx assertions to match. Do not change OptInTourLauncher or auto-launch behavior (owner Q9: never auto-launch).
      ```
 
-3. **Prominent tour launcher for zero-review tenants (V1 Operator Shell — OS-2b)**
+3. **Prominent tour launcher for zero-review tenants (V1 Operator Shell — OS-2b)** *(Completed 2026-05-22)*
    - Why it matters: OptInTourLauncher exists but is easy to miss; owner banned auto-launch so visibility is the mitigation.
    - Expected impact: Usability (+3-5 pts), Time-to-Value (+2-3 pts). Weighted readiness impact: +0.2-0.4%.
    - Affected qualities: Usability, Time-to-Value
    - Actionable: Yes — Batch **OS-2**
+   - **Completed.** Added a buyer-polished "New here?" callout in `WelcomeBanner.tsx` when `runsPresenceResolved && !hasExistingRuns`, with `OptInTourLauncher buttonVariant="outline"` and teal styling; trial badge preserved above when active. Added `WelcomeBanner.test.tsx` coverage for buyer-polished zero-review vs operator shell.
+   - **Status:** **Completed** (2026-05-22).
    - Prompt:
      ```text
      In archlucid-ui/src/components/WelcomeBanner.tsx, when buyerPolishedShell && runsPresenceResolved && !hasExistingRuns, render a "New here?" callout:

@@ -22,7 +22,7 @@ public sealed class DataArchivalCoordinatorCorrelationTests
     {
         List<Activity> stopped = [];
         using ActivityListener listener = new();
-        listener.ShouldListenTo = s => s.Name == "ArchLucid.DataArchival";
+        listener.ShouldListenTo = s => s.Name == ArchLucidMeterNames.DataArchivalActivitySource;
         listener.Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded;
         listener.ActivityStopped = a => stopped.Add(a);
         ActivitySource.AddActivityListener(listener);

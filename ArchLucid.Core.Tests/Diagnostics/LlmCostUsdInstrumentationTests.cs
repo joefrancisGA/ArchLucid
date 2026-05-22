@@ -6,6 +6,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Diagnostics;
 
+[Collection("ArchLucidInstrumentation")]
 [Trait("Suite", "Core")]
 public sealed class LlmCostUsdInstrumentationTests
 {
@@ -76,7 +77,7 @@ public sealed class LlmCostUsdInstrumentationTests
 
         private static void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
-            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            if (instrument.Meter.Name != ArchLucidInstrumentationTestSupport.MeterName)
                 return;
 
             if (instrument.Name == "archlucid_llm_cost_usd_total")

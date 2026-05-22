@@ -6,6 +6,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Diagnostics;
 
+[Collection("ArchLucidInstrumentation")]
 [Trait("Suite", "Core")]
 public sealed class LlmGenAiInstrumentationTests
 {
@@ -92,7 +93,7 @@ public sealed class LlmGenAiInstrumentationTests
 
         private static void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
-            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            if (instrument.Meter.Name != ArchLucidInstrumentationTestSupport.MeterName)
                 return;
 
             if (instrument.Name == "archlucid_llm_gen_ai_operation_duration_ms")
@@ -144,7 +145,7 @@ public sealed class LlmGenAiInstrumentationTests
 
         private static void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
-            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            if (instrument.Meter.Name != ArchLucidInstrumentationTestSupport.MeterName)
                 return;
 
             if (instrument.Name == "archlucid_llm_embedding_input_tokens_total")

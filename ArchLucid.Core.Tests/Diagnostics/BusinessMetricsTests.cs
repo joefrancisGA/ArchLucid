@@ -8,6 +8,7 @@ using FluentAssertions;
 namespace ArchLucid.Core.Tests.Diagnostics;
 
 /// <summary>MeterListener coverage for business KPI instruments on <see cref="ArchLucidInstrumentation" />.</summary>
+[Collection("ArchLucidInstrumentation")]
 [Trait("Suite", "Core")]
 public sealed class BusinessMetricsTests
 {
@@ -145,7 +146,7 @@ public sealed class BusinessMetricsTests
 
         static private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
-            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            if (instrument.Meter.Name != ArchLucidInstrumentationTestSupport.MeterName)
             {
                 return;
             }

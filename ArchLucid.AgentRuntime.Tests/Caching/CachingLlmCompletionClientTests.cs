@@ -225,7 +225,7 @@ public sealed class CachingLlmCompletionClientTests
 
         private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
-            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            if (instrument.Meter.Name != ArchLucidMeterNames.Meter)
 
                 return;
 

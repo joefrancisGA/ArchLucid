@@ -29,7 +29,7 @@ public sealed class RealAgentExecutorTests
     ///     Literal source name for <see cref="ActivityListener.ShouldListenTo" /> — do not read
     ///     <see cref="ArchLucidInstrumentation.AgentHandler" /> during listener registration (type-init cycle).
     /// </summary>
-    private const string AgentHandlerActivitySourceName = "ArchLucid.Agent.Handler";
+    private const string AgentHandlerActivitySourceName = ArchLucidMeterNames.AgentHandlerActivitySource;
 
     private static IOptions<AgentExecutionResilienceOptions> UnlimitedResilienceOptions()
     {

@@ -105,7 +105,7 @@ public sealed class DataConsistencyCounterInstrumentationContractTests
 
         static private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
-            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            if (instrument.Meter.Name != ArchLucidMeterNames.Meter)
                 return;
 
             if (WatchedCounters.Contains(instrument.Name))

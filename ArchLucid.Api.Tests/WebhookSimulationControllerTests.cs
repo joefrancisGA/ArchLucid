@@ -76,6 +76,12 @@ public sealed class WebhookSimulationControllerTests
 
         IActionResult action = await sut.SimulateAsync(body: null, CancellationToken.None);
 
-        action.Should().BeOfType<BadRequestObjectResult>();
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            bad.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Detail.Should().Be("Request body is required.");
+        problem.Type.Should().Be(ProblemTypes.RequestBodyRequired);
     }
 }

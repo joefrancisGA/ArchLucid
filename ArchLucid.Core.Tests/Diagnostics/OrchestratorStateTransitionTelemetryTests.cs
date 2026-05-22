@@ -6,6 +6,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Diagnostics;
 
+[Collection("ArchLucidInstrumentation")]
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class OrchestratorStateTransitionTelemetryTests
@@ -13,9 +14,11 @@ public sealed class OrchestratorStateTransitionTelemetryTests
     [SkippableFact]
     public void RecordOrchestratorStateTransition_adds_activity_event_when_trace_active()
     {
+        ArchLucidInstrumentationTestSupport.EnsureInitialized();
+
         using ActivityListener listener = new()
         {
-            ShouldListenTo = source => source.Name == ArchLucidInstrumentation.AuthorityRun.Name,
+            ShouldListenTo = static source => source.Name == ArchLucidMeterNames.AuthorityRunActivitySource,
             Sample = static (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
         };
 

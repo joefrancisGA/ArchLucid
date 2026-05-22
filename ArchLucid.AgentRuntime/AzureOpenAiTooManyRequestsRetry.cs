@@ -96,6 +96,7 @@ internal static class AzureOpenAiTooManyRequestsRetry
         if (raw is null)
             return false;
 
+        // Headers is non-nullable on PipelineResponse, but HeadersCore can return null for partial/mocked responses.
         if (!TryGetRetryAfterHeaderRaw(raw.Headers, out string? rawValue) || string.IsNullOrWhiteSpace(rawValue))
             return false;
 
@@ -157,9 +158,14 @@ internal static class AzureOpenAiTooManyRequestsRetry
 
     }
 
-    private static bool TryGetRetryAfterHeaderRaw(PipelineResponseHeaders headers, [NotNullWhen(true)] out string? value)
+    private static bool TryGetRetryAfterHeaderRaw(
+        PipelineResponseHeaders? headers,
+        [NotNullWhen(true)] out string? value)
     {
         value = null;
+
+        if (headers is null)
+            return false;
 
         if (!headers.TryGetValue("Retry-After", out string? v) || string.IsNullOrWhiteSpace(v))
             return false;

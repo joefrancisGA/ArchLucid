@@ -2,6 +2,7 @@ using System.Diagnostics.Metrics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Resilience;
+using ArchLucid.Core.Tests.Diagnostics;
 using ArchLucid.Core.Time;
 
 using FluentAssertions;
@@ -9,6 +10,7 @@ using FluentAssertions;
 namespace ArchLucid.Core.Tests.Resilience;
 
 /// <summary>Validates OTel counter emissions from <see cref="CircuitBreakerGate" /> (MeterListener).</summary>
+[Collection("ArchLucidInstrumentation")]
 [Trait("Suite", "Core")]
 public sealed class CircuitBreakerGateMetricsTests
 {
@@ -144,7 +146,7 @@ public sealed class CircuitBreakerGateMetricsTests
 
         static private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
-            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            if (instrument.Meter.Name != ArchLucidInstrumentationTestSupport.MeterName)
             {
                 return;
             }

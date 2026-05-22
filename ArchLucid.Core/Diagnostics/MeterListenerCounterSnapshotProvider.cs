@@ -58,7 +58,7 @@ public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCount
 
     private static bool IsTrackedInstrument(Instrument instrument)
     {
-        if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+        if (instrument.Meter.Name != ArchLucidMeterNames.Meter)
             return false;
 
         return instrument.Name is RunsCreatedInstrumentName or FindingsProducedInstrumentName

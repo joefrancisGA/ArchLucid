@@ -10,6 +10,7 @@ namespace ArchLucid.Core.Tests.Diagnostics;
 ///     Unit tests for <see cref="MeterListenerCounterSnapshotProvider" /> — the host-singleton listener that
 ///     powers the <c>/why-archlucid</c> proof page's process-life counter snapshot.
 /// </summary>
+[Collection("ArchLucidInstrumentation")]
 [Trait("Suite", "Core")]
 public sealed class MeterListenerCounterSnapshotProviderTests
 {

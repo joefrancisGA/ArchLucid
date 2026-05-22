@@ -6,6 +6,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Diagnostics;
 
+[Collection("ArchLucidInstrumentation")]
 [Trait("Suite", "Core")]
 public sealed class TrialFunnelInstrumentationTests
 {
@@ -119,6 +120,7 @@ public sealed class TrialFunnelInstrumentationTests
     [Fact]
     public void TrialActiveTenants_observable_gauge_reads_published_count()
     {
+        ArchLucidInstrumentationTestSupport.EnsureInitialized();
         ArchLucidInstrumentation.EnsureTrialFunnelObservableGaugesRegistered();
         ArchLucidInstrumentation.PublishTrialActiveTenantCount(11);
 
@@ -127,7 +129,7 @@ public sealed class TrialFunnelInstrumentationTests
 
         listener.InstrumentPublished = (instrument, meterListener) =>
         {
-            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            if (instrument.Meter.Name != ArchLucidMeterNames.Meter)
             {
                 return;
             }
@@ -200,7 +202,7 @@ public sealed class TrialFunnelInstrumentationTests
 
         private static void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
-            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            if (instrument.Meter.Name != ArchLucidMeterNames.Meter)
             {
                 return;
             }

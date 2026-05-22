@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class AlwaysSampleActivitySourceSamplerTests
 {
-    private static readonly string[] AuthorityRunSourceList = [ArchLucidInstrumentation.AuthorityRun.Name];
+    private static readonly string[] AuthorityRunSourceList = [ArchLucidMeterNames.AuthorityRunActivitySource];
 
     [SkippableFact]
     public void ShouldSample_When_authority_stage_name_always_records()
@@ -69,7 +69,7 @@ public sealed class AlwaysSampleActivitySourceSamplerTests
     public void SpanMatcher_Matches_authority_run_source_by_span_name(string? spanName, bool expected)
     {
         bool matches = AlwaysSampleActivitySourceSpanMatcher.Matches(
-            ArchLucidInstrumentation.AuthorityRun.Name,
+            ArchLucidMeterNames.AuthorityRunActivitySource,
             spanName);
 
         matches.Should().Be(expected);

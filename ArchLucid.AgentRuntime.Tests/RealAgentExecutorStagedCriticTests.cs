@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
@@ -20,12 +21,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Suite", "Core")]
 public sealed class RealAgentExecutorStagedCriticTests
 {
-    /// <summary>
-    ///     Must match <c>ArchLucid.Agent.Execution</c> on <c>ArchLucidInstrumentation.AgentExecution</c>. Use this literal
-    ///     in <see cref="ActivityListener.ShouldListenTo" /> — reading <c>AgentExecution.Name</c> while static init builds
-    ///     earlier <see cref="ActivitySource" /> instances can throw (listener callback during type initializer).
-    /// </summary>
-    private const string AgentExecutionActivitySourceName = "ArchLucid.Agent.Execution";
+    private const string AgentExecutionActivitySourceName = ArchLucidMeterNames.AgentExecutionActivitySource;
 
     private static ArchitectureRequest MinimalRequest()
     {

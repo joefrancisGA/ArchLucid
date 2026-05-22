@@ -2,6 +2,7 @@ using System.Diagnostics.Metrics;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Tests.Diagnostics;
 
 using FluentAssertions;
 
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchLucid.Core.Tests.Audit;
 
+[Collection("ArchLucidInstrumentation")]
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class DurableAuditLogRetryTests
@@ -86,8 +88,6 @@ public sealed class DurableAuditLogRetryTests
     [Fact]
     public async Task TryLogAsync_increments_audit_write_failures_total_when_abandoned_with_metric_event_type()
     {
-        _ = ArchLucidInstrumentation.AuditWriteFailuresTotal;
-
         using AuditWriteFailureCapture capture = AuditWriteFailureCapture.Start();
 
         await DurableAuditLogRetry.TryLogAsync(
@@ -107,8 +107,6 @@ public sealed class DurableAuditLogRetryTests
     [Fact]
     public async Task TryLogAsync_does_not_increment_counter_on_success_when_metric_event_type_set()
     {
-        _ = ArchLucidInstrumentation.AuditWriteFailuresTotal;
-
         using AuditWriteFailureCapture capture = AuditWriteFailureCapture.Start();
 
         await DurableAuditLogRetry.TryLogAsync(
@@ -124,8 +122,6 @@ public sealed class DurableAuditLogRetryTests
     [Fact]
     public async Task TryLogAsync_does_not_increment_counter_when_abandoned_without_metric_event_type()
     {
-        _ = ArchLucidInstrumentation.AuditWriteFailuresTotal;
-
         using AuditWriteFailureCapture capture = AuditWriteFailureCapture.Start();
 
         await DurableAuditLogRetry.TryLogAsync(
@@ -154,11 +150,15 @@ public sealed class DurableAuditLogRetryTests
 
         public void Dispose() => _listener.Dispose();
 
-        public static AuditWriteFailureCapture Start() => new();
+        public static AuditWriteFailureCapture Start()
+        {
+            ArchLucidInstrumentationTestSupport.EnsureInitialized();
+            return new AuditWriteFailureCapture();
+        }
 
         static private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
-            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            if (instrument.Meter.Name != ArchLucidInstrumentationTestSupport.MeterName)
                 return;
 
             if (instrument.Name == "archlucid_audit_write_failures_total")

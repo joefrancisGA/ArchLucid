@@ -45,7 +45,7 @@ public sealed class ObservabilityTraceSamplingConfiguratorTests
             new Dictionary<string, string?>
             {
                 ["Observability:Tracing:SamplingRatio"] = "0.1",
-                ["Observability:Tracing:AlwaysSampleActivitySources:0"] = ArchLucidInstrumentation.AuthorityRun.Name
+                ["Observability:Tracing:AlwaysSampleActivitySources:0"] = ArchLucidMeterNames.AuthorityRunActivitySource
             }).Build();
 
         TracerProviderBuilder builder = Sdk.CreateTracerProviderBuilder();

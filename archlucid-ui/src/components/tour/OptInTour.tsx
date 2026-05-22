@@ -33,9 +33,9 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
       "The analysis and governance sections below are optional until your first review is finalized.",
   },
   {
-    title: "2. API Key Setup",
+    title: "2. Upload your architecture context",
     body:
-      "Before starting a review, you need to configure your API keys. Go to Settings → API Keys to set up your Azure OpenAI and other required credentials.",
+      "ArchLucid needs to know about your Azure environment. Run Get-ArchLucidAzurePackage.ps1 from Settings → Extract & Upload, then upload the ZIP — or seed a sample review from the Reviews page to explore without setup.",
   },
   {
     title: "3. Start a review",
@@ -47,7 +47,7 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
     title: "4. Review and finalize",
     body:
       "When the pipeline finishes, open your review from the Reviews list. Review findings and evidence, then click " +
-      "Finalize manifest to produce the versioned manifest — the review package you can export and share.",
+      "Finalize to produce your architecture snapshot — the reviewed package you can export and share.",
   },
   {
     title: "5. Governance and alerts",
@@ -59,7 +59,7 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
     title: "6. Get help",
     body:
       "If something is not working, go to Admin → Support to download a redacted diagnostics bundle for support " +
-      "tickets. Most pages also include a link to the relevant documentation.",
+      "tickets. Most pages also include a link to the relevant documentation. The How it works button on Home re-opens this tour anytime.",
   },
 ];
 

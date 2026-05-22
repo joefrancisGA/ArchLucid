@@ -78,6 +78,20 @@ public sealed class AzureOpenAiTooManyRequestsRetryTests
     }
 
     [Fact]
+    public void TryGetRetryAfterDelayFromClientResult_null_headers_returns_false_without_throwing()
+    {
+        Mock<PipelineResponse> response = new();
+        response.SetupGet(r => r.Status).Returns(429);
+
+        ClientResultException ex = new("unit-too-many", response.Object);
+
+        bool ok = AzureOpenAiTooManyRequestsRetry.TryGetRetryAfterDelayFromClientResult(ex, out TimeSpan delay);
+
+        ok.Should().BeFalse();
+        delay.Should().Be(TimeSpan.Zero);
+    }
+
+    [Fact]
     public void TryGetRetryAfterDelay_reads_Retry_After_from_ClientResult_headers()
     {
         Mock<PipelineResponseHeaders> hdrs = new();

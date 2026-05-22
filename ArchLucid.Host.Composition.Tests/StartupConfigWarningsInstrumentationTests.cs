@@ -224,7 +224,7 @@ public sealed class StartupConfigWarningsInstrumentationTests
 
         private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
-            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            if (instrument.Meter.Name != ArchLucidMeterNames.Meter)
                 return;
 
             if (instrument.Name == "archlucid_startup_config_warnings_total")

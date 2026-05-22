@@ -35,7 +35,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "Core")]
 public sealed class AuthorityPipelineStagesExecutorTests
 {
-    private const string AuthorityRunSourceName = "ArchLucid.AuthorityRun";
+    private const string AuthorityRunSourceName = ArchLucidMeterNames.AuthorityRunActivitySource;
 
     [SkippableFact]
     public async Task ExecuteAfterRunPersistedAsync_creates_child_activities_under_run_activity()
@@ -158,7 +158,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
         using MeterListener meterListener = new();
         meterListener.InstrumentPublished = (instrument, listener) =>
         {
-            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            if (instrument.Meter.Name != ArchLucidMeterNames.Meter)
             {
                 return;
             }

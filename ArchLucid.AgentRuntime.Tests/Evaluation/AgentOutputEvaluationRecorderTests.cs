@@ -461,7 +461,7 @@ public sealed class AgentOutputEvaluationRecorderTests
 
         private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
-            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            if (instrument.Meter.Name != ArchLucidMeterNames.Meter)
             {
                 return;
             }
