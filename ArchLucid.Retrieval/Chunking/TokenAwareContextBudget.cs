@@ -28,9 +28,9 @@ public static class TokenAwareContextBudget
     /// </summary>
     public static string TruncateToTokenBudget(
         string text,
+        out bool wasTruncated,
         int maxEstimatedTokens = DefaultMaxEstimatedTokens,
-        int charsPerToken = DefaultCharsPerTokenEstimate,
-        out bool wasTruncated)
+        int charsPerToken = DefaultCharsPerTokenEstimate)
     {
         wasTruncated = false;
 

@@ -13,7 +13,7 @@ public sealed class TokenAwareContextBudgetTests
     {
         string text = new('a', 400);
 
-        string result = TokenAwareContextBudget.TruncateToTokenBudget(text, maxEstimatedTokens: 200, out bool truncated);
+        string result = TokenAwareContextBudget.TruncateToTokenBudget(text, out bool truncated, maxEstimatedTokens: 200);
 
         truncated.Should().BeFalse();
         result.Should().Be(text);
@@ -26,9 +26,9 @@ public sealed class TokenAwareContextBudgetTests
 
         string result = TokenAwareContextBudget.TruncateToTokenBudget(
             text,
+            out bool truncated,
             maxEstimatedTokens: 100,
-            charsPerToken: 4,
-            out bool truncated);
+            charsPerToken: 4);
 
         truncated.Should().BeTrue();
         result.Length.Should().BeLessThan(text.Length);

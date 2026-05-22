@@ -82,8 +82,7 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             foreach (MethodDeclarationSyntax methodDeclarationScoped in syntaxTreeRootScoped.DescendantNodes()
                          .OfType<MethodDeclarationSyntax>())
             {
-                if (methodDeclarationScoped.Body is null && methodDeclarationScoped.ExpressionBody is null)
-                    continue;
+                if (methodDeclarationScoped.Body is null && methodDeclarationScoped.ExpressionBody is null) continue;
 
                 IMethodSymbol? methodDeclaredSymbol =
                     semanticModelScoped.GetDeclaredSymbol(methodDeclarationScoped, cancellationTokenScoped);
@@ -96,8 +95,7 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                     continue;
                 }
 
-                if (!MethodSpecifiesTrackedVerb(methodDeclaredSymbol))
-                    continue;
+                if (!MethodSpecifiesTrackedVerb(methodDeclaredSymbol)) continue;
 
                 string fqAllowlistKeyScoped = FormatAllowlistKey(methodDeclaredSymbol);
 
