@@ -37,6 +37,16 @@ export function comparePageMainHeading(page: Page): Locator {
   return page.getByRole("heading", { level: 2, name: /Compare reviews|Advanced review comparison/i });
 }
 
+/**
+ * Intro paragraph from {@link ComparePageIntro}. Mock E2E uses buyer-polished copy ("structured manifest diff
+ * summary is the authoritative delta"); full-operator builds use "review the structured summary first".
+ */
+export function comparePageIntroGuidance(page: Page): Locator {
+  return page.getByText(
+    /review the structured summary first|structured manifest diff summary is the authoritative delta/i,
+  );
+}
+
 /** Primary `/ask` H2 from {@link OperatorPageHeader} (buyer-polished vs full-operator titles). */
 export function askPageMainHeading(page: Page): Locator {
   return page.getByRole("heading", { level: 2, name: ASK_PAGE_PRIMARY_HEADING_PATTERN });

@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { FIXTURE_LEFT_RUN_ID, FIXTURE_RIGHT_RUN_ID } from "./fixtures";
 import {
+  comparePageIntroGuidance,
   comparePageLeftRunInput,
   comparePageMainHeading,
   comparePageRightRunInput,
@@ -30,11 +31,7 @@ test.describe("operator journey — compare query prefill and review order", () 
     await expect(comparePageRightRunInput(page)).toHaveValue(FIXTURE_RIGHT_RUN_ID);
 
     await expect(comparePageMainHeading(page)).toBeVisible();
-    await expect(
-      page.getByText(
-        /review the structured summary first|The structured summary below is the authoritative|structured summary is the authoritative delta/i,
-      ),
-    ).toBeVisible();
+    await expect(comparePageIntroGuidance(page)).toBeVisible();
     // URL pair triggers auto-compare; wait for results before expanding collapsed pickers or clicking submit.
     await waitForCompareResultsReady(page);
     await expandCompareRunPickersIfCollapsed(page);
