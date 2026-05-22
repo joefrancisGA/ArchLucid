@@ -1,3 +1,5 @@
+> **Scope:** Canonical weighted V1 GA readiness assessment for coding agents and the owner — current `(A)` headline score and improvement backlog; not a buyer deliverable or historical archive.
+
 # ArchLucid Assessment – (A) Headline Readiness: 82.05%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred V1.1/V2 items.*
