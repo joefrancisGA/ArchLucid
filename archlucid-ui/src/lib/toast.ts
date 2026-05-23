@@ -6,6 +6,7 @@ export function showSuccess(message: string): void {
 
 export function showError(message: string, detail?: string, options?: { type?: "error" | "warning" }): void {
   const text = detail ? `${message} — ${detail}` : message;
+
   if (options?.type === "warning") {
     toast.warning(text);
   } else {

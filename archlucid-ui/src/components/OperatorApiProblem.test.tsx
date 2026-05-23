@@ -36,6 +36,18 @@ describe("OperatorApiProblem", () => {
     expect(screen.getByText("abc-123")).toBeInTheDocument();
   });
 
+  it("reads correlation id from problem details when prop omitted", () => {
+    render(
+      <OperatorApiProblem
+        problem={{ title: "Failed", detail: "Bad gateway", correlationId: "from-problem-json" }}
+        fallbackMessage="fallback"
+      />,
+    );
+
+    expect(screen.getByText("from-problem-json")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Copy correlation ID" })).toBeInTheDocument();
+  });
+
   it("treats omitted problem details like null (no throw)", () => {
     render(<OperatorApiProblem problem={undefined} fallbackMessage="Network error" />);
 

@@ -1,7 +1,6 @@
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { notifyTrialLimitFromApiError } from "@/lib/trial-limit-modal-bridge";
 import { parseTrialLimitProblemDetails } from "@/lib/trial-limit-problem";
-import { showError } from "@/lib/toast";
 import { CORRELATION_ID_HEADER, generateCorrelationId } from "@/lib/correlation";
 import { getServerApiBaseUrl } from "@/lib/config";
 import { getServerUpstreamAuthHeaders } from "@/lib/legacy-arch-env";
@@ -126,7 +125,9 @@ export function throwApiRequestError(response: Response, bodyText: string): neve
   }
 
   if (isBrowser() && err.httpStatus >= 500) {
-    showError("Server error", err.message);
+    void import("@/lib/api-error-toast").then(({ showApiRequestErrorToast }) => {
+      showApiRequestErrorToast(err);
+    });
   }
 
   throw err;

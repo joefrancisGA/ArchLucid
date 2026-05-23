@@ -36,6 +36,8 @@ import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealth
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { SimulatorExecutionModeBanner } from "@/components/SimulatorExecutionModeBanner";
 import { ServiceBusHealthBanner } from "@/components/governance/ServiceBusHealthBanner";
+import { LlmBudgetApproachingLimitBanner } from "@/components/LlmBudgetApproachingLimitBanner";
+import { LlmBudgetStatusPill } from "@/components/LlmBudgetStatusPill";
 import { TrialBanner } from "@/components/TrialBanner";
 import { TrialExpiryBanner } from "@/components/TrialExpiryBanner";
 import { TrialLimitModalHost } from "@/components/TrialLimitModal";
@@ -173,6 +175,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               <div data-testid="app-shell-main" className="mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 py-4 lg:px-6 lg:py-6">
                 <SimulatorExecutionModeBanner />
                 <ServiceBusHealthBanner />
+                <LlmBudgetApproachingLimitBanner />
                 <TrialExpiryBanner />
                 <KeyboardShortcutProvider
                   onHelpRequested={() => {
@@ -237,6 +240,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                   </div>
                 </div>
                 <div className="flex max-w-[min(100%,42rem)] shrink-0 flex-wrap items-center justify-end gap-2">
+                  {!isBuyerPolishedOperatorShellEnv() ? <LlmBudgetStatusPill /> : null}
                   <AuthPanel />
                   <ScopeSwitcher />
                   <CommandPalette />
@@ -276,6 +280,7 @@ function AppShellInner({ children }: AppShellClientProps) {
             <div data-testid="app-shell-main" className="min-w-0 flex-1 px-4 py-4 print:px-0 lg:px-6 lg:py-6">
               <SimulatorExecutionModeBanner />
               <ServiceBusHealthBanner />
+              <LlmBudgetApproachingLimitBanner />
               <TrialExpiryBanner />
               <TrialBanner />
               <KeyboardShortcutProvider>

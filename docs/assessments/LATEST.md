@@ -253,21 +253,25 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
      In `ArchLucid.Persistence/AuthorityRunOrchestrator.cs` (or the relevant orchestrator file), wrap the state transition and database commit calls in a Polly `AsyncRetryPolicy`. The policy should handle `SqlException` (specifically transient error numbers like 1205, 4060) and `TimeoutException`. Use exponential backoff (e.g., 3 retries: 2s, 4s, 8s). Do not change the overall state machine logic. Acceptance criteria: Transient DB errors during orchestration are retried automatically.
      ```
 
-7. **Surface correlation IDs clearly in the UI**
+7. **Surface correlation IDs clearly in the UI** *(Completed 2026-05-22)*
    - Why it matters: Drastically improves supportability when users encounter errors.
    - Expected impact: Supportability (+5-10 pts). Weighted readiness impact: +0.1-0.3%.
    - Affected qualities: Supportability
    - Actionable: Yes — Batch **UI-A**
+   - **Completed.** Added `ApiErrorToastContent` and browser-only `showApiRequestErrorToast` in `archlucid-ui/src/lib/api-error-toast.tsx`; wired `throwApiRequestError` in `archlucid-ui/src/lib/api/http.ts` to surface correlation IDs in Sonner toasts (with copy) on 5xx responses. `OperatorApiProblem` now falls back to `problem.correlationId` when the explicit prop is omitted.
+   - **Status:** **Completed** (2026-05-22).
    - Prompt:
      ```text
      In the `archlucid-ui` project, update the global error boundary and API error interceptor. Whenever an API request fails and returns a Problem Details JSON containing a correlation ID (or `X-Correlation-ID` header), display this ID prominently in the error toast/modal with a "Copy to Clipboard" button. Do not change the backend error formatting. Acceptance criteria: Users can easily copy correlation IDs from the UI.
      ```
 
-8. **Add a warning banner in the UI when LLM budget approaches 75%**
+8. **Add a warning banner in the UI when LLM budget approaches 75%** *(Completed 2026-05-22)*
    - Why it matters: Prevents pilot runs from abruptly failing due to the $75/month hard stop.
    - Expected impact: AI/Agent Readiness (+3-5 pts), Usability (+2-4 pts). Weighted readiness impact: +0.3-0.5%.
    - Affected qualities: AI/Agent Readiness, Usability
    - Actionable: Yes — Batch **UI-A**
+   - **Completed.** Added session-dismissible `LlmBudgetApproachingLimitBanner` (`archlucid-ui/src/components/LlmBudgetApproachingLimitBanner.tsx`) mounted in `AppShellClient` when utilization crosses `warnFraction` (default 75%); polls cached `GET /v1/admin/llm-monthly-dollar-budget-status` every 60s.
+   - **Status:** **Completed** (2026-05-22).
    - Prompt:
      ```text
      In the `archlucid-ui` project, create a global banner component that fetches the tenant's current LLM budget usage (if exposed via an existing endpoint). If the usage exceeds 75% of the limit (e.g., $56.25 of $75), display a warning banner: "Approaching monthly LLM budget limit. Runs may be paused soon." Make it dismissible for the current session. Do not change backend billing logic. Acceptance criteria: Users are warned before hitting the hard stop.
@@ -349,10 +353,12 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       Do not block V1 GA on this — extend TenantDeletionService patterns.
       ```
 
-17. **Add a "copy to clipboard" button for all error correlation IDs**
-    - Why it matters: Reduces friction when users need to contact support.
-    - Expected impact: Directly improves Supportability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-    - Prompt:
+17. **Add a "copy to clipboard" button for all error correlation IDs** *(Completed 2026-05-22)*
+   - Why it matters: Reduces friction when users need to contact support.
+   - Expected impact: Directly improves Supportability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
+   - **Completed.** Shipped with batch **UI-A** `#7`: `CopyIdButton` on `OperatorApiProblem` correlation lines (including `problem.correlationId` fallback) and on API error Sonner toasts via `ApiErrorToastContent`.
+   - **Status:** **Completed** (2026-05-22).
+   - Prompt:
       ```text
       In the `archlucid-ui` project, locate the shared Error/Problem Details display component. Add a small clipboard icon button next to the `traceId` or `correlationId`. Use the standard browser clipboard API to copy the ID when clicked, and show a brief "Copied!" tooltip. Do not change the error layout significantly. Acceptance criteria: Users can copy correlation IDs with one click.
       ```
@@ -434,12 +440,14 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       Acceptance: zero sample rows survive past the first real commit OR 7 days, whichever is sooner.
       ```
 
-26. **Persistent LLM budget badge in operator shell (V1 — UI-A)**
-    - Why it matters: Today operators only see the LLM monthly budget inside Settings → Cost Reporting or right before starting a run in the wizard. A persistent, ambient badge in the operator shell header eliminates the surprise of hard stops and lets buyers/operators check available budget at any time. **`GET /v1/admin/llm-monthly-dollar-budget-status`** and **`LlmBudgetUtilizationMeter`** already exist — this is a placement task, not a build.
-    - Expected impact: Supportability (+3-5 pts), Usability (+2-3 pts), AI/Agent Readiness (+1-2 pts). Weighted readiness impact: +0.05-0.15%.
-    - Affected qualities: Supportability, Usability, AI/Agent Readiness
-    - Actionable: Yes — Batch **UI-A** (pairs with #8 — banner is loud/one-time, badge is ambient)
-    - Prompt:
+26. **Persistent LLM budget badge in operator shell (V1 — UI-A)** *(Completed 2026-05-22)*
+   - Why it matters: Today operators only see the LLM monthly budget inside Settings → Cost Reporting or right before starting a run in the wizard. A persistent, ambient badge in the operator shell header eliminates the surprise of hard stops and lets buyers/operators check available budget at any time. **`GET /v1/admin/llm-monthly-dollar-budget-status`** and **`LlmBudgetUtilizationMeter`** already exist — this is a placement task, not a build.
+   - Expected impact: Supportability (+3-5 pts), Usability (+2-3 pts), AI/Agent Readiness (+1-2 pts). Weighted readiness impact: +0.05-0.15%.
+   - Affected qualities: Supportability, Usability, AI/Agent Readiness
+   - Actionable: Yes — Batch **UI-A** (pairs with #8 — banner is loud/one-time, badge is ambient)
+   - **Completed.** Added `LlmBudgetStatusPill` (`archlucid-ui/src/components/LlmBudgetStatusPill.tsx`) with tone-colored label, popover embedding `LlmBudgetUtilizationMeter`, and ExecuteAuthority gate; mounted in `AppShellClient` top bar (operator shell only). Added `ui/popover.tsx` (Collapsible-based).
+   - **Status:** **Completed** (2026-05-22).
+   - Prompt:
       ```text
       Add a persistent LLM budget status badge to the operator shell, reusing the existing meter component.
 

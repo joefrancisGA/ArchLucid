@@ -50,7 +50,7 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
   } else {
     problem = props.problem ?? null;
     fallbackMessage = props.fallbackMessage;
-    correlationId = props.correlationId ?? null;
+    correlationId = props.correlationId ?? problem?.correlationId ?? null;
     httpStatus = props.httpStatus ?? null;
     retryAfterSeconds = props.retryAfterSeconds ?? null;
   }
