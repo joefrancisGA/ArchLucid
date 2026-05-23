@@ -13,9 +13,9 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
+using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Models;
-using ArchLucid.Retrieval.Queries;
 
 using ArchLucid.Retrieval.Chunking;
 

@@ -43,14 +43,14 @@ public class RetrievalDocument
         set;
     }
 
-    /// <inheritdoc cref="RetrievalHit.SourceType" />
+    /// <inheritdoc cref="ArchLucid.Core.Retrieval.RetrievalHit.SourceType" />
     public string SourceType
     {
         get;
         set;
     } = null!;
 
-    /// <inheritdoc cref="RetrievalHit.SourceId" />
+    /// <inheritdoc cref="ArchLucid.Core.Retrieval.RetrievalHit.SourceId" />
     public string SourceId
     {
         get;

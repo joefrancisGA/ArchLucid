@@ -3,8 +3,8 @@ using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Indexing;
-using ArchLucid.Retrieval.Models;
 
 using FluentAssertions;
 

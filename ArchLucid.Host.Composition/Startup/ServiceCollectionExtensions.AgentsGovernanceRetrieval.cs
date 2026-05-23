@@ -44,6 +44,7 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Retrieval.Chunking;
 using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
+using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Queries;
 
 using Microsoft.Extensions.Caching.Memory;

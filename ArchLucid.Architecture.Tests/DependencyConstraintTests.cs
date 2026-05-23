@@ -16,6 +16,7 @@ using ArchLucid.Persistence;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Coordination.Replay;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Queries;
 using ArchLucid.TestSupport;
 
@@ -339,7 +340,7 @@ public sealed class DependencyConstraintTests
     [Trait("Category", "Unit")]
     public void Retrieval_must_not_depend_on_Persistence()
     {
-        Assembly retrieval = typeof(IRetrievalQueryService).Assembly;
+        Assembly retrieval = typeof(RetrievalQueryService).Assembly;
 
         TestResult result = Types
             .InAssembly(retrieval)

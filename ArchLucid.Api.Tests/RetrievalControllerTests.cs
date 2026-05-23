@@ -1,7 +1,6 @@
 ﻿using ArchLucid.Api.Controllers.Planning;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Retrieval.Models;
-using ArchLucid.Retrieval.Queries;
+using ArchLucid.Core.Retrieval;
 
 using FluentAssertions;
 

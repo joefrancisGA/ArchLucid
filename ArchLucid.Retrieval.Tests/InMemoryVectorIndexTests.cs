@@ -1,3 +1,4 @@
+using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Models;
 

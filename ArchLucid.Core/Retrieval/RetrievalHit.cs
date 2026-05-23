@@ -1,7 +1,7 @@
-namespace ArchLucid.Retrieval.Models;
+namespace ArchLucid.Core.Retrieval;
 
 /// <summary>
-///     One ranked chunk returned from <see cref="ArchLucid.Retrieval.Queries.IRetrievalQueryService.SearchAsync" />.
+///     One ranked chunk returned from <see cref="IRetrievalQueryService.SearchAsync" />.
 /// </summary>
 public class RetrievalHit
 {

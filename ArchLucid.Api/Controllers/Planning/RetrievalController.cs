@@ -3,8 +3,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Retrieval.Models;
-using ArchLucid.Retrieval.Queries;
+using ArchLucid.Core.Retrieval;
 
 using Asp.Versioning;
 

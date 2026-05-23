@@ -1,8 +1,8 @@
-namespace ArchLucid.Retrieval.Models;
+namespace ArchLucid.Core.Retrieval;
 
 /// <summary>
 ///     Scoped semantic search request: embedding is computed from <see cref="QueryText" /> by
-///     <see cref="ArchLucid.Retrieval.Queries.RetrievalQueryService" />.
+///     <c>ArchLucid.Retrieval.Queries.RetrievalQueryService</c>.
 /// </summary>
 public class RetrievalQuery
 {
@@ -28,8 +28,7 @@ public class RetrievalQuery
     }
 
     /// <summary>
-    ///     Optional run facet; behavior depends on <see cref="ArchLucid.Retrieval.Indexing.IVectorIndex" />
-    ///     implementation.
+    ///     Optional run facet; behavior depends on the configured vector index implementation.
     /// </summary>
     public Guid? RunId
     {

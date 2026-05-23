@@ -9,8 +9,8 @@ using ArchLucid.Host.Core.Services.Ask;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
+using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Indexing;
-using ArchLucid.Retrieval.Queries;
 
 using FluentAssertions;
 
