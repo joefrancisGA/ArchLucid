@@ -73,12 +73,15 @@ public sealed class RunsExportController(
                 cancellationToken);
 
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            Guid? auditRunId = Guid.TryParseExact(runId.Trim(), "N", out Guid runGuidN)
+                ? runGuidN
+                : Guid.TryParse(runId.Trim(), out Guid runGuid) ? runGuid : null;
 
             await _auditService.LogAsync(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.ExportDownloadSucceeded,
-                    RunId = runId.Trim(),
+                    RunId = auditRunId,
                     TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,

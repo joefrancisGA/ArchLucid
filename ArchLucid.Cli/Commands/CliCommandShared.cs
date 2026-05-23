@@ -146,4 +146,15 @@ internal static class CliCommandShared
         string json = JsonSerializer.Serialize(summary, JsonWriteIndented);
         File.WriteAllText(path, json);
     }
+
+    internal static string? TryGetOptionValue(IReadOnlyList<string> args, string optionName)
+    {
+        for (int i = 0; i < args.Count - 1; i++)
+        {
+            if (string.Equals(args[i], optionName, StringComparison.OrdinalIgnoreCase))
+                return args[i + 1];
+        }
+
+        return null;
+    }
 }

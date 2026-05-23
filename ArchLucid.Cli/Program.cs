@@ -240,9 +240,12 @@ public static class Program
                     return await ReferenceEvidenceCommand.RunAsync(normalized.Skip(1).ToArray());
 
                 case "run":
-                    bool quick = normalized.Length > 1 && normalized[1] == "--quick";
+                {
+                    bool quick = normalized.Contains("--quick");
+                    string? idempotencyKey = CliCommandShared.TryGetOptionValue(normalized, "--idempotency-key");
 
-                    return await RunCommand.RunAsync(quick);
+                    return await RunCommand.RunAsync(quick, idempotencyKey);
+                }
 
                 case "status":
                     if (normalized.Length > 1)

@@ -8,7 +8,7 @@ namespace ArchLucid.Cli.Commands;
     "CLI run subcommand orchestrates HTTP and filesystem via ArchLucidApiClient (excluded from coverage); exercised via manual CLI.")]
 internal static class RunCommand
 {
-    public static async Task<int> RunAsync(bool quick)
+    public static async Task<int> RunAsync(bool quick, string? idempotencyKey = null)
     {
         string projectRoot = Directory.GetCurrentDirectory();
         ArchLucidProjectScaffolder.ArchLucidCliConfig config;
@@ -57,7 +57,7 @@ internal static class RunCommand
 
         Console.WriteLine($"Submitting request to {baseUrl}...");
 
-        ArchLucidApiClient.CreateRunResult result = await client.CreateRunAsync(request);
+        ArchLucidApiClient.CreateRunResult result = await client.CreateRunAsync(request, CancellationToken.None, idempotencyKey);
 
         if (!result.Success)
         {

@@ -12,6 +12,8 @@ using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
@@ -229,7 +231,10 @@ public sealed class LlmCompletionAccountingClientTests
         LlmMonthlyTenantDollarBudgetTracker monthlyTracker = new(
             new FixedValueOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>(monthlyOptsBinding),
             costEstimator.Object,
-            monthlyRepoBinding);
+            monthlyRepoBinding,
+            new ConfigurationBuilder().Build(),
+            CreateNonProductionHostEnvironment(),
+            TimeProvider.System);
 
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
@@ -248,6 +253,7 @@ public sealed class LlmCompletionAccountingClientTests
             dailyTracker,
             new FixedValueOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>(monthlyOptsBinding),
             monthlyTracker,
+            costEstimator.Object,
             audit.Object,
             NullLogger<LlmCompletionAccountingClient>.Instance);
     }
@@ -268,5 +274,13 @@ public sealed class LlmCompletionAccountingClientTests
         }
 
         public PromptRedactionOutcome RedactAlways(string? input) => Redact(input);
+    }
+
+    private static IHostEnvironment CreateNonProductionHostEnvironment()
+    {
+        Mock<IHostEnvironment> host = new();
+        host.Setup(h => h.IsProduction()).Returns(false);
+
+        return host.Object;
     }
 }

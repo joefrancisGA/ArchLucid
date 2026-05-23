@@ -20,6 +20,18 @@
 
 If still stuck, use **[When you report an issue](../library/PILOT_GUIDE.md#when-you-report-an-issue)** in [PILOT_GUIDE.md](../library/PILOT_GUIDE.md).
 
+## Orchestrator degraded health
+
+When **`OrchestratorHealthCheck`** reports **Degraded** or **Unhealthy** on **`GET /health/ready`**, or runs stall in **Executing** without task progress:
+
+1. Confirm the **Worker** role is running and elected (`ArchLucid.Worker` logs — queue consumer active).
+2. Inspect SQL for stuck runs: status **Executing**, `UpdatedUtc` older than expected — see [`ORCHESTRATOR_RETRIES.md`](ORCHESTRATOR_RETRIES.md) for transient DB retry behavior.
+3. Check integration outbox depth (pending integration events) — backlog may block resume signals.
+4. Collect **`support-bundle --zip`** and search logs for **`Authority pipeline`** + the affected **`RunId=`**.
+5. For operator recovery steps (resume, cancel, retry), follow [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) orchestrator / execute stall guidance.
+
+Cross-links: [`ORCHESTRATOR_RETRIES.md`](ORCHESTRATOR_RETRIES.md), [`CORRELATION_AND_TRACING.md`](CORRELATION_AND_TRACING.md).
+
 **OpenAI / embedding failures:** With reader credentials, **`GET /health`** includes **`circuit_breakers`**. **`state` = `Open`** means the breaker tripped; after **`DurationOfBreakSeconds`** (see **`AzureOpenAI:CircuitBreaker:*`** in [RESILIENCE_CONFIGURATION.md](../library/RESILIENCE_CONFIGURATION.md)) the gate allows a single half-open probe before closing or re-opening.
 
 ---

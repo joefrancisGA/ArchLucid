@@ -49,6 +49,8 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
 
     private readonly IUsageMeteringService _usageMetering;
 
+    private readonly ILlmCostEstimator _costEstimator;
+
     public LlmCompletionAccountingClient(
         IAgentCompletionClient inner,
         LlmTokenQuotaWindowTracker quotaTracker,
@@ -63,6 +65,7 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         LlmDailyTenantBudgetTracker dailyTenantBudgetTracker,
         IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> monthlyDollarBudgetOptions,
         LlmMonthlyTenantDollarBudgetTracker monthlyDollarBudgetTracker,
+        ILlmCostEstimator costEstimator,
         IAuditService auditService,
         ILogger<LlmCompletionAccountingClient> logger)
     {
@@ -79,6 +82,7 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         ArgumentNullException.ThrowIfNull(dailyTenantBudgetTracker);
         ArgumentNullException.ThrowIfNull(monthlyDollarBudgetOptions);
         ArgumentNullException.ThrowIfNull(monthlyDollarBudgetTracker);
+        ArgumentNullException.ThrowIfNull(costEstimator);
         ArgumentNullException.ThrowIfNull(auditService);
         ArgumentNullException.ThrowIfNull(logger);
 
@@ -95,6 +99,7 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         _dailyTenantBudgetTracker = dailyTenantBudgetTracker;
         _monthlyDollarBudgetOptions = monthlyDollarBudgetOptions;
         _monthlyDollarBudgetTracker = monthlyDollarBudgetTracker;
+        _costEstimator = costEstimator;
         _auditService = auditService;
         _logger = logger;
     }
@@ -216,6 +221,13 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                     tenantKey,
                     labels.ProviderId,
                     labels.ModelDeploymentLabel);
+
+                LlmCompletionCostDeltaLogger.LogIfEnabled(
+                    _logger,
+                    _costEstimator,
+                    _monthlyDollarBudgetOptions,
+                    promptTok,
+                    completionTok);
 
                 _ = TryRecordLlmUsageMeteringAsync(scope, promptTok, completionTok, cancellationToken);
             }
@@ -346,6 +358,13 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                     tenantKey,
                     labels.ProviderId,
                     labels.ModelDeploymentLabel);
+
+                LlmCompletionCostDeltaLogger.LogIfEnabled(
+                    _logger,
+                    _costEstimator,
+                    _monthlyDollarBudgetOptions,
+                    promptTok,
+                    completionTok);
 
                 _ = TryRecordLlmUsageMeteringAsync(scope, promptTok, completionTok, cancellationToken);
             }

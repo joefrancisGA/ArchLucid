@@ -643,9 +643,27 @@ public sealed class RunQueryController(
         {
             byte[]? zip = await traceabilityBundleBuilder.BuildAsync(runId, scope, maxZipBytes, cancellationToken);
 
-            return zip is null
-                ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound)
-                : File(zip, "application/zip", $"traceability-{runId}.zip");
+            if (zip is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+            Guid? auditRunId = TryParseRunId(runId, out Guid runGuidForAudit) ? runGuidForAudit : null;
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ExportDownloadSucceeded,
+                    RunId = auditRunId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    CorrelationId = HttpContext.TraceIdentifier,
+                    DataJson = JsonSerializer.Serialize(
+                        new { exportType = "traceability-bundle.zip", fileName = $"traceability-{runId}.zip" },
+                        AuditJsonSerializationOptions.Instance)
+                },
+                cancellationToken);
+
+            return File(zip, "application/zip", $"traceability-{runId}.zip");
         }
         catch (TraceabilityBundleTooLargeException ex)
         {

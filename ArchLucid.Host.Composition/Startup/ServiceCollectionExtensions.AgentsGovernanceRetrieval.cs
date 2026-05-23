@@ -603,6 +603,7 @@ public static partial class ServiceCollectionExtensions
                 dailyBudgetTracker,
                 monthlyDollarOpts,
                 monthlyDollarTracker,
+                sp.GetRequiredService<ILlmCostEstimator>(),
                 auditService,
                 accountingLogger);
 
@@ -1021,6 +1022,7 @@ public static partial class ServiceCollectionExtensions
             dailyBudgetTracker,
             monthlyDollarOpts,
             monthlyDollarTracker,
+            sp.GetRequiredService<ILlmCostEstimator>(),
             auditService,
             accountingLogger);
 
@@ -1098,6 +1100,7 @@ public static partial class ServiceCollectionExtensions
             dailyBudgetTracker,
             monthlyDollarOpts,
             monthlyDollarTracker,
+            sp.GetRequiredService<ILlmCostEstimator>(),
             auditService,
             accountingLogger);
 

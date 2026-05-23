@@ -5,6 +5,7 @@ using ArchLucid.Core.Diagnostics;
 using Microsoft.Extensions.Configuration;
 
 using Serilog;
+using Serilog.Enrichers.OpenTelemetry;
 using Serilog.Events;
 
 namespace ArchLucid.Host.Core.Startup;

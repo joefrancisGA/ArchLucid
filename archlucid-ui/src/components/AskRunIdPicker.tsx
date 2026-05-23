@@ -37,6 +37,8 @@ export type AskRunIdPickerProps = {
    * Defaults to true.
    */
   readonly preferAutoPick?: boolean;
+  /** When true, only committed runs are listed (capped at 20). */
+  readonly committedOnly?: boolean;
   readonly label?: string;
   /** When true, the control cannot be changed (e.g. read-only governance submit at Reader rank). */
   readonly disabled?: boolean;
@@ -57,6 +59,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     label,
     fieldId,
     disabled = false,
+    committedOnly = false,
   } = props;
   const [items, setItems] = useState<RunSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,7 +76,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       setLoading(true);
 
       try {
-        const merged = await loadProjectRunsMergedWithDemoFallback("default");
+        const merged = await loadProjectRunsMergedWithDemoFallback("default", { committedOnly });
 
         if (!cancelled) {
           setItems(merged.items);
@@ -93,7 +96,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [committedOnly]);
 
   useEffect(() => {
     if (!preferAutoPick) {

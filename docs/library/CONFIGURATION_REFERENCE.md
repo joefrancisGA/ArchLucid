@@ -4,6 +4,12 @@
 
 This document lists operator-facing configuration **keys** (colon paths or environment names) recognized by `archlucid config check` and by `GET /v1/admin/config-summary` / `GET /v1/admin/configuration/summary` (presence plus optional redacted scalars; never raw secrets). **`GET /v1/admin/config-lint`** returns structured blocking/advisory lint rows (`OperatorConfigurationLintEvaluator` parity with `archlucid config lint`, optional advisor warnings). The **canonical registry** is `ConfigurationKeyCatalog` in `ArchLucid.Core`.
 
+## Testing (non-production)
+
+| Key | Default | Purpose |
+|-----|---------|---------|
+| `ArchLucid:Testing:SimulateLlmBudgetExhausted` | `false` | When `true` and the host is **not** Production, monthly LLM dollar budget enforcement treats the tenant as hard-capped before real usage is evaluated — use to demo budget-exhaustion UX without SQL manipulation. Ignored in Production. See [`LLM_COST_ESTIMATION.md`](../runbooks/LLM_COST_ESTIMATION.md). |
+
 ## Tooling
 
 - Validate locally: `archlucid config check` (add `--no-api` to skip the API snapshot; use global `--json` for machine-readable output; exit `0` when all *required* keys for the current mode are set, exit `4` when not).

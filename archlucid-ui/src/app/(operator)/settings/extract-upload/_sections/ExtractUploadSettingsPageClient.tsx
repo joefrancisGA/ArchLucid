@@ -3,11 +3,14 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
+import type { ApiProblemDetails } from "@/lib/api-problem";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 
 const EXTRACTOR_SCRIPT_CDN_URL =
   process.env.NEXT_PUBLIC_EXTRACTOR_SCRIPT_CDN_URL?.trim() ||
@@ -18,11 +21,17 @@ const EXTRACTOR_SCRIPT_CDN_URL =
  */
 export function ExtractUploadSettingsPageClient() {
   const [busy, setBusy] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [selectedFileLabel, setSelectedFileLabel] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<{
+    message: string;
+    problem: ApiProblemDetails | null;
+    correlationId: string | null;
+  } | null>(null);
   const [packageId, setPackageId] = useState<string | null>(null);
 
   async function onUpload(file: File) {
     setBusy(true);
+    setSelectedFileLabel(`${file.name} (${Math.max(1, Math.round(file.size / 1024))} KB)`);
     setUploadError(null);
     setPackageId(null);
 
@@ -39,21 +48,16 @@ export function ExtractUploadSettingsPageClient() {
       );
 
       const bodyText = await response.text();
+      const correlationId = response.headers.get("X-Correlation-ID");
 
       if (!response.ok) {
-        let message = `Upload failed (${response.status}).`;
-
-        try {
-          const problem = JSON.parse(bodyText) as { detail?: string; title?: string };
-          message = problem.detail ?? problem.title ?? message;
-        } catch {
-          if (bodyText.trim().length > 0) {
-            message = bodyText.trim();
-          }
-        }
-
-        setUploadError(message);
-        showError("Azure upload", message);
+        const apiError = buildApiRequestErrorFromParts(response, bodyText);
+        setUploadError({
+          message: apiError.message,
+          problem: apiError.problem,
+          correlationId: apiError.correlationId ?? correlationId,
+        });
+        showError("Azure upload", apiError.message);
 
         return;
       }
@@ -145,10 +149,18 @@ export function ExtractUploadSettingsPageClient() {
               event.currentTarget.value = "";
             }}
           />
-          {uploadError !== null ? (
-            <p className="m-0 text-sm text-red-600 dark:text-red-400" role="alert">
-              {uploadError}
+          {selectedFileLabel !== null ? (
+            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" data-testid="extract-upload-file-meta">
+              Selected: {selectedFileLabel}
             </p>
+          ) : null}
+          {uploadError !== null ? (
+            <OperatorApiProblem
+              title="Upload failed"
+              message={uploadError.message}
+              problem={uploadError.problem}
+              correlationId={uploadError.correlationId}
+            />
           ) : null}
           {packageId !== null ? (
             <p className="m-0 text-sm text-emerald-800 dark:text-emerald-300" data-testid="extract-upload-success">

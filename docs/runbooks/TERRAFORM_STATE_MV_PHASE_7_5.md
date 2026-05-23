@@ -77,6 +77,16 @@ Use this matrix during **`terraform plan` / `state mv`** rehearsals. Subscriptio
 
 **Rollback:** reverse each **`terraform state mv`** or restore remote state from backup if the session produces an inconsistent state.
 
+## Operator dry-run script
+
+Run from repository root (read-only — no `state mv` execution):
+
+```powershell
+.\scripts\infra\terraform-state-mv-dry-run.ps1
+```
+
+The script lists legacy `archiforge` addresses per stack, prints suggested `terraform state mv` commands, and writes **`terraform-archiforge-addresses-dry-run.csv`** at the repo root when matches exist.
+
 ## Related documents
 
 | Audience | Document |

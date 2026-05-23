@@ -280,13 +280,21 @@ public sealed class ArchLucidApiClient
     /// <summary>
     ///     Create an architecture run by submitting an ArchitectureRequest.
     /// </summary>
-    public async Task<CreateRunResult> CreateRunAsync(ArchitectureRequest request, CancellationToken ct = default)
+    public async Task<CreateRunResult> CreateRunAsync(
+        ArchitectureRequest request,
+        CancellationToken ct = default,
+        string? idempotencyKey = null)
     {
         try
         {
             Gen.ArchitectureRequest? body = MapToGenerated(request);
             if (body is null)
                 return CreateRunResult.Fail(null, "Invalid architecture request payload.");
+
+            if (!string.IsNullOrWhiteSpace(idempotencyKey))
+            {
+                return await CreateRunWithIdempotencyHeaderAsync(body, idempotencyKey.Trim(), ct);
+            }
 
             Gen.CreateArchitectureRunResponse created = await _api.RequestAsync(body, ct);
             CreateRunResponse? mapped = DeserializeRoundTrip<CreateRunResponse>(created);
@@ -305,6 +313,64 @@ public sealed class ArchLucidApiClient
         {
             return CreateRunResult.Fail(null, "Request timed out.");
         }
+    }
+
+    private async Task<CreateRunResult> CreateRunWithIdempotencyHeaderAsync(
+        Gen.ArchitectureRequest body,
+        string idempotencyKey,
+        CancellationToken ct)
+    {
+        string json = JsonSerializer.Serialize(body, GenNumericEnumBridgeJson);
+        using HttpRequestMessage request = new(HttpMethod.Post, "v1/architecture/request");
+        request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+        request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
+
+        using HttpResponseMessage response = await _http.SendAsync(request, ct);
+        string text = await response.Content.ReadAsStringAsync(ct);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return CreateRunResult.Fail((int)response.StatusCode, ResolveApiErrorMessageFromBody(text), TryReadCorrelationIdFromHeaders(response.Headers));
+        }
+
+        Gen.CreateArchitectureRunResponse? created = JsonSerializer.Deserialize<Gen.CreateArchitectureRunResponse>(text, GenNumericEnumBridgeJson);
+        CreateRunResponse? mapped = DeserializeRoundTrip<CreateRunResponse>(created);
+
+        return CreateRunResult.Ok(mapped);
+    }
+
+    private static string? TryReadCorrelationIdFromHeaders(System.Net.Http.Headers.HttpResponseHeaders headers)
+    {
+        if (headers.TryGetValues("X-Correlation-ID", out IEnumerable<string>? values))
+        {
+            return values.FirstOrDefault();
+        }
+
+        return null;
+    }
+
+    private static string ResolveApiErrorMessageFromBody(string body)
+    {
+        if (string.IsNullOrWhiteSpace(body))
+            return "API request failed.";
+
+        try
+        {
+            using JsonDocument doc = JsonDocument.Parse(body);
+            JsonElement root = doc.RootElement;
+
+            if (root.TryGetProperty("detail", out JsonElement detail) && detail.ValueKind == JsonValueKind.String)
+                return detail.GetString() ?? body;
+
+            if (root.TryGetProperty("title", out JsonElement title) && title.ValueKind == JsonValueKind.String)
+                return title.GetString() ?? body;
+        }
+        catch (JsonException)
+        {
+            // Fall through to raw body.
+        }
+
+        return body.Length > 500 ? body[..500] : body;
     }
 
     /// <summary>

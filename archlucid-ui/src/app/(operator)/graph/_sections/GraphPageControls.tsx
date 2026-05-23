@@ -53,6 +53,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
           selectedThreadId=""
           fieldId="graph-run"
           label="Review"
+          committedOnly
         />
       </div>
 

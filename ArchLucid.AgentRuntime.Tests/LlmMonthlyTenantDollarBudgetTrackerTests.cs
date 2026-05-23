@@ -8,6 +8,8 @@ using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 using Moq;
@@ -37,7 +39,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(5m);
 
         InMemoryLlmTenantBudgetRepository repo = new();
-        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, repo);
+        LlmMonthlyTenantDollarBudgetTracker tracker = CreateTracker(monitor.Object, cost.Object, repo);
         Guid tenant = Guid.NewGuid();
 
         await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
@@ -62,7 +64,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         Mock<ILlmCostEstimator> cost = new();
         cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(25m);
 
-        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, new InMemoryLlmTenantBudgetRepository());
+        LlmMonthlyTenantDollarBudgetTracker tracker = CreateTracker(monitor.Object, cost.Object, new InMemoryLlmTenantBudgetRepository());
         Guid tenant = Guid.NewGuid();
 
         await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", CreateScopeProvider(tenant), null, 10, 10, CancellationToken.None);
@@ -91,7 +93,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         Mock<ILlmCostEstimator> cost = new();
         cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(12m);
 
-        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, new InMemoryLlmTenantBudgetRepository());
+        LlmMonthlyTenantDollarBudgetTracker tracker = CreateTracker(monitor.Object, cost.Object, new InMemoryLlmTenantBudgetRepository());
         Guid tenant = Guid.NewGuid();
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
@@ -138,7 +140,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         Mock<ILlmCostEstimator> cost = new();
         cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(100m);
 
-        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, new InMemoryLlmTenantBudgetRepository());
+        LlmMonthlyTenantDollarBudgetTracker tracker = CreateTracker(monitor.Object, cost.Object, new InMemoryLlmTenantBudgetRepository());
         Guid tenant = Guid.NewGuid();
 
         await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "simulator", CancellationToken.None);
@@ -161,7 +163,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(1m);
 
         InMemoryLlmTenantBudgetRepository repo = new();
-        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, repo);
+        LlmMonthlyTenantDollarBudgetTracker tracker = CreateTracker(monitor.Object, cost.Object, repo);
         Guid tenant = Guid.NewGuid();
         IScopeContextProvider scope = CreateScopeProvider(tenant);
 
@@ -207,7 +209,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
 
         await repo.ApplyMonthlyPurchasedCapBumpAsync(tenant, periodKey, 50m, CancellationToken.None);
 
-        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, repo);
+        LlmMonthlyTenantDollarBudgetTracker tracker = CreateTracker(monitor.Object, cost.Object, repo);
         IScopeContextProvider scopeProvider = CreateScopeProvider(tenant);
 
         await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, null, 10, 10, CancellationToken.None);
@@ -219,6 +221,75 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, null, 10, 10, CancellationToken.None);
 
         await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
+    }
+
+    [SkippableFact]
+    public async Task EnsureWithinBudgetBeforeCall_when_simulate_flag_true_in_non_production_throws()
+    {
+        LlmMonthlyTenantDollarBudgetOptions opts = new()
+        {
+            Enabled = true,
+            IncludedUsdPerUtcMonth = 500m,
+            HardCutoffUsdPerUtcMonth = 5000m,
+            AssumedMaxPromptTokensPerRequest = 1,
+            AssumedMaxCompletionTokensPerRequest = 1
+        };
+
+        Mock<IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>> monitor = new();
+        monitor.Setup(m => m.CurrentValue).Returns(opts);
+        Mock<ILlmCostEstimator> cost = new();
+        cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(0.01m);
+
+        Dictionary<string, string?> configValues = new()
+        {
+            ["ArchLucid:Testing:SimulateLlmBudgetExhausted"] = "true"
+        };
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(configValues!).Build();
+        Mock<IHostEnvironment> hostEnvironment = new();
+        hostEnvironment.Setup(h => h.IsProduction()).Returns(false);
+
+        LlmMonthlyTenantDollarBudgetTracker tracker = CreateTracker(
+            monitor.Object,
+            cost.Object,
+            new InMemoryLlmTenantBudgetRepository(),
+            configuration,
+            hostEnvironment.Object);
+
+        Guid tenant = Guid.NewGuid();
+
+        Func<Task> act = async () =>
+            await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
+
+        await act.Should().ThrowAsync<LlmTokenQuotaExceededException>()
+            .WithMessage("*Simulated LLM budget exhaustion*");
+    }
+
+    private static LlmMonthlyTenantDollarBudgetTracker CreateTracker(
+        IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> options,
+        ILlmCostEstimator costEstimator,
+        ILlmTenantBudgetRepository repository,
+        IConfiguration? configuration = null,
+        IHostEnvironment? hostEnvironment = null,
+        TimeProvider? timeProvider = null)
+    {
+        IConfiguration effectiveConfiguration = configuration ?? new ConfigurationBuilder().Build();
+        IHostEnvironment effectiveHostEnvironment = hostEnvironment ?? CreateNonProductionHostEnvironment();
+
+        return new LlmMonthlyTenantDollarBudgetTracker(
+            options,
+            costEstimator,
+            repository,
+            effectiveConfiguration,
+            effectiveHostEnvironment,
+            timeProvider ?? TimeProvider.System);
+    }
+
+    private static IHostEnvironment CreateNonProductionHostEnvironment()
+    {
+        Mock<IHostEnvironment> host = new();
+        host.Setup(h => h.IsProduction()).Returns(false);
+
+        return host.Object;
     }
 
     private static IScopeContextProvider CreateScopeProvider(Guid tenantId)
