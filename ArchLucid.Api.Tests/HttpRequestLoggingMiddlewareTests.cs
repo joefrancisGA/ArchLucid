@@ -56,7 +56,7 @@ public sealed class HttpRequestLoggingMiddlewareTests
     }
 
     [Fact]
-    public async Task Middleware_logs_start_then_finish_with_timing_and_status()
+    public async Task Middleware_logs_started_entry_only()
     {
         RecordingLoggerProvider sink = new();
 
@@ -82,7 +82,7 @@ public sealed class HttpRequestLoggingMiddlewareTests
 
         IList<(LogLevel Level, EventId EventId, string Message)> entries = sink.Entries;
 
-        entries.Should().HaveCount(2);
+        entries.Should().HaveCount(1);
 
         entries.Should()
             .Contain(e =>
@@ -90,12 +90,6 @@ public sealed class HttpRequestLoggingMiddlewareTests
                 && e.Message.Contains(HttpMethods.Get, StringComparison.Ordinal)
                 && e.Message.Contains("trace-under-test", StringComparison.Ordinal));
 
-        (_, _, string finished) =
-            entries.Single(e => e.Message.StartsWith("HTTP request finished", StringComparison.Ordinal));
-
-        finished.Should().ContainEquivalentOf("418");
-
-        finished.Should().ContainEquivalentOf("trace-under-test");
         return;
 
         Task Terminator(HttpContext ctx)
@@ -147,8 +141,6 @@ public sealed class HttpRequestLoggingMiddlewareTests
                 && e.Message.Contains("client-supplied-99", StringComparison.Ordinal));
 
         joined.Should()
-            .Contain(e =>
-                e.Message.Contains("HTTP request finished", StringComparison.Ordinal)
-                && e.Message.Contains("client-supplied-99", StringComparison.Ordinal));
+            .NotContain(e => e.Message.Contains("HTTP request finished", StringComparison.Ordinal));
     }
 }

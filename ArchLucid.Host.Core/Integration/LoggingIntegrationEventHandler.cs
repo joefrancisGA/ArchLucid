@@ -5,7 +5,7 @@ using ArchLucid.Core.Integration;
 
 namespace ArchLucid.Host.Core.Integration;
 
-/// <summary>Catch-all handler that records integration events at Information level (payload size + safe preview).</summary>
+/// <summary>Catch-all handler that records integration events at Debug level (payload size + safe preview).</summary>
 public sealed class LoggingIntegrationEventHandler(ILogger<LoggingIntegrationEventHandler> logger)
     : IIntegrationEventHandler
 {
@@ -20,9 +20,9 @@ public sealed class LoggingIntegrationEventHandler(ILogger<LoggingIntegrationEve
         int len = utf8JsonPayload.Length;
         string preview = BuildPreview(utf8JsonPayload);
 
-        if (_logger.IsEnabled(LogLevel.Information))
+        if (_logger.IsEnabled(LogLevel.Debug))
 
-            _logger.LogInformation(
+            _logger.LogDebug(
                 "Integration event received: payloadBytes={PayloadBytes}, preview={Preview}",
                 len,
                 LogSanitizer.Sanitize(preview));

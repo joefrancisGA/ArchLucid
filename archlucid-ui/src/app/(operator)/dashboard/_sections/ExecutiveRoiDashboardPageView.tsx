@@ -6,6 +6,7 @@ import { ExecutiveComplianceDriftTrendSection } from "./ExecutiveComplianceDrift
 import { ExecutiveDashboardBaselineWarningBanner } from "./ExecutiveDashboardBaselineWarningBanner";
 import { ExecutiveOrphanCandidatesCard } from "./ExecutiveOrphanCandidatesCard";
 import { ExecutiveRoiSummarySection } from "./ExecutiveRoiSummarySection";
+import { SponsorExportsSection } from "./SponsorExportsSection";
 import { ExecutiveSqlBackupRegionVerificationCard } from "./ExecutiveSqlBackupRegionVerificationCard";
 import { BusinessImpactSummaryWidget } from "./BusinessImpactSummaryWidget";
 import { executiveRoiDashboardMockKpis } from "./executive-roi-dashboard-mock-kpis";
@@ -86,7 +87,12 @@ export function ExecutiveRoiDashboardPageView() {
 
       <BusinessImpactSummaryWidget />
 
-      <ExecutiveRoiSummarySection />
+      <section aria-label="Executive portfolio summary and sponsor exports" className="grid gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <ExecutiveRoiSummarySection />
+        </div>
+        <SponsorExportsSection />
+      </section>
 
       <ExecutiveComplianceDriftTrendSection />
     </div>

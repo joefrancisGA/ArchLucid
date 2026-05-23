@@ -110,10 +110,10 @@ public static class ArchLucidInstrumentation
 
     /// <summary>Digest channel send succeeded (labels: <c>channel</c>).</summary>
     public static readonly Counter<long> DigestDeliverySucceeded =
-        AppMeter.CreateCounter<long>("digest_delivery_succeeded");
+        AppMeter.CreateCounter<long>("archlucid_digest_delivery_succeeded");
 
     /// <summary>Digest channel send failed after non-cancellation error (labels: <c>channel</c>).</summary>
-    public static readonly Counter<long> DigestDeliveryFailed = AppMeter.CreateCounter<long>("digest_delivery_failed");
+    public static readonly Counter<long> DigestDeliveryFailed = AppMeter.CreateCounter<long>("archlucid_digest_delivery_failed");
 
     /// <summary>
     ///     Outbound HTTP webhook POST attempts (<c>IWebhookPoster</c>; labels <c>event_type</c>, <c>succeeded</c>=true|false).
@@ -135,13 +135,13 @@ public static class ArchLucidInstrumentation
     ///     Wall time for <c>EvaluateAndPersistAsync</c> (labels: <c>rule_kind</c> = <c>simple</c> | <c>composite</c>).
     /// </summary>
     public static readonly Histogram<double> AlertEvaluationDurationMilliseconds = AppMeter.CreateHistogram<double>(
-        "alert_evaluation_duration_ms",
+        "archlucid_alert_evaluation_duration_ms",
         "ms",
         "Time spent in alert EvaluateAndPersistAsync per rule kind.");
 
     /// <summary>Wall time for effective governance resolution (<c>IEffectiveGovernanceResolver.ResolveAsync</c>).</summary>
     public static readonly Histogram<double> GovernanceResolveDurationMilliseconds = AppMeter.CreateHistogram<double>(
-        "governance_resolve_duration_ms",
+        "archlucid_governance_resolve_duration_ms",
         "ms",
         "Time to resolve effective governance for a tenant/workspace/project scope.");
 
@@ -221,11 +221,11 @@ public static class ArchLucidInstrumentation
     ///     (avoids duplicate JSON work when the same version appears on multiple assignments).
     /// </summary>
     public static readonly Counter<long> GovernancePackContentDeserializeCacheHits =
-        AppMeter.CreateCounter<long>("governance_pack_content_deserialize_cache_hits");
+        AppMeter.CreateCounter<long>("archlucid_governance_pack_content_deserialize_cache_hits");
 
     /// <summary>Misses on that cache (JSON deserialize executed for a distinct pack version in the resolve call).</summary>
     public static readonly Counter<long> GovernancePackContentDeserializeCacheMisses =
-        AppMeter.CreateCounter<long>("governance_pack_content_deserialize_cache_misses");
+        AppMeter.CreateCounter<long>("archlucid_governance_pack_content_deserialize_cache_misses");
 
     /// <summary>Authority runs that finished the synchronous pipeline successfully (post-commit).</summary>
     public static readonly Counter<long> AuthorityRunsCompletedTotal =

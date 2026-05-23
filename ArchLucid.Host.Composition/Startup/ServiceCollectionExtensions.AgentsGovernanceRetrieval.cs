@@ -36,6 +36,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Host.Composition.AzureOpenAI;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Host.Core.Resilience;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Host.Core.Startup;

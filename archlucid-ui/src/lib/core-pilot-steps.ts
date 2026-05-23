@@ -12,9 +12,19 @@ export type CorePilotStepBase = {
  *
  * {@link CORE_PILOT_STEP_COUNT} must match `CORE_PILOT_STEPS.length` (enforced at module load).
  */
-export const CORE_PILOT_STEP_COUNT = 4;
+export const CORE_PILOT_STEP_COUNT = 5;
+
+export const EXTRACT_UPLOAD_SETTINGS_PATH = "/settings/extract-upload";
 
 export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
+  {
+    title: "Upload Azure architecture context",
+    shortBody: "Run the read-only extractor script locally, then upload the ZIP for production-faithful reviews.",
+    detail:
+      "The Extract & Upload settings page walks through script download, local execution, optional CLI validation, and server upload.",
+    primaryHref: EXTRACT_UPLOAD_SETTINGS_PATH,
+    primaryLabel: "Upload Azure package",
+  },
   {
     title: "Create an architecture review request",
     shortBody: "Capture system identity, requirements, and constraints for your first review package.",

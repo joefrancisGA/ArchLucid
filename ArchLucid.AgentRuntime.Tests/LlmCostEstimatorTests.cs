@@ -2,6 +2,8 @@
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Tests;

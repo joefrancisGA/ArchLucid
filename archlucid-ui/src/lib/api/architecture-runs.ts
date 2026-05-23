@@ -19,6 +19,7 @@ import type {
   AgentExecutionTraceListPayload,
   AgentOutputEvaluationSummaryPayload,
 } from "@/types/agent-forensics";
+import { getOrCreateWizardIdempotencyKey } from "@/lib/wizard-idempotency-key";
 import {
   type ApiResponseWithTrace,
   apiGet,
@@ -75,8 +76,13 @@ export type CreateArchitectureRunResponsePayload = {
 /** Submits a new architecture run (POST /v1/architecture/request). */
 export async function createArchitectureRun(
   body: CreateArchitectureRunRequestPayload,
+  options?: { readonly idempotencyKey?: string },
 ): Promise<CreateArchitectureRunResponsePayload> {
-  return apiPostJson<CreateArchitectureRunResponsePayload>("/v1/architecture/request", body);
+  const idempotencyKey = options?.idempotencyKey?.trim() || getOrCreateWizardIdempotencyKey();
+
+  return apiPostJson<CreateArchitectureRunResponsePayload>("/v1/architecture/request", body, {
+    extraHeaders: { "Idempotency-Key": idempotencyKey },
+  });
 }
 
 /** Pins or unpins a run (PATCH /v1/architecture/run/{runId}/pin). Omit `isPinned` to toggle. */

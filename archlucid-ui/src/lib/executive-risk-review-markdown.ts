@@ -1,3 +1,4 @@
+import { buildSponsorMarkdownMethodologyFooter } from "@/lib/sponsor-markdown-footer";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 export type ExecutiveRiskReviewFindingMarkdownRow = {
@@ -149,6 +150,8 @@ export function buildExecutiveRiskReviewMarkdown(
     "---",
     "",
     "_Generated for sponsor/board handoff from ArchLucid at export time. The DOCX architecture package may add formatting and annexes._",
+    "",
+    buildSponsorMarkdownMethodologyFooter(),
     "",
   ].join("\n");
 }

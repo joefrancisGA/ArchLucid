@@ -27,6 +27,8 @@ type RunIdPickerProps = {
   inputId?: string;
   /** When true, empty/failed run lists use the two-row Compare demo pair when demo spine fallback is enabled. */
   forCompare?: boolean;
+  /** When true, only committed runs are listed (capped at 20). */
+  committedOnly?: boolean;
   /**
    * When true (default), loads runs on mount and auto-selects the demo / first run when `value` is empty —
    * use `false` for paired Compare pickers when the parent prefills both sides.
@@ -63,6 +65,7 @@ export function RunIdPicker({
   projectId = "default",
   inputId,
   forCompare = false,
+  committedOnly = false,
   preferAutoPick = true,
   useBuyerFacingRunLabels = false,
   onRunPicked,
@@ -105,7 +108,7 @@ export function RunIdPicker({
     setLoadError(null);
 
     try {
-      const merged = await loadProjectRunsMergedWithDemoFallback(projectId, { forCompare });
+      const merged = await loadProjectRunsMergedWithDemoFallback(projectId, { forCompare, committedOnly });
       setRuns(merged.items ?? []);
       setLoadError(merged.loadError ? "Could not load reviews list." : null);
     } catch {
@@ -114,7 +117,7 @@ export function RunIdPicker({
     } finally {
       setLoading(false);
     }
-  }, [projectId, forCompare]);
+  }, [projectId, forCompare, committedOnly]);
 
   useEffect(() => {
     if (!preferAutoPick) {

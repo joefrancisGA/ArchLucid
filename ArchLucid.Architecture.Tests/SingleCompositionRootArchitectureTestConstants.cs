@@ -21,6 +21,7 @@ public static class SingleCompositionRootArchitectureTestConstants
         "ArchLucid.Core",
         "ArchLucid.Decisioning",
         "ArchLucid.Integrations.AzureDevOps",
+        "ArchLucid.Integrations.AzureExtractor",
         "ArchLucid.KnowledgeGraph",
         "ArchLucid.Notifications",
         "ArchLucid.Persistence",

@@ -71,8 +71,8 @@ Optional Azure **OpenTelemetry Collector** (tail sampling): **`infra/terraform-o
 | **`archlucid_authority_pipeline_stage_duration_ms`** | Histogram | `ms` | **`stage`**: `context_ingestion`, `graph`, `findings`, `decisioning`, `artifacts`. **`outcome`**: `success`, `error`. Wall time per stage in **`AuthorityPipelineStagesExecutor`**. |
 | **`archlucid_authority_runs_completed_total`** | Counter | — | Authority runs completed through finalization. |
 | **`archlucid_authority_pipeline_work_pending`** | Observable gauge | — | Outbox depth (see `EnsureOutboxDepthObservableGaugesRegistered`). |
-| **`alert_evaluation_duration_ms`** | Histogram | `ms` | Alert evaluation. |
-| **`governance_resolve_duration_ms`** | Histogram | `ms` | Effective governance resolution. |
+| **`archlucid_alert_evaluation_duration_ms`** | Histogram | `ms` | Alert evaluation. |
+| **`archlucid_governance_resolve_duration_ms`** | Histogram | `ms` | Effective governance resolution. |
 | **`archlucid_explainability_trace_completeness_ratio`** | Histogram | — | Advisory scan trace completeness. |
 | **`archlucid_explanation_faithfulness_ratio`** | Histogram | — | Heuristic overlap of aggregate explanation tokens vs finding **`ExplainabilityTrace`** text (**`ExplanationFaithfulnessChecker`** on **`RunExplanationSummaryService`**). |
 | **`archlucid_circuit_breaker_*`** | Counter | — | State transitions, rejections, probe outcomes. |
@@ -96,6 +96,8 @@ Optional Azure **OpenTelemetry Collector** (tail sampling): **`infra/terraform-o
 | **`archlucid_explanation_citations_emitted_total`** | Counter | **`kind`** (`CitationKind` string) | Citation references attached to **`GET /v1/explain/runs/{runId}/aggregate`** for UI chips. |
 | **`archlucid_startup_config_warnings_total`** | Counter | **`rule_name`** | Non-fatal startup configuration advisories: **`ProductionLikeHostingMisconfigurationAdvisor`**, **`ArchLucidLegacyConfigurationWarnings`**, **`AuthSafetyGuard`** (development bypass active), **`LlmPromptRedactionProductionWarningPostConfigure`**, **`AgentResultSchemaValidationProductionWarningPostConfigure`** ( **`EnforceOnParse`** disabled on production-like hosts), **`RlsBypassPolicyBootstrap`**, **`ArchLucidPersistenceStartup`** (missing `ConnectionStrings:ArchLucid` when `StorageProvider=Sql`). Label values are bounded constants (**`LegacyConfigurationStartupWarningRuleNames`**, **`ProductionLikeHostingMisconfigurationAdvisorRuleNames`**, **`StartupValidationWarningRuleNames`**, TECH_BACKLOG **TB-002**). Pair with Grafana / alert rules when any increment appears on Production-class scrapes. |
 | **`archlucid_query_p95_ms`** | Histogram | `ms` | **`query_name`**. TECH_BACKLOG **TB-003**: `ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds`. Allowlist thresholds: **`tests/performance/query-allowlist.json`**; CI: **`scripts/ci/assert_query_performance.py`**; refresh process: **`tests/performance/README.md`**. |
+
+Serilog log events also include OpenTelemetry correlation identifiers when a trace is active via `WithOpenTelemetryTraceId()` and `WithOpenTelemetrySpanId()` in host startup.
 
 **Grafana dashboard:** committed JSON **`infra/grafana/dashboard-archlucid-authority.json`** (dashboard uid **`archlucid-authority`**) includes Prometheus panels for **`archlucid_authority_pipeline_stage_duration_ms`**, **`archlucid_authority_pipeline_work_pending`**, **`archlucid_authority_pipeline_work_oldest_pending_age_seconds`**, and **`archlucid_data_consistency_*_total`**, with thresholds described against the same alert bundle. Operator runbook: **[`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`](../runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md)**.
 

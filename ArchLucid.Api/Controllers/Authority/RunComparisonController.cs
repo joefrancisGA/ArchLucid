@@ -7,8 +7,13 @@ using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Serialization;
+
+using System.Text.Json;
 
 using Asp.Versioning;
 
@@ -38,9 +43,16 @@ public sealed class RunComparisonController(
     IEndToEndReplayComparisonSummaryFormatter endToEndReplayComparisonSummaryFormatter,
     IEndToEndReplayComparisonExportService endToEndReplayComparisonExportService,
     IComparisonAuditService comparisonAuditService,
+    IAuditService auditService,
+    IScopeContextProvider scopeContextProvider,
     IValidator<RunPairQuery> runPairQueryValidator)
     : ControllerBase
 {
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     [HttpGet("run/compare/agents")]
     [ProducesResponseType(typeof(AgentResultCompareResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -156,6 +168,7 @@ public sealed class RunComparisonController(
             return error;
         string markdown = endToEndReplayComparisonExportService.GenerateMarkdown(report!);
         string fileName = $"end_to_end_compare_{query.LeftRunId}_to_{query.RightRunId}.md";
+        await LogComparisonExportDownloadAsync(query, "comparison-markdown", fileName, cancellationToken);
         return ApiFileResults.RangeText(Request, markdown, "text/markdown", fileName);
     }
 
@@ -173,6 +186,7 @@ public sealed class RunComparisonController(
             return error;
         byte[] bytes = await endToEndReplayComparisonExportService.GenerateDocxAsync(report!, cancellationToken);
         string fileName = $"end_to_end_compare_{query.LeftRunId}_to_{query.RightRunId}.docx";
+        await LogComparisonExportDownloadAsync(query, "comparison-docx", fileName, cancellationToken);
         return ApiFileResults.RangeBytes(
             Request,
             bytes,
@@ -195,6 +209,36 @@ public sealed class RunComparisonController(
         EndToEndReplayComparisonReport report =
             await endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
         return (null, report);
+    }
+
+    private async Task LogComparisonExportDownloadAsync(
+        RunPairQuery query,
+        string exportType,
+        string fileName,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ExportDownloadSucceeded,
+                RunId = query.LeftRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                CorrelationId = HttpContext.TraceIdentifier,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        exportType,
+                        fileName,
+                        leftRunId = query.LeftRunId,
+                        rightRunId = query.RightRunId
+                    },
+                    AuditJsonSerializationOptions.Instance)
+            },
+            cancellationToken);
     }
 
     private async Task<IActionResult?> ValidateRunPairQueryAsync(RunPairQuery query,

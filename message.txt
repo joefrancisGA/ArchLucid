@@ -1,9 +1,0 @@
-refactor: decouple ArchLucid.Core instrumentation from application metrics state
-
-- Moved `FirstTenantFunnelEventNames` to `ArchLucid.Application.Telemetry`.
-- Moved `CircuitBreakerGateMetricsRegistry` to `ArchLucid.Host.Core.Diagnostics`.
-- Moved `LlmTenantBudgetRemainingGaugeState` and `LlmTenantBudgetUtilizationGaugeState` to `ArchLucid.Host.Core.Hosted`.
-- Decoupled `ArchLucidInstrumentation` in Core by replacing hard-coded metric state dependencies with delegate injection points (e.g. `SetCircuitBreakerSnapshotReader`, `SetFirstTenantFunnelEventNameValidator`).
-- Configured these delegates at startup within `ObservabilityExtensions` using `LlmTenantBudgetUtilizationMetricsHostedService` gauge states and the newly moved types.
-
-Co-authored-by: Cursor <cursoragent@cursor.com>

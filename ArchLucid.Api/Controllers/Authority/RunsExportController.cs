@@ -1,9 +1,14 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Exports;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
 
@@ -22,8 +27,20 @@ namespace ArchLucid.Api.Controllers.Authority;
 [Route("v{version:apiVersion}/runs")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class RunsExportController(IArchitectureReviewExportService exportService) : ControllerBase
+public sealed class RunsExportController(
+    IArchitectureReviewExportService exportService,
+    IAuditService auditService,
+    IScopeContextProvider scopeContextProvider) : ControllerBase
 {
+    private readonly IArchitectureReviewExportService _exportService =
+        exportService ?? throw new ArgumentNullException(nameof(exportService));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     /// <summary>Downloads a review export for the given run (<c>docx</c>, <c>pdf</c>, or <c>html</c>).</summary>
     [HttpGet("{runId}/export/{format}")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
@@ -47,12 +64,29 @@ public sealed class RunsExportController(IArchitectureReviewExportService export
 
         try
         {
-            ExportResult result = await exportService.GenerateReportAsync(
+            ExportResult result = await _exportService.GenerateReportAsync(
                 runId.Trim(),
                 exportFormat,
                 whitelabel: null,
                 logoImageBytes: null,
                 httpCorrelationId: HttpContext.TraceIdentifier,
+                cancellationToken);
+
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ExportDownloadSucceeded,
+                    RunId = runId.Trim(),
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    CorrelationId = HttpContext.TraceIdentifier,
+                    DataJson = JsonSerializer.Serialize(
+                        new { exportType = exportFormat.ToString(), fileName = result.FileName },
+                        AuditJsonSerializationOptions.Instance)
+                },
                 cancellationToken);
 
             return File(result.Content, result.ContentType, result.FileName);

@@ -131,6 +131,11 @@ public sealed class ArchitectureReviewDocxBuilder
 
         ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 2);
         ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, cover.GeneratedOnLabel, "BodyText");
+        ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
+        ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(
+            body,
+            ArchitectureReviewBoardCoverPageContent.DirectionalEstimatesFooter,
+            "Subtle");
 
         if (!string.IsNullOrWhiteSpace(cover.DemoNotice))
         {

@@ -87,8 +87,8 @@ internal static class InfrastructureExtensions
 
                 Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
                 {
-                    Type = "#rate-limit-exceeded",
-                    Title = "Too many requests",
+                    Type = "https://archlucid.net/problems/rate-limit-exceeded",
+                    Title = "Rate limit exceeded",
                     Status = StatusCodes.Status429TooManyRequests,
                     Detail =
                         "Rate limit exceeded. Honor the Retry-After response header (seconds) before retrying this client identity.",
@@ -98,7 +98,7 @@ internal static class InfrastructureExtensions
                 if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out TimeSpan retryAfterMeta))
                 {
                     int seconds = Math.Max(1, (int)Math.Ceiling(retryAfterMeta.TotalSeconds));
-                    problem.Extensions["retryAfter"] = seconds;
+                    problem.Extensions["retryAfterSeconds"] = seconds;
                 }
 
                 ProblemCorrelation.Attach(problem, httpContext);

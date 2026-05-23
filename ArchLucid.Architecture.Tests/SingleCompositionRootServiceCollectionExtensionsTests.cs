@@ -95,6 +95,7 @@ public sealed class SingleCompositionRootServiceCollectionExtensionsTests
         typeof(IntegrationEventTypes).Assembly,
         typeof(SchemaValidationService).Assembly,
         typeof(AzureDevOpsPullRequestDecorator).Assembly,
+        typeof(ArchLucid.Integrations.AzureExtractor.HostedAzureExtractorClient).Assembly,
         typeof(KnowledgeGraphService).Assembly,
         typeof(WebhookPostOptions).Assembly,
         typeof(DapperPilotReportCardMetricsReader).Assembly,

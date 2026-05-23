@@ -13,6 +13,7 @@ namespace ArchLucid.Api.Middleware;
 ///     Does not enumerate request headers or read bodies; never logs Authorization, cookies, or query strings.
 ///     Register immediately after <see cref="ArchLucid.Host.Core.Middleware.CorrelationIdMiddleware" /> so the
 ///     correlation header and <see cref="HttpContext.TraceIdentifier" /> are authoritative.
+///     Completion logs are delegated to <c>UseSerilogRequestLogging</c> to avoid duplicate completion records.
 /// </remarks>
 internal sealed class HttpRequestLoggingMiddleware(RequestDelegate next, ILogger<HttpRequestLoggingMiddleware> logger)
 {
@@ -23,8 +24,6 @@ internal sealed class HttpRequestLoggingMiddleware(RequestDelegate next, ILogger
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     private static readonly EventId StartedEvent = new(10_701, "Http.Request.Started");
-
-    private static readonly EventId CompletedEvent = new(10_702, "Http.Request.Completed");
 
     public Task InvokeAsync(HttpContext context)
     {
@@ -42,9 +41,7 @@ internal sealed class HttpRequestLoggingMiddleware(RequestDelegate next, ILogger
         if (_logger.IsEnabled(LogLevel.Information))
             LogStarted(_logger, methodSanitized, pathSanitized, correlationIdSanitized);
 
-        Stopwatch stopwatch = Stopwatch.StartNew();
-
-        return InvokeCoreAsync(context, methodSanitized, pathSanitized, correlationIdSanitized, stopwatch);
+        return _next(context);
     }
 
     internal static string? ResolveCorrelationIdentifierForLogging(HttpContext context)
@@ -89,62 +86,5 @@ internal sealed class HttpRequestLoggingMiddleware(RequestDelegate next, ILogger
             methodSanitized,
             pathSanitized,
             correlationIdSanitized);
-    }
-
-    private async Task InvokeCoreAsync(
-        HttpContext context,
-        string methodSanitized,
-        string pathSanitized,
-        string? correlationIdSanitized,
-        Stopwatch stopwatch)
-    {
-        try
-        {
-            await _next(context).ConfigureAwait(false);
-        }
-        finally
-        {
-            stopwatch.Stop();
-
-            if (_logger.IsEnabled(LogLevel.Information))
-                LogCompleted(
-                    _logger,
-                    methodSanitized,
-                    pathSanitized,
-                    correlationIdSanitized,
-                    context.Response.StatusCode,
-                    stopwatch.ElapsedMilliseconds);
-        }
-    }
-
-    private static void LogCompleted(
-        ILogger<HttpRequestLoggingMiddleware> logger,
-        string methodSanitized,
-        string pathSanitized,
-        string? correlationIdSanitized,
-        int statusCode,
-        long elapsedMs)
-    {
-        if (correlationIdSanitized is null)
-        {
-            logger.LogInformation(
-                CompletedEvent,
-                "HTTP request finished {HttpMethod} {HttpPath} {HttpStatusCode} {ElapsedMilliseconds}",
-                methodSanitized,
-                pathSanitized,
-                statusCode,
-                elapsedMs);
-
-            return;
-        }
-
-        logger.LogInformation(
-            CompletedEvent,
-            "HTTP request finished {HttpMethod} {HttpPath} {HttpCorrelationId} {HttpStatusCode} {ElapsedMilliseconds}",
-            methodSanitized,
-            pathSanitized,
-            correlationIdSanitized,
-            statusCode,
-            elapsedMs);
     }
 }

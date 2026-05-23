@@ -132,6 +132,12 @@ public sealed class ArchitectureReviewPdfBuilder
             }
 
             column.Item().Text(cover.GeneratedOnLabel).FontSize(10).FontColor(Colors.Grey.Darken2);
+            column.Item().Height(6);
+            column.Item()
+                .Text(ArchitectureReviewBoardCoverPageContent.DirectionalEstimatesFooter)
+                .FontSize(8)
+                .FontColor(Colors.Grey.Darken2)
+                .Italic();
 
             if (!string.IsNullOrWhiteSpace(cover.DemoNotice))
             {

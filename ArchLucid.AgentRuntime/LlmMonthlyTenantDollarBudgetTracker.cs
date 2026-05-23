@@ -6,6 +6,7 @@ using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
@@ -19,7 +20,10 @@ namespace ArchLucid.AgentRuntime;
 public sealed class LlmMonthlyTenantDollarBudgetTracker(
     IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> optionsMonitor,
     ILlmCostEstimator costEstimator,
-    ILlmTenantBudgetRepository budgetRepository)
+    ILlmTenantBudgetRepository budgetRepository,
+    IConfiguration configuration,
+    IHostEnvironment hostEnvironment,
+    TimeProvider timeProvider)
 {
     private const int MaxOptimisticRetries = 12;
 
@@ -33,6 +37,13 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
     private readonly IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
+    private readonly IConfiguration _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly IHostEnvironment _hostEnvironment =
+        hostEnvironment ?? throw new ArgumentNullException(nameof(hostEnvironment));
+
+    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+
     /// <summary>
     ///     Throws <see cref="LlmTokenQuotaExceededException" /> when the next call would exceed the UTC-month hard
     ///     cutoff.
@@ -44,6 +55,9 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
     {
         if (tenantId == Guid.Empty || providerKind.IsExcludedFromBudgetTracking())
             return;
+
+        if (ShouldSimulateBudgetExhausted())
+            throw CreateSimulatedBudgetExhaustedException();
 
         LlmMonthlyTenantDollarBudgetOptions opts = _optionsMonitor.CurrentValue;
 
@@ -332,4 +346,16 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
 
     private static string MonthlyPeriodKey((int Year, int Month) ym) =>
         string.Format(CultureInfo.InvariantCulture, "{0:0000}-{1:00}", ym.Year, ym.Month);
+
+    private bool ShouldSimulateBudgetExhausted()
+    {
+        return _configuration.GetValue<bool>("ArchLucid:Testing:SimulateLlmBudgetExhausted")
+               && !_hostEnvironment.IsProduction();
+    }
+
+    private LlmTokenQuotaExceededException CreateSimulatedBudgetExhaustedException()
+    {
+        DateTimeOffset retryAfterUtc = _timeProvider.GetUtcNow().AddHours(1);
+        return new LlmTokenQuotaExceededException("Simulated LLM budget exhaustion.", retryAfterUtc);
+    }
 }

@@ -154,6 +154,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   }
 
   const buyerPolishedArtifactTable = isBuyerPolishedOperatorShellEnv();
+
   const manifestId = resolvedDetail.run.goldenManifestId;
 
   let changesSinceLastReviewBanner: RunDetailChangesSinceLastReviewBanner | null = null;

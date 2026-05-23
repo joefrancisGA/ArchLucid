@@ -593,6 +593,227 @@ public sealed class DependencyConstraintTests
                      "EchoAgentCompletionClient) that delegate to DeterministicAgentSimulator in non-real-LLM environments.");
     }
 
+    // ── Tier 8 — Dependency graph gap closure (2026-05-23) ───────────────────
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Persistence_must_not_depend_on_Decisioning()
+    {
+        Assembly persistence = typeof(IRunRepository).Assembly;
+
+        TestResult result = Types
+            .InAssembly(persistence)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Decisioning")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Persistence must not reference Decisioning domain assemblies. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Persistence_must_not_depend_on_ArtifactSynthesis()
+    {
+        Assembly persistence = typeof(IRunRepository).Assembly;
+
+        TestResult result = Types
+            .InAssembly(persistence)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.ArtifactSynthesis")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Persistence must not reference ArtifactSynthesis. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Persistence_must_not_depend_on_ContextIngestion()
+    {
+        Assembly persistence = typeof(IRunRepository).Assembly;
+
+        TestResult result = Types
+            .InAssembly(persistence)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.ContextIngestion")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Persistence must not reference ContextIngestion. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Persistence_must_not_depend_on_KnowledgeGraph()
+    {
+        Assembly persistence = typeof(IRunRepository).Assembly;
+
+        TestResult result = Types
+            .InAssembly(persistence)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.KnowledgeGraph")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Persistence must not reference KnowledgeGraph. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Persistence_must_not_depend_on_Provenance()
+    {
+        Assembly persistence = typeof(IRunRepository).Assembly;
+
+        TestResult result = Types
+            .InAssembly(persistence)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Provenance")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Persistence must not reference Provenance. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Persistence_must_not_depend_on_Notifications()
+    {
+        Assembly persistence = typeof(IRunRepository).Assembly;
+
+        TestResult result = Types
+            .InAssembly(persistence)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Notifications")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Persistence must not reference Notifications. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Application_must_not_reference_Integrations_AzureExtractor_assembly()
+    {
+        Assembly application = typeof(ArchitectureRunCreateOrchestrator).Assembly;
+        AssemblyName[] references = application.GetReferencedAssemblies();
+
+        references.Should().NotContain(
+            a => a.Name == "ArchLucid.Integrations.AzureExtractor",
+            because: "Application must not reference Integrations.AzureExtractor directly; use ports in Contracts.");
+    }
+
+    [Fact(Skip = "pending #33 Persistence port extraction")]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Application_must_not_reference_Persistence_assembly()
+    {
+        Assembly application = typeof(ArchitectureRunCreateOrchestrator).Assembly;
+        AssemblyName[] references = application.GetReferencedAssemblies();
+
+        references.Should().NotContain(
+            a => a.Name == "ArchLucid.Persistence",
+            because: "Application must depend on repository ports in Contracts, not the Persistence assembly.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Api_must_not_depend_on_Decisioning()
+    {
+        Assembly api = typeof(ArchLucid.Api.Program).Assembly;
+
+        TestResult result = Types
+            .InAssembly(api)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Decisioning")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Api must not depend on Decisioning. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Api_must_not_depend_on_KnowledgeGraph()
+    {
+        Assembly api = typeof(ArchLucid.Api.Program).Assembly;
+
+        TestResult result = Types
+            .InAssembly(api)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.KnowledgeGraph")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Api must not depend on KnowledgeGraph. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Api_must_not_depend_on_Retrieval()
+    {
+        Assembly api = typeof(ArchLucid.Api.Program).Assembly;
+
+        TestResult result = Types
+            .InAssembly(api)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Retrieval")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Api must not depend on Retrieval. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Cli_must_not_depend_on_Decisioning()
+    {
+        Assembly cli = typeof(ManifestValidator).Assembly;
+
+        TestResult result = Types
+            .InAssembly(cli)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Decisioning")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Cli must not depend on Decisioning. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact(Skip = "pending #33 Persistence port extraction")]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void AgentRuntime_must_not_reference_Persistence_assembly()
+    {
+        Assembly agentRuntime = typeof(RealAgentExecutor).Assembly;
+        AssemblyName[] references = agentRuntime.GetReferencedAssemblies();
+
+        references.Should().NotContain(
+            a => a.Name == "ArchLucid.Persistence",
+            because: "AgentRuntime must use ports, not the Persistence assembly.");
+    }
+
     private static string? FindRepositoryRootContainingSolution()
     {
         string? dir = Path.GetDirectoryName(typeof(DependencyConstraintTests).Assembly.Location);

@@ -1,6 +1,9 @@
 using System.Net;
+using System.Net.Http.Json;
 
 using FluentAssertions;
+
+using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
 namespace ArchLucid.Api.Tests;
 
@@ -65,5 +68,26 @@ public sealed class RateLimitResponseHeadersTests
 
         retryAfter.Should().NotBeNull();
         retryAfter!.Single().Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public async Task Rejected_request_returns_problem_details_shape_with_retryAfterSeconds_extension()
+    {
+        await using RateLimitProbeWebAppFactory factory = new();
+        HttpClient client = factory.CreateClient();
+
+        _ = await client.GetAsync(new Uri("/version", UriKind.Relative));
+        HttpResponseMessage rejected = await client.GetAsync(new Uri("/version", UriKind.Relative));
+
+        rejected.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
+        rejected.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
+
+        MvcProblemDetails? problem = await rejected.Content.ReadFromJsonAsync<MvcProblemDetails>();
+        problem.Should().NotBeNull();
+        problem!.Type.Should().Be("https://archlucid.net/problems/rate-limit-exceeded");
+        problem.Title.Should().Be("Rate limit exceeded");
+        problem.Status.Should().Be((int)HttpStatusCode.TooManyRequests);
+        problem.Extensions.Should().ContainKey("retryAfterSeconds");
+        problem.Extensions["retryAfterSeconds"].Should().NotBeNull();
     }
 }

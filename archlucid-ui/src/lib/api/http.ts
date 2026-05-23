@@ -173,11 +173,22 @@ export async function apiGet<T>(path: string): Promise<T> {
 }
 
 /** POSTs a JSON body to the ArchLucid API and returns the parsed response. Throws on HTTP errors. */
-export async function apiPostJson<T>(path: string, body: unknown): Promise<T> {
+export async function apiPostJson<T>(
+  path: string,
+  body: unknown,
+  options?: { readonly extraHeaders?: Record<string, string> },
+): Promise<T> {
   await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(path);
   const h = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
+
+  if (options?.extraHeaders) {
+    for (const [key, value] of Object.entries(options.extraHeaders)) {
+      h.set(key, value);
+    }
+  }
+
   const response = await fetch(url, {
     method: "POST",
     headers: h,

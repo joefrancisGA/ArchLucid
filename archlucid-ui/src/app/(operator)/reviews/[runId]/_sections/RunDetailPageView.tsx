@@ -39,6 +39,8 @@ import { RunDetailRunExplanationCollapsible } from "./RunDetailRunExplanationCol
 import { RunDetailRunMetadataSection } from "./RunDetailRunMetadataSection";
 import { RunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSection";
+import { RunDetailBuyerModeFallbackBanner } from "./RunDetailBuyerModeFallbackBanner";
+import { RunDetailBuyerPilotConversionSection } from "./RunDetailBuyerPilotConversionSection";
 import { RunDetailExecutiveSummaryCtaCard } from "./RunDetailExecutiveSummaryCtaCard";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 
@@ -162,6 +164,14 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       ) : null}
 
       <RunDetailSectionNav sections={m.runDetailNavSections} />
+
+      {m.buyerPolishedArtifactTable ? (
+        <RunDetailBuyerModeFallbackBanner
+          realModeFellBackToSimulator={m.resolvedDetail.run.realModeFellBackToSimulator === true}
+        />
+      ) : null}
+
+      <RunDetailBuyerPilotConversionSection buyerPolishedArtifactTable={m.buyerPolishedArtifactTable} />
 
       {m.manifestId && m.resolvedDetail.trustEvidenceCard ? (
         <RunTrustEvidenceCardSection

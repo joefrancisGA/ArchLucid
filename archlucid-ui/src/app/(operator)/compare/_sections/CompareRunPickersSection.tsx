@@ -71,6 +71,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           onChange={onLeftRunIdChange}
           inputId="compare-left-run-id"
           forCompare
+          committedOnly={useBuyerFacingRunLabels}
           onRunPicked={onLeftRunPicked}
           useBuyerFacingRunLabels={useBuyerFacingRunLabels}
         />
@@ -87,6 +88,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           onChange={onRightRunIdChange}
           inputId="compare-right-run-id"
           forCompare
+          committedOnly={useBuyerFacingRunLabels}
           onRunPicked={onRightRunPicked}
           useBuyerFacingRunLabels={useBuyerFacingRunLabels}
         />

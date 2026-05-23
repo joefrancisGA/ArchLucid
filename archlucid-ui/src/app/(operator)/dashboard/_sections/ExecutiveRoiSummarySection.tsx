@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import {
+  buildExecutiveSummaryMarkdown,
+  executiveSummaryMarkdownFilename,
+} from "@/lib/executive-summary-markdown";
+import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
@@ -41,6 +48,15 @@ function formatUsd(value: number): string {
 export function ExecutiveRoiSummarySection() {
   const [data, setData] = useState<ExecutiveRoiSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const onDownloadExecutiveSummary = useCallback(() => {
+    if (data === null) {
+      return;
+    }
+
+    const markdown = buildExecutiveSummaryMarkdown(data);
+
+    triggerGoldenManifestMarkdownDownload(markdown, executiveSummaryMarkdownFilename());
+  }, [data]);
 
   useEffect(() => {
     let cancelled = false;
@@ -106,7 +122,18 @@ export function ExecutiveRoiSummarySection() {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Portfolio ROI summary</CardTitle>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <CardTitle className="text-base">Portfolio ROI summary</CardTitle>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={onDownloadExecutiveSummary}
+            data-testid="exec-roi-summary-markdown-download-button"
+          >
+            Download executive summary (Markdown)
+          </Button>
+        </div>
         <CardDescription className="text-xs">
           Latest committed run per system in this workspace. Data from{" "}
           <span className="font-mono">GET /v1/roi/executive-summary</span>.

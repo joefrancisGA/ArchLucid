@@ -18,6 +18,8 @@ public sealed record ArchitectureReviewBoardCoverPageContent(
 {
     internal const string DemoTenantNotice = "Demo tenant — replace before publishing to executives.";
 
+    internal const string DirectionalEstimatesFooter = "Directional estimates — see methodology";
+
     /// <summary>Logo width in EMUs for OpenXML cover embedding (scaled below full-page width).</summary>
     internal const long DocxLogoWidthEmus = 1_600_000L;
 
@@ -46,8 +48,8 @@ public sealed record ArchitectureReviewBoardCoverPageContent(
         else
         {
             title = model.IsDemoTenant
-                ? "Architecture review board packet (DEMO)"
-                : "Architecture review board packet";
+                ? "ArchLucid Architecture Review (DEMO)"
+                : "ArchLucid Architecture Review";
 
             subtitle = string.IsNullOrWhiteSpace(model.SystemName) ? model.RunId.Trim() : model.SystemName.Trim();
 

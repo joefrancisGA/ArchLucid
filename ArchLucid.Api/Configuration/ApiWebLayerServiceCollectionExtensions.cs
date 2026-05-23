@@ -69,7 +69,12 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<ITier2ConnectionService, Tier2ConnectionService>();
         services.AddScoped<IHostedAzureExtractorRunService, HostedAzureExtractorRunService>();
         services.Configure<HostedAzureExtractorOptions>(configuration.GetSection(HostedAzureExtractorOptions.SectionName));
-        services.AddArchLucidHostedAzureExtractor();
+        services.AddSingleton<IHostedAzureExtractorCredentialFactory, WorkloadIdentityHostedAzureExtractorCredentialFactory>();
+        services.AddHttpClient<IHostedAzureArmReadClient, GetOnlyHostedAzureArmReadClient>(static client =>
+        {
+            client.Timeout = TimeSpan.FromMinutes(5);
+        });
+        services.AddScoped<IHostedAzureExtractorClient, HostedAzureExtractorClient>();
         services.AddScoped<IAzureExtractorIngestService, AzureExtractorIngestService>();
         services.AddScoped<AzureExtractorChunkedUploadService>();
         services.AddScoped<PolicyPackMarkdownExplainService>();
@@ -91,10 +96,6 @@ public static class ApiWebLayerServiceCollectionExtensions
                 tags: [ReadinessTags.Ready])
             .AddCheck<StartupDatabaseMigrationHealthCheck>(
                 "startup_database_migration",
-                failureStatus: HealthStatus.Unhealthy,
-                tags: [ReadinessTags.Ready])
-            .AddCheck<DbUpMigrationHealthCheck>(
-                "dbup_migration_status",
                 failureStatus: HealthStatus.Unhealthy,
                 tags: [ReadinessTags.Ready])
             .AddCheck<ContentSafetyHealthCheck>(
