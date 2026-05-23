@@ -1,6 +1,9 @@
 ﻿using ArchLucid.Api.Models;
 using ArchLucid.Api.Validators;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Alerts;
+using ArchLucid.Contracts.Alerts.Composite;
+using ArchLucid.Contracts.Alerts.Simulation;
 using ArchLucid.Decisioning.Advisory.Workflow;
 using ArchLucid.Decisioning.Alerts.Tuning;
 
