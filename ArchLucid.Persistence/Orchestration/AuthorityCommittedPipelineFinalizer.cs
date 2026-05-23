@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;

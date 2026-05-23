@@ -3,7 +3,7 @@ using System.Diagnostics.Metrics;
 
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Audit;

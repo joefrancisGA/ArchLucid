@@ -82,5 +82,6 @@ For enterprise hierarchies, pass **`-ManagementGroupId`** instead of **`-Subscri
 | Doc | Use |
 |-----|-----|
 | [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.16 | Product contract |
+| [`../library/AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) | Tier 2 hosted WIF + V1.x auto-pull architecture |
 | [`AZURE_EXTRACTOR_INGEST.md`](AZURE_EXTRACTOR_INGEST.md) | Upload API and validation |
 | [`../go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) | Tier 1 vs Tier 2 buyer narrative |

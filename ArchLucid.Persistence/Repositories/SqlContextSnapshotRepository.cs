@@ -1,8 +1,8 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchLucid.ContextIngestion.Interfaces;
-using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Persistence.Ports;
+using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.ContextSnapshots;

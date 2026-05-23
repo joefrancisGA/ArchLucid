@@ -1,8 +1,8 @@
 using System.Data;
 
-using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Persistence.Context;
 
-namespace ArchLucid.ContextIngestion.Interfaces;
+namespace ArchLucid.Contracts.Persistence.Ports;
 
 /// <summary>
 ///     Persistence contract for <see cref="ContextSnapshot" /> records that capture the

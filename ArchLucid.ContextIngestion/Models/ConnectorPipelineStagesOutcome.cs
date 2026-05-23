@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Persistence.Context;
+
 namespace ArchLucid.ContextIngestion.Models;
 
 /// <summary>

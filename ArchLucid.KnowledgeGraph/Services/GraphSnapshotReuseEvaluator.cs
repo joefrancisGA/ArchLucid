@@ -1,4 +1,4 @@
-using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
 

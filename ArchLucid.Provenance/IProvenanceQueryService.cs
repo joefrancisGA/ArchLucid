@@ -6,7 +6,7 @@ namespace ArchLucid.Provenance;
 ///     Loads stored provenance JSON for a run and projects it into UI-oriented <see cref="GraphViewModel" /> graphs.
 /// </summary>
 /// <remarks>
-///     Implementation: <c>ArchLucid.Persistence.Provenance.ProvenanceQueryService</c>. Callers:
+///     Implementation: <c>ArchLucid.Application.Provenance.ProvenanceQueryService</c>. Callers:
 ///     <c>ArchLucid.Api.Services.Ask.AskService</c>, provenance HTTP controllers.
 /// </remarks>
 public interface IProvenanceQueryService

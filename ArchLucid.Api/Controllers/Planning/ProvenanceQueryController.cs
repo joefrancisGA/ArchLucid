@@ -34,12 +34,13 @@ public sealed class ProvenanceQueryController(
     ///     <see cref="AuthorityQueryController" />).
     /// </summary>
     [HttpGet("runs/{runId:guid}/provenance-snapshot")]
-    [ProducesResponseType(typeof(DecisionProvenanceSnapshot), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ArchLucid.Contracts.Persistence.Data.DecisionProvenanceSnapshot), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetProvenanceSnapshot(Guid runId, CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
-        DecisionProvenanceSnapshot? snapshot = await repo.GetByRunIdAsync(scope, runId, ct);
+        ArchLucid.Contracts.Persistence.Data.DecisionProvenanceSnapshot? snapshot =
+            await repo.GetByRunIdAsync(scope, runId, ct);
         return snapshot is null
             ? this.NotFoundProblem($"Provenance snapshot for run '{runId}' was not found.",
                 ProblemTypes.ResourceNotFound)

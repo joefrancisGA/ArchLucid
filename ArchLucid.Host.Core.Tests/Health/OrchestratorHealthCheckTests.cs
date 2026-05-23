@@ -4,6 +4,7 @@ using ArchLucid.Host.Core.Health;
 using FluentAssertions;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.Tests.Health;
@@ -16,7 +17,8 @@ public sealed class OrchestratorHealthCheckTests
     {
         OrchestratorHealthCheck check = new(
             new ThrowingDbConnectionFactory(),
-            Options.Create(new ArchLucidOptions { StorageProvider = "InMemory" }));
+            Options.Create(new ArchLucidOptions { StorageProvider = "InMemory" }),
+            NullLogger<OrchestratorHealthCheck>.Instance);
 
         HealthCheckResult result =
             await check.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);

@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 
-using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;

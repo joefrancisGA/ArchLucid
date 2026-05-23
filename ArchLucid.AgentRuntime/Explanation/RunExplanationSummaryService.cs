@@ -142,7 +142,8 @@ public sealed class RunExplanationSummaryService(
         Guid runId,
         CancellationToken ct)
     {
-        DecisionProvenanceSnapshot? snapshot = await provenanceSnapshotRepository.GetByRunIdAsync(scope, runId, ct);
+        ArchLucid.Contracts.Persistence.Data.DecisionProvenanceSnapshot? snapshot =
+            await provenanceSnapshotRepository.GetByRunIdAsync(scope, runId, ct);
         if (snapshot is null)
             return null;
 

@@ -6,6 +6,8 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Roi;
+using ArchLucid.Core.Scim;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 
@@ -182,6 +184,8 @@ public sealed class ExecutiveRoiSummaryServiceTests
         return new ExecutiveRoiSummaryService(
             runDetailQueryService,
             tenantEstimatedUsdSavingsResolver,
+            Mock.Of<ITenantRepository>(),
+            Mock.Of<IScimUserRepository>(),
             NullLogger<ExecutiveRoiSummaryService>.Instance);
     }
 

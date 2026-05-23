@@ -1,3 +1,5 @@
+using ArchLucid.ContextIngestion.Models;
+
 namespace ArchLucid.ContextIngestion.Interfaces;
 
 /// <summary>
@@ -5,8 +7,8 @@ namespace ArchLucid.ContextIngestion.Interfaces;
 /// </summary>
 public interface IConnectorPipelineOrchestrator
 {
-    Task<Models.ConnectorPipelineStagesOutcome> RunStagesAsync(
-        Models.ContextIngestionRequest request,
-        Models.ContextSnapshot? previousSnapshot,
+    Task<ConnectorPipelineStagesOutcome> RunStagesAsync(
+        ContextIngestionRequest request,
+        ContextSnapshot? previousSnapshot,
         CancellationToken ct);
 }

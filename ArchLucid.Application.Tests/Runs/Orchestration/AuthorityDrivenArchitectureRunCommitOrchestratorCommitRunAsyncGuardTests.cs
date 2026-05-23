@@ -169,6 +169,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             new RunStateTransitionService(),
             Options.Create(new ArchLucid.Core.Configuration.GenerateIacStubsOptions()),
             Options.Create(new ArchLucid.Core.Configuration.RerankFindingsOptions()),
+            Mock.Of<ArchLucid.Application.Runs.Orchestration.Events.IReviewCompletedEventHandler>(),
             Mock.Of<ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator>>());
     }
 }

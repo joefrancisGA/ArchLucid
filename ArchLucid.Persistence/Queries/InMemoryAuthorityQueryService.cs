@@ -1,7 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.ContextIngestion.Interfaces;
-using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Persistence.Ports;
+using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;

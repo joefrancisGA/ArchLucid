@@ -1,4 +1,4 @@
-namespace ArchLucid.ContextIngestion.Models;
+namespace ArchLucid.Contracts.Persistence.Context;
 
 public class ContextSnapshot
 {

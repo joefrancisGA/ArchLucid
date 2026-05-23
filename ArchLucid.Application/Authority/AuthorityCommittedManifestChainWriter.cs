@@ -1,6 +1,6 @@
 using System.Data;
 
-using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Findings;

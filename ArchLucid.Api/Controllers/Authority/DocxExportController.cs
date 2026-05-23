@@ -117,7 +117,8 @@ public sealed class DocxExportController(
 
         if (explainRun)
         {
-            DecisionProvenanceSnapshot? snapshot = await provenanceSnapshotRepository.GetByRunIdAsync(scope, runId, ct);
+            ArchLucid.Contracts.Persistence.Data.DecisionProvenanceSnapshot? snapshot =
+                await provenanceSnapshotRepository.GetByRunIdAsync(scope, runId, ct);
             DecisionProvenanceGraph? graph =
                 snapshot is null ? null : ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
             runNarrative = await explanationService.ExplainRunAsync(manifest, graph, ct);

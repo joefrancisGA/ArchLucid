@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
-using ArchLucid.Provenance;
+using ArchLucid.Contracts.Persistence.Data;
 
 using Dapper;
 

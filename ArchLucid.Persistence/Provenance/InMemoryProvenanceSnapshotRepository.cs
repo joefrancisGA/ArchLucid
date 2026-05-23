@@ -1,7 +1,7 @@
 using System.Data;
 
 using ArchLucid.Core.Scoping;
-using ArchLucid.Provenance;
+using ArchLucid.Contracts.Persistence.Data;
 
 namespace ArchLucid.Persistence.Provenance;
 

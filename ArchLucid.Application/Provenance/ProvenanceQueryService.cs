@@ -1,8 +1,10 @@
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Provenance;
 using ArchLucid.Provenance;
 using ArchLucid.Provenance.Services;
+using ContractsDecisionProvenanceSnapshot = ArchLucid.Contracts.Persistence.Data.DecisionProvenanceSnapshot;
 
-namespace ArchLucid.Persistence.Provenance;
+namespace ArchLucid.Application.Provenance;
 
 /// <summary>
 ///     <see cref="IProvenanceQueryService" /> implementation using <see cref="IProvenanceSnapshotRepository" /> and
@@ -68,7 +70,7 @@ public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) :
 
     private async Task<DecisionProvenanceGraph?> LoadGraphAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
-        DecisionProvenanceSnapshot? snapshot = await repo.GetByRunIdAsync(scope, runId, ct);
+        ContractsDecisionProvenanceSnapshot? snapshot = await repo.GetByRunIdAsync(scope, runId, ct);
         if (snapshot is null)
             return null;
 

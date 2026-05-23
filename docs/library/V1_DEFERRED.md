@@ -358,6 +358,30 @@ The following bulk processing features are explicitly deferred to **V1.1**:
 
 ---
 
+## 6p. Azure extractor — ArchLucid-hosted automated Tier-2 continuous polling (**V1.x / post-V1 GA**) (architecture decision 2026-05-23)
+
+**V1 GA posture:** Tier 1 (customer-run PowerShell ZIP upload) is the V1 GA contract per [V1_SCOPE.md](V1_SCOPE.md) **§2.16**. **On-demand** Tier 2 hosted collection (`POST /v1/admin/azure-extractor/hosted/run`) may ship before automated polling. **Automated** background polling via `AzureExtractorAutoPullHostedService` is **scaffold-only** in V1 GA (`AzureExtractor:AutoPull:Enabled=false` default).
+
+**Deferred:** Full productization of leader-elected continuous polling (ARM/cost ingest on cadence, review-run association, operational runbooks).
+
+| Item | V1 GA posture | When promoted |
+|------|---------------|---------------|
+| **`AzureExtractorAutoPullHostedService` continuous pull** | **Scaffold only** — pacing loop + discovery logging; ingest not wired. | **V1.x** after hosted Tier 2 on-demand path is stable. |
+
+**Architecture pattern (resolved):**
+
+- **Customer-owned automation (Tier 2 continuous, today):** Customer schedules `Get-ArchLucidAzurePackage.ps1` and uploads via CI — see [`AZURE_EXTRACTOR_TIER2_CONTINUOUS.md`](../runbooks/AZURE_EXTRACTOR_TIER2_CONTINUOUS.md).
+- **ArchLucid-hosted automated polling (approved):** Customer-provisioned **read-only service principal** with **`Reader`** + **`Cost Management Reader`**. Customer trusts ArchLucid's **user-assigned managed identity** via **federated workload identity** (preferred over long-lived secrets). ArchLucid stores only `{ customerTenantId, customerAppId, subscriptionId, includeCost }` — **never** customer client secrets. The leader-elected worker exchanges the ArchLucid MI token for a customer SP token via **`ClientAssertionCredential`** / `api://AzureADTokenExchange` (`WorkloadIdentityHostedAzureExtractorCredentialFactory`). Collection flows through **`HostedAzureExtractorClient`** into the existing upload/audit pipeline.
+
+Canonical detail: [AZURE_EXTRACTOR.md](AZURE_EXTRACTOR.md) (Automated continuous pull).
+
+**Rules:**
+
+- **`(A)` V1 assessments** must **not** penalize absence of ArchLucid-hosted automated polling; Tier 1 + optional on-demand Tier 2 satisfy V1 GA per **§2.16**.
+- Do **not** adopt a multi-tenant Entra application model that stores or rotates customer client secrets — **cross-tenant WIF** is the approved design.
+
+---
+
 ## 7. Engineering backlog (not a product roadmap)
 
 | Item | Doc source |

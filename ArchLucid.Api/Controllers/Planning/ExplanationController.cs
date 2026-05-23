@@ -68,7 +68,8 @@ public sealed class ExplanationController(
                 ProblemTypes.RunNotFound);
 
         DecisionProvenanceGraph? graph = null;
-        DecisionProvenanceSnapshot? snapshot = await provenanceRepo.GetByRunIdAsync(scope, runId, ct);
+        ArchLucid.Contracts.Persistence.Data.DecisionProvenanceSnapshot? snapshot =
+            await provenanceRepo.GetByRunIdAsync(scope, runId, ct);
 
         if (snapshot is not null)
 

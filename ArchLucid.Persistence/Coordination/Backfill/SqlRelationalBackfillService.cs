@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Interfaces;

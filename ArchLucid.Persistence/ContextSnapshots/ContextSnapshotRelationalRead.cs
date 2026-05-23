@@ -1,6 +1,6 @@
 using System.Data;
 
-using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Persistence.RelationalRead;
 
 using Dapper;

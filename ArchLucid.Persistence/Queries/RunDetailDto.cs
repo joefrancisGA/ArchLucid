@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 
 using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;

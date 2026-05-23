@@ -1,6 +1,6 @@
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Provenance;
-using ArchLucid.Provenance;
+using ArchLucid.Contracts.Persistence.Data;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 [Trait("Category", "Unit")]

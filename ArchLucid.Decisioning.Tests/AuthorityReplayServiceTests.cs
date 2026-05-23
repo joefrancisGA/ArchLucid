@@ -41,7 +41,7 @@ public sealed class AuthorityReplayServiceTests
     private static RunDetailDto MakeFullDetailDto(Guid runId)
     {
         RunDetailDto dto = MakeDetailDto(runId);
-        dto.ContextSnapshot = new ContextIngestion.Models.ContextSnapshot { SnapshotId = Guid.NewGuid() };
+        dto.ContextSnapshot = new ContextSnapshot { SnapshotId = Guid.NewGuid() };
         dto.GraphSnapshot = new GraphSnapshot { GraphSnapshotId = Guid.NewGuid() };
         dto.FindingsSnapshot = new FindingsSnapshot { FindingsSnapshotId = Guid.NewGuid() };
         return dto;

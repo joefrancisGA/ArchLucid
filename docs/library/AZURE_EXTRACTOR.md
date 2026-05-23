@@ -52,4 +52,21 @@ Audit: `Integration.HostedAzureExtractorConfigured` on configure.
 - Cost Management and Policy Insights surfaces that require POST are **not** collected on the hosted path; Tier 1 PowerShell remains the full-fidelity collector.
 - No write or destructive ARM operations.
 
+### Automated continuous pull (V1.x — ArchLucid-hosted)
+
+**V1 GA** ships Tier 1 upload and optional **on-demand** hosted collection (`POST /v1/admin/azure-extractor/hosted/run`). **Leader-elected background polling** (`AzureExtractorAutoPullHostedService`) is a **scaffold** until ARM/cost ingest is wired — see [V1_DEFERRED.md §6p](V1_DEFERRED.md).
+
+**Approved architecture pattern (resolved 2026-05-23):**
+
+| Layer | Decision |
+|-------|----------|
+| Customer identity | Customer-provisioned **read-only service principal** with **`Reader`** + **`Cost Management Reader`** on subscription or management group scope. |
+| Trust | **Federated workload identity** — customer federated credential trusts ArchLucid's **user-assigned managed identity** (preferred over long-lived client secrets). |
+| ArchLucid storage | Persist only `{ customerTenantId, customerAppId, subscriptionId, includeCost }` in `dbo.TenantHostedExtractorConfigurations` — **never** customer client secrets. |
+| Token exchange | Worker uses **`ClientAssertionCredential`** with ArchLucid MI assertion → customer SP token (`WorkloadIdentityHostedAzureExtractorCredentialFactory`; scope default `api://AzureADTokenExchange/.default`). |
+| Ingest path | Collected ZIP flows through **`HostedAzureExtractorClient`** into the existing upload/audit pipeline (same events as manual upload). |
+| Operations | Leader-elected loop gated by `AzureExtractor:AutoPull:Enabled` (default `false`) and `AzureExtractor:AutoPull:IntervalMinutes` (15–10080). |
+
+**Customer-owned alternative (available today):** schedule `Get-ArchLucidAzurePackage.ps1` in customer CI and POST the ZIP — no ArchLucid standing credentials. See [`docs/runbooks/AZURE_EXTRACTOR_TIER2_CONTINUOUS.md`](../runbooks/AZURE_EXTRACTOR_TIER2_CONTINUOUS.md).
+
 See also: [`docs/runbooks/AZURE_EXTRACTOR_INGEST.md`](../runbooks/AZURE_EXTRACTOR_INGEST.md), [`docs/library/V1_SCOPE.md`](V1_SCOPE.md) §2.16.
