@@ -1,0 +1,28 @@
+name: "Install Trivy"
+description: "Install a pinned Trivy CLI from GitHub releases (avoids setup-trivy sparse-checkout promisor failures)."
+inputs:
+  version:
+    description: "Trivy release tag (with or without leading v), e.g. v0.69.3"
+    required: false
+    default: "v0.69.3"
+runs:
+  using: "composite"
+  steps:
+    - name: Install Trivy CLI
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        version_input="${{ inputs.version }}"
+        version="${version_input#v}"
+        archive="trivy_${version}_Linux-64bit.tar.gz"
+        url="https://github.com/aquasecurity/trivy/releases/download/v${version}/${archive}"
+        install_dir="${RUNNER_TOOL_CACHE}/trivy/${version}"
+
+        mkdir -p "${install_dir}"
+        curl -fsSL "${url}" -o "/tmp/${archive}"
+        tar -xzf "/tmp/${archive}" -C "${install_dir}" trivy
+        chmod +x "${install_dir}/trivy"
+
+        echo "${install_dir}" >> "${GITHUB_PATH}"
+        "${install_dir}/trivy" --version

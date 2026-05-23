@@ -47,12 +47,12 @@ on:
 # `actions/setup-python@v6` here (matches Node 24; v5 targeted Node 20). Other third-party actions may still
 # declare node20 until republished. Tier-0 secret scan uses gacts/gitleaks (node24-native) instead of
 # gitleaks/gitleaks-action to avoid Node 20 deprecation noise.
-# Trivy: pin `aquasecurity/trivy-action` to a **commit** (org allow-lists). `setup-trivy@3fb12ec` runs
-# `contrib/install.sh` (godownloader) which scrapes `GET https://github.com/.../releases/<tag>` as JSON.
-# **v0.70.0** can fail on that path (`crit unable to find 'v0.70.0'`) even when the tag exists; pin **v0.69.3**
-# for a reliable binary install until Aqua bumps the install script ref in setup-trivy. Ref: repo
-# `docs/CHANGELOG.md` (Trivy install fix note, rename-era docs); aquasecurity/trivy discussions #10265+.
-# Set `cache: false` where we skip nested cache noise.
+# Trivy: pin `aquasecurity/trivy-action` to a **commit** (org allow-lists). Do **not** rely on nested
+# `setup-trivy` — it sparse-checkouts `aquasecurity/trivy` for `contrib/install.sh`, which triggers partial-clone
+# promisor fetches that fail on GitHub-hosted runners (`fatal: could not fetch … from promisor remote`).
+# Install the CLI via `.github/actions/install-trivy` (release tarball) and pass `skip-setup-trivy: true`.
+# Pin **v0.69.3** until Aqua restores reliable release/install paths (discussions #10265+). Set `cache: false`
+# where we skip nested cache noise.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -544,10 +544,15 @@ jobs:
         working-directory: infra/terraform-private
         run: terraform fmt -check -recursive
 
-      - name: Trivy IaC (Terraform misconfigurations)
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0; setup-trivy@3fb12ec
+      - name: Install Trivy CLI
+        uses: ./.github/actions/install-trivy
         with:
           version: v0.69.3
+
+      - name: Trivy IaC (Terraform misconfigurations)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          skip-setup-trivy: true
           scan-type: config
           scan-ref: infra/terraform-private
           severity: HIGH,CRITICAL
@@ -583,10 +588,15 @@ jobs:
         working-directory: ${{ matrix.directory }}
         run: terraform fmt -check -recursive
 
-      - name: Trivy IaC (Terraform misconfigurations)
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0; setup-trivy@3fb12ec
+      - name: Install Trivy CLI
+        uses: ./.github/actions/install-trivy
         with:
           version: v0.69.3
+
+      - name: Trivy IaC (Terraform misconfigurations)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          skip-setup-trivy: true
           scan-type: config
           scan-ref: ${{ matrix.directory }}
           severity: HIGH,CRITICAL
@@ -2162,10 +2172,15 @@ jobs:
           sbom: false
           cache-from: type=gha,scope=ui-docker-smoke
 
-      - name: Trivy scan API image (CRITICAL/HIGH)
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0; setup-trivy@3fb12ec
+      - name: Install Trivy CLI
+        uses: ./.github/actions/install-trivy
         with:
           version: v0.69.3
+
+      - name: Trivy scan API image (CRITICAL/HIGH)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          skip-setup-trivy: true
           scan-type: image
           image-ref: archlucid-api:ci
           severity: CRITICAL,HIGH
@@ -2173,9 +2188,9 @@ jobs:
           cache: false
 
       - name: Trivy scan Operator UI image (CRITICAL/HIGH)
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0; setup-trivy@3fb12ec
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
-          version: v0.69.3
+          skip-setup-trivy: true
           scan-type: image
           image-ref: archlucid-ui:ci
           severity: CRITICAL,HIGH
