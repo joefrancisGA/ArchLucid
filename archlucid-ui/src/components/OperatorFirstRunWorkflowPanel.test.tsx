@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -62,21 +62,43 @@ describe("OperatorFirstRunWorkflowPanel", () => {
     async () => {
       render(<OperatorFirstRunWorkflowPanel />);
 
-      await screen.findByRole("heading", { name: CORE_PILOT_FIRST_REVIEW_HEADING });
+      await screen.findByTestId("operator-first-run-wizard-step-1");
 
-      expect(screen.getByRole("link", { name: CORE_PILOT_STEPS[0].primaryLabel })).toBeVisible();
+      expect(
+        within(screen.getByTestId("operator-first-run-wizard-step-1")).getByRole("link", {
+          name: CORE_PILOT_STEPS[0].primaryLabel,
+        }),
+      ).toBeVisible();
 
-      const step3Title = screen.getByRole("button", { name: /Step 3 —/i });
-      fireEvent.click(step3Title);
+      fireEvent.click(
+        screen.getByRole("button", {
+          name: new RegExp(`Step 2 — ${CORE_PILOT_STEPS[1].title}`, "i"),
+        }),
+      );
 
-      expect(screen.getByRole("link", { name: CORE_PILOT_STEPS[2].primaryLabel })).toBeVisible();
+      await waitFor(() => {
+        expect(
+          within(screen.getByTestId("operator-first-run-wizard-step-2")).getByRole("link", {
+            name: CORE_PILOT_STEPS[1].primaryLabel,
+          }),
+        ).toBeVisible();
+      });
 
-      expect(screen.getByRole("button", { name: /Finalize the review package/i })).toBeInTheDocument();
+      fireEvent.click(
+        screen.getByRole("button", {
+          name: new RegExp(`Step 3 — ${CORE_PILOT_STEPS[2].title}`, "i"),
+        }),
+      );
 
-      const step2Title = screen.getByRole("button", { name: /Step 2 —/i });
-      fireEvent.click(step2Title);
+      await waitFor(() => {
+        expect(
+          within(screen.getByTestId("operator-first-run-wizard-step-3")).getByRole("link", {
+            name: CORE_PILOT_STEPS[2].primaryLabel,
+          }),
+        ).toBeVisible();
+      });
 
-      expect(await screen.findByRole("link", { name: CORE_PILOT_STEPS[1].primaryLabel })).toBeVisible();
+      expect(screen.getByRole("button", { name: /Step 4 — Finalize the review package/i })).toBeInTheDocument();
     },
     20_000,
   );
