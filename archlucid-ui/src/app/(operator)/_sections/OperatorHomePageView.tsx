@@ -8,6 +8,7 @@ import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
 import { HelpLink } from "@/components/HelpLink";
 import { HomeFirstRunWorkflowGate } from "@/components/HomeFirstRunWorkflowGate";
+import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
 import { HomeMaturityLayerCards } from "@/components/operator-home/HomeMaturityLayerCards";
 import { OperationalMetricsGate } from "@/components/operator-home/OperationalMetricsGate";
 import { RunsDashboardPanel } from "@/components/operator-home/RunsDashboardPanel";
@@ -45,6 +46,8 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
         {buyerPolishedShell ? <CorePilotBuyerStepHint /> : null}
 
         {buyerPolishedShell ? <BuyerGoldenJourneyStrip /> : null}
+
+        {buyerPolishedShell ? <LlmUsageBandHint /> : null}
 
         <SampleFirstReviewPackageCard />
 

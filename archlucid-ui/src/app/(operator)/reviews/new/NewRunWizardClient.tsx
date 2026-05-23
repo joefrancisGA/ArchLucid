@@ -19,11 +19,13 @@ import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { WizardStepTrack } from "@/components/wizard/steps/WizardStepTrack";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
+import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { createArchitectureRun, listRunsByProjectPaged } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
@@ -440,7 +442,7 @@ export function NewRunWizardClient() {
             </div>
           ) : null}
 
-          {wizardModeReady && llmBudgetStatus !== null ? (
+          {wizardModeReady && !isBuyerPolishedOperatorShellEnv() && llmBudgetStatus !== null ? (
             <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} />
           ) : null}
 
@@ -606,6 +608,12 @@ export function NewRunWizardClient() {
           {wizardModeReady ? (
             <div ref={liveRef} aria-live="polite" aria-atomic="true" className="sr-only">
               {liveMessage}
+            </div>
+          ) : null}
+
+          {wizardModeReady && isBuyerPolishedOperatorShellEnv() ? (
+            <div className="mt-6" data-testid="new-run-wizard-llm-usage-band-footer">
+              <LlmUsageBandHint />
             </div>
           ) : null}
         </div>

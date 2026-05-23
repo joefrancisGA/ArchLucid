@@ -15,6 +15,7 @@ import type { LlmMonthlyDollarBudgetStatus } from "@/hooks/use-llm-monthly-budge
 import { architectureReviewTemplates, suggestedSystemNameFromTemplateId } from "@/data/review-templates";
 import { createArchitectureRun } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
@@ -168,7 +169,9 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
 
   return (
     <div className="space-y-4 pb-36">
-      {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
+      {!isBuyerPolishedOperatorShellEnv() && llmBudgetStatus !== null ? (
+        <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} />
+      ) : null}
       <div className="space-y-1" data-testid="quick-start-progress">
         <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
           Quick start — step {quickStep + 1} of {QUICK_STEPS.length}: {QUICK_STEPS[quickStep].label}

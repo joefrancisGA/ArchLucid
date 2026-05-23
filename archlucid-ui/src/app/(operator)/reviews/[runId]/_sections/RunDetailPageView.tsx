@@ -284,6 +284,9 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           manifestId={m.manifestId}
           curatedSampleRun={m.usedStaticDemoRun}
           buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+          sponsorDocxAvailable={m.artifacts.some(
+            (artifact) => artifact.artifactId === "architecture-review-board",
+          )}
         />
       ) : null}
 

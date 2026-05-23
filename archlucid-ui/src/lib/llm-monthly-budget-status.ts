@@ -83,3 +83,39 @@ export function llmBudgetUtilizationPercent(status: LlmMonthlyDollarBudgetStatus
 
   return Math.min(100, Math.round(fraction * 1000) / 10);
 }
+
+/** Buyer-safe headroom under the UTC-month hard cap (100 minus utilization, floored at 0). */
+export function llmBudgetRemainingPercent(status: LlmMonthlyDollarBudgetStatus): number | null {
+  const utilizationPercent = llmBudgetUtilizationPercent(status);
+
+  if (utilizationPercent === null) {
+    return null;
+  }
+
+  const remainingPercent = 100 - utilizationPercent;
+
+  return Math.max(0, Math.round(remainingPercent * 10) / 10);
+}
+
+export function shouldShowBuyerLlmUsageBandHint(status: LlmMonthlyDollarBudgetStatus): boolean {
+  if (!status.monthlyBudgetMonitoringActive) {
+    return false;
+  }
+
+  if (status.blocksAdditionalLlmExecution) {
+    return true;
+  }
+
+  const tone = resolveLlmBudgetUtilizationTone(status);
+  const remainingPercent = llmBudgetRemainingPercent(status);
+
+  return (tone === "warn" || tone === "critical") && remainingPercent !== null;
+}
+
+export function formatBuyerLlmUsageApproachingCopy(remainingPercent: number): string {
+  return `AI analysis budget for this trial month is approximately ${remainingPercent}% remaining. Contact support or upgrade to continue real-mode runs.`;
+}
+
+export function formatBuyerLlmUsageExhaustedCopy(): string {
+  return "AI analysis budget for this trial month is exhausted (0% remaining). Upgrade to continue real-mode runs.";
+}

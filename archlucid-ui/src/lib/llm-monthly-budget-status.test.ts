@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  llmBudgetRemainingPercent,
   llmBudgetUtilizationPercent,
   resolveLlmBudgetUtilizationTone,
   type LlmMonthlyDollarBudgetStatus,
@@ -49,5 +50,15 @@ describe("llmBudgetUtilizationPercent", () => {
 
   it("caps display at 100 percent", () => {
     expect(llmBudgetUtilizationPercent(status({ hardCapUtilizationFraction: 1.4 }))).toBe(100);
+  });
+});
+
+describe("llmBudgetRemainingPercent", () => {
+  it("derives headroom from utilization", () => {
+    expect(llmBudgetRemainingPercent(status({ hardCapUtilizationFraction: 0.8 }))).toBe(20);
+  });
+
+  it("floors at zero when utilization exceeds the cap", () => {
+    expect(llmBudgetRemainingPercent(status({ hardCapUtilizationFraction: 1.2 }))).toBe(0);
   });
 });

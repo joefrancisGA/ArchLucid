@@ -8,18 +8,31 @@ type RunDetailSponsorBriefingSectionProps = {
   readonly manifestId: string;
   readonly curatedSampleRun: boolean;
   readonly buyerPolishedArtifactTable: boolean;
+  readonly sponsorDocxAvailable: boolean;
 };
 
 export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingSectionProps): ReactElement {
-  const { runId, manifestId, curatedSampleRun, buyerPolishedArtifactTable } = props;
+  const { runId, manifestId, curatedSampleRun, buyerPolishedArtifactTable, sponsorDocxAvailable } = props;
 
   if (buyerPolishedArtifactTable) {
     return (
       <CollapsibleSection title="Sponsor briefing package" defaultOpen={false}>
-        <EmailRunToSponsorBanner runId={runId} manifestId={manifestId} curatedSampleRun={curatedSampleRun} />
+        <EmailRunToSponsorBanner
+          runId={runId}
+          manifestId={manifestId}
+          curatedSampleRun={curatedSampleRun}
+          sponsorDocxAvailable={sponsorDocxAvailable}
+        />
       </CollapsibleSection>
     );
   }
 
-  return <EmailRunToSponsorBanner runId={runId} manifestId={manifestId} curatedSampleRun={curatedSampleRun} />;
+  return (
+    <EmailRunToSponsorBanner
+      runId={runId}
+      manifestId={manifestId}
+      curatedSampleRun={curatedSampleRun}
+      sponsorDocxAvailable={sponsorDocxAvailable}
+    />
+  );
 }

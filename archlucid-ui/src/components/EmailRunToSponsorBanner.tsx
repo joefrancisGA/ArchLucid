@@ -4,12 +4,14 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { formatUsd } from "@/components/BeforeAfterDelta/formatDelta";
+import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { Button } from "@/components/ui/button";
 import {
   downloadFirstValueReportPdf,
   getArchitecturePackageDocxUrl,
+  getArtifactDownloadUrl,
   getBundleDownloadUrl,
   getRunExportDownloadUrl,
 } from "@/lib/api";
@@ -32,6 +34,10 @@ import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-teleme
 export type EmailRunToSponsorBannerProps = {
   runId: string;
   manifestId: string;
+  /**
+   * When true, the committed manifest includes the `architecture-review-board` artifact — show a one-click sponsor DOCX download.
+   */
+  sponsorDocxAvailable?: boolean;
   /**
    * Curated static demo / golden-path review — avoid “preparing…” copy that reads like an unresolved check in screenshots.
    */
@@ -67,14 +73,16 @@ function computeUtcDayN(firstCommitIso: string, nowMs: number): number | null {
 }
 
 /**
- * Post-commit pilot ROI hub: primary PDF download (canonical sponsor projection) plus links to existing Markdown,
- * architecture DOCX, ZIP exports, and the in-product scorecard — no duplicate generation logic on the client.
+ * Post-commit pilot ROI hub: primary PDF download (canonical sponsor projection), optional direct sponsor DOCX when the
+ * committed manifest includes `architecture-review-board`, plus links to Markdown, architecture package DOCX, ZIP
+ * exports, and the in-product scorecard — no duplicate generation logic on the client.
  *
  * Render only when the server has confirmed a **Committed** manifest summary (see `runs/[runId]/page.tsx`).
  */
 export function EmailRunToSponsorBanner({
   runId,
   manifestId,
+  sponsorDocxAvailable = false,
   curatedSampleRun = false,
 }: EmailRunToSponsorBannerProps) {
   const [busy, setBusy] = useState(false);
@@ -450,6 +458,16 @@ export function EmailRunToSponsorBanner({
               ? "Create sponsor scorecard (PDF)"
               : "Generate pilot scorecard package"}
         </Button>
+        {sponsorDocxAvailable ? (
+          <Button variant="secondary" asChild>
+            <FunnelTelemetryExportAnchor
+              href={getArtifactDownloadUrl(manifestId, "architecture-review-board")}
+              data-testid="email-run-to-sponsor-sponsor-docx"
+            >
+              Download Sponsor Export (DOCX)
+            </FunnelTelemetryExportAnchor>
+          </Button>
+        ) : null}
         <span className="text-xs text-neutral-600 dark:text-neutral-400">
           {blockSponsorPdfForRoi
             ? "PDF export stays disabled until tenant ROI baselines are captured."

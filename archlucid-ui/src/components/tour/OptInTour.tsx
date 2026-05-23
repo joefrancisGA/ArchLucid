@@ -23,7 +23,7 @@ export interface OptInTourStep {
 }
 
 /**
- * Seven-step opt-in tour script.
+ * Six-step opt-in tour script.
  */
 export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
   {
@@ -56,12 +56,7 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
       "available when you are ready — they are not required for a successful first pilot.",
   },
   {
-    title: "6. Executive ROI Summary",
-    body:
-      "The Home dashboard features an Executive ROI Summary panel. It highlights total estimated savings and orphan candidates from your reviews, providing clear value for executive sponsors.",
-  },
-  {
-    title: "7. Get help",
+    title: "6. Get help",
     body:
       "If something is not working, go to Admin → Support to download a redacted diagnostics bundle for support " +
       "tickets. Most pages also include a link to the relevant documentation. The How it works button on Home re-opens this tour anytime.",

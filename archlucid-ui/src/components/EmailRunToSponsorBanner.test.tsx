@@ -487,4 +487,29 @@ describe("EmailRunToSponsorBanner", () => {
     expect(screen.queryByTestId("email-run-to-sponsor-first-commit-badge")).toBeNull();
     expect(mockTelemetry).not.toHaveBeenCalled();
   });
+
+  it("shows a direct sponsor DOCX download when the committed manifest includes architecture-review-board", async () => {
+    render(<EmailRunToSponsorBanner {...bannerProps} sponsorDocxAvailable />);
+
+    await waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalled();
+    });
+
+    const sponsorDocx = screen.getByTestId("email-run-to-sponsor-sponsor-docx");
+    expect(sponsorDocx).toHaveAttribute(
+      "href",
+      "/api/proxy/v1/artifacts/manifests/manifest-fixture/artifact/architecture-review-board",
+    );
+    expect(sponsorDocx).toHaveTextContent("Download Sponsor Export (DOCX)");
+  });
+
+  it("hides the direct sponsor DOCX download when no architecture-review-board artifact is present", async () => {
+    render(<EmailRunToSponsorBanner {...bannerProps} sponsorDocxAvailable={false} />);
+
+    await waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalled();
+    });
+
+    expect(screen.queryByTestId("email-run-to-sponsor-sponsor-docx")).toBeNull();
+  });
 });
