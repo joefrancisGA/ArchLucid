@@ -259,7 +259,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           samplePolicyPackContextLine={
             m.usedStaticDemoRun === true ? "Policy pack used for this sample review." : null
           }
-          requestId={m.resolvedDetail.run.architectureRequestId ?? (m.resolvedDetail.run as any).requestId}
+          requestId={m.resolvedDetail.run.architectureRequestId ?? (m.resolvedDetail.run as { requestId?: string }).requestId}
         />
       ) : null}
 

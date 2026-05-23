@@ -56,7 +56,7 @@ export function ExecutiveOrphanCandidatesCard() {
         const runDetail = await getRunDetail(latestSystem.runId);
         if (cancelled) return;
 
-        const manifestId = (runDetail.data?.run as any)?.goldenManifestId;
+        const manifestId = (runDetail.data?.run as { goldenManifestId?: string })?.goldenManifestId;
         if (!manifestId) {
           setData({ count: 0, savings: 0 });
           return;
@@ -67,12 +67,12 @@ export function ExecutiveOrphanCandidatesCard() {
           if (cancelled) return;
 
           const parsed = JSON.parse(artifact.text);
-          const list = Array.isArray(parsed) ? parsed : (parsed as any).candidates ?? [];
+          const list = Array.isArray(parsed) ? parsed : (parsed as { candidates?: unknown[] }).candidates ?? [];
           const count = list.length;
           const savings = heuristicAnnualUsdOpportunityFromOrphanCandidatesJson(parsed);
 
           setData({ count, savings });
-        } catch (e) {
+        } catch {
           // Artifact might not exist
           if (!cancelled) {
             setData({ count: 0, savings: 0 });
