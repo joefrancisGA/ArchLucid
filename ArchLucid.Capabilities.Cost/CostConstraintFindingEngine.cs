@@ -2,7 +2,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.KnowledgeGraph.Models; // GraphSnapshotExtensions
 
 namespace ArchLucid.Capabilities.Cost;
 

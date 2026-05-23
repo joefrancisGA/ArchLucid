@@ -1,7 +1,7 @@
-using ArchLucid.Core.Scoping;
-using ArchLucid.KnowledgeGraph.Models;
+﻿using ArchLucid.Core.Scoping;
+using ArchLucid.Contracts.Persistence.Graph;
 
-namespace ArchLucid.KnowledgeGraph.Interfaces;
+namespace ArchLucid.Core.Persistence.Ports;
 
 /// <summary>Read-through cache for heavy graph snapshot projections (e.g. full node/edge hydration).</summary>
 public interface IGraphSnapshotProjectionCache
@@ -20,3 +20,4 @@ public interface IGraphSnapshotProjectionCache
     /// <summary>Evicts a projection entry (e.g. after relational backfill or post-authority commit).</summary>
     void Invalidate(ScopeContext scope, Guid runId, Guid graphSnapshotId);
 }
+

@@ -6,8 +6,6 @@ using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Serialization;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.KnowledgeGraph.Models;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

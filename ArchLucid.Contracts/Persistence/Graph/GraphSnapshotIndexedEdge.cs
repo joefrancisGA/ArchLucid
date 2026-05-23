@@ -1,4 +1,4 @@
-namespace ArchLucid.KnowledgeGraph.Models;
+﻿namespace ArchLucid.Contracts.Persistence.Graph;
 
 /// <summary>
 ///     Edge row materialized from <c>dbo.GraphSnapshotEdges</c> for filtered queries without full JSON deserialization.
@@ -9,3 +9,4 @@ public sealed record GraphSnapshotIndexedEdge(
     string ToNodeId,
     string EdgeType,
     double Weight);
+

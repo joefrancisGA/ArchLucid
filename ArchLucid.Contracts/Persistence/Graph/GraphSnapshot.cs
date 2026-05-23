@@ -1,4 +1,4 @@
-namespace ArchLucid.KnowledgeGraph.Models;
+﻿namespace ArchLucid.Contracts.Persistence.Graph;
 
 public class GraphSnapshot
 {
@@ -51,3 +51,4 @@ public class GraphSnapshot
         set;
     } = [];
 }
+

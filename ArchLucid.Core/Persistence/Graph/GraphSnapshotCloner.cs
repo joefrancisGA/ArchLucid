@@ -1,7 +1,7 @@
-using ArchLucid.Contracts.Persistence.Context;
-using ArchLucid.KnowledgeGraph.Models;
+﻿using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.Contracts.Persistence.Graph;
 
-namespace ArchLucid.KnowledgeGraph.Services;
+namespace ArchLucid.Core.Persistence.Graph;
 
 /// <summary>
 ///     Clones a persisted <see cref="GraphSnapshot" /> for a new run when
@@ -61,3 +61,4 @@ public static class GraphSnapshotCloner
         };
     }
 }
+

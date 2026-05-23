@@ -46,7 +46,7 @@ using ArchLucid.Host.Composition.Orchestration;
 using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Jobs;
-using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.KnowledgeGraph.Repositories;
 using ArchLucid.Persistence.AdminNotifications;
 using ArchLucid.Persistence.Advisory;

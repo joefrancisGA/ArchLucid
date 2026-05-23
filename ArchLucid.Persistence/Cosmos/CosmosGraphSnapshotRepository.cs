@@ -3,8 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
 
-using ArchLucid.KnowledgeGraph.Interfaces;
-using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 

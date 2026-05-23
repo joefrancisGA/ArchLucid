@@ -1,4 +1,3 @@
-using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Persistence.Repositories;

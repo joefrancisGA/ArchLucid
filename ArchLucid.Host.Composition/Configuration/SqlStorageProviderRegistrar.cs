@@ -46,7 +46,7 @@ using ArchLucid.Host.Core.DataAccess;
 using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Jobs;
-using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Persistence.AdminNotifications;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Alerts;

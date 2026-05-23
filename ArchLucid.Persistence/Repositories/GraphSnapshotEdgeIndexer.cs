@@ -1,5 +1,3 @@
-using ArchLucid.KnowledgeGraph.Models;
-
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>

@@ -1,7 +1,5 @@
 using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph.Configuration;
-using ArchLucid.KnowledgeGraph.Interfaces;
-using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.KnowledgeGraph.Serialization;
 
 using Microsoft.Extensions.Caching.Distributed;

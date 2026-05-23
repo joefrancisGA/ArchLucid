@@ -4,8 +4,6 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.KnowledgeGraph.Models;
-
 namespace ArchLucid.Application.Bootstrap;
 
 /// <summary>Workspace B payloads: synthetic healthtech AI governance + regulated security findings (no PHI).</summary>

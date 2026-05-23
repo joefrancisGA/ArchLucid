@@ -1,9 +1,9 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Contracts.Persistence.Graph;
 
-namespace ArchLucid.KnowledgeGraph.Serialization;
+namespace ArchLucid.Core.Persistence.Serialization;
 
 /// <summary>
 ///     Tolerates alternate property names when reading <see cref="GraphEdge" /> rows (e.g. <c>id</c> for <c>edgeId</c>).
@@ -108,3 +108,4 @@ public sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
         return false;
     }
 }
+

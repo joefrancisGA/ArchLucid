@@ -1,7 +1,7 @@
-using ArchLucid.Contracts.Persistence.Context;
-using ArchLucid.KnowledgeGraph.Models;
+﻿using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.Contracts.Persistence.Graph;
 
-namespace ArchLucid.KnowledgeGraph.Interfaces;
+namespace ArchLucid.Core.Persistence.Ports;
 
 public interface IKnowledgeGraphService
 {
@@ -9,3 +9,4 @@ public interface IKnowledgeGraphService
         ContextSnapshot contextSnapshot,
         CancellationToken ct);
 }
+

@@ -1,6 +1,6 @@
-using ArchLucid.Contracts.Persistence.Context;
+﻿using ArchLucid.Contracts.Persistence.Context;
 
-namespace ArchLucid.KnowledgeGraph.Services;
+namespace ArchLucid.Core.Persistence.Graph;
 
 /// <summary>
 ///     Compares two <see cref="ContextSnapshot" /> canonical object sets for incremental graph reuse.
@@ -9,7 +9,7 @@ public static class GraphSnapshotCanonicalFingerprint
 {
     /// <summary>
     ///     When both snapshots have the same ordered fingerprint of canonical identity fields,
-    ///     a previously built <see cref="Models.GraphSnapshot" /> can be cloned with new ids instead of rebuilding.
+    ///     a previously built <see cref="GraphSnapshot" /> can be cloned with new ids instead of rebuilding.
     /// </summary>
     public static bool AreEquivalent(ContextSnapshot? previous, ContextSnapshot current)
     {
@@ -33,3 +33,4 @@ public static class GraphSnapshotCanonicalFingerprint
         return string.Join("\n", parts);
     }
 }
+

@@ -1,8 +1,6 @@
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.KnowledgeGraph.Models;
-
 namespace ArchLucid.Decisioning.Services;
 
 /// <summary>

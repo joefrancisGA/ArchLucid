@@ -1,4 +1,4 @@
-namespace ArchLucid.KnowledgeGraph.Models;
+﻿namespace ArchLucid.Contracts.Persistence.Graph;
 
 public class GraphBuildResult
 {
@@ -20,3 +20,4 @@ public class GraphBuildResult
         set;
     } = [];
 }
+

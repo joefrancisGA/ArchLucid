@@ -1,8 +1,8 @@
-using System.Data;
+﻿using System.Data;
 
-using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Contracts.Persistence.Graph;
 
-namespace ArchLucid.KnowledgeGraph.Interfaces;
+namespace ArchLucid.Core.Persistence.Ports;
 
 /// <summary>
 ///     Persistence contract for <see cref="GraphSnapshot" /> records that capture the
@@ -38,3 +38,4 @@ public interface IGraphSnapshotRepository
     /// </summary>
     Task<GraphSnapshot?> GetLatestByContextSnapshotIdAsync(Guid contextSnapshotId, CancellationToken ct);
 }
+

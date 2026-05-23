@@ -1,4 +1,3 @@
-using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.KnowledgeGraph.Serialization;
 
 using FluentAssertions;

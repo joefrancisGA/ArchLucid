@@ -84,7 +84,7 @@ using Microsoft.Extensions.Options;
 using ContextConnector = ArchLucid.ContextIngestion.Interfaces.IContextConnector;
 using ContextIngestionService = ArchLucid.Contracts.Persistence.Ports.IContextIngestionService;
 using GraphBuilder = ArchLucid.KnowledgeGraph.Interfaces.IGraphBuilder;
-using KnowledgeGraphService = ArchLucid.KnowledgeGraph.Interfaces.IKnowledgeGraphService;
+using KnowledgeGraphService = ArchLucid.Core.Persistence.Ports.IKnowledgeGraphService;
 
 namespace ArchLucid.Host.Composition.Startup;
 

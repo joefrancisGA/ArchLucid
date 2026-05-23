@@ -9,7 +9,6 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Integrations.AzureDevOps;
-using ArchLucid.KnowledgeGraph.Services;
 using ArchLucid.Notifications;
 using ArchLucid.Persistence.Pilots;
 using ArchLucid.Provenance;
@@ -96,7 +95,7 @@ public sealed class SingleCompositionRootServiceCollectionExtensionsTests
         typeof(SchemaValidationService).Assembly,
         typeof(AzureDevOpsPullRequestDecorator).Assembly,
         typeof(ArchLucid.Integrations.AzureExtractor.HostedAzureExtractorClient).Assembly,
-        typeof(KnowledgeGraphService).Assembly,
+        typeof(ArchLucid.KnowledgeGraph.Services.KnowledgeGraphService).Assembly,
         typeof(WebhookPostOptions).Assembly,
         typeof(DapperPilotReportCardMetricsReader).Assembly,
         typeof(DecisionProvenanceGraph).Assembly,

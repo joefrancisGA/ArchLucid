@@ -2,8 +2,6 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
-using ArchLucid.KnowledgeGraph.Interfaces;
-using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.GraphSnapshots;
 using ArchLucid.Persistence.RelationalRead;

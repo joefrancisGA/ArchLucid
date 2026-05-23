@@ -1,9 +1,9 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Contracts.Persistence.Graph;
 
-namespace ArchLucid.KnowledgeGraph.Serialization;
+namespace ArchLucid.Core.Persistence.Serialization;
 
 /// <summary>
 ///     Tolerates older or alternate JSON property names when reading <see cref="GraphNode" /> rows from storage
@@ -103,3 +103,4 @@ public sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
         return false;
     }
 }
+

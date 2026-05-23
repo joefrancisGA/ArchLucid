@@ -7,9 +7,6 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.KnowledgeGraph.Interfaces;
-using ArchLucid.KnowledgeGraph.Models;
-
 using Cm = ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Authority;

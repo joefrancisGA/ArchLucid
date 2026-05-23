@@ -1,7 +1,6 @@
 using System.Data;
 
 using ArchLucid.Core.Scoping;
-using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Repositories;
 
 using Microsoft.Data.SqlClient;

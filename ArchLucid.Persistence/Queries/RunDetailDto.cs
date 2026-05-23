@@ -3,7 +3,6 @@
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Persistence.Queries;

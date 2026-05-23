@@ -1,6 +1,5 @@
 using System.Data;
 
-using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;

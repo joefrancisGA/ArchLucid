@@ -1,10 +1,12 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
-namespace ArchLucid.KnowledgeGraph.Serialization;
+using ArchLucid.Contracts.Persistence.Graph;
+
+namespace ArchLucid.Core.Persistence.Serialization;
 
 /// <summary>
-///     Shared JSON options for graph node/edge payloads and full <see cref="Models.GraphSnapshot" /> projection cache bytes.
+///     Shared JSON options for graph node/edge payloads and full <see cref="GraphSnapshot" /> projection cache bytes.
 /// </summary>
 public static class GraphJsonSerialization
 {
@@ -19,7 +21,7 @@ public static class GraphJsonSerialization
     } = CreateEntityJsonOptions();
 
     /// <summary>
-    ///     Options for distributed projection cache round-trip of entire <see cref="Models.GraphSnapshot" /> documents.
+    ///     Options for distributed projection cache round-trip of entire <see cref="GraphSnapshot" /> documents.
     /// </summary>
     public static JsonSerializerOptions SnapshotProjectionOptions
     {
@@ -32,14 +34,14 @@ public static class GraphJsonSerialization
         get;
     } = SerializerContext;
 
-    public static byte[] SerializeSnapshotToUtf8Bytes(Models.GraphSnapshot snapshot)
+    public static byte[] SerializeSnapshotToUtf8Bytes(GraphSnapshot snapshot)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
         return JsonSerializer.SerializeToUtf8Bytes(snapshot, SnapshotProjectionOptions);
     }
 
-    public static Models.GraphSnapshot? DeserializeSnapshot(ReadOnlySpan<byte> utf8Json)
+    public static GraphSnapshot? DeserializeSnapshot(ReadOnlySpan<byte> utf8Json)
     {
         try
         {
@@ -99,3 +101,4 @@ public static class GraphJsonSerialization
         return options;
     }
 }
+

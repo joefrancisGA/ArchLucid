@@ -1,8 +1,8 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Contracts.Persistence.Graph;
 
-namespace ArchLucid.KnowledgeGraph.Serialization;
+namespace ArchLucid.Core.Persistence.Serialization;
 
 /// <summary>
 ///     Source-generated <see cref="System.Text.Json" /> metadata for knowledge-graph DTOs and list payloads.
@@ -20,3 +20,4 @@ namespace ArchLucid.KnowledgeGraph.Serialization;
 [JsonSerializable(typeof(List<string>))]
 [JsonSerializable(typeof(Dictionary<string, string>))]
 public partial class GraphJsonSerializerContext : JsonSerializerContext;
+

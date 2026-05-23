@@ -25,8 +25,6 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Merge;
-using ArchLucid.KnowledgeGraph.Interfaces;
-using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;

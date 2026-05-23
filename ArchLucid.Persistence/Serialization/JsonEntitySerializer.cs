@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-using ArchLucid.KnowledgeGraph.Serialization;
+using ArchLucid.Core.Persistence.Serialization;
 
 namespace ArchLucid.Persistence.Serialization;
 

@@ -1,8 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.KnowledgeGraph.Models;
-using ArchLucid.KnowledgeGraph.Serialization;
-
 using FluentAssertions;
 
 namespace ArchLucid.KnowledgeGraph.Tests.Serialization;

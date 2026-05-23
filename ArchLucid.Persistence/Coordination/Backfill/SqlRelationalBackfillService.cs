@@ -3,8 +3,6 @@
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.KnowledgeGraph.Interfaces;
-using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 

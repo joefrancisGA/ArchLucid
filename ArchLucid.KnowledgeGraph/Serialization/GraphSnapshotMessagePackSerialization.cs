@@ -1,5 +1,3 @@
-using ArchLucid.KnowledgeGraph.Models;
-
 using MessagePack;
 using MessagePack.Resolvers;
 

@@ -1,8 +1,8 @@
-using ArchLucid.Contracts.Persistence.Context;
-using ArchLucid.KnowledgeGraph.Interfaces;
-using ArchLucid.KnowledgeGraph.Models;
+﻿using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Contracts.Persistence.Graph;
 
-namespace ArchLucid.KnowledgeGraph.Services;
+namespace ArchLucid.Core.Persistence.Graph;
 
 /// <summary>
 ///     Decides whether to rebuild a <see cref="GraphSnapshot" /> or clone the latest graph
@@ -48,3 +48,4 @@ public static class GraphSnapshotReuseEvaluator
         return new GraphSnapshotResolutionResult(cloned, "cloned_from_prior_graph");
     }
 }
+

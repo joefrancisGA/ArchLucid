@@ -1,4 +1,4 @@
-namespace ArchLucid.KnowledgeGraph.Models;
+﻿namespace ArchLucid.Contracts.Persistence.Graph;
 
 public class GraphNode
 {
@@ -53,3 +53,4 @@ public class GraphNode
         set;
     }
 }
+
