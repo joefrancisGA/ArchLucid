@@ -156,8 +156,7 @@ export function ExtractUploadSettingsPageClient() {
           ) : null}
           {uploadError !== null ? (
             <OperatorApiProblem
-              title="Upload failed"
-              message={uploadError.message}
+              fallbackMessage={uploadError.message}
               problem={uploadError.problem}
               correlationId={uploadError.correlationId}
             />

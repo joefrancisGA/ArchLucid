@@ -6,29 +6,13 @@ import { Button } from "@/components/ui/button";
 import {
   buildExecutiveSummaryMarkdown,
   executiveSummaryMarkdownFilename,
+  type ExecutiveRoiSummary,
 } from "@/lib/executive-summary-markdown";
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-
-export type ExecutiveRoiSummary = {
-  totalEstimatedUsdSavings: number;
-  systemCount: number;
-  latestRunCount: number;
-  systems: Array<{
-    systemName: string;
-    runId: string;
-    committedUtc: string | null;
-    estimatedUsdSavings: number | null;
-  }>;
-  topSystemicIssues: Array<{
-    category: string;
-    severity: string;
-    count: number;
-  }>;
-};
 
 const EXECUTIVE_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiExecutiveSummary}`;
 

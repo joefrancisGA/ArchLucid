@@ -1,5 +1,22 @@
 import { buildSponsorMarkdownMethodologyFooter } from "@/lib/sponsor-markdown-footer";
 
+export type ExecutiveRoiSummary = {
+  totalEstimatedUsdSavings: number;
+  systemCount: number;
+  latestRunCount: number;
+  systems: Array<{
+    systemName: string;
+    runId: string;
+    committedUtc: string | null;
+    estimatedUsdSavings: number | null;
+  }>;
+  topSystemicIssues: Array<{
+    category: string;
+    severity: string;
+    count: number;
+  }>;
+};
+
 function formatUsd(value: number | null): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
     return "—";

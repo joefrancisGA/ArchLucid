@@ -7,7 +7,7 @@ import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { getRunDetail, fetchArtifactContentUtf8 } from "@/lib/api";
 import { heuristicAnnualUsdOpportunityFromOrphanCandidatesJson } from "@/lib/run-potential-savings-parser";
-import type { ExecutiveRoiSummary } from "./ExecutiveRoiSummarySection";
+import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 
 function formatUsd(value: number): string {
   if (!Number.isFinite(value)) {
