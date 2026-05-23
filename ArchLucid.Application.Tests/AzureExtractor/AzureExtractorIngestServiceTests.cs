@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using System.Text.Json;
 
 using ArchLucid.Application.AzureExtractor;
@@ -77,21 +78,7 @@ public sealed class AzureExtractorIngestServiceTests
         };
         var manifestJson = JsonSerializer.Serialize(manifest);
 
-        using var ms = new MemoryStream();
-        await using (var archive = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Create, true))
-        {
-            var entry = archive.CreateEntry("manifest.json");
-            await using var entryStream = await entry.OpenAsync();
-            await using var writer = new StreamWriter(entryStream);
-            await writer.WriteAsync(manifestJson);
-
-            var resourcesEntry = archive.CreateEntry("resources.json");
-            await using var resourcesStream = await resourcesEntry.OpenAsync();
-            await using var resourcesWriter = new StreamWriter(resourcesStream);
-            await resourcesWriter.WriteAsync("[]");
-        }
-
-        var zipBytes = ms.ToArray();
+        byte[] zipBytes = BuildExtractorZipBytes(manifestJson, "[]");
 
         var sut = CreateService(out var packageRepo, out _);
 
@@ -115,22 +102,7 @@ public sealed class AzureExtractorIngestServiceTests
     [Fact]
     public async Task IngestZipBytesAsync_when_manifest_json_malformed_rejects_before_package_insert()
     {
-        using MemoryStream ms = new();
-
-        await using (var archive = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Create, true))
-        {
-            var manifestEntry = archive.CreateEntry("manifest.json");
-            await using var manifestStream = await manifestEntry.OpenAsync();
-            await using var manifestWriter = new StreamWriter(manifestStream);
-            await manifestWriter.WriteAsync("{ not-valid-json");
-
-            var resourcesEntry = archive.CreateEntry("resources.json");
-            await using var resourcesStream = await resourcesEntry.OpenAsync();
-            await using var resourcesWriter = new StreamWriter(resourcesStream);
-            await resourcesWriter.WriteAsync("[]");
-        }
-
-        byte[] zipBytes = ms.ToArray();
+        byte[] zipBytes = BuildExtractorZipBytes("{ not-valid-json", "[]");
 
         var sut = CreateService(out var packageRepo, out _);
 
@@ -164,21 +136,7 @@ public sealed class AzureExtractorIngestServiceTests
         };
         var manifestJson = JsonSerializer.Serialize(manifest);
 
-        using var ms = new MemoryStream();
-        await using (var archive = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Create, true))
-        {
-            var entry = archive.CreateEntry("manifest.json");
-            await using var entryStream = await entry.OpenAsync();
-            await using var writer = new StreamWriter(entryStream);
-            await writer.WriteAsync(manifestJson);
-
-            var resourcesEntry = archive.CreateEntry("resources.json");
-            await using var resourcesStream = await resourcesEntry.OpenAsync();
-            await using var resourcesWriter = new StreamWriter(resourcesStream);
-            await resourcesWriter.WriteAsync("[]");
-        }
-
-        var zipBytes = ms.ToArray();
+        byte[] zipBytes = BuildExtractorZipBytes(manifestJson, "[]");
 
         var sut = CreateService(out var packageRepo, out var runRepo);
 
@@ -198,6 +156,30 @@ public sealed class AzureExtractorIngestServiceTests
         result.PackageId.Should().NotBeEmpty();
 
         packageRepo.Verify(p => p.InsertAsync(It.Is<AzureExtractorPackageRecord>(r => r.OriginalFileName == "valid.zip" && r.SchemaVersion == 1 && r.PackageId == result.PackageId), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    private static byte[] BuildExtractorZipBytes(string manifestJson, string resourcesJson)
+    {
+        using MemoryStream ms = new();
+
+        using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            ZipArchiveEntry manifest = zip.CreateEntry("manifest.json");
+
+            using (StreamWriter writer = new(manifest.Open()))
+            {
+                writer.Write(manifestJson);
+            }
+
+            ZipArchiveEntry resources = zip.CreateEntry("resources.json");
+
+            using (StreamWriter writer = new(resources.Open()))
+            {
+                writer.Write(resourcesJson);
+            }
+        }
+
+        return ms.ToArray();
     }
 
     private static AzureExtractorIngestService CreateService(

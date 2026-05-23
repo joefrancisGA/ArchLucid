@@ -294,15 +294,32 @@ try
     Write-Utf8NoBom $manifestPath ($manifest | ConvertTo-Json -Depth 10)
     Write-Utf8NoBom $resourcesPath ($resources | ConvertTo-Json -Depth 10)
 
-    $policyCompliance = New-ArchLucidPolicyComplianceDocument `
-        -SubscriptionId $SubscriptionId `
-        -ScopeDescriptor $scopeDescriptor `
-        -CollectionTimestampUtc $collectionTimestamp `
-        -ResourceGroupScope $ResourceGroupScope `
-        -PolicyComplianceSchemaVersion 1 `
-        -PageSize 450
-
     $policyCompliancePath = Join-Path $staging "policy-compliance.json"
+
+    if ($env:ARCHLUCID_EXTRACTOR_SKIP_POLICY_COMPLIANCE -eq '1')
+    {
+        $policyCompliance = [ordered]@{
+            policyComplianceSchemaVersion = 1
+            collectionTimestampUtc = $collectionTimestamp
+            scope = $scopeDescriptor
+            managementPlane = "AzurePolicyInsights"
+            apiShape = "policyStates/latest/queryResults"
+            readerNote = "Policy compliance collection skipped for automated tests."
+            recordCount = 0
+            records = @()
+        }
+    }
+    else
+    {
+        $policyCompliance = New-ArchLucidPolicyComplianceDocument `
+            -SubscriptionId $SubscriptionId `
+            -ScopeDescriptor $scopeDescriptor `
+            -CollectionTimestampUtc $collectionTimestamp `
+            -ResourceGroupScope $ResourceGroupScope `
+            -PolicyComplianceSchemaVersion 1 `
+            -PageSize 450
+    }
+
     Write-Utf8NoBom $policyCompliancePath ($policyCompliance | ConvertTo-Json -Depth 12)
 
     $policyData = [ordered]@{
