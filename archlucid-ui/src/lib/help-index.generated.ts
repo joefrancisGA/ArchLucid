@@ -85,6 +85,13 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",
     "docTitle": "Troubleshooting for pilots and operators (56R)",
+    "sectionSlug": "orchestrator-degraded-health",
+    "sectionHeading": "Orchestrator degraded health",
+    "excerpt": "When `OrchestratorHealthCheck` reports Degraded or Unhealthy on `GET /health/ready`, or runs stall in Executing without task progress:"
+  },
+  {
+    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
+    "docTitle": "Troubleshooting for pilots and operators (56R)",
     "sectionSlug": "problem-details-applicationproblemjson-and-supporthint",
     "sectionHeading": "Problem Details (`application/problem+json`) and `supportHint`",
     "excerpt": "Shape follows RFC 9457 (Problem Details for HTTP APIs; obsoletes RFC 7807). API error responses may include:"
@@ -137,6 +144,13 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "sectionSlug": "",
     "sectionHeading": "Configuration reference — overview",
     "excerpt": "This document lists operator-facing configuration keys (colon paths or environment names) recognized by `archlucid config check` and by `GET /v1/admin/config-summary` / `GET /v1/admin/configuration/summary` (presence plus optional redacted scalars; never raw secrets). `GET /v1/admin/config-lint` returns structured b…"
+  },
+  {
+    "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
+    "docTitle": "Configuration reference",
+    "sectionSlug": "testing-non-production",
+    "sectionHeading": "Testing (non-production)",
+    "excerpt": "Testing (non-production)"
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",

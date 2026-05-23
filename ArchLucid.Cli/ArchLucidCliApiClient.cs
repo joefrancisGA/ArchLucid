@@ -880,8 +880,9 @@ public sealed class ArchLucidApiClient
         }
     }
 
-    private TOut? DeserializeRoundTrip<TOut>(object value)
+    private TOut? DeserializeRoundTrip<TOut>(object? value)
     {
+        if (value is null) return default;
         string json = JsonSerializer.Serialize(value, value.GetType(), _jsonOptions);
 
         return JsonSerializer.Deserialize<TOut>(json, ContractEnumAwareJson);
