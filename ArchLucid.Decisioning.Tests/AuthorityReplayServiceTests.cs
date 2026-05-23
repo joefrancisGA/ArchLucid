@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
