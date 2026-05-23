@@ -1,5 +1,5 @@
 /*
-  R169: Undo Tenants_DataRegion addition.
+  R196: Undo Tenants_DataRegion addition.
 */
 
 IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Tenants', N'DataRegion') IS NOT NULL

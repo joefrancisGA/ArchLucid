@@ -6421,7 +6421,7 @@ BEGIN
 END;
 GO
 
-/* 169: Tenant-selected data residency (see Migrations/169_Tenants_DataRegion.sql). */
+/* 196: Tenant-selected data residency (see Migrations/196_Tenants_DataRegion.sql). */
 IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Tenants', N'DataRegion') IS NULL
 BEGIN
     ALTER TABLE dbo.Tenants ADD
@@ -7452,6 +7452,7 @@ IF OBJECT_ID(N'rls.archiforge_tenant_predicate', N'IF') IS NOT NULL
     EXEC (N'DROP FUNCTION rls.archiforge_tenant_predicate;');
 GO
 
+/* ---- DbUp 198 parity: HTTP idempotency replay store (see Migrations/198_IdempotencyRecords.sql) ---- */
 IF OBJECT_ID('dbo.IdempotencyRecords', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.IdempotencyRecords

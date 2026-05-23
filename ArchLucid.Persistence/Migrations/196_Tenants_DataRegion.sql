@@ -1,5 +1,5 @@
 /*
-  169: Tenant-selected data residency (dbo.Tenants.DataRegion).
+  196: Tenant-selected data residency (dbo.Tenants.DataRegion).
 
   Normalized geography key binds optional per-region ArtifactLargePayload Azure blob URIs.
 */

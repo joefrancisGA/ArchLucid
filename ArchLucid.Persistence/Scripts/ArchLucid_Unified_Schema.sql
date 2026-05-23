@@ -5284,7 +5284,7 @@ END;
 
 GO
 
-/* 169: Tenant-selected data residency (see Migrations/169_Tenants_DataRegion.sql). */
+/* 196: Tenant-selected data residency (see Migrations/196_Tenants_DataRegion.sql). */
 IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Tenants', N'DataRegion') IS NULL
 BEGIN
     ALTER TABLE dbo.Tenants ADD

@@ -1,3 +1,7 @@
+/*
+  198: HTTP idempotency replay store (TenantId + IdempotencyKey).
+*/
+
 IF OBJECT_ID('dbo.IdempotencyRecords', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.IdempotencyRecords

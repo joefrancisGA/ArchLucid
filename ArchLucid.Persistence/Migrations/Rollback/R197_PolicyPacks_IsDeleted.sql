@@ -1,5 +1,5 @@
 /*
-  Roll back DbUp 180 — remove PolicyPacks.IsDeleted.
+  Roll back DbUp 197 — remove PolicyPacks.IsDeleted.
 */
 
 IF COL_LENGTH(N'dbo.PolicyPacks', N'IsDeleted') IS NOT NULL
