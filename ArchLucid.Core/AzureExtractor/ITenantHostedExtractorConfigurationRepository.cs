@@ -8,4 +8,8 @@ public interface ITenantHostedExtractorConfigurationRepository
         CancellationToken cancellationToken);
 
     Task UpsertAsync(TenantHostedExtractorConfigurationRecord record, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<TenantHostedExtractorConfigurationRecord>> ListByTenantAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken);
 }

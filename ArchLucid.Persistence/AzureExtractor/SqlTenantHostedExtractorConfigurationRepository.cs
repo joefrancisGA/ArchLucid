@@ -31,6 +31,13 @@ public sealed class SqlTenantHostedExtractorConfigurationRepository(
     public Task UpsertAsync(TenantHostedExtractorConfigurationRecord record, CancellationToken cancellationToken) =>
         _sqlOperations.ExecuteAsync(ct => UpsertCoreAsync(record, ct), cancellationToken);
 
+    public Task<IReadOnlyList<TenantHostedExtractorConfigurationRecord>> ListByTenantAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken) =>
+        _sqlOperations.ExecuteAsync(
+            ct => ListByTenantCoreAsync(tenantId, ct),
+            cancellationToken);
+
     private async Task<TenantHostedExtractorConfigurationRecord?> TryGetCoreAsync(
         Guid tenantId,
         string subscriptionId,
@@ -64,6 +71,38 @@ public sealed class SqlTenantHostedExtractorConfigurationRepository(
             .ConfigureAwait(false);
 
         return row?.ToRecord();
+    }
+
+    private async Task<IReadOnlyList<TenantHostedExtractorConfigurationRecord>> ListByTenantCoreAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("tenantId is required.", nameof(tenantId));
+
+        const string sql = """
+                             SELECT TenantId,
+                                    SubscriptionId,
+                                    CustomerTenantId,
+                                    CustomerAppId,
+                                    IncludeCost,
+                                    UpdatedUtc,
+                                    UpdatedByActorId
+                             FROM dbo.TenantHostedExtractorConfigurations
+                             WHERE TenantId = @TenantId
+                             ORDER BY UpdatedUtc DESC;
+                             """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<Row> rows = await connection.QueryAsync<Row>(
+                new CommandDefinition(
+                    sql,
+                    new { TenantId = tenantId },
+                    cancellationToken: cancellationToken))
+            .ConfigureAwait(false);
+
+        return rows.Select(row => row.ToRecord()).ToList();
     }
 
     private async Task UpsertCoreAsync(

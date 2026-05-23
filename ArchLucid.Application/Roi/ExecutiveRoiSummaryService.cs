@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Roi;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Core.Scim;
+using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 

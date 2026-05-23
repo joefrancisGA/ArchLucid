@@ -399,7 +399,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
         TryScheduleIacStubGeneration(runId);
         TryScheduleFindingPriorityRerank(runId);
-        TryScheduleReviewCompletedEvent(runId, request.ProjectId);
+        TryScheduleReviewCompletedEvent(runId, scope.ProjectId.ToString("N"));
 
         return new CommitRunResult { Manifest = contract, DecisionTraces = [trace], Warnings = persisted.Warnings.Count == 0 ? [] : [.. persisted.Warnings] };
     }

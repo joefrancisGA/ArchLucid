@@ -4,7 +4,6 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
-using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Serialization;
 
@@ -53,7 +52,7 @@ public sealed class Tier2ConnectionController(
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         string actorId = _actorContext.GetActorId();
 
-        TenantCloudConnectionRecord record;
+        Tier2ConnectionSummary record;
 
         try
         {
@@ -101,13 +100,14 @@ public sealed class Tier2ConnectionController(
     }
 
     [HttpGet]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [MutatingAuditExcluded("Read-only connection lookup.")]
     [ProducesResponseType(typeof(IReadOnlyList<Tier2ConnectionResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListConnectionsAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        IReadOnlyList<TenantCloudConnectionRecord> records = await _connectionService
+        IReadOnlyList<Tier2ConnectionSummary> records = await _connectionService
             .ListConnectionsAsync(scope.TenantId, cancellationToken)
             .ConfigureAwait(false);
 
@@ -115,7 +115,7 @@ public sealed class Tier2ConnectionController(
     }
 
     private static Tier2ConnectionResponse ToResponse(
-        TenantCloudConnectionRecord record) =>
+        Tier2ConnectionSummary record) =>
         new()
         {
             ConnectionId = record.ConnectionId,

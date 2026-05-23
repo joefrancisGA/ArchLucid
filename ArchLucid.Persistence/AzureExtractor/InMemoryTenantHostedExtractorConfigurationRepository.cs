@@ -46,6 +46,20 @@ public sealed class InMemoryTenantHostedExtractorConfigurationRepository
         return Task.CompletedTask;
     }
 
+    public Task<IReadOnlyList<TenantHostedExtractorConfigurationRecord>> ListByTenantAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+
+        List<TenantHostedExtractorConfigurationRecord> records = _rows.Values
+            .Where(record => record.TenantId == tenantId)
+            .OrderByDescending(record => record.UpdatedUtc)
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<TenantHostedExtractorConfigurationRecord>>(records);
+    }
+
     private static string NormalizeSubscriptionId(string subscriptionId) =>
         subscriptionId.Trim().ToLowerInvariant();
 }

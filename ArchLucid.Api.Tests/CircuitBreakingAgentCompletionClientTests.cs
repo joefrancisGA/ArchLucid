@@ -142,7 +142,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
         Mock<IAgentCompletionClient> inner = new();
         inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
         inner.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
-            .Returns((string _, string _, CancellationToken ct) =>
+            .Returns((string _, string _, int? _, float? _, CancellationToken ct) =>
             {
                 Interlocked.Increment(ref calls);
 

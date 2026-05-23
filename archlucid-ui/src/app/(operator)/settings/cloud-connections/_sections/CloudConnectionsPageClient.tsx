@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,23 +12,33 @@ import { configureTier2Connection, listTier2Connections, Tier2ConnectionResponse
 export function CloudConnectionsPageClient() {
   const [connections, setConnections] = useState<Tier2ConnectionResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const loadStartedRef = useRef(false);
 
   const [tenantId, setTenantId] = useState("");
   const [clientId, setClientId] = useState("");
   const [subscriptionIds, setSubscriptionIds] = useState("");
 
   useEffect(() => {
+    if (loadStartedRef.current)
+      return;
+
+    loadStartedRef.current = true;
+
     async function load() {
       try {
         const data = await listTier2Connections();
         setConnections(data);
+        setLoadError(null);
       } catch (err) {
         console.error(err);
+        setLoadError("Could not load saved connections. Check your permissions and try refreshing the page.");
       } finally {
         setIsLoading(false);
       }
     }
+
     void load();
   }, []);
 
@@ -36,12 +46,13 @@ export function CloudConnectionsPageClient() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const newConnection = await configureTier2Connection({
+      await configureTier2Connection({
         tenantId,
         clientId,
         subscriptionIds,
       });
-      setConnections((prev) => [...prev, newConnection]);
+      const refreshed = await listTier2Connections();
+      setConnections(refreshed);
       setTenantId("");
       setClientId("");
       setSubscriptionIds("");
@@ -98,7 +109,7 @@ az ad app federated-credential create --id $APP_OBJECT_ID --parameters "{
         <CardHeader>
           <CardTitle>Connect Azure (Tier 2)</CardTitle>
           <CardDescription>
-            Set up continuous Azure ingestion using Workload Identity Federation. This method does not require storing client secrets.
+            Set up continuous Azure ingestion using Workload Identity Federation. Saved connections are stored in the hosted extractor configuration used by Tier 2 pull jobs — no client secrets are stored.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -155,7 +166,17 @@ az ad app federated-credential create --id $APP_OBJECT_ID --parameters "{
         </CardContent>
       </Card>
 
-      {connections.length > 0 && (
+      {loadError ? (
+        <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+          {loadError}
+        </p>
+      ) : null}
+
+      {isLoading ? (
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading saved connections…</p>
+      ) : null}
+
+      {!isLoading && connections.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Configured Connections</CardTitle>
