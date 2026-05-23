@@ -118,7 +118,7 @@ public sealed class AuthorityRunOrchestrator(
 
             run.OtelTraceId = Activity.Current?.TraceId.ToString();
 
-            await SaveRunAsync(run, uow, pipelineCt);
+            await SaveRunWithTransientRetryAsync(run, uow, pipelineCt);
 
             ArchLucidInstrumentation.RunsCreatedTotal.Add(1);
 
@@ -169,15 +169,13 @@ public sealed class AuthorityRunOrchestrator(
                     EvidenceBundleId = deferredEvidenceBundleId
                 };
 
-                await authorityPipelineWorkRepository.EnqueueAsync(
+                await EnqueueDeferredWorkWithTransientRetryAsync(
                     run.RunId,
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
+                    scope,
                     AuthorityPipelineWorkPayloadJson.Serialize(payload),
                     pipelineCt);
 
-                await uow.CommitAsync(pipelineCt);
+                await CommitUnitOfWorkWithTransientRetryAsync(uow, pipelineCt);
 
                 await auditService.LogAsync(
                     new AuditEvent
@@ -219,7 +217,7 @@ public sealed class AuthorityRunOrchestrator(
 
 
             if (_authorityPipelineStagesExecutionDriver.RequiresCommittedRunHeaderBeforeStages)
-                await uow.CommitAsync(pipelineCt);
+                await CommitUnitOfWorkWithTransientRetryAsync(uow, pipelineCt);
 
 
             AuthorityPipelineContext ctx = new()
@@ -387,7 +385,7 @@ public sealed class AuthorityRunOrchestrator(
                 pipelineCt);
 
             if (_authorityPipelineStagesExecutionDriver.RequiresCommittedRunHeaderBeforeStages)
-                await uow.CommitAsync(pipelineCt);
+                await CommitUnitOfWorkWithTransientRetryAsync(uow, pipelineCt);
 
             AuthorityPipelineStagesExecutionResult stageResult =
                 await _authorityPipelineStagesExecutionDriver.ExecuteStagesAsync(ctx, pipelineCt);
@@ -447,13 +445,36 @@ public sealed class AuthorityRunOrchestrator(
         }
     }
 
-    private async Task SaveRunAsync(RunRecord run, IArchLucidUnitOfWork uow, CancellationToken ct)
+    private async Task SaveRunWithTransientRetryAsync(RunRecord run, IArchLucidUnitOfWork uow, CancellationToken ct)
     {
-        if (uow.SupportsExternalTransaction)
-            await _runRepository.SaveAsync(run, ct, uow.Connection, uow.Transaction);
-        else
-            await _runRepository.SaveAsync(run, ct);
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            async token =>
+            {
+                if (uow.SupportsExternalTransaction)
+                    await _runRepository.SaveAsync(run, token, uow.Connection, uow.Transaction);
+                else
+                    await _runRepository.SaveAsync(run, token);
+            },
+            ct);
     }
+
+    private async Task CommitUnitOfWorkWithTransientRetryAsync(IArchLucidUnitOfWork uow, CancellationToken ct) =>
+        await OrchestratorTransientDbRetry.ExecuteAsync(token => uow.CommitAsync(token), ct);
+
+    private async Task EnqueueDeferredWorkWithTransientRetryAsync(
+        Guid runId,
+        ScopeContext scope,
+        string payloadJson,
+        CancellationToken ct) =>
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            token => authorityPipelineWorkRepository.EnqueueAsync(
+                runId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                payloadJson,
+                token),
+            ct);
 
     private static void ApplyScope(RunRecord run, ScopeContext scope)
     {

@@ -11,11 +11,14 @@ public static class OperationalDetailedHealthChecks
 
     public const string DistributedCache = "distributed_cache";
 
+    public const string Orchestrator = OrchestratorHealthCheck.RegistrationName;
+
     private static readonly string[] IncludedNames =
     [
         CircuitBreakers,
         Database,
         DistributedCache,
+        Orchestrator,
     ];
 
     public static bool IsIncluded(string registrationName) =>

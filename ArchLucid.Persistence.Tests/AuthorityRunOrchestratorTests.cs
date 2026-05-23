@@ -19,6 +19,9 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Orchestration.Pipeline;
+using ArchLucid.TestSupport;
+
+using Microsoft.Data.SqlClient;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -926,6 +929,99 @@ public sealed class AuthorityRunOrchestratorTests
 
         uow.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
         uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_transient_sql_error_when_persisting_run()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1"),
+            WorkspaceId = Guid.Parse("a2a2a2a2-a2a2-a2a2-a2a2-a2a2a2a2a2a2"),
+            ProjectId = Guid.Parse("a3a3a3a3-a3a3-a3a3-a3a3-a3a3a3a3a3a3")
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(x => x.GetCurrentScope()).Returns(scope);
+
+        Mock<IArchLucidUnitOfWork> uow = new();
+        uow.SetupGet(x => x.SupportsExternalTransaction).Returns(false);
+        uow.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        uow.Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        uow.Setup(x => x.DisposeAsync()).Returns(ValueTask.CompletedTask);
+
+        Mock<IArchLucidUnitOfWorkFactory> uowFactory = new();
+        uowFactory.Setup(f => f.CreateAsync(It.IsAny<CancellationToken>())).ReturnsAsync(uow.Object);
+
+        int saveAttempts = 0;
+        Mock<IRunRepository> runRepo = new();
+        runRepo.Setup(x => x.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
+            .Returns(() =>
+            {
+                saveAttempts++;
+
+                if (saveAttempts == 1)
+                    throw SqlExceptionTestFactory.Create(1205);
+
+                return Task.CompletedTask;
+            });
+
+        Mock<IAuthorityPipelineStagesExecutor> pipeline = new();
+        Mock<IRetrievalIndexingOutboxRepository> retrievalOutbox = new();
+        Mock<IAuthorityPipelineWorkRepository> workRepo = new();
+        workRepo.Setup(x => x.EnqueueAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAsyncAuthorityPipelineModeResolver> modeResolver = new();
+        modeResolver
+            .Setup(x => x.ShouldQueueContextAndGraphStagesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IIntegrationEventPublisher> integrationEvents = new();
+        Mock<IIntegrationEventOutboxRepository> integrationOutbox = new();
+        StubIntegrationOutbox(integrationOutbox);
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts =
+            CreateIntegrationEventsOptionsMonitor(false);
+
+        AuthorityRunOrchestrator sut = CreateOrchestrator(
+            uowFactory.Object,
+            scopeProvider.Object,
+            audit.Object,
+            runRepo.Object,
+            pipeline.Object,
+            retrievalOutbox.Object,
+            workRepo.Object,
+            modeResolver.Object,
+            integrationEvents.Object,
+            integrationOutbox.Object,
+            integrationEventOpts.Object,
+            CreatePipelineOptionsMonitor().Object,
+            CreatePublicSiteOptionsMonitor().Object,
+            CreatePassiveChatOpsHook().Object,
+            CreateUnlimitedTenantConcurrencyGate(),
+            NullLogger<AuthorityRunOrchestrator>.Instance);
+
+        ContextIngestionRequest request = new()
+        {
+            ProjectId = "proj-retry",
+            Description = "retry test"
+        };
+
+        RunRecord result = await sut.ExecuteAsync(request, CancellationToken.None, "evidence-bundle-1");
+
+        saveAttempts.Should().Be(2);
+        result.RunId.Should().NotBe(Guid.Empty);
+        uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static ITenantAuthorityPipelineConcurrencyGate CreateUnlimitedTenantConcurrencyGate()
