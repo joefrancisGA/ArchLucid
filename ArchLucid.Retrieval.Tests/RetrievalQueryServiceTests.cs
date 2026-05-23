@@ -1,6 +1,7 @@
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
+using ArchLucid.Retrieval.Models;
 using ArchLucid.Retrieval.Queries;
 
 using FluentAssertions;
