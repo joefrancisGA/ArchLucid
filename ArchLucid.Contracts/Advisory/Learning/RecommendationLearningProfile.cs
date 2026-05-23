@@ -1,13 +1,6 @@
-namespace ArchLucid.Decisioning.Advisory.Learning;
+namespace ArchLucid.Contracts.Advisory.Learning;
 
-/// <summary>
-///     Aggregated recommendation outcomes and derived weights for a scope (used in advisory UX and alert metric
-///     snapshots).
-/// </summary>
-/// <remarks>
-///     Produced by <see cref="IRecommendationLearningService.RebuildProfileAsync" /> and read by
-///     <c>GetLatestProfileAsync</c>.
-/// </remarks>
+/// <summary>Aggregated recommendation outcomes and derived weights for a scope.</summary>
 public class RecommendationLearningProfile
 {
     public Guid TenantId
@@ -28,56 +21,48 @@ public class RecommendationLearningProfile
         set;
     }
 
-    /// <summary>When this profile snapshot was generated (UTC).</summary>
     public DateTime GeneratedUtc
     {
         get;
         set;
-    } = TimeProvider.System.UtcNowDateTime();
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
-    /// <summary>Counts by recommendation category.</summary>
     public List<RecommendationOutcomeStats> CategoryStats
     {
         get;
         set;
     } = [];
 
-    /// <summary>Counts by urgency band.</summary>
     public List<RecommendationOutcomeStats> UrgencyStats
     {
         get;
         set;
     } = [];
 
-    /// <summary>Counts by signal/type facet.</summary>
     public List<RecommendationOutcomeStats> SignalTypeStats
     {
         get;
         set;
     } = [];
 
-    /// <summary>Optional weighting hints per category.</summary>
     public Dictionary<string, double> CategoryWeights
     {
         get;
         set;
     } = new(StringComparer.OrdinalIgnoreCase);
 
-    /// <summary>Optional weighting hints per urgency.</summary>
     public Dictionary<string, double> UrgencyWeights
     {
         get;
         set;
     } = new(StringComparer.OrdinalIgnoreCase);
 
-    /// <summary>Optional weighting hints per signal type.</summary>
     public Dictionary<string, double> SignalTypeWeights
     {
         get;
         set;
     } = new(StringComparer.OrdinalIgnoreCase);
 
-    /// <summary>Analyzer notes and caveats.</summary>
     public List<string> Notes
     {
         get;

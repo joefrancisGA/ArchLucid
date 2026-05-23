@@ -1,7 +1,8 @@
-using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Contracts.Advisory.Learning;
 
-namespace ArchLucid.Persistence.Advisory;
+namespace ArchLucid.Core.Persistence.Ports;
 
+/// <summary>Persistence for <see cref="RecommendationLearningProfile" /> snapshots.</summary>
 public interface IRecommendationLearningProfileRepository
 {
     Task SaveAsync(RecommendationLearningProfile profile, CancellationToken ct);

@@ -1,15 +1,6 @@
-namespace ArchLucid.Decisioning.Advisory.Scheduling;
+namespace ArchLucid.Contracts.Advisory.Scheduling;
 
-/// <summary>
-///     Persisted “daily” (or scheduled) architecture summary for a scope: markdown body, short summary, optional run
-///     linkage, and opaque <see cref="MetadataJson" /> for counts and diagnostics.
-/// </summary>
-/// <remarks>
-///     Produced by <see cref="IArchitectureDigestBuilder" /> inside <c>AdvisoryScanRunner</c>, stored via
-///     <c>IArchitectureDigestRepository</c>, and optionally delivered by
-///     <see cref="ArchLucid.Decisioning.Advisory.Delivery.IDigestDeliveryDispatcher" />.
-///     HTTP list/get: <c>ArchLucid.Api.Controllers.AdvisorySchedulingController</c>.
-/// </remarks>
+/// <summary>Persisted architecture summary for a scope: markdown body, summary, optional run linkage, and metadata JSON.</summary>
 public class ArchitectureDigest
 {
     public Guid DigestId
@@ -52,7 +43,7 @@ public class ArchitectureDigest
     {
         get;
         set;
-    } = TimeProvider.System.UtcNowDateTime();
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     public string Title
     {
@@ -78,7 +69,6 @@ public class ArchitectureDigest
         set;
     } = "{}";
 
-    /// <summary>When set, digest list/get APIs treat the row as archived (soft delete from operator views).</summary>
     public DateTime? ArchivedUtc
     {
         get;

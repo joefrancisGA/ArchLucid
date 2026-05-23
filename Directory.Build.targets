@@ -23,6 +23,18 @@
     </ItemGroup>
   </Target>
 
+  <!-- Advisory row shapes and persistence ports moved from Decisioning (#33 Phase 2e-d). -->
+  <Target Name="ArchLucidAddPersistenceAdvisoryGlobalUsings"
+          BeforeTargets="CoreCompile"
+          Condition="'$(MSBuildProjectName)' != 'ArchLucid.Contracts' And !Exists('$(MSBuildProjectDirectory)\GlobalUsings.PersistenceAdvisory.cs')">
+    <ItemGroup>
+      <_CoreProjectReference Include="@(ProjectReference)" Condition="$([System.String]::Copy('%(Identity)').EndsWith('ArchLucid.Core.csproj'))" />
+    </ItemGroup>
+    <ItemGroup Condition="'@(_CoreProjectReference)' != ''">
+      <Compile Include="$(MSBuildThisFileDirectory)build\GlobalUsings.PersistenceAdvisory.cs" Link="GlobalUsings.PersistenceAdvisory.cs" />
+    </ItemGroup>
+  </Target>
+
   <!-- Humanizer.Core ships Humanizer.Analyzers (e.g. NamespaceMigrationAnalyzer). Remove from all projects. -->
   <Target Name="ArchLucidRemoveHumanizerAnalyzers" BeforeTargets="CoreCompile">
     <ItemGroup>
