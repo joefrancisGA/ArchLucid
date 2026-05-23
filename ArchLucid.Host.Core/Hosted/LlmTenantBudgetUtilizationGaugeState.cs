@@ -1,6 +1,6 @@
 using System.Diagnostics.Metrics;
 
-namespace ArchLucid.Core.Diagnostics;
+namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>Latest per-tenant LLM UTC-month budget utilization (read on Prometheus scrape).</summary>
 public sealed class LlmTenantBudgetUtilizationGaugeState

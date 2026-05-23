@@ -1,6 +1,9 @@
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Diagnostics;
+using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Application.Telemetry;
 
 using Azure.Monitor.OpenTelemetry.Exporter;
 
@@ -91,6 +94,11 @@ public static class ObservabilityExtensions
         ArchLucidInstrumentation.EnsureCircuitBreakerStateObservableGaugesRegistered();
         ArchLucidInstrumentation.EnsureLlmTenantBudgetUtilizationObservableGaugeRegistered();
         ArchLucidInstrumentation.EnsureLlmTenantBudgetRemainingUsdObservableGaugeRegistered();
+
+        ArchLucidInstrumentation.SetCircuitBreakerSnapshotReader(CircuitBreakerGateMetricsRegistry.SnapshotStates);
+        ArchLucidInstrumentation.SetLlmBudgetUtilizationReader(LlmTenantBudgetUtilizationMetricsHostedService.UtilizationGaugeState.SnapshotMeasurements);
+        ArchLucidInstrumentation.SetLlmBudgetRemainingReader(LlmTenantBudgetUtilizationMetricsHostedService.RemainingGaugeState.SnapshotMeasurements);
+        ArchLucidInstrumentation.SetFirstTenantFunnelEventNameValidator(FirstTenantFunnelEventNames.IsValid);
 
         services.AddOpenTelemetry()
             .ConfigureResource(resource => resource

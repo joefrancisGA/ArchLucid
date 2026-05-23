@@ -1,6 +1,6 @@
 using ArchLucid.Core.Resilience;
 
-namespace ArchLucid.Core.Diagnostics;
+namespace ArchLucid.Host.Core.Diagnostics;
 
 /// <summary>
 ///     Holds strong references to registered <see cref="CircuitBreakerGate" /> instances for observable gauges (small

@@ -1,4 +1,4 @@
-namespace ArchLucid.Core.Diagnostics;
+namespace ArchLucid.Application.Telemetry;
 
 /// <summary>
 ///     Canonical funnel event catalog for the first-tenant onboarding telemetry funnel

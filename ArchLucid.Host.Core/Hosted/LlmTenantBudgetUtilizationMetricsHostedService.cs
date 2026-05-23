@@ -46,6 +46,10 @@ public sealed class LlmTenantBudgetUtilizationMetricsHostedService(
     /// <remarks>Mutate only while holding <see cref="_tenantIdsLock" />.</remarks>
     private DateTimeOffset _tenantIdsRefreshAfterUtc;
 
+    public static LlmTenantBudgetUtilizationGaugeState UtilizationGaugeState { get; } = new();
+
+    public static LlmTenantBudgetRemainingGaugeState RemainingGaugeState { get; } = new();
+
     /// <inheritdoc />
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -89,8 +93,8 @@ public sealed class LlmTenantBudgetUtilizationMetricsHostedService(
                 _tenantIdsRefreshAfterUtc = DateTimeOffset.MinValue;
             }
 
-            ArchLucidInstrumentation.LlmTenantBudgetUtilizationGauge.PublishMeasurements([]);
-            ArchLucidInstrumentation.LlmTenantBudgetRemainingGauge.PublishMeasurements([]);
+            UtilizationGaugeState.PublishMeasurements([]);
+            RemainingGaugeState.PublishMeasurements([]);
 
             return;
         }
@@ -108,8 +112,8 @@ public sealed class LlmTenantBudgetUtilizationMetricsHostedService(
 
         if (tenantIds.Length < 1)
         {
-            ArchLucidInstrumentation.LlmTenantBudgetUtilizationGauge.PublishMeasurements([]);
-            ArchLucidInstrumentation.LlmTenantBudgetRemainingGauge.PublishMeasurements([]);
+            UtilizationGaugeState.PublishMeasurements([]);
+            RemainingGaugeState.PublishMeasurements([]);
 
             return;
         }
@@ -146,8 +150,8 @@ public sealed class LlmTenantBudgetUtilizationMetricsHostedService(
                     new KeyValuePair<string, object?>("tenant_id", tenantId.ToString("D"))));
         }
 
-        ArchLucidInstrumentation.LlmTenantBudgetUtilizationGauge.PublishMeasurements(utilization.ToArray());
-        ArchLucidInstrumentation.LlmTenantBudgetRemainingGauge.PublishMeasurements(remaining.ToArray());
+        UtilizationGaugeState.PublishMeasurements(utilization.ToArray());
+        RemainingGaugeState.PublishMeasurements(remaining.ToArray());
     }
 
     private async Task RefreshTenantIdsIfStaleAsync(ITenantRepository tenantsRepo, CancellationToken ct)

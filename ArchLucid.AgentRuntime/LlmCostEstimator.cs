@@ -11,7 +11,8 @@ public sealed class LlmCostEstimator(
     IOptions<LlmCostEstimationOptions> options,
     ILlmCostEstimationUsdRateOverride usdRateOverride,
     Microsoft.Extensions.Configuration.IConfiguration configuration,
-    Microsoft.Extensions.Hosting.IHostEnvironment environment) : ILlmCostEstimator
+    Microsoft.Extensions.Hosting.IHostEnvironment environment,
+    TimeProvider timeProvider) : ILlmCostEstimator
 {
     private readonly IOptions<LlmCostEstimationOptions> _options =
         options ?? throw new ArgumentNullException(nameof(options));
@@ -28,7 +29,7 @@ public sealed class LlmCostEstimator(
     {
         if (configuration.GetValue<bool>("ArchLucid:Testing:SimulateLlmBudgetExhausted") && !environment.IsProduction())
         {
-            throw new ArchLucid.Core.Budgeting.LlmTokenQuotaExceededException("Simulated LLM budget exhaustion.", DateTimeOffset.UtcNow.AddHours(1));
+            throw new ArchLucid.Core.LlmTokenQuotaExceededException("Simulated LLM budget exhaustion.", timeProvider.GetUtcNow().AddHours(1));
         }
 
         LlmCostEstimationOptions o = _options.Value;

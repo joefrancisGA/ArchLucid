@@ -61,6 +61,14 @@ public static class ArchLucidInstrumentation
 
     private static Func<long>? _auditRetryQueuePendingReader;
 
+    private static Func<IReadOnlyList<(string GateName, string State)>>? _circuitBreakerSnapshotReader;
+
+    private static Func<Measurement<double>[]>? _llmBudgetUtilizationReader;
+
+    private static Func<Measurement<double>[]>? _llmBudgetRemainingReader;
+
+    private static Func<string, bool>? _firstTenantFunnelEventNameValidator;
+
     /// <summary>Root span name for <see cref="AuthorityRun" /> (matches <c>authority.*</c> stage naming for trace sampling).</summary>
     public const string AuthorityRunRootActivityName = "authority.run";
 
@@ -784,12 +792,6 @@ public static class ArchLucidInstrumentation
             "USD",
             "Estimated LLM USD from token counts × AgentExecution:LlmCostEstimation rates (label tenant).");
 
-    /// <summary>Latest cached LLM monthly budget utilization gauges (dimensions: <c>tenant_id</c>).</summary>
-    public static LlmTenantBudgetUtilizationGaugeState LlmTenantBudgetUtilizationGauge { get; } = new();
-
-    /// <summary>Latest cached LLM monthly budget remaining USD gauges (dimensions: <c>tenant_id</c>).</summary>
-    public static LlmTenantBudgetRemainingGaugeState LlmTenantBudgetRemainingGauge { get; } = new();
-
     /// <summary>Latest outbox depths for <see cref="EnsureOutboxDepthObservableGaugesRegistered" />.</summary>
     public static OutboxDepthGaugeState OutboxDepthGauges
     {
@@ -804,6 +806,18 @@ public static class ArchLucidInstrumentation
     {
         Volatile.Write(ref _auditRetryQueuePendingReader, reader);
     }
+
+    public static void SetCircuitBreakerSnapshotReader(Func<IReadOnlyList<(string GateName, string State)>> reader) =>
+        Volatile.Write(ref _circuitBreakerSnapshotReader, reader);
+
+    public static void SetLlmBudgetUtilizationReader(Func<Measurement<double>[]> reader) =>
+        Volatile.Write(ref _llmBudgetUtilizationReader, reader);
+
+    public static void SetLlmBudgetRemainingReader(Func<Measurement<double>[]> reader) =>
+        Volatile.Write(ref _llmBudgetRemainingReader, reader);
+
+    public static void SetFirstTenantFunnelEventNameValidator(Func<string, bool> validator) =>
+        Volatile.Write(ref _firstTenantFunnelEventNameValidator, validator);
 
     /// <summary>Registers observable gauges once (call from OpenTelemetry host setup).</summary>
     public static void EnsureOutboxDepthObservableGaugesRegistered()
@@ -914,7 +928,7 @@ public static class ArchLucidInstrumentation
             "archlucid_circuit_breaker_state",
             static () =>
             {
-                IReadOnlyList<(string GateName, string State)> snaps = CircuitBreakerGateMetricsRegistry.SnapshotStates();
+                IReadOnlyList<(string GateName, string State)> snaps = _circuitBreakerSnapshotReader?.Invoke() ?? Array.Empty<(string, string)>();
                 Measurement<int>[] measurements = new Measurement<int>[snaps.Count];
 
                 for (int i = 0; i < snaps.Count; i++)
@@ -944,11 +958,9 @@ public static class ArchLucidInstrumentation
         if (Interlocked.Exchange(ref _llmTenantBudgetUtilizationObservableGaugeRegistered, 1) != 0)
             return;
 
-        LlmTenantBudgetUtilizationGaugeState utilizationState = LlmTenantBudgetUtilizationGauge;
-
         AppMeter.CreateObservableGauge(
             "archlucid_llm_budget_utilization_fraction",
-            () => utilizationState.SnapshotMeasurements(),
+            () => _llmBudgetUtilizationReader?.Invoke() ?? Array.Empty<Measurement<double>>(),
             description:
             "UTC-month LLM dollar utilization (CommittedUsd+ReservedUsd over configured hard cutoff + purchased bump; label tenant_id).");
     }
@@ -959,11 +971,9 @@ public static class ArchLucidInstrumentation
         if (Interlocked.Exchange(ref _llmTenantBudgetRemainingObservableGaugeRegistered, 1) != 0)
             return;
 
-        LlmTenantBudgetRemainingGaugeState remainingState = LlmTenantBudgetRemainingGauge;
-
         AppMeter.CreateObservableGauge(
             "archlucid_llm_budget_remaining_usd",
-            () => remainingState.SnapshotMeasurements(),
+            () => _llmBudgetRemainingReader?.Invoke() ?? Array.Empty<Measurement<double>>(),
             "USD",
             "UTC-month LLM dollar headroom remaining under hard cutoff + purchased bump (non-negative; label tenant_id).");
     }
@@ -1299,11 +1309,11 @@ public static class ArchLucidInstrumentation
         bool recordPerTenant,
         string? tenantIdNormalized)
     {
-        if (!FirstTenantFunnelEventNames.IsValid(eventName))
+        if (_firstTenantFunnelEventNameValidator != null && !_firstTenantFunnelEventNameValidator(eventName))
             throw new ArgumentOutOfRangeException(
                 nameof(eventName),
                 eventName,
-                $"eventName must be one of: {string.Join(", ", FirstTenantFunnelEventNames.All)}.");
+                "eventName must be one of the known FirstTenantFunnelEventNames constants.");
 
         TagList tags = new() { { "event", eventName } };
 
