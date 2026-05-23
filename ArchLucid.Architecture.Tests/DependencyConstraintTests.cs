@@ -16,7 +16,6 @@ using ArchLucid.Persistence;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Coordination.Replay;
 using ArchLucid.Persistence.Interfaces;
-using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Queries;
 using ArchLucid.TestSupport;
 
@@ -771,17 +770,14 @@ public sealed class DependencyConstraintTests
     [Trait("Category", "Unit")]
     public void Api_must_not_depend_on_Retrieval()
     {
+        // NetArchTest HaveDependencyOn("ArchLucid.Retrieval") also matches ArchLucid.Core.Retrieval.* port
+        // types (IRetrievalQueryService, RetrievalHit, etc.) — enforce the implementation assembly boundary via metadata.
         Assembly api = typeof(ArchLucid.Api.Program).Assembly;
+        AssemblyName[] references = api.GetReferencedAssemblies();
 
-        TestResult result = Types
-            .InAssembly(api)
-            .ShouldNot()
-            .HaveDependencyOn("ArchLucid.Retrieval")
-            .GetResult();
-
-        result.IsSuccessful.Should().BeTrue(
-            because: "Api must not depend on Retrieval. Offending types: {0}",
-            FormatFailingTypeNames(result));
+        references.Should().NotContain(
+            a => a.Name == "ArchLucid.Retrieval",
+            because: "Api must depend on retrieval ports in Core, not the Retrieval implementation assembly.");
     }
 
     [Fact]
