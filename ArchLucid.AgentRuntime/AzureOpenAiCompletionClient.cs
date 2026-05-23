@@ -112,6 +112,38 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
         return text.Substring(0, ArchLucidInstrumentation.SensitiveGenAiTelemetrySnapshotMaxChars) + "…truncated";
     }
 
+    private void CheckTokenEstimationDiscrepancy(string systemPrompt, string userPrompt, int actualInputTokens)
+    {
+        if (_logger == null || actualInputTokens <= 0)
+            return;
+
+        int estimatedInputTokens = ArchLucid.Retrieval.Chunking.TokenAwareContextBudget.EstimateTokenCount(systemPrompt + "\n" + userPrompt);
+        if (estimatedInputTokens <= 0)
+            return;
+
+        double diffRatio = Math.Abs((double)actualInputTokens - estimatedInputTokens) / estimatedInputTokens;
+        if (diffRatio > 0.15)
+        {
+            string? runId = null;
+            string? agentType = null;
+            Activity? current = Activity.Current;
+            while (current != null)
+            {
+                runId ??= current.GetTagItem("archlucid.run_id") as string;
+                agentType ??= current.GetTagItem("archlucid.agent.type_enum") as string;
+                if (runId != null && agentType != null) break;
+                current = current.Parent;
+            }
+
+            _logger.LogWarning(
+                "LLM token estimation discrepancy > 15%. Estimated: {Estimated}, Actual: {Actual}, RunId: {RunId}, AgentType: {AgentType}",
+                estimatedInputTokens,
+                actualInputTokens,
+                runId ?? "unknown",
+                agentType ?? "unknown");
+        }
+    }
+
     /// <inheritdoc />
     public LlmProviderDescriptor Descriptor
     {
@@ -237,8 +269,10 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
                 int reasoningTok = usage.OutputTokenDetails?.ReasoningTokenCount ?? 0;
 
                 if (inTok > 0 || outTok > 0 || reasoningTok > 0)
-
+                {
                     LlmCompletionTokenUsageAmbient.Record(inTok, outTok, reasoningTok);
+                    CheckTokenEstimationDiscrepancy(systemPrompt, userPrompt, inTok);
+                }
             }
 
             if (!string.IsNullOrWhiteSpace(update.Model))
@@ -318,8 +352,10 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
                 int reasoningTok = usage.OutputTokenDetails?.ReasoningTokenCount ?? 0;
 
                 if (inTok > 0 || outTok > 0 || reasoningTok > 0)
-
+                {
                     LlmCompletionTokenUsageAmbient.Record(inTok, outTok, reasoningTok);
+                    CheckTokenEstimationDiscrepancy(systemPrompt, userPrompt, inTok);
+                }
 
                 if (llmActivity is not null)
                 {

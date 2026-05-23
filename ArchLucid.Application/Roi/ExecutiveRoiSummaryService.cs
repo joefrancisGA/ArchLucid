@@ -5,6 +5,9 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Core.Scim;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 using Microsoft.Extensions.Logging;
 
@@ -14,6 +17,8 @@ namespace ArchLucid.Application.Roi;
 public sealed class ExecutiveRoiSummaryService(
     IRunDetailQueryService runDetailQueryService,
     ITenantEstimatedUsdSavingsResolver tenantEstimatedUsdSavingsResolver,
+    ITenantRepository tenantRepository,
+    IScimUserRepository scimUserRepository,
     ILogger<ExecutiveRoiSummaryService> logger) : IExecutiveRoiSummaryService
 {
     /// <summary>Max distinct systems whose run details are loaded per request (defense against huge tenants).</summary>
@@ -23,6 +28,9 @@ public sealed class ExecutiveRoiSummaryService(
 
     private readonly ITenantEstimatedUsdSavingsResolver _tenantEstimatedUsdSavingsResolver =
         tenantEstimatedUsdSavingsResolver ?? throw new ArgumentNullException(nameof(tenantEstimatedUsdSavingsResolver));
+
+    private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+    private readonly IScimUserRepository _scimUserRepository = scimUserRepository ?? throw new ArgumentNullException(nameof(scimUserRepository));
 
     private readonly ILogger<ExecutiveRoiSummaryService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -76,6 +84,105 @@ public sealed class ExecutiveRoiSummaryService(
             SystemCount = systems.Count,
             LatestRunCount = systems.Count,
             Systems = systems,
+            TopSystemicIssues = topIssues,
+        };
+    }
+
+    public async Task<CrossTenantPortfolioSummaryResponse> GetCrossTenantPortfolioSummaryAsync(string userDirectoryKey, CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<TenantRecord> allTenants = await _tenantRepository.ListAsync(cancellationToken).ConfigureAwait(false);
+        List<Guid> accessibleTenantIds = [];
+
+        foreach (TenantRecord tenant in allTenants)
+        {
+            if (tenant.SuspendedUtc is not null || tenant.OffboardedUtc is not null)
+                continue;
+
+            ScimUserRecord? user = await _scimUserRepository.GetByExternalIdAsync(tenant.Id, userDirectoryKey, cancellationToken).ConfigureAwait(false);
+            if (user is not null && user.DirectoryRemovedUtc is null && user.Active)
+            {
+                accessibleTenantIds.Add(tenant.Id);
+            }
+        }
+
+        if (accessibleTenantIds.Count < 5)
+        {
+            return new CrossTenantPortfolioSummaryResponse
+            {
+                IsKAnonymitySatisfied = false
+            };
+        }
+
+        decimal totalSavings = 0m;
+        int totalSystems = 0;
+        int totalCriticalFindings = 0;
+        List<SystemicIssueSummary> allIssues = [];
+
+        foreach (Guid tenantId in accessibleTenantIds)
+        {
+            using IDisposable overrideScope = AmbientScopeContext.Push(new ScopeContext { TenantId = tenantId });
+
+            Dictionary<string, RunSummary> latestBySystem = await CollectLatestCommittedRunPerSystemAsync(cancellationToken).ConfigureAwait(false);
+            List<RunSummary> selectedSummaries = latestBySystem.Values
+                .OrderByDescending(static summary => summary.CreatedUtc)
+                .Take(DefaultSystemDetailCap)
+                .ToList();
+
+            List<ArchitectureRunDetail> latestDetails = [];
+            foreach (RunSummary summary in selectedSummaries)
+            {
+                ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(summary.RunId, cancellationToken).ConfigureAwait(false);
+
+                if (detail is null)
+                    continue;
+
+                latestDetails.Add(detail);
+                decimal? savings = await TryResolveEstimatedUsdSavingsAsync(detail.Run.FindingsSnapshotId, cancellationToken).ConfigureAwait(false);
+                totalSavings += savings ?? 0m;
+            }
+
+            totalSystems += latestDetails.Count;
+
+            IEnumerable<ArchitectureFinding> activeFindings = latestDetails
+                .SelectMany(static detail => detail.Results.SelectMany(static result => result.Findings))
+                .Where(static finding => !finding.IsMuted);
+
+            IEnumerable<ArchitectureFinding> deduped = DeduplicateFindingsByStableIdentity(activeFindings);
+
+            totalCriticalFindings += deduped.Count(static f => string.Equals(f.Severity.ToString(), "Critical", StringComparison.OrdinalIgnoreCase));
+
+            IEnumerable<SystemicIssueSummary> issues = deduped
+                .GroupBy(static finding => (Category: NormalizeCategory(finding.Category), Severity: finding.Severity.ToString()))
+                .Select(static group => new SystemicIssueSummary
+                {
+                    Category = group.Key.Category,
+                    Severity = group.Key.Severity,
+                    Count = group.Count(),
+                });
+
+            allIssues.AddRange(issues);
+        }
+
+        List<SystemicIssueSummary> topIssues = allIssues
+            .GroupBy(static issue => (issue.Category, issue.Severity))
+            .Select(static group => new SystemicIssueSummary
+            {
+                Category = group.Key.Category,
+                Severity = group.Key.Severity,
+                Count = group.Sum(static i => i.Count),
+            })
+            .OrderByDescending(static issue => issue.Count)
+            .ThenBy(static issue => issue.Category, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(static issue => issue.Severity, StringComparer.OrdinalIgnoreCase)
+            .Take(5)
+            .ToList();
+
+        return new CrossTenantPortfolioSummaryResponse
+        {
+            IsKAnonymitySatisfied = true,
+            TotalEstimatedUsdSavings = totalSavings,
+            TotalSystemCount = totalSystems,
+            TotalCriticalFindings = totalCriticalFindings,
             TopSystemicIssues = topIssues,
         };
     }

@@ -87,13 +87,19 @@ internal static class InfrastructureExtensions
 
                 Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
                 {
-                    Type = "https://tools.ietf.org/html/rfc6585#section-4",
+                    Type = "#rate-limit-exceeded",
                     Title = "Too many requests",
                     Status = StatusCodes.Status429TooManyRequests,
                     Detail =
                         "Rate limit exceeded. Honor the Retry-After response header (seconds) before retrying this client identity.",
                     Instance = httpContext.Request.Path
                 };
+
+                if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out TimeSpan retryAfterMeta))
+                {
+                    int seconds = Math.Max(1, (int)Math.Ceiling(retryAfterMeta.TotalSeconds));
+                    problem.Extensions["retryAfter"] = seconds;
+                }
 
                 ProblemCorrelation.Attach(problem, httpContext);
                 httpContext.Response.ContentType = "application/problem+json";

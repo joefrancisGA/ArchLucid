@@ -133,6 +133,14 @@ export function throwApiRequestError(response: Response, bodyText: string): neve
   throw err;
 }
 
+function notifyIfIdempotencyReplayed(response: Response): void {
+  if (isBrowser() && response.headers.get("X-Idempotency-Replayed") === "true") {
+    void import("@/lib/toast").then(({ showInfo }) => {
+      showInfo("Request safely replayed");
+    });
+  }
+}
+
 export async function apiGetJsonWithTrace<T>(path: string): Promise<ApiResponseWithTrace<T>> {
   const sandboxPayload = trySandboxMockJsonForApiGet(path);
 
@@ -182,6 +190,8 @@ export async function apiPostJson<T>(path: string, body: unknown): Promise<T> {
     throwApiRequestError(response, text);
   }
 
+  notifyIfIdempotencyReplayed(response);
+
   return JSON.parse(text) as T;
 }
 
@@ -203,6 +213,8 @@ export async function apiPatchJson<T>(path: string, body: unknown): Promise<T> {
     throwApiRequestError(response, text);
   }
 
+  notifyIfIdempotencyReplayed(response);
+
   return JSON.parse(text) as T;
 }
 
@@ -223,6 +235,8 @@ export async function apiPostNoContent(path: string, body: unknown): Promise<voi
   if (!response.ok) {
     throwApiRequestError(response, text);
   }
+
+  notifyIfIdempotencyReplayed(response);
 }
 
 /** PUTs a JSON body to the ArchLucid API and expects no response body. Throws on HTTP errors. */
@@ -242,6 +256,8 @@ export async function apiPutNoContent(path: string, body: unknown): Promise<void
   if (!response.ok) {
     throwApiRequestError(response, text);
   }
+
+  notifyIfIdempotencyReplayed(response);
 }
 
 /** DELETEs a path; returns void on 2xx. Throws on HTTP errors. */
@@ -259,6 +275,8 @@ export async function apiDelete(path: string): Promise<void> {
   if (!response.ok) {
     throwApiRequestError(response, text);
   }
+
+  notifyIfIdempotencyReplayed(response);
 }
 
 /** Same proxy/scope/API-key behavior as other UI API calls; for graph modules, etc. */

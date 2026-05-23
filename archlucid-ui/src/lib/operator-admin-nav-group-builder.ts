@@ -102,6 +102,14 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ExecuteAuthority",
         },
         {
+          href: "/settings/cloud-connections",
+          label: "Cloud connections",
+          title: "Cloud connections — Tier 2 continuous ingestion setup",
+          icon: Webhook,
+          tier: "extended",
+          requiredAuthority: "ExecuteAuthority",
+        },
+        {
           href: "/settings/tenant",
           label: "Tenant settings",
           title: "Tenant settings — trial, digest email, and request scope",

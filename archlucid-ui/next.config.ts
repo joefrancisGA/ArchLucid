@@ -21,7 +21,7 @@ const securityHeaders = [
     value:
       "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; " +
       // Microsoft Clarity (marketing only, consent-gated in UI): tag script host.
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.clarity.ms; style-src 'self' 'unsafe-inline'; " +
+      `script-src 'self' 'unsafe-inline' ${process.env.NODE_ENV === 'development' ? "'unsafe-eval'" : ""} https://www.clarity.ms; style-src 'self' 'unsafe-inline'; ` +
       "img-src 'self' data: blob: https://c.bing.com; font-src 'self' data:; connect-src 'self' https: http://localhost:* ws://localhost:* wss://localhost:*",
   },
 ];

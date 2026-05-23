@@ -35,6 +35,7 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/integrations/operations",
   "/digests",
   "/digest-subscriptions",
+  "/settings/cloud-connections",
   "/settings/tenant",
   "/settings/tenant/recycle-bin",
   "/settings/baseline",

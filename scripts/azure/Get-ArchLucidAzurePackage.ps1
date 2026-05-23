@@ -181,7 +181,7 @@ if ($DryRun)
     }
     Write-Host ""
     Write-Host "Planned ZIP entries:" -ForegroundColor Yellow
-    Write-Host "  manifest.json, resources.json, policy-compliance.json, README.txt"
+    Write-Host "  manifest.json, resources.json, policy-compliance.json, policy.json, README.txt"
     if ($IncludeRetailPrices) { Write-Host "  retail-prices.json" }
     Write-Host ""
     Write-Host "Output path (would write): $OutputPath"
@@ -302,6 +302,36 @@ try
     $policyCompliancePath = Join-Path $staging "policy-compliance.json"
     Write-Utf8NoBom $policyCompliancePath ($policyCompliance | ConvertTo-Json -Depth 12)
 
+    $policyData = [ordered]@{
+        policyDefinitions = @()
+        policyAssignments = @()
+    }
+
+    try {
+        if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
+        {
+            $policyData.policyDefinitions = @(Get-AzPolicyDefinition -ManagementGroupName $ManagementGroupId)
+            $policyData.policyAssignments = @(Get-AzPolicyAssignment -ManagementGroupName $ManagementGroupId)
+        }
+        else
+        {
+            $policyData.policyDefinitions = @(Get-AzPolicyDefinition)
+            if (-not ([string]::IsNullOrWhiteSpace($ResourceGroupScope)))
+            {
+                $policyData.policyAssignments = @(Get-AzPolicyAssignment -ResourceGroupName $ResourceGroupScope)
+            }
+            else
+            {
+                $policyData.policyAssignments = @(Get-AzPolicyAssignment)
+            }
+        }
+    } catch {
+        Write-Warning "Failed to collect policy definitions or assignments: $_"
+    }
+
+    $policyPath = Join-Path $staging "policy.json"
+    Write-Utf8NoBom $policyPath ($policyData | ConvertTo-Json -Depth 10)
+
     $retailReadmeTail = ""
 
     if ($IncludeRetailPrices)
@@ -356,7 +386,7 @@ ArchLucid Azure extractor output (read-only inventory).
 Schema version: $schemaVersion
 Collection UTC: $collectionTimestamp
 $readmeExtra
-Each ZIP includes `policy-compliance.json` (Policy Insights latest states, Reader-scoped). When not using `-IncludeRetailPrices`, no live retail catalog JSON is written. Without `-IncludeCost`, `manifest.json` does not include `actualCostSummary`. Advisor export (`-IncludeAdvisor`) remains future work — see docs/library/V1_SCOPE.md §2.16 and docs/library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md.
+Each ZIP includes `policy-compliance.json` (Policy Insights latest states, Reader-scoped) and `policy.json` (Policy definitions and assignments). When not using `-IncludeRetailPrices`, no live retail catalog JSON is written. Without `-IncludeCost`, `manifest.json` does not include `actualCostSummary`. Advisor export (`-IncludeAdvisor`) remains future work — see docs/library/V1_SCOPE.md §2.16 and docs/library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md.
 Upload via POST /v1/azure-extractor/upload (ExecuteAuthority). Trust stance: docs/go-to-market/TRUST_CENTER.md.
 "@
 

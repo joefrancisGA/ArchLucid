@@ -18,6 +18,8 @@ import {
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import { Button } from "@/components/ui/button";
 import {
+  getArchitectureRequestDownloadUrl,
+  getArtifactDownloadUrl,
   getBundleDownloadUrl,
   getRunExportDownloadUrl,
 } from "@/lib/api";
@@ -38,6 +40,7 @@ export type RunDetailArtifactsExportsSectionProps = {
   readonly trustEvidenceCard: RunTrustEvidenceCard | null | undefined;
   /** Curated demo: show policy-pack diligence line above the table. */
   readonly samplePolicyPackContextLine: string | null;
+  readonly requestId?: string | null;
 };
 
 export function RunDetailArtifactsExportsSection(
@@ -55,6 +58,7 @@ export function RunDetailArtifactsExportsSection(
     manifestSummary,
     trustEvidenceCard,
     samplePolicyPackContextLine,
+    requestId,
   } = props;
 
   return (
@@ -67,6 +71,20 @@ export function RunDetailArtifactsExportsSection(
           title={buyerPolishedArtifactTable ? "Deliverables" : "Artifacts & exports"}
           defaultOpen
         >
+          <div className="mb-4 flex flex-wrap gap-3">
+            <Button variant="primary" asChild>
+              <FunnelTelemetryExportAnchor href={getArtifactDownloadUrl(manifestId, "architecture-review-board")}>
+                Download Sponsor Export (DOCX)
+              </FunnelTelemetryExportAnchor>
+            </Button>
+            {requestId ? (
+              <Button variant="secondary" asChild>
+                <FunnelTelemetryExportAnchor href={getArchitectureRequestDownloadUrl(requestId)} download={`ArchitectureRequest-${requestId}.json`}>
+                  Download Request JSON
+                </FunnelTelemetryExportAnchor>
+              </Button>
+            ) : null}
+          </div>
           {buyerPolishedArtifactTable ? (
             <div className="m-0 mb-3 space-y-2">
               {samplePolicyPackContextLine !== null && samplePolicyPackContextLine.trim().length > 0 ? (

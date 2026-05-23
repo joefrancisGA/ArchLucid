@@ -106,6 +106,14 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ExecuteAuthority",
         },
         {
+          href: "/portfolio",
+          label: "Portfolio Dashboard",
+          title: "Portfolio Dashboard — cross-tenant aggregated ROI and risk metrics",
+          icon: BarChart3,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
           href: "/value-report/pilot",
           label: OPERATOR_NAV_LINK_LABELS.pilotValueReport,
           title: "Pilot value report — finalized-review metrics, governance signals, Markdown export",

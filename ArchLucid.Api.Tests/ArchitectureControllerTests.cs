@@ -311,7 +311,7 @@ public sealed class ArchitectureControllerTests
 
             HttpResponseMessage secondResponse = await client.SendAsync(second);
             secondResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            secondResponse.Headers.TryGetValues("Idempotency-Replayed", out IEnumerable<string>? replayValues).Should()
+            secondResponse.Headers.TryGetValues("X-Idempotency-Replayed", out IEnumerable<string>? replayValues).Should()
                 .BeTrue();
             replayValues.Should().Contain("true");
 

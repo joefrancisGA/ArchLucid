@@ -53,6 +53,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
+[IdempotencyFilter]
 public sealed partial class RunsController(
     IArchitectureRunCreateOrchestrator architectureRunCreateOrchestrator,
     IArchitectureRunExecuteOrchestrator architectureRunExecuteOrchestrator,
@@ -87,7 +88,7 @@ public sealed partial class RunsController(
     ///     replay semantics.
     /// </summary>
     /// <returns>
-    ///     201 with <see cref="CreateArchitectureRunResponse" /> for new runs, or 200 with <c>Idempotency-Replayed</c>
+    ///     201 with <see cref="CreateArchitectureRunResponse" /> for new runs, or 200 with <c>X-Idempotency-Replayed</c>
     ///     header when the key matches a prior success.
     /// </returns>
     [HttpPost("request")]
@@ -136,7 +137,7 @@ public sealed partial class RunsController(
                     new { runId = result.Run.RunId },
                     response);
 
-            Response.Headers.Append("Idempotency-Replayed", "true");
+            Response.Headers.Append("X-Idempotency-Replayed", "true");
             LogIdempotencyReplay(request.RequestId, user, correlationId);
 
             return Ok(response);
@@ -264,7 +265,7 @@ public sealed partial class RunsController(
                 // We should ideally return the exact same response. Since we don't store the response,
                 // we'll just return an empty Accepted or we'd need to store the response.
                 // For now, we'll just proceed and skip processing, returning a generic success.
-                Response.Headers.Append("Idempotency-Replayed", "true");
+                Response.Headers.Append("X-Idempotency-Replayed", "true");
                 LogIdempotencyReplay("batch", user, correlationId);
                 return Ok(new BatchCreateRunResponse { Items = new List<BatchCreateRunItemResult>() }); // Simplified replay response
             }
@@ -490,7 +491,7 @@ public sealed partial class RunsController(
 
             if (markIdempotencyReplayHeader)
             {
-                Response.Headers.Append("Idempotency-Replayed", "true");
+                Response.Headers.Append("X-Idempotency-Replayed", "true");
                 LogIdempotencyReplay(runId, user, correlationId);
             }
 
@@ -755,6 +756,28 @@ public sealed partial class RunsController(
         return result.Success
             ? Ok(new SubmitAgentResultResponse { ResultId = result.ResultId! })
             : MapApplicationServiceFailure(result.Error, result.FailureKind, "Submission failed.");
+    }
+
+    /// <summary>
+    ///     Gets the original architecture request payload by ID.
+    /// </summary>
+    [HttpGet("request/{requestId}")]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [ProducesResponseType(typeof(ArchitectureRequest), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRequest(
+        [FromRoute] string requestId,
+        [FromServices] IArchitectureRequestRepository requestRepository,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(requestId))
+            return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
+
+        ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
+        if (request is null)
+            return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
+
+        return Ok(request);
     }
 
     /// <summary>

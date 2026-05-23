@@ -76,6 +76,11 @@ export function getTraceabilityBundleDownloadUrl(runId: string): string {
   return `/api/proxy/v1/architecture/run/${encodeURIComponent(runId)}/traceability-bundle.zip`;
 }
 
+/** Returns the proxy URL for downloading the original ArchitectureRequest JSON. */
+export function getArchitectureRequestDownloadUrl(requestId: string): string {
+  return `/api/proxy/v1/architecture/request/${encodeURIComponent(requestId)}`;
+}
+
 export type ConsultingDocxExportBrandingPayload = {
   reviewBoardWhitelabelFirmDisplayName?: string;
   reviewBoardWhitelabelClientEngagementTitle?: string;

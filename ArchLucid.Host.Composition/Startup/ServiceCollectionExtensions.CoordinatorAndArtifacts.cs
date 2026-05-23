@@ -91,6 +91,7 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<IArchitectureRequestRepository, InMemoryArchitectureRequestRepository>();
             services.AddSingleton<IArchitectureRunIdempotencyRepository, InMemoryArchitectureRunIdempotencyRepository>();
             services.AddSingleton<ICommitRunIdempotencyRepository, InMemoryCommitRunIdempotencyRepository>();
+            services.AddSingleton<IIdempotencyRecordRepository, InMemoryIdempotencyRecordRepository>();
             services.AddSingleton<IProjectRoleAssignmentRepository, InMemoryProjectRoleAssignmentRepository>();
             services.AddSingleton<IAgentTaskRepository, InMemoryAgentTaskRepository>();
             services.AddSingleton<IAgentResultRepository, InMemoryAgentResultRepository>();
@@ -113,6 +114,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArchitectureRequestRepository, ArchitectureRequestRepository>();
         services.AddScoped<IArchitectureRunIdempotencyRepository, ArchitectureRunIdempotencyRepository>();
         services.AddScoped<ICommitRunIdempotencyRepository, CommitRunIdempotencyRepository>();
+        services.AddScoped<IIdempotencyRecordRepository, IdempotencyRecordRepository>();
         services.AddScoped<IProjectRoleAssignmentRepository, ProjectRoleAssignmentRepository>();
         services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();
         services.AddScoped<IAgentResultRepository, AgentResultRepository>();

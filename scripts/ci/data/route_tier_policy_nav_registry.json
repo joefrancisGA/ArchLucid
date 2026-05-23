@@ -682,6 +682,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Authority/Tier2ConnectionController.cs",
+      "class_name": "Tier2ConnectionController",
+      "route_template": "v{version:apiVersion}/azure-extractor/connections",
+      "normalized_prefix": "/v1/azure-extractor/connections",
+      "commercial_tier": "none",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Billing/BillingCheckoutController.cs",
       "class_name": "BillingCheckoutController",
       "route_template": "v{version:apiVersion}/tenant/billing",

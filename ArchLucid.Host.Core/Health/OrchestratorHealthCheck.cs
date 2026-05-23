@@ -7,6 +7,7 @@ using ArchLucid.Persistence.Data.Infrastructure;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.Health;
@@ -17,7 +18,8 @@ namespace ArchLucid.Host.Core.Health;
 /// </summary>
 public sealed class OrchestratorHealthCheck(
     IDbConnectionFactory connectionFactory,
-    IOptions<ArchLucidOptions> archLucidOptions) : IHealthCheck
+    IOptions<ArchLucidOptions> archLucidOptions,
+    ILogger<OrchestratorHealthCheck> logger) : IHealthCheck
 {
     public const string RegistrationName = "orchestrator";
 
@@ -66,9 +68,15 @@ public sealed class OrchestratorHealthCheck(
             long stalledCount = scalar is long l ? l : Convert.ToInt64(scalar ?? 0L, CultureInfo.InvariantCulture);
 
             if (stalledCount > 0)
+            {
+                logger.LogCritical(
+                    "orchestrator.stalled: Detected {StalledCount} stalled orchestration signal(s) (older than {StallHours} hours).",
+                    stalledCount,
+                    StallThreshold.TotalHours);
 
                 return HealthCheckResult.Degraded(
                     $"Detected {stalledCount} stalled orchestration signal(s) (InProgress agent tasks or pending authority pipeline outbox rows older than {StallThreshold.TotalHours} hours).");
+            }
 
             return HealthCheckResult.Healthy("No stalled orchestrations detected.");
         }

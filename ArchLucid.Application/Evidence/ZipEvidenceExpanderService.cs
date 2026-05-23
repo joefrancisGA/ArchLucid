@@ -34,62 +34,7 @@ public sealed class ZipEvidenceExpanderService(
         long totalUncompressedBytes = 0;
         HashSet<string> allowedExtensions = BuildAllowedExtensionSet(_options.AllowedExtensions);
 
-        using ZipArchive archive = new(zipStream, ZipArchiveMode.Read, leaveOpen: true);
-
-        foreach (ZipArchiveEntry entry in archive.Entries)
-        {
-            if (entry.FullName.EndsWith('/'))
-            {
-                skipped.Add($"{entry.FullName}: directory entry skipped");
-
-                continue;
-            }
-
-            string fileName = NormalizeZipEntryFileName(entry.FullName);
-
-            if (string.IsNullOrEmpty(fileName))
-            {
-                skipped.Add($"{entry.FullName}: empty file name skipped");
-
-                continue;
-            }
-
-            string extension = Path.GetExtension(fileName);
-
-            if (!allowedExtensions.Contains(extension))
-            {
-                skipped.Add($"{entry.FullName}: extension '{extension}' not allowed");
-
-                continue;
-            }
-
-            if (entry.Length <= 0)
-            {
-                skipped.Add($"{entry.FullName}: empty file skipped");
-
-                continue;
-            }
-
-            if (totalUncompressedBytes + entry.Length > _options.MaxUncompressedSizeBytes)
-            {
-                skipped.Add($"{entry.FullName}: cumulative uncompressed size limit exceeded");
-
-                continue;
-            }
-
-            using Stream entryStream = entry.Open();
-            using MemoryStream buffer = new();
-
-            entryStream.CopyTo(buffer);
-            byte[] content = buffer.ToArray();
-            totalUncompressedBytes += content.LongLength;
-
-            files.Add(new ZipEvidenceExpandedFile
-            {
-                FileName = fileName,
-                Content = content
-            });
-        }
+        ExpandRecursive(zipStream, sourceArchiveName, 0, files, skipped, ref totalUncompressedBytes, allowedExtensions);
 
         if (skipped.Count > 0)
         {
@@ -110,6 +55,105 @@ public sealed class ZipEvidenceExpanderService(
         activity?.SetTag("archlucid.evidence.total_uncompressed_bytes", totalUncompressedBytes);
 
         return result;
+    }
+
+    private void ExpandRecursive(Stream zipStream, string basePath, int depth, List<ZipEvidenceExpandedFile> files, List<string> skipped, ref long totalUncompressedBytes, HashSet<string> allowedExtensions)
+    {
+        if (depth > 3)
+        {
+            skipped.Add($"{basePath}: maximum recursion depth of 3 exceeded");
+            return;
+        }
+
+        using ZipArchive archive = new(zipStream, ZipArchiveMode.Read, leaveOpen: true);
+
+        foreach (ZipArchiveEntry entry in archive.Entries)
+        {
+            if (files.Count >= 1000)
+            {
+                skipped.Add($"{basePath}: maximum expanded file count of 1000 exceeded");
+                break;
+            }
+
+            int folderDepth = entry.FullName.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries).Length - 1;
+            if (depth + folderDepth > 3)
+            {
+                skipped.Add($"{basePath}/{entry.FullName}: maximum recursion depth of 3 exceeded");
+                continue;
+            }
+
+            if (entry.FullName.EndsWith('/'))
+            {
+                skipped.Add($"{basePath}/{entry.FullName}: directory entry skipped");
+                continue;
+            }
+
+            string fileName = NormalizeZipEntryFileName(entry.FullName);
+
+            if (string.IsNullOrEmpty(fileName))
+            {
+                skipped.Add($"{basePath}/{entry.FullName}: empty file name skipped");
+                continue;
+            }
+
+            if (fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+            {
+                if (entry.Length <= 0)
+                {
+                    skipped.Add($"{basePath}/{entry.FullName}: empty file skipped");
+                    continue;
+                }
+
+                if (totalUncompressedBytes + entry.Length > _options.MaxUncompressedSizeBytes)
+                {
+                    skipped.Add($"{basePath}/{entry.FullName}: cumulative uncompressed size limit exceeded");
+                    continue;
+                }
+
+                using Stream entryStream = entry.Open();
+                using MemoryStream nestedZipStream = new();
+                entryStream.CopyTo(nestedZipStream);
+                byte[] content = nestedZipStream.ToArray();
+                totalUncompressedBytes += content.LongLength;
+                
+                using MemoryStream nestedStreamForExtraction = new(content);
+                ExpandRecursive(nestedStreamForExtraction, $"{basePath}/{fileName}", depth + folderDepth + 1, files, skipped, ref totalUncompressedBytes, allowedExtensions);
+                continue;
+            }
+
+            string extension = Path.GetExtension(fileName);
+
+            if (!allowedExtensions.Contains(extension))
+            {
+                skipped.Add($"{basePath}/{entry.FullName}: extension '{extension}' not allowed");
+                continue;
+            }
+
+            if (entry.Length <= 0)
+            {
+                skipped.Add($"{basePath}/{entry.FullName}: empty file skipped");
+                continue;
+            }
+
+            if (totalUncompressedBytes + entry.Length > _options.MaxUncompressedSizeBytes)
+            {
+                skipped.Add($"{basePath}/{entry.FullName}: cumulative uncompressed size limit exceeded");
+                continue;
+            }
+
+            using Stream regularStream = entry.Open();
+            using MemoryStream buffer = new();
+
+            regularStream.CopyTo(buffer);
+            byte[] regularContent = buffer.ToArray();
+            totalUncompressedBytes += regularContent.LongLength;
+
+            files.Add(new ZipEvidenceExpandedFile
+            {
+                FileName = fileName,
+                Content = regularContent
+            });
+        }
     }
 
     /// <summary>Flattens nested ZIP paths so folder recursion becomes unique leaf file names.</summary>

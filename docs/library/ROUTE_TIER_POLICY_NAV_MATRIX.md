@@ -38,7 +38,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:144 -->
+<!-- route-tier-policy-nav-registry-count:145 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -110,6 +110,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Authority/RunsController.cs` | `/v1/architecture` | none | ReadAuthority | /reviews?projectId=default |  |
 | `Authority/RunsExportController.cs` | `/v1/runs` | standard | ReadAuthority |  |  |
 | `Authority/TemplatesController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
+| `Authority/Tier2ConnectionController.cs` | `/v1/azure-extractor/connections` | none | ExecuteAuthority |  |  |
 | `Billing/BillingCheckoutController.cs` | `/v1/tenant/billing` | none | AdminAuthority | /settings/tenant |  |
 | `Billing/BillingMarketplaceWebhookController.cs` | `/v1/billing/webhooks` | none | AllowAnonymous |  | partner_webhook_ingest |
 | `Billing/BillingStripeWebhookController.cs` | `/v1/billing/webhooks` | none | AllowAnonymous |  | partner_webhook_ingest |

@@ -23,8 +23,22 @@ public class DefaultGraphBuilder(
         nodes.Add(CreateContextNode(contextSnapshot));
 
         foreach (CanonicalObject item in canonicalObjects)
+        {
+            GraphNode node = nodeFactory.CreateNode(item);
 
-            nodes.Add(nodeFactory.CreateNode(item));
+            if (item.Properties.TryGetValue("associatedFindings", out string? associatedFindings) &&
+                associatedFindings.Contains("WAF", StringComparison.OrdinalIgnoreCase))
+            {
+                node.Properties["WafAligned"] = "true";
+            }
+            else if (item.Properties.TryGetValue("findings", out string? findings) &&
+                     findings.Contains("WAF", StringComparison.OrdinalIgnoreCase))
+            {
+                node.Properties["WafAligned"] = "true";
+            }
+
+            nodes.Add(node);
+        }
 
         IReadOnlyList<GraphEdge> inferredEdges = edgeInferer.InferEdges(contextSnapshot, nodes);
 

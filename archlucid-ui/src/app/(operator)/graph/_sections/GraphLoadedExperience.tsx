@@ -162,6 +162,30 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
             >
               Export Mermaid
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              aria-label="Download the visible graph as PNG"
+              onClick={async () => {
+                const element = document.getElementById("knowledge-graph-canvas");
+                if (element) {
+                  const html2canvas = (await import("html2canvas")).default;
+                  const canvas = await html2canvas(element, { useCORS: true });
+                  const dataUrl = canvas.toDataURL("image/png");
+                  const slug = safeGraphExportFilenameSegment(runTrim);
+                  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+                  const link = document.createElement("a");
+                  link.download = \`graph-\${slug}-\${mode}-\${stamp}.png\`;
+                  link.href = dataUrl;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }
+              }}
+            >
+              Export PNG
+            </Button>
           </div>
         ) : null}
       </div>

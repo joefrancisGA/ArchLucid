@@ -6,6 +6,7 @@ using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime;

@@ -66,6 +66,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<IImportRequestFileService, ImportRequestFileService>();
         services.AddScoped<IArchitectureDefinitionCsvImportDryRunService, ArchitectureDefinitionCsvImportDryRunService>();
         services.AddScoped<IHostedAzureExtractorConfigurationService, HostedAzureExtractorConfigurationService>();
+        services.AddScoped<ITier2ConnectionService, Tier2ConnectionService>();
         services.AddScoped<IHostedAzureExtractorRunService, HostedAzureExtractorRunService>();
         services.Configure<HostedAzureExtractorOptions>(configuration.GetSection(HostedAzureExtractorOptions.SectionName));
         services.AddArchLucidHostedAzureExtractor();
