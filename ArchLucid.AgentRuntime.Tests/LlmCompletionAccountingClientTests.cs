@@ -276,11 +276,5 @@ public sealed class LlmCompletionAccountingClientTests
         public PromptRedactionOutcome RedactAlways(string? input) => Redact(input);
     }
 
-    private static IHostEnvironment CreateNonProductionHostEnvironment()
-    {
-        Mock<IHostEnvironment> host = new();
-        host.Setup(h => h.IsProduction()).Returns(false);
-
-        return host.Object;
-    }
+    private static IHostEnvironment CreateNonProductionHostEnvironment() => new NonProductionTestHostEnvironment();
 }

@@ -1,5 +1,6 @@
 using System.Globalization;
 
+using ArchLucid.AgentRuntime.Tests.Support;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
@@ -245,15 +246,12 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
             ["ArchLucid:Testing:SimulateLlmBudgetExhausted"] = "true"
         };
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(configValues!).Build();
-        Mock<IHostEnvironment> hostEnvironment = new();
-        hostEnvironment.Setup(h => h.IsProduction()).Returns(false);
-
         LlmMonthlyTenantDollarBudgetTracker tracker = CreateTracker(
             monitor.Object,
             cost.Object,
             new InMemoryLlmTenantBudgetRepository(),
             configuration,
-            hostEnvironment.Object);
+            new NonProductionTestHostEnvironment());
 
         Guid tenant = Guid.NewGuid();
 
@@ -284,13 +282,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
             timeProvider ?? TimeProvider.System);
     }
 
-    private static IHostEnvironment CreateNonProductionHostEnvironment()
-    {
-        Mock<IHostEnvironment> host = new();
-        host.Setup(h => h.IsProduction()).Returns(false);
-
-        return host.Object;
-    }
+    private static IHostEnvironment CreateNonProductionHostEnvironment() => new NonProductionTestHostEnvironment();
 
     private static IScopeContextProvider CreateScopeProvider(Guid tenantId)
     {
