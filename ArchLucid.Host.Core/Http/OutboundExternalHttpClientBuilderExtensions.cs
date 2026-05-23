@@ -17,7 +17,7 @@ public static class OutboundExternalHttpClientBuilderExtensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        return builder.AddPolicyHandler(static (services, _) =>
+        return builder.AddLongLivedPolicyHandler(static services =>
         {
             OutboundExternalHttpResilienceOptions options =
                 services.GetRequiredService<IOptions<OutboundExternalHttpResilienceOptions>>().Value;
@@ -36,7 +36,7 @@ public static class OutboundExternalHttpClientBuilderExtensions
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(sleepDurationProvider);
 
-        return builder.AddPolicyHandler((services, _) =>
+        return builder.AddLongLivedPolicyHandler(services =>
         {
             OutboundExternalHttpResilienceOptions options =
                 services.GetRequiredService<IOptions<OutboundExternalHttpResilienceOptions>>().Value;

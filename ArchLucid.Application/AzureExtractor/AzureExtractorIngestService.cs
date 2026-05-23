@@ -1,8 +1,11 @@
+using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -43,6 +46,7 @@ public sealed class AzureExtractorIngestService(
                 AuditEventTypes.AzureExtractorPackageParseFailed,
                 "No file uploaded (expected form field 'file').",
                 schemaRejection: false,
+                invalidArchive: false,
                 actor,
                 scope,
                 correlationId,
@@ -58,6 +62,7 @@ public sealed class AzureExtractorIngestService(
                 AuditEventTypes.AzureExtractorPackageParseFailed,
                 $"ZIP exceeds maximum size of {MaxUploadedZipBytes} bytes.",
                 schemaRejection: false,
+                invalidArchive: false,
                 actor,
                 scope,
                 correlationId,
@@ -79,6 +84,7 @@ public sealed class AzureExtractorIngestService(
                 AuditEventTypes.AzureExtractorPackageParseFailed,
                 ex.Message,
                 schemaRejection: false,
+                invalidArchive: false,
                 actor,
                 scope,
                 correlationId,
@@ -119,12 +125,43 @@ public sealed class AzureExtractorIngestService(
 
         string actor = actorContext.GetActor();
 
+        using Activity? uploadActivity =
+            ArchLucidInstrumentation.AzureExtractorUpload.StartActivity("azure_extractor.upload.ingest");
+
+        uploadActivity?.SetTag("archlucid.azure_extractor.file_size_bytes", zipBytes.LongLength);
+
+        try
+        {
+            using MemoryStream inspectionStream = new(zipBytes, writable: false);
+
+            int fileEntryCount = AzureExtractorPackageZipValidator.CountFileEntries(inspectionStream);
+
+            uploadActivity?.SetTag("archlucid.azure_extractor.file_entry_count", fileEntryCount);
+        }
+        catch (InvalidDataException ex)
+        {
+            logger.LogWarning(ex, "Azure extractor upload ZIP inspection failed.");
+
+            return await FailAsync(
+                AuditEventTypes.AzureExtractorPackageParseFailed,
+                "Uploaded payload is not a valid ZIP archive.",
+                schemaRejection: false,
+                invalidArchive: true,
+                actor,
+                scope,
+                correlationId,
+                safeName,
+                zipBytes.LongLength,
+                ct);
+        }
+
         if (zipBytes.LongLength > maxAcceptedZipBytes)
 
             return await FailAsync(
                 AuditEventTypes.AzureExtractorPackageParseFailed,
                 $"ZIP exceeds maximum size of {maxAcceptedZipBytes} bytes.",
                 schemaRejection: false,
+                invalidArchive: false,
                 actor,
                 scope,
                 correlationId,
@@ -160,8 +197,10 @@ public sealed class AzureExtractorIngestService(
         if (manifestError is not null)
         {
             bool schemaReject = manifestError.StartsWith(
-                "Unsupported manifest schemaVersion",
-                StringComparison.Ordinal);
+                                     "Unsupported manifest schemaVersion",
+                                     StringComparison.Ordinal)
+                                 || manifestError.Contains("schemaVersion", StringComparison.Ordinal)
+                                 || manifestError.Contains("manifest.json", StringComparison.Ordinal);
 
             string eventType = schemaReject
                 ? AuditEventTypes.AzureExtractorPackageSchemaRejected
@@ -171,6 +210,7 @@ public sealed class AzureExtractorIngestService(
                 eventType,
                 manifestError,
                 schemaRejection: schemaReject,
+                invalidArchive: false,
                 actor,
                 scope,
                 correlationId,
@@ -183,7 +223,8 @@ public sealed class AzureExtractorIngestService(
             return await FailAsync(
                 AuditEventTypes.AzureExtractorPackageParseFailed,
                 "manifest.json could not be loaded.",
-                schemaRejection: false,
+                schemaRejection: true,
+                invalidArchive: false,
                 actor,
                 scope,
                 correlationId,
@@ -201,6 +242,7 @@ public sealed class AzureExtractorIngestService(
                     AuditEventTypes.AzureExtractorPackageParseFailed,
                     "Run id is not recognized in this workspace scope.",
                     schemaRejection: false,
+                    invalidArchive: false,
                     actor,
                     scope,
                     correlationId,
@@ -315,6 +357,7 @@ public sealed class AzureExtractorIngestService(
         string eventType,
         string detail,
         bool schemaRejection,
+        bool invalidArchive,
         string actor,
         ScopeContext scope,
         string? correlationId,
@@ -343,7 +386,13 @@ public sealed class AzureExtractorIngestService(
             },
             ct);
 
-        return new AzureExtractorIngestResult { Succeeded = false, FailureDetail = detail, IsSchemaRejection = schemaRejection, };
+        return new AzureExtractorIngestResult
+        {
+            Succeeded = false,
+            FailureDetail = detail,
+            IsSchemaRejection = schemaRejection,
+            IsInvalidArchive = invalidArchive,
+        };
     }
 
     private static async Task<byte[]> ReadCappedZipAsync(IFormFile file, CancellationToken ct)

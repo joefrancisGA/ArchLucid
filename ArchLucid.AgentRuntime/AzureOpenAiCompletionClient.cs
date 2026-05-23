@@ -33,8 +33,6 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
     /// <summary>Used when <c>AzureOpenAI:MaxCompletionTokens</c> is omitted or zero.</summary>
     public const int DefaultMaxCompletionTokens = AzureOpenAiOptions.DefaultMaxCompletionTokens;
 
-    private static readonly AsyncLocal<(int Prompt, int Completion, int Reasoning)?> LastCompletionTokenUsage = new();
-
     private static readonly AsyncLocal<(string DeploymentName, string? ModelId)?> LastModelMetadata = new();
 
     /// <summary>
@@ -42,7 +40,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
     ///     Used to unit-test <see cref="LlmCompletionAccountingClient" /> without a live Azure completion.
     /// </summary>
     internal static void SeedLastCompletionTokenUsageForTests(int promptTokens, int completionTokens, int reasoningTokens = 0) =>
-        LastCompletionTokenUsage.Value = (promptTokens, completionTokens, reasoningTokens);
+        LlmCompletionTokenUsageAmbient.TestingSeed(promptTokens, completionTokens, reasoningTokens);
 
     private readonly ChatClient _chatClient;
     private readonly string _deploymentName;
@@ -148,7 +146,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(systemPrompt);
         ArgumentException.ThrowIfNullOrWhiteSpace(userPrompt);
-        LastCompletionTokenUsage.Value = null;
+        LlmCompletionTokenUsageAmbient.Clear();
         LastModelMetadata.Value = null;
 
         bool completionSucceededForTelemetry = false;
@@ -240,7 +238,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
 
                 if (inTok > 0 || outTok > 0 || reasoningTok > 0)
 
-                    LastCompletionTokenUsage.Value = (inTok, outTok, reasoningTok);
+                    LlmCompletionTokenUsageAmbient.Record(inTok, outTok, reasoningTok);
             }
 
             if (!string.IsNullOrWhiteSpace(update.Model))
@@ -266,7 +264,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(systemPrompt);
         ArgumentException.ThrowIfNullOrWhiteSpace(userPrompt);
-        LastCompletionTokenUsage.Value = null;
+        LlmCompletionTokenUsageAmbient.Clear();
         LastModelMetadata.Value = null;
 
         bool completionSucceededForTelemetry = false;
@@ -321,7 +319,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
 
                 if (inTok > 0 || outTok > 0 || reasoningTok > 0)
 
-                    LastCompletionTokenUsage.Value = (inTok, outTok, reasoningTok);
+                    LlmCompletionTokenUsageAmbient.Record(inTok, outTok, reasoningTok);
 
                 if (llmActivity is not null)
                 {
@@ -556,50 +554,15 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
     public static bool TryConsumeLastCompletionTokenUsage(
         out int promptTokens,
         out int completionTokens,
-        out int reasoningTokens)
-    {
-        (int Prompt, int Completion, int Reasoning)? raw = LastCompletionTokenUsage.Value;
-        LastCompletionTokenUsage.Value = null;
-
-        if (raw is { } v)
-        {
-            promptTokens = v.Prompt;
-            completionTokens = v.Completion;
-            reasoningTokens = v.Reasoning;
-
-            return true;
-        }
-
-        promptTokens = 0;
-        completionTokens = 0;
-        reasoningTokens = 0;
-
-        return false;
-    }
+        out int reasoningTokens) =>
+        LlmCompletionTokenUsageAmbient.TryConsumeRaw(out promptTokens, out completionTokens, out reasoningTokens);
 
     /// <summary>Peeks token usage from the last successful <see cref="CompleteJsonAsync" /> on this async flow without consuming it.</summary>
     public static bool TryPeekLastCompletionTokenUsage(
         out int promptTokens,
         out int completionTokens,
-        out int reasoningTokens)
-    {
-        (int Prompt, int Completion, int Reasoning)? raw = LastCompletionTokenUsage.Value;
-
-        if (raw is { } v)
-        {
-            promptTokens = v.Prompt;
-            completionTokens = v.Completion;
-            reasoningTokens = v.Reasoning;
-
-            return true;
-        }
-
-        promptTokens = 0;
-        completionTokens = 0;
-        reasoningTokens = 0;
-
-        return false;
-    }
+        out int reasoningTokens) =>
+        LlmCompletionTokenUsageAmbient.TryPeekRaw(out promptTokens, out completionTokens, out reasoningTokens);
 
     /// <summary>
     ///     Test hook: sets metadata read by <see cref="TryConsumeLastModelMetadata" /> (internals visible to
@@ -611,10 +574,8 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
     }
 
     /// <summary>Test hook: seeds token usage read by <see cref="TryPeekLastCompletionTokenUsage" />.</summary>
-    internal static void TestingSetLastCompletionTokenUsage(int promptTokens, int completionTokens, int reasoningTokens = 0)
-    {
-        LastCompletionTokenUsage.Value = (promptTokens, completionTokens, reasoningTokens);
-    }
+    internal static void TestingSetLastCompletionTokenUsage(int promptTokens, int completionTokens, int reasoningTokens = 0) =>
+        LlmCompletionTokenUsageAmbient.TestingSeed(promptTokens, completionTokens, reasoningTokens);
 
     /// <summary>
     ///     Consumes deployment name and provider-reported model id from the last successful

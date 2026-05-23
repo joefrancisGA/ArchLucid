@@ -36,7 +36,7 @@ public static class ArchLucidInstrumentation
     public const int SensitiveGenAiTelemetrySnapshotMaxChars = 65536;
 
     /// <summary>Meter name registered with OpenTelemetry in <c>AddArchLucidOpenTelemetry</c>.</summary>
-    public const string MeterName = ArchLucidMeterNames.Meter;
+    public static string MeterName => ArchLucidMeterNames.Meter;
 
     private static readonly Meter AppMeter = new(MeterName, "1.0.0");
 
@@ -96,6 +96,9 @@ public static class ArchLucidInstrumentation
 
     /// <summary>Evidence ZIP expansion (<c>ZipEvidenceExpanderService</c>).</summary>
     public static ActivitySource EvidenceZipExpansion => ArchLucidActivitySources.EvidenceZipExpansion;
+
+    /// <summary>Azure extractor package upload ingest (<c>AzureExtractorIngestService</c>).</summary>
+    public static ActivitySource AzureExtractorUpload => ArchLucidActivitySources.AzureExtractorUpload;
 
     /// <summary>Digest channel send succeeded (labels: <c>channel</c>).</summary>
     public static readonly Counter<long> DigestDeliverySucceeded =

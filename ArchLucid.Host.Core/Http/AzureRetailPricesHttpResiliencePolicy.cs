@@ -34,6 +34,10 @@ public static class AzureRetailPricesHttpResiliencePolicy
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(sleepDurationProvider);
 
+        // Register retry first (inner) and circuit breaker second (outer) so retries complete before the breaker evaluates the call.
+        // Polly records each retry attempt against the outer breaker, so scale minimum throughput by attempts per logical call.
+        int attemptsPerLogicalCall = MaxRetryAttempts + 1;
+
         ResiliencePipeline<HttpResponseMessage> pipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
             .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
             {
@@ -57,7 +61,7 @@ public static class AzureRetailPricesHttpResiliencePolicy
             .AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
             {
                 FailureRatio = 1.0,
-                MinimumThroughput = CircuitBreakerFailureThreshold,
+                MinimumThroughput = CircuitBreakerFailureThreshold * attemptsPerLogicalCall,
                 SamplingDuration = TimeSpan.FromMinutes(1),
                 BreakDuration = TimeSpan.FromSeconds(CircuitBreakerBreakDurationSeconds),
                 ShouldHandle = new PredicateBuilder<HttpResponseMessage>()

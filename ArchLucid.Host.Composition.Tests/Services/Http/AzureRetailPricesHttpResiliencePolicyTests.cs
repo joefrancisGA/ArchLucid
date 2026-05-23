@@ -26,7 +26,7 @@ public sealed class AzureRetailPricesHttpResiliencePolicyTests
         services
             .AddHttpClient(ArchLucidAzurePublicHttpClients.RetailPricesHttpClientName)
             .ConfigurePrimaryHttpMessageHandler(() => primary)
-            .AddPolicyHandler(static (sp, _) =>
+            .AddLongLivedPolicyHandler(static sp =>
                 AzureRetailPricesHttpResiliencePolicy.Create(
                     sp.GetRequiredService<ILoggerFactory>().CreateLogger("tests.Retail.CB"),
                     static _ => TimeSpan.Zero));

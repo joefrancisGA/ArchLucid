@@ -17,9 +17,8 @@
 # Visitors may create new runs in DevelopmentBypass (sandbox) unless you put the demo behind an API
 # that uses JwtBearer/ApiKey in production.
 # ─────────────────────────────────────────────────────────────────
-
-include:
-  - path: docker-compose.yml
+# Merge overlay only — always pass with the base file:
+#   docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack up -d --build
 
 services:
   api:

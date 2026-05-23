@@ -110,4 +110,11 @@ public sealed class ArchitectureReviewBoardExportDocumentModel
         get;
         init;
     }
+
+    /// <summary>Tenant display name for executive cover-page attribution ("Prepared for …").</summary>
+    public string? TenantDisplayName
+    {
+        get;
+        init;
+    }
 }

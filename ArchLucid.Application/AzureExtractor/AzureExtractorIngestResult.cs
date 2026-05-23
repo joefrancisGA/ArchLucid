@@ -30,4 +30,12 @@ public sealed class AzureExtractorIngestResult
 
         init;
     }
+
+    /// <summary>True when the uploaded bytes are not a readable ZIP archive.</summary>
+    public bool IsInvalidArchive
+    {
+        get;
+
+        init;
+    }
 }

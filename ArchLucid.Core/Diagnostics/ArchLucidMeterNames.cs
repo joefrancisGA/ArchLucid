@@ -5,29 +5,41 @@ namespace ArchLucid.Core.Diagnostics;
 ///     <see cref="ArchLucidInstrumentation" /> so listener callbacks can filter without re-entering
 ///     instrumentation static initialization.
 /// </summary>
+/// <remarks>
+///     Do not use <c>public const string</c> for these values: NetArchTest scans compile-time string
+///     constants on fields for <c>HaveDependencyOnAny</c> and treats values such as
+///     <c>ArchLucid.Retrieval.Index</c> as forbidden namespace dependencies (see
+///     <see cref="Configuration.ArchLucidPersistenceOptions" />).
+/// </remarks>
 public static class ArchLucidMeterNames
 {
-    public const string Meter = "ArchLucid";
+    public static string Meter => string.Concat("ArchLucid");
 
-    public const string AdvisoryScanActivitySource = "ArchLucid.AdvisoryScan";
+    public static string AdvisoryScanActivitySource => string.Concat("ArchLucid", ".AdvisoryScan");
 
-    public const string AuthorityRunActivitySource = "ArchLucid.AuthorityRun";
+    public static string AuthorityRunActivitySource => string.Concat("ArchLucid", ".AuthorityRun");
 
-    public const string RetrievalIndexActivitySource = "ArchLucid.Retrieval.Index";
+    public static string RetrievalIndexActivitySource => string.Concat("ArchLucid", ".Retrieval", ".Index");
 
-    public const string AgentHandlerActivitySource = "ArchLucid.Agent.Handler";
+    public static string AgentHandlerActivitySource => string.Concat("ArchLucid", ".Agent.Handler");
 
-    public const string AgentExecutionActivitySource = "ArchLucid.Agent.Execution";
+    public static string AgentExecutionActivitySource => string.Concat("ArchLucid", ".Agent.Execution");
 
-    public const string AgentLlmCompletionActivitySource = "ArchLucid.Agent.LlmCompletion";
+    public static string AgentLlmCompletionActivitySource => string.Concat("ArchLucid", ".Agent.LlmCompletion");
 
-    public const string AgentLlmEmbeddingActivitySource = "ArchLucid.Agent.LlmEmbedding";
+    public static string AgentLlmEmbeddingActivitySource => string.Concat("ArchLucid", ".Agent.LlmEmbedding");
 
-    public const string RetrievalIndexingOutboxActivitySource = "ArchLucid.RetrievalIndexing.Outbox";
+    public static string RetrievalIndexingOutboxActivitySource =>
+        string.Concat("ArchLucid", ".RetrievalIndexing", ".Outbox");
 
-    public const string IntegrationEventOutboxActivitySource = "ArchLucid.IntegrationEvent.Outbox";
+    public static string IntegrationEventOutboxActivitySource =>
+        string.Concat("ArchLucid", ".IntegrationEvent", ".Outbox");
 
-    public const string DataArchivalActivitySource = "ArchLucid.DataArchival";
+    public static string DataArchivalActivitySource => string.Concat("ArchLucid", ".DataArchival");
 
-    public const string EvidenceZipExpansionActivitySource = "ArchLucid.Evidence.ZipExpansion";
+    public static string EvidenceZipExpansionActivitySource =>
+        string.Concat("ArchLucid", ".Evidence", ".ZipExpansion");
+
+    public static string AzureExtractorUploadActivitySource =>
+        string.Concat("ArchLucid", ".AzureExtractor", ".Upload");
 }

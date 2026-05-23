@@ -33,4 +33,7 @@ internal static class ArchLucidActivitySources
 
     public static readonly ActivitySource EvidenceZipExpansion =
         new(ArchLucidMeterNames.EvidenceZipExpansionActivitySource, "1.0.0");
+
+    public static readonly ActivitySource AzureExtractorUpload =
+        new(ArchLucidMeterNames.AzureExtractorUploadActivitySource, "1.0.0");
 }

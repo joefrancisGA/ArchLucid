@@ -86,9 +86,45 @@ public sealed class ArchitectureReviewBoardExportDocxStructureTests
 
         xml.Should().Contain("Architecture review board packet");
         xml.Should().Contain("Review (run) ID: golden-architecture-review-board-run-001");
-        xml.Should().Contain("Generated UTC:");
+        xml.Should().Contain("Generated on");
 
         ArchitectureReviewDocxBuilder.ResolveFooterText(null).Should().Be("Prepared by ArchLucid");
+    }
+
+    [Fact]
+    public async Task BuildAsync_cover_includes_prepared_for_tenant_and_generated_on_label()
+    {
+        ArchitectureReviewBoardExportDocumentModel baseModel = ArchitectureReviewBoardExportTestModels.CreateFullyPopulatedModel();
+
+        ArchitectureReviewBoardExportDocumentModel model = new()
+        {
+            ReviewId = baseModel.ReviewId,
+            RunId = baseModel.RunId,
+            RequestId = baseModel.RequestId,
+            SystemName = baseModel.SystemName,
+            ManifestVersion = baseModel.ManifestVersion,
+            ExecutiveSummary = baseModel.ExecutiveSummary,
+            SystemOverviewBullets = baseModel.SystemOverviewBullets,
+            EvidenceReviewed = baseModel.EvidenceReviewed,
+            ArchitectureDecisions = baseModel.ArchitectureDecisions,
+            KeyRisks = baseModel.KeyRisks,
+            PolicyFindings = baseModel.PolicyFindings,
+            AiDispositionFindings = baseModel.AiDispositionFindings,
+            TraceabilityLines = baseModel.TraceabilityLines,
+            RecommendedNextActions = baseModel.RecommendedNextActions,
+            HttpCorrelationId = baseModel.HttpCorrelationId,
+            ExtractorTimestampUtcLabel = baseModel.ExtractorTimestampUtcLabel,
+            TenantDisplayName = "Fabrikam Holdings"
+        };
+
+        ArchitectureReviewDocxBuilder sut = new();
+        byte[] bytes = await sut.BuildAsync(model, whitelabel: null, logoImageBytes: null, cancellationToken: CancellationToken.None);
+
+        string xml = ArchitectureReviewBoardDocxTestHelpers.ExtractMainDocumentXml(bytes);
+
+        xml.Should().Contain("Prepared for Fabrikam Holdings");
+        xml.Should().Contain("Generated on");
+        xml.Should().NotContain("Generated UTC:");
     }
 
     [Fact]

@@ -93,71 +93,74 @@ public sealed class ArchitectureReviewDocxBuilder
         string? activeTrialExportNotice = null,
         DateTimeOffset? exportTimestampUtc = null)
     {
+        DateTimeOffset generatedUtc = exportTimestampUtc ?? TimeProvider.System.GetUtcNow();
+        ArchitectureReviewBoardCoverPageContent cover = ArchitectureReviewBoardCoverPageContent.Resolve(
+            model,
+            whitelabel,
+            generatedUtc,
+            activeTrialExportNotice);
+
         if (logoImageBytes is { Length: > 0 })
         {
-            ArchitectureReviewDocxOpenXmlPrimitives.AddImageToBody(mainPart, body, logoImageBytes, "Consultant logo",
-                2_200_000L, 700_000L);
+            ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredImageToBody(
+                mainPart,
+                body,
+                logoImageBytes,
+                "Consultant logo",
+                ArchitectureReviewBoardCoverPageContent.DocxLogoWidthEmus,
+                ArchitectureReviewBoardCoverPageContent.DocxLogoHeightEmus);
             ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 2);
         }
 
-        if (whitelabel is not null)
-        {
-            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, whitelabel.FirmDisplayName.Trim(), "DocTitle");
-            ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
-            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, whitelabel.ClientEngagementTitle.Trim(),
-                "DocSubtitle");
-        }
-        else
-        {
-            string title = model.IsDemoTenant
-                ? "Architecture review board packet (DEMO)"
-                : "Architecture review board packet";
-            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, title, "DocTitle");
-            ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
-            string subtitle = string.IsNullOrWhiteSpace(model.SystemName) ? model.RunId.Trim() : model.SystemName.Trim();
+        ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, cover.Title, "DocTitle");
 
-            if (model.IsDemoTenant)
-                subtitle += " (DEMO)";
-
-            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, subtitle, "DocSubtitle");
+        if (!string.IsNullOrWhiteSpace(cover.Subtitle))
+        {
+            ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
+            ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, cover.Subtitle, "DocSubtitle");
         }
 
-        if (model.IsDemoTenant)
+        if (!string.IsNullOrWhiteSpace(cover.PreparedForTenantName))
         {
-            ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
-            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(
+            ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 2);
+            ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(
                 body,
-                "Demo tenant — replace before publishing to executives.",
-                "Subtle");
-        }
-
-        if (!string.IsNullOrWhiteSpace(activeTrialExportNotice))
-        {
-            ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
-            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, activeTrialExportNotice.Trim(), "Subtle");
+                $"Prepared for {cover.PreparedForTenantName}",
+                "BodyText");
         }
 
         ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 2);
-        ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, $"Review ID: {model.ReviewId:D}", "BodyText");
-        ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, $"Review (run) ID: {model.RunId.Trim()}",
-            "BodyText");
+        ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, cover.GeneratedOnLabel, "BodyText");
+
+        if (!string.IsNullOrWhiteSpace(cover.DemoNotice))
+        {
+            ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
+            ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, cover.DemoNotice, "Subtle");
+        }
+
+        if (!string.IsNullOrWhiteSpace(cover.ActiveTrialNotice))
+        {
+            ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
+            ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, cover.ActiveTrialNotice, "Subtle");
+        }
+
+        ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 3);
+        ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, $"Review ID: {model.ReviewId:D}", "Subtle");
+        ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, $"Review (run) ID: {model.RunId.Trim()}",
+            "Subtle");
 
         if (!string.IsNullOrWhiteSpace(model.RequestId))
-            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, $"Request ID: {model.RequestId.Trim()}",
-                "BodyText");
+            ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, $"Request ID: {model.RequestId.Trim()}",
+                "Subtle");
 
         if (!string.IsNullOrWhiteSpace(model.ManifestVersion))
-            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(
+            ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(
                 body,
                 $"Architecture snapshot version: {model.ManifestVersion.Trim()}",
-                "BodyText");
-
-        ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body,
-            $"Generated UTC: {(exportTimestampUtc ?? TimeProvider.System.GetUtcNow()):O}",
-            "BodyText");
+                "Subtle");
 
         ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 4);
-        ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body,
+        ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body,
             "Terminology follows buyer-facing glossary: Review ↔ committed run; Architecture snapshot ↔ golden manifest.",
             "Subtle");
     }

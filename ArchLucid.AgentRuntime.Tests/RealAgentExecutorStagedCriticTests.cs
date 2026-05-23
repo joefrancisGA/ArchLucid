@@ -21,7 +21,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Suite", "Core")]
 public sealed class RealAgentExecutorStagedCriticTests
 {
-    private const string AgentExecutionActivitySourceName = ArchLucidMeterNames.AgentExecutionActivitySource;
+    private static readonly string AgentExecutionActivitySourceName = ArchLucidMeterNames.AgentExecutionActivitySource;
 
     private static ArchitectureRequest MinimalRequest()
     {

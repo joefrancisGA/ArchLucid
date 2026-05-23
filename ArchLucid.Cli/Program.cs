@@ -132,23 +132,26 @@ public static class Program
 
                 case "azure":
                     if (normalized.Length > 2
-
                         && string.Equals(normalized[1], "terraform-export", StringComparison.OrdinalIgnoreCase))
-
                         return await AzureTerraformExportCommand.RunAsync(normalized.Skip(2).ToArray());
 
-                    if (CliExecutionContext.JsonOutput)
+                    if (normalized.Length > 2
+                        && string.Equals(normalized[1], "validate-zip", StringComparison.OrdinalIgnoreCase))
+                        return await AzureValidateZipCommand.RunAsync(normalized.Skip(2).ToArray());
 
+                    if (CliExecutionContext.JsonOutput)
                         CliJson.WriteFailureLine(
                             Console.Error,
                             CliExitCode.UsageError,
                             "usage",
-                            "Expected: archlucid azure terraform-export --subscription <subId> --resource-group <name> --out <bundle.zip>");
+                            "Expected: archlucid azure terraform-export ... | archlucid azure validate-zip --path <file.zip>");
 
                     else
-
+                    {
                         Console.WriteLine(
                             "Usage: archlucid azure terraform-export --subscription <subId> --resource-group <name> --out <bundle.zip>");
+                        Console.WriteLine("       archlucid azure validate-zip --path <file.zip>");
+                    }
 
                     return CliExitCode.UsageError;
 

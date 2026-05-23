@@ -1,4 +1,4 @@
-using ArchLucid.Core.Http;
+using ArchLucid.Host.Core.Http;
 
 namespace ArchLucid.Host.Composition.Startup;
 
@@ -11,34 +11,32 @@ public static partial class ServiceCollectionExtensions
     {
         services
             .AddHttpClient(
-                ArchLucidAzurePublicHttpClients.ResourceManagerHttpClientName,
+                ArchLucid.Core.Http.ArchLucidAzurePublicHttpClients.ResourceManagerHttpClientName,
                 static http =>
                 {
-                    http.BaseAddress = ArchLucidAzurePublicHttpClients.ResourceManagerAuthority;
+                    http.BaseAddress = ArchLucid.Core.Http.ArchLucidAzurePublicHttpClients.ResourceManagerAuthority;
                     http.Timeout = TimeSpan.FromMinutes(5);
                     http.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "application/json");
                 })
-            .AddPolicyHandler(
-                static (serviceProvider, _) =>
-                    AzureRmAndRetailPricesHttpRetryPolicy.Create(
-                        serviceProvider
-                            .GetRequiredService<ILoggerFactory>()
-                            .CreateLogger($"{ArchLucidAzurePublicHttpClients.ResourceManagerHttpClientName}.Policies")));
+            .AddLongLivedPolicyHandler(static serviceProvider =>
+                ArchLucid.Core.Http.AzureRmAndRetailPricesHttpRetryPolicy.Create(
+                    serviceProvider
+                        .GetRequiredService<ILoggerFactory>()
+                        .CreateLogger($"{ArchLucid.Core.Http.ArchLucidAzurePublicHttpClients.ResourceManagerHttpClientName}.Policies")));
 
         services
             .AddHttpClient(
-                ArchLucidAzurePublicHttpClients.RetailPricesHttpClientName,
+                ArchLucid.Core.Http.ArchLucidAzurePublicHttpClients.RetailPricesHttpClientName,
                 static http =>
                 {
-                    http.BaseAddress = ArchLucidAzurePublicHttpClients.RetailPricesAuthority;
+                    http.BaseAddress = ArchLucid.Core.Http.ArchLucidAzurePublicHttpClients.RetailPricesAuthority;
                     http.Timeout = TimeSpan.FromMinutes(5);
                     http.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "application/json");
                 })
-            .AddPolicyHandler(
-                static (serviceProvider, _) =>
-                    ArchLucid.Host.Core.Http.AzureRetailPricesHttpResiliencePolicy.Create(
-                        serviceProvider
-                            .GetRequiredService<ILoggerFactory>()
-                            .CreateLogger($"{ArchLucidAzurePublicHttpClients.RetailPricesHttpClientName}.Policies")));
+            .AddLongLivedPolicyHandler(static serviceProvider =>
+                AzureRetailPricesHttpResiliencePolicy.Create(
+                    serviceProvider
+                        .GetRequiredService<ILoggerFactory>()
+                        .CreateLogger($"{ArchLucid.Core.Http.ArchLucidAzurePublicHttpClients.RetailPricesHttpClientName}.Policies")));
     }
 }

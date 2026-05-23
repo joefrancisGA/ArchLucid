@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime;
+using ArchLucid.Core.Diagnostics;
 
 namespace ArchLucid.Api.Middleware;
 
@@ -13,7 +13,7 @@ internal sealed class LlmTokenUsageResponseMiddleware : IMiddleware
     {
         await next(context);
 
-        AgentCompletionTokenUsage.TryPeek(out int? promptTokens, out int? completionTokens, out int? reasoningTokens);
+        LlmCompletionTokenUsageAmbient.TryPeek(out int? promptTokens, out int? completionTokens, out int? reasoningTokens);
 
         if (promptTokens is null && completionTokens is null && reasoningTokens is null)
             return;

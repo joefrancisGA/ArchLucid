@@ -54,11 +54,19 @@ public static class OutboundExternalHttpResiliencePolicy
 
         if (normalized.CircuitBreakerEnabled)
         {
+            int minimumThroughput = normalized.MinimumThroughput;
+
+            if (normalized.MaxRetryAttempts > 0)
+            {
+                // Outer breaker records each retry attempt; scale so MinimumThroughput stays in logical-call units.
+                minimumThroughput = normalized.MinimumThroughput * (normalized.MaxRetryAttempts + 1);
+            }
+
             builder.AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
             {
                 FailureRatio = normalized.FailureRatio,
                 SamplingDuration = TimeSpan.FromSeconds(normalized.SamplingDurationSeconds),
-                MinimumThroughput = normalized.MinimumThroughput,
+                MinimumThroughput = minimumThroughput,
                 BreakDuration = TimeSpan.FromSeconds(normalized.BreakDurationSeconds),
                 ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
                     .Handle<HttpRequestException>()

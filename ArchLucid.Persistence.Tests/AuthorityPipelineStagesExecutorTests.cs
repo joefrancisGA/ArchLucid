@@ -35,7 +35,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "Core")]
 public sealed class AuthorityPipelineStagesExecutorTests
 {
-    private const string AuthorityRunSourceName = ArchLucidMeterNames.AuthorityRunActivitySource;
+    private static readonly string AuthorityRunSourceName = ArchLucidMeterNames.AuthorityRunActivitySource;
 
     [SkippableFact]
     public async Task ExecuteAfterRunPersistedAsync_creates_child_activities_under_run_activity()

@@ -285,11 +285,13 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
      In `ArchLucid.Api.Controllers.Authority.ArchitectureController` (or `RunsController`), enhance the `POST /v1/architecture/request` endpoint. Use `IMemoryCache` (or a similar existing caching mechanism) to store the `Idempotency-Key` header value combined with the tenant/workspace ID for 24 hours. If a request arrives with an existing key, compare the SHA-256 hash of the request body. If it matches, return the cached `runId` (200 OK). If it differs, return 409 Conflict. Do not introduce new database tables for this yet. Acceptance criteria: Duplicate requests with the same key are handled safely.
      ```
 
-10. **Optimize ZIP extraction memory usage (streaming)**
+10. **Optimize ZIP extraction memory usage (streaming)** *(Completed 2026-05-22)*
     - Why it matters: Prevents OutOfMemory exceptions when processing large (52 MiB) Azure extractor ZIPs.
     - Expected impact: Reliability (+3-5 pts). Weighted readiness impact: +0.1-0.3%.
     - Affected qualities: Reliability
     - Actionable: Yes — Batch **ZIP**
+    - **Completed.** `AzureExtractorManifestReader` now stream-parses `manifest.json` via `JsonDocument.Parse` (no `ReadToEnd`); ingest uses `ZipArchiveMode.Read` with entry-count inspection only—uncompressed payloads are not buffered during validation.
+    - **Status:** **Completed** (2026-05-22).
     - Prompt:
       ```text
       In the service handling POST /v1/azure-extractor/upload, ensure ZIP extraction uses ZipArchiveMode.Read and streams entries to the parser without loading full uncompressed contents into memory. Acceptance criteria: Memory usage stays flat during large uploads.
@@ -305,9 +307,11 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       In ArchLucid.Application/ArchitectureReviewDocxBuilder.cs (and PDF equivalent), enhance cover page: bold centered title, Generated on [Date], Prepared for [Tenant Name], scaled logo. Do not change section bodies.
       ```
 
-12. **Implement a "dry run" mode for the Azure extractor script**
+12. **Implement a "dry run" mode for the Azure extractor script** *(Completed 2026-05-22)*
     - Why it matters: Builds trust with enterprise security teams before they run the actual extraction.
     - Expected impact: Directly improves Adoption Friction (+4-6 pts). Weighted readiness impact: +0.2-0.4%.
+    - **Completed.** Added `-DryRun` to `scripts/azure/Get-ArchLucidAzurePackage.ps1`; prints planned scope, read-only API calls, and ZIP entry names without collecting data or writing output.
+    - **Status:** **Completed** (2026-05-22).
     - Prompt:
       ```text
       In `scripts/azure/Get-ArchLucidAzurePackage.ps1`, add a `-DryRun` switch. When specified, the script should only list the Azure resources and API calls it *would* make, outputting them to the console, without actually fetching the deep configuration data or creating a ZIP file. Do not change the default execution behavior. Acceptance criteria: Security teams can audit the script's intended actions easily.
@@ -329,9 +333,11 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       In the `archlucid-ui` project, create a new "Pilot Status" component on the Home page. It should display a simple checklist based on the `CORE_PILOT.md` steps: 1. Configure Storage, 2. Create Review, 3. Execute Review, 4. Commit Manifest. Check off items based on the existence of runs/manifests in the API responses. Do not create new backend endpoints for this. Acceptance criteria: Users can see their pilot progress at a glance.
       ```
 
-15. **Enforce strict validation on uploaded ZIP manifest schemas**
+15. **Enforce strict validation on uploaded ZIP manifest schemas** *(Completed 2026-05-22)*
     - Why it matters: Prevents downstream pipeline failures caused by malformed extractor data.
     - Expected impact: Directly improves Reliability (+3-5 pts). Weighted readiness impact: +0.1-0.3%.
+    - **Completed.** Centralized manifest schema checks in `AzureExtractorIngestService` + `AzureExtractorPackageZipValidator`; upload endpoint returns **422** for manifest/schema failures and **400** for corrupted archives via `MapIngestFailure`.
+    - **Status:** **Completed** (2026-05-22).
     - Prompt:
       ```text
       In `AzureExtractorUploadController.cs` (or the parsing service), add strict JSON schema validation for the `manifest.json` inside the uploaded ZIP. If the `schemaVersion` is missing or not exactly `1`, immediately return a 422 Unprocessable Entity with a Problem Details response explaining the required schema version. Do not process the rest of the ZIP if the manifest is invalid. Acceptance criteria: Malformed ZIPs are rejected fast and loud.
@@ -371,17 +377,21 @@ ArchLucid V1 is a highly capable, technically sound product with strong Pilot-la
       In `ArchLucid.Api` or `ArchLucid.Worker`, add a new `IHealthCheck` implementation named `OrchestratorHealthCheck`. It should query the database (or a singleton state tracker) to check if there are any runs in the `Executing` state that haven't been updated in over 2 hours. If so, return `HealthCheckResult.Degraded`. Register this check in `Program.cs`. Do not change the orchestrator logic. Acceptance criteria: Stalled orchestrations are visible in the `/health` endpoint.
       ```
 
-19. **Add a telemetry event for manual ZIP upload duration/size**
+19. **Add a telemetry event for manual ZIP upload duration/size** *(Completed 2026-05-22)*
     - Why it matters: Provides data to prioritize future automated ingestion investments.
     - Expected impact: Directly improves Maintainability (+2-3 pts). Weighted readiness impact: +0.1-0.2%.
+    - **Completed.** Added `ArchLucid.AzureExtractor.Upload` activity source; `AzureExtractorIngestService` emits `azure_extractor.upload.ingest` spans tagged with `archlucid.azure_extractor.file_size_bytes` and `archlucid.azure_extractor.file_entry_count`; registered in OpenTelemetry tracing.
+    - **Status:** **Completed** (2026-05-22).
     - Prompt:
       ```text
       In `AzureExtractorUploadController.cs`, wrap the ZIP extraction and storage process in a standard `System.Diagnostics.Activity`. Add tags for the `FileSizeInBytes` and `NumberOfFilesExtracted`. Do not log any sensitive file names or contents. Acceptance criteria: Upload performance and size metrics are available in OpenTelemetry traces.
       ```
 
-20. **Create a CLI command to validate the extractor ZIP locally before upload**
+20. **Create a CLI command to validate the extractor ZIP locally before upload** *(Completed 2026-05-22)*
     - Why it matters: Saves time and bandwidth by catching errors before uploading a 50MB file.
     - Expected impact: Directly improves Adoption Friction (+3-5 pts), Usability (+2-4 pts). Weighted readiness impact: +0.2-0.4%.
+    - **Completed.** Added `archlucid azure validate-zip --path <file.zip>` (`AzureValidateZipCommand`) reusing `AzureExtractorPackageZipValidator`; CLI + Core unit tests.
+    - **Status:** **Completed** (2026-05-22).
     - Prompt:
       ```text
       In the `ArchLucid.Cli` project, add a new command: `archlucid azure validate-zip --path <file>`. This command should open the ZIP locally, verify that `manifest.json` exists, check that `schemaVersion` is 1, and ensure the basic folder structure is correct. It should output a success or error message to the console. Do not upload the file. Acceptance criteria: Operators can validate ZIPs locally.

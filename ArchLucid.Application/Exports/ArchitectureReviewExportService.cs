@@ -79,8 +79,15 @@ public sealed class ArchitectureReviewExportService(
 
         ArchitectureAnalysisReport report = await _architectureAnalysisService.BuildAsync(analysisRequest, cancellationToken);
 
+        string? tenantDisplayName = await ResolveTenantDisplayNameAsync(cancellationToken).ConfigureAwait(false);
+
         ArchitectureReviewBoardExportDocumentModel documentModel =
-            ArchitectureReviewBoardExportDocumentFactory.Create(detail, report, httpCorrelationId, extractorTimestampUtcLabel: null);
+            ArchitectureReviewBoardExportDocumentFactory.Create(
+                detail,
+                report,
+                httpCorrelationId,
+                extractorTimestampUtcLabel: null,
+                tenantDisplayName: tenantDisplayName);
 
         string? activeTrialExportNotice = await ResolveActiveTrialExportNoticeAsync(cancellationToken).ConfigureAwait(false);
 
@@ -145,6 +152,21 @@ public sealed class ArchitectureReviewExportService(
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
         return ActiveTrialExportNoticeFormatter.Format(tenant);
+    }
+
+    private async Task<string?> ResolveTenantDisplayNameAsync(CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        if (scope.TenantId == Guid.Empty)
+            return null;
+
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null || string.IsNullOrWhiteSpace(tenant.Name))
+            return null;
+
+        return tenant.Name.Trim();
     }
 
     private static string BuildMinimalHtml(ArchitectureReviewBoardExportDocumentModel documentModel)

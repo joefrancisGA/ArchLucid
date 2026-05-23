@@ -36,7 +36,7 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
 
     [SkippableFact]
 
-    public async Task Upload_missingManifest_returns400()
+    public async Task Upload_missingManifest_returns422()
     {
 
         using HttpClient client = fixture.CreateClient();
@@ -48,13 +48,13 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
 
         using HttpResponseMessage response = await client.PostAsync("/v1/azure-extractor/upload", form);
 
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.UnprocessableEntity);
 
     }
 
     [SkippableFact]
 
-    public async Task Upload_unknownSchema_returns400()
+    public async Task Upload_unknownSchema_returns422()
     {
 
         using HttpClient client = fixture.CreateClient();
@@ -66,7 +66,7 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
 
         using HttpResponseMessage response = await client.PostAsync("/v1/azure-extractor/upload", form);
 
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.UnprocessableEntity);
 
     }
 
@@ -260,6 +260,12 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
                     "switchesUsed":[],"azModuleVersion":"0.0.0-test"}
 
                     """);
+
+                ZipArchiveEntry resources = zip.CreateEntry("resources.json");
+
+                using StreamWriter rw = new(resources.Open());
+
+                rw.Write("[]");
 
             }
 

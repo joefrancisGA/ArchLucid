@@ -99,41 +99,45 @@ public sealed class ArchitectureReviewPdfBuilder
                 .Italic();
         }
 
-        page.Content().Column(column =>
+        page.Content().AlignCenter().Column(column =>
         {
+            ArchitectureReviewBoardCoverPageContent cover = ArchitectureReviewBoardCoverPageContent.Resolve(
+                model,
+                whitelabel,
+                exportTimestampUtc,
+                activeTrialExportNotice);
+
             if (logoImageBytes is { Length: > 0 })
             {
-                column.Item().MaxWidth(220).Image(Image.FromBinaryData(logoImageBytes)).FitArea();
+                column.Item()
+                    .MaxWidth(ArchitectureReviewBoardCoverPageContent.PdfLogoMaxWidthPoints)
+                    .Image(Image.FromBinaryData(logoImageBytes))
+                    .FitArea();
                 column.Item().Height(16);
             }
 
-            if (whitelabel is not null)
+            column.Item().Text(cover.Title).Bold().FontSize(22);
+            column.Item().Height(8);
+
+            if (!string.IsNullOrWhiteSpace(cover.Subtitle))
             {
-                column.Item().Text(whitelabel.FirmDisplayName.Trim()).Bold().FontSize(22);
+                column.Item().Text(cover.Subtitle).SemiBold().FontSize(14);
                 column.Item().Height(8);
-                column.Item().Text(whitelabel.ClientEngagementTitle.Trim()).SemiBold().FontSize(14);
-            }
-            else
-            {
-                string title = model.IsDemoTenant
-                    ? "Architecture review board packet (DEMO)"
-                    : "Architecture review board packet";
-                column.Item().Text(title).Bold().FontSize(22);
-                column.Item().Height(8);
-
-                string subtitle = string.IsNullOrWhiteSpace(model.SystemName) ? model.RunId.Trim() : model.SystemName.Trim();
-
-                if (model.IsDemoTenant)
-                    subtitle += " (DEMO)";
-
-                column.Item().Text(subtitle).SemiBold().FontSize(14);
             }
 
-            if (model.IsDemoTenant)
+            if (!string.IsNullOrWhiteSpace(cover.PreparedForTenantName))
+            {
+                column.Item().Text($"Prepared for {cover.PreparedForTenantName}").FontSize(11);
+                column.Item().Height(12);
+            }
+
+            column.Item().Text(cover.GeneratedOnLabel).FontSize(10).FontColor(Colors.Grey.Darken2);
+
+            if (!string.IsNullOrWhiteSpace(cover.DemoNotice))
             {
                 column.Item().Height(8);
                 column.Item()
-                    .Text("Demo tenant — replace before publishing to executives.")
+                    .Text(cover.DemoNotice)
                     .FontSize(8)
                     .FontColor(Colors.Grey.Darken2)
                     .Italic();
@@ -141,17 +145,16 @@ public sealed class ArchitectureReviewPdfBuilder
 
             column.Item().Height(22);
 
-            column.Item().Text($"Review ID: {model.ReviewId:D}");
+            column.Item().Text($"Review ID: {model.ReviewId:D}").FontSize(8).FontColor(Colors.Grey.Darken2);
 
-            column.Item().Text($"Review (run) ID: {model.RunId.Trim()}");
+            column.Item().Text($"Review (run) ID: {model.RunId.Trim()}").FontSize(8).FontColor(Colors.Grey.Darken2);
 
             if (!string.IsNullOrWhiteSpace(model.RequestId))
-                column.Item().Text($"Request ID: {model.RequestId.Trim()}");
+                column.Item().Text($"Request ID: {model.RequestId.Trim()}").FontSize(8).FontColor(Colors.Grey.Darken2);
 
             if (!string.IsNullOrWhiteSpace(model.ManifestVersion))
-                column.Item().Text($"Architecture snapshot version: {model.ManifestVersion.Trim()}");
-
-            column.Item().Text($"Generated UTC: {exportTimestampUtc:O}");
+                column.Item().Text($"Architecture snapshot version: {model.ManifestVersion.Trim()}").FontSize(8)
+                    .FontColor(Colors.Grey.Darken2);
 
             column.Item().Height(36);
 

@@ -1,4 +1,3 @@
-using System.IO.Compression;
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
@@ -51,6 +50,7 @@ public sealed class AzureExtractorUploadController(
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Consumes("multipart/form-data")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [RequestSizeLimit(MultipartEnvelopeBudgetBytes)]
     public async Task<IActionResult> UploadAsync(
@@ -58,40 +58,6 @@ public sealed class AzureExtractorUploadController(
         [FromQuery] Guid? runId,
         CancellationToken cancellationToken)
     {
-        if (file != null)
-        {
-            try
-            {
-                using Stream stream = file.OpenReadStream();
-                using ZipArchive archive = new(stream, ZipArchiveMode.Read, leaveOpen: true);
-                ZipArchiveEntry? manifestEntry = archive.GetEntry("manifest.json");
-
-                if (manifestEntry == null)
-                {
-                    return this.BadRequestProblem("Missing manifest.json", ProblemTypes.ValidationFailed);
-                }
-
-                using Stream manifestStream = manifestEntry.Open();
-                using JsonDocument doc = JsonDocument.Parse(manifestStream);
-
-                if (!doc.RootElement.TryGetProperty("schemaVersion", out JsonElement schemaVersionElement) ||
-                    schemaVersionElement.GetInt32() != 1)
-                {
-                    return this.BadRequestProblem(
-                        "Missing or unsupported schemaVersion in manifest.json",
-                        ProblemTypes.ValidationFailed);
-                }
-            }
-            catch (InvalidDataException)
-            {
-                return this.BadRequestProblem("Invalid or corrupted ZIP archive.", ProblemTypes.ValidationFailed);
-            }
-            catch (Exception ex) when (ex is not InvalidOperationException)
-            {
-                // Fall back to existing pipeline if ZIP parsing fails here
-            }
-        }
-
         AzureExtractorIngestResult result =
             await ingestService.IngestZipAsync(file, runId, cancellationToken, HttpContext.TraceIdentifier);
 
@@ -99,14 +65,7 @@ public sealed class AzureExtractorUploadController(
 
             return Accepted(new { packageId = result.PackageId });
 
-        string detail = result.FailureDetail ?? "Ingest failed.";
-
-        if (logger.IsEnabled(LogLevel.Information))
-
-            logger.LogInformation("Azure extractor ingest rejected: {Detail}", detail);
-
-        return this.UnprocessableEntityProblem(detail);
-
+        return MapIngestFailure(result);
     }
 
     /// <summary>Downloads a persisted Azure extractor ZIP package for the current workspace scope.</summary>
@@ -277,14 +236,21 @@ public sealed class AzureExtractorUploadController(
 
             return Accepted(new { packageId = result.PackageId });
 
+        return MapIngestFailure(result);
+    }
+
+    private IActionResult MapIngestFailure(AzureExtractorIngestResult result)
+    {
         string detail = result.FailureDetail ?? "Ingest failed.";
 
         if (logger.IsEnabled(LogLevel.Information))
 
-            logger.LogInformation("Azure extractor chunked ingest rejected: {Detail}", detail);
+            logger.LogInformation("Azure extractor ingest rejected: {Detail}", detail);
+
+        if (result.IsInvalidArchive)
+            return this.BadRequestProblem(detail, ProblemTypes.ValidationFailed);
 
         return this.UnprocessableEntityProblem(detail);
-
     }
 
 }

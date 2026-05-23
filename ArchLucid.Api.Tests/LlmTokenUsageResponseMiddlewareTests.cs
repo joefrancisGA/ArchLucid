@@ -1,5 +1,5 @@
-using ArchLucid.AgentRuntime;
 using ArchLucid.Api.Middleware;
+using ArchLucid.Core.Diagnostics;
 
 using FluentAssertions;
 
@@ -14,7 +14,7 @@ public sealed class LlmTokenUsageResponseMiddlewareTests
     [SkippableFact]
     public async Task InvokeAsync_appends_header_when_token_usage_is_available()
     {
-        AzureOpenAiCompletionClient.TestingSetLastCompletionTokenUsage(120, 45);
+        LlmCompletionTokenUsageAmbient.TestingSeed(120, 45);
 
         LlmTokenUsageResponseMiddleware middleware = new();
         DefaultHttpContext context = new();

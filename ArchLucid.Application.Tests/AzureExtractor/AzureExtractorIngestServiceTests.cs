@@ -64,6 +64,7 @@ public sealed class AzureExtractorIngestServiceTests
         result.Succeeded.Should().BeFalse();
 
         result.FailureDetail.Should().Contain("Uploaded payload is not a valid ZIP archive.");
+        result.IsInvalidArchive.Should().BeTrue();
     }
 
     [Fact]

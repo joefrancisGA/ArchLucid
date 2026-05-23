@@ -31,15 +31,13 @@ public static class AzureExtractorManifestReader
 
             using Stream manifestStream = entry.Open();
 
-            using StreamReader reader = new(manifestStream);
+            using JsonDocument document = JsonDocument.Parse(manifestStream);
 
-            string json = reader.ReadToEnd();
-
-            if (string.IsNullOrWhiteSpace(json))
+            if (document.RootElement.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
 
                 return (null, "manifest.json is empty.");
 
-            ManifestDto? dto = JsonSerializer.Deserialize<ManifestDto>(json, SerializerOptions);
+            ManifestDto? dto = document.RootElement.Deserialize<ManifestDto>(SerializerOptions);
 
             if (dto is null)
 
@@ -76,6 +74,8 @@ public static class AzureExtractorManifestReader
                     .Distinct(StringComparer.OrdinalIgnoreCase).ToArray()
                 : [];
 
+            string rawJson = document.RootElement.GetRawText();
+
             AzureExtractorNormalizedManifest normalized = new(
                 dto.SchemaVersion,
                 scriptVersion,
@@ -84,7 +84,7 @@ public static class AzureExtractorManifestReader
                 scope,
                 switches,
                 azVersion,
-                json.Trim());
+                rawJson.Trim());
 
             return (normalized, null);
         }

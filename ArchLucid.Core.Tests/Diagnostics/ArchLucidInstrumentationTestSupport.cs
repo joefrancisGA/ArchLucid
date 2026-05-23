@@ -8,7 +8,7 @@ namespace ArchLucid.Core.Tests.Diagnostics;
 internal static class ArchLucidInstrumentationTestSupport
 {
     /// <inheritdoc cref="ArchLucidMeterNames.Meter" />
-    public const string MeterName = ArchLucidMeterNames.Meter;
+    public static string MeterName => ArchLucidMeterNames.Meter;
 
     private static readonly Lock InitGate = new();
 

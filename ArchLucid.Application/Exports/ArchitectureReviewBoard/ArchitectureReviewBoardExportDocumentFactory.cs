@@ -51,7 +51,8 @@ public static class ArchitectureReviewBoardExportDocumentFactory
         ArchitectureAnalysisReport report,
         string? httpCorrelationId,
         string? extractorTimestampUtcLabel,
-        bool? isDemoTenant = null)
+        bool? isDemoTenant = null,
+        string? tenantDisplayName = null)
     {
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(report);
@@ -80,6 +81,7 @@ public static class ArchitectureReviewBoardExportDocumentFactory
             TraceabilityLines = BuildExtraTraceLines(detail),
             RecommendedNextActions = BuildRecommendedActions(report, detail),
             IsDemoTenant = demo,
+            TenantDisplayName = string.IsNullOrWhiteSpace(tenantDisplayName) ? null : tenantDisplayName.Trim(),
         };
     }
 

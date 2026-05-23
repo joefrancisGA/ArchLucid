@@ -115,7 +115,9 @@ public static class ObservabilityExtensions
                     ArchLucidInstrumentation.AgentLlmEmbedding.Name,
                     ArchLucidInstrumentation.RetrievalIndexingOutbox.Name,
                     ArchLucidInstrumentation.IntegrationEventOutbox.Name,
-                    ArchLucidInstrumentation.DataArchival.Name);
+                    ArchLucidInstrumentation.DataArchival.Name,
+                    ArchLucidInstrumentation.EvidenceZipExpansion.Name,
+                    ArchLucidInstrumentation.AzureExtractorUpload.Name);
 
                 if (consoleExporterEnabled)
                     tracing.AddConsoleExporter();

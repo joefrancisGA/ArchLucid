@@ -15,6 +15,8 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.Runs.Sample;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class SampleRunPurgeServiceTests
 {
     [Fact]

@@ -1,3 +1,5 @@
+using ArchLucid.Core.Diagnostics;
+
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
@@ -10,40 +12,12 @@ public static class AgentCompletionTokenUsage
     ///     Sets <paramref name="inputTokens" /> and <paramref name="outputTokens" /> to <see langword="null" /> when
     ///     unavailable.
     /// </summary>
-    public static void TryConsume(out int? inputTokens, out int? outputTokens, out int? reasoningTokens)
-    {
-        if (AzureOpenAiCompletionClient.TryConsumeLastCompletionTokenUsage(out int p, out int c, out int r)
-            && (p > 0 || c > 0 || r > 0))
-        {
-            inputTokens = p;
-            outputTokens = c;
-            reasoningTokens = r > 0 ? r : null;
-
-            return;
-        }
-
-        inputTokens = null;
-        outputTokens = null;
-        reasoningTokens = null;
-    }
+    public static void TryConsume(out int? inputTokens, out int? outputTokens, out int? reasoningTokens) =>
+        LlmCompletionTokenUsageAmbient.TryConsume(out inputTokens, out outputTokens, out reasoningTokens);
 
     /// <summary>
     ///     Peeks <paramref name="inputTokens" /> and <paramref name="outputTokens" /> without consuming them.
     /// </summary>
-    public static void TryPeek(out int? inputTokens, out int? outputTokens, out int? reasoningTokens)
-    {
-        if (AzureOpenAiCompletionClient.TryPeekLastCompletionTokenUsage(out int p, out int c, out int r)
-            && (p > 0 || c > 0 || r > 0))
-        {
-            inputTokens = p;
-            outputTokens = c;
-            reasoningTokens = r > 0 ? r : null;
-
-            return;
-        }
-
-        inputTokens = null;
-        outputTokens = null;
-        reasoningTokens = null;
-    }
+    public static void TryPeek(out int? inputTokens, out int? outputTokens, out int? reasoningTokens) =>
+        LlmCompletionTokenUsageAmbient.TryPeek(out inputTokens, out outputTokens, out reasoningTokens);
 }

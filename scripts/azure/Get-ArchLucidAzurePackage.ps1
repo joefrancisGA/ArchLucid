@@ -34,7 +34,10 @@ param(
     [switch] $IncludeAdvisor,
 
     [Parameter(Mandatory = $false)]
-    [switch] $IncludeRetailPrices
+    [switch] $IncludeRetailPrices,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $DryRun
 )
 
 Set-StrictMode -Version Latest
@@ -118,6 +121,72 @@ if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)) -and -not ([string]::Is
 if ($IncludeCost -and [string]::IsNullOrWhiteSpace($SubscriptionId))
 {
     throw "-IncludeCost requires -SubscriptionId (management-group inventory does not aggregate cost in one call)."
+}
+
+if ($DryRun)
+{
+    Write-Host "ArchLucid Azure extractor dry run — no data will be collected and no ZIP will be written." -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Scope:" -ForegroundColor Yellow
+    if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
+    {
+        Write-Host "  Management group: $ManagementGroupId"
+        if (-not ([string]::IsNullOrWhiteSpace($ResourceGroupScope)))
+        {
+            Write-Host "  Resource group filter: $ResourceGroupScope"
+        }
+    }
+    else
+    {
+        Write-Host "  Subscription: $SubscriptionId"
+        if (-not ([string]::IsNullOrWhiteSpace($ResourceGroupScope)))
+        {
+            Write-Host "  Resource group filter: $ResourceGroupScope"
+        }
+    }
+    Write-Host ""
+    Write-Host "Planned Azure API calls (read-only):" -ForegroundColor Yellow
+    Write-Host "  - Get-AzSubscription / Set-AzContext (subscription scope only)"
+    if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
+    {
+        Write-Host "  - Azure Resource Graph query (management group inventory)"
+    }
+    elseif (Get-Module -ListAvailable -Name Az.ResourceGraph)
+    {
+        Write-Host "  - Azure Resource Graph query (subscription inventory)"
+    }
+    else
+    {
+        if ([string]::IsNullOrWhiteSpace($ResourceGroupScope))
+        {
+            Write-Host "  - Get-AzResource (subscription-wide ARM inventory)"
+        }
+        else
+        {
+            Write-Host "  - Get-AzResource -ResourceGroupName $ResourceGroupScope"
+        }
+    }
+    Write-Host "  - Policy Insights PolicyStates/latest/queryResults (policy-compliance.json)"
+    if ($IncludeRetailPrices)
+    {
+        Write-Host "  - HTTPS GET https://prices.azure.com (retail-prices.json for inventoried SKUs)"
+    }
+    if ($IncludeCost)
+    {
+        Write-Host "  - az rest Microsoft.CostManagement/query (actualCostSummary in manifest.json)"
+    }
+    if ($IncludeAdvisor)
+    {
+        Write-Host "  - (not implemented) Azure Advisor recommendations export"
+    }
+    Write-Host ""
+    Write-Host "Planned ZIP entries:" -ForegroundColor Yellow
+    Write-Host "  manifest.json, resources.json, policy-compliance.json, README.txt"
+    if ($IncludeRetailPrices) { Write-Host "  retail-prices.json" }
+    Write-Host ""
+    Write-Host "Output path (would write): $OutputPath"
+    Write-Host "Dry run complete — re-run without -DryRun to collect and create the ZIP."
+    exit 0
 }
 
 if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
