@@ -4,7 +4,7 @@ using ArchLucid.AgentRuntime.Caching;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ArtifactSynthesis.Services;
 using ArchLucid.Capabilities.Cost;
-using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Services;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Validation;
@@ -90,7 +90,7 @@ public sealed class SingleCompositionRootServiceCollectionExtensionsTests
         typeof(ArchitectureRunCreateOrchestrator).Assembly,
         typeof(ArtifactSynthesisService).Assembly,
         typeof(CostConstraintFindingEngine).Assembly,
-        typeof(CanonicalObject).Assembly,
+        typeof(ContextIngestionService).Assembly,
         typeof(AgentTaskStatus).Assembly,
         typeof(IntegrationEventTypes).Assembly,
         typeof(SchemaValidationService).Assembly,
