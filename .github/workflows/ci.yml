@@ -757,7 +757,7 @@ jobs:
 
       - name: Get-ArchLucidAzurePackage.Tests.ps1
         shell: pwsh
-        run: Invoke-Pester -Strict -Legacy -Path 'scripts/azure/tests/Get-ArchLucidAzurePackage.Tests.ps1'
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/Get-ArchLucidAzurePackage.Tests.ps1'
 
   dotnet-fast-core:
     name: ".NET: fast core (corset)"

@@ -455,7 +455,7 @@ public sealed class AuthorityRunOrchestrator(
     }
 
     private async Task CommitUnitOfWorkWithTransientRetryAsync(IArchLucidUnitOfWork uow, CancellationToken ct) =>
-        await OrchestratorTransientDbRetry.ExecuteAsync(token => uow.CommitAsync(token), ct);
+        await OrchestratorTransientDbRetry.ExecuteAsync(uow.CommitAsync, ct);
 
     private async Task EnqueueDeferredWorkWithTransientRetryAsync(
         Guid runId,

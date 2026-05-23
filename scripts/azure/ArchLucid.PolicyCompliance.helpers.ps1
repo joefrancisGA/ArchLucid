@@ -86,7 +86,23 @@ function Normalize-ArmPolicyStatePageBody([object] $Response)
 
 function Get-AzureHttpStatusFromPipelineError([System.Management.Automation.ErrorRecord] $Er)
 {
-    foreach ($possible in @( $Er.Exception.Response, $Er.Exception.InnerException.Response ))
+    [object[]]$responseCandidates = @()
+
+    if ($null -ne $Er.Exception)
+    {
+        if ($Er.Exception.PSObject.Properties.Match('Response').Count -gt 0)
+        {
+            $responseCandidates += $Er.Exception.Response
+        }
+
+        if (($null -ne $Er.Exception.InnerException) -and
+            ($Er.Exception.InnerException.PSObject.Properties.Match('Response').Count -gt 0))
+        {
+            $responseCandidates += $Er.Exception.InnerException.Response
+        }
+    }
+
+    foreach ($possible in $responseCandidates)
     {
         if ($null -eq $possible)
         {

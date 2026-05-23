@@ -70,8 +70,8 @@ internal static class AzureExtractAndUploadCommand
             HttpClient http = ArchLucidApiClient.CreateSharedApiHttpClient(baseUrl, config);
 
             await using FileStream fileStream = File.OpenRead(tempZip);
-            using MultipartFormDataContent content = new MultipartFormDataContent();
-            using StreamContent streamContent = new StreamContent(fileStream);
+            using MultipartFormDataContent content = new();
+            using StreamContent streamContent = new(fileStream);
             streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
             content.Add(streamContent, "file", Path.GetFileName(tempZip));
 

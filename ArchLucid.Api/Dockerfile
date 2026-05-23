@@ -46,6 +46,7 @@ COPY ArchLucid.Core/*.csproj               ArchLucid.Core/
 COPY ArchLucid.Capabilities.Cost/*.csproj  ArchLucid.Capabilities.Cost/
 COPY ArchLucid.Decisioning/*.csproj        ArchLucid.Decisioning/
 COPY ArchLucid.Integrations.AzureDevOps/*.csproj ArchLucid.Integrations.AzureDevOps/
+COPY ArchLucid.Integrations.AzureExtractor/*.csproj ArchLucid.Integrations.AzureExtractor/
 COPY ArchLucid.KnowledgeGraph/*.csproj     ArchLucid.KnowledgeGraph/
 COPY ArchLucid.Notifications/*.csproj      ArchLucid.Notifications/
 COPY ArchLucid.Persistence/*.csproj        ArchLucid.Persistence/

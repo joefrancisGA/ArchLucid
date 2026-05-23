@@ -16,10 +16,7 @@ public static class SamlMetadataValidUntilParser
             XDocument document = XDocument.Parse(xml, LoadOptions.None);
             XElement? root = document.Root;
 
-            if (root is null)
-                return null;
-
-            XAttribute? validUntilAttribute = root.Attribute("validUntil");
+            XAttribute? validUntilAttribute = root?.Attribute("validUntil");
 
             if (validUntilAttribute is null || string.IsNullOrWhiteSpace(validUntilAttribute.Value))
                 return null;
