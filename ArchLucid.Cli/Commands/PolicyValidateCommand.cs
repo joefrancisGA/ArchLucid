@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using ArchLucid.Cli.Validation;
-using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Contracts.Governance;
 
 using FluentValidation;
 using FluentValidation.Results;

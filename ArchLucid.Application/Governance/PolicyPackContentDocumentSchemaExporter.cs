@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Schema;
 using System.Text.Json.Serialization.Metadata;
 
-using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Contracts.Governance;
 
 namespace ArchLucid.Application.Governance;
 

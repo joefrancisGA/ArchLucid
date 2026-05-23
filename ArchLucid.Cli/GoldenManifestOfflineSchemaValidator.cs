@@ -1,8 +1,3 @@
-using ArchLucid.Decisioning.Validation;
-
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -81,11 +76,11 @@ internal static class GoldenManifestOfflineSchemaValidator
             return outcome;
         }
 
-        SchemaValidationService service;
+        GoldenManifestJsonSchemaEvaluator.Evaluation schemaResult;
 
         try
         {
-            service = CreateSchemaValidationService();
+            schemaResult = GoldenManifestJsonSchemaEvaluator.ValidateJson(raw);
         }
         catch (Exception ex)
         {
@@ -99,8 +94,6 @@ internal static class GoldenManifestOfflineSchemaValidator
             return outcome;
         }
 
-        SchemaValidationResult schemaResult = service.ValidateGoldenManifestJson(raw);
-
         if (schemaResult.IsValid)
             return outcome;
 
@@ -109,12 +102,14 @@ internal static class GoldenManifestOfflineSchemaValidator
         return outcome;
     }
 
-    private static void AppendSchemaErrors(ManifestValidateOutcome outcome, JToken manifestRoot,
-        SchemaValidationResult schemaResult)
+    private static void AppendSchemaErrors(
+        ManifestValidateOutcome outcome,
+        JToken manifestRoot,
+        GoldenManifestJsonSchemaEvaluator.Evaluation schemaResult)
     {
         if (schemaResult.DetailedErrors.Count > 0)
         {
-            foreach (SchemaValidationError detail in schemaResult.DetailedErrors)
+            foreach (GoldenManifestJsonSchemaEvaluator.Detail detail in schemaResult.DetailedErrors)
             {
                 string pointer = NormalizeInstancePointer(detail.Location);
                 int? line = null;
@@ -174,16 +169,5 @@ internal static class GoldenManifestOfflineSchemaValidator
             return null;
 
         return value;
-    }
-
-    private static SchemaValidationService CreateSchemaValidationService()
-    {
-        SchemaValidationOptions options = new()
-        {
-            EnableDetailedErrors = true,
-            EnableResultCaching = false
-        };
-
-        return new SchemaValidationService(NullLogger<SchemaValidationService>.Instance, Options.Create(options));
     }
 }

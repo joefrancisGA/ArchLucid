@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Contracts.Governance;
 
 using FluentValidation;
 

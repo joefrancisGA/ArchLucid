@@ -2,7 +2,7 @@ namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
 ///     Response for <c>GET /v1/governance/schema-keys</c>: configurable keys derived from the registered
-///     <see cref="ArchLucid.Decisioning.Governance.PolicyPacks.PolicyPackContentDocument" /> JSON Schema.
+///     <see cref="PolicyPackContentDocument" /> JSON Schema.
 /// </summary>
 public sealed class PolicyPackSchemaKeysResponse
 {

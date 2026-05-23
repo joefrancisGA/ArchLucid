@@ -4,7 +4,7 @@ namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
 ///     Response for <c>GET /v1/governance/policy-pack-content-schema</c>: the registered
-///     <see cref="ArchLucid.Decisioning.Governance.PolicyPacks.PolicyPackContentDocument" /> JSON Schema
+///     <see cref="PolicyPackContentDocument" /> JSON Schema
 ///     for client-side validation (same exporter as OpenAPI / schema-keys).
 /// </summary>
 public sealed class PolicyPackContentDocumentJsonSchemaResponse

@@ -1,13 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
-using ArchLucid.Decisioning.Validation;
-
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
 ///     Offline <c>archlucid manifest validate --file &lt;path&gt;</c>: validates against the bundled Golden Manifest JSON Schema
-///     using the same strict JSON Schema evaluator as <see cref="SchemaValidationService" /> in ArchLucid.Decisioning.
+///     using the same strict JSON Schema evaluator as <see cref="GoldenManifestJsonSchemaEvaluator" />.
 /// </summary>
 internal static class ManifestValidateCommand
 {

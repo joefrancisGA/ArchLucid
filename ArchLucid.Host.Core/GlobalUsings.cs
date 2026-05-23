@@ -1,3 +1,4 @@
+global using ArchLucid.Contracts.Governance;
 global using Microsoft.AspNetCore.Builder;
 global using Microsoft.AspNetCore.Diagnostics;
 global using Microsoft.AspNetCore.Diagnostics.HealthChecks;
