@@ -1,4 +1,5 @@
 using ArchLucid.Core.Configuration;
+using ArchLucid.Contracts.Telemetry;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Telemetry;
 

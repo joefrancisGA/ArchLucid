@@ -3,7 +3,7 @@ using ArchLucid.Decisioning.Validation;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Host.Core.Hosted;
-using ArchLucid.Application.Telemetry;
+using ArchLucid.Contracts.Telemetry;
 
 using Azure.Monitor.OpenTelemetry.Exporter;
 

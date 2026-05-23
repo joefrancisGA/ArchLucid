@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Telemetry;
+
 namespace ArchLucid.Api.Models;
 
 /// <summary>

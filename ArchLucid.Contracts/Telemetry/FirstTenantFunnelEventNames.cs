@@ -1,4 +1,4 @@
-namespace ArchLucid.Application.Telemetry;
+namespace ArchLucid.Contracts.Telemetry;
 
 /// <summary>
 ///     Canonical funnel event catalog for the first-tenant onboarding telemetry funnel

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.Metrics;
 
 using ArchLucid.Application.Telemetry;
+using ArchLucid.Contracts.Telemetry;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Telemetry;
