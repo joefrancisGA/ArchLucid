@@ -102,8 +102,11 @@ internal static class InfrastructureExtensions
                 }
 
                 ProblemCorrelation.Attach(problem, httpContext);
-                httpContext.Response.ContentType = "application/problem+json";
-                await httpContext.Response.WriteAsJsonAsync(problem, cancellationToken).ConfigureAwait(false);
+                await httpContext.Response.WriteAsJsonAsync(
+                    problem,
+                    options: null,
+                    contentType: ApplicationProblemMapper.ProblemJsonMediaType,
+                    cancellationToken: cancellationToken).ConfigureAwait(false);
             };
 
             int fixedPermitLimit = configuration.GetValue(
