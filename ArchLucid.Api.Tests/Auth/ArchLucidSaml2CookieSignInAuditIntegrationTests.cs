@@ -78,7 +78,7 @@ public sealed class ArchLucidSaml2CookieSignInAuditIntegrationTests
     private static ServiceProvider BuildProvider(IAuditService audit)
     {
         ServiceCollection services = new();
-        services.AddSingleton(audit);
+        services.AddSingleton<IAuditService>(audit);
 
         return services.BuildServiceProvider();
     }

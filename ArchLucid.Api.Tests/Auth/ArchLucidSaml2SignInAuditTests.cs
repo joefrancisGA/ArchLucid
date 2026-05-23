@@ -255,7 +255,7 @@ public sealed class ArchLucidSaml2SignInAuditTests
 
         ServiceCollection services = new();
         services.AddSingleton<IConfiguration>(configuration);
-        services.AddSingleton(audit);
+        services.AddSingleton<IAuditService>(audit);
 
         return services.BuildServiceProvider();
     }
