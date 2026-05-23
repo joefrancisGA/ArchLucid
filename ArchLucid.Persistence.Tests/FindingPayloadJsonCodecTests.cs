@@ -1,6 +1,5 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
-using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Findings;
 

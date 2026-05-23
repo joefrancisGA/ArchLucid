@@ -1,6 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Decisioning.Findings.Factories;

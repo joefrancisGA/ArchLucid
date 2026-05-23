@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Decisioning.Findings;
-using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Manifest.Builders;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Rules;

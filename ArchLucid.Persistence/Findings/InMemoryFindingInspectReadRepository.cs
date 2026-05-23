@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 

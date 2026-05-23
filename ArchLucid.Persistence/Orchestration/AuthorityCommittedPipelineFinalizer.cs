@@ -8,7 +8,6 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
-using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;

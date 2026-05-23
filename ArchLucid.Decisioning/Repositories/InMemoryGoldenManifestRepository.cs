@@ -2,7 +2,6 @@ using System.Data;
 
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Decisioning.Manifest.Mapping;
 using ArchLucid.Decisioning.Models;
 
 using Cm = ArchLucid.Contracts.Manifest;

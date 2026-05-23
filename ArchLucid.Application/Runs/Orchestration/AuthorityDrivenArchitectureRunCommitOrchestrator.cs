@@ -23,6 +23,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Connections;
@@ -36,7 +37,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Cm = ArchLucid.Contracts.Manifest;
-using DecisioningIdTraceRepository = ArchLucid.Decisioning.Interfaces.IDecisionTraceRepository;
+using DecisioningIdTraceRepository = ArchLucid.Core.Persistence.Ports.IDecisionTraceRepository;
 using DecisioningIGoldenManifestRepository = ArchLucid.Core.Manifest.IGoldenManifestRepository;
 using Dm = ArchLucid.Decisioning.Models;
 
@@ -275,7 +276,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 throw new InvalidOperationException($"Graph snapshot '{graphId:D}' for run '{runId}' was not found.");
             agentResultsForTelemetry = await _agentResultRepository.GetByRunIdAsync(runId, cancellationToken);
             GraphSnapshot graphForDecision = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, agentResultsForTelemetry);
-            Dm.FindingsSnapshot? findings = await _findingsSnapshotRepository.GetByIdAsync(findingsId, cancellationToken);
+            FindingsSnapshot? findings = await _findingsSnapshotRepository.GetByIdAsync(findingsId, cancellationToken);
             if (findings is null)
                 throw new InvalidOperationException($"Findings snapshot '{findingsId:D}' for run '{runId}' was not found.");
             (manifestModel, trace) = await _decisionEngine.DecideAsync(runGuid, contextSnapshotId, graphForDecision, findings, cancellationToken);

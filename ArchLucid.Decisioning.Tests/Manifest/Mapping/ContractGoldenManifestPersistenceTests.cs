@@ -1,6 +1,5 @@
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Decisioning.Manifest.Mapping;
 
 using FluentAssertions;
 

@@ -1,5 +1,4 @@
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 

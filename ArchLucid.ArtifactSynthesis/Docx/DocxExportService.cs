@@ -7,10 +7,10 @@ using ArchLucid.ArtifactSynthesis.Sanitization;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.Explanation;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Advisory.Models;
 using ArchLucid.Decisioning.Advisory.Services;
 using ArchLucid.Core.Manifest.Sections;
-using ArchLucid.Decisioning.Models;
 
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;

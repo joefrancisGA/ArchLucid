@@ -1,6 +1,6 @@
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
-using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.ArtifactSynthesis.Docx.Models;
 

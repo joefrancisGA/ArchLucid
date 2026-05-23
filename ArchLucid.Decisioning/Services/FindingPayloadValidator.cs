@@ -1,6 +1,5 @@
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Factories;
-using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 

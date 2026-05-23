@@ -3,9 +3,7 @@ using System.Diagnostics;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Findings;
-using ArchLucid.Decisioning.Findings.Serialization;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Decisioning.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

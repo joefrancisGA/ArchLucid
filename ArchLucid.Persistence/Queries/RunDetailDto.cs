@@ -1,8 +1,7 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.DecisionTraces;
-using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Persistence.Queries;

@@ -1,4 +1,16 @@
 <Project>
+  <!-- Finding row shapes moved from Decisioning.Models to Contracts (#33 Phase 2e). -->
+  <Target Name="ArchLucidAddContractsFindingsGlobalUsings"
+          BeforeTargets="CoreCompile"
+          Condition="'$(MSBuildProjectName)' != 'ArchLucid.Contracts' And !Exists('$(MSBuildProjectDirectory)\GlobalUsings.PersistenceDecisioning.cs')">
+    <ItemGroup>
+      <_ContractsProjectReference Include="@(ProjectReference)" Condition="$([System.String]::Copy('%(Identity)').EndsWith('ArchLucid.Contracts.csproj'))" />
+    </ItemGroup>
+    <ItemGroup Condition="'@(_ContractsProjectReference)' != ''">
+      <Compile Include="$(MSBuildThisFileDirectory)build\GlobalUsings.ContractsFindings.cs" Link="GlobalUsings.ContractsFindings.cs" />
+    </ItemGroup>
+  </Target>
+
   <!-- Humanizer.Core ships Humanizer.Analyzers (e.g. NamespaceMigrationAnalyzer). Remove from all projects. -->
   <Target Name="ArchLucidRemoveHumanizerAnalyzers" BeforeTargets="CoreCompile">
     <ItemGroup>

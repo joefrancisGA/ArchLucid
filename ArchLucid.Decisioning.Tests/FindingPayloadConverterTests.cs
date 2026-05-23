@@ -1,5 +1,4 @@
 using ArchLucid.Decisioning.Findings.Factories;
-using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
 
 using FluentAssertions;

@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.Findings;
-using ArchLucid.Decisioning.Findings.Payloads;
-using ArchLucid.Decisioning.Models;
+using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;

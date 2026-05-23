@@ -1,4 +1,3 @@
-using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Persistence.Queries;

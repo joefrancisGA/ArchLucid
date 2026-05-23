@@ -1,5 +1,4 @@
 using ArchLucid.Decisioning.Analysis;
-using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
 using ArchLucid.KnowledgeGraph.Models;

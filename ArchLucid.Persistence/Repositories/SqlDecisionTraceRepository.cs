@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Serialization;

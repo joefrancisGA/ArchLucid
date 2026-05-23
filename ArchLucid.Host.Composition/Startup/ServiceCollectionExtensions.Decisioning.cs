@@ -61,7 +61,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IManifestHashService, Ds.ManifestHashService>();
         services.AddScoped<Di.IDecisionEngine, Ds.RuleBasedDecisionEngine>();
         services.AddSingleton<IProvenanceBuilder, ProvenanceBuilder>();
-        services.AddScoped<Di.IAuthorityCommitProjectionBuilder, Decisioning.Manifest.AuthorityCommitProjectionBuilder>();
+        services.AddScoped<IAuthorityCommitProjectionBuilder, Decisioning.Manifest.AuthorityCommitProjectionBuilder>();
     }
 
     private static void RegisterPluginFindingEngines(IServiceCollection services, IConfiguration configuration)

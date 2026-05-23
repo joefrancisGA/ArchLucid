@@ -1,4 +1,3 @@
-using ArchLucid.Decisioning.Findings.Serialization;
 using ArchLucid.Decisioning.Models;
 
 using FluentAssertions;

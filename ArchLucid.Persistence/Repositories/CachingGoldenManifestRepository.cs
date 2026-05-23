@@ -1,8 +1,6 @@
 using System.Data;
 
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Caching;
 
 namespace ArchLucid.Persistence.Repositories;

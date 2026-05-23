@@ -1,10 +1,9 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
-using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Persistence.Orchestration.Pipeline;

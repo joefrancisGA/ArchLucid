@@ -3,7 +3,6 @@ using System.Security.Cryptography;
 using System.Text;
 
 using ArchLucid.Core.Pagination;
-using ArchLucid.Decisioning.Findings.Serialization;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 
