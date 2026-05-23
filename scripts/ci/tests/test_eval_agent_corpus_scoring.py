@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib.util
 import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -234,6 +235,7 @@ def test_main_enforce_real_quality_gate_ignored_when_real_rows_skip(monkeypatch)
 
     _del_eval_corpus_real_mode_agent_env(monkeypatch)
     monkeypatch.setitem(mod._DEFAULT_GATE, "structural_reject_below", 10.0)
+    monkeypatch.setattr(mod, "_attach_expected_outcome", lambda row, *args: None)
     monkeypatch.setattr(
         sys,
         "argv",
@@ -269,3 +271,69 @@ def test_main_enforce_real_quality_gate_passes_when_real_accepted(monkeypatch):
     )
 
     assert mod.main() == 0
+
+
+def test_adversarial_expected_outcome_matches_current_corpus(monkeypatch):
+    """Adversarial rows ship expected-outcome.json contracts that must stay aligned."""
+
+    mod = _load_eval_agent_corpus()
+    repo = Path(__file__).resolve().parents[3]
+    corpus = repo / "tests" / "eval-corpus"
+
+    _del_eval_corpus_real_mode_agent_env(monkeypatch)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["eval_agent_corpus.py", "--corpus", str(corpus)],
+    )
+
+    assert mod.main() == 0
+
+
+def test_attach_expected_outcome_flags_gate_mismatch():
+    mod = _load_eval_agent_corpus()
+    repo = Path(__file__).resolve().parents[3]
+    corpus = repo / "tests" / "eval-corpus"
+    scenario_path = corpus / "adversarial" / "hallucination-detection" / "scenario.json"
+
+    row: dict[str, Any] = {
+        "quality": {
+            "gate_outcome": "accepted",
+            "mode": "simulator",
+        },
+    }
+
+    mod._attach_expected_outcome(row, scenario_path, "corpus-adv-hallucination-detection", corpus)
+
+    eo = row["expectedOutcome"]
+    assert isinstance(eo, dict)
+    assert eo.get("offline_quality_gate_expectation") == "warned"
+    assert eo.get("mismatch") is True
+    assert eo.get("matches") is False
+
+
+def test_main_fails_when_expected_outcome_gate_mismatch(monkeypatch):
+    mod = _load_eval_agent_corpus()
+    repo = Path(__file__).resolve().parents[3]
+    corpus = repo / "tests" / "eval-corpus"
+
+    original = mod._attach_expected_outcome
+
+    def _force_mismatch(row, scenario_path, scenario_id, corpus_root):
+        original(row, scenario_path, scenario_id, corpus_root)
+        eo = row.get("expectedOutcome")
+
+        if isinstance(eo, dict) and eo.get("offline_quality_gate_expectation"):
+            eo["actual_gate_outcome"] = "accepted"
+            eo["matches"] = False
+            eo["mismatch"] = True
+
+    monkeypatch.setattr(mod, "_attach_expected_outcome", _force_mismatch)
+    _del_eval_corpus_real_mode_agent_env(monkeypatch)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["eval_agent_corpus.py", "--corpus", str(corpus)],
+    )
+
+    assert mod.main() == 1

@@ -19,6 +19,8 @@ Default: informational only (exit 0). Use ``--enforce`` when you want recall /
 unexpected probes to block; use ``--enforce-quality-gate`` when rejected gate
 outcomes must fail the process for **simulator** rows; use
 ``--enforce-real-quality-gate`` for evaluated **real-mode** rows.
+Scenarios with sibling ``expected-outcome.json`` always enforce offline gate
+contracts (adversarial fixtures).
 """
 
 from __future__ import annotations
@@ -147,6 +149,8 @@ _DEFAULT_GATE: dict[str, Any] = {
     "semantic_reject_below": 0.0,
 }
 
+_VALID_OFFLINE_GATE_EXPECTATIONS: frozenset[str] = frozenset({"accepted", "warned", "rejected"})
+
 
 MIN_FINDING_DESCRIPTION_LEN = 10
 MIN_FINDING_RECOMMENDATION_LEN = 5
@@ -226,6 +230,86 @@ def _compute_overall_semantic(claims_ratio: float, findings_ratio: float, root: 
         return findings_ratio
 
     return claims_ratio * 0.4 + findings_ratio * 0.6
+
+
+def _expected_outcome_path(scenario_path: Path) -> Path:
+    return scenario_path.parent / "expected-outcome.json"
+
+
+def _load_offline_quality_gate_expectation(
+    scenario_path: Path,
+    scenario_id: str,
+    corpus_root: Path,
+) -> dict[str, Any] | None:
+    """Load sibling ``expected-outcome.json`` when present (adversarial contract rows)."""
+
+    path = _expected_outcome_path(scenario_path)
+
+    if not path.is_file():
+        return None
+
+    doc = _load_json(path)
+
+    if not isinstance(doc, dict):
+        raise ValueError(f"{path.name} must be an object")
+
+    declared_id = str(doc.get("scenarioId") or "").strip()
+
+    if declared_id and declared_id != scenario_id:
+        raise ValueError(
+            f"{path.name}: scenarioId {declared_id!r} must match scenario id {scenario_id!r}",
+        )
+
+    expectation = str(doc.get("offlineQualityGateExpectation") or "").strip().lower()
+
+    if expectation not in _VALID_OFFLINE_GATE_EXPECTATIONS:
+        raise ValueError(
+            f"{path.name}: offlineQualityGateExpectation must be one of "
+            f"{sorted(_VALID_OFFLINE_GATE_EXPECTATIONS)}; got {expectation!r}",
+        )
+
+    return {
+        "path": str(path.relative_to(corpus_root)),
+        "scenario_id": declared_id or scenario_id,
+        "offline_quality_gate_expectation": expectation,
+        "rationale": str(doc.get("rationale") or ""),
+    }
+
+
+def _attach_expected_outcome(
+    row: dict[str, Any],
+    scenario_path: Path,
+    scenario_id: str,
+    corpus_root: Path,
+) -> None:
+    try:
+        expected = _load_offline_quality_gate_expectation(scenario_path, scenario_id, corpus_root)
+    except ValueError as ex:
+        row["expectedOutcome"] = {"error": str(ex)}
+        return
+
+    if expected is None:
+        row["expectedOutcome"] = None
+        return
+
+    row["expectedOutcome"] = expected
+    quality = row.get("quality")
+
+    if not isinstance(quality, dict):
+        expected["quality_unavailable"] = True
+        return
+
+    if quality.get("skipped") or quality.get("error") or quality.get("parse_failure"):
+        expected["quality_unavailable"] = True
+        return
+
+    actual_gate = str(quality.get("gate_outcome") or "")
+    expected_gate = str(expected["offline_quality_gate_expectation"])
+    expected["actual_gate_outcome"] = actual_gate
+    expected["matches"] = actual_gate == expected_gate
+
+    if not expected["matches"]:
+        expected["mismatch"] = True
 
 
 def _apply_quality_gate(structural: float, semantic: float) -> str:
@@ -393,7 +477,31 @@ def evaluate_quality_evidence_block(corpus_root: Path, scenario_id: str, qe: Map
     return scored
 
 
-def _quality_remediation(quality: Mapping[str, Any]) -> str:
+def _quality_remediation(
+    quality: Mapping[str, Any],
+    expected_outcome: Mapping[str, Any] | None = None,
+) -> str:
+    if isinstance(expected_outcome, dict):
+        if expected_outcome.get("error"):
+            return f"Fix expected-outcome.json — {expected_outcome['error']}"
+
+        if expected_outcome.get("quality_unavailable"):
+            return (
+                "expected-outcome.json requires an evaluable qualityEvidence row; "
+                "restore simulator AgentResult scoring for this scenario."
+            )
+
+        if expected_outcome.get("mismatch"):
+            return (
+                "Adversarial gate contract broken: expected "
+                f"{expected_outcome.get('offline_quality_gate_expectation')} "
+                f"but scored {expected_outcome.get('actual_gate_outcome')}; "
+                f"see {expected_outcome.get('path')}."
+            )
+
+    if not quality:
+        return "_Quality evidence not configured (recall-only scenario)._"
+
     if quality.get("skipped"):
         return "N/A (skipped)."
 
@@ -407,6 +515,14 @@ def _quality_remediation(quality: Mapping[str, Any]) -> str:
         )
 
     gate = str(quality.get("gate_outcome") or "")
+
+    if (
+        isinstance(expected_outcome, dict)
+        and expected_outcome.get("matches")
+        and gate == str(expected_outcome.get("offline_quality_gate_expectation") or "")
+    ):
+        return f"None (gate {gate} matches adversarial expected-outcome contract)."
+
     if gate == "rejected":
         parts: list[str] = [
             "Gate rejected: raise structural/semantic scores above shipped reject floors "
@@ -558,6 +674,11 @@ def render_markdown_report(
                     f"{'**FAIL**' if gate_snapshot.get('quality_manifest_failed') else 'PASS'} | "
                     "Broken `qualityEvidence` or missing committed simulator files always fail the process. |"
                 ),
+                (
+                    "| Adversarial `expected-outcome.json` gate contract | always | "
+                    f"{'**FAIL**' if gate_snapshot.get('expected_outcome_failed') else 'PASS'} | "
+                    "Sibling `expected-outcome.json` rows must match scored `gate_outcome`. |"
+                ),
                 "",
             ]
         )
@@ -631,10 +752,12 @@ def render_markdown_report(
 
     for row in rows:
         q = row.get("quality")
+        eo = row.get("expectedOutcome") if isinstance(row.get("expectedOutcome"), dict) else None
+
         if not isinstance(q, dict):
             lines.append(
                 f"| `{row.get('id')}` | — | — | — | — | — | — | — | — | "
-                "_Quality evidence not configured (recall-only scenario)._ |",
+                f"{_quality_remediation({}, eo)} |",
             )
             continue
 
@@ -643,14 +766,14 @@ def render_markdown_report(
         if q.get("skipped"):
             lines.append(
                 f"| `{row.get('id')}` | {md_mode} | {q.get('agent_type')} | — | — | — | — | — | — | "
-                f"_{q.get('reason', 'Skipped.')}_ |",
+                f"{_quality_remediation(q, eo)} |",
             )
             continue
 
         if q.get("error"):
             lines.append(
                 f"| `{row.get('id')}` | {md_mode} | {q.get('agent_type')} | — | — | — | **error** | — | — | "
-                f"{_quality_remediation(q)} |",
+                f"{_quality_remediation(q, eo)} |",
             )
             continue
 
@@ -663,7 +786,7 @@ def render_markdown_report(
 
         lines.append(
             f"| `{row.get('id')}` | {md_mode} | {q.get('agent_type')} | {struct:.2f} | {sem:.2f} | {pf} | "
-            f"{gate} | {cq:.2f} | {fq:.2f} | {_quality_remediation(q)} |",
+            f"{gate} | {cq:.2f} | {fq:.2f} | {_quality_remediation(q, eo)} |",
         )
 
     lines.append("")
@@ -742,6 +865,8 @@ def evaluate_scenario(scenario_path: Path, corpus_root: Path) -> dict[str, Any]:
         row["quality"] = evaluate_quality_evidence_block(corpus_root, sid, qe)
     else:
         row["quality"] = None
+
+    _attach_expected_outcome(row, scenario_path, sid, corpus_root)
 
     return row
 
@@ -827,6 +952,7 @@ def main() -> int:
     failed = False
     quality_failed = False
     quality_manifest_failed = False
+    expected_outcome_failed = False
     simulator_gate_failed = False
     real_gate_failed = False
 
@@ -878,6 +1004,31 @@ def main() -> int:
                     file=sys.stderr,
                 )
 
+        eo = row.get("expectedOutcome")
+        if isinstance(eo, dict):
+            if eo.get("error"):
+                expected_outcome_failed = True
+                quality_failed = True
+                print(f"::error::expected-outcome error for {row['id']}: {eo['error']}", file=sys.stderr)
+
+            elif eo.get("quality_unavailable"):
+                expected_outcome_failed = True
+                quality_failed = True
+                print(
+                    f"::error::expected-outcome requires evaluable qualityEvidence for {row['id']}",
+                    file=sys.stderr,
+                )
+
+            elif eo.get("mismatch"):
+                expected_outcome_failed = True
+                quality_failed = True
+                print(
+                    f"::error::expected gate mismatch for {row['id']}: "
+                    f"expected {eo.get('offline_quality_gate_expectation')} "
+                    f"got {eo.get('actual_gate_outcome')}",
+                    file=sys.stderr,
+                )
+
     worst_line = f"(worst recall {worst_recall:.2f} vs min {float(args.min_recall):.2f})"
     print(worst_line)
 
@@ -916,6 +1067,7 @@ def main() -> int:
         "enforce_real_quality_gate": bool(args.enforce_real_quality_gate),
         "real_gate_failed": real_gate_failed,
         "quality_manifest_failed": quality_manifest_failed,
+        "expected_outcome_failed": expected_outcome_failed,
         "require_real_mode_evidence": bool(args.require_real_mode_evidence),
         "real_evidence_failed": real_evidence_failed,
         "would_fail_exit": would_fail_exit,
