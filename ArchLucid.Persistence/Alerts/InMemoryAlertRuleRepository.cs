@@ -1,4 +1,3 @@
-using ArchLucid.Decisioning.Alerts;
 
 namespace ArchLucid.Persistence.Alerts;
 

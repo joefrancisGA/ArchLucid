@@ -4,8 +4,6 @@ using System.Text.Json;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
-using ArchLucid.Decisioning.Alerts;
-using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Alerts.Helpers;
 using ArchLucid.Persistence.IntegrationOutbox;

@@ -1,7 +1,7 @@
-using ArchLucid.Decisioning.Alerts.Simulation;
 // Type aliases avoid importing sibling namespace `...Alerts.Composite` (bare `Composite` → CS0118 here).
-using AlertRuleCondition = ArchLucid.Decisioning.Alerts.Composite.AlertRuleCondition;
-using CompositeAlertRule = ArchLucid.Decisioning.Alerts.Composite.CompositeAlertRule;
+using AlertRuleCondition = ArchLucid.Contracts.Alerts.Composite.AlertRuleCondition;
+using CompositeAlertRule = ArchLucid.Contracts.Alerts.Composite.CompositeAlertRule;
+using ArchLucid.Decisioning.Alerts.Simulation;
 
 namespace ArchLucid.Decisioning.Alerts.Tuning;
 

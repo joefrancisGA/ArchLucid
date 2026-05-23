@@ -105,7 +105,7 @@ public sealed class DependencyConstraintTests
     [Trait("Category", "Unit")]
     public void Decisioning_must_not_depend_on_Persistence()
     {
-        Assembly decisioning = typeof(AlertRecord).Assembly;
+        Assembly decisioning = typeof(AlertEvaluator).Assembly;
 
         TestResult result = Types
             .InAssembly(decisioning)

@@ -1,8 +1,6 @@
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
-using ArchLucid.Decisioning.Alerts;
-using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Persistence.Alerts;

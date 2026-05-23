@@ -1,6 +1,4 @@
 using ArchLucid.Decisioning.Advisory.Scheduling;
-using ArchLucid.Decisioning.Alerts.Composite;
-using ArchLucid.Decisioning.Alerts.Simulation;
 
 namespace ArchLucid.Decisioning.Alerts.Tuning;
 

@@ -1,0 +1,23 @@
+global using ArchLucid.Contracts.Alerts;
+global using ArchLucid.Contracts.Alerts.Composite;
+global using ArchLucid.Contracts.Alerts.Delivery;
+global using ArchLucid.Contracts.Alerts.Simulation;
+
+global using AlertEvaluationContext = ArchLucid.Decisioning.Alerts.AlertEvaluationContext;
+global using AlertRoutingMatcher = ArchLucid.Core.Alerts.Delivery.AlertRoutingMatcher;
+global using CompositeAlertDeduplicationKeyBuilder = ArchLucid.Decisioning.Alerts.Composite.CompositeAlertDeduplicationKeyBuilder;
+global using IAlertDeliveryAttemptRepository = ArchLucid.Core.Persistence.Ports.IAlertDeliveryAttemptRepository;
+global using IAlertDeliveryChannel = ArchLucid.Core.Persistence.Ports.IAlertDeliveryChannel;
+global using IAlertDeliveryDispatcher = ArchLucid.Core.Persistence.Ports.IAlertDeliveryDispatcher;
+global using IAlertEvaluator = ArchLucid.Decisioning.Alerts.IAlertEvaluator;
+global using IAlertMetricSnapshotBuilder = ArchLucid.Decisioning.Alerts.Composite.IAlertMetricSnapshotBuilder;
+global using IAlertRecordRepository = ArchLucid.Core.Persistence.Ports.IAlertRecordRepository;
+global using IAlertRoutingSubscriptionRepository = ArchLucid.Core.Persistence.Ports.IAlertRoutingSubscriptionRepository;
+global using IAlertRuleRepository = ArchLucid.Core.Persistence.Ports.IAlertRuleRepository;
+global using IAlertService = ArchLucid.Decisioning.Alerts.IAlertService;
+global using IAlertSimulationContextProvider = ArchLucid.Decisioning.Alerts.Simulation.IAlertSimulationContextProvider;
+global using IAlertSuppressionPolicy = ArchLucid.Decisioning.Alerts.Composite.IAlertSuppressionPolicy;
+global using ICompositeAlertRuleEvaluator = ArchLucid.Decisioning.Alerts.Composite.ICompositeAlertRuleEvaluator;
+global using ICompositeAlertRuleRepository = ArchLucid.Core.Persistence.Ports.ICompositeAlertRuleRepository;
+global using ICompositeAlertService = ArchLucid.Decisioning.Alerts.Composite.ICompositeAlertService;
+global using IRuleSimulationService = ArchLucid.Decisioning.Alerts.Simulation.IRuleSimulationService;

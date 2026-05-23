@@ -1,5 +1,4 @@
 using ArchLucid.Core.Pagination;
-using ArchLucid.Decisioning.Alerts;
 
 namespace ArchLucid.Persistence.Alerts;
 
