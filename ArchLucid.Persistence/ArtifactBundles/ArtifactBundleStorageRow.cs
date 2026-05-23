@@ -67,7 +67,7 @@ internal sealed class ArtifactBundleStorageRow
         init;
     }
 
-    /// <summary>Matches <see cref="ArchLucid.ArtifactSynthesis.Models.ArtifactBundleStatus" /> name on <c>dbo.ArtifactBundles</c>.</summary>
+    /// <summary>Matches <see cref="ArtifactBundleStatus" /> name on <c>dbo.ArtifactBundles</c>.</summary>
     public string? Status
     {
         get;

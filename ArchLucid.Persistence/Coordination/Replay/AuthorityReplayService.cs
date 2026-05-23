@@ -1,6 +1,4 @@
-using ArchLucid.ArtifactSynthesis.Interfaces;
-using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.Contracts.DecisionTraces;
+﻿using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -176,3 +174,4 @@ public sealed class AuthorityReplayService(
         manifest.ProjectId = scope.ProjectId;
     }
 }
+

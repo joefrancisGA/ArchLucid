@@ -1,8 +1,6 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 
-using ArchLucid.ArtifactSynthesis.Interfaces;
-using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.DecisionTraces;
@@ -523,3 +521,4 @@ public sealed class AuthorityPipelineStagesExecutor(
         manifest.ProjectId = scope.ProjectId;
     }
 }
+

@@ -1,10 +1,8 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
 
-using ArchLucid.ArtifactSynthesis.Interfaces;
-using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.ArtifactBundles;
 using ArchLucid.Persistence.BlobStore;
@@ -21,7 +19,7 @@ namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
 ///     SQL Server-backed <see cref="IArtifactBundleRepository" /> with dual-write to legacy JSON columns and
-///     relational tables for artifacts (content as plain NVARCHAR(MAX)), metadata, artifact–decision links,
+///     relational tables for artifacts (content as plain NVARCHAR(MAX)), metadata, artifactâ€“decision links,
 ///     and trace lists. Reads prefer relational slices when rows exist; trace scalars (TraceId, etc.) remain
 ///     sourced from <c>TraceJson</c> when present.
 /// </summary>
@@ -563,3 +561,4 @@ public sealed class SqlArtifactBundleRepository(
         return ArtifactBundlePayloadBlobEnvelope.MergeIntoRow(row, envelope);
     }
 }
+

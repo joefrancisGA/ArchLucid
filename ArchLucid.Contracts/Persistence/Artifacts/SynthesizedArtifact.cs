@@ -1,4 +1,4 @@
-namespace ArchLucid.ArtifactSynthesis.Models;
+﻿namespace ArchLucid.Contracts.Persistence.Artifacts;
 
 public class SynthesizedArtifact
 {
@@ -76,3 +76,4 @@ public class SynthesizedArtifact
         set;
     } = [];
 }
+

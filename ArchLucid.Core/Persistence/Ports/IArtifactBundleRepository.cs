@@ -1,9 +1,9 @@
 using System.Data;
 
-using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Core.Scoping;
 
-namespace ArchLucid.ArtifactSynthesis.Interfaces;
+namespace ArchLucid.Core.Persistence.Ports;
 
 /// <summary>
 ///     Persistence contract for <see cref="ArtifactBundle" /> records that group the synthesized

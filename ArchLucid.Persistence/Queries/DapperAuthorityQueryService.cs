@@ -1,6 +1,4 @@
-using ArchLucid.ArtifactSynthesis.Interfaces;
-using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.Contracts.Persistence.Ports;
+﻿using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Scoping;
@@ -153,3 +151,4 @@ public sealed class DapperAuthorityQueryService(
         return manifest is null ? null : AuthorityRunMapper.MapManifestSummary(manifest);
     }
 }
+

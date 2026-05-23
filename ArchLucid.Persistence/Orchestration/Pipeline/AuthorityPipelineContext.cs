@@ -1,6 +1,5 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
-using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Scoping;
@@ -95,3 +94,4 @@ public sealed class AuthorityPipelineContext
         set;
     }
 }
+

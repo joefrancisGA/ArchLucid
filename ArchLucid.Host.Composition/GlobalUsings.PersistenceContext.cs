@@ -1,7 +1,12 @@
+global using ArtifactBundle = ArchLucid.Contracts.Persistence.Artifacts.ArtifactBundle;
+global using ArtifactDescriptor = ArchLucid.Contracts.Persistence.Artifacts.ArtifactDescriptor;
 global using CanonicalObject = ArchLucid.Contracts.Persistence.Context.CanonicalObject;
 global using ContextDocumentReference = ArchLucid.Contracts.Persistence.Context.ContextDocumentReference;
 global using ContextIngestionRequest = ArchLucid.Contracts.Persistence.Context.ContextIngestionRequest;
 global using ContextSnapshot = ArchLucid.Contracts.Persistence.Context.ContextSnapshot;
 global using InfrastructureDeclarationReference = ArchLucid.Contracts.Persistence.Context.InfrastructureDeclarationReference;
+global using IArtifactBundleRepository = ArchLucid.Core.Persistence.Ports.IArtifactBundleRepository;
+global using IArtifactSynthesisService = ArchLucid.Core.Persistence.Ports.IArtifactSynthesisService;
 global using IContextIngestionService = ArchLucid.Contracts.Persistence.Ports.IContextIngestionService;
 global using IContextSnapshotRepository = ArchLucid.Contracts.Persistence.Ports.IContextSnapshotRepository;
+global using SynthesizedArtifact = ArchLucid.Contracts.Persistence.Artifacts.SynthesizedArtifact;

@@ -1,6 +1,4 @@
-using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.ArtifactSynthesis.Packaging;
-
+﻿
 namespace ArchLucid.Persistence.Queries;
 
 /// <summary>
@@ -51,3 +49,4 @@ internal static class ArtifactDescriptorMapper
             .ToList();
     }
 }
+

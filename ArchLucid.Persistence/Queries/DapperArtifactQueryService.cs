@@ -1,14 +1,11 @@
-using ArchLucid.ArtifactSynthesis.Interfaces;
-using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.ArtifactSynthesis.Packaging;
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 
 
 namespace ArchLucid.Persistence.Queries;
 
 /// <summary>
 ///     <see cref="IArtifactQueryService" /> backed by
-///     <see cref="ArchLucid.ArtifactSynthesis.Interfaces.IArtifactBundleRepository" /> (SQL or in-memory depending on DI).
+///     <see cref="IArtifactBundleRepository" /> (SQL or in-memory depending on DI).
 /// </summary>
 public sealed class DapperArtifactQueryService(IArtifactBundleRepository artifactBundleRepository)
     : IArtifactQueryService
@@ -62,3 +59,4 @@ public sealed class DapperArtifactQueryService(IArtifactBundleRepository artifac
         return ArtifactDescriptorMapper.OrderSynthesizedArtifacts(raw);
     }
 }
+

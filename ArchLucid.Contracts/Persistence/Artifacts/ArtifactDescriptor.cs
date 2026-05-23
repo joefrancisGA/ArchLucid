@@ -1,4 +1,4 @@
-namespace ArchLucid.ArtifactSynthesis.Packaging;
+﻿namespace ArchLucid.Contracts.Persistence.Artifacts;
 
 public class ArtifactDescriptor
 {
@@ -38,3 +38,4 @@ public class ArtifactDescriptor
         set;
     } = null!;
 }
+

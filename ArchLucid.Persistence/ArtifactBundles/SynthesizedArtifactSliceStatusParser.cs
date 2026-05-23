@@ -1,5 +1,4 @@
-using ArchLucid.ArtifactSynthesis.Models;
-
+﻿
 namespace ArchLucid.Persistence.ArtifactBundles;
 
 internal static class SynthesizedArtifactSliceStatusParser
@@ -13,3 +12,4 @@ internal static class SynthesizedArtifactSliceStatusParser
         return SynthesizedArtifactGenerationStatus.Generated;
     }
 }
+

@@ -1,7 +1,7 @@
-using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.Decisioning.Models;
+using ArchLucid.Contracts.Persistence.Artifacts;
+using ArchLucid.Core.Manifest;
 
-namespace ArchLucid.ArtifactSynthesis.Interfaces;
+namespace ArchLucid.Core.Persistence.Ports;
 
 public interface IArtifactSynthesisService
 {

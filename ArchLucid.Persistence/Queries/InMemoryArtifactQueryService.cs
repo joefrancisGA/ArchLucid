@@ -1,7 +1,4 @@
-using ArchLucid.ArtifactSynthesis.Interfaces;
-using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.ArtifactSynthesis.Packaging;
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Queries;
 
@@ -52,3 +49,4 @@ public sealed class InMemoryArtifactQueryService(IArtifactBundleRepository artif
         return ArtifactDescriptorMapper.OrderSynthesizedArtifacts(raw);
     }
 }
+

@@ -1,6 +1,5 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
-using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
@@ -341,3 +340,4 @@ public sealed class SqlRelationalBackfillService(
         };
     }
 }
+

@@ -1,4 +1,4 @@
-namespace ArchLucid.ArtifactSynthesis.Models;
+﻿namespace ArchLucid.Contracts.Persistence.Artifacts;
 
 public class SynthesisTrace
 {
@@ -44,3 +44,4 @@ public class SynthesisTrace
         set;
     } = [];
 }
+

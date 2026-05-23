@@ -1,4 +1,4 @@
-namespace ArchLucid.ArtifactSynthesis.Models;
+﻿namespace ArchLucid.Contracts.Persistence.Artifacts;
 
 /// <summary>Per-artifact generation outcome inside a bundle.</summary>
 public enum SynthesizedArtifactGenerationStatus
@@ -7,3 +7,4 @@ public enum SynthesizedArtifactGenerationStatus
     Generated = 2,
     Failed = 3
 }
+

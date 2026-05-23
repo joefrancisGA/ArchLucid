@@ -1,5 +1,4 @@
-using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.Decisioning.Models;
+﻿using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Persistence.Coordination.Replay;
@@ -62,3 +61,4 @@ public class ReplayResult
         set;
     } = new();
 }
+

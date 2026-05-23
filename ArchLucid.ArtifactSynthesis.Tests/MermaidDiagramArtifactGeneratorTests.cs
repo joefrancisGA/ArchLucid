@@ -41,7 +41,7 @@ public sealed class MermaidDiagramArtifactGeneratorTests
 
         MermaidDiagramArtifactGenerator sut = new(renderer.Object);
 
-        Models.SynthesizedArtifact artifact = await sut.GenerateAsync(manifest, CancellationToken.None);
+        SynthesizedArtifact artifact = await sut.GenerateAsync(manifest, CancellationToken.None);
 
         artifact.ArtifactType.Should().Be(Models.ArtifactType.MermaidDiagram);
         artifact.Content.Should().Be("rendered-mermaid");

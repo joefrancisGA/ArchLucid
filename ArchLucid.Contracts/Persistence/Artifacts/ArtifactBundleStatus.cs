@@ -1,4 +1,4 @@
-namespace ArchLucid.ArtifactSynthesis.Models;
+﻿namespace ArchLucid.Contracts.Persistence.Artifacts;
 
 /// <summary>Lifecycle of a synthesized artifact bundle at rest.</summary>
 public enum ArtifactBundleStatus
@@ -9,3 +9,4 @@ public enum ArtifactBundleStatus
     Failed = 4,
     Archived = 5
 }
+

@@ -1,4 +1,4 @@
-namespace ArchLucid.ArtifactSynthesis.Models;
+﻿namespace ArchLucid.Contracts.Persistence.Artifacts;
 
 public class ArtifactBundle
 {
@@ -63,3 +63,4 @@ public class ArtifactBundle
         set;
     } = new();
 }
+

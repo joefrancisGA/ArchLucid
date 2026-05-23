@@ -1,5 +1,4 @@
-using ArchLucid.ArtifactSynthesis.Models;
-
+﻿
 namespace ArchLucid.Persistence.ArtifactBundles;
 
 internal static class ArtifactBundleStatusParser
@@ -12,3 +11,4 @@ internal static class ArtifactBundleStatusParser
         return ArtifactBundleStatus.Available;
     }
 }
+

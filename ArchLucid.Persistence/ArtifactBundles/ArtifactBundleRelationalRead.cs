@@ -1,5 +1,4 @@
-using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.Persistence.BlobStore;
+﻿using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.RelationalRead;
 
 using Dapper;
@@ -378,3 +377,4 @@ internal static class ArtifactBundleRelationalRead
         } = null!;
     }
 }
+

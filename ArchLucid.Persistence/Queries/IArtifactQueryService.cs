@@ -1,6 +1,4 @@
-using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.ArtifactSynthesis.Packaging;
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Queries;
 
@@ -45,3 +43,4 @@ public interface IArtifactQueryService
         Guid manifestId,
         CancellationToken ct);
 }
+
