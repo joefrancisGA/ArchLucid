@@ -19,16 +19,16 @@ internal static class AzureExtractAndUploadCommand
         string scriptPath = Path.Combine("scripts", "azure", "Get-ArchLucidAzurePackage.ps1");
         if (!File.Exists(scriptPath))
         {
-            Console.Error.WriteLine($"[azure extract-and-upload] Could not find script at {scriptPath}. Please run from the repository root.");
+            await Console.Error.WriteLineAsync($"[azure extract-and-upload] Could not find script at {scriptPath}. Please run from the repository root.");
             return CliExitCode.UsageError;
         }
 
         string tempZip = Path.Combine(Path.GetTempPath(), $"archlucid-extractor-{Guid.NewGuid():N}.zip");
-        
-        try 
+
+        try
         {
             Console.WriteLine($"Running Azure extractor for subscription {subscriptionId}...");
-            
+
             ProcessStartInfo psi = new()
             {
                 FileName = "pwsh",
@@ -40,7 +40,7 @@ internal static class AzureExtractAndUploadCommand
             using Process? process = Process.Start(psi);
             if (process is null)
             {
-                Console.Error.WriteLine("[azure extract-and-upload] Failed to start pwsh process.");
+                await Console.Error.WriteLineAsync("[azure extract-and-upload] Failed to start pwsh process.");
                 return CliExitCode.UsageError;
             }
 
@@ -48,13 +48,13 @@ internal static class AzureExtractAndUploadCommand
 
             if (process.ExitCode != 0)
             {
-                Console.Error.WriteLine($"[azure extract-and-upload] Script failed with exit code {process.ExitCode}.");
+                await Console.Error.WriteLineAsync($"[azure extract-and-upload] Script failed with exit code {process.ExitCode}.");
                 return CliExitCode.UsageError;
             }
 
             if (!File.Exists(tempZip))
             {
-                Console.Error.WriteLine("[azure extract-and-upload] Script completed but ZIP file was not found.");
+                await Console.Error.WriteLineAsync("[azure extract-and-upload] Script completed but ZIP file was not found.");
                 return CliExitCode.UsageError;
             }
 
@@ -68,10 +68,10 @@ internal static class AzureExtractAndUploadCommand
                 return CliCommandShared.ExitCodeForFailedConnection(outcome);
 
             HttpClient http = ArchLucidApiClient.CreateSharedApiHttpClient(baseUrl, config);
-            
-            using var fileStream = File.OpenRead(tempZip);
-            using var content = new MultipartFormDataContent();
-            using var streamContent = new StreamContent(fileStream);
+
+            await using FileStream fileStream = File.OpenRead(tempZip);
+            using MultipartFormDataContent content = new MultipartFormDataContent();
+            using StreamContent streamContent = new StreamContent(fileStream);
             streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
             content.Add(streamContent, "file", Path.GetFileName(tempZip));
 
@@ -80,7 +80,7 @@ internal static class AzureExtractAndUploadCommand
 
             if (!response.IsSuccessStatusCode)
             {
-                Console.Error.WriteLine($"[azure extract-and-upload] Upload failed ({(int)response.StatusCode}): {responseBody}");
+                await Console.Error.WriteLineAsync($"[azure extract-and-upload] Upload failed ({(int)response.StatusCode}): {responseBody}");
                 return CliExitCode.UsageError;
             }
 
@@ -111,7 +111,11 @@ internal static class AzureExtractAndUploadCommand
         {
             if (File.Exists(tempZip))
             {
-                try { File.Delete(tempZip); } catch { /* ignore */ }
+                try
+                {
+                    File.Delete(tempZip);
+                }
+                catch { /* ignore */ }
             }
         }
     }

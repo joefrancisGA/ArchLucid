@@ -14,7 +14,7 @@ internal static class GreenfieldSqlIntegrationTestEnvironmentOverrides
 
     private const string SqlValue = "Sql";
 
-    private static readonly object Gate = new();
+    private static readonly Lock Gate = new();
 
     private static int _activeFactories;
 
