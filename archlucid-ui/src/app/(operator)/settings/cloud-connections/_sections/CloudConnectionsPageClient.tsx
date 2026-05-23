@@ -1,17 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
+import { showSuccess, showError } from "@/lib/toast";
 import { configureTier2Connection, listTier2Connections, Tier2ConnectionResponse } from "@/lib/api/cloud-connections-api";
 
 export function CloudConnectionsPageClient() {
-  const { toast } = useToast();
   const [connections, setConnections] = useState<Tier2ConnectionResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,17 +45,10 @@ export function CloudConnectionsPageClient() {
       setTenantId("");
       setClientId("");
       setSubscriptionIds("");
-      toast({
-        title: "Connection saved",
-        description: "Your Tier 2 continuous Azure ingestion setup has been saved.",
-      });
+      showSuccess("Your Tier 2 continuous Azure ingestion setup has been saved.");
     } catch (err) {
       console.error(err);
-      toast({
-        title: "Error",
-        description: "Failed to save connection.",
-        variant: "destructive",
-      });
+      showError("Failed to save connection.");
     } finally {
       setIsSubmitting(false);
     }
@@ -93,11 +84,15 @@ az ad app federated-credential create --id $APP_OBJECT_ID --parameters "{
 `;
 
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Cloud Connections"
-        description="Configure continuous ingestion from your cloud providers."
-      />
+    <div className="mx-auto max-w-2xl space-y-6" data-testid="cloud-connections-page">
+      <div>
+        <div className="flex items-start gap-2">
+          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Cloud connections</h1>
+        </div>
+        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+          Configure continuous ingestion from your cloud providers.
+        </p>
+      </div>
 
       <Card>
         <CardHeader>
@@ -121,7 +116,7 @@ az ad app federated-credential create --id $APP_OBJECT_ID --parameters "{
 
           <div className="space-y-4">
             <h3 className="text-sm font-medium">2. Provide Connection Details</h3>
-            <form onSubmit={handleSubmit} className="space-y-4 max-w-xl">
+            <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4 max-w-xl">
               <div className="space-y-2">
                 <Label htmlFor="tenantId">Azure Tenant ID</Label>
                 <Input

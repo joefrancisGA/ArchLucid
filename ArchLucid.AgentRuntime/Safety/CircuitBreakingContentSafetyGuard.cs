@@ -76,19 +76,6 @@ public sealed class CircuitBreakingContentSafetyGuard(
             {
                 _contentSafetyCircuit.RecordFailure();
 
-                try
-                {
-                    _contentSafetyCircuit.ThrowIfBroken();
-                }
-                catch (CircuitBreakerOpenException)
-                {
-                    _logger.LogWarning(
-                        "Content safety consecutive SDK failures opened circuit breaker for kind {Kind}.",
-                        kind);
-
-                    return await HandleCircuitOpenAsync(text, kind, cancellationToken).ConfigureAwait(false);
-                }
-
                 return result;
             }
 
@@ -109,15 +96,6 @@ public sealed class CircuitBreakingContentSafetyGuard(
 
             if (!options.FailClosedOnSdkError)
                 return new ContentSafetyResult(true, null, null, null);
-
-            try
-            {
-                _contentSafetyCircuit.ThrowIfBroken();
-            }
-            catch (CircuitBreakerOpenException)
-            {
-                return await HandleCircuitOpenAsync(text, kind, cancellationToken).ConfigureAwait(false);
-            }
 
             return new ContentSafetyResult(false, "Content safety service error.", "SdkError", null);
         }

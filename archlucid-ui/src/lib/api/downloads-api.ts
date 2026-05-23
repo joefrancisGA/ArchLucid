@@ -205,6 +205,46 @@ export async function downloadComparisonReplayPdf(comparisonRecordId: string): P
   URL.revokeObjectURL(objectUrl);
 }
 
+/**
+ * Creates a comparison record and downloads the PDF replay.
+ */
+export async function createAndDownloadComparisonPdf(leftRunId: string, rightRunId: string): Promise<void> {
+  if (!isBrowser()) {
+    throw new Error("createAndDownloadComparisonPdf is only supported in the browser.");
+  }
+
+  await ensureOidcBearerReady();
+  const path = `/v1/architecture/run/compare/end-to-end/summary?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`;
+  const url = `/api/proxy${path}`;
+  const headers = new Headers();
+  headers.set("Accept", "application/json");
+  headers.set("Content-Type", "application/json");
+  const bearer = getBearerToken();
+  if (bearer) headers.set("Authorization", `Bearer ${bearer}`);
+  const init = mergeRegistrationScopeForProxy({
+    method: "POST",
+    headers,
+    credentials: "same-origin",
+    cache: "no-store",
+    body: JSON.stringify({ persist: true }),
+  });
+  const h = new Headers(init.headers);
+  h.set(CORRELATION_ID_HEADER, generateCorrelationId());
+  const response = await fetch(url, { ...init, method: "POST", headers: h });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throwApiRequestError(response, errText);
+  }
+
+  const comparisonRecordId = response.headers.get("x-archlucid-comparison-record-id");
+  if (!comparisonRecordId) {
+    throw new Error("Failed to get comparisonRecordId from response headers.");
+  }
+
+  await downloadComparisonReplayPdf(comparisonRecordId);
+}
+
 /** DOCX package; optional compare + AI narrative flags. */
 export function getArchitecturePackageDocxUrl(
   runId: string,

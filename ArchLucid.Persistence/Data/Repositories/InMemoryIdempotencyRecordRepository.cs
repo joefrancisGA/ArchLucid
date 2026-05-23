@@ -23,7 +23,7 @@ public sealed class InMemoryIdempotencyRecordRepository : IIdempotencyRecordRepo
             TenantId = tenantId,
             StatusCode = statusCode,
             ResponseBody = responseBody,
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         return Task.FromResult(_store.TryAdd(key, row));

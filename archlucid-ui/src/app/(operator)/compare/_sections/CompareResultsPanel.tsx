@@ -1,4 +1,6 @@
+import { useState } from "react";
 import Link from "next/link";
+import { Download } from "lucide-react";
 
 import { AiComparisonExplanationView } from "@/components/compare/AiComparisonExplanationView";
 import { CompareRawManifestDiffSection } from "@/components/compare/CompareRawManifestDiffSection";
@@ -12,8 +14,10 @@ import {
   OperatorTryNext,
   OperatorWarningCallout,
 } from "@/components/OperatorShellMessage";
+import { Button } from "@/components/ui/button";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { createAndDownloadComparisonPdf } from "@/lib/api";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation } from "@/types/explanation";
 import type { RunComparison, RunSummary } from "@/types/authority";
@@ -71,6 +75,22 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
   } = props;
 
   const summarizeCue = buyerPolished ? "Summarize for leadership" : "Summarize for sponsor";
+
+  const [pdfDownloading, setPdfDownloading] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
+
+  const handleDownloadPdf = async () => {
+    if (!lastComparedPair) return;
+    setPdfDownloading(true);
+    setPdfError(null);
+    try {
+      await createAndDownloadComparisonPdf(lastComparedPair.left, lastComparedPair.right);
+    } catch (e: unknown) {
+      setPdfError(e instanceof Error ? e.message : "Failed to download PDF report.");
+    } finally {
+      setPdfDownloading(false);
+    }
+  };
 
   return (
     <section className="space-y-6" aria-label="Comparison results">
@@ -199,35 +219,54 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
         </>
       )}
 
-      {hasResultsToNavigate && !buyerPolished ? (
-        <nav
-          aria-label="Comparison results outline"
-          className="mt-4 max-w-3xl rounded-lg border border-neutral-200 bg-white p-3 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-        >
-          <strong className="mb-2 block text-neutral-900 dark:text-neutral-100">Review order</strong>
-          <ol className="m-0 list-decimal pl-6 leading-relaxed text-neutral-800 dark:text-neutral-200">
-            {golden !== null && (
-              <li>
-                <a href="#compare-structured">Manifest comparison summary</a>
-              </li>
+      {hasResultsToNavigate ? (
+        <div className="mt-4 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
+          {!buyerPolished && (
+            <nav
+              aria-label="Comparison results outline"
+              className="w-full max-w-3xl rounded-lg border border-neutral-200 bg-white p-3 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+            >
+              <strong className="mb-2 block text-neutral-900 dark:text-neutral-100">Review order</strong>
+              <ol className="m-0 list-decimal pl-6 leading-relaxed text-neutral-800 dark:text-neutral-200">
+                {golden !== null && (
+                  <li>
+                    <a href="#compare-structured">Manifest comparison summary</a>
+                  </li>
+                )}
+                {golden !== null && (
+                  <li>
+                    <a href="#compare-raw-manifest-diff">Manifest diff appendix</a>
+                  </li>
+                )}
+                {result !== null && (
+                  <li>
+                    <a href="#compare-technical">Technical details (supplementary diff)</a>
+                  </li>
+                )}
+                {aiExplanation !== null && (
+                  <li>
+                    <a href="#compare-ai">AI explanation</a>
+                  </li>
+                )}
+              </ol>
+            </nav>
+          )}
+          
+          <div className="flex flex-col items-start gap-2 sm:items-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadPdf}
+              disabled={pdfDownloading}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              {pdfDownloading ? "Generating PDF..." : "Download PDF Report"}
+            </Button>
+            {pdfError && (
+              <p className="text-xs text-red-600 dark:text-red-400">{pdfError}</p>
             )}
-            {golden !== null && (
-              <li>
-                <a href="#compare-raw-manifest-diff">Manifest diff appendix</a>
-              </li>
-            )}
-            {result !== null && (
-              <li>
-                <a href="#compare-technical">Technical details (supplementary diff)</a>
-              </li>
-            )}
-            {aiExplanation !== null && (
-              <li>
-                <a href="#compare-ai">AI explanation</a>
-              </li>
-            )}
-          </ol>
-        </nav>
+          </div>
+        </div>
       ) : null}
 
       <ClientErrorBoundary title="Comparison results failed to render">

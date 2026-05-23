@@ -16,7 +16,7 @@ export function pathnameTouchesPlatformAdminSurface(pathname: string): boolean {
   }
 
   if (pathname === "/settings/cloud-connections" || pathname.startsWith("/settings/cloud-connections/")) {
-    return "operator-admin";
+    return true;
   }
 
   if (pathname === "/settings/tenant" || pathname.startsWith("/settings/tenant/")) {

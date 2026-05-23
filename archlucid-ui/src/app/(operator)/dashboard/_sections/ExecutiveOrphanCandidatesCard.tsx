@@ -56,7 +56,7 @@ export function ExecutiveOrphanCandidatesCard() {
         const runDetail = await getRunDetail(latestSystem.runId);
         if (cancelled) return;
 
-        const manifestId = runDetail.data?.goldenManifestId;
+        const manifestId = (runDetail.data?.run as any)?.goldenManifestId;
         if (!manifestId) {
           setData({ count: 0, savings: 0 });
           return;
