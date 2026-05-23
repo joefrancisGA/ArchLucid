@@ -1,7 +1,6 @@
-using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Configuration;
-using ArchLucid.Integrations.AzureExtractor;
 
 using Microsoft.Extensions.Options;
 

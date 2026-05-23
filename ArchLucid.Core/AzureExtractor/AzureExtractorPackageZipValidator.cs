@@ -125,26 +125,33 @@ public static class AzureExtractorPackageZipValidator
     {
         ArgumentNullException.ThrowIfNull(manifestEntry);
 
-        using Stream manifestStream = manifestEntry.Open();
-
-        using JsonDocument document = JsonDocument.Parse(manifestStream);
-
-        if (!document.RootElement.TryGetProperty("schemaVersion", out JsonElement schemaVersionElement))
-            return "Missing or unsupported schemaVersion in manifest.json (required value: 1).";
-
-        if (schemaVersionElement.ValueKind is not JsonValueKind.Number
-            || !schemaVersionElement.TryGetInt32(out int schemaVersion))
+        try
         {
-            return "Missing or unsupported schemaVersion in manifest.json (required value: 1).";
-        }
+            using Stream manifestStream = manifestEntry.Open();
 
-        if (schemaVersion != SupportedSchemaVersion)
+            using JsonDocument document = JsonDocument.Parse(manifestStream);
+
+            if (!document.RootElement.TryGetProperty("schemaVersion", out JsonElement schemaVersionElement))
+                return "Missing or unsupported schemaVersion in manifest.json (required value: 1).";
+
+            if (schemaVersionElement.ValueKind is not JsonValueKind.Number
+                || !schemaVersionElement.TryGetInt32(out int schemaVersion))
+            {
+                return "Missing or unsupported schemaVersion in manifest.json (required value: 1).";
+            }
+
+            if (schemaVersion != SupportedSchemaVersion)
+            {
+                return schemaVersion < SupportedSchemaVersion
+                    ? "manifest.json schemaVersion is missing or invalid."
+                    : $"Unsupported manifest schemaVersion: {schemaVersion}.";
+            }
+
+            return null;
+        }
+        catch (JsonException)
         {
-            return schemaVersion < SupportedSchemaVersion
-                ? "manifest.json schemaVersion is missing or invalid."
-                : $"Unsupported manifest schemaVersion: {schemaVersion}.";
+            return "manifest.json is not valid JSON.";
         }
-
-        return null;
     }
 }

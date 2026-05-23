@@ -36,7 +36,7 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
 
     [SkippableFact]
 
-    public async Task Upload_missingManifest_returns422()
+    public async Task Upload_missingManifest_returns400()
     {
 
         using HttpClient client = fixture.CreateClient();
@@ -48,13 +48,13 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
 
         using HttpResponseMessage response = await client.PostAsync("/v1/azure-extractor/upload", form);
 
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.UnprocessableEntity);
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
 
     }
 
     [SkippableFact]
 
-    public async Task Upload_unknownSchema_returns422()
+    public async Task Upload_unknownSchema_returns400()
     {
 
         using HttpClient client = fixture.CreateClient();
@@ -66,7 +66,36 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
 
         using HttpResponseMessage response = await client.PostAsync("/v1/azure-extractor/upload", form);
 
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.UnprocessableEntity);
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+
+    }
+
+    [SkippableFact]
+
+    public async Task Upload_malformedManifestJson_returns400_before_persist()
+    {
+
+        using HttpClient client = fixture.CreateClient();
+
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+
+        using MultipartFormDataContent form = UploadForm(BuildZipWithMalformedManifest());
+
+        using HttpResponseMessage response = await client.PostAsync("/v1/azure-extractor/upload", form);
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+
+        await using SqlConnection conn = new(fixture.SqlConnectionString);
+
+        await conn.OpenAsync();
+
+        await using SqlCommand cmd = conn.CreateCommand();
+
+        cmd.CommandText = "SELECT COUNT(1) FROM dbo.AzureExtractorPackages";
+
+        object? scalar = await cmd.ExecuteScalarAsync();
+
+        scalar.Should().Be(0);
 
     }
 
@@ -280,6 +309,32 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
                 ow.WriteLine("no manifest");
 
             }
+
+        }
+
+        return ms.ToArray();
+
+    }
+
+    private static byte[] BuildZipWithMalformedManifest()
+    {
+        using MemoryStream ms = new();
+
+        using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+
+        {
+
+            ZipArchiveEntry manifest = zip.CreateEntry("manifest.json");
+
+            using StreamWriter sw = new(manifest.Open());
+
+            sw.Write("{ not-valid-json");
+
+            ZipArchiveEntry resources = zip.CreateEntry("resources.json");
+
+            using StreamWriter rw = new(resources.Open());
+
+            rw.Write("[]");
 
         }
 

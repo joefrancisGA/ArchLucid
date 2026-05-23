@@ -62,7 +62,21 @@ public sealed class AzureExtractorPackageZipValidatorTests
         result.IsInvalidArchive.Should().BeTrue();
     }
 
-    private static byte[] BuildZip(bool includeManifest, int schemaVersion, bool includeResources)
+    [Fact]
+    public void Validate_malformed_manifest_json_is_schema_rejection()
+    {
+        byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 1, includeResources: true, malformedManifest: true);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("valid JSON");
+    }
+
+    private static byte[] BuildZip(bool includeManifest, int schemaVersion, bool includeResources, bool malformedManifest = false)
     {
         using MemoryStream ms = new();
 
@@ -74,8 +88,15 @@ public sealed class AzureExtractorPackageZipValidatorTests
 
                 using StreamWriter writer = new(manifest.Open());
 
-                writer.Write(
-                    $$"""{"schemaVersion":{{schemaVersion}},"subscriptionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"}""");
+                if (malformedManifest)
+                {
+                    writer.Write("{ not-valid-json");
+                }
+                else
+                {
+                    writer.Write(
+                        $$"""{"schemaVersion":{{schemaVersion}},"subscriptionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"}""");
+                }
             }
 
             if (includeResources)

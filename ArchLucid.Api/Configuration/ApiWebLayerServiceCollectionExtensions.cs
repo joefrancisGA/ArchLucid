@@ -9,6 +9,7 @@ using ArchLucid.Api.Services.Evolution;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Import;
+using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Integrations.AzureExtractor;
 using ArchLucid.Host.Core.Configuration;

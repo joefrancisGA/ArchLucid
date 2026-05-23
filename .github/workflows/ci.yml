@@ -740,6 +740,25 @@ jobs:
       - name: DemoWorkspaceFixtureManifestParityTests
         run: dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj --no-build -c Release --filter "FullyQualifiedName~DemoWorkspaceFixtureManifestParityTests"
 
+  azure-extractor-pester:
+    name: "Azure extractor: Get-ArchLucidAzurePackage Pester (mock ARM)"
+    needs:
+      - doc-markdown-links
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Pester
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module Pester -Force -Scope CurrentUser -MinimumVersion 5.0.0 -MaximumVersion 5.99.99
+
+      - name: Get-ArchLucidAzurePackage.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -Legacy -Path 'scripts/azure/tests/Get-ArchLucidAzurePackage.Tests.ps1'
+
   dotnet-fast-core:
     name: ".NET: fast core (corset)"
     needs:

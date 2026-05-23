@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Abstractions.Integrations;
+
 using Azure.Core;
 
 using Microsoft.Extensions.Logging;

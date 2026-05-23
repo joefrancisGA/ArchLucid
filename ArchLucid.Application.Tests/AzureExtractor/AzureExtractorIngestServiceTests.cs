@@ -84,11 +84,16 @@ public sealed class AzureExtractorIngestServiceTests
             await using var entryStream = await entry.OpenAsync();
             await using var writer = new StreamWriter(entryStream);
             await writer.WriteAsync(manifestJson);
+
+            var resourcesEntry = archive.CreateEntry("resources.json");
+            await using var resourcesStream = await resourcesEntry.OpenAsync();
+            await using var resourcesWriter = new StreamWriter(resourcesStream);
+            await resourcesWriter.WriteAsync("[]");
         }
 
         var zipBytes = ms.ToArray();
 
-        var sut = CreateService(out _, out _);
+        var sut = CreateService(out var packageRepo, out _);
 
         var result = await sut.IngestZipBytesAsync(
             zipBytes,
@@ -101,6 +106,49 @@ public sealed class AzureExtractorIngestServiceTests
         result.Succeeded.Should().BeFalse();
         result.IsSchemaRejection.Should().BeTrue();
         result.FailureDetail.Should().Contain("Unsupported manifest schemaVersion");
+
+        packageRepo.Verify(
+            p => p.InsertAsync(It.IsAny<AzureExtractorPackageRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task IngestZipBytesAsync_when_manifest_json_malformed_rejects_before_package_insert()
+    {
+        using MemoryStream ms = new();
+
+        await using (var archive = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Create, true))
+        {
+            var manifestEntry = archive.CreateEntry("manifest.json");
+            await using var manifestStream = await manifestEntry.OpenAsync();
+            await using var manifestWriter = new StreamWriter(manifestStream);
+            await manifestWriter.WriteAsync("{ not-valid-json");
+
+            var resourcesEntry = archive.CreateEntry("resources.json");
+            await using var resourcesStream = await resourcesEntry.OpenAsync();
+            await using var resourcesWriter = new StreamWriter(resourcesStream);
+            await resourcesWriter.WriteAsync("[]");
+        }
+
+        byte[] zipBytes = ms.ToArray();
+
+        var sut = CreateService(out var packageRepo, out _);
+
+        var result = await sut.IngestZipBytesAsync(
+            zipBytes,
+            "bad-manifest.zip",
+            Guid.NewGuid(),
+            CancellationToken.None,
+            "corr1",
+            AzureExtractorUploadLimits.MaxZipBytes);
+
+        result.Succeeded.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.FailureDetail.Should().Contain("valid JSON");
+
+        packageRepo.Verify(
+            p => p.InsertAsync(It.IsAny<AzureExtractorPackageRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -123,6 +171,11 @@ public sealed class AzureExtractorIngestServiceTests
             await using var entryStream = await entry.OpenAsync();
             await using var writer = new StreamWriter(entryStream);
             await writer.WriteAsync(manifestJson);
+
+            var resourcesEntry = archive.CreateEntry("resources.json");
+            await using var resourcesStream = await resourcesEntry.OpenAsync();
+            await using var resourcesWriter = new StreamWriter(resourcesStream);
+            await resourcesWriter.WriteAsync("[]");
         }
 
         var zipBytes = ms.ToArray();

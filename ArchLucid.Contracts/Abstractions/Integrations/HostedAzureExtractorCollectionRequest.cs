@@ -1,4 +1,4 @@
-namespace ArchLucid.Integrations.AzureExtractor;
+namespace ArchLucid.Contracts.Abstractions.Integrations;
 
 public sealed class HostedAzureExtractorCollectionRequest
 {

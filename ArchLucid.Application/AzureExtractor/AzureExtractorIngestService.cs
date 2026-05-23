@@ -130,23 +130,21 @@ public sealed class AzureExtractorIngestService(
 
         uploadActivity?.SetTag("archlucid.azure_extractor.file_size_bytes", zipBytes.LongLength);
 
-        try
-        {
-            using MemoryStream inspectionStream = new(zipBytes, writable: false);
+        using MemoryStream validationStream = new(zipBytes, writable: false);
 
-            int fileEntryCount = AzureExtractorPackageZipValidator.CountFileEntries(inspectionStream);
+        AzureExtractorZipValidationResult zipValidation = AzureExtractorPackageZipValidator.Validate(validationStream);
 
-            uploadActivity?.SetTag("archlucid.azure_extractor.file_entry_count", fileEntryCount);
-        }
-        catch (InvalidDataException ex)
+        if (!zipValidation.IsValid)
         {
-            logger.LogWarning(ex, "Azure extractor upload ZIP inspection failed.");
+            string eventType = zipValidation.IsSchemaRejection
+                ? AuditEventTypes.AzureExtractorPackageSchemaRejected
+                : AuditEventTypes.AzureExtractorPackageParseFailed;
 
             return await FailAsync(
-                AuditEventTypes.AzureExtractorPackageParseFailed,
-                "Uploaded payload is not a valid ZIP archive.",
-                schemaRejection: false,
-                invalidArchive: true,
+                eventType,
+                zipValidation.ErrorDetail ?? "Invalid Azure extractor ZIP.",
+                schemaRejection: zipValidation.IsSchemaRejection,
+                invalidArchive: zipValidation.IsInvalidArchive,
                 actor,
                 scope,
                 correlationId,
@@ -154,6 +152,8 @@ public sealed class AzureExtractorIngestService(
                 zipBytes.LongLength,
                 ct);
         }
+
+        uploadActivity?.SetTag("archlucid.azure_extractor.file_entry_count", zipValidation.FileEntryCount);
 
         if (zipBytes.LongLength > maxAcceptedZipBytes)
 

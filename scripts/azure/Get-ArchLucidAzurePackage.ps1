@@ -44,10 +44,13 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 try {
-    if (-not (Get-Module -ListAvailable -Name Az.Accounts)) { throw "Az.Accounts missing" }
-    if (-not (Get-Module -ListAvailable -Name Az.Resources)) { throw "Az.Resources missing" }
-    Import-Module Az.Accounts -ErrorAction Stop
-    Import-Module Az.Resources -ErrorAction Stop
+    if (-not ($env:ARCHLUCID_EXTRACTOR_SKIP_MODULE_PREFLIGHT -eq '1'))
+    {
+        if (-not (Get-Module -ListAvailable -Name Az.Accounts)) { throw "Az.Accounts missing" }
+        if (-not (Get-Module -ListAvailable -Name Az.Resources)) { throw "Az.Resources missing" }
+        Import-Module Az.Accounts -ErrorAction Stop
+        Import-Module Az.Resources -ErrorAction Stop
+    }
 } catch {
     Write-Host "WARNING: Required Azure modules (Az.Accounts, Az.Resources) are missing or failed to import. Please run 'Install-Module Az' to install them." -ForegroundColor Yellow
     exit 1

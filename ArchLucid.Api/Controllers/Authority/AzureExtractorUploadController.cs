@@ -40,7 +40,7 @@ public sealed class AzureExtractorUploadController(
 
     /// <summary>
     ///     Upload Azure extractor output (<c>.zip</c>). Returns <strong>202</strong> with <c>packageId</c> when stored;
-    ///     <strong>422</strong> when manifest is missing, invalid, or schema is unsupported.
+    ///     <strong>400</strong> when the archive is corrupt or manifest schema is missing, malformed, or unsupported.
     /// </summary>
     /// <remarks>
     ///     Optional query <c>runId</c> associates the package with an architecture review run in the current workspace
@@ -247,7 +247,7 @@ public sealed class AzureExtractorUploadController(
 
             logger.LogInformation("Azure extractor ingest rejected: {Detail}", detail);
 
-        if (result.IsInvalidArchive)
+        if (result.IsInvalidArchive || result.IsSchemaRejection)
             return this.BadRequestProblem(detail, ProblemTypes.ValidationFailed);
 
         return this.UnprocessableEntityProblem(detail);
