@@ -587,7 +587,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
         </p>
       ) : null}
       <p className="m-0 mb-2 text-xs leading-snug text-neutral-700 dark:text-neutral-300">
-        Four steps to your first reviewed, exportable architecture review package.
+        {corePilotSteps.length} steps to your first reviewed, exportable architecture review package.
       </p>
       <ol className="m-0 list-none space-y-2 p-0">
         {corePilotSteps.map((step, index) => {

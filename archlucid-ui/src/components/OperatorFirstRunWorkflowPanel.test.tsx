@@ -6,6 +6,7 @@ import {
   CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON,
   CORE_PILOT_WORKFLOW_SUMMARY_LINE,
 } from "@/lib/core-pilot-first-review-copy";
+import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 
 import { OperatorFirstRunWorkflowPanel } from "./OperatorFirstRunWorkflowPanel";
 
@@ -52,8 +53,8 @@ describe("OperatorFirstRunWorkflowPanel", () => {
 
     expect(screen.getByText("Start here")).toBeInTheDocument();
 
-    const wizard = screen.getByRole("link", { name: "Start new request" });
-    expect(wizard).toHaveAttribute("href", "/reviews/new");
+    const wizard = screen.getByRole("link", { name: CORE_PILOT_STEPS[0].primaryLabel });
+    expect(wizard).toHaveAttribute("href", CORE_PILOT_STEPS[0].primaryHref);
   });
 
   it(
@@ -63,19 +64,19 @@ describe("OperatorFirstRunWorkflowPanel", () => {
 
       await screen.findByRole("heading", { name: CORE_PILOT_FIRST_REVIEW_HEADING });
 
-      expect(screen.getByRole("link", { name: "Start new request" })).toBeVisible();
+      expect(screen.getByRole("link", { name: CORE_PILOT_STEPS[0].primaryLabel })).toBeVisible();
+
+      const step3Title = screen.getByRole("button", { name: /Step 3 —/i });
+      fireEvent.click(step3Title);
+
+      expect(screen.getByRole("link", { name: CORE_PILOT_STEPS[2].primaryLabel })).toBeVisible();
+
+      expect(screen.getByRole("button", { name: /Finalize the review package/i })).toBeInTheDocument();
 
       const step2Title = screen.getByRole("button", { name: /Step 2 —/i });
       fireEvent.click(step2Title);
 
-      expect(screen.getByRole("link", { name: "Open reviews list" })).toBeVisible();
-
-      expect(screen.getByRole("button", { name: /Finalize the review package/i })).toBeInTheDocument();
-
-      const step1Title = screen.getByRole("button", { name: /Step 1 —/i });
-      fireEvent.click(step1Title);
-
-      expect(await screen.findByRole("link", { name: "Start new request" })).toBeVisible();
+      expect(await screen.findByRole("link", { name: CORE_PILOT_STEPS[1].primaryLabel })).toBeVisible();
     },
     20_000,
   );
