@@ -259,7 +259,7 @@ public sealed class ProductLearningPlanningDerivationService(
         ImprovementOpportunity opportunity,
         string? createdByUserId)
     {
-        string planTitlePrefix = "Plan: ";
+        const string planTitlePrefix = "Plan: ";
 
         string titleSeed = opportunity.Title;
 
@@ -358,9 +358,10 @@ public sealed class ProductLearningPlanningDerivationService(
     {
         string? raw = aggregateKey;
 
-        if (string.IsNullOrWhiteSpace(raw)) raw = patternFallback;
+        if (string.IsNullOrWhiteSpace(raw))
+            raw = patternFallback;
 
-        if (string.IsNullOrWhiteSpace(raw)) 
+        if (string.IsNullOrWhiteSpace(raw))
             raw = SlugFromTitleFallback(titleFallback);
 
         string trimmed = raw.Trim();

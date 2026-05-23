@@ -11,26 +11,15 @@ public static class ScimFilterInMemoryEvaluator
 
     private static bool Evaluate(ScimUserRecord user, ScimFilterNode node)
     {
-        switch (node)
+        return node switch
         {
-            case ScimNotNode n:
-                return !Evaluate(user, n.Inner);
-
-            case ScimAndNode a:
-                return Evaluate(user, a.Left) && Evaluate(user, a.Right);
-
-            case ScimOrNode o:
-                return Evaluate(user, o.Left) || Evaluate(user, o.Right);
-
-            case ScimPresentNode p:
-                return GetString(user, p.AttributePath) is not null;
-
-            case ScimComparisonNode c:
-                return Compare(user, c);
-
-            default:
-                return false;
-        }
+            ScimNotNode n => !Evaluate(user, n.Inner),
+            ScimAndNode a => Evaluate(user, a.Left) && Evaluate(user, a.Right),
+            ScimOrNode o => Evaluate(user, o.Left) || Evaluate(user, o.Right),
+            ScimPresentNode p => GetString(user, p.AttributePath) is not null,
+            ScimComparisonNode c => Compare(user, c),
+            _ => false
+        };
     }
 
     private static bool Compare(ScimUserRecord user, ScimComparisonNode c)

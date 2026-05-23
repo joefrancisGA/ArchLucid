@@ -170,7 +170,7 @@ public sealed class AzureRetailPricesCatalogClient
                     continue;
 
 
-                if (!RowMatchesSku(skuDisplay, dto.skuName))
+                if (!RowMatchesSku(skuDisplay, dto.SkuName))
 
 
                     continue;
@@ -291,14 +291,14 @@ public sealed class AzureRetailPricesCatalogClient
 
             return false;
 
-        if ((row.meterTier ?? string.Empty).Contains("Government",
+        if ((row.MeterTier ?? string.Empty).Contains("Government",
 
                 StringComparison.OrdinalIgnoreCase))
 
 
             return false;
 
-        string meterName = row.meterName ?? string.Empty;
+        string meterName = row.MeterName ?? string.Empty;
 
 
         if (meterName.Contains("Rsv", StringComparison.OrdinalIgnoreCase))
@@ -306,7 +306,7 @@ public sealed class AzureRetailPricesCatalogClient
 
             return false;
 
-        string meter = row.unitOfMeasure ?? string.Empty;
+        string meter = row.UnitOfMeasure ?? string.Empty;
 
 
         return AzureRetailPricesCatalogClient.IsHourMeter(meter) ||
@@ -337,7 +337,7 @@ public sealed class AzureRetailPricesCatalogClient
 
             return false;
 
-        string raw = dto.unitOfMeasure ?? string.Empty;
+        string raw = dto.UnitOfMeasure ?? string.Empty;
 
         if (IsHourMeter(raw))
         {
@@ -356,7 +356,8 @@ public sealed class AzureRetailPricesCatalogClient
 
         }
 
-        if (!IsMonthlyMeter(raw)) return false;
+        if (!IsMonthlyMeter(raw))
+            return false;
         monthly = decimal.Multiply(unit, quantity);
 
 
@@ -370,7 +371,7 @@ public sealed class AzureRetailPricesCatalogClient
 
     internal static decimal PreferUnit(RetailPriceDto dto)
         =>
-            dto.UnitPrice is { } up && up > 0 ?
+            dto.UnitPrice is { } up and > 0 ?
                 up
                 :
 
@@ -514,7 +515,8 @@ public sealed class AzureRetailPricesCatalogClient
 
 
 
-        [JsonPropertyName("NextPageLink")] public string? NextPageLinkAbsolute
+        [JsonPropertyName("NextPageLink")]
+        public string? NextPageLinkAbsolute
 
 
         {
@@ -596,7 +598,7 @@ public sealed class AzureRetailPricesCatalogClient
 
 
 
-        public string? unitOfMeasure
+        public string? UnitOfMeasure
 
         {
 
@@ -612,7 +614,7 @@ public sealed class AzureRetailPricesCatalogClient
 
 
 
-        public string? skuName
+        public string? SkuName
 
         {
 
@@ -661,7 +663,7 @@ public sealed class AzureRetailPricesCatalogClient
 
 
 
-        public string? meterTier
+        public string? MeterTier
 
         {
 
@@ -677,7 +679,7 @@ public sealed class AzureRetailPricesCatalogClient
 
 
 
-        public string? meterName
+        public string? MeterName
 
         {
 

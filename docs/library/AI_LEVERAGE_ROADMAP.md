@@ -349,3 +349,20 @@ The 25 items in this roadmap are additive to the 25 items in `docs/assessments/L
 | #11 Compare-runs explainer | Partially covered by LATEST.md #5 (cross-run executive ROI — V1 §2.8) |
 
 LATEST.md items #2 and #3 carry the Cursor prompts needed for V1 delivery; this document provides the deeper rationale and sequencing context for all 25. For V1 items not yet in LATEST.md (#1, #3, #6–#15), Cursor prompts are included here and summarised in LATEST.md.
+
+---
+
+## RAG quality program (engineering backlog — 2026-05-23)
+
+This roadmap focuses on **operator-facing LLM features** and **agent prompt depth**. A complementary track improves **retrieval-grounded faithfulness** using the existing `ArchLucid.Retrieval` stack:
+
+| Track | Document | Horizon |
+|-------|----------|---------|
+| V1 first slice (**TB-021**) | [`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md) — `CorpusKind` + `PolicyPackCorpusIndexer` | V1-now — approved 2026-05-23 |
+| V1 corpus + eval (**TB-021**) | [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) **RAG-V1-000**–**005** | V1-now — schedulable from assessments |
+| V1.1 expansion | Same doc **RAG-V1.1-*** | [`V1_DEFERRED.md`](V1_DEFERRED.md) §6q |
+| V2 advanced | Same doc **RAG-V2-*** | V2 backlog |
+
+**Synergy:** Roadmap **#3** (per-finding Ask) and **#11** (compare narrative) benefit directly from **RAG-V1-002** (prior manifest) and **RAG-V1-004** (platform docs). Roadmap **#6** (Critic second-pass) pairs with **RAG-V1-001** (policy-pack corpus) for citation-backed dispute findings.
+
+**Planning spine:** [`CONSOLIDATED_PLANNING_BACKLOG.md`](../CONSOLIDATED_PLANNING_BACKLOG.md) **CPB-T21**, **CPB-AI-RAG***.

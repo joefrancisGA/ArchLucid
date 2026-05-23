@@ -6,10 +6,7 @@ namespace ArchLucid.Core.Audit;
 ///     endpoints). Prefer tightening coverage over widening exemptions.
 /// </summary>
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
-public sealed class MutatingAuditExcludedAttribute : Attribute
+public sealed class MutatingAuditExcludedAttribute(string? reason = null) : Attribute
 {
-    public MutatingAuditExcludedAttribute(string? reason = null) =>
-        Reason = reason ?? string.Empty;
-
-    public string Reason { get; }
+    public string Reason { get; } = reason ?? string.Empty;
 }

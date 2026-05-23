@@ -382,11 +382,43 @@ Canonical detail: [AZURE_EXTRACTOR.md](AZURE_EXTRACTOR.md) (Automated continuous
 
 ---
 
+## 6q. RAG quality — V1.1 and V2 expansion (engineering backlog 2026-05-23)
+
+**V1 GA posture:** Retrieval infrastructure **ships** (`ArchLucid.Retrieval`, `AskService` retrieval, ADR 0004 outbox). **V1 quality improvements** (corpus seam, policy-pack indexing, tenant prior-manifest chunks, Retail structured lookup, platform docs, faithfulness eval) are **engineering backlog** — **[`TECH_BACKLOG.md`](TECH_BACKLOG.md) TB-021** and **[`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) RAG-V1-*** — schedulable from assessments; **not** separate V1 GA product-contract rows unless promoted via [`V1_SCOPE.md`](V1_SCOPE.md) change control.
+
+**Deferred to V1.1:**
+
+| ID | Title | Notes |
+|----|-------|-------|
+| **RAG-V1.1-001** | Reference-architecture exemplar retrieval | Style prior only — never in manifest hash |
+| **RAG-V1.1-002** | MCP read-only retrieval tools (3 of 7) | Align [`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`](MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md) §5.1 |
+| **RAG-V1.1-003** | Pilot-feedback retrieval for planning materialize | [`PRODUCT_LEARNING.md`](PRODUCT_LEARNING.md) §4 |
+| **RAG-V1.1-004** | Cross-tenant pattern library (ADR 0031) | k-anon aggregates — **not** embedding-RAG |
+
+**Deferred to V2:**
+
+| ID | Title | Notes |
+|----|-------|-------|
+| **RAG-V2-001** | Graph-RAG over knowledge / provenance graph | After graph surface stabilises |
+| **RAG-V2-002** | Agentic retrieval (HyDE, rerank, query rewrite) | Extra LLM hops; budget + eval gate |
+| **RAG-V2-003** | Online fine-tuning on accepted manifests | DPA + owner ADR required |
+
+**Rules:**
+
+- **`(A)` V1 assessments** **must not** deduct headline readiness solely for absence of **RAG-V1.1-*** / **RAG-V2-*** items.
+- **`(A)` assessments** **may** schedule **TB-021 / RAG-V1-*** when scoring **AI/Agent Readiness** faithfulness gaps — these are in-scope quality work, not scope creep.
+- Cross-tenant **text** retrieval remains forbidden outside ADR 0031 materialised aggregates.
+
+**Canonical detail:** [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md). **First implementation design:** [`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md).
+
+---
+
 ## 7. Engineering backlog (not a product roadmap)
 
 | Item | Doc source |
 |------|------------|
 | Numbered refactors, test hygiene, doc tighten-ups | [NEXT_REFACTORINGS.md](NEXT_REFACTORINGS.md) |
+| RAG quality — V1 foundation (TB-021) | [RAG_QUALITY_TECHNICAL_BACKLOG.md](RAG_QUALITY_TECHNICAL_BACKLOG.md) · [RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md](RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md) (first slice) |
 
 This file is **maintainer hygiene**. It is **not** a commitment to ship listed items to pilots.
 

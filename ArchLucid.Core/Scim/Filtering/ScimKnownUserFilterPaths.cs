@@ -6,7 +6,7 @@ namespace ArchLucid.Core.Scim.Filtering;
 public static class ScimKnownUserFilterPaths
 {
     /// <summary>Maps to persisted primary identifier (<c>UserName</c>) — Entra frequently queries work email via this valued-attribute path.</summary>
-    public const string EmailsWorkValue = @"emails[type eq ""work""].value";
+    public const string EmailsWorkValue = """emails[type eq "work"].value""";
 
     public static bool IsEmailsWorkValuePath(string attributePath)
     {

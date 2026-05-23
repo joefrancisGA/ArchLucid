@@ -8,19 +8,19 @@ public static class ConfluencePublishingSpaceKeyResolver
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        if (options.ProjectSpaceKeys is { Count: > 0 })
+        if (options.ProjectSpaceKeys is not { Count: > 0 })
+            return options.SpaceKey.Trim();
+
+        foreach (KeyValuePair<string, string> pair in options.ProjectSpaceKeys)
         {
-            foreach (KeyValuePair<string, string> pair in options.ProjectSpaceKeys)
-            {
-                string? keyText = pair.Key?.Trim();
-                string value = pair.Value?.Trim() ?? string.Empty;
+            string keyText = pair.Key.Trim();
+            string value = pair.Value.Trim();
 
-                if (string.IsNullOrEmpty(keyText) || value.Length is 0)
-                    continue;
+            if (string.IsNullOrEmpty(keyText) || value.Length is 0)
+                continue;
 
-                if (Guid.TryParse(keyText, out Guid mapped) && mapped == projectId)
-                    return value;
-            }
+            if (Guid.TryParse(keyText, out Guid mapped) && mapped == projectId)
+                return value;
         }
 
         return options.SpaceKey.Trim();

@@ -222,7 +222,7 @@ public sealed class StartupConfigWarningsInstrumentationTests
 
         public static StartupConfigWarningsCapture Start() => new();
 
-        private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
+        private static void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
             if (instrument.Meter.Name != ArchLucidMeterNames.Meter)
                 return;
@@ -257,15 +257,8 @@ public sealed class StartupConfigWarningsInstrumentationTests
         long Value,
         IReadOnlyList<KeyValuePair<string, object?>> Tags);
 
-    private sealed class WarningCaptureLogger : ILogger
+    private sealed class WarningCaptureLogger(List<string> warnings) : ILogger
     {
-        private readonly List<string> _warnings;
-
-        public WarningCaptureLogger(List<string> warnings)
-        {
-            _warnings = warnings;
-        }
-
         public IDisposable BeginScope<TState>(TState state)
             where TState : notnull => NullScope.Instance;
 
@@ -279,7 +272,7 @@ public sealed class StartupConfigWarningsInstrumentationTests
             Func<TState, Exception?, string> formatter)
         {
             if (logLevel == LogLevel.Warning)
-                _warnings.Add(formatter(state, exception));
+                warnings.Add(formatter(state, exception));
         }
     }
 
@@ -292,18 +285,13 @@ public sealed class StartupConfigWarningsInstrumentationTests
         }
     }
 
-    private sealed class StubHostEnvironment : IHostEnvironment
+    private sealed class StubHostEnvironment(string environmentName) : IHostEnvironment
     {
-        public StubHostEnvironment(string environmentName)
-        {
-            EnvironmentName = environmentName;
-        }
-
         public string EnvironmentName
         {
             get;
             set;
-        }
+        } = environmentName;
 
         public string ApplicationName
         {

@@ -1,11 +1,10 @@
 using System.Diagnostics;
 using System.Text.Json;
 
-using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
-using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
@@ -59,7 +58,6 @@ public sealed class AuthorityRunOrchestrator(
     private readonly IRunStateTransitionService _runStateTransitionService =
         runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
 
-    /// <inheritdoc />
     /// <remarks>
     ///     Persists the run under the current <see cref="ScopeContext" />, records telemetry tags, then chooses one of two
     ///     paths: (1) <em>deferred queue</em> — when <see cref="IAsyncAuthorityPipelineModeResolver" /> requests queueing and
@@ -287,7 +285,6 @@ public sealed class AuthorityRunOrchestrator(
         }
     }
 
-    /// <inheritdoc />
     /// <remarks>
     ///     Resumes a run that was previously persisted with queue semantics: validates the row is still missing a context
     ///     snapshot (idempotent skip), applies the same pipeline timeout linkage as
@@ -345,7 +342,6 @@ public sealed class AuthorityRunOrchestrator(
                     run.RunId,
                     failFastWhenUnavailable: false,
                     pipelineCt);
-
 
             using Activity? runActivity = ArchLucidInstrumentation.AuthorityRun.StartActivity(
                 ArchLucidInstrumentation.AuthorityRunRootActivityName);

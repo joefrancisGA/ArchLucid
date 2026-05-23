@@ -17,6 +17,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-004 | Wire OTel exporters + verify agent-output metrics; add Azure alerts | Ops / release bar — conservative quality posture needs visible trends (`archlucid_agent_output_*`) | ~1–2 h |
 | TB-005 | AI-assisted owner pen-test support (Cursor agent) | Security / V1 assurance — structured help for 2026-Q2 owner exercise | Ongoing (time-boxed sessions) |
 | TB-007 | LLM correctness boundary — cohort gate promotion + eval real-mode scenarios | Correctness posture — gated real-model CI blocked on prereqs (Gap A+C open) | A: ~1 h ops; C: ~4 h eng |
+| TB-021 | RAG quality program — V1 foundation (corpus seam, policy pack, prior manifest, Retail lookup, platform docs, faithfulness eval) | Agent faithfulness + citation density — extends existing `ArchLucid.Retrieval` + `AskService`; schedule from assessments | M–L (phased) |
 | TB-008 | Context ingestion connectors — Phases 3–4 (meaningful delta + enrichers, policy/topology coupling) | Architecture maintainability — Phases 1–2 shipped | L |
 | TB-013 | Documentation library audience split — Phases 2–3 (customer-facing vs contributor-reference) | Developer experience — lower onboarding cognitive load without breaking bookmarks or procurement/UI doc paths | M |
 | TB-014 | LLM monthly budget top-up — **`PurchasedCapBumpUsd`** column + effective cap (manual SQL / test hook today); Stripe SKU + webhook + UI TBD | Self-service headroom before UTC month roll | M |
@@ -532,4 +533,40 @@ After each smoke wave, update **`docs/library/CONNECTOR_READINESS_MATRIX.md`** (
 **Size estimate:** **S** JSON-LD alone (**~half day eng + positioning copy QA**); **M** packaged with consent UX + DPIA-aligned Clarity.
 
 **Refs:** [`archlucid-ui/next.config.ts`](../../archlucid-ui/next.config.ts); [`archlucid-ui/src/app/(marketing)/layout.tsx`](../../archlucid-ui/src/app/(marketing)/layout.tsx); [`SEO_AND_PAID_ACQUISITION.md`](../go-to-market/SEO_AND_PAID_ACQUISITION.md).
+
+---
+
+## TB-021 — RAG quality program — V1 foundation
+
+**Decision (engineering, 2026-05-23):** **Greenlit in principle** — RAG infrastructure already ships (`ArchLucid.Retrieval`, `AskService` retrieval, ADR 0004 outbox, ADR 0005 LLM pipeline). V1 work **extends** that stack to raise agent **faithfulness** and **citation density** without new vector stores or agentic multi-hop retrieval.
+
+**Authoritative task breakdown:** [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) — stable sub-IDs **RAG-V1-000** through **RAG-V1-005**.
+
+**First implementation slice (approved design):** [`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md) — implement **RAG-V1-000 partial** + **RAG-V1-001** as one PR (~3–5 eng days). Remaining **RAG-V1-000** items (`RetrievalGroundingTrace`, citation formatter, architecture test) follow in a second PR.
+
+**Why assessments should schedule this:** Directly targets **AI/Agent Readiness**, compliance finding honesty, cost citation contract ([`V1_SCOPE.md`](V1_SCOPE.md) §2.16), and Ask grounded answers — not net-new product surfaces.
+
+**Recommended pick-up order**
+
+| Sub-ID | Title | Size | Design |
+|--------|-------|------|--------|
+| **RAG-V1-000** (partial) + **RAG-V1-001** | `CorpusKind` seam + policy-pack indexer + compliance retrieval | S–M | [`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md) |
+| **RAG-V1-000** (remainder) | Citation formatter, `RetrievalGroundingTrace`, scope architecture test | S | Backlog only |
+| **RAG-V1-003** | Azure Retail Prices structured lookup (non-embedding) | S | Backlog only |
+| **RAG-V1-002** | Tenant prior-manifest chunks (decisions + findings) | M | Backlog only |
+| **RAG-V1-004** | Platform docs corpus for Ask / Explanation | S | Backlog only |
+| **RAG-V1-005** | Faithfulness eval harness + citation coverage CI | M | Backlog only |
+
+**Hard constraints (summary)**
+
+- Deterministic rules still fire in code — RAG enriches narrative only.
+- Retrieved chunks are **prompt context** — excluded from manifest canonical fingerprint unless a future ADR adds snapshotting.
+- Tenant-bound corpora: mandatory scope filters on index and query.
+- Cross-tenant text RAG is **out of scope** — see ADR 0031 for k-anon aggregates only.
+
+**V1.1 / V2 follow-ons:** **RAG-V1.1-*** and **RAG-V2-*** live in [`V1_DEFERRED.md`](V1_DEFERRED.md) §6q — not `(A)` V1 GA obligations.
+
+**Refs:** [ADR 0004](../architecture/adrs/0004-transactional-outbox-retrieval-indexing.md); [ADR 0005](../architecture/adrs/0005-llm-completion-pipeline.md); [`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md); [`AI_LEVERAGE_ROADMAP.md`](AI_LEVERAGE_ROADMAP.md) (#3, #11); [`authoring-prompts/PACK_CONTEXTS.md`](authoring-prompts/PACK_CONTEXTS.md) AI-05.
+
+**Size estimate:** **M–L** phased — ~2–3 weeks eng if executed sequentially; **first slice** (`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`) is ~3–5 eng days.
 

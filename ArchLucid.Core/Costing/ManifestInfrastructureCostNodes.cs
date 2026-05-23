@@ -13,173 +13,58 @@ public static class ManifestInfrastructureCostNodes
 
         IReadOnlyList<ManifestDatastore>? datastores)
     {
-
-
         List<InfrastructureCostQueryNode> nodes = [];
 
-
         if (services is not null)
-
-
         {
-
-
-            foreach (ManifestService? svc in services)
-
-
-            {
-
-
-                if (svc is null)
-
-
-                    continue;
-
-                string name = string.IsNullOrWhiteSpace(svc.ServiceName) ? "(unnamed service)" : svc.ServiceName;
-
-                int quantity = NormalizeQuantity(svc.InstanceCount);
-
-                nodes.Add(new InfrastructureCostQueryNode("Service",
-
-
-
-                    name,
-
-                    svc.RuntimePlatform,
-
-                    NormalizeRegion(svc.AzureArmRegion),
-
-                    NormalizeSkuHint(svc.AzurePricingSku),
-
-                    quantity));
-
-            }
-
-
+            nodes.AddRange(from svc in services.OfType<ManifestService>() let name = string.IsNullOrWhiteSpace(svc.ServiceName) ? "(unnamed service)" : svc.ServiceName let quantity = NormalizeQuantity(svc.InstanceCount) select new InfrastructureCostQueryNode("Service", name, svc.RuntimePlatform, NormalizeRegion(svc.AzureArmRegion), NormalizeSkuHint(svc.AzurePricingSku), quantity));
         }
 
-
-
-        if (datastores is not null)
-
-
-            foreach (ManifestDatastore? ds in datastores)
-
-
-            {
-
-
-                if (ds is null)
-
-
-                    continue;
-
-
-
-                string name = string.IsNullOrWhiteSpace(ds.DatastoreName) ? "(unnamed datastore)" : ds.DatastoreName;
-
-                nodes.Add(new InfrastructureCostQueryNode("Datastore",
-
-                    name,
-
-                    ds.RuntimePlatform,
-
-                    NormalizeRegion(ds.AzureArmRegion),
-
-                    NormalizeSkuHint(ds.AzurePricingSku),
-
-                    NormalizeQuantity(ds.InstanceCount)));
-
-            }
-
-
+        if (datastores is null) return nodes;
+        
+        nodes.AddRange(from ds in datastores let name = string.IsNullOrWhiteSpace(ds.DatastoreName) ? "(unnamed datastore)" : ds.DatastoreName select new InfrastructureCostQueryNode("Datastore", name, ds.RuntimePlatform, NormalizeRegion(ds.AzureArmRegion), NormalizeSkuHint(ds.AzurePricingSku), NormalizeQuantity(ds.InstanceCount)));
 
         return nodes;
-
-
     }
 
 
 
     /// <summary>Produces nodes from extractor <c>resources.json</c> entries when resource types match known mappings.</summary>
     public static List<InfrastructureCostQueryNode> FromExtractorInventory(IReadOnlyList<AzureExtractorInventoryResourceLine>? resources)
-
-
     {
-
-
         List<InfrastructureCostQueryNode> nodes = [];
 
-
         if (resources is null || resources.Count == 0)
-
             return nodes;
 
-
+        // ReSharper disable once LoopCanBeConvertedToQuery
         foreach (AzureExtractorInventoryResourceLine line in resources)
-
-
         {
-
-
             RuntimePlatform? platform = AzureArmResourceCostMapper.TryInferPlatform(line.ResourceType);
 
-            if (!platform.HasValue)
-
-                continue;
-
-
+            if (!platform.HasValue) continue;
 
             string resourceLabel = string.IsNullOrWhiteSpace(line.Name)
-
                 ?
                 "(azure resource)"
-
                 :
-
                 line.Name;
 
             nodes.Add(new InfrastructureCostQueryNode("AzureResource",
-
                 resourceLabel,
-
                 platform.Value,
-
                 NormalizeRegion(line.Location),
-
                 NormalizeSkuHint(line.SkuName),
-
                 1));
-
         }
 
-
-
         return nodes;
-
-
     }
 
-
-
     internal static string? NormalizeSkuHint(string? value)
-        =>
-            string.IsNullOrWhiteSpace(value) ? null : value.Trim();
-
-
+        => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     internal static string? NormalizeRegion(string? value)
-        =>
-
-
-            string.IsNullOrWhiteSpace(value) ? null : value.Trim();
-
-
-
+        => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     private static int NormalizeQuantity(int raw)
-        =>
-
-
-            raw < 1 ? 1 : raw;
-
-
+        => raw < 1 ? 1 : raw;
 }

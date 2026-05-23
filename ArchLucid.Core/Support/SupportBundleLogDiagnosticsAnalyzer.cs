@@ -13,6 +13,7 @@ public static partial class SupportBundleLogDiagnosticsAnalyzer
 
     private static readonly Regex Status401Pattern = StatusCodePattern("401");
     private static readonly Regex Status429Pattern = StatusCodePattern("429");
+    // ReSharper disable once InconsistentNaming
     private static readonly Regex Status5xxPattern = new(@"\b5\d{2}\b", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     /// <summary>

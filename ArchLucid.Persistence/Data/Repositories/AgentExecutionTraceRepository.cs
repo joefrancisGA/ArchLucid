@@ -542,7 +542,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         if (normalized.Count == 0)
             return new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
 
-        string pattern = AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix + "%";
+        const string pattern = AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix + "%";
 
         // List<string> is globally mapped to JSON via ListStringTypeHandler, which prevents Dapper's IN-list expansion.
         string[] runIdsParameter = normalized.ToArray();

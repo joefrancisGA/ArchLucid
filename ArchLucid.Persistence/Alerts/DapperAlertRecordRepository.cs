@@ -98,7 +98,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
 
     public async Task<AlertRecord?> GetByIdAsync(Guid alertId, CancellationToken ct)
     {
-        string sql = $"""
+        const string sql = $"""
             SELECT {SelectColumns}
             FROM dbo.AlertRecords
             WHERE AlertId = @AlertId;
@@ -120,7 +120,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         string deduplicationKey,
         CancellationToken ct)
     {
-        string sql = $"""
+        const string sql = $"""
             SELECT TOP 1 {SelectColumns}
             FROM dbo.AlertRecords
             WHERE TenantId = @TenantId
@@ -156,7 +156,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         bool includeArchived = false,
         CancellationToken ct = default)
     {
-        string sql = $"""
+        const string sql = $"""
             SELECT TOP (@Take) {SelectColumns}
             FROM dbo.AlertRecords
             WHERE TenantId = @TenantId
@@ -198,7 +198,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         take = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
         skip = Math.Max(skip, 0);
 
-        string countSql = """
+        const string countSql = """
             SELECT COUNT(*)
             FROM dbo.AlertRecords
             WHERE TenantId = @TenantId
@@ -208,7 +208,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
               AND (@IncludeArchived = 1 OR IsArchived = 0);
             """;
 
-        string pageSql = $"""
+        const string pageSql = $"""
             SELECT {SelectColumns}
             FROM dbo.AlertRecords
             WHERE TenantId = @TenantId

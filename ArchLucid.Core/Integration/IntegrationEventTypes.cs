@@ -82,7 +82,7 @@ public static class IntegrationEventTypes
 
     private static FrozenDictionary<string, string> CreateLegacyVendorAliases()
     {
-        string legacyVendorPrefix = "com." + "arch" + "iforge" + ".";
+        const string legacyVendorPrefix = "com." + "arch" + "iforge" + ".";
         string[] canonicalTypes =
         [
             AuthorityRunCompletedV1,

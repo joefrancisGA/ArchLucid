@@ -4,7 +4,7 @@
 
 # Consolidated planning backlog
 
-**Last reviewed:** 2026-05-22 (session 2 — complete)
+**Last reviewed:** 2026-05-23 (RAG quality backlog)
 
 **How to use:** Each row has a stable `CPB-*` ID. **Decision** values: `Keep` · `Promote` · `Defer` · `Cut` · `Merge` · `Blocked`. **Horizon:** `V1-now` · `V1.1` · `V2` · `GTM-only` · `Principle`.
 
@@ -46,6 +46,7 @@
 | CPB-T04 | Wire OTel exporters + agent-output metrics + Azure alerts | TB-004 | **Keep** | V1-now | Confirmed 2026-05-21. ~1–2 h ops/Terraform; metrics already emitted in code. |
 | CPB-T05 | AI-assisted owner pen-test support (Cursor agent) | TB-005 | **Keep** | V1-now | Confirmed 2026-05-21. Ongoing time-boxed sessions; ~2026-Q2 owner exercise; not V2 third-party substitute. |
 | CPB-T07 | LLM correctness — cohort gate promotion (Gap A) + real-mode eval corpus (Gap C) | TB-007 | **Keep** | V1-now | Confirmed 2026-05-21. Gap B closed (EnforceOnReject prod). **Gap A:** **Blocked** — owner/Azure secret + branch protection. **Gap C:** active (~4 h eng). |
+| CPB-T21 | RAG quality program — V1 foundation (TB-021) | TB-021 | **Keep** | V1-now | Added 2026-05-23. First PR: [`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](library/RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md). Full phased list: [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](library/RAG_QUALITY_TECHNICAL_BACKLOG.md). Pairs with CPB-A01/A02 faithfulness. |
 | CPB-T08 | Context ingestion connectors — Phases 3–4 | TB-008 | **Keep** | V1-now | Confirmed 2026-05-21. Phase 3: delta + enrichers; Phase 4: shared topology resolver. Phases 1–2 shipped. |
 | CPB-T13 | Documentation audience split — Phases 2–3 | TB-013 | **Defer** | V1.1 | Confirmed 2026-05-21. Phase 1 shipped; Phases 2–3 after V1 GA focus. |
 | CPB-T14 | LLM monthly budget top-up SKU (Stripe + webhook + UI) | TB-014 | **Keep** | V1-now | Confirmed 2026-05-21. **V1** (not V1.1): ship Stripe SKU + webhook + UI atop existing `PurchasedCapBumpUsd` column. **Note:** full Stripe **live** flip still gated by CPB-P04; TEST-mode top-up path acceptable for V1 if aligned with trial commerce posture. |
@@ -85,7 +86,14 @@ Ordered by weighted deficiency (highest first). Source: [`assessments/LATEST.md`
 
 ## §4 AI leverage (`AI_LEVERAGE_ROADMAP`)
 
-*To be filled during review — V1 / V1.1 / V2 slices.*
+| ID | Title | Source | Decision | Horizon | Notes |
+|----|-------|--------|----------|---------|-------|
+| CPB-AI-RAG | RAG quality — V1 foundation corpus program | [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](library/RAG_QUALITY_TECHNICAL_BACKLOG.md) | **Keep** | V1-now | Same work as **CPB-T21 / TB-021**. Complements roadmap #3 (finding Ask), #11 (compare narrative) with **indexed evidence** and faithfulness eval (**RAG-V1-005**). |
+| CPB-AI-RAG-11 | Reference-architecture exemplar retrieval | RAG-V1.1-001 | **Defer** | V1.1 | Style prior for cold-start pilots; not in manifest hash. |
+| CPB-AI-RAG-12 | MCP retrieval tools (3 of 7) | RAG-V1.1-002 | **Defer** | V1.1 | With **CPB-D02** MCP membrane. |
+| CPB-AI-RAG-V2 | Graph-RAG + agentic retrieval + fine-tuning | RAG-V2-* | **Defer** | V2 | Eval-gated; see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6q. |
+
+*Full 25-item catalogue remains in [`AI_LEVERAGE_ROADMAP.md`](library/AI_LEVERAGE_ROADMAP.md).*
 
 ---
 
@@ -148,6 +156,9 @@ Source: [`go-to-market/GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md). **GTM-only
 | CPB-D15 | Automated tenant erasure quarantine pipeline | `V1_DEFERRED.md` §6m | **Keep** | V2 | Confirmed 2026-05-22. |
 | CPB-D16 | Multi-region active/active guarantees | `V1_DEFERRED.md` §6l | **Keep** | **V1.1** | Owner 2026-05-22 — not an `(A)` V1 penalty. |
 | CPB-D17 | Third-party pen-test execution + redacted summary | `V1_DEFERRED.md` §6c | **Keep** | V2 | Confirmed 2026-05-22. |
+| CPB-D18 | RAG — reference-architecture exemplar retrieval | `V1_DEFERRED.md` §6q | **Keep** | V1.1 | RAG-V1.1-001. Cold-start style prior; coordinate with multi-cloud wizard (**CPB-D07**). |
+| CPB-D19 | RAG — MCP read-only retrieval tools (3 of 7) | `V1_DEFERRED.md` §6q | **Keep** | V1.1 | RAG-V1.1-002. Subset of **CPB-D02** tool inventory. |
+| CPB-D20 | RAG — graph-RAG + agentic retrieval + fine-tuning | `V1_DEFERRED.md` §6q | **Keep** | V2 | RAG-V2-001–003. Requires V1 faithfulness baseline (**CPB-T21**) before promotion. |
 
 ---
 
@@ -165,4 +176,6 @@ Source: [`go-to-market/GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md). **GTM-only
 | [`library/MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`](library/MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md) | MCP ranked backlog |
 | [`library/POLICY_PACK_CONTENT_BACKLOG.md`](library/POLICY_PACK_CONTENT_BACKLOG.md) | Policy pack content |
 | [`library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md) | Extractor follow-ups |
+| [`library/RAG_QUALITY_TECHNICAL_BACKLOG.md`](library/RAG_QUALITY_TECHNICAL_BACKLOG.md) | RAG quality by phase (V1 / V1.1 / V2) |
+| [`library/RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](library/RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md) | TB-021 first slice — implementation design |
 | [`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) | Owner gates |

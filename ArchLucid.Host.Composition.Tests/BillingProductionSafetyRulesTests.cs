@@ -5,7 +5,6 @@ using FluentAssertions;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchLucid.Host.Composition.Tests;
 
@@ -156,7 +155,7 @@ public sealed class BillingProductionSafetyRulesTests
     [Fact]
     public void IsBillingSafetyError_when_prefixed_returns_true()
     {
-        string error = BillingProductionSafetyRules.ErrorPrefix + "Billing:Stripe:SecretKey uses Stripe test prefix sk_test_.";
+        const string error = BillingProductionSafetyRules.ErrorPrefix + "Billing:Stripe:SecretKey uses Stripe test prefix sk_test_.";
 
         BillingProductionSafetyRules.IsBillingSafetyError(error).Should().BeTrue();
     }
@@ -188,10 +187,8 @@ public sealed class BillingProductionSafetyRulesTests
     private sealed class TestLogger : ILogger
     {
         public List<string> CriticalMessages { get; } = [];
-
-        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => NullScope.Instance;
-
-        public bool IsEnabled(LogLevel logLevel) => true;
+        public IDisposable BeginScope<TState>(TState state) where TState : notnull => NullScope.Instance;
+                public bool IsEnabled(LogLevel logLevel) => true;
 
         public void Log<TState>(
             LogLevel logLevel,
@@ -212,6 +209,7 @@ public sealed class BillingProductionSafetyRulesTests
 
             public void Dispose()
             {
+                // No resources to release, method intentionally left empty.
             }
         }
     }
