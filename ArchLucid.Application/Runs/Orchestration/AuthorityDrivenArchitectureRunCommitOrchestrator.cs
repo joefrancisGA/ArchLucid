@@ -76,6 +76,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IRunStateTransitionService runStateTransitionService,
     IOptions<GenerateIacStubsOptions> generateIacStubsOptions,
     IOptions<RerankFindingsOptions> rerankFindingsOptions,
+    ArchLucid.Application.Runs.Orchestration.Events.IReviewCompletedEventHandler reviewCompletedEventHandler,
     ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
     private const int CommitRunTransientMaxAttempts = 5;
@@ -123,6 +124,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private readonly IOptions<RerankFindingsOptions> _rerankFindingsOptions =
         rerankFindingsOptions ?? throw new ArgumentNullException(nameof(rerankFindingsOptions));
+
+    private readonly ArchLucid.Application.Runs.Orchestration.Events.IReviewCompletedEventHandler _reviewCompletedEventHandler =
+        reviewCompletedEventHandler ?? throw new ArgumentNullException(nameof(reviewCompletedEventHandler));
 
     private readonly IDbConnectionFactory _dbConnectionFactory = dbConnectionFactory ?? throw new ArgumentNullException(nameof(dbConnectionFactory));
 
@@ -395,8 +399,26 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
         TryScheduleIacStubGeneration(runId);
         TryScheduleFindingPriorityRerank(runId);
+        TryScheduleReviewCompletedEvent(runId, request.ProjectId);
 
         return new CommitRunResult { Manifest = contract, DecisionTraces = [trace], Warnings = persisted.Warnings.Count == 0 ? [] : [.. persisted.Warnings] };
+    }
+
+    private void TryScheduleReviewCompletedEvent(string runId, string projectId)
+    {
+        _ = Task.Run(
+            async () =>
+            {
+                try
+                {
+                    await _reviewCompletedEventHandler.HandleAsync(new ArchLucid.Application.Runs.Orchestration.Events.ReviewCompletedEvent { RunId = runId, ProjectId = projectId }, CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarningWithSanitizedUserArg(ex, "Post-commit review completed event failed for RunId={RunId}", runId);
+                }
+            },
+            CancellationToken.None);
     }
 
     private void TryScheduleSampleRunPurgeForTenant(Guid tenantId)

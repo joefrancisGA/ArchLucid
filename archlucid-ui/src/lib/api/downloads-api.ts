@@ -160,6 +160,51 @@ export async function downloadConsultingArchitectureReportDocx(
   URL.revokeObjectURL(objectUrl);
 }
 
+/**
+ * POST `/v1/architecture/comparisons/{comparisonRecordId}/replay?format=pdf`
+ * Browser-only download.
+ */
+export async function downloadComparisonReplayPdf(comparisonRecordId: string): Promise<void> {
+  if (!isBrowser()) {
+    throw new Error("downloadComparisonReplayPdf is only supported in the browser.");
+  }
+
+  await ensureOidcBearerReady();
+  const path = `/v1/architecture/comparisons/${encodeURIComponent(comparisonRecordId)}/replay?format=pdf`;
+  const url = `/api/proxy${path}`;
+  const headers = new Headers();
+  headers.set("Accept", "application/pdf, application/json");
+  headers.set("Content-Type", "application/json");
+  const bearer = getBearerToken();
+  if (bearer) headers.set("Authorization", `Bearer ${bearer}`);
+  const init = mergeRegistrationScopeForProxy({
+    method: "POST",
+    headers,
+    credentials: "same-origin",
+    cache: "no-store",
+    body: JSON.stringify({}),
+  });
+  const h = new Headers(init.headers);
+  h.set(CORRELATION_ID_HEADER, generateCorrelationId());
+  const response = await fetch(url, { ...init, method: "POST", headers: h });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throwApiRequestError(response, errText);
+  }
+
+  const fileName =
+    parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
+    `comparison-report-${comparisonRecordId}.pdf`;
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = objectUrl;
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(objectUrl);
+}
+
 /** DOCX package; optional compare + AI narrative flags. */
 export function getArchitecturePackageDocxUrl(
   runId: string,

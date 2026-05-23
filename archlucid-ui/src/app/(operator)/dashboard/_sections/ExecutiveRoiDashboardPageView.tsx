@@ -4,6 +4,7 @@ import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabula
 
 import { ExecutiveComplianceDriftTrendSection } from "./ExecutiveComplianceDriftTrendSection";
 import { ExecutiveDashboardBaselineWarningBanner } from "./ExecutiveDashboardBaselineWarningBanner";
+import { ExecutiveOrphanCandidatesCard } from "./ExecutiveOrphanCandidatesCard";
 import { ExecutiveRoiSummarySection } from "./ExecutiveRoiSummarySection";
 import { ExecutiveSqlBackupRegionVerificationCard } from "./ExecutiveSqlBackupRegionVerificationCard";
 import { BusinessImpactSummaryWidget } from "./BusinessImpactSummaryWidget";
@@ -61,9 +62,11 @@ export function ExecutiveRoiDashboardPageView() {
             </CardContent>
           </Card>
 
+          <ExecutiveOrphanCandidatesCard />
+
           <ExecutiveSqlBackupRegionVerificationCard />
 
-          <Card className="sm:col-span-2 lg:col-span-1">
+          <Card className="sm:col-span-2 lg:col-span-2">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
                 {v.compliancePostureScoreMetric.title}

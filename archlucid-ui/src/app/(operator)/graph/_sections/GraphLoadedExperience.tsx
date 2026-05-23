@@ -176,7 +176,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
                   const slug = safeGraphExportFilenameSegment(runTrim);
                   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
                   const link = document.createElement("a");
-                  link.download = \`graph-\${slug}-\${mode}-\${stamp}.png\`;
+                  link.download = `graph-${slug}-${mode}-${stamp}.png`;
                   link.href = dataUrl;
                   document.body.appendChild(link);
                   link.click();

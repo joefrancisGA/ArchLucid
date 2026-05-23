@@ -20,6 +20,8 @@ type RunSummaryWireExtensions = {
   requestId?: string | null;
   /** When true, the backing architecture request is archived and hidden from default lists. */
   isArchived?: boolean | null;
+  /** When true, the run was created via an idempotency replay. */
+  idempotencyReplayed?: boolean | null;
 };
 
 /**

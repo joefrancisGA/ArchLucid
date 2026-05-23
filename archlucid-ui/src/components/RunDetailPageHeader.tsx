@@ -89,8 +89,11 @@ export function RunDetailPageHeader({
           <div className="flex flex-wrap items-start gap-2">
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-                <h1 className="m-0 min-w-0 flex-1 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-2xl">
+                <h1 className="m-0 min-w-0 flex-1 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-2xl flex items-center">
                   {headline}
+                  {runSummary.idempotencyReplayed ? (
+                    <Badge variant="secondary" className="ml-2 font-normal">Replayed</Badge>
+                  ) : null}
                 </h1>
                 {buyerPolishedShell === true && finalizedBuyerChrome === true ? (
                   <RunStatusBadge run={runSummary} />
