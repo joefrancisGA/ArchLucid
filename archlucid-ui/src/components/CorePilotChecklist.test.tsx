@@ -10,7 +10,7 @@ describe("CorePilotChecklist", () => {
     localStorage.clear();
   });
 
-  it("renders four steps aligned with CORE_PILOT_STEPS", async () => {
+  it("renders one checkbox per CORE_PILOT_STEPS entry", async () => {
     render(<CorePilotChecklist />);
 
     await waitFor(() => {
@@ -21,7 +21,7 @@ describe("CorePilotChecklist", () => {
       expect(screen.getByRole("link", { name: step.title })).toBeInTheDocument();
     }
 
-    expect(screen.getAllByRole("checkbox")).toHaveLength(4);
+    expect(screen.getAllByRole("checkbox")).toHaveLength(CORE_PILOT_STEPS.length);
   });
 
   it("persists checkbox state in localStorage under archlucid-pilot-checklist", async () => {
@@ -50,7 +50,7 @@ describe("CorePilotChecklist", () => {
   it("shows congratulations when all steps are marked, hides panel, then shows again", async () => {
     localStorage.setItem(
       PILOT_CHECKLIST_PANEL_STORAGE_KEY,
-      JSON.stringify({ steps: [true, true, true, false], hidden: false }),
+      JSON.stringify({ steps: [true, true, true, true, false], hidden: false }),
     );
 
     render(<CorePilotChecklist />);
@@ -59,7 +59,7 @@ describe("CorePilotChecklist", () => {
       expect(screen.getByTestId("core-pilot-checklist")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getAllByRole("checkbox")[3]);
+    fireEvent.click(screen.getAllByRole("checkbox")[CORE_PILOT_STEPS.length - 1]);
 
     await waitFor(() => {
       expect(screen.getByTestId("core-pilot-checklist-complete")).toBeInTheDocument();

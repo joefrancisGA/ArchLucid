@@ -15,7 +15,13 @@ import {
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 
 /** Anchor ids in docs/CORE_PILOT.md walkthrough (section 3) — keep aligned with headings. */
-const CORE_PILOT_DOC_FRAGMENTS = ["#new-run", "#pipeline-status", "#commit", "#manifest-review"] as const;
+const CORE_PILOT_DOC_FRAGMENTS = [
+  "#first-session-checklist",
+  "#new-run",
+  "#pipeline-status",
+  "#commit",
+  "#manifest-review",
+] as const;
 
 /** Operator-home checklist: manual "mark complete" synced with `archlucid-pilot-checklist` and legacy step keys. */
 export function CorePilotChecklist() {
@@ -109,8 +115,8 @@ export function CorePilotChecklist() {
       </div>
 
       <p className="m-0 mb-3 text-sm text-neutral-600 dark:text-neutral-400">
-        Work through the four steps from an empty tenant to your first architecture review package — check each when you
-        have done it.
+        Work through the {CORE_PILOT_STEP_COUNT} steps from an empty tenant to your first architecture review package
+        — check each when you have done it.
       </p>
 
       <ol className="m-0 list-none space-y-4 p-0">

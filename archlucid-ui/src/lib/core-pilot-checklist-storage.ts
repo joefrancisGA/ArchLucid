@@ -3,7 +3,9 @@
  * (OperatorFirstRunWorkflowPanel). Used by hints that react when all steps are marked done.
  */
 
-export const CORE_PILOT_STEP_COUNT = 4;
+import { CORE_PILOT_STEP_COUNT } from "@/lib/core-pilot-steps";
+
+export { CORE_PILOT_STEP_COUNT };
 
 export const CORE_PILOT_CHECKLIST_CHANGED_EVENT = "archlucid-core-pilot-checklist-changed";
 
