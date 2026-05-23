@@ -124,6 +124,57 @@ public sealed class AzureExtractorIngestServiceTests
     }
 
     [Fact]
+    public async Task IngestZipAsync_when_manifest_json_malformed_rejects_before_package_insert()
+    {
+        byte[] zipBytes = BuildExtractorZipBytes("{ not-valid-json", "[]");
+
+        Mock<IFormFile> file = new();
+        file.Setup(f => f.Length).Returns(zipBytes.LongLength);
+        file.Setup(f => f.FileName).Returns("bad-manifest.zip");
+        file.Setup(f => f.OpenReadStream()).Returns(() => new MemoryStream(zipBytes, writable: false));
+
+        var sut = CreateService(out var packageRepo, out _);
+
+        var result = await sut.IngestZipAsync(file.Object, Guid.NewGuid(), CancellationToken.None);
+
+        result.Succeeded.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.FailureDetail.Should().Contain("valid JSON");
+
+        packageRepo.Verify(
+            p => p.InsertAsync(It.IsAny<AzureExtractorPackageRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task IngestZipAsync_when_schema_unsupported_rejects_before_package_insert()
+    {
+        var manifest = new
+        {
+            schemaVersion = 99
+        };
+        string manifestJson = JsonSerializer.Serialize(manifest);
+        byte[] zipBytes = BuildExtractorZipBytes(manifestJson, "[]");
+
+        Mock<IFormFile> file = new();
+        file.Setup(f => f.Length).Returns(zipBytes.LongLength);
+        file.Setup(f => f.FileName).Returns("unsupported-schema.zip");
+        file.Setup(f => f.OpenReadStream()).Returns(() => new MemoryStream(zipBytes, writable: false));
+
+        var sut = CreateService(out var packageRepo, out _);
+
+        var result = await sut.IngestZipAsync(file.Object, Guid.NewGuid(), CancellationToken.None);
+
+        result.Succeeded.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.FailureDetail.Should().Contain("Unsupported manifest schemaVersion");
+
+        packageRepo.Verify(
+            p => p.InsertAsync(It.IsAny<AzureExtractorPackageRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task IngestZipBytesAsync_when_valid_returns_success_and_saves_package()
     {
         var runId = Guid.NewGuid();

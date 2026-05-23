@@ -70,6 +70,12 @@ public sealed class AzureExtractorIngestService(
                 null,
                 ct);
 
+        AzureExtractorIngestResult? earlyManifestRejection =
+            await TryRejectInvalidManifestBeforeBufferAsync(file, actor, scope, correlationId, safeName, ct);
+
+        if (earlyManifestRejection is not null)
+            return earlyManifestRejection;
+
         byte[] zipBytes;
 
         try
@@ -393,6 +399,42 @@ public sealed class AzureExtractorIngestService(
             IsSchemaRejection = schemaRejection,
             IsInvalidArchive = invalidArchive,
         };
+    }
+
+    /// <summary>
+    ///     Validates <c>manifest.json</c> schema from the upload stream before buffering the full ZIP payload.
+    ///     Rejects poison-pill archives early without allocating the capped byte buffer used for persistence.
+    /// </summary>
+    private async Task<AzureExtractorIngestResult?> TryRejectInvalidManifestBeforeBufferAsync(
+        IFormFile file,
+        string actor,
+        ScopeContext scope,
+        string? correlationId,
+        string safeName,
+        CancellationToken ct)
+    {
+        await using Stream uploadStream = file.OpenReadStream();
+
+        AzureExtractorZipValidationResult zipValidation = AzureExtractorPackageZipValidator.Validate(uploadStream);
+
+        if (zipValidation.IsValid)
+            return null;
+
+        string eventType = zipValidation.IsSchemaRejection
+            ? AuditEventTypes.AzureExtractorPackageSchemaRejected
+            : AuditEventTypes.AzureExtractorPackageParseFailed;
+
+        return await FailAsync(
+            eventType,
+            zipValidation.ErrorDetail ?? "Invalid Azure extractor ZIP.",
+            schemaRejection: zipValidation.IsSchemaRejection,
+            invalidArchive: zipValidation.IsInvalidArchive,
+            actor,
+            scope,
+            correlationId,
+            safeName,
+            uploadedBytes: null,
+            ct);
     }
 
     private static async Task<byte[]> ReadCappedZipAsync(IFormFile file, CancellationToken ct)
