@@ -11,6 +11,18 @@
     </ItemGroup>
   </Target>
 
+  <!-- Governance policy-pack row shapes and persistence ports moved from Decisioning (#33 Phase 2e-c). -->
+  <Target Name="ArchLucidAddPersistenceGovernanceGlobalUsings"
+          BeforeTargets="CoreCompile"
+          Condition="'$(MSBuildProjectName)' != 'ArchLucid.Contracts' And !Exists('$(MSBuildProjectDirectory)\GlobalUsings.PersistenceGovernance.cs')">
+    <ItemGroup>
+      <_CoreProjectReference Include="@(ProjectReference)" Condition="$([System.String]::Copy('%(Identity)').EndsWith('ArchLucid.Core.csproj'))" />
+    </ItemGroup>
+    <ItemGroup Condition="'@(_CoreProjectReference)' != ''">
+      <Compile Include="$(MSBuildThisFileDirectory)build\GlobalUsings.PersistenceGovernance.cs" Link="GlobalUsings.PersistenceGovernance.cs" />
+    </ItemGroup>
+  </Target>
+
   <!-- Humanizer.Core ships Humanizer.Analyzers (e.g. NamespaceMigrationAnalyzer). Remove from all projects. -->
   <Target Name="ArchLucidRemoveHumanizerAnalyzers" BeforeTargets="CoreCompile">
     <ItemGroup>

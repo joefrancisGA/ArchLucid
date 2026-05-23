@@ -1,6 +1,6 @@
-namespace ArchLucid.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Contracts.Governance.PolicyPacks;
 
-/// <summary>Summary row for <c>GET /v1/policy-packs/catalog</c> (promoted entries only).</summary>
+/// <summary>Summary row for promoted policy-pack catalog entries.</summary>
 public sealed class PolicyPackCatalogListItem
 {
     public Guid PolicyPackCatalogEntryId

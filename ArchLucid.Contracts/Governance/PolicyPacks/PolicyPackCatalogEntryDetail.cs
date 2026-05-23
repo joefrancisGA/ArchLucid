@@ -1,4 +1,4 @@
-namespace ArchLucid.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Contracts.Governance.PolicyPacks;
 
 /// <summary>Catalog entry including snapshot JSON for clone-into-tenant flows.</summary>
 public sealed class PolicyPackCatalogEntryDetail
@@ -45,7 +45,6 @@ public sealed class PolicyPackCatalogEntryDetail
         set;
     }
 
-    /// <summary>JSON document matching <c>PolicyPackContentDocument</c> at promotion time.</summary>
     public string SnapshotContentJson
     {
         get;

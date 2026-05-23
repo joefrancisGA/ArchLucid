@@ -1,7 +1,6 @@
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Compliance.Models;
-using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.PolicyPacks.CuratedRules;
 
 namespace ArchLucid.Persistence.Coordination.Compliance;
