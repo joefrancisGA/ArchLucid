@@ -1,10 +1,9 @@
 using ArchLucid.Application.Governance.FindingReview;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Moq;
-
-using PersistenceFindingReviewEventRecord = ArchLucid.Persistence.Models.FindingReviewEventRecord;
 
 namespace ArchLucid.Application.Tests.Governance.FindingReview;
 [Trait("Category", "Unit")]
@@ -21,7 +20,7 @@ public sealed class FindingReviewTrailAppendServiceTests
         FindingReviewTrailAppendService sut = new(trails.Object, audit.Object);
 
         Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
-        PersistenceFindingReviewEventRecord record = new()
+        FindingReviewEventRecord record = new()
         {
             EventId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-ffffffffffff"),
             TenantId = tenantId,
@@ -29,7 +28,7 @@ public sealed class FindingReviewTrailAppendServiceTests
             ProjectId = tenantId,
             FindingId = "finding-001",
             ReviewerUserId = "eve",
-            Action = "Approved",
+            Action = FindingReviewAction.Approve,
             OccurredAtUtc = TimeProvider.System.UtcNowDateTime(),
         };
 
@@ -53,7 +52,7 @@ public sealed class FindingReviewTrailAppendServiceTests
     public async Task AppendAsync_throws_when_action_unknown()
     {
         FindingReviewTrailAppendService sut = new(Mock.Of<IFindingReviewTrailRepository>(), Mock.Of<IAuditService>());
-        PersistenceFindingReviewEventRecord record = new()
+        FindingReviewEventRecord record = new()
         {
             EventId = Guid.NewGuid(),
             TenantId = Guid.NewGuid(),
@@ -61,7 +60,7 @@ public sealed class FindingReviewTrailAppendServiceTests
             ProjectId = Guid.NewGuid(),
             FindingId = "x",
             ReviewerUserId = "eve",
-            Action = "Mystery",
+            Action = (FindingReviewAction)999,
             OccurredAtUtc = TimeProvider.System.UtcNowDateTime(),
         };
 
