@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.Explanation;
 using ArchLucid.Decisioning.Models;
 
