@@ -30,9 +30,13 @@ public static partial class ServiceCollectionExtensions
             "RulePacks",
             "default-compliance.rules.json");
         string gaPath = Path.Combine(AppContext.BaseDirectory, "Compliance", "RulePacks", "ga-starter-compliance.rules.json");
-        services.AddSingleton<IComplianceRulePackLoader>(_ => new MergedComplianceRulePackLoader(
+        services.AddSingleton<ArchLucid.Core.Persistence.Ports.IComplianceRulePackLoader>(_ => new MergedComplianceRulePackLoader(
             [new FileComplianceRulePackLoader(complianceRulePackPath), new FileComplianceRulePackLoader(gaPath)]));
-        services.AddScoped<IComplianceRulePackProvider, PolicyFilteredComplianceRulePackProvider>();
+        services.AddSingleton<IComplianceRulePackLoader>(static sp =>
+            (IComplianceRulePackLoader)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IComplianceRulePackLoader>());
+        services.AddScoped<ArchLucid.Core.Persistence.Ports.IComplianceRulePackProvider, PolicyFilteredComplianceRulePackProvider>();
+        services.AddScoped<IComplianceRulePackProvider>(static sp =>
+            (IComplianceRulePackProvider)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IComplianceRulePackProvider>());
         services.AddSingleton<IComplianceRulePackValidator, ComplianceRulePackValidator>();
         services.AddSingleton<IComplianceEvaluator, GraphComplianceEvaluator>();
 

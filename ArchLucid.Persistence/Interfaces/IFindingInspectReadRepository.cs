@@ -9,7 +9,7 @@ namespace ArchLucid.Persistence.Interfaces;
 public interface IFindingInspectReadRepository
 {
     /// <summary>
-    ///     Returns the inspector payload when a <see cref="Decisioning.Models.Finding" /> exists in scope; otherwise
+    ///     Returns the inspector payload when a <see cref="Finding" /> exists in scope; otherwise
     ///     <see langword="null" />.
     /// </summary>
     Task<FindingInspectResponse?> GetInspectAsync(ScopeContext scope, string findingId, CancellationToken ct);

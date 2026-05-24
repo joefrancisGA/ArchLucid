@@ -3,7 +3,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Services;
 using ArchLucid.Decisioning.Advisory.Workflow;
-using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Core.Alerts;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Alerts.Simulation;
 using ArchLucid.Persistence.Models;

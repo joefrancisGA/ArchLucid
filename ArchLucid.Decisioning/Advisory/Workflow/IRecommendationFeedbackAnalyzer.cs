@@ -1,5 +1,3 @@
-using JetBrains.Annotations;
-
 namespace ArchLucid.Decisioning.Advisory.Workflow;
 
 /// <summary>
@@ -9,21 +7,7 @@ namespace ArchLucid.Decisioning.Advisory.Workflow;
 ///     Implemented by <c>ArchLucid.Persistence.Advisory.RecommendationFeedbackAnalyzer</c>. Used by
 ///     <see cref="ArchLucid.Decisioning.Advisory.Learning.IRecommendationLearningAnalyzer" /> when building profiles.
 /// </remarks>
-public interface IRecommendationFeedbackAnalyzer
+public interface IRecommendationFeedbackAnalyzer : ArchLucid.Core.Persistence.Ports.IRecommendationFeedbackAnalyzer
 {
-    /// <summary>
-    ///     Returns counts keyed by <c>{Category}:{Status}</c> (e.g. <c>Security:Accepted</c>) for up to 1000 recent rows in
-    ///     the scope.
-    /// </summary>
-    /// <param name="tenantId">Tenant scope.</param>
-    /// <param name="workspaceId">Workspace scope.</param>
-    /// <param name="projectId">Project scope.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Dictionary of composite key to count; empty when no rows.</returns>
-    [UsedImplicitly]
-    Task<IReadOnlyDictionary<string, int>> GetStatusCountsByCategoryAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
-        CancellationToken ct);
+    // Compatibility stub: canonical contract is inherited from Core.
 }

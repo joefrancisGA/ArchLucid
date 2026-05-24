@@ -22,7 +22,9 @@ internal static class DapperTenantRepositoryTestFactory
     {
         ArgumentNullException.ThrowIfNull(tenantPlaneFactory);
 
-        ISystemSqlConnectionFactory system = new DelegatingSystemSqlConnectionFactory(tenantPlaneFactory);
+        ISystemSqlConnectionFactory system = new DelegatingSystemSqlConnectionFactory(
+            tenantPlaneFactory,
+            SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(tenantPlaneFactory.ConnectionString));
         IOptionsMonitor<SqlTopologyOptions> topology = new StaticOptionsMonitor<SqlTopologyOptions>(
             new SqlTopologyOptions { Mode = SqlTopologyMode.SingleCatalog });
 
@@ -62,7 +64,9 @@ internal static class DapperTenantRepositoryTestFactory
         builder.InitialCatalog = string.Empty;
         string templateConnectionString = builder.ConnectionString;
 
-        ISystemSqlConnectionFactory system = new DelegatingSystemSqlConnectionFactory(tenantPlaneFactory);
+        ISystemSqlConnectionFactory system = new DelegatingSystemSqlConnectionFactory(
+            tenantPlaneFactory,
+            SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(tenantPlaneFactory.ConnectionString));
         IOptionsMonitor<SqlTopologyOptions> topology = new StaticOptionsMonitor<SqlTopologyOptions>(
             new SqlTopologyOptions
             {
@@ -95,7 +99,9 @@ internal static class DapperTenantRepositoryTestFactory
     {
         ArgumentNullException.ThrowIfNull(tenantPlaneFactory);
 
-        ISystemSqlConnectionFactory system = new DelegatingSystemSqlConnectionFactory(tenantPlaneFactory);
+        ISystemSqlConnectionFactory system = new DelegatingSystemSqlConnectionFactory(
+            tenantPlaneFactory,
+            SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(tenantPlaneFactory.ConnectionString));
         string secured =
             SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(tenantPlaneFactory.ConnectionString);
         SqlConnectionStringBuilder builder = new(secured);
@@ -109,10 +115,16 @@ internal static class DapperTenantRepositoryTestFactory
         await repo.MarkActiveAsync(tenantId, ct);
     }
 
-    private sealed class DelegatingSystemSqlConnectionFactory(ISqlConnectionFactory inner) : ISystemSqlConnectionFactory
+    private sealed class DelegatingSystemSqlConnectionFactory(ISqlConnectionFactory inner, string systemConnectionString)
+        : ISystemSqlConnectionFactory
     {
         private readonly ISqlConnectionFactory _inner =
             inner ?? throw new ArgumentNullException(nameof(inner));
+
+        private readonly string _systemConnectionString =
+            systemConnectionString ?? throw new ArgumentNullException(nameof(systemConnectionString));
+
+        public string SystemConnectionString => _systemConnectionString;
 
         public Task<SqlConnection> CreateOpenConnectionAsync(CancellationToken cancellationToken = default) =>
             _inner.CreateOpenConnectionAsync(cancellationToken);

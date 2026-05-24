@@ -8,11 +8,10 @@ using ArchLucid.Api.Support;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Decisioning.Advisory.Models;
-using ArchLucid.Decisioning.Advisory.Services;
-using ArchLucid.Decisioning.Advisory.Workflow;
+using ArchLucid.Contracts.Advisory.Models;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
 
@@ -44,7 +43,7 @@ namespace ArchLucid.Api.Controllers.Advisory;
 public sealed class AdvisoryController(
     IAuthorityQueryService authorityQueryService,
     IComparisonService comparisonService,
-    IImprovementAdvisorService improvementAdvisorService,
+    ArchLucid.Core.Persistence.Ports.IImprovementAdvisorService improvementAdvisorService,
     IScopeContextProvider scopeProvider,
     IRecommendationWorkflowService recommendationWorkflowService,
     IRecommendationRepository recommendationRepository,
@@ -96,7 +95,7 @@ public sealed class AdvisoryController(
             nameof(GetImprovements),
             advisoryFindingCount);
 
-        ImprovementPlan plan;
+        ArchLucid.Contracts.Advisory.Models.ImprovementPlan plan;
         if (compareToRunId.HasValue)
         {
             RunDetailDto? baseRun = await authorityQueryService.GetRunDetailAsync(scope, compareToRunId.Value, ct);

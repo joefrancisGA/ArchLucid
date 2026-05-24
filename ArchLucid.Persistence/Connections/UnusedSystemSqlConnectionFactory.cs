@@ -8,6 +8,9 @@ namespace ArchLucid.Persistence.Connections;
 /// </summary>
 public sealed class UnusedSystemSqlConnectionFactory : ISystemSqlConnectionFactory
 {
+    /// <inheritdoc />
+    public string SystemConnectionString => string.Empty;
+
     public Task<SqlConnection> CreateOpenConnectionAsync(CancellationToken cancellationToken = default) =>
         throw new InvalidOperationException(
             "System SQL connections are not available when ArchLucid storage is InMemory.");

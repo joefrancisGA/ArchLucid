@@ -502,7 +502,7 @@ public sealed class PolicyPacksIntegrationTests
     {
         await WithIsolatedFactory(async client =>
         {
-            string contentA = """
+            const string contentA = """
                               {
                                 "complianceRuleIds": [],
                                 "complianceRuleKeys": [],
@@ -513,7 +513,7 @@ public sealed class PolicyPacksIntegrationTests
                               }
                               """;
 
-            string contentB = """
+            const string contentB = """
                               {
                                 "complianceRuleIds": [],
                                 "complianceRuleKeys": [],

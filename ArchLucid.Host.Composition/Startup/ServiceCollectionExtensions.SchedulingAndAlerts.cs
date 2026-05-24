@@ -1,5 +1,6 @@
 using ArchLucid.Application.Advisory;
 using ArchLucid.Contracts.Abstractions.Integrations;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Http;
 using ArchLucid.Decisioning.Advisory.Delivery;
@@ -7,7 +8,6 @@ using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Decisioning.Alerts.Delivery;
-using ArchLucid.Decisioning.Alerts.Simulation;
 using ArchLucid.Decisioning.Alerts.Tuning;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
@@ -218,21 +218,21 @@ public static partial class ServiceCollectionExtensions
 
     private static void RegisterAlerts(IServiceCollection services)
     {
-        services.AddScoped<IAlertEvaluator, AlertEvaluator>();
+        services.AddScoped<ArchLucid.Core.Alerts.IAlertEvaluator, AlertEvaluator>();
         services.AddScoped<IAlertDeliveryChannel, AlertEmailDeliveryChannel>();
         services.AddScoped<IAlertDeliveryChannel, AlertTeamsWebhookDeliveryChannel>();
         services.AddScoped<IAlertDeliveryChannel, AlertSlackWebhookDeliveryChannel>();
         services.AddScoped<IAlertDeliveryChannel, AlertOnCallWebhookDeliveryChannel>();
         services.AddScoped<IAlertDeliveryDispatcher, AlertDeliveryDispatcher>();
-        services.AddScoped<IAlertService, AlertService>();
+        services.AddScoped<ArchLucid.Core.Alerts.IAlertService, AlertService>();
 
-        services.AddScoped<IAlertMetricSnapshotBuilder, AlertMetricSnapshotBuilder>();
-        services.AddScoped<ICompositeAlertRuleEvaluator, CompositeAlertRuleEvaluator>();
-        services.AddScoped<IAlertSuppressionPolicy, AlertSuppressionPolicy>();
-        services.AddScoped<ICompositeAlertService, CompositeAlertService>();
+        services.AddScoped<ArchLucid.Core.Alerts.Composite.IAlertMetricSnapshotBuilder, AlertMetricSnapshotBuilder>();
+        services.AddScoped<ArchLucid.Core.Alerts.Composite.ICompositeAlertRuleEvaluator, CompositeAlertRuleEvaluator>();
+        services.AddScoped<ArchLucid.Core.Alerts.Composite.IAlertSuppressionPolicy, AlertSuppressionPolicy>();
+        services.AddScoped<ArchLucid.Core.Alerts.Composite.ICompositeAlertService, CompositeAlertService>();
 
-        services.AddScoped<IAlertSimulationContextProvider, AlertSimulationContextProvider>();
-        services.AddScoped<IRuleSimulationService, RuleSimulationService>();
+        services.AddScoped<ArchLucid.Core.Alerts.Simulation.IAlertSimulationContextProvider, AlertSimulationContextProvider>();
+        services.AddScoped<ArchLucid.Core.Alerts.Simulation.IRuleSimulationService, RuleSimulationService>();
 
         services.AddScoped<IAlertNoiseScorer, AlertNoiseScorer>();
         services.AddScoped<IThresholdRecommendationService, ThresholdRecommendationService>();
@@ -241,7 +241,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPolicyPackManagementService, PolicyPackManagementService>();
         services.AddScoped<IEffectiveGovernanceResolver, EffectiveGovernanceResolver>();
         services.AddScoped<EffectiveGovernanceLoader>();
-        services.AddScoped<IEffectiveGovernanceLoader>(static sp =>
+        services.AddScoped<ArchLucid.Core.Persistence.Ports.IEffectiveGovernanceLoader>(static sp =>
             new RequestScopedCachingEffectiveGovernanceLoader(sp.GetRequiredService<EffectiveGovernanceLoader>()));
         services.AddScoped<IPolicyPacksAppService, PolicyPacksAppService>();
         services.AddScoped<IPolicyPackCatalogAdminService, PolicyPackCatalogAdminService>();

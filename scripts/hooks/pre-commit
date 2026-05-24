@@ -17,15 +17,8 @@ if [ ! -f "$RESOLVER" ]; then
     RESOLVER="$HOOK_DIR/resolve-python.sh"
 fi
 
-# shellcheck source=scripts/hooks/resolve-python.sh
-. "$RESOLVER"
-
 if [ "${ARCHLUCID_SKIP_PRE_COMMIT:-}" = "1" ]; then
     exit 0
-fi
-
-if ! archlucid_resolve_python; then
-    archlucid_run_python
 fi
 
 STAGED="$(git diff --cached --name-only --diff-filter=ACMR)"
@@ -45,6 +38,17 @@ if [ "${ARCHLUCID_PRE_COMMIT_FULL_AUDIT:-}" = "1" ]; then
     run_audit=1
 elif [ -n "$STAGED_CONTROLLERS" ]; then
     run_audit=1
+fi
+
+if [ "$run_audit" = "0" ] && [ "$needs_route_sync" = "0" ]; then
+    exit 0
+fi
+
+# shellcheck source=scripts/hooks/resolve-python.sh
+. "$RESOLVER"
+
+if ! archlucid_resolve_python; then
+    archlucid_run_python
 fi
 
 if [ "$run_audit" = "1" ]; then

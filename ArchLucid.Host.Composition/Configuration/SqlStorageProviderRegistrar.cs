@@ -341,10 +341,10 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IConversationThreadRepository, DapperConversationThreadRepository>();
         services.AddScoped<IConversationMessageRepository, DapperConversationMessageRepository>();
         services.AddScoped<IRecommendationRepository, DapperRecommendationRepository>();
-        services.AddScoped<IRecommendationWorkflowService, RecommendationWorkflowService>();
-        services.AddScoped<IRecommendationFeedbackAnalyzer, RecommendationFeedbackAnalyzer>();
+        services.AddScoped<ArchLucid.Core.Persistence.Ports.IRecommendationWorkflowService, RecommendationWorkflowService>();
+        services.AddScoped<ArchLucid.Core.Persistence.Ports.IRecommendationFeedbackAnalyzer, RecommendationFeedbackAnalyzer>();
         services.AddScoped<IRecommendationLearningProfileRepository, DapperRecommendationLearningProfileRepository>();
-        services.AddScoped<IRecommendationLearningService, RecommendationLearningService>();
+        services.AddScoped<ArchLucid.Core.Persistence.Ports.IRecommendationLearningService, RecommendationLearningService>();
         services.AddScoped<IAdvisoryScanScheduleRepository, DapperAdvisoryScanScheduleRepository>();
         services.AddScoped<IAdvisoryScanExecutionRepository, DapperAdvisoryScanExecutionRepository>();
         services.AddScoped<IArchitectureDigestRepository, DapperArchitectureDigestRepository>();

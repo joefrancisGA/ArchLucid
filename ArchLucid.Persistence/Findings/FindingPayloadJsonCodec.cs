@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace ArchLucid.Persistence.Findings;
 
 /// <summary>
-///     Serializes <see cref="ArchLucid.Decisioning.Models.Finding.Payload" /> to/from <c>PayloadJson</c> using the same
+///     Serializes <see cref="Finding.Payload" /> to/from <c>PayloadJson</c> using the same
 ///     options as <see cref="FindingJsonConverter" /> so typed payloads round-trip.
 /// </summary>
 public static class FindingPayloadJsonCodec

@@ -17,6 +17,7 @@ using ArchLucid.Core.Costing;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Http;
 using ArchLucid.Core.Llm;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Decisioning.Advisory.Analysis;
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Services;
@@ -60,7 +61,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IAdaptiveRecommendationScorer, AdaptiveRecommendationScorer>();
         services.AddSingleton<IRecommendationLearningAnalyzer, RecommendationLearningAnalyzer>();
         services.AddSingleton<IRecommendationGenerator, RecommendationGenerator>();
-        services.AddScoped<IImprovementAdvisorService, ImprovementAdvisorService>();
+        services.AddScoped<ArchLucid.Core.Persistence.Ports.IImprovementAdvisorService, ImprovementAdvisorService>();
         services.Configure<ExplanationServiceOptions>(
             configuration.GetSection(ExplanationServiceOptions.SectionPath));
         services.Configure<RunExplanationAggregateOptions>(

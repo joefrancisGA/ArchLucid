@@ -1,4 +1,5 @@
 using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Decisioning.Advisory.Models;
 using ArchLucid.Decisioning.Models;
 
@@ -15,13 +16,13 @@ namespace ArchLucid.Decisioning.Advisory.Services;
 ///     <see cref="IRecommendationGenerator" />; loads the latest <see cref="Learning.RecommendationLearningProfile" />
 ///     when available.
 /// </remarks>
-public interface IImprovementAdvisorService
+public interface IImprovementAdvisorService : ArchLucid.Core.Persistence.Ports.IImprovementAdvisorService
 {
     /// <summary>Creates a plan for a single-run advisory pass (no baseline comparison).</summary>
     /// <param name="manifest">Authority golden manifest for the target run.</param>
     /// <param name="findingsSnapshot">Findings aligned with the manifest’s snapshot ids.</param>
     /// <param name="ct">Cancellation token.</param>
-    Task<ImprovementPlan> GeneratePlanAsync(
+    new Task<ImprovementPlan> GeneratePlanAsync(
         ManifestDocument manifest,
         FindingsSnapshot findingsSnapshot,
         CancellationToken ct);
@@ -31,9 +32,28 @@ public interface IImprovementAdvisorService
     /// <param name="findingsSnapshot">Findings for the current run.</param>
     /// <param name="comparison">Result of comparing base vs target manifests; drives regression/gap style signals.</param>
     /// <param name="ct">Cancellation token.</param>
-    Task<ImprovementPlan> GeneratePlanAsync(
+    new Task<ImprovementPlan> GeneratePlanAsync(
         ManifestDocument manifest,
         FindingsSnapshot findingsSnapshot,
         ComparisonResult comparison,
         CancellationToken ct);
+
+    async Task<ArchLucid.Contracts.Advisory.Models.ImprovementPlan> ArchLucid.Core.Persistence.Ports.IImprovementAdvisorService.GeneratePlanAsync(
+        ManifestDocument manifest,
+        FindingsSnapshot findingsSnapshot,
+        CancellationToken ct)
+    {
+        ImprovementPlan legacy = await GeneratePlanAsync(manifest, findingsSnapshot, ct);
+        return (ArchLucid.Contracts.Advisory.Models.ImprovementPlan)legacy;
+    }
+
+    async Task<ArchLucid.Contracts.Advisory.Models.ImprovementPlan> ArchLucid.Core.Persistence.Ports.IImprovementAdvisorService.GeneratePlanAsync(
+        ManifestDocument manifest,
+        FindingsSnapshot findingsSnapshot,
+        ComparisonResult comparison,
+        CancellationToken ct)
+    {
+        ImprovementPlan legacy = await GeneratePlanAsync(manifest, findingsSnapshot, comparison, ct);
+        return (ArchLucid.Contracts.Advisory.Models.ImprovementPlan)legacy;
+    }
 }

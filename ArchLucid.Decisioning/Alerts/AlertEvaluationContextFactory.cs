@@ -56,7 +56,7 @@ public static class AlertEvaluationContextFactory
             ProjectId = projectId,
             RunId = runId,
             ComparedToRunId = comparedToRunId,
-            ImprovementPlan = plan,
+            ImprovementPlan = (ArchLucid.Contracts.Advisory.Models.ImprovementPlan)plan,
             ComparisonResult = comparisonResult,
             RecommendationRecords = recommendationRecords,
             LearningProfile = learningProfile,

@@ -1,8 +1,13 @@
-using ArchLucid.Decisioning.Compliance.Models;
-
 namespace ArchLucid.Decisioning.Compliance.Loaders;
 
-public interface IComplianceRulePackProvider
+/// <summary>Compatibility stub; canonical port is <see cref="ArchLucid.Core.Persistence.Ports.IComplianceRulePackProvider" />.</summary>
+public interface IComplianceRulePackProvider : ArchLucid.Core.Persistence.Ports.IComplianceRulePackProvider
 {
-    Task<ComplianceRulePack> GetRulePackAsync(CancellationToken ct);
+    new Task<Compliance.Models.ComplianceRulePack> GetRulePackAsync(CancellationToken ct);
+
+    async Task<ArchLucid.Contracts.Compliance.ComplianceRulePack> ArchLucid.Core.Persistence.Ports.IComplianceRulePackProvider.GetRulePackAsync(CancellationToken ct)
+    {
+        Compliance.Models.ComplianceRulePack legacyPack = await GetRulePackAsync(ct);
+        return (ArchLucid.Contracts.Compliance.ComplianceRulePack)legacyPack;
+    }
 }

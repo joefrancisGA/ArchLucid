@@ -65,34 +65,27 @@ internal static class BillingProductionSafetyRules
         if (!string.Equals(billing.Provider.Trim(), BillingProviderNames.AzureMarketplace, StringComparison.OrdinalIgnoreCase))
             return;
 
-        string? landing = billing.AzureMarketplace.LandingPageUrl?.Trim();
+        CollectAzureMarketplacePublicHttpsUrl(
+            billing.AzureMarketplace.LandingPageUrl,
+            "Billing:AzureMarketplace:LandingPageUrl",
+            "Partner Center landing page",
+            errors);
+    }
 
-        if (string.IsNullOrWhiteSpace(landing))
-        {
-            errors.Add(BillingError(
-                "Billing:Provider is AzureMarketplace; configure Billing:AzureMarketplace:LandingPageUrl with an absolute HTTPS URL (Partner Center landing page)."));
+    /// <summary>Azure Marketplace webhooks require a public HTTPS callback URL (no loopback or ngrok tunnel hosts).</summary>
+    public static void CollectAzureMarketplaceWebhookUrl(IConfiguration configuration, List<string> errors)
+    {
+        BillingOptions billing =
+            configuration.GetSection(BillingOptions.SectionName).Get<BillingOptions>() ?? new BillingOptions();
 
+        if (!string.Equals(billing.Provider.Trim(), BillingProviderNames.AzureMarketplace, StringComparison.OrdinalIgnoreCase))
             return;
-        }
 
-        if (!Uri.TryCreate(landing, UriKind.Absolute, out Uri? uri))
-        {
-            errors.Add(BillingError("Billing:AzureMarketplace:LandingPageUrl must be an absolute URI in Production."));
-
-            return;
-        }
-
-        if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
-        {
-            errors.Add(BillingError("Billing:AzureMarketplace:LandingPageUrl must use http or https in Production."));
-
-            return;
-        }
-
-        if (IsLocalOrLoopbackHost(uri.Host))
-
-            errors.Add(BillingError(
-                "Billing:AzureMarketplace:LandingPageUrl must not use a localhost / loopback host in Production (Partner Center cannot reach it)."));
+        CollectAzureMarketplacePublicHttpsUrl(
+            billing.AzureMarketplace.WebhookUrl,
+            "Billing:AzureMarketplace:WebhookUrl",
+            "Partner Center webhook callback",
+            errors);
     }
 
     /// <summary>GA Marketplace mutations require a configured Partner Center offer id.</summary>
@@ -140,6 +133,55 @@ internal static class BillingProductionSafetyRules
     }
 
     private static string BillingError(string message) => ErrorPrefix + message;
+
+    private static void CollectAzureMarketplacePublicHttpsUrl(
+        string? configuredUrl,
+        string configurationKey,
+        string partnerCenterPurpose,
+        List<string> errors)
+    {
+        string? trimmed = configuredUrl?.Trim();
+
+        if (string.IsNullOrWhiteSpace(trimmed))
+        {
+            errors.Add(BillingError(
+                "Billing:Provider is AzureMarketplace; configure "
+                + configurationKey
+                + " with an absolute HTTPS URL ("
+                + partnerCenterPurpose
+                + ")."));
+
+            return;
+        }
+
+        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri))
+        {
+            errors.Add(BillingError(configurationKey + " must be an absolute URI in Production."));
+
+            return;
+        }
+
+        if (uri.Scheme != Uri.UriSchemeHttps)
+        {
+            errors.Add(BillingError(configurationKey + " must use https in Production."));
+
+            return;
+        }
+
+        if (IsDisallowedMarketplaceCallbackHost(uri.Host))
+            errors.Add(BillingError(
+                configurationKey
+                + " must not use a localhost, loopback, or ngrok tunnel host in Production (Partner Center cannot reach it)."));
+    }
+
+    private static bool IsDisallowedMarketplaceCallbackHost(string host)
+    {
+        if (IsLocalOrLoopbackHost(host))
+            return true;
+
+        return host.EndsWith(".ngrok.io", StringComparison.OrdinalIgnoreCase)
+            || host.EndsWith(".ngrok-free.app", StringComparison.OrdinalIgnoreCase);
+    }
 
     private static bool IsLocalOrLoopbackHost(string host)
     {

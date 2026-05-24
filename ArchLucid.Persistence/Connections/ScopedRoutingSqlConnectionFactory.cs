@@ -57,8 +57,26 @@ public sealed class ScopedRoutingSqlConnectionFactory : ISqlConnectionFactory
         string tenantCs =
             await _tenantDatabaseResolver.ResolveTenantConnectionStringAsync(tenantId, cancellationToken);
 
+        EnsureTenantScopedRequestDoesNotTargetSystemCatalog(tenantId, tenantCs);
+
         SqlConnection tenant = new(tenantCs);
         await tenant.OpenAsync(cancellationToken);
         return tenant;
+    }
+
+    private void EnsureTenantScopedRequestDoesNotTargetSystemCatalog(Guid tenantId, string tenantConnectionString)
+    {
+        string systemConnectionString = _systemSqlConnectionFactory.SystemConnectionString;
+
+        if (string.IsNullOrWhiteSpace(systemConnectionString))
+            return;
+
+        if (!SqlCatalogRoutingGuard.TargetsSameCatalog(tenantConnectionString, systemConnectionString))
+            return;
+
+        throw new TenantIsolationException(
+            "Tenant-scoped SQL request for tenant '"
+            + tenantId.ToString("D")
+            + "' resolved to the control-plane catalog; refusing to open the connection.");
     }
 }

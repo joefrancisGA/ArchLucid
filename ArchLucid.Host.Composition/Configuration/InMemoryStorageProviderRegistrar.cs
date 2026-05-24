@@ -162,10 +162,10 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IProvenanceSnapshotRepository, InMemoryProvenanceSnapshotRepository>();
         services.AddScoped<IProvenanceQueryService, ProvenanceQueryService>();
         services.AddSingleton<IRecommendationRepository, InMemoryRecommendationRepository>();
-        services.AddScoped<IRecommendationWorkflowService, RecommendationWorkflowService>();
-        services.AddScoped<IRecommendationFeedbackAnalyzer, RecommendationFeedbackAnalyzer>();
+        services.AddScoped<ArchLucid.Core.Persistence.Ports.IRecommendationWorkflowService, RecommendationWorkflowService>();
+        services.AddScoped<ArchLucid.Core.Persistence.Ports.IRecommendationFeedbackAnalyzer, RecommendationFeedbackAnalyzer>();
         services.AddSingleton<IRecommendationLearningProfileRepository, InMemoryRecommendationLearningProfileRepository>();
-        services.AddScoped<IRecommendationLearningService, RecommendationLearningService>();
+        services.AddScoped<ArchLucid.Core.Persistence.Ports.IRecommendationLearningService, RecommendationLearningService>();
         services.AddSingleton<IAdvisoryScanScheduleRepository, InMemoryAdvisoryScanScheduleRepository>();
         services.AddSingleton<IAdvisoryScanExecutionRepository, InMemoryAdvisoryScanExecutionRepository>();
         services.AddSingleton<IArchitectureDigestRepository, InMemoryArchitectureDigestRepository>();

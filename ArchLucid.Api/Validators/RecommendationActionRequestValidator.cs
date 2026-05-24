@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Advisory.Workflow;
+using ArchLucid.Contracts.Advisory.Workflow;
 
 using FluentValidation;
 

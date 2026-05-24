@@ -10,4 +10,4 @@ global using IAlertRecordRepository = ArchLucid.Core.Persistence.Ports.IAlertRec
 global using IAlertRoutingSubscriptionRepository = ArchLucid.Core.Persistence.Ports.IAlertRoutingSubscriptionRepository;
 global using IAlertRuleRepository = ArchLucid.Core.Persistence.Ports.IAlertRuleRepository;
 global using ICompositeAlertRuleRepository = ArchLucid.Core.Persistence.Ports.ICompositeAlertRuleRepository;
-global using IAlertService = ArchLucid.Decisioning.Alerts.IAlertService;
+global using IAlertService = ArchLucid.Core.Alerts.IAlertService;

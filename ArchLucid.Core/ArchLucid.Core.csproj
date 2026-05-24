@@ -27,6 +27,8 @@
     <InternalsVisibleTo Include="ArchLucid.AgentRuntime" />
     <InternalsVisibleTo Include="ArchLucid.Api.Tests" />
     <InternalsVisibleTo Include="ArchLucid.Core.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.Decisioning.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.Persistence.Tests" />
   </ItemGroup>
 
   <ItemGroup>

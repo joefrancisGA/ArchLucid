@@ -76,6 +76,16 @@ public sealed class AzureMarketplaceBillingOptions
         init;
     }
 
+    /// <summary>
+    ///     Public HTTPS webhook URL registered in Partner Center for SaaS lifecycle events
+    ///     (typically <c>POST /v1/billing/webhooks/marketplace</c> on the production API host).
+    /// </summary>
+    public string? WebhookUrl
+    {
+        get;
+        init;
+    }
+
     /// <summary>Optional tenant id claim name inside the marketplace JWT (defaults to standard SaaS claims).</summary>
     public string? TenantIdClaimType
     {

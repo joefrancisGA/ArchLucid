@@ -1,11 +1,4 @@
-using ArchLucid.Decisioning.Models;
-
 namespace ArchLucid.Decisioning.Interfaces;
 
-/// <summary>
-///     Best-effort enrichment of persisted-shaped findings with evaluation-derived confidence after traces are scored.
-/// </summary>
-public interface IFindingsSnapshotEvaluationConfidenceEnricher
-{
-    Task TryEnrichAsync(FindingsSnapshot snapshot, CancellationToken cancellationToken);
-}
+/// <summary>Compatibility stub; canonical port is <see cref="ArchLucid.Core.Persistence.Ports.IFindingsSnapshotEvaluationConfidenceEnricher" />.</summary>
+public interface IFindingsSnapshotEvaluationConfidenceEnricher : ArchLucid.Core.Persistence.Ports.IFindingsSnapshotEvaluationConfidenceEnricher;

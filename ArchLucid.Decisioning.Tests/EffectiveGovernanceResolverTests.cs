@@ -666,10 +666,10 @@ public sealed class EffectiveGovernanceResolverTests
             },
             CancellationToken.None);
 
-        string lowerKeysJson =
+        const string lowerKeysJson =
             """{"metadata":{},"complianceRuleIds":[],"complianceRuleKeys":["RULE-A"],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""";
 
-        string upperKeysJson =
+        const string upperKeysJson =
             """{"metadata":{},"complianceRuleIds":[],"complianceRuleKeys":["rule-a"],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""";
 
         await versionRepo.CreateAsync(

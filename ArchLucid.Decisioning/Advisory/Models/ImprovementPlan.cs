@@ -1,61 +1,102 @@
-using ArchLucid.Decisioning.Advisory.Services;
-using ArchLucid.Decisioning.Alerts;
-
 namespace ArchLucid.Decisioning.Advisory.Models;
 
-/// <summary>
-///     Advisory output for a single run (and optional prior run): prioritized recommendations, narrative notes, and merged
-///     policy defaults for digest/alert context.
-/// </summary>
-/// <remarks>
-///     Produced by <see cref="IImprovementAdvisorService" /> from golden manifest, findings, and optional
-///     <see cref="ArchLucid.Core.Comparison.ComparisonResult" />.
-///     Enriched during scheduled scans with <see cref="PolicyPackAdvisoryDefaults" /> before
-///     <see cref="AlertEvaluationContextFactory.ForAdvisoryScan" />.
-///     Serialized to clients as <c>ArchLucid.Api.Contracts.ImprovementPlanResponse</c>.
-/// </remarks>
-public class ImprovementPlan
+/// <summary>Compatibility shim; canonical model is <see cref="ArchLucid.Contracts.Advisory.Models.ImprovementPlan" />.</summary>
+public sealed class ImprovementPlan
 {
-    /// <summary>Run the plan describes.</summary>
     public Guid RunId
     {
         get;
         set;
     }
 
-    /// <summary>Prior run used for comparison when present.</summary>
     public Guid? ComparedToRunId
     {
         get;
         set;
     }
 
-    /// <summary>UTC timestamp when the plan was generated.</summary>
     public DateTime GeneratedUtc
     {
         get;
         set;
     } = TimeProvider.System.UtcNowDateTime();
 
-    /// <summary>Ordered advisory items (scores assigned by the advisor pipeline).</summary>
     public List<ImprovementRecommendation> Recommendations
     {
         get;
         set;
     } = [];
 
-    /// <summary>High-level bullets for digests or UI.</summary>
     public List<string> SummaryNotes
     {
         get;
         set;
     } = [];
 
-    /// <summary>Merged <c>advisoryDefaults</c> from effective policy packs (optional keys for advisory/digest tooling).</summary>
     public Dictionary<string, string> PolicyPackAdvisoryDefaults
     {
         get;
         set;
     } =
         new(StringComparer.OrdinalIgnoreCase);
+
+    public static explicit operator ArchLucid.Contracts.Advisory.Models.ImprovementPlan(ImprovementPlan source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        return new ArchLucid.Contracts.Advisory.Models.ImprovementPlan
+        {
+            RunId = source.RunId,
+            ComparedToRunId = source.ComparedToRunId,
+            GeneratedUtc = source.GeneratedUtc,
+            Recommendations = source.Recommendations.Select(
+                    recommendation => new ArchLucid.Contracts.Advisory.Models.ImprovementRecommendation
+                    {
+                        RecommendationId = recommendation.RecommendationId,
+                        Title = recommendation.Title,
+                        Category = recommendation.Category,
+                        Rationale = recommendation.Rationale,
+                        SuggestedAction = recommendation.SuggestedAction,
+                        Urgency = recommendation.Urgency,
+                        ExpectedImpact = recommendation.ExpectedImpact,
+                        SupportingFindingIds = recommendation.SupportingFindingIds.ToList(),
+                        SupportingDecisionIds = recommendation.SupportingDecisionIds.ToList(),
+                        SupportingArtifactIds = recommendation.SupportingArtifactIds.ToList(),
+                        PriorityScore = recommendation.PriorityScore,
+                    })
+                .ToList(),
+            SummaryNotes = source.SummaryNotes.ToList(),
+            PolicyPackAdvisoryDefaults = new Dictionary<string, string>(source.PolicyPackAdvisoryDefaults, StringComparer.OrdinalIgnoreCase),
+        };
+    }
+
+    public static explicit operator ImprovementPlan(ArchLucid.Contracts.Advisory.Models.ImprovementPlan source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        return new ImprovementPlan
+        {
+            RunId = source.RunId,
+            ComparedToRunId = source.ComparedToRunId,
+            GeneratedUtc = source.GeneratedUtc,
+            Recommendations = source.Recommendations.Select(
+                    recommendation => new ImprovementRecommendation
+                    {
+                        RecommendationId = recommendation.RecommendationId,
+                        Title = recommendation.Title,
+                        Category = recommendation.Category,
+                        Rationale = recommendation.Rationale,
+                        SuggestedAction = recommendation.SuggestedAction,
+                        Urgency = recommendation.Urgency,
+                        ExpectedImpact = recommendation.ExpectedImpact,
+                        SupportingFindingIds = recommendation.SupportingFindingIds.ToList(),
+                        SupportingDecisionIds = recommendation.SupportingDecisionIds.ToList(),
+                        SupportingArtifactIds = recommendation.SupportingArtifactIds.ToList(),
+                        PriorityScore = recommendation.PriorityScore,
+                    })
+                .ToList(),
+            SummaryNotes = source.SummaryNotes.ToList(),
+            PolicyPackAdvisoryDefaults = new Dictionary<string, string>(source.PolicyPackAdvisoryDefaults, StringComparer.OrdinalIgnoreCase),
+        };
+    }
 }

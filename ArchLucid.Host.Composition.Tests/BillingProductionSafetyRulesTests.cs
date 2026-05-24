@@ -87,7 +87,7 @@ public sealed class BillingProductionSafetyRulesTests
         Dictionary<string, string?> data = new()
         {
             ["Billing:Provider"] = BillingProviderNames.AzureMarketplace,
-            ["Billing:AzureMarketplace:LandingPageUrl"] = "http://localhost:3000/marketplace/landing"
+            ["Billing:AzureMarketplace:LandingPageUrl"] = "https://localhost:3000/marketplace/landing"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -111,6 +111,40 @@ public sealed class BillingProductionSafetyRulesTests
         List<string> errors = [];
 
         BillingProductionSafetyRules.CollectAzureMarketplaceLandingPageUrl(configuration, errors);
+
+        errors.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void CollectAzureMarketplaceWebhookUrl_when_ngrok_host_adds_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["Billing:Provider"] = BillingProviderNames.AzureMarketplace,
+            ["Billing:AzureMarketplace:WebhookUrl"] = "https://contoso.ngrok.io/v1/billing/webhooks/marketplace"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        List<string> errors = [];
+
+        BillingProductionSafetyRules.CollectAzureMarketplaceWebhookUrl(configuration, errors);
+
+        errors.Should().ContainSingle(static e => e.Contains("ngrok", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectAzureMarketplaceWebhookUrl_when_https_public_host_is_clean()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["Billing:Provider"] = BillingProviderNames.AzureMarketplace,
+            ["Billing:AzureMarketplace:WebhookUrl"] = "https://app.archlucid.net/v1/billing/webhooks/marketplace"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        List<string> errors = [];
+
+        BillingProductionSafetyRules.CollectAzureMarketplaceWebhookUrl(configuration, errors);
 
         errors.Should().BeEmpty();
     }

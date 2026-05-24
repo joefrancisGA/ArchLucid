@@ -1,19 +1,9 @@
-using ArchLucid.Core.Audit;
-
 namespace ArchLucid.Decisioning.Governance.ComplianceDrift;
 
-/// <summary>Audit event types mapped to compliance-drift findings trend buckets (no findings schema changes).</summary>
+/// <summary>Compatibility shim; canonical source is <see cref="ArchLucid.Core.Governance.ComplianceDrift.ComplianceDriftFindingsTrendAuditTypes" />.</summary>
 public static class ComplianceDriftFindingsTrendAuditTypes
 {
-    public static readonly string[] Opened =
-    [
-        AuditEventTypes.FindingsSnapshotSealed,
-    ];
+    public static readonly string[] Opened = ArchLucid.Core.Governance.ComplianceDrift.ComplianceDriftFindingsTrendAuditTypes.Opened;
 
-    public static readonly string[] Resolved =
-    [
-        AuditEventTypes.FindingReviewApproved,
-        AuditEventTypes.FindingReviewRejected,
-        AuditEventTypes.FindingReviewOverridden,
-    ];
+    public static readonly string[] Resolved = ArchLucid.Core.Governance.ComplianceDrift.ComplianceDriftFindingsTrendAuditTypes.Resolved;
 }
