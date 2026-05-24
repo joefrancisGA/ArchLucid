@@ -296,6 +296,9 @@ public sealed class AskService(
         }
 
         IReadOnlyList<RetrievalHit> retrievalHits = [];
+        bool retrievalDegraded = false;
+        string retrievalContext = string.Empty;
+
         try
         {
             retrievalHits = await retrievalQuery.SearchAsync(
@@ -310,10 +313,15 @@ public sealed class AskService(
                     TopK = 8
                 },
                 ct);
+
+            retrievalContext = BuildRetrievalContext(retrievalHits);
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Retrieval search failed for Ask; continuing without retrieved evidence.");
+            logger.LogWarning(ex, "Retrieval search failed for Ask; falling back to SQL findings/manifest text search.");
+            ArchLucidInstrumentation.RecordRagRetrievalFallback();
+            retrievalDegraded = true;
+            retrievalContext = AskRetrievalSqlFallback.BuildFromRunDetail(detail, question);
         }
 
         return new AskPreparedContext(
@@ -326,7 +334,8 @@ public sealed class AskService(
             effectiveTargetRunId,
             comparisonResult,
             contextJson,
-            BuildRetrievalContext(retrievalHits),
+            retrievalContext,
+            retrievalDegraded,
             scope);
     }
 
@@ -369,15 +378,22 @@ public sealed class AskService(
         }
     }
 
-    private static string BuildUserPrompt(AskPreparedContext prepared) =>
-        "Conversation History:\n" +
-        (string.IsNullOrWhiteSpace(prepared.HistoryText) ? "(none)\n" : prepared.HistoryText + "\n") +
-        "\nStructured Context:\n" +
-        prepared.ContextJson +
-        "\n\nRetrieved Evidence:\n" +
-        (string.IsNullOrWhiteSpace(prepared.RetrievalContext) ? "(none)\n" : prepared.RetrievalContext + "\n") +
-        "\nUser Question:\n" +
-        prepared.Question;
+    private static string BuildUserPrompt(AskPreparedContext prepared)
+    {
+        string degradedNote = prepared.RetrievalDegraded
+            ? "\n\nRetrieval Warning:\nVector search was unavailable; retrieved evidence may be incomplete and was sourced from SQL findings/manifest text only.\n"
+            : string.Empty;
+
+        return "Conversation History:\n" +
+               (string.IsNullOrWhiteSpace(prepared.HistoryText) ? "(none)\n" : prepared.HistoryText + "\n") +
+               "\nStructured Context:\n" +
+               prepared.ContextJson +
+               "\n\nRetrieved Evidence:\n" +
+               (string.IsNullOrWhiteSpace(prepared.RetrievalContext) ? "(none)\n" : prepared.RetrievalContext + "\n") +
+               degradedNote +
+               "\nUser Question:\n" +
+               prepared.Question;
+    }
 
     private async Task<AskResponse> PersistFallbackResponseAsync(AskPreparedContext prepared, CancellationToken ct)
     {
@@ -561,6 +577,7 @@ public sealed class AskService(
         ComparisonResult? ComparisonResult,
         string ContextJson,
         string RetrievalContext,
+        bool RetrievalDegraded,
         ScopeContext Scope);
 
     private static string BuildRetrievalContext(IReadOnlyList<RetrievalHit> hits)

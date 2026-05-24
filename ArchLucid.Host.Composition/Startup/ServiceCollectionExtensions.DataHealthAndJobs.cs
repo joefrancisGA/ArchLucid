@@ -91,6 +91,10 @@ public static partial class ServiceCollectionExtensions
                 "openai",
                 failureStatus: HealthStatus.Unhealthy,
                 tags: [ReadinessTags.Ready])
+            .AddCheck<VectorStoreHealthCheck>(
+                VectorStoreHealthCheck.RegistrationName,
+                failureStatus: HealthStatus.Degraded,
+                tags: [ReadinessTags.Ready])
             .AddCheck<KeyVaultHealthCheck>(
                 "keyvault",
                 failureStatus: HealthStatus.Unhealthy,

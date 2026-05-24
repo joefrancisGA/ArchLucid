@@ -32,6 +32,7 @@ public static class ArchLucidConfigurationRules
         CosmosPolyglotRules.Collect(configuration, environment, errors);
         AuthenticationRules.CollectApiKeyWhenEnabled(configuration, errors);
         AuthenticationRules.CollectJwtBearerLocalSigningKey(configuration, errors);
+        AuthenticationRules.CollectSamlSpWhenEnabled(configuration, errors);
         AgentExecutionRules.Collect(configuration, errors);
         RealModeDeploymentFingerprintRules.Collect(configuration, environment, errors);
         LlmCompletionCacheRules.Collect(configuration, errors);

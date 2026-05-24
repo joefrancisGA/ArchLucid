@@ -310,6 +310,12 @@ public static class ArchLucidInstrumentation
             "archlucid_explanation_cache_misses_total",
             description: "Aggregate explanation cache misses (LLM call required).");
 
+    /// <summary>Ask path fell back to SQL findings/manifest text when vector retrieval failed.</summary>
+    public static readonly Counter<long> RagRetrievalFallbackTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_rag_retrieval_fallback_total",
+            description: "Ask retrieval fell back to SQL text search after vector index failure.");
+
     /// <summary>LLM completion response cache hits (<c>CachingLlmCompletionClient</c>, label <c>agent_type</c>).</summary>
     public static readonly Counter<long> LlmCompletionCacheHitsTotal =
         AppMeter.CreateCounter<long>(
@@ -1124,6 +1130,12 @@ public static class ArchLucidInstrumentation
     {
         _ = Interlocked.Increment(ref _explanationCacheMissesAggregate);
         ExplanationCacheMisses.Add(1);
+    }
+
+    /// <summary>Records one Ask SQL retrieval fallback after vector search failure.</summary>
+    public static void RecordRagRetrievalFallback()
+    {
+        RagRetrievalFallbackTotal.Add(1);
     }
 
     /// <summary>Records one graph snapshot projection cache hit.</summary>

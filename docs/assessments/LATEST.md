@@ -1,15 +1,15 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 90.35%
+# ArchLucid Assessment – (A) Headline Readiness: 90.49%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items such as SOC 2 CPA attestation, third-party pen tests, MCP, the commerce un-hold, multi-cloud (AWS/GCP) analysis, multi-region active/active, automated tenant erasure, Graph-RAG / agentic retrieval, hosted Tier 2 continuous polling, **non-SCIM bulk-CSV user onboarding (V2)**, **self-hosted Enterprise commercial deals (V2)**, and related sub-milestones (capacity guide, private-endpoint reference architecture).*
 
-**Score change 2026-05-24 (afternoon):** Rescored upward from 87.74% to 89.93% after removing latent V1.1/V2 penalties. **2026-05-24 (later):** 89.93% → **90.07%** (bulk-CSV → V2, [`V1_DEFERRED.md` §6r](../library/V1_DEFERRED.md)). **90.07% → 90.21%** (capacity guide → V2; later absorbed into §6t). **90.21% → 90.35%** (full **self-hosted Enterprise deals** motion → V2, [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md); **V1 GA Enterprise = ArchLucid-hosted SaaS only**). Custom policy pack authoring SKU decided — see Improvement #6. Cross-tenant ROI deduplication tests shipped — see Improvement #3.
+**Score change 2026-05-24 (afternoon):** Rescored upward from 87.74% to 89.93% after removing latent V1.1/V2 penalties. **2026-05-24 (later):** 89.93% → **90.07%** (bulk-CSV → V2, [`V1_DEFERRED.md` §6r](../library/V1_DEFERRED.md)). **90.07% → 90.21%** (capacity guide → V2; later absorbed into §6t). **90.21% → 90.35%** (full **self-hosted Enterprise deals** motion → V2, [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md); **V1 GA Enterprise = ArchLucid-hosted SaaS only**). Custom policy pack authoring SKU decided — see Improvement #6. Cross-tenant ROI deduplication tests shipped — see Improvement #3. **90.35% → 90.49%** (Batch 4 partial: vector-store health check #10, Ask RAG SQL fallback #13, executive ROI cache warmup #16, SAML SP startup validation #18).
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**
-ArchLucid is well past the pilot-credible bar for V1 GA at 90.35%. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The remaining `(A)` deficit is concentrated in **V1-actionable** AI-quality investments (policy-pack indexing, LLM faithfulness evaluation, prior-manifest chunks) and a handful of operator-side ergonomics (SAML pre-flight validation, vector-store health, ROI cache warmup). None of these block V1 GA; they raise the ceiling on agent output trustworthiness and operator confidence.
+ArchLucid is well past the pilot-credible bar for V1 GA at 90.49%. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The remaining `(A)` deficit is concentrated in **V1-actionable** AI-quality investments (policy-pack indexing, LLM faithfulness evaluation, prior-manifest chunks) and a smaller set of operator-side gaps (agent-trace blob lifecycle, RAG observability dashboards). None of these block V1 GA; they raise the ceiling on agent output trustworthiness and operator confidence.
 
 **`(B)` Procurement / Market-Motion Realism (Informational — zero weight on `(A)`)**
 Enterprise procurement teams will still ask for CPA-issued SOC 2 Type II, an external pen-test summary, automated GDPR erasure, multi-region active/active, AWS/GCP target analysis, and **self-hosted / on-premises deployment**. Every one of these items is **explicitly out of `(A)` scope** per `V1_DEFERRED.md` §6c, §6l, §6m, §6n, **§6t**, and the scope rule. The right posture is honest trust-center narrative — **V1 GA is hosted SaaS**; self-hosted Enterprise is **V2** — not score deductions.
@@ -18,10 +18,10 @@ Enterprise procurement teams will still ask for CPA-issued SOC 2 Type II, an ext
 Pricing is locked and defensible (`PRICING_PHILOSOPHY.md` §5). The trial funnel is deeply instrumented with audit + Prometheus + Grafana. Executive ROI summary endpoint with cross-run deduplication is **shipped for V1 GA** per §2.8 / §6o. Stripe live keys + Marketplace `Published` are deliberately held to V1.1 (§6b) — a sales-led motion is the V1 contract, not a defect. The custom policy pack authoring SKU is now defined (Improvement #6) and ready to publish.
 
 **The Enterprise Picture**
-**V1 GA Enterprise is ArchLucid-hosted SaaS** — SCIM, SAML SP, OIDC, RLS, governance, and policy packs on the operated platform. Realistic V1 friction: **claim-mapping ergonomics** (no SAML pre-flight wizard) and **audit retention extension** for >1-year auditor demands. **Self-hosted Enterprise deals** (customer-operated deployments, private-endpoint reference architecture, consolidated capacity guide, deployment playbook) are **V2** per [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md) — `(B)` procurement realism only, zero `(A)` penalty. Container / Terraform assets remain for engineering and evaluation, not as a V1 contracted buyer path.
+**V1 GA Enterprise is ArchLucid-hosted SaaS** — SCIM, SAML SP, OIDC, RLS, governance, and policy packs on the operated platform. Realistic V1 friction: **SAML claim-mapping ergonomics** (no interactive pre-flight wizard; metadata CLI and startup validation shipped — Improvements #4 and #18). **Self-hosted Enterprise deals** (customer-operated deployments, private-endpoint reference architecture, consolidated capacity guide, deployment playbook) are **V2** per [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md) — `(B)` procurement realism only, zero `(A)` penalty. Container / Terraform assets remain for engineering and evaluation, not as a V1 contracted buyer path.
 
 **The Engineering Picture**
-The foundation is genuinely strong: warnings-as-errors, strict CI, merged-line coverage gate, vulnerability scanning, SBOM publication, OpenTelemetry depth, circuit breakers, outbox + data-consistency probes, and a deliberate single-replica baseline with documented Redis upgrade path (§6e). The honest engineering risk surface is concentrated in **RAG quality** (TB-021 / RAG-V1-*) and **storage lifecycle** (orphaned agent-trace blobs, outbox dead-letter ergonomics) — both V1-actionable.
+The foundation is genuinely strong: warnings-as-errors, strict CI, merged-line coverage gate, vulnerability scanning, SBOM publication, OpenTelemetry depth, circuit breakers, outbox + data-consistency probes, vector-store readiness probing, Ask RAG SQL fallback, and a deliberate single-replica baseline with documented Redis upgrade path (§6e). The honest engineering risk surface is concentrated in **RAG quality** (TB-021 / RAG-V1-*) and **storage lifecycle** (orphaned agent-trace blobs) — both V1-actionable.
 
 ---
 
@@ -39,21 +39,21 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Status:** Fixable in V1 (engineering backlog already scoped).
 
 ### 2. AI/Agent Readiness
-- **Score:** 89
+- **Score:** 90
 - **Weight:** 8
-- **Weighted Deficiency:** 88
-- **Justification:** The agent runtime is solid — circuit breakers, content safety, prompt-redaction telemetry, trace blob storage with SQL inline fallback, four agent types (Topology, Cost, Compliance, Critic), and a quality-gate scaffold. The V1-actionable gap: the `AgentOutputQualityGate` ships with warn-only floors (reject thresholds at 0), and semantic scoring is heuristic-first with optional LLM rubric rather than a uniform LLM-as-judge pass.
+- **Weighted Deficiency:** 80
+- **Justification:** The agent runtime is solid — circuit breakers, content safety, prompt-redaction telemetry, trace blob storage with SQL inline fallback, four agent types (Topology, Cost, Compliance, Critic), and a quality-gate scaffold. Ask RAG SQL fallback (#13, 2026-05-24) keeps Ask partially functional when the vector store is down. The V1-actionable gap: the `AgentOutputQualityGate` ships with warn-only floors (reject thresholds at 0), and semantic scoring is heuristic-first with optional LLM rubric rather than a uniform LLM-as-judge pass.
 - **Tradeoffs:** Aggressive reject thresholds may cause spurious agent retries on borderline outputs; introduce gradually with warned→rejected migration per agent type, watching `archlucid_agent_output_quality_gate_total{outcome="rejected"}`.
 - **Recommendations:** Wire explicit reject thresholds, add LLM faithfulness evaluator across all four agent types.
 - **Status:** Fixable in V1.
 
 ### 3. Adoption Friction
-- **Score:** 91
+- **Score:** 92
 - **Weight:** 6
-- **Weighted Deficiency:** 54
-- **Justification:** Entra ID, generic OIDC, native SAML SP, SCIM, API-key automation, and `archlucid doctor` all land in V1 GA on **ArchLucid-hosted SaaS**. Tier 1 Azure Extractor is the V1 path by design. Hosted Tier 2 continuous polling is **V1.x per §6p** and not penalized. **Non-SCIM bulk-CSV** is **V2** per [`V1_DEFERRED.md` §6r](../library/V1_DEFERRED.md). **Self-hosted Enterprise deals** are **V2** per [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md) — container / Terraform assets are engineering-only, not a V1 contracted buyer path. Remaining V1 friction: no SAML pre-flight claim-mapping wizard, no audit retention extension contract for auditors demanding >1-year retention.
+- **Weighted Deficiency:** 48
+- **Justification:** Entra ID, generic OIDC, native SAML SP, SCIM, API-key automation, and `archlucid doctor` all land in V1 GA on **ArchLucid-hosted SaaS**. Tier 1 Azure Extractor is the V1 path by design. Hosted Tier 2 continuous polling is **V1.x per §6p** and not penalized. **Non-SCIM bulk-CSV** is **V2** per [`V1_DEFERRED.md` §6r](../library/V1_DEFERRED.md). **Self-hosted Enterprise deals** are **V2** per [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md) — container / Terraform assets are engineering-only, not a V1 contracted buyer path. SAML metadata CLI (#4) and SAML SP startup validation (#18, 2026-05-24) ship; remaining V1 friction: no interactive claim-mapping wizard.
 - **Tradeoffs:** Adding more configuration validation slows initial setup but prevents post-go-live outages and reduces SE time per onboarding.
-- **Recommendations:** Ship the SAML SP validation CLI and startup validation rule; publish audit retention extension contract (Improvement #20); publish hosted Enterprise onboarding checklist (Improvement #17).
+- **Recommendations:** Publish custom policy pack authoring SKUs on pricing pages (Improvement #6); add interactive SAML claim-mapping wizard (future).
 - **Status:** Fixable in V1 (hosted SaaS enterprise ergonomics); bulk CSV import and self-hosted Enterprise deals are V2.
 
 ### 4. Time-to-Value
@@ -69,27 +69,27 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Score:** 92
 - **Weight:** 5
 - **Weighted Deficiency:** 40
-- **Justification:** Pilot Scorecard API and Executive ROI Summary are implemented with cross-run deduplication, systemic-issue aggregation, history endpoint, and CSV export response shape (`ExecutiveRoiExportResponse`). The aggregation rules in `ExecutiveRoiSummaryService` are documented (§2.8) and implement stable-`FindingId` dedup as committed. **`ExecutiveRoiSummaryServiceTests` / `ExecutiveRoiSummaryServiceExtendedTests`** now cover cross-tenant dedup, null/empty `FindingId` edge cases, snapshot savings aggregation, muted findings, and export rows (Improvement #3, 2026-05-24).
+- **Justification:** Pilot Scorecard API and Executive ROI Summary are implemented with cross-run deduplication, systemic-issue aggregation, history endpoint, CSV export response shape (`ExecutiveRoiExportResponse`), and CSV export CLI (#9, 2026-05-24). The aggregation rules in `ExecutiveRoiSummaryService` are documented (§2.8) and implement stable-`FindingId` dedup as committed. **`ExecutiveRoiSummaryServiceTests` / `ExecutiveRoiSummaryServiceExtendedTests`** now cover cross-tenant dedup, null/empty `FindingId` edge cases, snapshot savings aggregation, muted findings, and export rows (Improvement #3, 2026-05-24).
 - **Tradeoffs:** Cross-tenant dedup logic is non-trivial; regression risk is reduced but new finding categories still warrant test updates when aggregation rules change.
-- **Recommendations:** Ship a CLI to deliver the existing export to disk.
+- **Recommendations:** Ship board-pack one-page ROI export (Improvement #24).
 - **Status:** Fixable in V1.
 
 ### 6. Executive Value Visibility
-- **Score:** 90
+- **Score:** 93
 - **Weight:** 4
-- **Weighted Deficiency:** 40
-- **Justification:** Executive ROI Summary endpoint and operator-shell `ExecutiveRoiSummarySection` are live; the export response shape exists. The remaining V1 deficit: no operator-facing CLI export, no warmed cache (cold first load), and no Grafana panel for tenant-level estimated savings.
+- **Weighted Deficiency:** 28
+- **Justification:** Executive ROI Summary endpoint, operator-shell `ExecutiveRoiSummarySection`, CSV export CLI (#9, 2026-05-24), and leader-elected cache warmup hosted service (#16, 2026-05-24) are live. Remaining V1 deficit: no Grafana panel for tenant-level estimated savings and no board-pack one-page ROI artifact format.
 - **Tradeoffs:** Pre-warming the cache costs background CPU but eliminates the cold-first-impression problem for the very people the dashboard is for.
-- **Recommendations:** Ship the ROI CSV export CLI and pre-warming hosted service.
+- **Recommendations:** Add Grafana ROI panel (Improvement #12) and board-pack one-page export (Improvement #24).
 - **Status:** Fixable in V1.
 
 ### 7. Reliability
-- **Score:** 92
+- **Score:** 94
 - **Weight:** 2
-- **Weighted Deficiency:** 16
-- **Justification:** Outbox + data-consistency probes (`DataConsistencyOrphanProbeHostedService`), circuit breakers with health-check exposure, SQL transactions, RLS with `SESSION_CONTEXT`, and quarantine paths form a strong V1 baseline. Single-region active/passive is the **V1 contract per §6l** and not a `(A)` defect. The honest residual V1 risk is operator ergonomics around the integration-event outbox dead-letter table and absence of a vector-store health probe. Relational integrity risk: several child tables (`dbo.AgentTasks`, `dbo.AgentExecutionTraces`, `dbo.DecisionTraces`) store `RunId` as `NVARCHAR(64)` instead of `UNIQUEIDENTIFIER`, preventing trusted FK constraints back to `dbo.Runs`; the archive cascade uses `TRY_CAST` as a workaround, which is not SARGable and scans every row. Three FK constraints on `dbo.FindingsSnapshots` were created `WITH NOCHECK` (not trusted), so the query optimizer cannot use them.
-- **Tradeoffs:** A vector-store health check that fails `/health/ready` could keep an otherwise-healthy API node out of rotation; gate it behind a config flag with a permissive default. The `NVARCHAR` → `UNIQUEIDENTIFIER` migration requires a multi-step brownfield migration (add column, backfill, swap constraint, drop old column) and must be coordinated with the DbUp sequence.
-- **Recommendations:** Add `VectorStoreHealthCheck` and the dead-letter retry CLI / endpoint. Migrate `NVARCHAR(64)` run-ID columns to `UNIQUEIDENTIFIER` to enable trusted FK constraints and eliminate `TRY_CAST` in the archive cascade (Improvement #27). Re-trust `FindingsSnapshots` FK constraints with `WITH CHECK CHECK CONSTRAINT` (Improvement #26).
+- **Weighted Deficiency:** 12
+- **Justification:** Outbox + data-consistency probes (`DataConsistencyOrphanProbeHostedService`), circuit breakers with health-check exposure, SQL transactions, RLS with `SESSION_CONTEXT`, quarantine paths, `VectorStoreHealthCheck` on `/health/ready` (#10, 2026-05-24), and Ask RAG SQL fallback (#13, 2026-05-24) form a strong V1 baseline. Single-region active/passive is the **V1 contract per §6l** and not a `(A)` defect. Residual V1 risk: relational integrity — several child tables store `RunId` as `NVARCHAR(64)` instead of `UNIQUEIDENTIFIER`, preventing trusted FK constraints back to `dbo.Runs`; the archive cascade uses `TRY_CAST` as a workaround, which is not SARGable and scans every row. Three FK constraints on `dbo.FindingsSnapshots` were created `WITH NOCHECK` (not trusted), so the query optimizer cannot use them.
+- **Tradeoffs:** A vector-store health check that fails `/health/ready` could keep an otherwise-healthy API node out of rotation; `Retrieval:VectorStoreHealthCheck:FailReadinessWhenUnavailable` defaults permissive (degraded, not failing). The `NVARCHAR` → `UNIQUEIDENTIFIER` migration requires a multi-step brownfield migration and must be coordinated with the DbUp sequence.
+- **Recommendations:** Migrate `NVARCHAR(64)` run-ID columns to `UNIQUEIDENTIFIER` (Improvement #27). Re-trust `FindingsSnapshots` FK constraints with `WITH CHECK CHECK CONSTRAINT` (Improvement #26). Add agent-trace blob cleanup hosted service (Improvement #8).
 - **Status:** Fixable in V1.
 
 ### 8. Maintainability
@@ -102,10 +102,10 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Status:** Fixable in V1.
 
 ### 9. Supportability
-- **Score:** 95
+- **Score:** 96
 - **Weight:** 1
-- **Weighted Deficiency:** 5
-- **Justification:** OpenTelemetry depth (custom `ArchLucid` meter with ~50 instruments), persisted W3C trace IDs on runs, Serilog + correlation IDs, `archlucid doctor`, CLI `support-bundle`, multiple committed Grafana dashboards, Prometheus alert rules, detailed `/health` with circuit-breaker introspection, and post-deploy smoke for agent-output metrics. The V1 gap: no RAG-retrieval telemetry instrument, no LLM-redaction Grafana panel, no integration-outbox dashboard.
+- **Weighted Deficiency:** 4
+- **Justification:** OpenTelemetry depth (custom `ArchLucid` meter with ~50 instruments), persisted W3C trace IDs on runs, Serilog + correlation IDs, `archlucid doctor`, CLI `support-bundle`, multiple committed Grafana dashboards, Prometheus alert rules, detailed `/health` with circuit-breaker introspection and vector-store readiness probing (#10, 2026-05-24), and post-deploy smoke for agent-output metrics. The V1 gap: no RAG-retrieval telemetry instrument, no LLM-redaction Grafana panel, no integration-outbox dashboard.
 - **Tradeoffs:** More telemetry costs ingest dollars in Azure Monitor / Prometheus; per-tenant cardinality is already gated behind `LlmTelemetry:RecordPerTenantTokens`.
 - **Recommendations:** Add the three missing dashboards and the RAG retrieval instruments.
 - **Status:** Fixable in V1.
@@ -118,15 +118,15 @@ All V1.1 / V2 items removed per `Assessment-Scope-V1_1.mdc`. These are V1-action
 
 1. **Shallow RAG corpora:** Policy packs and tenant prior manifests are not yet chunked/indexed (TB-021 / RAG-V1-* backlog), capping the contextual depth agents can ground recommendations against.
 2. **Heuristic-first semantic scoring:** LLM-as-judge faithfulness evaluation is not uniformly applied across all four agent types (Topology, Cost, Compliance, Critic); reject thresholds ship at zero (warn-only).
-3. **SAML SP claim-mapping has no pre-flight validation:** Operators discover misconfigurations at first login attempt; no CLI or startup rule catches missing certs / endpoints / role mappings.
-4. **Integration event outbox dead-letter table has no operator retry path:** Recovering from prolonged downstream webhook outages requires SQL surgery; no CLI or admin endpoint exists.
-5. **No automated cleanup for orphaned agent-trace blobs:** `IArtifactBlobStore` accumulates `agent-traces/{runId}/...` blobs even after run deletion; no lifecycle job.
-6. **Executive ROI summary loads cold on first dashboard hit:** No pre-warming hosted service; the very people the dashboard is for see a slow first paint.
-7. **RAG retrieval latency and chunk-count telemetry not instrumented:** Blind spot in AI performance monitoring; only LLM-side metrics exist today.
-8. **No vector-store health check:** RAG path can degrade silently if the search service is unreachable; nothing surfaces in `/health/ready`.
-9. **Audit retention extension beyond per-tier defaults is undocumented:** Auditors routinely ask for 7-year retention; the per-tier defaults (90 days / 1 year / custom) have no published extension API or storage contract.
-10. **Compliance drift export is operator-UI-only:** Auditors who want point-in-time drift evidence cannot self-serve a CSV via CLI.
-11. **No in-product expansion CTA when tenants approach tier limits:** Existing Team tenants nearing seat or workspace caps see no in-app prompt to upgrade or request a quote.
+3. **SAML SP claim-mapping has no interactive pre-flight wizard:** Metadata CLI (#4) and startup validation (#18, 2026-05-24) catch misconfigurations at deploy time; operators still lack a guided claim-mapping UI.
+4. **No automated cleanup for orphaned agent-trace blobs:** `IArtifactBlobStore` accumulates `agent-traces/{runId}/...` blobs even after run deletion; no lifecycle job.
+5. **RAG retrieval latency and chunk-count telemetry not instrumented:** Blind spot in AI performance monitoring; only LLM-side metrics exist today.
+6. **Quality gate reject thresholds ship at zero (warn-only):** Borderline agent outputs are logged but not rejected; hallucinations may slip through until explicit thresholds land (Improvement #22).
+7. **No Grafana dashboard for integration event outbox metrics:** Dead-letter retry CLI (#5) ships, but operators lack a committed outbox depth / delivery-rate dashboard (Improvement #19).
+8. **Custom policy pack authoring SKU decided but not yet published:** SKU matrix approved (Improvement #6) but pricing pages, SoW template, and order-form line items have not landed.
+9. **No in-product expansion CTA when tenants approach tier limits:** Existing Team tenants nearing seat or workspace caps see no in-app prompt to upgrade or request a quote.
+10. **Marketing pricing quote-request follow-up has no measured SLA:** Rows are written and email goes out, but no committed response-time SLA, aging dashboard, or escalation rule.
+11. **No board-pack one-page ROI artifact format:** Executive ROI exists as JSON/CSV; economic buyers lack a committed Markdown/PDF one-pager for steering committees (Improvement #24).
 
 ---
 
@@ -134,8 +134,8 @@ All V1.1 / V2 items removed per `Assessment-Scope-V1_1.mdc`. These are V1-action
 
 V1.1-deferred commercial items (Stripe live-key flip, Marketplace publication, signed design partner, named reference customer, AWS/GCP analysis pricing) are removed per scope rule. The list below is V1-realistic friction that can be addressed inside the current contract.
 
-1. **Executive ROI summary has no operator-shipped CSV/PDF export path:** The endpoint shape exists; what is missing is the CLI/operator-UI export flow that lets a buyer drop the number into a board pack. Direct hit on economic-buyer trust.
-2. **No in-product upgrade nudge from trial to paid:** Trial tenants approaching their run / seat limits get no in-app conversion prompt. Sales-led is the V1 contract; in-product nudges are still V1-additive.
+1. **Executive ROI summary has no board-pack one-page export:** CSV CLI (#9) ships; economic buyers still lack a Markdown/PDF one-pager for steering committees (Improvement #24).
+2. **No in-product upgrade nudge from trial to paid:** Usage-based trial upgrade nudge shipped (#14, 2026-05-24); remaining gap is Team→Professional expansion CTA.
 3. **No in-product expansion CTA for Team → Professional or seat / workspace adds:** Existing tenants nearing tier ceilings see no expansion prompt; expansion revenue depends entirely on the CSM motion.
 4. **Marketing pricing quote-request follow-up has no measured SLA:** `dbo.MarketingPricingQuoteRequests` rows are written and an email goes out, but no committed response-time SLA, no aging dashboard, no escalation rule.
 5. **Custom policy pack authoring SKU is decided but not yet published:** Per Improvement #6 — the SKU matrix is approved (Starter / Standard / Program with shared-IP discount) but pricing pages, SoW template, and order-form line items have not landed.
@@ -147,12 +147,12 @@ V1.1-deferred commercial items (Stripe live-key flip, Marketplace publication, s
 
 CPA SOC 2 Type II, third-party pen-test publication, automated GDPR tenant erasure, multi-region active/active, and AWS/GCP target analysis are all explicitly out of `(A)` scope per `Assessment-Scope-V1_1.mdc` and `V1_DEFERRED.md` §6c / §6l / §6m / §6n. Procurement realism for those items belongs under `(B)` (informational, zero weight). The list below is V1-realistic enterprise friction.
 
-1. **SAML SP claim-mapping has no pre-flight validation tool:** Implementation engineers discover misconfigurations at runtime instead of at config time; the single biggest source of post-go-live identity tickets.
-2. **Audit retention extension beyond per-tier defaults is undocumented:** Auditors routinely ask for 7-year retention; the per-tier defaults have no published extension API or storage contract.
-3. **Hosted Enterprise lacks a published identity + governance enablement checklist:** SCIM, SAML, and default policy packs are shipped separately; no single hosted-SaaS onboarding doc ties them together for implementation teams.
-4. **Tier 2 Azure Extractor service-principal provisioning is customer-side manual:** The Tier 1 path is excellent; the Tier 2 opt-in still requires customers to author and review a service-principal setup script, which security reviewers will scrutinize line-by-line.
-5. **Integration event outbox dead-letter table has no operator retry path:** Prolonged downstream webhook failures require SQL surgery; no CLI or admin endpoint exists for enterprise ops teams.
-6. **No operator-shipped board-pack ROI export:** Executive ROI JSON exists; economic buyers lack a one-page Markdown/PDF artifact for steering committees without manual formatting.
+1. **SAML SP claim-mapping has no interactive pre-flight wizard:** Metadata CLI (#4) and startup validation (#18, 2026-05-24) reduce runtime surprises; implementation engineers still lack a guided claim-mapping UI.
+2. **Tier 2 Azure Extractor service-principal provisioning is customer-side manual:** The Tier 1 path is excellent; the Tier 2 opt-in still requires customers to author and review a service-principal setup script, which security reviewers will scrutinize line-by-line.
+3. **No Grafana dashboard for integration event outbox metrics:** Dead-letter retry CLI (#5) ships; enterprise ops teams still lack outbox depth / delivery-rate visibility (Improvement #19).
+4. **No operator-shipped board-pack ROI export:** Executive ROI JSON/CSV exists; economic buyers lack a one-page Markdown/PDF artifact for steering committees without manual formatting (Improvement #24).
+5. **Custom policy pack authoring SKU not yet published on pricing pages:** SKU matrix approved (Improvement #6) but GTM publication incomplete.
+6. **No in-product expansion CTA for Team → Professional or seat / workspace adds:** Existing tenants nearing tier ceilings see no expansion prompt; expansion revenue depends entirely on the CSM motion.
 
 ---
 
@@ -366,11 +366,12 @@ Implement a CLI command to export the Executive ROI summary as a CSV.
 Acceptance Criteria: Operators can generate a CSV report of ROI savings directly from the CLI.
 ```
 
-### 10. Add Health Check for Vector Store / Search Service
+### 10. Add Health Check for Vector Store / Search Service (completed 2026-05-24)
 - **Why it matters:** Prevents silent failures in the RAG pipeline.
 - **Expected impact:** Directly improves Reliability (+3 pts) and Supportability (+3 pts). Weighted readiness impact: +0.02%.
 - **Affected qualities:** Reliability, Supportability.
-- **Actionable now:** Yes.
+- **Actionable now:** No (completed).
+- **Completed:** 2026-05-24 — `VectorStoreHealthCheck` registered as `vector_store` on `/health/ready`; InMemory healthy; Azure Search misconfiguration reports degraded unless `Retrieval:VectorStoreHealthCheck:FailReadinessWhenUnavailable=true`.
 ```cursor
 Add a health check for the RAG vector store.
 1. Create `VectorStoreHealthCheck` implementing `IHealthCheck`.
@@ -410,11 +411,12 @@ Add a Grafana panel for Executive ROI metrics.
 Acceptance Criteria: Dashboard shows directional business value metrics.
 ```
 
-### 13. Implement Fallback Mechanism for RAG Search Service
+### 13. Implement Fallback Mechanism for RAG Search Service (completed 2026-05-24)
 - **Why it matters:** Ensures the application remains partially functional even if the vector store is down.
 - **Expected impact:** Directly improves Reliability (+4 pts) and AI/Agent Readiness (+2 pts). Weighted readiness impact: +0.05%.
 - **Affected qualities:** Reliability, AI/Agent Readiness.
-- **Actionable now:** Yes.
+- **Actionable now:** No (completed).
+- **Completed:** 2026-05-24 — `AskRetrievalSqlFallback` keyword overlap over findings/decisions; `AskService` catches vector failures, emits `archlucid_rag_retrieval_fallback_total`, and appends degraded-context warning to the prompt.
 ```cursor
 Implement a fallback mechanism for the RAG `AskService`.
 1. Modify `AskService` to catch exceptions from the vector store client.
@@ -459,11 +461,12 @@ Implement a CLI command to simulate outbound webhook payloads.
 Acceptance Criteria: Operators can test webhook endpoints without triggering actual architecture runs.
 ```
 
-### 16. Implement Background Job to Warm Up Executive ROI Cache
+### 16. Implement Background Job to Warm Up Executive ROI Cache (completed 2026-05-24)
 - **Why it matters:** Prevents slow initial page loads for executives viewing the dashboard.
 - **Expected impact:** Directly improves Executive Value Visibility (+3 pts) and Reliability (+1 pts). Weighted readiness impact: +0.03%.
 - **Affected qualities:** Executive Value Visibility, Reliability.
-- **Actionable now:** Yes.
+- **Actionable now:** No (completed).
+- **Completed:** 2026-05-24 — `CachingExecutiveRoiSummaryService` + leader-elected `ExecutiveRoiCacheWarmupHostedService` with `ExecutiveRoi:CacheWarmup` options; tenant-scoped warmup via `AmbientScopeContext`.
 ```cursor
 Implement a background job to pre-warm the Executive ROI summary cache.
 1. Create `ExecutiveRoiCacheWarmupHostedService`.
@@ -489,11 +492,12 @@ Constraints: documentation only; do not promise self-hosted deployment steps; do
 Acceptance Criteria: an implementation engineer can onboard a hosted Enterprise tenant from this checklist without hunting five separate integration docs.
 ```
 
-### 18. Implement Configuration Validation Rule for SAML SP Settings
+### 18. Implement Configuration Validation Rule for SAML SP Settings (completed 2026-05-24)
 - **Why it matters:** Prevents the application from starting with invalid or insecure SAML configurations.
 - **Expected impact:** Directly improves Reliability (+3 pts) and Adoption Friction (+2 pts). Weighted readiness impact: +0.04%.
 - **Affected qualities:** Reliability, Adoption Friction.
-- **Actionable now:** Yes.
+- **Actionable now:** No (completed).
+- **Completed:** 2026-05-24 — `CollectSamlSpWhenEnabled` in `AuthenticationRules`; wired via `ArchLucidConfigurationRules` when `ArchLucidAuth:Mode` is `SamlSp`.
 ```cursor
 Implement startup validation for SAML SP configuration.
 1. Create `SamlSpConfigurationRules` implementing `IStartupValidationRule`.
@@ -2946,7 +2950,7 @@ Run **7** (RAG Telemetry), **12** (Grafana ROI Panel), **19** (Grafana Outbox Pa
 Run **4** (SAML Metadata CLI), **5** (Dead-Letter Retry CLI), **9** (ROI CSV CLI), **15** (Webhook Simulator CLI), **21** (Compliance Drift CLI), and **24** (Board-Pack ROI Export) together. All in the CLI project, all share `System.CommandLine` patterns and the `ArchLucid.Api.Client` generated types.
 
 **Batch 4 — Reliability, hosted services, startup validation**
-Run **8** (Blob Cleanup Job), **10** (Vector Store Health Check), **13** (RAG Fallback), **16** (ROI Cache Warmup), **18** (SAML SP Startup Validation), and **22** (Quality Gate Reject Thresholds) together. Shared infrastructure: `IHostedService`, `IHealthCheck`, `IStartupValidationRule`.
+Run **8** (Blob Cleanup Job), **10** (Vector Store Health Check), **13** (RAG Fallback), **16** (ROI Cache Warmup), **18** (SAML SP Startup Validation), and **22** (Quality Gate Reject Thresholds) together. Shared infrastructure: `IHostedService`, `IHealthCheck`, `IStartupValidationRule`. **Partial completion 2026-05-24:** #10, #13, #16, #18 shipped; #8 (blob cleanup) and #22 (reject thresholds) remain.
 
 **Batch 5 — Test coverage & focused logic**
 Run **3** (ROI Dedup Tests) on its own or with Batch 4 if context permits. `ExecutiveRoiSummaryService` deserves focused attention.

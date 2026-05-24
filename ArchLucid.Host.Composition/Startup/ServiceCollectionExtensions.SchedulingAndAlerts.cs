@@ -1,5 +1,6 @@
 using ArchLucid.Application.Advisory;
 using ArchLucid.Contracts.Abstractions.Integrations;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Http;
@@ -41,7 +42,6 @@ public static partial class ServiceCollectionExtensions
         IConfiguration configuration,
         ArchLucidHostingRole hostingRole)
     {
-        // Shared by DataArchivalArchLucidJob (registered for every role in RegisterArchLucidJobRunners) and by
         // DataArchivalHostedService / DataArchivalHostHealthCheck on Worker+Combined. Api does not run the in-process
         // archival loop but still composes IArchLucidJob implementations — DI must resolve this singleton.
         services.AddSingleton<DataArchivalHostHealthState>();
@@ -54,6 +54,24 @@ public static partial class ServiceCollectionExtensions
 
             services.AddHostedService<DataArchivalHostedService>();
 
+    }
+
+    private static void RegisterExecutiveRoiCacheWarmupHostedService(
+        IServiceCollection services,
+        IConfiguration configuration,
+        ArchLucidHostingRole hostingRole)
+    {
+        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
+            return;
+
+        ExecutiveRoiCacheWarmupOptions opts =
+            configuration.GetSection(ExecutiveRoiCacheWarmupOptions.SectionPath).Get<ExecutiveRoiCacheWarmupOptions>()
+            ?? new ExecutiveRoiCacheWarmupOptions();
+
+        if (!opts.Enabled)
+            return;
+
+        services.AddHostedService<ExecutiveRoiCacheWarmupHostedService>();
     }
 
     private static void RegisterArchitectureProjectRetentionPurgeHostedService(

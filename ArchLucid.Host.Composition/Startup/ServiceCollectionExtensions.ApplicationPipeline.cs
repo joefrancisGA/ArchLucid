@@ -224,7 +224,10 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IGlobalSearchService, GlobalSearchService>();
         services.AddScoped<ICustomRoleService, CustomRoleService>();
         services.AddScoped<ICustomRolePermissionEvaluator, CustomRolePermissionEvaluator>();
-        services.AddScoped<IExecutiveRoiSummaryService, ExecutiveRoiSummaryService>();
+        services.AddScoped<ExecutiveRoiSummaryService>();
+        services.AddScoped<IExecutiveRoiSummaryService, CachingExecutiveRoiSummaryService>();
+        services.Configure<ExecutiveRoiCacheWarmupOptions>(
+            configuration.GetSection(ExecutiveRoiCacheWarmupOptions.SectionPath));
         services.AddScoped<ResourceCoverageReportService>();
         services
             .AddHttpClient<IPublisherConnector, ConfluenceCloudPublisherConnector>(

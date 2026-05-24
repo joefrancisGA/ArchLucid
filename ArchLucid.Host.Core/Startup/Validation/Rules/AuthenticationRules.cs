@@ -1,3 +1,4 @@
+using ArchLucid.Core.Auth.Saml;
 using ArchLucid.Core.Hosting;
 
 using ArchLucid.Host.Core.Configuration;
@@ -96,5 +97,40 @@ internal static class AuthenticationRules
 
             errors.Add(
                 "Production ApiKey auth requires at least one of Authentication:ApiKey:AdminKey or Authentication:ApiKey:ReadOnlyKey.");
+    }
+
+    /// <summary>
+    ///     When SAML SP is enabled, require issuer, IdP metadata URL, and a readable signing certificate path.
+    /// </summary>
+    public static void CollectSamlSpWhenEnabled(IConfiguration configuration, List<string> errors)
+    {
+        SamlSpConfigurationSnapshot snapshot = configuration
+                .GetSection(SamlSpConfigurationSnapshot.ConfigurationSectionPath)
+                .Get<SamlSpConfigurationSnapshot>()
+            ?? new SamlSpConfigurationSnapshot();
+
+        if (!snapshot.Enabled)
+            return;
+
+        if (string.IsNullOrWhiteSpace(snapshot.Issuer))
+            errors.Add("ArchLucidAuth:Saml2:Issuer is required when ArchLucidAuth:Saml2:Enabled is true.");
+
+        if (string.IsNullOrWhiteSpace(snapshot.IdPMetadata))
+            errors.Add("ArchLucidAuth:Saml2:IdPMetadata is required when ArchLucidAuth:Saml2:Enabled is true.");
+
+        if (string.IsNullOrWhiteSpace(snapshot.SigningCertificateFile))
+        {
+            errors.Add("ArchLucidAuth:Saml2:SigningCertificateFile is required when ArchLucidAuth:Saml2:Enabled is true.");
+
+            return;
+        }
+
+        string certPath = snapshot.SigningCertificateFile.Trim();
+
+        if (!Path.IsPathRooted(certPath))
+            certPath = Path.Combine(AppContext.BaseDirectory, certPath);
+
+        if (!File.Exists(certPath))
+            errors.Add($"ArchLucidAuth:Saml2:SigningCertificateFile does not exist or is not readable: '{certPath}'.");
     }
 }
