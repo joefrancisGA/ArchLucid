@@ -57,12 +57,6 @@ function makeArchLucidPackageZip(): File {
   return new File([blob], "azure-pack.zip", { type: "application/zip" });
 }
 
-async function clickPrimaryForward() {
-  await act(async () => {
-    fireEvent.click(screen.getByRole("button", { name: /^(Continue|Next)$/ }));
-  });
-}
-
 describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 }, () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -106,21 +100,16 @@ describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 },
     vi.unstubAllGlobals();
   });
 
-  it("inserts ZIP step, prefills from packager manifest, and submits after defaults", async () => {
+  it("defaults to the simplified pilot wizard, prefills from ZIP, and submits in three steps", async () => {
     render(<NewRunWizardClient />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("new-run-wizard-progress")).toBeInTheDocument();
+      expect(screen.getByTestId("simplified-pilot-wizard")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 1: Choose starting point/);
-
-    await act(async () => {
-      fireEvent.click(screen.getByTestId("wizard-start-blank"));
-    });
-
-    expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 2: Upload extractor ZIP/);
+    expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 1 of 3/i);
     expect(screen.getByTestId("wizard-baseline-zip-field")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Pilot wizard (3 steps)" })).toHaveAttribute("aria-pressed", "true");
 
     const zipInput = within(screen.getByTestId("wizard-baseline-zip-field")).getByLabelText("Azure packager ZIP");
     const zipFile = makeArchLucidPackageZip();
@@ -133,23 +122,24 @@ describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 },
       expect(screen.queryByTestId("wizard-azure-zip-error")).not.toBeInTheDocument();
     });
 
-    await clickPrimaryForward();
-    expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 3: Identity & goals/);
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+
+    expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 2 of 3/i);
 
     const systemName = screen.getByLabelText("System name") as HTMLInputElement;
     expect(systemName.value).toBe("MyRg");
 
-    for (let i = 0; i < 4; i += 1) {
-      await clickPrimaryForward();
-    }
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
 
-    expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 7: Review/);
+    expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 3 of 3/i);
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Start Architecture Review" }));
     });
-
-    expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 8: Pipeline/);
 
     await waitFor(() => {
       expect(createArchitectureRunMock).toHaveBeenCalled();

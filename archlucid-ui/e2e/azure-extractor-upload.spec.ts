@@ -8,8 +8,7 @@ function archLucidZipBuffer(manifest: Record<string, unknown>): Buffer {
 test.describe("Azure extractor ZIP wizard field", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
-    await expect(page.getByTestId("new-run-wizard-progress")).toBeVisible({ timeout: 60_000 });
-    await page.getByTestId("wizard-start-blank").click();
+    await expect(page.getByTestId("simplified-pilot-wizard")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("wizard-baseline-zip-field")).toBeVisible();
   });
 

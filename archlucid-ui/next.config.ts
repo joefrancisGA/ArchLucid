@@ -4,6 +4,12 @@ import type { NextConfig } from "next";
  * Baseline security headers for the operator shell. HSTS belongs on the TLS terminator
  * (e.g. Azure Front Door, App Gateway), not here — this app may run on HTTP in dev.
  */
+/** Long-lived cache for fingerprinted Next.js build assets and static images. */
+const immutableStaticAssetCacheControl = {
+  key: "Cache-Control",
+  value: "public, max-age=31536000, immutable",
+} as const;
+
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
@@ -66,6 +72,14 @@ const nextConfig: NextConfig = {
   transpilePackages: ["reactflow"],
   async headers() {
     return [
+      {
+        source: "/_next/static/:path*",
+        headers: [immutableStaticAssetCacheControl],
+      },
+      {
+        source: "/images/:path*",
+        headers: [immutableStaticAssetCacheControl],
+      },
       {
         source: "/:path*",
         headers: securityHeaders,

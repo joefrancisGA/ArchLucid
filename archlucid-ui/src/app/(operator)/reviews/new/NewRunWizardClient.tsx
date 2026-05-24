@@ -43,6 +43,7 @@ import {
 import { WizardAiSuggestedFieldsProvider } from "@/lib/wizard-ai-suggested-fields";
 
 import { QuickStartWizard } from "./QuickStartWizard";
+import { SimplifiedPilotWizard } from "./SimplifiedPilotWizard";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 const WIZARD_STEP_DEFINITIONS_FULL = [
@@ -220,10 +221,10 @@ export function NewRunWizardClient() {
       return;
     }
 
-    setWizardMode("full");
+    setWizardMode("quick");
 
     try {
-      window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "full");
+      window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "quick");
     } catch {
       /* ignore */
     }
@@ -396,9 +397,12 @@ export function NewRunWizardClient() {
   const isReviewStep: boolean = stepIndex === reviewStepIndex;
   const showQuickTrack = wizardMode === "quick" && runId !== null;
   const showFullWizardShell = wizardMode === "full" && !showQuickTrack;
+  const showSimplifiedPilotWizard = baselineFirst && wizardMode === "quick" && !showQuickTrack;
+  const showQuickStartWizard = !baselineFirst && wizardMode === "quick" && !showQuickTrack;
   const fullWizardStepCountLabel: number = baselineFirst
     ? WIZARD_STEP_DEFINITIONS_BASELINE.length
     : WIZARD_STEP_DEFINITIONS_FULL.length;
+  const quickModeLabel = baselineFirst ? "Pilot wizard (3 steps)" : "Quick Start (3 steps)";
 
   return (
     <FormProvider {...form}>
@@ -425,7 +429,7 @@ export function NewRunWizardClient() {
                 aria-pressed={wizardMode === "quick"}
                 onClick={() => persistWizardMode("quick")}
               >
-                Quick Start (3 steps)
+                {quickModeLabel}
               </button>
               <button
                 type="button"
@@ -450,7 +454,18 @@ export function NewRunWizardClient() {
             <WizardStepTrack runId={runId} pollSummary={pollSummary} />
           ) : null}
 
-          {wizardModeReady && wizardMode === "quick" && !showQuickTrack ? (
+          {wizardModeReady && showSimplifiedPilotWizard ? (
+            <SimplifiedPilotWizard
+              key="simplified-pilot"
+              blocksLlmExecution={blocksLlmExecution}
+              llmBudgetStatus={llmBudgetStatus}
+              onRunCreated={(id) => {
+                setRunId(id);
+              }}
+            />
+          ) : null}
+
+          {wizardModeReady && showQuickStartWizard ? (
             <QuickStartWizard
               key={wizardMode}
               blocksLlmExecution={blocksLlmExecution}
