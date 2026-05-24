@@ -1,3 +1,5 @@
+> **Scope:** Read-only engineering inventory for assessment #34 Phase 1 — Contracts namespace groups, consumer counts, and bounded-context remediation targets; not an implementation plan or source of runtime truth.
+
 # Contracts bounded-context inventory (#34 Phase 1)
 
 Read-only inventory for assessment #34. Generated 2026-05-24.
