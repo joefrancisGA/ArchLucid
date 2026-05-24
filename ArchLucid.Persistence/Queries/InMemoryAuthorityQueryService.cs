@@ -1,6 +1,6 @@
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Persistence.Context;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -96,9 +96,9 @@ public sealed class InMemoryAuthorityQueryService(
         Task<FindingsSnapshot?> findingsTask = run.FindingsSnapshotId.HasValue
             ? findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, ct)
             : Task.FromResult<FindingsSnapshot?>(null);
-        Task<DecisionTrace?> traceTask = run.DecisionTraceId.HasValue
+        Task<DecisionTraceDto?> traceTask = run.DecisionTraceId.HasValue
             ? decisionTraceRepository.GetByIdAsync(scope, run.DecisionTraceId.Value, ct)
-            : Task.FromResult<DecisionTrace?>(null);
+            : Task.FromResult<DecisionTraceDto?>(null);
         Task<ManifestDocument?> manifestTask = run.GoldenManifestId.HasValue
             ? goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct)
             : Task.FromResult<ManifestDocument?>(null);

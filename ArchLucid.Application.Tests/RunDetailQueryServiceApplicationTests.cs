@@ -1,6 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -131,7 +131,7 @@ public sealed class RunDetailQueryServiceApplicationTests
             Metadata = new ManifestMetadata { ManifestVersion = "v1" },
         };
 
-        DecisionTrace authorityTrace = RunEventTrace.From(new RunEventTracePayload
+        DecisionTraceDto authorityTrace = RunEventTraceDto.From(new RunEventTracePayload
         {
             TraceId = traceId.ToString("N"), RunId = runN, EventType = "Commit", EventDescription = "authority commit",
         });

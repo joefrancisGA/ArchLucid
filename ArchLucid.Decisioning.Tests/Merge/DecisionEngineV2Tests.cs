@@ -1,10 +1,10 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Decisioning.Merge;
 
-using EvalTypes = ArchLucid.Contracts.Decisions.EvaluationTypes;
+using EvalTypes = ArchLucid.Decisioning.Decisions.EvaluationTypes;
 
 using FluentAssertions;
 
@@ -30,7 +30,7 @@ public sealed class DecisionEngineV2Tests
                 AgentType = AgentType.Topology,
                 Confidence = 0.8,
                 EvidenceRefs = ["req"],
-                ProposedChanges = new ManifestDeltaProposal
+                ProposedChanges = new AgentTopologyProposal
                 {
                     SourceAgent = AgentType.Topology,
                     AddedDatastores =
@@ -65,7 +65,7 @@ public sealed class DecisionEngineV2Tests
                 RunId = "RUN-1",
                 AgentType = AgentType.Topology,
                 Confidence = 0.6,
-                ProposedChanges = new ManifestDeltaProposal
+                ProposedChanges = new AgentTopologyProposal
                 {
                     SourceAgent = AgentType.Topology,
                     AddedDatastores =
@@ -118,7 +118,7 @@ public sealed class DecisionEngineV2Tests
                 TaskId = "T-topo",
                 AgentType = AgentType.Topology,
                 Confidence = 0.69,
-                ProposedChanges = new ManifestDeltaProposal
+                ProposedChanges = new AgentTopologyProposal
                 {
                     SourceAgent = AgentType.Topology,
                     AddedDatastores =

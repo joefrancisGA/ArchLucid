@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
@@ -84,7 +84,7 @@ public sealed class AuthorityReplayService(
             return result;
         }
 
-        (ManifestDocument manifest, DecisionTrace trace) = await decisionEngine.DecideAsync(
+        (ManifestDocument manifest, DecisionTraceDto trace) = await decisionEngine.DecideAsync(
             original.Run.RunId,
             original.ContextSnapshot.SnapshotId,
             original.GraphSnapshot,
@@ -157,9 +157,12 @@ public sealed class AuthorityReplayService(
         };
     }
 
-    private static void ApplyScope(DecisionTrace trace, ScopeContext scope)
+    private static void ApplyScope(DecisionTraceDto trace, ScopeContext scope)
     {
-        RuleAuditTracePayload audit = trace.RequireRuleAudit();
+        if (trace is not RuleAuditTraceDto ruleAuditTrace)
+            throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");
+
+        RuleAuditTracePayload audit = ruleAuditTrace.RuleAudit;
         audit.TenantId = scope.TenantId;
         audit.WorkspaceId = scope.WorkspaceId;
         audit.ProjectId = scope.ProjectId;

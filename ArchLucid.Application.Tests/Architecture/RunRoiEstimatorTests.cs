@@ -2,7 +2,7 @@ using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
 
@@ -52,8 +52,8 @@ public sealed class RunRoiEstimatorTests
             Manifest = null,
             DecisionTraces =
             [
-                RunEventTrace.From(new RunEventTracePayload { RunId = "r", EventType = "a" }),
-                RunEventTrace.From(new RunEventTracePayload { RunId = "r", EventType = "b" })
+                RunEventTraceDto.From(new RunEventTracePayload { RunId = "r", EventType = "a" }),
+                RunEventTraceDto.From(new RunEventTracePayload { RunId = "r", EventType = "b" })
             ]
         };
 

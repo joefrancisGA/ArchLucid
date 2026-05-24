@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ArchLucid.Contracts.DecisionTraces;
+namespace ArchLucid.Decisioning.DecisionTraces;
 
 /// <summary>
 ///     Preserves the historical wire shape <c>{ "kind", "runEvent"?, "ruleAudit"? }</c> while using

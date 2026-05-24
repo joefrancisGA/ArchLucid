@@ -7,7 +7,7 @@ using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
@@ -532,13 +532,19 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         {
             await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken, uow.Connection, uow.Transaction);
             await resultRepository.CreateManyAsync(results, cancellationToken, uow.Connection, uow.Transaction);
-            await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken, uow.Connection, uow.Transaction);
+            await agentEvaluationRepository.CreateManyAsync(
+                DecisionRecordMapper.ToRecords(evaluations),
+                cancellationToken,
+                uow.Connection,
+                uow.Transaction);
         }
         else
         {
             await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
             await resultRepository.CreateManyAsync(results, cancellationToken);
-            await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken);
+            await agentEvaluationRepository.CreateManyAsync(
+                DecisionRecordMapper.ToRecords(evaluations),
+                cancellationToken);
         }
     }
 
@@ -611,7 +617,11 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 await resultRepository.CreateAsync(result, cancellationToken, uow.Connection, uow.Transaction);
 
             if (evaluations.Count > 0)
-                await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken, uow.Connection, uow.Transaction);
+                await agentEvaluationRepository.CreateManyAsync(
+                DecisionRecordMapper.ToRecords(evaluations),
+                cancellationToken,
+                uow.Connection,
+                uow.Transaction);
 
             return;
         }
@@ -622,6 +632,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             await resultRepository.CreateAsync(result, cancellationToken);
 
         if (evaluations.Count > 0)
-            await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken);
+            await agentEvaluationRepository.CreateManyAsync(
+                DecisionRecordMapper.ToRecords(evaluations),
+                cancellationToken);
     }
 }

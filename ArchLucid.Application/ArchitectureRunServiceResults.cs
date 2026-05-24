@@ -1,5 +1,5 @@
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 
@@ -86,7 +86,7 @@ public sealed class CommitRunResult
     } = new();
 
     /// <summary>Decision traces persisted with the manifest.</summary>
-    public List<DecisionTrace> DecisionTraces
+    public List<DecisionTraceDto> DecisionTraces
     {
         get;
         set;

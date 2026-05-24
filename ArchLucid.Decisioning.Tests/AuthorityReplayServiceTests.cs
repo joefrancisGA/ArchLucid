@@ -1,5 +1,5 @@
 using ArchLucid.ArtifactSynthesis.Interfaces;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.Scoping;
@@ -85,10 +85,10 @@ public sealed class AuthorityReplayServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((
                 new ManifestDocument { ManifestId = Guid.NewGuid(), RunId = Guid.NewGuid() },
-                RuleAuditTrace.From(new RuleAuditTracePayload { DecisionTraceId = Guid.NewGuid() })));
+                RuleAuditTraceDto.From(new RuleAuditTracePayload { DecisionTraceId = Guid.NewGuid() })));
 
         traceRepo
-            .Setup(x => x.SaveAsync(It.IsAny<DecisionTrace>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveAsync(It.IsAny<DecisionTraceDto>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         manifestRepo

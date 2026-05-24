@@ -197,7 +197,7 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
             [
                 new ArchitectureFinding
                 {
-                    FindingId = null,
+                    FindingId = string.Empty,
                     Category = "Security",
                     Severity = FindingSeverity.Critical,
                     Message = "no stable id",

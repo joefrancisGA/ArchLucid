@@ -3,7 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Persistence.Context;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
@@ -214,7 +214,7 @@ public sealed class AuthorityPipelineStagesExecutor(
         {
             EnforceFindingsReadyForDecisioning(ctx.FindingsSnapshot!, run.RunId);
 
-            (ManifestDocument manifest, DecisionTrace trace) = await _decisionEngine.DecideAsync(
+            (ManifestDocument manifest, DecisionTraceDto trace) = await _decisionEngine.DecideAsync(
                 run.RunId,
                 ctx.ContextSnapshot!.SnapshotId,
                 ctx.GraphSnapshot!,
@@ -247,7 +247,10 @@ public sealed class AuthorityPipelineStagesExecutor(
             ctx.Manifest = manifest;
             ctx.Trace = trace;
 
-            run.DecisionTraceId = trace.RequireRuleAudit().DecisionTraceId;
+            if (trace is not RuleAuditTraceDto ruleAuditTrace)
+                throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");
+
+            run.DecisionTraceId = ruleAuditTrace.RuleAudit.DecisionTraceId;
             run.GoldenManifestId = manifest.ManifestId;
             await UpdateRunAsync(run, uow, token);
         }, ct);
@@ -464,7 +467,7 @@ public sealed class AuthorityPipelineStagesExecutor(
             await _findingsSnapshotRepository.SaveAsync(snapshot, ct);
     }
 
-    private async Task SaveTraceAsync(DecisionTrace trace, IArchLucidUnitOfWork uow, CancellationToken ct)
+    private async Task SaveTraceAsync(DecisionTraceDto trace, IArchLucidUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
             await _decisionTraceRepository.SaveAsync(trace, ct, uow.Connection, uow.Transaction);
@@ -501,9 +504,12 @@ public sealed class AuthorityPipelineStagesExecutor(
         }
     }
 
-    private static void ApplyScope(DecisionTrace trace, ScopeContext scope)
+    private static void ApplyScope(DecisionTraceDto trace, ScopeContext scope)
     {
-        RuleAuditTracePayload audit = trace.RequireRuleAudit();
+        if (trace is not RuleAuditTraceDto ruleAuditTrace)
+            throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");
+
+        RuleAuditTracePayload audit = ruleAuditTrace.RuleAudit;
         audit.TenantId = scope.TenantId;
         audit.WorkspaceId = scope.WorkspaceId;
         audit.ProjectId = scope.ProjectId;

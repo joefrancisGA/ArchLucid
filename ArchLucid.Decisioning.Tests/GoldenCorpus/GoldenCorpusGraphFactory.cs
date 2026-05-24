@@ -2,7 +2,7 @@ using System.Globalization;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.KnowledgeGraph.Models;
@@ -247,7 +247,7 @@ public static class GoldenCorpusGraphFactory
                 Claims = ["Add API service"],
                 EvidenceRefs = ["request"],
                 Confidence = 0.9,
-                ProposedChanges = new ManifestDeltaProposal
+                ProposedChanges = new AgentTopologyProposal
                 {
                     ProposalId = "PROP-GOLD-1",
                     SourceAgent = AgentType.Topology,

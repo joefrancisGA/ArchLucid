@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace ArchLucid.Contracts.DecisionTraces;
+namespace ArchLucid.Decisioning.DecisionTraces;
 
 /// <summary>
 ///     Coordinator pipeline trace: append-only merge and agent steps for a string <c>RunId</c> (correlates with authority

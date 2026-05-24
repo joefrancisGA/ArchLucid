@@ -1,7 +1,7 @@
-﻿using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Decisioning.Decisions;
 
 using FluentAssertions;
 
@@ -27,7 +27,7 @@ public sealed class AgentResultDiffServiceTests
                 Claims = ["Managed identity required"],
                 EvidenceRefs = ["policy-a"],
                 Confidence = 0.90,
-                ProposedChanges = new ManifestDeltaProposal
+                ProposedChanges = new AgentTopologyProposal
                 {
                     ProposalId = "P1", SourceAgent = AgentType.Compliance, RequiredControls = ["Managed Identity"]
                 }
@@ -45,7 +45,7 @@ public sealed class AgentResultDiffServiceTests
                 Claims = ["Managed identity required", "Private endpoints required"],
                 EvidenceRefs = ["policy-a", "policy-b"],
                 Confidence = 0.95,
-                ProposedChanges = new ManifestDeltaProposal
+                ProposedChanges = new AgentTopologyProposal
                 {
                     ProposalId = "P2",
                     SourceAgent = AgentType.Compliance,

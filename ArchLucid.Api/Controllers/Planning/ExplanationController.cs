@@ -2,6 +2,8 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Application.Explanation;
+using ArchLucid.Application.Explanation;
+using ArchLucid.Application.Explanation.Models;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
@@ -152,7 +154,8 @@ public sealed class ExplanationController(
 
         TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(match);
         ExplainabilityTrace t = match.Trace;
-        FindingExplainabilityEvidence evidence = FindingExplainabilityNarrativeBuilder.BuildEvidence(match);
+        FindingExplainabilityEvidence evidence =
+            FindingExplainabilityEvidenceMapper.ToModel(FindingExplainabilityNarrativeBuilder.BuildEvidence(match));
 
         FindingExplainabilityResult body = new()
         {

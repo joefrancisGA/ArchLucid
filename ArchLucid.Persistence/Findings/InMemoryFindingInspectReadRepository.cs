@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
@@ -64,7 +64,7 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
         string? ruleId = null;
         string? ruleName = null;
 
-        if (detail.AuthorityTrace is RuleAuditTrace ruleAudit)
+        if (detail.AuthorityTrace is RuleAuditTraceDto ruleAudit)
         {
             RuleAuditTracePayload payload = ruleAudit.RuleAudit;
 

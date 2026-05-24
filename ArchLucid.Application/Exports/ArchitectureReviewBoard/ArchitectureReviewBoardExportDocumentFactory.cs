@@ -5,7 +5,7 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 
@@ -133,17 +133,17 @@ public static class ArchitectureReviewBoardExportDocumentFactory
     {
         List<ArchitectureReviewBoardExportDecisionRow> rows = [];
 
-        foreach (DecisionTrace trace in detail.DecisionTraces ?? [])
+        foreach (DecisionTraceDto trace in detail.DecisionTraces ?? [])
         {
             string title = trace.Kind.ToString();
             string detailText = string.Empty;
 
-            if (trace is RunEventTrace runEvent)
+            if (trace is RunEventTraceDto runEvent)
             {
                 RunEventTracePayload payload = runEvent.RunEvent;
                 detailText = $"{payload.EventType}: {payload.EventDescription}".Trim();
             }
-            else if (trace is RuleAuditTrace ruleAudit)
+            else if (trace is RuleAuditTraceDto ruleAudit)
             {
                 RuleAuditTracePayload payload = ruleAudit.RuleAudit;
                 detailText =

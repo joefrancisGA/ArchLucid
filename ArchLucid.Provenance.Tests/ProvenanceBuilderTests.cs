@@ -1,5 +1,5 @@
 using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -23,14 +23,16 @@ public sealed class ProvenanceBuilderTests
     public void Build_minimal_inputs_yields_only_manifest_node_and_no_edges()
     {
         ProvenanceBuilder sut = new();
-        DecisionProvenanceGraph graph = sut.Build(
-            RunId,
-            new FindingsSnapshot { Findings = [] },
-            new GraphSnapshot { Nodes = [] },
-            new ManifestDocument { ManifestId = ManifestId, ManifestHash = "hash-min", Decisions = [] },
-            RuleAuditTrace.From(
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "hash-min", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(
                 new RuleAuditTracePayload { AppliedRuleIds = [] }),
-            []);
+            Artifacts = []
+        });
 
         graph.RunId.Should().Be(RunId);
         graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Manifest);
@@ -102,13 +104,15 @@ public sealed class ProvenanceBuilderTests
         };
 
         ProvenanceBuilder sut = new();
-        DecisionProvenanceGraph graph = sut.Build(
-            RunId,
-            findings,
-            graphSnap,
-            manifest,
-            RuleAuditTrace.From(audit),
-            [artifact]);
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = findings,
+            Graph = graphSnap,
+            Manifest = manifest,
+            DecisionTrace = RuleAuditTraceDto.From(audit),
+            Artifacts = [artifact]
+        });
 
         graph.Nodes.Should().HaveCount(7);
         graph.Nodes.Should().Contain(n => n.Type == ProvenanceNodeType.GraphNode && n.ReferenceId == graphNodeId);
@@ -142,13 +146,15 @@ public sealed class ProvenanceBuilderTests
         };
 
         ProvenanceBuilder sut = new();
-        DecisionProvenanceGraph graph = sut.Build(
-            RunId,
-            new FindingsSnapshot { Findings = [] },
-            new GraphSnapshot { Nodes = [] },
-            new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [decision] },
-            RuleAuditTrace.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
-            []);
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [decision] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = []
+        });
 
         graph.Edges.Should().ContainSingle(e => e.Type == ProvenanceEdgeType.ContainedInManifest);
         graph.Edges.Should().NotContain(e => e.Type == ProvenanceEdgeType.SupportedBy);
@@ -169,13 +175,15 @@ public sealed class ProvenanceBuilderTests
         };
 
         ProvenanceBuilder sut = new();
-        DecisionProvenanceGraph graph = sut.Build(
-            RunId,
-            new FindingsSnapshot { Findings = [f, f] },
-            new GraphSnapshot { Nodes = [] },
-            new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
-            RuleAuditTrace.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
-            []);
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [f, f] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = []
+        });
 
         graph.Nodes.Count(n => n.Type == ProvenanceNodeType.Finding).Should().Be(1);
     }

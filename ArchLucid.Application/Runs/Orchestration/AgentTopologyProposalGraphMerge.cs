@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
@@ -8,7 +7,7 @@ using ArchLucid.KnowledgeGraph.Models;
 namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
-///     Merges Topology agent <see cref="ManifestDeltaProposal" /> into the run's graph so authority commit
+///     Merges Topology agent <see cref="AgentTopologyProposal" /> into the run's graph so authority commit
 ///     can project <see cref="ManifestService" /> / <see cref="ManifestDatastore" /> after execute, when the
 ///     graph from context ingestion had no <see cref="GraphNodeTypes.TopologyResource" /> nodes.
 /// </summary>
@@ -38,7 +37,7 @@ public static class AgentTopologyProposalGraphMerge
             if (result.AgentType != AgentType.Topology)
                 continue;
 
-            ManifestDeltaProposal? proposal = result.ProposedChanges;
+            AgentTopologyProposal? proposal = result.ProposedChanges;
             if (proposal is null)
                 continue;
 

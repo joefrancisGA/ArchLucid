@@ -6,8 +6,9 @@ using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.DecisionTraces;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Decisioning.DecisionTraces;
+using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
@@ -130,7 +131,7 @@ public sealed class ReplayRunService(
         IReadOnlyList<AgentResult> results = await executor.ExecuteAsync(replayRunId, request, replayEvidence, replayTasks, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
         GoldenManifest? manifest = null;
-        List<DecisionTrace> decisionTraces = [];
+        List<DecisionTraceDto> decisionTraces = [];
         List<string> warnings = [];
         if (!commitReplay)
             return new ReplayRunResult
@@ -155,7 +156,7 @@ public sealed class ReplayRunService(
         if (!merge.Success)
             throw new InvalidOperationException($"Replay merge failed: {string.Join("; ", merge.Errors)}");
         manifest = merge.Manifest;
-        decisionTraces = merge.DecisionTraces;
+        decisionTraces = merge.DecisionTraces.Select(DecisionTraceRecordMapper.ToDto).ToList();
         warnings = merge.Warnings;
         Guid manifestId = Guid.NewGuid();
         Guid contextSnapshotId = Guid.NewGuid();

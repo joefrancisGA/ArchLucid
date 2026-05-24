@@ -203,7 +203,7 @@ public sealed class ExecutiveRoiSummaryServiceTests
             [
                 new ArchitectureFinding
                 {
-                    FindingId = null,
+                    FindingId = string.Empty,
                     Category = "Security",
                     Severity = FindingSeverity.Error,
                     Message = "no id",
@@ -219,7 +219,7 @@ public sealed class ExecutiveRoiSummaryServiceTests
                 },
                 new ArchitectureFinding
                 {
-                    FindingId = null,
+                    FindingId = string.Empty,
                     Category = "Security",
                     Severity = FindingSeverity.Error,
                     Message = "also no id",

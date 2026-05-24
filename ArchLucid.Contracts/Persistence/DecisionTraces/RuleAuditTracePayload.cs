@@ -1,8 +1,8 @@
-namespace ArchLucid.Contracts.DecisionTraces;
+namespace ArchLucid.Contracts.Persistence.DecisionTraces;
 
 /// <summary>
 ///     Authority pipeline record of which rules were applied and which findings were accepted or rejected;
-///     carried on <see cref="RuleAuditTrace.RuleAudit" />.
+///     carried on <see cref="RuleAuditTraceDto.RuleAudit" />.
 /// </summary>
 public sealed class RuleAuditTracePayload
 {

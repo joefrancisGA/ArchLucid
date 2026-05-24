@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Decisioning.Decisions;
 
 namespace ArchLucid.Decisioning.Merge;
 

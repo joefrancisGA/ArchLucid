@@ -2,7 +2,7 @@ using System.IO.Compression;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
@@ -51,7 +51,7 @@ public sealed class TraceabilityBundleBuilder(IRunDetailQueryService runDetailQu
         return zipBytes.LongLength > maxZipBytes ? throw new TraceabilityBundleTooLargeException(zipBytes.LongLength, maxZipBytes) : zipBytes;
     }
 
-    private static byte[] BuildZipInMemory(object runSummary, IReadOnlyList<AuditEvent> audits, IReadOnlyList<DecisionTrace> traces)
+    private static byte[] BuildZipInMemory(object runSummary, IReadOnlyList<AuditEvent> audits, IReadOnlyList<DecisionTraceDto> traces)
     {
         using MemoryStream ms = new();
         using (ZipArchive zip = new(ms, ZipArchiveMode.Create, true))

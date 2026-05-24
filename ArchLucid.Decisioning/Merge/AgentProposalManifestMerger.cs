@@ -1,6 +1,6 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Decisioning.Merge;
@@ -35,7 +35,12 @@ public sealed class AgentProposalManifestMerger
                 });
 
             if (result.ProposedChanges is not null)
-                ApplyProposal(manifest, result.ProposedChanges, output, result.AgentType);
+            {
+                ManifestDeltaProposal proposal =
+                    AgentTopologyProposalMapper.ToManifestDeltaProposal(result.ProposedChanges);
+
+                ApplyProposal(manifest, proposal, output, result.AgentType);
+            }
 
             ApplyFindingsToGovernance(manifest, result, output);
         }

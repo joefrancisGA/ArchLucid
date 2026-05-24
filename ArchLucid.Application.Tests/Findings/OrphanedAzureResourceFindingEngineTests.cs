@@ -82,7 +82,7 @@ public sealed class OrphanedAzureResourceFindingEngineTests
             .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
             .ReturnsAsync((AzureExtractorPackageDownloadRecord?)null);
 
-        OrphanedAzureResourceFindingEngine sut = new(CreateScopeProvider(), packageRepository.Object);
+        OrphanedAzureResourceFindingEngine sut = new(CreateScopeProvider().Object, packageRepository.Object);
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
 
@@ -106,7 +106,7 @@ public sealed class OrphanedAzureResourceFindingEngineTests
             .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
             .ReturnsAsync(package);
 
-        return new OrphanedAzureResourceFindingEngine(CreateScopeProvider(), packageRepository.Object);
+        return new OrphanedAzureResourceFindingEngine(CreateScopeProvider().Object, packageRepository.Object);
     }
 
     private static Mock<IScopeContextProvider> CreateScopeProvider()

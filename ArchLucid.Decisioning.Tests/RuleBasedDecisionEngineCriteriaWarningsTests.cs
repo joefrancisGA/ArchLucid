@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Manifest.Builders;
 using ArchLucid.Decisioning.Models;
@@ -59,7 +59,7 @@ public sealed class RuleBasedDecisionEngineCriteriaWarningsTests
             new GoldenManifestValidator(),
             new ManifestHashService());
 
-        (_, DecisionTrace trace) = await engine.DecideAsync(runId, contextSnapshotId, graph, snapshot, CancellationToken.None);
+        (_, DecisionTraceDto trace) = await engine.DecideAsync(runId, contextSnapshotId, graph, snapshot, CancellationToken.None);
 
         RuleAuditTracePayload audit = trace.RequireRuleAudit();
         audit.Warnings.Should().ContainSingle();
@@ -116,7 +116,7 @@ public sealed class RuleBasedDecisionEngineCriteriaWarningsTests
             new GoldenManifestValidator(),
             new ManifestHashService());
 
-        (_, DecisionTrace trace) = await engine.DecideAsync(runId, contextSnapshotId, graph, snapshot, CancellationToken.None);
+        (_, DecisionTraceDto trace) = await engine.DecideAsync(runId, contextSnapshotId, graph, snapshot, CancellationToken.None);
 
         RuleAuditTracePayload audit = trace.RequireRuleAudit();
         audit.Warnings.Should().BeEmpty();

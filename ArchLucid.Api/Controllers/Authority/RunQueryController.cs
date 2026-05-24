@@ -17,7 +17,7 @@ using ArchLucid.Application.Traceability;
 using ArchLucid.Application.Trust;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Interfaces;
@@ -417,7 +417,7 @@ public sealed class RunQueryController(
         if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        IReadOnlyList<DecisionNode> decisions = await decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<DecisionNodeRecord> decisions = await decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
 
         if (decisions.Count == 0)
             return this.NotFoundProblem(

@@ -1,5 +1,5 @@
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Decisioning.Validation;

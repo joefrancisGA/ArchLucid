@@ -1,18 +1,25 @@
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Decisioning.Models;
 namespace ArchLucid.Provenance;
 
 public sealed class ProvenanceBuilder : IProvenanceBuilder
 {
-    public DecisionProvenanceGraph Build(
-        Guid runId,
-        FindingsSnapshot findings,
-        GraphSnapshot graph,
-        ManifestDocument manifest,
-        DecisionTrace decisionTrace,
-        IReadOnlyList<SynthesizedArtifact> artifacts)
+    public DecisionProvenanceGraph Build(ProvenanceBuildInput input)
     {
-        RuleAuditTracePayload trace = decisionTrace.RequireRuleAudit();
+        if (input is null)
+            throw new ArgumentNullException(nameof(input));
+
+        Guid runId = input.RunId;
+        FindingsSnapshot findings = input.Findings;
+        GraphSnapshot graph = input.Graph;
+        ManifestDocument manifest = input.Manifest;
+        DecisionTraceDto decisionTrace = input.DecisionTrace;
+        IReadOnlyList<SynthesizedArtifact> artifacts = input.Artifacts;
+
+        if (decisionTrace is not RuleAuditTraceDto ruleAuditTrace)
+            throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");
+
+        RuleAuditTracePayload trace = ruleAuditTrace.RuleAudit;
 
         DecisionProvenanceGraph result = new() { Id = Guid.NewGuid(), RunId = runId };
 

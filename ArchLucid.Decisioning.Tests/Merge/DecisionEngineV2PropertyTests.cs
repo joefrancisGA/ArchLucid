@@ -1,6 +1,6 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Decisioning.Merge;
 

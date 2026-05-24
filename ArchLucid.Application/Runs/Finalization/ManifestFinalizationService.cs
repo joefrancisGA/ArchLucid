@@ -3,13 +3,13 @@ using System.Text.Json;
 
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
+using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
@@ -137,7 +137,7 @@ public sealed class ManifestFinalizationService(
         }
 
         RuleAuditTracePayload audit = request.Trace.RequireRuleAudit();
-        await decisionTraceRepository.SaveAsync(request.Trace, cancellationToken, connection, transaction);
+        await decisionTraceRepository.SaveAsync(DecisionTraceRecordMapper.ToDto(request.Trace), cancellationToken, connection, transaction);
         ManifestDocument persisted = await goldenManifestRepository.SaveAsync(request.Contract, scope, request.Keying, manifestHashService,
             cancellationToken, connection, transaction, request.ManifestModel);
         DateTime occurredUtc = TimeProvider.System.UtcNowDateTime();
@@ -234,7 +234,7 @@ public sealed class ManifestFinalizationService(
                 throw new InvalidOperationException("Artifact bundle on the run record does not match the expected bundle for finalization.");
         }
 
-        await decisionTraceRepository.SaveAsync(request.Trace, cancellationToken);
+        await decisionTraceRepository.SaveAsync(DecisionTraceRecordMapper.ToDto(request.Trace), cancellationToken);
         ManifestDocument persisted = await goldenManifestRepository.SaveAsync(request.Contract, scope, request.Keying, manifestHashService,
             cancellationToken, authorityPersistBody: request.ManifestModel);
         RuleAuditTracePayload audit = request.Trace.RequireRuleAudit();

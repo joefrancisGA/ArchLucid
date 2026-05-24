@@ -1,7 +1,8 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -14,20 +15,24 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
-///     Persists authority <see cref="DecisionTrace" /> (rule audit) from decisioning (not coordinator
+///     Persists authority <see cref="DecisionTraceDto" /> (rule audit) from decisioning (not coordinator
 ///     <c>DecisionTraces</c> table). JSON columns are <c>NVARCHAR(MAX)</c> with rowstore PAGE compression (migration 088).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionFactory) : IDecisionTraceRepository
 {
     public async Task SaveAsync(
-        DecisionTrace trace,
+        DecisionTraceDto trace,
         CancellationToken ct,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(trace);
-        RuleAuditTracePayload audit = trace.RequireRuleAudit();
+
+        if (trace is not RuleAuditTraceDto ruleAuditTrace)
+            throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");
+
+        RuleAuditTracePayload audit = ruleAuditTrace.RuleAudit;
         ScopedRepositoryScopeValidation.RequireEntityTenant(audit.TenantId);
 
         const string sql = """
@@ -74,7 +79,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
         await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
-    public async Task<DecisionTrace?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
+    public async Task<DecisionTraceDto?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
@@ -103,7 +108,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
         if (row is null)
             return null;
 
-        return RuleAuditTrace.From(new RuleAuditTracePayload
+        return RuleAuditTraceDto.From(new RuleAuditTracePayload
         {
             TenantId = row.TenantId,
             WorkspaceId = row.WorkspaceId,

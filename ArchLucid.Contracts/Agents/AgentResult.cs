@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Contracts.Agents;
@@ -100,7 +99,7 @@ public sealed class AgentResult
     ///     Proposed additions and removals to the golden manifest.
     ///     <see langword="null" /> when the agent has no structural proposals (e.g. evaluation-only agents).
     /// </summary>
-    public ManifestDeltaProposal? ProposedChanges
+    public AgentTopologyProposal? ProposedChanges
     {
         get;
         set;

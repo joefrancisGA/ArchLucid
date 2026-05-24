@@ -1,7 +1,7 @@
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Decisioning.Decisions;
 
-using EvalTypes = ArchLucid.Contracts.Decisions.EvaluationTypes;
+using EvalTypes = ArchLucid.Decisioning.Decisions.EvaluationTypes;
 
 namespace ArchLucid.Decisioning.Merge;
 

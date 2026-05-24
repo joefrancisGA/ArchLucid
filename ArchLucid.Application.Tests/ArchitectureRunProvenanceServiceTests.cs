@@ -1,9 +1,9 @@
-﻿using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.Decisions;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
@@ -84,7 +84,7 @@ public sealed class ArchitectureRunProvenanceServiceTests
             },
             DecisionTraces =
             [
-                RunEventTrace.From(
+                RunEventTraceDto.From(
                     new RunEventTracePayload
                     {
                         TraceId = "tr1",
@@ -111,7 +111,7 @@ public sealed class ArchitectureRunProvenanceServiceTests
         Mock<IDecisionNodeRepository> decisions = new();
         decisions.Setup(d => d.GetByRunIdAsync(runId, CancellationToken.None))
             .ReturnsAsync(
-                new List<DecisionNode>
+                new List<DecisionNodeRecord>
                 {
                     new()
                     {

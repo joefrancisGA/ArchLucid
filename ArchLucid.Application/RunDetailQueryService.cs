@@ -3,7 +3,7 @@ using ArchLucid.Application.Runs.Mapping;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
@@ -92,7 +92,7 @@ public sealed class RunDetailQueryService(
         }
 
         GoldenManifest? manifest = await unifiedGoldenManifestReader.ReadByRunIdAsync(scope, runGuid, cancellationToken);
-        List<DecisionTrace> decisionTraces = [];
+        List<DecisionTraceDto> decisionTraces = [];
         if (manifest is null)
         {
             if (!string.IsNullOrWhiteSpace(run.CurrentManifestVersion) && logger.IsEnabled(LogLevel.Warning))
@@ -101,7 +101,7 @@ public sealed class RunDetailQueryService(
         }
         else if (record.DecisionTraceId is { } authorityTraceId)
         {
-            DecisionTrace? authorityTrace = await authorityDecisionTraceRepository.GetByIdAsync(scope, authorityTraceId, cancellationToken);
+            DecisionTraceDto? authorityTrace = await authorityDecisionTraceRepository.GetByIdAsync(scope, authorityTraceId, cancellationToken);
             if (authorityTrace is not null)
                 decisionTraces = [authorityTrace];
         }

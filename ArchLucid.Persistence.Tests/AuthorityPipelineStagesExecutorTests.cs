@@ -5,7 +5,7 @@ using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.ContextIngestion.Models;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Diagnostics;
@@ -573,7 +573,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             RuleSetHash = "rh"
         };
 
-        DecisionTrace trace = RuleAuditTrace.From(
+        DecisionTraceDto trace = RuleAuditTraceDto.From(
             new RuleAuditTracePayload { DecisionTraceId = traceId, RunId = Guid.Empty, CreatedUtc = TimeProvider.System.UtcNowDateTime() });
 
         Mock<IDecisionEngine> decision = new();
@@ -588,7 +588,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
         Mock<IDecisionTraceRepository> traceRepo = new();
         traceRepo
-            .Setup(r => r.SaveAsync(It.IsAny<DecisionTrace>(), It.IsAny<CancellationToken>(), null, null))
+            .Setup(r => r.SaveAsync(It.IsAny<DecisionTraceDto>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
 
         Mock<IGoldenManifestRepository> manifestRepo = new();

@@ -2,11 +2,11 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.DecisionTraces;
 
 using FluentAssertions;
 
-namespace ArchLucid.Contracts.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 ///     <see cref="DecisionTrace" /> uses <see cref="DecisionTraceJsonConverter" />; coordinator and authority payloads

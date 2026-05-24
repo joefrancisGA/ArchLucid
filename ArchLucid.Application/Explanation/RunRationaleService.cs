@@ -1,5 +1,5 @@
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
@@ -105,18 +105,18 @@ public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, I
 
     private static List<DecisionTraceEntry> MapAuthorityDecisionTraces(RunDetailDto detail)
     {
-        if (detail.AuthorityTrace is not RuleAuditTrace ruleAudit)
+        if (detail.AuthorityTrace is not RuleAuditTraceDto ruleAudit)
             return [];
         return [MapRuleAudit(ruleAudit.RuleAudit)];
     }
 
-    private static DecisionTraceEntry? MapCoordinatorTrace(DecisionTrace trace)
+    private static DecisionTraceEntry? MapCoordinatorTrace(DecisionTraceDto trace)
     {
         switch (trace)
         {
-            case RuleAuditTrace ra:
+            case RuleAuditTraceDto ra:
                 return MapRuleAudit(ra.RuleAudit);
-            case RunEventTrace re:
+            case RunEventTraceDto re:
                 return MapRunEvent(re.RunEvent);
             default:
                 return null;

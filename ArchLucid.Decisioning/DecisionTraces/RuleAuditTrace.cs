@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace ArchLucid.Contracts.DecisionTraces;
+namespace ArchLucid.Decisioning.DecisionTraces;
 
 /// <summary>
 ///     Authority pipeline trace: rule-application audit from the decision engine.

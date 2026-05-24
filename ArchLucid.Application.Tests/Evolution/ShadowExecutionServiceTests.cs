@@ -3,7 +3,7 @@ using ArchLucid.Application.Evolution;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
@@ -45,7 +45,7 @@ public sealed class ShadowExecutionServiceTests
             },
             DecisionTraces =
             [
-                RunEventTrace.From(new RunEventTracePayload
+                RunEventTraceDto.From(new RunEventTracePayload
                 {
                     TraceId = "t0", RunId = "run1", EventType = "Real", EventDescription = "committed",
                 }),

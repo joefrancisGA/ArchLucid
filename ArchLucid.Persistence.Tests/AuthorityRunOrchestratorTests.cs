@@ -3,7 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.Application.Runs;
 using ArchLucid.ContextIngestion.Models;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
@@ -97,7 +97,7 @@ public sealed class AuthorityRunOrchestratorTests
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 };
 
-                ctx.Trace = RuleAuditTrace.From(new RuleAuditTracePayload
+                ctx.Trace = RuleAuditTraceDto.From(new RuleAuditTracePayload
                 {
                     TenantId = ctx.Scope.TenantId,
                     WorkspaceId = ctx.Scope.WorkspaceId,
@@ -299,7 +299,7 @@ public sealed class AuthorityRunOrchestratorTests
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 };
 
-                ctx.Trace = RuleAuditTrace.From(new RuleAuditTracePayload
+                ctx.Trace = RuleAuditTraceDto.From(new RuleAuditTracePayload
                 {
                     TenantId = ctx.Scope.TenantId,
                     WorkspaceId = ctx.Scope.WorkspaceId,
@@ -608,7 +608,7 @@ public sealed class AuthorityRunOrchestratorTests
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 };
 
-                ctx.Trace = RuleAuditTrace.From(new RuleAuditTracePayload
+                ctx.Trace = RuleAuditTraceDto.From(new RuleAuditTracePayload
                 {
                     TenantId = ctx.Scope.TenantId,
                     WorkspaceId = ctx.Scope.WorkspaceId,

@@ -1,6 +1,6 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 
@@ -29,7 +29,7 @@ internal static class RunResponseMapper
         string executionMode,
         IEnumerable<AgentResult> results,
         GoldenManifest? manifest,
-        IEnumerable<DecisionTrace> decisionTraces,
+        IEnumerable<DecisionTraceDto> decisionTraces,
         IEnumerable<string> warnings)
     {
         return new ReplayRunResponse
@@ -46,7 +46,7 @@ internal static class RunResponseMapper
 
     public static CommitRunResponse ToCommitRunResponse(
         GoldenManifest manifest,
-        IEnumerable<DecisionTrace> decisionTraces,
+        IEnumerable<DecisionTraceDto> decisionTraces,
         IEnumerable<string> warnings)
     {
         return new CommitRunResponse
@@ -60,7 +60,7 @@ internal static class RunResponseMapper
         List<AgentTask> tasks,
         List<AgentResult> results,
         GoldenManifest? manifest,
-        List<DecisionTrace> decisionTraces)
+        List<DecisionTraceDto> decisionTraces)
     {
         return new RunDetailsResponse
         {

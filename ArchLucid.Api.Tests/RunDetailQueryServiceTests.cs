@@ -1,7 +1,7 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -132,7 +132,7 @@ public sealed class RunDetailQueryServiceTests
         GoldenManifest manifest = Manifest(Run1N);
         AgentTask task = new() { TaskId = "t1", RunId = Run1N };
         AgentResult agentResult = new() { ResultId = "r1", RunId = Run1N };
-        DecisionTrace trace = RunEventTrace.From(new RunEventTracePayload { TraceId = "tr1", RunId = Run1N });
+        DecisionTraceDto trace = RunEventTraceDto.From(new RunEventTracePayload { TraceId = "tr1", RunId = Run1N });
 
         _runRepo.Setup(r => r.GetByIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
             .ReturnsAsync(record);

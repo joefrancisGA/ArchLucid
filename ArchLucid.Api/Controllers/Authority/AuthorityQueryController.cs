@@ -289,13 +289,15 @@ public sealed class AuthorityQueryController(
                 "Coordinator-only or in-progress runs do not satisfy this contract.");
 
         IReadOnlyList<SynthesizedArtifact> artifacts = detail.ArtifactBundle?.Artifacts ?? [];
-        DecisionProvenanceGraph graph = provenanceBuilder.Build(
-            detail.Run.RunId,
-            detail.FindingsSnapshot,
-            detail.GraphSnapshot,
-            detail.GoldenManifest,
-            detail.AuthorityTrace,
-            artifacts);
+        DecisionProvenanceGraph graph = provenanceBuilder.Build(new ProvenanceBuildInput
+        {
+            RunId = detail.Run.RunId,
+            Findings = detail.FindingsSnapshot,
+            Graph = detail.GraphSnapshot,
+            Manifest = detail.GoldenManifest,
+            DecisionTrace = detail.AuthorityTrace,
+            Artifacts = artifacts
+        });
 
         int provenanceFindingCount = detail.FindingsSnapshot.Findings?.Count ?? 0;
         FindingsListAccessTelemetry.LogFindingSnapshotExpose(

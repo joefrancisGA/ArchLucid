@@ -3,22 +3,18 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
-/// <summary>
-///     Dapper-backed persistence for <see cref="IAgentEvaluationRepository" />; writes and reads agent evaluation records
-///     from the <c>AgentEvaluations</c> table.
-/// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFactory) : IAgentEvaluationRepository
 {
     public async Task CreateManyAsync(
-        IReadOnlyCollection<AgentEvaluation> evaluations,
+        IReadOnlyCollection<AgentEvaluationRecord> evaluations,
         CancellationToken cancellationToken = default,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
@@ -38,8 +34,6 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
 
         string runId = evaluations.First().RunId;
 
-        // Delete all existing evaluations for this run before inserting so that a retry
-        // of ExecuteRunAsync (inside IArchLucidUnitOfWork) does not produce duplicate rows.
         const string deleteSql = "DELETE FROM AgentEvaluations WHERE RunId = @RunId;";
 
         const string insertSql = """
@@ -92,7 +86,7 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
         }
     }
 
-    public async Task<IReadOnlyList<AgentEvaluation>> GetByRunIdAsync(
+    public async Task<IReadOnlyList<AgentEvaluationRecord>> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default)
     {
@@ -111,18 +105,18 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
             new { RunId = runId },
             cancellationToken: cancellationToken));
 
-        List<AgentEvaluation> evaluations = [];
+        List<AgentEvaluationRecord> evaluations = [];
         foreach (string json in rows)
         {
-            AgentEvaluation? evaluation;
+            AgentEvaluationRecord? evaluation;
             try
             {
-                evaluation = JsonSerializer.Deserialize<AgentEvaluation>(json, ContractJson.Default);
+                evaluation = JsonSerializer.Deserialize<AgentEvaluationRecord>(json, ContractJson.Default);
             }
             catch (JsonException ex)
             {
                 throw new InvalidOperationException(
-                    $"Failed to deserialize an AgentEvaluation for run '{runId}'. " +
+                    $"Failed to deserialize an AgentEvaluationRecord for run '{runId}'. " +
                     "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
             }
 
@@ -141,7 +135,7 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
     private static async Task ExecuteCreateManyCoreAsync(
         IDbConnection conn,
         IDbTransaction tx,
-        IReadOnlyCollection<AgentEvaluation> evaluations,
+        IReadOnlyCollection<AgentEvaluationRecord> evaluations,
         string runId,
         string deleteSql,
         string insertSql,
@@ -153,7 +147,7 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
             tx,
             cancellationToken: cancellationToken));
 
-        foreach (AgentEvaluation e in evaluations)
+        foreach (AgentEvaluationRecord e in evaluations)
         {
             string payload = JsonSerializer.Serialize(e, ContractJson.Default);
             await conn.ExecuteAsync(new CommandDefinition(

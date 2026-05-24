@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Decisioning.Interfaces;
 
 using Cm = ArchLucid.Contracts.Manifest;

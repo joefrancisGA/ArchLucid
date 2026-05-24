@@ -3,7 +3,7 @@ using System.Text;
 
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Evolution;
 
 namespace ArchLucid.Application.Evolution;
@@ -75,7 +75,7 @@ public sealed class ShadowExecutionService(IRunDetailQueryService runDetailQuery
             };
             if (!string.IsNullOrEmpty(step.AcceptanceCriteria))
                 payload.Metadata["AcceptanceCriteria"] = step.AcceptanceCriteria;
-            detail.DecisionTraces.Add(RunEventTrace.From(payload));
+            detail.DecisionTraces.Add(RunEventTraceDto.From(payload));
         }
     }
 

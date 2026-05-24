@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Trust;
@@ -46,7 +46,7 @@ public sealed class RunDetailsResponse
         set;
     }
 
-    public List<DecisionTrace> DecisionTraces
+    public List<DecisionTraceDto> DecisionTraces
     {
         get;
         set;

@@ -1,6 +1,6 @@
 using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
 
@@ -25,7 +25,7 @@ public sealed class AgentResultRegionMismatchEnricherTests
             Constraints = ["region:qatarcentral"],
         };
 
-        ManifestDeltaProposal proposal = new()
+        AgentTopologyProposal proposal = new()
         {
             AddedServices =
             [
@@ -51,8 +51,8 @@ public sealed class AgentResultRegionMismatchEnricherTests
         await _sut.EnrichAsync("run", request, new AgentEvidencePackage(), results, CancellationToken.None);
 
         proposal.Warnings.Should().ContainSingle();
-        proposal.Warnings[0].Should().Contain("RegionMismatch", StringComparison.Ordinal);
-        proposal.Warnings[0].Should().Contain("qatarcentral", StringComparison.OrdinalIgnoreCase);
+        proposal.Warnings[0].Should().Contain("RegionMismatch");
+        proposal.Warnings[0].Should().Contain("qatarcentral");
     }
 
     [Fact]
@@ -69,7 +69,7 @@ public sealed class AgentResultRegionMismatchEnricherTests
         string existingWarning =
             "RegionMismatch: 'Microsoft.CognitiveServices/accounts' may not be available in region 'qatarcentral'.";
 
-        ManifestDeltaProposal proposal = new()
+        AgentTopologyProposal proposal = new()
         {
             Warnings = [existingWarning],
             AddedServices =
@@ -110,7 +110,7 @@ public sealed class AgentResultRegionMismatchEnricherTests
             Constraints = ["region:qatarcentral"],
         };
 
-        ManifestDeltaProposal proposal = new()
+        AgentTopologyProposal proposal = new()
         {
             AddedDatastores =
             [

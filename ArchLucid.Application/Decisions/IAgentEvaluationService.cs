@@ -1,5 +1,5 @@
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Requests;
 
 namespace ArchLucid.Application.Decisions;

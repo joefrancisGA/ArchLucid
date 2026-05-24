@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Api.Models;
@@ -14,7 +14,7 @@ public sealed class CommitRunResponse
         set;
     } = new();
 
-    public List<DecisionTrace> DecisionTraces
+    public List<DecisionTraceDto> DecisionTraces
     {
         get;
         set;

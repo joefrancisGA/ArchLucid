@@ -1,5 +1,5 @@
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application;
@@ -36,7 +36,7 @@ public sealed class ReplayRunResult
         set;
     }
 
-    public List<DecisionTrace> DecisionTraces
+    public List<DecisionTraceDto> DecisionTraces
     {
         get;
         set;

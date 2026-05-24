@@ -1,3 +1,4 @@
+using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
@@ -6,6 +7,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core;
 using ArchLucid.Core.Audit;
@@ -194,7 +196,7 @@ public sealed class ArchitectureRunExecuteOrchestratorPartialBudgetTests
         Mock<IAgentEvaluationRepository> evalRepo = new();
         evalRepo
             .Setup(r => r.CreateManyAsync(
-                It.IsAny<IReadOnlyCollection<AgentEvaluation>>(),
+                It.IsAny<IReadOnlyCollection<AgentEvaluationRecord>>(),
                 It.IsAny<CancellationToken>(),
                 null,
                 null))

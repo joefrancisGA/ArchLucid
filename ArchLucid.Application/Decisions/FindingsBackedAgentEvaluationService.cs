@@ -1,10 +1,10 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Requests;
 
-using EvalTypes = ArchLucid.Contracts.Decisions.EvaluationTypes;
+using EvalTypes = ArchLucid.Decisioning.Decisions.EvaluationTypes;
 
 namespace ArchLucid.Application.Decisions;
 

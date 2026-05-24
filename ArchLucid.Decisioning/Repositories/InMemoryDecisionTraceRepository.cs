@@ -2,9 +2,9 @@ using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Interfaces;
 
 namespace ArchLucid.Decisioning.Repositories;
 
@@ -13,16 +13,19 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
     private const int MaxEntries = 500;
     private readonly Lock _lock = new();
 
-    private readonly List<DecisionTrace> _store = [];
+    private readonly List<DecisionTraceDto> _store = [];
 
     public Task SaveAsync(
-        DecisionTrace trace,
+        DecisionTraceDto trace,
         CancellationToken ct,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(trace);
-        trace.RequireRuleAudit();
+
+        if (trace is not RuleAuditTraceDto)
+            throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");
+
         ct.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;
@@ -38,13 +41,13 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
         return Task.CompletedTask;
     }
 
-    public Task<DecisionTrace?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
+    public Task<DecisionTraceDto?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
         lock (_lock)
         {
-            DecisionTrace? result = _store.FirstOrDefault(x =>
-                x is RuleAuditTrace rat &&
+            DecisionTraceDto? result = _store.FirstOrDefault(x =>
+                x is RuleAuditTraceDto rat &&
                 rat.RuleAudit.DecisionTraceId == decisionTraceId &&
                 rat.RuleAudit.TenantId == scope.TenantId &&
                 rat.RuleAudit.WorkspaceId == scope.WorkspaceId &&
@@ -54,14 +57,11 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
         }
     }
 
-    private static DecisionTrace Clone(DecisionTrace source)
+    private static DecisionTraceDto Clone(DecisionTraceDto source)
     {
-        string json = JsonSerializer.Serialize(source.RequireRuleAudit(), ContractJson.Default);
-        RuleAuditTracePayload? copy = JsonSerializer.Deserialize<RuleAuditTracePayload>(json, ContractJson.Default);
+        string json = JsonSerializer.Serialize(source, ContractJson.Default);
+        DecisionTraceDto? copy = JsonSerializer.Deserialize<DecisionTraceDto>(json, ContractJson.Default);
 
-        return copy is null
-            ? throw new InvalidOperationException("Clone produced null RuleAuditTracePayload.")
-            : RuleAuditTrace.From(copy);
+        return copy ?? throw new InvalidOperationException("Clone produced null DecisionTraceDto.");
     }
 }
-

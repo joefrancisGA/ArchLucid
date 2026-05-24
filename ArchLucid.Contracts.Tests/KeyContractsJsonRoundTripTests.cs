@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
@@ -74,9 +74,9 @@ public sealed class KeyContractsJsonRoundTripTests
     }
 
     [Fact]
-    public void DecisionNode_with_options_round_trips_json()
+    public void DecisionNodeRecord_with_options_round_trips_json()
     {
-        DecisionOption optA = new()
+        DecisionOptionRecord optA = new()
         {
             Description = "Accept",
             BaseConfidence = 0.7,
@@ -85,18 +85,18 @@ public sealed class KeyContractsJsonRoundTripTests
             EvidenceRefs = ["e1"]
         };
 
-        DecisionOption optB = new()
+        DecisionOptionRecord optB = new()
         {
             Description = "Reject", BaseConfidence = 0.2, SupportScore = 0, OppositionScore = 0
         };
 
-        DecisionNode original = new()
+        DecisionNodeRecord original = new()
         {
             RunId = "run-dn-1",
             Topic = "TopologyAcceptance",
             Options = [optA, optB],
             SelectedOptionId = optA.OptionId,
-            Confidence = optA.FinalScore,
+            Confidence = optA.BaseConfidence + optA.SupportScore - optA.OppositionScore,
             Rationale = "Kept topology.",
             SupportingEvaluationIds = ["ev1"],
             OpposingEvaluationIds = [],
@@ -104,7 +104,7 @@ public sealed class KeyContractsJsonRoundTripTests
         };
 
         string json = JsonSerializer.Serialize(original, JsonOptions);
-        DecisionNode? back = JsonSerializer.Deserialize<DecisionNode>(json, JsonOptions);
+        DecisionNodeRecord? back = JsonSerializer.Deserialize<DecisionNodeRecord>(json, JsonOptions);
 
         back.Should().NotBeNull();
         back.RunId.Should().Be(original.RunId);
@@ -112,7 +112,6 @@ public sealed class KeyContractsJsonRoundTripTests
         back.Options.Should().HaveCount(2);
         back.SelectedOptionId.Should().Be(original.SelectedOptionId);
         back.Confidence.Should().BeApproximately(original.Confidence, 1e-9);
-        back.Options[0].FinalScore.Should().BeApproximately(optA.FinalScore, 1e-9);
         back.SupportingEvaluationIds.Should().Equal(original.SupportingEvaluationIds);
     }
 }

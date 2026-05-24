@@ -1,5 +1,5 @@
 using ArchLucid.Contracts.Persistence.Context;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Models;
@@ -19,7 +19,7 @@ public interface IAuthorityCommittedPipelineFinalizer
         ContextSnapshot contextSnapshot,
         FindingsSnapshot findingsSnapshot,
         ManifestDocument manifest,
-        DecisionTrace trace,
+        DecisionTraceDto trace,
         ScopeContext scope,
         IArchLucidUnitOfWork unitOfWork,
         CancellationToken cancellationToken);

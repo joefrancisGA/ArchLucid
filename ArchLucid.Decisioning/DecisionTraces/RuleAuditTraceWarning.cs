@@ -1,4 +1,4 @@
-namespace ArchLucid.Contracts.DecisionTraces;
+namespace ArchLucid.Decisioning.DecisionTraces;
 
 /// <summary>
 ///     Diagnostic entry when a decision rule matches a finding type but required context fields are absent.

@@ -1,5 +1,5 @@
 ﻿using ArchLucid.Application.Architecture;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 
 using FluentAssertions;

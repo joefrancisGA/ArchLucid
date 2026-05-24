@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Contracts.Persistence.Context;
@@ -82,7 +82,7 @@ public class RunDetailDto
 
     /// <summary>Authority rule-audit trace when <see cref="RunRecord.DecisionTraceId" /> resolves.</summary>
     [JsonPropertyName("decisionTrace")]
-    public DecisionTrace? AuthorityTrace
+    public DecisionTraceDto? AuthorityTrace
     {
         get;
         set;

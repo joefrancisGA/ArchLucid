@@ -3,7 +3,7 @@ using System.Text;
 
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
@@ -388,7 +388,7 @@ public sealed class FirstValueReportBuilder(
     {
         sb.AppendLine("## Decision trace summary (top 5)");
         sb.AppendLine();
-        List<DecisionTrace> traces = detail.DecisionTraces.Where(static _ => true).Take(5).ToList();
+        List<DecisionTraceDto> traces = detail.DecisionTraces.Where(static _ => true).Take(5).ToList();
         if (traces.Count == 0)
         {
             sb.AppendLine("_(No decision traces on this run — typical before commit or for coordinator-only paths.)_");
@@ -397,15 +397,15 @@ public sealed class FirstValueReportBuilder(
         }
 
         int index = 1;
-        foreach (DecisionTrace trace in traces)
+        foreach (DecisionTraceDto trace in traces)
         {
-            if (trace is RuleAuditTrace rule)
+            if (trace is RuleAuditTraceDto rule)
             {
                 RuleAuditTracePayload p = rule.RuleAudit;
                 sb.AppendLine(
                     $"{index}. **Rule audit** — rule set `{p.RuleSetId}` v`{p.RuleSetVersion}`; applied rules: {p.AppliedRuleIds.Count}, accepted findings: {p.AcceptedFindingIds.Count}, rejected: {p.RejectedFindingIds.Count}.");
             }
-            else if (trace is RunEventTrace runEvent)
+            else if (trace is RunEventTraceDto runEvent)
             {
                 RunEventTracePayload p = runEvent.RunEvent;
                 sb.AppendLine($"{index}. **Run event** — `{p.EventType}`: {p.EventDescription}");

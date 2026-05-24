@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 
@@ -16,9 +16,9 @@ public abstract class DecisionTraceRepositoryContractTests
 
     protected abstract IDecisionTraceRepository CreateRepository();
 
-    private static DecisionTrace NewTrace(ScopeContext scope, Guid runId, Guid traceId)
+    private static DecisionTraceDto NewTrace(ScopeContext scope, Guid runId, Guid traceId)
     {
-        return RuleAuditTrace.From(new RuleAuditTracePayload
+        return RuleAuditTraceDto.From(new RuleAuditTracePayload
         {
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,
@@ -53,10 +53,10 @@ public abstract class DecisionTraceRepositoryContractTests
 
         await PrepareRunForTraceAsync(scope, runId, CancellationToken.None);
 
-        DecisionTrace trace = NewTrace(scope, runId, traceId);
+        DecisionTraceDto trace = NewTrace(scope, runId, traceId);
         await repo.SaveAsync(trace, CancellationToken.None);
 
-        DecisionTrace? loaded = await repo.GetByIdAsync(scope, traceId, CancellationToken.None);
+        DecisionTraceDto? loaded = await repo.GetByIdAsync(scope, traceId, CancellationToken.None);
         loaded.Should().NotBeNull();
         RuleAuditTracePayload audit = loaded.RequireRuleAudit();
         audit.DecisionTraceId.Should().Be(traceId);
@@ -81,7 +81,7 @@ public abstract class DecisionTraceRepositoryContractTests
 
         await PrepareRunForTraceAsync(scope, runId, CancellationToken.None);
 
-        DecisionTrace trace = NewTrace(scope, runId, traceId);
+        DecisionTraceDto trace = NewTrace(scope, runId, traceId);
         await repo.SaveAsync(trace, CancellationToken.None);
 
         ScopeContext other = new()
@@ -89,7 +89,7 @@ public abstract class DecisionTraceRepositoryContractTests
             TenantId = Guid.NewGuid(), WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId
         };
 
-        DecisionTrace? loaded = await repo.GetByIdAsync(other, traceId, CancellationToken.None);
+        DecisionTraceDto? loaded = await repo.GetByIdAsync(other, traceId, CancellationToken.None);
         loaded.Should().BeNull();
     }
 

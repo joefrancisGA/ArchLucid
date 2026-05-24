@@ -1,7 +1,7 @@
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
@@ -33,7 +33,7 @@ public sealed class AgentTopologyProposalGraphMergeTests
             TaskId = "t1",
             RunId = "run-1",
             AgentType = AgentType.Topology,
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = "p1",
                 SourceAgent = AgentType.Topology,
@@ -92,7 +92,7 @@ public sealed class AgentTopologyProposalGraphMergeTests
             TaskId = "t1",
             RunId = "run-1",
             AgentType = AgentType.Topology,
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 SourceAgent = AgentType.Topology,
                 AddedServices =
@@ -130,7 +130,7 @@ public sealed class AgentTopologyProposalGraphMergeTests
             RunId = "run-2",
             AgentType = AgentType.Topology,
             ReasoningTrace = reasoning,
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 SourceAgent = AgentType.Topology,
                 AddedServices =

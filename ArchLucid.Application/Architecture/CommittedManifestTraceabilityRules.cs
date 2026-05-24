@@ -1,6 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Architecture;
@@ -24,7 +24,7 @@ public static class CommittedManifestTraceabilityRules
     ///     Validates manifest <see cref = "ManifestMetadata.DecisionTraceIds"/> against coordinator
     ///     <see cref = "DecisionTrace"/> rows.
     /// </summary>
-    public static IReadOnlyList<string> GetLinkageGaps(GoldenManifest? manifest, IReadOnlyList<DecisionTrace> traces)
+    public static IReadOnlyList<string> GetLinkageGaps(GoldenManifest? manifest, IReadOnlyList<DecisionTraceDto> traces)
     {
         ArgumentNullException.ThrowIfNull(traces);
         if (manifest is null)
@@ -37,11 +37,11 @@ public static class CommittedManifestTraceabilityRules
             else
                 idsOnManifest.Add(id);
         List<string> coordinatorTraceIds = [];
-        foreach (DecisionTrace trace in traces)
+        foreach (DecisionTraceDto trace in traces)
         {
-            if (trace is not RunEventTrace runEventTrace)
+            if (trace is not RunEventTraceDto runEventTrace)
             {
-                gaps.Add($"Decision trace row is not a {nameof(RunEventTrace)} (Kind={trace.Kind}); coordinator commits expect run-event traces only.");
+                gaps.Add($"Decision trace row is not a {nameof(RunEventTraceDto)} (Kind={trace.Kind}); coordinator commits expect run-event traces only.");
                 continue;
             }
 

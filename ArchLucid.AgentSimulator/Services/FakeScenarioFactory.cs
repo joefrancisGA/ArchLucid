@@ -3,7 +3,6 @@ using System.Text;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
@@ -63,7 +62,7 @@ public static class FakeScenarioFactory
                     EvidenceRefs = ["request"]
                 }
             ],
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = StableHexId(runId, taskId, "topology-proposal"),
                 SourceAgent = AgentType.Topology,
@@ -180,7 +179,7 @@ public static class FakeScenarioFactory
                     EvidenceRefs = ["pricing-profile"]
                 }
             ],
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = StableHexId(runId, taskId, "cost-proposal"),
                 SourceAgent = AgentType.Cost,
@@ -249,7 +248,7 @@ public static class FakeScenarioFactory
                     EvidenceRefs = ["policy-pack:azure-security-baseline"]
                 }
             ],
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = StableHexId(runId, taskId, "compliance-proposal"),
                 SourceAgent = AgentType.Compliance,
@@ -297,7 +296,7 @@ public static class FakeScenarioFactory
                     EvidenceRefs = ["critic-checklist"]
                 }
             ],
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = StableHexId(runId, taskId, "critic-proposal"),
                 SourceAgent = AgentType.Critic,

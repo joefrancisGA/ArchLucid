@@ -1,7 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Contracts.Persistence.Context;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
@@ -66,7 +66,7 @@ public sealed class AuthorityCommittedPipelineFinalizer(
         ContextSnapshot contextSnapshot,
         FindingsSnapshot findingsSnapshot,
         ManifestDocument manifest,
-        DecisionTrace trace,
+        DecisionTraceDto trace,
         ScopeContext scope,
         IArchLucidUnitOfWork uow,
         CancellationToken ct)
@@ -163,7 +163,7 @@ public sealed class AuthorityCommittedPipelineFinalizer(
                 manifest.ManifestId,
                 contextSnapshot.SnapshotId,
                 findingsSnapshot.FindingsSnapshotId,
-                trace.RequireRuleAudit().DecisionTraceId);
+                trace is RuleAuditTraceDto ruleAuditTrace ? ruleAuditTrace.RuleAudit.DecisionTraceId : Guid.Empty);
 
 
         ArchLucidInstrumentation.AuthorityRunsCompletedTotal.Add(1);

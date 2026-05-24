@@ -1,5 +1,5 @@
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 
@@ -44,7 +44,7 @@ public sealed class ArchitectureRunDetail
     }
 
     /// <summary>Decision traces recorded during commit; empty before commit.</summary>
-    public List<DecisionTrace> DecisionTraces
+    public List<DecisionTraceDto> DecisionTraces
     {
         get;
         set;

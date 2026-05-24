@@ -2,7 +2,7 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 
@@ -71,7 +71,7 @@ internal static class ArchitectureReviewBoardExportPipelineFixture
             Run = run,
             Manifest = manifest,
             HasBrokenManifestReference = false,
-            DecisionTraces = [RunEventTrace.From(payload)],
+            DecisionTraces = [RunEventTraceDto.From(payload)],
             Results = [],
             Tasks = []
         };

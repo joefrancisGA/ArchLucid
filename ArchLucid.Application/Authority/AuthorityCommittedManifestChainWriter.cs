@@ -2,7 +2,7 @@ using System.Data;
 
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.ContextIngestion.Models;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -56,7 +56,7 @@ public sealed class AuthorityCommittedManifestChainWriter(
         await _contextSnapshots.SaveAsync(context, cancellationToken, connection, transaction);
         await _graphSnapshots.SaveAsync(graph, cancellationToken, connection, transaction);
         await _findingsSnapshots.SaveAsync(findings, cancellationToken, connection, transaction);
-        await _decisionTraces.SaveAsync(ruleAudit, cancellationToken, connection, transaction);
+        await _decisionTraces.SaveAsync(DecisionTraceRecordMapper.ToDto(ruleAudit), cancellationToken, connection, transaction);
         SaveContractsManifestOptions keying = new()
         {
             ManifestId = chainIds.ManifestId,

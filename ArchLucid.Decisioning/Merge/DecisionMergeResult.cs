@@ -1,5 +1,5 @@
-using ArchLucid.Contracts.Decisions;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.Decisions;
+using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Decisioning.Merge;

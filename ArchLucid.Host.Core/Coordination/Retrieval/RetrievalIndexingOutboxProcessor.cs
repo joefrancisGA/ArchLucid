@@ -77,13 +77,15 @@ public sealed class RetrievalIndexingOutboxProcessor(
                 FindingsSnapshot findings = detail.FindingsSnapshot;
                 IReadOnlyList<SynthesizedArtifact> artifacts = detail.ArtifactBundle?.Artifacts ?? [];
 
-                DecisionProvenanceGraph graph = provenanceBuilder.Build(
-                    detail.Run.RunId,
-                    findings,
-                    graphSnapshot,
-                    manifest,
-                    detail.AuthorityTrace,
-                    artifacts);
+                DecisionProvenanceGraph graph = provenanceBuilder.Build(new ProvenanceBuildInput
+                {
+                    RunId = detail.Run.RunId,
+                    Findings = findings,
+                    Graph = graphSnapshot,
+                    Manifest = manifest,
+                    DecisionTrace = detail.AuthorityTrace,
+                    Artifacts = artifacts
+                });
 
                 await indexer.IndexAuthorityRunAsync(
                     entry.TenantId,

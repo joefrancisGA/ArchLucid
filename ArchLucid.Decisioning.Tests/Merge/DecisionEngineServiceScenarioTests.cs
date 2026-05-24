@@ -1,6 +1,6 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Decisioning.Merge;
@@ -30,7 +30,7 @@ public sealed class DecisionEngineServiceScenarioTests
             Claims = ["Add API and search services"],
             EvidenceRefs = ["request", "catalog"],
             Confidence = 0.92,
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = "PROP-TOPO-001",
                 SourceAgent = AgentType.Topology,
@@ -73,7 +73,7 @@ public sealed class DecisionEngineServiceScenarioTests
             Claims = ["Managed identity required"],
             EvidenceRefs = ["policy-pack"],
             Confidence = 0.97,
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = "PROP-COMP-001",
                 SourceAgent = AgentType.Compliance,
@@ -145,7 +145,7 @@ public sealed class DecisionEngineServiceScenarioTests
             Claims = ["Add API service"],
             EvidenceRefs = ["request"],
             Confidence = 0.90,
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = "PROP-TOPO-002",
                 SourceAgent = AgentType.Topology,
@@ -171,7 +171,7 @@ public sealed class DecisionEngineServiceScenarioTests
             Claims = ["Managed identity required"],
             EvidenceRefs = ["policy-pack"],
             Confidence = 0.95,
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = "PROP-COMP-002",
                 SourceAgent = AgentType.Compliance,
@@ -211,7 +211,7 @@ public sealed class DecisionEngineServiceScenarioTests
             Claims = ["Add SQL datastore"],
             EvidenceRefs = ["request"],
             Confidence = 0.88,
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = "PROP-TOPO-003",
                 SourceAgent = AgentType.Topology,
@@ -238,7 +238,7 @@ public sealed class DecisionEngineServiceScenarioTests
             Claims = ["Private endpoints required"],
             EvidenceRefs = ["policy-pack"],
             Confidence = 0.96,
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = "PROP-COMP-003",
                 SourceAgent = AgentType.Compliance,
@@ -273,7 +273,7 @@ public sealed class DecisionEngineServiceScenarioTests
             Claims = ["Add rag-api"],
             EvidenceRefs = ["request"],
             Confidence = 0.90,
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = "PROP-TOPO-A",
                 SourceAgent = AgentType.Topology,
@@ -300,7 +300,7 @@ public sealed class DecisionEngineServiceScenarioTests
             Claims = ["Add rag-api tag and purpose"],
             EvidenceRefs = ["request"],
             Confidence = 0.89,
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = "PROP-TOPO-B",
                 SourceAgent = AgentType.Topology,
@@ -351,7 +351,7 @@ public sealed class DecisionEngineServiceScenarioTests
             Claims = ["Add API service"],
             EvidenceRefs = ["request"],
             Confidence = 0.90,
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = "PROP-TOPO-004",
                 SourceAgent = AgentType.Topology,

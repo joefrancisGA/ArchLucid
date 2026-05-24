@@ -30,9 +30,9 @@ public sealed class ExecutiveRoiFindingDeduplicatorTests
     {
         IEnumerable<ArchitectureFinding> findings =
         [
-            new ArchitectureFinding { FindingId = null, Message = "a" },
+            new ArchitectureFinding { FindingId = string.Empty, Message = "a" },
             new ArchitectureFinding { FindingId = "   ", Message = "b" },
-            new ArchitectureFinding { FindingId = null, Message = "c" },
+            new ArchitectureFinding { FindingId = string.Empty, Message = "c" },
         ];
 
         List<ArchitectureFinding> deduped = ExecutiveRoiFindingDeduplicator.DeduplicateByStableIdentity(findings).ToList();

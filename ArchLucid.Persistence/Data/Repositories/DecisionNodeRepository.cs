@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
@@ -14,7 +14,7 @@ namespace ArchLucid.Persistence.Data.Repositories;
 public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactory) : IDecisionNodeRepository
 {
     public async Task CreateManyAsync(
-        IReadOnlyCollection<DecisionNode> decisions,
+        IReadOnlyCollection<DecisionNodeRecord> decisions,
         CancellationToken cancellationToken = default,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
@@ -73,7 +73,7 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
         }
     }
 
-    public async Task<IReadOnlyList<DecisionNode>> GetByRunIdAsync(
+    public async Task<IReadOnlyList<DecisionNodeRecord>> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default)
     {
@@ -93,18 +93,18 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
             flags: CommandFlags.None,
             cancellationToken: cancellationToken));
 
-        List<DecisionNode> nodes = [];
+        List<DecisionNodeRecord> nodes = [];
         foreach (string json in rows)
         {
-            DecisionNode? node;
+            DecisionNodeRecord? node;
             try
             {
-                node = JsonSerializer.Deserialize<DecisionNode>(json, ContractJson.Default);
+                node = JsonSerializer.Deserialize<DecisionNodeRecord>(json, ContractJson.Default);
             }
             catch (JsonException ex)
             {
                 throw new InvalidOperationException(
-                    $"Failed to deserialize a DecisionNode for run '{runId}'. " +
+                    $"Failed to deserialize a DecisionNodeRecord for run '{runId}'. " +
                     "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
             }
 
@@ -123,11 +123,11 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
     private static async Task InsertDecisionNodesAsync(
         IDbConnection conn,
         IDbTransaction tx,
-        IReadOnlyCollection<DecisionNode> decisions,
+        IReadOnlyCollection<DecisionNodeRecord> decisions,
         string sql,
         CancellationToken cancellationToken)
     {
-        foreach (DecisionNode decision in decisions)
+        foreach (DecisionNodeRecord decision in decisions)
         {
             string payload = JsonSerializer.Serialize(decision, ContractJson.Default);
             await conn.ExecuteAsync(new CommandDefinition(

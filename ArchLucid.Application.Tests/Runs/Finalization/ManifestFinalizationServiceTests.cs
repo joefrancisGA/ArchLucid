@@ -1,7 +1,8 @@
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.DecisionTraces;
+using PersistenceDecisionTraceDto = ArchLucid.Contracts.Persistence.DecisionTraces.DecisionTraceDto;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
@@ -191,7 +192,7 @@ public sealed class ManifestFinalizationServiceTests
         runs.Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(header);
 
         Mock<IDecisionTraceRepository> traces = new();
-        traces.Setup(t => t.SaveAsync(It.IsAny<DecisionTrace>(), It.IsAny<CancellationToken>()))
+        traces.Setup(t => t.SaveAsync(It.IsAny<PersistenceDecisionTraceDto>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         Mock<IGoldenManifestRepository> golden = new();
@@ -301,7 +302,7 @@ public sealed class ManifestFinalizationServiceTests
         runs.Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(header);
 
         Mock<IDecisionTraceRepository> traces = new();
-        traces.Setup(t => t.SaveAsync(It.IsAny<DecisionTrace>(), It.IsAny<CancellationToken>()))
+        traces.Setup(t => t.SaveAsync(It.IsAny<PersistenceDecisionTraceDto>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         Mock<IGoldenManifestRepository> golden = new();

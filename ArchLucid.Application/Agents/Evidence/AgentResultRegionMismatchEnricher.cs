@@ -1,7 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Validation;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
 
@@ -27,7 +26,7 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
 
         foreach (AgentResult result in results)
         {
-            ManifestDeltaProposal? proposal = result.ProposedChanges;
+            AgentTopologyProposal? proposal = result.ProposedChanges;
 
             if (proposal is null)
                 continue;
@@ -64,7 +63,7 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
         return string.Empty;
     }
 
-    private static void TryAppendRegionWarning(ManifestDeltaProposal proposal, string tenantRegion, string suggestedPlatform)
+    private static void TryAppendRegionWarning(AgentTopologyProposal proposal, string tenantRegion, string suggestedPlatform)
     {
         if (string.IsNullOrWhiteSpace(tenantRegion) || string.IsNullOrWhiteSpace(suggestedPlatform))
             return;

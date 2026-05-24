@@ -1,17 +1,10 @@
 using System.Text.Json.Serialization;
 
-namespace ArchLucid.Contracts.DecisionTraces;
+namespace ArchLucid.Contracts.Persistence.DecisionTraces;
 
-/// <summary>
-///     Base type for coordinator vs authority traces. JSON uses <c>kind</c> plus either <c>runEvent</c> or
-///     <c>ruleAudit</c>
-///     (<see cref="DecisionTraceJsonConverter" />); CLR types are <see cref="RunEventTrace" /> or
-///     <see cref="RuleAuditTrace" />.
-/// </summary>
-[JsonConverter(typeof(DecisionTraceJsonConverter))]
-public abstract class DecisionTrace
+[JsonConverter(typeof(DecisionTraceDtoJsonConverter))]
+public abstract class DecisionTraceDto
 {
-    /// <summary>Pipeline discriminator; not duplicated in JSON when polymorphic serialization is used.</summary>
     public abstract DecisionTraceKind Kind
     {
         get;
@@ -20,7 +13,7 @@ public abstract class DecisionTrace
     /// <summary>Requires a coordinator merge/agent step trace.</summary>
     public RunEventTracePayload RequireRunEvent()
     {
-        if (this is RunEventTrace runEvent)
+        if (this is RunEventTraceDto runEvent)
             return runEvent.RunEvent;
 
         throw new InvalidOperationException("Expected a RunEvent trace (coordinator pipeline).");
@@ -29,7 +22,7 @@ public abstract class DecisionTrace
     /// <summary>Requires an authority rule-audit trace.</summary>
     public RuleAuditTracePayload RequireRuleAudit()
     {
-        if (this is RuleAuditTrace ruleAudit)
+        if (this is RuleAuditTraceDto ruleAudit)
             return ruleAudit.RuleAudit;
 
         throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");

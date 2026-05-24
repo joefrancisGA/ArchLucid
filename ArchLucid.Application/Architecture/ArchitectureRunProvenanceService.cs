@@ -2,8 +2,8 @@ using System.Globalization;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.Decisions;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.Decisions;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
@@ -40,7 +40,8 @@ public sealed class ArchitectureRunProvenanceService(
             return null;
         ArchitectureRequest? request = await _requestRepository.GetByIdAsync(detail.Run.RequestId, cancellationToken);
         EvidenceBundle? bundle = await TryResolveEvidenceBundleAsync(detail, _evidenceBundleRepository, cancellationToken);
-        IReadOnlyList<DecisionNode> decisionNodes = await _decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<DecisionNode> decisionNodes = DecisionRecordMapper.ToDomain(
+            await _decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken));
         return BuildGraph(detail, request, bundle, decisionNodes);
     }
 
@@ -215,10 +216,10 @@ public sealed class ArchitectureRunProvenanceService(
             });
         }
 
-        List<RunEventTrace> runEventTraces = detail.DecisionTraces.OfType<RunEventTrace>().OrderBy(t => t.RunEvent.CreatedUtc)
+        List<RunEventTraceDto> runEventTraces = detail.DecisionTraces.OfType<RunEventTraceDto>().OrderBy(t => t.RunEvent.CreatedUtc)
             .ThenBy(t => t.RunEvent.TraceId, StringComparer.Ordinal).ToList();
         string? previousTraceNodeId = null;
-        foreach (RunEventTrace trace in runEventTraces)
+        foreach (RunEventTraceDto trace in runEventTraces)
         {
             RunEventTracePayload ev = trace.RunEvent;
             string traceNodeId = $"trace:{ev.TraceId}";

@@ -2,22 +2,17 @@ using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Persistence.Decisions;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
-/// <summary>
-///     Thread-safe in-memory <see cref="IAgentEvaluationRepository" /> (JSON clone-on-read).
-///     Matches Dapper semantics: <see cref="CreateManyAsync" /> replaces all evaluations for the batch run id.
-/// </summary>
 public sealed class InMemoryAgentEvaluationRepository : IAgentEvaluationRepository
 {
-    private readonly Dictionary<string, List<AgentEvaluation>> _byRunId = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, List<AgentEvaluationRecord>> _byRunId = new(StringComparer.Ordinal);
     private readonly Lock _gate = new();
 
-    /// <inheritdoc />
     public Task CreateManyAsync(
-        IReadOnlyCollection<AgentEvaluation> evaluations,
+        IReadOnlyCollection<AgentEvaluationRecord> evaluations,
         CancellationToken cancellationToken = default,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
@@ -44,31 +39,30 @@ public sealed class InMemoryAgentEvaluationRepository : IAgentEvaluationReposito
         return Task.CompletedTask;
     }
 
-    /// <inheritdoc />
-    public Task<IReadOnlyList<AgentEvaluation>> GetByRunIdAsync(
+    public Task<IReadOnlyList<AgentEvaluationRecord>> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            if (!_byRunId.TryGetValue(runId, out List<AgentEvaluation>? list))
-                return Task.FromResult<IReadOnlyList<AgentEvaluation>>([]);
+            if (!_byRunId.TryGetValue(runId, out List<AgentEvaluationRecord>? list))
+                return Task.FromResult<IReadOnlyList<AgentEvaluationRecord>>([]);
 
-            List<AgentEvaluation> ordered = list
+            List<AgentEvaluationRecord> ordered = list
                 .OrderBy(e => e.CreatedUtc)
                 .Select(Clone)
                 .ToList();
 
-            return Task.FromResult<IReadOnlyList<AgentEvaluation>>(ordered);
+            return Task.FromResult<IReadOnlyList<AgentEvaluationRecord>>(ordered);
         }
     }
 
-    private static AgentEvaluation Clone(AgentEvaluation source)
+    private static AgentEvaluationRecord Clone(AgentEvaluationRecord source)
     {
         string json = JsonSerializer.Serialize(source, ContractJson.Default);
-        AgentEvaluation? copy = JsonSerializer.Deserialize<AgentEvaluation>(json, ContractJson.Default);
+        AgentEvaluationRecord? copy = JsonSerializer.Deserialize<AgentEvaluationRecord>(json, ContractJson.Default);
 
-        return copy ?? throw new InvalidOperationException("Clone produced null AgentEvaluation.");
+        return copy ?? throw new InvalidOperationException("Clone produced null AgentEvaluationRecord.");
     }
 }

@@ -1,12 +1,9 @@
-﻿using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 [Trait("Category", "Unit")]
 
-/// <summary>
-///     Shared contract assertions for <see cref="IDecisionNodeRepository" />.
-/// </summary>
 public abstract class DecisionNodeRepositoryContractTests
 {
     protected virtual void SkipIfSqlServerUnavailable()
@@ -43,16 +40,16 @@ public abstract class DecisionNodeRepositoryContractTests
             [NewNode(runId, "d2", "topic-b", t1)],
             CancellationToken.None);
 
-        IReadOnlyList<DecisionNode> loaded = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+        IReadOnlyList<DecisionNodeRecord> loaded = await repo.GetByRunIdAsync(runId, CancellationToken.None);
 
         loaded.Should().HaveCount(2);
         loaded[0].DecisionId.Should().Be("d1");
         loaded[1].DecisionId.Should().Be("d2");
     }
 
-    private static DecisionNode NewNode(string runId, string decisionId, string topic, DateTime createdUtc)
+    private static DecisionNodeRecord NewNode(string runId, string decisionId, string topic, DateTime createdUtc)
     {
-        return new DecisionNode
+        return new DecisionNodeRecord
         {
             DecisionId = decisionId,
             RunId = runId,

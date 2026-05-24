@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text;
 
-using ArchLucid.Contracts.Explanation;
+using ArchLucid.Contracts.Persistence.Explanation;
 using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Decisioning.Findings;
@@ -15,7 +15,7 @@ public static class FindingExplainabilityNarrativeBuilder
     ///     Builds the structured factual explainability record from persisted <see cref="Finding" /> +
     ///     <see cref="ExplainabilityTrace" /> (no LLM).
     /// </summary>
-    public static FindingExplainabilityEvidence BuildEvidence(Finding finding)
+    public static FindingExplainabilityEvidenceRecord BuildEvidence(Finding finding)
     {
         ArgumentNullException.ThrowIfNull(finding);
 
@@ -26,7 +26,7 @@ public static class FindingExplainabilityNarrativeBuilder
         string ruleId = ResolveRuleId(trace);
         string conclusion = finding.Rationale;
 
-        return new FindingExplainabilityEvidence(evidenceRefs, conclusion, alternativePaths, ruleId);
+        return new FindingExplainabilityEvidenceRecord(evidenceRefs, conclusion, alternativePaths, ruleId);
     }
 
     /// <summary>

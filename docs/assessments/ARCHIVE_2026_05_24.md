@@ -1,0 +1,491 @@
+﻿# ArchLucid Assessment – (A) Headline Readiness: 90.93%
+
+This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding deferred items.
+
+## Executive Summary
+
+**`(A)` Overall Headline Readiness**
+The product is highly functional for its core V1 GA scope, delivering strong value through Azure-focused architecture analysis, robust tenant isolation, and clear executive ROI visibility. The orchestrator is reliable, and the Tier 1 Azure extractor provides a low-friction onboarding path. The score reflects a strict adherence to V1 GA commitments, without penalizing for intentionally deferred V1.1 or V2 scope.
+
+**`(B)` Procurement / Market-Motion Realism**
+Enterprise buyers will experience friction due to the lack of a SOC 2 CPA attestation, third-party pen test, and multi-region active/active guarantees. These are known deferred items but will require active sales engineering and trust-center transparency to navigate during procurement. (Note: These factors do not penalize the `(A)` headline score).
+
+**Commercial Picture**
+The commercial motion is currently sales-led, which aligns with the V1 GA posture. The self-serve transactability rails (Stripe live keys, Marketplace listing) are deferred to V1.1. The product is ready to support sales-led pilots and internal evaluations effectively.
+
+**Enterprise Picture**
+Usability is strong with a clear operator UI, comprehensive REST/CLI surfaces, and SCIM provisioning. The product meets the V1 GA enterprise bar, though buyers expecting automated tenant erasure or first-party ITSM/chat-ops integrations will need to rely on the existing V1 GA surfaces (REST, CLI, UI, DevOps) until those deferred items ship.
+
+**Engineering Picture**
+The system is well-architected, reliable, and maintainable. The primary areas for improvement within the V1 GA scope lie in implementing the planned RAG quality enhancements (RAG-V1-* backlog) and ensuring comprehensive test coverage for newly added security and enrichment components.
+
+---
+
+## Weighted Quality Assessment
+
+### 1. AI/Agent Readiness
+- **Score:** 85
+- **Weight:** 8
+- **Weighted deficiency signal:** 120
+- **Justification:** The orchestrator is robust, handling execution, evaluation, and quality gates well. Recent additions like `AgentEvidenceUntrustedInputSanitizer` improve safety. However, the absence of planned RAG-V1-* quality improvements (policy packs, prior manifests) limits agent reasoning depth.
+- **Tradeoffs:** Strict orchestration ensures reliability and safety but highlights the need for richer context retrieval.
+- **Improvement recommendations:** Implement policy-pack indexing and tenant prior-manifest chunks for RAG (RAG-V1-001, RAG-V1-002).
+
+### 2. Cutting-Edge AI Technology
+- **Score:** 85
+- **Weight:** 8
+- **Weighted deficiency signal:** 120
+- **Justification:** The product uses Azure OpenAI effectively. However, missing RAG-V1-* quality improvements (Retail structured lookup, platform docs) limits the cutting-edge feel and accuracy of the context provided to the LLM.
+- **Tradeoffs:** Basic RAG is easier to maintain but may struggle with complex, cross-domain architectural queries without these enhancements.
+- **Improvement recommendations:** Implement Retail structured lookup, platform docs indexing, and faithfulness eval for RAG (RAG-V1-003 to RAG-V1-005).
+
+### 3. Time-to-Value
+- **Score:** 95
+- **Weight:** 7
+- **Weighted deficiency signal:** 35
+- **Justification:** The Pilot path is streamlined, and the Tier 1 extractor allows customers to see value quickly without complex credential setup.
+- **Tradeoffs:** The manual ZIP upload process requires operator action, but it eliminates security friction during initial onboarding.
+- **Improvement recommendations:** Ensure the Tier 1 extractor documentation is prominently featured in the onboarding flow.
+
+### 4. Adoption Friction
+- **Score:** 95
+- **Weight:** 6
+- **Weighted deficiency signal:** 30
+- **Justification:** REST, CLI, UI, SCIM, and DevOps surfaces provide robust, low-friction integration points for V1 GA.
+- **Tradeoffs:** Users must use these surfaces instead of turnkey chat-ops, but they offer deep, scriptable control.
+- **Improvement recommendations:** Provide clear examples for integrating the CLI into standard CI/CD pipelines.
+
+### 5. Proof-of-ROI Readiness
+- **Score:** 95
+- **Weight:** 5
+- **Weighted deficiency signal:** 25
+- **Justification:** The Executive ROI summary endpoint and deduplication of findings provide clear, accurate value metrics.
+- **Tradeoffs:** Accuracy relies on the quality of the underlying findings and the Retail pricing data.
+- **Improvement recommendations:** Add comprehensive unit tests for `ExecutiveRoiExportResponse` and `OrphanedAzureResourceFindingEngine`.
+
+### 6. Executive Value Visibility
+- **Score:** 95
+- **Weight:** 4
+- **Weighted deficiency signal:** 20
+- **Justification:** The cross-tenant portfolio summary and Executive ROI dashboard panel provide strong visibility for sponsors.
+- **Tradeoffs:** The dashboards are focused on high-level metrics, which is appropriate for executives but may require operators to dig deeper for specifics.
+- **Improvement recommendations:** Ensure the UI components rendering these summaries have robust error handling for empty states.
+
+### 7. Maintainability
+- **Score:** 90
+- **Weight:** 2
+- **Weighted deficiency signal:** 20
+- **Justification:** The codebase is well-structured with clear interfaces and dependency injection. However, some boundary tests failing on legitimate code create CI noise.
+- **Tradeoffs:** The strict separation of concerns can lead to boilerplate code, but it ensures long-term maintainability.
+- **Improvement recommendations:** Add `[Trait("Category", "Quarantine")]` to boundary tests that fail on legitimate existing code to reduce noise.
+
+### 8. Reliability
+- **Score:** 95
+- **Weight:** 2
+- **Weighted deficiency signal:** 10
+- **Justification:** The orchestrator includes robust retry logic, durable audit logs, and transaction management.
+- **Tradeoffs:** The system is highly resilient within its single-region baseline.
+- **Improvement recommendations:** Add comprehensive unit tests for `SqlConnectionFailoverClassifier` to ensure database failovers are handled gracefully.
+
+### 9. Supportability
+- **Score:** 90
+- **Weight:** 1
+- **Weighted deficiency signal:** 10
+- **Justification:** Health endpoints, correlation IDs, CLI diagnostics, and comprehensive audit logging provide strong supportability.
+- **Tradeoffs:** The append-only audit log provides excellent traceability but requires careful management.
+- **Improvement recommendations:** Add cache metrics to `AdminDiagnosticsService` to improve observability of performance optimizations.
+
+---
+
+## Top 12 Most Important Weaknesses
+
+1. RAG context lacks policy pack indexing, limiting governance reasoning (RAG-V1-001).
+2. RAG context lacks tenant prior-manifest chunks, limiting historical context (RAG-V1-002).
+3. RAG context lacks Retail structured lookup, limiting cost estimation accuracy (RAG-V1-003).
+4. RAG context lacks platform docs indexing, limiting Azure service knowledge (RAG-V1-004).
+5. Missing faithfulness evaluation for RAG responses risks hallucinations (RAG-V1-005).
+6. `AgentEvidenceUntrustedInputSanitizer` lacks comprehensive unit tests, risking prompt injection vulnerabilities.
+7. `AgentResultRegionMismatchEnricher` lacks unit tests, risking incorrect region warnings.
+8. `CompositeAgentResultPostExecutionEnricher` lacks unit tests, risking pipeline failures.
+9. `OrphanedAzureResourceFindingEngine` lacks unit tests, risking false positives in cost optimization.
+10. `ExecutiveRoiExportResponse` lacks unit tests, risking inaccurate ROI reporting.
+11. `SqlConnectionFailoverClassifier` lacks unit tests, risking unhandled database failovers.
+12. Missing cache metrics in `AdminDiagnosticsService` limits observability of performance optimizations.
+
+---
+
+## Top 6 Monetization Blockers
+
+1. Inaccurate cost estimation due to missing Retail structured lookup in RAG (RAG-V1-003).
+2. Potential AI hallucinations due to missing faithfulness evaluation (RAG-V1-005).
+3. Incomplete governance reasoning due to missing policy pack indexing in RAG (RAG-V1-001).
+4. Unverified ROI export data due to missing unit tests for `ExecutiveRoiExportResponse`.
+5. Unverified orphaned resource findings due to missing unit tests for `OrphanedAzureResourceFindingEngine`.
+6. Lack of historical context in AI responses due to missing prior-manifest chunks (RAG-V1-002).
+
+---
+
+## Top 6 Enterprise Adoption Blockers
+
+1. Unverified prompt injection sanitization (`AgentEvidenceUntrustedInputSanitizer` tests missing) could fail security reviews.
+2. Missing faithfulness evaluation for RAG could cause trust issues with enterprise operators.
+3. Missing policy pack indexing limits the tool's ability to enforce enterprise governance standards.
+4. Unverified database failover handling (`SqlConnectionFailoverClassifier` tests missing) could fail reliability reviews.
+5. Missing cache metrics in diagnostics limits enterprise observability requirements.
+6. Unverified region mismatch enricher could lead to compliance issues if resources are deployed in the wrong region.
+
+---
+
+## Top 6 Engineering Risks
+
+1. Prompt injection vulnerabilities if `AgentEvidenceUntrustedInputSanitizer` is flawed.
+2. AI hallucinations if RAG faithfulness evaluation is not implemented.
+3. Incorrect architectural advice if RAG lacks platform docs and policy packs.
+4. Pipeline failures if `CompositeAgentResultPostExecutionEnricher` is not thoroughly tested.
+5. Unhandled database failovers if `SqlConnectionFailoverClassifier` is not thoroughly tested.
+6. Inaccurate cost/ROI reporting if `OrphanedAzureResourceFindingEngine` and `ExecutiveRoiExportResponse` are not thoroughly tested.
+
+---
+
+## Most Important Truth
+
+ArchLucid V1 GA is a highly functional, secure, and reliable product that meets its stated commitments. To maximize the value and trustworthiness of the platform within the V1 GA scope, engineering efforts must focus immediately on delivering the RAG-V1-* quality improvements and ensuring comprehensive test coverage for recently added security and enrichment components.
+
+---
+
+## Top Improvement Opportunities
+
+1. **COMPLETED: Implement policy-pack indexing for RAG corpus (RAG-V1-001)**
+- **Why it matters:** Improves RAG context quality for governance reasoning.
+- **Expected impact:** Directly improves AI/Agent Readiness (+2-4 pts) and Cutting-Edge AI Technology (+2-4 pts). Weighted readiness impact: +0.3-0.6%.
+- **Affected qualities:** AI/Agent Readiness, Cutting-Edge AI Technology.
+- **Actionable prompt:**
+```text
+Implement policy-pack indexing for the RAG corpus (RAG-V1-001) in `ArchLucid.Retrieval`.
+- Create a new corpus kind `PolicyPack` in the retrieval system.
+- Ensure the indexing logic correctly parses and chunks the 23 bundled policy packs.
+- Add unit tests to verify the indexing and retrieval of policy pack chunks.
+- Do not modify existing retrieval logic for other corpus kinds.
+```
+
+2. **COMPLETED: Implement tenant prior-manifest chunks for RAG (RAG-V1-002)**
+- **Why it matters:** Allows agents to reason over historical architectural decisions.
+- **Expected impact:** Directly improves AI/Agent Readiness (+2-4 pts) and Cutting-Edge AI Technology (+2-4 pts). Weighted readiness impact: +0.3-0.6%.
+- **Affected qualities:** AI/Agent Readiness, Cutting-Edge AI Technology.
+- **Actionable prompt:**
+```text
+Implement tenant prior-manifest chunks for the RAG corpus (RAG-V1-002) in `ArchLucid.Retrieval`.
+- Create a new corpus kind `PriorManifest` in the retrieval system.
+- Ensure the indexing logic correctly parses and chunks committed manifests for the current tenant.
+- Add unit tests to verify the indexing and retrieval of prior-manifest chunks.
+- Ensure strict tenant isolation (RLS) is maintained during retrieval.
+```
+
+3. **COMPLETED: Implement Retail structured lookup for RAG (RAG-V1-003)**
+- **Why it matters:** Improves cost estimation accuracy in agent responses.
+- **Expected impact:** Directly improves Proof-of-ROI Readiness (+2-4 pts) and AI/Agent Readiness (+1-3 pts). Weighted readiness impact: +0.2-0.5%.
+- **Affected qualities:** Proof-of-ROI Readiness, AI/Agent Readiness.
+- **Actionable prompt:**
+```text
+Implement Retail structured lookup for the RAG corpus (RAG-V1-003) in `ArchLucid.Retrieval`.
+- Create a mechanism to query Azure Retail Prices API data during retrieval.
+- Ensure the retrieved pricing data is formatted clearly for the LLM context.
+- Add unit tests to verify the lookup logic and formatting.
+- Do not make live API calls during unit tests; use mocked data.
+```
+
+4. **COMPLETED: Implement platform docs indexing for RAG (RAG-V1-004)**
+- **Why it matters:** Provides agents with up-to-date Azure platform documentation.
+- **Expected impact:** Directly improves AI/Agent Readiness (+2-4 pts) and Cutting-Edge AI Technology (+2-4 pts). Weighted readiness impact: +0.3-0.6%.
+- **Affected qualities:** AI/Agent Readiness, Cutting-Edge AI Technology.
+- **Actionable prompt:**
+```text
+Implement platform docs indexing for the RAG corpus (RAG-V1-004) in `ArchLucid.Retrieval`.
+- Create a new corpus kind `PlatformDocs` in the retrieval system.
+- Implement logic to ingest and chunk a curated set of Azure platform documentation.
+- Add unit tests to verify the indexing and retrieval of platform docs chunks.
+- Keep the initial document set small and focused on core Azure services.
+```
+
+5. **COMPLETED: Implement faithfulness eval for RAG (RAG-V1-005)**
+- **Why it matters:** Measures and prevents LLM hallucinations based on retrieved context.
+- **Expected impact:** Directly improves Reliability (+2-4 pts) and AI/Agent Readiness (+2-4 pts). Weighted readiness impact: +0.2-0.4%.
+- **Affected qualities:** Reliability, AI/Agent Readiness.
+- **Actionable prompt:**
+```text
+Implement faithfulness evaluation for RAG (RAG-V1-005) in `ArchLucid.AgentRuntime`.
+- Create an evaluation metric that compares the LLM output against the provided RAG context.
+- Integrate this metric into the existing `IAgentEvaluationService`.
+- Add unit tests to verify the evaluation logic correctly flags unfaithful responses.
+- Ensure the evaluation runs efficiently without significantly impacting overall run time.
+```
+
+6. **COMPLETED: Implement `AgentEvidenceUntrustedInputSanitizer` unit tests**
+- **Why it matters:** Prevents prompt injection attacks from untrusted input.
+- **Expected impact:** Directly improves AI/Agent Readiness (+3-5 pts) and Reliability (+2-4 pts). Weighted readiness impact: +0.2-0.4%.
+- **Affected qualities:** AI/Agent Readiness, Reliability.
+- **Actionable prompt:**
+```text
+Create unit tests for `ArchLucid.AgentRuntime.PromptInjection.AgentEvidenceUntrustedInputSanitizer`.
+- Test sanitization of various fields in `RequestEvidence`, `PolicyEvidence`, `ServiceCatalogEvidence`, `PatternEvidence`, and `PriorManifestEvidence`.
+- Test handling of null or empty lists and strings.
+- Verify that known injection patterns are correctly neutralized by the underlying `AzureResourceTagPromptSanitizer`.
+- Ensure 100% code coverage for the sanitizer class.
+```
+
+7. **COMPLETED: Implement `AgentResultRegionMismatchEnricher` unit tests**
+- **Why it matters:** Ensures region mismatch warnings are correctly applied to agent results.
+- **Expected impact:** Directly improves AI/Agent Readiness (+2-4 pts) and Reliability (+1-3 pts). Weighted readiness impact: +0.1-0.3%.
+- **Affected qualities:** AI/Agent Readiness, Reliability.
+- **Actionable prompt:**
+```text
+Create unit tests for `ArchLucid.Application.Agents.Evidence.AgentResultRegionMismatchEnricher`.
+- Test scenarios where the requested region matches the proposed service region.
+- Test scenarios where the regions mismatch and a warning should be appended.
+- Test handling of missing or default regions.
+- Ensure the enricher does not duplicate existing warnings.
+```
+
+8. **COMPLETED: Implement `CompositeAgentResultPostExecutionEnricher` unit tests**
+- **Why it matters:** Ensures multiple enrichers are executed correctly in sequence.
+- **Expected impact:** Directly improves Maintainability (+2-4 pts) and Reliability (+1-3 pts). Weighted readiness impact: +0.1-0.2%.
+- **Affected qualities:** Maintainability, Reliability.
+- **Actionable prompt:**
+```text
+Create unit tests for `ArchLucid.Application.Agents.Evidence.CompositeAgentResultPostExecutionEnricher`.
+- Test that all registered enrichers are called in the correct order.
+- Test handling of exceptions thrown by individual enrichers.
+- Test behavior when the enricher list is empty.
+- Use mocked enrichers to verify execution flow.
+```
+
+9. **COMPLETED: Implement `OrphanedAzureResourceFindingEngine` unit tests**
+- **Why it matters:** Ensures orphaned resources are correctly identified and flagged.
+- **Expected impact:** Directly improves Proof-of-ROI Readiness (+2-4 pts) and Reliability (+1-3 pts). Weighted readiness impact: +0.1-0.3%.
+- **Affected qualities:** Proof-of-ROI Readiness, Reliability.
+- **Actionable prompt:**
+```text
+Create unit tests for `ArchLucid.Application.Findings.OrphanedAzureResourceFindingEngine`.
+- Test analysis with a valid `resources.json` containing orphaned resources.
+- Test analysis with a valid `resources.json` containing no orphaned resources.
+- Test handling of missing or malformed `resources.json` in the extractor package.
+- Verify the generated `Finding` objects have the correct schema, severity, and payload.
+```
+
+10. **COMPLETED: Implement `ExecutiveRoiExportResponse` unit tests**
+- **Why it matters:** Ensures the ROI export data is accurate and formatted correctly.
+- **Expected impact:** Directly improves Proof-of-ROI Readiness (+2-4 pts) and Maintainability (+1-3 pts). Weighted readiness impact: +0.1-0.3%.
+- **Affected qualities:** Proof-of-ROI Readiness, Maintainability.
+- **Actionable prompt:**
+```text
+Create unit tests for `ArchLucid.Application.Roi.ExecutiveRoiSummaryService` focusing on `BuildExportAsync`.
+- Test the generation of `ExecutiveRoiExportRow` objects from run details.
+- Test the aggregation of savings by environment.
+- Verify deduplication logic for findings with stable IDs.
+- Test handling of runs with missing or malformed data.
+```
+
+11. **COMPLETED: Implement `SqlConnectionFailoverClassifier` unit tests**
+- **Why it matters:** Ensures database failovers are handled gracefully.
+- **Expected impact:** Directly improves Reliability (+3-5 pts) and Maintainability (+1-3 pts). Weighted readiness impact: +0.1-0.3%.
+- **Affected qualities:** Reliability, Maintainability.
+- **Actionable prompt:**
+```text
+Create unit tests for `ArchLucid.Persistence.Connections.SqlConnectionFailoverClassifier`.
+- Test classification of various `SqlException` error numbers (e.g., deadlocks, failovers, timeouts).
+- Test classification of non-SQL exceptions.
+- Verify that transient errors are correctly identified for retry policies.
+- Ensure 100% code coverage for the classifier class.
+```
+
+12. **COMPLETED: Implement `IntegrationEventDeadLetterCurlFormatter` unit tests**
+- **Why it matters:** Ensures the curl formatter works correctly for debugging dead-lettered events.
+- **Expected impact:** Directly improves Supportability (+2-4 pts) and Maintainability (+1-3 pts). Weighted readiness impact: +0.1-0.2%.
+- **Affected qualities:** Supportability, Maintainability.
+- **Actionable prompt:**
+```text
+Create unit tests for `ArchLucid.Api/Services/Admin/IntegrationEventDeadLetterCurlFormatter.cs`.
+- Test formatting with various HTTP methods, headers, and payloads.
+- Test handling of null or empty values gracefully.
+- Test that sensitive headers (e.g., Authorization) are redacted or handled safely if required by policy.
+- Ensure 100% code coverage for the formatter class.
+```
+
+13. **COMPLETED: Implement `MarketplaceWebhookConnectivityService` unit tests**
+- **Why it matters:** Ensures marketplace webhooks are processed reliably.
+- **Expected impact:** Directly improves Reliability (+2-4 pts) and Maintainability (+1-3 pts). Weighted readiness impact: +0.1-0.2%.
+- **Affected qualities:** Reliability, Maintainability.
+- **Actionable prompt:**
+```text
+Create unit tests for `ArchLucid.Api/Services/Billing/MarketplaceWebhookConnectivityService.cs`.
+- Test successful connectivity checks.
+- Test handling of network errors, timeouts, and invalid responses.
+- Test retry logic if applicable.
+- Use mocked HTTP clients to avoid external network calls during testing.
+```
+
+14. **COMPLETED: Add `IHotPathReadCache` metrics to `AdminDiagnosticsService`**
+- **Why it matters:** Improves observability of cache performance.
+- **Expected impact:** Directly improves Supportability (+2-4 pts) and Reliability (+1-3 pts). Weighted readiness impact: +0.1-0.2%.
+- **Affected qualities:** Supportability, Reliability.
+- **Actionable prompt:**
+```text
+Update `ArchLucid.Api/Services/Admin/AdminDiagnosticsService.cs`.
+- Inject `IHotPathReadCache` (or a metrics provider for it) if available.
+- Expose cache hit/miss rates and memory usage in the diagnostics output.
+- Update `AdminDiagnosticsServiceNonSqlTests.cs` and `AdminDiagnosticsServiceSqlPathTests.cs` to verify the new metrics are included.
+- Do not break existing diagnostics output formats.
+```
+
+15. **COMPLETED: Add `LlmCompletionCache` metrics to `AdminDiagnosticsService`**
+- **Why it matters:** Improves observability of LLM cache performance and cost savings.
+- **Expected impact:** Directly improves Supportability (+2-4 pts) and Reliability (+1-3 pts). Weighted readiness impact: +0.1-0.2%.
+- **Affected qualities:** Supportability, Reliability.
+- **Actionable prompt:**
+```text
+Update `ArchLucid.Api/Services/Admin/AdminDiagnosticsService.cs`.
+- Inject the `LlmCompletionCache` metrics provider.
+- Expose cache hit/miss rates and estimated token savings in the diagnostics output.
+- Update relevant unit tests to verify the new metrics are included.
+- Ensure the metrics are safely accessible without exposing sensitive prompt data.
+```
+
+16. **COMPLETED: Add `GraphSnapshotProjectionMemoryCache` metrics to `AdminDiagnosticsService`**
+- **Why it matters:** Improves observability of graph projection cache performance.
+- **Expected impact:** Directly improves Supportability (+2-4 pts) and Reliability (+1-3 pts). Weighted readiness impact: +0.1-0.2%.
+- **Affected qualities:** Supportability, Reliability.
+- **Actionable prompt:**
+```text
+Update `ArchLucid.Api/Services/Admin/AdminDiagnosticsService.cs`.
+- Inject the `GraphSnapshotProjectionMemoryCache` metrics provider.
+- Expose cache hit/miss rates, memory usage, and eviction counts in the diagnostics output.
+- Update relevant unit tests to verify the new metrics are included.
+- Handle cases where the cache is disabled or empty gracefully.
+```
+
+17. **Add `[Trait("Category", "Quarantine")]` to boundary tests that fail on legitimate existing code**
+- **Why it matters:** Reduces CI noise and improves developer velocity.
+- **Expected impact:** Directly improves Maintainability (+2-4 pts). Weighted readiness impact: +0.1-0.2%.
+- **Affected qualities:** Maintainability.
+- **Actionable prompt:**
+```text
+Review the boundary tests in `ArchLucid.Architecture.Tests` (or similar project).
+- Identify any tests that currently fail on legitimate existing code.
+- Add `[Trait("Category", "Quarantine")]` to these tests.
+- Add a `// TODO(architecture): <issue link>` comment above the trait.
+- Ensure the tests still run but do not block the CI pipeline.
+```
+
+18. **COMPLETED: Implement `ArchitectureRunExecuteOrchestrator` unit tests for partial budget exceptions**
+- **Why it matters:** Ensures partial results are persisted correctly when the LLM budget is exceeded.
+- **Expected impact:** Directly improves Reliability (+2-4 pts) and AI/Agent Readiness (+1-3 pts). Weighted readiness impact: +0.1-0.3%.
+- **Affected qualities:** Reliability, AI/Agent Readiness.
+- **Actionable prompt:**
+```text
+Create unit tests for `ArchLucid.Application.Runs.Orchestration.ArchitectureRunExecuteOrchestrator`.
+- Mock `IAgentExecutor` to throw `AgentRunPartialBudgetException`.
+- Verify that `PersistPartialExecutePhaseAsync` is called with the completed results.
+- Verify that the run status is updated to `Failed` with the correct failure summary.
+- Verify that the appropriate audit event is logged.
+```
+
+19. **COMPLETED: Implement `ArchitectureRunExecuteOrchestrator` unit tests for quality gate rejections**
+- **Why it matters:** Ensures runs are blocked and audited correctly when the quality gate rejects the output.
+- **Expected impact:** Directly improves Reliability (+2-4 pts) and AI/Agent Readiness (+1-3 pts). Weighted readiness impact: +0.1-0.3%.
+- **Affected qualities:** Reliability, AI/Agent Readiness.
+- **Actionable prompt:**
+```text
+Create unit tests for `ArchLucid.Application.Runs.Orchestration.ArchitectureRunExecuteOrchestrator`.
+- Mock `IAgentOutputTraceEvaluationHook` to throw `AgentOutputQualityGateRejectedException`.
+- Verify that the run status is updated to `ExecutionCompletedQualityRejected`.
+- Verify that the appropriate audit event is logged with the trace ID and agent label.
+```
+
+20. **COMPLETED: Implement `ArchitectureRunExecuteOrchestrator` unit tests for idempotency**
+- **Why it matters:** Prevents duplicate agent executions and ensures consistent state.
+- **Expected impact:** Directly improves Reliability (+2-4 pts) and Maintainability (+1-3 pts). Weighted readiness impact: +0.1-0.3%.
+- **Affected qualities:** Reliability, Maintainability.
+- **Actionable prompt:**
+```text
+Create unit tests for `ArchLucid.Application.Runs.Orchestration.ArchitectureRunExecuteOrchestrator`.
+- Test `TryReturnExistingExecuteResultsAsync` when the run is already in a terminal state (`Committed` or `ReadyForCommit`).
+- Verify that existing results are returned without re-executing the agents.
+- Test the conflict scenario where the run is terminal but no results exist in the repository.
+```
+
+21. **COMPLETED: Implement `ExecutiveRoiSummaryService` unit tests for cross-tenant portfolio summary**
+- **Why it matters:** Ensures accurate aggregation and K-anonymity enforcement for cross-tenant reporting.
+- **Expected impact:** Directly improves Proof-of-ROI Readiness (+2-4 pts) and Executive Value Visibility (+1-3 pts). Weighted readiness impact: +0.1-0.3%.
+- **Affected qualities:** Proof-of-ROI Readiness, Executive Value Visibility.
+- **Actionable prompt:**
+```text
+Create unit tests for `ArchLucid.Application.Roi.ExecutiveRoiSummaryService` focusing on `GetCrossTenantPortfolioSummaryAsync`.
+- Test that K-anonymity is enforced (returns false if fewer than 5 accessible tenants).
+- Test the aggregation of total savings, system count, and critical findings across multiple tenants.
+- Verify that findings are correctly deduplicated within each tenant before cross-tenant aggregation.
+```
+
+22. **COMPLETED: Implement `ExecutiveRoiSummaryService` unit tests for history building**
+- **Why it matters:** Ensures the 6-month ROI history trend is calculated accurately.
+- **Expected impact:** Directly improves Proof-of-ROI Readiness (+2-4 pts) and Executive Value Visibility (+1-3 pts). Weighted readiness impact: +0.1-0.3%.
+- **Affected qualities:** Proof-of-ROI Readiness, Executive Value Visibility.
+- **Actionable prompt:**
+```text
+Create unit tests for `ArchLucid.Application.Roi.ExecutiveRoiSummaryService` focusing on `BuildHistoryAsync`.
+- Test that runs older than 6 months are excluded from the history.
+- Test the aggregation of savings and critical findings by month (yyyy-MM).
+- Verify that the latest UTC timestamp is correctly tracked for each month bucket.
+```
+
+23. **COMPLETED: Refactor `ExecutiveRoiSummaryService` to extract finding deduplication logic**
+- **Why it matters:** Improves testability and maintainability of the complex deduplication rules.
+- **Expected impact:** Directly improves Maintainability (+2-4 pts). Weighted readiness impact: +0.1-0.2%.
+- **Affected qualities:** Maintainability.
+- **Actionable prompt:**
+```text
+Refactor `ArchLucid.Application.Roi.ExecutiveRoiSummaryService`.
+- Extract `DeduplicateFindingsByStableIdentity` and related logging logic into a dedicated `FindingDeduplicator` or similar utility class.
+- Update `ExecutiveRoiSummaryService` to use the new utility class.
+- Add comprehensive unit tests for the extracted deduplication logic.
+```
+
+24. **COMPLETED: Add `AzureOpenAIOptions` validation on startup**
+- **Why it matters:** Prevents runtime failures by catching misconfigured LLM endpoints early.
+- **Expected impact:** Directly improves Reliability (+2-4 pts) and Supportability (+1-3 pts). Weighted readiness impact: +0.1-0.2%.
+- **Affected qualities:** Reliability, Supportability.
+- **Actionable prompt:**
+```text
+Update `ArchLucid.Core/Configuration/AzureOpenAiOptions.cs` (or related configuration extensions).
+- Add `IValidateOptions<AzureOpenAiOptions>` implementation or data annotations.
+- Ensure required fields (e.g., Endpoint, DeploymentName) are validated on application startup.
+- Add unit tests to verify the validation logic catches missing or invalid configuration.
+```
+
+25. **COMPLETED: Add `IntegrationEventsOptions` validation on startup**
+- **Why it matters:** Prevents runtime failures by catching misconfigured webhook or service bus settings early.
+- **Expected impact:** Directly improves Reliability (+2-4 pts) and Supportability (+1-3 pts). Weighted readiness impact: +0.1-0.2%.
+- **Affected qualities:** Reliability, Supportability.
+- **Actionable prompt:**
+```text
+Update `ArchLucid.Core/Integration/IntegrationEventsOptions.cs` (or related configuration extensions).
+- Add `IValidateOptions<IntegrationEventsOptions>` implementation or data annotations.
+- Ensure required fields (e.g., connection strings, endpoint URLs) are validated on application startup when the respective features are enabled.
+- Add unit tests to verify the validation logic catches missing or invalid configuration.
+```
+
+---
+
+## Prompt Batching Guidance
+
+- **Batch 1 (RAG Improvements):** Items 1, 2, 3, 4, 5. These touch similar areas in `ArchLucid.Retrieval` and `ArchLucid.AgentRuntime` and are the highest priority for improving AI quality.
+- **Batch 2 (Security and Pipeline Tests):** Items 6, 7, 8. These focus on the agent execution pipeline, untrusted input sanitization, and evidence handling.
+- **Batch 3 (ROI and Findings Tests):** Items 9, 10, 21, 22, 23. These focus on the ROI and findings generation logic to ensure accurate reporting.
+- **Batch 4 (Orchestrator Tests):** Items 18, 19, 20. These focus on edge cases and idempotency in the `ArchitectureRunExecuteOrchestrator`.
+- **Batch 5 (Infrastructure, Metrics, and Config):** Items 11, 14, 15, 16, 24, 25. These touch diagnostics, caching, database connections, and startup configuration validation.
+- **Batch 6 (Misc Tests and Cleanup):** Items 12, 13, 17. These are independent tasks that can be batched together to improve maintainability and supportability.
+
+---
+
+## Pending Questions for Later
+
+*(No pending questions at this time. All improvement opportunities are fully actionable within the V1 GA scope.)*

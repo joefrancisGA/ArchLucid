@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
@@ -47,7 +46,7 @@ public static class FakeAgentResultFactory
                     EvidenceRefs = ["request"]
                 }
             ],
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = Guid.NewGuid().ToString("N"),
                 SourceAgent = AgentType.Topology,
@@ -159,7 +158,7 @@ public static class FakeAgentResultFactory
                     EvidenceRefs = ["pricing-profile"]
                 }
             ],
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = Guid.NewGuid().ToString("N"),
                 SourceAgent = AgentType.Cost,
@@ -218,7 +217,7 @@ public static class FakeAgentResultFactory
                         EvidenceRefs = ["policy-pack:azure-security-baseline"]
                     }
                 ],
-                ProposedChanges = new ManifestDeltaProposal
+                ProposedChanges = new AgentTopologyProposal
                 {
                     ProposalId = Guid.NewGuid().ToString("N"),
                     SourceAgent = AgentType.Compliance,
@@ -266,7 +265,7 @@ public static class FakeAgentResultFactory
                     EvidenceRefs = ["policy-pack:azure-security-baseline"]
                 }
             ],
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = Guid.NewGuid().ToString("N"),
                 SourceAgent = AgentType.Compliance,
@@ -311,7 +310,7 @@ public static class FakeAgentResultFactory
                     EvidenceRefs = ["request", "policy-pack:enterprise-default"]
                 }
             ],
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = Guid.NewGuid().ToString("N"),
                 SourceAgent = AgentType.Critic,

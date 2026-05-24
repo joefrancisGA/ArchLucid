@@ -1,7 +1,7 @@
 ﻿using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 
@@ -24,7 +24,7 @@ public sealed class CommittedManifestTraceabilityRulesTests
 
         IReadOnlyList<string> gaps = CommittedManifestTraceabilityRules.GetLinkageGaps(
             manifest,
-            [RunEventTrace.From(ev)]);
+            [RunEventTraceDto.From(ev)]);
 
         gaps.Should().BeEmpty();
     }
@@ -41,7 +41,7 @@ public sealed class CommittedManifestTraceabilityRulesTests
 
         IReadOnlyList<string> gaps = CommittedManifestTraceabilityRules.GetLinkageGaps(
             manifest,
-            [RunEventTrace.From(ev)]);
+            [RunEventTraceDto.From(ev)]);
 
         gaps.Should().ContainSingle()
             .Which.Should().Contain("missing");

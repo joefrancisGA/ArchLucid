@@ -4,7 +4,8 @@ using System.Reflection;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.DecisionTraces;
+using PersistenceDecisionTraceDto = ArchLucid.Contracts.Persistence.DecisionTraces.DecisionTraceDto;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -147,7 +148,7 @@ public sealed class ManifestFinalizationConcurrencyTests
         runs.Setup(r => r.GetByIdAsync(scope, runIdB, It.IsAny<CancellationToken>())).ReturnsAsync(headerB);
 
         Mock<IDecisionTraceRepository> traces = new();
-        traces.Setup(t => t.SaveAsync(It.IsAny<DecisionTrace>(), It.IsAny<CancellationToken>()))
+        traces.Setup(t => t.SaveAsync(It.IsAny<PersistenceDecisionTraceDto>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         Mock<IGoldenManifestRepository> golden = new();

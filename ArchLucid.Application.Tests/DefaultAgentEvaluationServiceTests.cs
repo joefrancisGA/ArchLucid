@@ -1,7 +1,7 @@
-﻿using ArchLucid.Application.Decisions;
+using ArchLucid.Application.Decisions;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;

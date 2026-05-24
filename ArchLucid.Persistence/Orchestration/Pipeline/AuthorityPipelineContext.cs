@@ -1,7 +1,7 @@
 using System.Diagnostics;
 
 using ArchLucid.Contracts.Persistence.Context;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Models;
@@ -79,7 +79,7 @@ public sealed class AuthorityPipelineContext
         set;
     }
 
-    public DecisionTrace? Trace
+    public DecisionTraceDto? Trace
     {
         get;
         set;

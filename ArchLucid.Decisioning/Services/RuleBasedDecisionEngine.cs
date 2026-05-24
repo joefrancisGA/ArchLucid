@@ -1,6 +1,15 @@
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+
+using DomainRuleAuditTracePayload = ArchLucid.Decisioning.DecisionTraces.RuleAuditTracePayload;
+using DomainRuleAuditTraceWarning = ArchLucid.Decisioning.DecisionTraces.RuleAuditTraceWarning;
+using DomainRuleAuditTraceWarningSeverity = ArchLucid.Decisioning.DecisionTraces.RuleAuditTraceWarningSeverity;
+
 namespace ArchLucid.Decisioning.Services;
 
 /// <summary>
@@ -11,7 +20,7 @@ namespace ArchLucid.Decisioning.Services;
 /// <remarks>
 ///     Rules are applied in descending <c>Priority</c> order. For each finding the first matching
 ///     rule per action type wins; unmatched findings are recorded in
-///     <see cref="RuleAuditTracePayload.Notes" />. After manifest construction,
+///     <see cref="DomainRuleAuditTracePayload.Notes" />. After manifest construction,
 ///     <see cref="IGoldenManifestValidator.Validate" /> is called and a content hash is computed
 ///     via <see cref="IManifestHashService" />.
 ///     Cancellation is forwarded to <see cref="IDecisionRuleProvider.GetRuleSetAsync" />; the
@@ -25,7 +34,7 @@ public class RuleBasedDecisionEngine(
     : IDecisionEngine
 {
     /// <inheritdoc />
-    public async Task<(ManifestDocument Manifest, DecisionTrace Trace)> DecideAsync(
+    public async Task<(ManifestDocument Manifest, DecisionTraceDto Trace)> DecideAsync(
         Guid runId,
         Guid contextSnapshotId,
         GraphSnapshot graphSnapshot,
@@ -37,7 +46,7 @@ public class RuleBasedDecisionEngine(
             .OrderByDescending(r => r.Priority)
             .ToList();
 
-        RuleAuditTracePayload audit = new()
+        DomainRuleAuditTracePayload audit = new()
         {
             DecisionTraceId = Guid.NewGuid(),
             RunId = runId,
@@ -68,11 +77,11 @@ public class RuleBasedDecisionEngine(
                 {
                     if (missingContextFieldPaths.Count > 0)
                     {
-                        audit.Warnings.Add(new RuleAuditTraceWarning
+                        audit.Warnings.Add(new DomainRuleAuditTraceWarning
                         {
                             RuleId = rule.RuleId,
                             MissingFieldPaths = missingContextFieldPaths.ToList(),
-                            Severity = RuleAuditTraceWarningSeverity.Warning
+                            Severity = DomainRuleAuditTraceWarningSeverity.Warning
                         });
                     }
 
@@ -114,6 +123,6 @@ public class RuleBasedDecisionEngine(
         manifestValidator.Validate(manifest);
         manifest.ManifestHash = manifestHashService.ComputeHash(manifest);
 
-        return (manifest, trace);
+        return (manifest, DecisionTraceRecordMapper.ToDto(trace));
     }
 }

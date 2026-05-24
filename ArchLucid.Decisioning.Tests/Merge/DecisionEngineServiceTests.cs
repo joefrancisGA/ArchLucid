@@ -1,6 +1,6 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
+using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Decisioning.Merge;
@@ -37,7 +37,7 @@ public sealed class DecisionEngineServiceTests
             Claims = ["Add API service"],
             EvidenceRefs = ["request"],
             Confidence = 0.90,
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = "PROP-1",
                 SourceAgent = AgentType.Topology,
@@ -63,7 +63,7 @@ public sealed class DecisionEngineServiceTests
             Claims = ["Managed Identity required"],
             EvidenceRefs = ["policy-pack"],
             Confidence = 0.95,
-            ProposedChanges = new ManifestDeltaProposal
+            ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = "PROP-2",
                 SourceAgent = AgentType.Compliance,

@@ -12,8 +12,11 @@ using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Application.Runs.Telemetry;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Decisions;
-using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.Decisions;
+using ArchLucid.Decisioning.DecisionTraces;
+using DecisionTraceDto = ArchLucid.Contracts.Persistence.DecisionTraces.DecisionTraceDto;
+using RuleAuditTraceDto = ArchLucid.Contracts.Persistence.DecisionTraces.RuleAuditTraceDto;
+using RuleAuditTracePayload = ArchLucid.Contracts.Persistence.DecisionTraces.RuleAuditTracePayload;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
@@ -40,6 +43,7 @@ using Cm = ArchLucid.Contracts.Manifest;
 using DecisioningIdTraceRepository = ArchLucid.Core.Persistence.Ports.IDecisionTraceRepository;
 using DecisioningIGoldenManifestRepository = ArchLucid.Core.Manifest.IGoldenManifestRepository;
 using Dm = ArchLucid.Decisioning.Models;
+using DomainRuleAuditTracePayload = ArchLucid.Decisioning.DecisionTraces.RuleAuditTracePayload;
 
 namespace ArchLucid.Application.Runs.Orchestration;
 
@@ -260,6 +264,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         ArchitectureRequest request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken) ??
                                       throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
         ManifestDocument manifestModel;
+        DecisionTraceDto traceDto;
         DecisionTrace trace;
         Cm.GoldenManifest contract;
         AgentEvidencePackage? evidencePackageForTelemetry;
@@ -279,7 +284,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             FindingsSnapshot? findings = await _findingsSnapshotRepository.GetByIdAsync(findingsId, cancellationToken);
             if (findings is null)
                 throw new InvalidOperationException($"Findings snapshot '{findingsId:D}' for run '{runId}' was not found.");
-            (manifestModel, trace) = await _decisionEngine.DecideAsync(runGuid, contextSnapshotId, graphForDecision, findings, cancellationToken);
+            (manifestModel, traceDto) = await _decisionEngine.DecideAsync(runGuid, contextSnapshotId, graphForDecision, findings, cancellationToken);
+            trace = DecisionTraceRecordMapper.ToDomain(traceDto);
             ApplyRuleAuditScope(trace, scope);
             ApplyAuthorityManifestScope(manifestModel, scope);
             contract = await _projectionBuilder.BuildAsync(manifestModel, new AuthorityCommitProjectionInput { SystemName = request.SystemName },
@@ -400,7 +406,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         TryScheduleFindingPriorityRerank(runId);
         TryScheduleReviewCompletedEvent(runId, scope.ProjectId.ToString("N"));
 
-        return new CommitRunResult { Manifest = contract, DecisionTraces = [trace], Warnings = persisted.Warnings.Count == 0 ? [] : [.. persisted.Warnings] };
+        return new CommitRunResult { Manifest = contract, DecisionTraces = [DecisionTraceRecordMapper.ToDto(trace)], Warnings = persisted.Warnings.Count == 0 ? [] : [.. persisted.Warnings] };
     }
 
     private void TryScheduleReviewCompletedEvent(string runId, string projectId)
@@ -482,7 +488,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private static SaveContractsManifestOptions BuildSaveContractsManifestOptions(ManifestDocument manifestModel, DecisionTrace trace)
     {
-        RuleAuditTracePayload audit = trace.RequireRuleAudit();
+        DomainRuleAuditTracePayload audit = trace.RequireRuleAudit();
         return new SaveContractsManifestOptions
         {
             ManifestId = manifestModel.ManifestId,
@@ -511,14 +517,14 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         if (manifestModel is null)
             throw new ConflictException(
                 $"Run '{runId}' is already committed but the golden manifest '{goldenId:D}' could not be loaded for idempotent replay.");
-        DecisionTrace? trace = await _decisionTraceRepository.GetByIdAsync(scope, traceId, cancellationToken);
-        if (trace is null)
+        DecisionTraceDto? traceDto = await _decisionTraceRepository.GetByIdAsync(scope, traceId, cancellationToken);
+        if (traceDto is null)
             throw new ConflictException($"Run '{runId}' is already committed but the decision trace '{traceId:D}' could not be loaded for idempotent replay.");
         ArchitectureRequest request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken) ??
                                       throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
         Cm.GoldenManifest contract = await _projectionBuilder.BuildAsync(manifestModel, new AuthorityCommitProjectionInput { SystemName = request.SystemName },
             cancellationToken);
-        IReadOnlyList<string> storedGaps = AuthorityCommitTraceabilityRules.GetLinkageGaps(contract, [trace]);
+        IReadOnlyList<string> storedGaps = AuthorityCommitTraceabilityRules.GetLinkageGaps(contract, [DecisionTraceRecordMapper.ToDomain(traceDto)]);
         if (storedGaps.Count > 0)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
@@ -533,7 +539,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         return new CommitRunResult
         {
             Manifest = contract,
-            DecisionTraces = [trace],
+            DecisionTraces = [traceDto],
             Warnings = manifestModel.Warnings.Count == 0 ? [] : [.. manifestModel.Warnings]
         };
     }
@@ -544,7 +550,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     /// </summary>
     private async Task EnsureDecisionEngineV2NodesMaterializedAsync(string runId, ArchitectureRequest request, CancellationToken cancellationToken)
     {
-        IReadOnlyList<DecisionNode> existing = await _decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<DecisionNode> existing = DecisionRecordMapper.ToDomain(
+            await _decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken));
         if (existing.Count > 0)
             return;
         IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
@@ -558,7 +565,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         IReadOnlyList<DecisionNode> decisionNodes = await _decisionEngineV2.ResolveAsync(runId, request, tasks, results, evaluations, cancellationToken);
         if (decisionNodes.Count == 0)
             return;
-        await _decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken);
+        await _decisionNodeRepository.CreateManyAsync(
+            DecisionRecordMapper.ToRecords(decisionNodes),
+            cancellationToken);
     }
 
     private async Task<AgentEvidencePackage> GetEvidencePackageForCommitOrThrowAsync(string runId, CancellationToken cancellationToken)
@@ -589,7 +598,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private static void ApplyRuleAuditScope(DecisionTrace trace, ScopeContext scope)
     {
-        RuleAuditTracePayload audit = trace.RequireRuleAudit();
+        DomainRuleAuditTracePayload audit = trace.RequireRuleAudit();
         audit.TenantId = scope.TenantId;
         audit.WorkspaceId = scope.WorkspaceId;
         audit.ProjectId = scope.ProjectId;

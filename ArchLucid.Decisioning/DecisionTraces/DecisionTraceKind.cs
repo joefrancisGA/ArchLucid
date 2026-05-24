@@ -1,4 +1,4 @@
-namespace ArchLucid.Contracts.DecisionTraces;
+namespace ArchLucid.Decisioning.DecisionTraces;
 
 /// <summary>
 ///     JSON discriminator for polymorphic <see cref="DecisionTrace" /> (<see cref="RunEventTrace" /> vs
