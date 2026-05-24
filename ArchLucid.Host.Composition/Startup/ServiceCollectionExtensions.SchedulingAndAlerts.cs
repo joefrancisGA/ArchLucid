@@ -132,6 +132,9 @@ public static partial class ServiceCollectionExtensions
 
             services.AddHostedService<IntegrationEventOutboxHostedService>();
 
+        if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
+            services.AddHostedService<IntegrationEventDlqRetryHostedService>();
+
     }
 
     private static void RegisterIntegrationEventConsumer(
@@ -147,6 +150,7 @@ public static partial class ServiceCollectionExtensions
         services.AddHttpClient<IAzureDevOpsPullRequestDecorator, AzureDevOpsPullRequestDecorator>(
             static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.DevOpsIntegration));
         services.AddSingleton<IIntegrationEventHandler, AuthorityRunCompletedAzureDevOpsIntegrationEventHandler>();
+        services.AddSingleton<IIntegrationEventHandler, AuthorityRunCompletedChatOpsIntegrationEventHandler>();
         services.AddSingleton<IIntegrationEventHandler, TrialLifecycleEmailIntegrationEventHandler>();
         services.AddSingleton<IIntegrationEventHandler, LoggingIntegrationEventHandler>();
 

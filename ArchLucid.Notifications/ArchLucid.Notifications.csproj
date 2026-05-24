@@ -13,6 +13,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ArchLucid.Analyzers\ArchLucid.Analyzers.csproj"
                       OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false" />

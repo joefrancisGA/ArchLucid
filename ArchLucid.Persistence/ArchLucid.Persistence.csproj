@@ -37,7 +37,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ArchLucid.Notifications\ArchLucid.Notifications.csproj" />
     <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />
     <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
   </ItemGroup>

@@ -30,6 +30,7 @@ public sealed class PublisherIntegrationPayloadAndRecipeDocumentationGuardTests
             "workspaceId",
             "projectId",
             "previousRunId",
+            "description",
             "findings"
         ];
 

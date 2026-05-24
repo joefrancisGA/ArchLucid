@@ -13,7 +13,6 @@ using ArchLucid.Core.Transactions;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Caching;
-using ArchLucid.Notifications;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -174,7 +173,6 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
-            CreatePassiveChatOpsHook().Object,
             CreateUnlimitedTenantConcurrencyGate(),
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
@@ -379,7 +377,6 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
-            CreatePassiveChatOpsHook().Object,
             CreateUnlimitedTenantConcurrencyGate(),
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
@@ -495,7 +492,6 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
-            CreatePassiveChatOpsHook().Object,
             CreateUnlimitedTenantConcurrencyGate(),
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
@@ -685,7 +681,6 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
-            CreatePassiveChatOpsHook().Object,
             CreateUnlimitedTenantConcurrencyGate(),
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
@@ -791,7 +786,6 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
-            CreatePassiveChatOpsHook().Object,
             CreateUnlimitedTenantConcurrencyGate(),
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
@@ -913,7 +907,6 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             pipelineOpts.Object,
             CreatePublicSiteOptionsMonitor().Object,
-            CreatePassiveChatOpsHook().Object,
             CreateUnlimitedTenantConcurrencyGate(),
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
@@ -1007,7 +1000,6 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
-            CreatePassiveChatOpsHook().Object,
             CreateUnlimitedTenantConcurrencyGate(),
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
@@ -1037,14 +1029,6 @@ public sealed class AuthorityRunOrchestratorTests
         return gate.Object;
     }
 
-    private static Mock<IAuthorityRunCommittedChatOpsHook> CreatePassiveChatOpsHook()
-    {
-        Mock<IAuthorityRunCommittedChatOpsHook> mock = new();
-        mock.Setup(h => h.NotifyAsync(It.IsAny<AuthorityRunCommittedChatOpsNotice>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        return mock;
-    }
 
     private static Mock<IOptionsMonitor<PublicSiteOptions>> CreatePublicSiteOptionsMonitor()
     {
@@ -1087,7 +1071,6 @@ public sealed class AuthorityRunOrchestratorTests
         IOptionsMonitor<IntegrationEventsOptions> integrationEventOpts,
         IOptionsMonitor<AuthorityPipelineOptions> pipelineOpts,
         IOptionsMonitor<PublicSiteOptions> publicSiteOpts,
-        IAuthorityRunCommittedChatOpsHook chatOpsHook,
         ITenantAuthorityPipelineConcurrencyGate tenantConcurrencyGate,
         ILogger<AuthorityRunOrchestrator> logger)
     {
@@ -1100,7 +1083,6 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts,
             publicSiteOpts,
             NonCachingGraphSnapshotProjectionCache.Instance,
-            chatOpsHook,
             audit,
             NullLogger<AuthorityCommittedPipelineFinalizer>.Instance);
 

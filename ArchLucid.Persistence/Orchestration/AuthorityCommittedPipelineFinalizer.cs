@@ -13,7 +13,6 @@ using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
-using ArchLucid.Notifications;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -32,7 +31,6 @@ public sealed class AuthorityCommittedPipelineFinalizer(
     IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     IGraphSnapshotProjectionCache graphSnapshotProjectionCache,
-    IAuthorityRunCommittedChatOpsHook authorityRunCommittedChatOpsHook,
     IAuditService auditService,
     ILogger<AuthorityCommittedPipelineFinalizer> logger) : IAuthorityCommittedPipelineFinalizer
 {
@@ -56,9 +54,6 @@ public sealed class AuthorityCommittedPipelineFinalizer(
 
     private readonly IGraphSnapshotProjectionCache _graphSnapshotProjectionCache =
         graphSnapshotProjectionCache ?? throw new ArgumentNullException(nameof(graphSnapshotProjectionCache));
-
-    private readonly IAuthorityRunCommittedChatOpsHook _authorityRunCommittedChatOpsHook =
-        authorityRunCommittedChatOpsHook ?? throw new ArgumentNullException(nameof(authorityRunCommittedChatOpsHook));
 
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
@@ -118,6 +113,7 @@ public sealed class AuthorityCommittedPipelineFinalizer(
             workspaceId = scope.WorkspaceId,
             projectId = scope.ProjectId,
             previousRunId,
+            description = run.Description,
             findings = findingLinks
         };
 
@@ -171,18 +167,6 @@ public sealed class AuthorityCommittedPipelineFinalizer(
 
 
         ArchLucidInstrumentation.AuthorityRunsCompletedTotal.Add(1);
-
-        await _authorityRunCommittedChatOpsHook.NotifyAsync(
-            new AuthorityRunCommittedChatOpsNotice
-            {
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = run.RunId,
-                FindingCount = findingsSnapshot.Findings.Count,
-                Description = run.Description,
-            },
-            ct);
 
         return run;
     }
