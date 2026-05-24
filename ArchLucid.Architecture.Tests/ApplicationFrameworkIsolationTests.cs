@@ -22,10 +22,11 @@ public sealed class ApplicationFrameworkIsolationTests
         "Microsoft.Data.SqlClient",
         "System.Data.SqlClient",
         "Dapper",
+        "RazorLight",
     ];
 
     [Fact]
-    public void Application_must_not_reference_SqlClient_or_Dapper()
+    public void Application_must_not_reference_SqlClient_Dapper_or_RazorLight()
     {
         Assembly application = typeof(ArchitectureRunCreateOrchestrator).Assembly;
 
@@ -36,13 +37,13 @@ public sealed class ApplicationFrameworkIsolationTests
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue(
-            because: "Application depends on persistence ports (ArchLucid.Persistence.Interfaces/Models in Core); "
-                     + "Dapper and SqlClient belong in ArchLucid.Persistence adapters only. Offending types: {0}",
+            because: "Application depends on persistence ports and Core notification abstractions; "
+                     + "Dapper, SqlClient, and RazorLight belong in adapter assemblies only. Offending types: {0}",
             FormatFailingTypeNames(result));
     }
 
     [Fact]
-    public void Application_csproj_must_not_declare_Dapper_or_SqlClient_package_references()
+    public void Application_csproj_must_not_declare_Dapper_SqlClient_or_RazorLight_package_references()
     {
         string csprojPath = Path.Combine(
             FindRepositoryRoot(),
@@ -52,7 +53,7 @@ public sealed class ApplicationFrameworkIsolationTests
         XDocument project = XDocument.Load(csprojPath);
         XNamespace msbuild = project.Root?.Name.Namespace ?? XNamespace.None;
 
-        string[] forbiddenPackages = ["Dapper", "Microsoft.Data.SqlClient"];
+        string[] forbiddenPackages = ["Dapper", "Microsoft.Data.SqlClient", "RazorLight"];
         List<string> declared = project
             .Descendants(msbuild + "PackageReference")
             .Select(element => element.Attribute("Include")?.Value)
@@ -63,7 +64,7 @@ public sealed class ApplicationFrameworkIsolationTests
         declared.Intersect(forbiddenPackages, StringComparer.OrdinalIgnoreCase)
             .Should()
             .BeEmpty(
-                because: "Application.csproj must not declare direct SQL package references; persistence adapters live in ArchLucid.Persistence.");
+                because: "Application.csproj must not declare direct SQL or RazorLight package references; adapters live outside Application.");
     }
 
     private static string FindRepositoryRoot()

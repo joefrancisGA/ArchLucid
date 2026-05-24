@@ -1,4 +1,5 @@
 using ArchLucid.Application.Notifications.Email.Models;
+using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Notifications;

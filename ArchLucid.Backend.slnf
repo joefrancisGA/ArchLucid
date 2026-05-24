@@ -38,6 +38,7 @@
       "ArchLucid.KnowledgeGraph/ArchLucid.KnowledgeGraph.csproj",
       "ArchLucid.KnowledgeGraph.Tests/ArchLucid.KnowledgeGraph.Tests.csproj",
       "ArchLucid.Notifications/ArchLucid.Notifications.csproj",
+      "ArchLucid.Notifications.Email.RazorLight/ArchLucid.Notifications.Email.RazorLight.csproj",
       "ArchLucid.Notifications.Tests/ArchLucid.Notifications.Tests.csproj",
       "ArchLucid.Persistence/ArchLucid.Persistence.csproj",
       "ArchLucid.Persistence.MigrateVerify/ArchLucid.Persistence.MigrateVerify.csproj",

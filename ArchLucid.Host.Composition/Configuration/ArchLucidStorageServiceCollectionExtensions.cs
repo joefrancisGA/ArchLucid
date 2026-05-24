@@ -2,6 +2,7 @@ using ArchLucid.AgentRuntime;
 using ArchLucid.Application.DataConsistency;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Notifications.Email;
+using ArchLucid.Notifications.Email.RazorLight;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications;

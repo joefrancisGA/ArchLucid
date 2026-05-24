@@ -1,16 +1,20 @@
 using System.Text.RegularExpressions;
 
+using ArchLucid.Core.Notifications.Email;
+
 using RazorLight;
 
-namespace ArchLucid.Application.Notifications.Email;
+namespace ArchLucid.Notifications.Email.RazorLight;
 
-/// <summary>Renders embedded Razor (<c>.cshtml</c>) views shipped with <see cref="ArchLucid.Application"/>.</summary>
+/// <summary>Renders embedded Razor (<c>.cshtml</c>) email views shipped with this adapter assembly.</summary>
 public sealed class RazorLightEmailTemplateRenderer : IEmailTemplateRenderer
 {
     private static readonly Regex StripTags = new("<[^>]+>", RegexOptions.Compiled);
 
-    private readonly RazorLightEngine _engine = new RazorLightEngineBuilder().UseEmbeddedResourcesProject(typeof(EmailTemplateAnchor))
-        .UseMemoryCachingProvider().Build();
+    private readonly RazorLightEngine _engine = new RazorLightEngineBuilder()
+        .UseEmbeddedResourcesProject(typeof(EmailTemplateAnchor))
+        .UseMemoryCachingProvider()
+        .Build();
 
     /// <inheritdoc/>
     public Task<string> RenderHtmlAsync(string templateId, object model, CancellationToken cancellationToken)
@@ -34,9 +38,10 @@ public sealed class RazorLightEmailTemplateRenderer : IEmailTemplateRenderer
     /// <summary>Visible for template snapshot tests.</summary>
     internal static string TemplateKey(string templateId)
     {
-        return string.IsNullOrWhiteSpace(templateId)
-            ? throw new ArgumentException("Template id is required.", nameof(templateId))
-            : // RazorLight resolves views relative to <see cref="EmailTemplateAnchor"/>'s namespace (ArchLucid.Application.Notifications.Email).
-            $"Templates.{templateId.Trim()}.cshtml";
+        if (string.IsNullOrWhiteSpace(templateId))
+            throw new ArgumentException("Template id is required.", nameof(templateId));
+
+        // RazorLight resolves views relative to <see cref="EmailTemplateAnchor"/>'s namespace.
+        return $"Templates.{templateId.Trim()}.cshtml";
     }
 }

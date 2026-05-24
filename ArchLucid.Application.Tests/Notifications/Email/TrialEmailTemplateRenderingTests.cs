@@ -1,5 +1,6 @@
 ﻿using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Notifications.Email.Models;
+using ArchLucid.Notifications.Email.RazorLight;
 
 using FluentAssertions;
 

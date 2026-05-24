@@ -4,7 +4,6 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,11 +21,9 @@
     <PackageReference Include="Polly" />
     <PackageReference Include="Handlebars.Net" />
     <PackageReference Include="QuestPDF" />
-    <PackageReference Include="RazorLight" />
     <PackageReference Include="Tomlyn" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Notifications\Email\Templates\*.cshtml" />
     <EmbeddedResource Include="Exports\Templates\*.hbs" />
   </ItemGroup>
 

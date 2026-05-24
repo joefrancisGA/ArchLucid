@@ -1,7 +1,7 @@
 namespace ArchLucid.Application.Notifications.Email;
 
 /// <summary>
-///     Sends the weekly run-summary one-pager using the transactional email stack (<see cref="IEmailTemplateRenderer" />,
+///     Sends the weekly run-summary one-pager using the transactional email stack (<see cref="Core.Notifications.Email.IEmailTemplateRenderer" />,
 ///     <see cref="Core.Notifications.Email.IEmailProvider" />, <see cref="Core.Notifications.ISentEmailLedger" />).
 /// </summary>
 public interface IWeeklyExecutiveSummaryEmailDispatcher
