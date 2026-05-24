@@ -633,6 +633,55 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task RetryIntegrationOutboxDeadLettersAsync_logs_audit_when_rows_retried()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(
+            factory,
+            SqlOptions(),
+            audit,
+            actor,
+            out _,
+            out _,
+            out Mock<IIntegrationEventOutboxRepository> integration,
+            out _,
+            out _);
+
+        Guid outboxId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        _ = integration
+            .Setup(i => i.RetryMatchingDeadLettersAsync(
+                null,
+                IntegrationEventTypes.ManifestFinalizedV1,
+                100,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IntegrationOutboxDeadLetterBulkRetryResult
+            {
+                RetriedCount = 1,
+                RetriedOutboxIds = [outboxId]
+            });
+
+        IntegrationOutboxDeadLetterBulkRetryRequest request = new()
+        {
+            EventType = IntegrationEventTypes.ManifestFinalizedV1,
+            MaxRows = 100
+        };
+
+        IntegrationOutboxDeadLetterBulkRetryResponse response =
+            await sut.RetryIntegrationOutboxDeadLettersAsync(request, CancellationToken.None);
+
+        Assert.Equal(1, response.RetriedCount);
+        audit.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.IntegrationOutboxDeadLetterRetried),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     /// <remarks>Moq <see cref="It.Is{TValue}"/> requires an expression-tree lambda; keep checks in this helper.</remarks>
     private static bool MatchesArchiveRunsCreatedBeforeAuditCapsSample(AuditEvent auditEvent, Guid expectedFirstSampleRunId)
     {

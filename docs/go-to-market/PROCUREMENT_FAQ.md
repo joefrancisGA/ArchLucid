@@ -78,6 +78,12 @@
 
 ---
 
+### 11. How do we get **extended audit retention** (e.g. 7 years)?
+
+**Answer:** Per-tier defaults are **90 days (Team)**, **1 year (Professional)**, and **custom (Enterprise)** — see [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md). Extended retention is an **Enterprise-negotiated** add-on documented in [`AUDIT_RETENTION_EXTENSION.md`](../library/AUDIT_RETENTION_EXTENSION.md): scheduled CSV exports to customer-controlled immutable blob storage plus an agreed hot SQL window — not a universal 7-year default in the interactive database.
+
+---
+
 ## Trust progression timeline (informal)
 
 | Window | Checkpoint |

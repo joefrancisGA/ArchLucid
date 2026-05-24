@@ -91,23 +91,6 @@ public static class IdentityClaimRoleMappingResolver
 
     public static void ValidateMapping(IdentityClaimRoleMappingDocument mapping)
     {
-        ArgumentNullException.ThrowIfNull(mapping);
-
-        if (string.IsNullOrWhiteSpace(mapping.RoleClaimName))
-            throw new ArgumentException("RoleClaimName is required.");
-
-        foreach (IdentityClaimRoleMappingEntry entry in mapping.Mappings)
-        {
-            if (!AllowedRoles.Contains(entry.ArchLucidRole))
-            {
-                throw new ArgumentException(
-                    $"ArchLucid role '{entry.ArchLucidRole}' is not supported. Use Admin, Operator, Reader, or Auditor.");
-            }
-        }
-
-        if (!string.IsNullOrWhiteSpace(mapping.CustomGroupClaimRegex))
-        {
-            _ = new Regex(mapping.CustomGroupClaimRegex, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-        }
+        IdentityClaimRoleMappingValidator.ValidateOrThrow(mapping);
     }
 }

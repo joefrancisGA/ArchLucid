@@ -222,11 +222,12 @@ Add comprehensive unit and integration tests for `ExecutiveRoiSummaryService` cr
 Acceptance Criteria: High test coverage for ROI deduplication logic.
 ```
 
-### 4. Implement SAML SP Metadata Validation CLI Command
+### 4. Implement SAML SP Metadata Validation CLI Command (completed 2026-05-24)
 - **Why it matters:** Reduces onboarding friction by catching SAML misconfigurations before runtime.
 - **Expected impact:** Directly improves Adoption Friction (+4 pts) and Supportability (+2 pts). Weighted readiness impact: +0.06%.
 - **Affected qualities:** Adoption Friction, Supportability.
-- **Actionable now:** Yes.
+- **Actionable now:** No (completed).
+- **Completed:** 2026-05-24 — `archlucid auth validate-saml --metadata <file.xml> --claim-mapping <file.json>` with `SamlIdpMetadataFileDiagnostics` and `IdentityClaimRoleMappingValidator` in Core.
 ```cursor
 Implement a CLI command to validate SAML SP metadata and claim mappings.
 1. In the CLI project, add a new command `archlucid auth validate-saml`.
@@ -237,11 +238,12 @@ Implement a CLI command to validate SAML SP metadata and claim mappings.
 Acceptance Criteria: CLI successfully parses and validates SAML metadata without requiring a running API host.
 ```
 
-### 5. Implement Integration Event Outbox Dead-Letter Retry CLI
+### 5. Implement Integration Event Outbox Dead-Letter Retry CLI (completed 2026-05-24)
 - **Why it matters:** Operators need a way to recover from prolonged downstream webhook failures.
 - **Expected impact:** Directly improves Maintainability (+3 pts) and Supportability (+3 pts). Weighted readiness impact: +0.02%.
 - **Affected qualities:** Maintainability, Supportability.
-- **Actionable now:** Yes.
+- **Actionable now:** No (completed).
+- **Completed:** 2026-05-24 — `archlucid integration retry-dead-letter` calls `POST /v1/admin/integrations/outbox/retry-dead-letter`; bulk retry with audit `Integration.OutboxDeadLetterRetried`.
 ```cursor
 Implement a CLI command to retry dead-lettered integration events.
 1. In the CLI project, add `archlucid integration retry-dead-letter`.
@@ -349,11 +351,12 @@ Implement a background hosted service to clean up orphaned AgentResult blobs.
 Acceptance Criteria: Orphaned blobs are automatically deleted, reducing storage costs.
 ```
 
-### 9. Implement Executive ROI Summary CSV Export CLI
+### 9. Implement Executive ROI Summary CSV Export CLI (completed 2026-05-24)
 - **Why it matters:** Executives need portable reports for board packs.
 - **Expected impact:** Directly improves Executive Value Visibility (+5 pts) and Proof-of-ROI Readiness (+2 pts). Weighted readiness impact: +0.07%.
 - **Affected qualities:** Executive Value Visibility, Proof-of-ROI Readiness.
-- **Actionable now:** Yes.
+- **Actionable now:** No (completed).
+- **Completed:** 2026-05-24 — `archlucid roi export [--out <file.csv>]` calls `GET /v1/roi/executive-summary/export` and writes timestamped CSV.
 ```cursor
 Implement a CLI command to export the Executive ROI summary as a CSV.
 1. In the CLI project, add `archlucid roi export`.
@@ -440,11 +443,12 @@ Constraints: do not show the nudge more than once per session per trigger; respe
 Acceptance Criteria: nudge appears at the right thresholds, click flow lands on `/pricing` with quote request preselected, telemetry emits.
 ```
 
-### 15. Add CLI Command to Simulate Webhook Payloads
+### 15. Add CLI Command to Simulate Webhook Payloads (completed 2026-05-24)
 - **Why it matters:** Crucial for testing and debugging customer integration bridges.
 - **Expected impact:** Directly improves Supportability (+4 pts) and Maintainability (+2 pts). Weighted readiness impact: +0.02%.
 - **Affected qualities:** Supportability, Maintainability.
-- **Actionable now:** Yes.
+- **Actionable now:** No (completed).
+- **Completed:** 2026-05-24 — `archlucid integration simulate-webhook --event-type <alias> --target-url <url>` with `IntegrationWebhookPayloadSamples` synthetic payloads.
 ```cursor
 Implement a CLI command to simulate outbound webhook payloads.
 1. In the CLI project, add `archlucid integration simulate-webhook`.
@@ -468,11 +472,12 @@ Implement a background job to pre-warm the Executive ROI summary cache.
 Acceptance Criteria: Executive ROI dashboard loads instantly from cache.
 ```
 
-### 17. Publish Hosted Enterprise Onboarding Checklist (ArchLucid-hosted SaaS)
+### 17. Publish Hosted Enterprise Onboarding Checklist (ArchLucid-hosted SaaS) (completed 2026-05-24)
 - **Why it matters:** V1 GA Enterprise is **hosted SaaS only** — self-hosted Enterprise deals are **V2** per [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md). Implementation teams still need one checklist that wires SCIM, SAML/OIDC, default policy packs, governance enablement, and audit export for **hosted** Enterprise tenants — today these live in separate docs.
 - **Expected impact:** Directly improves Adoption Friction (+2 pts) and Time-to-Value (+2 pts). Weighted readiness impact: +0.05%.
 - **Affected qualities:** Adoption Friction, Time-to-Value.
-- **Actionable now:** Yes.
+- **Actionable now:** No (completed).
+- **Completed:** 2026-05-24 — [`HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md`](../library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md) with cross-links from onboarding playbook and procurement FAQ.
 ```cursor
 Publish a hosted Enterprise onboarding checklist for ArchLucid-operated SaaS (not self-hosted).
 1. Create `docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md`.
@@ -511,11 +516,12 @@ Add a Grafana dashboard for the integration outbox.
 Acceptance Criteria: Operators have a dedicated dashboard for monitoring webhook and integration health.
 ```
 
-### 20. Document Audit Retention Extension Contract for Enterprise Auditors
+### 20. Document Audit Retention Extension Contract for Enterprise Auditors (completed 2026-05-24)
 - **Why it matters:** Auditors routinely ask for retention beyond the per-tier defaults (Team 90 days, Professional 1 year, Enterprise custom). Today there is no single published contract describing how to extend retention, what storage implications apply, and what audit export guarantees exist — creating procurement friction on every Enterprise deal.
 - **Expected impact:** Directly improves Adoption Friction (+2 pts) and Executive Value Visibility (+1 pt). Weighted readiness impact: +0.05%.
 - **Affected qualities:** Adoption Friction, Executive Value Visibility.
-- **Actionable now:** Yes.
+- **Actionable now:** No (completed).
+- **Completed:** 2026-05-24 — [`AUDIT_RETENTION_EXTENSION.md`](../library/AUDIT_RETENTION_EXTENSION.md) with cross-links from procurement FAQ, trust center, and order form template.
 ```cursor
 Document the audit retention extension contract for Enterprise auditors.
 1. Create `docs/library/AUDIT_RETENTION_EXTENSION.md` describing:
@@ -529,11 +535,12 @@ Constraints: do not implement new retention enforcement code in this prompt — 
 Acceptance Criteria: a security reviewer can answer "how do we get 7-year audit retention?" from this single doc without opening a support ticket.
 ```
 
-### 21. Implement CLI Command to Generate Compliance Drift Report
+### 21. Implement CLI Command to Generate Compliance Drift Report (completed 2026-05-24)
 - **Why it matters:** Auditors need point-in-time snapshots of compliance posture.
 - **Expected impact:** Directly improves Executive Value Visibility (+3 pts) and Maintainability (+2 pts). Weighted readiness impact: +0.04%.
 - **Affected qualities:** Executive Value Visibility, Maintainability.
-- **Actionable now:** Yes.
+- **Actionable now:** No (completed).
+- **Completed:** 2026-05-24 — `archlucid compliance export-drift --start-date <utc> --end-date <utc>` queries `GET /v1/governance/compliance-drift-trend` and writes CSV or Markdown.
 ```cursor
 Implement a CLI command to generate a compliance drift report.
 1. In the CLI project, add `archlucid compliance export-drift`.

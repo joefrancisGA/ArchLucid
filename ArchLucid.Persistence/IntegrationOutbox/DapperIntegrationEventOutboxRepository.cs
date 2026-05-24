@@ -327,6 +327,56 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
     }
 
     /// <inheritdoc />
+    public async Task<IntegrationOutboxDeadLetterBulkRetryResult> RetryMatchingDeadLettersAsync(
+        Guid? tenantId,
+        string? eventType,
+        int maxRows,
+        CancellationToken ct)
+    {
+        int take = Math.Clamp(maxRows, 1, 500);
+        string? normalizedEventType = string.IsNullOrWhiteSpace(eventType) ? null : eventType.Trim();
+
+        const string selectSql = """
+            SELECT TOP (@Take) OutboxId
+            FROM dbo.IntegrationEventOutbox
+            WHERE DeadLetteredUtc IS NOT NULL
+              AND ProcessedUtc IS NULL
+              AND (@TenantId IS NULL OR TenantId = @TenantId)
+              AND (@EventType IS NULL OR EventType = @EventType)
+            ORDER BY DeadLetteredUtc DESC;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+
+        IEnumerable<Guid> candidateIds = await connection.QueryAsync<Guid>(
+            new CommandDefinition(
+                selectSql,
+                new
+                {
+                    Take = take,
+                    TenantId = tenantId,
+                    EventType = normalizedEventType
+                },
+                cancellationToken: ct));
+
+        List<Guid> retried = [];
+
+        foreach (Guid outboxId in candidateIds)
+        {
+            bool ok = await ResetDeadLetterForRetryAsync(outboxId, ct).ConfigureAwait(false);
+
+            if (ok)
+                retried.Add(outboxId);
+        }
+
+        return new IntegrationOutboxDeadLetterBulkRetryResult
+        {
+            RetriedCount = retried.Count,
+            RetriedOutboxIds = retried
+        };
+    }
+
+    /// <inheritdoc />
     public async Task<IntegrationEventOutboxEntry?> TryGetDeadLetterEntryAsync(Guid outboxId, CancellationToken ct)
     {
         const string sql = """

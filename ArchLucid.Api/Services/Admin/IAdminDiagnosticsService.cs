@@ -27,6 +27,11 @@ public interface IAdminDiagnosticsService
     /// <summary>Re-queues a dead-letter row for another publish attempt cycle.</summary>
     Task<bool> RetryIntegrationOutboxDeadLetterAsync(Guid outboxId, CancellationToken cancellationToken = default);
 
+    /// <summary>Re-queues dead-letter rows matching optional tenant and event-type filters.</summary>
+    Task<IntegrationOutboxDeadLetterBulkRetryResponse> RetryIntegrationOutboxDeadLettersAsync(
+        IntegrationOutboxDeadLetterBulkRetryRequest request,
+        CancellationToken cancellationToken = default);
+
     /// <summary>Builds a cURL replay command for a dead-lettered integration outbox row.</summary>
     Task<IntegrationEventDeadLetterCurlResponse?> TryBuildIntegrationOutboxDeadLetterCurlAsync(
         Guid outboxId,

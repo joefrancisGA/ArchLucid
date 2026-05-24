@@ -96,6 +96,45 @@ public static class Program
                 case "roi-bulletin":
                     return await RoiBulletinCommand.RunAsync(normalized.Skip(1).ToArray());
 
+                case "roi":
+                    if (normalized.Length > 1 && string.Equals(normalized[1], "export", StringComparison.OrdinalIgnoreCase))
+                        return await RoiExportCommand.RunAsync(normalized.Skip(2).ToArray());
+
+                    RoiExportCommand.WriteUsage();
+
+                    return CliExitCode.UsageError;
+
+                case "auth":
+                    if (normalized.Length > 1 && string.Equals(normalized[1], "validate-saml", StringComparison.OrdinalIgnoreCase))
+                        return await AuthValidateSamlCommand.RunAsync(normalized.Skip(2).ToArray());
+
+                    AuthValidateSamlCommand.WriteUsage();
+
+                    return CliExitCode.UsageError;
+
+                case "integration":
+                    if (normalized.Length > 1)
+                    {
+                        if (string.Equals(normalized[1], "retry-dead-letter", StringComparison.OrdinalIgnoreCase))
+                            return await IntegrationRetryDeadLetterCommand.RunAsync(normalized.Skip(2).ToArray());
+
+                        if (string.Equals(normalized[1], "simulate-webhook", StringComparison.OrdinalIgnoreCase))
+                            return await IntegrationSimulateWebhookCommand.RunAsync(normalized.Skip(2).ToArray());
+                    }
+
+                    IntegrationRetryDeadLetterCommand.WriteUsage();
+                    Console.WriteLine("       archlucid integration simulate-webhook --event-type <alias> --target-url <url> [--secret <s>]");
+
+                    return CliExitCode.UsageError;
+
+                case "compliance":
+                    if (normalized.Length > 1 && string.Equals(normalized[1], "export-drift", StringComparison.OrdinalIgnoreCase))
+                        return await ComplianceExportDriftCommand.RunAsync(normalized.Skip(2).ToArray());
+
+                    ComplianceExportDriftCommand.WriteUsage();
+
+                    return CliExitCode.UsageError;
+
                 case "agent-eval":
                     if (normalized.Length > 1 && string.Equals(normalized[1], "rollup", StringComparison.OrdinalIgnoreCase))
                         return await AgentEvalRollupCommand.RunAsync(normalized.Skip(2).ToArray());
@@ -531,7 +570,7 @@ public static class Program
         CliRootHelpHints.WriteTryPilotLoopBanner();
 
         const string plain =
-            "Please provide a command. Available commands: new [--quickstart], init [--out <path>] [--force], dev up [--sql-only], pilot up | pilot success-criteria-template, seed-demo-data, explain-operator-model, try [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <secs>] [--commit-deadline <secs>], second-run <SECOND_RUN.toml|json> [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--commit-deadline <secs>], trial smoke --org <name> --email <email> [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas], roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain], agent-eval rollup --from-json <agent-evaluation.json> [--json], real-llm-evidence summarize --from-json <path>, security-trust publish --kind pen-test --date <YYYY-MM-DD> --summary-url <URL> [--assessor <name>] [--assessment-code <code>] [--ui-base-url <url>], marketplace preflight [--repo <dir>], azure terraform-export --subscription <subId> --resource-group <name> --out <bundle.zip>, az-roles (--subscription|--scope, --assignee, [--shell bash|powershell|both]), az-token-test (ARCHLUCID_AZURE_TOKEN_TEST_SCOPE optional), manifest validate --file <path.json>, golden-cohort lock-baseline [--cohort <path>] [--write] | golden-cohort drift [--cohort <path>] [--strict-real] [--structural-only], templates list [--repo-root <dir>], run [--quick], status <runId>, trace <runId>, run-support-packet <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, first-value-report <runId> [--save], buyer-proof-pack <runId> --out <path.zip> [--repo-root <dir>], sponsor-one-pager <runId> [--save], reference-evidence | proof-pack (--run or --tenant; same CLI), comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], cost-estimate [--live-pricing] <manifest.json|extractor.zip>, data-consistency orphans [--api-base-url <url>] | data-consistency remediate <target> [--execute] [--max-rows <n>] [--api-base-url <url>], health, validate-config, saml test-config, compliance-report [--out <file.md>] [--repo <dir>] [--with-live-audit], policy validate <file.json> | policy-pack validate <file.json>, pack export-scaffold [--output <path>] [--force], graph export <runId> [--format mermaid|graphml] [--decision <key>] [--out <path>], rules simulate --run <runGuid> [--severity Warning] [--count 3], webhooks test [--url <url>] [--secret <s>] [--payload <path>] [--help], config check [--no-api], config lint [--simulate-production] [--hosting-advisor], config bootstrap [--out <path>] [--force], doctor (or check), deployment-evidence --environment <staging|production|dev> --api-base-url <url> [--out <path>] [--repo <dir>] [--synthetic-path <path>] [--allow-missing-openapi], support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell. Global: --json for machine-readable output where supported.";
+            "Please provide a command. Available commands: new [--quickstart], init [--out <path>] [--force], dev up [--sql-only], pilot up | pilot success-criteria-template, seed-demo-data, explain-operator-model, try [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <secs>] [--commit-deadline <secs>], second-run <SECOND_RUN.toml|json> [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--commit-deadline <secs>], trial smoke --org <name> --email <email> [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas], roi export [--out <file.csv>] [--api-base-url <url>], roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain], auth validate-saml --metadata <file.xml> --claim-mapping <file.json>, integration retry-dead-letter [--tenant-id <guid>] [--event-type <type>] | integration simulate-webhook --event-type <alias> --target-url <url>, compliance export-drift --start-date <utc> --end-date <utc> [--format csv|md], agent-eval rollup --from-json <agent-evaluation.json> [--json], real-llm-evidence summarize --from-json <path>, security-trust publish --kind pen-test --date <YYYY-MM-DD> --summary-url <URL> [--assessor <name>] [--assessment-code <code>] [--ui-base-url <url>], marketplace preflight [--repo <dir>], azure terraform-export --subscription <subId> --resource-group <name> --out <bundle.zip>, az-roles (--subscription|--scope, --assignee, [--shell bash|powershell|both]), az-token-test (ARCHLUCID_AZURE_TOKEN_TEST_SCOPE optional), manifest validate --file <path.json>, golden-cohort lock-baseline [--cohort <path>] [--write] | golden-cohort drift [--cohort <path>] [--strict-real] [--structural-only], templates list [--repo-root <dir>], run [--quick], status <runId>, trace <runId>, run-support-packet <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, first-value-report <runId> [--save], buyer-proof-pack <runId> --out <path.zip> [--repo-root <dir>], sponsor-one-pager <runId> [--save], reference-evidence | proof-pack (--run or --tenant; same CLI), comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], cost-estimate [--live-pricing] <manifest.json|extractor.zip>, data-consistency orphans [--api-base-url <url>] | data-consistency remediate <target> [--execute] [--max-rows <n>] [--api-base-url <url>], health, validate-config, saml test-config, compliance-report [--out <file.md>] [--repo <dir>] [--with-live-audit], policy validate <file.json> | policy-pack validate <file.json>, pack export-scaffold [--output <path>] [--force], graph export <runId> [--format mermaid|graphml] [--decision <key>] [--out <path>], rules simulate --run <runGuid> [--severity Warning] [--count 3], webhooks test [--url <url>] [--secret <s>] [--payload <path>] [--help], config check [--no-api], config lint [--simulate-production] [--hosting-advisor], config bootstrap [--out <path>] [--force], doctor (or check), deployment-evidence --environment <staging|production|dev> --api-base-url <url> [--out <path>] [--repo <dir>] [--synthetic-path <path>] [--allow-missing-openapi], support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell. Global: --json for machine-readable output where supported.";
 
         if (CliExecutionContext.JsonOutput)
 

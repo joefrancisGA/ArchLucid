@@ -234,6 +234,64 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     }
 
     /// <inheritdoc />
+    public Task<IntegrationOutboxDeadLetterBulkRetryResult> RetryMatchingDeadLettersAsync(
+        Guid? tenantId,
+        string? eventType,
+        int maxRows,
+        CancellationToken ct)
+    {
+        int take = Math.Clamp(maxRows, 1, 500);
+        string? normalizedEventType = string.IsNullOrWhiteSpace(eventType) ? null : eventType.Trim();
+
+        lock (_gate)
+        {
+            List<Guid> retried = [];
+
+            foreach (IntegrationEventOutboxEntry candidate in _rows
+                         .Where(e => e.DeadLetteredUtc is not null)
+                         .Where(e => tenantId is null || e.TenantId == tenantId)
+                         .Where(e => normalizedEventType is null
+                                     || string.Equals(e.EventType, normalizedEventType, StringComparison.Ordinal))
+                         .OrderByDescending(e => e.DeadLetteredUtc)
+                         .Take(take))
+            {
+                int idx = _rows.FindIndex(e => e.OutboxId == candidate.OutboxId && e.DeadLetteredUtc is not null);
+
+                if (idx < 0)
+                    continue;
+
+                IntegrationEventOutboxEntry e = _rows[idx];
+
+                _rows[idx] = new IntegrationEventOutboxEntry
+                {
+                    OutboxId = e.OutboxId,
+                    RunId = e.RunId,
+                    EventType = e.EventType,
+                    MessageId = e.MessageId,
+                    PayloadUtf8 = e.PayloadUtf8,
+                    TenantId = e.TenantId,
+                    WorkspaceId = e.WorkspaceId,
+                    ProjectId = e.ProjectId,
+                    CreatedUtc = e.CreatedUtc,
+                    Priority = e.Priority,
+                    RetryCount = 0,
+                    NextRetryUtc = null,
+                    DeadLetteredUtc = null,
+                    LastErrorMessage = null
+                };
+
+                retried.Add(e.OutboxId);
+            }
+
+            return Task.FromResult(new IntegrationOutboxDeadLetterBulkRetryResult
+            {
+                RetriedCount = retried.Count,
+                RetriedOutboxIds = retried
+            });
+        }
+    }
+
+    /// <inheritdoc />
     public Task<IntegrationEventOutboxEntry?> TryGetDeadLetterEntryAsync(Guid outboxId, CancellationToken ct)
     {
         lock (_gate)

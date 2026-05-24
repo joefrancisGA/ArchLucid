@@ -13,6 +13,8 @@ This playbook aligns with the 6-week pilot timeline in [PILOT_SUCCESS_SCORECARD.
 
 **Pricing:** Current tier pricing, pilot fee, and design-partner terms are in [PRICING_PHILOSOPHY.md §4–§5](PRICING_PHILOSOPHY.md). Do not restate prices in this playbook.
 
+**Enterprise hosted SaaS:** Use the step-by-step checklist in [`HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md`](../library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md) for SCIM, SAML/OIDC, policy packs, governance, and audit export wiring (ArchLucid-hosted only — not self-hosted V2).
+
 ---
 
 ## 1. Onboarding phases

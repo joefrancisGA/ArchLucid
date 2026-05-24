@@ -694,6 +694,9 @@ public static class AuditEventTypes
     /// <summary>Outbound ServiceNow incident create skipped — unconfigured connector or prerequisite not met.</summary>
     public const string IntegrationServiceNowIncidentCreateSkipped = "Integration.ServiceNowIncidentCreateSkipped";
 
+    /// <summary>Admin or CLI re-queued one or more integration outbox dead-letter rows for publish retry.</summary>
+    public const string IntegrationOutboxDeadLetterRetried = "Integration.OutboxDeadLetterRetried";
+
     /// <summary>
     ///     Admin published the canonical first-value Markdown for a run as a new Confluence Cloud page (
     ///     <c>POST /v1/admin/integrations/confluence/first-value-report</c>). Payload: <c>runId</c>, <c>externalPageId</c>.

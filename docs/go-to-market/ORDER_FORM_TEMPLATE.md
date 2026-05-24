@@ -103,7 +103,7 @@ Enterprise pricing is a custom annual contract with a floor and range defined in
 | Component | Notes | Representative amount |
 |-----------|-------|----------------------|
 | Annual contract | 50 named seats, 3 workspaces, unlimited runs (fair-use soft cap per [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md)) | From [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) land range |
-| Custom audit retention | 3-year retention with cold-tier export (roadmap; priced separately) | TBD at contract |
+| Custom audit retention | Extended retention + cold-tier export per [`AUDIT_RETENTION_EXTENSION.md`](../library/AUDIT_RETENTION_EXTENSION.md) | TBD at contract |
 | Custom policy packs | Authoring engagement (professional services) | TBD at contract |
 | Dedicated CSM | Included in Enterprise tier | Included |
 | **Representative annual range** | | $120,000–$180,000 / year |

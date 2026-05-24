@@ -106,6 +106,45 @@ public sealed class AdminDiagnosticsService(
     }
 
     /// <inheritdoc />
+    public async Task<IntegrationOutboxDeadLetterBulkRetryResponse> RetryIntegrationOutboxDeadLettersAsync(
+        IntegrationOutboxDeadLetterBulkRetryRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        IntegrationOutboxDeadLetterBulkRetryResult result =
+            await _integrationEventOutbox.RetryMatchingDeadLettersAsync(
+                request.TenantId,
+                request.EventType,
+                request.MaxRows,
+                cancellationToken).ConfigureAwait(false);
+
+        if (result.RetriedCount > 0)
+        {
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.IntegrationOutboxDeadLetterRetried,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            tenantId = request.TenantId,
+                            eventType = request.EventType,
+                            retriedCount = result.RetriedCount,
+                            outboxIds = result.RetriedOutboxIds
+                        })
+                },
+                cancellationToken).ConfigureAwait(false);
+        }
+
+        return new IntegrationOutboxDeadLetterBulkRetryResponse
+        {
+            RetriedCount = result.RetriedCount,
+            RetriedOutboxIds = result.RetriedOutboxIds
+        };
+    }
+
+    /// <inheritdoc />
     public async Task<IntegrationEventDeadLetterCurlResponse?> TryBuildIntegrationOutboxDeadLetterCurlAsync(
         Guid outboxId,
         CancellationToken cancellationToken = default)
