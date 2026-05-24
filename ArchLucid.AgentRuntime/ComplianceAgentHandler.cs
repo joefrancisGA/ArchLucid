@@ -7,8 +7,11 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Retrieval;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Retrieval.Compliance;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime;
@@ -24,13 +27,21 @@ public sealed class ComplianceAgentHandler(
     IAgentSystemPromptCatalog systemPromptCatalog,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
-    IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediationOptions)
+    IRetrievalQueryService retrievalQueryService,
+    IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediationOptions,
+    ILogger<ComplianceAgentHandler> logger)
     : IAgentHandler
 {
     private static readonly JsonSerializerOptions TraceJsonOptions = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = true
     };
+
+    private readonly IRetrievalQueryService _retrievalQueryService =
+        retrievalQueryService ?? throw new ArgumentNullException(nameof(retrievalQueryService));
+
+    private readonly ILogger<ComplianceAgentHandler> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     public AgentType AgentType => AgentType.Compliance;
 
@@ -60,6 +71,7 @@ public sealed class ComplianceAgentHandler(
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
 
         string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task);
+        baseUserPrompt = await AppendPolicyPackRetrievalAsync(request, baseUserPrompt, cancellationToken).ConfigureAwait(false);
 
         string lastCompletionJson = string.Empty;
 
@@ -176,5 +188,53 @@ public sealed class ComplianceAgentHandler(
         sb.AppendLine("- Return JSON only.");
 
         return sb.ToString();
+    }
+
+    private async Task<string> AppendPolicyPackRetrievalAsync(
+        ArchitectureRequest request,
+        string baseUserPrompt,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        try
+        {
+            RetrievalQuery query = new()
+            {
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                QueryText = CompliancePolicyPackRetrievalPromptFormatter.BuildPolicyQueryText(request),
+                TopK = 6,
+                IncludePlatformCorpora = true,
+            };
+
+            IReadOnlyList<RetrievalHit> hits =
+                await _retrievalQueryService.SearchAsync(query, cancellationToken).ConfigureAwait(false);
+
+            if (hits.Count == 0 && _logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    "Compliance agent policy-pack retrieval returned zero hits for tenant {TenantId}.",
+                    scope.TenantId);
+            }
+
+            string block = CompliancePolicyPackRetrievalPromptFormatter.FormatPolicyPackBlock(hits);
+
+            return baseUserPrompt.TrimEnd() + "\n\n" + block + "\n";
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Compliance agent policy-pack retrieval failed; continuing fail-open for tenant {TenantId}.",
+                    scope.TenantId);
+            }
+
+            return baseUserPrompt.TrimEnd()
+                + "\n\nPolicy Pack Controls (retrieved — cite ruleId when referencing):\n(none retrieved — grounding unavailable)\n";
+        }
     }
 }

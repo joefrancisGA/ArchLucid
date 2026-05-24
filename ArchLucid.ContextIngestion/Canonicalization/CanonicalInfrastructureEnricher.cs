@@ -24,7 +24,7 @@ public class CanonicalInfrastructureEnricher : ICanonicalEnricher
             results.Add(item);
         }
 
-        return results;
+        return AppServiceNetworkAccessSecurityBaselineExpander.Expand(results);
     }
 
     private static string InferCategory(CanonicalObject item)

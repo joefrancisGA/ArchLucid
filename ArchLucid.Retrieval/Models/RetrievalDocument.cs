@@ -43,6 +43,12 @@ public class RetrievalDocument
         set;
     }
 
+    public CorpusKind CorpusKind
+    {
+        get;
+        set;
+    } = CorpusKind.Conversation;
+
     /// <inheritdoc cref="ArchLucid.Core.Retrieval.RetrievalHit.SourceType" />
     public string SourceType
     {

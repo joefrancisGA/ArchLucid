@@ -53,7 +53,8 @@ public static class TenantAdjustedFindingsSavingsCalculator
                 if (!IsAcceptedCostFinding(finding))
                     continue;
 
-                total += decimal.Round(impact * hourlyScale, 2, MidpointRounding.AwayFromZero);
+                decimal adjusted = impact * hourlyScale * tenantSettings.EaDiscountMultiplier;
+                total += decimal.Round(adjusted, 2, MidpointRounding.AwayFromZero);
                 continue;
             }
 

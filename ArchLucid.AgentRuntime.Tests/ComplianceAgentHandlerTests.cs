@@ -3,10 +3,12 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Retrieval;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace ArchLucid.AgentRuntime.Tests;
@@ -94,7 +96,9 @@ public sealed class ComplianceAgentHandlerTests
             catalog,
             audit.Object,
             scopeProvider.Object,
-            AgentSchemaRemediationOptionsMonitorTestFactory.Create());
+            ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
+            AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
+            ComplianceAgentHandlerTestDependencies.CreateNullLogger());
 
         ArchitectureRequest request = new()
         {

@@ -69,7 +69,9 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
             promptCatalog,
             audit.Object,
             scopeProvider.Object,
-            schemaRemediation);
+            ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
+            schemaRemediation,
+            ComplianceAgentHandlerTestDependencies.CreateNullLogger());
 
         CostAgentHandler cost = new();
 

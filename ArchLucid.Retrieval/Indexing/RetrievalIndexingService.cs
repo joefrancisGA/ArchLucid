@@ -80,6 +80,7 @@ public sealed class RetrievalIndexingService(
                 ProjectId = doc.ProjectId,
                 RunId = doc.RunId,
                 ManifestId = doc.ManifestId,
+                CorpusKind = doc.CorpusKind,
                 SourceType = doc.SourceType,
                 SourceId = doc.SourceId,
                 Title = doc.Title,

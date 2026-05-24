@@ -14,4 +14,11 @@ public sealed class TenantCostSettingsPutRequest
         get;
         init;
     }
+
+    /// <summary>Enterprise Agreement discount multiplier for Retail API cost findings (default 1.0).</summary>
+    public decimal EaDiscountMultiplier
+    {
+        get;
+        init;
+    } = 1.0m;
 }

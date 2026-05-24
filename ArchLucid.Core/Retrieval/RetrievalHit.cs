@@ -19,6 +19,13 @@ public class RetrievalHit
         set;
     } = null!;
 
+    /// <summary>Typed corpus discriminator when indexed with <c>CorpusKind</c>.</summary>
+    public string CorpusKind
+    {
+        get;
+        set;
+    } = "Conversation";
+
     /// <summary>High-level source discriminator (Manifest, Artifact, ConversationMessage, etc.).</summary>
     public string SourceType
     {

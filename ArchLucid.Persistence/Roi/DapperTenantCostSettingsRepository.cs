@@ -17,7 +17,7 @@ public sealed class DapperTenantCostSettingsRepository(ISqlConnectionFactory con
     public async Task<TenantCostSettingsRecord?> TryGetAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         const string sql = """
-                           SELECT TenantId, ArchitectHourlyRateUsd, AverageIncidentCostUsd, UpdatedUtc, UpdatedByActorId
+                           SELECT TenantId, ArchitectHourlyRateUsd, AverageIncidentCostUsd, EaDiscountMultiplier, UpdatedUtc, UpdatedByActorId
                            FROM dbo.TenantCostSettings
                            WHERE TenantId = @TenantId;
                            """;
@@ -45,11 +45,12 @@ public sealed class DapperTenantCostSettingsRepository(ISqlConnectionFactory con
                                UPDATE SET
                                    ArchitectHourlyRateUsd = @ArchitectHourlyRateUsd,
                                    AverageIncidentCostUsd = @AverageIncidentCostUsd,
+                                   EaDiscountMultiplier = @EaDiscountMultiplier,
                                    UpdatedUtc = SYSUTCDATETIME(),
                                    UpdatedByActorId = @UpdatedByActorId
                            WHEN NOT MATCHED THEN
-                               INSERT (TenantId, ArchitectHourlyRateUsd, AverageIncidentCostUsd, UpdatedByActorId)
-                               VALUES (@TenantId, @ArchitectHourlyRateUsd, @AverageIncidentCostUsd, @UpdatedByActorId);
+                               INSERT (TenantId, ArchitectHourlyRateUsd, AverageIncidentCostUsd, EaDiscountMultiplier, UpdatedByActorId)
+                               VALUES (@TenantId, @ArchitectHourlyRateUsd, @AverageIncidentCostUsd, @EaDiscountMultiplier, @UpdatedByActorId);
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -61,6 +62,7 @@ public sealed class DapperTenantCostSettingsRepository(ISqlConnectionFactory con
                     record.TenantId,
                     record.ArchitectHourlyRateUsd,
                     record.AverageIncidentCostUsd,
+                    record.EaDiscountMultiplier,
                     record.UpdatedByActorId,
                 },
                 cancellationToken: cancellationToken));
@@ -86,6 +88,12 @@ public sealed class DapperTenantCostSettingsRepository(ISqlConnectionFactory con
             init;
         }
 
+        public decimal EaDiscountMultiplier
+        {
+            get;
+            init;
+        } = 1.0m;
+
         public DateTime UpdatedUtc
         {
             get;
@@ -105,6 +113,7 @@ public sealed class DapperTenantCostSettingsRepository(ISqlConnectionFactory con
                 TenantId = TenantId,
                 ArchitectHourlyRateUsd = ArchitectHourlyRateUsd,
                 AverageIncidentCostUsd = AverageIncidentCostUsd,
+                EaDiscountMultiplier = EaDiscountMultiplier <= 0m ? 1.0m : EaDiscountMultiplier,
                 UpdatedUtc = new DateTimeOffset(DateTime.SpecifyKind(UpdatedUtc, DateTimeKind.Utc)),
                 UpdatedByActorId = UpdatedByActorId,
             };

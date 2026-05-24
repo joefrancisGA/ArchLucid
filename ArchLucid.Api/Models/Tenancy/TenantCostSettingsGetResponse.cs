@@ -17,6 +17,13 @@ public sealed class TenantCostSettingsGetResponse
         init;
     }
 
+    /// <summary>Enterprise Agreement discount multiplier applied to cost-category savings (default 1.0).</summary>
+    public decimal EaDiscountMultiplier
+    {
+        get;
+        init;
+    } = 1.0m;
+
     /// <summary>When <see langword="true" />, values come from <c>dbo.TenantCostSettings</c>; otherwise ROI model defaults.</summary>
     public bool IsTenantConfigured
     {

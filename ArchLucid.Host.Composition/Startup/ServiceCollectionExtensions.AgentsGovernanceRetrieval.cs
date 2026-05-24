@@ -7,6 +7,7 @@ using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.AgentRuntime.Prompts.Variants;
+using ArchLucid.AgentRuntime.Tokens;
 using ArchLucid.Contracts.Agents.PromptVariants;
 using ArchLucid.AgentRuntime.QuickScan;
 using ArchLucid.AgentRuntime.Safety;
@@ -196,6 +197,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<AgentExecutionTraceStorageOptions>(
             configuration.GetSection(AgentExecutionTraceStorageOptions.SectionPath));
         services.Configure<LlmPromptRedactionOptions>(configuration.GetSection(LlmPromptRedactionOptions.SectionName));
+        services.Configure<LlmContextWindowOptions>(configuration.GetSection(LlmContextWindowOptions.SectionPath));
+        services.AddSingleton<ITokenCounter, CharHeuristicTokenCounter>();
         services.AddSingleton<IPostConfigureOptions<LlmPromptRedactionOptions>, LlmPromptRedactionProductionWarningPostConfigure>();
         services.Configure<LlmCompletionCacheOptions>(configuration.GetSection(LlmCompletionCacheOptions.SectionName));
         services.AddSingleton<ISemanticCache>(sp =>
@@ -781,6 +784,10 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<IVectorIndex, InMemoryVectorIndex>();
 
 
+        services.Configure<PolicyPackCorpusIndexerOptions>(configuration.GetSection(PolicyPackCorpusIndexerOptions.SectionPath));
+        services.AddSingleton<PolicyPackCorpusIndexer>();
+        services.AddHostedService<PolicyPackCorpusStartupIndexerHostedService>();
+
         string? embedDeployment = configuration["AzureOpenAI:EmbeddingDeploymentName"];
         string? endpoint = configuration["AzureOpenAI:Endpoint"];
         string? apiKey = configuration["AzureOpenAI:ApiKey"];
@@ -1087,8 +1094,16 @@ public static partial class ServiceCollectionExtensions
             contentSafetyOpts,
             contentSafetyCompletionLogger);
 
-        IAgentCompletionClient completionPipeline = new LlmCompletionAccountingClient(
+        IAgentCompletionClient contextGuardedEnvelope = new ContextLengthGuardAgentCompletionClient(
             azureCompletionEnvelope,
+            sp.GetRequiredService<ITokenCounter>(),
+            sp.GetRequiredService<IOptionsMonitor<LlmContextWindowOptions>>(),
+            auditService,
+            scopeProvider,
+            sp.GetRequiredService<ILogger<ContextLengthGuardAgentCompletionClient>>());
+
+        IAgentCompletionClient completionPipeline = new LlmCompletionAccountingClient(
+            contextGuardedEnvelope,
             quotaTracker,
             scopeProvider,
             quotaOpts,

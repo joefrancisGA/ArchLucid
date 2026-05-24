@@ -78,6 +78,13 @@ public sealed class TenantCostSettingsController(
                 ProblemTypes.ValidationFailed);
         }
 
+        if (body.EaDiscountMultiplier is <= 0m or > 1m)
+        {
+            return this.BadRequestProblem(
+                "EA discount multiplier must be between 0 (exclusive) and 1 (inclusive).",
+                ProblemTypes.ValidationFailed);
+        }
+
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         string actor = User.Identity?.Name ?? "operator";
         DateTimeOffset updatedUtc = TimeProvider.System.GetUtcNow();
@@ -87,6 +94,7 @@ public sealed class TenantCostSettingsController(
             TenantId = scope.TenantId,
             ArchitectHourlyRateUsd = body.ArchitectHourlyRateUsd,
             AverageIncidentCostUsd = body.AverageIncidentCostUsd,
+            EaDiscountMultiplier = body.EaDiscountMultiplier,
             UpdatedUtc = updatedUtc,
             UpdatedByActorId = actor,
         };
@@ -107,6 +115,7 @@ public sealed class TenantCostSettingsController(
                     {
                         architectHourlyRateUsd = record.ArchitectHourlyRateUsd,
                         averageIncidentCostUsd = record.AverageIncidentCostUsd,
+                        eaDiscountMultiplier = record.EaDiscountMultiplier,
                         updatedUtc = updatedUtc,
                     }),
             },
@@ -123,6 +132,7 @@ public sealed class TenantCostSettingsController(
             {
                 ArchitectHourlyRateUsd = _defaults.FullyLoadedArchitectHourlyUsd,
                 AverageIncidentCostUsd = _defaults.DefaultAverageIncidentCostUsd,
+                EaDiscountMultiplier = 1.0m,
                 IsTenantConfigured = false,
                 UpdatedUtc = null,
             };
@@ -132,6 +142,7 @@ public sealed class TenantCostSettingsController(
         {
             ArchitectHourlyRateUsd = row.ArchitectHourlyRateUsd,
             AverageIncidentCostUsd = row.AverageIncidentCostUsd,
+            EaDiscountMultiplier = row.EaDiscountMultiplier <= 0m ? 1.0m : row.EaDiscountMultiplier,
             IsTenantConfigured = true,
             UpdatedUtc = row.UpdatedUtc,
         };

@@ -52,6 +52,12 @@ public class RetrievalChunk
         set;
     }
 
+    public CorpusKind CorpusKind
+    {
+        get;
+        set;
+    } = CorpusKind.Conversation;
+
     public string SourceType
     {
         get;

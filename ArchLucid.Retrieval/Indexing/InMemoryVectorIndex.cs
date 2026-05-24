@@ -46,16 +46,12 @@ public sealed class InMemoryVectorIndex : IVectorIndex
         lock (_sync)
         {
             List<RetrievalHit> hits = _chunks
-                .Where(x =>
-                    x.TenantId == query.TenantId &&
-                    x.WorkspaceId == query.WorkspaceId &&
-                    x.ProjectId == query.ProjectId &&
-                    (!query.RunId.HasValue || x.RunId == query.RunId) &&
-                    (!query.ManifestId.HasValue || x.ManifestId == query.ManifestId))
+                .Where(x => MatchesQueryScope(x, query))
                 .Select(x => new RetrievalHit
                 {
                     ChunkId = x.ChunkId,
                     DocumentId = x.DocumentId,
+                    CorpusKind = x.CorpusKind.ToString(),
                     SourceType = x.SourceType,
                     SourceId = x.SourceId,
                     Title = x.Title,
@@ -90,5 +86,19 @@ public sealed class InMemoryVectorIndex : IVectorIndex
             return 0;
 
         return dot / (Math.Sqrt(magA) * Math.Sqrt(magB));
+    }
+
+    private static bool MatchesQueryScope(RetrievalChunk chunk, RetrievalQuery query)
+    {
+        bool tenantMatch = chunk.TenantId == query.TenantId
+            && chunk.WorkspaceId == query.WorkspaceId
+            && chunk.ProjectId == query.ProjectId
+            && (!query.RunId.HasValue || chunk.RunId == query.RunId)
+            && (!query.ManifestId.HasValue || chunk.ManifestId == query.ManifestId);
+
+        bool platformMatch = query.IncludePlatformCorpora
+            && chunk.TenantId == CorpusKindSentinels.PlatformSentinelTenantId;
+
+        return tenantMatch || platformMatch;
     }
 }

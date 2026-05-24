@@ -25,6 +25,7 @@ public sealed class InMemoryTenantCostSettingsRepository : ITenantCostSettingsRe
             TenantId = record.TenantId,
             ArchitectHourlyRateUsd = record.ArchitectHourlyRateUsd,
             AverageIncidentCostUsd = record.AverageIncidentCostUsd,
+            EaDiscountMultiplier = record.EaDiscountMultiplier <= 0m ? 1.0m : record.EaDiscountMultiplier,
             UpdatedUtc = record.UpdatedUtc,
             UpdatedByActorId = record.UpdatedByActorId,
         };

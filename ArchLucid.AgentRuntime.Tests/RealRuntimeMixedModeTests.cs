@@ -225,7 +225,9 @@ public sealed class RealRuntimeMixedModeTests
             promptCatalog,
             audit.Object,
             scopeProvider.Object,
-            schemaRemediation);
+            ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
+            schemaRemediation,
+            ComplianceAgentHandlerTestDependencies.CreateNullLogger());
 
         CostAgentHandler costHandler = new();
 

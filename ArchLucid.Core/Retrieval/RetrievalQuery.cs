@@ -56,4 +56,11 @@ public class RetrievalQuery
         get;
         set;
     } = 8;
+
+    /// <summary>When true, includes platform-scoped corpus chunks (policy packs, platform docs).</summary>
+    public bool IncludePlatformCorpora
+    {
+        get;
+        set;
+    }
 }

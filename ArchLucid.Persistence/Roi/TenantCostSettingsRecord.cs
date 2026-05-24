@@ -21,6 +21,13 @@ public sealed class TenantCostSettingsRecord
         init;
     }
 
+    /// <summary>Multiplier applied to Retail API cost findings (default 1.0 = no EA discount).</summary>
+    public decimal EaDiscountMultiplier
+    {
+        get;
+        init;
+    } = 1.0m;
+
     public DateTimeOffset UpdatedUtc
     {
         get;

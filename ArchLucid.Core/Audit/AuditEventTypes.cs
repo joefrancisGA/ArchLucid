@@ -509,6 +509,9 @@ public static class AuditEventTypes
     /// <summary>Operator saved per-tenant ROI cost assumptions on <c>dbo.TenantCostSettings</c>.</summary>
     public const string TenantCostSettingsUpdated = "TenantCostSettingsUpdated";
 
+    /// <summary>LLM prompt truncated because estimated tokens exceeded the configured context threshold.</summary>
+    public const string LlmContextTruncated = "LlmContextTruncated";
+
     /// <summary>First golden manifest commit recorded for a self-service trial tenant (funnel depth).</summary>
     public const string TrialFirstRunCompleted = "TrialFirstRunCompleted";
 

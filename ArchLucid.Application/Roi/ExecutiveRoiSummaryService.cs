@@ -76,7 +76,7 @@ public sealed class ExecutiveRoiSummaryService(
             });
         }
 
-        List<SystemicIssueSummary> topIssues = AggregateTopSystemicIssues(latestDetails);
+        List<SystemicIssueSummary> topIssues = AggregateTopSystemicIssues(latestDetails, _logger);
         decimal totalSavings = systems.Sum(static system => system.EstimatedUsdSavings ?? 0m);
 
         return new ExecutiveRoiSummaryResponse
@@ -144,11 +144,15 @@ public sealed class ExecutiveRoiSummaryService(
 
             totalSystems += latestDetails.Count;
 
-            IEnumerable<ArchitectureFinding> activeFindings = latestDetails
-                .SelectMany(static detail => detail.Results.SelectMany(static result => result.Findings))
-                .Where(static finding => !finding.IsMuted);
+            IEnumerable<ArchitectureFinding> allFindings = latestDetails
+                .SelectMany(static detail => detail.Results.SelectMany(static result => result.Findings));
 
-            IEnumerable<ArchitectureFinding> deduped = DeduplicateFindingsByStableIdentity(activeFindings);
+            ExecutiveRoiFindingExclusionLogger.LogMutedFindings(_logger, allFindings.Where(static f => f.IsMuted));
+
+            IEnumerable<ArchitectureFinding> activeFindings = allFindings.Where(static finding => !finding.IsMuted);
+
+            IEnumerable<ArchitectureFinding> deduped =
+                ExecutiveRoiFindingExclusionLogger.DeduplicateWithLogging(_logger, activeFindings);
 
             totalCriticalFindings += deduped.Count(static f => string.Equals(f.Severity.ToString(), "Critical", StringComparison.OrdinalIgnoreCase));
 
@@ -219,13 +223,25 @@ public sealed class ExecutiveRoiSummaryService(
         return latestBySystem;
     }
 
-    private static List<SystemicIssueSummary> AggregateTopSystemicIssues(IReadOnlyList<ArchitectureRunDetail> latestDetails)
+    private static List<SystemicIssueSummary> AggregateTopSystemicIssues(
+        IReadOnlyList<ArchitectureRunDetail> latestDetails,
+        ILogger? logger = null)
     {
-        IEnumerable<ArchitectureFinding> activeFindings = latestDetails
-            .SelectMany(static detail => detail.Results.SelectMany(static result => result.Findings))
-            .Where(static finding => !finding.IsMuted);
+        IEnumerable<ArchitectureFinding> allFindings = latestDetails
+            .SelectMany(static detail => detail.Results.SelectMany(static result => result.Findings));
 
-        return DeduplicateFindingsByStableIdentity(activeFindings)
+        IEnumerable<ArchitectureFinding> muted = allFindings.Where(static finding => finding.IsMuted);
+
+        if (logger is not null)
+            ExecutiveRoiFindingExclusionLogger.LogMutedFindings(logger, muted);
+
+        IEnumerable<ArchitectureFinding> activeFindings = allFindings.Where(static finding => !finding.IsMuted);
+
+        IEnumerable<ArchitectureFinding> deduped = logger is null
+            ? DeduplicateFindingsByStableIdentity(activeFindings)
+            : ExecutiveRoiFindingExclusionLogger.DeduplicateWithLogging(logger, activeFindings);
+
+        return deduped
             .GroupBy(static finding => (Category: NormalizeCategory(finding.Category), Severity: finding.Severity.ToString()))
             .Select(static group => new SystemicIssueSummary
             {

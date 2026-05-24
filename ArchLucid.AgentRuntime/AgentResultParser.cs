@@ -68,24 +68,6 @@ public sealed class AgentResultParser : IAgentResultParser
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        AgentResult? result;
-
-        try
-        {
-            result = JsonSerializer.Deserialize<AgentResult>(json, JsonOptions);
-        }
-        catch (JsonException ex)
-        {
-            throw new InvalidOperationException("Failed to deserialize AgentResult JSON.", ex);
-        }
-        catch (NotSupportedException ex)
-        {
-            throw new InvalidOperationException("AgentResult JSON contains an unsupported type mapping.", ex);
-        }
-
-        if (result is null)
-            throw new InvalidOperationException("Agent returned null AgentResult.");
-
         SchemaValidationResult schemaResult = _schemaValidationService.ValidateAgentResultJson(json);
         string agentTypeLabel = expectedAgentType.ToString();
 
@@ -105,12 +87,32 @@ public sealed class AgentResultParser : IAgentResultParser
             }
 
             if (_logger.IsEnabled(LogLevel.Warning))
+            {
                 _logger.LogWarning(
                     "AgentResult JSON failed schema validation but AgentExecution:SchemaValidation:EnforceOnParse is false; continuing. Errors: {Errors}",
                     string.Join("; ", schemaResult.Errors));
+            }
         }
         else
             ArchLucidInstrumentation.RecordAgentResultSchemaValidation(agentTypeLabel, "valid");
+
+        AgentResult? result;
+
+        try
+        {
+            result = JsonSerializer.Deserialize<AgentResult>(json, JsonOptions);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException("Failed to deserialize AgentResult JSON.", ex);
+        }
+        catch (NotSupportedException ex)
+        {
+            throw new InvalidOperationException("AgentResult JSON contains an unsupported type mapping.", ex);
+        }
+
+        if (result is null)
+            throw new InvalidOperationException("Agent returned null AgentResult.");
 
         if (!string.Equals(result.RunId, expectedRunId, StringComparison.OrdinalIgnoreCase))
             throw new AgentResultValidationException(
