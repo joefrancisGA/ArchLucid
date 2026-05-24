@@ -91,7 +91,7 @@ COPY . .
 # fails with CS0234 ("Pilots does not exist in ArchLucid.Persistence"). Re-COPY explicitly so the layer invalidates when
 # these files change, and fail fast with a clear error if they never arrived.
 COPY ArchLucid.Persistence/Pilots/ ArchLucid.Persistence/Pilots/
-RUN test -f ArchLucid.Persistence/Pilots/IPilotBaselineRepository.cs \
+RUN test -f ArchLucid.Persistence/Pilots/InMemoryPilotBaselineRepository.cs \
     && test -f ArchLucid.Persistence/Pilots/DapperPilotBaselineRepository.cs \
     || (echo "FATAL: ArchLucid.Persistence/Pilots sources missing from Docker context. Use repo root as context (docker build -f ArchLucid.Api/Dockerfile .) and ensure Pilots/*.cs are committed." >&2; exit 1)
 # Re-restore after full sources land: restore stage only had .csproj stubs; full tree must match assets before publish.
