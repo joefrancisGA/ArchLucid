@@ -6,6 +6,7 @@ using ArchLucid.Application.Authority;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.DecisionTraces;

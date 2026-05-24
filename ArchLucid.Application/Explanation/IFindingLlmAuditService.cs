@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Explanation;
+using ArchLucid.Application.Explanation.Models;
 
 namespace ArchLucid.Application.Explanation;
 

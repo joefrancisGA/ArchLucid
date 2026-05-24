@@ -1,7 +1,8 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.GoldenCorpus;
@@ -27,7 +28,7 @@ public sealed class GoldenCohortSimulatorDeterminismTests
     {
         string cohortPath = Path.Combine(AppContext.BaseDirectory, "golden-cohort", "cohort.json");
         Assert.True(File.Exists(cohortPath),
-            $"Missing {cohortPath} â€” link tests/golden-cohort/cohort.json in the test project.");
+            $"Missing {cohortPath} — link tests/golden-cohort/cohort.json in the test project.");
 
         GoldenCohortDocument document = GoldenCohortDocument.Load(cohortPath);
         DeterministicAgentSimulator simulator = new();

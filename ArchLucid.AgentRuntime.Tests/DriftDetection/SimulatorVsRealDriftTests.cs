@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.GoldenCorpus;
 

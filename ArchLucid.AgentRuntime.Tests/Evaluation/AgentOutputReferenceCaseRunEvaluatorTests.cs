@@ -1,6 +1,7 @@
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -34,7 +35,7 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
         FixedCatalog catalog = new(cases);
         Mock<IAgentOutputEvaluationResultRepository> results = new();
         results
-            .Setup(r => r.AppendAsync(It.IsAny<AgentOutputEvaluationResultInsert>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.AppendAsync(It.IsAny<AgentOutputEvaluationResultRecord>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         HeuristicAgentOutputSemanticEvaluator heuristicSemantic = new();
@@ -63,7 +64,7 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
 
         results.Verify(
             r => r.AppendAsync(
-                It.Is<AgentOutputEvaluationResultInsert>(row =>
+                It.Is<AgentOutputEvaluationResultRecord>(row =>
                     row.CaseId == "case-a"
                     && row.TraceId == "tr1"
                     && row.RunId == "run-1"
@@ -106,7 +107,7 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
         await sut.EvaluateTraceAsync(trace, "run-1", CancellationToken.None);
 
         results.Verify(
-            r => r.AppendAsync(It.IsAny<AgentOutputEvaluationResultInsert>(), It.IsAny<CancellationToken>()),
+            r => r.AppendAsync(It.IsAny<AgentOutputEvaluationResultRecord>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

@@ -1,6 +1,7 @@
 using System.Data;
 
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 
 using Dapper;
 

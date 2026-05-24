@@ -1,5 +1,6 @@
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;

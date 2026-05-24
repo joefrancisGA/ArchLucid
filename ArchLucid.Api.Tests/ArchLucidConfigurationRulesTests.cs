@@ -1,4 +1,5 @@
-﻿using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Startup.Validation;
 
@@ -2190,7 +2191,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
             ["Billing:Provider"] = BillingProviderNames.Stripe,
-            // Intentionally not sk_test_/sk_live_ shaped â€” gitleaks flags those as real Stripe tokens.
+            // Intentionally not sk_test_/sk_live_ shaped — gitleaks flags those as real Stripe tokens.
             ["Billing:Stripe:SecretKey"] = "unit-test-keyvault-ref-stripe-secret-not-a-real-key"
         };
 

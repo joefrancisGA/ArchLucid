@@ -3,6 +3,7 @@ using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Tests.TestDoubles;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;

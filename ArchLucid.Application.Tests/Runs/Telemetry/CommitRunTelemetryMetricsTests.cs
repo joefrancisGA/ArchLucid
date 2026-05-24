@@ -1,5 +1,6 @@
 using ArchLucid.Application.Runs.Telemetry;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Persistence.Models;
 
 using FluentAssertions;

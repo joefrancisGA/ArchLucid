@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Decisioning.Decisions;
 
 using EvalTypes = ArchLucid.Decisioning.Decisions.EvaluationTypes;

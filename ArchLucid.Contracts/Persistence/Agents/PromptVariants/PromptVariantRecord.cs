@@ -1,4 +1,4 @@
-namespace ArchLucid.Contracts.Agents.PromptVariants;
+namespace ArchLucid.Contracts.Persistence.Agents.PromptVariants;
 
 /// <summary>Row from <c>dbo.PromptVariants</c> used for weighted A/B selection.</summary>
 public sealed class PromptVariantRecord

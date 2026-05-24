@@ -1,4 +1,4 @@
-namespace ArchLucid.Contracts.Agents;
+namespace ArchLucid.Core.AgentEvaluation;
 
 /// <summary>
 ///     Runs after coordinator execute successfully persists agent outputs so trace-based observability (metrics, etc.) can

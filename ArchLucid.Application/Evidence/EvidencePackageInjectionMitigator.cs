@@ -1,5 +1,6 @@
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm.Redaction;

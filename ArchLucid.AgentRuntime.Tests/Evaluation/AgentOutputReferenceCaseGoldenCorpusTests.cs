@@ -1,10 +1,11 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -17,7 +18,7 @@ using Moq;
 
 namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 
-/// <summary>Golden corpus under tests/golden-corpus â€” CI validates deserialization + evaluator wiring.</summary>
+/// <summary>Golden corpus under tests/golden-corpus — CI validates deserialization + evaluator wiring.</summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class AgentOutputReferenceCaseGoldenCorpusTests
@@ -100,7 +101,7 @@ public sealed class AgentOutputReferenceCaseGoldenCorpusTests
         Mock<IAgentOutputEvaluationResultRepository> results = new();
 
         results
-            .Setup(r => r.AppendAsync(It.IsAny<AgentOutputEvaluationResultInsert>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.AppendAsync(It.IsAny<AgentOutputEvaluationResultRecord>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         HeuristicAgentOutputSemanticEvaluator heuristicSemantic = new();
@@ -129,7 +130,7 @@ public sealed class AgentOutputReferenceCaseGoldenCorpusTests
 
         results.Verify(
             r => r.AppendAsync(
-                It.Is<AgentOutputEvaluationResultInsert>(row =>
+                It.Is<AgentOutputEvaluationResultRecord>(row =>
                     row.AgentType == agentType && row.TraceId == trace.TraceId),
                 It.IsAny<CancellationToken>()),
             Times.Once);

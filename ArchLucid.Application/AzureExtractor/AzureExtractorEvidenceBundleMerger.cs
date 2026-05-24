@@ -1,6 +1,7 @@
 using System.Globalization;
 
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.AzureExtractor;

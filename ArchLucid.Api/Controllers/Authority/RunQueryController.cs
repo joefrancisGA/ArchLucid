@@ -16,6 +16,7 @@ using ArchLucid.Application.Reporting;
 using ArchLucid.Application.Traceability;
 using ArchLucid.Application.Trust;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Contracts.Explanation;

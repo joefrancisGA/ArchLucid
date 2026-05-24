@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Host.Core.Startup.Validation.Rules;
 
 using FluentAssertions;

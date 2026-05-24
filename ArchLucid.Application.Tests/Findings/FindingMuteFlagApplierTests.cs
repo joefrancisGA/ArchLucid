@@ -1,5 +1,6 @@
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 
 using FluentAssertions;
 

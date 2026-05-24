@@ -1,6 +1,7 @@
 using ArchLucid.Application.Reporting;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 

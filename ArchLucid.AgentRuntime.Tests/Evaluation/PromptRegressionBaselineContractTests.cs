@@ -1,7 +1,8 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 
 using FluentAssertions;

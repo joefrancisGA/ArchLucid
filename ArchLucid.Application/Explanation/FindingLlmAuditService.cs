@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Explanation;
+using ArchLucid.Application.Explanation.Models;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;

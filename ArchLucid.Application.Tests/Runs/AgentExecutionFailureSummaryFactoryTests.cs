@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Resilience;
 

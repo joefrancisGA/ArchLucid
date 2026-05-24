@@ -1,10 +1,11 @@
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 
-namespace ArchLucid.Contracts.Agents;
+namespace ArchLucid.Core.AgentEvaluation;
 
 /// <summary>
-///     Pure structural checks on persisted <see cref="AgentExecutionTrace" /> JSON (see
-///     <see cref="AgentExecutionTrace.ParsedResultJson" />); no LLM.
+///     Pure structural checks on persisted agent execution trace JSON; no LLM.
 /// </summary>
 public interface IAgentOutputEvaluator
 {

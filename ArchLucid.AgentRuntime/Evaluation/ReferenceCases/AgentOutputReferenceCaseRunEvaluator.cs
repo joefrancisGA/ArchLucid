@@ -3,6 +3,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Persistence.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -116,7 +118,7 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
                 ? JsonSerializer.Serialize(structural.MissingKeys, WebJson)
                 : null;
 
-            AgentOutputEvaluationResultInsert row = new()
+            AgentOutputEvaluationResultRecord row = new()
             {
                 RunId = runId,
                 TraceId = trace.TraceId,

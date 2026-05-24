@@ -1,5 +1,6 @@
-﻿using ArchLucid.AgentSimulator.Services;
+using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;

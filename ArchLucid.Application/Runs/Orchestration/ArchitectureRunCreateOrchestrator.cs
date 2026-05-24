@@ -4,6 +4,7 @@ using System.Text.Json;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;

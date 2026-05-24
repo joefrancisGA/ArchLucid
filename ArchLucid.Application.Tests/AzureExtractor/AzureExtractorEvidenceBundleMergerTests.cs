@@ -1,5 +1,6 @@
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Persistence.Models;
 
 using FluentAssertions;

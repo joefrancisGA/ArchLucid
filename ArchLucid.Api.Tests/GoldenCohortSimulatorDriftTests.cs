@@ -5,6 +5,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.GoldenCorpus;
 

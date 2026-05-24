@@ -3,6 +3,7 @@ using System.Text;
 using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Analysis;

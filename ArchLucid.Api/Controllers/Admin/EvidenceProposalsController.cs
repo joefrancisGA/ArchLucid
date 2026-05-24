@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 

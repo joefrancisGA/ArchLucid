@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 
 namespace ArchLucid.AgentRuntime.Evaluation;
 

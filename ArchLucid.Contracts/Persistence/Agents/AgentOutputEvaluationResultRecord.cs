@@ -1,9 +1,9 @@
 using ArchLucid.Contracts.Common;
 
-namespace ArchLucid.Contracts.Agents;
+namespace ArchLucid.Contracts.Persistence.Agents;
 
 /// <summary>Row to append to <c>dbo.AgentOutputEvaluationResults</c> after reference-case scoring.</summary>
-public sealed class AgentOutputEvaluationResultInsert
+public sealed class AgentOutputEvaluationResultRecord
 {
     public string RunId
     {

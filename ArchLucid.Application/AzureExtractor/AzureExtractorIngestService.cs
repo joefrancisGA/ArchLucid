@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Diagnostics;

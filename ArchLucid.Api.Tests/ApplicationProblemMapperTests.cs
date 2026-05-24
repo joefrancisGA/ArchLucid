@@ -2,6 +2,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Decisioning.Validation;
 

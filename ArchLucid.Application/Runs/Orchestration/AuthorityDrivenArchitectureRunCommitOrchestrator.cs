@@ -11,6 +11,7 @@ using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Application.Runs.Telemetry;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Decisioning.DecisionTraces;

@@ -1,5 +1,6 @@
-﻿using ArchLucid.AgentRuntime.Evaluation;
+using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 
 using FluentAssertions;
@@ -65,7 +66,7 @@ public sealed class GoldenAgentResultJsonEvaluationTests
     }
 
     /// <summary>
-    ///     Regression: stripping per-claim evidence must reduce semantic score (Prompt 2 â€” golden-set guard).
+    ///     Regression: stripping per-claim evidence must reduce semantic score (Prompt 2 — golden-set guard).
     /// </summary>
     [SkippableFact]
     public void Golden_claim_without_evidence_refs_lowers_semantic_score_relative_to_valid_fixture()

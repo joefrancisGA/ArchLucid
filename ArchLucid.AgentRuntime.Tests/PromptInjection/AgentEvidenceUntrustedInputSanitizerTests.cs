@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime.PromptInjection;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 
 using FluentAssertions;
 

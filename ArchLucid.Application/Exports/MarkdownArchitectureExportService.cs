@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Exports;

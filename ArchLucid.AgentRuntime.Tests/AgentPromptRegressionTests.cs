@@ -1,10 +1,11 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.GoldenCorpus;
@@ -53,7 +54,7 @@ public sealed class AgentPromptRegressionTests
         Func<Task> act = () => PromptCatalog.ResolveAsync(AgentType.Cost);
         await act.Should()
             .ThrowAsync<InvalidOperationException>(
-                "CostAgentHandler does not use IAgentSystemPromptCatalog — there is no built-in Cost template in CachedAgentSystemPromptCatalog.");
+                "CostAgentHandler does not use IAgentSystemPromptCatalog � there is no built-in Cost template in CachedAgentSystemPromptCatalog.");
 
         AgentResult result = await handler.ExecuteAsync(
             RegressionRunId,
@@ -132,7 +133,7 @@ public sealed class AgentPromptRegressionTests
     {
         string baselinePath = Path.Combine(AppContext.BaseDirectory, BaselineFileName);
         File.Exists(baselinePath).Should()
-            .BeTrue("missing {0} â€” add it next to the test class and set CopyToOutputDirectory.", baselinePath);
+            .BeTrue("missing {0} — add it next to the test class and set CopyToOutputDirectory.", baselinePath);
 
         string raw = File.ReadAllText(baselinePath);
         using JsonDocument doc = JsonDocument.Parse(raw);

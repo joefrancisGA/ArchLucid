@@ -3,6 +3,7 @@ using System.Text;
 
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Application.Reporting;

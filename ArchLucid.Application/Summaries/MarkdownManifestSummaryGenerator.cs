@@ -2,6 +2,7 @@ using System.Text;
 
 using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 

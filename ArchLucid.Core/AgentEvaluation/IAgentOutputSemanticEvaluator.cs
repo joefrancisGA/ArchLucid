@@ -1,6 +1,8 @@
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 
-namespace ArchLucid.Contracts.Agents;
+namespace ArchLucid.Core.AgentEvaluation;
 
 /// <summary>
 ///     Semantic scoring for persisted agent JSON — deterministic heuristic plus optional Azure OpenAI rubric judge.

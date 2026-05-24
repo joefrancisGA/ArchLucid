@@ -5,6 +5,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Repositories;

@@ -1,6 +1,7 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Authorization;
 
 using Asp.Versioning;

@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Retrieval.Chunking;
 using ArchLucid.Retrieval.Embedding;

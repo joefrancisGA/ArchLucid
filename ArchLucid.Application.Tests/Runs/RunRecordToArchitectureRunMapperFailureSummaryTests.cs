@@ -1,6 +1,7 @@
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Mapping;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Models;

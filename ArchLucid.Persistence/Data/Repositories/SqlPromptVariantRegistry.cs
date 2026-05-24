@@ -1,7 +1,8 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchLucid.Contracts.Agents.PromptVariants;
+using ArchLucid.Contracts.Persistence.Agents.PromptVariants;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;

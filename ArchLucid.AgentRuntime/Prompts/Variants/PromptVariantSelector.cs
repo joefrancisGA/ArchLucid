@@ -1,4 +1,5 @@
-using ArchLucid.Contracts.Agents.PromptVariants;
+using ArchLucid.Contracts.Persistence.Agents.PromptVariants;
+using ArchLucid.Core.Persistence.Ports;
 
 namespace ArchLucid.AgentRuntime.Prompts.Variants;
 

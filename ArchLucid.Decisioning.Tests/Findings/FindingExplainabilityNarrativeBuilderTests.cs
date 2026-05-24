@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Explanation;
+using ArchLucid.Contracts.Persistence.Explanation;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Models;
 
@@ -35,7 +35,7 @@ public sealed class FindingExplainabilityNarrativeBuilderTests
             },
         };
 
-        FindingExplainabilityEvidence evidence = FindingExplainabilityNarrativeBuilder.BuildEvidence(finding);
+        FindingExplainabilityEvidenceRecord evidence = FindingExplainabilityNarrativeBuilder.BuildEvidence(finding);
 
         evidence.Conclusion.Should().Be(finding.Rationale);
         evidence.RuleId.Should().Be("cost-rule-a;cost-rule-b");
@@ -55,7 +55,7 @@ public sealed class FindingExplainabilityNarrativeBuilderTests
             Trace = new ExplainabilityTrace(),
         };
 
-        FindingExplainabilityEvidence evidence = FindingExplainabilityNarrativeBuilder.BuildEvidence(finding);
+        FindingExplainabilityEvidenceRecord evidence = FindingExplainabilityNarrativeBuilder.BuildEvidence(finding);
 
         evidence.RuleId.Should().Be("unspecified");
         evidence.EvidenceRefs.Should().BeEmpty();

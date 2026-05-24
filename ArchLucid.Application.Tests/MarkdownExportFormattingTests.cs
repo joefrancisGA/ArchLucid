@@ -1,6 +1,7 @@
-﻿using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Manifest;
 
 using FluentAssertions;

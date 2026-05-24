@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime.Prompts.Variants;
-using ArchLucid.Contracts.Agents.PromptVariants;
+using ArchLucid.Contracts.Persistence.Agents.PromptVariants;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
 

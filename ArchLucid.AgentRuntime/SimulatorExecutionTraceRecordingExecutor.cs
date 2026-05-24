@@ -4,6 +4,7 @@ using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Requests;
 
 namespace ArchLucid.AgentRuntime;

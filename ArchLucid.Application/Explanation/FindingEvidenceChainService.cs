@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 
 namespace ArchLucid.AgentRuntime.Evaluation;

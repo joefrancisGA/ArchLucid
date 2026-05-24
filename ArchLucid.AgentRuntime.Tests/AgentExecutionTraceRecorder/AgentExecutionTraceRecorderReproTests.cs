@@ -1,6 +1,7 @@
-﻿using System.Diagnostics.Metrics;
+using System.Diagnostics.Metrics;
 
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;

@@ -1,12 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchLucid.Contracts.Explanation;
+using ArchLucid.Application.Explanation.Models;
 using ArchLucid.Contracts.Findings;
 
 using FluentAssertions;
 
-namespace ArchLucid.Contracts.Tests;
+namespace ArchLucid.Application.Tests.Explanation;
 
 /// <summary>
 ///     JSON round-trip coverage for explainability DTOs returned by the Explanation API.

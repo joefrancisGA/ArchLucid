@@ -3,6 +3,7 @@ using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Roi;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;

@@ -2,6 +2,7 @@ using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.Persistence.Data.Repositories;

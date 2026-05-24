@@ -1,4 +1,4 @@
-namespace ArchLucid.Contracts.Agents.PromptVariants;
+namespace ArchLucid.AgentRuntime.Prompts.Variants;
 
 /// <summary>Outcome of weighted variant selection for one agent invocation.</summary>
 public sealed class PromptVariantSelection

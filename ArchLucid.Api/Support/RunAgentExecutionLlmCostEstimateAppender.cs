@@ -1,6 +1,7 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Data.Repositories;
 

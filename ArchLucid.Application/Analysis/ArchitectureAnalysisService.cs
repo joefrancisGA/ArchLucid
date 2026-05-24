@@ -3,6 +3,7 @@ using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;

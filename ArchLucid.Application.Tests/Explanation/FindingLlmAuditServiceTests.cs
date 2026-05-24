@@ -1,5 +1,7 @@
-﻿using ArchLucid.Application.Explanation;
+﻿using ArchLucid.Application.Explanation.Models;
+using ArchLucid.Application.Explanation;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
@@ -52,7 +54,7 @@ public sealed class FindingLlmAuditServiceTests
             traces.Object,
             redactor.Object);
 
-        ArchLucid.Contracts.Explanation.FindingLlmAuditResult? result =
+        FindingLlmAuditResult? result =
             await sut.BuildAsync(RunGuid, "f1", CancellationToken.None);
 
         result.Should().NotBeNull();
@@ -101,7 +103,7 @@ public sealed class FindingLlmAuditServiceTests
             traces.Object,
             redactor.Object);
 
-        ArchLucid.Contracts.Explanation.FindingLlmAuditResult? result =
+        FindingLlmAuditResult? result =
             await sut.BuildAsync(RunGuid, "f1", CancellationToken.None);
 
         result.Should().NotBeNull();

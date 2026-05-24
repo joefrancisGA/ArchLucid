@@ -1,4 +1,4 @@
-namespace ArchLucid.Contracts.Agents;
+namespace ArchLucid.Core.AgentEvaluation;
 
 /// <summary>Test and default no-op implementation of <see cref="IAgentOutputTraceEvaluationHook" />.</summary>
 public sealed class NoOpAgentOutputTraceEvaluationHook : IAgentOutputTraceEvaluationHook

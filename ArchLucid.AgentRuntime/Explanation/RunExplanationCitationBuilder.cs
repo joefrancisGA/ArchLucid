@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Explanation;
+using ArchLucid.Core.Explanation;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
 

@@ -1,9 +1,10 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
 
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
@@ -26,7 +27,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 public sealed class RealAgentExecutorTests
 {
     /// <summary>
-    ///     Literal source name for <see cref="ActivityListener.ShouldListenTo" /> — do not read
+    ///     Literal source name for <see cref="ActivityListener.ShouldListenTo" /> � do not read
     ///     <see cref="ArchLucidInstrumentation.AgentHandler" /> during listener registration (type-init cycle).
     /// </summary>
     private static readonly string AgentHandlerActivitySourceName = ArchLucidMeterNames.AgentHandlerActivitySource;

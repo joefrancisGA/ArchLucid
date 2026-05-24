@@ -1,6 +1,7 @@
 using System.Globalization;
 
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Persistence.DecisionTraces;

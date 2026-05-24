@@ -1,7 +1,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Persistence.Agents;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
@@ -13,7 +13,7 @@ namespace ArchLucid.Persistence.Data.Repositories;
 public sealed class AgentOutputEvaluationResultRepository(IDbConnectionFactory connectionFactory)
     : IAgentOutputEvaluationResultRepository
 {
-    public async Task AppendAsync(AgentOutputEvaluationResultInsert row, CancellationToken cancellationToken = default)
+    public async Task AppendAsync(AgentOutputEvaluationResultRecord row, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(row);
 

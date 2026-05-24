@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Contracts.Requests;

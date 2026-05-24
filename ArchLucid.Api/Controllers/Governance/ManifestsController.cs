@@ -7,6 +7,7 @@ using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Tenancy;
