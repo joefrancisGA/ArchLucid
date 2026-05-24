@@ -177,6 +177,64 @@ public sealed class ExecutiveRoiSummaryServiceTests
         response.TopSystemicIssues[0].Count.Should().Be(1);
     }
 
+    [Fact]
+    public async Task BuildExportAsync_preserves_all_rows_when_finding_id_is_null_or_empty()
+    {
+        DateTime committedUtc = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
+        Guid runId = Guid.Parse("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+
+        RunSummary summary = new()
+        {
+            RunId = runId.ToString("N"),
+            SystemName = "Payments",
+            Status = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = committedUtc,
+            CurrentManifestVersion = "v1",
+        };
+
+        Mock<IRunDetailQueryService> runQuery = new();
+        runQuery
+            .Setup(query => query.ListRunSummariesKeysetAsync(null, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((new[] { summary }, false, null));
+
+        runQuery
+            .Setup(query => query.GetRunDetailAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildDetail(runId, "Payments", null, committedUtc,
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = null,
+                    Category = "Security",
+                    Severity = FindingSeverity.Error,
+                    Message = "no id",
+                    EstimatedUsdSavings = 100m,
+                },
+                new ArchitectureFinding
+                {
+                    FindingId = "   ",
+                    Category = "Security",
+                    Severity = FindingSeverity.Error,
+                    Message = "blank id",
+                    EstimatedUsdSavings = 200m,
+                },
+                new ArchitectureFinding
+                {
+                    FindingId = null,
+                    Category = "Security",
+                    Severity = FindingSeverity.Error,
+                    Message = "also no id",
+                    EstimatedUsdSavings = 300m,
+                },
+            ]));
+
+        ExecutiveRoiSummaryService sut = CreateSut(runQuery.Object, Mock.Of<ITenantEstimatedUsdSavingsResolver>());
+
+        ExecutiveRoiExportResponse response = await sut.BuildExportAsync(CancellationToken.None);
+
+        response.Rows.Should().HaveCount(3);
+        response.Rows.Sum(row => row.EstimatedUsdSavings ?? 0m).Should().Be(600m);
+    }
+
     private static ExecutiveRoiSummaryService CreateSut(
         IRunDetailQueryService runDetailQueryService,
         ITenantEstimatedUsdSavingsResolver tenantEstimatedUsdSavingsResolver)

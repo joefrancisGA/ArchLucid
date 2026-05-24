@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 
@@ -81,6 +82,294 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
         response.IsKAnonymitySatisfied.Should().BeTrue();
         response.TotalSystemCount.Should().Be(0);
         response.TotalEstimatedUsdSavings.Should().Be(0m);
+    }
+
+    [Fact]
+    public async Task GetCrossTenantPortfolioSummaryAsync_deduplicates_critical_findings_when_same_finding_id_spans_systems()
+    {
+        DateTime committedUtc = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
+        Guid primaryTenantId = Guid.Parse("10000000-0000-0000-0000-000000000001");
+        Guid paymentsRunId = Guid.Parse("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        Guid claimsRunId = Guid.Parse("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+        const string sharedFindingId = "finding-shared-across-systems";
+
+        List<TenantRecord> tenants = CreateFiveAccessibleTenants(primaryTenantId);
+
+        RunSummary paymentsSummary = new()
+        {
+            RunId = paymentsRunId.ToString("N"),
+            SystemName = "Payments",
+            Status = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = committedUtc,
+            CurrentManifestVersion = "v1",
+        };
+
+        RunSummary claimsSummary = new()
+        {
+            RunId = claimsRunId.ToString("N"),
+            SystemName = "Claims",
+            Status = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = committedUtc,
+            CurrentManifestVersion = "v1",
+        };
+
+        Mock<IRunDetailQueryService> runQuery = CreateTenantScopedRunQuery(
+            primaryTenantId,
+            [paymentsSummary, claimsSummary]);
+
+        runQuery
+            .Setup(query => query.GetRunDetailAsync(paymentsRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildDetail(paymentsRunId, "Payments", null, committedUtc,
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = sharedFindingId,
+                    Category = "Security",
+                    Severity = FindingSeverity.Critical,
+                    Message = "shared critical issue",
+                },
+            ]));
+
+        runQuery
+            .Setup(query => query.GetRunDetailAsync(claimsRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildDetail(claimsRunId, "Claims", null, committedUtc,
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = sharedFindingId.ToUpperInvariant(),
+                    Category = "Security",
+                    Severity = FindingSeverity.Critical,
+                    Message = "same stable id on another system",
+                },
+            ]));
+
+        ExecutiveRoiSummaryService sut = CreateSutWithAccessibleTenants(
+            runQuery.Object,
+            Mock.Of<ITenantEstimatedUsdSavingsResolver>(),
+            tenants);
+
+        CrossTenantPortfolioSummaryResponse response =
+            await sut.GetCrossTenantPortfolioSummaryAsync("user-key", CancellationToken.None);
+
+        response.IsKAnonymitySatisfied.Should().BeTrue();
+        response.TotalCriticalFindings.Should().Be(1);
+        response.TopSystemicIssues.Should().ContainSingle(issue =>
+            issue.Category == "Security"
+            && issue.Severity == nameof(FindingSeverity.Critical)
+            && issue.Count == 1);
+    }
+
+    [Fact]
+    public async Task GetCrossTenantPortfolioSummaryAsync_does_not_deduplicate_findings_with_null_or_empty_finding_id()
+    {
+        DateTime committedUtc = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
+        Guid primaryTenantId = Guid.Parse("10000000-0000-0000-0000-000000000002");
+        Guid paymentsRunId = Guid.Parse("cccccccccccccccccccccccccccccccc");
+        Guid claimsRunId = Guid.Parse("dddddddddddddddddddddddddddddddd");
+
+        List<TenantRecord> tenants = CreateFiveAccessibleTenants(primaryTenantId);
+
+        RunSummary paymentsSummary = new()
+        {
+            RunId = paymentsRunId.ToString("N"),
+            SystemName = "Payments",
+            Status = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = committedUtc,
+            CurrentManifestVersion = "v1",
+        };
+
+        RunSummary claimsSummary = new()
+        {
+            RunId = claimsRunId.ToString("N"),
+            SystemName = "Claims",
+            Status = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = committedUtc,
+            CurrentManifestVersion = "v1",
+        };
+
+        Mock<IRunDetailQueryService> runQuery = CreateTenantScopedRunQuery(
+            primaryTenantId,
+            [paymentsSummary, claimsSummary]);
+
+        runQuery
+            .Setup(query => query.GetRunDetailAsync(paymentsRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildDetail(paymentsRunId, "Payments", null, committedUtc,
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = null,
+                    Category = "Security",
+                    Severity = FindingSeverity.Critical,
+                    Message = "no stable id",
+                },
+            ]));
+
+        runQuery
+            .Setup(query => query.GetRunDetailAsync(claimsRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildDetail(claimsRunId, "Claims", null, committedUtc,
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = "   ",
+                    Category = "Security",
+                    Severity = FindingSeverity.Critical,
+                    Message = "whitespace id is not stable",
+                },
+            ]));
+
+        ExecutiveRoiSummaryService sut = CreateSutWithAccessibleTenants(
+            runQuery.Object,
+            Mock.Of<ITenantEstimatedUsdSavingsResolver>(),
+            tenants);
+
+        CrossTenantPortfolioSummaryResponse response =
+            await sut.GetCrossTenantPortfolioSummaryAsync("user-key", CancellationToken.None);
+
+        response.TotalCriticalFindings.Should().Be(2);
+        response.TopSystemicIssues.Should().ContainSingle(issue =>
+            issue.Category == "Security"
+            && issue.Severity == nameof(FindingSeverity.Critical)
+            && issue.Count == 2);
+    }
+
+    [Fact]
+    public async Task GetCrossTenantPortfolioSummaryAsync_sums_snapshot_savings_per_system_without_double_counting_from_dedup()
+    {
+        DateTime committedUtc = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
+        Guid primaryTenantId = Guid.Parse("10000000-0000-0000-0000-000000000003");
+        Guid paymentsRunId = Guid.Parse("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+        Guid claimsRunId = Guid.Parse("ffffffffffffffffffffffffffffffff");
+        Guid paymentsSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid claimsSnapshotId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        const string sharedFindingId = "finding-shared-savings-context";
+
+        List<TenantRecord> tenants = CreateFiveAccessibleTenants(primaryTenantId);
+
+        RunSummary paymentsSummary = new()
+        {
+            RunId = paymentsRunId.ToString("N"),
+            SystemName = "Payments",
+            Status = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = committedUtc,
+            CurrentManifestVersion = "v1",
+        };
+
+        RunSummary claimsSummary = new()
+        {
+            RunId = claimsRunId.ToString("N"),
+            SystemName = "Claims",
+            Status = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = committedUtc,
+            CurrentManifestVersion = "v1",
+        };
+
+        Mock<IRunDetailQueryService> runQuery = CreateTenantScopedRunQuery(
+            primaryTenantId,
+            [paymentsSummary, claimsSummary]);
+
+        runQuery
+            .Setup(query => query.GetRunDetailAsync(paymentsRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildDetail(paymentsRunId, "Payments", paymentsSnapshotId, committedUtc,
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = sharedFindingId,
+                    Category = "CostOptimization",
+                    Severity = FindingSeverity.Warning,
+                    Message = "shared",
+                    EstimatedUsdSavings = 9000m,
+                },
+            ]));
+
+        runQuery
+            .Setup(query => query.GetRunDetailAsync(claimsRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildDetail(claimsRunId, "Claims", claimsSnapshotId, committedUtc,
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = sharedFindingId,
+                    Category = "CostOptimization",
+                    Severity = FindingSeverity.Warning,
+                    Message = "duplicate id",
+                    EstimatedUsdSavings = 9000m,
+                },
+            ]));
+
+        Mock<ITenantEstimatedUsdSavingsResolver> savingsResolver = new();
+        savingsResolver
+            .Setup(resolver => resolver.ResolveFromFindingsSnapshotIdAsync(paymentsSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(5000m);
+        savingsResolver
+            .Setup(resolver => resolver.ResolveFromFindingsSnapshotIdAsync(claimsSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(3000m);
+
+        ExecutiveRoiSummaryService sut = CreateSutWithAccessibleTenants(
+            runQuery.Object,
+            savingsResolver.Object,
+            tenants);
+
+        CrossTenantPortfolioSummaryResponse response =
+            await sut.GetCrossTenantPortfolioSummaryAsync("user-key", CancellationToken.None);
+
+        // Snapshot savings are per latest run per system; finding-id dedup does not collapse resolver totals.
+        response.TotalEstimatedUsdSavings.Should().Be(8000m);
+        response.TopSystemicIssues.Should().ContainSingle(issue =>
+            issue.Category == "CostOptimization"
+            && issue.Severity == nameof(FindingSeverity.Warning)
+            && issue.Count == 1);
+    }
+
+    [Fact]
+    public async Task GetCrossTenantPortfolioSummaryAsync_excludes_muted_findings_from_deduped_totals()
+    {
+        DateTime committedUtc = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
+        Guid primaryTenantId = Guid.Parse("10000000-0000-0000-0000-000000000004");
+        Guid runId = Guid.Parse("99999999999999999999999999999999");
+        const string sharedFindingId = "finding-muted-duplicate";
+
+        List<TenantRecord> tenants = CreateFiveAccessibleTenants(primaryTenantId);
+
+        RunSummary summary = new()
+        {
+            RunId = runId.ToString("N"),
+            SystemName = "Payments",
+            Status = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = committedUtc,
+            CurrentManifestVersion = "v1",
+        };
+
+        Mock<IRunDetailQueryService> runQuery = CreateTenantScopedRunQuery(primaryTenantId, [summary]);
+
+        runQuery
+            .Setup(query => query.GetRunDetailAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildDetail(runId, "Payments", null, committedUtc,
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = sharedFindingId,
+                    Category = "Security",
+                    Severity = FindingSeverity.Critical,
+                    Message = "active",
+                },
+                new ArchitectureFinding
+                {
+                    FindingId = sharedFindingId,
+                    Category = "Security",
+                    Severity = FindingSeverity.Critical,
+                    Message = "muted duplicate",
+                    IsMuted = true,
+                },
+            ]));
+
+        ExecutiveRoiSummaryService sut = CreateSutWithAccessibleTenants(
+            runQuery.Object,
+            Mock.Of<ITenantEstimatedUsdSavingsResolver>(),
+            tenants);
+
+        CrossTenantPortfolioSummaryResponse response =
+            await sut.GetCrossTenantPortfolioSummaryAsync("user-key", CancellationToken.None);
+
+        response.TotalCriticalFindings.Should().Be(1);
     }
 
     [Fact]
@@ -187,6 +476,56 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
             tenantRepository ?? Mock.Of<ITenantRepository>(),
             scimUserRepository ?? Mock.Of<IScimUserRepository>(),
             NullLogger<ExecutiveRoiSummaryService>.Instance);
+    }
+
+    private static ExecutiveRoiSummaryService CreateSutWithAccessibleTenants(
+        IRunDetailQueryService runDetailQueryService,
+        ITenantEstimatedUsdSavingsResolver tenantEstimatedUsdSavingsResolver,
+        IReadOnlyList<TenantRecord> tenants)
+    {
+        Mock<ITenantRepository> tenantRepository = new();
+        tenantRepository.Setup(repo => repo.ListAsync(It.IsAny<CancellationToken>())).ReturnsAsync(tenants);
+
+        Mock<IScimUserRepository> scimRepository = new();
+        scimRepository
+            .Setup(repo => repo.GetByExternalIdAsync(It.IsAny<Guid>(), "user-key", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateActiveUser());
+
+        return CreateSut(runDetailQueryService, tenantEstimatedUsdSavingsResolver, tenantRepository.Object, scimRepository.Object);
+    }
+
+    private static List<TenantRecord> CreateFiveAccessibleTenants(Guid primaryTenantId)
+    {
+        List<TenantRecord> tenants =
+        [
+            CreateTenant(primaryTenantId),
+            CreateTenant(Guid.Parse("10000000-0000-0000-0000-000000000010")),
+            CreateTenant(Guid.Parse("10000000-0000-0000-0000-000000000011")),
+            CreateTenant(Guid.Parse("10000000-0000-0000-0000-000000000012")),
+            CreateTenant(Guid.Parse("10000000-0000-0000-0000-000000000013")),
+        ];
+
+        return tenants;
+    }
+
+    private static Mock<IRunDetailQueryService> CreateTenantScopedRunQuery(
+        Guid primaryTenantId,
+        IReadOnlyList<RunSummary> primaryTenantSummaries)
+    {
+        Mock<IRunDetailQueryService> runQuery = new();
+        runQuery
+            .Setup(query => query.ListRunSummariesKeysetAsync(null, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                Guid? tenantId = AmbientScopeContext.CurrentOverride?.TenantId;
+
+                if (tenantId == primaryTenantId)
+                    return (primaryTenantSummaries, false, (string?)null);
+
+                return (Array.Empty<RunSummary>(), false, null);
+            });
+
+        return runQuery;
     }
 
     private static TenantRecord CreateTenant(Guid tenantId)
