@@ -328,3 +328,21 @@ groups:
           description: >-
             `archlucid_agent_trace_blob_upload_failures_total` — blob persistence for full prompts/responses failed after
             retries. Check blob storage ACLs and `docs/library/AGENT_TRACE_FORENSICS.md`.
+
+  - name: archlucid-marketing-pricing-quote-sla
+    rules:
+      - alert: ArchLucidPricingQuoteAcknowledgementBreach
+        expr: |
+          histogram_quantile(
+            1,
+            sum(rate(archlucid_pricing_quote_request_age_hours_bucket[10m])) by (le)
+          ) > 24
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: Marketing pricing quote acknowledgement SLA breached
+          description: >-
+            At least one row in dbo.MarketingPricingQuoteRequests has been unanswered for more than 24 hours (UTC).
+            Review GET /v1/admin/marketing/pricing-quote-aging and docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md.
+

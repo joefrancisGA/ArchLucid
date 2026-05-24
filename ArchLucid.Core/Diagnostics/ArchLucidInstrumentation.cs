@@ -468,6 +468,23 @@ public static class ArchLucidInstrumentation
                 ]
             });
 
+    /// <summary>
+    ///     Age in hours of unanswered marketing pricing quote requests (labels: <c>breach_status</c>).
+    ///     Populated every five minutes by <c>MarketingPricingQuoteAgingMetricsHostedService</c>.
+    /// </summary>
+    public static readonly Histogram<double> PricingQuoteRequestAgeHours =
+        AppMeter.CreateHistogram(
+            "archlucid_pricing_quote_request_age_hours",
+            "hours",
+            "Age in hours of unanswered marketing pricing quote requests.",
+            advice: new InstrumentAdvice<double>
+            {
+                HistogramBucketBoundaries =
+                [
+                    1, 6, 12, 18, 24, 48, 72, 168
+                ]
+            });
+
     /// <summary><c>TrialRunsUsed / TrialRunsLimit</c> at first manifest commit for metered trials (0.0–1.0+).</summary>
     public static readonly Histogram<double> TrialRunsUsedRatio =
         AppMeter.CreateHistogram(
@@ -1005,6 +1022,23 @@ public static class ArchLucidInstrumentation
             count = 0;
 
         Volatile.Write(ref _trialActiveTenantsCached, count);
+    }
+
+    /// <summary>Records one pricing quote request age observation for SLA histogram export.</summary>
+    public static void RecordPricingQuoteRequestAgeHours(double ageHours, string breachStatus)
+    {
+        if (ageHours < 0)
+            ageHours = 0;
+
+        if (string.IsNullOrWhiteSpace(breachStatus))
+            breachStatus = "unknown";
+
+        KeyValuePair<string, object?>[] tags =
+        [
+            new KeyValuePair<string, object?>("breach_status", breachStatus)
+        ];
+
+        PricingQuoteRequestAgeHours.Record(ageHours, tags.AsSpan());
     }
 
     /// <summary>

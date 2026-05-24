@@ -192,6 +192,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/MarketingPricingQuoteAgingAdminController.cs",
+      "class_name": "MarketingPricingQuoteAgingAdminController",
+      "route_template": "v{version:apiVersion}/admin/marketing/pricing-quote-aging",
+      "normalized_prefix": "/v1/admin/marketing/pricing-quote-aging",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/MeteringAdminController.cs",
       "class_name": "MeteringAdminController",
       "route_template": "v{version:apiVersion}/admin/metering",

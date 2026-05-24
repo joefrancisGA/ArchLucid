@@ -322,6 +322,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ITenantCostSettingsRepository, DapperTenantCostSettingsRepository>();
         services.AddScoped<IPilotCloseoutRepository, DapperPilotCloseoutRepository>();
         services.AddScoped<IMarketingPricingQuoteRequestRepository, SqlMarketingPricingQuoteRequestRepository>();
+        services.AddScoped<IMarketingPricingQuoteRequestAgingReader, SqlMarketingPricingQuoteRequestAgingReader>();
         services.AddScoped<IMarketingEarlyAccessRequestRepository, SqlMarketingEarlyAccessRequestRepository>();
         services.AddScoped<IFirstTenantFunnelEventStore, SqlFirstTenantFunnelEventStore>();
         services.AddScoped<IFirstTenantFunnelArchivalBatchStore, SqlFirstTenantFunnelArchivalBatchStore>();
@@ -448,6 +449,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IOutboxOperationalMetricsReader, DapperOutboxOperationalMetricsReader>();
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
         services.AddHostedService<LlmTenantBudgetUtilizationMetricsHostedService>();
+        services.AddHostedService<MarketingPricingQuoteAgingMetricsHostedService>();
 
         services.AddSingleton<DataConsistencyOrphanProbeExecutor>();
         services.AddSingleton<IDataConsistencyOrphanProbeExecutor>(

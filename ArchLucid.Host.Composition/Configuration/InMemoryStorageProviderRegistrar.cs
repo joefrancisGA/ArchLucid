@@ -209,6 +209,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IUsageEventRepository, InMemoryUsageEventRepository>();
         services.AddSingleton<ILlmTenantBudgetRepository, InMemoryLlmTenantBudgetRepository>();
         services.AddSingleton<IMarketingPricingQuoteRequestRepository, NoOpMarketingPricingQuoteRequestRepository>();
+        services.AddSingleton<IMarketingPricingQuoteRequestAgingReader, NoOpMarketingPricingQuoteRequestAgingReader>();
         services.AddSingleton<IMarketingEarlyAccessRequestRepository, NoOpMarketingEarlyAccessRequestRepository>();
         services.AddSingleton<IFirstTenantFunnelEventStore, NoopFirstTenantFunnelEventStore>();
         services.AddSingleton<IFirstTenantFunnelArchivalBatchStore, NoOpFirstTenantFunnelArchivalBatchStore>();
@@ -242,6 +243,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
 
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
         services.AddHostedService<LlmTenantBudgetUtilizationMetricsHostedService>();
+        services.AddHostedService<MarketingPricingQuoteAgingMetricsHostedService>();
 
         // Parity with Sql path: orphan probe resolves but no-ops when storage is InMemory (see DataConsistencyOrphanProbeExecutor).
         // IDbConnectionFactory stays UnsupportedRelationalDbConnectionFactory so DAST/ZAP containers need no SQL connection string.
