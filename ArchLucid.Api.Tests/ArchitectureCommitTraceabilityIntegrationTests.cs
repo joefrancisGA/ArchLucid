@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Application.Architecture;
+using ArchLucid.Decisioning.DecisionTraces;
 
 using FluentAssertions;
 
@@ -60,9 +61,13 @@ public sealed class ArchitectureCommitTraceabilityIntegrationTests
             await commitResponse.Content.ReadFromJsonAsync<CommitRunResponse>(JsonOptions);
         commitPayload.Should().NotBeNull();
 
+        IReadOnlyList<DecisionTrace> domainTraces = commitPayload.DecisionTraces
+            .Select(DecisionTraceRecordMapper.ToDomain)
+            .ToList();
+
         IReadOnlyList<string> gaps = AuthorityCommitTraceabilityRules.GetLinkageGaps(
             commitPayload.Manifest,
-            commitPayload.DecisionTraces);
+            domainTraces);
 
         gaps.Should()
             .BeEmpty(
