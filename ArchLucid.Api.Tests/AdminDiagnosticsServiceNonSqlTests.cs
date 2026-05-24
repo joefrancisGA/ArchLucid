@@ -513,11 +513,17 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         Mock<IAuditService> audit = new();
         Mock<IActorContext> actor = ActorMock();
         Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
-        Mock<IAuthorityPipelineWorkRepository> authority = new();
-        Mock<IRetrievalIndexingOutboxRepository> retrieval = new();
-        Mock<IIntegrationEventOutboxRepository> integration = new();
-        Mock<IHostLeaderLeaseRepository> hostLeases = new();
-        Mock<IRunRepository> runs = new();
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(
+            factory,
+            SqlOptions(),
+            audit,
+            actor,
+            out _,
+            out _,
+            out _,
+            out Mock<IHostLeaderLeaseRepository> hostLeases,
+            out _);
 
         HostLeaderLeaseSnapshot leaseRow = new()
         {
@@ -529,17 +535,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
 
         _ = hostLeases.Setup(h => h.ListAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<HostLeaderLeaseSnapshot> { leaseRow });
-
-        AdminDiagnosticsService sut = new(
-            authority.Object,
-            retrieval.Object,
-            integration.Object,
-            hostLeases.Object,
-            runs.Object,
-            factory.Object,
-            SqlOptions(),
-            actor.Object,
-            audit.Object);
 
         IReadOnlyList<HostLeaderLeaseSnapshot> rows =
             await sut.GetLeasesAsync(CancellationToken.None);
@@ -555,11 +550,17 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         Mock<IAuditService> audit = new();
         Mock<IActorContext> actor = ActorMock();
         Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
-        Mock<IAuthorityPipelineWorkRepository> authority = new();
-        Mock<IRetrievalIndexingOutboxRepository> retrieval = new();
-        Mock<IIntegrationEventOutboxRepository> integration = new();
-        Mock<IHostLeaderLeaseRepository> hostLeases = new();
-        Mock<IRunRepository> runs = new();
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(
+            factory,
+            SqlOptions(),
+            audit,
+            actor,
+            out _,
+            out _,
+            out Mock<IIntegrationEventOutboxRepository> integration,
+            out _,
+            out _);
 
         IntegrationEventOutboxDeadLetterRow row = new()
         {
@@ -574,17 +575,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
 
         _ = integration.Setup(i => i.ListDeadLettersAsync(25, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<IntegrationEventOutboxDeadLetterRow> { row });
-
-        AdminDiagnosticsService sut = new(
-            authority.Object,
-            retrieval.Object,
-            integration.Object,
-            hostLeases.Object,
-            runs.Object,
-            factory.Object,
-            SqlOptions(),
-            actor.Object,
-            audit.Object);
 
         IReadOnlyList<IntegrationEventOutboxDeadLetterRow> letters =
             await sut.ListIntegrationOutboxDeadLettersAsync(25, CancellationToken.None);
@@ -603,27 +593,22 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         Mock<IAuditService> audit = new();
         Mock<IActorContext> actor = ActorMock();
         Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
-        Mock<IAuthorityPipelineWorkRepository> authority = new();
-        Mock<IRetrievalIndexingOutboxRepository> retrieval = new();
-        Mock<IIntegrationEventOutboxRepository> integration = new();
-        Mock<IHostLeaderLeaseRepository> hostLeases = new();
-        Mock<IRunRepository> runs = new();
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(
+            factory,
+            SqlOptions(),
+            audit,
+            actor,
+            out _,
+            out _,
+            out Mock<IIntegrationEventOutboxRepository> integration,
+            out _,
+            out _);
 
         Guid outboxId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
         _ = integration.Setup(i => i.ResetDeadLetterForRetryAsync(outboxId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
-
-        AdminDiagnosticsService sut = new(
-            authority.Object,
-            retrieval.Object,
-            integration.Object,
-            hostLeases.Object,
-            runs.Object,
-            factory.Object,
-            SqlOptions(),
-            actor.Object,
-            audit.Object);
 
         bool ok = await sut.RetryIntegrationOutboxDeadLetterAsync(outboxId, CancellationToken.None);
 
