@@ -25,6 +25,7 @@ public sealed class RetrievalRunCompletionIndexer(
         ManifestDocument manifest,
         IReadOnlyList<SynthesizedArtifact> artifacts,
         DecisionProvenanceGraph provenanceGraph,
+        FindingsSnapshot? findingsSnapshot,
         CancellationToken ct)
     {
         using Activity? indexActivity = ArchLucidInstrumentation.RetrievalIndex.StartActivity();
