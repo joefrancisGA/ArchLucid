@@ -21,6 +21,8 @@ const TRIAL_TENANT_ID = "11111111-1111-1111-1111-111111111111";
 const TRIAL_WORKSPACE_ID = "22222222-2222-2222-2222-222222222222";
 const TRIAL_PROJECT_ID = "33333333-3333-3333-3333-333333333333";
 const FIRST_COMMIT_UTC = "2026-04-15T12:00:00.000Z";
+/** Must match `SESSION_KEY` in `TrialWelcomeRunDeepLink.tsx`. */
+const TRIAL_WELCOME_HOME_REDIRECT_SESSION_KEY = "archlucid_trial_welcome_home_redirect_v1";
 
 type RegisterRequestBody = {
   organizationName?: string;
@@ -39,6 +41,24 @@ async function fulfillJson(route: Route, status: number, body: unknown): Promise
 }
 
 type RegisterCapture = { body: RegisterRequestBody | null };
+
+async function primeTrialWelcomeHomeRedirectGuard(page: Page): Promise<void> {
+  const payload = [TRIAL_WELCOME_HOME_REDIRECT_SESSION_KEY, MOCK_TRIAL_WELCOME_RUN_ID] as const;
+
+  await page.context().addInitScript(
+    ([key, welcomeRunId]: readonly [string, string]) => {
+      window.sessionStorage.setItem(key, welcomeRunId);
+    },
+    payload,
+  );
+
+  await page.evaluate(
+    ([key, welcomeRunId]: readonly [string, string]) => {
+      window.sessionStorage.setItem(key, welcomeRunId);
+    },
+    payload,
+  );
+}
 
 async function installFunnelMocks(page: Page, capture: RegisterCapture): Promise<void> {
   await page.route("**/*", async (route) => {
@@ -88,7 +108,9 @@ async function installFunnelMocks(page: Page, capture: RegisterCapture): Promise
       return;
     }
 
-    if (method === "GET" && path === `/v1/pilots/runs/${MOCK_TRIAL_WELCOME_RUN_ID}/pilot-run-deltas`) {
+    const pilotRunDeltasMatch = /^\/v1\/pilots\/runs\/([^/]+)\/pilot-run-deltas$/.exec(path);
+
+    if (method === "GET" && pilotRunDeltasMatch !== null && pilotRunDeltasMatch[1] === MOCK_TRIAL_WELCOME_RUN_ID) {
       await fulfillJson(route, 200, {
         timeToCommittedManifestTotalSeconds: 4 * 3600,
         manifestCommittedUtc: FIRST_COMMIT_UTC,
@@ -105,7 +127,7 @@ async function installFunnelMocks(page: Page, capture: RegisterCapture): Promise
       return;
     }
 
-    await fulfillJson(route, 200, {});
+    await route.continue();
   });
 }
 
@@ -141,16 +163,23 @@ test.describe("trial funnel — mocked end-to-end", () => {
      * `TrialWelcomeRunDeepLink` normally redirects first-time home visitors to `/reviews/{trialWelcomeRunId}`.
      * Prime sessionStorage so we stay on `/` and assert the dashboard cycle panel (`before-after-delta-panel`).
      */
-    await page.addInitScript(
-      (args: string[]) => {
-        if (args.length >= 2) sessionStorage.setItem(args[0], args[1]);
-      },
-      ["archlucid_trial_welcome_home_redirect_v1", MOCK_TRIAL_WELCOME_RUN_ID],
+    await primeTrialWelcomeHomeRedirectGuard(page);
+
+    const trialStatusResponse = page.waitForResponse(
+      (res) =>
+        res.request().method() === "GET" &&
+        res.url().includes("/api/proxy/v1/tenant/trial-status") &&
+        res.status() === 200,
     );
 
     await page.goto("/");
 
-    await expect(page.getByTestId("before-after-delta-panel")).toBeVisible();
+    await trialStatusResponse;
+
+    await expect(page).toHaveURL((url) => new URL(url).pathname === "/");
+    await expect(page).not.toHaveURL(/\/reviews\//);
+
+    await expect(page.getByTestId("before-after-delta-panel")).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId("before-after-delta-baseline-hours")).toHaveText("16.00 h");
     await expect(page.getByTestId("before-after-delta-measured-hours")).toHaveText("4.00 h");
     await expect(page.getByTestId("before-after-delta-summary")).toContainText("12.00 h saved per finalized review");
