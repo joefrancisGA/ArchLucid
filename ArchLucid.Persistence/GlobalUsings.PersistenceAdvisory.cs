@@ -28,5 +28,7 @@ global using RecommendationActionRequest = ArchLucid.Decisioning.Advisory.Workfl
 global using RecommendationActionType = ArchLucid.Decisioning.Advisory.Workflow.RecommendationActionType;
 global using RecommendationLearningProfile = ArchLucid.Contracts.Advisory.Learning.RecommendationLearningProfile;
 global using RecommendationOutcomeStats = ArchLucid.Contracts.Advisory.Learning.RecommendationOutcomeStats;
+global using IImprovementAdvisorService = ArchLucid.Decisioning.Advisory.Services.IImprovementAdvisorService;
+global using IRecommendationLearningService = ArchLucid.Decisioning.Advisory.Learning.IRecommendationLearningService;
 global using RecommendationRecord = ArchLucid.Contracts.Advisory.Workflow.RecommendationRecord;
 global using RecommendationStatus = ArchLucid.Contracts.Advisory.Workflow.RecommendationStatus;

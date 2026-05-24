@@ -1,15 +1,4 @@
-using ArchLucid.Contracts.DecisionTraces;
-using ArchLucid.Decisioning.Models;
-using ArchLucid.KnowledgeGraph.Models;
-
 namespace ArchLucid.Decisioning.Interfaces;
 
-public interface IDecisionEngine
-{
-    Task<(ManifestDocument Manifest, DecisionTrace Trace)> DecideAsync(
-        Guid runId,
-        Guid contextSnapshotId,
-        GraphSnapshot graphSnapshot,
-        FindingsSnapshot findingsSnapshot,
-        CancellationToken ct);
-}
+/// <summary>Compatibility stub; canonical port is <see cref="Core.Persistence.Ports.IDecisionEngine" />.</summary>
+public interface IDecisionEngine : ArchLucid.Core.Persistence.Ports.IDecisionEngine;

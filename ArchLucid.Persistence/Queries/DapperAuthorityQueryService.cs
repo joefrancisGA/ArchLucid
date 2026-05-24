@@ -2,7 +2,6 @@ using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;

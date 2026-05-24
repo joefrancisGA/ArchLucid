@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 

@@ -4,7 +4,6 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
 

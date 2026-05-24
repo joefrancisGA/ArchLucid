@@ -16,7 +16,6 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Provenance;

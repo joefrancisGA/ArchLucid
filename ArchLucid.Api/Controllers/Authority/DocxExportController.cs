@@ -13,7 +13,6 @@ using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;

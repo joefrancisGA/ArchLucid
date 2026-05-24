@@ -35,6 +35,18 @@
     </ItemGroup>
   </Target>
 
+  <!-- Authority orchestration ports moved from Decisioning.Interfaces (#33 Phase 2e-e). -->
+  <Target Name="ArchLucidAddPersistenceOrchestrationPortsGlobalUsings"
+          BeforeTargets="CoreCompile"
+          Condition="'$(MSBuildProjectName)' != 'ArchLucid.Contracts' And !Exists('$(MSBuildProjectDirectory)\GlobalUsings.PersistenceDecisioning.cs') And !Exists('$(MSBuildProjectDirectory)\GlobalUsings.PersistenceOrchestrationPorts.cs')">
+    <ItemGroup>
+      <_CoreProjectReference Include="@(ProjectReference)" Condition="$([System.String]::Copy('%(Identity)').EndsWith('ArchLucid.Core.csproj'))" />
+    </ItemGroup>
+    <ItemGroup Condition="'@(_CoreProjectReference)' != ''">
+      <Compile Include="$(MSBuildThisFileDirectory)build\GlobalUsings.PersistenceOrchestrationPorts.cs" Link="GlobalUsings.PersistenceOrchestrationPorts.cs" />
+    </ItemGroup>
+  </Target>
+
   <!-- Humanizer.Core ships Humanizer.Analyzers (e.g. NamespaceMigrationAnalyzer). Remove from all projects. -->
   <Target Name="ArchLucidRemoveHumanizerAnalyzers" BeforeTargets="CoreCompile">
     <ItemGroup>

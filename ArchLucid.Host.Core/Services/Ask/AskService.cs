@@ -8,7 +8,6 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;

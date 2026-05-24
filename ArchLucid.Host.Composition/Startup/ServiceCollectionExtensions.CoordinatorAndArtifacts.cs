@@ -14,6 +14,7 @@ using ArchLucid.ArtifactSynthesis.Services;
 using ArchLucid.Core.Ask;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Costing;
+using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Http;
 using ArchLucid.Core.Llm;
 using ArchLucid.Decisioning.Advisory.Analysis;

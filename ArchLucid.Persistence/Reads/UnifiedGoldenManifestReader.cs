@@ -1,7 +1,6 @@
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;

@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Application.Advisory;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Delivery;
@@ -12,7 +13,6 @@ using ArchLucid.Decisioning.Advisory.Services;
 using ArchLucid.Decisioning.Advisory.Workflow;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Composite;
-using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Advisory;

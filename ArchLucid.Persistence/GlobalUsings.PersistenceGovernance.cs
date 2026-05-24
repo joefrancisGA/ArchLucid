@@ -4,6 +4,7 @@ global using ArchLucid.Contracts.Governance.Resolution;
 
 global using ComplianceDriftFindingsBucketCounts = ArchLucid.Contracts.Governance.ComplianceDrift.ComplianceDriftFindingsBucketCounts;
 global using ComplianceDriftFindingsTrendAuditTypes = ArchLucid.Decisioning.Governance.ComplianceDrift.ComplianceDriftFindingsTrendAuditTypes;
+global using ComplianceRulePack = ArchLucid.Decisioning.Compliance.Models.ComplianceRulePack;
 global using ComplianceRulePackGovernanceFilter = ArchLucid.Decisioning.Governance.PolicyPacks.ComplianceRulePackGovernanceFilter;
 global using GovernanceScopeLevel = ArchLucid.Contracts.Governance.Resolution.GovernanceScopeLevel;
 global using IComplianceDriftFindingsTrendReader = ArchLucid.Core.Persistence.Ports.IComplianceDriftFindingsTrendReader;
@@ -21,4 +22,6 @@ global using PolicyPackGovernanceFilter = ArchLucid.Decisioning.Governance.Polic
 global using PolicyPackStatus = ArchLucid.Contracts.Governance.PolicyPacks.PolicyPackStatus;
 global using PolicyPackType = ArchLucid.Contracts.Governance.PolicyPacks.PolicyPackType;
 global using PolicyPackVersion = ArchLucid.Contracts.Governance.PolicyPacks.PolicyPackVersion;
+global using IComplianceRulePackLoader = ArchLucid.Decisioning.Compliance.Loaders.IComplianceRulePackLoader;
+global using IComplianceRulePackProvider = ArchLucid.Decisioning.Compliance.Loaders.IComplianceRulePackProvider;
 global using TenantCuratedComplianceRulePackMerger = ArchLucid.Decisioning.Governance.PolicyPacks.CuratedRules.TenantCuratedComplianceRulePackMerger;

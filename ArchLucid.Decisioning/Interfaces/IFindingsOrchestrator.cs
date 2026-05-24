@@ -1,13 +1,4 @@
-using ArchLucid.Decisioning.Models;
-using ArchLucid.KnowledgeGraph.Models;
-
 namespace ArchLucid.Decisioning.Interfaces;
 
-public interface IFindingsOrchestrator
-{
-    Task<FindingsSnapshot> GenerateFindingsSnapshotAsync(
-        Guid runId,
-        Guid contextSnapshotId,
-        GraphSnapshot graphSnapshot,
-        CancellationToken ct);
-}
+/// <summary>Compatibility stub; canonical port is <see cref="Core.Persistence.Ports.IFindingsOrchestrator" />.</summary>
+public interface IFindingsOrchestrator : ArchLucid.Core.Persistence.Ports.IFindingsOrchestrator;

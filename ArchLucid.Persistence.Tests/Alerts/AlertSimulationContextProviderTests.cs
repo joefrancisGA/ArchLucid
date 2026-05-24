@@ -4,7 +4,6 @@ using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Services;
 using ArchLucid.Decisioning.Advisory.Workflow;
 using ArchLucid.Decisioning.Alerts;
-using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Alerts.Simulation;
 using ArchLucid.Persistence.Models;
