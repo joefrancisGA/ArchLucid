@@ -17,6 +17,7 @@ using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
 
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Diagnostics;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Services.Admin;
@@ -31,6 +32,7 @@ public sealed class AdminDiagnosticsService(
     IDbConnectionFactory connectionFactory,
     IOptions<ArchLucidOptions> archLucidOptions,
     IOptions<IntegrationEventsOptions> integrationEventsOptions,
+    ICacheTelemetrySnapshotProvider cacheTelemetrySnapshotProvider,
     IActorContext actorContext,
     IAuditService auditService) : IAdminDiagnosticsService
 {
@@ -42,6 +44,9 @@ public sealed class AdminDiagnosticsService(
 
     private readonly IOptions<IntegrationEventsOptions> _integrationEventsOptions =
         integrationEventsOptions ?? throw new ArgumentNullException(nameof(integrationEventsOptions));
+
+    private readonly ICacheTelemetrySnapshotProvider _cacheTelemetrySnapshotProvider =
+        cacheTelemetrySnapshotProvider ?? throw new ArgumentNullException(nameof(cacheTelemetrySnapshotProvider));
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -170,6 +175,29 @@ public sealed class AdminDiagnosticsService(
                 cancellationToken);
 
         return new CrossTenantUsageRollup(distinctTenants, committedRuns, totalRuns, TimeProvider.System.GetUtcNow());
+    }
+
+    /// <inheritdoc />
+    public Task<AdminCacheDiagnosticsResponse> GetCacheDiagnosticsAsync(CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        CacheTelemetrySnapshot snapshot = _cacheTelemetrySnapshotProvider.GetSnapshot();
+
+        AdminCacheDiagnosticsResponse response = new()
+        {
+            HotPathReadCacheHits = snapshot.HotPathReadCacheHits,
+            HotPathReadCacheMisses = snapshot.HotPathReadCacheMisses,
+            ExplanationCacheHits = snapshot.ExplanationCacheHits,
+            ExplanationCacheMisses = snapshot.ExplanationCacheMisses,
+            LlmCompletionCacheHits = snapshot.LlmCompletionCacheHits,
+            LlmCompletionCacheMisses = snapshot.LlmCompletionCacheMisses,
+            GraphProjectionCacheHits = snapshot.GraphProjectionCacheHits,
+            GraphProjectionCacheMisses = snapshot.GraphProjectionCacheMisses,
+            GraphProjectionCacheEnabled = snapshot.GraphProjectionCacheEnabled,
+        };
+
+        return Task.FromResult(response);
     }
 
     /// <inheritdoc />

@@ -57,6 +57,18 @@ public static class ArchLucidInstrumentation
 
     private static long _llmCompletionCacheMissesAggregate;
 
+    private static long _hotPathReadCacheHitsAggregate;
+
+    private static long _hotPathReadCacheMissesAggregate;
+
+    private static long _explanationCacheHitsAggregate;
+
+    private static long _explanationCacheMissesAggregate;
+
+    private static long _graphProjectionCacheHitsAggregate;
+
+    private static long _graphProjectionCacheMissesAggregate;
+
     private static long _trialActiveTenantsCached;
 
     private static Func<long>? _auditRetryQueuePendingReader;
@@ -160,6 +172,13 @@ public static class ArchLucidInstrumentation
     public static readonly Histogram<double> ExplanationFaithfulnessRatio = AppMeter.CreateHistogram<double>(
         "archlucid_explanation_faithfulness_ratio",
         description: "Heuristic faithfulness of run explanation vs finding traces (0.0–1.0).");
+
+    /// <summary>
+    ///     Fraction of retrieved RAG chunks cited in agent output (0.0–1.0).
+    /// </summary>
+    public static readonly Histogram<double> RetrievalFaithfulnessRatio = AppMeter.CreateHistogram<double>(
+        "archlucid_retrieval_faithfulness_ratio",
+        description: "Heuristic faithfulness of agent output vs retrieved RAG chunks (0.0–1.0).");
 
     /// <summary>
     ///     Per provenance response: fraction of manifest decisions with finding, rule, and graph-context edges (0.0–1.0).
@@ -1035,6 +1054,60 @@ public static class ArchLucidInstrumentation
         LlmCompletionCacheMissesTotal.Add(1, tags);
     }
 
+    /// <summary>Records one hot-path read cache hit (<c>IHotPathReadCache</c> / HybridCache).</summary>
+    public static void RecordHotPathReadCacheHit()
+    {
+        _ = Interlocked.Increment(ref _hotPathReadCacheHitsAggregate);
+    }
+
+    /// <summary>Records one hot-path read cache miss (factory invoked).</summary>
+    public static void RecordHotPathReadCacheMiss()
+    {
+        _ = Interlocked.Increment(ref _hotPathReadCacheMissesAggregate);
+    }
+
+    /// <summary>Records one aggregate explanation cache hit.</summary>
+    public static void RecordExplanationCacheHit()
+    {
+        _ = Interlocked.Increment(ref _explanationCacheHitsAggregate);
+        ExplanationCacheHits.Add(1);
+    }
+
+    /// <summary>Records one aggregate explanation cache miss.</summary>
+    public static void RecordExplanationCacheMiss()
+    {
+        _ = Interlocked.Increment(ref _explanationCacheMissesAggregate);
+        ExplanationCacheMisses.Add(1);
+    }
+
+    /// <summary>Records one graph snapshot projection cache hit.</summary>
+    public static void RecordGraphProjectionCacheHit()
+    {
+        _ = Interlocked.Increment(ref _graphProjectionCacheHitsAggregate);
+    }
+
+    /// <summary>Records one graph snapshot projection cache miss.</summary>
+    public static void RecordGraphProjectionCacheMiss()
+    {
+        _ = Interlocked.Increment(ref _graphProjectionCacheMissesAggregate);
+    }
+
+    /// <summary>Returns process-life cache counters for operator diagnostics.</summary>
+    public static CacheTelemetrySnapshot GetCacheTelemetrySnapshot()
+    {
+        return new CacheTelemetrySnapshot
+        {
+            HotPathReadCacheHits = Interlocked.Read(ref _hotPathReadCacheHitsAggregate),
+            HotPathReadCacheMisses = Interlocked.Read(ref _hotPathReadCacheMissesAggregate),
+            ExplanationCacheHits = Interlocked.Read(ref _explanationCacheHitsAggregate),
+            ExplanationCacheMisses = Interlocked.Read(ref _explanationCacheMissesAggregate),
+            LlmCompletionCacheHits = Interlocked.Read(ref _llmCompletionCacheHitsAggregate),
+            LlmCompletionCacheMisses = Interlocked.Read(ref _llmCompletionCacheMissesAggregate),
+            GraphProjectionCacheHits = Interlocked.Read(ref _graphProjectionCacheHitsAggregate),
+            GraphProjectionCacheMisses = Interlocked.Read(ref _graphProjectionCacheMissesAggregate),
+        };
+    }
+
     /// <summary>
     ///     Records a successful completion that used the secondary fallback client (label <c>deployment</c> from primary
     ///     descriptor).
@@ -1105,6 +1178,13 @@ public static class ArchLucidInstrumentation
     {
         double clamped = Math.Clamp(ratio, 0.0, 1.0);
         ExplanationFaithfulnessRatio.Record(clamped);
+    }
+
+    /// <summary>Records <see cref="RetrievalFaithfulnessRatio" /> (clamped 0–1).</summary>
+    public static void RecordRetrievalFaithfulnessRatio(double ratio)
+    {
+        double clamped = Math.Clamp(ratio, 0.0, 1.0);
+        RetrievalFaithfulnessRatio.Record(clamped);
     }
 
     /// <summary>Increments <see cref="TrialSignupsTotal" />.</summary>

@@ -1,3 +1,4 @@
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph.Configuration;
 using ArchLucid.KnowledgeGraph.Interfaces;
@@ -35,7 +36,12 @@ public sealed class GraphSnapshotProjectionMemoryCache(
         string key = GraphSnapshotProjectionCacheKeys.Projection(scope, runId, graphSnapshotId);
 
         if (_memoryCache.TryGetValue(key, out object? boxed) && boxed is GraphSnapshot typed)
+        {
+            ArchLucidInstrumentation.RecordGraphProjectionCacheHit();
             return typed;
+        }
+
+        ArchLucidInstrumentation.RecordGraphProjectionCacheMiss();
 
         GraphSnapshot? created = await loadFromStore(cancellationToken);
 

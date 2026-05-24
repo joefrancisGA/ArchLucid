@@ -801,6 +801,11 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<PolicyPackCorpusIndexer>();
         services.AddHostedService<PolicyPackCorpusStartupIndexerHostedService>();
 
+        services.Configure<PlatformDocCorpusIndexerOptions>(configuration.GetSection(PlatformDocCorpusIndexerOptions.SectionPath));
+        services.AddSingleton<PlatformDocCorpusIndexer>();
+        services.AddHostedService<PlatformDocCorpusStartupIndexerHostedService>();
+        services.AddSingleton<IAzureRetailPriceStructuredLookup, InMemoryAzureRetailPriceStructuredLookup>();
+
         string? embedDeployment = configuration["AzureOpenAI:EmbeddingDeploymentName"];
         string? endpoint = configuration["AzureOpenAI:Endpoint"];
         string? apiKey = configuration["AzureOpenAI:ApiKey"];

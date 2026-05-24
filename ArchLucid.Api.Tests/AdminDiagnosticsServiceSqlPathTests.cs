@@ -5,6 +5,7 @@ using ArchLucid.Api.Services.Admin;
 using ArchLucid.Api.Tests.Support;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Host.Core.Configuration;
@@ -688,7 +689,17 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
             connectionFactory,
             Options.Create(options),
             Options.Create(new IntegrationEventsOptions()),
+            CacheTelemetryProvider(),
             actor.Object,
             auditService);
+    }
+
+    private static ICacheTelemetrySnapshotProvider CacheTelemetryProvider()
+    {
+        Mock<ICacheTelemetrySnapshotProvider> cacheTelemetry = new();
+
+        _ = cacheTelemetry.Setup(c => c.GetSnapshot()).Returns(new CacheTelemetrySnapshot());
+
+        return cacheTelemetry.Object;
     }
 }

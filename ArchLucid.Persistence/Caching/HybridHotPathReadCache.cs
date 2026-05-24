@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Serialization;
 
@@ -40,11 +41,16 @@ public sealed class HybridHotPathReadCache(
 
         HybridCacheEntryOptions entryOptions = ResolveEntryOptions(absoluteExpirationSecondsOverride);
 
+        int factoryInvoked = 0;
+
         HotPathWireEnvelope envelope = await _hybridCache
             .GetOrCreateAsync(
                 key,
                 async innerCt =>
                 {
+                    Interlocked.Exchange(ref factoryInvoked, 1);
+                    ArchLucidInstrumentation.RecordHotPathReadCacheMiss();
+
                     T? created = await factory(innerCt);
 
                     if (created is null)
@@ -57,6 +63,9 @@ public sealed class HybridHotPathReadCache(
                 entryOptions,
                 cancellationToken: ct)
             .ConfigureAwait(false);
+
+        if (factoryInvoked == 0)
+            ArchLucidInstrumentation.RecordHotPathReadCacheHit();
 
         if (!envelope.HasValue)
             return null;

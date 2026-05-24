@@ -92,6 +92,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
                     manifest,
                     artifacts,
                     graph,
+                    findings,
                     ct);
 
                 await outbox.MarkProcessedAsync(entry.OutboxId, ct);

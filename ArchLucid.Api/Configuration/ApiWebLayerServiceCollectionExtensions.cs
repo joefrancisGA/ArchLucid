@@ -11,9 +11,11 @@ using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Import;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Integrations.AzureExtractor;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Services.Governance;
+using ArchLucid.KnowledgeGraph.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace ArchLucid.Api.Configuration;
@@ -45,6 +47,16 @@ public static class ApiWebLayerServiceCollectionExtensions
         }
 
         services.AddScoped<IAdminDiagnosticsService, AdminDiagnosticsService>();
+        services.AddSingleton<ICacheTelemetrySnapshotProvider>(static sp =>
+        {
+            IOptionsMonitor<KnowledgeGraphProjectionCacheOptions>? projectionOptions =
+                sp.GetService<IOptionsMonitor<KnowledgeGraphProjectionCacheOptions>>();
+
+            if (projectionOptions is null)
+                return new CacheTelemetrySnapshotProvider();
+
+            return new CacheTelemetrySnapshotProvider(() => projectionOptions.CurrentValue.Enabled);
+        });
         services.AddScoped<IAdminApiKeySettingsService, AdminApiKeySettingsService>();
         services.AddHttpClient<IOidcWellKnownDiagnosticsService, OidcWellKnownDiagnosticsService>(static client =>
         {

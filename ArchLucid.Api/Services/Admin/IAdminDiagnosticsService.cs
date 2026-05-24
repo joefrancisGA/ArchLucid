@@ -4,6 +4,7 @@ using ArchLucid.Persistence.Models;
 
 using ArchLucid.Contracts.Admin;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Diagnostics;
 
 using Microsoft.Extensions.Options;
 
@@ -82,4 +83,7 @@ public interface IAdminDiagnosticsService
     ///     Aggregate-only usage counters across tenants from SQL (<c>dbo.Runs</c>) — no per-tenant breakdown.
     /// </summary>
     Task<CrossTenantUsageRollup> GetCrossTenantUsageRollupAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>Process-life cache hit/miss counters for hot-path, explanation, LLM completion, and graph projection caches.</summary>
+    Task<AdminCacheDiagnosticsResponse> GetCacheDiagnosticsAsync(CancellationToken cancellationToken = default);
 }

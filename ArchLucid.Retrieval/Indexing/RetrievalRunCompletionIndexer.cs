@@ -1,6 +1,7 @@
 using System.Diagnostics;
 
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Provenance;
@@ -47,6 +48,18 @@ public sealed class RetrievalRunCompletionIndexer(
             projectId,
             manifest.RunId,
             provenanceGraph));
+
+        if (findingsSnapshot?.Findings is { Count: > 0 })
+        {
+            retrievalDocuments.AddRange(PriorManifestRetrievalDocumentBuilder.BuildFromFindings(
+                tenantId,
+                workspaceId,
+                projectId,
+                manifest.RunId,
+                manifest.ManifestId,
+                findingsSnapshot.Findings,
+                findingsSnapshot.CreatedUtc));
+        }
 
         await indexingService.IndexDocumentsAsync(retrievalDocuments, ct);
     }

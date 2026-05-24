@@ -7,9 +7,11 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Retrieval.Compliance;
+using ArchLucid.Retrieval.Evaluation;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -71,7 +73,8 @@ public sealed class ComplianceAgentHandler(
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
 
         string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task);
-        baseUserPrompt = await AppendPolicyPackRetrievalAsync(request, baseUserPrompt, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<RetrievalHit> policyPackHits = [];
+        (baseUserPrompt, policyPackHits) = await AppendPolicyPackRetrievalAsync(request, baseUserPrompt, cancellationToken).ConfigureAwait(false);
 
         string lastCompletionJson = string.Empty;
 
@@ -96,6 +99,7 @@ public sealed class ComplianceAgentHandler(
             lastCompletionJson = rawJson;
 
             string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
+            RecordRetrievalFaithfulness(policyPackHits, parsedJson);
 
             AgentCompletionTokenUsage.TryConsume(out int? inTok, out int? outTok, out int? reasoningTok);
             AgentCompletionModelMetadata.TryConsume(out string? modelDeploy, out string? modelVer);
@@ -190,7 +194,7 @@ public sealed class ComplianceAgentHandler(
         return sb.ToString();
     }
 
-    private async Task<string> AppendPolicyPackRetrievalAsync(
+    private async Task<(string Prompt, IReadOnlyList<RetrievalHit> Hits)> AppendPolicyPackRetrievalAsync(
         ArchitectureRequest request,
         string baseUserPrompt,
         CancellationToken cancellationToken)
@@ -220,8 +224,9 @@ public sealed class ComplianceAgentHandler(
             }
 
             string block = CompliancePolicyPackRetrievalPromptFormatter.FormatPolicyPackBlock(hits);
+            string prompt = baseUserPrompt.TrimEnd() + "\n\n" + block + "\n";
 
-            return baseUserPrompt.TrimEnd() + "\n\n" + block + "\n";
+            return (prompt, hits);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -233,8 +238,21 @@ public sealed class ComplianceAgentHandler(
                     scope.TenantId);
             }
 
-            return baseUserPrompt.TrimEnd()
+            string prompt = baseUserPrompt.TrimEnd()
                 + "\n\nPolicy Pack Controls (retrieved — cite ruleId when referencing):\n(none retrieved — grounding unavailable)\n";
+
+            return (prompt, []);
         }
+    }
+
+    private static void RecordRetrievalFaithfulness(IReadOnlyList<RetrievalHit> hits, string agentOutputText)
+    {
+        if (hits.Count == 0)
+            return;
+
+        RetrievalFaithfulnessReport report =
+            RetrievalFaithfulnessEvaluator.Evaluate(hits, agentOutputText);
+
+        ArchLucidInstrumentation.RecordRetrievalFaithfulnessRatio(report.SupportRatio);
     }
 }

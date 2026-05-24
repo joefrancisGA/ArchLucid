@@ -58,15 +58,21 @@ public sealed class CachingRunExplanationSummaryService(
 
         string key = $"explanation:aggregate:{runId}:{Convert.ToHexString(rowVersion)}";
 
+        int factoryInvoked = 0;
+
         RunExplanationSummary? summary = await _cache.GetOrCreateAsync(
             key,
             async innerCt =>
             {
-                ArchLucidInstrumentation.ExplanationCacheMisses.Add(1);
+                Interlocked.Exchange(ref factoryInvoked, 1);
+                ArchLucidInstrumentation.RecordExplanationCacheMiss();
 
                 return await _inner.GetSummaryAsync(scope, runId, innerCt);
             },
             ct);
+
+        if (factoryInvoked == 0)
+            ArchLucidInstrumentation.RecordExplanationCacheHit();
 
         return summary;
     }

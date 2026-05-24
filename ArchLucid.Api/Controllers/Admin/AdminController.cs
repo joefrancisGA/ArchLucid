@@ -219,6 +219,18 @@ public sealed class AdminController(
         return Ok(rollup);
     }
 
+    /// <summary>Process-life cache hit/miss counters for operator observability.</summary>
+    [HttpGet("diagnostics/caches")]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    [ProducesResponseType(typeof(AdminCacheDiagnosticsResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCacheDiagnostics(CancellationToken cancellationToken = default)
+    {
+        AdminCacheDiagnosticsResponse response =
+            await _diagnostics.GetCacheDiagnosticsAsync(cancellationToken);
+
+        return Ok(response);
+    }
+
     /// <summary>Effective state of the async authority pipeline feature flag.</summary>
     [HttpGet("features/async-authority-pipeline")]
     [ProducesResponseType(typeof(AsyncAuthorityPipelineFeatureState), StatusCodes.Status200OK)]

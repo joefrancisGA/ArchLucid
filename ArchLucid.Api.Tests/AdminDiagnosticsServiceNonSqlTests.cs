@@ -3,7 +3,9 @@ using System.Text.Json;
 
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Application.Common;
+using ArchLucid.Contracts.Admin;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Coordination.Retrieval;
@@ -23,6 +25,54 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class AdminDiagnosticsServiceNonSqlTests
 {
+    [Fact]
+    public async Task GetCacheDiagnosticsAsync_returns_snapshot_from_provider()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+        Mock<ICacheTelemetrySnapshotProvider> cacheTelemetry = new();
+
+        CacheTelemetrySnapshot snapshot = new()
+        {
+            HotPathReadCacheHits = 11,
+            HotPathReadCacheMisses = 4,
+            ExplanationCacheHits = 6,
+            ExplanationCacheMisses = 2,
+            LlmCompletionCacheHits = 30,
+            LlmCompletionCacheMisses = 5,
+            GraphProjectionCacheHits = 7,
+            GraphProjectionCacheMisses = 1,
+            GraphProjectionCacheEnabled = false,
+        };
+
+        _ = cacheTelemetry.Setup(c => c.GetSnapshot()).Returns(snapshot);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(
+            factory,
+            SqlOptions(),
+            audit,
+            actor,
+            cacheTelemetry.Object,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _);
+
+        AdminCacheDiagnosticsResponse response = await sut.GetCacheDiagnosticsAsync(CancellationToken.None);
+
+        Assert.Equal(snapshot.HotPathReadCacheHits, response.HotPathReadCacheHits);
+        Assert.Equal(snapshot.HotPathReadCacheMisses, response.HotPathReadCacheMisses);
+        Assert.Equal(snapshot.ExplanationCacheHits, response.ExplanationCacheHits);
+        Assert.Equal(snapshot.ExplanationCacheMisses, response.ExplanationCacheMisses);
+        Assert.Equal(snapshot.LlmCompletionCacheHits, response.LlmCompletionCacheHits);
+        Assert.Equal(snapshot.LlmCompletionCacheMisses, response.LlmCompletionCacheMisses);
+        Assert.Equal(snapshot.GraphProjectionCacheHits, response.GraphProjectionCacheHits);
+        Assert.Equal(snapshot.GraphProjectionCacheMisses, response.GraphProjectionCacheMisses);
+        Assert.Equal(snapshot.GraphProjectionCacheEnabled, response.GraphProjectionCacheEnabled);
+    }
+
     [Fact]
     public async Task GetOutboxSnapshotAsync_aggregates_repository_counts()
     {
@@ -664,6 +714,31 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         out Mock<IHostLeaderLeaseRepository> hostLeases,
         out Mock<IRunRepository> runRepository)
     {
+        return CreateDiagnosticsService(
+            connectionFactory,
+            archLucidOptions,
+            audit,
+            actor,
+            CacheTelemetryProvider(),
+            out authority,
+            out retrieval,
+            out integration,
+            out hostLeases,
+            out runRepository);
+    }
+
+    private static AdminDiagnosticsService CreateDiagnosticsService(
+        Mock<IDbConnectionFactory> connectionFactory,
+        IOptions<ArchLucidOptions> archLucidOptions,
+        Mock<IAuditService> audit,
+        Mock<IActorContext> actor,
+        ICacheTelemetrySnapshotProvider cacheTelemetrySnapshotProvider,
+        out Mock<IAuthorityPipelineWorkRepository> authority,
+        out Mock<IRetrievalIndexingOutboxRepository> retrieval,
+        out Mock<IIntegrationEventOutboxRepository> integration,
+        out Mock<IHostLeaderLeaseRepository> hostLeases,
+        out Mock<IRunRepository> runRepository)
+    {
         authority = new Mock<IAuthorityPipelineWorkRepository>();
         retrieval = new Mock<IRetrievalIndexingOutboxRepository>();
         integration = new Mock<IIntegrationEventOutboxRepository>();
@@ -679,7 +754,28 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             connectionFactory.Object,
             archLucidOptions,
             Options.Create(new IntegrationEventsOptions()),
+            cacheTelemetrySnapshotProvider,
             actor.Object,
             audit.Object);
+    }
+
+    private static ICacheTelemetrySnapshotProvider CacheTelemetryProvider()
+    {
+        Mock<ICacheTelemetrySnapshotProvider> cacheTelemetry = new();
+
+        _ = cacheTelemetry.Setup(c => c.GetSnapshot()).Returns(new CacheTelemetrySnapshot
+        {
+            HotPathReadCacheHits = 10,
+            HotPathReadCacheMisses = 2,
+            ExplanationCacheHits = 5,
+            ExplanationCacheMisses = 1,
+            LlmCompletionCacheHits = 20,
+            LlmCompletionCacheMisses = 3,
+            GraphProjectionCacheHits = 4,
+            GraphProjectionCacheMisses = 0,
+            GraphProjectionCacheEnabled = true,
+        });
+
+        return cacheTelemetry.Object;
     }
 }
