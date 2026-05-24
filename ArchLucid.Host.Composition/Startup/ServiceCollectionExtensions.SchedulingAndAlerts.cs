@@ -10,6 +10,7 @@ using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Decisioning.Alerts.Tuning;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Host.Composition.Alerts;
 using ArchLucid.Decisioning.Governance.Resolution;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination.Retrieval;
@@ -229,15 +230,20 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAlertDeliveryChannel, AlertOnCallWebhookDeliveryChannel>();
         services.AddScoped<IAlertDeliveryDispatcher, AlertDeliveryDispatcher>();
         services.AddScoped<ArchLucid.Core.Alerts.IAlertService, AlertService>();
+        services.AddScoped<ArchLucid.Decisioning.Alerts.IAlertService>(static sp =>
+            new AlertServiceDecisioningPortAdapter(sp.GetRequiredService<ArchLucid.Core.Alerts.IAlertService>()));
 
         services.AddScoped<ArchLucid.Core.Alerts.Composite.IAlertMetricSnapshotBuilder, AlertMetricSnapshotBuilder>();
         services.AddScoped<ArchLucid.Core.Alerts.Composite.ICompositeAlertRuleEvaluator, CompositeAlertRuleEvaluator>();
         services.AddScoped<ArchLucid.Core.Alerts.Composite.IAlertSuppressionPolicy, AlertSuppressionPolicy>();
         services.AddScoped<ArchLucid.Core.Alerts.Composite.ICompositeAlertService, CompositeAlertService>();
+        services.AddScoped<ArchLucid.Decisioning.Alerts.Composite.ICompositeAlertService>(static sp =>
+            new CompositeAlertServiceDecisioningPortAdapter(sp.GetRequiredService<ArchLucid.Core.Alerts.Composite.ICompositeAlertService>()));
 
         services.AddScoped<ArchLucid.Core.Alerts.Simulation.IAlertSimulationContextProvider, AlertSimulationContextProvider>();
         services.AddScoped<ArchLucid.Core.Alerts.Simulation.IRuleSimulationService, RuleSimulationService>();
-        services.AddScoped<ArchLucid.Decisioning.Alerts.Simulation.IRuleSimulationService>(sp => (ArchLucid.Decisioning.Alerts.Simulation.IRuleSimulationService)sp.GetRequiredService<ArchLucid.Core.Alerts.Simulation.IRuleSimulationService>());
+        services.AddScoped<ArchLucid.Decisioning.Alerts.Simulation.IRuleSimulationService>(static sp =>
+            new RuleSimulationServiceDecisioningPortAdapter(sp.GetRequiredService<ArchLucid.Core.Alerts.Simulation.IRuleSimulationService>()));
 
         services.AddScoped<IAlertNoiseScorer, AlertNoiseScorer>();
         services.AddScoped<IThresholdRecommendationService, ThresholdRecommendationService>();
@@ -248,6 +254,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<EffectiveGovernanceLoader>();
         services.AddScoped<ArchLucid.Core.Persistence.Ports.IEffectiveGovernanceLoader>(static sp =>
             new RequestScopedCachingEffectiveGovernanceLoader(sp.GetRequiredService<EffectiveGovernanceLoader>()));
+        services.AddScoped<ArchLucid.Decisioning.Governance.PolicyPacks.IEffectiveGovernanceLoader>(static sp =>
+            (ArchLucid.Decisioning.Governance.PolicyPacks.IEffectiveGovernanceLoader)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IEffectiveGovernanceLoader>());
         services.AddScoped<IPolicyPacksAppService, PolicyPacksAppService>();
         services.AddScoped<IPolicyPackCatalogAdminService, PolicyPackCatalogAdminService>();
     }

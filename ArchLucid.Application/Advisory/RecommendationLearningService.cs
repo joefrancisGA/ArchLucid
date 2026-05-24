@@ -1,6 +1,5 @@
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Workflow;
-using ArchLucid.Persistence.Advisory;
 
 namespace ArchLucid.Application.Advisory;
 

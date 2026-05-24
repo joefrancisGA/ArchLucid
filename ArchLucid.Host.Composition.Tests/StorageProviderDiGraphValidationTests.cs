@@ -1,3 +1,4 @@
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Composition.Startup;
@@ -37,6 +38,49 @@ public sealed class StorageProviderDiGraphValidationTests
         };
 
         act.Should().NotThrow();
+    }
+
+    /// <summary>
+    ///     Phase 2e moved pipeline/advisory consumers onto Core persistence ports while Decisioning kept compatibility
+    ///     stubs. Both surfaces must resolve from the same scoped implementation graph (OpenAPI host startup).
+    /// </summary>
+    [Fact]
+    public void InMemory_storage_resolves_core_and_decisioning_port_compatibility_services()
+    {
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true
+        });
+
+        using IServiceScope scope = provider.CreateScope();
+
+        scope.ServiceProvider.GetRequiredService<IFindingsSnapshotEvaluationConfidenceEnricher>().Should().NotBeNull();
+        scope.ServiceProvider
+            .GetRequiredService<ArchLucid.Decisioning.Advisory.Services.IImprovementAdvisorService>()
+            .Should()
+            .NotBeNull();
+        scope.ServiceProvider
+            .GetRequiredService<ArchLucid.Decisioning.Advisory.Learning.IRecommendationLearningService>()
+            .Should()
+            .NotBeNull();
+        scope.ServiceProvider
+            .GetRequiredService<ArchLucid.Decisioning.Alerts.Simulation.IRuleSimulationService>()
+            .Should()
+            .NotBeNull();
+        scope.ServiceProvider
+            .GetRequiredService<ArchLucid.Decisioning.Alerts.IAlertService>()
+            .Should()
+            .NotBeNull();
+        scope.ServiceProvider
+            .GetRequiredService<ArchLucid.Decisioning.Governance.PolicyPacks.IEffectiveGovernanceLoader>()
+            .Should()
+            .NotBeNull();
     }
 
     /// <summary>

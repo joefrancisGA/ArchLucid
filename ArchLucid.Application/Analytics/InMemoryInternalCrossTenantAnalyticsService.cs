@@ -1,5 +1,4 @@
 using ArchLucid.Core.Analytics;
-using ArchLucid.Persistence.Analytics;
 
 namespace ArchLucid.Application.Analytics;
 

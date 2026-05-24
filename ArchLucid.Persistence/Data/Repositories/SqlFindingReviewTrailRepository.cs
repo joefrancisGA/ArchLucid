@@ -1,5 +1,5 @@
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Persistence.Connections;
-using ArchLucid.Persistence.Models;
 
 using Dapper;
 

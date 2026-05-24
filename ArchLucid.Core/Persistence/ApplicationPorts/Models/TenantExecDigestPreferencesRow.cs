@@ -1,6 +1,6 @@
 namespace ArchLucid.Persistence.Models;
 
-internal sealed class TenantExecDigestPreferencesRow
+public sealed class TenantExecDigestPreferencesRow
 {
     public Guid TenantId
     {

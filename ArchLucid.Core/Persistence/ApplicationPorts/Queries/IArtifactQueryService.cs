@@ -1,4 +1,5 @@
-﻿using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Contracts.Persistence.Artifacts;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Queries;
 

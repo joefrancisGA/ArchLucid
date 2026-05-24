@@ -4,9 +4,9 @@ using ArchLucid.Persistence.Models;
 namespace ArchLucid.Persistence.Queries;
 
 /// <summary>Projects simulator fallback + LLM resource fallback (from traces) onto run query DTOs.</summary>
-internal static class RunExecutionDegradation
+public static class RunExecutionDegradation
 {
-    internal static async Task PopulateSummariesAsync(
+    public static async Task PopulateSummariesAsync(
         IReadOnlyList<RunSummaryDto> summaries,
         IReadOnlyList<RunRecord> runs,
         IAgentExecutionTraceRepository traceRepository,
@@ -41,7 +41,7 @@ internal static class RunExecutionDegradation
         }
     }
 
-    internal static void Apply(RunSummaryDto dto, RunRecord run, IReadOnlyList<string> llmFallbackAgentTypes)
+    public static void Apply(RunSummaryDto dto, RunRecord run, IReadOnlyList<string> llmFallbackAgentTypes)
     {
         ArgumentNullException.ThrowIfNull(dto);
 
@@ -49,7 +49,7 @@ internal static class RunExecutionDegradation
             ComputeDegradation(run, llmFallbackAgentTypes);
     }
 
-    internal static void Apply(RunDetailDto dto, RunRecord run, IReadOnlyList<string> llmFallbackAgentTypes)
+    public static void Apply(RunDetailDto dto, RunRecord run, IReadOnlyList<string> llmFallbackAgentTypes)
     {
         ArgumentNullException.ThrowIfNull(dto);
 

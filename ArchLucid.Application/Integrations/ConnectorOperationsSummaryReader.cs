@@ -6,7 +6,6 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Decisioning.Alerts.Delivery;
-using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Integrations;
 

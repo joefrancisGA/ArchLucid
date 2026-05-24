@@ -1,6 +1,6 @@
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.Governance.FindingReview;
 

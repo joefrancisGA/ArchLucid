@@ -1,9 +1,8 @@
-using ArchLucid.Core.Analytics;
 using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Persistence.Analytics;
+namespace ArchLucid.Core.Analytics;
 
 /// <summary>Builds pseudonymized daily rollup rows and persists them to the system catalog.</summary>
 public sealed class InternalCrossTenantRollupProcessor(

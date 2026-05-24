@@ -16,6 +16,7 @@ using ArchLucid.Persistence;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Coordination.Replay;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Repositories;
 using ArchLucid.Retrieval.Queries;
 using ArchLucid.TestSupport;
 
@@ -296,7 +297,7 @@ public sealed class DependencyConstraintTests
     [Trait("Category", "Unit")]
     public void Persistence_must_not_depend_on_Retrieval()
     {
-        Assembly persistence = typeof(IRunRepository).Assembly;
+        Assembly persistence = typeof(SqlRunRepository).Assembly;
 
         TestResult result = Types
             .InAssembly(persistence)
@@ -600,7 +601,7 @@ public sealed class DependencyConstraintTests
     [Trait("Category", "Unit")]
     public void Persistence_must_not_depend_on_Decisioning()
     {
-        Assembly persistence = typeof(IRunRepository).Assembly;
+        Assembly persistence = typeof(SqlRunRepository).Assembly;
 
         TestResult result = Types
             .InAssembly(persistence)
@@ -618,7 +619,7 @@ public sealed class DependencyConstraintTests
     [Trait("Category", "Unit")]
     public void Persistence_must_not_depend_on_ArtifactSynthesis()
     {
-        Assembly persistence = typeof(IRunRepository).Assembly;
+        Assembly persistence = typeof(SqlRunRepository).Assembly;
 
         TestResult result = Types
             .InAssembly(persistence)
@@ -636,7 +637,7 @@ public sealed class DependencyConstraintTests
     [Trait("Category", "Unit")]
     public void Persistence_must_not_depend_on_ContextIngestion()
     {
-        Assembly persistence = typeof(IRunRepository).Assembly;
+        Assembly persistence = typeof(SqlRunRepository).Assembly;
 
         TestResult result = Types
             .InAssembly(persistence)
@@ -654,7 +655,7 @@ public sealed class DependencyConstraintTests
     [Trait("Category", "Unit")]
     public void Persistence_must_not_depend_on_KnowledgeGraph()
     {
-        Assembly persistence = typeof(IRunRepository).Assembly;
+        Assembly persistence = typeof(SqlRunRepository).Assembly;
 
         TestResult result = Types
             .InAssembly(persistence)
@@ -672,7 +673,7 @@ public sealed class DependencyConstraintTests
     [Trait("Category", "Unit")]
     public void Persistence_must_not_depend_on_Provenance()
     {
-        Assembly persistence = typeof(IRunRepository).Assembly;
+        Assembly persistence = typeof(SqlRunRepository).Assembly;
 
         TestResult result = Types
             .InAssembly(persistence)
@@ -690,7 +691,7 @@ public sealed class DependencyConstraintTests
     [Trait("Category", "Unit")]
     public void Persistence_must_not_depend_on_Notifications()
     {
-        Assembly persistence = typeof(IRunRepository).Assembly;
+        Assembly persistence = typeof(SqlRunRepository).Assembly;
 
         TestResult result = Types
             .InAssembly(persistence)
@@ -716,7 +717,7 @@ public sealed class DependencyConstraintTests
             because: "Application must not reference Integrations.AzureExtractor directly; use ports in Contracts.");
     }
 
-    [Fact(Skip = "pending #33 Persistence port extraction")]
+    [Fact]
     [Trait("Suite", "Core")]
     [Trait("Category", "Unit")]
     public void Application_must_not_reference_Persistence_assembly()
@@ -798,7 +799,7 @@ public sealed class DependencyConstraintTests
             FormatFailingTypeNames(result));
     }
 
-    [Fact(Skip = "pending #33 Persistence port extraction")]
+    [Fact]
     [Trait("Suite", "Core")]
     [Trait("Category", "Unit")]
     public void AgentRuntime_must_not_reference_Persistence_assembly()

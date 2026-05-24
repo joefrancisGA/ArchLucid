@@ -1,5 +1,4 @@
-using ArchLucid.Persistence.Models;
-
+using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 

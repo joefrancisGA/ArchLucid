@@ -3,6 +3,7 @@ using ArchLucid.Api.Health;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.Startup;
+using ArchLucid.Api.Services;
 using ArchLucid.Api.Services.Billing;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Api.Services.Evolution;
@@ -17,6 +18,7 @@ using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Services.Governance;
 using ArchLucid.KnowledgeGraph.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Configuration;
 

@@ -17,7 +17,6 @@ using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
