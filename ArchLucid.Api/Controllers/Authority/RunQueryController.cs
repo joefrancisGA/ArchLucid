@@ -448,8 +448,8 @@ public sealed class RunQueryController(
     }
 
     /// <summary>
-    ///     Returns a page of <see cref="AgentExecutionTrace" /> rows for <paramref name="runId" /> (prompt/response audit
-    ///     trail).
+    ///     Returns a page of cross-context <see cref="AgentExecutionTraceSummary" /> rows for
+    ///     <paramref name="runId" /> (token/cost/parse metadata; full prompts remain in persisted <c>TraceJson</c>).
     /// </summary>
     [HttpGet("run/{runId}/traces")]
     [ProducesResponseType(typeof(AgentExecutionTraceResponse), StatusCodes.Status200OK)]
@@ -487,7 +487,7 @@ public sealed class RunQueryController(
 
         return Ok(new AgentExecutionTraceResponse
         {
-            Traces = pagedTraces.ToList(),
+            Traces = pagedTraces.Select(AgentExecutionTraceSummary.FromTrace).ToList(),
             TotalCount = totalCount,
             PageNumber = paging.PageNumber,
             PageSize = paging.PageSize

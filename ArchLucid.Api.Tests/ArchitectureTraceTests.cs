@@ -36,8 +36,7 @@ public sealed class ArchitectureTraceTests(ArchLucidApiFactory factory) : Integr
             await tracesResponse.Content.ReadFromJsonAsync<AgentExecutionTraceResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Traces.Should().NotBeEmpty();
-        payload.Traces.Should().Contain(t => !string.IsNullOrWhiteSpace(t.SystemPrompt));
-        payload.Traces.Should().Contain(t => !string.IsNullOrWhiteSpace(t.UserPrompt));
-        payload.Traces.Should().Contain(t => !string.IsNullOrWhiteSpace(t.RawResponse));
+        payload.Traces.Should().Contain(t => !string.IsNullOrWhiteSpace(t.TraceId));
+        payload.Traces.Should().Contain(t => t.ParseSucceeded);
     }
 }

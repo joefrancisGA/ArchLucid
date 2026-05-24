@@ -11,6 +11,14 @@ namespace ArchLucid.Core.Manifest.Mapping;
 ///     Maps a coordinator-shaped <see cref="Cm.GoldenManifest" /> into an authority
 ///     <see cref="ManifestDocument" /> for persistence.
 /// </summary>
+/// <remarks>
+///     <para>
+///         <strong>Naming:</strong> <c>GoldenManifest</c> (Contracts coordinator DTO) is the wire/snapshot shape produced
+///         by the coordinator pipeline; <see cref="ManifestDocument" /> is the authority persistence model written to
+///         <c>dbo.GoldenManifests</c>. Both represent the same committed manifest at different layer boundaries — not
+///         two competing sources of truth.
+///     </para>
+/// </remarks>
 public static class ContractGoldenManifestMapper
 {
     public static ManifestDocument ToAuthorityModel(
