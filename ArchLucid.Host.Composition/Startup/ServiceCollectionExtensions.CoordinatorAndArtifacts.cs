@@ -62,6 +62,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IRecommendationLearningAnalyzer, RecommendationLearningAnalyzer>();
         services.AddSingleton<IRecommendationGenerator, RecommendationGenerator>();
         services.AddScoped<ArchLucid.Core.Persistence.Ports.IImprovementAdvisorService, ImprovementAdvisorService>();
+        services.AddScoped<ArchLucid.Decisioning.Advisory.Services.IImprovementAdvisorService>(sp => (ArchLucid.Decisioning.Advisory.Services.IImprovementAdvisorService)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IImprovementAdvisorService>());
         services.Configure<ExplanationServiceOptions>(
             configuration.GetSection(ExplanationServiceOptions.SectionPath));
         services.Configure<RunExplanationAggregateOptions>(

@@ -61,6 +61,31 @@ function Write-Utf8NoBom([string] $Path, [string] $Content)
     [System.IO.File]::WriteAllText($Path, $Content, [System.Text.UTF8Encoding]::new($false))
 }
 
+function Write-ArchLucidResourcesJsonStream([string] $Path, $Resources)
+{
+    $writer = New-Object System.IO.StreamWriter($Path, $false, [System.Text.UTF8Encoding]::new($false))
+
+    try {
+        $writer.Write('[')
+        $first = $true
+
+        foreach ($resource in @($Resources)) {
+            if (-not $first) {
+                $writer.Write(',')
+            }
+
+            $first = $false
+            $json = $resource | ConvertTo-Json -Depth 10 -Compress
+            $writer.Write($json)
+        }
+
+        $writer.Write(']')
+    }
+    finally {
+        $writer.Dispose()
+    }
+}
+
 function New-ArchLucidCollectedArmResourceRecord([object] $AzResource)
 {
     if ($null -eq $AzResource) { throw [System.ArgumentNullException]::new("AzResource") }
@@ -332,7 +357,7 @@ try
     $manifestPath = Join-Path $staging "manifest.json"
     $resourcesPath = Join-Path $staging "resources.json"
     Write-Utf8NoBom $manifestPath ($manifest | ConvertTo-Json -Depth 10)
-    Write-Utf8NoBom $resourcesPath ($resources | ConvertTo-Json -Depth 10)
+    Write-ArchLucidResourcesJsonStream -Path $resourcesPath -Resources $resources
 
     $policyCompliancePath = Join-Path $staging "policy-compliance.json"
 

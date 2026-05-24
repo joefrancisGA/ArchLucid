@@ -678,6 +678,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             runRepository.Object,
             connectionFactory.Object,
             archLucidOptions,
+            Options.Create(new IntegrationEventsOptions()),
             actor.Object,
             audit.Object);
     }

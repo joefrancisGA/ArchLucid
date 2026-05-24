@@ -17,4 +17,7 @@ public interface IExecutiveRoiSummaryService
 
     /// <summary>Monthly executive ROI snapshots for trend charts (last six months).</summary>
     Task<ExecutiveRoiHistoryResponse> BuildHistoryAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>Deduplicated finding rows and environment savings slices for CSV export and charts.</summary>
+    Task<ExecutiveRoiExportResponse> BuildExportAsync(CancellationToken cancellationToken = default);
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
 import { Button } from "@/components/ui/button";
@@ -11,10 +11,13 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import { showError, showSuccess } from "@/lib/toast";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { ApiV1Routes } from "@/lib/api-v1-routes";
 
 const EXTRACTOR_SCRIPT_CDN_URL =
   process.env.NEXT_PUBLIC_EXTRACTOR_SCRIPT_CDN_URL?.trim() ||
   "https://cdn.archlucid.net/scripts/Get-ArchLucidAzurePackage.ps1";
+
+const EXTRACTOR_SCRIPT_VERSION_PATTERN = /\$scriptVersion\s*=\s*"([^"]+)"/;
 
 /**
  * Guided Extract & Upload settings page — PowerShell script, validate hint, and server ZIP upload.
@@ -28,6 +31,48 @@ export function ExtractUploadSettingsPageClient() {
     correlationId: string | null;
   } | null>(null);
   const [packageId, setPackageId] = useState<string | null>(null);
+  const [extractorUpdateBanner, setExtractorUpdateBanner] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const [baselineResponse, scriptResponse] = await Promise.all([
+          fetch(
+            `/api/proxy/${ApiV1Routes.tenantWorkspaceBaselineArtifacts}`,
+            mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" }),
+          ),
+          fetch(EXTRACTOR_SCRIPT_CDN_URL, { cache: "no-store" }),
+        ]);
+
+        if (!baselineResponse.ok || !scriptResponse.ok || cancelled) {
+          return;
+        }
+
+        const baseline = (await baselineResponse.json()) as { extractorScriptVersion?: string | null };
+        const scriptText = await scriptResponse.text();
+        const match = EXTRACTOR_SCRIPT_VERSION_PATTERN.exec(scriptText);
+        const latestVersion = match?.[1]?.trim();
+
+        if (!latestVersion || !baseline.extractorScriptVersion) {
+          return;
+        }
+
+        if (baseline.extractorScriptVersion !== latestVersion) {
+          setExtractorUpdateBanner(
+            `Your last uploaded ZIP used extractor script v${baseline.extractorScriptVersion}. v${latestVersion} is available — download the updated script for improved coverage.`,
+          );
+        }
+      } catch {
+        // Banner is optional; ignore fetch failures.
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function onUpload(file: File) {
     setBusy(true);
@@ -83,6 +128,15 @@ export function ExtractUploadSettingsPageClient() {
           Run the read-only Azure extractor locally, validate the ZIP, then upload it for architecture reviews.
         </p>
       </div>
+
+      {extractorUpdateBanner ? (
+        <div
+          className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"
+          data-testid="extractor-version-banner"
+        >
+          {extractorUpdateBanner}
+        </div>
+      ) : null}
 
       <Card>
         <CardHeader>

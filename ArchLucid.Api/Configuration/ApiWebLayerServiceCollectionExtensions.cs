@@ -3,7 +3,7 @@ using ArchLucid.Api.Health;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.Startup;
-using ArchLucid.Api.Services;
+using ArchLucid.Api.Services.Billing;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Api.Services.Evolution;
 using ArchLucid.Api.Validators;
@@ -86,6 +86,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         });
 
         services.AddScoped<IWebhookSubscriptionTestService, WebhookSubscriptionTestService>();
+        services.AddScoped<MarketplaceWebhookConnectivityService>();
 
         services.AddHealthChecks().AddCheck<AzureServiceBusNamespaceHealthCheck>(
             "azure_service_bus",

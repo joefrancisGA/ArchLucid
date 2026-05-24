@@ -47,6 +47,13 @@ public sealed class TenantWorkspaceBaselineArtifactsController(
         bool hasBaselineArtifacts =
             await _azureExtractorPackageRepository.HasAnyInWorkspaceAsync(scope, cancellationToken);
 
-        return Ok(new TenantWorkspaceBaselineArtifactsResponse { HasBaselineArtifacts = hasBaselineArtifacts });
+        string? scriptVersion =
+            await _azureExtractorPackageRepository.TryGetLatestScriptVersionInScopeAsync(scope, cancellationToken);
+
+        return Ok(new TenantWorkspaceBaselineArtifactsResponse
+        {
+            HasBaselineArtifacts = hasBaselineArtifacts,
+            ExtractorScriptVersion = scriptVersion,
+        });
     }
 }

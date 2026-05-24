@@ -56,6 +56,34 @@ export function IntegrationEventsDlqPageClient() {
     void load();
   }, [load]);
 
+  const copyCurl = useCallback(async (outboxId: string) => {
+    try {
+      const response = await fetch(
+        `/api/proxy/v1/admin/integration-outbox/dead-letters/${encodeURIComponent(outboxId)}/curl`,
+        mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" }),
+      );
+
+      if (!response.ok) {
+        showError("Copy as cURL failed", `HTTP ${response.status}`);
+
+        return;
+      }
+
+      const body = (await response.json()) as { curlCommand?: string };
+
+      if (!body.curlCommand) {
+        showError("Copy as cURL failed", "Empty cURL payload.");
+
+        return;
+      }
+
+      await navigator.clipboard.writeText(body.curlCommand);
+      showSuccess("cURL command copied to clipboard.");
+    } catch (error: unknown) {
+      showError("Copy as cURL failed", error instanceof Error ? error.message : String(error));
+    }
+  }, []);
+
   const retry = useCallback(
     async (outboxId: string) => {
       setRetryingId(outboxId);
@@ -134,21 +162,37 @@ export function IntegrationEventsDlqPageClient() {
                         {row.lastErrorMessage ?? "—"}
                       </td>
                       <td className="py-2 align-top">
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          disabled={retryingId === row.outboxId}
-                          onClick={() => {
-                            if (row.outboxId === undefined || row.outboxId === null) {
-                              return;
-                            }
+                        <div className="flex flex-col gap-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            disabled={retryingId === row.outboxId}
+                            onClick={() => {
+                              if (row.outboxId === undefined || row.outboxId === null) {
+                                return;
+                              }
 
-                            void retry(row.outboxId);
-                          }}
-                        >
-                          {retryingId === row.outboxId ? "Retrying…" : "Retry"}
-                        </Button>
+                              void retry(row.outboxId);
+                            }}
+                          >
+                            {retryingId === row.outboxId ? "Retrying…" : "Retry"}
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              if (row.outboxId === undefined || row.outboxId === null) {
+                                return;
+                              }
+
+                              void copyCurl(row.outboxId);
+                            }}
+                          >
+                            Copy as cURL
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}

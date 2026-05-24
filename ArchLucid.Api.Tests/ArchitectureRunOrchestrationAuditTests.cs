@@ -117,6 +117,7 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             new NoOpAgentOutputTraceEvaluationHook(),
             new ArchLucid.Application.Agents.Evidence.NoOpAgentResultPostExecutionEnricher(),
             new NoOpEvidencePackageInjectionMitigator(),
+            new NoOpAgentEvidenceUntrustedInputSanitizer(),
             precheck,
             Options.Create(new AgentExecutionOptions()),
             Options.Create(new AgentOutputQualityGateOptions()),

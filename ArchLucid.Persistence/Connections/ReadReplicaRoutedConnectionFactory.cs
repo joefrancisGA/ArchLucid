@@ -48,17 +48,21 @@ public sealed class ReadReplicaRoutedConnectionFactory : IAuthorityRunListConnec
         SqlServerOptions snapshot = _optionsMonitor.CurrentValue;
         string? replica = SqlReadReplicaConnectionStringResolver.Resolve(_route, snapshot.ReadReplica);
 
-        if (string.IsNullOrEmpty(replica))
+        try
+        {
             return await _primaryResilientFactory.CreateOpenConnectionAsync(ct);
+        }
+        catch (Exception ex) when (replica is not null && SqlConnectionFailoverClassifier.IsFailoverEligible(ex))
+        {
+            return await _replicaOpenRetryPipeline.ExecuteAsync(
+                async innerCt =>
+                {
+                    SqlConnection connection = new(replica);
+                    await connection.OpenAsync(innerCt);
 
-        return await _replicaOpenRetryPipeline.ExecuteAsync(
-            async innerCt =>
-            {
-                SqlConnection connection = new(replica);
-                await connection.OpenAsync(innerCt);
-
-                return connection;
-            },
-            ct);
+                    return connection;
+                },
+                ct);
+        }
     }
 }

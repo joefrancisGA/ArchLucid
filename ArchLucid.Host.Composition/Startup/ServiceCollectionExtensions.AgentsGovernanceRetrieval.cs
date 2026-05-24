@@ -14,6 +14,8 @@ using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Agents.Evidence;
+using ArchLucid.Application.Evidence;
+using ArchLucid.AgentRuntime.PromptInjection;
 using ArchLucid.Application.Agents.IaC;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
@@ -72,7 +74,15 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAgentConfidenceCalibrationService, AgentConfidenceCalibrationService>();
         services.AddScoped<IPromptVariantStatsService, PromptVariantStatsService>();
         services.AddScoped<IAgentCuratedEvidenceProposer, AgentCuratedEvidenceProposer>();
-        services.AddScoped<IAgentResultPostExecutionEnricher, AgentResultPostExecutionEnricher>();
+        services.AddScoped<AgentResultPostExecutionEnricher>();
+        services.AddScoped<AgentResultRegionMismatchEnricher>();
+        services.AddScoped<IAgentResultPostExecutionEnricher>(static sp =>
+            new CompositeAgentResultPostExecutionEnricher(
+            [
+                sp.GetRequiredService<AgentResultPostExecutionEnricher>(),
+                sp.GetRequiredService<AgentResultRegionMismatchEnricher>(),
+            ]));
+        services.AddSingleton<IAgentEvidenceUntrustedInputSanitizer, AgentEvidenceUntrustedInputSanitizer>();
         services.AddScoped<IEvidenceProposalQueryService, EvidenceProposalQueryService>();
         services.AddScoped<IEvidenceProposalPromoter, EvidenceProposalPromoter>();
         services.Configure<AgentExecutionOptions>(configuration.GetSection(AgentExecutionOptions.SectionName));
@@ -81,7 +91,9 @@ public static partial class ServiceCollectionExtensions
         services.Configure<ArchLucidLlmOptions>(configuration.GetSection(ArchLucidLlmOptions.SectionPath));
         services.AddSingleton<IPostConfigureOptions<StagedCriticAgentOptions>,
             StagedCriticAgentOptionsNormalizePostConfigure>();
-        services.Configure<AzureOpenAiOptions>(configuration.GetSection(AzureOpenAiOptions.SectionName));
+        services.AddOptions<AzureOpenAiOptions>()
+            .Bind(configuration.GetSection(AzureOpenAiOptions.SectionName))
+            .ValidateOnStart();
         services.AddSingleton<IValidateOptions<AzureOpenAiOptions>, AzureOpenAiOptionsValidator>();
         services.Configure<ArchLucidPersistenceOptions>(
             configuration.GetSection(ArchLucidPersistenceOptions.SectionPath));
@@ -275,7 +287,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<AgentOutputReferenceCaseRunEvaluator>();
         services.AddScoped<AgentOutputEvaluationRecorder>();
         services.AddScoped<IAgentArchitectureFindingConfidenceEnricher, AgentArchitectureFindingConfidenceEnricher>();
-        services.AddScoped<IFindingsSnapshotEvaluationConfidenceEnricher, FindingsSnapshotEvaluationConfidenceEnricher>();
+        services.AddScoped<ArchLucid.Core.Persistence.Ports.IFindingsSnapshotEvaluationConfidenceEnricher, FindingsSnapshotEvaluationConfidenceEnricher>();
+        services.AddScoped<IFindingsSnapshotEvaluationConfidenceEnricher>(sp => (IFindingsSnapshotEvaluationConfidenceEnricher)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IFindingsSnapshotEvaluationConfidenceEnricher>());
         services.AddScoped<IAgentOutputTraceEvaluationHook, AgentOutputTraceEvaluationHook>();
         services.Configure<AgentResultSchemaValidationOptions>(
             configuration.GetSection(AgentResultSchemaValidationOptions.SectionPath));

@@ -188,6 +188,7 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateBlockingTests
             traceHook.Object,
             new ArchLucid.Application.Agents.Evidence.NoOpAgentResultPostExecutionEnricher(),
             new NoOpEvidencePackageInjectionMitigator(),
+            new NoOpAgentEvidenceUntrustedInputSanitizer(),
             contentSafety.Object,
             Options.Create(new AgentExecutionOptions()),
             gateOptions,

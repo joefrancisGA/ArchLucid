@@ -88,4 +88,13 @@ public sealed class IntegrationEventsOptions
         get;
         set;
     }
+
+    /// <summary>
+    ///     Optional HTTPS URL used when generating cURL replay commands for dead-lettered outbox rows in the operator UI.
+    /// </summary>
+    public string? ReplayWebhookReceiverUrl
+    {
+        get;
+        set;
+    }
 }

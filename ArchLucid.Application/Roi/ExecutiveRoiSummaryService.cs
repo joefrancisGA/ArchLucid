@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Decisioning.Interfaces;
@@ -260,6 +261,73 @@ public sealed class ExecutiveRoiSummaryService(
         return new ExecutiveRoiHistoryResponse { Points = points };
     }
 
+    /// <inheritdoc />
+    public async Task<ExecutiveRoiExportResponse> BuildExportAsync(CancellationToken cancellationToken = default)
+    {
+        Dictionary<string, RunSummary> latestBySystem = await CollectLatestCommittedRunPerSystemAsync(cancellationToken).ConfigureAwait(false);
+        List<RunSummary> selectedSummaries = latestBySystem.Values
+            .OrderByDescending(static summary => summary.CreatedUtc)
+            .Take(DefaultSystemDetailCap)
+            .ToList();
+
+        List<ExecutiveRoiExportRow> rows = [];
+        Dictionary<string, decimal> savingsByEnvironment = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (RunSummary summary in selectedSummaries)
+        {
+            ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(summary.RunId, cancellationToken).ConfigureAwait(false);
+
+            if (detail is null)
+                continue;
+
+            string systemName = ResolveSystemName(summary, detail);
+            string environment = ResolveEnvironmentLabel(detail);
+
+            IEnumerable<ArchitectureFinding> activeFindings = detail.Results
+                .SelectMany(static result => result.Findings)
+                .Where(static finding => !finding.IsMuted);
+
+            IEnumerable<ArchitectureFinding> deduped = ExecutiveRoiFindingDeduplicator.DeduplicateByStableIdentity(activeFindings);
+
+            foreach (ArchitectureFinding finding in deduped)
+            {
+                rows.Add(new ExecutiveRoiExportRow
+                {
+                    FindingId = finding.FindingId,
+                    RunId = summary.RunId,
+                    SystemName = systemName,
+                    Environment = environment,
+                    Category = NormalizeCategory(finding.Category),
+                    Severity = finding.Severity.ToString(),
+                    Title = finding.Message,
+                    AffectedResource = finding.EvidenceRefs.FirstOrDefault(),
+                    EstimatedUsdSavings = finding.EstimatedUsdSavings,
+                });
+
+                if (finding.EstimatedUsdSavings is > 0m)
+                {
+                    savingsByEnvironment.TryGetValue(environment, out decimal existing);
+                    savingsByEnvironment[environment] = existing + finding.EstimatedUsdSavings.Value;
+                }
+            }
+        }
+
+        List<ExecutiveRoiEnvironmentSavingsSlice> slices = savingsByEnvironment
+            .OrderByDescending(static pair => pair.Value)
+            .Select(static pair => new ExecutiveRoiEnvironmentSavingsSlice
+            {
+                Environment = pair.Key,
+                EstimatedUsdSavings = pair.Value,
+            })
+            .ToList();
+
+        return new ExecutiveRoiExportResponse
+        {
+            Rows = rows,
+            SavingsByEnvironment = slices,
+        };
+    }
+
     private async Task<Dictionary<string, RunSummary>> CollectLatestCommittedRunPerSystemAsync(CancellationToken cancellationToken)
     {
         Dictionary<string, RunSummary> latestBySystem = new(StringComparer.OrdinalIgnoreCase);
@@ -306,7 +374,7 @@ public sealed class ExecutiveRoiSummaryService(
         IEnumerable<ArchitectureFinding> activeFindings = allFindings.Where(static finding => !finding.IsMuted);
 
         IEnumerable<ArchitectureFinding> deduped = logger is null
-            ? DeduplicateFindingsByStableIdentity(activeFindings)
+            ? ExecutiveRoiFindingDeduplicator.DeduplicateByStableIdentity(activeFindings)
             : ExecutiveRoiFindingExclusionLogger.DeduplicateWithLogging(logger, activeFindings);
 
         return deduped
@@ -322,28 +390,6 @@ public sealed class ExecutiveRoiSummaryService(
             .ThenBy(static issue => issue.Severity, StringComparer.OrdinalIgnoreCase)
             .Take(5)
             .ToList();
-    }
-
-    /// <summary>
-    /// Collapses overlapping CI reruns: the same stable <see cref="ArchitectureFinding.FindingId"/> across
-    /// included runs counts once toward portfolio systemic-issue totals (V1 §2.8).
-    /// Findings without a stable id are never deduplicated against each other.
-    /// </summary>
-    private static IEnumerable<ArchitectureFinding> DeduplicateFindingsByStableIdentity(IEnumerable<ArchitectureFinding> findings)
-    {
-        HashSet<string> seenFindingIds = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (ArchitectureFinding finding in findings)
-        {
-            if (string.IsNullOrWhiteSpace(finding.FindingId))
-            {
-                yield return finding;
-                continue;
-            }
-
-            if (seenFindingIds.Add(finding.FindingId))
-                yield return finding;
-        }
     }
 
     private Task<decimal?> TryResolveEstimatedUsdSavingsAsync(Guid? findingsSnapshotId, CancellationToken cancellationToken) =>
@@ -366,6 +412,44 @@ public sealed class ExecutiveRoiSummaryService(
             return detail.Manifest.SystemName.Trim();
 
         return UnspecifiedSystemName;
+    }
+
+    private static string ResolveEnvironmentLabel(ArchitectureRunDetail detail)
+    {
+        foreach (ManifestService service in detail.Manifest?.Services ?? [])
+        {
+            foreach (string tag in service.Tags)
+            {
+                if (!TryParseEnvironmentTag(tag, out string environment))
+                    continue;
+
+                return environment;
+            }
+        }
+
+        return "unspecified";
+    }
+
+    private static bool TryParseEnvironmentTag(string tag, out string environment)
+    {
+        environment = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(tag))
+            return false;
+
+        if (tag.StartsWith("env:", StringComparison.OrdinalIgnoreCase))
+        {
+            environment = tag["env:".Length..].Trim();
+            return !string.IsNullOrWhiteSpace(environment);
+        }
+
+        if (tag.StartsWith("environment:", StringComparison.OrdinalIgnoreCase))
+        {
+            environment = tag["environment:".Length..].Trim();
+            return !string.IsNullOrWhiteSpace(environment);
+        }
+
+        return false;
     }
 
     private static string NormalizeSystemName(string? systemName)

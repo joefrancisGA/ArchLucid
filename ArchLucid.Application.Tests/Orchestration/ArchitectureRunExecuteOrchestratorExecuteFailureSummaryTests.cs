@@ -148,6 +148,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecuteFailureSummaryTests
             new NoOpAgentOutputTraceEvaluationHook(),
             new ArchLucid.Application.Agents.Evidence.NoOpAgentResultPostExecutionEnricher(),
             new NoOpEvidencePackageInjectionMitigator(),
+            new NoOpAgentEvidenceUntrustedInputSanitizer(),
             contentSafety.Object,
             Options.Create(new AgentExecutionOptions()),
             Options.Create(new AgentOutputQualityGateOptions()),

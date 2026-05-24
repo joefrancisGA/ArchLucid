@@ -28,4 +28,9 @@ public interface IAzureExtractorPackageRepository
     Task<AzureExtractorPackageDownloadRecord?> TryGetLatestDownloadInScopeAsync(
         ScopeContext scope,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Script version from the newest scoped extractor package manifest, when present.</summary>
+    Task<string?> TryGetLatestScriptVersionInScopeAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default);
 }

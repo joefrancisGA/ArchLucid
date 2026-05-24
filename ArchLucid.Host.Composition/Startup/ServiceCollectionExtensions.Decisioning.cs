@@ -49,6 +49,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.RequirementCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.ComplianceFindingEngine>();
         services.AddScoped<Di.IFindingEngine, CostConstraintFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.OrphanedAzureResourceFindingEngine>();
 
         services.TryAddSingleton<IReservationCoverageProvider, StubReservationCoverageProvider>();
         services.Configure<HumanReviewFindingOptions>(configuration.GetSection(HumanReviewFindingOptions.SectionPath));

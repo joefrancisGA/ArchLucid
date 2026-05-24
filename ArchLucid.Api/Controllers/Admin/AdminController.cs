@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services.Admin;
+using ArchLucid.Contracts.Admin;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Core.Audit;
@@ -371,6 +372,25 @@ public sealed class AdminController(
                 ProblemTypes.ResourceNotFound);
 
         return NoContent();
+    }
+
+    /// <summary>Builds a cURL replay command for a dead-lettered integration outbox row.</summary>
+    [HttpGet("integration-outbox/dead-letters/{outboxId:guid}/curl")]
+    [ProducesResponseType(typeof(IntegrationEventDeadLetterCurlResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetIntegrationOutboxDeadLetterCurl(
+        Guid outboxId,
+        CancellationToken cancellationToken = default)
+    {
+        IntegrationEventDeadLetterCurlResponse? body =
+            await _diagnostics.TryBuildIntegrationOutboxDeadLetterCurlAsync(outboxId, cancellationToken);
+
+        if (body is null)
+            return this.NotFoundProblem(
+                $"Integration outbox dead-letter row '{outboxId:D}' was not found.",
+                ProblemTypes.ResourceNotFound);
+
+        return Ok(body);
     }
 }
 

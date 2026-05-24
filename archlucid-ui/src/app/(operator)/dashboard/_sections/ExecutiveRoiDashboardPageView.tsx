@@ -5,7 +5,9 @@ import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabula
 import { ExecutiveComplianceDriftTrendSection } from "./ExecutiveComplianceDriftTrendSection";
 import { ExecutiveDashboardBaselineWarningBanner } from "./ExecutiveDashboardBaselineWarningBanner";
 import { ExecutiveOrphanCandidatesCard } from "./ExecutiveOrphanCandidatesCard";
+import { ExecutiveRoiEnvironmentSavingsSection } from "./ExecutiveRoiEnvironmentSavingsSection";
 import { ExecutiveRoiSummarySection } from "./ExecutiveRoiSummarySection";
+import { ExecutiveRoiTrendSection } from "./ExecutiveRoiTrendSection";
 import { SponsorExportsSection } from "./SponsorExportsSection";
 import { ExecutiveSqlBackupRegionVerificationCard } from "./ExecutiveSqlBackupRegionVerificationCard";
 import { BusinessImpactSummaryWidget } from "./BusinessImpactSummaryWidget";
@@ -95,6 +97,11 @@ export function ExecutiveRoiDashboardPageView() {
       </section>
 
       <ExecutiveComplianceDriftTrendSection />
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ExecutiveRoiTrendSection />
+        <ExecutiveRoiEnvironmentSavingsSection />
+      </div>
     </div>
   );
 }

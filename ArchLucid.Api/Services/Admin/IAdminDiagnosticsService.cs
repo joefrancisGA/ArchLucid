@@ -2,6 +2,11 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Models;
 
+using ArchLucid.Contracts.Admin;
+using ArchLucid.Core.Integration;
+
+using Microsoft.Extensions.Options;
+
 namespace ArchLucid.Api.Services.Admin;
 
 /// <summary>Aggregates SQL-backed operational counters for <see cref="ArchLucid.Api.Controllers.Admin.AdminController" />.</summary>
@@ -20,6 +25,11 @@ public interface IAdminDiagnosticsService
 
     /// <summary>Re-queues a dead-letter row for another publish attempt cycle.</summary>
     Task<bool> RetryIntegrationOutboxDeadLetterAsync(Guid outboxId, CancellationToken cancellationToken = default);
+
+    /// <summary>Builds a cURL replay command for a dead-lettered integration outbox row.</summary>
+    Task<IntegrationEventDeadLetterCurlResponse?> TryBuildIntegrationOutboxDeadLetterCurlAsync(
+        Guid outboxId,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Counts rows referencing a missing authority <c>dbo.Runs</c> row (detection-only; same logic as the orphan probe).

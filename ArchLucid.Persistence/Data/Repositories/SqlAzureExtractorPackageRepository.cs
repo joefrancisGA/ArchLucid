@@ -165,6 +165,32 @@ public sealed class SqlAzureExtractorPackageRepository(ISqlConnectionFactory con
         return DateTime.SpecifyKind(row.Value, DateTimeKind.Utc);
     }
 
+    public async Task<string?> TryGetLatestScriptVersionInScopeAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        const string sql = """
+                           SELECT TOP (1) ScriptVersion
+                           FROM dbo.AzureExtractorPackages
+                           WHERE TenantId = @TenantId
+                               AND WorkspaceId = @WorkspaceId
+                               AND ProjectId = @ProjectId
+                               AND ScriptVersion IS NOT NULL
+                           ORDER BY CollectionTimestampUtc DESC, CreatedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        return await conn.ExecuteScalarAsync<string?>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId },
+                cancellationToken: cancellationToken));
+    }
+
     public async Task<AzureExtractorPackageDownloadRecord?> TryGetDownloadByPackageIdAsync(
         ScopeContext scope,
         Guid packageId,

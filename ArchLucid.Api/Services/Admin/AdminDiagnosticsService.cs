@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Application.Common;
+using ArchLucid.Contracts.Admin;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Host.Core.Configuration;
@@ -15,6 +16,7 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
 
+using ArchLucid.Core.Integration;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Services.Admin;
@@ -28,6 +30,7 @@ public sealed class AdminDiagnosticsService(
     IRunRepository runRepository,
     IDbConnectionFactory connectionFactory,
     IOptions<ArchLucidOptions> archLucidOptions,
+    IOptions<IntegrationEventsOptions> integrationEventsOptions,
     IActorContext actorContext,
     IAuditService auditService) : IAdminDiagnosticsService
 {
@@ -36,6 +39,9 @@ public sealed class AdminDiagnosticsService(
 
     private readonly IOptions<ArchLucidOptions> _archLucidOptions =
         archLucidOptions ?? throw new ArgumentNullException(nameof(archLucidOptions));
+
+    private readonly IOptions<IntegrationEventsOptions> _integrationEventsOptions =
+        integrationEventsOptions ?? throw new ArgumentNullException(nameof(integrationEventsOptions));
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -92,6 +98,28 @@ public sealed class AdminDiagnosticsService(
         CancellationToken cancellationToken = default)
     {
         return _integrationEventOutbox.ResetDeadLetterForRetryAsync(outboxId, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<IntegrationEventDeadLetterCurlResponse?> TryBuildIntegrationOutboxDeadLetterCurlAsync(
+        Guid outboxId,
+        CancellationToken cancellationToken = default)
+    {
+        IntegrationEventOutboxEntry? entry =
+            await _integrationEventOutbox.TryGetDeadLetterEntryAsync(outboxId, cancellationToken).ConfigureAwait(false);
+
+        if (entry is null)
+            return null;
+
+        string curl = IntegrationEventDeadLetterCurlFormatter.Format(
+            entry,
+            _integrationEventsOptions.Value.ReplayWebhookReceiverUrl);
+
+        return new IntegrationEventDeadLetterCurlResponse
+        {
+            OutboxId = outboxId,
+            CurlCommand = curl,
+        };
     }
 
     /// <inheritdoc />

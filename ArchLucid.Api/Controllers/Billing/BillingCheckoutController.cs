@@ -1,7 +1,10 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Models;
 using ArchLucid.Api.Models.Billing;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Services;
+using ArchLucid.Api.Services.Billing;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Billing;
@@ -25,7 +28,8 @@ public sealed class BillingCheckoutController(
     IBillingProviderRegistry billingProviderRegistry,
     IBillingLedger billingLedger,
     IScopeContextProvider scopeProvider,
-    IAuditService auditService) : ControllerBase
+    IAuditService auditService,
+    MarketplaceWebhookConnectivityService marketplaceWebhookConnectivityService) : ControllerBase
 {
     private readonly IAuditService
         _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -38,6 +42,9 @@ public sealed class BillingCheckoutController(
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly MarketplaceWebhookConnectivityService _marketplaceWebhookConnectivityService =
+        marketplaceWebhookConnectivityService ?? throw new ArgumentNullException(nameof(marketplaceWebhookConnectivityService));
 
     [HttpPost("checkout")]
     [SkipTrialWriteLimit]
@@ -160,5 +167,46 @@ public sealed class BillingCheckoutController(
             "Enterprise" => BillingCheckoutTier.Enterprise,
             _ => BillingCheckoutTier.Team
         };
+    }
+
+    /// <summary>Sends a synthetic ping to the configured Azure Marketplace webhook URL.</summary>
+    [HttpPost("marketplace/webhook-test")]
+    [ProducesResponseType(typeof(OutboundWebhookDryRunResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> TestMarketplaceWebhookAsync(CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        OutboundWebhookDryRunResult outcome =
+            await _marketplaceWebhookConnectivityService.TestConfiguredWebhookAsync(cancellationToken).ConfigureAwait(false);
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.OutboundWebhookDryRunProbeExecuted,
+                ActorUserId = User.Identity?.Name ?? "admin",
+                ActorUserName = User.Identity?.Name ?? "admin",
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    probeKind = "billing_marketplace_webhook_configured",
+                    transportSucceeded = outcome.TransportSucceeded,
+                    statusCode = outcome.StatusCode,
+                    reasonPhrase = outcome.ReasonPhrase,
+                    error = outcome.Error,
+                }),
+            },
+            cancellationToken);
+
+        return Ok(new OutboundWebhookDryRunResponse
+        {
+            TransportSucceeded = outcome.TransportSucceeded,
+            StatusCode = outcome.StatusCode,
+            ReasonPhrase = outcome.ReasonPhrase,
+            ResponseBodyPreview = outcome.ResponseBodyPreview,
+            ResponseBodyTruncated = outcome.ResponseBodyTruncated,
+            Error = outcome.Error,
+        });
     }
 }

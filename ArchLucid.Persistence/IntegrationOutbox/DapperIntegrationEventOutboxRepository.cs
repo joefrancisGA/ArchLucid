@@ -326,6 +326,45 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
         return rows > 0;
     }
 
+    /// <inheritdoc />
+    public async Task<IntegrationEventOutboxEntry?> TryGetDeadLetterEntryAsync(Guid outboxId, CancellationToken ct)
+    {
+        const string sql = """
+            SELECT OutboxId, RunId, EventType, MessageId, PayloadUtf8, TenantId, WorkspaceId, ProjectId,
+                   CreatedUtc, Priority, RetryCount, NextRetryUtc, LastErrorMessage, DeadLetteredUtc
+            FROM dbo.IntegrationEventOutbox
+            WHERE OutboxId = @OutboxId
+              AND DeadLetteredUtc IS NOT NULL
+              AND ProcessedUtc IS NULL;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+
+        IntegrationEventOutboxRow? row = await connection.QuerySingleOrDefaultAsync<IntegrationEventOutboxRow>(
+            new CommandDefinition(sql, new { OutboxId = outboxId }, cancellationToken: ct));
+
+        if (row?.EventType is null || row.PayloadUtf8 is null)
+            return null;
+
+        return new IntegrationEventOutboxEntry
+        {
+            OutboxId = row.OutboxId,
+            RunId = row.RunId,
+            EventType = row.EventType,
+            MessageId = row.MessageId,
+            PayloadUtf8 = row.PayloadUtf8,
+            TenantId = row.TenantId,
+            WorkspaceId = row.WorkspaceId,
+            ProjectId = row.ProjectId,
+            CreatedUtc = row.CreatedUtc,
+            Priority = row.Priority,
+            RetryCount = row.RetryCount,
+            NextRetryUtc = row.NextRetryUtc,
+            LastErrorMessage = row.LastErrorMessage,
+            DeadLetteredUtc = row.DeadLetteredUtc,
+        };
+    }
+
     private static string? TruncateError(string? message)
     {
         if (message is null)

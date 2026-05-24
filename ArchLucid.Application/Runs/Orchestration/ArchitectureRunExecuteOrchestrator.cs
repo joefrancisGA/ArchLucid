@@ -45,6 +45,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IAgentOutputTraceEvaluationHook outputTraceEvaluationHook,
     IAgentResultPostExecutionEnricher agentResultPostExecutionEnricher,
     IEvidencePackageInjectionMitigator evidencePackageInjectionMitigator,
+    IAgentEvidenceUntrustedInputSanitizer agentEvidenceUntrustedInputSanitizer,
     IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
     IOptions<AgentExecutionOptions> agentExecutionOptions,
     IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions,
@@ -70,6 +71,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     private readonly IEvidencePackageInjectionMitigator _evidencePackageInjectionMitigator =
         evidencePackageInjectionMitigator ?? throw new ArgumentNullException(nameof(evidencePackageInjectionMitigator));
+
+    private readonly IAgentEvidenceUntrustedInputSanitizer _agentEvidenceUntrustedInputSanitizer =
+        agentEvidenceUntrustedInputSanitizer ?? throw new ArgumentNullException(nameof(agentEvidenceUntrustedInputSanitizer));
 
     private readonly ILogger<ArchitectureRunExecuteOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -106,7 +110,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ValidateDependencies(runRepository, scopeContextProvider, requestRepository, taskRepository, agentExecutor, agentEvaluationService, resultRepository,
             agentEvaluationRepository, agentEvidencePackageRepository, evidenceBuilder, actorContext, baselineMutationAudit, auditService, unitOfWorkFactory,
-            outputTraceEvaluationHook, agentResultPostExecutionEnricher, evidencePackageInjectionMitigator, requestContentSafetyPrecheck,
+            outputTraceEvaluationHook, agentResultPostExecutionEnricher, evidencePackageInjectionMitigator,
+            agentEvidenceUntrustedInputSanitizer, requestContentSafetyPrecheck,
             agentExecutionOptions, agentOutputQualityGateOptions, logger);
         string actor = actorContext.GetActor();
         try
@@ -127,6 +132,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         IBaselineMutationAuditService baselineMutationAudit, IAuditService auditService, IArchLucidUnitOfWorkFactory unitOfWorkFactory,
         IAgentOutputTraceEvaluationHook outputTraceEvaluationHook, IAgentResultPostExecutionEnricher agentResultPostExecutionEnricher,
         IEvidencePackageInjectionMitigator evidencePackageInjectionMitigator,
+        IAgentEvidenceUntrustedInputSanitizer agentEvidenceUntrustedInputSanitizer,
         IRequestContentSafetyPrecheck requestContentSafetyPrecheck, IOptions<AgentExecutionOptions> agentExecutionOptions,
         IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions,
         ILogger<ArchitectureRunExecuteOrchestrator> logger)
@@ -148,6 +154,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         ArgumentNullException.ThrowIfNull(outputTraceEvaluationHook);
         ArgumentNullException.ThrowIfNull(agentResultPostExecutionEnricher);
         ArgumentNullException.ThrowIfNull(evidencePackageInjectionMitigator);
+        ArgumentNullException.ThrowIfNull(agentEvidenceUntrustedInputSanitizer);
         ArgumentNullException.ThrowIfNull(requestContentSafetyPrecheck);
         ArgumentNullException.ThrowIfNull(agentExecutionOptions);
         ArgumentNullException.ThrowIfNull(agentOutputQualityGateOptions);
@@ -205,6 +212,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             AgentEvidencePackage evidence = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
 
             await _evidencePackageInjectionMitigator.RedactKnownInjectionPatternsAsync(evidence, cancellationToken);
+
+            await _agentEvidenceUntrustedInputSanitizer.SanitizeAsync(evidence, cancellationToken);
 
             string scheduledTaskIds = AgentExecutionStateTransitionTaskIds.Format(tasks.ToList());
 

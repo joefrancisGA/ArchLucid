@@ -8,4 +8,10 @@ public sealed class TenantWorkspaceBaselineArtifactsResponse
         get;
         init;
     }
+
+    public string? ExtractorScriptVersion
+    {
+        get;
+        init;
+    }
 }

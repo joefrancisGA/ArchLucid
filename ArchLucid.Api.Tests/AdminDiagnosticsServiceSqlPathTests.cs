@@ -5,6 +5,7 @@ using ArchLucid.Api.Services.Admin;
 using ArchLucid.Api.Tests.Support;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Integration;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Coordination.Retrieval;
@@ -686,6 +687,7 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
             runs.Object,
             connectionFactory,
             Options.Create(options),
+            Options.Create(new IntegrationEventsOptions()),
             actor.Object,
             auditService);
     }

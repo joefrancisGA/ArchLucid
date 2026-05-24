@@ -237,6 +237,7 @@ public static partial class ServiceCollectionExtensions
 
         services.AddScoped<ArchLucid.Core.Alerts.Simulation.IAlertSimulationContextProvider, AlertSimulationContextProvider>();
         services.AddScoped<ArchLucid.Core.Alerts.Simulation.IRuleSimulationService, RuleSimulationService>();
+        services.AddScoped<ArchLucid.Decisioning.Alerts.Simulation.IRuleSimulationService>(sp => (ArchLucid.Decisioning.Alerts.Simulation.IRuleSimulationService)sp.GetRequiredService<ArchLucid.Core.Alerts.Simulation.IRuleSimulationService>());
 
         services.AddScoped<IAlertNoiseScorer, AlertNoiseScorer>();
         services.AddScoped<IThresholdRecommendationService, ThresholdRecommendationService>();
@@ -253,7 +254,10 @@ public static partial class ServiceCollectionExtensions
 
     private static void RegisterIntegrationEventPublishing(IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<IntegrationEventsOptions>(configuration.GetSection(IntegrationEventsOptions.SectionName));
+        services.AddOptions<IntegrationEventsOptions>()
+            .Bind(configuration.GetSection(IntegrationEventsOptions.SectionName))
+            .ValidateOnStart();
+        services.AddSingleton<IValidateOptions<IntegrationEventsOptions>, IntegrationEventsOptionsValidator>();
 
         services.AddSingleton<IIntegrationEventPublisher>(static sp =>
         {

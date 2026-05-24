@@ -50,4 +50,7 @@ public interface IIntegrationEventOutboxRepository
 
     /// <summary>Clears dead-letter state so the row is eligible for publish retries again.</summary>
     Task<bool> ResetDeadLetterForRetryAsync(Guid outboxId, CancellationToken ct);
+
+    /// <summary>Loads a dead-lettered row including payload bytes for operator replay tooling.</summary>
+    Task<IntegrationEventOutboxEntry?> TryGetDeadLetterEntryAsync(Guid outboxId, CancellationToken ct);
 }

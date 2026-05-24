@@ -233,6 +233,18 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         }
     }
 
+    /// <inheritdoc />
+    public Task<IntegrationEventOutboxEntry?> TryGetDeadLetterEntryAsync(Guid outboxId, CancellationToken ct)
+    {
+        lock (_gate)
+        {
+            IntegrationEventOutboxEntry? entry =
+                _rows.FirstOrDefault(e => e.OutboxId == outboxId && e.DeadLetteredUtc is not null);
+
+            return Task.FromResult(entry);
+        }
+    }
+
     /// <summary>Matches <c>ORDER BY ISNULL(Priority, 1)</c> in SQL dequeue.</summary>
     private static int DrainSortPriority(int? priority) => priority ?? 1;
 }

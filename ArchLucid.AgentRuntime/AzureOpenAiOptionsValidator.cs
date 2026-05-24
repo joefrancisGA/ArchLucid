@@ -38,6 +38,48 @@ public sealed class AzureOpenAiOptionsValidator : IValidateOptions<AzureOpenAiOp
                 $"{AzureOpenAiOptions.SectionName}:{nameof(AzureOpenAiOptions.MaxCompletionTokens)} must resolve to a value greater than zero.");
         }
 
+        List<string> credentialFailures = ValidateCredentialFields(options);
+
+        if (credentialFailures.Count > 0)
+            return ValidateOptionsResult.Fail(credentialFailures);
+
         return ValidateOptionsResult.Success;
+    }
+
+    private static List<string> ValidateCredentialFields(AzureOpenAiOptions options)
+    {
+        List<string> failures = [];
+        bool hasEndpoint = !string.IsNullOrWhiteSpace(options.Endpoint);
+        bool hasApiKey = !string.IsNullOrWhiteSpace(options.ApiKey);
+        bool hasDeployment = !string.IsNullOrWhiteSpace(options.DeploymentName);
+
+        if (!hasEndpoint && !hasApiKey && !hasDeployment)
+            return failures;
+
+        if (!hasEndpoint)
+        {
+            failures.Add(
+                $"{AzureOpenAiOptions.SectionName}:{nameof(AzureOpenAiOptions.Endpoint)} is required when Azure OpenAI credentials are partially configured.");
+        }
+
+        if (!hasApiKey)
+        {
+            failures.Add(
+                $"{AzureOpenAiOptions.SectionName}:{nameof(AzureOpenAiOptions.ApiKey)} is required when Azure OpenAI credentials are partially configured.");
+        }
+
+        if (!hasDeployment)
+        {
+            failures.Add(
+                $"{AzureOpenAiOptions.SectionName}:{nameof(AzureOpenAiOptions.DeploymentName)} is required when Azure OpenAI credentials are partially configured.");
+        }
+
+        if (hasEndpoint && !Uri.TryCreate(options.Endpoint.Trim(), UriKind.Absolute, out _))
+        {
+            failures.Add(
+                $"{AzureOpenAiOptions.SectionName}:{nameof(AzureOpenAiOptions.Endpoint)} must be an absolute URI when set.");
+        }
+
+        return failures;
     }
 }

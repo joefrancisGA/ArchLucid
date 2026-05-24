@@ -64,4 +64,14 @@ public sealed class RoiController(IExecutiveRoiSummaryService executiveRoiSummar
         ExecutiveRoiHistoryResponse body = await _executiveRoiSummaryService.BuildHistoryAsync(cancellationToken).ConfigureAwait(false);
         return Ok(body);
     }
+
+    /// <summary>Deduplicated finding export rows and environment savings slices.</summary>
+    [HttpGet("executive-summary/export")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ExecutiveRoiExportResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ExecutiveRoiExportResponse>> GetExecutiveSummaryExportAsync(CancellationToken cancellationToken)
+    {
+        ExecutiveRoiExportResponse body = await _executiveRoiSummaryService.BuildExportAsync(cancellationToken).ConfigureAwait(false);
+        return Ok(body);
+    }
 }

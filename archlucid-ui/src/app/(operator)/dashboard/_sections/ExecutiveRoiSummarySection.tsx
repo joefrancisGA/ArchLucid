@@ -9,6 +9,7 @@ import {
   type ExecutiveRoiSummary,
 } from "@/lib/executive-summary-markdown";
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
+import { showError } from "@/lib/toast";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
@@ -41,6 +42,58 @@ export function ExecutiveRoiSummarySection() {
 
     triggerGoldenManifestMarkdownDownload(markdown, executiveSummaryMarkdownFilename());
   }, [data]);
+
+  const onDownloadCsv = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `${EXECUTIVE_ROI_SUMMARY_PATH}/export`,
+        mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const json = (await response.json()) as {
+        rows?: Array<{
+          findingId: string;
+          runId: string;
+          systemName: string;
+          environment: string;
+          category: string;
+          severity: string;
+          title: string;
+          affectedResource?: string | null;
+          estimatedUsdSavings?: number | null;
+        }>;
+      };
+
+      const header = "FindingId,RunId,SystemName,Environment,Category,Severity,Title,AffectedResource,EstimatedUsdSavings";
+      const lines = (json.rows ?? []).map((row) =>
+        [
+          row.findingId,
+          row.runId,
+          row.systemName,
+          row.environment,
+          row.category,
+          row.severity,
+          `"${row.title.replaceAll('"', '""')}"`,
+          row.affectedResource ?? "",
+          row.estimatedUsdSavings ?? "",
+        ].join(","),
+      );
+
+      const blob = new Blob([[header, ...lines].join("\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = "executive-roi-findings.csv";
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (e: unknown) {
+      showError("CSV export failed", e instanceof Error ? e.message : String(e));
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -108,6 +161,15 @@ export function ExecutiveRoiSummarySection() {
       <CardHeader className="pb-2">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <CardTitle className="text-base">Portfolio ROI summary</CardTitle>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => void onDownloadCsv()}
+            data-testid="exec-roi-summary-csv-download-button"
+          >
+            Export findings (CSV)
+          </Button>
           <Button
             type="button"
             size="sm"

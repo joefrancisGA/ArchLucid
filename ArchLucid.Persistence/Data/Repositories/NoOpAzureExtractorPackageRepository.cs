@@ -33,4 +33,9 @@ public sealed class NoOpAzureExtractorPackageRepository : IAzureExtractorPackage
         ScopeContext scope,
         CancellationToken cancellationToken = default)
         => Task.FromResult<AzureExtractorPackageDownloadRecord?>(null);
+
+    public Task<string?> TryGetLatestScriptVersionInScopeAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<string?>(null);
 }

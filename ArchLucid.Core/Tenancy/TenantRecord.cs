@@ -60,6 +60,11 @@ public sealed class TenantRecord
         init;
     }
 
+    /// <summary>
+    ///     Assessment alias for soft-delete start: maps to <see cref="OffboardedUtc" /> (30-day quarantine before hard purge).
+    /// </summary>
+    public DateTimeOffset? DeletedAtUtc => OffboardedUtc;
+
     public DateTimeOffset? TenantErasureApprovedUtc
     {
         get;

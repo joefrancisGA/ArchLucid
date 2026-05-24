@@ -3,6 +3,8 @@ using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Options;
 
+using ArchLucid.AgentRuntime.PromptInjection;
+
 namespace ArchLucid.AgentRuntime.Prompts;
 
 /// <summary>
@@ -75,6 +77,13 @@ public sealed class CachedAgentSystemPromptCatalog(IOptionsMonitor<AgentPromptCa
     private static PromptTemplateCore CreateCore(string templateId, string templateVersion, Func<string> getText)
     {
         string text = getText();
+
+        if (!text.Contains(AzureResourceTagPromptSanitizer.IgnoreInstructionsInUntrustedTags, StringComparison.Ordinal))
+        {
+            text = text.TrimEnd() + Environment.NewLine + Environment.NewLine
+                + AzureResourceTagPromptSanitizer.IgnoreInstructionsInUntrustedTags;
+        }
+
         string hash = AgentPromptCanonicalHasher.Sha256HexUtf8Normalized(text);
 
         return new PromptTemplateCore(text, templateId, templateVersion, hash);
