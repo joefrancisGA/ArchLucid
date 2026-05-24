@@ -279,6 +279,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
     /// <summary>Product repositories scoped to tenant-plane connections (plus <see cref="DapperTenantRepository" /> directory routing).</summary>
     private static void RegisterTenantRepositories(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddScoped<IManifestFinalizationSqlRepository, SqlManifestFinalizationRepository>();
+        services.AddScoped<IRunTelemetryRepository, SqlRunTelemetryRepository>();
         services.AddScoped<IContextSnapshotRepository, SqlContextSnapshotRepository>();
         services.AddScoped<IGraphSnapshotRepository, SqlGraphSnapshotRepository>();
         services.AddScoped<IFindingsSnapshotRepository, SqlFindingsSnapshotRepository>();

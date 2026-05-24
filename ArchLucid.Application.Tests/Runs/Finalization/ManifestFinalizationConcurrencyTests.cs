@@ -1,5 +1,4 @@
 using System.Data;
-using System.Reflection;
 
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
@@ -18,110 +17,17 @@ using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
-using Microsoft.Data.SqlClient;
-
 using Moq;
 
 namespace ArchLucid.Application.Tests.Runs.Finalization;
 
 /// <summary>
-///     Concurrency and SQL finalization contract tests for <see cref="ManifestFinalizationService" />.
+///     Concurrency contract tests for <see cref="ManifestFinalizationService" /> (legacy in-memory path).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class ManifestFinalizationConcurrencyTests
 {
-    /// <summary>
-    ///     <c>dbo.sp_FinalizeManifest</c> raises <b>50001</b> when the run row is missing or out of scope after locking.
-    /// </summary>
-    [SkippableFact]
-    public void MapSqlException_50001_maps_to_RunNotFoundException()
-    {
-        Guid runId = Guid.NewGuid();
-
-        Exception mapped = InvokeMapSqlException(50001, runId);
-
-        mapped.Should().BeOfType<RunNotFoundException>();
-    }
-
-    /// <summary>
-    ///     <b>50002</b>: committed run already holds a different manifest (idempotent replay with divergent body).
-    /// </summary>
-    [SkippableFact]
-    public void MapSqlException_50002_maps_to_ConflictException()
-    {
-        Guid runId = Guid.NewGuid();
-
-        Exception mapped = InvokeMapSqlException(50002, runId);
-
-        mapped.Should().BeOfType<ConflictException>();
-    }
-
-    /// <summary>
-    ///     <b>50003</b>: run is not in a commit-allowed legacy status at finalize time.
-    /// </summary>
-    [SkippableFact]
-    public void MapSqlException_50003_maps_to_ConflictException()
-    {
-        Guid runId = Guid.NewGuid();
-
-        Exception mapped = InvokeMapSqlException(50003, runId);
-
-        mapped.Should().BeOfType<ConflictException>();
-    }
-
-    /// <summary>
-    ///     <b>50006</b>: optimistic concurrency on <c>RowVersionStamp</c> / expected row version â€” second commit loses.
-    /// </summary>
-    [SkippableFact]
-    public void MapSqlException_50006_maps_to_ConflictException()
-    {
-        Guid runId = Guid.NewGuid();
-
-        Exception mapped = InvokeMapSqlException(50006, runId);
-
-        mapped.Should().BeOfType<ConflictException>();
-    }
-
-    /// <summary>
-    ///     <b>50004</b>: findings snapshot on the run header does not match finalize inputs.
-    /// </summary>
-    [SkippableFact]
-    public void MapSqlException_50004_maps_to_InvalidOperationException()
-    {
-        Guid runId = Guid.NewGuid();
-
-        Exception mapped = InvokeMapSqlException(50004, runId);
-
-        mapped.Should().BeOfType<InvalidOperationException>();
-    }
-
-    /// <summary>
-    ///     <b>50005</b>: artifact bundle mismatch for finalize.
-    /// </summary>
-    [SkippableFact]
-    public void MapSqlException_50005_maps_to_InvalidOperationException()
-    {
-        Guid runId = Guid.NewGuid();
-
-        Exception mapped = InvokeMapSqlException(50005, runId);
-
-        mapped.Should().BeOfType<InvalidOperationException>();
-    }
-
-    /// <summary>
-    ///     Unknown SQL errors remain <see cref="SqlException" /> so operators retain full diagnostic surfaces.
-    /// </summary>
-    [SkippableFact]
-    public void MapSqlException_unknown_number_returns_same_sql_exception()
-    {
-        Guid runId = Guid.NewGuid();
-
-        Exception mapped = InvokeMapSqlException(99999, runId);
-
-        mapped.Should().BeOfType<SqlException>();
-    }
-
     [SkippableFact]
     public async Task FinalizeAsync_legacy_two_distinct_runs_finalize_successfully_sequentially()
     {
@@ -280,6 +186,7 @@ public sealed class ManifestFinalizationConcurrencyTests
             Mock.Of<IManifestHashService>(),
             audit ?? Mock.Of<IAuditService>(),
             outbox ?? Mock.Of<IIntegrationEventOutboxRepository>(),
+            Mock.Of<IManifestFinalizationSqlRepository>(),
             new RunStateTransitionService());
     }
 
@@ -364,19 +271,5 @@ public sealed class ManifestFinalizationConcurrencyTests
             },
             Trace = trace,
         };
-    }
-
-    private static Exception InvokeMapSqlException(int errorNumber, Guid runId)
-    {
-        SqlException ex = SqlExceptionTestFactory.Create(errorNumber);
-
-        MethodInfo? method = typeof(ManifestFinalizationService).GetMethod(
-            "MapSqlException",
-            BindingFlags.NonPublic | BindingFlags.Static);
-
-        if (method is null)
-            throw new InvalidOperationException("Expected private static MapSqlException on ManifestFinalizationService.");
-
-        return (Exception)method.Invoke(null, [ex, runId])!;
     }
 }

@@ -165,7 +165,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             Mock.Of<ISampleRunPurgeService>(),
             Mock.Of<IFindingIacStubGenerator>(),
             Mock.Of<ArchLucid.Application.Findings.IFindingPriorityReranker>(),
-            Mock.Of<IDbConnectionFactory>(),
+            Mock.Of<IRunTelemetryRepository>(),
             new RunStateTransitionService(),
             Options.Create(new ArchLucid.Core.Configuration.GenerateIacStubsOptions()),
             Options.Create(new ArchLucid.Core.Configuration.RerankFindingsOptions()),

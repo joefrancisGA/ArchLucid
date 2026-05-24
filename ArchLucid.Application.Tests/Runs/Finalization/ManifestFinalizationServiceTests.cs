@@ -514,6 +514,7 @@ public sealed class ManifestFinalizationServiceTests
             manifestHashService ?? Mock.Of<IManifestHashService>(),
             auditService ?? Mock.Of<IAuditService>(),
             integrationEventOutbox ?? Mock.Of<IIntegrationEventOutboxRepository>(),
+            Mock.Of<IManifestFinalizationSqlRepository>(),
             new RunStateTransitionService());
     }
 

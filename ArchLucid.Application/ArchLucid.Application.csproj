@@ -14,8 +14,6 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Dapper" />
-    <PackageReference Include="Microsoft.Data.SqlClient" />
     <PackageReference Include="Serilog" />
     <PackageReference Include="Konscious.Security.Cryptography.Argon2" />
     <PackageReference Include="DocumentFormat.OpenXml" />

@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
@@ -127,7 +128,7 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateBlockingTests
         Mock<IAgentEvaluationRepository> evalRepo = new();
         evalRepo
             .Setup(r => r.CreateManyAsync(
-                It.IsAny<IReadOnlyCollection<AgentEvaluation>>(),
+                It.IsAny<IReadOnlyCollection<AgentEvaluationRecord>>(),
                 It.IsAny<CancellationToken>(),
                 null,
                 null))

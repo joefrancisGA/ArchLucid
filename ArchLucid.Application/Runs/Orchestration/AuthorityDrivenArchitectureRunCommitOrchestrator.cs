@@ -31,7 +31,6 @@ using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Connections;
-using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -76,7 +75,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     ISampleRunPurgeService sampleRunPurgeService,
     IFindingIacStubGenerator findingIacStubGenerator,
     IFindingPriorityReranker findingPriorityReranker,
-    IDbConnectionFactory dbConnectionFactory,
+    IRunTelemetryRepository runTelemetryRepository,
     IRunStateTransitionService runStateTransitionService,
     IOptions<GenerateIacStubsOptions> generateIacStubsOptions,
     IOptions<RerankFindingsOptions> rerankFindingsOptions,
@@ -132,7 +131,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     private readonly ArchLucid.Application.Runs.Orchestration.Events.IReviewCompletedEventHandler _reviewCompletedEventHandler =
         reviewCompletedEventHandler ?? throw new ArgumentNullException(nameof(reviewCompletedEventHandler));
 
-    private readonly IDbConnectionFactory _dbConnectionFactory = dbConnectionFactory ?? throw new ArgumentNullException(nameof(dbConnectionFactory));
+    private readonly IRunTelemetryRepository _runTelemetryRepository =
+        runTelemetryRepository ?? throw new ArgumentNullException(nameof(runTelemetryRepository));
 
     private readonly DecisioningIGoldenManifestRepository _goldenManifestRepository =
         goldenManifestRepository ?? throw new ArgumentNullException(nameof(goldenManifestRepository));
@@ -581,20 +581,14 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private async Task TryInsertRunTelemetryAsync(Guid runGuid, CommitRunTelemetryMetrics telemetry, CancellationToken cancellationToken)
     {
-        using System.Data.IDbConnection connection = await _dbConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        const string sql = @"
-                IF NOT EXISTS (SELECT 1 FROM dbo.RunTelemetry WHERE RunId = @RunId)
-                INSERT INTO dbo.RunTelemetry (RunId, RequestDurationMs, AgentExecutionDurationMs, ManualReviewDurationMs, EstimatedHoursSaved)
-                VALUES (@RunId, @RequestDurationMs, @AgentExecutionDurationMs, @ManualReviewDurationMs, @EstimatedHoursSaved);";
-        await Dapper.SqlMapper.ExecuteAsync(connection, sql,
-            new
-            {
-                RunId = runGuid,
-                telemetry.RequestDurationMs,
-                telemetry.AgentExecutionDurationMs,
-                telemetry.ManualReviewDurationMs,
-                telemetry.EstimatedHoursSaved
-            });
+        RunCommitTelemetryWriteRequest request = new(
+            runGuid,
+            telemetry.RequestDurationMs,
+            telemetry.AgentExecutionDurationMs,
+            telemetry.ManualReviewDurationMs,
+            telemetry.EstimatedHoursSaved);
+
+        await _runTelemetryRepository.InsertCommitMetricsIfAbsentAsync(request, cancellationToken);
     }
 
     private static void ApplyRuleAuditScope(DecisionTrace trace, ScopeContext scope)

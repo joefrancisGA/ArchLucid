@@ -9,7 +9,6 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Manifest;

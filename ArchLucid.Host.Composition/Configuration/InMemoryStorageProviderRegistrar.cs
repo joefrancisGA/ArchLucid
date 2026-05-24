@@ -143,6 +143,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IImportedArchitectureRequestRepository, NoOpImportedArchitectureRequestRepository>();
         services.AddSingleton<IAzureExtractorPackageRepository, NoOpAzureExtractorPackageRepository>();
         services.AddSingleton<ITrialIdentityUserRepository, InMemoryNoTrialIdentityUserRepository>();
+        services.AddSingleton<IRunTelemetryRepository, InMemoryRunTelemetryRepository>();
+        services.AddSingleton<IManifestFinalizationSqlRepository, InMemoryManifestFinalizationSqlRepository>();
         services.AddSingleton<IRunRepository>(sp =>
             new InMemoryRunRepository(sp.GetRequiredService<ITenantRepository>()));
         services.AddSingleton<ICommittedArchitectureReviewFlagReader, RunRepositoryCommittedArchitectureReviewFlagReader>();

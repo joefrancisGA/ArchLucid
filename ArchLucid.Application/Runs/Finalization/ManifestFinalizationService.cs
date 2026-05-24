@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Runs;
+using ArchLucid.Core.Runs.Finalization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.DecisionTraces;
@@ -14,10 +15,6 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
-
-using Dapper;
-
-using Microsoft.Data.SqlClient;
 
 using Dm = ArchLucid.Decisioning.Models;
 
@@ -34,6 +31,7 @@ public sealed class ManifestFinalizationService(
     IManifestHashService manifestHashService,
     IAuditService auditService,
     IIntegrationEventOutboxRepository integrationEventOutbox,
+    IManifestFinalizationSqlRepository manifestFinalizationSqlRepository,
     IRunStateTransitionService runStateTransitionService) : IManifestFinalizationService
 {
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -57,14 +55,11 @@ public sealed class ManifestFinalizationService(
 
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
+    private readonly IManifestFinalizationSqlRepository _manifestFinalizationSqlRepository =
+        manifestFinalizationSqlRepository ?? throw new ArgumentNullException(nameof(manifestFinalizationSqlRepository));
+
     private readonly IRunStateTransitionService _runStateTransitionService =
         runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
-    private const int SqlRunNotFoundOrScope = 50001;
-    private const int SqlCommittedDifferentManifest = 50002;
-    private const int SqlBadRunStatus = 50003;
-    private const int SqlFindingsMismatch = 50004;
-    private const int SqlArtifactMismatch = 50005;
-    private const int SqlConcurrencyConflict = 50006;
 
     /// <inheritdoc/>
     public async Task<ManifestFinalizationResult> FinalizeAsync(ManifestFinalizationRequest request, CancellationToken cancellationToken = default)
@@ -94,28 +89,12 @@ public sealed class ManifestFinalizationService(
     {
         IDbConnection connection = uow.Connection;
         IDbTransaction transaction = uow.Transaction;
-        const string lockSql = """
-                               SELECT LegacyRunStatus,
-                                      GoldenManifestId,
-                                      CurrentManifestVersion,
-                                      FindingsSnapshotId,
-                                      ArtifactBundleId,
-                                      RowVersionStamp
-                               FROM dbo.Runs WITH (UPDLOCK, ROWLOCK)
-                               WHERE RunId = @RunId
-                                 AND TenantId = @TenantId
-                                 AND WorkspaceId = @WorkspaceId
-                                 AND ScopeProjectId = @ScopeProjectId
-                                 AND ArchivedUtc IS NULL;
-                               """;
-        LockedRunRow? locked = await connection.QuerySingleOrDefaultAsync<LockedRunRow>(new CommandDefinition(lockSql,
-            new
-            {
-                request.RunId,
-                scope.TenantId,
-                scope.WorkspaceId,
-                ScopeProjectId = scope.ProjectId
-            }, transaction, cancellationToken: cancellationToken));
+        ManifestFinalizationLockedRunRow? locked = await manifestFinalizationSqlRepository.LockRunForFinalizationAsync(
+            scope,
+            request.RunId,
+            connection,
+            transaction,
+            cancellationToken);
         if (locked is null)
             throw new RunNotFoundException(request.RunId.ToString("N"));
         if (string.Equals(locked.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
@@ -167,36 +146,42 @@ public sealed class ManifestFinalizationService(
         };
         byte[] payloadUtf8 = JsonSerializer.SerializeToUtf8Bytes(outboxPayload, IntegrationEventJson.Options);
         string messageId = $"{request.RunId:N}:{IntegrationEventTypes.ManifestFinalizedV1}";
-        DynamicParameters sp = new();
-        sp.Add("@TenantId", scope.TenantId);
-        sp.Add("@WorkspaceId", scope.WorkspaceId);
-        sp.Add("@ScopeProjectId", scope.ProjectId);
-        sp.Add("@RunId", request.RunId);
-        sp.Add("@ExpectedFindingsSnapshotId", request.ExpectedFindingsSnapshotId);
-        sp.Add("@ExpectedArtifactBundleId", request.ExpectedArtifactBundleId);
-        sp.Add("@ManifestId", persisted.ManifestId);
-        sp.Add("@DecisionTraceId", audit.DecisionTraceId);
-        sp.Add("@ManifestVersion", request.Contract.Metadata.ManifestVersion);
-        sp.Add("@ExpectedRowVersion", locked.RowVersionStamp);
-        sp.Add("@ActorUserId", request.ActorUserId);
-        sp.Add("@ActorUserName", request.ActorUserName);
-        sp.Add("@AuditEventId", auditEventId);
-        sp.Add("@OccurredUtc", occurredUtc);
-        sp.Add("@AuditDataJson", auditDataJson);
-        sp.Add("@CorrelationId", request.CorrelationId);
-        sp.Add("@OutboxId", outboxId);
-        sp.Add("@IntegrationEventType", IntegrationEventTypes.ManifestFinalizedV1);
-        sp.Add("@OutboxMessageId", messageId);
-        sp.Add("@OutboxPayloadUtf8", payloadUtf8);
-        sp.Add("@OutboxPriority", IntegrationEventOutboxPriority.ForEventType(IntegrationEventTypes.ManifestFinalizedV1));
+        ManifestFinalizationProcedureRequest procedureRequest = new()
+        {
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            RunId = request.RunId,
+            ExpectedFindingsSnapshotId = request.ExpectedFindingsSnapshotId,
+            ExpectedArtifactBundleId = request.ExpectedArtifactBundleId,
+            ManifestId = persisted.ManifestId,
+            DecisionTraceId = audit.DecisionTraceId,
+            ManifestVersion = request.Contract.Metadata.ManifestVersion,
+            ExpectedRowVersion = locked.RowVersionStamp,
+            ActorUserId = request.ActorUserId,
+            ActorUserName = request.ActorUserName,
+            AuditEventId = auditEventId,
+            OccurredUtc = occurredUtc,
+            AuditDataJson = auditDataJson,
+            CorrelationId = request.CorrelationId,
+            OutboxId = outboxId,
+            IntegrationEventType = IntegrationEventTypes.ManifestFinalizedV1,
+            OutboxMessageId = messageId,
+            OutboxPayloadUtf8 = payloadUtf8,
+            OutboxPriority = IntegrationEventOutboxPriority.ForEventType(IntegrationEventTypes.ManifestFinalizedV1)
+        };
+
         try
         {
-            await connection.ExecuteAsync(new CommandDefinition("dbo.sp_FinalizeManifest", sp, transaction, commandType: CommandType.StoredProcedure,
-                cancellationToken: cancellationToken));
+            await manifestFinalizationSqlRepository.ExecuteFinalizeProcedureAsync(
+                procedureRequest,
+                connection,
+                transaction,
+                cancellationToken);
         }
-        catch (SqlException ex)
+        catch (ManifestFinalizationFaultException ex)
         {
-            throw MapSqlException(ex, request.RunId);
+            throw ManifestFinalizationFaultMapper.ToApplicationException(ex);
         }
 
         IReadOnlyList<Guid> supersededManifestIds =
@@ -325,17 +310,6 @@ public sealed class ManifestFinalizationService(
         }
     }
 
-    private static Exception MapSqlException(SqlException ex, Guid runId)
-    {
-        return ex.Number switch
-        {
-            SqlRunNotFoundOrScope => new RunNotFoundException(runId.ToString("N")),
-            SqlBadRunStatus or SqlCommittedDifferentManifest or SqlConcurrencyConflict => new ConflictException(ex.Message),
-            SqlFindingsMismatch or SqlArtifactMismatch => new InvalidOperationException(ex.Message, ex),
-            _ => ex
-        };
-    }
-
     private async Task EnsureFindingsSnapshotFinalizableAsync(Guid findingsSnapshotId, CancellationToken cancellationToken)
     {
         FindingsSnapshot? snapshot = await findingsSnapshotRepository.GetByIdAsync(findingsSnapshotId, cancellationToken);
@@ -346,42 +320,4 @@ public sealed class ManifestFinalizationService(
                 $"Findings snapshot '{findingsSnapshotId:D}' is not eligible for finalization (GenerationStatus={snapshot.GenerationStatus}).");
     }
 
-    private sealed class LockedRunRow
-    {
-        public string? LegacyRunStatus
-        {
-            get;
-            init;
-        }
-
-        public Guid? GoldenManifestId
-        {
-            get;
-            init;
-        }
-
-        public string? CurrentManifestVersion
-        {
-            get;
-            init;
-        }
-
-        public Guid? FindingsSnapshotId
-        {
-            get;
-            init;
-        }
-
-        public Guid? ArtifactBundleId
-        {
-            get;
-            init;
-        }
-
-        public byte[] RowVersionStamp
-        {
-            get;
-            init;
-        } = null!;
-    }
 }
