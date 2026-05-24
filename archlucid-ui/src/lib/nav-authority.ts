@@ -100,6 +100,10 @@ const ROLE_URI_SUFFIX = "/claims/role";
  * Uses `ClaimTypes.Role` and Entra-style `roles` claims; ignores unknown role strings.
  */
 export function maxAuthorityRankFromMeClaims(claims: ReadonlyArray<{ type: string; value: string }>): number {
+  if (claims.length === 0) {
+    return AUTHORITY_RANK.ReadAuthority;
+  }
+
   let rank = 0;
 
   for (const claim of claims) {
