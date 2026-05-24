@@ -51,7 +51,9 @@ public static partial class ServiceCollectionExtensions
 
         RegisterPluginFindingEngines(services, configuration);
 
-        services.AddScoped<Di.IFindingsOrchestrator, Ds.FindingsOrchestrator>();
+        services.AddScoped<ArchLucid.Core.Persistence.Ports.IFindingsOrchestrator, Ds.FindingsOrchestrator>();
+        services.AddScoped<Di.IFindingsOrchestrator>(static sp =>
+            (Di.IFindingsOrchestrator)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IFindingsOrchestrator>());
         services.AddSingleton<Di.IFindingPayloadValidator, Ds.FindingPayloadValidator>();
         services.AddSingleton<FindingConfidenceCalculator>();
         services.AddSingleton<IExplanationFaithfulnessChecker, ExplanationFaithfulnessChecker>();
@@ -59,7 +61,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IGoldenManifestBuilder, Dm.DefaultGoldenManifestBuilder>();
         services.AddSingleton<Di.IGoldenManifestValidator, Ds.GoldenManifestValidator>();
         services.AddSingleton<IManifestHashService, Ds.ManifestHashService>();
-        services.AddScoped<Di.IDecisionEngine, Ds.RuleBasedDecisionEngine>();
+        services.AddScoped<ArchLucid.Core.Persistence.Ports.IDecisionEngine, Ds.RuleBasedDecisionEngine>();
+        services.AddScoped<Di.IDecisionEngine>(static sp =>
+            (Di.IDecisionEngine)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IDecisionEngine>());
         services.AddSingleton<IProvenanceBuilder, ProvenanceBuilder>();
         services.AddScoped<IAuthorityCommitProjectionBuilder, Decisioning.Manifest.AuthorityCommitProjectionBuilder>();
     }
