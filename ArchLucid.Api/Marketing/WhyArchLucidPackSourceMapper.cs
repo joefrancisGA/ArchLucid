@@ -3,7 +3,6 @@ using System.Text;
 
 using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Explanation;
-using ArchLucid.Core.Explanation;
 using ArchLucid.Host.Core.Demo;
 
 namespace ArchLucid.Api.Marketing;
