@@ -290,8 +290,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<AgentOutputReferenceCaseRunEvaluator>();
         services.AddScoped<AgentOutputEvaluationRecorder>();
         services.AddScoped<IAgentArchitectureFindingConfidenceEnricher, AgentArchitectureFindingConfidenceEnricher>();
-        services.AddScoped<ArchLucid.Core.Persistence.Ports.IFindingsSnapshotEvaluationConfidenceEnricher, FindingsSnapshotEvaluationConfidenceEnricher>();
-        services.AddScoped<IFindingsSnapshotEvaluationConfidenceEnricher>(sp => (IFindingsSnapshotEvaluationConfidenceEnricher)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IFindingsSnapshotEvaluationConfidenceEnricher>());
+        services.AddScoped<IFindingsSnapshotEvaluationConfidenceEnricher, FindingsSnapshotEvaluationConfidenceEnricher>();
         services.AddScoped<IAgentOutputTraceEvaluationHook, AgentOutputTraceEvaluationHook>();
         services.Configure<AgentResultSchemaValidationOptions>(
             configuration.GetSection(AgentResultSchemaValidationOptions.SectionPath));

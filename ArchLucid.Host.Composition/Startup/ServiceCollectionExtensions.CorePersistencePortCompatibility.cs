@@ -8,9 +8,9 @@ namespace ArchLucid.Host.Composition.Startup;
 public static partial class ServiceCollectionExtensions
 {
     /// <summary>
-    ///     Ensures Core persistence ports and Decisioning compatibility stub interfaces resolve to the same scoped graph.
-    ///     Phase 2e+ moved pipeline/advisory consumers onto Core ports; Decisioning keeps forwarding interfaces for legacy
-    ///     call sites (e.g. <see cref="ArchLucid.Application.Advisory.AdvisoryScanRunner" />).
+    ///     Ensures Core persistence ports resolve to Decisioning compatibility adapters where legacy call sites remain.
+    ///     Phase 2e+ moved pipeline/advisory consumers onto Core ports (e.g.
+    ///     <see cref="ArchLucid.Application.Advisory.AdvisoryScanRunner" />).
     /// </summary>
     /// <remarks>
     ///     Invoked after subsystem registrars so TryAdd only fills gaps (OpenAPI host, InMemory storage, ValidateOnBuild).
@@ -19,9 +19,6 @@ public static partial class ServiceCollectionExtensions
     {
         services.TryAddScoped<ArchLucid.Core.Persistence.Ports.IFindingsSnapshotEvaluationConfidenceEnricher,
             NullFindingsSnapshotEvaluationConfidenceEnricher>();
-        services.TryAddScoped<ArchLucid.Decisioning.Interfaces.IFindingsSnapshotEvaluationConfidenceEnricher>(static sp =>
-            (ArchLucid.Decisioning.Interfaces.IFindingsSnapshotEvaluationConfidenceEnricher)sp.GetRequiredService<
-                ArchLucid.Core.Persistence.Ports.IFindingsSnapshotEvaluationConfidenceEnricher>());
 
         services.TryAddScoped<ArchLucid.Decisioning.Advisory.Learning.IRecommendationLearningService>(static sp =>
             (ArchLucid.Decisioning.Advisory.Learning.IRecommendationLearningService)sp.GetRequiredService<

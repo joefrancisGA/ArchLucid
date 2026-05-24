@@ -3,7 +3,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Decisioning.Findings;
-using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
 

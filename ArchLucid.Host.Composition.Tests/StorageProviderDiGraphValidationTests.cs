@@ -41,8 +41,8 @@ public sealed class StorageProviderDiGraphValidationTests
     }
 
     /// <summary>
-    ///     Phase 2e moved pipeline/advisory consumers onto Core persistence ports while Decisioning kept compatibility
-    ///     stubs. Both surfaces must resolve from the same scoped implementation graph (OpenAPI host startup).
+    ///     Phase 2e moved pipeline/advisory consumers onto Core persistence ports. The enricher port resolves from the
+    ///     same scoped implementation graph (OpenAPI host startup).
     /// </summary>
     [Fact]
     public void InMemory_storage_resolves_core_and_decisioning_port_compatibility_services()

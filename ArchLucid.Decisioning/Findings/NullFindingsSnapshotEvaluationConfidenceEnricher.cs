@@ -1,5 +1,5 @@
-using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Decisioning.Models;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Persistence.Ports;
 
 namespace ArchLucid.Decisioning.Findings;
 

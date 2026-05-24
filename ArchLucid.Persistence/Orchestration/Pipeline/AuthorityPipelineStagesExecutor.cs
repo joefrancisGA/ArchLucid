@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;

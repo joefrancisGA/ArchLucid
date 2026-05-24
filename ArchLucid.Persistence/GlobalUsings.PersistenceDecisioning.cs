@@ -16,7 +16,6 @@ global using IAuthorityCommitProjectionBuilder = ArchLucid.Core.Persistence.Port
 global using IDecisionEngine = ArchLucid.Core.Persistence.Ports.IDecisionEngine;
 global using IDecisionTraceRepository = ArchLucid.Core.Persistence.Ports.IDecisionTraceRepository;
 global using IFindingsOrchestrator = ArchLucid.Core.Persistence.Ports.IFindingsOrchestrator;
-global using IFindingsSnapshotEvaluationConfidenceEnricher = ArchLucid.Core.Persistence.Ports.IFindingsSnapshotEvaluationConfidenceEnricher;
 global using IFindingsSnapshotRepository = ArchLucid.Core.Persistence.Ports.IFindingsSnapshotRepository;
 global using IUnifiedGoldenManifestReader = ArchLucid.Core.Persistence.Ports.IUnifiedGoldenManifestReader;
 global using IComparisonService = ArchLucid.Core.Comparison.IComparisonService;
