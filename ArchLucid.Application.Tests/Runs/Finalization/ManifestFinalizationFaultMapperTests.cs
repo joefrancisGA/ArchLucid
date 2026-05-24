@@ -1,3 +1,4 @@
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Runs.Finalization;
 
 using FluentAssertions;

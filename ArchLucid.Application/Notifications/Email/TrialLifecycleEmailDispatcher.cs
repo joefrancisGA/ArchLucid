@@ -3,7 +3,6 @@ using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Notifications;
-using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Core.Tenancy;
 
 using Microsoft.Extensions.Logging;
