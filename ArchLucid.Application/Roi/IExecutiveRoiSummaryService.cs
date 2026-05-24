@@ -14,4 +14,7 @@ public interface IExecutiveRoiSummaryService
     ///     all tenants they have access to. Enforces k-anonymity (k >= 5).
     /// </summary>
     Task<CrossTenantPortfolioSummaryResponse> GetCrossTenantPortfolioSummaryAsync(string userDirectoryKey, CancellationToken cancellationToken = default);
+
+    /// <summary>Monthly executive ROI snapshots for trend charts (last six months).</summary>
+    Task<ExecutiveRoiHistoryResponse> BuildHistoryAsync(CancellationToken cancellationToken = default);
 }

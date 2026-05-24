@@ -29,6 +29,7 @@ using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Authorization;
 using ArchLucid.Application.Roi;
+using ArchLucid.Application.Reports;
 using ArchLucid.Application.Search;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Application.Runs;
@@ -224,6 +225,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ICustomRoleService, CustomRoleService>();
         services.AddScoped<ICustomRolePermissionEvaluator, CustomRolePermissionEvaluator>();
         services.AddScoped<IExecutiveRoiSummaryService, ExecutiveRoiSummaryService>();
+        services.AddScoped<ResourceCoverageReportService>();
         services
             .AddHttpClient<IPublisherConnector, ConfluenceCloudPublisherConnector>(
                 static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration))

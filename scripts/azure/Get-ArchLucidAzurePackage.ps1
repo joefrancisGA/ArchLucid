@@ -183,6 +183,41 @@ if ($DryRun)
         Write-Host "  - (not implemented) Azure Advisor recommendations export"
     }
     Write-Host ""
+    Write-Host "Resource counts by provider namespace (preview):" -ForegroundColor Yellow
+    try
+    {
+        if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
+        {
+            $null = Get-AzSubscription -SubscriptionId $SubscriptionId -ErrorAction Stop
+            Set-AzContext -SubscriptionId $SubscriptionId | Out-Null
+        }
+
+        if (Get-Module -ListAvailable -Name Az.ResourceGraph)
+        {
+            Import-Module Az.ResourceGraph -ErrorAction Stop
+            [string]$countQuery = "Resources | summarize Count=count() by type | order by Count desc"
+            if (-not ([string]::IsNullOrWhiteSpace("$ResourceGroupScope")))
+            {
+                [string]$rg = "$ResourceGroupScope".Trim()
+                $countQuery = "Resources | where resourceGroup =~ '$rg' | summarize Count=count() by type | order by Count desc"
+            }
+
+            [object]$summary = Search-AzGraph -Query $countQuery -Subscription $SubscriptionId -First 1000
+            foreach ($row in @(Get-ArchLucidResourceGraphPageDataArray $summary))
+            {
+                Write-Host ("  {0,-60} {1,8}" -f $row.type, $row.Count)
+            }
+        }
+        else
+        {
+            Write-Host "  (Install Az.ResourceGraph for per-type counts in dry run.)" -ForegroundColor DarkYellow
+        }
+    }
+    catch
+    {
+        Write-Host "  (Could not enumerate resource counts: $_)" -ForegroundColor DarkYellow
+    }
+    Write-Host ""
     Write-Host "Planned ZIP entries:" -ForegroundColor Yellow
     Write-Host "  manifest.json, resources.json, policy-compliance.json, policy.json, README.txt"
     if ($IncludeRetailPrices) { Write-Host "  retail-prices.json" }
@@ -191,6 +226,8 @@ if ($DryRun)
     Write-Host "Dry run complete — re-run without -DryRun to collect and create the ZIP."
     exit 0
 }
+
+$extractionStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
 if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
 {
@@ -288,6 +325,9 @@ try
         $manifest["actualCostSummary"] =
             $(Get-ArchLucidActualCostSummary -SubscriptionId $SubscriptionId)
     }
+
+    $extractionStopwatch.Stop()
+    $manifest["extractionDurationSeconds"] = [Math]::Round($extractionStopwatch.Elapsed.TotalSeconds, 2)
 
     $manifestPath = Join-Path $staging "manifest.json"
     $resourcesPath = Join-Path $staging "resources.json"

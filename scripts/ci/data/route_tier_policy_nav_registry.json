@@ -1222,6 +1222,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Reports/ReportsController.cs",
+      "class_name": "ReportsController",
+      "route_template": "v{version:apiVersion}/reports",
+      "normalized_prefix": "/v1/reports",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Roi/RoiController.cs",
       "class_name": "RoiController",
       "route_template": "v{version:apiVersion}/roi",

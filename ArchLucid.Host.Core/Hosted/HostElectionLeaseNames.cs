@@ -44,4 +44,6 @@ public static class HostElectionLeaseNames
     public const string TenantErasureEligiblePurge = "hosted:tenant-erasure-eligible-purge";
 
     public const string SampleRunTtlPurge = "hosted:sample-run-ttl-purge";
+
+    public const string IntegrationEventDlqRetry = "hosted:integration-event-dlq-retry";
 }

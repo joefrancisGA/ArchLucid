@@ -23,7 +23,8 @@ public sealed class InMemoryFindingRecordMuteRepository : IFindingRecordMuteRepo
         string findingId,
         string reason,
         ScopeContext scope,
-        CancellationToken ct)
+        CancellationToken ct,
+        DateTimeOffset? expiresAtUtc = null)
     {
         ct.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(scope);

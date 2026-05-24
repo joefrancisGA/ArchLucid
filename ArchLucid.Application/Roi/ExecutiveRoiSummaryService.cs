@@ -192,6 +192,74 @@ public sealed class ExecutiveRoiSummaryService(
         };
     }
 
+    /// <inheritdoc />
+    public async Task<ExecutiveRoiHistoryResponse> BuildHistoryAsync(CancellationToken cancellationToken = default)
+    {
+        DateTime utcNow = TimeProvider.System.UtcNowDateTime();
+        DateTime windowStart = utcNow.AddMonths(-6);
+
+        Dictionary<string, (decimal Savings, int CriticalCount, DateTime LatestUtc)> buckets =
+            new(StringComparer.Ordinal);
+
+        string? cursor = null;
+        const int take = 100;
+
+        while (true)
+        {
+            (IReadOnlyList<RunSummary> items, bool hasMore, string? next) =
+                await _runDetailQueryService.ListRunSummariesKeysetAsync(cursor, take, cancellationToken).ConfigureAwait(false);
+
+            foreach (RunSummary summary in items)
+            {
+                if (!IsCommittedSummary(summary))
+                    continue;
+
+                if (summary.CreatedUtc < windowStart)
+                    continue;
+
+                string monthKey = summary.CreatedUtc.ToString("yyyy-MM", System.Globalization.CultureInfo.InvariantCulture);
+                ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(summary.RunId, cancellationToken).ConfigureAwait(false);
+
+                if (detail is null)
+                    continue;
+
+                decimal? savings = await TryResolveEstimatedUsdSavingsAsync(detail.Run.FindingsSnapshotId, cancellationToken).ConfigureAwait(false);
+                int criticalCount = detail.Results
+                    .SelectMany(static result => result.Findings)
+                    .Count(static finding => !finding.IsMuted
+                        && string.Equals(finding.Severity.ToString(), "Critical", StringComparison.OrdinalIgnoreCase));
+
+                if (!buckets.TryGetValue(monthKey, out (decimal Savings, int CriticalCount, DateTime LatestUtc) existing))
+                {
+                    buckets[monthKey] = (savings ?? 0m, criticalCount, summary.CreatedUtc);
+                    continue;
+                }
+
+                decimal mergedSavings = existing.Savings + (savings ?? 0m);
+                int mergedCritical = existing.CriticalCount + criticalCount;
+                DateTime latestUtc = summary.CreatedUtc > existing.LatestUtc ? summary.CreatedUtc : existing.LatestUtc;
+                buckets[monthKey] = (mergedSavings, mergedCritical, latestUtc);
+            }
+
+            if (!hasMore || string.IsNullOrEmpty(next))
+                break;
+
+            cursor = next;
+        }
+
+        List<ExecutiveRoiHistoryPoint> points = buckets
+            .OrderBy(static pair => pair.Key, StringComparer.Ordinal)
+            .Select(static pair => new ExecutiveRoiHistoryPoint
+            {
+                SnapshotUtc = new DateTimeOffset(pair.Value.LatestUtc, TimeSpan.Zero),
+                TotalEstimatedUsdSavings = pair.Value.Savings,
+                CriticalSecurityFindings = pair.Value.CriticalCount,
+            })
+            .ToList();
+
+        return new ExecutiveRoiHistoryResponse { Points = points };
+    }
+
     private async Task<Dictionary<string, RunSummary>> CollectLatestCommittedRunPerSystemAsync(CancellationToken cancellationToken)
     {
         Dictionary<string, RunSummary> latestBySystem = new(StringComparer.OrdinalIgnoreCase);

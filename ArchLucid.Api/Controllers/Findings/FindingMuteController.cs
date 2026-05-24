@@ -69,6 +69,11 @@ public sealed class FindingMuteController(
         if (reason.Length > 2000)
             return this.BadRequestProblem("Reason exceeds maximum length (2000).", ProblemTypes.ValidationFailed);
 
+        DateTimeOffset? expiresAtUtc = request.ExpiresAtUtc;
+
+        if (expiresAtUtc is not null && expiresAtUtc <= TimeProvider.System.GetUtcNow())
+            return this.BadRequestProblem("ExpiresAtUtc must be in the future.", ProblemTypes.ValidationFailed);
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         bool updated = await _findingRecordMuteRepository.TryMuteAsync(
@@ -76,7 +81,8 @@ public sealed class FindingMuteController(
             trimmedId,
             reason.Trim(),
             scope,
-            ct);
+            ct,
+            expiresAtUtc);
 
         if (!updated)
             return this.NotFoundProblem(

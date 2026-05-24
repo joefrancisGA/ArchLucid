@@ -28,7 +28,15 @@ public sealed class DapperFindingRecordMuteRepository(ISqlConnectionFactory conn
         ArgumentNullException.ThrowIfNull(scope);
 
         const string sql = """
-                           SELECT fr.FindingId, fr.IsMuted, fr.MuteReason
+                           SELECT fr.FindingId,
+                                  CASE
+                                      WHEN fr.IsMuted = 1
+                                           AND (fr.MuteExpiresAtUtc IS NULL OR fr.MuteExpiresAtUtc > SYSUTCDATETIME())
+                                          THEN CAST(1 AS bit)
+                                      ELSE CAST(0 AS bit)
+                                  END AS IsMuted,
+                                  fr.MuteReason,
+                                  fr.MuteExpiresAtUtc
                            FROM dbo.FindingRecords fr
                            WHERE fr.FindingsSnapshotId = @FsId
                              AND fr.TenantId = @TenantId
@@ -57,7 +65,7 @@ public sealed class DapperFindingRecordMuteRepository(ISqlConnectionFactory conn
             if (string.IsNullOrWhiteSpace(row.FindingId))
                 continue;
 
-            map[row.FindingId.Trim()] = new FindingMuteFlag(row.IsMuted, row.MuteReason);
+            map[row.FindingId.Trim()] = new FindingMuteFlag(row.IsMuted, row.MuteReason, row.MuteExpiresAtUtc);
         }
 
         return map;
@@ -69,7 +77,8 @@ public sealed class DapperFindingRecordMuteRepository(ISqlConnectionFactory conn
         string findingId,
         string reason,
         ScopeContext scope,
-        CancellationToken ct)
+        CancellationToken ct,
+        DateTimeOffset? expiresAtUtc = null)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -79,7 +88,8 @@ public sealed class DapperFindingRecordMuteRepository(ISqlConnectionFactory conn
         const string sql = """
                            UPDATE fr
                            SET fr.IsMuted = 1,
-                               fr.MuteReason = @Reason
+                               fr.MuteReason = @Reason,
+                               fr.MuteExpiresAtUtc = @MuteExpiresAtUtc
                            FROM dbo.FindingRecords AS fr
                            INNER JOIN dbo.FindingsSnapshots AS fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
                            INNER JOIN dbo.Runs AS r ON r.RunId = fs.RunId
@@ -103,6 +113,7 @@ public sealed class DapperFindingRecordMuteRepository(ISqlConnectionFactory conn
                     FindingId = findingId.Trim(),
                     RunId = runId,
                     Reason = reason,
+                    MuteExpiresAtUtc = expiresAtUtc?.UtcDateTime,
                     scope.TenantId,
                     scope.WorkspaceId,
                     ScopeProjectId = scope.ProjectId
@@ -127,6 +138,12 @@ public sealed class DapperFindingRecordMuteRepository(ISqlConnectionFactory conn
         }
 
         public string? MuteReason
+        {
+            get;
+            init;
+        }
+
+        public DateTime? MuteExpiresAtUtc
         {
             get;
             init;

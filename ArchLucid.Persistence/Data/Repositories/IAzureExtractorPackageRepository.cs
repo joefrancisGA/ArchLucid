@@ -23,4 +23,9 @@ public interface IAzureExtractorPackageRepository
         ScopeContext scope,
         Guid packageId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Latest scoped extractor ZIP bytes for inventory analytics (resource coverage).</summary>
+    Task<AzureExtractorPackageDownloadRecord?> TryGetLatestDownloadInScopeAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default);
 }

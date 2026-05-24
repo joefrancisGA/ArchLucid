@@ -209,6 +209,43 @@ public sealed class SqlAzureExtractorPackageRepository(ISqlConnectionFactory con
         };
     }
 
+    public async Task<AzureExtractorPackageDownloadRecord?> TryGetLatestDownloadInScopeAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        const string sql = """
+                           SELECT TOP (1) PackageId, RunId, OriginalFileName, PackageBytes
+                           FROM dbo.AzureExtractorPackages
+                           WHERE TenantId = @TenantId
+                               AND WorkspaceId = @WorkspaceId
+                               AND ProjectId = @ProjectId
+                           ORDER BY CreatedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        DownloadRow? row = await conn.QuerySingleOrDefaultAsync<DownloadRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId },
+                commandTimeout: DapperCommandTimeoutSeconds.Report,
+                cancellationToken: cancellationToken));
+
+        if (row is null || row.PackageId == Guid.Empty)
+            return null;
+
+        return new AzureExtractorPackageDownloadRecord
+        {
+            PackageId = row.PackageId,
+            RunId = row.RunId,
+            OriginalFileName = row.OriginalFileName ?? string.Empty,
+            PackageBytes = row.PackageBytes ?? [],
+        };
+    }
+
 
     private sealed class DownloadRow
     {

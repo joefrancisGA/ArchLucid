@@ -28,4 +28,9 @@ public sealed class NoOpAzureExtractorPackageRepository : IAzureExtractorPackage
         Guid packageId,
         CancellationToken cancellationToken = default)
         => Task.FromResult<AzureExtractorPackageDownloadRecord?>(null);
+
+    public Task<AzureExtractorPackageDownloadRecord?> TryGetLatestDownloadInScopeAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<AzureExtractorPackageDownloadRecord?>(null);
 }

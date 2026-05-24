@@ -35,6 +35,7 @@ import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathnam
 import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { SessionIdleTimeoutGuard } from "@/components/SessionIdleTimeoutGuard";
 import { SimulatorExecutionModeBanner } from "@/components/SimulatorExecutionModeBanner";
 import { ServiceBusHealthBanner } from "@/components/governance/ServiceBusHealthBanner";
 import { LlmBudgetApproachingLimitBanner } from "@/components/LlmBudgetApproachingLimitBanner";
@@ -215,6 +216,7 @@ function AppShellInner({ children }: AppShellClientProps) {
   return (
     <OperatorNavAuthorityProvider>
       <WorkspaceActiveRunProvider>
+      <SessionIdleTimeoutGuard />
       <TooltipProvider delayDuration={200}>
         <a href="#main-content" className="skip-to-main">
           Skip to main content

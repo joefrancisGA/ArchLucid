@@ -19,4 +19,11 @@ public sealed class FindingMuteRequest
         get;
         init;
     } = string.Empty;
+
+    /// <summary>When set, the mute is automatically lifted after this UTC instant.</summary>
+    public DateTimeOffset? ExpiresAtUtc
+    {
+        get;
+        init;
+    }
 }

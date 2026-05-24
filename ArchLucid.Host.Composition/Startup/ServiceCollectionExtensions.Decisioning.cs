@@ -50,7 +50,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.ComplianceFindingEngine>();
         services.AddScoped<Di.IFindingEngine, CostConstraintFindingEngine>();
 
-
+        services.TryAddSingleton<IReservationCoverageProvider, StubReservationCoverageProvider>();
         services.Configure<HumanReviewFindingOptions>(configuration.GetSection(HumanReviewFindingOptions.SectionPath));
 
         RegisterPluginFindingEngines(services, configuration);

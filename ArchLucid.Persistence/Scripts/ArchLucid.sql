@@ -1218,6 +1218,9 @@ GO
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'MuteReason') IS NULL
     ALTER TABLE dbo.FindingRecords ADD MuteReason NVARCHAR(2000) NULL;
 GO
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'MuteExpiresAtUtc') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD MuteExpiresAtUtc DATETIME2(3) NULL;
+GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_FindingRecords_ReviewedByWhenReviewed')
    AND OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL

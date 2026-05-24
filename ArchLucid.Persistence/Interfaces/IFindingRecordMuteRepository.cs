@@ -18,5 +18,6 @@ public interface IFindingRecordMuteRepository
         string findingId,
         string reason,
         ScopeContext scope,
-        CancellationToken ct);
+        CancellationToken ct,
+        DateTimeOffset? expiresAtUtc = null);
 }

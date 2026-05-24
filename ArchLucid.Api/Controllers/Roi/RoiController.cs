@@ -54,4 +54,14 @@ public sealed class RoiController(IExecutiveRoiSummaryService executiveRoiSummar
         CrossTenantPortfolioSummaryResponse body = await _executiveRoiSummaryService.GetCrossTenantPortfolioSummaryAsync(directoryKey, cancellationToken).ConfigureAwait(false);
         return Ok(body);
     }
+
+    /// <summary>Six-month executive ROI trend (savings and critical findings).</summary>
+    [HttpGet("executive-summary/history")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ExecutiveRoiHistoryResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ExecutiveRoiHistoryResponse>> GetExecutiveSummaryHistoryAsync(CancellationToken cancellationToken)
+    {
+        ExecutiveRoiHistoryResponse body = await _executiveRoiSummaryService.BuildHistoryAsync(cancellationToken).ConfigureAwait(false);
+        return Ok(body);
+    }
 }

@@ -142,6 +142,10 @@ public static class AzureExtractorPackageZipValidator
 
             if (schemaVersion != SupportedSchemaVersion)
             {
+                // Legacy schema 0 (0.x packages) is upgraded in-memory during ingest via AzureExtractorManifestSchemaUpgrader.
+                if (schemaVersion == 0)
+                    return null;
+
                 return schemaVersion < SupportedSchemaVersion
                     ? "manifest.json schemaVersion is missing or invalid."
                     : $"Unsupported manifest schemaVersion: {schemaVersion}.";
