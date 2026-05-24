@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:226 -->
+<!-- audit-core-const-count:228 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -146,6 +146,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Public registration API failed (`POST /v1/register` — validation, duplicate org, or internal) | `RegistrationController` | `TrialRegistrationFailed` | Empty tenant scope (or after attempt) | `{ reason, code, message? }` — `reason` is `validation` / `conflict` / `internal` |
 | Trial signup rejected (local identity, email policy, bootstrap; not `POST /v1/register` body path) | `TrialLocalIdentityAuthController`, `TrialTenantBootstrapService` | `TrialSignupFailed` | Tenant scope when known | `{ stage, reason, message? }` |
 | Trial first golden manifest committed (signup → first-run funnel) | `SqlTrialFunnelCommitHook` | `TrialFirstRunCompleted` | Tenant + default workspace/project | `{ signupToCommitSeconds, trialRunUsageRatio }` |
+| Trial upgrade nudge shown (operator shell) | `ClientErrorTelemetryController` (`POST /v1/diagnostics/trial-upgrade-nudge/shown`) | `TrialUpgradeNudgeShown` | Tenant + workspace/project from ambient scope | `{ trigger }` — `seats` / `expiry` / `usage` |
+| Trial upgrade nudge CTA clicked | `ClientErrorTelemetryController` (`POST /v1/diagnostics/trial-upgrade-nudge/clicked`) | `TrialUpgradeNudgeClicked` | Tenant + workspace/project from ambient scope | `{ trigger }` |
 | Synthetic operator demo-pack markers (dev/demo UI validation) | `SyntheticOperatorDemoPackWriter` (`SyntheticOperatorDemoPackController`) | `SyntheticOperatorDemoPack.Marker` | Tenant/Workspace/Project from ambient scope | `POST /v1/diagnostics/synthetic-operator-demo-pack` (Development host or `Demo:Enabled`, Admin policy); filter durable audit by this event type or `DataJson.syntheticDemoPack=true`. |
 | Authority committed manifest FK chain (demo trusted-baseline seed) | `DemoSeedService` | `AuthorityCommittedChainPersisted` | RunId, ManifestId | `{ source: "demo-seed", projectSlug, richFindingsAndGraph, contextSnapshotId, graphSnapshotId, findingsSnapshotId, decisionTraceId, manifestId }` |
 | Authority committed manifest FK chain (replay commit) | `ReplayRunService` | `AuthorityCommittedChainPersisted` | RunId, ManifestId | `{ source: "replay-commit", projectSlug, richFindingsAndGraph: true, … }` — emitted only after `CommitAsync` succeeds. |
@@ -421,6 +423,8 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `AgentTraceBlobPersistenceFailed` | `AgentTraceBlobPersistenceFailed` | `AgentExecutionTraceRecorder` |
 | `AgentTraceInlineFallbackFailed` | `AgentTraceInlineFallbackFailed` | `AgentExecutionTraceRecorder` |
 | `LlmContextTruncated` | `LlmContextTruncated` | `ContextLengthGuardAgentCompletionClient` (fire-and-forget; prompt truncated when estimated tokens exceed threshold) |
+| `TrialUpgradeNudgeShown` | `TrialUpgradeNudgeShown` | `ClientErrorTelemetryController` (`POST /v1/diagnostics/trial-upgrade-nudge/shown`) |
+| `TrialUpgradeNudgeClicked` | `TrialUpgradeNudgeClicked` | `ClientErrorTelemetryController` (`POST /v1/diagnostics/trial-upgrade-nudge/clicked`) |
 | `LlmTenantDailyBudgetApproaching` | `LlmTenantDailyBudgetApproaching` | `LlmDailyTenantBudgetTracker` (fire-and-forget; one row per tenant per UTC day) |
 | `LlmTenantMonthlyDollarBudgetApproaching` | `LlmTenantMonthlyDollarBudgetApproaching` | `LlmMonthlyTenantDollarBudgetTracker` (fire-and-forget; one row per tenant per UTC month) |
 | `LlmCostTuningUpdated` | `LlmCostTuningUpdated` | `AdminLlmCostTuningController` (persisted USD-per-token rates for cost estimation) |
