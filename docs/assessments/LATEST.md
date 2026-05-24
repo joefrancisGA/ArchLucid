@@ -273,7 +273,7 @@ Scope of work:
 
    | SKU | Customer-exclusive | ArchLucid-owned (shared) | Scope | Delivery window | Post-delivery support |
    |-----|-------------------|--------------------------|-------|------------------|----------------------|
-   | Custom Pack — Starter | $15,000 | $9,500 | 1 pack, up to 20 rules | 4 weeks | 30 days |
+   | Custom Pack — Starter | [see Pricing §5](../go-to-market/PRICING_PHILOSOPHY.md#5) | $9,500 | 1 pack, up to 20 rules | 4 weeks | 30 days |
    | Custom Pack — Standard | $40,000 | $25,000 | Up to 3 packs OR 1 pack with 50+ rules | 8 weeks | 90 days |
    | Custom Pack — Program | $100,000+ | $65,000+ | Multi-pack engagement, dedicated PS lead, quarterly refresh | Negotiated | Annual |
 
@@ -2686,9 +2686,247 @@ that a second sp_set_session_context on the same connection for al_rls_bypass ra
 
 ---
 
+---
+
+## Improvement #50 — Clarify SQL-as-Queue vs. Service Bus Boundaries; Add RetrievalIndexingOutbox Dead-Letter and Scale Guard
+
+**Assessment date:** 2026-05-24
+**Status:** Partially correct; one low-risk gap to close at scale
+
+### Finding
+
+Three SQL-backed outboxes exist. Only one of them routes through Azure Service Bus; the other two use SQL Server as the work queue itself.
+
+| Table | Role | Service Bus involved? | Verdict |
+|---|---|---|---|
+| `IntegrationEventOutbox` | Transactional Outbox → drains to ASB | Yes — ASB is the final broker | Correct (Transactional Outbox Pattern) |
+| `AuthorityPipelineWorkOutbox` | Work queue for agent pipeline execution | No — SQL is both store and broker | Intentional; tenant-fair dequeue justifies SQL |
+| `RetrievalIndexingOutbox` | Work queue for retrieval indexing jobs | No — SQL is both store and broker | Defensible V1 but missing dead-letter and lease |
+
+**`IntegrationEventOutbox` is architecturally correct.** It writes events atomically with business data inside the same SQL transaction, then `IntegrationEventOutboxProcessor` drains to Azure Service Bus in a background loop. SQL is only the durability staging buffer; ASB is the broker. This prevents dual-write inconsistency and is the standard Transactional Outbox Pattern.
+
+**`AuthorityPipelineWorkOutbox` using SQL is justified** because:
+1. Work must be enqueued atomically with the run record (same DB transaction).
+2. The tenant-fair dequeue (`ROW_NUMBER() OVER (PARTITION BY TenantId)`) with global round-robin ordering cannot be replicated natively on Service Bus. ASB Sessions partition per-session but do not guarantee cross-session fairness; a custom fair-round-robin would require application-side session cycling, losing simplicity.
+3. The `READPAST, UPDLOCK, ROWLOCK` pattern is battle-tested for SQL-based queues and avoids message duplication.
+
+**The risk is polling pressure at scale.** Every agent runner pod polls `AuthorityPipelineWorkOutbox` on a timer. At 3 pods × 5-second poll = 36 queries/minute on the primary SQL database. At 20 pods that is 240 queries/minute, all requiring write locks. This is the primary scale-out constraint.
+
+**`RetrievalIndexingOutbox` has two gaps relative to `AuthorityPipelineWorkOutbox`:**
+1. No lease (`LockedUntilUtc`) — two concurrent processors can dequeue the same row and index the same run twice.
+2. No dead-letter column — a permanently failing run is retried forever with no visibility.
+
+### Recommended Actions
+
+**V1 — Low risk, add now:**
+
+**Part 1 — Add `LockedUntilUtc` and `DeadLetteredUtc` to `RetrievalIndexingOutbox`.**
+
+The table lacks the `READPAST, UPDLOCK, ROWLOCK` dequeue pattern that `AuthorityPipelineWorkOutbox` uses. Add a new migration:
+
+```sql
+-- Migration NNN_RetrievalIndexingOutbox_LeasingAndDeadLetter.sql
+ALTER TABLE dbo.RetrievalIndexingOutbox
+    ADD LockedUntilUtc  DATETIME2(7) NULL,
+        AttemptCount    INT          NOT NULL CONSTRAINT DF_RetrievalIndexingOutbox_AttemptCount DEFAULT 0,
+        DeadLetteredUtc DATETIME2(7) NULL;
+GO
+
+-- Replace the simple SELECT TOP with a leased dequeue identical to AuthorityPipelineWorkOutbox.
+-- See DapperRetrievalIndexingOutboxRepository.DequeuePendingAsync for the target shape.
+```
+
+Update `DapperRetrievalIndexingOutboxRepository.DequeuePendingAsync` to use the same `READPAST, UPDLOCK, ROWLOCK` + `UPDATE ... OUTPUT` pattern as `DapperAuthorityPipelineWorkRepository.DequeuePendingAsync`. The processor must call `MarkProcessedAsync` on success and a new `RecordDeadLetterAsync` after N failures. Expose `CountDeadLetteredAsync` and wire it to a Prometheus gauge so dead-lettered retrieval jobs page.
+
+**Part 2 — Add a KEDA SQL scaler for `AuthorityPipelineWorkOutbox` so Container Apps scales on queue depth, not a fixed replica count.**
+
+```yaml
+# In the Container Apps Job manifest for the agent runner:
+triggers:
+  - type: mssql
+    metadata:
+      connectionStringFromEnv: SQL_CONNECTION_STRING
+      query: >
+        SELECT COUNT_BIG(1)
+        FROM dbo.AuthorityPipelineWorkOutbox
+        WHERE ProcessedUtc IS NULL
+          AND DeadLetteredUtc IS NULL
+          AND (NextAttemptUtc IS NULL OR NextAttemptUtc <= SYSUTCDATETIME())
+          AND (LockedUntilUtc IS NULL OR LockedUntilUtc <= SYSUTCDATETIME())
+      targetValue: "5"   # scale one replica per 5 pending items
+      activationQueryValue: "1"
+```
+
+This replaces fixed-timer polling with event-driven scaling. The queue-depth query itself runs against the read replica (route via `ReadReplicaConnectionString` if KEDA supports it, or keep on primary given the lightweight nature of a COUNT query).
+
+**V1.1 / Scale Gate — Evaluate when agent runner pod count exceeds 10:**
+
+If the number of concurrent agent runner replicas exceeds 10 and `AuthorityPipelineWorkOutbox` polling latency exceeds 3 seconds at P99, evaluate migrating to Service Bus Premium with Sessions (sessionId = TenantId). The tenant-fair guarantee weakens to per-tenant FIFO (not cross-tenant fairness), which is acceptable at scale because large tenants naturally consume more capacity. At that point, keep `AuthorityPipelineWorkOutbox` as a transactional staging buffer and drain it into ASB sessions using the same Transactional Outbox processor pattern already used by `IntegrationEventOutbox`. This keeps the transactional write guarantee without SQL-as-broker at steady state.
+
+```
+Cursor prompt:
+Add LockedUntilUtc, AttemptCount, and DeadLetteredUtc columns to
+dbo.RetrievalIndexingOutbox via a new DbUp migration. Update
+DapperRetrievalIndexingOutboxRepository to use the READPAST/UPDLOCK/ROWLOCK
+leased dequeue pattern matching DapperAuthorityPipelineWorkRepository.
+Add RecordDeadLetterAsync and CountDeadLetteredAsync methods.
+Update IRetrievalIndexingOutboxRepository with the new signatures.
+Update InMemoryRetrievalIndexingOutboxRepository to match.
+Add a unit test verifying that concurrent dequeue calls for the same row
+do not both return the entry (the second must see empty or a different row).
+Wire CountDeadLetteredAsync to a Prometheus gauge named
+archlucid_retrieval_indexing_outbox_dead_lettered_total.
+```
+
+Constraints:
+- The lease duration for retrieval indexing should be generous (at least 300 seconds) because indexing a run can be slow if the artifact blob is large.
+- Do not add the KEDA SQL scaler in the same PR as the schema migration; let the schema migration deploy and stabilise first.
+- The `IntegrationEventOutbox`, `AuthorityPipelineWorkOutbox`, and `RetrievalIndexingOutbox` tables must never be read with `WITH (NOLOCK)` — they are write-ahead transactional queues and NOLOCK would surface uncommitted rows, duplicating work.
+
+Acceptance Criteria: `DequeuePendingAsync` on `RetrievalIndexingOutbox` uses `READPAST, UPDLOCK, ROWLOCK`; two concurrent calls for a batch of 1 return disjoint result sets; `CountDeadLetteredAsync` returns a non-zero value after `RecordDeadLetterAsync` is called; the Prometheus gauge is visible in a local Prometheus scrape.
+
+---
+
+## Improvement #51 — Terraform Advisory C# Inline Documentation
+
+**Assessment date:** 2026-05-24
+**Status:** Gap identified; no blocking risk but hurts maintainability for non-Terraform contributors
+
+### Finding
+
+The Terraform advisory emit system spans 12 C# files across three projects (`ArchLucid.Application`, `ArchLucid.ArtifactSynthesis`, `ArchLucid.Cli`). Class-level XML doc comments exist on most files, but method-level documentation is thin or absent on the logic that most needs it. A contributor without Terraform experience cannot answer basic questions from the code alone:
+
+| File | Gap |
+|------|-----|
+| `RegexTerraformValidator.cs` | Four private validation methods have no doc comments explaining *why* each check matters or what Terraform syntax rule it guards against. |
+| `CliTerraformValidator.cs` | The temp-directory write-validate-delete pattern is not explained; the reason `init -backend=false` is needed before `validate` is not documented. |
+| `CompositeTerraformValidator.cs` | No explanation of *why* the regex validator runs first or what happens when the CLI is absent. |
+| `TerraformAdvisoryHclSanitizer.cs` | `BuildValidationWarningStub` has no doc comment explaining that the returned string is itself valid advisory HCL (a comment block) not an error throw. |
+| `TerraformAdvisoryDecommissionSnippetBuilder.cs` | `TryResolveResourceAddressHint` has no doc comment; the dot-containing `SelectedOption` heuristic is opaque without explanation. |
+| `TerraformAdvisoryDecommissionIntentDetector.cs` | The 7-keyword `Markers` array has no comment explaining why these exact words trigger comment-only advisory mode. |
+| `TerraformHclFormatHelper.cs` | The stub-file-write-then-read-back pattern (write `stub.tf`, run `terraform fmt stub.tf`, re-read) is not explained; timeout choice is undocumented. |
+| `AzureTerraformExportCommand.cs` | `aztfexport` is invoked with `--non-interactive` but callers will not know why, or what `-o` and `--overwrite` mean; argument parser logic has no doc. |
+| `TerraformGitHubPrService.cs` | `GetBaseShaAsync`, `CreateBranchAsync`, `CommitFileAsync`, and `ExtractFilesFromZip` have no method-level doc. The Base64 encoding of file content for the GitHub Contents API is unexplained. |
+| `TerraformGitHubPrOptions.cs` | The `PersonalAccessToken` property has a malformed XML doc comment (the `<summary>` open tag appears *after* a dangling `</summary>` closing tag — an authoring error that will produce a compiler warning when XML doc is enabled). |
+
+**No security or correctness bugs are introduced by the missing documentation**, but the `TerraformGitHubPrOptions.cs` malformed XML is a latent warning and should be fixed.
+
+### Recommended Actions
+
+Add method-level XML doc comments to each of the 12 files listed above. Documentation should:
+- Explain Terraform vocabulary inline (HCL, `terraform validate`, `terraform fmt`, `aztfexport`, advisory-only constraint) so a reader can understand without switching context.
+- Explain the *why* behind each design decision (e.g., why regex runs before CLI; why braces are balanced globally but quotes are checked per-line; why the temp directory is used for `terraform fmt`).
+- Fix the malformed XML doc in `TerraformGitHubPrOptions.cs`.
+- Do **not** add narration comments ("// increment counter"); only explain non-obvious intent.
+
+```
+Cursor prompt:
+Add truly excellent inline documentation to the 12 Terraform advisory C# files.
+Target audience: a developer with 2 years of C# experience who has never used Terraform.
+
+Files to document:
+  ArchLucid.Application/TerraformAdvisory/TerraformAdvisorySnippetTemplates.cs
+  ArchLucid.ArtifactSynthesis/Generators/TerraformAdvisoryArtifactGenerator.cs
+  ArchLucid.ArtifactSynthesis/Validation/TerraformAdvisoryHclSanitizer.cs
+  ArchLucid.ArtifactSynthesis/Validation/RegexTerraformValidator.cs
+  ArchLucid.ArtifactSynthesis/Validation/CliTerraformValidator.cs
+  ArchLucid.ArtifactSynthesis/Validation/CompositeTerraformValidator.cs
+  ArchLucid.ArtifactSynthesis/Services/TerraformAdvisoryDecommissionSnippetBuilder.cs
+  ArchLucid.ArtifactSynthesis/Services/TerraformAdvisoryDecommissionIntentDetector.cs
+  ArchLucid.ArtifactSynthesis/Packaging/TerraformHclFormatHelper.cs
+  ArchLucid.ArtifactSynthesis/Packaging/TerraformAdvisoryExportCopy.cs
+  ArchLucid.Cli/Commands/AzureTerraformExportCommand.cs
+  ArchLucid.Application/Analysis/TerraformGitHubPrService.cs
+  ArchLucid.Application/Analysis/TerraformGitHubPrOptions.cs
+
+For each method and non-trivial private field, add an XML doc comment or inline comment
+that explains:
+  - What Terraform concept or constraint the code implements (define HCL, advisory-only,
+    terraform validate, terraform fmt, aztfexport, the advisory-never-apply rule).
+  - Why the implementation is shaped the way it is (e.g., why regex runs before CLI,
+    why quotes are checked per-line not globally, why a temp directory is created for
+    fmt/validate, why init -backend=false is required before validate, why the GitHub
+    Contents API requires Base64-encoded content).
+  - Any non-obvious constraint or side-effect.
+
+Also fix the malformed XML doc on TerraformGitHubPrOptions.PersonalAccessToken
+(summary open tag appears after the closing tag — swap the order).
+
+Do not add narration comments. Do not change any logic.
+```
+
+Acceptance Criteria: Every non-trivial private method and public member in the 12 files has a doc comment; the malformed XML doc in `TerraformGitHubPrOptions.cs` is fixed; `dotnet build` produces zero XML doc warnings; no logic is changed; existing tests remain green.
+
+---
+
+## Improvement #52 — Inline Documentation Pass on Existing `infra/` Terraform Roots
+
+**Assessment date:** 2026-05-24
+**Status:** Gap — files exist and are syntactically correct; inline explanation for a non-Terraform-expert is thin
+
+### Finding
+
+The `infra/` directory contains a full multi-root IaC setup (10+ Terraform modules: `terraform-entra`, `terraform-container-apps`, `terraform-edge`, `terraform-sql-failover`, `terraform-monitoring`, `terraform-private`, `terraform-storage`, `terraform-openai`, `terraform-logicapps`, `modules/alerts`, `modules/azure-sql-tenant-pool`, `modules/first-tenant-funnel-dashboard`, `modules/golden-cohort-cost-dashboard`, plus Grafana/Prometheus config). The files are syntactically correct and CI-validated.
+
+The documentation gap is at the **inline explanation level**. A developer with no Terraform experience cannot answer basic questions from the files alone:
+
+| Pattern | Where it appears | Gap |
+|---------|-----------------|-----|
+| `count = local.enabled ? 1 : 0` | Every root's main.tf | No comment explaining this is Terraform's conditional resource creation idiom — 0 means "don't create"; 1 means "create one". |
+| `dynamic` blocks | `terraform-entra/main.tf` (optional_claims) | No comment explaining that `dynamic` emits a nested block only when the `for_each` collection is non-empty. |
+| `locals { }` | Every root | Complex expressions (ACR resource ID regex parse, KEDA scale flag composition) have no plain-English explanation. |
+| KEDA scaler variables | `terraform-container-apps/variables.tf` | `worker_enable_authority_outbox_prom_scale`, `worker_authority_outbox_prom_server_address` have descriptions but no comment connecting them to the KEDA Prometheus scaler concept or to `archlucid_authority_pipeline_work_pending`. |
+| `validation { }` blocks | `terraform-entra/variables.tf` (sign_in_audience) | No comment explaining that this runs at `terraform plan` time to catch bad input before any Azure API call. |
+| `data` sources vs `resource` blocks | All roots | No comment explaining the difference: `data` reads existing infrastructure; `resource` declares infrastructure Terraform owns. |
+| `terraform.tfvars.example` files | Most roots | No header comment guiding an operator through which values are mandatory vs optional for a first local `plan`. |
+
+The per-variable `description` fields are present and helpful, but description fields are not visible during code review of `.tf` files — only surfaced by `terraform console` or the registry. Inline `#` comments are what a reader sees when reviewing a file.
+
+### Recommended Actions
+
+Add inline `#` comments to the most-read files in each root. Priority order:
+
+1. `infra/terraform-entra/main.tf` — explain every resource block, the `count` idiom, `random_uuid` purpose, `dynamic` block, and the app-role model.
+2. `infra/terraform-container-apps/main.tf` — explain `locals` composition, `count`, KEDA scale rules, and the ACR pull identity pattern.
+3. `infra/terraform-container-apps/variables.tf` — annotate the KEDA, FinOps, and subnet variables with one-line plain-English comments above each `variable` block.
+4. `infra/terraform-edge/main.tf` — explain Front Door profile vs endpoint vs route split.
+5. `infra/modules/alerts/checks.tf` and `startup_config_warnings.tf` — explain `check` blocks (introduced in Terraform 1.5 as non-fatal assertions that don't block apply).
+6. All `versions.tf` files — add a comment explaining `required_providers`, `source`, and `version` constraints.
+7. All `terraform.tfvars.example` files — add a header comment listing which variables are mandatory for a minimal `terraform plan` against a real subscription.
+
+Do **not** add narration comments. Only explain non-obvious Terraform idioms and design decisions.
+
+```
+Cursor prompt:
+Add truly excellent inline documentation to the existing infra/ Terraform roots.
+Target audience: a developer with 2 years of C# experience who has never used Terraform.
+
+Read docs/assessments/LATEST.md Improvement #52 for the full gap list and priority order.
+
+For each file in the priority list, add inline # comments that explain:
+  - Terraform idioms: count = 0/1 for conditional creation, dynamic blocks, data vs resource,
+    locals composition, for_each, validation blocks, required_providers source/version constraints.
+  - Design intent: why each resource exists, what Azure object it creates, what the caller
+    must configure before running terraform plan.
+  - KEDA scaler wiring: how worker_enable_authority_outbox_prom_scale connects to the
+    archlucid_authority_pipeline_work_pending Prometheus metric and what Container Apps
+    does with the scale rule.
+  - Security defaults: why public_network_access_enabled = false, minimum_tls_version = "1.2",
+    managed identity over connection strings.
+  - Mark any value that must come from Key Vault or a pipeline secret with:
+    # MUST be supplied from Key Vault or pipeline secret — never hardcode in tfvars.
+
+Do not change any HCL logic. Do not add narration comments.
+`terraform fmt -check` must still pass after your edits.
+```
+
+Acceptance Criteria: Every non-obvious Terraform idiom in the priority-list files has an inline `#` comment; `terraform fmt -check` exits 0 on all modified files; no HCL logic is changed; existing CI validation (`scripts/ci/assert_terraform_roots_valid.py`) remains green.
+
+---
+
 ## Prompt Batching Guidance
 
-All 49 improvements are now V1-actionable (or resolved). Batches optimized for context-window reuse:
+All 50 improvements are now V1-actionable (or resolved). Batches optimized for context-window reuse:
 
 **Batch 1 — RAG & AI quality (highest leverage)**
 Run prompts **1** (Policy-Pack Indexing), **2** (LLM Faithfulness Evaluator), and **23** (Prior-Manifest Chunks) together. Shared namespaces: `ArchLucid.Retrieval`, `ArchLucid.AgentRuntime.Evaluation`. Same TB-021 / RAG-V1-* engineering charter.
@@ -2737,6 +2975,12 @@ Apply **#46** as a single, focused infrastructure + ops PR. It is completely add
 
 **Batch 16 — SQL security hardening**
 Apply **#47** (Defender for SQL + auditing), **#48** (MI enforcement + TrustServerCertificate block), and **#49** (TDE CMK + `al_rls_bypass` fix) as a focused security sprint. Run in this order: (1) **#48** first — pure application code, no infrastructure dependencies, green tests immediately verifiable; (2) **#47** second — Terraform only, requires the SQL server from Batch 12 and the alert email address from Batch 15 variables; (3) **#49** last — the `al_rls_bypass` SQL fix is a one-line change with a unit test; the CMK Terraform requires the Key Vault from `terraform-keyvault` to exist first and the SQL server to have `identity { type = "SystemAssigned" }` added (from #47's server resource edit). All three items are additive and non-breaking. No dependency on Batches 8–15 except Batch 12 (SQL server must exist for #47 and #49 Terraform).
+
+**Batch 17 — SQL-as-queue hardening**
+Apply **#50** (RetrievalIndexingOutbox leasing + dead-letter + Prometheus gauge) as a single, self-contained PR. Schema migration first, then the C# changes to `DapperRetrievalIndexingOutboxRepository` and `IRetrievalIndexingOutboxRepository`, then `InMemoryRetrievalIndexingOutboxRepository`, then the unit test. The KEDA SQL scaler is a separate follow-up PR after the schema change has deployed to production and queue depths are stable. No dependency on any other batch; the schema migration is additive (new nullable columns with defaults) and will not break any existing query. The `AuthorityPipelineWorkOutbox` is already well-guarded and does not need schema changes in this batch.
+
+**Batch 18 — Terraform documentation**
+Apply **#51** (Terraform advisory C# inline documentation) and **#52** (inline documentation pass on existing `infra/` Terraform roots) together in a single documentation PR. #51 is pure XML doc-comment changes on C# files with no logic edits; #52 is pure `#` comment additions to existing `.tf` files with no HCL logic changes. Run #51 first, then #52 in the same branch. Neither touches application code, schema migrations, or tests. No dependency on any other batch; both are safe to land at any time.
 
 ---
 
