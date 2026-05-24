@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.Json;
 
-using ArchLucid.Decisioning.Advisory.Workflow;
+using ArchLucid.Contracts.Advisory.Workflow;
 
 using FluentAssertions;
 
