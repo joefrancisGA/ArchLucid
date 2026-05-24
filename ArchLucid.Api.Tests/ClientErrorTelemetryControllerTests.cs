@@ -1,7 +1,9 @@
 ﻿using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.Models;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Telemetry;
 using ArchLucid.Contracts.Telemetry;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 
@@ -21,18 +23,46 @@ public sealed class ClientErrorTelemetryControllerTests
 {
     private static ClientErrorTelemetryController CreateController(
         IScopeContextProvider? scopeProviderOverride = null,
-        IFirstTenantFunnelEmitter? funnelEmitterOverride = null)
+        IFirstTenantFunnelEmitter? funnelEmitterOverride = null,
+        IAuditService? auditServiceOverride = null,
+        IActorContext? actorContextOverride = null)
     {
         IScopeContextProvider scopeProvider = scopeProviderOverride ?? CreateDefaultScopeProvider();
         IFirstTenantFunnelEmitter emitter = funnelEmitterOverride ?? new NullFirstTenantFunnelEmitter();
+        IAuditService auditService = auditServiceOverride ?? new NullAuditService();
+        IActorContext actorContext = actorContextOverride ?? CreateDefaultActorContext();
 
         ClientErrorTelemetryController controller =
-            new(NullLogger<ClientErrorTelemetryController>.Instance, scopeProvider, emitter)
+            new(NullLogger<ClientErrorTelemetryController>.Instance, scopeProvider, emitter, auditService, actorContext)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
 
         return controller;
+    }
+
+    private sealed class NullAuditService : IAuditService
+    {
+        public Task LogAsync(AuditEvent auditEvent, CancellationToken ct) => Task.CompletedTask;
+    }
+
+    private sealed class CapturingAuditService : IAuditService
+    {
+        public List<AuditEvent> Events { get; } = [];
+
+        public Task LogAsync(AuditEvent auditEvent, CancellationToken ct)
+        {
+            Events.Add(auditEvent);
+            return Task.CompletedTask;
+        }
+    }
+
+    private static IActorContext CreateDefaultActorContext()
+    {
+        Mock<IActorContext> mock = new();
+        mock.Setup(a => a.GetActor()).Returns("operator@test");
+
+        return mock.Object;
     }
 
     /// <summary>
@@ -296,6 +326,34 @@ public sealed class ClientErrorTelemetryControllerTests
         ClientErrorTelemetryController controller = CreateController();
 
         IActionResult result = controller.PostCorePilotRailChecklistStep(null);
+
+        result.Should().BeAssignableTo<ObjectResult>();
+    }
+
+    [SkippableFact]
+    public async Task PostTrialUpgradeNudgeShown_valid_trigger_returns_204_and_audits()
+    {
+        CapturingAuditService audit = new();
+        ClientErrorTelemetryController controller = CreateController(auditServiceOverride: audit);
+
+        IActionResult result = await controller.PostTrialUpgradeNudgeShown(
+            new TrialUpgradeNudgeTelemetryRequest { Trigger = "runs" },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+        audit.Events.Should().ContainSingle();
+        audit.Events[0].EventType.Should().Be(AuditEventTypes.TrialUpgradeNudgeShown);
+        audit.Events[0].DataJson.Should().Contain("runs");
+    }
+
+    [SkippableFact]
+    public async Task PostTrialUpgradeNudgeClicked_invalid_trigger_returns_400()
+    {
+        ClientErrorTelemetryController controller = CreateController();
+
+        IActionResult result = await controller.PostTrialUpgradeNudgeClicked(
+            new TrialUpgradeNudgeTelemetryRequest { Trigger = "invalid" },
+            CancellationToken.None);
 
         result.Should().BeAssignableTo<ObjectResult>();
     }

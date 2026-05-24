@@ -49,6 +49,8 @@ export type MarketingTierPricingSectionProps = {
   showSignupCallToAction?: boolean;
   /** DOM id of the quote panel on the same page (Pro / Enterprise “Talk to sales” scroll target). */
   quoteSectionDomId?: string;
+  /** When true, Team tier leads with “Request quote” even if Stripe test checkout is enabled (trial nudge flow). */
+  preferSalesLedQuoteCta?: boolean;
 };
 
 /** Loads `/pricing.json` and renders tier cards — shared by welcome and `/pricing`. */
@@ -213,7 +215,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                 <div className="mt-4 flex flex-col gap-2">
                   {pkg.id === "team" ? (
                     <>
-                      {teamStripeCheckoutHref !== null ? (
+                      {teamStripeCheckoutHref !== null && !props.preferSalesLedQuoteCta ? (
                         <Button asChild variant="primary" className="w-full">
                           <a
                             data-testid="pricing-team-subscribe-stripe"
@@ -230,9 +232,22 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                         </Button>
                       )}
                       {teamStripeCheckoutHref !== null ? (
-                        <Button type="button" variant="outline" className="w-full" onClick={() => scrollToQuote()}>
-                          Request quote
-                        </Button>
+                        props.preferSalesLedQuoteCta ? (
+                          <Button asChild variant="outline" className="w-full">
+                            <a
+                              data-testid="pricing-team-subscribe-stripe"
+                              href={teamStripeCheckoutHref.trim()}
+                              rel="noopener noreferrer"
+                              target="_blank"
+                            >
+                              {teamStripeSubscribeLabel}
+                            </a>
+                          </Button>
+                        ) : (
+                          <Button type="button" variant="outline" className="w-full" onClick={() => scrollToQuote()}>
+                            Request quote
+                          </Button>
+                        )
                       ) : null}
                       <Button asChild variant="outline" className="w-full">
                         <Link href={props.signupHref}>{props.signupCallToActionLabel ?? "Start free trial"}</Link>

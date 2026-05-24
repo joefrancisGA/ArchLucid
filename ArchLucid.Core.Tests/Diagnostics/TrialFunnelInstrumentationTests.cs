@@ -89,6 +89,36 @@ public sealed class TrialFunnelInstrumentationTests
     }
 
     [Fact]
+    public void TrialUpgradeNudgeShownTotal_add_emits_measurement()
+    {
+        _ = ArchLucidInstrumentation.TrialUpgradeNudgeShownTotal;
+
+        using TrialFunnelCapture c = TrialFunnelCapture.Start();
+
+        ArchLucidInstrumentation.RecordTrialUpgradeNudgeShown("seats");
+
+        c.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid_trial_upgrade_nudge_shown_total"
+            && m.Value == 1
+            && m.Tags.Any(t => t.Key == "trigger" && (string?)t.Value == "seats"));
+    }
+
+    [Fact]
+    public void TrialUpgradeNudgeClickedTotal_add_emits_measurement()
+    {
+        _ = ArchLucidInstrumentation.TrialUpgradeNudgeClickedTotal;
+
+        using TrialFunnelCapture c = TrialFunnelCapture.Start();
+
+        ArchLucidInstrumentation.RecordTrialUpgradeNudgeClicked("expiry");
+
+        c.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid_trial_upgrade_nudge_clicked_total"
+            && m.Value == 1
+            && m.Tags.Any(t => t.Key == "trigger" && (string?)t.Value == "expiry"));
+    }
+
+    [Fact]
     public void SponsorBannerFirstCommitBadgeRenderedTotal_add_emits_measurement()
     {
         _ = ArchLucidInstrumentation.SponsorBannerFirstCommitBadgeRenderedTotal;

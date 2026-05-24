@@ -42,6 +42,7 @@ import { LlmBudgetApproachingLimitBanner } from "@/components/LlmBudgetApproachi
 import { LlmBudgetStatusPill } from "@/components/LlmBudgetStatusPill";
 import { TrialBanner } from "@/components/TrialBanner";
 import { TrialExpiryBanner } from "@/components/TrialExpiryBanner";
+import { TrialUsageUpgradeNudge } from "@/components/TrialUsageUpgradeNudge";
 import { TrialLimitModalHost } from "@/components/TrialLimitModal";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -178,6 +179,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                 <SimulatorExecutionModeBanner />
                 <ServiceBusHealthBanner />
                 <LlmBudgetApproachingLimitBanner />
+                <TrialUsageUpgradeNudge />
                 <TrialExpiryBanner />
                 <KeyboardShortcutProvider
                   onHelpRequested={() => {
@@ -284,6 +286,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               <SimulatorExecutionModeBanner />
               <ServiceBusHealthBanner />
               <LlmBudgetApproachingLimitBanner />
+              <TrialUsageUpgradeNudge />
               <TrialExpiryBanner />
               <TrialBanner />
               <KeyboardShortcutProvider>

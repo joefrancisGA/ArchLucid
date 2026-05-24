@@ -60,9 +60,9 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Score:** 92
 - **Weight:** 7
 - **Weighted Deficiency:** 56
-- **Justification:** Trial funnel is automated end-to-end with audit + Prometheus instrumentation; Tier 1 extractor ZIP is the customer-friendly default; Core Pilot four-step happy path is published; ROI surfaces (per-run and executive cross-run) are live; sample-seeded trial tenant works. AWS/GCP target analysis is **V1.1 per §6n** and not penalized. Remaining V1 friction: no in-product upgrade nudge when trial usage crosses 70–80%, and no Team→Professional in-product CTA based on seat / workspace headroom.
+- **Justification:** Trial funnel is automated end-to-end with audit + Prometheus instrumentation; Tier 1 extractor ZIP is the customer-friendly default; Core Pilot four-step happy path is published; ROI surfaces (per-run and executive cross-run) are live; sample-seeded trial tenant works. AWS/GCP target analysis is **V1.1 per §6n** and not penalized. Remaining V1 friction: no Team→Professional in-product CTA based on seat / workspace headroom (usage-based trial upgrade nudge shipped in Improvement #14, 2026-05-24).
 - **Tradeoffs:** In-product upgrade nudges feel pushy if not carefully tuned; pace them against documented seat-usage thresholds.
-- **Recommendations:** Add usage-based in-product upgrade nudge (new Improvement #14).
+- **Recommendations:** Add usage-based in-product upgrade nudge (new Improvement #14) — **completed 2026-05-24**.
 - **Status:** Fixable in V1.
 
 ### 5. Proof-of-ROI Readiness
@@ -424,11 +424,12 @@ Implement a fallback mechanism for the RAG `AskService`.
 Acceptance Criteria: The Ask feature degrades gracefully instead of throwing 500 errors when the vector store is offline.
 ```
 
-### 14. Implement Usage-Based In-Product Upgrade Nudge for Trial Tenants
+### 14. Implement Usage-Based In-Product Upgrade Nudge for Trial Tenants (completed 2026-05-24)
 - **Why it matters:** Trial tenants approaching their run / seat caps get no in-app conversion prompt today. Sales-led is the V1 contract for *closing*, but in-product nudges that surface the right moment to engage sales are still V1-additive and do not depend on Stripe live-key flip.
 - **Expected impact:** Directly improves Time-to-Value (+3 pts) and Adoption Friction (+2 pts). Weighted readiness impact: +0.07%.
 - **Affected qualities:** Time-to-Value, Adoption Friction.
-- **Actionable now:** Yes.
+- **Actionable now:** No (completed).
+- **Completed:** 2026-05-24 — `TrialUsageUpgradeNudge` in operator shell; `/pricing?source=trial-nudge` quote-first Team CTA; Prometheus counters and audit events for shown/clicked.
 ```cursor
 Implement an in-product upgrade nudge for trial tenants approaching their limits.
 1. In `archlucid-ui`, add a new component `TrialUsageUpgradeNudge` that displays in the operator shell when:

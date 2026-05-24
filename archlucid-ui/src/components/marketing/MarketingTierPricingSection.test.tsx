@@ -342,4 +342,30 @@ describe("MarketingTierPricingSection", () => {
 
     expect(screen.queryByTestId("pricing-team-subscribe-stripe")).not.toBeInTheDocument();
   });
+
+  it("prefers Request quote as Team primary CTA when preferSalesLedQuoteCta is true", async () => {
+    vi.stubEnv("NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED", "true");
+
+    render(
+      <MarketingTierPricingSection
+        sectionHeadingId="pricing-heading"
+        sectionTitle="Pricing"
+        signupHref="/signup?utm_source=pricing_page"
+        preferSalesLedQuoteCta
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Team" })).toBeInTheDocument();
+    });
+
+    const teamCard = screen.getByRole("heading", { name: "Team" }).closest("li");
+    if (teamCard === null) {
+      throw new Error("expected Team tier list item");
+    }
+
+    const teamScope = within(teamCard);
+    teamScope.getByRole("button", { name: /^request quote$/i });
+    teamScope.getByTestId("pricing-team-subscribe-stripe");
+  });
 });

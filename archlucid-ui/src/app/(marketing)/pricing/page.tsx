@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { MarketingPricingPublicCutoverNotice } from "@/components/marketing/MarketingPricingPublicCutoverNotice";
 import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
+import { TrialNudgePricingQuoteFocus } from "@/components/marketing/TrialNudgePricingQuoteFocus";
 import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
 import { BUYER_PRICING_ARCHITECTURE_PROOF_ENGINE_CLAUSE } from "@/lib/buyer-polish-copy";
 import { buildPricingSignupHref } from "@/lib/marketing/pricing-signup-href";
@@ -23,9 +24,14 @@ type PricingPageProps = {
 export default async function PricingPage(props: PricingPageProps) {
   const searchParams = await props.searchParams;
   const signupHref = buildPricingSignupHref(searchParams);
+  const sourceParam = searchParams.source;
+  const preferSalesLedQuoteCta =
+    (typeof sourceParam === "string" && sourceParam === "trial-nudge") ||
+    (Array.isArray(sourceParam) && sourceParam.includes("trial-nudge"));
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
+      {preferSalesLedQuoteCta ? <TrialNudgePricingQuoteFocus quoteSectionDomId="pricing-quote-request" /> : null}
       <MarketingTierPricingSection
         sectionHeadingId="pricing-page-heading"
         sectionTitle="Pricing"
@@ -33,6 +39,7 @@ export default async function PricingPage(props: PricingPageProps) {
         signupHref={signupHref}
         signupCallToActionLabel="Request evaluation workspace"
         showSignupCallToAction={false}
+        preferSalesLedQuoteCta={preferSalesLedQuoteCta}
       />
       <MarketingPricingPublicCutoverNotice />
       <p

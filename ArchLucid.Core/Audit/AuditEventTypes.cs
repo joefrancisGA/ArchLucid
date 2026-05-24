@@ -512,6 +512,12 @@ public static class AuditEventTypes
     /// <summary>LLM prompt truncated because estimated tokens exceeded the configured context threshold.</summary>
     public const string LlmContextTruncated = "LlmContextTruncated";
 
+    /// <summary>Operator shell showed the usage-based trial upgrade nudge (payload includes <c>trigger</c>).</summary>
+    public const string TrialUpgradeNudgeShown = "TrialUpgradeNudgeShown";
+
+    /// <summary>Operator clicked the usage-based trial upgrade nudge CTA (payload includes <c>trigger</c>).</summary>
+    public const string TrialUpgradeNudgeClicked = "TrialUpgradeNudgeClicked";
+
     /// <summary>First golden manifest commit recorded for a self-service trial tenant (funnel depth).</summary>
     public const string TrialFirstRunCompleted = "TrialFirstRunCompleted";
 

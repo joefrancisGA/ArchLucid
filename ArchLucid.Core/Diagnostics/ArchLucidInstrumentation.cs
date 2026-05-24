@@ -510,6 +510,18 @@ public static class ArchLucidInstrumentation
             "archlucid_trial_expirations_total",
             description: "Trial lifecycle transitions applied by automation (label: reason).");
 
+    /// <summary>Usage-based trial upgrade nudge renders in the operator shell (label <c>trigger</c>).</summary>
+    public static readonly Counter<long> TrialUpgradeNudgeShownTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_upgrade_nudge_shown_total",
+            description: "Trial upgrade nudge shown in operator shell (label: trigger=runs|seats|expiry).");
+
+    /// <summary>Usage-based trial upgrade nudge CTA clicks (label <c>trigger</c>).</summary>
+    public static readonly Counter<long> TrialUpgradeNudgeClickedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_upgrade_nudge_clicked_total",
+            description: "Trial upgrade nudge CTA clicks (label: trigger=runs|seats|expiry).");
+
     /// <summary>First successful golden-manifest commit per tenant (Core Pilot onboarding funnel).</summary>
     public static readonly Counter<long> FirstSessionCompletedTotal =
         AppMeter.CreateCounter<long>(
@@ -1330,6 +1342,30 @@ public static class ArchLucidInstrumentation
         TagList tags = new() { { "reason", r } };
 
         TrialExpirationsTotal.Add(1, tags);
+    }
+
+    private static readonly HashSet<string> TrialUpgradeNudgeTriggers =
+        new(StringComparer.Ordinal) { "runs", "seats", "expiry" };
+
+    /// <summary>Increments <see cref="TrialUpgradeNudgeShownTotal" />.</summary>
+    public static void RecordTrialUpgradeNudgeShown(string trigger)
+    {
+        string t = NormalizeTrialUpgradeNudgeTrigger(trigger);
+        TrialUpgradeNudgeShownTotal.Add(1, new TagList { { "trigger", t } });
+    }
+
+    /// <summary>Increments <see cref="TrialUpgradeNudgeClickedTotal" />.</summary>
+    public static void RecordTrialUpgradeNudgeClicked(string trigger)
+    {
+        string t = NormalizeTrialUpgradeNudgeTrigger(trigger);
+        TrialUpgradeNudgeClickedTotal.Add(1, new TagList { { "trigger", t } });
+    }
+
+    private static string NormalizeTrialUpgradeNudgeTrigger(string trigger)
+    {
+        string t = string.IsNullOrWhiteSpace(trigger) ? "unknown" : trigger.Trim();
+
+        return TrialUpgradeNudgeTriggers.Contains(t) ? t : "unknown";
     }
 
     /// <summary>Increments <see cref="SponsorBannerFirstCommitBadgeRenderedTotal" />.</summary>
