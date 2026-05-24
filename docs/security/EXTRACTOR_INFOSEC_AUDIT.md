@@ -1,3 +1,5 @@
+> **Scope:** Security and procurement reviewers auditing the read-only Azure extractor script (`Get-ArchLucidAzurePackage.ps1`) — API surfaces, data collected, and explicit exclusions; not tenant onboarding or runtime application security.
+
 # ArchLucid Azure Extractor — InfoSec audit manifest
 
 **Script:** `scripts/azure/Get-ArchLucidAzurePackage.ps1`  
