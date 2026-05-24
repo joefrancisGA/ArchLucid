@@ -32,6 +32,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/AdminIntegrationsController.cs",
+      "class_name": "AdminIntegrationsController",
+      "route_template": "v{version:apiVersion}/admin/integrations",
+      "normalized_prefix": "/v1/admin/integrations",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/AdminLlmCostTuningController.cs",
       "class_name": "AdminLlmCostTuningController",
       "route_template": "v{version:apiVersion}/admin",
