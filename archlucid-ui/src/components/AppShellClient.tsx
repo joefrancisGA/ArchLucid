@@ -27,6 +27,7 @@ import {
 } from "@/components/OperatorChromeModeContext";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityProvider";
+import { OperatorRoleGate } from "@/components/OperatorRoleGate";
 import { SidebarNav } from "@/components/SidebarNav";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
@@ -189,7 +190,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                   >
                     <SyncActiveRunFromPathname />
                     <DemoStrictNavigationGate />
-                    {children}
+                    <OperatorRoleGate>{children}</OperatorRoleGate>
                   </main>
                 </KeyboardShortcutProvider>
               </div>
@@ -291,7 +292,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                 >
                     <SyncActiveRunFromPathname />
                     <DemoStrictNavigationGate />
-                    {children}
+                    <OperatorRoleGate>{children}</OperatorRoleGate>
                 </main>
               </KeyboardShortcutProvider>
             </div>

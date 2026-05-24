@@ -76,6 +76,12 @@ internal static class PipelineExtensions
                 ProblemErrorCodes.AttachErrorCode(problem, ProblemTypes.InternalError);
                 ProblemSupportHints.AttachForProblemType(problem);
                 ProblemCorrelation.Attach(problem, context);
+
+                if (!context.Response.Headers.ContainsKey(CorrelationIdHeaderParser.HeaderName))
+                {
+                    context.Response.Headers[CorrelationIdHeaderParser.HeaderName] = context.TraceIdentifier;
+                }
+
                 context.Response.StatusCode = problem.Status ?? 500;
                 context.Response.ContentType = "application/problem+json";
                 await context.Response.WriteAsJsonAsync(problem);

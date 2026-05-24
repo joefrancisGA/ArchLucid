@@ -186,7 +186,8 @@ public static class ProblemDetailsExtensions
         this ControllerBase controller,
         string detail,
         string? type = null,
-        string? instance = null)
+        string? instance = null,
+        IReadOnlyDictionary<string, object?>? extensions = null)
     {
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
         {
@@ -196,6 +197,7 @@ public static class ProblemDetailsExtensions
             Detail = detail,
             Instance = instance ?? controller.Request.Path
         };
+        ApplyOptionalProblemExtensions(problem, extensions);
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, controller.HttpContext);

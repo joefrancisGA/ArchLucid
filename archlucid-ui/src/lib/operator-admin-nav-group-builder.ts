@@ -70,6 +70,22 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "AdminAuthority",
         },
         {
+          href: "/settings/scim-provisioning",
+          label: "SCIM provisioning",
+          title: "SCIM provisioning — inbound bearer tokens and connectivity verification",
+          icon: Users,
+          tier: "advanced",
+          requiredAuthority: "AdminAuthority",
+        },
+        {
+          href: "/operate/integration-events/dlq",
+          label: "Integration DLQ",
+          title: "Integration dead letters — inspect and retry failed outbound integration events",
+          icon: Webhook,
+          tier: "advanced",
+          requiredAuthority: "AdminAuthority",
+        },
+        {
           href: "/settings/tenant-cost",
           label: "Tenant cost",
           title: "Tenant cost — estimated monthly spend band (Standard+)",

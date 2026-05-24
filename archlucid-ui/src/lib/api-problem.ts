@@ -12,6 +12,10 @@ export type ApiProblemDetails = {
   supportHint?: string;
   /** Echoes API **X-Correlation-ID** / proxy **correlationId** when present in JSON (RFC 9457 extension promoted to root). */
   correlationId?: string;
+  /** Azure extractor upload failures include a coarse validation bucket. */
+  failureKind?: string;
+  /** Structured validation messages when returned by the API Problem Details extensions. */
+  errors?: readonly string[];
   /** Governance pre-commit block narrative when commit is rejected (HTTP 409). */
   blockExplanation?: string;
 };
@@ -33,6 +37,8 @@ function readExtensions(obj: Record<string, unknown>): {
   supportHint?: string;
   correlationId?: string;
   blockExplanation?: string;
+  failureKind?: string;
+  errors?: readonly string[];
 } {
   const extensions = obj.extensions;
 
@@ -51,7 +57,22 @@ function readExtensions(obj: Record<string, unknown>): {
     supportHint: readTrimmedString(ext, "supportHint"),
     correlationId: readTrimmedString(ext, "correlationId"),
     blockExplanation: readTrimmedString(ext, "blockExplanation"),
+    failureKind: readTrimmedString(ext, "failureKind"),
+    errors: readStringArray(ext.errors),
   };
+}
+
+function readStringArray(value: unknown): readonly string[] | undefined {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+
+  const strings = value
+    .filter((entry): entry is string => typeof entry === "string")
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
+
+  return strings.length > 0 ? strings : undefined;
 }
 
 function readOptionalNumber(obj: Record<string, unknown>, key: string): number | undefined {
@@ -110,6 +131,8 @@ export function tryParseApiProblemDetails(text: string, contentType: string | nu
     readTrimmedString(record, "correlationId") ?? fromExt.correlationId;
   const blockExplanation =
     readTrimmedString(record, "blockExplanation") ?? fromExt.blockExplanation;
+  const failureKind = readTrimmedString(record, "failureKind") ?? fromExt.failureKind;
+  const errors = readStringArray(record.errors) ?? fromExt.errors;
   const status = readOptionalNumber(record, "status");
 
   if (!title && !detail && !type && !errorCode) {
@@ -152,6 +175,14 @@ export function tryParseApiProblemDetails(text: string, contentType: string | nu
 
   if (blockExplanation) {
     problem.blockExplanation = blockExplanation;
+  }
+
+  if (failureKind) {
+    problem.failureKind = failureKind;
+  }
+
+  if (errors) {
+    problem.errors = errors;
   }
 
   return problem;

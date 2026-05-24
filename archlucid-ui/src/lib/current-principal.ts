@@ -75,6 +75,7 @@
 import {
   AUTHORITY_RANK,
   collectArchLucidRoleClaimValues,
+  hasRecognizedArchLucidRoleValues,
   maxAuthorityRankFromMeClaims,
   requiredAuthorityFromRank,
   type RequiredAuthority,
@@ -122,6 +123,8 @@ export type CurrentPrincipal = {
    * review for the current scope — from `GET /api/auth/me` (`hasCommittedArchitectureReview`).
    */
   hasCommittedArchitectureReview: boolean;
+  /** True when `/me` included at least one recognized ArchLucid app role claim. */
+  hasRecognizedArchLucidRole: boolean;
   /**
    * Fine-grained `permission` claims from `/me` (e.g. `export:consulting-docx`). Empty when synthetic or not issued.
    * Server policies remain authoritative.
@@ -184,6 +187,7 @@ function createSyntheticPrincipal(reason: CurrentPrincipalSyntheticReason): Curr
     authorityRank: AUTHORITY_RANK.ReadAuthority,
     hasEnterpriseOperatorSurfaces: false,
     hasCommittedArchitectureReview: preserveFullNavOnMeFailure,
+    hasRecognizedArchLucidRole: false,
     permissionClaimValues: [],
   };
 }
@@ -202,6 +206,7 @@ export const shellBootstrapReadPrincipal: Readonly<CurrentPrincipal> = Object.fr
   authorityRank: AUTHORITY_RANK.ReadAuthority,
   hasEnterpriseOperatorSurfaces: false,
   hasCommittedArchitectureReview: false,
+  hasRecognizedArchLucidRole: false,
   permissionClaimValues: [],
 });
 
@@ -219,6 +224,7 @@ export const operatorNavOutsideProviderPrincipal: Readonly<CurrentPrincipal> = O
   authorityRank: AUTHORITY_RANK.AdminAuthority,
   hasEnterpriseOperatorSurfaces: true,
   hasCommittedArchitectureReview: true,
+  hasRecognizedArchLucidRole: true,
   permissionClaimValues: [CONSULTING_DOCX_EXPORT_PERMISSION],
 });
 
@@ -264,6 +270,7 @@ export function normalizeAuthMeResponse(payload: AuthMeResponse): CurrentPrincip
     authorityRank,
     hasEnterpriseOperatorSurfaces: authorityRank >= AUTHORITY_RANK.ExecuteAuthority,
     hasCommittedArchitectureReview: payload.hasCommittedArchitectureReview === true,
+    hasRecognizedArchLucidRole: hasRecognizedArchLucidRoleValues(roleClaimValues),
     permissionClaimValues,
   };
 }

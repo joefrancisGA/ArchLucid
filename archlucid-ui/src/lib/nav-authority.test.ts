@@ -87,15 +87,24 @@ describe("nav-authority", () => {
     expect(rank).toBe(AUTHORITY_RANK.ExecuteAuthority);
   });
 
-  /** Unknown role strings must not inflate rank; empty-known set still falls back to Read (same as no claims). */
-  it("defaults to Read rank when only non-ArchLucid role values are present", () => {
+  /** Unknown role strings must not inflate rank; principals without recognized roles stay at rank 0 for gating. */
+  it("returns rank 0 when only non-ArchLucid role values are present", () => {
     expect(
       maxAuthorityRankFromMeClaims([{ type: "roles", value: "CustomVendorRole" }]),
-    ).toBe(AUTHORITY_RANK.ReadAuthority);
+    ).toBe(0);
   });
 
-  it("defaults to Read rank when no known roles are present", () => {
-    expect(maxAuthorityRankFromMeClaims([{ type: "sub", value: "x" }])).toBe(AUTHORITY_RANK.ReadAuthority);
+  it("returns rank 0 when no known roles are present", () => {
+    expect(maxAuthorityRankFromMeClaims([{ type: "sub", value: "x" }])).toBe(0);
+  });
+
+  it("recognizes extended ArchLucid roles from Entra app roles", () => {
+    expect(maxAuthorityRankFromMeClaims([{ type: "roles", value: "Architect" }])).toBe(
+      AUTHORITY_RANK.ExecuteAuthority,
+    );
+    expect(maxAuthorityRankFromMeClaims([{ type: "roles", value: "WorkspaceAdmin" }])).toBe(
+      AUTHORITY_RANK.AdminAuthority,
+    );
   });
 
   it("collectArchLucidRoleClaimValues dedupes case-insensitively", () => {

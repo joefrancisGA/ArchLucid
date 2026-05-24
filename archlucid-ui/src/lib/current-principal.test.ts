@@ -52,6 +52,14 @@ describe("normalizeAuthMeResponse", () => {
     expect(principal.authorityRank).toBe(AUTHORITY_RANK.ReadAuthority);
     expect(principal.primaryAppRole).toBe("Auditor");
     expect(principal.hasEnterpriseOperatorSurfaces).toBe(false);
+    expect(principal.hasRecognizedArchLucidRole).toBe(true);
+  });
+
+  it("marks hasRecognizedArchLucidRole false when /me has no ArchLucid app roles", () => {
+    const principal = normalizeAuthMeResponse({ claims: [{ type: "sub", value: "user-1" }] });
+
+    expect(principal.hasRecognizedArchLucidRole).toBe(false);
+    expect(principal.authorityRank).toBe(0);
   });
 
   it("picks Admin when multiple role claims are present", () => {

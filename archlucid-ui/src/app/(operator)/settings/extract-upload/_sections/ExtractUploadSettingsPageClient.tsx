@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
@@ -155,7 +155,7 @@ export function ExtractUploadSettingsPageClient() {
             </p>
           ) : null}
           {uploadError !== null ? (
-            <OperatorApiProblem
+            <AzureExtractorUploadFailureCallout
               fallbackMessage={uploadError.message}
               problem={uploadError.problem}
               correlationId={uploadError.correlationId}

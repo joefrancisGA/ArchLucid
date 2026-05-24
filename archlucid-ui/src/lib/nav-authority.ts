@@ -86,6 +86,12 @@ const ROLE_ADMIN = "Admin";
 const ROLE_OPERATOR = "Operator";
 const ROLE_READER = "Reader";
 const ROLE_AUDITOR = "Auditor";
+const ROLE_ARCHITECT = "Architect";
+const ROLE_REVIEWER = "Reviewer";
+const ROLE_WORKSPACE_ADMIN = "WorkspaceAdmin";
+const ROLE_PLATFORM_OPERATOR = "PlatformOperator";
+const ROLE_SPONSOR = "Sponsor";
+const ROLE_PROJECT_ADMIN = "ProjectAdmin";
 
 const ROLE_URI_SUFFIX = "/claims/role";
 
@@ -110,11 +116,17 @@ export function maxAuthorityRankFromMeClaims(claims: ReadonlyArray<{ type: strin
     rank = Math.max(rank, rankForRoleValue(value));
   }
 
-  if (rank === 0) {
-    return AUTHORITY_RANK.ReadAuthority;
-  }
-
   return rank;
+}
+
+/** True when at least one ArchLucid app role claim maps to a non-zero authority rank. */
+export function hasRecognizedArchLucidRole(claims: ReadonlyArray<{ type: string; value: string }>): boolean {
+  return collectArchLucidRoleClaimValues(claims).some((role) => rankForRoleValue(role) > 0);
+}
+
+/** True when the principal carries at least one recognized ArchLucid app role claim value. */
+export function hasRecognizedArchLucidRoleValues(roleClaimValues: readonly string[]): boolean {
+  return roleClaimValues.some((role) => rankForRoleValue(role) > 0);
 }
 
 export function isArchLucidRoleClaimType(type: string): boolean {
@@ -185,15 +197,24 @@ function rankForRoleValue(value: string): number {
 
   const lower = normalized.toLowerCase();
 
-  if (lower === ROLE_ADMIN.toLowerCase()) {
+  if (lower === ROLE_ADMIN.toLowerCase() || lower === ROLE_WORKSPACE_ADMIN.toLowerCase() || lower === ROLE_PLATFORM_OPERATOR.toLowerCase()) {
     return AUTHORITY_RANK.AdminAuthority;
   }
 
-  if (lower === ROLE_OPERATOR.toLowerCase()) {
+  if (
+    lower === ROLE_OPERATOR.toLowerCase()
+    || lower === ROLE_ARCHITECT.toLowerCase()
+    || lower === ROLE_REVIEWER.toLowerCase()
+    || lower === ROLE_PROJECT_ADMIN.toLowerCase()
+  ) {
     return AUTHORITY_RANK.ExecuteAuthority;
   }
 
-  if (lower === ROLE_READER.toLowerCase() || lower === ROLE_AUDITOR.toLowerCase()) {
+  if (
+    lower === ROLE_READER.toLowerCase()
+    || lower === ROLE_AUDITOR.toLowerCase()
+    || lower === ROLE_SPONSOR.toLowerCase()
+  ) {
     return AUTHORITY_RANK.ReadAuthority;
   }
 

@@ -248,9 +248,26 @@ public sealed class AzureExtractorUploadController(
             logger.LogInformation("Azure extractor ingest rejected: {Detail}", detail);
 
         if (result.IsInvalidArchive || result.IsSchemaRejection)
-            return this.BadRequestProblem(detail, ProblemTypes.ValidationFailed);
+        {
+            string failureKind = result.IsSchemaRejection ? "schema" : "archive";
 
-        return this.UnprocessableEntityProblem(detail);
+            return this.BadRequestProblem(
+                detail,
+                ProblemTypes.ValidationFailed,
+                extensions: new Dictionary<string, object?>
+                {
+                    ["failureKind"] = failureKind,
+                    ["errors"] = new[] { detail },
+                });
+        }
+
+        return this.UnprocessableEntityProblem(
+            detail,
+            extensions: new Dictionary<string, object?>
+            {
+                ["failureKind"] = "validation",
+                ["errors"] = new[] { detail },
+            });
     }
 
 }
