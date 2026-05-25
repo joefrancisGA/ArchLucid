@@ -361,3 +361,43 @@ groups:
             Aggregate deny-list redactions exceed 5/s for 10m on `archlucid_llm_prompt_redactions_total`.
             Investigate prompt injection attempts, overly aggressive deny-list rules, or upstream data quality.
             Grafana: `infra/grafana/dashboard-archlucid-llm-usage.json` (Prompt redaction panels).
+
+  - name: archlucid-sql-pool
+    rules:
+      - alert: SqlPoolNearExhaustion
+        expr: |
+          (
+            archlucid_sql_pool_active_connections
+            /
+            (archlucid_sql_pool_active_connections + archlucid_sql_pool_idle_connections)
+          ) > 0.80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: SQL connection pool above 80% utilisation for 2 minutes
+          description: >-
+            Microsoft.Data.SqlClient pool active connections exceed 80% of active+idle capacity for 2m.
+            Investigate connection leaks or increase Max Pool Size after profiling.
+
+  - name: archlucid-authority-outbox-depth
+    rules:
+      - alert: AuthorityOutboxStalled
+        expr: archlucid_authority_pipeline_work_oldest_pending_age_seconds > 300
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Authority pipeline outbox has items older than 5 minutes
+          description: >-
+            Oldest pending authority pipeline work exceeds 300 seconds. See dashboard-archlucid-authority.json.
+
+      - alert: IntegrationOutboxDeadLetterGrowing
+        expr: archlucid_integration_event_outbox_dead_letter_count > 0
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: Integration event outbox has dead-lettered items
+          description: >-
+            archlucid_integration_event_outbox_dead_letter_count is above zero. Triage integration outbox DLQ.

@@ -155,6 +155,7 @@ public static class ObservabilityExtensions
                 // schema_validation_total and schema_validation_duration_ms.
                 metrics.AddMeter(SchemaValidationService.MeterName);
                 metrics.AddMeter(ArchLucidInstrumentation.MeterName);
+                metrics.AddMeter("ArchLucid.SqlPool");
 
                 // Always register the Prometheus exporter on the shared MeterProvider so
                 // UseOpenTelemetryPrometheusScrapingEndpoint can resolve it whenever scrape is enabled
