@@ -1,7 +1,10 @@
 using System.Diagnostics;
 
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Retrieval;
+
+using Microsoft.Extensions.Options;
 using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.PolicyPacks;
@@ -14,10 +17,14 @@ namespace ArchLucid.Retrieval.Queries;
 public sealed class RetrievalQueryService(
     IEmbeddingService embeddingService,
     IVectorIndex vectorIndex,
-    AssignedPolicyPackRulePackIdResolver assignedPolicyPackRulePackIdResolver) : IRetrievalQueryService
+    AssignedPolicyPackRulePackIdResolver assignedPolicyPackRulePackIdResolver,
+    IOptionsMonitor<RetrievalTelemetryOptions> retrievalTelemetryOptions) : IRetrievalQueryService
 {
     private readonly AssignedPolicyPackRulePackIdResolver _assignedPolicyPackRulePackIdResolver =
         assignedPolicyPackRulePackIdResolver ?? throw new ArgumentNullException(nameof(assignedPolicyPackRulePackIdResolver));
+
+    private readonly IOptionsMonitor<RetrievalTelemetryOptions> _retrievalTelemetryOptions =
+        retrievalTelemetryOptions ?? throw new ArgumentNullException(nameof(retrievalTelemetryOptions));
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<RetrievalHit>> SearchAsync(RetrievalQuery query, CancellationToken ct)
@@ -43,7 +50,12 @@ public sealed class RetrievalQueryService(
         IReadOnlyList<RetrievalHit> hits = await vectorIndex.SearchAsync(query, embedding, ct);
 
         double durationMilliseconds = Stopwatch.GetElapsedTime(startTicks).TotalMilliseconds;
-        ArchLucidInstrumentation.RecordRagRetrievalSearch(durationMilliseconds, hits, query.TenantId);
+        bool recordPerTenantTags = _retrievalTelemetryOptions.CurrentValue.RecordPerTenantTags;
+        ArchLucidInstrumentation.RecordRagRetrievalSearch(
+            durationMilliseconds,
+            hits,
+            query.TenantId,
+            recordPerTenantTags);
 
         return hits;
     }

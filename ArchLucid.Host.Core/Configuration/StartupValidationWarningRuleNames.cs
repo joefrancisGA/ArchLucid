@@ -14,4 +14,7 @@ public static class StartupValidationWarningRuleNames
         "agent_result_schema_enforce_on_parse_disabled_production_like";
 
     public const string SqlConnectionStringMissingSkipMigrations = "sql_connection_string_missing_skip_migrations";
+
+    public const string RetrievalTelemetryPerTenantTagsProductionLike =
+        "retrieval_telemetry_per_tenant_tags_production_like";
 }

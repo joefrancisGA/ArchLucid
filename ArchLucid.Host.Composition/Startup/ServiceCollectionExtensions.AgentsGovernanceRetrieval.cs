@@ -209,6 +209,9 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(LlmMonthlyTenantDollarBudgetOptions.SectionName));
         services.AddScoped<LlmMonthlyTenantDollarBudgetTracker>();
         services.Configure<LlmTelemetryOptions>(configuration.GetSection(LlmTelemetryOptions.SectionName));
+        services.Configure<RetrievalTelemetryOptions>(configuration.GetSection(RetrievalTelemetryOptions.SectionName));
+        services.AddSingleton<IPostConfigureOptions<RetrievalTelemetryOptions>,
+            RetrievalTelemetryProductionWarningPostConfigure>();
         services.Configure<FallbackLlmOptions>(configuration.GetSection(FallbackLlmOptions.SectionName));
         services.Configure<AgentExecutionTraceStorageOptions>(
             configuration.GetSection(AgentExecutionTraceStorageOptions.SectionPath));

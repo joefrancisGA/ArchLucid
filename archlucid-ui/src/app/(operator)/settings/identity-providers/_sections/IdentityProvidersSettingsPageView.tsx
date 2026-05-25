@@ -23,6 +23,14 @@ export function IdentityProvidersSettingsPageView({ model }: IdentityProvidersSe
           <a href="/settings/identity/sso-wizard" className="text-teal-700 underline-offset-2 hover:underline">
             SSO configuration wizard
           </a>
+          . For SAML claim-mapping tables (Entra, Okta, Ping) and offline validation with{" "}
+          <code className="text-xs">archlucid auth validate-saml</code>, see the{" "}
+          <a
+            href="/docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md#saml-claim-mapping-reference"
+            className="text-teal-700 underline-offset-2 hover:underline"
+          >
+            hosted Enterprise onboarding checklist §2.1
+          </a>
           .
         </p>
       </div>

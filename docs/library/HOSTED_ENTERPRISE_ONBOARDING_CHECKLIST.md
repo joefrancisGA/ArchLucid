@@ -32,10 +32,130 @@ Choose **one** primary workforce path (many customers run SAML SP; OIDC `JwtBear
 | Decide IdP path: **SAML 2.0 SP** or **OIDC JwtBearer** | Joint | Documented in tenant runbook |
 | Pre-flight SAML metadata + claim mapping (if SAML) | Customer IT + ArchLucid | `archlucid auth validate-saml --metadata <idp.xml> --claim-mapping <mapping.json>` passes with zero failures |
 | Configure ArchLucid auth mode + endpoints | ArchLucid ops | Keys documented in [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md) / [`SECURITY.md`](SECURITY.md) |
-| Map IdP groups → ArchLucid roles (Admin, Operator, Reader, Auditor) | Joint | At least one Admin can sign in |
+| Map IdP groups → ArchLucid roles (Admin, Operator, Reader, Auditor) | Joint | At least one Admin can sign in — see **[§2.1 SAML claim-mapping reference](#saml-claim-mapping-reference)** |
 | Smoke test: Admin + Operator login | Customer | Both roles reach expected UI surfaces |
 
 **SAML helpers:** `archlucid saml test-config` (live appsettings) · `archlucid auth validate-saml` (offline metadata + mapping files)
+
+**Operator UI:** [`/settings/identity-providers`](/settings/identity-providers) (read-only catalog) · [`/settings/identity/sso-wizard`](/settings/identity/sso-wizard) (guided tenant row — **not** a claim-mapping wizard). Claim-mapping tables below are the V1 contract.
+
+### 2.1 SAML claim-mapping reference {#saml-claim-mapping-reference}
+
+ArchLucid workforce authorization expects **`Admin`**, **`Operator`**, **`Reader`**, or **`Auditor`** role strings after assertion processing (see [`SECURITY.md`](SECURITY.md) RBAC table). Persist mapping in **`ClaimMappingJson`** on the tenant identity-provider row (SSO wizard or ops tooling) using this JSON shape:
+
+```json
+{
+  "roleClaimName": "<IdP attribute or claim URI carrying group/role values>",
+  "mappings": [
+    { "idpValue": "<IdP group or role string>", "archLucidRole": "Admin" }
+  ],
+  "customGroupClaimRegex": null
+}
+```
+
+**Validate before go-live:** `archlucid auth validate-saml --metadata ./idp-metadata.xml --claim-mapping ./claim-mapping.json` (Improvement archived **#4**). Procurement FAQ Q4 cross-links this checklist anchor for buyer questionnaires.
+
+#### Microsoft Entra ID (SAML SP)
+
+| IdP source (typical) | Example IdP value | ArchLucid role | Notes |
+|----------------------|-------------------|----------------|-------|
+| Entra **Security group** display name | `ArchLucid-Admins` | `Admin` | Prefer stable group **object IDs** in `idpValue` when display names churn |
+| Entra security group | `ArchLucid-Operators` | `Operator` | |
+| Entra security group | `ArchLucid-Readers` | `Reader` | |
+| Entra security group | `ArchLucid-Auditors` | `Auditor` | Required for **`GET /v1/audit/export`** without Admin |
+| Entra **App role** assignment | `Admin` | `Admin` | When using enterprise app roles instead of groups |
+
+**Suggested `roleClaimName` values (pick one that matches your assertion):**
+
+| Assertion shape | `roleClaimName` |
+|-----------------|-----------------|
+| Group Object IDs in **`http://schemas.microsoft.com/ws/2008/06/identity/claims/groups`** | `http://schemas.microsoft.com/ws/2008/06/identity/claims/groups` |
+| Group display names via custom SAML attribute | Your custom attribute name (must match assertion XML) |
+| App roles in **`roles`** | `roles` |
+
+**Example `claim-mapping.json` (group Object IDs):**
+
+```json
+{
+  "roleClaimName": "http://schemas.microsoft.com/ws/2008/06/identity/claims/groups",
+  "mappings": [
+    { "idpValue": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "archLucidRole": "Admin" },
+    { "idpValue": "11111111-2222-3333-4444-555555555555", "archLucidRole": "Operator" },
+    { "idpValue": "66666666-7777-8888-9999-000000000000", "archLucidRole": "Reader" },
+    { "idpValue": "aaaa1111-bbbb-2222-cccc-dddd3333eeee", "archLucidRole": "Auditor" }
+  ]
+}
+```
+
+**OIDC alternative:** Many Entra customers use **`JwtBearer`** instead of SAML — map **`roles`** or group overage claims per [`GENERIC_OIDC_SETUP.md`](../runbooks/GENERIC_OIDC_SETUP.md) and [`appsettings.Entra.sample.json`](../../ArchLucid.Api/appsettings.Entra.sample.json).
+
+#### Okta (SAML SP)
+
+| IdP source (typical) | Example IdP value | ArchLucid role | Notes |
+|----------------------|-------------------|----------------|-------|
+| Okta **Group** name | `ArchLucid Admin` | `Admin` | Match the string Okta emits in the SAML attribute you select |
+| Okta group | `ArchLucid Operator` | `Operator` | |
+| Okta group | `ArchLucid Reader` | `Reader` | |
+| Okta group | `ArchLucid Auditor` | `Auditor` | |
+
+**Suggested `roleClaimName` values:**
+
+| Assertion shape | `roleClaimName` |
+|-----------------|-----------------|
+| Okta **Groups** attribute (default filter) | `groups` |
+| Custom SAML attribute for role strings | Name from Okta **Attribute Statements** (often `roles`) |
+
+**Example `claim-mapping.json`:**
+
+```json
+{
+  "roleClaimName": "groups",
+  "mappings": [
+    { "idpValue": "ArchLucid Admin", "archLucidRole": "Admin" },
+    { "idpValue": "ArchLucid Operator", "archLucidRole": "Operator" },
+    { "idpValue": "ArchLucid Reader", "archLucidRole": "Reader" },
+    { "idpValue": "ArchLucid Auditor", "archLucidRole": "Auditor" }
+  ]
+}
+```
+
+**OIDC alternative:** See [`SSO_OKTA_CONFIGURATION.md`](../integrations/SSO_OKTA_CONFIGURATION.md) §2.3–§2.4 for **`roles`** claim mapping on access tokens.
+
+#### Ping Identity (PingFederate / PingOne — SAML SP)
+
+| IdP source (typical) | Example IdP value | ArchLucid role | Notes |
+|----------------------|-------------------|----------------|-------|
+| Ping **group** membership | `archlucid-admins` | `Admin` | Use the same string Ping sends in the SAML attribute |
+| Ping group | `archlucid-operators` | `Operator` | |
+| Ping group | `archlucid-readers` | `Reader` | |
+| Ping group | `archlucid-auditors` | `Auditor` | |
+
+**Suggested `roleClaimName` values:**
+
+| Assertion shape | `roleClaimName` |
+|-----------------|-----------------|
+| **`memberOf`** LDAP attribute via Ping adapter | `memberOf` |
+| Custom **`groups`** attribute | `groups` |
+| PingOne **Roles** claim | `roles` |
+
+**Example `claim-mapping.json`:**
+
+```json
+{
+  "roleClaimName": "memberOf",
+  "mappings": [
+    { "idpValue": "cn=archlucid-admins,ou=groups,dc=example,dc=com", "archLucidRole": "Admin" },
+    { "idpValue": "cn=archlucid-operators,ou=groups,dc=example,dc=com", "archLucidRole": "Operator" },
+    { "idpValue": "cn=archlucid-readers,ou=groups,dc=example,dc=com", "archLucidRole": "Reader" },
+    { "idpValue": "cn=archlucid-auditors,ou=groups,dc=example,dc=com", "archLucidRole": "Auditor" }
+  ],
+  "customGroupClaimRegex": "^cn=archlucid-([a-z]+),"
+}
+```
+
+Use **`customGroupClaimRegex`** only when Ping emits full DNs but you prefer to match a stable prefix — validate with `archlucid auth validate-saml` before production cutover.
+
+**SCIM alignment:** When SCIM provisions users (§3), directory **group display names** should match the **`idpValue`** strings above so deprovisioning and SSO role resolution stay consistent.
 
 ---
 

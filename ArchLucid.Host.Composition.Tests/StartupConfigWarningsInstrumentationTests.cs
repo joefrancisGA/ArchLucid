@@ -107,6 +107,41 @@ public sealed class StartupConfigWarningsInstrumentationTests
     }
 
     [Fact]
+    public void RetrievalTelemetry_PostConfigure_when_per_tenant_tags_exceed_estimate_on_production_like_increments_metric()
+    {
+        _ = ArchLucidInstrumentation.StartupConfigWarningsTotal;
+
+        using StartupConfigWarningsCapture capture = StartupConfigWarningsCapture.Start();
+
+        IHostEnvironment hostEnvironment = new StubHostEnvironment(Environments.Staging);
+        IConfiguration configuration = new ConfigurationBuilder().Build();
+
+        RetrievalTelemetryProductionWarningPostConfigure sut = new(
+            hostEnvironment,
+            configuration,
+            NullLogger<RetrievalTelemetryProductionWarningPostConfigure>.Instance);
+
+        sut.PostConfigure(
+            null,
+            new RetrievalTelemetryOptions
+            {
+                RecordPerTenantTags = true,
+                EstimatedTenantCount = 150,
+                MaxRecommendedTenantCountForPerTenantTags = 100,
+            });
+
+        capture.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid_startup_config_warnings_total"
+            && m.Value == 1
+            && m.Tags.Any(t =>
+                t.Key == "rule_name"
+                && string.Equals(
+                    t.Value as string,
+                    StartupValidationWarningRuleNames.RetrievalTelemetryPerTenantTagsProductionLike,
+                    StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public void ContentSafetyConfigurationWarnings_when_fail_open_in_staging_emits_metric_and_log()
     {
         _ = ArchLucidInstrumentation.StartupConfigWarningsTotal;

@@ -1,5 +1,5 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Retrieval;
-using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Models;
@@ -67,7 +67,7 @@ public sealed class RetrievalQueryServiceTests
             ],
             CancellationToken.None);
 
-        RetrievalQueryService sut = new(embeddings.Object, index);
+        RetrievalQueryService sut = CreateService(embeddings.Object, index);
 
         IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(
             ScopedQuery("q", topK: 10),
@@ -97,7 +97,7 @@ public sealed class RetrievalQueryServiceTests
             ],
             CancellationToken.None);
 
-        RetrievalQueryService sut = new(embeddings.Object, index);
+        RetrievalQueryService sut = CreateService(embeddings.Object, index);
 
         IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(
             ScopedQuery("q", topK: 2),
@@ -213,7 +213,8 @@ public sealed class RetrievalQueryServiceTests
     private static RetrievalQueryService CreateService(
         IEmbeddingService embeddingService,
         IVectorIndex vectorIndex,
-        HashSet<string>? assignedRulePackIds = null)
+        HashSet<string>? assignedRulePackIds = null,
+        bool recordPerTenantTags = false)
     {
         Mock<IPolicyPackResolver> policyPackResolver = new();
         policyPackResolver
@@ -226,7 +227,11 @@ public sealed class RetrievalQueryServiceTests
         AssignedPolicyPackRulePackIdResolver assignedResolver =
             new(policyPackResolver.Object, options);
 
-        return new RetrievalQueryService(embeddingService, vectorIndex, assignedResolver);
+        IOptionsMonitor<RetrievalTelemetryOptions> telemetryOptions =
+            new MockOptionsMonitor<RetrievalTelemetryOptions>(
+                new RetrievalTelemetryOptions { RecordPerTenantTags = recordPerTenantTags });
+
+        return new RetrievalQueryService(embeddingService, vectorIndex, assignedResolver, telemetryOptions);
     }
 
     private static EffectivePolicyPackSet BuildEffectivePackSet(IEnumerable<string> rulePackIds)

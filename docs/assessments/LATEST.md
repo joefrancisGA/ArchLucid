@@ -1,17 +1,17 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 93.70%
+# ArchLucid Assessment – (A) Headline Readiness: 93.73%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items such as SOC 2 CPA attestation, third-party pen tests, MCP, the commerce un-hold, multi-cloud (AWS/GCP) analysis, multi-region active/active, automated tenant erasure, Graph-RAG / agentic retrieval, hosted Tier 2 continuous polling, **non-SCIM bulk-CSV user onboarding (V2)**, **self-hosted Enterprise commercial deals (V2)**, and related sub-milestones (capacity guide, private-endpoint reference architecture).*
 
 **Score ledger:** Incremental history through legacy **archived #1–#57** and owner rescoring (**87.74% → 92.63%**) lives in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md).
 
-**Rescore 2026-05-25 (post Improvements #1–#21):** Headline **93.70%** (+0.89% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**, **#12 orphan-probe CI guard +0.02%**, **#13 agent-trace blob lifecycle Terraform +0.02%**, **#14 integration outbox DLQ operator UI +0.02%**, **#15 Azure OpenAI circuit breaker brownout tuning +0.02%**, **#16 Persistence hexagonal guards +0.01%**, **#17 Tier-2 Azure SP wizard +0.05%**, **#18 Tier-1 ZIP upload error parsing +0.02%**, **#19 LlmCostEstimator overflow + negative-rate guards +0.02%**, **#20 LlmCostEstimator reasoning-token tests +0.01%**, **#21 INV-005/006 Wave A remainder +0.03%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#22–#25** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
+**Rescore 2026-05-25 (post Improvements #1–#25):** Headline **93.73%** (+0.92% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**, **#12 orphan-probe CI guard +0.02%**, **#13 agent-trace blob lifecycle Terraform +0.02%**, **#14 integration outbox DLQ operator UI +0.02%**, **#15 Azure OpenAI circuit breaker brownout tuning +0.02%**, **#16 Persistence hexagonal guards +0.01%**, **#17 Tier-2 Azure SP wizard +0.05%**, **#18 Tier-1 ZIP upload error parsing +0.02%**, **#19 LlmCostEstimator overflow + negative-rate guards +0.02%**, **#20 LlmCostEstimator reasoning-token tests +0.01%**, **#21 INV-005/006 Wave A remainder +0.03%**, **#24 RAG telemetry cardinality gate +0.01%**, **#25 SAML claim-mapping checklist +0.02%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#22–#23** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**
-ArchLucid is ready for **V1 GA at 93.70%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#21 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM, Azure Retail cost grounding, platform docs corpus, finding-engine `AlternativePathsConsidered`, Executive ROI RLS hardening, orphan-probe registry CI guard, agent-trace blob lifecycle Terraform, integration outbox DLQ operator UI, Azure OpenAI circuit breaker brownout tuning, Persistence hexagonal guards, Tier-2 Azure SP wizard, Tier-1 ZIP upload error parsing, LlmCostEstimator overflow + negative-rate guards, LlmCostEstimator reasoning-token tests, INV-005/006 Wave A remainder). **No `(A)` items remain in the V1 GA gate set.**
+ArchLucid is ready for **V1 GA at 93.71%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#24 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM, Azure Retail cost grounding, platform docs corpus, finding-engine `AlternativePathsConsidered`, Executive ROI RLS hardening, orphan-probe registry CI guard, agent-trace blob lifecycle Terraform, integration outbox DLQ operator UI, Azure OpenAI circuit breaker brownout tuning, Persistence hexagonal guards, Tier-2 Azure SP wizard, Tier-1 ZIP upload error parsing, LlmCostEstimator overflow + negative-rate guards, LlmCostEstimator reasoning-token tests, INV-005/006 Wave A remainder, RAG telemetry cardinality gate). **No `(A)` items remain in the V1 GA gate set.**
 
 **`(B)` Procurement / Market-Motion Realism (Informational — zero weight on `(A)`)**
 Enterprise procurement teams will still ask for CPA-issued SOC 2 Type II, an external pen-test summary, automated GDPR erasure, multi-region active/active, AWS/GCP target analysis, and **self-hosted / on-premises deployment**. Every one of these items is **explicitly out of `(A)` scope** per `V1_DEFERRED.md` §6c, §6l, §6m, §6n, **§6t**, and the scope rule. The right posture is honest trust-center narrative — **V1 GA is hosted SaaS**; self-hosted Enterprise is **V2** — not score deductions.
@@ -53,10 +53,10 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Score:** 94
 - **Weight:** 6
 - **Weighted Deficiency:** 36
-- **Justification:** Entra ID, generic OIDC, native SAML SP, SCIM, API-key automation, and `archlucid doctor` all land in V1 GA on **ArchLucid-hosted SaaS**. Tier 1 Azure Extractor is the V1 path by design. Hosted Tier 2 continuous polling is **V1.x per §6p** and not penalized. **Non-SCIM bulk-CSV** is **V2** per [`V1_DEFERRED.md` §6r](../library/V1_DEFERRED.md). **Self-hosted Enterprise deals** are **V2** per [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md). SAML metadata CLI (archived #4) and SAML SP startup validation (archived #18, 2026-05-24) are the **V1 SAML contract**; an interactive claim-mapping wizard is **explicitly out of V1 scope** (owner 2026-05-25) and must not appear as an `(A)` defect. **No guided sandbox** (owner 2026-05-25). **Improvement #5 shipped 2026-05-25** — paid Team→Professional expansion CTA. **Improvement #7 shipped 2026-05-25** — public `/pricing` Custom Policy Pack Authoring PS section with SoW and Order Form Addendum C cross-links (canonical prices in PRICING_PHILOSOPHY §4.2 only).
+- **Justification:** Entra ID, generic OIDC, native SAML SP, SCIM, API-key automation, and `archlucid doctor` all land in V1 GA on **ArchLucid-hosted SaaS**. Tier 1 Azure Extractor is the V1 path by design. Hosted Tier 2 continuous polling is **V1.x per §6p** and not penalized. **Non-SCIM bulk-CSV** is **V2** per [`V1_DEFERRED.md` §6r](../library/V1_DEFERRED.md). **Self-hosted Enterprise deals** are **V2** per [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md). SAML metadata CLI (archived #4) and SAML SP startup validation (archived #18, 2026-05-24) are the **V1 SAML contract**; an interactive claim-mapping wizard is **explicitly out of V1 scope** (owner 2026-05-25) and must not appear as an `(A)` defect. **No guided sandbox** (owner 2026-05-25). **Improvement #5 shipped 2026-05-25** — paid Team→Professional expansion CTA. **Improvement #7 shipped 2026-05-25** — public `/pricing` Custom Policy Pack Authoring PS section with SoW and Order Form Addendum C cross-links (canonical prices in PRICING_PHILOSOPHY §4.2 only). **Improvement #25 shipped 2026-05-25** — hosted Enterprise checklist §2.1 IdP claim-mapping tables (Entra, Okta, Ping) + identity settings doc link.
 - **Tradeoffs:** In-product upgrade nudges feel pushy if not carefully tuned; pace them against documented seat/workspace thresholds (mirror archived #14 dismissal cadence). Publishing PS SKUs on the public pricing page increases procurement scrutiny — figures stay in canonical pricing docs only.
-- **Recommendations:** Document SAML claim-mapping in hosted Enterprise onboarding checklist (archived #17).
-- **Status:** **#7 shipped 2026-05-25.** **#5 shipped 2026-05-25.**
+- **Recommendations:** Keep claim-mapping tables aligned with `IdentityClaimRoleMappingValidator` allowed roles when IdP vendors change attribute names.
+- **Status:** **#25 shipped 2026-05-25** — hosted Enterprise checklist §2.1 Entra/Okta/Ping SAML claim-mapping tables + identity settings doc link. **#7 shipped 2026-05-25.** **#5 shipped 2026-05-25.**
 
 ### 4. Time-to-Value
 - **Score:** 91
@@ -108,11 +108,11 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Weight:** 1
 - **Weighted Deficiency:** 1
 - **Justification:** OpenTelemetry depth (custom `ArchLucid` meter with ~50 instruments), persisted W3C trace IDs on runs, Serilog + correlation IDs, `archlucid doctor`, CLI `support-bundle`, multiple committed Grafana dashboards, RAG retrieval duration/chunk histograms (archived #7), Prometheus alert rules, detailed `/health` with circuit-breaker introspection and vector-store readiness probing (archived #10). **Improvements #2, #4, #6, and #14 shipped 2026-05-25** — **`reject_reason` / `execution_mode`** on `archlucid_agent_output_quality_gate_total`, **`archlucid_tenant_estimated_savings_usd`** observable gauge, pricing-quote aging **Sales ops** Grafana row + operator triage dashboard, and **`/operate/integration-events/dlq`** dead-letter list with tenant/age, single/bulk retry, suppress + audit.
-- **Tradeoffs:** More telemetry costs ingest dollars in Azure Monitor / Prometheus; per-tenant cardinality is gated behind `LlmTelemetry:RecordPerTenantTokens` and `ExecutiveRoi:SavingsGauge:RecordPerTenantSavings`.
-- **Recommendations:** Enable per-tenant RAG tags only for bounded tenant counts.
-- **Status:** **#14 shipped 2026-05-25.** **#6 shipped 2026-05-25.** **#4 shipped 2026-05-25.** **#2 shipped 2026-05-25.**
+- **Tradeoffs:** More telemetry costs ingest dollars in Azure Monitor / Prometheus; per-tenant cardinality is gated behind `LlmTelemetry:RecordPerTenantTokens`, `ExecutiveRoi:SavingsGauge:RecordPerTenantSavings`, and **`RetrievalTelemetry:RecordPerTenantTags`** (Improvement **#24**).
+- **Recommendations:** Enable per-tenant RAG tags only for bounded tenant counts; set **`EstimatedTenantCount`** when enabling on production-like hosts so startup advisories fire before ingest cost spikes.
+- **Status:** **#24 shipped 2026-05-25.** **#14 shipped 2026-05-25.** **#6 shipped 2026-05-25.** **#4 shipped 2026-05-25.** **#2 shipped 2026-05-25.**
 
-**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.70%** (documented +0.89% from shipped **#1–#21**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
+**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.71%** (documented +0.90% from shipped **#1–#24**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
 
 ---
 
@@ -152,7 +152,7 @@ CPA SOC 2 Type II, third-party pen-test publication, automated GDPR tenant erasu
 1. ~~**Tier 2 Azure Extractor service-principal provisioning is customer-side manual:**~~ **Mitigated 2026-05-25** — guided Tier-2 wizard at **`/settings/cloud-connections`** (Improvement **#17**): RBAC checklist, copy-paste CLI, client-side GUID validation, save + optional hosted validation pull; links to hosted Enterprise onboarding §9 and procurement FAQ.
 2. **Custom policy pack authoring GTM:** Shipped (Improvement **#7**, 2026-05-25).
 3. **Team→Professional expansion CTA:** Shipped (Improvement **#5**, 2026-05-25).
-4. **SAML claim-mapping relies on docs, not in-product guidance — post-GA (Improvement #25):** Wizard is out of V1 scope (owner 2026-05-25); hosted Enterprise onboarding checklist (archived #17) still needs explicit IdP attribute → role mapping tables for top IdPs.
+4. ~~**SAML claim-mapping relies on docs, not in-product guidance — post-GA (Improvement #25):**~~ **Mitigated 2026-05-25** — [`HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md` §2.1](../library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md#saml-claim-mapping-reference) (Entra, Okta, Ping) + PROCUREMENT_FAQ Q4 + identity settings doc link; interactive wizard remains out of V1 scope.
 5. ~~**Tier-1 extractor ZIP upload errors opaque — post-GA (Improvement #18):**~~ **Mitigated 2026-05-25** — structured upload failure callout with semantic codes and troubleshooting doc links on **`/settings/extract-upload`**.
 
 ---
@@ -168,7 +168,7 @@ Open mitigations only — active Improvements **#1–#25**. Legacy shipped work 
 6. **`DataConsistencyOrphanProbe` may miss new tables:** ~~Schema growth without probe registration or CI guard — **#12** (post-GA).~~ **Mitigated 2026-05-25** — **`DataConsistencyOrphanProbeRegistry`** + **`DataConsistencyOrphanProbeRegistryArchitectureTests`** + **`ArtifactBundles`** background probe.
 7. **Quality-gate rejects lack classified telemetry:** ~~Faithfulness enabled by default on hosted Staging/Production; without **`reject_reason` / `execution_mode`** on `archlucid_agent_output_quality_gate_total`, operators cannot triage reject causes — **#2** (V1 GA gate).~~ **Resolved 2026-05-25** — Improvement **#2** shipped.
 8. ~~**`LlmCostEstimator` overflow and negative-rate misconfig:**~~ **Mitigated 2026-05-25** — long-safe run token aggregation (TB-022), `LlmCostEstimationOptionsValidator` + runtime negative-rate guard (TB-026); Improvement **#19**.
-9. **Prometheus cardinality at tenant scale:** Ungated per-tenant labels on RAG and ROI metrics can explode ingest cost — **#24** (post-GA; especially after **#4** gauge ships).
+9. ~~**Prometheus cardinality at tenant scale:**~~ **Mitigated 2026-05-25** — **`RetrievalTelemetry:RecordPerTenantTags`** (default false) gates RAG `tenant_id` labels; **`RetrievalTelemetryProductionWarningPostConfigure`** emits startup advisory when enabled with high **`EstimatedTenantCount`** on production-like hosts (Improvement **#24**). ROI gauge remains gated by **`ExecutiveRoi:SavingsGauge:RecordPerTenantSavings`**.
 10. ~~**Boot-time architecture invariant gaps:**~~ **Mitigated 2026-05-25** — INV-005 catalog/fail-fast parity and INV-006 composition-root scan (Improvement **#21**, TB-010 Wave A).
 11. **Agent-output quality metrics lack production alert routing:** Faithfulness and gate-reject regressions may go unnoticed until customer impact — **#22** (post-GA; TB-004; after **#2**).
 12. **Persistence hexagonal guard holes:** ~~`Persistence→Provenance` and `Persistence→Capabilities.Cost` lack architecture-test guards — **#16** (post-GA).~~ **Mitigated 2026-05-25** — **`Persistence_must_not_depend_on_Capabilities_Cost`**, Provenance NetArchTest guard, and **`Persistence_csproj_must_not_reference_Provenance_or_Capabilities_Cost_by_design`**.
@@ -177,7 +177,7 @@ Open mitigations only — active Improvements **#1–#25**. Legacy shipped work 
 
 ## Most Important Truth
 
-ArchLucid is **ready to ship V1 GA at 93.70%**. **Improvements #1–#21 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#22–#25** do not move headline.
+ArchLucid is **ready to ship V1 GA at 93.73%**. **Improvements #1–#25 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#22–#23** do not move headline.
 
 ---
 
@@ -702,38 +702,20 @@ Constraints: Do not scrape EA billing APIs (V1); manual config only with transpa
 Acceptance Criteria: Settings persist; ROI summary reflects multiplier; tests and docs updated.
 ```
 
-### 24. Gate Per-Tenant RAG Telemetry Behind Bounded Cardinality Flag (actionable now — post-GA)
+### 24. Gate Per-Tenant RAG Telemetry Behind Bounded Cardinality Flag — **SHIPPED 2026-05-25**
 - **Why it matters:** RAG retrieval telemetry (archived #7) and future per-tenant savings (#4) risk Prometheus cardinality explosions at scale. Supportability section recommends gating per-tenant RAG tags.
-- **Expected impact:** Supportability (+1 pt), Reliability (+1 pt). Weighted readiness impact: **+0.01%** when shipped. **Do not rescored until shipped.**
+- **Expected impact:** Supportability (+1 pt), Reliability (+1 pt). Weighted readiness impact: **+0.01%** when shipped. **Rescored 2026-05-25 → 93.71%.**
 - **Affected qualities:** Supportability, Reliability.
 - **Actionable now:** Yes — post-GA; mirror `LlmTelemetry:RecordPerTenantTokens` pattern.
-```cursor
-Gate per-tenant RAG telemetry behind bounded cardinality flag (Improvement #24).
+- **Status:** **Shipped 2026-05-25** — `RetrievalTelemetry:RecordPerTenantTags` (default false), `RetrievalQueryService` passes flag to `RecordRagRetrievalSearch`, `RetrievalTelemetryProductionWarningPostConfigure` + tests, `OBSERVABILITY.md` / `CONFIGURATION_REFERENCE.md` / `appsettings.Advanced.json`.
 
-1. Add RetrievalTelemetry:RecordPerTenantTags (or extend LlmTelemetry pattern) — default false in Production.
-2. When false: emit aggregate RAG histograms only; when true: allow tenantId label for bounded tenant counts (document max).
-3. Update OBSERVABILITY.md and appsettings examples; add startup warning if enabled with high tenant count estimate.
-
-Acceptance Criteria: Default prod config avoids per-tenant RAG labels; tests for both modes.
-```
-
-### 25. Expand Hosted Enterprise SAML Claim-Mapping Onboarding Checklist (actionable now — post-GA)
+### 25. Expand Hosted Enterprise SAML Claim-Mapping Onboarding Checklist — **SHIPPED 2026-05-25**
 - **Why it matters:** SAML wizard is out of V1 scope (owner 2026-05-25), but Adoption Friction quality section still recommends documenting claim-mapping in hosted Enterprise onboarding (archived #17). Checklist exists; claim-mapping section needs explicit IdP attribute → ArchLucid role mapping tables.
-- **Expected impact:** Adoption Friction (+1 pt). Weighted readiness impact: **+0.02%** when shipped. **Do not rescored until shipped.**
+- **Expected impact:** Adoption Friction (+1 pt). Weighted readiness impact: **+0.02%** when shipped. **Rescored 2026-05-25 → 93.73%.**
 - **Affected qualities:** Adoption Friction.
 - **Actionable now:** Yes — post-GA; docs-only + optional UI link from Enterprise settings.
 - **Backlog refs:** Improvement **archived #17**; **archived #4** / **archived #18** SAML tooling.
-```cursor
-Expand hosted Enterprise SAML claim-mapping section in onboarding checklist (Improvement #25).
-
-1. Update docs/go-to-market/CUSTOMER_ONBOARDING_PLAYBOOK.md (or archived #17 checklist) with IdP attribute → ArchLucid role/group mapping tables for Entra, Okta, Ping common patterns.
-2. Cross-link validate-saml CLI (archived #4) and PROCUREMENT_FAQ claim-mapping guidance.
-3. Optional: archlucid-ui Enterprise identity settings panel links to checklist anchor — no in-product wizard.
-
-Constraints: Do NOT build interactive claim-mapping wizard (out of V1 scope).
-
-Acceptance Criteria: Checklist covers top 3 IdPs; FAQ and playbook consistent; no wizard scope creep.
-```
+- **Status:** **Shipped 2026-05-25** — `HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md` §2.1 (Entra, Okta, Ping tables + JSON examples), playbook + PROCUREMENT_FAQ Q4 cross-links, `/settings/identity-providers` doc link (no wizard).
 
 ---
 
