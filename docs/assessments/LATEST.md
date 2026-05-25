@@ -1,17 +1,17 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 93.66%
+# ArchLucid Assessment – (A) Headline Readiness: 93.67%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items such as SOC 2 CPA attestation, third-party pen tests, MCP, the commerce un-hold, multi-cloud (AWS/GCP) analysis, multi-region active/active, automated tenant erasure, Graph-RAG / agentic retrieval, hosted Tier 2 continuous polling, **non-SCIM bulk-CSV user onboarding (V2)**, **self-hosted Enterprise commercial deals (V2)**, and related sub-milestones (capacity guide, private-endpoint reference architecture).*
 
 **Score ledger:** Incremental history through legacy **archived #1–#57** and owner rescoring (**87.74% → 92.63%**) lives in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md).
 
-**Rescore 2026-05-25 (post Improvements #1–#19):** Headline **93.66%** (+0.85% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**, **#12 orphan-probe CI guard +0.02%**, **#13 agent-trace blob lifecycle Terraform +0.02%**, **#14 integration outbox DLQ operator UI +0.02%**, **#15 Azure OpenAI circuit breaker brownout tuning +0.02%**, **#16 Persistence hexagonal guards +0.01%**, **#17 Tier-2 Azure SP wizard +0.05%**, **#18 Tier-1 ZIP upload error parsing +0.02%**, **#19 LlmCostEstimator overflow + negative-rate guards +0.02%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#20–#25** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
+**Rescore 2026-05-25 (post Improvements #1–#20):** Headline **93.67%** (+0.86% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**, **#12 orphan-probe CI guard +0.02%**, **#13 agent-trace blob lifecycle Terraform +0.02%**, **#14 integration outbox DLQ operator UI +0.02%**, **#15 Azure OpenAI circuit breaker brownout tuning +0.02%**, **#16 Persistence hexagonal guards +0.01%**, **#17 Tier-2 Azure SP wizard +0.05%**, **#18 Tier-1 ZIP upload error parsing +0.02%**, **#19 LlmCostEstimator overflow + negative-rate guards +0.02%**, **#20 LlmCostEstimator reasoning-token tests +0.01%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#21–#25** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**
-ArchLucid is ready for **V1 GA at 93.66%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#19 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM, Azure Retail cost grounding, platform docs corpus, finding-engine `AlternativePathsConsidered`, Executive ROI RLS hardening, orphan-probe registry CI guard, agent-trace blob lifecycle Terraform, integration outbox DLQ operator UI, Azure OpenAI circuit breaker brownout tuning, Persistence hexagonal guards, Tier-2 Azure SP wizard, Tier-1 ZIP upload error parsing, LlmCostEstimator overflow + negative-rate guards). **No `(A)` items remain in the V1 GA gate set.**
+ArchLucid is ready for **V1 GA at 93.67%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#20 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM, Azure Retail cost grounding, platform docs corpus, finding-engine `AlternativePathsConsidered`, Executive ROI RLS hardening, orphan-probe registry CI guard, agent-trace blob lifecycle Terraform, integration outbox DLQ operator UI, Azure OpenAI circuit breaker brownout tuning, Persistence hexagonal guards, Tier-2 Azure SP wizard, Tier-1 ZIP upload error parsing, LlmCostEstimator overflow + negative-rate guards, LlmCostEstimator reasoning-token tests). **No `(A)` items remain in the V1 GA gate set.**
 
 **`(B)` Procurement / Market-Motion Realism (Informational — zero weight on `(A)`)**
 Enterprise procurement teams will still ask for CPA-issued SOC 2 Type II, an external pen-test summary, automated GDPR erasure, multi-region active/active, AWS/GCP target analysis, and **self-hosted / on-premises deployment**. Every one of these items is **explicitly out of `(A)` scope** per `V1_DEFERRED.md` §6c, §6l, §6m, §6n, **§6t**, and the scope rule. The right posture is honest trust-center narrative — **V1 GA is hosted SaaS**; self-hosted Enterprise is **V2** — not score deductions.
@@ -112,7 +112,7 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Recommendations:** Enable per-tenant RAG tags only for bounded tenant counts.
 - **Status:** **#14 shipped 2026-05-25.** **#6 shipped 2026-05-25.** **#4 shipped 2026-05-25.** **#2 shipped 2026-05-25.**
 
-**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.66%** (documented +0.85% from shipped **#1–#19**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
+**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.67%** (documented +0.86% from shipped **#1–#20**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
 
 ---
 
@@ -177,7 +177,7 @@ Open mitigations only — active Improvements **#1–#25**. Legacy shipped work 
 
 ## Most Important Truth
 
-ArchLucid is **ready to ship V1 GA at 93.66%**. **Improvements #1–#19 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#20–#25** do not move headline.
+ArchLucid is **ready to ship V1 GA at 93.67%**. **Improvements #1–#20 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#21–#25** do not move headline.
 
 ---
 
@@ -186,7 +186,7 @@ ArchLucid is **ready to ship V1 GA at 93.66%**. **Improvements #1–#19 shipped 
 Shipped improvements (**archived #1–#57**, 2026-05-24 – 2026-05-25) are documented in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md). **Active tasks in this file: #1–#25** (renumbered 2026-05-25; do not confuse with legacy archive IDs).
 
 **V1 GA gates (ship before GA):** **None remaining — #1–#7 shipped 2026-05-25.**
-**Additional V1 actionable (post-GA or parallel):** **#20–#25** (6 items).
+**Additional V1 actionable (post-GA or parallel):** **#21–#25** (5 items).
 **Total:** **25** actionable improvements in this assessment.
 
 ### 1. Wire Agent-Output Eval Corpus Baseline Regression — **SHIPPED 2026-05-25**
@@ -656,20 +656,11 @@ Acceptance Criteria: New integration tests pass; runbook note in OBSERVABILITY.m
 - **Affected qualities:** Reliability, Proof-of-ROI Readiness, Maintainability.
 - **Shipped:** **`long`** token totals in **`AgentExecutionTraceRunLlmCostAggregator`** / **`RunLlmTokenCountsResponse`**; **`LlmCostEstimationOptionsValidator`** + **`ValidateOnStart`**; **`LlmCostEstimationEffectiveRates`** runtime negative-rate guard; tests in Core/Application/AgentRuntime.
 
-### 20. Add Reasoning-Token Test Coverage for LlmCostEstimator (actionable now — post-GA)
+### 20. Add Reasoning-Token Test Coverage for LlmCostEstimator — **shipped 2026-05-25**
 - **Why it matters:** **TB-024** — `reasoningTokens > 0` path and per-deployment reasoning overrides are untested; FinOps envelopes for reasoning models are unverified.
-- **Expected impact:** Maintainability (+1 pt). Weighted readiness impact: **+0.01%** when shipped. **Do not rescored until shipped.**
+- **Expected impact:** Maintainability (+1 pt). Weighted readiness impact: **+0.01%** when shipped.
 - **Affected qualities:** Maintainability, Proof-of-ROI Readiness.
-- **Actionable now:** Yes — post-GA; XS size.
-- **Backlog refs:** **TB-024**.
-```cursor
-Add reasoning-token test coverage for LlmCostEstimator (Improvement #20 — TB-024).
-
-1. Extend LlmCostEstimatorTests with reasoningTokens > 0 cases, rate fallback, and per-deployment reasoning override.
-2. Assert EstimatedCostUsd and OTel archlucid_llm_cost_usd_total increments match expected math.
-
-Acceptance Criteria: TB-024 marked done; coverage on reasoning path ≥ existing prompt/completion cases.
-```
+- **Shipped:** **`LlmCostEstimatorTests`** — explicit reasoning rate, output-rate fallback, per-deployment reasoning override, persisted override + reasoning fallback, and OTel **`archlucid_llm_cost_usd_total`** alignment for reasoning-token estimates.
 
 ### 21. Complete Architecture Invariant Wave A — INV-005 and INV-006 (actionable now — post-GA)
 - **Why it matters:** **TB-010** remainder — startup validator parity and composition-root scan (INV-005, INV-006) close fail-closed boot safety gaps documented in ADR 0035.
@@ -782,7 +773,7 @@ Run **#7** — public `/pricing` PS section + sales kit links. Can batch with **
 Run **#11** (ROI RLS audit), **#12** (orphan probe CI guard), **#13** (blob lifecycle Terraform), **#14** (outbox DLQ UI), **#15** (OpenAI circuit breaker tuning) — sequence by incident priority; **#22** (agent-output alerts) after **#2**.
 
 **Batch 18 — Adoption and FinOps polish (post-GA)**
-Run ~~**#18** (Tier-1 ZIP errors)~~ **shipped 2026-05-25**, **#25** (SAML claim-mapping checklist). FinOps cluster: ~~**#19**~~ **shipped 2026-05-25**, **#20** (LlmCostEstimator reasoning-token tests). ~~**#17** (Tier-2 SP wizard)~~ **shipped 2026-05-25**.
+Run ~~**#18** (Tier-1 ZIP errors)~~ **shipped 2026-05-25**, **#25** (SAML claim-mapping checklist). FinOps cluster: ~~**#19**~~ **shipped 2026-05-25**, ~~**#20** (LlmCostEstimator reasoning-token tests)~~ **shipped 2026-05-25**. ~~**#17** (Tier-2 SP wizard)~~ **shipped 2026-05-25**.
 
 **Batch 19 — Architecture hygiene (post-GA)**
 Run **#16** (hexagonal guards), **#21** (INV-005/006 Wave A remainder) — keep separate from feature batches.

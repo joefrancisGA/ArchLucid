@@ -6,7 +6,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Priority order:** Items are listed highest → lowest priority. When picking up work, start at the top. Re-sort when new items are added: items that affect customer-visible correctness rank above ops/observability improvements, which rank above developer-experience polish.
 
-**Recently shipped (IDs kept for grep, ADRs, and code comments — spec text removed below):** **TB-001** (informational async audit best-effort + counter), **TB-002** (`archlucid_startup_config_warnings_total`), **TB-003** (named-query p95 allowlist + `archlucid_query_p95_ms`), **TB-006** (`ComparisonRecords` run id GUID + FK migration), **TB-022** (long-safe run token aggregation), **TB-026** (`LlmCostEstimationOptions` negative-rate validation + runtime guard).
+**Recently shipped (IDs kept for grep, ADRs, and code comments — spec text removed below):** **TB-001** (informational async audit best-effort + counter), **TB-002** (`archlucid_startup_config_warnings_total`), **TB-003** (named-query p95 allowlist + `archlucid_query_p95_ms`), **TB-006** (`ComparisonRecords` run id GUID + FK migration), **TB-022** (long-safe run token aggregation), **TB-024** (reasoning-token test coverage), **TB-026** (`LlmCostEstimationOptions` negative-rate validation + runtime guard).
 
 **TB-022 – TB-026** were added 2026-05-24 from an audit-grade correctness review of `LlmCostEstimator` (see `ArchLucid.AgentRuntime/LlmCostEstimator.cs` and `ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs`). They form a single thematic cluster: TB-022 + TB-026 are correctness fixes; TB-024 is test coverage; TB-023 + TB-025 are documentation/annotation.
 
@@ -26,7 +26,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-013 | Documentation library audience split — Phases 2–3 (customer-facing vs contributor-reference) | Developer experience — lower onboarding cognitive load without breaking bookmarks or procurement/UI doc paths | M |
 | TB-014 | LLM monthly budget top-up — **`PurchasedCapBumpUsd`** column + effective cap (manual SQL / test hook today); Stripe SKU + webhook + UI TBD | Self-service headroom before UTC month roll | M |
 | TB-015 | Per-agent/per-invoke-kind LLM token dimensions + CI export of real-mode averages | FinOps honesty — truthful Topology/Cost/Compliance/Critic token envelopes for `cost-preview` + cohort budgeting (no guesses) | M |
-| TB-024 | `LlmCostEstimator` — reasoning-token test coverage | Test coverage — `reasoningTokens > 0` path in `LlmCostEstimatorTests` is untested; rate fallback and per-deployment reasoning override need explicit cases | XS |
+| TB-024 | `LlmCostEstimator` — reasoning-token test coverage | Done (Improvement **#20**, 2026-05-25) | XS |
 | TB-023 | `LlmCostEstimator` — document replay-rate semantics (live rate vs stored-per-trace divergence) | Developer clarity / FinOps honesty — recomputed aggregate uses live rates, not historical rates; diverges from stored `EstimatedCostUsd` after admin rate changes; must be documented on `ILlmCostEstimator` and the aggregator | XS |
 | TB-025 | `LlmCostEstimator` — annotate OTel `double` cast and pretax nature | Informational / monitoring honesty — `(double)estimatedCostUsd` in `RecordLlmCostUsd` introduces IEEE 754 error; `archlucid_llm_cost_usd_total` is pretax and monitoring-grade only; neither is documented | XS |
 | TB-016 | ITSM + chat vendor sandbox accounts — provision, secrets, inbound webhooks — for recurring live smoke | Trust / interoperability — mocks are not proofs; gated CI + CONNECTOR_READINESS_MATRIX need operator-owned URLs + tokens | S–M |
@@ -667,9 +667,11 @@ The `LlmCostTuningRequestValidator` correctly rejects negative values on the adm
 
 ## TB-024 — `LlmCostEstimator` — reasoning-token test coverage
 
+**Status:** **Done** (Improvement **#20**, 2026-05-25) — explicit reasoning rate, output-rate fallback, per-deployment reasoning override, persisted override + reasoning fallback, and OTel `archlucid_llm_cost_usd_total` alignment covered in **`LlmCostEstimatorTests`**.
+
 **Source:** Cost estimator audit-grade correctness review (2026-05-24).
 
-**Problem:** All three existing `LlmCostEstimatorTests` pass `reasoningTokens = 0` (implicitly, via the default parameter). The following paths are untested:
+**Problem:** All existing `LlmCostEstimatorTests` passed `reasoningTokens = 0` (implicitly, via the default parameter). The following paths were untested:
 
 - Reasoning tokens billed at the explicit `ReasoningUsdPerMillionTokens` rate.
 - Reasoning tokens falling back to `outputRate` when `ReasoningUsdPerMillionTokens == 0`.
