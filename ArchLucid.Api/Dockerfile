@@ -50,6 +50,8 @@ COPY ArchLucid.Integrations.AzureExtractor/*.csproj ArchLucid.Integrations.Azure
 COPY ArchLucid.KnowledgeGraph/*.csproj     ArchLucid.KnowledgeGraph/
 COPY ArchLucid.Notifications/*.csproj      ArchLucid.Notifications/
 COPY ArchLucid.Persistence/*.csproj        ArchLucid.Persistence/
+# Pilot scorecard repos must be in context before restore; publish inherits this tree (see publish-stage COPY).
+COPY ArchLucid.Persistence/Pilots/         ArchLucid.Persistence/Pilots/
 COPY ArchLucid.Provenance/*.csproj         ArchLucid.Provenance/
 COPY ArchLucid.Retrieval/*.csproj          ArchLucid.Retrieval/
 
@@ -86,11 +88,8 @@ RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 \
 FROM restore AS publish
 
 COPY . .
-# Pilot scorecard persistence lives under ArchLucid.Persistence/Pilots. If this subtree is missing from the context
-# (stale cache, wrong build context, or incomplete checkout), ArchLucid.Persistence still compiles but Host.Composition
-# fails with CS0234 ("Pilots does not exist in ArchLucid.Persistence"). Re-COPY explicitly so the layer invalidates when
-# these files change, and fail fast with a clear error if they never arrived.
-COPY ArchLucid.Persistence/Pilots/*.cs ArchLucid.Persistence/Pilots/
+# Re-sync Pilots after full-tree COPY (wrong context, stale cache, or incomplete checkout).
+COPY ArchLucid.Persistence/Pilots/         ArchLucid.Persistence/Pilots/
 RUN test -f ArchLucid.Persistence/Pilots/InMemoryPilotBaselineRepository.cs \
     && test -f ArchLucid.Persistence/Pilots/DapperPilotBaselineRepository.cs \
     || (echo "FATAL: ArchLucid.Persistence/Pilots sources missing from Docker context. Use repo root as context (docker build -f ArchLucid.Api/Dockerfile .) and ensure Pilots/*.cs are committed." >&2; exit 1)

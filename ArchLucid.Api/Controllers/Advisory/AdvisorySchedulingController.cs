@@ -8,7 +8,6 @@ using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Contracts.Advisory.Scheduling;
-using ArchLucid.Core.Advisory.Scheduling;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence.Advisory;
 
