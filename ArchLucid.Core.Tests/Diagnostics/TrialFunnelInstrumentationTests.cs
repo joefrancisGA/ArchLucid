@@ -192,6 +192,8 @@ public sealed class TrialFunnelInstrumentationTests
             "archlucid_trial_signup_failures_total",
             "archlucid_trial_conversion_total",
             "archlucid_trial_expirations_total",
+            "archlucid_trial_upgrade_nudge_shown_total",
+            "archlucid_trial_upgrade_nudge_clicked_total",
             "archlucid_billing_checkouts_total",
             "archlucid.ui.sponsor_banner.first_commit_badge_rendered"
         ];
