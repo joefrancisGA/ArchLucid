@@ -44,6 +44,7 @@ using ArchLucid.Host.Composition.Orchestration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.DataAccess;
 using ArchLucid.Host.Core.DataConsistency;
+using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Core.Persistence.Ports;
@@ -365,7 +366,12 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IComplianceDriftFindingsTrendReader, DapperComplianceDriftFindingsTrendReader>();
         services.AddScoped<IPolicyPackCatalogRepository, DapperPolicyPackCatalogRepository>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
-        services.AddScoped<IAgentTraceOrphanBlobCleanupService, AgentTraceOrphanBlobCleanupService>();
+        services.AddScoped<IAgentTraceOrphanBlobCleanupService>(static sp => new AgentTraceOrphanBlobCleanupService(
+            sp.GetRequiredService<IRunRepository>(),
+            sp.GetRequiredService<IOptionsMonitor<ArtifactLargePayloadOptions>>(),
+            sp.GetService<ITenantRegionalArtifactBlobClients>(),
+            sp.GetService<BlobServiceClient>(),
+            sp.GetRequiredService<ILogger<AgentTraceOrphanBlobCleanupService>>()));
         services.AddScoped<ITenantRepository, DapperTenantRepository>();
         services.AddScoped<IArchitectureProjectRepository, DapperArchitectureProjectRepository>();
         services.AddScoped<IArchitectureProjectRetentionPurgeService, SqlArchitectureProjectRetentionPurgeService>();
@@ -453,6 +459,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
         services.AddHostedService<LlmTenantBudgetUtilizationMetricsHostedService>();
         services.AddHostedService<MarketingPricingQuoteAgingMetricsHostedService>();
+        services.AddHostedService<SqlConnectionPoolMetricsHostedService>();
 
         services.AddSingleton<DataConsistencyOrphanProbeExecutor>();
         services.AddSingleton<IDataConsistencyOrphanProbeExecutor>(

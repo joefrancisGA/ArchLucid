@@ -94,6 +94,8 @@ using ArchLucid.Persistence.Value;
 using ArchLucid.Persistence.WeeklyDigest;
 using ArchLucid.Provenance;
 
+using Azure.Storage.Blobs;
+
 namespace ArchLucid.Host.Composition.Configuration;
 
 internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistrar
@@ -208,7 +210,12 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddScoped<AuthorityRunOrchestrator>();
         services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestratorApplicationAdapter>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
-        services.AddScoped<IAgentTraceOrphanBlobCleanupService, AgentTraceOrphanBlobCleanupService>();
+        services.AddScoped<IAgentTraceOrphanBlobCleanupService>(static sp => new AgentTraceOrphanBlobCleanupService(
+            sp.GetRequiredService<IRunRepository>(),
+            sp.GetRequiredService<IOptionsMonitor<ArtifactLargePayloadOptions>>(),
+            sp.GetService<ITenantRegionalArtifactBlobClients>(),
+            sp.GetService<BlobServiceClient>(),
+            sp.GetRequiredService<ILogger<AgentTraceOrphanBlobCleanupService>>()));
         services.AddSingleton<IUsageEventRepository, InMemoryUsageEventRepository>();
         services.AddSingleton<ILlmTenantBudgetRepository, InMemoryLlmTenantBudgetRepository>();
         services.AddSingleton<IMarketingPricingQuoteRequestRepository, NoOpMarketingPricingQuoteRequestRepository>();
