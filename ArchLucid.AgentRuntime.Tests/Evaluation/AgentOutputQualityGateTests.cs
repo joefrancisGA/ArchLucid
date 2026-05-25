@@ -254,4 +254,61 @@ public sealed class AgentOutputQualityGateTests
     {
         new AgentOutputQualityGateOptions().Mode.Should().Be(AgentOutputQualityGateMode.WarnOnly);
     }
+
+    [SkippableFact]
+    public void ResolveRejectReasonCategory_when_accepted_returns_none()
+    {
+        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions { Enabled = true }));
+
+        string category = sut.ResolveRejectReasonCategory(
+            AgentOutputQualityGateOutcome.Accepted,
+            Structural(AgentType.Topology, 1.0),
+            Semantic(AgentType.Topology, 1.0),
+            null);
+
+        category.Should().Be(AgentOutputQualityGateTelemetry.RejectReasonNone);
+    }
+
+    [SkippableFact]
+    public void ResolveRejectReasonCategory_maps_faithfulness_evaluation_reason()
+    {
+        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions { Enabled = true }));
+
+        string category = sut.ResolveRejectReasonCategory(
+            AgentOutputQualityGateOutcome.Rejected,
+            Structural(AgentType.Topology, 1.0),
+            Semantic(AgentType.Topology, 1.0),
+            "agent_result_faithfulness_below_floor");
+
+        category.Should().Be(AgentOutputQualityGateTelemetry.RejectReasonFaithfulness);
+    }
+
+    [SkippableFact]
+    public void ResolveRejectReasonCategory_maps_semantic_threshold_failure()
+    {
+        AgentOutputQualityGateOptions options = BuildOptionsWithLockedPerAgentRejectFloorsAndLooseGlobal();
+        AgentOutputQualityGate sut = new(Options.Create(options));
+
+        string category = sut.ResolveRejectReasonCategory(
+            AgentOutputQualityGateOutcome.Rejected,
+            Structural(AgentType.Topology, 1.0),
+            Semantic(AgentType.Topology, 0.5),
+            "quality_gate_threshold_reject");
+
+        category.Should().Be(AgentOutputQualityGateTelemetry.RejectReasonSemantic);
+    }
+
+    [SkippableFact]
+    public void ResolveRejectReasonCategory_maps_structural_parse_failure_reason()
+    {
+        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions { Enabled = true }));
+
+        string category = sut.ResolveRejectReasonCategory(
+            AgentOutputQualityGateOutcome.Rejected,
+            Structural(AgentType.Topology, 0.1),
+            Semantic(AgentType.Topology, 1.0),
+            "agent_result_unparsed_json");
+
+        category.Should().Be(AgentOutputQualityGateTelemetry.RejectReasonStructural);
+    }
 }

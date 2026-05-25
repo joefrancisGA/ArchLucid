@@ -1,0 +1,9 @@
+{
+  "structuralCompleteness": 1.0,
+  "semanticScore": 0.0,
+  "faithfulnessSupportRatio": 0.0,
+  "embeddingFaithfulnessMeanCosine": null,
+  "aggregateScore": 0.25,
+  "capturedUtc": "2026-05-25T13:45:49Z",
+  "rubricVersion": "1"
+}

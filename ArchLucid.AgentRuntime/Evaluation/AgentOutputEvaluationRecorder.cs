@@ -34,6 +34,7 @@ public sealed class AgentOutputEvaluationRecorder(
     IAgentResultEmbeddingFaithfulnessScorer embeddingFaithfulnessScorer,
     IAgentOutputFaithfulnessEvaluator llmFaithfulnessEvaluator,
     IAgentOutputEvaluationRepository agentOutputEvaluationRepository,
+    IOptionsMonitor<AgentExecutionOptions> agentExecutionOptions,
     ILogger<AgentOutputEvaluationRecorder> logger)
 {
     private const double LowStructuralScoreThreshold = 0.5;
@@ -74,6 +75,9 @@ public sealed class AgentOutputEvaluationRecorder(
 
     private readonly IAgentOutputEvaluationRepository _agentOutputEvaluationRepository =
         agentOutputEvaluationRepository ?? throw new ArgumentNullException(nameof(agentOutputEvaluationRepository));
+
+    private readonly IOptionsMonitor<AgentExecutionOptions> _agentExecutionOptions =
+        agentExecutionOptions ?? throw new ArgumentNullException(nameof(agentExecutionOptions));
 
     /// <summary>
     ///     Evaluates all traces with successful parses and records histogram/counter metrics.
@@ -223,11 +227,22 @@ public sealed class AgentOutputEvaluationRecorder(
                         ? "pilot_strict"
                         : "warn_only";
 
+                string rejectReason = qualityGate.ResolveRejectReasonCategory(
+                    evaluated.GateOutcome,
+                    evaluated.Structural,
+                    evaluated.Semantic,
+                    evaluated.EvaluationReason);
+
+                string executionMode = AgentOutputQualityGateTelemetry.ResolveExecutionModeLabel(
+                    _agentExecutionOptions.CurrentValue.Mode);
+
                 TagList gateTags = new()
                 {
                     { "agent_type", agentLabel },
                     { "outcome", evaluated.GateOutcome.ToString().ToLowerInvariant() },
-                    { "gate_mode", gateModeLabel }
+                    { "gate_mode", gateModeLabel },
+                    { "reject_reason", rejectReason },
+                    { "execution_mode", executionMode }
                 };
 
                 ArchLucidInstrumentation.AgentOutputQualityGateTotal.Add(1, gateTags);

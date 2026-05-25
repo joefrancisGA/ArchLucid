@@ -149,6 +149,149 @@ _DEFAULT_GATE: dict[str, Any] = {
     "semantic_reject_below": 0.0,
 }
 
+_BASELINE_RUBRIC_VERSION = "1"
+_BASELINE_AGGREGATE_DROP_THRESHOLD = 3.0
+_BASELINE_DIMENSION_DROP_THRESHOLD = 5.0
+_BASELINE_DIMENSION_KEYS: tuple[str, ...] = (
+    "structuralCompleteness",
+    "semanticScore",
+    "faithfulnessSupportRatio",
+    "embeddingFaithfulnessMeanCosine",
+    "aggregateScore",
+)
+
+
+def _default_baseline_dir() -> Path:
+    return _repo_root() / "tests" / "golden-cohort" / "baselines"
+
+
+def _baseline_path(baseline_dir: Path, scenario_id: str) -> Path:
+    safe_id = scenario_id.strip().replace("/", "__")
+    return baseline_dir / f"{safe_id}.baseline.json"
+
+
+def compute_aggregate_score(
+    structural_completeness: float,
+    semantic_score: float,
+    faithfulness_support_ratio: float,
+    embedding_faithfulness_mean_cosine: float | None,
+) -> float:
+    """Mirror Improvement #1 aggregate: 0.25/0.30/0.30/0.15 with null embedding treated as 0."""
+
+    embedding = (
+        float(embedding_faithfulness_mean_cosine)
+        if embedding_faithfulness_mean_cosine is not None
+        else 0.0
+    )
+    return (
+        structural_completeness * 0.25
+        + semantic_score * 0.30
+        + faithfulness_support_ratio * 0.30
+        + embedding * 0.15
+    )
+
+
+def quality_to_baseline_metrics(quality: Mapping[str, Any]) -> dict[str, Any]:
+    structural = float(quality.get("structural_ratio") or 0.0)
+    semantic = float(quality.get("overall_semantic") or 0.0)
+    faithfulness = float(quality.get("faithfulness_support_ratio") or 0.0)
+    embedding_raw = quality.get("embedding_faithfulness_mean_cosine")
+    embedding = float(embedding_raw) if embedding_raw is not None else None
+    aggregate = compute_aggregate_score(structural, semantic, faithfulness, embedding)
+
+    return {
+        "structuralCompleteness": round(structural, 6),
+        "semanticScore": round(semantic, 6),
+        "faithfulnessSupportRatio": round(faithfulness, 6),
+        "embeddingFaithfulnessMeanCosine": round(embedding, 6) if embedding is not None else None,
+        "aggregateScore": round(aggregate, 6),
+        "capturedUtc": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "rubricVersion": _BASELINE_RUBRIC_VERSION,
+    }
+
+
+def write_baseline_file(baseline_dir: Path, scenario_id: str, metrics: Mapping[str, Any]) -> Path:
+    baseline_dir.mkdir(parents=True, exist_ok=True)
+    path = _baseline_path(baseline_dir, scenario_id)
+    path.write_text(json.dumps(dict(metrics), indent=2) + "\n", encoding="utf-8")
+    return path
+
+
+def load_baseline_file(baseline_dir: Path, scenario_id: str) -> dict[str, Any] | None:
+    path = _baseline_path(baseline_dir, scenario_id)
+
+    if not path.is_file():
+        return None
+
+    doc = _load_json(path)
+
+    if not isinstance(doc, dict):
+        raise ValueError(f"{path}: baseline must be an object")
+
+    return doc
+
+
+def compare_baseline_metrics(
+    scenario_id: str,
+    current: Mapping[str, Any],
+    baseline: Mapping[str, Any],
+) -> dict[str, Any]:
+    deltas: dict[str, float] = {}
+    regressions: list[str] = []
+
+    for key in _BASELINE_DIMENSION_KEYS:
+        base_val = baseline.get(key)
+        cur_val = current.get(key)
+
+        if key == "embeddingFaithfulnessMeanCosine":
+            if base_val is None and cur_val is None:
+                deltas[key] = 0.0
+                continue
+
+            if base_val is None or cur_val is None:
+                base_num = 0.0 if base_val is None else float(base_val)
+                cur_num = 0.0 if cur_val is None else float(cur_val)
+                deltas[key] = cur_num - base_num
+
+                if base_num - cur_num > _BASELINE_DIMENSION_DROP_THRESHOLD:
+                    regressions.append(key)
+
+                continue
+
+        base_num = float(base_val or 0.0)
+        cur_num = float(cur_val or 0.0)
+        deltas[key] = cur_num - base_num
+
+        if base_num - cur_num > _BASELINE_DIMENSION_DROP_THRESHOLD:
+            regressions.append(key)
+
+    aggregate_drop = float(baseline.get("aggregateScore") or 0.0) - float(current.get("aggregateScore") or 0.0)
+
+    if aggregate_drop > _BASELINE_AGGREGATE_DROP_THRESHOLD:
+        regressions.append("aggregateScore")
+
+    return {
+        "scenario_id": scenario_id,
+        "deltas": deltas,
+        "regressions": regressions,
+        "failed": len(regressions) > 0,
+        "baseline_rubric_version": str(baseline.get("rubricVersion") or ""),
+        "current_rubric_version": str(current.get("rubricVersion") or ""),
+    }
+
+
+def _is_baseline_eligible_quality(quality: Mapping[str, Any] | None) -> bool:
+    if not isinstance(quality, dict):
+        return False
+
+    if quality.get("mode") != "simulator":
+        return False
+
+    if quality.get("skipped") or quality.get("error"):
+        return False
+
+    return True
+
 _VALID_OFFLINE_GATE_EXPECTATIONS: frozenset[str] = frozenset({"accepted", "warned", "rejected"})
 
 
@@ -613,6 +756,7 @@ def render_markdown_report(
     worst_recall: float,
     *,
     gate_snapshot: Mapping[str, Any] | None = None,
+    baseline_comparisons: Sequence[Mapping[str, Any]] | None = None,
 ) -> str:
     now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     rollup = _real_mode_quality_rollup(rows)
@@ -679,9 +823,45 @@ def render_markdown_report(
                     f"{'**FAIL**' if gate_snapshot.get('expected_outcome_failed') else 'PASS'} | "
                     "Sibling `expected-outcome.json` rows must match scored `gate_outcome`. |"
                 ),
+                (
+                    "| Simulator baseline regression | "
+                    f"{'yes (`--baseline`)' if gate_snapshot.get('enforce_baseline') else 'no'} | "
+                    f"{'**FAIL**' if gate_snapshot.get('baseline_failed') else 'PASS'} | "
+                    "Aggregate drop >3.0 or single dimension drop >5.0 vs committed baselines. |"
+                ),
                 "",
             ]
         )
+
+    if baseline_comparisons is not None:
+        failed_n = sum(1 for row in baseline_comparisons if row.get("failed"))
+        lines.extend(
+            [
+                "### Baseline regression (simulator qualityEvidence)",
+                "",
+                "_Compares committed scores under `tests/golden-cohort/baselines/*.baseline.json`. "
+                "Regression = aggregate drop >3.0 pts or any single dimension drop >5.0 pts._",
+                "",
+                f"_Rows compared: {len(baseline_comparisons)}; regressions: {failed_n}._",
+                "",
+                "| Scenario | Aggregate Δ | Structural Δ | Semantic Δ | Faithfulness Δ | Regressed |",
+                "|----------|-------------|--------------|------------|----------------|-----------|",
+            ],
+        )
+
+        for row in baseline_comparisons:
+            deltas = row.get("deltas") if isinstance(row.get("deltas"), dict) else {}
+            regressed = "**yes**" if row.get("failed") else "no"
+            lines.append(
+                f"| `{row.get('scenario_id')}` | "
+                f"{float(deltas.get('aggregateScore') or 0.0):+.2f} | "
+                f"{float(deltas.get('structuralCompleteness') or 0.0):+.2f} | "
+                f"{float(deltas.get('semanticScore') or 0.0):+.2f} | "
+                f"{float(deltas.get('faithfulnessSupportRatio') or 0.0):+.2f} | "
+                f"{regressed} |",
+            )
+
+        lines.append("")
 
     lines.extend(
         [
@@ -909,7 +1089,32 @@ def main() -> int:
             "(env var unset or empty). For release / RC jobs that must capture real AgentResult paths."
         ),
     )
+    parser.add_argument(
+        "--baseline",
+        action="store_true",
+        help=(
+            "Compare simulator qualityEvidence scores against committed baselines under "
+            "tests/golden-cohort/baselines/ (fail when aggregate or dimension regressions exceed thresholds)."
+        ),
+    )
+    parser.add_argument(
+        "--write-baseline",
+        action="store_true",
+        help="Regenerate baseline JSON for all evaluable simulator qualityEvidence rows (maintainer-only).",
+    )
+    parser.add_argument(
+        "--baseline-dir",
+        type=Path,
+        default=None,
+        help="Baseline directory (default: tests/golden-cohort/baselines).",
+    )
     args = parser.parse_args()
+
+    baseline_dir = (args.baseline_dir or _default_baseline_dir()).resolve()
+
+    if args.write_baseline and args.baseline:
+        print("::error::--write-baseline and --baseline are mutually exclusive", file=sys.stderr)
+        return 1
 
     corpus_root: Path = args.corpus.resolve()
 
@@ -947,6 +1152,58 @@ def main() -> int:
     if not rows:
         print("::error::no scenarios evaluated", file=sys.stderr)
         return 1
+
+    if args.write_baseline:
+        written = 0
+
+        for row in rows:
+            quality = row.get("quality")
+
+            if not _is_baseline_eligible_quality(quality if isinstance(quality, dict) else None):
+                continue
+
+            metrics = quality_to_baseline_metrics(quality)
+            path = write_baseline_file(baseline_dir, str(row["id"]), metrics)
+            written += 1
+            print(f"baseline_written\t{row['id']}\t{path}")
+
+        if written == 0:
+            print("::error::no evaluable simulator quality rows to write baselines", file=sys.stderr)
+            return 1
+
+        print(f"Wrote {written} baseline file(s) under {baseline_dir}")
+        return 0
+
+    baseline_comparisons: list[dict[str, Any]] = []
+    baseline_failed = False
+    baseline_missing = False
+
+    if args.baseline:
+        for row in rows:
+            quality = row.get("quality")
+
+            if not _is_baseline_eligible_quality(quality if isinstance(quality, dict) else None):
+                continue
+
+            scenario_id = str(row["id"])
+            baseline_doc = load_baseline_file(baseline_dir, scenario_id)
+
+            if baseline_doc is None:
+                baseline_missing = True
+                baseline_failed = True
+                print(f"::error::missing baseline for {scenario_id}", file=sys.stderr)
+                continue
+
+            current_metrics = quality_to_baseline_metrics(quality)
+            comparison = compare_baseline_metrics(scenario_id, current_metrics, baseline_doc)
+            baseline_comparisons.append(comparison)
+
+            if comparison["failed"]:
+                baseline_failed = True
+                print(
+                    f"::error::baseline regression for {scenario_id}: {comparison['regressions']}",
+                    file=sys.stderr,
+                )
 
     print("scenario\trecall\tunexpected")
     failed = False
@@ -1056,7 +1313,10 @@ def main() -> int:
         )
 
     would_fail_exit = (
-        quality_failed or real_evidence_failed or (bool(args.enforce) and failed)
+        quality_failed
+        or real_evidence_failed
+        or (bool(args.enforce) and failed)
+        or (bool(args.baseline) and baseline_failed)
     )
 
     gate_snapshot: dict[str, Any] = {
@@ -1070,6 +1330,9 @@ def main() -> int:
         "expected_outcome_failed": expected_outcome_failed,
         "require_real_mode_evidence": bool(args.require_real_mode_evidence),
         "real_evidence_failed": real_evidence_failed,
+        "enforce_baseline": bool(args.baseline),
+        "baseline_failed": baseline_failed,
+        "baseline_missing": baseline_missing,
         "would_fail_exit": would_fail_exit,
         "worst_recall": worst_recall,
         "min_recall": float(args.min_recall),
@@ -1081,6 +1344,7 @@ def main() -> int:
         float(args.min_recall),
         worst_recall,
         gate_snapshot=gate_snapshot,
+        baseline_comparisons=baseline_comparisons if args.baseline else None,
     )
     if args.markdown_report is not None:
         args.markdown_report.parent.mkdir(parents=True, exist_ok=True)
@@ -1094,6 +1358,10 @@ def main() -> int:
         return 1
 
     if real_evidence_failed:
+        return 1
+
+    if args.baseline and baseline_failed:
+        print("::error::baseline regression check failed", file=sys.stderr)
         return 1
 
     return 0

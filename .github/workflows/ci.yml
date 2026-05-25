@@ -699,12 +699,22 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Agent eval corpus (offline recall + simulator quality evidence)
+      - name: Agent eval corpus (offline recall + simulator quality evidence + baseline soak)
+        id: eval_corpus
+        continue-on-error: true
         run: |
           set -euo pipefail
           REP="${{ runner.temp }}/eval-corpus-report.md"
-          python3 scripts/ci/eval_agent_corpus.py --markdown-report "$REP"
+          python3 scripts/ci/eval_agent_corpus.py --markdown-report "$REP" --baseline
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then cat "$REP" >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Upload agent eval scorecard
+        if: always() && steps.eval_corpus.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-eval-scorecard
+          path: ${{ runner.temp }}/eval-corpus-report.md
+          if-no-files-found: ignore
 
       - name: Agent prompt regression baseline (JSON shape)
         run: python3 scripts/ci/assert_prompt_regression.py

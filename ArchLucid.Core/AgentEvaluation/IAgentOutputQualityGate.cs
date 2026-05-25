@@ -19,4 +19,14 @@ public interface IAgentOutputQualityGate
         AgentOutputEvaluationScore structuralScore,
         AgentOutputSemanticScore semanticScore,
         double? calibratedConfidence = null);
+
+    /// <summary>
+    ///     Maps a rejected trace to a low-cardinality telemetry bucket:
+    ///     <c>none</c>, <c>structural</c>, <c>semantic</c>, or <c>faithfulness</c>.
+    /// </summary>
+    string ResolveRejectReasonCategory(
+        AgentOutputQualityGateOutcome outcome,
+        AgentOutputEvaluationScore structuralScore,
+        AgentOutputSemanticScore semanticScore,
+        string? evaluationReason);
 }

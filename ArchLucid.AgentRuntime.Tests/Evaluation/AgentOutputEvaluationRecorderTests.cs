@@ -70,6 +70,9 @@ public sealed class AgentOutputEvaluationRecorderTests
                     It.IsAny<CancellationToken>()))
             .ReturnsAsync((double?)null);
 
+        Mock<IOptionsMonitor<AgentExecutionOptions>> agentExecutionOptions = new();
+        agentExecutionOptions.Setup(o => o.CurrentValue).Returns(new AgentExecutionOptions { Mode = "Simulator" });
+
         InMemoryAgentResultRepository agentResults = new();
 
         Mock<IAgentConfidenceCalibrationService> confidenceCalibration = new();
@@ -94,6 +97,7 @@ public sealed class AgentOutputEvaluationRecorderTests
             embeddingFaithfulness.Object,
             llmFaithfulness.Object,
             new NoOpAgentOutputEvaluationRepository(),
+            agentExecutionOptions.Object,
             logger);
     }
 

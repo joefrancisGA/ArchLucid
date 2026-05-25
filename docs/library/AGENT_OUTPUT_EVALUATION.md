@@ -115,6 +115,14 @@ Registered as **singleton** (`IAgentOutputSemanticEvaluator → CompositeAgentOu
 - **Agent coverage:** Only **`AgentType.Topology`** and **`AgentType.Critic`** invoke the judge. **Cost** and **Compliance** stay **heuristic-only** to limit spend under that shared cap.
 - **Simulator:** When **`SkipWhenSimulator`** is **true** (default) and **`AgentExecution:Mode`** is **Simulator**, the judge is skipped.
 
+### LLM faithfulness judge (evidence vs agent JSON)
+
+- **Configuration:** **`ArchLucid:Agents:LlmFaithfulness`** (`AgentOutputLlmFaithfulnessOptions`).
+- **Defaults:** CLR default **`Enabled: false`**. **`appsettings.Staging.json`** and **`appsettings.Production.json`** set **`Enabled: true`** (owner 2026-05-25) so hosted SaaS real-mode runs emit **`archlucid_agent_output_llm_faithfulness_score`** without per-tenant opt-in. Development / base **`appsettings.json`** remain off unless overridden.
+- **Accounting:** Uses **`AgentOutputLlmJudgeCompletionServiceKey`** completion client; token usage shares the tenant LLM budget pool (same as **`LlmJudge`**).
+- **Simulator:** Skipped when **`SkipWhenSimulator`** is **true** (default) and execution mode is **Simulator**.
+- **Requires:** **`AgentOutput:QualityGate:Enabled`** and a non-empty evidence package blob.
+
 ### AgentResult versus persisted evidence (faithfulness ratio)
 
 When an **`AgentEvidencePackage`** exists for the run, **`AgentResultEvidenceFaithfulnessChecker`** (`ArchLucid.AgentRuntime`) computes **`AgentResultFaithfulnessSupportRatio`**: a deterministic overlap between claim tokens and flattened evidence text plus resolved evidence-reference hits (not LLM entailment). **`AgentOutputTraceQualityEvaluator`** and **`AgentOutputEvaluationRecorder`** attach this ratio to **`AgentOutputSemanticScore.AgentResultFaithfulnessSupportRatio`** when evaluating traces.
@@ -140,7 +148,20 @@ Schema reference: **`ArchLucid.Contracts.Agents.AgentOutputSemanticScore`**, **`
 
 **Release cohort green bar (planning baseline, 2026-05-09):** Tiered targets on the committed **release cohort** — **canonical SKU `gpt-4o`** (operator lock 2026-05-11; see **`GOLDEN_COHORT_REAL_LLM_GATE.md`** **section 10**) — structural completeness, quality-gate rejects, semantic score percentiles, explainability trace completeness mean, adversarial qualitative bar are summarized there — **not** merge-blocking unless you wire automation to enforce them.
 
-When enabled, **`AgentOutputEvaluationRecorder`** increments **`archlucid_agent_output_quality_gate_total`** (labels `agent_type`, `outcome`) and logs **warn** for **warned**/**rejected** outcomes. A **`warned`** outcome also sets **`AgentExecutionTrace.QualityWarning`** (persisted in **`TraceJson`**) so **`GET …/agent-evaluation`** and trace reads expose the flag. **`EnforceOnReject`** / **`BlockRunOnReject`** default **`false`** in code; Staging and Production appsettings opt into blocking for pilot/production posture.
+When enabled, **`AgentOutputEvaluationRecorder`** increments **`archlucid_agent_output_quality_gate_total`** (labels `agent_type`, `outcome`, `gate_mode`, `reject_reason`, `execution_mode`) and logs **warn** for **warned**/**rejected** outcomes. A **`warned`** outcome also sets **`AgentExecutionTrace.QualityWarning`** (persisted in **`TraceJson`**) so **`GET …/agent-evaluation`** and trace reads expose the flag. **`EnforceOnReject`** / **`BlockRunOnReject`** default **`false`** in code; Staging and Production appsettings opt into blocking for pilot/production posture.
+
+**Automatic retry on reject (V1 posture, owner 2026-05-25):** The orchestrator does **not** automatically re-run agents when the quality gate rejects a trace. Operators re-run manually via the operator UI or CLI. **`reject_reason`** and **`execution_mode`** labels on **`archlucid_agent_output_quality_gate_total`** exist so V1.1 can decide whether transient rejects warrant a single automatic retry based on production data.
+
+### Eval corpus baseline regression (Improvement #1, shipped 2026-05-25)
+
+Committed per-scenario baselines live under **`tests/golden-cohort/baselines/<scenario-id>.baseline.json`**. Each file records **`structuralCompleteness`**, **`semanticScore`**, **`faithfulnessSupportRatio`**, optional **`embeddingFaithfulnessMeanCosine`**, **`aggregateScore`** (0.25/0.30/0.30/0.15 weights; null embedding treated as 0), **`capturedUtc`**, and **`rubricVersion`**.
+
+| Command | Purpose |
+|---------|---------|
+| `python scripts/ci/eval_agent_corpus.py --write-baseline` | Maintainer-only: regenerate baselines from current simulator **`qualityEvidence`** rows. |
+| `python scripts/ci/eval_agent_corpus.py --baseline --markdown-report artifacts/agent-eval-scorecard.md` | Compare live scores vs committed baselines; fail when aggregate drops **>3.0** pts or any dimension drops **>5.0** pts. |
+
+**CI posture (owner 2026-05-25):** **`.github/workflows/ci.yml`** runs **`--baseline`** with **`continue-on-error: true`** (warn-only soak) and uploads **`agent-eval-scorecard`** artifact. Flip to merge-blocking only after **10 consecutive main-branch green runs** with **zero false-positive PR failures** attributable to LLM/judge noise — record the flip date here when promoted.
 
 ## Golden-set trace fixtures (regression)
 
