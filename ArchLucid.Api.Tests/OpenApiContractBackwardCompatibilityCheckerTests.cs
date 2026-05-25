@@ -202,6 +202,52 @@ public sealed class OpenApiContractBackwardCompatibilityCheckerTests
         _ = Assert.ThrowsAny<Exception>(() => OpenApiContractBackwardCompatibilityChecker.AssertAdditiveCompatible(b, a));
     }
 
+    [Fact]
+    public void Schema_with_ref_sibling_keywords_compares_without_reparenting_error()
+    {
+        const string document = /*lang=json,strict*/ """
+            {
+              "openapi": "3.1.1",
+              "info": { "title": "t", "version": "1" },
+              "components": {
+                "schemas": {
+                  "Widget": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string" }
+                    }
+                  }
+                }
+              },
+              "paths": {
+                "/demo": {
+                  "get": {
+                    "responses": {
+                      "200": {
+                        "description": "ok",
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "$ref": "#/components/schemas/Widget",
+                              "description": "A widget"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """;
+
+        JsonObject baseline = Canon(document);
+        JsonObject actual = Canon(document);
+        OpenApiContractBackwardCompatibilityChecker.ThrowIfUnreadable(baseline, "baseline");
+        OpenApiContractBackwardCompatibilityChecker.ThrowIfUnreadable(actual, "actual");
+        OpenApiContractBackwardCompatibilityChecker.AssertAdditiveCompatible(baseline, actual);
+    }
+
     static JsonObject Canon(string json)
     {
         JsonNode? n = JsonNode.Parse(json);

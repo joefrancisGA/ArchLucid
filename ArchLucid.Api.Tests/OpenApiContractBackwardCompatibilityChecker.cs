@@ -497,18 +497,20 @@ internal static class OpenApiContractBackwardCompatibilityChecker
             JsonObject merged = [];
 
             foreach (KeyValuePair<string, JsonNode?> pair in referenced)
-                merged[pair.Key] = pair.Value;
+                merged[pair.Key] = CloneNode(pair.Value);
 
             foreach (KeyValuePair<string, JsonNode?> pair in withRef)
             {
                 if (pair.Key.Equals("$ref", StringComparison.Ordinal))
                     continue;
 
-                merged[pair.Key] = pair.Value;
+                merged[pair.Key] = CloneNode(pair.Value);
             }
 
             return merged;
         }
+
+        private static JsonNode? CloneNode(JsonNode? node) => node?.DeepClone();
 
         /// <summary>Resolves <c>#/components/schemas/&lt;name&gt;</c> only.</summary>
         private static bool TryResolveJsonPointer(JsonObject components, string pointer, out JsonNode? target)
