@@ -15,6 +15,7 @@ using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Startup;
 using ArchLucid.Host.Composition.Caching;
+using KgProjectionCacheOptions = ArchLucid.KnowledgeGraph.Configuration.KnowledgeGraphProjectionCacheOptions;
 using ArchLucid.KnowledgeGraph.Caching;
 using ArchLucid.KnowledgeGraph.Configuration;
 using ArchLucid.Persistence.AzureExtractorChunkUpload;
@@ -152,9 +153,9 @@ public static class ArchLucidStorageServiceCollectionExtensions
         IServiceCollection services,
         IConfiguration configuration)
     {
-        KnowledgeGraphProjectionCacheOptions kg =
-            configuration.GetSection(KnowledgeGraphProjectionCacheOptions.SectionName).Get<KnowledgeGraphProjectionCacheOptions>()
-            ?? new KnowledgeGraphProjectionCacheOptions();
+        KgProjectionCacheOptions kg =
+            configuration.GetSection(KgProjectionCacheOptions.SectionName).Get<KgProjectionCacheOptions>()
+            ?? new KgProjectionCacheOptions();
 
         if (kg.Backend != GraphProjectionCacheBackend.Distributed)
             return;
