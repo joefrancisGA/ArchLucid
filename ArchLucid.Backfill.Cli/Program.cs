@@ -15,6 +15,9 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Backfill.Cli;
 
+// Maintenance host: composes Persistence.Coordination.Backfill directly (no Application layer).
+// Architecture exception — see docs/library/SqlRelationalBackfill.md and ARCHITECTURE_CONSTRAINTS.md Tier 4b.
+
 internal static class Program
 {
     private static async Task<int> Main(string[] args)

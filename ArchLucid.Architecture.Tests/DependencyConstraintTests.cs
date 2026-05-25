@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ArtifactSynthesis.Services;
+using ArchLucid.Backfill.Cli;
 using ArchLucid.Cli;
 using ArchLucid.ContextIngestion;
 using ArchLucid.Contracts.Metadata;
@@ -799,6 +800,82 @@ public sealed class DependencyConstraintTests
             FormatFailingTypeNames(result));
     }
 
+    // ── Tier 4b — Backfill.Cli maintenance host (documented Application bypass) ──
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void BackfillCli_first_party_assembly_references_must_match_allowlist()
+    {
+        Assembly backfillCli = typeof(BackfillCliAssemblyAnchor).Assembly;
+        string[] directFirstPartyReferences = backfillCli
+            .GetReferencedAssemblies()
+            .Select(static a => a.Name)
+            .Where(static name => name is not null && name.StartsWith("ArchLucid.", StringComparison.Ordinal))
+            .Select(static name => name!)
+            .OrderBy(static name => name, StringComparer.Ordinal)
+            .ToArray();
+
+        directFirstPartyReferences.Should().BeEquivalentTo(
+            ArchitectureConstraintMaintenanceHosts.DirectFirstPartyAssembliesForBackfillCli,
+            because:
+            "Backfill.Cli must reference Persistence + KnowledgeGraph directly only. " +
+            "See docs/library/SqlRelationalBackfill.md and docs/library/ARCHITECTURE_CONSTRAINTS.md.");
+
+        string[] transitiveFirstPartyReferences = CollectTransitiveFirstPartyAssemblyReferences(backfillCli)
+            .OrderBy(static name => name, StringComparer.Ordinal)
+            .ToArray();
+
+        transitiveFirstPartyReferences.Should().BeEquivalentTo(
+            ArchitectureConstraintMaintenanceHosts.AllowedFirstPartyAssembliesForBackfillCli,
+            because:
+            "Backfill.Cli is a one-time migration host that composes SqlRelationalBackfillService directly; " +
+            "it must not pull in Application, Api, Host.*, or other product layers.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void BackfillCli_csproj_must_only_declare_allowed_project_references()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string csprojPath = Path.Combine(root!, "ArchLucid.Backfill.Cli", "ArchLucid.Backfill.Cli.csproj");
+        File.Exists(csprojPath).Should().BeTrue(because: "Backfill.Cli project file must exist at {0}", csprojPath);
+
+        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath)
+            .OrderBy(static name => name, StringComparer.Ordinal)
+            .ToArray();
+
+        declaredReferences.Should().BeEquivalentTo(
+            ArchitectureConstraintMaintenanceHosts.DirectProjectReferencesForBackfillCli,
+            because:
+            "Backfill.Cli must declare only Persistence + KnowledgeGraph project references; " +
+            "transitive Core/Contracts references come from those leaves.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void BackfillCli_must_not_depend_on_Application()
+    {
+        Assembly backfillCli = typeof(BackfillCliAssemblyAnchor).Assembly;
+
+        TestResult result = Types
+            .InAssembly(backfillCli)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Application")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because:
+            "Backfill.Cli is a maintenance host over Persistence.Coordination.Backfill, not an Application use-case. " +
+            "Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
     [Fact]
     [Trait("Suite", "Core")]
     [Trait("Category", "Unit")]
@@ -810,6 +887,68 @@ public sealed class DependencyConstraintTests
         references.Should().NotContain(
             a => a.Name == "ArchLucid.Persistence",
             because: "AgentRuntime must use ports, not the Persistence assembly.");
+    }
+
+    private static HashSet<string> CollectTransitiveFirstPartyAssemblyReferences(Assembly assembly)
+    {
+        HashSet<string> seen = new(StringComparer.Ordinal);
+        Queue<AssemblyName> pending = new();
+
+        foreach (AssemblyName reference in assembly.GetReferencedAssemblies())
+        {
+            if (reference.Name is not null && reference.Name.StartsWith("ArchLucid.", StringComparison.Ordinal))
+            {
+                pending.Enqueue(reference);
+            }
+        }
+
+        while (pending.Count > 0)
+        {
+            AssemblyName reference = pending.Dequeue();
+
+            if (reference.Name is null || !seen.Add(reference.Name))
+            {
+                continue;
+            }
+
+            Assembly loaded = Assembly.Load(reference);
+
+            foreach (AssemblyName nested in loaded.GetReferencedAssemblies())
+            {
+                if (nested.Name is not null && nested.Name.StartsWith("ArchLucid.", StringComparison.Ordinal))
+                {
+                    pending.Enqueue(nested);
+                }
+            }
+        }
+
+        return seen;
+    }
+
+    private static IEnumerable<string> ReadProjectReferenceAssemblyNames(string csprojPath)
+    {
+        Regex projectReferenceInclude = new(
+            "<ProjectReference\\s+Include=\"([^\"]+)\"",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+
+        string text = File.ReadAllText(csprojPath);
+        MatchCollection matches = projectReferenceInclude.Matches(text);
+
+        foreach (Match match in matches)
+        {
+            if (!match.Success)
+            {
+                continue;
+            }
+
+            string includePath = match.Groups[1].Value.Replace('\\', '/');
+            string folderName = Path.GetFileName(Path.GetDirectoryName(includePath.TrimEnd('/')) ?? includePath);
+
+            if (!string.IsNullOrWhiteSpace(folderName))
+            {
+                yield return folderName;
+            }
+        }
     }
 
     private static string? FindRepositoryRootContainingSolution()

@@ -44,6 +44,16 @@
 | `Cli_must_not_depend_on_Persistence` |
 | `Cli_must_not_reference_Api_assembly` |
 
+### Tier 4b — Backfill.Cli maintenance host (documented Application bypass)
+
+| Assertion |
+|---|
+| `BackfillCli_first_party_assembly_references_must_match_allowlist` |
+| `BackfillCli_csproj_must_only_declare_allowed_project_references` |
+| `BackfillCli_must_not_depend_on_Application` |
+
+`ArchLucid.Backfill.Cli` intentionally composes over `Persistence.Coordination.Backfill` for one-time JSON → relational migration. See [`SqlRelationalBackfill.md`](../library/SqlRelationalBackfill.md) and [`ARCHITECTURE_CONSTRAINTS.md`](../library/ARCHITECTURE_CONSTRAINTS.md).
+
 ### Custom source-scanning lints
 
 | Assertion |

@@ -42,6 +42,21 @@ Catch **accidental coupling** early: foundation assemblies pulling in hosts, dom
 | **2** | **Persistence.Coordination**, **Persistence.Integration** vs Runtime / Advisory / Alerts | `Assembly.GetReferencedAssemblies()` + FluentAssertions |
 | **3** | **Decisioning**, **KnowledgeGraph**, **ContextIngestion**, **ArtifactSynthesis** vs **`ArchLucid.Persistence`** | NetArchTest `ShouldNot().HaveDependencyOn("ArchLucid.Persistence")` |
 | **4** | **Cli** vs persistence and API host | NetArchTest for `ArchLucid.Persistence`; **assembly metadata** for `ArchLucid.Api` (see below) |
+| **4b** | **`Backfill.Cli`** maintenance host (documented exception) | Assembly allowlist + csproj project-reference scan; must not depend on `ArchLucid.Application` |
+
+### Tier 4b — `Backfill.Cli` maintenance host
+
+`ArchLucid.Backfill.Cli` is the **only** CLI that references `ArchLucid.Persistence` directly. It is a one-time JSON → relational migration tool, not an operator HTTP client. It composes `SqlRelationalBackfillService` / `SqlCutoverReadinessService` from `Persistence.Coordination.Backfill` without an Application use-case layer.
+
+| Test | Rule |
+|------|------|
+| `BackfillCli_first_party_assembly_references_must_match_allowlist` | May reference only `Core`, `Contracts`, `KnowledgeGraph`, `Persistence` |
+| `BackfillCli_csproj_must_only_declare_allowed_project_references` | Direct `ProjectReference` entries: `KnowledgeGraph`, `Persistence` only |
+| `BackfillCli_must_not_depend_on_Application` | No Application orchestration in the maintenance host |
+
+Allowlists live in [`ArchitectureConstraintMaintenanceHosts.cs`](../../ArchLucid.Architecture.Tests/ArchitectureConstraintMaintenanceHosts.cs). Operator docs: [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md).
+
+Compare with Tier 4 **`ArchLucid.Cli`**: thin HTTP client (`Api.Client` only). **`ArchLucid.Jobs.Cli`** uses `Host.Composition` and is excluded from Tier 4 persistence rules via the composition-root exclusion list in `SingleCompositionRootServiceCollectionExtensionsTests`.
 
 ### Why Tier 4 uses assembly metadata for `ArchLucid.Api`
 

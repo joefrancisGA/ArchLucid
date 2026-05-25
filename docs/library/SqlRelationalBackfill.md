@@ -36,6 +36,26 @@ Use **`ArchLucid.Backfill.Cli --readiness`** to confirm per-slice relational cov
 - **Per-entity** failures are logged and recorded in the report; processing **continues** for the next key.
 - Exit code from the CLI: `0` = no failures, `2` = at least one entity failed (see stderr / report output).
 
+## Architecture exception (Application bypass)
+
+`ArchLucid.Backfill.Cli` is a **maintenance / migration host**, not a product CLI. It intentionally **does not** go through `ArchLucid.Application` or `ArchLucid.Host.Composition`:
+
+| Host | Composition path | Role |
+|------|------------------|------|
+| `ArchLucid.Cli` | `ArchLucid.Api.Client` + contracts | Operator HTTP client |
+| `ArchLucid.Jobs.Cli` | `ArchLucid.Host.Composition` | Scheduled / batch jobs |
+| **`ArchLucid.Backfill.Cli`** | **`ArchLucid.Persistence`** + **`ArchLucid.KnowledgeGraph`** | One-time JSON → relational backfill |
+
+**Why bypass Application:** backfill calls `Persistence.Coordination.Backfill` services that use **internal** repository `BackfillRelationalSlicesAsync` helpers. Those are infrastructure-only, idempotent data-migration operations with no domain orchestration. Wrapping them in Application would add a pass-through layer with no business rules.
+
+**Allowed dependency surface** (enforced by `ArchLucid.Architecture.Tests`):
+
+- **Direct project references:** `ArchLucid.Persistence`, `ArchLucid.KnowledgeGraph`
+- **Transitive first-party assemblies:** `ArchLucid.Core`, `ArchLucid.Contracts`
+- **Forbidden:** `ArchLucid.Application`, `ArchLucid.Api`, `ArchLucid.Host.*`, `ArchLucid.Api.Client`, and other product layers
+
+**Tests:** `BackfillCli_first_party_assembly_references_must_match_allowlist`, `BackfillCli_csproj_must_only_declare_allowed_project_references`, `BackfillCli_must_not_depend_on_Application` in `DependencyConstraintTests.cs`.
+
 ## CLI usage
 
 **Project:** `ArchLucid.Backfill.Cli`
