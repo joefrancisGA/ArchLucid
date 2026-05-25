@@ -1,4 +1,4 @@
-﻿{
+{
   "annotations": { "list": [] },
   "description": "Integration event outbox depth, publish outcomes, and outbound webhook delivery health (Improvement 19).",
   "editable": true,
