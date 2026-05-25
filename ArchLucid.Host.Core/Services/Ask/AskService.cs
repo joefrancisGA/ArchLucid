@@ -302,6 +302,7 @@ public sealed class AskService(
         try
         {
             bool includePolicyPacks = AskRetrievalIntentDetector.DetectPolicyPackIntent(question);
+            bool includePlatformDocs = AskRetrievalIntentDetector.DetectPlatformDocIntent(question);
             bool boostPriorManifest = AskRetrievalIntentDetector.DetectPriorManifestIntent(question);
             const int retrievalTopK = 8;
 
@@ -315,7 +316,7 @@ public sealed class AskService(
                     ManifestId = null,
                     QueryText = question,
                     TopK = retrievalTopK,
-                    IncludePlatformCorpora = includePolicyPacks,
+                    IncludePlatformCorpora = includePolicyPacks || includePlatformDocs,
                 },
                 ct);
 

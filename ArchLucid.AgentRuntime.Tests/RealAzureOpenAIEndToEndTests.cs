@@ -4,6 +4,7 @@ using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Capabilities.Cost;
+using CapabilitiesCostAgentHandler = ArchLucid.Capabilities.Cost.CostAgentHandler;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -115,7 +116,7 @@ public sealed class RealAzureOpenAIEndToEndTests
             schemaRemediation,
             ComplianceAgentHandlerTestDependencies.CreateNullLogger());
 
-        CostAgentHandler cost = new();
+        CapabilitiesCostAgentHandler cost = new();
 
         IOptions<AgentExecutionResilienceOptions> resilience = Options.Create(
             new AgentExecutionResilienceOptions { MaxConcurrentHandlers = 0, PerHandlerTimeoutSeconds = 0 });

@@ -65,6 +65,10 @@ public sealed class CachedAgentSystemPromptCatalog(IOptionsMonitor<AgentPromptCa
                 ComplianceSystemPromptTemplate.TemplateId,
                 ComplianceSystemPromptTemplate.Version,
                 ComplianceSystemPromptTemplate.GetText),
+            [AgentType.Cost] = CreateCore(
+                CostSystemPromptTemplate.TemplateId,
+                CostSystemPromptTemplate.Version,
+                CostSystemPromptTemplate.GetText),
             [AgentType.Critic] = CreateCore(
                 CriticSystemPromptTemplate.TemplateId,
                 CriticSystemPromptTemplate.Version,

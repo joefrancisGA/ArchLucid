@@ -1,6 +1,7 @@
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.AgentRuntime.Tests.Support;
 using ArchLucid.Capabilities.Cost;
+using CapabilitiesCostAgentHandler = ArchLucid.Capabilities.Cost.CostAgentHandler;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -75,7 +76,7 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
             schemaRemediation,
             ComplianceAgentHandlerTestDependencies.CreateNullLogger());
 
-        CostAgentHandler cost = new();
+        CapabilitiesCostAgentHandler cost = new();
 
         CriticAgentHandler critic = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(completion),

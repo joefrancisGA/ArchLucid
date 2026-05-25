@@ -3,6 +3,7 @@ using ArchLucid.AgentRuntime.Tests.Support;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Capabilities.Cost;
+using CapabilitiesCostAgentHandler = ArchLucid.Capabilities.Cost.CostAgentHandler;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -232,7 +233,7 @@ public sealed class RealRuntimeMixedModeTests
             schemaRemediation,
             ComplianceAgentHandlerTestDependencies.CreateNullLogger());
 
-        CostAgentHandler costHandler = new();
+        CapabilitiesCostAgentHandler costHandler = new();
 
         CriticAgentHandler criticHandler = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(new StubAgentCompletionClient(criticJson)),

@@ -146,6 +146,8 @@
 
 **Refs:** [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md) item 3 (evidence bundle wiring).
 
+**Status (2026-05-25):** **Shipped** (Improvement **#8**) — `CostRetailGroundingBuilder`, `AzureRetailPricesCatalogStructuredLookup`, `AgentRuntime.CostAgentHandler`, catalog-backed DI registration.
+
 ---
 
 ### RAG-V1-004 — Platform docs corpus (ADR / library) for Ask + Explanation
@@ -166,6 +168,8 @@
 **Acceptance**
 
 - Ask integration test: question about a documented ADR returns chunk citing ADR id in retrieved evidence block.
+
+**Status (2026-05-25):** **Shipped** (Improvement **#9**) — `PlatformDocCorpusIndexer` allow-listed library paths, `AskRetrievalIntentDetector.DetectPlatformDocIntent`, Ask `IncludePlatformCorpora` wiring.
 
 ---
 

@@ -19,6 +19,16 @@ public static class AskRetrievalIntentDetector
         "iso",
     ];
 
+    private static readonly string[] PlatformDocKeywords =
+    [
+        "adr",
+        "architecture decision",
+        "corpus kind",
+        "platform doc",
+        "rag-v1",
+        "v1 scope",
+    ];
+
     private static readonly string[] PriorManifestKeywords =
     [
         "changed",
@@ -59,6 +69,23 @@ public static class AskRetrievalIntentDetector
         string normalized = question.Trim();
 
         foreach (string keyword in PriorManifestKeywords)
+        {
+            if (normalized.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>True when the question likely needs platform ADR / library doc grounding.</summary>
+    public static bool DetectPlatformDocIntent(string question)
+    {
+        if (string.IsNullOrWhiteSpace(question))
+            return false;
+
+        string normalized = question.Trim();
+
+        foreach (string keyword in PlatformDocKeywords)
         {
             if (normalized.Contains(keyword, StringComparison.OrdinalIgnoreCase))
                 return true;

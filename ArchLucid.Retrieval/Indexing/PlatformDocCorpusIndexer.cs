@@ -23,7 +23,11 @@ public sealed class PlatformDocCorpusIndexer(IOptionsMonitor<PlatformDocCorpusIn
         string root = ResolveDocsRoot(opts.DocsRootDirectory);
 
         if (!Directory.Exists(root))
-            return Task.FromResult<IReadOnlyList<RetrievalDocument>>([]);
+        {
+            List<RetrievalDocument> libraryOnly = [];
+            AppendDocumentsFromFiles(libraryOnly, EnumerateAllowListedLibraryFiles(opts, opts.MaxDocuments), ct);
+            return Task.FromResult<IReadOnlyList<RetrievalDocument>>(libraryOnly);
+        }
 
         List<RetrievalDocument> documents = [];
         IEnumerable<string> files = Directory
@@ -32,6 +36,52 @@ public sealed class PlatformDocCorpusIndexer(IOptionsMonitor<PlatformDocCorpusIn
             .OrderBy(static path => path, StringComparer.OrdinalIgnoreCase)
             .Take(Math.Max(1, opts.MaxDocuments));
 
+        AppendDocumentsFromFiles(documents, files, ct);
+
+        int remaining = Math.Max(0, opts.MaxDocuments - documents.Count);
+
+        if (remaining > 0)
+        {
+            IEnumerable<string> libraryFiles = EnumerateAllowListedLibraryFiles(opts, remaining);
+            AppendDocumentsFromFiles(documents, libraryFiles, ct);
+        }
+
+        return Task.FromResult<IReadOnlyList<RetrievalDocument>>(documents);
+    }
+
+    private static IEnumerable<string> EnumerateAllowListedLibraryFiles(
+        PlatformDocCorpusIndexerOptions opts,
+        int maxFiles)
+    {
+        List<string> resolved = [];
+
+        foreach (string relativePath in opts.AllowListedLibraryRelativePaths)
+        {
+            if (string.IsNullOrWhiteSpace(relativePath))
+                continue;
+
+            if (IsDeniedRelativePath(relativePath))
+                continue;
+
+            string absolute = ResolveDocsRoot(relativePath);
+
+            if (!File.Exists(absolute))
+                continue;
+
+            resolved.Add(absolute);
+
+            if (resolved.Count >= maxFiles)
+                break;
+        }
+
+        return resolved.OrderBy(static path => path, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static void AppendDocumentsFromFiles(
+        List<RetrievalDocument> documents,
+        IEnumerable<string> files,
+        CancellationToken ct)
+    {
         foreach (string path in files)
         {
             ct.ThrowIfCancellationRequested();
@@ -56,8 +106,19 @@ public sealed class PlatformDocCorpusIndexer(IOptionsMonitor<PlatformDocCorpusIn
                 CreatedUtc = File.GetLastWriteTimeUtc(path),
             });
         }
+    }
 
-        return Task.FromResult<IReadOnlyList<RetrievalDocument>>(documents);
+    private static bool IsDeniedRelativePath(string relativePath)
+    {
+        string normalized = relativePath.Replace('\\', '/');
+
+        if (normalized.Contains("docs/go-to-market/", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (normalized.Contains("docs/security/pen-test-summaries/", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
     }
 
     private static bool IsDeniedFileName(string fileName)
@@ -78,7 +139,7 @@ public sealed class PlatformDocCorpusIndexer(IOptionsMonitor<PlatformDocCorpusIn
         {
             string candidate = Path.Combine(current.FullName, configured.Replace('/', Path.DirectorySeparatorChar));
 
-            if (Directory.Exists(candidate))
+            if (Directory.Exists(candidate) || File.Exists(candidate))
                 return candidate;
 
             current = current.Parent;

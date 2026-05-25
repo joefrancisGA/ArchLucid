@@ -243,7 +243,7 @@ public sealed class RetrievalQueryServiceTests
             effective.Packs.Add(
                 new ResolvedPolicyPack
                 {
-                    ContentJson = $$"""{"metadata":{"rulePackId":"{{rulePackId}}"}}""",
+                    ContentJson = $@"{{""metadata"":{{""rulePackId"":""{rulePackId}""}}}}",
                 });
         }
 

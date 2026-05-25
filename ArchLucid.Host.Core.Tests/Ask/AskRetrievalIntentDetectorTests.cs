@@ -24,4 +24,13 @@ public sealed class AskRetrievalIntentDetectorTests
     {
         AskRetrievalIntentDetector.DetectPriorManifestIntent(question).Should().Be(expected);
     }
+
+    [Theory]
+    [InlineData("Which ADR defines CorpusKind?", true)]
+    [InlineData("What does V1 scope say about RAG?", true)]
+    [InlineData("Summarize current cost findings", false)]
+    public void DetectPlatformDocIntent_matches_keywords(string question, bool expected)
+    {
+        AskRetrievalIntentDetector.DetectPlatformDocIntent(question).Should().Be(expected);
+    }
 }

@@ -1,17 +1,17 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 93.36%
+# ArchLucid Assessment – (A) Headline Readiness: 93.43%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items such as SOC 2 CPA attestation, third-party pen tests, MCP, the commerce un-hold, multi-cloud (AWS/GCP) analysis, multi-region active/active, automated tenant erasure, Graph-RAG / agentic retrieval, hosted Tier 2 continuous polling, **non-SCIM bulk-CSV user onboarding (V2)**, **self-hosted Enterprise commercial deals (V2)**, and related sub-milestones (capacity guide, private-endpoint reference architecture).*
 
 **Score ledger:** Incremental history through legacy **archived #1–#57** and owner rescoring (**87.74% → 92.63%**) lives in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md).
 
-**Rescore 2026-05-25 (post Improvements #1–#7):** Headline **93.36%** (+0.55% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**). **All V1 GA gates shipped 2026-05-25.** V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
+**Rescore 2026-05-25 (post Improvements #1–#9):** Headline **93.43%** (+0.62% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#10–#25** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**
-ArchLucid is ready for **V1 GA at 93.36%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#7 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM). **No `(A)` items remain in the V1 GA gate set.**
+ArchLucid is ready for **V1 GA at 93.43%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#9 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM, Azure Retail cost grounding, platform docs corpus). **No `(A)` items remain in the V1 GA gate set.**
 
 **`(B)` Procurement / Market-Motion Realism (Informational — zero weight on `(A)`)**
 Enterprise procurement teams will still ask for CPA-issued SOC 2 Type II, an external pen-test summary, automated GDPR erasure, multi-region active/active, AWS/GCP target analysis, and **self-hosted / on-premises deployment**. Every one of these items is **explicitly out of `(A)` scope** per `V1_DEFERRED.md` §6c, §6l, §6m, §6n, **§6t**, and the scope rule. The right posture is honest trust-center narrative — **V1 GA is hosted SaaS**; self-hosted Enterprise is **V2** — not score deductions.
@@ -112,7 +112,7 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Recommendations:** Enable per-tenant RAG tags only for bounded tenant counts.
 - **Status:** **#6 shipped 2026-05-25.** **#4 shipped 2026-05-25.** **#2 shipped 2026-05-25.**
 
-**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.36%** (documented +0.55% from shipped **#1–#7**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
+**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.43%** (documented +0.62% from shipped **#1–#9**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
 
 ---
 
@@ -127,9 +127,9 @@ All V1.1 / V2 items removed per `Assessment-Scope-V1_1.mdc`. Items **1–7** are
 5. **Team→Professional expansion CTA — SHIPPED 2026-05-25 (Improvement #5):** `GET /v1/tenant/usage-status`, `TeamExpansionNudge`, and separate Prometheus/audit telemetry for paid Team tenants at ≥80% seat or workspace usage.
 6. **Pricing quote-request SLA visibility — SHIPPED 2026-05-25 (Improvement #6):** Operator **Pricing quote aging** dashboard, Grafana **Sales ops** row on `dashboard-archlucid-authority.json`, and runbook verification on shipped **archived #11** backend (aging API, histogram, `ArchLucidPricingQuoteAcknowledgementBreach`).
 7. **Quality-gate reject telemetry — SHIPPED 2026-05-25 (Improvement #2):** Fail-fast on reject is the V1 contract; `reject_reason` / `execution_mode` labels shipped on `archlucid_agent_output_quality_gate_total`.
-8. **Cost agent lacks Azure Retail row citation — post-GA (Improvement #8):** Cost findings can quote USD without deterministic Retail lookup (RAG-V1-003); weakens faithfulness and §2.16 citation contract until structured lookup ships.
-9. **Tier-1 extractor ZIP upload errors opaque — post-GA (Improvement #18):** Ingestion failures surface generic errors in UI; prospects and trials cannot self-remediate without support — measurable adoption friction after GA.
-10. **Executive ROI reflects Retail pricing only — post-GA (Improvement #23):** No EA discount multiplier; finance reviewers at Enterprise accounts discount savings claims that ignore contracted rates.
+8. **Azure Retail cost grounding — SHIPPED 2026-05-25 (Improvement #8):** `CostRetailGroundingBuilder`, `AzureRetailPricesCatalogStructuredLookup`, and `AgentRuntime.CostAgentHandler` inject Retail rows before USD citations (RAG-V1-003); non-Azure workloads skip Retail attribution.
+9. **Platform docs corpus for Ask — SHIPPED 2026-05-25 (Improvement #9):** `PlatformDocCorpusIndexer` + `AskRetrievalIntentDetector.DetectPlatformDocIntent` index allow-listed ADR/library paths (RAG-V1-004).
+10. **Tier-1 extractor ZIP upload errors opaque — post-GA (Improvement #18):** Ingestion failures surface generic errors in UI; prospects and trials cannot self-remediate without support — measurable adoption friction after GA.
 
 ---
 
@@ -177,7 +177,7 @@ Open mitigations only — active Improvements **#1–#25**. Legacy shipped work 
 
 ## Most Important Truth
 
-ArchLucid is **ready to ship V1 GA at 93.36%**. **Improvements #1–#7 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#8–#25** do not move headline.
+ArchLucid is **ready to ship V1 GA at 93.43%**. **Improvements #1–#9 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#10–#25** do not move headline.
 
 ---
 
@@ -186,7 +186,7 @@ ArchLucid is **ready to ship V1 GA at 93.36%**. **Improvements #1–#7 shipped 2
 Shipped improvements (**archived #1–#57**, 2026-05-24 – 2026-05-25) are documented in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md). **Active tasks in this file: #1–#25** (renumbered 2026-05-25; do not confuse with legacy archive IDs).
 
 **V1 GA gates (ship before GA):** **None remaining — #1–#7 shipped 2026-05-25.**
-**Additional V1 actionable (post-GA or parallel):** **#8–#25** (18 items).
+**Additional V1 actionable (post-GA or parallel):** **#10–#25** (16 items).
 **Total:** **25** actionable improvements in this assessment.
 
 ### 1. Wire Agent-Output Eval Corpus Baseline Regression — **SHIPPED 2026-05-25**
@@ -532,11 +532,11 @@ Acceptance Criteria:
 - Pricing single-source CI passes; UI tests green.
 ```
 
-### 8. Implement Azure Retail Prices Structured Lookup for Cost Agent (actionable now — post-GA)
+### 8. Implement Azure Retail Prices Structured Lookup for Cost Agent — **SHIPPED 2026-05-25**
 - **Why it matters:** Cost findings and agent narratives can quote USD without a deterministic Retail row citation. **RAG-V1-003** closes the faithfulness gap using `AzureRetailPricesCatalogClient` — no embeddings, aligned with [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.16.
-- **Expected impact:** Cutting-Edge AI Technology (+1 pt), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: **+0.04%** when shipped. **Do not rescored until shipped.**
+- **Expected impact:** Cutting-Edge AI Technology (+1 pt), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: **+0.04%** when shipped. **Rescored 2026-05-25.**
 - **Affected qualities:** Cutting-Edge AI Technology, Proof-of-ROI Readiness, AI/Agent Readiness.
-- **Actionable now:** Yes — post-GA; schedule after **#3**.
+- **Actionable now:** ~~Yes — post-GA; schedule after **#3**.~~ **Shipped 2026-05-25.**
 - **Backlog refs:** [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](../library/RAG_QUALITY_TECHNICAL_BACKLOG.md) **RAG-V1-003**; **TB-021**.
 ```cursor
 Implement RAG-V1-003 Azure Retail Prices structured lookup (Improvement #8).
@@ -553,11 +553,11 @@ Constraints: Do not add new vector store; reuse ADR 0005 quota/circuit-breaker p
 Acceptance Criteria: Golden/unit test for known SKU; no cross-provider mis-attribution; docs pointer in RAG_QUALITY_TECHNICAL_BACKLOG.md marked shipped for RAG-V1-003.
 ```
 
-### 9. Index Platform Docs Corpus for Ask and Explanation (actionable now — post-GA)
+### 9. Index Platform Docs Corpus for Ask and Explanation — **SHIPPED 2026-05-25**
 - **Why it matters:** Ask and Explanation cannot cite ADRs or library reference docs today. **RAG-V1-004** raises supportability and reduces hallucinated platform-behavior answers.
-- **Expected impact:** Adoption Friction (+1 pt), Supportability (+1 pt). Weighted readiness impact: **+0.03%** when shipped. **Do not rescored until shipped.**
+- **Expected impact:** Adoption Friction (+1 pt), Supportability (+1 pt). Weighted readiness impact: **+0.03%** when shipped. **Rescored 2026-05-25.**
 - **Affected qualities:** Adoption Friction, Supportability, Cutting-Edge AI Technology.
-- **Actionable now:** Yes — post-GA.
+- **Actionable now:** ~~Yes — post-GA.~~ **Shipped 2026-05-25.**
 - **Backlog refs:** **RAG-V1-004**; deny-list `docs/go-to-market/**`, pen-test summaries, customer paths.
 ```cursor
 Implement RAG-V1-004 platform docs corpus (Improvement #9).
@@ -847,7 +847,7 @@ Active batches for **25** actionable improvements (**#1–#25**). Legacy shipped
 Run **#1** and **#2** together when possible — both touch `ArchLucid.AgentRuntime.Evaluation` and `scripts/ci/eval_agent_corpus.py`. **Do not** implement orchestrator auto-retry. For **#1**, wire CI with **`continue-on-error: true`** (warn-only soak) and scorecard artifact upload before GA; flip merge-blocking only after the **10-run / zero false-positive** exit criterion. Optional same PR: **#10** (`AlternativePathsConsidered`). **Status: #1–#2 shipped 2026-05-25.**
 
 **Batch 1 follow-on — RAG and AI quality (V1 GA gate — owner 2026-05-25)**
-Run **#3** before flipping eval baseline CI to merge-blocking: tenant-assigned pack filter, cross-run prior-`GoldenManifest` history, and RAG-V1-000 citation formatter / `RetrievalGroundingTrace`. Then schedule **#8** (Retail lookup) and **#9** (platform docs) as post-GA RAG tranche.
+Run **#3** before flipping eval baseline CI to merge-blocking: tenant-assigned pack filter, cross-run prior-`GoldenManifest` history, and RAG-V1-000 citation formatter / `RetrievalGroundingTrace`. **#8** (Retail lookup) and **#9** (platform docs) shipped 2026-05-25 as post-GA RAG tranche.
 
 **Batch 2 follow-on — USD savings gauge (V1 GA gate — owner 2026-05-25)**
 Run **#4** — reuse `ITenantEstimatedUsdSavingsResolver`, update Grafana Business Value row. Do not mix with **#3**. Follow with **#23** (EA multiplier) and **#24** (RAG telemetry cardinality gate).

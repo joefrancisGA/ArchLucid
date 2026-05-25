@@ -1,7 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Prompts;
-using ArchLucid.Capabilities.Cost;
+using CapabilitiesCostAgentHandler = ArchLucid.Capabilities.Cost.CostAgentHandler;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
@@ -47,14 +47,18 @@ public sealed class AgentPromptRegressionTests
     }
 
     [SkippableFact]
-    public async Task Cost_agent_has_no_cataloged_system_prompt_simulator_wires_still_valid_under_contract()
+    public async Task Cost_system_prompt_hash_matches_baseline()
     {
-        IAgentHandler handler = new CostAgentHandler();
+        await AssertPromptHashAsync(AgentType.Cost, "cost");
+    }
 
-        Func<Task> act = () => PromptCatalog.ResolveAsync(AgentType.Cost);
-        await act.Should()
-            .ThrowAsync<InvalidOperationException>(
-                "CostAgentHandler does not use IAgentSystemPromptCatalog � there is no built-in Cost template in CachedAgentSystemPromptCatalog.");
+    [SkippableFact]
+    public async Task Cost_simulator_handler_wires_still_valid_under_contract()
+    {
+        IAgentHandler handler = new CapabilitiesCostAgentHandler();
+
+        ResolvedSystemPrompt resolved = await PromptCatalog.ResolveAsync(AgentType.Cost);
+        resolved.TemplateId.Should().Be(CostSystemPromptTemplate.TemplateId);
 
         AgentResult result = await handler.ExecuteAsync(
             RegressionRunId,
@@ -95,11 +99,8 @@ public sealed class AgentPromptRegressionTests
 
     private static async Task RunSimulatorAndAssertStructureAsync(AgentType type, string taskId)
     {
-        if (type != AgentType.Cost)
-        {
-            ResolvedSystemPrompt r = await PromptCatalog.ResolveAsync(type);
-            r.Text.Should().NotBeNullOrWhiteSpace("same IAgentSystemPromptCatalog.ResolveAsync path as LLM agent handlers");
-        }
+        ResolvedSystemPrompt r = await PromptCatalog.ResolveAsync(type);
+        r.Text.Should().NotBeNullOrWhiteSpace("same IAgentSystemPromptCatalog.ResolveAsync path as LLM agent handlers");
 
         DeterministicAgentSimulator sim = new();
         ArchitectureRequest request = BuildRequest();
