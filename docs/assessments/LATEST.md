@@ -3097,9 +3097,44 @@ Acceptance Criteria: Each of the six edges has a recorded decision (Option A or 
 
 ---
 
+## Improvement #56 — Fix DI Lifetime Mismatches in `ArchLucid.Host.Composition` (audit 2026-05-24)
+
+**Quality dimension:** Maintainability / Reliability
+**Source:** Engineering audit — composition root DI lifetime review, 2026-05-24.
+
+### Findings
+
+Three issues were identified. Two require code changes; one is a design-level constraint.
+
+**Finding 1 (High) — Singleton capturing Transient typed HttpClient**
+
+`AuthorityRunCompletedAzureDevOpsIntegrationEventHandler` is registered as `AddSingleton<IIntegrationEventHandler, ...>()` but its constructor takes `IAzureDevOpsPullRequestDecorator`, which is registered as Transient by `AddHttpClient<IAzureDevOpsPullRequestDecorator, AzureDevOpsPullRequestDecorator>()`. The Transient typed-client instance is captured at construction time and lives for the process lifetime, bypassing `IHttpClientFactory`'s handler-rotation policy (DNS refresh, socket reuse). ASP.NET Core's `ValidateScopes` does not flag Singleton→Transient, so this silently passes the scope check. Location: `ServiceCollectionExtensions.SchedulingAndAlerts.cs`, `RegisterIntegrationEventConsumer`, Worker role only.
+
+*Fix:* inject `IHttpClientFactory` into the handler and call `CreateClient(nameof(AzureDevOpsPullRequestDecorator))` per `HandleAsync` invocation, or register the handler as Transient/Scoped and resolve it from a scope per consumed message.
+
+**Finding 2 (Medium) — `SqlScopedResolutionDbConnectionFactory`: `SqlConnection` outlives its `AsyncServiceScope`**
+
+`IDbConnectionFactory` is `SqlScopedResolutionDbConnectionFactory` (Singleton). Its `CreateOpenConnectionAsync` method creates an `AsyncServiceScope`, resolves `ISqlConnectionFactory` (→ `ResilientSqlConnectionFactory` → `ScopedRoutingSqlConnectionFactory`), opens a `SqlConnection`, disposes the scope via `await using`, and returns the live connection. The connection is detached from any DI-managed unit-of-work before the caller has run a single query. The class XML doc acknowledges this explicitly.
+
+Consequences: no ambient transaction guaranteed, no scope-level rollback, no connection-string re-routing possible mid-connection, and connection leak risk if a future caller omits `using`. Current callers (`SqlPromptVariantRegistry`, health checks) all use `using IDbConnection connection = ...`, so no active leak today.
+
+*Fix:* Enforce the `using` contract via a Roslyn analyzer or code review rule. Consider adding an `IDisposable` wrapper that ties connection disposal to a scoped unit-of-work token for callers that need multi-statement atomicity. Do not move `IDbConnectionFactory` to Scoped — health checks resolve it from the root provider and cannot participate in a request scope.
+
+**Finding 3 (Clean) — `IServiceProvider` direct resolution**
+
+No class in `ArchLucid.Host.Composition` captures `IServiceProvider` as a constructor dependency. All `IServiceProvider` references appear as factory lambda parameters resolved once at startup and not stored. The correct `IServiceScopeFactory` pattern is used consistently across all singletons that need per-invocation scoped resolution (`RetrievalIndexingOutboxProcessor`, `IntegrationEventOutboxProcessor`, `AuthorityPipelineWorkProcessor`, `AgentOutputLlmSemanticJudge`, `TrialLifecycleEmailIntegrationEventHandler`, `CircuitBreakingContentSafetyGuard`).
+
+### Acceptance Criteria
+
+- [ ] `AuthorityRunCompletedAzureDevOpsIntegrationEventHandler` no longer captures `IAzureDevOpsPullRequestDecorator` in its constructor; `HttpClient` is obtained per-message via `IHttpClientFactory` or the handler's registration lifetime matches the typed-client lifetime.
+- [ ] `SqlScopedResolutionDbConnectionFactory.CreateOpenConnectionAsync` XML doc updated to require `using` at all call sites; a code-review checklist entry or analyzer rule enforces this.
+- [ ] `ValidateScopes = true` (already the default in Development) passes after the handler fix; no new Singleton→Scoped captures introduced.
+
+---
+
 ## Prompt Batching Guidance
 
-All 53 improvements are now V1-actionable (or resolved). Batches optimized for context-window reuse:
+All improvements are V1-actionable (or resolved). Batches optimized for context-window reuse:
 
 **Batch 1 — RAG & AI quality (highest leverage)**
 Run prompts **1** (Policy-Pack Indexing), **2** (LLM Faithfulness Evaluator), and **23** (Prior-Manifest Chunks) together. Shared namespaces: `ArchLucid.Retrieval`, `ArchLucid.AgentRuntime.Evaluation`. Same TB-021 / RAG-V1-* engineering charter.
