@@ -57,8 +57,8 @@ IF OBJECT_ID(N'dbo.AgentTasks', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.AgentTasks
     (
-        TaskId             NVARCHAR(64)  NOT NULL PRIMARY KEY,
-        RunId              NVARCHAR(64)  NOT NULL,
+        TaskId             NVARCHAR(64)     NOT NULL PRIMARY KEY,
+        RunId              UNIQUEIDENTIFIER NOT NULL,
         AgentType          NVARCHAR(50)  NOT NULL,
         Objective          NVARCHAR(MAX) NOT NULL,
         Status             NVARCHAR(50)  NOT NULL,
@@ -77,7 +77,7 @@ BEGIN
     (
         ResultId   NVARCHAR(64)  NOT NULL PRIMARY KEY,
         TaskId     NVARCHAR(64)  NOT NULL,
-        RunId      NVARCHAR(64)  NOT NULL,
+        RunId      UNIQUEIDENTIFIER NOT NULL,
         AgentType  NVARCHAR(50)  NOT NULL,
         Confidence FLOAT         NOT NULL,
         ResultJson NVARCHAR(MAX) NOT NULL,
@@ -117,8 +117,8 @@ IF OBJECT_ID(N'dbo.DecisionTraces', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.DecisionTraces
     (
-        TraceId          NVARCHAR(64)  NOT NULL PRIMARY KEY,
-        RunId            NVARCHAR(64)  NOT NULL,
+        TraceId          NVARCHAR(64)     NOT NULL PRIMARY KEY,
+        RunId            UNIQUEIDENTIFIER NOT NULL,
         EventType        NVARCHAR(100) NOT NULL,
         EventDescription NVARCHAR(MAX) NOT NULL,
         EventJson        NVARCHAR(MAX) NOT NULL,
@@ -133,8 +133,8 @@ IF OBJECT_ID(N'dbo.AgentEvidencePackages', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.AgentEvidencePackages
     (
-        EvidencePackageId NVARCHAR(64)  NOT NULL PRIMARY KEY,
-        RunId             NVARCHAR(64)  NOT NULL,
+        EvidencePackageId NVARCHAR(64)     NOT NULL PRIMARY KEY,
+        RunId             UNIQUEIDENTIFIER NOT NULL,
         RequestId         NVARCHAR(64)  NOT NULL,
         SystemName        NVARCHAR(200) NOT NULL,
         Environment       NVARCHAR(50)  NOT NULL,
@@ -160,8 +160,8 @@ IF OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.AgentExecutionTraces
     (
-        TraceId        NVARCHAR(64)  NOT NULL PRIMARY KEY,
-        RunId          NVARCHAR(64)  NOT NULL,
+        TraceId        NVARCHAR(64)     NOT NULL PRIMARY KEY,
+        RunId          UNIQUEIDENTIFIER NOT NULL,
         TaskId         NVARCHAR(64)  NOT NULL,
         AgentType      NVARCHAR(50)  NOT NULL,
         ParseSucceeded BIT           NOT NULL,
@@ -1909,6 +1909,51 @@ BEGIN
 END;
 GO
 
+IF OBJECT_ID(N'dbo.AgentTasks', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentTasks_Runs_RunId')
+        ALTER TABLE dbo.AgentTasks WITH NOCHECK ADD CONSTRAINT FK_AgentTasks_Runs_RunId
+            FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AgentResults', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentResults_Runs_RunId')
+        ALTER TABLE dbo.AgentResults WITH NOCHECK ADD CONSTRAINT FK_AgentResults_Runs_RunId
+            FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DecisionTraces', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_DecisionTraces_Runs_RunId')
+        ALTER TABLE dbo.DecisionTraces WITH NOCHECK ADD CONSTRAINT FK_DecisionTraces_Runs_RunId
+            FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AgentEvidencePackages', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentEvidencePackages_Runs_RunId')
+        ALTER TABLE dbo.AgentEvidencePackages WITH NOCHECK ADD CONSTRAINT FK_AgentEvidencePackages_Runs_RunId
+            FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentExecutionTraces_Runs_RunId')
+        ALTER TABLE dbo.AgentExecutionTraces WITH NOCHECK ADD CONSTRAINT FK_AgentExecutionTraces_Runs_RunId
+            FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId);
+END;
+GO
+
 IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
    AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
    AND OBJECT_ID(N'dbo.ContextSnapshots', N'U') IS NOT NULL
@@ -2866,9 +2911,10 @@ BEGIN
         ProjectId UNIQUEIDENTIFIER NOT NULL,
         IdempotencyKeyHash VARBINARY(32) NOT NULL,
         RequestFingerprint VARBINARY(32) NOT NULL,
-        RunId NVARCHAR(64) NOT NULL,
+        RunId UNIQUEIDENTIFIER NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
-        CONSTRAINT PK_ArchitectureRunIdempotency PRIMARY KEY (TenantId, WorkspaceId, ProjectId, IdempotencyKeyHash)
+        CONSTRAINT PK_ArchitectureRunIdempotency PRIMARY KEY (TenantId, WorkspaceId, ProjectId, IdempotencyKeyHash),
+        CONSTRAINT FK_ArchitectureRunIdempotency_Runs_RunId FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId)
     );
 END;
 GO
@@ -2882,13 +2928,13 @@ BEGIN
         TenantId           UNIQUEIDENTIFIER NOT NULL,
         WorkspaceId        UNIQUEIDENTIFIER NOT NULL,
         ProjectId          UNIQUEIDENTIFIER NOT NULL,
-        RunId              NVARCHAR(64)     NOT NULL,
+        RunId              UNIQUEIDENTIFIER NOT NULL,
         IdempotencyKeyHash VARBINARY(32)     NOT NULL,
         RequestFingerprint VARBINARY(32)     NOT NULL,
         CreatedUtc          DATETIME2(7)     NOT NULL CONSTRAINT DF_CommitRunIdempotency_CreatedUtc DEFAULT SYSUTCDATETIME(),
         CONSTRAINT PK_CommitRunIdempotency PRIMARY KEY (TenantId, WorkspaceId, ProjectId, RunId, IdempotencyKeyHash),
         CONSTRAINT FK_CommitRunIdempotency_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
-        CONSTRAINT CK_CommitRunIdempotency_RunIdLen CHECK (LEN(RunId) > 0)
+        CONSTRAINT FK_CommitRunIdempotency_Runs_RunId FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId)
     );
 END;
 GO
@@ -3054,7 +3100,7 @@ BEGIN
         TenantId UNIQUEIDENTIFIER NOT NULL,
         WorkspaceId UNIQUEIDENTIFIER NOT NULL,
         ProjectId UNIQUEIDENTIFIER NOT NULL,
-        ArchitectureRunId NVARCHAR(64) NULL,
+        ArchitectureRunId UNIQUEIDENTIFIER NULL,
         AuthorityRunId UNIQUEIDENTIFIER NULL,
         ManifestVersion NVARCHAR(128) NULL,
         SubjectType NVARCHAR(64) NOT NULL,
@@ -7519,5 +7565,129 @@ SELECT
     END AS BreachStatus
 FROM dbo.MarketingPricingQuoteRequests AS r;
 ');
+END;
+GO
+
+/* ---- DbUp 211 parity: archive cascade TVP + procedure ---- */
+
+IF TYPE_ID(N'dbo.ArchivedRunIdList') IS NULL
+    CREATE TYPE dbo.ArchivedRunIdList AS TABLE
+    (
+        RunId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY
+    );
+GO
+
+CREATE OR ALTER PROCEDURE dbo.Archival_CascadeFromArchivedRuns
+    @Archived dbo.ArchivedRunIdList READONLY
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @cntGolden INT = 0;
+    DECLARE @cntFindings INT = 0;
+    DECLARE @cntContext INT = 0;
+    DECLARE @cntGraph INT = 0;
+    DECLARE @cntDecisioning INT = 0;
+    DECLARE @cntArtifact INT = 0;
+    DECLARE @cntAgentTrace INT = 0;
+    DECLARE @cntComparison INT = 0;
+
+    IF COL_LENGTH(N'dbo.GoldenManifests', N'ArchivedUtc') IS NOT NULL
+    BEGIN
+        UPDATE gm
+        SET ArchivedUtc = SYSUTCDATETIME()
+        FROM dbo.GoldenManifests AS gm
+        INNER JOIN @Archived AS a ON a.RunId = gm.RunId
+        WHERE gm.ArchivedUtc IS NULL;
+
+        SET @cntGolden = @@ROWCOUNT;
+    END;
+
+    IF COL_LENGTH(N'dbo.FindingsSnapshots', N'ArchivedUtc') IS NOT NULL
+    BEGIN
+        UPDATE fs
+        SET ArchivedUtc = SYSUTCDATETIME()
+        FROM dbo.FindingsSnapshots AS fs
+        INNER JOIN @Archived AS a ON a.RunId = fs.RunId
+        WHERE fs.ArchivedUtc IS NULL;
+
+        SET @cntFindings = @@ROWCOUNT;
+    END;
+
+    IF COL_LENGTH(N'dbo.ContextSnapshots', N'ArchivedUtc') IS NOT NULL
+    BEGIN
+        UPDATE cs
+        SET ArchivedUtc = SYSUTCDATETIME()
+        FROM dbo.ContextSnapshots AS cs
+        INNER JOIN @Archived AS a ON a.RunId = cs.RunId
+        WHERE cs.ArchivedUtc IS NULL;
+
+        SET @cntContext = @@ROWCOUNT;
+    END;
+
+    IF COL_LENGTH(N'dbo.GraphSnapshots', N'ArchivedUtc') IS NOT NULL
+    BEGIN
+        UPDATE gs
+        SET ArchivedUtc = SYSUTCDATETIME()
+        FROM dbo.GraphSnapshots AS gs
+        INNER JOIN @Archived AS a ON a.RunId = gs.RunId
+        WHERE gs.ArchivedUtc IS NULL;
+
+        SET @cntGraph = @@ROWCOUNT;
+    END;
+
+    IF COL_LENGTH(N'dbo.DecisioningTraces', N'ArchivedUtc') IS NOT NULL
+    BEGIN
+        UPDATE dt
+        SET ArchivedUtc = SYSUTCDATETIME()
+        FROM dbo.DecisioningTraces AS dt
+        INNER JOIN @Archived AS a ON a.RunId = dt.RunId
+        WHERE dt.ArchivedUtc IS NULL;
+
+        SET @cntDecisioning = @@ROWCOUNT;
+    END;
+
+    IF COL_LENGTH(N'dbo.ArtifactBundles', N'ArchivedUtc') IS NOT NULL
+    BEGIN
+        UPDATE ab
+        SET ArchivedUtc = SYSUTCDATETIME()
+        FROM dbo.ArtifactBundles AS ab
+        INNER JOIN @Archived AS a ON a.RunId = ab.RunId
+        WHERE ab.ArchivedUtc IS NULL;
+
+        SET @cntArtifact = @@ROWCOUNT;
+    END;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ArchivedUtc') IS NOT NULL
+    BEGIN
+        UPDATE aet
+        SET ArchivedUtc = SYSUTCDATETIME()
+        FROM dbo.AgentExecutionTraces AS aet
+        INNER JOIN @Archived AS a ON a.RunId = aet.RunId
+        WHERE aet.ArchivedUtc IS NULL;
+
+        SET @cntAgentTrace = @@ROWCOUNT;
+    END;
+
+    IF COL_LENGTH(N'dbo.ComparisonRecords', N'ArchivedUtc') IS NOT NULL
+    BEGIN
+        UPDATE cr
+        SET ArchivedUtc = SYSUTCDATETIME()
+        FROM dbo.ComparisonRecords AS cr
+        INNER JOIN @Archived AS a ON a.RunId = cr.LeftRunId OR a.RunId = cr.RightRunId
+        WHERE cr.ArchivedUtc IS NULL;
+
+        SET @cntComparison = @@ROWCOUNT;
+    END;
+
+    SELECT
+        @cntGolden AS GoldenManifests,
+        @cntFindings AS FindingsSnapshots,
+        @cntContext AS ContextSnapshots,
+        @cntGraph AS GraphSnapshots,
+        @cntDecisioning AS DecisioningTraces,
+        @cntArtifact AS ArtifactBundles,
+        @cntAgentTrace AS AgentExecutionTraces,
+        @cntComparison AS ComparisonRecords;
 END;
 GO

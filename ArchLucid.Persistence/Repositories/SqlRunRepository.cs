@@ -538,106 +538,27 @@ public sealed class SqlRunRepository(
         CancellationToken ct)
     {
         const string sql = """
-                           DECLARE @Archived TABLE (
+                           DECLARE @ArchivedScratch TABLE (
                                RunId UNIQUEIDENTIFIER NOT NULL,
                                TenantId UNIQUEIDENTIFIER NOT NULL,
                                WorkspaceId UNIQUEIDENTIFIER NOT NULL,
                                ScopeProjectId UNIQUEIDENTIFIER NOT NULL
                            );
 
-                           DECLARE @cntGolden INT = 0;
-                           DECLARE @cntFindings INT = 0;
-                           DECLARE @cntContext INT = 0;
-                           DECLARE @cntGraph INT = 0;
-                           DECLARE @cntDecisioning INT = 0;
-                           DECLARE @cntArtifact INT = 0;
-                           DECLARE @cntAgentTrace INT = 0;
-                           DECLARE @cntComparison INT = 0;
+                           DECLARE @Archived dbo.ArchivedRunIdList;
 
                            UPDATE dbo.Runs
                            SET ArchivedUtc = SYSUTCDATETIME()
                            OUTPUT inserted.RunId, inserted.TenantId, inserted.WorkspaceId, inserted.ScopeProjectId
-                           INTO @Archived
+                           INTO @ArchivedScratch
                            WHERE ArchivedUtc IS NULL AND CreatedUtc < @Cutoff;
 
-                           IF COL_LENGTH(N'dbo.GoldenManifests', N'ArchivedUtc') IS NOT NULL
-                           BEGIN
-                               UPDATE dbo.GoldenManifests
-                               SET ArchivedUtc = SYSUTCDATETIME()
-                               WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
-                               SET @cntGolden = @cntGolden + @@ROWCOUNT;
-                           END;
+                           INSERT INTO @Archived (RunId)
+                           SELECT RunId FROM @ArchivedScratch;
 
-                           IF COL_LENGTH(N'dbo.FindingsSnapshots', N'ArchivedUtc') IS NOT NULL
-                           BEGIN
-                               UPDATE dbo.FindingsSnapshots
-                               SET ArchivedUtc = SYSUTCDATETIME()
-                               WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
-                               SET @cntFindings = @cntFindings + @@ROWCOUNT;
-                           END;
+                           SELECT RunId, TenantId, WorkspaceId, ScopeProjectId FROM @ArchivedScratch;
 
-                           IF COL_LENGTH(N'dbo.ContextSnapshots', N'ArchivedUtc') IS NOT NULL
-                           BEGIN
-                               UPDATE dbo.ContextSnapshots
-                               SET ArchivedUtc = SYSUTCDATETIME()
-                               WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
-                               SET @cntContext = @cntContext + @@ROWCOUNT;
-                           END;
-
-                           IF COL_LENGTH(N'dbo.GraphSnapshots', N'ArchivedUtc') IS NOT NULL
-                           BEGIN
-                               UPDATE dbo.GraphSnapshots
-                               SET ArchivedUtc = SYSUTCDATETIME()
-                               WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
-                               SET @cntGraph = @cntGraph + @@ROWCOUNT;
-                           END;
-
-                           IF COL_LENGTH(N'dbo.DecisioningTraces', N'ArchivedUtc') IS NOT NULL
-                           BEGIN
-                               UPDATE dbo.DecisioningTraces
-                               SET ArchivedUtc = SYSUTCDATETIME()
-                               WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
-                               SET @cntDecisioning = @cntDecisioning + @@ROWCOUNT;
-                           END;
-
-                           IF COL_LENGTH(N'dbo.ArtifactBundles', N'ArchivedUtc') IS NOT NULL
-                           BEGIN
-                               UPDATE dbo.ArtifactBundles
-                               SET ArchivedUtc = SYSUTCDATETIME()
-                               WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
-                               SET @cntArtifact = @cntArtifact + @@ROWCOUNT;
-                           END;
-
-                           IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ArchivedUtc') IS NOT NULL
-                           BEGIN
-                               UPDATE dbo.AgentExecutionTraces
-                               SET ArchivedUtc = SYSUTCDATETIME()
-                               WHERE ArchivedUtc IS NULL
-                                 AND TRY_CAST(RunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived);
-                               SET @cntAgentTrace = @cntAgentTrace + @@ROWCOUNT;
-                           END;
-
-                           IF COL_LENGTH(N'dbo.ComparisonRecords', N'ArchivedUtc') IS NOT NULL
-                           BEGIN
-                               UPDATE dbo.ComparisonRecords
-                               SET ArchivedUtc = SYSUTCDATETIME()
-                               WHERE ArchivedUtc IS NULL
-                                 AND (
-                                     TRY_CAST(LeftRunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived)
-                                     OR TRY_CAST(RightRunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived));
-                               SET @cntComparison = @cntComparison + @@ROWCOUNT;
-                           END;
-
-                           SELECT RunId, TenantId, WorkspaceId, ScopeProjectId FROM @Archived;
-                           SELECT
-                               @cntGolden AS GoldenManifests,
-                               @cntFindings AS FindingsSnapshots,
-                               @cntContext AS ContextSnapshots,
-                               @cntGraph AS GraphSnapshots,
-                               @cntDecisioning AS DecisioningTraces,
-                               @cntArtifact AS ArtifactBundles,
-                               @cntAgentTrace AS AgentExecutionTraces,
-                               @cntComparison AS ComparisonRecords;
+                           EXEC dbo.Archival_CascadeFromArchivedRuns @Archived = @Archived;
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -680,165 +601,52 @@ public sealed class SqlRunRepository(
 
         distinctOrdered.AddRange(runIds.Where(seen.Add));
 
-        const string selectSql = """
-                                 SELECT RunId, ArchivedUtc
-                                 FROM dbo.Runs
-                                 WHERE RunId IN @RunIds;
-                                 """;
+        const string batchSql = """
+                                DECLARE @ArchivedScratch TABLE (
+                                    RunId UNIQUEIDENTIFIER NOT NULL,
+                                    TenantId UNIQUEIDENTIFIER NOT NULL,
+                                    WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+                                    ScopeProjectId UNIQUEIDENTIFIER NOT NULL
+                                );
+
+                                DECLARE @Archived dbo.ArchivedRunIdList;
+
+                                UPDATE dbo.Runs
+                                SET ArchivedUtc = SYSUTCDATETIME()
+                                OUTPUT inserted.RunId, inserted.TenantId, inserted.WorkspaceId, inserted.ScopeProjectId
+                                INTO @ArchivedScratch
+                                WHERE RunId IN @RunIds AND ArchivedUtc IS NULL;
+
+                                INSERT INTO @Archived (RunId)
+                                SELECT RunId FROM @ArchivedScratch;
+
+                                SELECT RunId, TenantId, WorkspaceId, ScopeProjectId FROM @ArchivedScratch;
+
+                                SELECT RunId
+                                FROM dbo.Runs
+                                WHERE RunId IN @RunIds AND ArchivedUtc IS NOT NULL;
+
+                                EXEC dbo.Archival_CascadeFromArchivedRuns @Archived = @Archived;
+                                """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        IEnumerable<(Guid RunId, DateTime? ArchivedUtc)> existingRows =
-            await connection.QueryAsync<(Guid RunId, DateTime? ArchivedUtc)>(
-                new CommandDefinition(selectSql, new
-                {
-                    RunIds = distinctOrdered
-                }, cancellationToken: ct));
-
-        Dictionary<Guid, DateTime?> stateById =
-            existingRows.ToDictionary(static r => r.RunId, static r => r.ArchivedUtc);
-
-        List<Guid> toArchive = [];
-        List<RunArchiveByIdFailure> failed = [];
-
-        foreach (Guid id in distinctOrdered)
-        {
-            if (!stateById.TryGetValue(id, out DateTime? archivedUtc))
-            {
-                failed.Add(new RunArchiveByIdFailure(id, "Run not found."));
-                continue;
-            }
-
-            if (archivedUtc.HasValue)
-            {
-                failed.Add(new RunArchiveByIdFailure(id, "Run already archived."));
-                continue;
-            }
-
-            toArchive.Add(id);
-        }
-
-        if (toArchive.Count == 0)
-
-            return new RunArchiveByIdsResult { SucceededRunIds = [], ArchivedRuns = [], Failed = failed };
-
-        const string updateSql = """
-                                 DECLARE @Archived TABLE (
-                                     RunId UNIQUEIDENTIFIER NOT NULL,
-                                     TenantId UNIQUEIDENTIFIER NOT NULL,
-                                     WorkspaceId UNIQUEIDENTIFIER NOT NULL,
-                                     ScopeProjectId UNIQUEIDENTIFIER NOT NULL
-                                 );
-
-                                 DECLARE @cntGolden INT = 0;
-                                 DECLARE @cntFindings INT = 0;
-                                 DECLARE @cntContext INT = 0;
-                                 DECLARE @cntGraph INT = 0;
-                                 DECLARE @cntDecisioning INT = 0;
-                                 DECLARE @cntArtifact INT = 0;
-                                 DECLARE @cntAgentTrace INT = 0;
-                                 DECLARE @cntComparison INT = 0;
-
-                                 UPDATE dbo.Runs
-                                 SET ArchivedUtc = SYSUTCDATETIME()
-                                 OUTPUT inserted.RunId, inserted.TenantId, inserted.WorkspaceId, inserted.ScopeProjectId
-                                 INTO @Archived
-                                 WHERE RunId IN @ToArchive AND ArchivedUtc IS NULL;
-
-                                 IF COL_LENGTH(N'dbo.GoldenManifests', N'ArchivedUtc') IS NOT NULL
-                                 BEGIN
-                                     UPDATE dbo.GoldenManifests
-                                     SET ArchivedUtc = SYSUTCDATETIME()
-                                     WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
-                                     SET @cntGolden = @cntGolden + @@ROWCOUNT;
-                                 END;
-
-                                 IF COL_LENGTH(N'dbo.FindingsSnapshots', N'ArchivedUtc') IS NOT NULL
-                                 BEGIN
-                                     UPDATE dbo.FindingsSnapshots
-                                     SET ArchivedUtc = SYSUTCDATETIME()
-                                     WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
-                                     SET @cntFindings = @cntFindings + @@ROWCOUNT;
-                                 END;
-
-                                 IF COL_LENGTH(N'dbo.ContextSnapshots', N'ArchivedUtc') IS NOT NULL
-                                 BEGIN
-                                     UPDATE dbo.ContextSnapshots
-                                     SET ArchivedUtc = SYSUTCDATETIME()
-                                     WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
-                                     SET @cntContext = @cntContext + @@ROWCOUNT;
-                                 END;
-
-                                 IF COL_LENGTH(N'dbo.GraphSnapshots', N'ArchivedUtc') IS NOT NULL
-                                 BEGIN
-                                     UPDATE dbo.GraphSnapshots
-                                     SET ArchivedUtc = SYSUTCDATETIME()
-                                     WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
-                                     SET @cntGraph = @cntGraph + @@ROWCOUNT;
-                                 END;
-
-                                 IF COL_LENGTH(N'dbo.DecisioningTraces', N'ArchivedUtc') IS NOT NULL
-                                 BEGIN
-                                     UPDATE dbo.DecisioningTraces
-                                     SET ArchivedUtc = SYSUTCDATETIME()
-                                     WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
-                                     SET @cntDecisioning = @cntDecisioning + @@ROWCOUNT;
-                                 END;
-
-                                 IF COL_LENGTH(N'dbo.ArtifactBundles', N'ArchivedUtc') IS NOT NULL
-                                 BEGIN
-                                     UPDATE dbo.ArtifactBundles
-                                     SET ArchivedUtc = SYSUTCDATETIME()
-                                     WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
-                                     SET @cntArtifact = @cntArtifact + @@ROWCOUNT;
-                                 END;
-
-                                 IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ArchivedUtc') IS NOT NULL
-                                 BEGIN
-                                     UPDATE dbo.AgentExecutionTraces
-                                     SET ArchivedUtc = SYSUTCDATETIME()
-                                     WHERE ArchivedUtc IS NULL
-                                       AND TRY_CAST(RunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived);
-                                     SET @cntAgentTrace = @cntAgentTrace + @@ROWCOUNT;
-                                 END;
-
-                                 IF COL_LENGTH(N'dbo.ComparisonRecords', N'ArchivedUtc') IS NOT NULL
-                                 BEGIN
-                                     UPDATE dbo.ComparisonRecords
-                                     SET ArchivedUtc = SYSUTCDATETIME()
-                                     WHERE ArchivedUtc IS NULL
-                                       AND (
-                                           TRY_CAST(LeftRunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived)
-                                           OR TRY_CAST(RightRunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived));
-                                     SET @cntComparison = @cntComparison + @@ROWCOUNT;
-                                 END;
-
-                                 SELECT RunId, TenantId, WorkspaceId, ScopeProjectId FROM @Archived;
-                                 SELECT
-                                     @cntGolden AS GoldenManifests,
-                                     @cntFindings AS FindingsSnapshots,
-                                     @cntContext AS ContextSnapshots,
-                                     @cntGraph AS GraphSnapshots,
-                                     @cntDecisioning AS DecisioningTraces,
-                                     @cntArtifact AS ArtifactBundles,
-                                     @cntAgentTrace AS AgentExecutionTraces,
-                                     @cntComparison AS ComparisonRecords;
-                                 """;
-
         await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync(ct);
 
         List<ArchivedRunScopeRow> archived;
-
+        List<Guid> alreadyArchivedRunIds;
         RunArchiveChildCascadeCounts childCascade;
+        List<RunArchiveByIdFailure> failed = [];
 
         try
         {
             await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
-                new CommandDefinition(updateSql, new
+                new CommandDefinition(batchSql, new
                 {
-                    ToArchive = toArchive
+                    RunIds = distinctOrdered
                 }, tran, cancellationToken: ct));
 
             archived = (await multi.ReadAsync<ArchivedRunScopeRow>()).ToList();
+            alreadyArchivedRunIds = (await multi.ReadAsync<Guid>()).ToList();
             childCascade = (await multi.ReadAsync<RunArchiveChildCascadeCounts>()).Single();
 
             await tran.CommitAsync(ct);
@@ -849,14 +657,22 @@ public sealed class SqlRunRepository(
             throw;
         }
 
-        HashSet<Guid> succeededSet = archived.Select(static r => r.RunId).ToHashSet();
+        HashSet<Guid> newlyArchivedSet = archived.Select(static r => r.RunId).ToHashSet();
+        HashSet<Guid> alreadyArchivedSet = alreadyArchivedRunIds.ToHashSet();
 
-        foreach (Guid id in toArchive)
+        foreach (Guid id in distinctOrdered)
+        {
+            if (newlyArchivedSet.Contains(id))
+                continue;
 
-            if (!succeededSet.Contains(id))
+            if (alreadyArchivedSet.Contains(id))
+            {
+                failed.Add(new RunArchiveByIdFailure(id, "Run already archived."));
+                continue;
+            }
 
-                failed.Add(new RunArchiveByIdFailure(id,
-                    "Run could not be archived (concurrent update or missing row)."));
+            failed.Add(new RunArchiveByIdFailure(id, "Run not found."));
+        }
 
         return new RunArchiveByIdsResult
         {

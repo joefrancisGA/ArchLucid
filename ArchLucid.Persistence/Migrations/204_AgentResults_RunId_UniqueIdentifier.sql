@@ -1,0 +1,71 @@
+/*
+  Improvement #27 — dbo.AgentResults.RunId NVARCHAR(64) -> UNIQUEIDENTIFIER + FK dbo.Runs.
+*/
+
+SET NOCOUNT ON;
+
+IF OBJECT_ID(N'dbo.AgentResults', N'U') IS NULL
+BEGIN
+    PRINT N'#27 AgentResults: table missing; skipping.';
+END;
+ELSE IF COL_LENGTH(N'dbo.AgentResults', N'RunId') IS NULL
+    AND COL_LENGTH(N'dbo.AgentResults', N'RunIdGuid') IS NOT NULL
+    EXEC sp_rename N'dbo.AgentResults.RunIdGuid', N'RunId', N'COLUMN';
+ELSE IF EXISTS (
+    SELECT 1
+    FROM sys.columns c
+    INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
+    WHERE c.object_id = OBJECT_ID(N'dbo.AgentResults')
+      AND c.name = N'RunId'
+      AND ty.name IN (N'nvarchar', N'varchar'))
+BEGIN
+    IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentResults_Run')
+        ALTER TABLE dbo.AgentResults DROP CONSTRAINT FK_AgentResults_Run;
+
+    IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentResults_Runs_RunId')
+        ALTER TABLE dbo.AgentResults DROP CONSTRAINT FK_AgentResults_Runs_RunId;
+
+    IF COL_LENGTH(N'dbo.AgentResults', N'RunIdGuid') IS NULL
+        ALTER TABLE dbo.AgentResults ADD RunIdGuid UNIQUEIDENTIFIER NULL;
+
+    UPDATE dbo.AgentResults
+    SET RunIdGuid = TRY_CAST(RunId AS UNIQUEIDENTIFIER)
+    WHERE RunIdGuid IS NULL;
+
+    DELETE t
+    FROM dbo.AgentResults AS t
+    WHERE t.RunIdGuid IS NOT NULL
+      AND NOT EXISTS (SELECT 1 FROM dbo.Runs AS r WHERE r.RunId = t.RunIdGuid);
+
+    IF EXISTS (SELECT 1 FROM dbo.AgentResults WHERE RunIdGuid IS NULL AND RunId IS NOT NULL)
+        THROW 50027, N'#27 AgentResults: backfill incomplete — orphaned RunId strings found.', 1;
+
+    ALTER TABLE dbo.AgentResults ALTER COLUMN RunIdGuid UNIQUEIDENTIFIER NOT NULL;
+
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.AgentResults') AND name = N'IX_AgentResults_RunId')
+        DROP INDEX IX_AgentResults_RunId ON dbo.AgentResults;
+
+    ALTER TABLE dbo.AgentResults DROP COLUMN RunId;
+
+    EXEC sp_rename N'dbo.AgentResults.RunIdGuid', N'RunId', N'COLUMN';
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AgentResults', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AgentResults', N'RunId') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.columns c
+       INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
+       WHERE c.object_id = OBJECT_ID(N'dbo.AgentResults')
+         AND c.name = N'RunId'
+         AND ty.name = N'uniqueidentifier')
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.AgentResults') AND name = N'IX_AgentResults_RunId')
+        CREATE NONCLUSTERED INDEX IX_AgentResults_RunId ON dbo.AgentResults (RunId);
+
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentResults_Runs_RunId')
+        ALTER TABLE dbo.AgentResults WITH NOCHECK
+            ADD CONSTRAINT FK_AgentResults_Runs_RunId FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId);
+END;
+GO

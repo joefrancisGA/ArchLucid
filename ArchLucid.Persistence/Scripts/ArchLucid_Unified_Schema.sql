@@ -54,7 +54,7 @@ BEGIN
     CREATE TABLE dbo.AgentTasks
     (
         TaskId             NVARCHAR(64)  NOT NULL PRIMARY KEY,
-        RunId              NVARCHAR(64)  NOT NULL,
+        RunId              UNIQUEIDENTIFIER NOT NULL,
         AgentType          NVARCHAR(50)  NOT NULL,
         Objective          NVARCHAR(MAX) NOT NULL,
         Status             NVARCHAR(50)  NOT NULL,
@@ -74,7 +74,7 @@ BEGIN
     (
         ResultId   NVARCHAR(64)  NOT NULL PRIMARY KEY,
         TaskId     NVARCHAR(64)  NOT NULL,
-        RunId      NVARCHAR(64)  NOT NULL,
+        RunId      UNIQUEIDENTIFIER NOT NULL,
         AgentType  NVARCHAR(50)  NOT NULL,
         Confidence FLOAT         NOT NULL,
         ResultJson NVARCHAR(MAX) NOT NULL,
@@ -118,7 +118,7 @@ BEGIN
     CREATE TABLE dbo.DecisionTraces
     (
         TraceId          NVARCHAR(64)  NOT NULL PRIMARY KEY,
-        RunId            NVARCHAR(64)  NOT NULL,
+        RunId            UNIQUEIDENTIFIER NOT NULL,
         EventType        NVARCHAR(100) NOT NULL,
         EventDescription NVARCHAR(MAX) NOT NULL,
         EventJson        NVARCHAR(MAX) NOT NULL,
@@ -135,7 +135,7 @@ BEGIN
     CREATE TABLE dbo.AgentEvidencePackages
     (
         EvidencePackageId NVARCHAR(64)  NOT NULL PRIMARY KEY,
-        RunId             NVARCHAR(64)  NOT NULL,
+        RunId             UNIQUEIDENTIFIER NOT NULL,
         RequestId         NVARCHAR(64)  NOT NULL,
         SystemName        NVARCHAR(200) NOT NULL,
         Environment       NVARCHAR(50)  NOT NULL,
@@ -164,7 +164,7 @@ BEGIN
     CREATE TABLE dbo.AgentExecutionTraces
     (
         TraceId        NVARCHAR(64)  NOT NULL PRIMARY KEY,
-        RunId          NVARCHAR(64)  NOT NULL,
+        RunId          UNIQUEIDENTIFIER NOT NULL,
         TaskId         NVARCHAR(64)  NOT NULL,
         AgentType      NVARCHAR(50)  NOT NULL,
         ParseSucceeded BIT           NOT NULL,
@@ -362,7 +362,7 @@ BEGIN
     CREATE TABLE dbo.AgentEvaluations
     (
         EvaluationId       NVARCHAR(64)  NOT NULL PRIMARY KEY,
-        RunId              NVARCHAR(64)  NOT NULL,
+        RunId              UNIQUEIDENTIFIER NOT NULL,
         TargetAgentTaskId  NVARCHAR(64)  NOT NULL,
         EvaluationType     NVARCHAR(50)  NOT NULL,
         ConfidenceDelta    FLOAT         NOT NULL,
@@ -2997,7 +2997,7 @@ BEGIN
         ProjectId UNIQUEIDENTIFIER NOT NULL,
         IdempotencyKeyHash VARBINARY(32) NOT NULL,
         RequestFingerprint VARBINARY(32) NOT NULL,
-        RunId NVARCHAR(64) NOT NULL,
+        RunId UNIQUEIDENTIFIER NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
         CONSTRAINT PK_ArchitectureRunIdempotency PRIMARY KEY (TenantId, WorkspaceId, ProjectId, IdempotencyKeyHash)
     );
@@ -3014,13 +3014,12 @@ BEGIN
         TenantId           UNIQUEIDENTIFIER NOT NULL,
         WorkspaceId        UNIQUEIDENTIFIER NOT NULL,
         ProjectId          UNIQUEIDENTIFIER NOT NULL,
-        RunId              NVARCHAR(64)     NOT NULL,
+        RunId              UNIQUEIDENTIFIER NOT NULL,
         IdempotencyKeyHash VARBINARY(32)     NOT NULL,
         RequestFingerprint VARBINARY(32)     NOT NULL,
         CreatedUtc          DATETIME2(7)     NOT NULL CONSTRAINT DF_CommitRunIdempotency_CreatedUtc DEFAULT SYSUTCDATETIME(),
         CONSTRAINT PK_CommitRunIdempotency PRIMARY KEY (TenantId, WorkspaceId, ProjectId, RunId, IdempotencyKeyHash),
-        CONSTRAINT FK_CommitRunIdempotency_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
-        CONSTRAINT CK_CommitRunIdempotency_RunIdLen CHECK (LEN(RunId) > 0)
+        CONSTRAINT FK_CommitRunIdempotency_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
     );
 END;
 
@@ -3192,7 +3191,7 @@ BEGIN
         TenantId UNIQUEIDENTIFIER NOT NULL,
         WorkspaceId UNIQUEIDENTIFIER NOT NULL,
         ProjectId UNIQUEIDENTIFIER NOT NULL,
-        ArchitectureRunId NVARCHAR(64) NULL,
+        ArchitectureRunId UNIQUEIDENTIFIER NULL,
         AuthorityRunId UNIQUEIDENTIFIER NULL,
         ManifestVersion NVARCHAR(128) NULL,
         SubjectType NVARCHAR(64) NOT NULL,
