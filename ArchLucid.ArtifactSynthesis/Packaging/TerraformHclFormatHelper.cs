@@ -4,6 +4,8 @@ namespace ArchLucid.ArtifactSynthesis.Packaging;
 
 /// <summary>
 ///     Best-effort <c>terraform fmt</c> for advisory HCL snippets when the Terraform CLI is on <c>PATH</c>.
+///     Writes a temp <c>stub.tf</c>, runs fmt in-place, then reads the formatted file back — fmt only reformats; it
+///     does not apply infrastructure.
 /// </summary>
 internal static class TerraformHclFormatHelper
 {
@@ -40,6 +42,7 @@ internal static class TerraformHclFormatHelper
             if (!process.Start())
                 return null;
 
+            // 30s cap: fmt on a single advisory file should finish quickly; avoids hung CLI on shared hosts.
             process.WaitForExit(TimeSpan.FromSeconds(30));
 
             if (process.ExitCode != 0)

@@ -2,7 +2,10 @@ using ArchLucid.ArtifactSynthesis.Validation;
 
 namespace ArchLucid.Application.TerraformAdvisory;
 
-/// <summary>Reusable advisory-only Terraform fragments (never applied by ArchLucid; customer runs plan/apply).</summary>
+/// <summary>
+///     Reusable advisory-only Terraform fragments (HCL comment blocks). ArchLucid never runs
+///     <c>terraform apply</c>; customers review and apply under their own change control.
+/// </summary>
 public static class TerraformAdvisorySnippetTemplates
 {
     public const string AdvisoryHeaderLine = "# ArchLucid advisory – review before apply";
@@ -21,7 +24,10 @@ public static class TerraformAdvisorySnippetTemplates
                "# Replace with a real resource block after aztfexport; placeholder comments keep fmt/validate green in CI.\n";
     }
 
-    /// <summary>Static guard test: ArchLucid must not emit silent destroy blocks for orphan removal without UI gate.</summary>
+    /// <summary>
+    ///     Static guard test: ArchLucid must not emit silent destroy blocks for orphan removal without UI gate.
+    ///     Returns comment-only HCL explaining why destroy was omitted.
+    /// </summary>
     public static string ExplainerInsteadOfDestroy(string resourceTerraformAddress, string reason)
     {
         ArgumentNullException.ThrowIfNull(resourceTerraformAddress);
@@ -29,7 +35,10 @@ public static class TerraformAdvisorySnippetTemplates
         return $"{AdvisoryHeaderLine}\n# Omitting terraform destroy for `{resourceTerraformAddress}` — {reason}\n";
     }
 
-    /// <summary>Sanitizes LLM-generated Terraform blocks to ensure no destructive operations are present.</summary>
+    /// <summary>
+    ///     Sanitizes LLM-generated Terraform blocks: rejects explicit destroy verbs, then runs composite validation
+    ///     (regex + optional <c>terraform validate</c>).
+    /// </summary>
     public static string SanitizeLlmTerraformBlock(string llmOutput)
     {
         ArgumentNullException.ThrowIfNull(llmOutput);

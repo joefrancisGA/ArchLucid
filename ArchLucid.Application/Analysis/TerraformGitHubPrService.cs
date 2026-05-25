@@ -106,6 +106,7 @@ public sealed class TerraformGitHubPrService(
         return client;
     }
 
+    /// <summary>Resolves the commit SHA of the base branch — required to create a new branch ref via the Git API.</summary>
     private static async Task<string> GetBaseShaAsync(
         HttpClient client,
         string owner,
@@ -122,6 +123,7 @@ public sealed class TerraformGitHubPrService(
                ?? throw new InvalidOperationException($"Could not read SHA for branch '{baseBranch}'.");
     }
 
+    /// <summary>Creates <c>refs/heads/{branch}</c> pointing at <paramref name="baseSha" /> (Git data API).</summary>
     private static async Task CreateBranchAsync(
         HttpClient client,
         string owner,
@@ -141,6 +143,10 @@ public sealed class TerraformGitHubPrService(
         response.EnsureSuccessStatusCode();
     }
 
+    /// <summary>
+    ///     Commits one file via the GitHub Contents API. Content must be Base64-encoded per GitHub's REST contract
+    ///     (raw UTF-8 would break JSON transport for non-ASCII HCL).
+    /// </summary>
     private static async Task CommitFileAsync(
         HttpClient client,
         string owner,

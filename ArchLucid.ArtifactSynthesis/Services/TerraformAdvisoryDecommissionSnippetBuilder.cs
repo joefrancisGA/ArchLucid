@@ -35,6 +35,11 @@ public static class TerraformAdvisoryDecommissionSnippetBuilder
             AdvisoryHeaderLine,
             "# No decommission-style decisions in this manifest — no removal blocks emitted.");
 
+    /// <summary>
+    ///     Derives a Terraform resource address hint for operators. Prefer graph node ids; when
+    ///     <see cref="ResolvedArchitectureDecision.SelectedOption" /> looks like a dotted Terraform address
+    ///     (e.g. <c>azurerm_resource_group.example</c>), use it directly.
+    /// </summary>
     private static string TryResolveResourceAddressHint(ResolvedArchitectureDecision decision)
     {
         if (decision.RelatedNodeIds is { Count: > 0 })

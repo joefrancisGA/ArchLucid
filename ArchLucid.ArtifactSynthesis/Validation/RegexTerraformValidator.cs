@@ -4,13 +4,22 @@ using ArchLucid.Core.Terraform;
 
 namespace ArchLucid.ArtifactSynthesis.Validation;
 
-/// <summary>Lightweight HCL syntax checks when the Terraform CLI is unavailable on the API host.</summary>
+/// <summary>
+///     Lightweight HCL (HashiCorp Configuration Language) syntax checks when the Terraform CLI is unavailable on the
+///     API host. Advisory Terraform is never applied by ArchLucid; this validator only rejects obviously malformed
+///     snippets before they reach customer exports.
+/// </summary>
 public sealed class RegexTerraformValidator : ITerraformValidator
 {
+    /// <summary>
+    ///     Matches Terraform top-level block keywords (<c>resource</c>, <c>data</c>, etc.) at line start — used to
+    ///     detect headers that look like blocks but are missing required quoting or braces.
+    /// </summary>
     private static readonly Regex ResourceBlockOpener = new(
         @"^\s*(resource|data|provider|module|terraform|variable|output|locals)\s+",
         RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.CultureInvariant);
 
+    /// <inheritdoc />
     public TerraformValidationOutcome Validate(string hclBody)
     {
         if (string.IsNullOrWhiteSpace(hclBody))
@@ -31,6 +40,10 @@ public sealed class RegexTerraformValidator : ITerraformValidator
         return TerraformValidationOutcome.Valid();
     }
 
+    /// <summary>
+    ///     Ensures every <c>{</c> has a matching <c>}</c> across the whole file. HCL blocks nest arbitrarily, so brace
+    ///     depth must be checked globally (unlike quotes, which are validated per line).
+    /// </summary>
     private static bool TryBalanceBraces(string hclBody, out string? reason)
     {
         int depth = 0;
@@ -61,6 +74,10 @@ public sealed class RegexTerraformValidator : ITerraformValidator
         return true;
     }
 
+    /// <summary>
+    ///     Counts unescaped double quotes per line. Multi-line string literals are rare in advisory snippets; per-line
+    ///     checking avoids false positives from braces inside strings spanning lines.
+    /// </summary>
     private static bool TryBalanceQuotesPerLine(string hclBody, out string? reason)
     {
         string[] lines = hclBody.Split('\n');
@@ -92,6 +109,7 @@ public sealed class RegexTerraformValidator : ITerraformValidator
         return true;
     }
 
+    /// <summary>Strips HCL line comments (<c># ...</c>) before structural checks so comment text cannot skew counts.</summary>
     private static string StripLineComments(string line)
     {
         int hash = line.IndexOf('#', StringComparison.Ordinal);
@@ -102,6 +120,10 @@ public sealed class RegexTerraformValidator : ITerraformValidator
         return line[..hash];
     }
 
+    /// <summary>
+    ///     Detects block headers (e.g. <c>resource "azurerm_x" "y"</c>) that never open a <c>{</c> body on the same
+    ///     line — a common LLM emit mistake that would fail <c>terraform validate</c>.
+    /// </summary>
     private static bool ContainsMalformedBlockHeader(string hclBody)
     {
         foreach (string rawLine in hclBody.Split('\n'))
@@ -132,6 +154,10 @@ public sealed class RegexTerraformValidator : ITerraformValidator
         return false;
     }
 
+    /// <summary>
+    ///     Flags <c>resource</c> / <c>data</c> lines with no opening brace — Terraform requires a block body for every
+    ///     resource declaration.
+    /// </summary>
     private static bool ContainsResourceBlockWithoutBody(string hclBody)
     {
         foreach (string rawLine in hclBody.Split('\n'))

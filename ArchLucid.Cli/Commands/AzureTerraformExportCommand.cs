@@ -52,7 +52,8 @@ internal static class AzureTerraformExportCommand
 
                 };
 
-            // Microsoft aztfexport: resource-group [--flags] <resourceGroupName> (non-interactive automation).
+            // --non-interactive: required for CI/automation (no prompts). -o: output directory for generated .tf files.
+            // --overwrite: replace prior aztfexport output in the staging dir.
             psi.ArgumentList.Add("resource-group");
 
             psi.ArgumentList.Add("--non-interactive");
@@ -145,6 +146,10 @@ internal static class AzureTerraformExportCommand
         }
     }
 
+    /// <summary>
+    ///     Parses CLI flags for the aztfexport wrapper: subscription id, resource group name, and output ZIP path.
+    ///     All three are required for non-interactive automation.
+    /// </summary>
     private static bool TryParseArgs(string[] args, out string subscriptionId, out string resourceGroup, out string outputZipPath)
     {
         subscriptionId = string.Empty;
@@ -186,6 +191,7 @@ internal static class AzureTerraformExportCommand
 
     }
 
+    /// <summary>Reads the value following a flag token (e.g. <c>--subscription &lt;id&gt;</c>).</summary>
     private static bool TryReadNext(string[] args, ref int index, out string value)
     {
 
@@ -203,6 +209,7 @@ internal static class AzureTerraformExportCommand
 
     }
 
+    /// <summary>Prints usage when required flags are missing; respects JSON output mode for automation.</summary>
     private static void WriteUsage()
     {
 

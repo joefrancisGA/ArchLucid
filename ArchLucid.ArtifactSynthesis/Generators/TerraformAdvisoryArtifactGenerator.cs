@@ -20,6 +20,10 @@ public sealed class TerraformAdvisoryArtifactGenerator : IArtifactGenerator
 
     public string ArtifactType => Models.ArtifactType.TerraformAdvisory;
 
+    /// <summary>
+    ///     Builds comment-only advisory <c>.tf</c> for decommission-style manifest decisions. Never emits
+    ///     <c>resource</c> or removal blocks — only validated HCL comments plus optional validation-warning stubs.
+    /// </summary>
     public Task<SynthesizedArtifact> GenerateAsync(ManifestDocument manifest, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(manifest);

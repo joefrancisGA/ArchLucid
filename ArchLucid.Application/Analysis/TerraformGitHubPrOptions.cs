@@ -33,12 +33,10 @@ public sealed class TerraformGitHubPrOptions
         get;
         set;
     }
-    ///     Use a Key Vault reference rather than a plaintext value in production.
-    ///     Never logged.
-    /// </summary>
+
     /// <summary>
     ///     GitHub Personal Access Token (PAT) with <c>repo</c> scope, or a GitHub App installation token.
-    ///     Never logged.
+    ///     Use a Key Vault reference rather than a plaintext value in production. Never logged.
     /// </summary>
     public string? PersonalAccessToken { get; set; }
 }

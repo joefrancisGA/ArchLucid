@@ -4,9 +4,14 @@ using ArchLucid.Core.Terraform;
 
 namespace ArchLucid.ArtifactSynthesis.Validation;
 
-/// <summary>Runs <c>terraform validate</c> when the Terraform CLI is on <c>PATH</c>; otherwise defers to the next validator.</summary>
+/// <summary>
+///     Runs <c>terraform validate</c> when the Terraform CLI is on <c>PATH</c>; otherwise returns valid so a later
+///     validator or host without CLI can still emit advisory HCL. Validation uses a throwaway temp directory — never
+///     the customer's state backend.
+/// </summary>
 public sealed class CliTerraformValidator : ITerraformValidator
 {
+    /// <inheritdoc />
     public TerraformValidationOutcome Validate(string hclBody)
     {
         if (string.IsNullOrWhiteSpace(hclBody))
@@ -25,6 +30,7 @@ public sealed class CliTerraformValidator : ITerraformValidator
             string filePath = Path.Combine(tempDir, "advisory.tf");
             File.WriteAllText(filePath, hclBody);
 
+            // init -backend=false: download providers without configuring remote state — safe for ephemeral validation.
             if (!RunTerraformCommand(terraformExecutable, tempDir, "init -backend=false -input=false"))
                 return TerraformValidationOutcome.Invalid("terraform init failed during advisory validation.");
 
@@ -43,6 +49,7 @@ public sealed class CliTerraformValidator : ITerraformValidator
         }
     }
 
+    /// <summary>Runs a Terraform subcommand in <paramref name="workingDirectory" /> with a 60-second cap.</summary>
     private static bool RunTerraformCommand(string terraformExecutable, string workingDirectory, string arguments)
     {
         ProcessStartInfo psi = new(terraformExecutable, arguments)
@@ -64,6 +71,7 @@ public sealed class CliTerraformValidator : ITerraformValidator
         return process.ExitCode == 0;
     }
 
+    /// <summary>Removes the ephemeral validation workspace; failures are ignored because temp dirs are unique per call.</summary>
     private static void TryDeleteDirectory(string path)
     {
         try
@@ -77,6 +85,7 @@ public sealed class CliTerraformValidator : ITerraformValidator
         }
     }
 
+    /// <summary>Locates <c>terraform</c> / <c>terraform.exe</c> on <c>PATH</c>; returns null when CLI is not installed.</summary>
     private static string? TryResolveTerraformExecutablePath()
     {
         string fileName = OperatingSystem.IsWindows() ? "terraform.exe" : "terraform";
