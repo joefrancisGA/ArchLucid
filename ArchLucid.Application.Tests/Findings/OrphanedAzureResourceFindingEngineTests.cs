@@ -65,11 +65,11 @@ public sealed class OrphanedAzureResourceFindingEngineTests
         string resourcesJson =
             $$"""
             [
-              {{
-                "resourceType": "{resourceType}",
-                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/{resourceIdType}/res1",
-                "properties": {{}}
-              }}
+              {
+                "resourceType": "{{resourceType}}",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/{{resourceIdType}}/res1",
+                "properties": {}
+              }
             ]
             """;
 
