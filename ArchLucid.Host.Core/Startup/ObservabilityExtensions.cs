@@ -112,7 +112,7 @@ public static class ObservabilityExtensions
 
                 tracing.AddAspNetCoreInstrumentation();
                 tracing.AddHttpClientInstrumentation();
-                tracing.AddSqlClientInstrumentation();
+                tracing.AddArchLucidSqlClientInstrumentation();
                 tracing.AddSource(
                     ArchLucidInstrumentation.AdvisoryScan.Name,
                     ArchLucidInstrumentation.AuthorityRun.Name,
