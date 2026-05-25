@@ -119,6 +119,8 @@ public static partial class ServiceCollectionExtensions
         RegisterTenantErasureEligiblePurgeHostedService(services, hostingRole);
         RegisterAzureExtractorAutoPullHostedService(services, hostingRole);
         RegisterDataConsistencyReconciliation(services, configuration, hostingRole);
+        services.Configure<SqlConnectionHealthCheckOptions>(
+            configuration.GetSection(SqlConnectionHealthCheckOptions.SectionName));
         RegisterArchLucidHealthChecks(services, configuration, hostingRole);
         RegisterCosmosPolyglotPersistence(services, configuration);
         RegisterArchLucidJobRunners(services, configuration);

@@ -48,6 +48,8 @@ using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.KnowledgeGraph.Repositories;
+
+using Microsoft.Extensions.Options;
 using ArchLucid.Persistence.AdminNotifications;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Alerts;

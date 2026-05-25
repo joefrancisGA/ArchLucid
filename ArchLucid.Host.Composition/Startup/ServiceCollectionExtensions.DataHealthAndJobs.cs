@@ -37,7 +37,7 @@ public static partial class ServiceCollectionExtensions
                 AgentExecutionModeHealthCheck.RegistrationName,
                 tags: [ReadinessTags.Ready]);
 
-        AddArchLucidSqlServerDatabaseHealthCheck(builder, configuration);
+        AddArchLucidSqlServerDatabaseHealthCheck(builder);
 
         string? redisProbeConnection =
             RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString(configuration);
@@ -117,45 +117,15 @@ public static partial class ServiceCollectionExtensions
     }
 
     /// <summary>
-    ///     Deep SQL reachability probe via <c>AspNetCore.HealthChecks.SqlServer</c> (replaces custom
-    ///     <see cref="SqlConnectionHealthCheck" /> for persistence readiness). InMemory storage skips the probe.
+    ///     SQL readiness via <see cref="SqlConnectionHealthCheck" /> (SELECT 1 + latency brownout detection).
+    ///     InMemory storage skips the probe.
     /// </summary>
-    private static void AddArchLucidSqlServerDatabaseHealthCheck(
-        IHealthChecksBuilder builder,
-        IConfiguration configuration)
+    private static void AddArchLucidSqlServerDatabaseHealthCheck(IHealthChecksBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
-        ArgumentNullException.ThrowIfNull(configuration);
 
-        ArchLucidOptions archLucidOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
-
-        if (ArchLucidOptions.EffectiveIsInMemory(archLucidOptions.StorageProvider))
-        {
-            builder.AddCheck(
-                "database",
-                () => HealthCheckResult.Healthy(
-                    "Database readiness skipped: storage is InMemory (no SQL persistence)."),
-                tags: [ReadinessTags.Ready]);
-
-            return;
-        }
-
-        string? connectionString = configuration.GetConnectionString("ArchLucid");
-
-        if (string.IsNullOrWhiteSpace(connectionString))
-        {
-            builder.AddCheck(
-                "database",
-                static () =>
-                    HealthCheckResult.Unhealthy("ConnectionStrings:ArchLucid is not configured."),
-                tags: [ReadinessTags.Ready]);
-
-            return;
-        }
-
-        builder.AddSqlServer(
-            connectionString,
-            name: "database",
+        builder.AddCheck<SqlConnectionHealthCheck>(
+            "database",
             failureStatus: HealthStatus.Unhealthy,
             tags: [ReadinessTags.Ready]);
     }
