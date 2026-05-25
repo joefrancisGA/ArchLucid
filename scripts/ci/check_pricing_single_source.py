@@ -49,6 +49,11 @@ PRICE_PATTERNS = [
     "$179",
     "$60,000",
     "$15,000",
+    "$9,500",
+    "$40,000",
+    "$25,000",
+    "$65,000",
+    "$100,000",
 ]
 
 # Extensions to scan. Skip binary files and generated artefacts.

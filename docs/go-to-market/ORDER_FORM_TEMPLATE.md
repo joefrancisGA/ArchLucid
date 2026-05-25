@@ -104,7 +104,7 @@ Enterprise pricing is a custom annual contract with a floor and range defined in
 |-----------|-------|----------------------|
 | Annual contract | 50 named seats, 3 workspaces, unlimited runs (fair-use soft cap per [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md)) | From [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) land range |
 | Custom audit retention | Extended retention + cold-tier export per [`AUDIT_RETENTION_EXTENSION.md`](../library/AUDIT_RETENTION_EXTENSION.md) | TBD at contract |
-| Custom policy packs | Authoring engagement (professional services) | TBD at contract |
+| Custom policy packs | Authoring engagement — see [Addendum C](#addendum-c--custom-policy-pack-authoring-professional-services) and [PRICING_PHILOSOPHY.md §4.2](PRICING_PHILOSOPHY.md#42-custom-policy-pack-authoring-professional-services) | Per selected SKU |
 | Dedicated CSM | Included in Enterprise tier | Included |
 | **Representative annual range** | | $120,000–$180,000 / year |
 
@@ -227,6 +227,31 @@ A **chargeback** is a bank-initiated dispute after the card network’s rules-ba
 | **Confirmation date** | __________________ |
 | **Discount term start** | __________________ |
 | **Discount term end** | __________________ (12 months from start) |
+
+---
+
+## Addendum C — Custom Policy Pack Authoring (professional services)
+
+*(Complete only when Customer purchases custom policy pack authoring — prices from [PRICING_PHILOSOPHY.md §4.2 and §5.2](PRICING_PHILOSOPHY.md#42-custom-policy-pack-authoring-professional-services))*
+
+| Field | Value |
+|-------|-------|
+| **SKU** | ☐ Custom Pack — Starter  ☐ Custom Pack — Standard  ☐ Custom Pack — Program |
+| **IP tier** | ☐ Customer-exclusive  ☐ ArchLucid-owned (shared) |
+| **One-time authoring fee** | $_______ (from [PRICING_PHILOSOPHY.md §5.2](PRICING_PHILOSOPHY.md#52-locked-price-table-do-not-edit-without-re-rate-gate-decision)) |
+| **Delivery window** | Per SKU table in §4.2 |
+| **Post-delivery support** | Per SKU table in §4.2 |
+| **Annual maintenance** | ☐ None  ☐ 20% of authoring fee (see §4.2)  ☐ Bundled in Enterprise ARR ≥ $150,000 |
+| **SoW reference** | [CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md](CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md) |
+
+**Worked example — Standard SKU, ArchLucid-owned (shared):**
+
+| Line item | Amount |
+|-----------|--------|
+| Custom Pack — Standard (ArchLucid-owned) | $25,000 |
+| **Total PS (one-time)** | **$25,000** |
+
+*Figure from [PRICING_PHILOSOPHY.md §5.2](PRICING_PHILOSOPHY.md#52-locked-price-table-do-not-edit-without-re-rate-gate-decision). SaaS subscription fees in §2–§4 are separate.*
 
 ---
 

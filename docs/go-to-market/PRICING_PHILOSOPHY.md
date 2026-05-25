@@ -134,6 +134,33 @@ When a customer agrees to be a **published reference** (logo + case study + at l
 
 **Why standardized.** Negotiating per deal slows decision velocity and creates inconsistency between accounts. A standard 15% offer is the industry norm for B2B reference programs.
 
+### 4.2 Custom Policy Pack Authoring (professional services)
+
+Productized **fixed-fee** professional services for authoring customer-specific governance policy packs. This is separate from bundled **`PlatformDefault`** packs documented in [`docs/library/V1_DEFERRED.md` §6j](../library/V1_DEFERRED.md) (23 default bundles — unchanged). Engagements are **owner-delivered only** (no SI / partner channel for V1).
+
+**IP model (two tiers):**
+
+| Tier | Meaning |
+|------|---------|
+| **Customer-exclusive** | Pack content and rule keys remain customer-confidential; ArchLucid does not resell the pack verbatim. |
+| **ArchLucid-owned (shared)** | Customer receives unlimited internal use; ArchLucid may reuse **generalized patterns** (not verbatim competitor-targeted packs) in other engagements and, at ArchLucid's discretion, in **`PlatformDefault`**. Shared tier is priced at approximately **37% below** customer-exclusive list. |
+
+**SKU matrix (USD, one-time authoring fee unless noted):**
+
+| SKU | Customer-exclusive | ArchLucid-owned (shared) | Scope | Delivery window | Post-delivery support |
+|-----|-------------------|--------------------------|-------|-----------------|----------------------|
+| Custom Pack — Starter | $15,000 | $9,500 | 1 pack, up to 20 rules | 4 weeks | 30 days |
+| Custom Pack — Standard | $40,000 | $25,000 | Up to 3 packs OR 1 pack with 50+ rules | 8 weeks | 90 days |
+| Custom Pack — Program | $100,000+ | $65,000+ | Multi-pack engagement, dedicated PS lead, quarterly refresh | Negotiated | Annual |
+
+**Maintenance:** **20% of original authoring fee** per year, **or** bundled into Enterprise contracts at or above **$150,000 ARR**.
+
+**Discount stacking:** These PS SKUs do **not** stack with the §4.1 reference-customer **15%** SaaS discount.
+
+**SoW template:** [`CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md`](CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md)
+
+**KPI (re-rate at §5.3 cadence):** **share-rate** — % of engagements electing ArchLucid-owned IP. Target **40%–60%** over the first 12 months; outside that window triggers a discount re-tune.
+
 ---
 
 ## 5. Locked list prices (2026)
@@ -220,6 +247,13 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
 | Enterprise **review** metering | Unlimited in fair-use (2,000 / month soft cap) |
 | Guided pilot | $15,000 flat (fully credited on conversion) |
 | Design partner discount | 50% off Professional list, 12 months, first 3 customers only |
+| Custom Pack — Starter (customer-exclusive) | $15,000 one-time |
+| Custom Pack — Starter (ArchLucid-owned) | $9,500 one-time |
+| Custom Pack — Standard (customer-exclusive) | $40,000 one-time |
+| Custom Pack — Standard (ArchLucid-owned) | $25,000 one-time |
+| Custom Pack — Program (customer-exclusive) | $100,000+ one-time |
+| Custom Pack — Program (ArchLucid-owned) | $65,000+ one-time |
+| Custom Pack maintenance (annual) | 20% of original authoring fee |
 
 ### 5.3 Re-rate plan
 
@@ -281,10 +315,10 @@ Use this when first deals produce signal about price tolerance. Do not change li
 
 ## 8. What is NOT included
 
-- **Professional services:** Custom connector development, bespoke policy packs, training workshops — priced separately.
+- **Professional services (other):** Custom connector development, training workshops — priced separately. **Custom policy pack authoring** is a **productized PS SKU** (see [§4.2](PRICING_PHILOSOPHY.md#42-custom-policy-pack-authoring-professional-services) and [`CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md`](CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md)) — not an ad-hoc bespoke quote.
 - **Custom infrastructure:** Dedicated compute, customer-managed keys (BYOK), air-gapped deployment — not available in V1 SaaS.
 - **Data migration:** Importing architecture data from other tools — roadmap connector (see [INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md)).
-- **Adds priced separately at Enterprise:** Custom policy pack authoring engagement, SCIM provisioning (inbound automation — see [`docs/integrations/SCIM_PROVISIONING.md`](../integrations/SCIM_PROVISIONING.md)), Azure Service Bus integration setup.
+- **Adds priced separately at Enterprise:** SCIM provisioning (inbound automation — see [`docs/integrations/SCIM_PROVISIONING.md`](../integrations/SCIM_PROVISIONING.md)), Azure Service Bus integration setup.
 
 ---
 

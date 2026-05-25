@@ -1,10 +1,10 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 91.12%
+# ArchLucid Assessment – (A) Headline Readiness: 91.34%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items such as SOC 2 CPA attestation, third-party pen tests, MCP, the commerce un-hold, multi-cloud (AWS/GCP) analysis, multi-region active/active, automated tenant erasure, Graph-RAG / agentic retrieval, hosted Tier 2 continuous polling, **non-SCIM bulk-CSV user onboarding (V2)**, **self-hosted Enterprise commercial deals (V2)**, and related sub-milestones (capacity guide, private-endpoint reference architecture).*
 
-**Score change 2026-05-24 (afternoon):** Rescored upward from 87.74% to 89.93% after removing latent V1.1/V2 penalties. **2026-05-24 (later):** 89.93% → **90.07%** (bulk-CSV → V2, [`V1_DEFERRED.md` §6r](../library/V1_DEFERRED.md)). **90.07% → 90.21%** (capacity guide → V2; later absorbed into §6t). **90.21% → 90.35%** (full **self-hosted Enterprise deals** motion → V2, [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md); **V1 GA Enterprise = ArchLucid-hosted SaaS only**). Custom policy pack authoring SKU decided — see Improvement #6. Cross-tenant ROI deduplication tests shipped — see Improvement #3. **90.35% → 90.49%** (Batch 4 partial: vector-store health check #10, Ask RAG SQL fallback #13, executive ROI cache warmup #16, SAML SP startup validation #18). **90.49% → 90.85%** (Batch 1 complete: policy-pack indexing #1, LLM faithfulness evaluator #2, prior-manifest chunks #23). **90.85% → 90.94%** (Batch 2 complete: RAG retrieval telemetry #7, Grafana ROI panel #12, integration outbox dashboard #19, LLM redaction telemetry #25). **90.94% → 91.12%** (Batch 3 #24 board-pack ROI export; Batch 4 complete #8 agent-trace blob cleanup, #22 quality-gate reject thresholds in base config).
+**Score change 2026-05-24 (afternoon):** Rescored upward from 87.74% to 89.93% after removing latent V1.1/V2 penalties. **2026-05-24 (later):** 89.93% → **90.07%** (bulk-CSV → V2, [`V1_DEFERRED.md` §6r](../library/V1_DEFERRED.md)). **90.07% → 90.21%** (capacity guide → V2; later absorbed into §6t). **90.21% → 90.35%** (full **self-hosted Enterprise deals** motion → V2, [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md); **V1 GA Enterprise = ArchLucid-hosted SaaS only**). Custom policy pack authoring SKU decided — see Improvement #6. Cross-tenant ROI deduplication tests shipped — see Improvement #3. **90.35% → 90.49%** (Batch 4 partial: vector-store health check #10, Ask RAG SQL fallback #13, executive ROI cache warmup #16, SAML SP startup validation #18). **90.49% → 90.85%** (Batch 1 complete: policy-pack indexing #1, LLM faithfulness evaluator #2, prior-manifest chunks #23). **90.85% → 90.94%** (Batch 2 complete: RAG retrieval telemetry #7, Grafana ROI panel #12, integration outbox dashboard #19, LLM redaction telemetry #25). **90.94% → 91.12%** (Batch 3 #24 board-pack ROI export; Batch 4 complete #8 agent-trace blob cleanup, #22 quality-gate reject thresholds in base config). **91.12% → 91.34%** (Batch 6 complete: custom policy pack PS SKUs #6, pricing quote SLA #11).
 
 ## Executive Summary
 
@@ -252,12 +252,12 @@ Implement a CLI command to retry dead-lettered integration events.
 Acceptance Criteria: Operators can seamlessly requeue dead-lettered events via the CLI.
 ```
 
-### 6. Define and Publish Custom Policy Pack Authoring SKUs (resolved 2026-05-24)
+### 6. Define and Publish Custom Policy Pack Authoring SKUs (completed 2026-05-24)
 - **Why it matters:** Custom policy pack authoring is the highest-margin professional services lever ArchLucid has. Today the offer exists only as a single line in `PRICING_PHILOSOPHY.md` § 8 ("Adds priced separately at Enterprise") — no SKU sizes, no IP terms, no SoW template. Sales cannot quote this without an internal escalation. Publishing fixed-fee tiers with a shared-IP discount also creates a **platform data flywheel**: shared customer packs feed `PlatformDefault` growth (§6j currently has 23 bundles) without proportional engineering investment.
 - **Expected impact:** Directly improves Adoption Friction (+3 pts), Proof-of-ROI Readiness (+2 pts), and Executive Value Visibility (+2 pts). Weighted readiness impact: +0.16%. Also unblocks Monetization Blocker #4 from the Top 6 list.
 - **Affected qualities:** Adoption Friction, Proof-of-ROI Readiness, Executive Value Visibility, Time-to-Value.
-- **Actionable now:** Yes.
-- **Owner inputs received (2026-05-24):** Delivery capacity = **owner-confirmed yes**; channel = **owner-delivered only** (no SI partner uplift); IP model = **two-tier with shared-IP discount** (customer-exclusive at full price, ArchLucid-owned/shared at ~37% discount).
+- **Actionable now:** No (completed).
+- **Completed (Batch 6, 2026-05-24):** `PRICING_PHILOSOPHY.md` §4.2 SKU matrix + §5.2 PS price rows; [`CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md`](../go-to-market/CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md); ORDER_FORM Addendum C; onboarding playbook positioning; CI price patterns extended.
 ```cursor
 Define and publish the Custom Policy Pack Authoring professional services SKUs as a productized fixed-fee offer with a two-tier IP model.
 
@@ -273,9 +273,9 @@ Scope of work:
 
    | SKU | Customer-exclusive | ArchLucid-owned (shared) | Scope | Delivery window | Post-delivery support |
    |-----|-------------------|--------------------------|-------|------------------|----------------------|
-   | Custom Pack — Starter | [see Pricing §5](../go-to-market/PRICING_PHILOSOPHY.md#5) | $9,500 | 1 pack, up to 20 rules | 4 weeks | 30 days |
-   | Custom Pack — Standard | $40,000 | $25,000 | Up to 3 packs OR 1 pack with 50+ rules | 8 weeks | 90 days |
-   | Custom Pack — Program | $100,000+ | $65,000+ | Multi-pack engagement, dedicated PS lead, quarterly refresh | Negotiated | Annual |
+   | Custom Pack — Starter | see [PRICING_PHILOSOPHY §4.2](../go-to-market/PRICING_PHILOSOPHY.md#42-custom-policy-pack-authoring-professional-services) | see §4.2 | 1 pack, up to 20 rules | 4 weeks | 30 days |
+   | Custom Pack — Standard | see §4.2 | see §4.2 | Up to 3 packs OR 1 pack with 50+ rules | 8 weeks | 90 days |
+   | Custom Pack — Program | see §4.2 | see §4.2 | Multi-pack engagement, dedicated PS lead, quarterly refresh | Negotiated | Annual |
 
    - Annual maintenance: **20% of original authoring fee**, OR bundled into Enterprise contracts at or above $150,000 ARR.
    - Engagements are **owner-delivered only** (no SI / partner channel for V1).
@@ -381,11 +381,12 @@ Add a health check for the RAG vector store.
 Acceptance Criteria: API readiness fails if the vector store is unreachable.
 ```
 
-### 11. Document and Enforce Sales Response SLA for Pricing Quote Requests
+### 11. Document and Enforce Sales Response SLA for Pricing Quote Requests (completed 2026-05-24)
 - **Why it matters:** `dbo.MarketingPricingQuoteRequests` rows are persisted today and an inbox email is sent, but no committed response-time SLA, aging dashboard, or escalation path exists. Sales-led is the V1 contract — execution quality of the sales-led path is the missing piece.
 - **Expected impact:** Directly improves Adoption Friction (+2 pts) and Time-to-Value (+2 pts). Weighted readiness impact: +0.06%.
 - **Affected qualities:** Adoption Friction, Time-to-Value.
-- **Actionable now:** Yes.
+- **Actionable now:** No (completed).
+- **Completed (Batch 6, 2026-05-24):** `dbo.MarketingPricingQuoteRequestsAging` view, `GET /v1/admin/marketing/pricing-quote-aging`, `MarketingPricingQuoteAgingMetricsHostedService`, `archlucid_pricing_quote_request_age_hours`, `ArchLucidPricingQuoteAcknowledgementBreach` alert, runbook SLA section.
 ```cursor
 Document and enforce a sales response-time SLA for marketing pricing quote requests.
 1. Add to `docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md` (or create if necessary) a committed "Sales acknowledgement SLA" section: target first human response within 1 business day (24 hours weekdays UTC), full quote within 3 business days.
@@ -3252,10 +3253,11 @@ Run **8** (Blob Cleanup Job), **10** (Vector Store Health Check), **13** (RAG Fa
 **Batch 5 — Test coverage & focused logic**
 Run **3** (ROI Dedup Tests) on its own or with Batch 4 if context permits. `ExecutiveRoiSummaryService` deserves focused attention.
 
-**Batch 6 — Commercial publication (single-PR cohesion)**
+**Batch 6 — Commercial publication (single-PR cohesion)** — **completed 2026-05-24**
 Run **6** (Custom Pack SKU) and **11** (Pricing Quote SLA) together. Both edit `docs/go-to-market/*` and `docs/runbooks/*` GTM documents; co-changing them means one CI run for the pricing single-source-of-truth checks.
+**Shipped:** #6 `PRICING_PHILOSOPHY.md` §4.2, SoW template, ORDER_FORM Addendum C, onboarding playbook positioning; #11 aging view + admin API + metrics + alert (already in codebase, runbook documented).
 
-**Batch 7 — Enterprise / trust documentation (hosted SaaS)**
+**Batch 7 — Enterprise / trust documentation (hosted SaaS)** — **completed 2026-05-24** (prior)
 Run **17** (Hosted Enterprise Onboarding Checklist) and **20** (Audit Retention Extension Contract) together — both are GTM/trust documentation for **ArchLucid-hosted** Enterprise; self-hosted Enterprise deal package is **V2** per [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md).
 
 **Batch 8 — SQL Server persistence quality**
