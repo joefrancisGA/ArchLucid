@@ -1,6 +1,11 @@
+using System.Diagnostics;
+using System.Text;
+
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Auth.Services;
 
 using Asp.Versioning;
@@ -19,10 +24,23 @@ namespace ArchLucid.Api.Controllers.Roi;
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
-public sealed class RoiController(IExecutiveRoiSummaryService executiveRoiSummaryService) : ControllerBase
+public sealed class RoiController(
+    IExecutiveRoiSummaryService executiveRoiSummaryService,
+    IExecutiveRoiBoardPackExporter boardPackExporter,
+    IAuditService auditService,
+    IScopeContextProvider scopeProvider) : ControllerBase
 {
     private readonly IExecutiveRoiSummaryService _executiveRoiSummaryService =
         executiveRoiSummaryService ?? throw new ArgumentNullException(nameof(executiveRoiSummaryService));
+
+    private readonly IExecutiveRoiBoardPackExporter _boardPackExporter =
+        boardPackExporter ?? throw new ArgumentNullException(nameof(boardPackExporter));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     /// <summary>
     ///     Aggregates the latest committed run per system, sums estimated USD savings, and returns the top recurring
@@ -35,6 +53,40 @@ public sealed class RoiController(IExecutiveRoiSummaryService executiveRoiSummar
     {
         ExecutiveRoiSummaryResponse body = await _executiveRoiSummaryService.BuildAsync(cancellationToken).ConfigureAwait(false);
         return Ok(body);
+    }
+
+    /// <summary>One-page Markdown or PDF board pack derived from the executive ROI summary (no LLM).</summary>
+    [HttpGet("executive-summary/board-pack")]
+    [Produces("text/markdown", "application/pdf")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetExecutiveSummaryBoardPackAsync(
+        [FromQuery] string? format,
+        CancellationToken cancellationToken)
+    {
+        if (!TryParseBoardPackFormat(format, out ExecutiveRoiBoardPackFormat parsedFormat))
+            return BadRequest("format must be md or pdf.");
+
+        string? traceId = Activity.Current?.TraceId.ToString();
+
+        ExecutiveRoiBoardPackExportResult export = await _boardPackExporter
+            .ExportAsync(parsedFormat, traceId, cancellationToken)
+            .ConfigureAwait(false);
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        await _auditService.LogAsync(
+            scope.CreateAuditEvent(
+                AuditEventTypes.ExecutiveRoiBoardPackExported,
+                User?.Identity?.Name ?? "operator",
+                "roi-board-pack",
+                $"format={parsedFormat.ToString().ToLowerInvariant()}"),
+            cancellationToken).ConfigureAwait(false);
+
+        if (parsedFormat == ExecutiveRoiBoardPackFormat.Pdf && export.FileBytes is not null)
+            return File(export.FileBytes, export.ContentType, export.FileName);
+
+        return Content(export.Markdown ?? string.Empty, export.ContentType, Encoding.UTF8);
     }
 
     /// <summary>
@@ -73,5 +125,27 @@ public sealed class RoiController(IExecutiveRoiSummaryService executiveRoiSummar
     {
         ExecutiveRoiExportResponse body = await _executiveRoiSummaryService.BuildExportAsync(cancellationToken).ConfigureAwait(false);
         return Ok(body);
+    }
+
+    private static bool TryParseBoardPackFormat(string? format, out ExecutiveRoiBoardPackFormat parsedFormat)
+    {
+        parsedFormat = ExecutiveRoiBoardPackFormat.Markdown;
+
+        if (string.IsNullOrWhiteSpace(format))
+            return true;
+
+        string normalized = format.Trim().ToLowerInvariant();
+
+        if (normalized is "md" or "markdown")
+            return true;
+
+        if (normalized is "pdf")
+        {
+            parsedFormat = ExecutiveRoiBoardPackFormat.Pdf;
+
+            return true;
+        }
+
+        return false;
     }
 }

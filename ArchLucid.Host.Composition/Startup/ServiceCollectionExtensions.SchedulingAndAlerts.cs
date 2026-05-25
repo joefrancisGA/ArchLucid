@@ -56,6 +56,18 @@ public static partial class ServiceCollectionExtensions
 
     }
 
+    private static void RegisterAgentResultBlobCleanupHostedService(
+        IServiceCollection services,
+        IConfiguration configuration,
+        ArchLucidHostingRole hostingRole)
+    {
+        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
+            return;
+
+        if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.DataArchival))
+            services.AddHostedService<AgentResultBlobCleanupHostedService>();
+    }
+
     private static void RegisterExecutiveRoiCacheWarmupHostedService(
         IServiceCollection services,
         IConfiguration configuration,

@@ -116,6 +116,12 @@ public static class ArchLucidInstrumentation
     /// <summary>Scheduled data retention archival (<c>DataArchivalCoordinator</c>).</summary>
     public static ActivitySource DataArchival => ArchLucidActivitySources.DataArchival;
 
+    /// <summary>Orphaned agent-trace blobs deleted by archival cleanup.</summary>
+    public static readonly Counter<long> DataArchivalBlobsDeletedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_data_archival_blobs_deleted_total",
+            description: "Agent trace blobs deleted because the authority run no longer exists.");
+
     /// <summary>Evidence ZIP expansion (<c>ZipEvidenceExpanderService</c>).</summary>
     public static ActivitySource EvidenceZipExpansion => ArchLucidActivitySources.EvidenceZipExpansion;
 

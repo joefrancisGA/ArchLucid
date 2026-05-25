@@ -111,6 +111,7 @@ public static partial class ServiceCollectionExtensions
         RegisterIntegrationEventOutbox(services, hostingRole);
         RegisterIntegrationEventConsumer(services, configuration, hostingRole);
         RegisterDataArchivalHostedService(services, configuration, hostingRole);
+        RegisterAgentResultBlobCleanupHostedService(services, configuration, hostingRole);
         RegisterExecutiveRoiCacheWarmupHostedService(services, configuration, hostingRole);
         RegisterFirstTenantFunnelArchivalHostedService(services, configuration, hostingRole);
         RegisterArchitectureProjectRetentionPurgeHostedService(services, hostingRole);

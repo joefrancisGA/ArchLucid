@@ -208,6 +208,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddScoped<AuthorityRunOrchestrator>();
         services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestratorApplicationAdapter>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
+        services.AddScoped<IAgentTraceOrphanBlobCleanupService, AgentTraceOrphanBlobCleanupService>();
         services.AddSingleton<IUsageEventRepository, InMemoryUsageEventRepository>();
         services.AddSingleton<ILlmTenantBudgetRepository, InMemoryLlmTenantBudgetRepository>();
         services.AddSingleton<IMarketingPricingQuoteRequestRepository, NoOpMarketingPricingQuoteRequestRepository>();

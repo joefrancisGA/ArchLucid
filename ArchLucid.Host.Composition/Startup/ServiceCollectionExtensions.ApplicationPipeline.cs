@@ -226,6 +226,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ICustomRolePermissionEvaluator, CustomRolePermissionEvaluator>();
         services.AddScoped<ExecutiveRoiSummaryService>();
         services.AddScoped<IExecutiveRoiSummaryService, CachingExecutiveRoiSummaryService>();
+        services.AddScoped<ExecutiveRoiBoardPackPdfBuilder>();
+        services.AddScoped<IExecutiveRoiBoardPackExporter, ExecutiveRoiBoardPackExporter>();
         services.Configure<ExecutiveRoiCacheWarmupOptions>(
             configuration.GetSection(ExecutiveRoiCacheWarmupOptions.SectionPath));
         services.AddScoped<ResourceCoverageReportService>();

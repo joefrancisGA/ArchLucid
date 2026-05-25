@@ -75,4 +75,11 @@ public sealed class DataArchivalOptions
         get;
         set;
     } = 500;
+
+    /// <summary>Orphaned agent-trace blob cleanup under the shared archival schedule.</summary>
+    public DataArchivalBlobCleanupOptions BlobCleanup
+    {
+        get;
+        set;
+    } = new();
 }

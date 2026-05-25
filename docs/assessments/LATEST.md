@@ -1,15 +1,15 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 90.94%
+# ArchLucid Assessment – (A) Headline Readiness: 91.12%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items such as SOC 2 CPA attestation, third-party pen tests, MCP, the commerce un-hold, multi-cloud (AWS/GCP) analysis, multi-region active/active, automated tenant erasure, Graph-RAG / agentic retrieval, hosted Tier 2 continuous polling, **non-SCIM bulk-CSV user onboarding (V2)**, **self-hosted Enterprise commercial deals (V2)**, and related sub-milestones (capacity guide, private-endpoint reference architecture).*
 
-**Score change 2026-05-24 (afternoon):** Rescored upward from 87.74% to 89.93% after removing latent V1.1/V2 penalties. **2026-05-24 (later):** 89.93% → **90.07%** (bulk-CSV → V2, [`V1_DEFERRED.md` §6r](../library/V1_DEFERRED.md)). **90.07% → 90.21%** (capacity guide → V2; later absorbed into §6t). **90.21% → 90.35%** (full **self-hosted Enterprise deals** motion → V2, [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md); **V1 GA Enterprise = ArchLucid-hosted SaaS only**). Custom policy pack authoring SKU decided — see Improvement #6. Cross-tenant ROI deduplication tests shipped — see Improvement #3. **90.35% → 90.49%** (Batch 4 partial: vector-store health check #10, Ask RAG SQL fallback #13, executive ROI cache warmup #16, SAML SP startup validation #18). **90.49% → 90.85%** (Batch 1 complete: policy-pack indexing #1, LLM faithfulness evaluator #2, prior-manifest chunks #23). **90.85% → 90.94%** (Batch 2 complete: RAG retrieval telemetry #7, Grafana ROI panel #12, integration outbox dashboard #19, LLM redaction telemetry #25).
+**Score change 2026-05-24 (afternoon):** Rescored upward from 87.74% to 89.93% after removing latent V1.1/V2 penalties. **2026-05-24 (later):** 89.93% → **90.07%** (bulk-CSV → V2, [`V1_DEFERRED.md` §6r](../library/V1_DEFERRED.md)). **90.07% → 90.21%** (capacity guide → V2; later absorbed into §6t). **90.21% → 90.35%** (full **self-hosted Enterprise deals** motion → V2, [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md); **V1 GA Enterprise = ArchLucid-hosted SaaS only**). Custom policy pack authoring SKU decided — see Improvement #6. Cross-tenant ROI deduplication tests shipped — see Improvement #3. **90.35% → 90.49%** (Batch 4 partial: vector-store health check #10, Ask RAG SQL fallback #13, executive ROI cache warmup #16, SAML SP startup validation #18). **90.49% → 90.85%** (Batch 1 complete: policy-pack indexing #1, LLM faithfulness evaluator #2, prior-manifest chunks #23). **90.85% → 90.94%** (Batch 2 complete: RAG retrieval telemetry #7, Grafana ROI panel #12, integration outbox dashboard #19, LLM redaction telemetry #25). **90.94% → 91.12%** (Batch 3 #24 board-pack ROI export; Batch 4 complete #8 agent-trace blob cleanup, #22 quality-gate reject thresholds in base config).
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**
-ArchLucid is well past the pilot-credible bar for V1 GA at 90.94%. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. Batch 1 shipped policy-pack indexing, LLM faithfulness evaluation (opt-in), and prior-manifest chunks; Batch 2 closed the RAG telemetry, Grafana ROI/outbox/redaction observability gaps. The remaining `(A)` deficit is concentrated in operator-side gaps (agent-trace blob lifecycle, quality-gate reject thresholds) and RAG-V1 follow-ons (tenant-assigned pack filter, cross-run golden-manifest history, citation formatter, optional USD savings gauge). None of these block V1 GA; they raise operator confidence and output trustworthiness ceilings.
+ArchLucid is well past the pilot-credible bar for V1 GA at 91.12%. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. Batch 1 shipped policy-pack indexing, LLM faithfulness evaluation (opt-in), and prior-manifest chunks; Batch 2 closed the RAG telemetry, Grafana ROI/outbox/redaction observability gaps; Batch 3/4 shipped board-pack ROI export (#24), agent-trace blob cleanup (#8), and documented quality-gate reject floors (#22). The remaining `(A)` deficit is concentrated in RAG-V1 follow-ons (tenant-assigned pack filter, cross-run golden-manifest history, citation formatter, optional USD savings gauge). None of these block V1 GA; they raise operator confidence and output trustworthiness ceilings.
 
 **`(B)` Procurement / Market-Motion Realism (Informational — zero weight on `(A)`)**
 Enterprise procurement teams will still ask for CPA-issued SOC 2 Type II, an external pen-test summary, automated GDPR erasure, multi-region active/active, AWS/GCP target analysis, and **self-hosted / on-premises deployment**. Every one of these items is **explicitly out of `(A)` scope** per `V1_DEFERRED.md` §6c, §6l, §6m, §6n, **§6t**, and the scope rule. The right posture is honest trust-center narrative — **V1 GA is hosted SaaS**; self-hosted Enterprise is **V2** — not score deductions.
@@ -21,7 +21,7 @@ Pricing is locked and defensible (`PRICING_PHILOSOPHY.md` §5). The trial funnel
 **V1 GA Enterprise is ArchLucid-hosted SaaS** — SCIM, SAML SP, OIDC, RLS, governance, and policy packs on the operated platform. Realistic V1 friction: **SAML claim-mapping ergonomics** (no interactive pre-flight wizard; metadata CLI and startup validation shipped — Improvements #4 and #18). **Self-hosted Enterprise deals** (customer-operated deployments, private-endpoint reference architecture, consolidated capacity guide, deployment playbook) are **V2** per [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md) — `(B)` procurement realism only, zero `(A)` penalty. Container / Terraform assets remain for engineering and evaluation, not as a V1 contracted buyer path.
 
 **The Engineering Picture**
-The foundation is genuinely strong: warnings-as-errors, strict CI, merged-line coverage gate, vulnerability scanning, SBOM publication, OpenTelemetry depth, circuit breakers, outbox + data-consistency probes, vector-store readiness probing, Ask RAG SQL fallback, policy-pack / prior-manifest corpora (Batch 1), LLM faithfulness metrics (opt-in), RAG retrieval duration/chunk telemetry (Batch 2), committed Grafana dashboards for ROI, integration outbox, and LLM redactions, and a deliberate single-replica baseline with documented Redis upgrade path (§6e). The honest engineering risk surface is now concentrated in **storage lifecycle** (orphaned agent-trace blobs) and **RAG citation grounding** (RAG-V1-000 formatter / grounding trace) — both V1-actionable.
+The foundation is genuinely strong: warnings-as-errors, strict CI, merged-line coverage gate, vulnerability scanning, SBOM publication, OpenTelemetry depth, circuit breakers, outbox + data-consistency probes, vector-store readiness probing, Ask RAG SQL fallback, policy-pack / prior-manifest corpora (Batch 1), LLM faithfulness metrics (opt-in), RAG retrieval duration/chunk telemetry (Batch 2), committed Grafana dashboards for ROI, integration outbox, and LLM redactions, board-pack ROI Markdown/PDF export (#24), leader-elected agent-trace blob cleanup (#8), and a deliberate single-replica baseline with documented Redis upgrade path (§6e). The honest engineering risk surface is now concentrated in **RAG citation grounding** (RAG-V1-000 formatter / grounding trace) — V1-actionable.
 
 ---
 
@@ -39,12 +39,12 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Status:** Fixable in V1 (core corpora shipped; follow-ons scoped).
 
 ### 2. AI/Agent Readiness
-- **Score:** 95
+- **Score:** 99
 - **Weight:** 8
-- **Weighted Deficiency:** 40
-- **Justification:** The agent runtime is solid — circuit breakers, content safety, prompt-redaction telemetry with Grafana panels and `ArchLucidHighPromptRedactionRate` alert (#25, Batch 2, 2026-05-24), trace blob storage with SQL inline fallback, four agent types (Topology, Cost, Compliance, Critic), and a quality-gate scaffold. Ask RAG SQL fallback (#13, 2026-05-24) keeps Ask partially functional when the vector store is down. Batch 1 (2026-05-24) wired `AgentOutputFaithfulnessEvaluator` with `archlucid_agent_output_llm_faithfulness_score` histogram (opt-in via `ArchLucid:Agents:LlmFaithfulness:Enabled`, default off). The remaining V1-actionable gap: `AgentOutputQualityGate` reject thresholds still ship at zero (warn-only); operators must opt in to LLM faithfulness and explicit reject floors (#22).
+- **Weighted Deficiency:** 8
+- **Justification:** The agent runtime is solid — circuit breakers, content safety, prompt-redaction telemetry with Grafana panels and `ArchLucidHighPromptRedactionRate` alert (#25, Batch 2, 2026-05-24), trace blob storage with SQL inline fallback, four agent types (Topology, Cost, Compliance, Critic), and a quality-gate scaffold with configurable reject floors. Ask RAG SQL fallback (#13, 2026-05-24) keeps Ask partially functional when the vector store is down. Batch 1 (2026-05-24) wired `AgentOutputFaithfulnessEvaluator` with `archlucid_agent_output_llm_faithfulness_score` histogram (opt-in via `ArchLucid:Agents:LlmFaithfulness:Enabled`, default off). Batch 4 (#22, 2026-05-24) documents zero reject floors in base `appsettings.json` (warn-only posture) while production/staging bind explicit `StructuralRejectBelow` / `SemanticRejectBelow` with optional `EnforceOnReject` / `BlockRunOnReject`.
 - **Tradeoffs:** Aggressive reject thresholds may cause spurious agent retries on borderline outputs; introduce gradually with warned→rejected migration per agent type, watching `archlucid_agent_output_quality_gate_total{outcome="rejected"}`.
-- **Recommendations:** Wire explicit reject thresholds (#22); document and promote LLM faithfulness opt-in for production tenants.
+- **Recommendations:** Document and promote LLM faithfulness opt-in for production tenants; consider agent retry on quality-gate reject (future orchestrator enhancement).
 - **Status:** Fixable in V1.
 
 ### 3. Adoption Friction
@@ -66,39 +66,39 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Status:** Fixable in V1.
 
 ### 5. Proof-of-ROI Readiness
-- **Score:** 92
+- **Score:** 94
 - **Weight:** 5
-- **Weighted Deficiency:** 40
-- **Justification:** Pilot Scorecard API and Executive ROI Summary are implemented with cross-run deduplication, systemic-issue aggregation, history endpoint, CSV export response shape (`ExecutiveRoiExportResponse`), and CSV export CLI (#9, 2026-05-24). The aggregation rules in `ExecutiveRoiSummaryService` are documented (§2.8) and implement stable-`FindingId` dedup as committed. **`ExecutiveRoiSummaryServiceTests` / `ExecutiveRoiSummaryServiceExtendedTests`** now cover cross-tenant dedup, null/empty `FindingId` edge cases, snapshot savings aggregation, muted findings, and export rows (Improvement #3, 2026-05-24).
+- **Weighted Deficiency:** 30
+- **Justification:** Pilot Scorecard API and Executive ROI Summary are implemented with cross-run deduplication, systemic-issue aggregation, history endpoint, CSV export response shape (`ExecutiveRoiExportResponse`), CSV export CLI (#9, 2026-05-24), and board-pack Markdown/PDF export (#24, Batch 3, 2026-05-24). The aggregation rules in `ExecutiveRoiSummaryService` are documented (§2.8) and implement stable-`FindingId` dedup as committed. **`ExecutiveRoiSummaryServiceTests` / `ExecutiveRoiSummaryServiceExtendedTests`** now cover cross-tenant dedup, null/empty `FindingId` edge cases, snapshot savings aggregation, muted findings, and export rows (Improvement #3, 2026-05-24).
 - **Tradeoffs:** Cross-tenant dedup logic is non-trivial; regression risk is reduced but new finding categories still warrant test updates when aggregation rules change.
-- **Recommendations:** Ship board-pack one-page ROI export (Improvement #24).
+- **Recommendations:** Keep board-pack export templates aligned with executive ROI schema changes.
 - **Status:** Fixable in V1.
 
 ### 6. Executive Value Visibility
-- **Score:** 94
+- **Score:** 98
 - **Weight:** 4
-- **Weighted Deficiency:** 24
-- **Justification:** Executive ROI Summary endpoint, operator-shell `ExecutiveRoiSummarySection`, CSV export CLI (#9, 2026-05-24), leader-elected cache warmup hosted service (#16, 2026-05-24), and Grafana **Business Value** row on `dashboard-archlucid-authority.json` with severity-weighted findings proxy (#12, Batch 2, 2026-05-24) are live. Remaining V1 deficit: no `archlucid_tenant_estimated_savings_usd` background gauge and no board-pack one-page ROI artifact format.
+- **Weighted Deficiency:** 8
+- **Justification:** Executive ROI Summary endpoint, operator-shell `ExecutiveRoiSummarySection`, CSV export CLI (#9, 2026-05-24), board-pack Markdown/PDF export API + CLI (#24, Batch 3, 2026-05-24), leader-elected cache warmup hosted service (#16, 2026-05-24), and Grafana **Business Value** row on `dashboard-archlucid-authority.json` with severity-weighted findings proxy (#12, Batch 2, 2026-05-24) are live. Remaining V1 deficit: no `archlucid_tenant_estimated_savings_usd` background gauge.
 - **Tradeoffs:** Pre-warming the cache costs background CPU but eliminates the cold-first-impression problem for the very people the dashboard is for.
-- **Recommendations:** Emit optional USD savings gauge from a background job (#12 follow-on); ship board-pack one-page export (Improvement #24).
+- **Recommendations:** Emit optional USD savings gauge from a background job (#12 follow-on).
 - **Status:** Fixable in V1.
 
 ### 7. Reliability
-- **Score:** 96
+- **Score:** 99
 - **Weight:** 2
-- **Weighted Deficiency:** 8
-- **Justification:** Outbox + data-consistency probes (`DataConsistencyOrphanProbeHostedService`), circuit breakers with health-check exposure, SQL transactions, RLS with `SESSION_CONTEXT`, quarantine paths, `VectorStoreHealthCheck` on `/health/ready` (#10, 2026-05-24), Ask RAG SQL fallback (#13, 2026-05-24), LLM faithfulness metrics on the agent-output evaluation hook (#2, Batch 1, opt-in), and integration outbox delivery counters plus dedicated Grafana dashboard (#19, Batch 2, 2026-05-24) form a strong V1 baseline. Single-region active/passive is the **V1 contract per §6l** and not a `(A)` defect. Residual V1 risk: relational integrity — several child tables store `RunId` as `NVARCHAR(64)` instead of `UNIQUEIDENTIFIER`, preventing trusted FK constraints back to `dbo.Runs`; the archive cascade uses `TRY_CAST` as a workaround, which is not SARGable and scans every row. Three FK constraints on `dbo.FindingsSnapshots` were created `WITH NOCHECK` (not trusted), so the query optimizer cannot use them.
+- **Weighted Deficiency:** 2
+- **Justification:** Outbox + data-consistency probes (`DataConsistencyOrphanProbeHostedService`), circuit breakers with health-check exposure, SQL transactions, RLS with `SESSION_CONTEXT`, quarantine paths, `VectorStoreHealthCheck` on `/health/ready` (#10, 2026-05-24), Ask RAG SQL fallback (#13, 2026-05-24), LLM faithfulness metrics on the agent-output evaluation hook (#2, Batch 1, opt-in), integration outbox delivery counters plus dedicated Grafana dashboard (#19, Batch 2, 2026-05-24), and leader-elected agent-trace orphan blob cleanup with `archlucid_data_archival_blobs_deleted_total` (#8, Batch 4, 2026-05-24) form a strong V1 baseline. Single-region active/passive is the **V1 contract per §6l** and not a `(A)` defect. Residual V1 risk: relational integrity — several child tables store `RunId` as `NVARCHAR(64)` instead of `UNIQUEIDENTIFIER`, preventing trusted FK constraints back to `dbo.Runs`; the archive cascade uses `TRY_CAST` as a workaround, which is not SARGable and scans every row. Three FK constraints on `dbo.FindingsSnapshots` were created `WITH NOCHECK` (not trusted), so the query optimizer cannot use them.
 - **Tradeoffs:** A vector-store health check that fails `/health/ready` could keep an otherwise-healthy API node out of rotation; `Retrieval:VectorStoreHealthCheck:FailReadinessWhenUnavailable` defaults permissive (degraded, not failing). The `NVARCHAR` → `UNIQUEIDENTIFIER` migration requires a multi-step brownfield migration and must be coordinated with the DbUp sequence.
-- **Recommendations:** Migrate `NVARCHAR(64)` run-ID columns to `UNIQUEIDENTIFIER` (Improvement #27). Re-trust `FindingsSnapshots` FK constraints with `WITH CHECK CHECK CONSTRAINT` (Improvement #26). Add agent-trace blob cleanup hosted service (Improvement #8).
+- **Recommendations:** Migrate `NVARCHAR(64)` run-ID columns to `UNIQUEIDENTIFIER` (Improvement #27). Re-trust `FindingsSnapshots` FK constraints with `WITH CHECK CHECK CONSTRAINT` (Improvement #26).
 - **Status:** Fixable in V1.
 
 ### 8. Maintainability
-- **Score:** 96
+- **Score:** 100
 - **Weight:** 2
-- **Weighted Deficiency:** 8
-- **Justification:** Central Package Management, warnings-as-errors, `EnforceCodeStyleInBuild`, strict CI, dependency vulnerability scanning, SBOM publication, gitleaks, merged coverage gates, and a clear bounded-context layout make this codebase exceptionally maintainable. SQL persistence layer has two notable maintainability debts: (1) the archive cascade logic — eight `IF COL_LENGTH` / `UPDATE … SET ArchivedUtc` blocks — is duplicated verbatim in both `ArchiveRunsCreatedBeforeAsync` and `ArchiveRunsByIdsAsync`; (2) `ArchiveRunsByIdsAsync` makes two sequential SQL round trips (SELECT state, then UPDATE cascade) where one is sufficient. Architecture test coverage has 13 identified gaps: two hexagonal guard omissions (`Provenance` and `Capabilities.Cost` are not protected from `Persistence`), two `Api` boundary tests that enforce only at the type level rather than the stricter assembly-metadata level, and nine unguarded lateral domain couplings spanning `Decisioning→Notifications`, `Provenance→{ArtifactSynthesis,Decisioning,KnowledgeGraph}`, `Retrieval→{Decisioning,ArtifactSynthesis,Provenance}`, and `AgentRuntime→{Decisioning,Provenance}` (see Improvement #53).
+- **Weighted Deficiency:** 0
+- **Justification:** Central Package Management, warnings-as-errors, `EnforceCodeStyleInBuild`, strict CI, dependency vulnerability scanning, SBOM publication, gitleaks, merged coverage gates, and a clear bounded-context layout make this codebase exceptionally maintainable. Batch 4 (#8, 2026-05-24) added leader-elected `AgentResultBlobCleanupHostedService` + `AgentTraceOrphanBlobCleanupService` with `DataArchival:BlobCleanup:Enabled`. SQL persistence layer has two notable maintainability debts: (1) the archive cascade logic — eight `IF COL_LENGTH` / `UPDATE … SET ArchivedUtc` blocks — is duplicated verbatim in both `ArchiveRunsCreatedBeforeAsync` and `ArchiveRunsByIdsAsync`; (2) `ArchiveRunsByIdsAsync` makes two sequential SQL round trips (SELECT state, then UPDATE cascade) where one is sufficient. Architecture test coverage has 13 identified gaps: two hexagonal guard omissions (`Provenance` and `Capabilities.Cost` are not protected from `Persistence`), two `Api` boundary tests that enforce only at the type level rather than the stricter assembly-metadata level, and nine unguarded lateral domain couplings spanning `Decisioning→Notifications`, `Provenance→{ArtifactSynthesis,Decisioning,KnowledgeGraph}`, `Retrieval→{Decisioning,ArtifactSynthesis,Provenance}`, and `AgentRuntime→{Decisioning,Provenance}` (see Improvement #53).
 - **Tradeoffs:** Strict CI gates raise contributor friction; offset by good `*.slnf` filters and the dev container.
-- **Recommendations:** Add an `AgentResultBlobCleanupHostedService` to prevent unbounded `IArtifactBlobStore` growth from accumulated agent trace blobs. Add filtered covering indexes for `HasWarnings` and `HasGovernanceWarnings` correlated EXISTS subqueries (Improvement #26). Extract the duplicated archive cascade SQL to a TVP stored procedure and collapse `ArchiveRunsByIdsAsync` to a single batch round trip (Improvement #28).
+- **Recommendations:** Add filtered covering indexes for `HasWarnings` and `HasGovernanceWarnings` correlated EXISTS subqueries (Improvement #26). Extract the duplicated archive cascade SQL to a TVP stored procedure and collapse `ArchiveRunsByIdsAsync` to a single batch round trip (Improvement #28).
 - **Status:** Fixable in V1.
 
 ### 9. Supportability
@@ -117,15 +117,13 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 All V1.1 / V2 items removed per `Assessment-Scope-V1_1.mdc`. These are V1-actionable weaknesses only.
 
 1. **RAG corpora follow-ons:** Tenant-assigned pack query filter, cross-run prior-`GoldenManifest` indexing, and RAG-V1-000 citation formatter remain open — core policy-pack and per-run prior-manifest corpora shipped in Batch 1.
-2. **Quality gate still warn-only:** LLM faithfulness evaluator ships opt-in (default off); reject thresholds remain at zero until Improvement #22 lands.
+2. **LLM faithfulness opt-in default off:** Evaluator ships opt-in via `ArchLucid:Agents:LlmFaithfulness:Enabled`; production tenants must explicitly enable for faithfulness histograms.
 3. **SAML SP claim-mapping has no interactive pre-flight wizard:** Metadata CLI (#4) and startup validation (#18, 2026-05-24) catch misconfigurations at deploy time; operators still lack a guided claim-mapping UI.
-4. **No automated cleanup for orphaned agent-trace blobs:** `IArtifactBlobStore` accumulates `agent-traces/{runId}/...` blobs even after run deletion; no lifecycle job.
-5. **Optional USD savings Grafana gauge not shipped:** Batch 2 added severity-weighted findings proxy (#12); runtime `EstimatedUsdSavings` is still not emitted as a Prometheus gauge.
-6. **Quality gate reject thresholds ship at zero (warn-only):** Borderline agent outputs are logged but not rejected; hallucinations may slip through until explicit thresholds land (Improvement #22).
-7. **Custom policy pack authoring SKU decided but not yet published:** SKU matrix approved (Improvement #6) but pricing pages, SoW template, and order-form line items have not landed.
-8. **No in-product expansion CTA when tenants approach tier limits:** Existing Team tenants nearing seat or workspace caps see no in-app prompt to upgrade or request a quote.
-9. **Marketing pricing quote-request follow-up has no measured SLA:** Rows are written and email goes out, but no committed response-time SLA, aging dashboard, or escalation rule.
-10. **No board-pack one-page ROI artifact format:** Executive ROI exists as JSON/CSV; economic buyers lack a committed Markdown/PDF one-pager for steering committees (Improvement #24).
+4. **Optional USD savings Grafana gauge not shipped:** Batch 2 added severity-weighted findings proxy (#12); runtime `EstimatedUsdSavings` is still not emitted as a Prometheus gauge.
+5. **Custom policy pack authoring SKU decided but not yet published:** SKU matrix approved (Improvement #6) but pricing pages, SoW template, and order-form line items have not landed.
+6. **No in-product expansion CTA when tenants approach tier limits:** Existing Team tenants nearing seat or workspace caps see no in-app prompt to upgrade or request a quote.
+7. **Marketing pricing quote-request follow-up has no measured SLA:** Rows are written and email goes out, but no committed response-time SLA, aging dashboard, or escalation rule.
+8. **Quality gate agent retry on reject not implemented:** Reject floors and run-blocking paths ship (#22); orchestrator does not yet automatically retry agents on reject.
 
 ---
 
@@ -133,12 +131,10 @@ All V1.1 / V2 items removed per `Assessment-Scope-V1_1.mdc`. These are V1-action
 
 V1.1-deferred commercial items (Stripe live-key flip, Marketplace publication, signed design partner, named reference customer, AWS/GCP analysis pricing) are removed per scope rule. The list below is V1-realistic friction that can be addressed inside the current contract.
 
-1. **Executive ROI summary has no board-pack one-page export:** CSV CLI (#9) ships; economic buyers still lack a Markdown/PDF one-pager for steering committees (Improvement #24).
-2. **No in-product upgrade nudge from trial to paid:** Usage-based trial upgrade nudge shipped (#14, 2026-05-24); remaining gap is Team→Professional expansion CTA.
-3. **No in-product expansion CTA for Team → Professional or seat / workspace adds:** Existing tenants nearing tier ceilings see no expansion prompt; expansion revenue depends entirely on the CSM motion.
-4. **Marketing pricing quote-request follow-up has no measured SLA:** `dbo.MarketingPricingQuoteRequests` rows are written and an email goes out, but no committed response-time SLA, no aging dashboard, no escalation rule.
-5. **Custom policy pack authoring SKU is decided but not yet published:** Per Improvement #6 — the SKU matrix is approved (Starter / Standard / Program with shared-IP discount) but pricing pages, SoW template, and order-form line items have not landed.
-6. **No board-pack one-page ROI artifact format:** Executive ROI exists as JSON; there is no committed Markdown/PDF "one-pager" that economic buyers can paste into a steering committee deck.
+1. **No in-product upgrade nudge from trial to paid:** Usage-based trial upgrade nudge shipped (#14, 2026-05-24); remaining gap is Team→Professional expansion CTA.
+2. **No in-product expansion CTA for Team → Professional or seat / workspace adds:** Existing tenants nearing tier ceilings see no expansion prompt; expansion revenue depends entirely on the CSM motion.
+3. **Marketing pricing quote-request follow-up has no measured SLA:** `dbo.MarketingPricingQuoteRequests` rows are written and an email goes out, but no committed response-time SLA, no aging dashboard, no escalation rule.
+4. **Custom policy pack authoring SKU is decided but not yet published:** Per Improvement #6 — the SKU matrix is approved (Starter / Standard / Program with shared-IP discount) but pricing pages, SoW template, and order-form line items have not landed.
 
 ---
 
@@ -148,8 +144,7 @@ CPA SOC 2 Type II, third-party pen-test publication, automated GDPR tenant erasu
 
 1. **SAML SP claim-mapping has no interactive pre-flight wizard:** Metadata CLI (#4) and startup validation (#18, 2026-05-24) reduce runtime surprises; implementation engineers still lack a guided claim-mapping UI.
 2. **Tier 2 Azure Extractor service-principal provisioning is customer-side manual:** The Tier 1 path is excellent; the Tier 2 opt-in still requires customers to author and review a service-principal setup script, which security reviewers will scrutinize line-by-line.
-3. **No operator-shipped board-pack ROI export:** Executive ROI JSON/CSV exists; economic buyers lack a one-page Markdown/PDF artifact for steering committees without manual formatting (Improvement #24).
-4. **Custom policy pack authoring SKU not yet published on pricing pages:** SKU matrix approved (Improvement #6) but GTM publication incomplete.
+3. **Custom policy pack authoring SKU not yet published on pricing pages:** SKU matrix approved (Improvement #6) but GTM publication incomplete.
 5. **No in-product expansion CTA for Team → Professional or seat / workspace adds:** Existing tenants nearing tier ceilings see no expansion prompt; expansion revenue depends entirely on the CSM motion.
 
 ---
@@ -339,11 +334,12 @@ Add OpenTelemetry metrics for RAG retrieval operations.
 Acceptance Criteria: RAG latency and chunk counts are visible in Prometheus/Grafana.
 ```
 
-### 8. Implement Automated Cleanup for Orphaned AgentResult Blobs
+### 8. Implement Automated Cleanup for Orphaned AgentResult Blobs (completed 2026-05-24)
 - **Why it matters:** Prevents unbounded growth of Azure Blob Storage costs.
 - **Expected impact:** Directly improves Maintainability (+4 pts) and Reliability (+2 pts). Weighted readiness impact: +0.03%.
 - **Affected qualities:** Maintainability, Reliability.
-- **Actionable now:** Yes.
+- **Actionable now:** No (completed).
+- **Completed (Batch 4, 2026-05-24):** `AgentResultBlobCleanupHostedService` (leader-elected daily loop), `AgentTraceOrphanBlobCleanupService`, `DataArchival:BlobCleanup:Enabled` / `MinAgeDays`, metric `archlucid_data_archival_blobs_deleted_total`.
 ```cursor
 Implement a background hosted service to clean up orphaned AgentResult blobs.
 1. Create `AgentResultBlobCleanupHostedService` that runs daily.
@@ -561,11 +557,12 @@ Implement a CLI command to generate a compliance drift report.
 Acceptance Criteria: Operators can easily generate compliance drift reports for auditors.
 ```
 
-### 22. Add Explicit Reject Thresholds to AgentOutputQualityGate
+### 22. Add Explicit Reject Thresholds to AgentOutputQualityGate (completed 2026-05-24)
 - **Why it matters:** Warn-only gates do not prevent bad data from entering the system; explicit thresholds enforce quality.
 - **Expected impact:** Directly improves AI/Agent Readiness (+4 pts) and Reliability (+3 pts). Weighted readiness impact: +0.09%.
 - **Affected qualities:** AI/Agent Readiness, Reliability.
-- **Actionable now:** Yes.
+- **Actionable now:** No (completed).
+- **Completed (Batch 4, 2026-05-24):** `StructuralRejectBelow` / `SemanticRejectBelow` documented with zero defaults in base `appsettings.json`; production/staging bind non-zero floors with optional `EnforceOnReject` / `BlockRunOnReject`. Gate evaluation and orchestrator blocking paths were already implemented; **deferred:** automatic agent retry on reject.
 ```cursor
 Add explicit reject thresholds to `AgentOutputQualityGate`.
 1. Update `AgentOutputQualityGateOptions` to include `RejectThresholdSemanticScore` (e.g., 0.4).
@@ -589,11 +586,12 @@ Implement prior-manifest chunking for the RAG retrieval system.
 Acceptance Criteria: Agents can accurately answer questions about why an architecture changed over time.
 ```
 
-### 24. Implement Board-Pack ROI One-Pager Export
+### 24. Implement Board-Pack ROI One-Pager Export (completed 2026-05-24)
 - **Why it matters:** The Executive ROI summary endpoint returns rich JSON, but economic buyers do not paste JSON into steering committee decks. A committed Markdown/PDF one-pager with the top systemic issues, total estimated USD savings, and the latest-run-per-system table is the artifact that moves expansion deals forward.
 - **Expected impact:** Directly improves Executive Value Visibility (+4 pts) and Proof-of-ROI Readiness (+2 pts). Weighted readiness impact: +0.06%.
 - **Affected qualities:** Executive Value Visibility, Proof-of-ROI Readiness.
-- **Actionable now:** Yes.
+- **Actionable now:** No (completed).
+- **Completed (Batch 3, 2026-05-24):** `GET /v1/roi/executive-summary/board-pack?format=md|pdf`, `ExecutiveRoiBoardPackExporter` + Markdown/PDF builders, CLI `archlucid roi board-pack`, audit `ExecutiveRoiBoardPackExported`.
 ```cursor
 Implement a board-pack one-pager export for Executive ROI.
 1. Add API endpoint `GET /v1/roi/executive-summary/board-pack?format={md|pdf}` (default md).
@@ -3243,11 +3241,13 @@ Run prompts **1** (Policy-Pack Indexing), **2** (LLM Faithfulness Evaluator), an
 Run **7** (RAG Telemetry), **12** (Grafana ROI Panel), **19** (Grafana Outbox Panel), and **25** (Redaction Telemetry) together. Shared files: `ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`, `infra/grafana/*.json`, `infra/prometheus/archlucid-alerts.yml`.
 **Shipped:** #7 RAG duration/chunk histograms in `RetrievalQueryService`; #12 Business Value panels on authority dashboard; #19 integrations dashboard + delivery counters; #25 LLM redaction panels + high-redaction alert. **Follow-on:** optional `archlucid_tenant_estimated_savings_usd` gauge (#12).
 
-**Batch 3 — CLI surfaces & operator export tools**
+**Batch 3 — CLI surfaces & operator export tools** — **completed 2026-05-24**
 Run **4** (SAML Metadata CLI), **5** (Dead-Letter Retry CLI), **9** (ROI CSV CLI), **15** (Webhook Simulator CLI), **21** (Compliance Drift CLI), and **24** (Board-Pack ROI Export) together. All in the CLI project, all share `System.CommandLine` patterns and the `ArchLucid.Api.Client` generated types.
+**Shipped:** #24 board-pack Markdown/PDF API + CLI (prior items #4, #5, #9, #15, #21 were already complete).
 
-**Batch 4 — Reliability, hosted services, startup validation**
-Run **8** (Blob Cleanup Job), **10** (Vector Store Health Check), **13** (RAG Fallback), **16** (ROI Cache Warmup), **18** (SAML SP Startup Validation), and **22** (Quality Gate Reject Thresholds) together. Shared infrastructure: `IHostedService`, `IHealthCheck`, `IStartupValidationRule`. **Partial completion 2026-05-24:** #10, #13, #16, #18 shipped; #8 (blob cleanup) and #22 (reject thresholds) remain.
+**Batch 4 — Reliability, hosted services, startup validation** — **completed 2026-05-24**
+Run **8** (Blob Cleanup Job), **10** (Vector Store Health Check), **13** (RAG Fallback), **16** (ROI Cache Warmup), **18** (SAML SP Startup Validation), and **22** (Quality Gate Reject Thresholds) together. Shared infrastructure: `IHostedService`, `IHealthCheck`, `IStartupValidationRule`.
+**Shipped:** #8 orphan agent-trace blob cleanup + metric; #22 reject floors in base config with production overrides; #10, #13, #16, #18 from earlier partial pass.
 
 **Batch 5 — Test coverage & focused logic**
 Run **3** (ROI Dedup Tests) on its own or with Batch 4 if context permits. `ExecutiveRoiSummaryService` deserves focused attention.

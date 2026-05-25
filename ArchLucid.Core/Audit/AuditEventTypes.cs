@@ -123,6 +123,9 @@ public static class AuditEventTypes
 
     /// <summary>Generic export download succeeded (DOCX/PDF/comparison file).</summary>
     public const string ExportDownloadSucceeded = "Export.DownloadSucceeded";
+
+    /// <summary>Executive ROI board-pack Markdown/PDF export (<c>GET /v1/roi/executive-summary/board-pack</c>).</summary>
+    public const string ExecutiveRoiBoardPackExported = "ExecutiveRoiBoardPackExported";
     public const string RunExportFailed = "Export.Failed";
 
     /// <summary>Run export ZIP was successfully pushed to a customer-provided Azure Blob SAS URL.</summary>

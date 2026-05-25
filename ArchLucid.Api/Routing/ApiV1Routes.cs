@@ -49,6 +49,8 @@ public static class ApiV1Routes
     /// <summary>Cross-run executive ROI summary (latest run per system + top systemic issues).</summary>
     public const string RoiExecutiveSummary = "v1/roi/executive-summary";
 
+    public const string RoiExecutiveSummaryBoardPack = "v1/roi/executive-summary/board-pack";
+
     /// <summary>Operator-only anonymized cross-tenant SQL aggregates.</summary>
     public const string InternalCrossTenantAnalytics = "v1/internal/analytics/cross-tenant";
 

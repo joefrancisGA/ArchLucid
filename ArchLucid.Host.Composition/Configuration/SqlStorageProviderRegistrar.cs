@@ -365,6 +365,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IComplianceDriftFindingsTrendReader, DapperComplianceDriftFindingsTrendReader>();
         services.AddScoped<IPolicyPackCatalogRepository, DapperPolicyPackCatalogRepository>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
+        services.AddScoped<IAgentTraceOrphanBlobCleanupService, AgentTraceOrphanBlobCleanupService>();
         services.AddScoped<ITenantRepository, DapperTenantRepository>();
         services.AddScoped<IArchitectureProjectRepository, DapperArchitectureProjectRepository>();
         services.AddScoped<IArchitectureProjectRetentionPurgeService, SqlArchitectureProjectRetentionPurgeService>();

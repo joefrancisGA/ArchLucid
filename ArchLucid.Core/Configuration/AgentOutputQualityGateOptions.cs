@@ -103,22 +103,24 @@ public sealed class AgentOutputQualityGateOptions
     } = 0.65;
 
     /// <summary>
-    ///     Structural ratio strictly below this yields <c>rejected</c>. Calibrated above zero; see <see cref="EnforceOnReject" />.
+    ///     Structural ratio strictly below this yields <c>rejected</c>. Set above zero in production to classify poor
+    ///     outputs; pair with <see cref="EnforceOnReject" /> to throw. Zero disables reject classification (warn-only posture).
     /// </summary>
     public double StructuralRejectBelow
     {
         get;
         set;
-    } = 0.7;
+    }
 
     /// <summary>
-    ///     Semantic score strictly below this yields <c>rejected</c>. Calibrated above zero; see <see cref="EnforceOnReject" />.
+    ///     Semantic score strictly below this yields <c>rejected</c>. Set above zero in production; zero disables reject
+    ///     classification until explicitly configured (see base <c>appsettings.json</c>).
     /// </summary>
     public double SemanticRejectBelow
     {
         get;
         set;
-    } = 0.5;
+    }
 
     /// <summary>
     ///     Optional per-agent overrides for warn/reject floors. Dictionary keys match
