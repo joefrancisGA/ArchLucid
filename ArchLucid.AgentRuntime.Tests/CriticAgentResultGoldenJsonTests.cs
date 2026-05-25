@@ -121,7 +121,13 @@ public sealed class CriticAgentResultGoldenJsonTests
 
         Action act = () => sut.ParseAndValidate(json, RunId, TaskId, AgentType.Critic);
 
-        act.Should().Throw<InvalidOperationException>().WithMessage("*deserialize*");
+        // Production parses schema before JsonSerializer; BOM-prefixed wire JSON fails schema validation first.
+        act.Should().Throw<AgentResultSchemaViolationException>()
+            .Which.SchemaErrors.Should().NotBeEmpty();
+
+        Action laxDeserialize = () => new AgentResultParser().ParseAndValidate(json, RunId, TaskId, AgentType.Critic);
+
+        laxDeserialize.Should().Throw<InvalidOperationException>().WithMessage("*deserialize*");
     }
 
     [SkippableFact]
