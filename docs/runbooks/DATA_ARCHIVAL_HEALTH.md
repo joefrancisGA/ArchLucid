@@ -32,7 +32,18 @@ The API registers an ASP.NET Core health check named **`data_archival`** (readin
 2. **Read the health payload** — `GET` the readiness endpoint you use in production (for example `/health/ready` if mapped that way) and inspect the `data_archival` entry description for the exception type and message fragment.
 3. **Check application logs** — correlate timestamps with `DataArchivalHostedService` / `DataArchivalCoordinator` errors (SQL timeouts, permission denied, invalid retention, etc.).
 4. **Check SQL** — archival touches soft-archive columns on authority-related tables; verify connectivity, RLS/session context if applicable, and that migrations defining `ArchivedUtc` (or equivalent) are applied.
-5. **Agent trace hard-delete (optional)** — when `DataArchival:PurgeArchivedAgentExecutionTracesAfterDays` is greater than zero, the coordinator issues batched `DELETE TOP` against `dbo.AgentExecutionTraces` for rows already soft-archived (`ArchivedUtc` set) and older than the cutoff. **Blob objects** under `agent-traces` are not deleted by this path; use storage lifecycle policies for orphan cleanup if required.
+5. **Agent trace hard-delete (optional)** — when `DataArchival:PurgeArchivedAgentExecutionTracesAfterDays` is greater than zero, the coordinator issues batched `DELETE TOP` against `dbo.AgentExecutionTraces` for rows already soft-archived (`ArchivedUtc` set) and older than the cutoff. **Blob objects** under `agent-traces` are not deleted by this SQL path.
+6. **Agent trace blob lifecycle (Terraform)** — `infra/terraform-storage` applies **`azurerm_storage_management_policy`** on **`agent-traces/`** block blobs when **`agent_trace_blob_lifecycle_enabled`** is true (defaults: Cool after **30** days, delete after **365** days; staging example uses **7** / **90**). This is independent of SQL archival.
+7. **App orphan blob cleanup** — when **`DataArchival:BlobCleanup:Enabled`** is true, **`AgentResultBlobCleanupHostedService`** deletes **`agent-traces`** blobs whose run no longer exists in **`dbo.Runs`** once blob age ≥ **`BlobCleanup:MinAgeDays`** (Production default **30**). Safe alongside storage lifecycle: both use idempotent deletes; set lifecycle **`delete_after_days`** ≥ forensic retention and ≥ **`MinAgeDays`**.
+
+### App cleanup vs storage lifecycle
+
+| Layer | What it removes | When |
+|-------|-----------------|------|
+| **`AgentResultBlobCleanupHostedService`** | Orphan **`agent-traces`** blobs (no matching **`dbo.Runs`**) | Daily leader loop; age ≥ **`DataArchival:BlobCleanup:MinAgeDays`** |
+| **`azurerm_storage_management_policy`** (`terraform-storage`) | **All** **`agent-traces/`** block blobs | Last-modified age ≥ **`agent_trace_blob_delete_after_days`** |
+
+Verify lifecycle in Azure Portal → storage account → **Lifecycle management** after **`terraform-storage`** apply. See **`infra/terraform-storage/README.md`**.
 
 ## Recovery
 

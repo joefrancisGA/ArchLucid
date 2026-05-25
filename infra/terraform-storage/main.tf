@@ -101,3 +101,34 @@ resource "azurerm_storage_container" "azure_extractor_chunk_upload" {
   storage_account_id    = azurerm_storage_account.artifacts[0].id
   container_access_type = "private"
 }
+
+resource "azurerm_storage_container" "agent_traces" {
+  count = local.enabled ? 1 : 0
+
+  name                  = "agent-traces"
+  storage_account_id    = azurerm_storage_account.artifacts[0].id
+  container_access_type = "private"
+}
+
+resource "azurerm_storage_management_policy" "agent_trace_blob_lifecycle" {
+  count = local.enabled && var.agent_trace_blob_lifecycle_enabled ? 1 : 0
+
+  storage_account_id = azurerm_storage_account.artifacts[0].id
+
+  rule {
+    name    = "agent-traces-tier-and-expire"
+    enabled = true
+
+    filters {
+      blob_types   = ["blockBlob"]
+      prefix_match = ["agent-traces/"]
+    }
+
+    actions {
+      base_blob {
+        tier_to_cool_after_days_since_modification_greater_than    = var.agent_trace_blob_cool_tier_after_days
+        delete_after_days_since_modification_greater_than          = var.agent_trace_blob_delete_after_days
+      }
+    }
+  }
+}

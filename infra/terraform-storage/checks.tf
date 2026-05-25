@@ -18,3 +18,10 @@ check "location_when_creating_rg" {
     error_message = "location is required when create_resource_group is true."
   }
 }
+
+check "agent_trace_blob_delete_after_cool_tier" {
+  assert {
+    condition = !var.enable_storage_account || !var.agent_trace_blob_lifecycle_enabled || var.agent_trace_blob_delete_after_days > var.agent_trace_blob_cool_tier_after_days
+    error_message = "agent_trace_blob_delete_after_days must be greater than agent_trace_blob_cool_tier_after_days when lifecycle is enabled."
+  }
+}

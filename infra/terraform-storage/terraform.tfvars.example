@@ -7,6 +7,11 @@ storage_account_name   = "starchlucidartifacts" # must be globally unique
 account_replication_type           = "LRS"
 public_network_access_enabled      = true # set false + use terraform-private private endpoint for production
 
+# agent-traces lifecycle (see staging.tfvars.example / production.tfvars.example)
+# agent_trace_blob_lifecycle_enabled     = true
+# agent_trace_blob_cool_tier_after_days  = 30
+# agent_trace_blob_delete_after_days     = 365
+
 tags = {
   workload = "archlucid"
 }

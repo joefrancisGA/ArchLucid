@@ -16,6 +16,7 @@
 - [ ] Confirm `ConnectionStrings:ArchLucid` uses the failover group listener FQDN.
 - [ ] Confirm `backup_storage_redundancy = "Geo"` on the database resource.
 - [ ] Confirm LTR policy is active (Azure Portal → DB → Manage backups → Long-term retention).
+- [ ] When artifact blob offload is enabled, confirm **`terraform-storage`** lifecycle on **`agent-traces/`** (Portal → storage account → Lifecycle management) matches **`agent_trace_blob_*`** variables from the applied tfvars.
 - [ ] Notify on-call and relevant stakeholders of drill window.
 - [ ] Confirm you have Key Vault write access for connection string rotation if required.
 
@@ -54,6 +55,14 @@
 2. Initiate a test restore to a new database from the most recent LTR backup.
 3. Confirm restore completes successfully. Record elapsed time.
 4. Delete the test database.
+
+## Artifact blob lifecycle verification (non-destructive)
+
+When **`ArtifactLargePayload:BlobProvider=AzureBlob`** is enabled in the deployed environment:
+
+1. Azure Portal → artifacts storage account → **Lifecycle management** → confirm rule **`agent-traces-tier-and-expire`** (or equivalent) is **Enabled**.
+2. Compare **Cool tier after** and **Delete after** days to the applied **`infra/terraform-storage`** tfvars (`production.tfvars.example`: 30 / 365; `staging.tfvars.example`: 7 / 90).
+3. Confirm **`agent-traces`** container exists and **`AgentResultBlobCleanupHostedService`** remains enabled in app config when orphan hygiene is required (`DataArchival:BlobCleanup:Enabled`).
 
 ## Post-drill: update RTO_RPO_TARGETS.md
 

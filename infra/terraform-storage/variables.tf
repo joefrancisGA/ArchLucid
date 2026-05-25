@@ -73,3 +73,31 @@ variable "customer_managed_key_id" {
   description = "Full Azure Resource Manager id of the Key Vault key version used for storage encryption (see docs/runbooks/CMK_ENCRYPTION.md)."
   default     = ""
 }
+
+variable "agent_trace_blob_lifecycle_enabled" {
+  type        = bool
+  description = "When true, apply azurerm_storage_management_policy tiering and expiry on agent-traces/ block blobs (Improvement #13)."
+  default     = true
+}
+
+variable "agent_trace_blob_cool_tier_after_days" {
+  type        = number
+  description = "Move agent-traces block blobs to Cool after this many days since last modification. Align with DataArchival:BlobCleanup:MinAgeDays for orphan cleanup (default 30)."
+  default     = 30
+
+  validation {
+    condition     = var.agent_trace_blob_cool_tier_after_days >= 1 && var.agent_trace_blob_cool_tier_after_days <= 3650
+    error_message = "agent_trace_blob_cool_tier_after_days must be between 1 and 3650."
+  }
+}
+
+variable "agent_trace_blob_delete_after_days" {
+  type        = number
+  description = "Delete agent-traces block blobs after this many days since last modification. Staging should use a shorter value than Production."
+  default     = 365
+
+  validation {
+    condition     = var.agent_trace_blob_delete_after_days >= 2 && var.agent_trace_blob_delete_after_days <= 3650
+    error_message = "agent_trace_blob_delete_after_days must be between 2 and 3650."
+  }
+}

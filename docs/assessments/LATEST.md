@@ -1,17 +1,17 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 93.50%
+# ArchLucid Assessment – (A) Headline Readiness: 93.52%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items such as SOC 2 CPA attestation, third-party pen tests, MCP, the commerce un-hold, multi-cloud (AWS/GCP) analysis, multi-region active/active, automated tenant erasure, Graph-RAG / agentic retrieval, hosted Tier 2 continuous polling, **non-SCIM bulk-CSV user onboarding (V2)**, **self-hosted Enterprise commercial deals (V2)**, and related sub-milestones (capacity guide, private-endpoint reference architecture).*
 
 **Score ledger:** Incremental history through legacy **archived #1–#57** and owner rescoring (**87.74% → 92.63%**) lives in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md).
 
-**Rescore 2026-05-25 (post Improvements #1–#12):** Headline **93.50%** (+0.69% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**, **#12 orphan-probe CI guard +0.02%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#13–#25** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
+**Rescore 2026-05-25 (post Improvements #1–#13):** Headline **93.52%** (+0.71% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**, **#12 orphan-probe CI guard +0.02%**, **#13 agent-trace blob lifecycle Terraform +0.02%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#14–#25** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**
-ArchLucid is ready for **V1 GA at 93.50%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#12 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM, Azure Retail cost grounding, platform docs corpus, finding-engine `AlternativePathsConsidered`, Executive ROI RLS hardening, orphan-probe registry CI guard). **No `(A)` items remain in the V1 GA gate set.**
+ArchLucid is ready for **V1 GA at 93.52%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#13 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM, Azure Retail cost grounding, platform docs corpus, finding-engine `AlternativePathsConsidered`, Executive ROI RLS hardening, orphan-probe registry CI guard, agent-trace blob lifecycle Terraform). **No `(A)` items remain in the V1 GA gate set.**
 
 **`(B)` Procurement / Market-Motion Realism (Informational — zero weight on `(A)`)**
 Enterprise procurement teams will still ask for CPA-issued SOC 2 Type II, an external pen-test summary, automated GDPR erasure, multi-region active/active, AWS/GCP target analysis, and **self-hosted / on-premises deployment**. Every one of these items is **explicitly out of `(A)` scope** per `V1_DEFERRED.md` §6c, §6l, §6m, §6n, **§6t**, and the scope rule. The right posture is honest trust-center narrative — **V1 GA is hosted SaaS**; self-hosted Enterprise is **V2** — not score deductions.
@@ -112,7 +112,7 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Recommendations:** Enable per-tenant RAG tags only for bounded tenant counts.
 - **Status:** **#6 shipped 2026-05-25.** **#4 shipped 2026-05-25.** **#2 shipped 2026-05-25.**
 
-**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.50%** (documented +0.69% from shipped **#1–#12**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
+**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.52%** (documented +0.71% from shipped **#1–#13**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
 
 ---
 
@@ -162,7 +162,7 @@ CPA SOC 2 Type II, third-party pen-test publication, automated GDPR tenant erasu
 Open mitigations only — active Improvements **#1–#25**. Legacy shipped work uses **archived #1–#57** in the archive file.
 
 1. **Cross-tenant ROI aggregation could leak data:** ~~RLS or `SESSION_CONTEXT` failure during `ExecutiveRoiCacheWarmupHostedService` or background rollups — **#11** (post-GA).~~ **Mitigated 2026-05-25** — **`ExecutiveRoiBackgroundTenantRollup`** + fail-closed **`ExecutiveRoiBackgroundScopeGuard`** + **`archlucid_executive_roi_background_scope_violations_total`** telemetry.
-2. **AgentResult blob storage lacks storage-account lifecycle policy:** Orphan cleanup runs in-app; Azure blob tiering and retention are not codified in Terraform — **#13** (post-GA).
+2. **AgentResult blob storage lacks storage-account lifecycle policy:** ~~Orphan cleanup runs in-app; Azure blob tiering and retention are not codified in Terraform — **#13** (post-GA).~~ **Mitigated 2026-05-25** — **`terraform-storage`** **`azurerm_storage_management_policy`** on **`agent-traces/`** with staging/production tfvars examples.
 3. **Integration outbox dead letters lack operator UI:** Sustained webhook failure still requires SQL or CLI for bulk DLQ triage — **#14** (post-GA).
 5. **Azure OpenAI circuit breakers may trip too aggressively:** Latency brownouts can fail entire authority runs instead of degrading gracefully — **#15** (post-GA).
 6. **`DataConsistencyOrphanProbe` may miss new tables:** ~~Schema growth without probe registration or CI guard — **#12** (post-GA).~~ **Mitigated 2026-05-25** — **`DataConsistencyOrphanProbeRegistry`** + **`DataConsistencyOrphanProbeRegistryArchitectureTests`** + **`ArtifactBundles`** background probe.
@@ -177,7 +177,7 @@ Open mitigations only — active Improvements **#1–#25**. Legacy shipped work 
 
 ## Most Important Truth
 
-ArchLucid is **ready to ship V1 GA at 93.50%**. **Improvements #1–#12 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#13–#25** do not move headline.
+ArchLucid is **ready to ship V1 GA at 93.52%**. **Improvements #1–#13 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#14–#25** do not move headline.
 
 ---
 
@@ -186,7 +186,7 @@ ArchLucid is **ready to ship V1 GA at 93.50%**. **Improvements #1–#12 shipped 
 Shipped improvements (**archived #1–#57**, 2026-05-24 – 2026-05-25) are documented in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md). **Active tasks in this file: #1–#25** (renumbered 2026-05-25; do not confuse with legacy archive IDs).
 
 **V1 GA gates (ship before GA):** **None remaining — #1–#7 shipped 2026-05-25.**
-**Additional V1 actionable (post-GA or parallel):** **#13–#25** (13 items).
+**Additional V1 actionable (post-GA or parallel):** **#14–#25** (12 items).
 **Total:** **25** actionable improvements in this assessment.
 
 ### 1. Wire Agent-Output Eval Corpus Baseline Regression — **SHIPPED 2026-05-25**
@@ -614,21 +614,11 @@ Acceptance Criteria: New integration tests pass; runbook note in OBSERVABILITY.m
 - **Affected qualities:** Reliability, Maintainability.
 - **Shipped:** `DataConsistencyOrphanProbeRegistry`, **`ArtifactBundles`** background probe, **`DataConsistencyOrphanProbeRegistryArchitectureTests`**, matrix doc sync, SQL positive-detection test.
 
-### 13. Codify AgentResult Blob Retention Lifecycle in Terraform (actionable now — post-GA)
-- **Why it matters:** Leader-elected orphan cleanup (archived #8) runs in-app, but storage accounts lack explicit lifecycle tiering — AgentResult blobs can grow unbounded on cost and compliance dimensions.
-- **Expected impact:** Reliability (+1 pt). Weighted readiness impact: **+0.02%** when shipped. **Do not rescored until shipped.**
+### 13. Codify AgentResult Blob Retention Lifecycle in Terraform — **shipped 2026-05-25**
+- **Why it matters:** Leader-elected orphan cleanup (archived #8) runs in-app, but storage accounts lacked explicit lifecycle tiering — AgentResult blobs could grow unbounded on cost and compliance dimensions.
+- **Expected impact:** Reliability (+1 pt). Weighted readiness impact: **+0.02%** when shipped.
 - **Affected qualities:** Reliability, Cost considerations.
-- **Actionable now:** Yes — post-GA; complements shipped **archived #8**.
-```cursor
-Codify AgentResult blob retention lifecycle in Terraform (Improvement #13).
-
-1. Addazurerm_storage_management_policy (or equivalent) on production artifact storage for agent-result / trace blob prefixes: cool tier after N days, delete after M days aligned with DATA_ARCHIVAL runbook.
-2. Wire variables in infra/terraform with Staging shorter retention than Production.
-3. Document interaction with AgentResultBlobCleanupHostedService — app cleanup vs storage lifecycle (both may apply; no double-delete race).
-4. Add terraform validate + docs in backup/restore runbook (archived #45).
-
-Acceptance Criteria: Terraform plans cleanly; lifecycle rules visible in Azure portal; runbook updated.
-```
+- **Shipped:** `agent-traces` container + **`azurerm_storage_management_policy`** in **`infra/terraform-storage`**, **`production.tfvars.example`** (30/365) and **`staging.tfvars.example`** (7/90), runbook updates (`DATA_ARCHIVAL_HEALTH.md`, `BACKUP_RESTORE_DRILL.md`).
 
 ### 14. Operator UI for Integration Outbox Dead-Letter Management (actionable now — post-GA)
 - **Why it matters:** Dead-letter retry CLI (archived #5) and Grafana dashboard (archived #19) exist, but operators still need direct DB access for bulk DLQ triage under sustained webhook failure.

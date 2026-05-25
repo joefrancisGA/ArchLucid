@@ -1,0 +1,20 @@
+﻿# Staging-oriented example (shorter agent-trace blob retention than production):
+#   terraform apply -var-file=staging.tfvars.example
+
+enable_storage_account        = true
+create_resource_group         = false
+resource_group_name           = "rg-archlucid-staging"
+location                      = "eastus2"
+storage_account_name          = "starchlucidstagingarts"
+account_replication_type      = "LRS"
+public_network_access_enabled = true
+
+agent_trace_blob_lifecycle_enabled     = true
+agent_trace_blob_cool_tier_after_days  = 7
+agent_trace_blob_delete_after_days     = 90
+
+tags = {
+  workload    = "archlucid"
+  tier        = "staging"
+  environment = "staging"
+}

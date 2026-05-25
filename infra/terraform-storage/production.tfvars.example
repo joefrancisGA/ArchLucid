@@ -9,6 +9,10 @@ storage_account_name          = "starchlucidprodarts"
 account_replication_type      = "GRS"
 public_network_access_enabled = false
 
+agent_trace_blob_lifecycle_enabled     = true
+agent_trace_blob_cool_tier_after_days  = 30
+agent_trace_blob_delete_after_days     = 365
+
 tags = {
   workload    = "archlucid"
   tier        = "production"
