@@ -63,6 +63,7 @@
     <Using Include="ArchLucid.Core" />
     <Using Include="ArchLucid.Core.Audit" />
     <Using Include="ArchLucid.Core.Manifest" />
+    <Using Include="Microsoft.Extensions.Options" />
   </ItemGroup>
 
 </Project>

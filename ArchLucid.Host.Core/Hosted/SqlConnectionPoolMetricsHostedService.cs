@@ -1,9 +1,11 @@
 using System.Diagnostics.Metrics;
 
+using ArchLucid.Host.Core.Diagnostics;
+
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace ArchLucid.Host.Core.Diagnostics;
+namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>
 ///     Publishes Microsoft.Data.SqlClient pool counters as OTel observable gauges for Prometheus scrape.

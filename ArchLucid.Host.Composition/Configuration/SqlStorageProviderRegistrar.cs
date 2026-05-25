@@ -44,7 +44,6 @@ using ArchLucid.Host.Composition.Orchestration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.DataAccess;
 using ArchLucid.Host.Core.DataConsistency;
-using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Core.Persistence.Ports;
