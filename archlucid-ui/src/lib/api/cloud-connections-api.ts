@@ -23,3 +23,20 @@ export async function configureTier2Connection(
 export async function listTier2Connections(): Promise<Tier2ConnectionResponse[]> {
   return apiGet<Tier2ConnectionResponse[]>("/v1/azure-extractor/connections");
 }
+
+export interface Tier2HostedRunValidationBody {
+  subscriptionId: string;
+  runId?: string;
+}
+
+export interface Tier2HostedRunValidationResponse {
+  packageId: string;
+  resourceCount: number;
+}
+
+/** On-demand hosted Tier 2 pull after connection save (202 Accepted on success). */
+export async function validateTier2ConnectionHostedRun(
+  body: Tier2HostedRunValidationBody,
+): Promise<Tier2HostedRunValidationResponse> {
+  return apiPostJson<Tier2HostedRunValidationResponse>("/v1/admin/azure-extractor/hosted/run", body);
+}

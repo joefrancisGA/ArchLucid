@@ -104,6 +104,22 @@ Choose **one** primary workforce path (many customers run SAML SP; OIDC `JwtBear
 
 ---
 
+## 9. Tier 2 Azure continuous ingestion (optional Enterprise)
+
+Use when the customer opts into **hosted Tier 2** Workload Identity Federation pull (on-demand `POST /v1/admin/azure-extractor/hosted/run` and future auto-pull). Tier 1 PowerShell ZIP upload remains the default V1 GA path.
+
+| Step | Owner | Definition of done |
+|------|-------|--------------------|
+| Complete in-product Tier 2 wizard (`Settings → Cloud connections`) | Customer Admin + ArchLucid CSM | RBAC checklist signed off; Reader + Cost Management Reader only; no client secrets stored in ArchLucid |
+| Provision customer SP + federated credential (CLI, Terraform, or Bicep) | Customer IT | `customer_app_id` + `customer_tenant_id` recorded; federation trusts ArchLucid published MI |
+| Save connection identifiers in ArchLucid | Customer Admin | `POST /v1/azure-extractor/connections` succeeds; audit `Integration.HostedAzureExtractorConfigured` |
+| Run hosted validation pull | Customer Admin or ArchLucid ops | `POST /v1/admin/azure-extractor/hosted/run` returns **202** for first subscription scope |
+| Document security review evidence | Customer security | [`PROCUREMENT_FAQ.md`](../go-to-market/PROCUREMENT_FAQ.md) + [`trust-center.md`](../go-to-market/trust-center.md) + [`AZURE_EXTRACTOR.md`](AZURE_EXTRACTOR.md) attached to tenant runbook |
+
+**UI entry:** `/settings/cloud-connections` guided wizard (Improvement #17).
+
+---
+
 ## Sign-off
 
 | Role | Name | Date | Signature |
