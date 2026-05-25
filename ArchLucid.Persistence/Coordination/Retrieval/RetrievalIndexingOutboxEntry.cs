@@ -40,4 +40,35 @@ public sealed class RetrievalIndexingOutboxEntry
         get;
         init;
     }
+
+    /// <summary>Claim / retry bookkeeping stored on <c>dbo.RetrievalIndexingOutbox</c>.</summary>
+    public int AttemptCount
+    {
+        get;
+        init;
+    }
+
+    public DateTime? LockedUntilUtc
+    {
+        get;
+        init;
+    }
+
+    public DateTime? NextAttemptUtc
+    {
+        get;
+        init;
+    }
+
+    public string? LastAttemptError
+    {
+        get;
+        init;
+    }
+
+    public DateTime? DeadLetteredUtc
+    {
+        get;
+        init;
+    }
 }

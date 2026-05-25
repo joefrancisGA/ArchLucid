@@ -74,6 +74,7 @@ public sealed class OutboxOperationalMetricsHostedService(
             snap.AuthorityPipelineWorkOldestPendingAgeSeconds,
             snap.RetrievalIndexingOutboxPending,
             snap.RetrievalIndexingOutboxOldestPendingAgeSeconds,
+            snap.RetrievalIndexingOutboxDeadLetter,
             snap.IntegrationEventOutboxPublishPending,
             snap.IntegrationEventOutboxDeadLetter,
             snap.IntegrationEventOutboxOldestActionablePendingAgeSeconds,

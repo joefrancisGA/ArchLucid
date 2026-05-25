@@ -6,6 +6,7 @@ public readonly record struct OutboxDepthGaugeValues(
     double AuthorityPipelineWorkOldestPendingAgeSeconds,
     long RetrievalIndexingOutboxPending,
     double RetrievalIndexingOutboxOldestPendingAgeSeconds,
+    long RetrievalIndexingOutboxDeadLetter,
     long IntegrationEventOutboxPublishPending,
     long IntegrationEventOutboxDeadLetter,
     double IntegrationEventOutboxOldestActionablePendingAgeSeconds,

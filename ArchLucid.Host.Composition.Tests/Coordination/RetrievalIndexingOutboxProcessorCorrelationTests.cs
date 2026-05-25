@@ -2,6 +2,7 @@ using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination.Retrieval;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Queries;
@@ -12,6 +13,7 @@ using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -34,7 +36,7 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
         Guid runId = Guid.NewGuid();
         Mock<IRetrievalIndexingOutboxRepository> outbox = new();
         outbox
-            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<CancellationToken>()))
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new RetrievalIndexingOutboxEntry
@@ -62,7 +64,11 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
         ServiceProvider provider = services.BuildServiceProvider();
         IServiceScopeFactory factory = provider.GetRequiredService<IServiceScopeFactory>();
 
-        RetrievalIndexingOutboxProcessor sut = new(factory, NullLogger<RetrievalIndexingOutboxProcessor>.Instance);
+        RetrievalIndexingOutboxProcessor sut = new(
+            factory,
+            Options.Create(new RetrievalIndexingOutboxProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<RetrievalIndexingOutboxProcessor>.Instance);
         await sut.ProcessPendingBatchAsync(CancellationToken.None);
 
         stopped.Should().ContainSingle(a => a.OperationName == "RetrievalIndexingOutbox.ProcessEntry");

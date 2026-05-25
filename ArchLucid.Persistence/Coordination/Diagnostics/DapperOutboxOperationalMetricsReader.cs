@@ -31,7 +31,15 @@ public sealed class DapperOutboxOperationalMetricsReader(ISqlConnectionFactory c
 
                            SELECT COUNT_BIG(1) AS Cnt, MIN(CreatedUtc) AS OldestUtc
                            FROM dbo.RetrievalIndexingOutbox
-                           WHERE ProcessedUtc IS NULL;
+                           WHERE ProcessedUtc IS NULL
+                             AND DeadLetteredUtc IS NULL
+                             AND (NextAttemptUtc IS NULL OR NextAttemptUtc <= SYSUTCDATETIME())
+                             AND (LockedUntilUtc IS NULL OR LockedUntilUtc <= SYSUTCDATETIME());
+
+                           SELECT COUNT_BIG(1) AS Cnt
+                           FROM dbo.RetrievalIndexingOutbox
+                           WHERE DeadLetteredUtc IS NOT NULL
+                             AND ProcessedUtc IS NULL;
 
                            SELECT COUNT_BIG(1) AS Cnt, MIN(CreatedUtc) AS OldestUtc
                            FROM dbo.IntegrationEventOutbox
@@ -52,7 +60,8 @@ public sealed class DapperOutboxOperationalMetricsReader(ISqlConnectionFactory c
 
         Row authorityActionable = (await multi.ReadAsync<Row>()).FirstOrDefault() ?? new Row();
         DeadRow authorityDead = (await multi.ReadAsync<DeadRow>()).FirstOrDefault() ?? new DeadRow();
-        Row retrieval = (await multi.ReadAsync<Row>()).FirstOrDefault() ?? new Row();
+        Row retrievalActionable = (await multi.ReadAsync<Row>()).FirstOrDefault() ?? new Row();
+        DeadRow retrievalDead = (await multi.ReadAsync<DeadRow>()).FirstOrDefault() ?? new DeadRow();
         Row integration = (await multi.ReadAsync<Row>()).FirstOrDefault() ?? new Row();
         DeadRow integrationDead = (await multi.ReadAsync<DeadRow>()).FirstOrDefault() ?? new DeadRow();
 
@@ -63,8 +72,9 @@ public sealed class DapperOutboxOperationalMetricsReader(ISqlConnectionFactory c
             AuthorityPipelineWorkPending = authorityActionable.Cnt,
             AuthorityPipelineWorkDeadLetter = authorityDead.Cnt,
             AuthorityPipelineWorkOldestPendingAgeSeconds = AgeSeconds(authorityActionable.OldestUtc, utcNow),
-            RetrievalIndexingOutboxPending = retrieval.Cnt,
-            RetrievalIndexingOutboxOldestPendingAgeSeconds = AgeSeconds(retrieval.OldestUtc, utcNow),
+            RetrievalIndexingOutboxPending = retrievalActionable.Cnt,
+            RetrievalIndexingOutboxOldestPendingAgeSeconds = AgeSeconds(retrievalActionable.OldestUtc, utcNow),
+            RetrievalIndexingOutboxDeadLetter = retrievalDead.Cnt,
             IntegrationEventOutboxPublishPending = integration.Cnt,
             IntegrationEventOutboxDeadLetter = integrationDead.Cnt,
             IntegrationEventOutboxOldestActionablePendingAgeSeconds = AgeSeconds(integration.OldestUtc, utcNow)

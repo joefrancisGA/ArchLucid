@@ -33,6 +33,12 @@ public sealed class OutboxOperationalMetricsSnapshot
         init;
     }
 
+    public long RetrievalIndexingOutboxDeadLetter
+    {
+        get;
+        init;
+    }
+
     public long IntegrationEventOutboxPublishPending
     {
         get;

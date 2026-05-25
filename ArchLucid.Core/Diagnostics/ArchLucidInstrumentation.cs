@@ -958,6 +958,11 @@ public static class ArchLucidInstrumentation
             "Age in seconds of the oldest pending retrieval indexing outbox row.");
 
         AppMeter.CreateObservableGauge(
+            "archlucid_retrieval_indexing_outbox_dead_lettered_total",
+            () => new Measurement<long>(s.Current.RetrievalIndexingOutboxDeadLetter),
+            description: "dbo.RetrievalIndexingOutbox rows exhausted retries (DeadLetteredUtc set).");
+
+        AppMeter.CreateObservableGauge(
             "archlucid_integration_event_outbox_publish_pending",
             () => new Measurement<long>(s.Current.IntegrationEventOutboxPublishPending),
             description: "Integration outbox rows eligible for Service Bus publish (excludes dead letters).");

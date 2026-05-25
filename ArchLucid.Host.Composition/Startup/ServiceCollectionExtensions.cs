@@ -107,6 +107,8 @@ public static partial class ServiceCollectionExtensions
         RegisterGovernance(services, configuration);
         services.Configure<AuthorityPipelineWorkProcessorOptions>(
             configuration.GetSection(AuthorityPipelineWorkProcessorOptions.SectionName));
+        services.Configure<RetrievalIndexingOutboxProcessorOptions>(
+            configuration.GetSection(RetrievalIndexingOutboxProcessorOptions.SectionName));
         RegisterRetrievalIndexingOutbox(services, hostingRole);
         RegisterIntegrationEventOutbox(services, hostingRole);
         RegisterIntegrationEventConsumer(services, configuration, hostingRole);
