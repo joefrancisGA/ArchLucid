@@ -14,7 +14,7 @@ namespace ArchLucid.Persistence.Pilots;
 
 /// <inheritdoc cref="IPilotReportCardMetricsReader" />
 [ExcludeFromCodeCoverage(Justification = "SQL-backed reader; exercised via integration workloads.")]
-public sealed class DapperPilotReportCardMetricsReader(ISqlConnectionFactory connectionFactory)
+public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFactory connectionFactory)
     : IPilotReportCardMetricsReader
 {
     /// <remarks>
@@ -29,7 +29,7 @@ public sealed class DapperPilotReportCardMetricsReader(ISqlConnectionFactory con
         AuditEventTypes.ArchitectureAnalysisReportGenerated
     ];
 
-    private readonly ISqlConnectionFactory _connectionFactory =
+    private readonly IReadOnlyDbConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
     private const string CommittedRunsScopeFilterRuns = """

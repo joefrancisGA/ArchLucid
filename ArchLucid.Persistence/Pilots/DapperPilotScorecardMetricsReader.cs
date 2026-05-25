@@ -6,9 +6,9 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Pilots;
 
-public sealed class DapperPilotScorecardMetricsReader(ISqlConnectionFactory connectionFactory) : IPilotScorecardMetricsReader
+public sealed class DapperPilotScorecardMetricsReader(IReadOnlyDbConnectionFactory connectionFactory) : IPilotScorecardMetricsReader
 {
-    private readonly ISqlConnectionFactory _connectionFactory =
+    private readonly IReadOnlyDbConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
     public async Task<PilotScorecardTenantMetrics> GetAsync(Guid tenantId, CancellationToken cancellationToken)

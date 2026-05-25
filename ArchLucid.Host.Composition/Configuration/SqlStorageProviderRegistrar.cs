@@ -193,7 +193,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
 
         RegisterBackgroundWorkerSqlResilience(services);
 
-        services.AddSingleton<IWeeklyArchitectureCriticalFindingSummaryRepository,
+        services.AddScoped<IWeeklyArchitectureCriticalFindingSummaryRepository,
             DapperWeeklyArchitectureCriticalFindingSummaryRepository>();
 
         services.AddScoped<ScopedRoutingSqlConnectionFactory>(sp =>

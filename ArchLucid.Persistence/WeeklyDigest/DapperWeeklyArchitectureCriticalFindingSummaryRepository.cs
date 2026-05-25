@@ -8,15 +8,14 @@ namespace ArchLucid.Persistence.WeeklyDigest;
 
 /// <inheritdoc cref="IWeeklyArchitectureCriticalFindingSummaryRepository"/>
 /// <remarks>
-///     Uses primary <see cref="IBackgroundWorkerSqlConnectionFactory"/> (singleton) so scheduling jobs do not require an HTTP-bound
-///     <see cref="ArchLucid.Core.Scoping.ScopeContext"/>.
+///     Read-only analytics queries use <see cref="IReadOnlyDbConnectionFactory"/> (read replica when configured).
 /// </remarks>
 public sealed class DapperWeeklyArchitectureCriticalFindingSummaryRepository(
-    IBackgroundWorkerSqlConnectionFactory sqlConnectionFactory,
+    IReadOnlyDbConnectionFactory readConnectionFactory,
     SqlResilientOperationExecutor sqlOperations) : IWeeklyArchitectureCriticalFindingSummaryRepository
 {
-    private readonly IBackgroundWorkerSqlConnectionFactory _sqlConnectionFactory =
-        sqlConnectionFactory ?? throw new ArgumentNullException(nameof(sqlConnectionFactory));
+    private readonly IReadOnlyDbConnectionFactory _readConnectionFactory =
+        readConnectionFactory ?? throw new ArgumentNullException(nameof(readConnectionFactory));
 
     private readonly SqlResilientOperationExecutor _sqlOperations =
         sqlOperations ?? throw new ArgumentNullException(nameof(sqlOperations));
@@ -42,7 +41,7 @@ public sealed class DapperWeeklyArchitectureCriticalFindingSummaryRepository(
         maxSampleRows = Math.Clamp(maxSampleRows, 1, 10_000);
 
         await using SqlConnection connection =
-            await _sqlConnectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+            await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         CommandDefinition countCommand = new(
             """

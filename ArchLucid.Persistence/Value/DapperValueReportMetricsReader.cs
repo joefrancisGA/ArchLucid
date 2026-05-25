@@ -6,9 +6,9 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Value;
 
-public sealed class DapperValueReportMetricsReader(ISqlConnectionFactory connectionFactory) : IValueReportMetricsReader
+public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory connectionFactory) : IValueReportMetricsReader
 {
-    private readonly ISqlConnectionFactory _connectionFactory =
+    private readonly IReadOnlyDbConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
     public async Task<ValueReportRawMetrics> ReadAsync(
