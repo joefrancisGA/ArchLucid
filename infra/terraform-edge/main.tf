@@ -2,6 +2,8 @@
 # Rename via `terraform state mv` during a planned maintenance window.
 # Tracked in docs/library/V1_DEFERRED.md §3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
 
+# Front Door hierarchy (resources in frontdoor.tf): Profile -> Endpoint -> Origin group -> Route. count = 0 skips all resources when disabled.
+
 locals {
   fd_enabled = var.enable_front_door_waf
 
