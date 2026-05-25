@@ -617,7 +617,9 @@ public sealed class DependencyConstraintTests
                      "EchoAgentCompletionClient) that delegate to DeterministicAgentSimulator in non-real-LLM environments.");
     }
 
-    // ── Tier 8 — Dependency graph gap closure (2026-05-23) ───────────────────
+    // ── Tier 8 — Dependency graph gap closure (2026-05-23; #16 Provenance + Capabilities.Cost 2026-05-25) ──
+    // Persistence adapters must depend only on ArchLucid.Contracts + ArchLucid.Core (see ArchLucid.Persistence.csproj).
+    // NetArchTest guards below fail if domain assemblies leak into the persistence tier; csproj guards catch ProjectReference regressions before compile.
 
     [Fact]
     [Trait("Suite", "Core")]
@@ -705,8 +707,46 @@ public sealed class DependencyConstraintTests
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue(
-            because: "Persistence must not reference Provenance. Offending types: {0}",
+            because: "Persistence must not reference Provenance (Improvement #16 hexagonal guard). Offending types: {0}",
             FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Persistence_must_not_depend_on_Capabilities_Cost()
+    {
+        Assembly persistence = typeof(SqlRunRepository).Assembly;
+
+        TestResult result = Types
+            .InAssembly(persistence)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Capabilities.Cost")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Persistence must not reference Capabilities.Cost (Improvement #16 hexagonal guard). Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Persistence_csproj_must_not_reference_Provenance_or_Capabilities_Cost_by_design()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string csprojPath = Path.Combine(root!, "ArchLucid.Persistence", "ArchLucid.Persistence.csproj");
+        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+        declaredReferences.Should().NotContain(
+            "ArchLucid.Provenance",
+            because: "Persistence csproj must not reference Provenance; use Contracts ports and Application orchestration (Improvement #16).");
+
+        declaredReferences.Should().NotContain(
+            "ArchLucid.Capabilities.Cost",
+            because: "Persistence csproj must not reference Capabilities.Cost; cost agents stay in the domain tier (Improvement #16).");
     }
 
     [Fact]

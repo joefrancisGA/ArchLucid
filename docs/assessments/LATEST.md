@@ -1,17 +1,17 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 93.56%
+# ArchLucid Assessment – (A) Headline Readiness: 93.57%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items such as SOC 2 CPA attestation, third-party pen tests, MCP, the commerce un-hold, multi-cloud (AWS/GCP) analysis, multi-region active/active, automated tenant erasure, Graph-RAG / agentic retrieval, hosted Tier 2 continuous polling, **non-SCIM bulk-CSV user onboarding (V2)**, **self-hosted Enterprise commercial deals (V2)**, and related sub-milestones (capacity guide, private-endpoint reference architecture).*
 
 **Score ledger:** Incremental history through legacy **archived #1–#57** and owner rescoring (**87.74% → 92.63%**) lives in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md).
 
-**Rescore 2026-05-25 (post Improvements #1–#15):** Headline **93.56%** (+0.75% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**, **#12 orphan-probe CI guard +0.02%**, **#13 agent-trace blob lifecycle Terraform +0.02%**, **#14 integration outbox DLQ operator UI +0.02%**, **#15 Azure OpenAI circuit breaker brownout tuning +0.02%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#16–#25** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
+**Rescore 2026-05-25 (post Improvements #1–#16):** Headline **93.57%** (+0.76% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**, **#12 orphan-probe CI guard +0.02%**, **#13 agent-trace blob lifecycle Terraform +0.02%**, **#14 integration outbox DLQ operator UI +0.02%**, **#15 Azure OpenAI circuit breaker brownout tuning +0.02%**, **#16 Persistence hexagonal guards +0.01%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#17–#25** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**
-ArchLucid is ready for **V1 GA at 93.56%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#15 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM, Azure Retail cost grounding, platform docs corpus, finding-engine `AlternativePathsConsidered`, Executive ROI RLS hardening, orphan-probe registry CI guard, agent-trace blob lifecycle Terraform, integration outbox DLQ operator UI, Azure OpenAI circuit breaker brownout tuning). **No `(A)` items remain in the V1 GA gate set.**
+ArchLucid is ready for **V1 GA at 93.57%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#16 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM, Azure Retail cost grounding, platform docs corpus, finding-engine `AlternativePathsConsidered`, Executive ROI RLS hardening, orphan-probe registry CI guard, agent-trace blob lifecycle Terraform, integration outbox DLQ operator UI, Azure OpenAI circuit breaker brownout tuning). **No `(A)` items remain in the V1 GA gate set.**
 
 **`(B)` Procurement / Market-Motion Realism (Informational — zero weight on `(A)`)**
 Enterprise procurement teams will still ask for CPA-issued SOC 2 Type II, an external pen-test summary, automated GDPR erasure, multi-region active/active, AWS/GCP target analysis, and **self-hosted / on-premises deployment**. Every one of these items is **explicitly out of `(A)` scope** per `V1_DEFERRED.md` §6c, §6l, §6m, §6n, **§6t**, and the scope rule. The right posture is honest trust-center narrative — **V1 GA is hosted SaaS**; self-hosted Enterprise is **V2** — not score deductions.
@@ -98,10 +98,10 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Score:** 100
 - **Weight:** 2
 - **Weighted Deficiency:** 0
-- **Justification:** Central Package Management, warnings-as-errors, `EnforceCodeStyleInBuild`, strict CI, dependency vulnerability scanning, SBOM publication, gitleaks, merged coverage gates, and a clear bounded-context layout make this codebase exceptionally maintainable. Batch 4 (archived #8, 2026-05-24) added leader-elected blob cleanup; **Batch 8 (archived #26–#28, 2026-05-24)** consolidated archive cascade to a TVP stored procedure; **archived #53–#55** (2026-05-24/25) closed lateral coupling policy and `DependencyConstraintTests` gaps; **archived #57** hardened OpenAPI ↔ client ↔ UI contract parity. Residual post-GA debt: hexagonal guards for `Persistence→Provenance` and `Persistence→Capabilities.Cost` (**#16**).
+- **Justification:** Central Package Management, warnings-as-errors, `EnforceCodeStyleInBuild`, strict CI, dependency vulnerability scanning, SBOM publication, gitleaks, merged coverage gates, and a clear bounded-context layout make this codebase exceptionally maintainable. Batch 4 (archived #8, 2026-05-24) added leader-elected blob cleanup; **Batch 8 (archived #26–#28, 2026-05-24)** consolidated archive cascade to a TVP stored procedure; **archived #53–#55** (2026-05-24/25) closed lateral coupling policy and `DependencyConstraintTests` gaps; **archived #57** hardened OpenAPI ↔ client ↔ UI contract parity. **Improvement #16 shipped 2026-05-25** — `Persistence_must_not_depend_on_Capabilities_Cost` + csproj guards for Provenance and Capabilities.Cost (Provenance NetArchTest guard was already present; #16 closes the documented gap).
 - **Tradeoffs:** Strict CI gates raise contributor friction; offset by good `*.slnf` filters and the dev container.
-- **Recommendations:** Ship **#16** (hexagonal guards, post-GA) if port inversion is deferred further.
-- **Status:** Shipped for relational integrity and architecture-test closure; post-GA **#16** optional.
+- **Recommendations:** Continue port inversion for AgentRuntime→Provenance / Retrieval lateral edges under archived **#55** when those boundaries churn again.
+- **Status:** Shipped for relational integrity and architecture-test closure; **#16 shipped 2026-05-25**.
 
 ### 9. Supportability
 - **Score:** 99
@@ -112,7 +112,7 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Recommendations:** Enable per-tenant RAG tags only for bounded tenant counts.
 - **Status:** **#14 shipped 2026-05-25.** **#6 shipped 2026-05-25.** **#4 shipped 2026-05-25.** **#2 shipped 2026-05-25.**
 
-**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.56%** (documented +0.75% from shipped **#1–#15**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
+**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.57%** (documented +0.76% from shipped **#1–#16**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
 
 ---
 
@@ -171,13 +171,13 @@ Open mitigations only — active Improvements **#1–#25**. Legacy shipped work 
 9. **Prometheus cardinality at tenant scale:** Ungated per-tenant labels on RAG and ROI metrics can explode ingest cost — **#24** (post-GA; especially after **#4** gauge ships).
 10. **Boot-time architecture invariant gaps:** INV-005 startup validator parity and INV-006 composition-root scan — **#21** (post-GA; TB-010 Wave A remainder).
 11. **Agent-output quality metrics lack production alert routing:** Faithfulness and gate-reject regressions may go unnoticed until customer impact — **#22** (post-GA; TB-004; after **#2**).
-12. **Persistence hexagonal guard holes:** `Persistence→Provenance` and `Persistence→Capabilities.Cost` lack architecture-test guards — **#16** (post-GA).
+12. **Persistence hexagonal guard holes:** ~~`Persistence→Provenance` and `Persistence→Capabilities.Cost` lack architecture-test guards — **#16** (post-GA).~~ **Mitigated 2026-05-25** — **`Persistence_must_not_depend_on_Capabilities_Cost`**, Provenance NetArchTest guard, and **`Persistence_csproj_must_not_reference_Provenance_or_Capabilities_Cost_by_design`**.
 
 ---
 
 ## Most Important Truth
 
-ArchLucid is **ready to ship V1 GA at 93.56%**. **Improvements #1–#15 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#16–#25** do not move headline.
+ArchLucid is **ready to ship V1 GA at 93.57%**. **Improvements #1–#16 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#17–#25** do not move headline.
 
 ---
 
@@ -186,7 +186,7 @@ ArchLucid is **ready to ship V1 GA at 93.56%**. **Improvements #1–#15 shipped 
 Shipped improvements (**archived #1–#57**, 2026-05-24 – 2026-05-25) are documented in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md). **Active tasks in this file: #1–#25** (renumbered 2026-05-25; do not confuse with legacy archive IDs).
 
 **V1 GA gates (ship before GA):** **None remaining — #1–#7 shipped 2026-05-25.**
-**Additional V1 actionable (post-GA or parallel):** **#16–#25** (10 items).
+**Additional V1 actionable (post-GA or parallel):** **#17–#25** (9 items).
 **Total:** **25** actionable improvements in this assessment.
 
 ### 1. Wire Agent-Output Eval Corpus Baseline Regression — **SHIPPED 2026-05-25**
@@ -632,20 +632,11 @@ Acceptance Criteria: New integration tests pass; runbook note in OBSERVABILITY.m
 - **Affected qualities:** Reliability, AI/Agent Readiness.
 - **Shipped:** **`HalfOpenSuccessThreshold`** on `CircuitBreakerOptions`, **`LastOpenReason`** on `CircuitBreakerGate`, Production/Staging **`AzureOpenAI:CircuitBreaker`** overrides + LLM retry backoff, health check **`provider`/`role`/`openReason`** labels, **`RESILIENCE_CONFIGURATION.md`** brownout table, recovery tests in **`CircuitBreakerGateTests`**.
 
-### 16. Close Hexagonal Architecture Guards for Provenance and Capabilities.Cost (actionable now — post-GA)
+### 16. Close Hexagonal Architecture Guards for Provenance and Capabilities.Cost — **shipped 2026-05-25**
 - **Why it matters:** `ArchLucid.Persistence` can still reference `Provenance` and `Capabilities.Cost` without architecture-test guards — backend swap and isolated domain testing get harder silently.
-- **Expected impact:** Maintainability (+1 pt). Weighted readiness impact: **+0.01%** when shipped. **Do not rescored until shipped.**
+- **Expected impact:** Maintainability (+1 pt). Weighted readiness impact: **+0.01%** when shipped.
 - **Affected qualities:** Maintainability.
-- **Actionable now:** Yes — post-GA; extends **archived #53** / **archived #55** closure.
-```cursor
-Close hexagonal architecture guard gaps for Provenance and Capabilities.Cost (Improvement #16).
-
-1. In ArchLucid.Architecture.Tests.DependencyConstraintTests, add prohibiting or pinning facts for Persistence→Provenance and Persistence→Capabilities.Cost (match #55 _by_design policy where intentional).
-2. If prohibiting: refactor to ports in ArchLucid.Contracts and inject via Application layer.
-3. Document decision in ADR or architecture test comment block.
-
-Acceptance Criteria: Architecture tests pass; no new Persistence→domain references without explicit fact.
-```
+- **Shipped:** **`Persistence_must_not_depend_on_Capabilities_Cost`**, strengthened Provenance guard messaging, **`Persistence_csproj_must_not_reference_Provenance_or_Capabilities_Cost_by_design`** in **`DependencyConstraintTests`** Tier 8 comment block (no Persistence csproj/domain references today).
 
 ### 17. Guided Tier-2 Azure Extractor Service-Principal Setup (actionable now — post-GA)
 - **Why it matters:** Tier 2 continuous polling requires customers to author/review a service-principal script line-by-line — a top enterprise adoption friction point per assessment.
