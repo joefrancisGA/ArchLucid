@@ -56,7 +56,7 @@ public sealed class TenantUsageStatusService(
     private static int ResolveSeatsUsed(TenantRecord tenant)
     {
         if (tenant.Tier == TenantTier.Enterprise)
-            return tenant.EnterpriseSeatsUsed ?? 0;
+            return tenant.EnterpriseSeatsUsed;
 
         return tenant.TrialSeatsUsed;
     }

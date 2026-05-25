@@ -222,6 +222,8 @@ public sealed class TrialFunnelInstrumentationTests
             "archlucid_trial_expirations_total",
             "archlucid_trial_upgrade_nudge_shown_total",
             "archlucid_trial_upgrade_nudge_clicked_total",
+            "archlucid_team_expansion_nudge_shown_total",
+            "archlucid_team_expansion_nudge_clicked_total",
             "archlucid_billing_checkouts_total",
             "archlucid.ui.sponsor_banner.first_commit_badge_rendered"
         ];
@@ -260,6 +262,13 @@ public sealed class TrialFunnelInstrumentationTests
             return new TrialFunnelCapture();
         }
 
+        private static bool ShouldCaptureTrialFunnelLongCounter(string instrumentName) =>
+            LongNames.Contains(instrumentName)
+            || instrumentName.StartsWith("archlucid_trial_", StringComparison.Ordinal)
+            || instrumentName.StartsWith("archlucid_team_expansion_nudge_", StringComparison.Ordinal)
+            || instrumentName.StartsWith("archlucid_billing_", StringComparison.Ordinal)
+            || instrumentName.StartsWith("archlucid.ui.sponsor_banner.", StringComparison.Ordinal);
+
         private static void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
             if (instrument.Meter.Name != ArchLucidMeterNames.Meter)
@@ -267,7 +276,7 @@ public sealed class TrialFunnelInstrumentationTests
                 return;
             }
 
-            if (LongNames.Contains(instrument.Name))
+            if (ShouldCaptureTrialFunnelLongCounter(instrument.Name))
             {
                 meterListener.EnableMeasurementEvents(instrument);
             }
