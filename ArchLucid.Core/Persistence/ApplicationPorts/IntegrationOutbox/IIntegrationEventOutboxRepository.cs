@@ -51,6 +51,9 @@ public interface IIntegrationEventOutboxRepository
     /// <summary>Clears dead-letter state so the row is eligible for publish retries again.</summary>
     Task<bool> ResetDeadLetterForRetryAsync(Guid outboxId, CancellationToken ct);
 
+    /// <summary>Marks a dead-letter row processed without republishing (operator suppress / acknowledge).</summary>
+    Task<bool> AcknowledgeDeadLetterAsync(Guid outboxId, CancellationToken ct);
+
     /// <summary>Re-queues dead-letter rows matching optional tenant and event-type filters.</summary>
     Task<IntegrationOutboxDeadLetterBulkRetryResult> RetryMatchingDeadLettersAsync(
         Guid? tenantId,

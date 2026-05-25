@@ -1,17 +1,17 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 93.52%
+# ArchLucid Assessment – (A) Headline Readiness: 93.54%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items such as SOC 2 CPA attestation, third-party pen tests, MCP, the commerce un-hold, multi-cloud (AWS/GCP) analysis, multi-region active/active, automated tenant erasure, Graph-RAG / agentic retrieval, hosted Tier 2 continuous polling, **non-SCIM bulk-CSV user onboarding (V2)**, **self-hosted Enterprise commercial deals (V2)**, and related sub-milestones (capacity guide, private-endpoint reference architecture).*
 
 **Score ledger:** Incremental history through legacy **archived #1–#57** and owner rescoring (**87.74% → 92.63%**) lives in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md).
 
-**Rescore 2026-05-25 (post Improvements #1–#13):** Headline **93.52%** (+0.71% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**, **#12 orphan-probe CI guard +0.02%**, **#13 agent-trace blob lifecycle Terraform +0.02%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#14–#25** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
+**Rescore 2026-05-25 (post Improvements #1–#14):** Headline **93.54%** (+0.73% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**, **#12 orphan-probe CI guard +0.02%**, **#13 agent-trace blob lifecycle Terraform +0.02%**, **#14 integration outbox DLQ operator UI +0.02%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#15–#25** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**
-ArchLucid is ready for **V1 GA at 93.52%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#13 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM, Azure Retail cost grounding, platform docs corpus, finding-engine `AlternativePathsConsidered`, Executive ROI RLS hardening, orphan-probe registry CI guard, agent-trace blob lifecycle Terraform). **No `(A)` items remain in the V1 GA gate set.**
+ArchLucid is ready for **V1 GA at 93.54%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#14 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM, Azure Retail cost grounding, platform docs corpus, finding-engine `AlternativePathsConsidered`, Executive ROI RLS hardening, orphan-probe registry CI guard, agent-trace blob lifecycle Terraform, integration outbox DLQ operator UI). **No `(A)` items remain in the V1 GA gate set.**
 
 **`(B)` Procurement / Market-Motion Realism (Informational — zero weight on `(A)`)**
 Enterprise procurement teams will still ask for CPA-issued SOC 2 Type II, an external pen-test summary, automated GDPR erasure, multi-region active/active, AWS/GCP target analysis, and **self-hosted / on-premises deployment**. Every one of these items is **explicitly out of `(A)` scope** per `V1_DEFERRED.md` §6c, §6l, §6m, §6n, **§6t**, and the scope rule. The right posture is honest trust-center narrative — **V1 GA is hosted SaaS**; self-hosted Enterprise is **V2** — not score deductions.
@@ -107,12 +107,12 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Score:** 99
 - **Weight:** 1
 - **Weighted Deficiency:** 1
-- **Justification:** OpenTelemetry depth (custom `ArchLucid` meter with ~50 instruments), persisted W3C trace IDs on runs, Serilog + correlation IDs, `archlucid doctor`, CLI `support-bundle`, multiple committed Grafana dashboards, RAG retrieval duration/chunk histograms (archived #7), Prometheus alert rules, detailed `/health` with circuit-breaker introspection and vector-store readiness probing (archived #10). **Improvements #2, #4, and #6 shipped 2026-05-25** — **`reject_reason` / `execution_mode`** on `archlucid_agent_output_quality_gate_total`, **`archlucid_tenant_estimated_savings_usd`** observable gauge, and pricing-quote aging **Sales ops** Grafana row + operator triage dashboard.
+- **Justification:** OpenTelemetry depth (custom `ArchLucid` meter with ~50 instruments), persisted W3C trace IDs on runs, Serilog + correlation IDs, `archlucid doctor`, CLI `support-bundle`, multiple committed Grafana dashboards, RAG retrieval duration/chunk histograms (archived #7), Prometheus alert rules, detailed `/health` with circuit-breaker introspection and vector-store readiness probing (archived #10). **Improvements #2, #4, #6, and #14 shipped 2026-05-25** — **`reject_reason` / `execution_mode`** on `archlucid_agent_output_quality_gate_total`, **`archlucid_tenant_estimated_savings_usd`** observable gauge, pricing-quote aging **Sales ops** Grafana row + operator triage dashboard, and **`/operate/integration-events/dlq`** dead-letter list with tenant/age, single/bulk retry, suppress + audit.
 - **Tradeoffs:** More telemetry costs ingest dollars in Azure Monitor / Prometheus; per-tenant cardinality is gated behind `LlmTelemetry:RecordPerTenantTokens` and `ExecutiveRoi:SavingsGauge:RecordPerTenantSavings`.
 - **Recommendations:** Enable per-tenant RAG tags only for bounded tenant counts.
-- **Status:** **#6 shipped 2026-05-25.** **#4 shipped 2026-05-25.** **#2 shipped 2026-05-25.**
+- **Status:** **#14 shipped 2026-05-25.** **#6 shipped 2026-05-25.** **#4 shipped 2026-05-25.** **#2 shipped 2026-05-25.**
 
-**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.52%** (documented +0.71% from shipped **#1–#13**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
+**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.54%** (documented +0.73% from shipped **#1–#14**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
 
 ---
 
@@ -163,7 +163,7 @@ Open mitigations only — active Improvements **#1–#25**. Legacy shipped work 
 
 1. **Cross-tenant ROI aggregation could leak data:** ~~RLS or `SESSION_CONTEXT` failure during `ExecutiveRoiCacheWarmupHostedService` or background rollups — **#11** (post-GA).~~ **Mitigated 2026-05-25** — **`ExecutiveRoiBackgroundTenantRollup`** + fail-closed **`ExecutiveRoiBackgroundScopeGuard`** + **`archlucid_executive_roi_background_scope_violations_total`** telemetry.
 2. **AgentResult blob storage lacks storage-account lifecycle policy:** ~~Orphan cleanup runs in-app; Azure blob tiering and retention are not codified in Terraform — **#13** (post-GA).~~ **Mitigated 2026-05-25** — **`terraform-storage`** **`azurerm_storage_management_policy`** on **`agent-traces/`** with staging/production tfvars examples.
-3. **Integration outbox dead letters lack operator UI:** Sustained webhook failure still requires SQL or CLI for bulk DLQ triage — **#14** (post-GA).
+3. **Integration outbox dead letters lack operator UI:** ~~Sustained webhook failure still requires SQL or CLI for bulk DLQ triage — **#14** (post-GA).~~ **Mitigated 2026-05-25** — **`/operate/integration-events/dlq`** UI + **`AcknowledgeDeadLetterAsync`** suppress API with audit; bulk retry reuses **`POST …/integrations/outbox/retry-dead-letter`**.
 5. **Azure OpenAI circuit breakers may trip too aggressively:** Latency brownouts can fail entire authority runs instead of degrading gracefully — **#15** (post-GA).
 6. **`DataConsistencyOrphanProbe` may miss new tables:** ~~Schema growth without probe registration or CI guard — **#12** (post-GA).~~ **Mitigated 2026-05-25** — **`DataConsistencyOrphanProbeRegistry`** + **`DataConsistencyOrphanProbeRegistryArchitectureTests`** + **`ArtifactBundles`** background probe.
 7. **Quality-gate rejects lack classified telemetry:** ~~Faithfulness enabled by default on hosted Staging/Production; without **`reject_reason` / `execution_mode`** on `archlucid_agent_output_quality_gate_total`, operators cannot triage reject causes — **#2** (V1 GA gate).~~ **Resolved 2026-05-25** — Improvement **#2** shipped.
@@ -177,7 +177,7 @@ Open mitigations only — active Improvements **#1–#25**. Legacy shipped work 
 
 ## Most Important Truth
 
-ArchLucid is **ready to ship V1 GA at 93.52%**. **Improvements #1–#13 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#14–#25** do not move headline.
+ArchLucid is **ready to ship V1 GA at 93.54%**. **Improvements #1–#14 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#15–#25** do not move headline.
 
 ---
 
@@ -186,7 +186,7 @@ ArchLucid is **ready to ship V1 GA at 93.52%**. **Improvements #1–#13 shipped 
 Shipped improvements (**archived #1–#57**, 2026-05-24 – 2026-05-25) are documented in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md). **Active tasks in this file: #1–#25** (renumbered 2026-05-25; do not confuse with legacy archive IDs).
 
 **V1 GA gates (ship before GA):** **None remaining — #1–#7 shipped 2026-05-25.**
-**Additional V1 actionable (post-GA or parallel):** **#14–#25** (12 items).
+**Additional V1 actionable (post-GA or parallel):** **#15–#25** (11 items).
 **Total:** **25** actionable improvements in this assessment.
 
 ### 1. Wire Agent-Output Eval Corpus Baseline Regression — **SHIPPED 2026-05-25**
@@ -620,23 +620,11 @@ Acceptance Criteria: New integration tests pass; runbook note in OBSERVABILITY.m
 - **Affected qualities:** Reliability, Cost considerations.
 - **Shipped:** `agent-traces` container + **`azurerm_storage_management_policy`** in **`infra/terraform-storage`**, **`production.tfvars.example`** (30/365) and **`staging.tfvars.example`** (7/90), runbook updates (`DATA_ARCHIVAL_HEALTH.md`, `BACKUP_RESTORE_DRILL.md`).
 
-### 14. Operator UI for Integration Outbox Dead-Letter Management (actionable now — post-GA)
+### 14. Operator UI for Integration Outbox Dead-Letter Management — **shipped 2026-05-25**
 - **Why it matters:** Dead-letter retry CLI (archived #5) and Grafana dashboard (archived #19) exist, but operators still need direct DB access for bulk DLQ triage under sustained webhook failure.
-- **Expected impact:** Supportability (+1 pt), Reliability (+1 pt). Weighted readiness impact: **+0.02%** when shipped. **Do not rescored until shipped.**
+- **Expected impact:** Supportability (+1 pt), Reliability (+1 pt). Weighted readiness impact: **+0.02%** when shipped.
 - **Affected qualities:** Supportability, Reliability.
-- **Actionable now:** Yes — post-GA; builds on **archived #5** / **archived #19**.
-```cursor
-Add operator UI for integration event outbox dead-letter management (Improvement #14).
-
-1. Extend operator shell (or admin API + thin UI) to list dead-lettered integration events with tenant, event type, last error, age.
-2. Actions: retry single, retry batch (respect idempotency), acknowledge/suppress with audit trail.
-3. Reuse existing CLI retry logic — do not duplicate business rules.
-4. Prometheus: ensure archlucid_integration_outbox_dead_letter_total visible on existing dashboard (archived #19).
-
-Constraints: Admin-only; RLS-aware; audit every retry action.
-
-Acceptance Criteria: Operator can clear DLQ without SQL; tests for retry path; runbook updated.
-```
+- **Shipped:** **`/operate/integration-events/dlq`** — tenant + age columns, single retry, bulk retry (`POST …/integrations/outbox/retry-dead-letter`), suppress (`AcknowledgeDeadLetterAsync` + audit), single-retry audit parity; **`INTEGRATION_EVENTS_AND_WEBHOOKS.md`** ops section corrected.
 
 ### 15. Tune Azure OpenAI Circuit Breaker for Latency Brownouts (actionable now — post-GA)
 - **Why it matters:** During Azure OpenAI latency spikes, circuit breakers may trip too aggressively and fail entire authority runs instead of degrading gracefully.

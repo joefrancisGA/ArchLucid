@@ -712,6 +712,9 @@ public static class AuditEventTypes
     /// <summary>Admin or CLI re-queued one or more integration outbox dead-letter rows for publish retry.</summary>
     public const string IntegrationOutboxDeadLetterRetried = "Integration.OutboxDeadLetterRetried";
 
+    /// <summary>Admin suppressed an integration outbox dead-letter row without republishing.</summary>
+    public const string IntegrationOutboxDeadLetterSuppressed = "Integration.OutboxDeadLetterSuppressed";
+
     /// <summary>
     ///     Admin published the canonical first-value Markdown for a run as a new Confluence Cloud page (
     ///     <c>POST /v1/admin/integrations/confluence/first-value-report</c>). Payload: <c>runId</c>, <c>externalPageId</c>.

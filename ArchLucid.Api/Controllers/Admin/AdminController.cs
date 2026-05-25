@@ -386,6 +386,25 @@ public sealed class AdminController(
         return NoContent();
     }
 
+    /// <summary>Marks a dead-letter row processed without republishing (operator suppress).</summary>
+    [HttpPost("integration-outbox/dead-letters/{outboxId:guid}/suppress")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SuppressIntegrationOutboxDeadLetter(
+        Guid outboxId,
+        [FromBody] IntegrationOutboxDeadLetterSuppressRequest? body,
+        CancellationToken cancellationToken = default)
+    {
+        bool ok = await _diagnostics.SuppressIntegrationOutboxDeadLetterAsync(outboxId, body, cancellationToken);
+
+        if (!ok)
+            return this.NotFoundProblem(
+                $"Integration outbox dead-letter row '{outboxId:D}' was not found.",
+                ProblemTypes.ResourceNotFound);
+
+        return NoContent();
+    }
+
     /// <summary>Builds a cURL replay command for a dead-lettered integration outbox row.</summary>
     [HttpGet("integration-outbox/dead-letters/{outboxId:guid}/curl")]
     [ProducesResponseType(typeof(IntegrationEventDeadLetterCurlResponse), StatusCodes.Status200OK)]

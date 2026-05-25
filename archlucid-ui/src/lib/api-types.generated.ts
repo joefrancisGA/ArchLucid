@@ -29612,6 +29612,8 @@ export interface components {
             retryCount?: number;
             /** Format: uuid */
             runId?: null | string;
+            /** Format: uuid */
+            tenantId?: string;
         };
         IntegrationOutboxDeadLetterBulkRetryRequest: {
             eventType?: null | string;

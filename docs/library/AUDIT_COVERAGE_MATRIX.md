@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:231 -->
+<!-- audit-core-const-count:232 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -143,6 +143,9 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Orphan comparison-record remediation (execute) | `AdminDiagnosticsService` | `ComparisonRecordOrphansRemediated` | — | `{ dryRun: false, deletedCount, comparisonRecordIds[] }` — `POST .../admin/diagnostics/data-consistency/orphan-comparison-records?dryRun=false`; dry-run calls emit no audit row. |
 | Orphan golden-manifest remediation (execute) | `AdminDiagnosticsService` | `GoldenManifestOrphansRemediated` | — | `{ dryRun: false, deletedCount, manifestIds[] }` — `POST .../orphan-golden-manifests?dryRun=false`; deletes `ArtifactBundles` first. |
 | Orphan findings-snapshot remediation (execute) | `AdminDiagnosticsService` | `FindingsSnapshotOrphansRemediated` | — | `{ dryRun: false, deletedCount, findingsSnapshotIds[] }` — `POST .../orphan-findings-snapshots?dryRun=false`. |
+| Integration outbox dead-letter retry (single) | `AdminDiagnosticsService` | `IntegrationOutboxDeadLetterRetried` | — | `{ outboxId, single: true }` — `POST .../admin/integration-outbox/dead-letters/{outboxId}/retry`. |
+| Integration outbox dead-letter retry (bulk) | `AdminDiagnosticsService` | `IntegrationOutboxDeadLetterRetried` | — | `{ tenantId?, eventType?, retriedCount, outboxIds[] }` — `POST .../admin/integrations/outbox/retry-dead-letter` when `retriedCount > 0`. |
+| Integration outbox dead-letter suppress | `AdminDiagnosticsService` | `IntegrationOutboxDeadLetterSuppressed` | — | `{ outboxId, comment? }` — `POST .../admin/integration-outbox/dead-letters/{outboxId}/suppress`. |
 | Self-service trial bootstrap (demo seed path) | `TrialTenantBootstrapService` | `TrialProvisioned` | Tenant when parseable | trial window / demo metadata (after tenant + workspace provisioning) |
 | Trial signup channel opened (`POST /v1/register`, trial local register) | `RegistrationController`, `TrialLocalIdentityAuthController` | `TrialSignupAttempted` | Empty GUID scope before tenant exists | `{ channel }` / local identity context |
 | Public registration API failed (`POST /v1/register` — validation, duplicate org, or internal) | `RegistrationController` | `TrialRegistrationFailed` | Empty tenant scope (or after attempt) | `{ reason, code, message? }` — `reason` is `validation` / `conflict` / `internal` |
@@ -466,7 +469,8 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `IntegrationServiceNowIncidentCreateSucceeded` | `Integration.ServiceNowIncidentCreateSucceeded` | same |
 | `IntegrationServiceNowIncidentCreateFailed` | `Integration.ServiceNowIncidentCreateFailed` | same |
 | `IntegrationServiceNowIncidentCreateSkipped` | `Integration.ServiceNowIncidentCreateSkipped` | same |
-| `IntegrationOutboxDeadLetterRetried` | `Integration.OutboxDeadLetterRetried` | `AdminDiagnosticsService` (bulk retry via `AdminIntegrationsController` `POST …/admin/integrations/outbox/retry-dead-letter`; audit when `retriedCount > 0`) |
+| `IntegrationOutboxDeadLetterRetried` | `Integration.OutboxDeadLetterRetried` | `AdminDiagnosticsService` (single `POST …/admin/integration-outbox/dead-letters/{outboxId}/retry`; bulk `POST …/admin/integrations/outbox/retry-dead-letter` when `retriedCount > 0`) |
+| `IntegrationOutboxDeadLetterSuppressed` | `Integration.OutboxDeadLetterSuppressed` | `AdminDiagnosticsService` (`POST …/admin/integration-outbox/dead-letters/{outboxId}/suppress`) |
 | `IntegrationConfluenceFirstValueReportPublished` | `Integration.ConfluenceFirstValueReportPublished` | `ConfluencePublishingAdminController` (`POST …/admin/integrations/confluence/first-value-report`) |
 | `PilotScorecardValueMetricsSubmitted` | `PilotScorecardValueMetricsSubmitted` | `PilotsController` |
 

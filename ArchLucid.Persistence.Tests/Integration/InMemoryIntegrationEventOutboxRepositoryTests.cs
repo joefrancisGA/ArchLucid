@@ -171,6 +171,7 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
 
         letters.Should().ContainSingle();
         letters[0].OutboxId.Should().Be(id);
+        letters[0].TenantId.Should().Be(tenant);
         letters[0].LastErrorMessage.Should().Be("boom");
 
         bool reset = await sut.ResetDeadLetterForRetryAsync(id, CancellationToken.None);
@@ -180,6 +181,36 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
         (await sut.DequeuePendingAsync(10, CancellationToken.None)).Should().ContainSingle(x => x.OutboxId == id);
 
         bool missing = await sut.ResetDeadLetterForRetryAsync(Guid.NewGuid(), CancellationToken.None);
+        missing.Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public async Task AcknowledgeDeadLetterAsync_removes_row_without_requeue()
+    {
+        InMemoryIntegrationEventOutboxRepository sut = new();
+        Guid tenant = Guid.NewGuid();
+        Guid workspace = Guid.NewGuid();
+        Guid project = Guid.NewGuid();
+
+        await sut.EnqueueAsync(null, "suppress-me", null, new byte[] { 1 }, tenant, workspace, project, CancellationToken.None);
+        IReadOnlyList<IntegrationEventOutboxEntry> batch = await sut.DequeuePendingAsync(10, CancellationToken.None);
+        Guid id = batch[0].OutboxId;
+
+        await sut.RecordPublishFailureAsync(
+            id,
+            5,
+            null,
+            TimeProvider.System.UtcNowDateTime(),
+            "give up",
+            CancellationToken.None);
+
+        bool suppressed = await sut.AcknowledgeDeadLetterAsync(id, CancellationToken.None);
+        suppressed.Should().BeTrue();
+
+        (await sut.CountIntegrationOutboxDeadLetterAsync(CancellationToken.None)).Should().Be(0);
+        (await sut.DequeuePendingAsync(10, CancellationToken.None)).Should().BeEmpty();
+
+        bool missing = await sut.AcknowledgeDeadLetterAsync(Guid.NewGuid(), CancellationToken.None);
         missing.Should().BeFalse();
     }
 

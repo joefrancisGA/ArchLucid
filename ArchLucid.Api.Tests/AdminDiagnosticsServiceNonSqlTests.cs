@@ -616,6 +616,50 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         integration.Verify(
             i => i.ResetDeadLetterForRetryAsync(outboxId, It.IsAny<CancellationToken>()),
             Times.Once);
+        audit.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.IntegrationOutboxDeadLetterRetried),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task SuppressIntegrationOutboxDeadLetterAsync_logs_audit_when_row_suppressed()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(
+            factory,
+            SqlOptions(),
+            audit,
+            actor,
+            out _,
+            out _,
+            out Mock<IIntegrationEventOutboxRepository> integration,
+            out _,
+            out _);
+
+        Guid outboxId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        _ = integration.Setup(i => i.AcknowledgeDeadLetterAsync(outboxId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        bool ok = await sut.SuppressIntegrationOutboxDeadLetterAsync(
+            outboxId,
+            new IntegrationOutboxDeadLetterSuppressRequest { Comment = "known bad payload" },
+            CancellationToken.None);
+
+        Assert.True(ok);
+        integration.Verify(
+            i => i.AcknowledgeDeadLetterAsync(outboxId, It.IsAny<CancellationToken>()),
+            Times.Once);
+        audit.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.IntegrationOutboxDeadLetterSuppressed),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]

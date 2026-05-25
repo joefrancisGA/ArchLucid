@@ -9,6 +9,7 @@ POST /v1/admin/diagnostics/data-consistency/orphan-comparison-records
 POST /v1/admin/diagnostics/data-consistency/orphan-findings-snapshots
 POST /v1/admin/diagnostics/data-consistency/orphan-golden-manifests
 POST /v1/admin/integration-outbox/dead-letters/{outboxId}/retry
+POST /v1/admin/integration-outbox/dead-letters/{outboxId}/suppress
 POST /v1/admin/llm-cost-tuning
 POST /v1/admin/runs/archive-batch
 POST /v1/admin/runs/archive-by-ids

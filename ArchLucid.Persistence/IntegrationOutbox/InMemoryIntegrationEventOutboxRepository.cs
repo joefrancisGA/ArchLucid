@@ -187,6 +187,7 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
                     {
                         OutboxId = e.OutboxId,
                         RunId = e.RunId,
+                        TenantId = e.TenantId,
                         EventType = e.EventType,
                         DeadLetteredUtc = e.DeadLetteredUtc!.Value,
                         RetryCount = e.RetryCount,
@@ -228,6 +229,23 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
                 DeadLetteredUtc = null,
                 LastErrorMessage = null
             };
+
+            return Task.FromResult(true);
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<bool> AcknowledgeDeadLetterAsync(Guid outboxId, CancellationToken ct)
+    {
+        lock (_gate)
+        {
+            int idx = _rows.FindIndex(e => e.OutboxId == outboxId && e.DeadLetteredUtc is not null);
+
+            if (idx < 0)
+                return Task.FromResult(false);
+
+
+            _rows.RemoveAt(idx);
 
             return Task.FromResult(true);
         }

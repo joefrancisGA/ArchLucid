@@ -99,10 +99,54 @@ public sealed class AdminDiagnosticsService(
     }
 
     /// <inheritdoc />
-    public Task<bool> RetryIntegrationOutboxDeadLetterAsync(Guid outboxId,
+    public async Task<bool> RetryIntegrationOutboxDeadLetterAsync(
+        Guid outboxId,
         CancellationToken cancellationToken = default)
     {
-        return _integrationEventOutbox.ResetDeadLetterForRetryAsync(outboxId, cancellationToken);
+        bool ok = await _integrationEventOutbox
+            .ResetDeadLetterForRetryAsync(outboxId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (ok)
+        {
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.IntegrationOutboxDeadLetterRetried,
+                    DataJson = JsonSerializer.Serialize(new { outboxId, single = true })
+                },
+                cancellationToken).ConfigureAwait(false);
+        }
+
+        return ok;
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> SuppressIntegrationOutboxDeadLetterAsync(
+        Guid outboxId,
+        IntegrationOutboxDeadLetterSuppressRequest? request,
+        CancellationToken cancellationToken = default)
+    {
+        bool ok = await _integrationEventOutbox
+            .AcknowledgeDeadLetterAsync(outboxId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (ok)
+        {
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.IntegrationOutboxDeadLetterSuppressed,
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        outboxId,
+                        comment = request?.Comment
+                    })
+                },
+                cancellationToken).ConfigureAwait(false);
+        }
+
+        return ok;
     }
 
     /// <inheritdoc />

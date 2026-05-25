@@ -13,6 +13,11 @@ public sealed class IntegrationEventOutboxDeadLetterRow
         get; init;
     }
 
+    public Guid TenantId
+    {
+        get; init;
+    }
+
     public required string EventType
     {
         get; init;

@@ -27,6 +27,12 @@ public interface IAdminDiagnosticsService
     /// <summary>Re-queues a dead-letter row for another publish attempt cycle.</summary>
     Task<bool> RetryIntegrationOutboxDeadLetterAsync(Guid outboxId, CancellationToken cancellationToken = default);
 
+    /// <summary>Marks a dead-letter row processed without republishing (operator suppress).</summary>
+    Task<bool> SuppressIntegrationOutboxDeadLetterAsync(
+        Guid outboxId,
+        IntegrationOutboxDeadLetterSuppressRequest? request,
+        CancellationToken cancellationToken = default);
+
     /// <summary>Re-queues dead-letter rows matching optional tenant and event-type filters.</summary>
     Task<IntegrationOutboxDeadLetterBulkRetryResponse> RetryIntegrationOutboxDeadLettersAsync(
         IntegrationOutboxDeadLetterBulkRetryRequest request,

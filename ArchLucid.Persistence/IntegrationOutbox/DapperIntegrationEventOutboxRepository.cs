@@ -265,7 +265,7 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
 
         const string sql = """
             SELECT TOP (@Take)
-                OutboxId, RunId, EventType, DeadLetteredUtc, RetryCount, LastErrorMessage
+                OutboxId, RunId, TenantId, EventType, DeadLetteredUtc, RetryCount, LastErrorMessage
             FROM dbo.IntegrationEventOutbox
             WHERE DeadLetteredUtc IS NOT NULL
               AND ProcessedUtc IS NULL
@@ -293,6 +293,7 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
                 {
                     OutboxId = row.OutboxId,
                     RunId = row.RunId,
+                    TenantId = row.TenantId,
                     EventType = row.EventType,
                     DeadLetteredUtc = row.DeadLetteredUtc,
                     RetryCount = row.RetryCount,
@@ -314,6 +315,27 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
                 LastErrorMessage = NULL
             WHERE OutboxId = @OutboxId
               AND DeadLetteredUtc IS NOT NULL;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+
+        int rows = await connection.ExecuteAsync(new CommandDefinition(sql, new
+        {
+            OutboxId = outboxId
+        }, cancellationToken: ct));
+
+        return rows > 0;
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> AcknowledgeDeadLetterAsync(Guid outboxId, CancellationToken ct)
+    {
+        const string sql = """
+            UPDATE dbo.IntegrationEventOutbox
+            SET ProcessedUtc = SYSUTCDATETIME()
+            WHERE OutboxId = @OutboxId
+              AND DeadLetteredUtc IS NOT NULL
+              AND ProcessedUtc IS NULL;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -509,6 +531,11 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
         }
 
         public Guid? RunId
+        {
+            get; init;
+        }
+
+        public Guid TenantId
         {
             get; init;
         }
