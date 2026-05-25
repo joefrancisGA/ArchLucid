@@ -32,6 +32,8 @@ public static class ApiV1Routes
 
     public const string TenantCostEstimate = "v1/tenant/cost-estimate";
 
+    public const string TenantUsageStatus = "v1/tenant/usage-status";
+
     public const string TenantMeasuredRoi = "v1/tenant/measured-roi";
 
     /// <summary>Workspaces + architecture projects for scope switcher (<c>GET /v1/tenant/workspaces</c>).</summary>

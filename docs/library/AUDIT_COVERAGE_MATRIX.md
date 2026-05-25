@@ -150,6 +150,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Trial first golden manifest committed (signup → first-run funnel) | `SqlTrialFunnelCommitHook` | `TrialFirstRunCompleted` | Tenant + default workspace/project | `{ signupToCommitSeconds, trialRunUsageRatio }` |
 | Trial upgrade nudge shown (operator shell) | `ClientErrorTelemetryController` (`POST /v1/diagnostics/trial-upgrade-nudge/shown`) | `TrialUpgradeNudgeShown` | Tenant + workspace/project from ambient scope | `{ trigger }` — `seats` / `expiry` / `usage` |
 | Trial upgrade nudge CTA clicked | `ClientErrorTelemetryController` (`POST /v1/diagnostics/trial-upgrade-nudge/clicked`) | `TrialUpgradeNudgeClicked` | Tenant + workspace/project from ambient scope | `{ trigger }` |
+| Team expansion nudge shown (paid Team operator shell) | `ClientErrorTelemetryController` (`POST /v1/diagnostics/team-expansion-nudge/shown`) | `TeamExpansionNudgeShown` | Tenant + workspace/project from ambient scope | `{ trigger }` — `seats` / `workspaces` |
+| Team expansion nudge CTA clicked | `ClientErrorTelemetryController` (`POST /v1/diagnostics/team-expansion-nudge/clicked`) | `TeamExpansionNudgeClicked` | Tenant + workspace/project from ambient scope | `{ trigger }` |
 | Synthetic operator demo-pack markers (dev/demo UI validation) | `SyntheticOperatorDemoPackWriter` (`SyntheticOperatorDemoPackController`) | `SyntheticOperatorDemoPack.Marker` | Tenant/Workspace/Project from ambient scope | `POST /v1/diagnostics/synthetic-operator-demo-pack` (Development host or `Demo:Enabled`, Admin policy); filter durable audit by this event type or `DataJson.syntheticDemoPack=true`. |
 | Authority committed manifest FK chain (demo trusted-baseline seed) | `DemoSeedService` | `AuthorityCommittedChainPersisted` | RunId, ManifestId | `{ source: "demo-seed", projectSlug, richFindingsAndGraph, contextSnapshotId, graphSnapshotId, findingsSnapshotId, decisionTraceId, manifestId }` |
 | Authority committed manifest FK chain (replay commit) | `ReplayRunService` | `AuthorityCommittedChainPersisted` | RunId, ManifestId | `{ source: "replay-commit", projectSlug, richFindingsAndGraph: true, … }` — emitted only after `CommitAsync` succeeds. |
@@ -428,6 +430,8 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `LlmContextTruncated` | `LlmContextTruncated` | `ContextLengthGuardAgentCompletionClient` (fire-and-forget; prompt truncated when estimated tokens exceed threshold) |
 | `TrialUpgradeNudgeShown` | `TrialUpgradeNudgeShown` | `ClientErrorTelemetryController` (`POST /v1/diagnostics/trial-upgrade-nudge/shown`) |
 | `TrialUpgradeNudgeClicked` | `TrialUpgradeNudgeClicked` | `ClientErrorTelemetryController` (`POST /v1/diagnostics/trial-upgrade-nudge/clicked`) |
+| `TeamExpansionNudgeShown` | `TeamExpansionNudgeShown` | `ClientErrorTelemetryController` (`POST /v1/diagnostics/team-expansion-nudge/shown`) |
+| `TeamExpansionNudgeClicked` | `TeamExpansionNudgeClicked` | `ClientErrorTelemetryController` (`POST /v1/diagnostics/team-expansion-nudge/clicked`) |
 | `LlmTenantDailyBudgetApproaching` | `LlmTenantDailyBudgetApproaching` | `LlmDailyTenantBudgetTracker` (fire-and-forget; one row per tenant per UTC day) |
 | `LlmTenantMonthlyDollarBudgetApproaching` | `LlmTenantMonthlyDollarBudgetApproaching` | `LlmMonthlyTenantDollarBudgetTracker` (fire-and-forget; one row per tenant per UTC month) |
 | `LlmCostTuningUpdated` | `LlmCostTuningUpdated` | `AdminLlmCostTuningController` (persisted USD-per-token rates for cost estimation) |

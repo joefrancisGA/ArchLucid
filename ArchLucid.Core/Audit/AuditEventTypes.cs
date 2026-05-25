@@ -521,6 +521,12 @@ public static class AuditEventTypes
     /// <summary>Operator clicked the usage-based trial upgrade nudge CTA (payload includes <c>trigger</c>).</summary>
     public const string TrialUpgradeNudgeClicked = "TrialUpgradeNudgeClicked";
 
+    /// <summary>Operator shell showed the paid Team expansion nudge (payload includes <c>trigger</c>).</summary>
+    public const string TeamExpansionNudgeShown = "TeamExpansionNudgeShown";
+
+    /// <summary>Operator clicked the paid Team expansion nudge CTA (payload includes <c>trigger</c>).</summary>
+    public const string TeamExpansionNudgeClicked = "TeamExpansionNudgeClicked";
+
     /// <summary>First golden manifest commit recorded for a self-service trial tenant (funnel depth).</summary>
     public const string TrialFirstRunCompleted = "TrialFirstRunCompleted";
 

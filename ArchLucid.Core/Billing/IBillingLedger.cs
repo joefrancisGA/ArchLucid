@@ -64,4 +64,7 @@ public interface IBillingLedger
     Task<IReadOnlyList<BillingSubscriptionStateHistoryEntry>> GetSubscriptionStateHistoryAsync(Guid tenantId,
         int maxRows,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Returns the tenant billing row when present (any status); null when no subscription exists.</summary>
+    Task<BillingSubscriptionSnapshot?> TryGetSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken);
 }

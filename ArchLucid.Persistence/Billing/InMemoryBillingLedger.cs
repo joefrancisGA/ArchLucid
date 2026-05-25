@@ -195,6 +195,20 @@ public sealed class InMemoryBillingLedger : IBillingLedger
         }
     }
 
+    public Task<BillingSubscriptionSnapshot?> TryGetSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
+            return Task.FromResult<BillingSubscriptionSnapshot?>(null);
+
+        return Task.FromResult<BillingSubscriptionSnapshot?>(
+            new BillingSubscriptionSnapshot(
+                row.Provider,
+                row.Tier,
+                row.Seats,
+                row.Workspaces,
+                row.Status));
+    }
+
     private void RecordStateChange(string changeKind, BillingSubRow? previous, BillingSubRow next)
     {
         lock (_historyGate)

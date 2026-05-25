@@ -1412,6 +1412,16 @@
       "nav_operator_href": "/settings/tenant"
     },
     {
+      "controller_file": "Tenancy/TenantUsageStatusController.cs",
+      "class_name": "TenantUsageStatusController",
+      "route_template": "v{version:apiVersion}/tenant",
+      "normalized_prefix": "/v1/tenant",
+      "commercial_tier": "none",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Tenancy/TenantWeeklyDigestHealthController.cs",
       "class_name": "TenantWeeklyDigestHealthController",
       "route_template": "v{version:apiVersion}/tenant/operate/weekly-digest-health",

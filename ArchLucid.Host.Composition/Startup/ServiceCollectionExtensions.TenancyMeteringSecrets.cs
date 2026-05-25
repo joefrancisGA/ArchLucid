@@ -50,6 +50,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ITrialTenantBootstrapService, TrialTenantBootstrapService>();
         services.AddScoped<TrialLimitGate>();
         services.AddScoped<TrialSeatAccountant>();
+        services.AddScoped<ITenantUsageStatusService, TenantUsageStatusService>();
         services.AddScoped<TrialLifecycleTransitionEngine>();
 
         services.AddSingleton<ISecretProvider>(sp =>

@@ -119,6 +119,34 @@ public sealed class TrialFunnelInstrumentationTests
     }
 
     [Fact]
+    public void TeamExpansionNudgeShownTotal_add_emits_measurement()
+    {
+        _ = ArchLucidInstrumentation.TeamExpansionNudgeShownTotal;
+
+        using TrialFunnelCapture c = TrialFunnelCapture.Start();
+
+        ArchLucidInstrumentation.RecordTeamExpansionNudgeShown("workspaces");
+
+        c.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid_team_expansion_nudge_shown_total"
+            && m.Value == 1
+            && m.Tags.Any(t => t.Key == "trigger" && (string?)t.Value == "workspaces"));
+    }
+
+    [Fact]
+    public void TeamExpansionNudgeClickedTotal_add_emits_measurement()
+    {
+        _ = ArchLucidInstrumentation.TeamExpansionNudgeClickedTotal;
+
+        using TrialFunnelCapture c = TrialFunnelCapture.Start();
+
+        ArchLucidInstrumentation.RecordTeamExpansionNudgeClicked("seats");
+
+        c.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid_team_expansion_nudge_clicked_total" && m.Value == 1);
+    }
+
+    [Fact]
     public void SponsorBannerFirstCommitBadgeRenderedTotal_add_emits_measurement()
     {
         _ = ArchLucidInstrumentation.SponsorBannerFirstCommitBadgeRenderedTotal;

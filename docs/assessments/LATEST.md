@@ -1,23 +1,23 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 93.13%
+# ArchLucid Assessment – (A) Headline Readiness: 93.23%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items such as SOC 2 CPA attestation, third-party pen tests, MCP, the commerce un-hold, multi-cloud (AWS/GCP) analysis, multi-region active/active, automated tenant erasure, Graph-RAG / agentic retrieval, hosted Tier 2 continuous polling, **non-SCIM bulk-CSV user onboarding (V2)**, **self-hosted Enterprise commercial deals (V2)**, and related sub-milestones (capacity guide, private-endpoint reference architecture).*
 
 **Score ledger:** Incremental history through legacy **archived #1–#57** and owner rescoring (**87.74% → 92.63%**) lives in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md).
 
-**Rescore 2026-05-25 (post Improvements #1–#4):** Headline **93.13%** (+0.32% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**). Open **V1 GA gates #5–#7** remain in pillar scores. **Post-GA ceiling when #5–#7 ship:** **+0.23%** → **93.36%**. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
+**Rescore 2026-05-25 (post Improvements #1–#5):** Headline **93.23%** (+0.42% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**). Open **V1 GA gates #6–#7** remain in pillar scores. **Post-GA ceiling when #6–#7 ship:** **+0.13%** → **93.36%**. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**
-ArchLucid is well past the pilot-credible bar for V1 GA at **93.13%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#4 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge). **Owner 2026-05-25:** V1 GA is contingent on Improvements **#5–#7** — expansion CTA, quote SLA visibility, and custom pack GTM publication. **No `(A)` items remain outside this gate set.**
+ArchLucid is well past the pilot-credible bar for V1 GA at **93.23%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#5 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA). **Owner 2026-05-25:** V1 GA is contingent on Improvements **#6–#7** — quote SLA visibility and custom pack GTM publication. **No `(A)` items remain outside this gate set.**
 
 **`(B)` Procurement / Market-Motion Realism (Informational — zero weight on `(A)`)**
 Enterprise procurement teams will still ask for CPA-issued SOC 2 Type II, an external pen-test summary, automated GDPR erasure, multi-region active/active, AWS/GCP target analysis, and **self-hosted / on-premises deployment**. Every one of these items is **explicitly out of `(A)` scope** per `V1_DEFERRED.md` §6c, §6l, §6m, §6n, **§6t**, and the scope rule. The right posture is honest trust-center narrative — **V1 GA is hosted SaaS**; self-hosted Enterprise is **V2** — not score deductions.
 
 **The Commercial Picture**
-Pricing is locked and defensible (`PRICING_PHILOSOPHY.md` §5). The trial funnel is deeply instrumented with audit + Prometheus + Grafana. **Owner 2026-05-25:** V1 GA commercial gates include expansion CTA (**#5**), quote SLA visibility (**#6**), and **custom policy pack authoring GTM publication** (**#7**). Executive ROI summary endpoint with cross-run deduplication is **shipped for V1 GA** per §2.8 / §6o. Stripe live keys + Marketplace `Published` are deliberately held to V1.1 (§6b) — a sales-led motion is the V1 contract, not a defect.
+Pricing is locked and defensible (`PRICING_PHILOSOPHY.md` §5). The trial funnel is deeply instrumented with audit + Prometheus + Grafana. **Owner 2026-05-25:** V1 GA commercial gates include quote SLA visibility (**#6**) and **custom policy pack authoring GTM publication** (**#7**). **Improvement #5 shipped 2026-05-25** — paid Team expansion CTA with usage-status API and separate telemetry. Executive ROI summary endpoint with cross-run deduplication is **shipped for V1 GA** per §2.8 / §6o. Stripe live keys + Marketplace `Published` are deliberately held to V1.1 (§6b) — a sales-led motion is the V1 contract, not a defect.
 
 **The Enterprise Picture**
 **V1 GA Enterprise is ArchLucid-hosted SaaS** — SCIM, SAML SP, OIDC, RLS, governance, and policy packs on the operated platform. V1 SAML posture: **metadata CLI (archived #4), startup validation (archived #18), and operator docs** — no interactive claim-mapping wizard (explicitly **out of V1 scope**, owner 2026-05-25). **Self-hosted Enterprise deals** (customer-operated deployments, private-endpoint reference architecture, consolidated capacity guide, deployment playbook) are **V2** per [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md) — `(B)` procurement realism only, zero `(A)` penalty. Container / Terraform assets remain for engineering and evaluation, not as a V1 contracted buyer path.
@@ -50,22 +50,22 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Status:** **#3 shipped 2026-05-25.** **#1–#2 shipped 2026-05-25.**
 
 ### 3. Adoption Friction
-- **Score:** 92
+- **Score:** 94
 - **Weight:** 6
-- **Weighted Deficiency:** 48
-- **Justification:** Entra ID, generic OIDC, native SAML SP, SCIM, API-key automation, and `archlucid doctor` all land in V1 GA on **ArchLucid-hosted SaaS**. Tier 1 Azure Extractor is the V1 path by design. Hosted Tier 2 continuous polling is **V1.x per §6p** and not penalized. **Non-SCIM bulk-CSV** is **V2** per [`V1_DEFERRED.md` §6r](../library/V1_DEFERRED.md). **Self-hosted Enterprise deals** are **V2** per [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md). SAML metadata CLI (archived #4) and SAML SP startup validation (archived #18, 2026-05-24) are the **V1 SAML contract**; an interactive claim-mapping wizard is **explicitly out of V1 scope** (owner 2026-05-25) and must not appear as an `(A)` defect. **No guided sandbox** (owner 2026-05-25). **Owner 2026-05-25:** Team→Professional expansion CTA (#5) and custom policy pack authoring **public GTM publication** (#7) ship before GA.
+- **Weighted Deficiency:** 36
+- **Justification:** Entra ID, generic OIDC, native SAML SP, SCIM, API-key automation, and `archlucid doctor` all land in V1 GA on **ArchLucid-hosted SaaS**. Tier 1 Azure Extractor is the V1 path by design. Hosted Tier 2 continuous polling is **V1.x per §6p** and not penalized. **Non-SCIM bulk-CSV** is **V2** per [`V1_DEFERRED.md` §6r](../library/V1_DEFERRED.md). **Self-hosted Enterprise deals** are **V2** per [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md). SAML metadata CLI (archived #4) and SAML SP startup validation (archived #18, 2026-05-24) are the **V1 SAML contract**; an interactive claim-mapping wizard is **explicitly out of V1 scope** (owner 2026-05-25) and must not appear as an `(A)` defect. **No guided sandbox** (owner 2026-05-25). **Improvement #5 shipped 2026-05-25** — paid Team→Professional expansion CTA (`GET /v1/tenant/usage-status`, `TeamExpansionNudge`, separate Prometheus/audit telemetry). **Owner 2026-05-25:** custom policy pack authoring **public GTM publication** (#7) ships before GA.
 - **Tradeoffs:** In-product upgrade nudges feel pushy if not carefully tuned; pace them against documented seat/workspace thresholds (mirror archived #14 dismissal cadence). Publishing PS SKUs on the public pricing page increases procurement scrutiny — ensure figures stay in canonical pricing docs only.
-- **Recommendations:** Ship Improvements **#5** and **#7** before GA; document SAML claim-mapping in hosted Enterprise onboarding checklist (archived #17).
-- **Status:** V1 GA gated on **#5** and **#7** (owner 2026-05-25).
+- **Recommendations:** Ship Improvement **#7** before GA; document SAML claim-mapping in hosted Enterprise onboarding checklist (archived #17).
+- **Status:** V1 GA gated on **#7** (owner 2026-05-25). **#5 shipped 2026-05-25.**
 
 ### 4. Time-to-Value
-- **Score:** 90
+- **Score:** 91
 - **Weight:** 7
-- **Weighted Deficiency:** 70
-- **Justification:** Trial funnel is automated end-to-end with audit + Prometheus instrumentation; Tier 1 extractor ZIP is the customer-friendly default; Core Pilot four-step happy path is published; ROI surfaces (per-run and executive cross-run) are live; sample-seeded trial tenant works. **No separate guided sandbox** — owner decision 2026-05-25; not a `(A)` gap. Usage-based **trial** upgrade nudge shipped (archived #14, 2026-05-24). **Owner 2026-05-25:** **paid Team→Professional expansion CTA** (#5) and **quote-request SLA visibility** (#6) ship before GA. AWS/GCP target analysis is **V1.1 per §6n** and not penalized.
+- **Weighted Deficiency:** 63
+- **Justification:** Trial funnel is automated end-to-end with audit + Prometheus instrumentation; Tier 1 extractor ZIP is the customer-friendly default; Core Pilot four-step happy path is published; ROI surfaces (per-run and executive cross-run) are live; sample-seeded trial tenant works. **No separate guided sandbox** — owner decision 2026-05-25; not a `(A)` gap. Usage-based **trial** upgrade nudge shipped (archived #14, 2026-05-24). **Improvement #5 shipped 2026-05-25** — paid Team→Professional expansion CTA. **Owner 2026-05-25:** **quote-request SLA visibility** (#6) ships before GA. AWS/GCP target analysis is **V1.1 per §6n** and not penalized.
 - **Tradeoffs:** In-product upgrade nudges feel pushy if not carefully tuned; pace them against documented seat/workspace thresholds. Quote SLA dashboards surface sales ops gaps — that is intentional hygiene, not a product defect.
-- **Recommendations:** Ship Improvements **#5** and **#6** before GA.
-- **Status:** V1 GA gated on **#5** and **#6** (owner 2026-05-25).
+- **Recommendations:** Ship Improvement **#6** before GA.
+- **Status:** V1 GA gated on **#6** (owner 2026-05-25). **#5 shipped 2026-05-25.**
 
 ### 5. Proof-of-ROI Readiness
 - **Score:** 94
@@ -112,7 +112,7 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Recommendations:** Enable per-tenant RAG tags only for bounded tenant counts.
 - **Status:** **#4 shipped 2026-05-25.** **#2 shipped 2026-05-25.**
 
-**Headline check:** `(90×8 + 96×8 + 92×6 + 90×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.13%** (documented +0.32% from shipped **#1–#4**). Total weighted deficiency **295** (informational; headline uses scores, not deficiency sum).
+**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.23%** (documented +0.42% from shipped **#1–#5**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
 
 ---
 
@@ -124,9 +124,9 @@ All V1.1 / V2 items removed per `Assessment-Scope-V1_1.mdc`. Items **1–7** are
 2. **Eval corpus baseline regression — SHIPPED 2026-05-25 (Improvement #1):** Per-scenario baseline JSON, `--baseline`, and warn-only CI soak (flip merge-blocking after 10-run exit criterion).
 3. **USD savings Prometheus gauge — SHIPPED 2026-05-25 (Improvement #4):** `archlucid_tenant_estimated_savings_usd` platform aggregate + Grafana Business Value primary panel.
 4. **Custom policy pack authoring GTM — V1 GA gate (Improvement #7):** SKU matrix, SoW, and order-form template exist in repo (archived #6); owner 2026-05-25 requires **public pricing page publication + sales kit cross-links** before GA (option A).
-5. **Team→Professional expansion CTA not shipped — V1 GA gate (Improvement #5):** Paid Team tenants nearing seat or workspace caps need an in-app prompt to request a quote or expand (owner 2026-05-25, option A); trial nudge (archived #14) covers trials only.
+5. **Team→Professional expansion CTA — SHIPPED 2026-05-25 (Improvement #5):** `GET /v1/tenant/usage-status`, `TeamExpansionNudge`, and separate Prometheus/audit telemetry for paid Team tenants at ≥80% seat or workspace usage.
 6. **Pricing quote-request SLA visibility — V1 GA gate (Improvement #6):** Backend aging view, metrics, and alert ship (archived #11); owner 2026-05-25 requires **operator aging dashboard + Grafana panel + prod alert verification** before GA (option A).
-7. **Quality-gate reject telemetry — V1 GA gate (Improvement #2):** Fail-fast on reject is the V1 contract; `reject_reason` / `execution_mode` labels must ship before GA (owner 2026-05-25, option A).
+7. **Quality-gate reject telemetry — SHIPPED 2026-05-25 (Improvement #2):** Fail-fast on reject is the V1 contract; `reject_reason` / `execution_mode` labels shipped on `archlucid_agent_output_quality_gate_total`.
 8. **Cost agent lacks Azure Retail row citation — post-GA (Improvement #8):** Cost findings can quote USD without deterministic Retail lookup (RAG-V1-003); weakens faithfulness and §2.16 citation contract until structured lookup ships.
 9. **Tier-1 extractor ZIP upload errors opaque — post-GA (Improvement #18):** Ingestion failures surface generic errors in UI; prospects and trials cannot self-remediate without support — measurable adoption friction after GA.
 10. **Executive ROI reflects Retail pricing only — post-GA (Improvement #23):** No EA discount multiplier; finance reviewers at Enterprise accounts discount savings claims that ignore contracted rates.
@@ -138,7 +138,7 @@ All V1.1 / V2 items removed per `Assessment-Scope-V1_1.mdc`. Items **1–7** are
 V1.1-deferred commercial items (Stripe live-key flip, Marketplace publication, signed design partner, named reference customer, AWS/GCP analysis pricing) are removed per scope rule. The list below is V1-realistic friction that can be addressed inside the current contract.
 
 1. **Trial→paid upgrade nudge:** Shipped (archived #14, 2026-05-24).
-2. **Team→Professional expansion CTA — V1 GA gate (Improvement #5):** In-product banner/modal for paid Team tenants approaching seat/workspace caps (owner 2026-05-25, option A).
+2. **Team→Professional expansion CTA:** Shipped (Improvement **#5**, 2026-05-25).
 3. **Pricing quote-request SLA visibility — V1 GA gate (Improvement #6):** Committed 24h acknowledgement SLA is documented (archived #11 runbook); operator aging dashboard + Grafana + alert verification still required before GA (owner 2026-05-25, option A).
 4. **Custom policy pack authoring GTM — V1 GA gate (Improvement #7):** Publish Starter / Standard / Program PS SKUs on public pricing surface with SoW + order-form cross-links (owner 2026-05-25, option A).
 5. **Executive ROI Retail-only pricing — post-GA (Improvement #23):** Finance stakeholders at EA accounts treat undiscounted Retail savings as non-credible until configurable multiplier ships.
@@ -151,7 +151,7 @@ CPA SOC 2 Type II, third-party pen-test publication, automated GDPR tenant erasu
 
 1. **Tier 2 Azure Extractor service-principal provisioning is customer-side manual:** The Tier 1 path is excellent; the Tier 2 opt-in still requires customers to author and review a service-principal setup script, which security reviewers will scrutinize line-by-line (**#17**, post-GA).
 2. **Custom policy pack authoring GTM — V1 GA gate (Improvement #7):** Public pricing page + sales kit must surface PS SKUs before GA (owner 2026-05-25); repo docs (archived #6) alone are insufficient.
-3. **Team→Professional expansion CTA — V1 GA gate (Improvement #5):** Paid Team tenants approaching tier ceilings need an in-app expansion prompt (owner 2026-05-25); CSM motion remains for Enterprise, not Team expansion.
+3. **Team→Professional expansion CTA:** Shipped (Improvement **#5**, 2026-05-25).
 4. **SAML claim-mapping relies on docs, not in-product guidance — post-GA (Improvement #25):** Wizard is out of V1 scope (owner 2026-05-25); hosted Enterprise onboarding checklist (archived #17) still needs explicit IdP attribute → role mapping tables for top IdPs.
 5. **Tier-1 extractor ZIP upload errors opaque — post-GA (Improvement #18):** Enterprise pilots hitting ingestion validation failures depend on support unless UI surfaces structured remediation.
 
@@ -177,7 +177,7 @@ Open mitigations only — active Improvements **#1–#25**. Legacy shipped work 
 
 ## Most Important Truth
 
-ArchLucid is ready to ship V1 GA **after Improvements #5–#7 land**. **Improvements #1–#4 shipped 2026-05-25**. The honest **V1 GA gate set** is **#5–#7** (expansion CTA, quote SLA visibility, custom pack GTM). **Headline is 93.13%** until the full gate set ships; **post-GA ceiling 93.36%** when **#5–#7** land (+0.23% documented combined). Post-GA **#8–#25** do not move headline.
+ArchLucid is ready to ship V1 GA **after Improvements #6–#7 land**. **Improvements #1–#5 shipped 2026-05-25**. The honest **V1 GA gate set** is **#6–#7** (quote SLA visibility, custom pack GTM). **Headline is 93.23%** until the full gate set ships; **post-GA ceiling 93.36%** when **#6–#7** land (+0.13% documented combined). Post-GA **#8–#25** do not move headline.
 
 ---
 
@@ -185,7 +185,7 @@ ArchLucid is ready to ship V1 GA **after Improvements #5–#7 land**. **Improvem
 
 Shipped improvements (**archived #1–#57**, 2026-05-24 – 2026-05-25) are documented in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md). **Active tasks in this file: #1–#25** (renumbered 2026-05-25; do not confuse with legacy archive IDs).
 
-**V1 GA gates (ship before GA):** **#5–#7** (3 items). **#1–#4 shipped 2026-05-25.**
+**V1 GA gates (ship before GA):** **#6–#7** (2 items). **#1–#5 shipped 2026-05-25.**
 **Additional V1 actionable (post-GA or parallel):** **#8–#25** (18 items).
 **Total:** **25** actionable improvements in this assessment.
 
@@ -374,11 +374,11 @@ Acceptance Criteria:
 - docs/library/OBSERVABILITY.md updated; cardinality gating documented.
 ```
 
-### 5. Implement Team→Professional In-Product Expansion CTA (actionable now — **V1 GA gate**)
+### 5. Implement Team→Professional In-Product Expansion CTA — **SHIPPED 2026-05-25**
 - **Why it matters:** Improvement **archived #14** covers **trial** tenants only. Paid **Team** tenants approaching seat or workspace caps still depend entirely on CSM outreach — a measurable expansion-revenue leak. Owner 2026-05-25: ship an in-product expansion CTA before V1 GA (option A). Sales-led quote motion remains the V1 contract (no Stripe live-key flip per §6b).
-- **Expected impact:** Directly improves Adoption Friction (+2 pts when shipped) and Time-to-Value (+1 pt). Weighted readiness impact: **+0.10%** when shipped. **Do not rescored until shipped.**
+- **Expected impact:** Directly improves Adoption Friction (+2 pts when shipped) and Time-to-Value (+1 pt). Weighted readiness impact: **+0.10%** when shipped.
 - **Affected qualities:** Adoption Friction, Time-to-Value, Proof-of-ROI Readiness (expansion funnel).
-- **Actionable now:** Yes — **V1 GA gate**.
+- **Actionable now:** ~~Yes — **V1 GA gate**.~~ **Shipped 2026-05-25.**
 - **Owner decision (2026-05-25):** Ship usage-threshold banner/modal in operator shell for **paid Team** tenants → quote or upgrade flow; not CSM-only, not V1.1 deferral.
 - **Backlog refs:** Improvement **archived #14** (`TrialUsageUpgradeNudge`, telemetry endpoints, dismissal cadence).
 ```cursor
