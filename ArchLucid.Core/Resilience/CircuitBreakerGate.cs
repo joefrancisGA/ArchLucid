@@ -28,6 +28,10 @@ public sealed class CircuitBreakerGate
 
     private int _consecutiveFailures;
 
+    private int _halfOpenSuccessCount;
+
+    private string? _lastOpenReason;
+
     private DateTimeOffset? _lastStateChangeUtc;
 
     private DateTimeOffset _openUntilUtc;
@@ -169,6 +173,30 @@ public sealed class CircuitBreakerGate
         }
     }
 
+    /// <summary>Effective half-open success streak required before closing.</summary>
+    public int CurrentHalfOpenSuccessThreshold
+    {
+        get
+        {
+            lock (_sync)
+
+                return ResolveOptions().HalfOpenSuccessThreshold;
+        }
+    }
+
+    /// <summary>
+    ///     Why the circuit last opened (<c>consecutive_failures</c> or <c>half_open_probe_failed</c>); null when closed.
+    /// </summary>
+    public string? LastOpenReason
+    {
+        get
+        {
+            lock (_sync)
+
+                return _lastOpenReason;
+        }
+    }
+
     /// <summary>
     ///     UTC time of the last <c>Closed</c>↔<c>Open</c>↔<c>HalfOpen</c> transition; <see langword="null" /> until the
     ///     first transition.
@@ -235,17 +263,34 @@ public sealed class CircuitBreakerGate
     {
         lock (_sync)
         {
-            bool wasHalfOpenProbe = _state == State.HalfOpen && _probeInFlight;
-
-            if (wasHalfOpenProbe)
+            if (_state == State.HalfOpen && _probeInFlight)
             {
                 EmitProbeOutcome("success");
-                EmitStateTransition("HalfOpen", "Closed");
+                _halfOpenSuccessCount++;
+                CircuitBreakerOptions opts = ResolveOptions();
+
+                if (_halfOpenSuccessCount >= opts.HalfOpenSuccessThreshold)
+                {
+                    EmitStateTransition("HalfOpen", "Closed");
+                    _consecutiveFailures = 0;
+                    _state = State.Closed;
+                    _probeInFlight = false;
+                    _halfOpenSuccessCount = 0;
+                    _lastOpenReason = null;
+
+                    return;
+                }
+
+                _probeInFlight = false;
+
+                return;
             }
 
             _consecutiveFailures = 0;
             _state = State.Closed;
             _probeInFlight = false;
+            _halfOpenSuccessCount = 0;
+            _lastOpenReason = null;
         }
     }
 
@@ -264,6 +309,8 @@ public sealed class CircuitBreakerGate
                 _openUntilUtc = _timeProvider.GetUtcNow().AddSeconds(opts.DurationOfBreakSeconds);
                 _probeInFlight = false;
                 _consecutiveFailures = opts.FailureThreshold;
+                _halfOpenSuccessCount = 0;
+                _lastOpenReason = "half_open_probe_failed";
 
                 return;
             }
@@ -276,6 +323,7 @@ public sealed class CircuitBreakerGate
             EmitStateTransition("Closed", "Open");
             _state = State.Open;
             _openUntilUtc = _timeProvider.GetUtcNow().AddSeconds(opts.DurationOfBreakSeconds);
+            _lastOpenReason = "consecutive_failures";
         }
     }
 
@@ -294,6 +342,8 @@ public sealed class CircuitBreakerGate
             _probeInFlight = false;
             _state = State.Open;
             _openUntilUtc = _timeProvider.GetUtcNow();
+            _halfOpenSuccessCount = 0;
+            _lastOpenReason = "half_open_probe_failed";
         }
     }
 

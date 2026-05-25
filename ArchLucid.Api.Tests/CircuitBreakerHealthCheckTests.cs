@@ -41,15 +41,23 @@ public sealed class CircuitBreakerHealthCheckTests
         {
             row.Should().ContainKeys(
                 "name",
+                "provider",
+                "role",
                 "state",
+                "openReason",
                 "consecutiveFailures",
                 "failureThreshold",
                 "breakDurationSeconds",
+                "halfOpenSuccessThreshold",
                 "lastStateChangeUtc");
             row["state"].Should().Be("Closed");
+            row["provider"].Should().Be("AzureOpenAI");
+            row["role"].Should().BeOneOf("completion", "embedding");
+            row["openReason"].Should().Be(string.Empty);
             row["consecutiveFailures"].Should().Be(0);
             row["failureThreshold"].Should().Be(5);
             row["breakDurationSeconds"].Should().Be(60);
+            row["halfOpenSuccessThreshold"].Should().Be(1);
             row["lastStateChangeUtc"].Should().Be("never");
         }
     }
@@ -81,6 +89,9 @@ public sealed class CircuitBreakerHealthCheckTests
             gateList.FirstOrDefault(r => (string)r["name"] == OpenAiCircuitBreakerKeys.Completion);
         completionRow.Should().NotBeNull();
         completionRow["state"].Should().Be("Open");
+        completionRow["provider"].Should().Be("AzureOpenAI");
+        completionRow["role"].Should().Be("completion");
+        completionRow["openReason"].Should().Be("consecutive_failures");
         completionRow["consecutiveFailures"].Should().Be(1);
         completionRow["failureThreshold"].Should().Be(1);
         completionRow["breakDurationSeconds"].Should().Be(60);

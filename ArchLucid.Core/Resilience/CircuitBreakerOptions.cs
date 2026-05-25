@@ -9,6 +9,8 @@ public sealed class CircuitBreakerOptions
 
     public const int DefaultDurationOfBreakSeconds = 30;
 
+    public const int DefaultHalfOpenSuccessThreshold = 1;
+
     /// <summary>Consecutive failures in the closed state before opening the circuit.</summary>
     public int FailureThreshold
     {
@@ -23,6 +25,15 @@ public sealed class CircuitBreakerOptions
         set;
     } = DefaultDurationOfBreakSeconds;
 
+    /// <summary>
+    ///     Successful half-open probes required before returning to closed (reduces flapping after latency brownouts).
+    /// </summary>
+    public int HalfOpenSuccessThreshold
+    {
+        get;
+        set;
+    } = DefaultHalfOpenSuccessThreshold;
+
     /// <summary>Clamps invalid configuration to safe defaults.</summary>
     public void ApplyDefaults()
     {
@@ -31,5 +42,8 @@ public sealed class CircuitBreakerOptions
 
         if (DurationOfBreakSeconds < 1)
             DurationOfBreakSeconds = DefaultDurationOfBreakSeconds;
+
+        if (HalfOpenSuccessThreshold < 1)
+            HalfOpenSuccessThreshold = DefaultHalfOpenSuccessThreshold;
     }
 }

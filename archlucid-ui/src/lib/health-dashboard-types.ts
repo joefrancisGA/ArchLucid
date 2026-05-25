@@ -41,10 +41,14 @@ export type VersionInfoResponse = {
 
 export type CircuitGateRow = {
   name: string;
+  provider?: string;
+  role?: string;
   state: string;
+  openReason?: string;
   breakDurationSeconds?: number;
   consecutiveFailures?: number;
   failureThreshold?: number;
+  halfOpenSuccessThreshold?: number;
   lastStateChangeUtc?: string;
 };
 
@@ -77,10 +81,15 @@ export function parseCircuitGatesFromHealthEntry(
       typeof row.breakDurationSeconds === "number" ? row.breakDurationSeconds : undefined;
     out.push({
       name,
+      provider: typeof row.provider === "string" ? row.provider : undefined,
+      role: typeof row.role === "string" ? row.role : undefined,
       state,
+      openReason: typeof row.openReason === "string" && row.openReason.length > 0 ? row.openReason : undefined,
       breakDurationSeconds,
       consecutiveFailures: typeof row.consecutiveFailures === "number" ? row.consecutiveFailures : undefined,
       failureThreshold: typeof row.failureThreshold === "number" ? row.failureThreshold : undefined,
+      halfOpenSuccessThreshold:
+        typeof row.halfOpenSuccessThreshold === "number" ? row.halfOpenSuccessThreshold : undefined,
       lastStateChangeUtc: typeof row.lastStateChangeUtc === "string" ? row.lastStateChangeUtc : undefined,
     });
   }

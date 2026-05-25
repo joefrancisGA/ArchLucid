@@ -29,10 +29,14 @@ public sealed class CircuitBreakerHealthCheck(IServiceProvider serviceProvider) 
                 .Select(gate => new Dictionary<string, object>
                 {
                     ["name"] = gate.GateName,
+                    ["provider"] = OpenAiCircuitBreakerHealthMetadata.Provider,
+                    ["role"] = OpenAiCircuitBreakerHealthMetadata.ResolveRole(gate.GateName),
                     ["state"] = gate.CurrentState,
+                    ["openReason"] = gate.LastOpenReason ?? string.Empty,
                     ["consecutiveFailures"] = gate.ConsecutiveFailureCount,
                     ["failureThreshold"] = gate.CurrentFailureThreshold,
                     ["breakDurationSeconds"] = gate.CurrentDurationOfBreakSeconds,
+                    ["halfOpenSuccessThreshold"] = gate.CurrentHalfOpenSuccessThreshold,
                     ["lastStateChangeUtc"] = gate.LastStateChangeUtc?.ToString("o") ?? "never",
                 }));
 

@@ -923,6 +923,15 @@ public static partial class ServiceCollectionExtensions
 
         }
 
+        if (string.IsNullOrEmpty(perGate["HalfOpenSuccessThreshold"]))
+        {
+            int? fromShared = shared.GetValue<int?>("HalfOpenSuccessThreshold");
+            if (fromShared.HasValue)
+
+                options.HalfOpenSuccessThreshold = fromShared.Value;
+
+        }
+
         options.ApplyDefaults();
     }
 

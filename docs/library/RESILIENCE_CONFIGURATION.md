@@ -15,8 +15,10 @@ Operators can tune retry and circuit-breaker behavior without recompiling. This 
 |--------|-------------|---------|-------------|
 | Completion failure threshold | `AzureOpenAI:CircuitBreaker:Completion:FailureThreshold` | `5` | ≥ 1 after binding (invalid values fall back) |
 | Completion open duration (seconds) | `AzureOpenAI:CircuitBreaker:Completion:DurationOfBreakSeconds` | `30` | ≥ 1 after binding |
+| Completion half-open success streak | `AzureOpenAI:CircuitBreaker:Completion:HalfOpenSuccessThreshold` | `1` | ≥ 1 after binding |
 | Embedding failure threshold | `AzureOpenAI:CircuitBreaker:Embedding:FailureThreshold` | `5` | ≥ 1 |
 | Embedding open duration (seconds) | `AzureOpenAI:CircuitBreaker:Embedding:DurationOfBreakSeconds` | `30` | ≥ 1 |
+| Embedding half-open success streak | `AzureOpenAI:CircuitBreaker:Embedding:HalfOpenSuccessThreshold` | `1` | ≥ 1 |
 
 **Fallback hierarchy**
 
@@ -26,7 +28,20 @@ Operators can tune retry and circuit-breaker behavior without recompiling. This 
 
 Deployed environments that only set the legacy flat `AzureOpenAI:CircuitBreaker` block continue to work for **both** gates.
 
-**Threshold changes are picked up automatically via `IOptionsMonitor<CircuitBreakerOptions>` — no restart required.** Production keyed gates read current named options when evaluating failures (`RecordFailure`); configuration reload updates **`FailureThreshold`** / **`DurationOfBreakSeconds`** for subsequent counts. Internal state (open/half-open, consecutive failures) is not reset by a reload. Tests may still construct **`CircuitBreakerGate`** with a frozen **`CircuitBreakerOptions`** instance.
+**Threshold changes are picked up automatically via `IOptionsMonitor<CircuitBreakerOptions>` — no restart required.** Production keyed gates read current named options when evaluating failures (`RecordFailure`) and half-open success streaks (`RecordSuccess`); configuration reload updates **`FailureThreshold`**, **`DurationOfBreakSeconds`**, and **`HalfOpenSuccessThreshold`** for subsequent counts. Internal state (open/half-open, consecutive failures) is not reset by a reload. Tests may still construct **`CircuitBreakerGate`** with a frozen **`CircuitBreakerOptions`** instance.
+
+### Hosted environment defaults (Improvement #15, 2026-05-25)
+
+Parallel agent handlers during Azure OpenAI latency brownouts can produce several consecutive timeout failures before any call succeeds. Hosted **Production** and **Staging** override the Advanced defaults:
+
+| Environment | Completion `FailureThreshold` | Completion `DurationOfBreakSeconds` | Completion `HalfOpenSuccessThreshold` | Rationale |
+|-------------|------------------------------|-------------------------------------|---------------------------------------|-----------|
+| Production (`appsettings.Production.json`) | `8` | `45` | `2` | Nominal hosted p95 completion latency ~18s; brownout bursts of 4–6 parallel handler timeouts should not open on the legacy threshold of `5`. Two successful half-open probes before closing reduces flapping. |
+| Staging (`appsettings.Staging.json`) | `6` | `30` | `2` | Faster feedback while preserving the two-probe close pattern. |
+
+Production also sets `AgentExecution:Resilience:LlmCallMaxRetryAttempts` to `4`, `LlmCallBaseDelayMilliseconds` to `750`, and `LlmCallMaxDelaySeconds` to `20` so transient latency spikes exhaust Polly backoff before the breaker records a failure.
+
+**Health introspection:** `GET /health/detailed` and `GET /health/diagnostics` include a `circuit_breakers` entry with per-gate `provider` (`AzureOpenAI`), `role` (`completion` / `embedding` / `completion_fallback`), `openReason` (`consecutive_failures` or `half_open_probe_failed` while open), and `halfOpenSuccessThreshold`.
 
 ### SQL connection open retries
 
@@ -100,14 +115,14 @@ Independent gates exist for **completion**, **embedding**, and (when LLM fallbac
 Closed --(N consecutive failures)--> Open --(after DurationOfBreakSeconds)--> HalfOpen (single probe)
    ^                                        |
    |                                        |
-   +--------(probe success)-----------------+
+   +--(M successful half-open probes)-------+  (HalfOpenSuccessThreshold, default 1)
    |
    +--------(probe failure or cancel)------> Open
 ```
 
 - **Closed**: normal traffic; successes do not emit state-transition metrics (avoids noise).
 - **Open**: calls are rejected until the break duration elapses; then one caller may enter **HalfOpen** as the probe.
-- **HalfOpen**: only one probe at a time; concurrent callers are rejected until the probe completes, fails, or is cancelled.
+- **HalfOpen**: only one probe at a time; concurrent callers are rejected until the probe completes. **`HalfOpenSuccessThreshold`** successful probes (default `1`) are required before returning to **Closed**; partial successes release the probe slot for the next caller.
 
 ## OpenTelemetry metrics
 
