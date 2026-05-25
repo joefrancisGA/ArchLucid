@@ -1292,11 +1292,11 @@ exists in exactly one SQL object; Terraform plan shows no destructive MI resourc
 the validation block rejects vCore counts < 4; all purge integration tests pass.
 ```
 
-### 38. Provision Azure SQL Database vCore General Purpose Serverless as the Target Database Tier
+### 38. Provision Azure SQL Database vCore General Purpose Serverless as the Target Database Tier (completed 2026-05-24)
 - **Why it matters:** Every T-SQL construct in the codebase — `SESSION_CONTEXT`, `SECURITY POLICY`, TVPs, stored procedures, `MERGE`, `OUTPUT INTO`, `APPLY` — is fully supported on Azure SQL Database. There are no features that require SQL Managed Instance (no SQL Agent, no CLR, no Service Broker, no linked servers). Azure SQL Database vCore General Purpose Serverless auto-pauses at a configurable idle threshold and bills only for active vCore-seconds, which aligns with the bursty agent-run workload: compute scales up during runs and releases between them. At launch scale, total monthly cost including a named read replica is ~$100–250/month. The DTU-based tiers (Standard, Premium) are not suitable: Standard lacks columnstore index support (blocking Improvement #36) and has no read replica path; Premium's cost is comparable to vCore with less scaling flexibility and a harder upgrade path to Hyperscale.
 - **Expected impact:** Directly optimises Cost. Enables all planned improvements (#26–#37): columnstore, read replica via named replica, Terraform-managed vCore scaling without data movement. Weighted readiness impact: not a readiness gate but the foundational infrastructure decision.
 - **Affected qualities:** Scalability, Reliability, Maintainability.
-- **Actionable now:** Yes — this is a first-time provisioning decision, not a migration.
+- **Actionable now:** No (completed).
 ```cursor
 Provision Azure SQL Database vCore General Purpose Serverless as the application database.
 
@@ -3276,8 +3276,9 @@ Run **34** (route metrics readers to `IReadOnlyDbConnectionFactory`) first, then
 Run **36** (non-clustered columnstore on analytics tables) and **37** (Terraform tempdb documentation + purge procedure consolidation) together. #36 is a pure DDL migration with no C# changes; #37 is split between Terraform and SQL. Both can land in the same PR. #28 (archive cascade TVP, from Batch 8) should be merged before #37 so the consolidated purge procedure can share the TVP type established there. #38 (Azure SQL DB provisioning, Batch 12) should be completed first so #37's Terraform block targets the correct resource type.
 **Shipped:** #36 migration `217_ColumnstoreAnalyticsIndexes`; #37 migration `218_PurgeCascadeCore` (`PurgeCascade_Core` + refactored purge procs) and `infra/modules/azure-sql-tenant-pool` `sku_capacity >= 4` validation with tempdb comment.
 
-**Batch 12 — Infrastructure: Azure SQL Database provisioning**
+**Batch 12 — Infrastructure: Azure SQL Database provisioning** — **completed 2026-05-24**
 Run **#38** as a standalone infrastructure PR. It has no dependencies on the SQL schema improvements (those apply cleanly to the freshly provisioned database via DbUp on first startup) but everything in Batches 8–11 assumes the database exists. Provision order: create `azurerm_mssql_server` + `azurerm_mssql_database` → confirm DbUp runs cleanly → provision named read replica → wire `ReadReplica` connection string. The Terraform change is isolated to the SQL infrastructure module; no application code PRs are required.
+**Shipped:** `infra/modules/azure-sql-serverless-app` (GP serverless primary + named replica + private endpoint + MI connection string outputs) and root stack `infra/terraform-sql-app`.
 
 **Batch 13 — SQL observability**
 Apply **#39** (OTel SQL client), **#40** (connection pool metrics), **#41** (health check latency), and **#42** (Intelligent Insights + Prometheus alerts) as a single observability PR. Run #39 and #40 together (both are pure DI wiring in `Program.cs` or `ServiceCollectionExtensions`, no schema changes); run #41 immediately after (touches only `SqlConnectionHealthCheck.cs`); run #42 last (pure Terraform, no application code changes — can be a separate infra PR if the team separates app and infra PRs). All four items are additive; none break existing tests. Sequencing constraint: #42 depends on the `azurerm_mssql_database.app` resource from Batch 12 existing so the diagnostic settings have a target resource. No dependency on Batches 8–11.
