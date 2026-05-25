@@ -1,12 +1,8 @@
-namespace ArchLucid.KnowledgeGraph.Configuration;
+namespace ArchLucid.Core.Configuration;
 
 /// <summary>Resolves <see cref="KnowledgeGraphProjectionCacheOptions.CacheProvider" /> <c>Auto</c> to an effective backend.</summary>
 public static class GraphProjectionCacheProviderResolver
 {
-    /// <summary>
-    ///     Returns <see cref="GraphProjectionCacheBackend.Distributed" /> when <c>Auto</c>, replica count &gt; 1, and Redis is
-    ///     configured; otherwise memory.
-    /// </summary>
     public static GraphProjectionCacheBackend ResolveEffectiveBackend(
         KnowledgeGraphProjectionCacheOptions options,
         int expectedApiReplicaCount,

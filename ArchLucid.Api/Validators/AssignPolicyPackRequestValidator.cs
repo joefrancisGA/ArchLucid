@@ -1,5 +1,5 @@
 using ArchLucid.Api.Controllers.Governance;
-using ArchLucid.Decisioning.Governance.Resolution;
+using ArchLucid.Contracts.Governance.Resolution;
 
 using FluentValidation;
 

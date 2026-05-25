@@ -1,4 +1,4 @@
-using ArchLucid.KnowledgeGraph.Configuration;
+using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;

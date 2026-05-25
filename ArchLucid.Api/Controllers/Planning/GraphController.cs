@@ -1,11 +1,12 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Persistence.Graph;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.KnowledgeGraph.Configuration;
-using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
@@ -25,7 +26,7 @@ namespace ArchLucid.Api.Controllers.Planning;
 /// </summary>
 /// <remarks>
 ///     Routes are prefixed <c>api/graph</c> and require the <see cref="ArchLucidPolicies.ReadAuthority" /> policy.
-///     The graph is projected from the <see cref="ArchLucid.KnowledgeGraph.Models.GraphSnapshot" /> stored in the
+///     The graph is projected from the persisted <see cref="GraphSnapshot" /> stored in the
 ///     canonical run detail and returned as a <see cref="GraphViewModel" /> with typed node and edge view models.
 /// </remarks>
 [ApiController]

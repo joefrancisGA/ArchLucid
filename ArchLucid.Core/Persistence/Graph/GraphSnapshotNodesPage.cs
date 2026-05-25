@@ -1,4 +1,6 @@
-namespace ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Contracts.Persistence.Graph;
+
+namespace ArchLucid.Core.Persistence.Graph;
 
 /// <summary>
 ///     One page of nodes from a <see cref="GraphSnapshot" /> plus edges whose endpoints both lie in that page.

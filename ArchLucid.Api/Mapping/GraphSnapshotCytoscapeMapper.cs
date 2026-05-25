@@ -1,5 +1,5 @@
 using ArchLucid.Api.Models.Graph;
-using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Contracts.Persistence.Graph;
 
 namespace ArchLucid.Api.Mapping;
 

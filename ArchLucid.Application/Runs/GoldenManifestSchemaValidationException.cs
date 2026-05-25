@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Validation;
+using ArchLucid.Contracts.Validation;
 
 namespace ArchLucid.Application.Runs;
 

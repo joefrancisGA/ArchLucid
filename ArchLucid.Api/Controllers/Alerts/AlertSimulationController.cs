@@ -6,9 +6,10 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Decisioning.Alerts;
-using ArchLucid.Decisioning.Alerts.Composite;
-using ArchLucid.Decisioning.Alerts.Simulation;
+using ArchLucid.Contracts.Alerts;
+using ArchLucid.Contracts.Alerts.Composite;
+using ArchLucid.Contracts.Alerts.Simulation;
+using ArchLucid.Core.Alerts.Simulation;
 
 using Asp.Versioning;
 

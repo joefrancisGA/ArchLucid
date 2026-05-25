@@ -76,6 +76,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<ILlmCostEstimator, LlmCostEstimator>();
         services.AddSingleton<IDeterministicExplanationService, DeterministicExplanationService>();
         services.AddScoped<IExplanationService, ExplanationService>();
+        services.AddScoped<IFindingExplainabilityComposer, FindingExplainabilityComposer>();
         RegisterRunExplanationSummaryService(services, configuration);
         services.AddScoped<IConversationService, ConversationService>();
         services.AddScoped<ArchLucid.Core.Llm.IAgentCompletionClient, JsonCompletionClientAdapter>();

@@ -5,8 +5,8 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Decisioning.Governance.PolicyPacks;
-using ArchLucid.Decisioning.Governance.Resolution;
+using ArchLucid.Contracts.Governance.Resolution;
+using ArchLucid.Core.Governance.Resolution;
 
 using Asp.Versioning;
 

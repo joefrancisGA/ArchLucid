@@ -8,9 +8,12 @@ internal static class ArchitectureConstraintMaintenanceHosts
 {
     /// <summary>
     /// Direct first-party assemblies referenced by <c>ArchLucid.Backfill.Cli</c> (compile-time metadata).
+    /// Includes Core/Contracts when the host wires port types (e.g. <c>IScopeContextProvider</c>) directly.
     /// </summary>
     internal static readonly string[] DirectFirstPartyAssembliesForBackfillCli =
     [
+        "ArchLucid.Contracts",
+        "ArchLucid.Core",
         "ArchLucid.KnowledgeGraph",
         "ArchLucid.Persistence",
     ];

@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Alerts.Tuning;
+using ArchLucid.Contracts.Alerts.Tuning;
 
 using FluentValidation;
 

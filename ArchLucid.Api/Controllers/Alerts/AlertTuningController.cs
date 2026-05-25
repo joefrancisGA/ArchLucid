@@ -6,7 +6,8 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Decisioning.Alerts.Tuning;
+using ArchLucid.Contracts.Alerts.Tuning;
+using ArchLucid.Core.Alerts.Tuning;
 
 using Asp.Versioning;
 

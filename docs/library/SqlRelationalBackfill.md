@@ -50,8 +50,8 @@ Use **`ArchLucid.Backfill.Cli --readiness`** to confirm per-slice relational cov
 
 **Allowed dependency surface** (enforced by `ArchLucid.Architecture.Tests`):
 
-- **Direct project references:** `ArchLucid.Persistence`, `ArchLucid.KnowledgeGraph`
-- **Transitive first-party assemblies:** `ArchLucid.Core`, `ArchLucid.Contracts`
+- **Direct project references (csproj):** `ArchLucid.Persistence`, `ArchLucid.KnowledgeGraph`
+- **Direct assembly references (compiled metadata):** `ArchLucid.Core`, `ArchLucid.Contracts`, `ArchLucid.KnowledgeGraph`, `ArchLucid.Persistence` (Core/Contracts appear when the host wires port types such as `IScopeContextProvider` without adding csproj entries)
 - **Forbidden:** `ArchLucid.Application`, `ArchLucid.Api`, `ArchLucid.Host.*`, `ArchLucid.Api.Client`, and other product layers
 
 **Tests:** `BackfillCli_first_party_assembly_references_must_match_allowlist`, `BackfillCli_csproj_must_only_declare_allowed_project_references`, `BackfillCli_must_not_depend_on_Application` in `DependencyConstraintTests.cs`.

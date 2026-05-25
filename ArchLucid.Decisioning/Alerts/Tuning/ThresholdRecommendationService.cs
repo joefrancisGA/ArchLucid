@@ -1,6 +1,8 @@
 // Type aliases avoid importing sibling namespace `...Alerts.Composite` (bare `Composite` → CS0118 here).
 using AlertRuleCondition = ArchLucid.Contracts.Alerts.Composite.AlertRuleCondition;
 using CompositeAlertRule = ArchLucid.Contracts.Alerts.Composite.CompositeAlertRule;
+using ArchLucid.Contracts.Alerts.Simulation;
+using ArchLucid.Contracts.Alerts.Tuning;
 using ArchLucid.Decisioning.Alerts.Simulation;
 
 namespace ArchLucid.Decisioning.Alerts.Tuning;
@@ -20,11 +22,11 @@ public sealed class ThresholdRecommendationService(
     private const string RuleKindComposite = RuleKindConstants.Composite;
 
     /// <inheritdoc />
-    public async Task<ThresholdRecommendationResult> RecommendAsync(
+    public async Task<ArchLucid.Contracts.Alerts.Tuning.ThresholdRecommendationResult> RecommendAsync(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
-        ThresholdRecommendationRequest request,
+        ArchLucid.Contracts.Alerts.Tuning.ThresholdRecommendationRequest request,
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(request);

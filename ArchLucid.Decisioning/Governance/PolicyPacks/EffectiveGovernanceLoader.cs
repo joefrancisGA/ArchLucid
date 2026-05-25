@@ -1,9 +1,10 @@
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Decisioning.Governance.Resolution;
 
 namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
-/// <summary>
-///     Default implementation of <see cref="IEffectiveGovernanceLoader" /> that forwards to
+/// <summary>///     Default implementation of <see cref="IEffectiveGovernanceLoader" /> that forwards to
 ///     <see cref="IEffectiveGovernanceResolver" />.
 /// </summary>
 /// <remarks>

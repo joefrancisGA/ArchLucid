@@ -7,8 +7,9 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Decisioning.Governance.PolicyPacks;
-using ArchLucid.Decisioning.Governance.Resolution;
+using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Core.Governance.PolicyPacks;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Host.Core.Services.Governance;
 

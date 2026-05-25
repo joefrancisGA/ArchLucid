@@ -16,7 +16,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Integrations.AzureExtractor;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Services.Governance;
-using ArchLucid.KnowledgeGraph.Configuration;
+using ArchLucid.Core.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 

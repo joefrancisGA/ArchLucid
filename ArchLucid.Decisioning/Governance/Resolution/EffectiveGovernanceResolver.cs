@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Text.Json;
 
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
@@ -41,7 +43,7 @@ public sealed class EffectiveGovernanceResolver(
     ///     <see cref="ResolveDictionary" />.
     ///     Appends human-readable counts to <see cref="EffectiveGovernanceResolutionResult.Notes" />.
     /// </remarks>
-    public async Task<EffectiveGovernanceResolutionResult> ResolveAsync(
+    public async Task<ArchLucid.Contracts.Governance.Resolution.EffectiveGovernanceResolutionResult> ResolveAsync(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,

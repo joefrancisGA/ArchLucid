@@ -841,7 +841,7 @@ public sealed class DependencyConstraintTests
         directFirstPartyReferences.Should().BeEquivalentTo(
             ArchitectureConstraintMaintenanceHosts.DirectFirstPartyAssembliesForBackfillCli,
             because:
-            "Backfill.Cli must reference Persistence + KnowledgeGraph directly only. " +
+            "Backfill.Cli may reference only Core, Contracts, KnowledgeGraph, and Persistence at assembly metadata. " +
             "See docs/library/SqlRelationalBackfill.md and docs/library/ARCHITECTURE_CONSTRAINTS.md.");
 
         string[] transitiveFirstPartyReferences = CollectTransitiveFirstPartyAssemblyReferences(backfillCli)

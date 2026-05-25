@@ -1,4 +1,4 @@
-namespace ArchLucid.KnowledgeGraph.Configuration;
+namespace ArchLucid.Core.Configuration;
 
 /// <summary>Operator-facing provider selection for graph projection cache (mirrors hot-path cache Auto semantics).</summary>
 public enum GraphProjectionCacheProvider

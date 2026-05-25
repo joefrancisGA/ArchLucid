@@ -1,6 +1,6 @@
 using ArchLucid.Application;
 using ArchLucid.Contracts.Governance;
-using ArchLucid.Decisioning.Validation;
+using ArchLucid.Contracts.Validation;
 
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
 
 namespace ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -23,7 +24,7 @@ public sealed class PolicyPackResolver(
     ///     Missing <see cref="PolicyPack" /> or <see cref="PolicyPackVersion" /> causes that assignment to be skipped
     ///     (orphan-safe).
     /// </remarks>
-    public async Task<EffectivePolicyPackSet> ResolveAsync(
+    public async Task<ArchLucid.Contracts.Governance.PolicyPacks.EffectivePolicyPackSet> ResolveAsync(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,

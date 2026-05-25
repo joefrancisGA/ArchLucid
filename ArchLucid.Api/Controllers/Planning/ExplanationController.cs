@@ -10,8 +10,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Decisioning.Findings;
-using ArchLucid.Decisioning.Models;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
@@ -42,6 +41,7 @@ public sealed class ExplanationController(
     IComparisonService comparison,
     IExplanationService explanation,
     IRunExplanationSummaryService runExplanationSummary,
+    IFindingExplainabilityComposer findingExplainabilityComposer,
     IFindingLlmAuditService findingLlmAudit,
     IProvenanceSnapshotRepository provenanceRepo,
     IScopeContextProvider scopeProvider,
@@ -151,34 +151,7 @@ public sealed class ExplanationController(
                 $"Finding '{findingId}' was not found on run '{runId}'.",
                 ProblemTypes.ResourceNotFound);
 
-        TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(match);
-        ExplainabilityTrace t = match.Trace;
-        FindingExplainabilityEvidence evidence =
-            FindingExplainabilityEvidenceMapper.ToModel(FindingExplainabilityNarrativeBuilder.BuildEvidence(match));
-
-        FindingExplainabilityResult body = new()
-        {
-            FindingId = match.FindingId,
-            Title = match.Title,
-            EngineType = match.EngineType,
-            Severity = match.Severity.ToString(),
-            TraceCompletenessRatio = score.CompletenessRatio,
-            MissingTraceFields = [..score.MissingTraceFields],
-            GraphNodeIdsExamined = t.GraphNodeIdsExamined,
-            RulesApplied = t.RulesApplied,
-            DecisionsTaken = t.DecisionsTaken,
-            AlternativePathsConsidered = t.AlternativePathsConsidered,
-            Notes = t.Notes,
-            Evidence = evidence,
-            NarrativeText = FindingExplainabilityNarrativeBuilder.Build(
-                match.FindingId,
-                match.Title,
-                match.EngineType,
-                t,
-                score.CompletenessRatio),
-            EvaluationConfidenceScore = match.EvaluationConfidenceScore,
-            ConfidenceLevel = match.ConfidenceLevel,
-        };
+        FindingExplainabilityResult body = findingExplainabilityComposer.Compose(match);
 
         return Ok(body);
     }

@@ -1,3 +1,4 @@
+using ArchLucid.Core.Persistence.Graph;
 using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;

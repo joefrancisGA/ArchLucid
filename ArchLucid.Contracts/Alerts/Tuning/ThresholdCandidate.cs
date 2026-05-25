@@ -1,4 +1,4 @@
-namespace ArchLucid.Decisioning.Alerts.Tuning;
+namespace ArchLucid.Contracts.Alerts.Tuning;
 
 /// <summary>
 ///     Identifies a single threshold value in a recommendation sweep (paired with simulation in
@@ -6,14 +6,12 @@ namespace ArchLucid.Decisioning.Alerts.Tuning;
 /// </summary>
 public class ThresholdCandidate
 {
-    /// <summary>Threshold applied to the tuned metric.</summary>
     public decimal ThresholdValue
     {
         get;
         set;
     }
 
-    /// <summary>Display label (optional; may mirror the numeric value).</summary>
     public string Label
     {
         get;
