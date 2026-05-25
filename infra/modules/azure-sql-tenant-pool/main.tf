@@ -80,6 +80,9 @@ data "azurerm_mssql_server" "this" {
 }
 
 resource "azurerm_mssql_elasticpool" "tenant" {
+  # Azure SQL elastic pool tempdb data file count scales with active pool vCores (platform-managed).
+  # Minimum safe sku_capacity for concurrent SampleRunPurge + Archival purge workers: 4.
+  # Do not reduce below 4 without serialising purge batch workers.
   name                = var.elastic_pool_name
   resource_group_name = var.resource_group_name
   location            = var.location
