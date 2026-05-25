@@ -1,7 +1,6 @@
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
@@ -38,6 +37,7 @@ public sealed class AgentOutputFaithfulnessEvaluatorTests
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<int?>(),
+                It.IsAny<float?>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -51,6 +51,7 @@ public sealed class AgentOutputFaithfulnessEvaluatorTests
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<int?>(),
+                It.IsAny<float?>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync("""{"faithfulnessScore":0.82,"rationale":"grounded"}""");
 
@@ -107,9 +108,8 @@ public sealed class AgentOutputFaithfulnessEvaluatorTests
             SystemName = "Acct",
             Environment = "Prod",
             CloudProvider = "Azure",
-            Request = new ArchitectureRequest
+            Request = new RequestEvidence
             {
-                SystemName = "Acct",
                 Description = "Use Blob storage for archives",
             },
             ServiceCatalog =
