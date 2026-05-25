@@ -84,6 +84,12 @@
 
 ---
 
+### 12. Can we **commission custom policy packs** beyond bundled defaults?
+
+**Answer:** **Yes — V1 professional services.** ArchLucid ships **productized Custom Policy Pack Authoring** SKUs (Starter / Standard / Program) with customer-exclusive or ArchLucid-owned IP tiers. Scope, delivery windows, and canonical USD list prices are in **[PRICING_PHILOSOPHY.md §4.2](PRICING_PHILOSOPHY.md#42-custom-policy-pack-authoring-professional-services)**; the public **`/pricing`** page surfaces the SKU matrix and links to the **[SoW template](CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md)** and **[Order Form Addendum C](ORDER_FORM_TEMPLATE.md#addendum-c--custom-policy-pack-authoring-professional-services)**. Submit a quote with tier interest **Custom policy pack (professional services)** or use **`/pricing?interest=custom-policy-pack#pricing-quote-request`**. Engagements are **owner-delivered only** for V1 — not a self-serve product feature.
+
+---
+
 ## Trust progression timeline (informal)
 
 | Window | Checkpoint |

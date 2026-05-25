@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  CUSTOM_POLICY_PACK_TIER_INTEREST_LABEL,
+} from "@/lib/marketing-custom-policy-pack-authoring";
 
 const MAX_MESSAGE_CHARS = 2000;
 
@@ -46,10 +49,17 @@ function buildQuoteMessageBody(
 }
 
 /** Anonymous quote request — POST `/v1/marketing/pricing/quote-request` via same-origin proxy. */
-export function MarketingPricingQuotePanel() {
+export type MarketingPricingQuotePanelProps = {
+  initialTierInterest?: string;
+  openOnMount?: boolean;
+};
+
+export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProps = {}) {
+  const initialTierInterest = props.initialTierInterest ?? "Professional";
+  const openOnMount = props.openOnMount ?? false;
   const [workEmail, setWorkEmail] = useState("");
   const [companyName, setCompanyName] = useState("");
-  const [tierInterest, setTierInterest] = useState("Professional");
+  const [tierInterest, setTierInterest] = useState(initialTierInterest);
   const [industry, setIndustry] = useState("");
   const [procurementTimeline, setProcurementTimeline] = useState("");
   const [deploymentPreference, setDeploymentPreference] = useState("");
@@ -67,10 +77,14 @@ export function MarketingPricingQuotePanel() {
       return;
     }
 
-    if (window.location.hash === "#pricing-quote-request") {
+    if (window.location.hash === "#pricing-quote-request" || openOnMount) {
       setPanelOpen(true);
     }
-  }, []);
+  }, [openOnMount]);
+
+  useEffect(() => {
+    setTierInterest(initialTierInterest);
+  }, [initialTierInterest]);
 
   async function onSubmit(e: React.FormEvent): Promise<void> {
     e.preventDefault();
@@ -193,6 +207,9 @@ export function MarketingPricingQuotePanel() {
                 <option>Team</option>
                 <option>Professional</option>
                 <option>Enterprise</option>
+                <option value={CUSTOM_POLICY_PACK_TIER_INTEREST_LABEL}>
+                  {CUSTOM_POLICY_PACK_TIER_INTEREST_LABEL}
+                </option>
               </select>
             </label>
           </div>

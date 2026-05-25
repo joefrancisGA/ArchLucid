@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { MarketingCustomPolicyPackAuthoringSection } from "@/components/marketing/MarketingCustomPolicyPackAuthoringSection";
 import { MarketingPricingPublicCutoverNotice } from "@/components/marketing/MarketingPricingPublicCutoverNotice";
 import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
@@ -7,6 +8,10 @@ import { TrialNudgePricingQuoteFocus } from "@/components/marketing/TrialNudgePr
 import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
 import { BUYER_PRICING_ARCHITECTURE_PROOF_ENGINE_CLAUSE } from "@/lib/buyer-polish-copy";
 import { buildPricingSignupHref } from "@/lib/marketing/pricing-signup-href";
+import {
+  CUSTOM_POLICY_PACK_QUOTE_INTEREST,
+  CUSTOM_POLICY_PACK_TIER_INTEREST_LABEL,
+} from "@/lib/marketing-custom-policy-pack-authoring";
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
 
 export const metadata: Metadata = {
@@ -25,9 +30,13 @@ export default async function PricingPage(props: PricingPageProps) {
   const searchParams = await props.searchParams;
   const signupHref = buildPricingSignupHref(searchParams);
   const sourceParam = searchParams.source;
+  const interestParam = searchParams.interest;
   const preferSalesLedQuoteCta =
     (typeof sourceParam === "string" && sourceParam === "trial-nudge") ||
     (Array.isArray(sourceParam) && sourceParam.includes("trial-nudge"));
+  const customPolicyPackQuoteInterest =
+    (typeof interestParam === "string" && interestParam === CUSTOM_POLICY_PACK_QUOTE_INTEREST) ||
+    (Array.isArray(interestParam) && interestParam.includes(CUSTOM_POLICY_PACK_QUOTE_INTEREST));
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
@@ -55,7 +64,13 @@ export default async function PricingPage(props: PricingPageProps) {
         </a>{" "}
         below.
       </p>
-      <MarketingPricingQuotePanel />
+      <MarketingCustomPolicyPackAuthoringSection quoteSectionDomId="pricing-quote-request" />
+      <MarketingPricingQuotePanel
+        initialTierInterest={
+          customPolicyPackQuoteInterest ? CUSTOM_POLICY_PACK_TIER_INTEREST_LABEL : undefined
+        }
+        openOnMount={customPolicyPackQuoteInterest}
+      />
     </main>
   );
 }

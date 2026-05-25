@@ -59,6 +59,17 @@ describe("PricingPage brand category", () => {
     expect(caveats.length).toBe(1);
   });
 
+  it("renders custom policy pack authoring GTM section before the quote form", async () => {
+    const element = await PricingPage({ searchParams: Promise.resolve({}) });
+    const { getByTestId } = render(element);
+
+    expect(getByTestId("custom-policy-pack-authoring-section")).toBeInTheDocument();
+    expect(getByTestId("custom-policy-pack-quote-cta")).toHaveAttribute(
+      "href",
+      "/pricing?interest=custom-policy-pack#pricing-quote-request",
+    );
+  });
+
   it("renders the tier pricing heading before the quote request section (plans before lead capture)", async () => {
     const element = await PricingPage({ searchParams: Promise.resolve({}) });
     const { container, getByTestId } = render(element);
