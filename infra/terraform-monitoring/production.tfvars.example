@@ -1,0 +1,31 @@
+﻿# Production monitoring: two-tier alert routing (Improvement #46).
+# Copy to terraform.tfvars (gitignored). Store phone numbers and PagerDuty webhook in Key Vault — not here.
+
+enable_monitoring_stack         = true
+enable_critical_action_group    = true
+read_alert_secrets_from_key_vault = true
+
+# resource_group_name = "rg-archlucid-prod"
+# name_prefix         = "archlucid"
+# alert_email_address = "ops@example.com"
+
+# Country codes are not highly sensitive; phone numbers and PagerDuty URL come from Key Vault.
+# alert_sms_country_code   = "1"
+# alert_voice_country_code = "1"
+
+# alert_secrets_key_vault_name                = "kv-archlucid-prod"
+# alert_secrets_key_vault_resource_group_name = "rg-archlucid-prod"
+
+# Optional: override default secret names (alert-sms-phone-number, alert-voice-phone-number, alert-pagerduty-webhook-uri)
+# alert_sms_phone_number_secret_name        = "alert-sms-phone-number"
+# alert_voice_phone_number_secret_name      = "alert-voice-phone-number"
+# alert_pagerduty_webhook_uri_secret_name   = "alert-pagerduty-webhook-uri"
+
+# Container App resource IDs + CPU threshold (see terraform.tfvars.example).
+# enable_prometheus_slo_rule_group = true
+# azure_monitor_workspace_id       = "/subscriptions/.../providers/Microsoft.Monitor/accounts/..."
+
+tags = {
+  workload = "archlucid"
+  tier     = "monitoring"
+}

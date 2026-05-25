@@ -49,3 +49,20 @@ check "prometheus_slo_requires_monitoring_stack" {
     error_message = "enable_prometheus_slo_rule_group = true requires enable_monitoring_stack (action group + shared ops wiring)."
   }
 }
+
+check "critical_action_group_requires_monitoring_stack" {
+  assert {
+    condition     = !var.enable_critical_action_group || var.enable_monitoring_stack
+    error_message = "enable_critical_action_group = true requires enable_monitoring_stack = true."
+  }
+}
+
+check "critical_action_group_key_vault_names" {
+  assert {
+    condition = !var.read_alert_secrets_from_key_vault || (
+      length(trimspace(var.alert_secrets_key_vault_name)) > 0 &&
+      length(trimspace(var.alert_secrets_key_vault_resource_group_name)) > 0
+    )
+    error_message = "read_alert_secrets_from_key_vault = true requires alert_secrets_key_vault_name and alert_secrets_key_vault_resource_group_name."
+  }
+}

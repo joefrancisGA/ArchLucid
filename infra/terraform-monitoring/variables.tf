@@ -136,3 +136,80 @@ variable "azure_monitor_workspace_id" {
   description = "Full resource ID of the Azure Monitor workspace used as Prometheus rule group scope (Microsoft.Monitor/accounts). Empty skips rule group."
   default     = ""
 }
+
+variable "enable_critical_action_group" {
+  type        = bool
+  description = "When true, create the P0-critical action group with SMS, voice, and PagerDuty receivers."
+  default     = false
+}
+
+variable "alert_sms_country_code" {
+  type        = string
+  description = "Country code for SMS alerts (digits only, no +, e.g. 1 for US/Canada)."
+  default     = ""
+  sensitive   = true
+}
+
+variable "alert_sms_phone_number" {
+  type        = string
+  description = "Phone number for SMS alerts (digits only, no dashes). Prefer Key Vault via read_alert_secrets_from_key_vault in production."
+  default     = ""
+  sensitive   = true
+}
+
+variable "alert_voice_country_code" {
+  type        = string
+  description = "Country code for voice call alerts (digits only, e.g. 1 for US/Canada). Same number as SMS is fine."
+  default     = ""
+  sensitive   = true
+}
+
+variable "alert_voice_phone_number" {
+  type        = string
+  description = "Phone number for voice call alerts (digits only, no dashes). Prefer Key Vault in production."
+  default     = ""
+  sensitive   = true
+}
+
+variable "alert_pagerduty_webhook_uri" {
+  type        = string
+  description = "PagerDuty Events API v2 URL: https://events.pagerduty.com/integration/{key}/enqueue. Prefer Key Vault in production."
+  default     = ""
+  sensitive   = true
+}
+
+variable "read_alert_secrets_from_key_vault" {
+  type        = bool
+  description = "When true with enable_critical_action_group, resolve SMS/voice/PagerDuty values from Key Vault secrets instead of tfvars."
+  default     = false
+}
+
+variable "alert_secrets_key_vault_name" {
+  type        = string
+  description = "Key Vault name holding alert-sms-phone-number, alert-voice-phone-number, and alert-pagerduty-webhook-uri secrets."
+  default     = ""
+}
+
+variable "alert_secrets_key_vault_resource_group_name" {
+  type        = string
+  description = "Resource group of the Key Vault when read_alert_secrets_from_key_vault is true."
+  default     = ""
+}
+
+variable "alert_sms_phone_number_secret_name" {
+  type        = string
+  description = "Key Vault secret name for SMS phone number (digits only)."
+  default     = "alert-sms-phone-number"
+}
+
+variable "alert_voice_phone_number_secret_name" {
+  type        = string
+  description = "Key Vault secret name for voice phone number (digits only)."
+  default     = "alert-voice-phone-number"
+}
+
+variable "alert_pagerduty_webhook_uri_secret_name" {
+  type        = string
+  description = "Key Vault secret name for PagerDuty Events API v2 enqueue URL."
+  default     = "alert-pagerduty-webhook-uri"
+}

@@ -115,3 +115,48 @@ resource "azurerm_dashboard_grafana" "archlucid" {
 
   tags = var.tags
 }
+
+# P0-critical action group: SMS + voice (Azure-native, instant) + PagerDuty (escalating, wakes you up).
+# Use this action group only for P0 alerts that threaten revenue or customer data (Improvement #46).
+resource "azurerm_monitor_action_group" "critical" {
+  count = local.critical_action_group_enabled ? 1 : 0
+
+  name                = "${var.name_prefix}-critical-ag"
+  resource_group_name = var.resource_group_name
+  short_name          = substr(replace("${var.name_prefix}p0", "-", ""), 0, 12)
+
+  email_receiver {
+    name                    = "primary"
+    email_address           = var.alert_email_address
+    use_common_alert_schema = true
+  }
+
+  dynamic "sms_receiver" {
+    for_each = length(trimspace(var.alert_sms_country_code)) > 0 && length(local.alert_sms_phone_number_effective) > 0 ? [1] : []
+    content {
+      name         = "sms-primary"
+      country_code = var.alert_sms_country_code
+      phone_number = local.alert_sms_phone_number_effective
+    }
+  }
+
+  dynamic "voice_receiver" {
+    for_each = length(trimspace(var.alert_voice_country_code)) > 0 && length(local.alert_voice_phone_number_effective) > 0 ? [1] : []
+    content {
+      name         = "voice-primary"
+      country_code = var.alert_voice_country_code
+      phone_number = local.alert_voice_phone_number_effective
+    }
+  }
+
+  dynamic "webhook_receiver" {
+    for_each = length(local.alert_pagerduty_webhook_uri_effective) > 0 ? [1] : []
+    content {
+      name                    = "pagerduty"
+      service_uri             = local.alert_pagerduty_webhook_uri_effective
+      use_common_alert_schema = true
+    }
+  }
+
+  tags = var.tags
+}

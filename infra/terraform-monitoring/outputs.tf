@@ -29,3 +29,13 @@ output "application_insights_instrumentation_key" {
   value       = try(azurerm_application_insights.archlucid[0].instrumentation_key, "")
   sensitive   = true
 }
+
+output "critical_action_group_id" {
+  description = "Azure Monitor P0-critical action group resource ID (empty when enable_critical_action_group is false)."
+  value       = try(azurerm_monitor_action_group.critical[0].id, null)
+}
+
+output "prometheus_p0_rule_group_id" {
+  description = "Azure Monitor Prometheus P0 rule group resource ID when critical + prometheus SLO rule group are enabled."
+  value       = try(azurerm_monitor_alert_prometheus_rule_group.archlucid_p0[0].id, null)
+}

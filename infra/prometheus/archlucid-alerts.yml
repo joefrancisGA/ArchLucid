@@ -1,4 +1,4 @@
-# Recording / alert rules for ArchLucid when scraping OTLP → Prometheus or app metrics.
+﻿# Recording / alert rules for ArchLucid when scraping OTLP â†’ Prometheus or app metrics.
 # Adjust metric names to match your Prometheus scrape (e.g. OTel SDK exporter naming).
 groups:
   - name: archlucid-authority
@@ -38,12 +38,14 @@ groups:
             `archlucid_authority_pipeline_work_oldest_pending_age_seconds` exceeds 1h. Indicates stuck
             processing or sustained overload.
 
+
       - alert: ArchLucidAuthorityPipelineWorkDeadLetters
         expr: |
           archlucid_authority_pipeline_work_dead_letter > 0
         for: 30m
         labels:
           severity: critical
+          tier: p0
         annotations:
           summary: Authority pipeline outbox rows exhausted retries
           description: >-
@@ -107,7 +109,7 @@ groups:
           summary: Integration outbox publish latency exceeding tight convergence target
           description: >-
             Oldest actionable integration outbox row over 60s for 5m. Tune in noisy environments;
-            see docs/API_SLOS.md § Outbox convergence. Severe backlog: ArchLucidIntegrationEventOutboxPublishStale (1h).
+            see docs/API_SLOS.md Â§ Outbox convergence. Severe backlog: ArchLucidIntegrationEventOutboxPublishStale (1h).
 
       - alert: ArchLucidIntegrationEventOutboxDeadLetter
         expr: |
@@ -146,7 +148,7 @@ groups:
         annotations:
           summary: Data consistency enforcement signaled orphan threshold
           description: >-
-            `archlucid_data_consistency_alerts_total` increased — `DataConsistency:Enforcement:Mode` is `Alert` or
+            `archlucid_data_consistency_alerts_total` increased â€” `DataConsistency:Enforcement:Mode` is `Alert` or
             `Quarantine` on this host and at least one table/column slice met `AlertThreshold`. See
             `docs/data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md`; operator checklist `docs/runbooks/DATA_CONSISTENCY_ENFORCEMENT.md`.
 
@@ -159,7 +161,7 @@ groups:
         annotations:
           summary: Data consistency quarantine inserts observed
           description: >-
-            `archlucid_data_consistency_orphans_quarantined_total` increased over 1h — rows were inserted into
+            `archlucid_data_consistency_orphans_quarantined_total` increased over 1h â€” rows were inserted into
             `dbo.DataConsistencyQuarantine` (golden-manifest orphan path). Intended to be rare; **30m `for`** avoids paging on
             one-off seeds. Tune per environment after reviewing steady-state baselines. Runbook:
             `docs/runbooks/DATA_CONSISTENCY_ENFORCEMENT.md`.
@@ -220,7 +222,8 @@ groups:
         expr: sum(rate(archlucid_trial_signup_failures_total[1m])) > (5.0 / 60.0)
         for: 10m
         labels:
-          severity: page
+          severity: critical
+          tier: p0
         annotations:
           summary: Trial signup failures sustained above 5/min
           description: >-
@@ -249,7 +252,8 @@ groups:
         expr: archlucid_circuit_breaker_state > 0
         for: 5m
         labels:
-          severity: warning
+          severity: critical
+          tier: p0
         annotations:
           summary: OpenAI circuit breaker not fully closed
           description: >-
@@ -270,7 +274,7 @@ groups:
         annotations:
           summary: Agent output quality gate is rejecting results
           description: >-
-            `archlucid_agent_output_quality_gate_total{outcome="rejected"}` rate is non-zero — requires reject floors
+            `archlucid_agent_output_quality_gate_total{outcome="rejected"}` rate is non-zero â€” requires reject floors
             enabled under `ArchLucid:AgentOutput:QualityGate`. Tune thresholds or prompts; see
             `docs/library/AGENT_OUTPUT_EVALUATION.md`.
 
@@ -302,7 +306,7 @@ groups:
         annotations:
           summary: Agent semantic score p50 is low (per agent_type)
           description: >-
-            Median heuristic/optional-judge semantic score below 0.45 — broader regression than p10 alone. Verify exporter
+            Median heuristic/optional-judge semantic score below 0.45 â€” broader regression than p10 alone. Verify exporter
             mapping if histogram is missing from Prometheus.
 
       - alert: ArchLucidAgentOutputParseFailures
@@ -314,7 +318,7 @@ groups:
         annotations:
           summary: Agent output JSON parse failures for metrics path
           description: >-
-            Non-zero rate on `archlucid_agent_output_parse_failures_total` — `ParsedResultJson` failed JSON parse or
+            Non-zero rate on `archlucid_agent_output_parse_failures_total` â€” `ParsedResultJson` failed JSON parse or
             non-object root when recording evaluation metrics. See `docs/library/AGENT_OUTPUT_EVALUATION.md`.
 
       - alert: ArchLucidAgentTraceBlobUploadFailures
@@ -326,7 +330,7 @@ groups:
         annotations:
           summary: Agent trace blob uploads exhausted retries
           description: >-
-            `archlucid_agent_trace_blob_upload_failures_total` — blob persistence for full prompts/responses failed after
+            `archlucid_agent_trace_blob_upload_failures_total` â€” blob persistence for full prompts/responses failed after
             retries. Check blob storage ACLs and `docs/library/AGENT_TRACE_FORENSICS.md`.
 
   - name: archlucid-marketing-pricing-quote-sla
@@ -401,3 +405,45 @@ groups:
           summary: Integration event outbox has dead-lettered items
           description: >-
             archlucid_integration_event_outbox_dead_letter_count is above zero. Triage integration outbox DLQ.
+
+  - name: archlucid-p0
+    rules:
+      - alert: ArchLucidApiUnavailable
+        expr: |
+          absent(up{job="archlucid-api"}) or sum(up{job="archlucid-api"}) == 0
+        for: 2m
+        labels:
+          severity: critical
+          tier: p0
+        annotations:
+          summary: "ArchLucid API is unreachable — no healthy instances"
+          description: >-
+            All API instances are down or the scrape target is missing. Customers cannot submit
+            requests. Check Container Apps health, recent deployments, and SQL connectivity.
+
+      - alert: ArchLucidSqlConnectionFailuresSustained
+        expr: |
+          archlucid_sql_connection_failures_total > 0
+        for: 3m
+        labels:
+          severity: critical
+          tier: p0
+        annotations:
+          summary: "SQL connection failures — database may be unreachable"
+          description: >-
+            archlucid_sql_connection_failures_total is non-zero for 3 minutes. Runs, governance
+            resolution, and outbox processing are all failing. Check database health and
+            failover group status. See docs/runbooks/DATABASE_FAILOVER.md.
+
+      - alert: ArchLucidHealthCheckUnhealthy
+        expr: |
+          archlucid_health_check_status{status="Unhealthy"} > 0
+        for: 2m
+        labels:
+          severity: critical
+          tier: p0
+        annotations:
+          summary: "ArchLucid /health/ready reporting Unhealthy"
+          description: >-
+            At least one health check is in Unhealthy state (not Degraded) for 2 minutes.
+            This means the readiness probe is failing and Container Apps may be restarting.

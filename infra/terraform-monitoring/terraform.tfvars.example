@@ -1,6 +1,6 @@
-# Copy to terraform.tfvars (gitignored). Defaults keep everything off for safe validate in CI.
+﻿# Copy to terraform.tfvars (gitignored). Defaults keep everything off for safe validate in CI.
 #
-# Log Analytics workspace daily_quota_gb is not defined here — it lives in terraform-container-apps
+# Log Analytics workspace daily_quota_gb is not defined here â€” it lives in terraform-container-apps
 # (variable log_analytics_daily_quota_gb). See production.tfvars.example in that stack.
 
 enable_monitoring_stack = false
@@ -13,7 +13,7 @@ enable_monitoring_stack = false
 # api_container_app_resource_id    = "/subscriptions/.../providers/Microsoft.App/containerApps/archlucid-api"
 # worker_container_app_resource_id = "/subscriptions/.../providers/Microsoft.App/containerApps/archlucid-worker"
 
-# ~0.5 vCPU sustained → 500000000 nano cores (tune per allocation).
+# ~0.5 vCPU sustained â†’ 500000000 nano cores (tune per allocation).
 # container_cpu_nanos_threshold = 500000000
 
 # Optional: Azure Monitor managed Prometheus rule group (PromQL mirrors ../prometheus/archlucid-slo-rules.yml).
@@ -30,7 +30,17 @@ enable_monitoring_stack = false
 # grafana_url  = "https://your-workspace.grafana.azure.net"
 # grafana_auth = "glsa_..."  # prefer TF_VAR_grafana_auth
 
+
+# P0-critical wake-up routing (Improvement #46): SMS + voice + PagerDuty on a separate action group.
+# enable_critical_action_group = true
+# read_alert_secrets_from_key_vault = true
+# alert_sms_country_code   = "1"
+# alert_voice_country_code = "1"
+# alert_secrets_key_vault_name                = "kv-archlucid-prod"
+# alert_secrets_key_vault_resource_group_name = "rg-archlucid-prod"
+# See production.tfvars.example — never commit phone numbers or PagerDuty URLs.
 tags = {
   workload = "archlucid"
   tier     = "monitoring"
 }
+
