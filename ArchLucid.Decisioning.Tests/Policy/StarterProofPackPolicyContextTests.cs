@@ -1,7 +1,8 @@
 using System.Text.Json;
 
+using ArchLucid.Contracts.Compliance;
 using ArchLucid.Decisioning.Compliance.Loaders;
-using ArchLucid.Decisioning.Compliance.Models;
+using DecisioningComplianceRulePack = ArchLucid.Decisioning.Compliance.Models.ComplianceRulePack;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 using FluentAssertions;
@@ -80,7 +81,7 @@ public sealed class StarterProofPackPolicyContextTests
         File.Exists(policyPackPath).Should().BeTrue($"missing {policyPackPath}");
 
         FileComplianceRulePackLoader loader = new(compliancePath);
-        ComplianceRulePack sourcePack = await loader.LoadAsync(CancellationToken.None);
+        DecisioningComplianceRulePack sourcePack = await loader.LoadAsync(CancellationToken.None);
 
         sourcePack.Rules.Should().NotBeEmpty();
 
@@ -91,7 +92,9 @@ public sealed class StarterProofPackPolicyContextTests
 
         effective.Should().NotBeNull();
 
-        ComplianceRulePack filtered = ComplianceRulePackGovernanceFilter.Filter(sourcePack, effective);
+        ComplianceRulePack filtered = ComplianceRulePackGovernanceFilter.Filter(
+            (ComplianceRulePack)sourcePack,
+            effective!);
 
         filtered.Rules.Should().NotBeEmpty(
             "starter policy-context vertical must match policy-pack.json rule keys after governance filter");

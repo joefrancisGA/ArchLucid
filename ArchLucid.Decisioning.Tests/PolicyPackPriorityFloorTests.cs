@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Compliance.Models;
+using ArchLucid.Contracts.Compliance;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 using FluentAssertions;

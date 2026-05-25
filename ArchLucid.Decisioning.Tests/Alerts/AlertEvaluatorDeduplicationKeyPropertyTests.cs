@@ -1,5 +1,6 @@
+using ArchLucid.Contracts.Advisory.Models;
+using ArchLucid.Contracts.Alerts;
 using ArchLucid.Core.Comparison;
-using ArchLucid.Decisioning.Advisory.Models;
 using ArchLucid.Decisioning.Alerts;
 
 using FsCheck;

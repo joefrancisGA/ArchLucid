@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Contracts.Advisory.Models;
 using ArchLucid.Persistence.Advisory;
 
 using FluentAssertions;

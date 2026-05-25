@@ -1,7 +1,8 @@
 using System.Text.Json;
 
+using ArchLucid.Contracts.Compliance;
 using ArchLucid.Decisioning.Compliance.Loaders;
-using ArchLucid.Decisioning.Compliance.Models;
+using DecisioningComplianceRulePack = ArchLucid.Decisioning.Compliance.Models.ComplianceRulePack;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 using FluentAssertions;
@@ -44,7 +45,7 @@ public sealed class VerticalStarterPolicyPackLoadingTests
             throw new FileNotFoundException($"Missing test content: {policyPackPath}");
 
         FileComplianceRulePackLoader loader = new(compliancePath);
-        ComplianceRulePack sourcePack = await loader.LoadAsync(CancellationToken.None);
+        DecisioningComplianceRulePack sourcePack = await loader.LoadAsync(CancellationToken.None);
 
         sourcePack.Rules.Should().NotBeEmpty("vertical compliance-rules.json should list rules");
 
@@ -56,7 +57,9 @@ public sealed class VerticalStarterPolicyPackLoadingTests
         if (effective is null)
             throw new InvalidOperationException($"Failed to deserialize policy pack JSON for '{verticalSlug}'.");
 
-        ComplianceRulePack filtered = ComplianceRulePackGovernanceFilter.Filter(sourcePack, effective);
+        ComplianceRulePack filtered = ComplianceRulePackGovernanceFilter.Filter(
+            (ComplianceRulePack)sourcePack,
+            effective);
 
         filtered.Rules.Should().NotBeEmpty(
             "policy-pack.json complianceRuleKeys should match ruleIds in compliance-rules.json after governance filter");

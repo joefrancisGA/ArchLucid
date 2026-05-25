@@ -6,8 +6,8 @@ using System.Text.Json.Serialization;
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Decisioning.Decisions;
-using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Decisioning.Analysis;
@@ -71,7 +71,7 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             new GoldenManifestValidator(),
             new ManifestHashService());
 
-        (ManifestDocument manifest, DecisionTrace trace) =
+        (ManifestDocument manifest, DecisionTraceDto trace) =
             await decisionEngine.DecideAsync(runId, contextSnapshotId, graph, findings, ct);
 
         await audit.LogAsync(

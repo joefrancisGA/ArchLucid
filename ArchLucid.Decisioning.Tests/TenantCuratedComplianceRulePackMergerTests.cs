@@ -1,6 +1,8 @@
 using System.Text.Json;
 
-using ArchLucid.Decisioning.Compliance.Models;
+using ArchLucid.Contracts.Compliance;
+using DecisioningComplianceRule = ArchLucid.Decisioning.Compliance.Models.ComplianceRule;
+using DecisioningComplianceRulePack = ArchLucid.Decisioning.Compliance.Models.ComplianceRulePack;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.PolicyPacks.CuratedRules;
 
@@ -11,7 +13,7 @@ namespace ArchLucid.Decisioning.Tests;
 [Trait("Category", "Unit")]
 public sealed class TenantCuratedComplianceRulePackMergerTests
 {
-    private static ComplianceRulePack Pack(params ComplianceRule[] rules) =>
+    private static DecisioningComplianceRulePack Pack(params DecisioningComplianceRule[] rules) =>
         new()
         {
             RulePackId = "file",
@@ -22,7 +24,7 @@ public sealed class TenantCuratedComplianceRulePackMergerTests
             Rules = rules.ToList(),
         };
 
-    private static ComplianceRule FileRule(string id, string controlName = "n") =>
+    private static DecisioningComplianceRule FileRule(string id, string controlName = "n") =>
         new()
         {
             RuleId = id,
@@ -59,10 +61,10 @@ public sealed class TenantCuratedComplianceRulePackMergerTests
     [Fact]
     public void Merge_WhenMetadataMissing_ReturnsSameInstance()
     {
-        ComplianceRulePack file = Pack(FileRule("a"));
+        DecisioningComplianceRulePack file = Pack(FileRule("a"));
         PolicyPackContentDocument effective = new();
 
-        ComplianceRulePack merged = TenantCuratedComplianceRulePackMerger.MergeFilePackWithCuratedFromGovernance(file, effective);
+        DecisioningComplianceRulePack merged = TenantCuratedComplianceRulePackMerger.MergeFilePackWithCuratedFromGovernance(file, effective);
 
         merged.Should().BeSameAs(file);
     }
@@ -70,7 +72,7 @@ public sealed class TenantCuratedComplianceRulePackMergerTests
     [Fact]
     public void Merge_AppendsCuratedOnlyRules_AfterFileRules_PreservingFileOrder()
     {
-        ComplianceRulePack file = Pack(FileRule("x"), FileRule("y"));
+        DecisioningComplianceRulePack file = Pack(FileRule("x"), FileRule("y"));
         PolicyPackContentDocument effective = new()
         {
             Metadata =
@@ -79,7 +81,7 @@ public sealed class TenantCuratedComplianceRulePackMergerTests
             },
         };
 
-        ComplianceRulePack merged = TenantCuratedComplianceRulePackMerger.MergeFilePackWithCuratedFromGovernance(file, effective);
+        DecisioningComplianceRulePack merged = TenantCuratedComplianceRulePackMerger.MergeFilePackWithCuratedFromGovernance(file, effective);
 
         merged.Rules.Select(r => r.RuleId).Should().ContainInOrder("x", "y", "z");
     }
@@ -87,7 +89,7 @@ public sealed class TenantCuratedComplianceRulePackMergerTests
     [Fact]
     public void Merge_TenantCuratedRule_Replaces_FileRule_WithSameId()
     {
-        ComplianceRulePack file = Pack(FileRule("shared", "from-file"));
+        DecisioningComplianceRulePack file = Pack(FileRule("shared", "from-file"));
         PolicyPackContentDocument effective = new()
         {
             Metadata =
@@ -96,10 +98,10 @@ public sealed class TenantCuratedComplianceRulePackMergerTests
             },
         };
 
-        ComplianceRulePack merged = TenantCuratedComplianceRulePackMerger.MergeFilePackWithCuratedFromGovernance(file, effective);
+        DecisioningComplianceRulePack merged = TenantCuratedComplianceRulePackMerger.MergeFilePackWithCuratedFromGovernance(file, effective);
 
         merged.Rules.Should().ContainSingle(r => r.RuleId == "shared");
-        ComplianceRule r = merged.Rules.Single(x => x.RuleId == "shared");
+        DecisioningComplianceRule r = merged.Rules.Single(x => x.RuleId == "shared");
         r.ControlName.Should().Be("from-tenant");
         r.AppliesToCategory.Should().Be(CuratedComplianceRuleMapper.TenantCuratedCategory);
     }
@@ -107,7 +109,7 @@ public sealed class TenantCuratedComplianceRulePackMergerTests
     [Fact]
     public void Merge_ThenGovernanceFilter_KeepsTenantKey()
     {
-        ComplianceRulePack file = Pack(FileRule("drop-me"), FileRule("keep-file"));
+        DecisioningComplianceRulePack file = Pack(FileRule("drop-me"), FileRule("keep-file"));
         PolicyPackContentDocument effective = new()
         {
             ComplianceRuleKeys = ["tenant-only", "keep-file"],
@@ -117,8 +119,8 @@ public sealed class TenantCuratedComplianceRulePackMergerTests
             },
         };
 
-        ComplianceRulePack merged = TenantCuratedComplianceRulePackMerger.MergeFilePackWithCuratedFromGovernance(file, effective);
-        ComplianceRulePack filtered = ComplianceRulePackGovernanceFilter.Filter(merged, effective);
+        DecisioningComplianceRulePack merged = TenantCuratedComplianceRulePackMerger.MergeFilePackWithCuratedFromGovernance(file, effective);
+        ComplianceRulePack filtered = ComplianceRulePackGovernanceFilter.Filter((ComplianceRulePack)merged, effective);
 
         filtered.Rules.Select(r => r.RuleId).Should().BeEquivalentTo("tenant-only", "keep-file");
     }
@@ -126,7 +128,7 @@ public sealed class TenantCuratedComplianceRulePackMergerTests
     [Fact]
     public void Merge_WhenMetadataInvalidJson_ThrowsInvalidOperationException()
     {
-        ComplianceRulePack file = Pack(FileRule("a"));
+        DecisioningComplianceRulePack file = Pack(FileRule("a"));
         PolicyPackContentDocument effective = new()
         {
             Metadata = { [PolicyPackCuratedRulesMetadataKey.V1] = "{ not json" },

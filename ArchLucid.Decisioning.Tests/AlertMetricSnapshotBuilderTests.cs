@@ -1,7 +1,8 @@
+using ArchLucid.Contracts.Advisory.Learning;
+using ArchLucid.Contracts.Advisory.Models;
+using ArchLucid.Contracts.Advisory.Workflow;
+using ArchLucid.Contracts.Alerts;
 using ArchLucid.Core.Comparison;
-using ArchLucid.Decisioning.Advisory.Learning;
-using ArchLucid.Decisioning.Advisory.Models;
-using ArchLucid.Decisioning.Advisory.Workflow;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Composite;
 
