@@ -84,6 +84,13 @@ public sealed class ArchitectureRunExecuteOrchestratorPartialBudgetTests
 
         Mock<IAgentResultRepository> resultRepo = new();
         resultRepo.Setup(r => r.GetByRunIdAsync(runId, It.IsAny<CancellationToken>(), null, null)).ReturnsAsync([]);
+        resultRepo
+            .Setup(r => r.CreateAsync(
+                It.IsAny<AgentResult>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<System.Data.IDbConnection?>(),
+                It.IsAny<System.Data.IDbTransaction?>()))
+            .Returns(Task.CompletedTask);
 
         Mock<IBaselineMutationAuditService> baselineAudit = new();
         baselineAudit
@@ -109,8 +116,8 @@ public sealed class ArchitectureRunExecuteOrchestratorPartialBudgetTests
         await act.Should().ThrowAsync<RunCostBudgetExceededPartialPersistRecordedException>();
 
         resultRepo.Verify(
-            r => r.CreateManyAsync(
-                It.Is<IReadOnlyList<AgentResult>>(results => results.Count == partialResults.Count),
+            r => r.CreateAsync(
+                It.Is<AgentResult>(result => partialResults.Any(p => p.TaskId == result.TaskId)),
                 It.IsAny<CancellationToken>(),
                 It.IsAny<System.Data.IDbConnection?>(),
                 It.IsAny<System.Data.IDbTransaction?>()),
