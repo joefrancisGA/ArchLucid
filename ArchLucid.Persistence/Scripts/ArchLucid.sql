@@ -1998,19 +1998,21 @@ END;
 GO
 
 /* -- Critical uniqueness hardening for canonical runtime chain ----
-   One authority GoldenManifest per Run; one FindingsSnapshot per graph snapshot.
-   Not enforced below (see TODO): GraphSnapshots per ContextSnapshotId may be one-to-many
-   (SqlGraphSnapshotRepository.GetLatestByContextSnapshotIdAsync); ArtifactBundles per ManifestId
-   may be one-to-many (SqlArtifactBundleRepository.GetByManifestIdAsync uses TOP 1 by CreatedUtc).
+   One active authority GoldenManifest per Run (filtered unique index).
+   GraphSnapshots: multiple rows per ContextSnapshotId are intentional — pipeline retries and
+   GraphSnapshotReuseEvaluator pick the latest by CreatedUtc (see InMemoryGraphSnapshotRepositoryTests).
+   ArtifactBundles: multiple rows per ManifestId are intentional — synthesis retries pick TOP 1 by CreatedUtc.
 */
 IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
 BEGIN
     IF NOT EXISTS (
         SELECT 1
         FROM sys.indexes
-        WHERE name = N'UX_GoldenManifests_RunId'
+        WHERE name = N'UX_GoldenManifests_RunId_Active'
           AND object_id = OBJECT_ID(N'dbo.GoldenManifests'))
-        CREATE UNIQUE INDEX UX_GoldenManifests_RunId ON dbo.GoldenManifests (RunId);
+        CREATE UNIQUE INDEX UX_GoldenManifests_RunId_Active
+            ON dbo.GoldenManifests (RunId)
+            WHERE ArchivedUtc IS NULL;
 END;
 GO
 
@@ -2024,14 +2026,6 @@ BEGIN
         CREATE UNIQUE INDEX UX_FindingsSnapshots_GraphSnapshotId ON dbo.FindingsSnapshots (GraphSnapshotId);
 END;
 GO
-
--- TODO: Repository pattern allows multiple graph snapshots per context (latest-by-date query).
---       Confirm 1:1 authority semantics before enabling:
--- CREATE UNIQUE INDEX UX_GraphSnapshots_ContextSnapshotId ON dbo.GraphSnapshots (ContextSnapshotId);
-
--- TODO: Repository pattern allows multiple artifact bundles per manifest (latest-by-date query).
---       Confirm 1:1 synthesis semantics before enabling:
--- CREATE UNIQUE INDEX UX_ArtifactBundles_ManifestId ON dbo.ArtifactBundles (ManifestId);
 
 /* Append-only audit stream (no UPDATE/DELETE from application code). */
 IF OBJECT_ID('dbo.AuditEvents', 'U') IS NULL
