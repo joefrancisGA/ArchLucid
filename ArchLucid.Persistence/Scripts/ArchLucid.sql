@@ -1862,7 +1862,7 @@ IF OBJECT_ID(N'dbo.ContextSnapshots', N'U') IS NOT NULL
    AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ContextSnapshots_Runs_RunId')
-        ALTER TABLE dbo.ContextSnapshots WITH NOCHECK ADD CONSTRAINT FK_ContextSnapshots_Runs_RunId
+        ALTER TABLE dbo.ContextSnapshots WITH CHECK ADD CONSTRAINT FK_ContextSnapshots_Runs_RunId
             FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId);
 END;
 GO
@@ -1872,11 +1872,11 @@ IF OBJECT_ID(N'dbo.GraphSnapshots', N'U') IS NOT NULL
    AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_GraphSnapshots_ContextSnapshots_ContextSnapshotId')
-        ALTER TABLE dbo.GraphSnapshots WITH NOCHECK ADD CONSTRAINT FK_GraphSnapshots_ContextSnapshots_ContextSnapshotId
+        ALTER TABLE dbo.GraphSnapshots WITH CHECK ADD CONSTRAINT FK_GraphSnapshots_ContextSnapshots_ContextSnapshotId
             FOREIGN KEY (ContextSnapshotId) REFERENCES dbo.ContextSnapshots (SnapshotId);
 
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_GraphSnapshots_Runs_RunId')
-        ALTER TABLE dbo.GraphSnapshots WITH NOCHECK ADD CONSTRAINT FK_GraphSnapshots_Runs_RunId
+        ALTER TABLE dbo.GraphSnapshots WITH CHECK ADD CONSTRAINT FK_GraphSnapshots_Runs_RunId
             FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId);
 END;
 GO
@@ -1887,15 +1887,15 @@ IF OBJECT_ID(N'dbo.FindingsSnapshots', N'U') IS NOT NULL
    AND OBJECT_ID(N'dbo.GraphSnapshots', N'U') IS NOT NULL
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_FindingsSnapshots_Runs_RunId')
-        ALTER TABLE dbo.FindingsSnapshots WITH NOCHECK ADD CONSTRAINT FK_FindingsSnapshots_Runs_RunId
+        ALTER TABLE dbo.FindingsSnapshots WITH CHECK ADD CONSTRAINT FK_FindingsSnapshots_Runs_RunId
             FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId);
 
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_FindingsSnapshots_ContextSnapshots_ContextSnapshotId')
-        ALTER TABLE dbo.FindingsSnapshots WITH NOCHECK ADD CONSTRAINT FK_FindingsSnapshots_ContextSnapshots_ContextSnapshotId
+        ALTER TABLE dbo.FindingsSnapshots WITH CHECK ADD CONSTRAINT FK_FindingsSnapshots_ContextSnapshots_ContextSnapshotId
             FOREIGN KEY (ContextSnapshotId) REFERENCES dbo.ContextSnapshots (SnapshotId);
 
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_FindingsSnapshots_GraphSnapshots_GraphSnapshotId')
-        ALTER TABLE dbo.FindingsSnapshots WITH NOCHECK ADD CONSTRAINT FK_FindingsSnapshots_GraphSnapshots_GraphSnapshotId
+        ALTER TABLE dbo.FindingsSnapshots WITH CHECK ADD CONSTRAINT FK_FindingsSnapshots_GraphSnapshots_GraphSnapshotId
             FOREIGN KEY (GraphSnapshotId) REFERENCES dbo.GraphSnapshots (GraphSnapshotId);
 END;
 GO
@@ -1904,7 +1904,7 @@ IF OBJECT_ID(N'dbo.DecisioningTraces', N'U') IS NOT NULL
    AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_DecisioningTraces_Runs_RunId')
-        ALTER TABLE dbo.DecisioningTraces WITH NOCHECK ADD CONSTRAINT FK_DecisioningTraces_Runs_RunId
+        ALTER TABLE dbo.DecisioningTraces WITH CHECK ADD CONSTRAINT FK_DecisioningTraces_Runs_RunId
             FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId);
 END;
 GO
@@ -1962,23 +1962,23 @@ IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
    AND OBJECT_ID(N'dbo.DecisioningTraces', N'U') IS NOT NULL
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_GoldenManifests_Runs_RunId')
-        ALTER TABLE dbo.GoldenManifests WITH NOCHECK ADD CONSTRAINT FK_GoldenManifests_Runs_RunId
+        ALTER TABLE dbo.GoldenManifests WITH CHECK ADD CONSTRAINT FK_GoldenManifests_Runs_RunId
             FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId);
 
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_GoldenManifests_ContextSnapshots_ContextSnapshotId')
-        ALTER TABLE dbo.GoldenManifests WITH NOCHECK ADD CONSTRAINT FK_GoldenManifests_ContextSnapshots_ContextSnapshotId
+        ALTER TABLE dbo.GoldenManifests WITH CHECK ADD CONSTRAINT FK_GoldenManifests_ContextSnapshots_ContextSnapshotId
             FOREIGN KEY (ContextSnapshotId) REFERENCES dbo.ContextSnapshots (SnapshotId);
 
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_GoldenManifests_GraphSnapshots_GraphSnapshotId')
-        ALTER TABLE dbo.GoldenManifests WITH NOCHECK ADD CONSTRAINT FK_GoldenManifests_GraphSnapshots_GraphSnapshotId
+        ALTER TABLE dbo.GoldenManifests WITH CHECK ADD CONSTRAINT FK_GoldenManifests_GraphSnapshots_GraphSnapshotId
             FOREIGN KEY (GraphSnapshotId) REFERENCES dbo.GraphSnapshots (GraphSnapshotId);
 
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_GoldenManifests_FindingsSnapshots_FindingsSnapshotId')
-        ALTER TABLE dbo.GoldenManifests WITH NOCHECK ADD CONSTRAINT FK_GoldenManifests_FindingsSnapshots_FindingsSnapshotId
+        ALTER TABLE dbo.GoldenManifests WITH CHECK ADD CONSTRAINT FK_GoldenManifests_FindingsSnapshots_FindingsSnapshotId
             FOREIGN KEY (FindingsSnapshotId) REFERENCES dbo.FindingsSnapshots (FindingsSnapshotId);
 
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_GoldenManifests_DecisioningTraces_DecisionTraceId')
-        ALTER TABLE dbo.GoldenManifests WITH NOCHECK ADD CONSTRAINT FK_GoldenManifests_DecisioningTraces_DecisionTraceId
+        ALTER TABLE dbo.GoldenManifests WITH CHECK ADD CONSTRAINT FK_GoldenManifests_DecisioningTraces_DecisionTraceId
             FOREIGN KEY (DecisionTraceId) REFERENCES dbo.DecisioningTraces (DecisionTraceId);
 END;
 GO
@@ -1988,11 +1988,11 @@ IF OBJECT_ID(N'dbo.ArtifactBundles', N'U') IS NOT NULL
    AND OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ArtifactBundles_Runs_RunId')
-        ALTER TABLE dbo.ArtifactBundles WITH NOCHECK ADD CONSTRAINT FK_ArtifactBundles_Runs_RunId
+        ALTER TABLE dbo.ArtifactBundles WITH CHECK ADD CONSTRAINT FK_ArtifactBundles_Runs_RunId
             FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId);
 
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ArtifactBundles_GoldenManifests_ManifestId')
-        ALTER TABLE dbo.ArtifactBundles WITH NOCHECK ADD CONSTRAINT FK_ArtifactBundles_GoldenManifests_ManifestId
+        ALTER TABLE dbo.ArtifactBundles WITH CHECK ADD CONSTRAINT FK_ArtifactBundles_GoldenManifests_ManifestId
             FOREIGN KEY (ManifestId) REFERENCES dbo.GoldenManifests (ManifestId);
 END;
 GO
