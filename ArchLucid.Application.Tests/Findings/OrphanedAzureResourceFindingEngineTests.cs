@@ -51,7 +51,35 @@ public sealed class OrphanedAzureResourceFindingEngineTests
         findings[0].Severity.Should().Be(FindingSeverity.Warning);
         findings[0].Payload.Should().BeOfType<RequirementFindingPayload>();
         findings[0].Title.Should().Contain("Microsoft.Compute/disks");
+        findings[0].Trace.AlternativePathsConsidered.Should().HaveCount(3);
+        findings[0].Trace.AlternativePathsConsidered.Should()
+            .Contain(path => path.Contains("Attach the disk", StringComparison.OrdinalIgnoreCase));
     }
+
+    [Theory]
+    [InlineData("Microsoft.Network/networkInterfaces", "Attach the NIC")]
+    [InlineData("Microsoft.Network/publicIPAddresses", "Associate the public IP")]
+    public async Task AnalyzeAsync_populates_resource_specific_alternative_paths(string resourceType, string expectedPathFragment)
+    {
+        string resourcesJson =
+            $$"""
+            [
+              {
+                "resourceType": "{{resourceType}}",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/{{resourceType.Replace('/', '.')}}/res1",
+                "properties": {}
+              }
+            ]
+            """;
+
+        OrphanedAzureResourceFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Trace.AlternativePathsConsidered.Should().HaveCount(3);
+        findings[0].Trace.AlternativePathsConsidered.Should()
+            .Contain(path => path.Contains(expectedPathFragment, StringComparison.OrdinalIgnoreCase));
 
     [Fact]
     public async Task AnalyzeAsync_returns_empty_when_no_orphans_present()

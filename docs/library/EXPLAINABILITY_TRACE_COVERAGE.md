@@ -24,6 +24,7 @@ Target: **4/5** or **5/5** per finding for shipped rule engines (graph ids may b
 | PolicyApplicabilityFindingEngine | via `FindingFactory` | yes (`policy-applicability-mapping` / `policy-applicability-gap`) | yes | sentinel (`ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote`) | yes (target count / policy label) | 5/5 |
 | PolicyCoverageFindingEngine | when uncovered | yes (`policy-coverage-presence` / `policy-coverage-applicability`) | yes | concrete (introduce policies vs intentional omission; map applicability vs reduce scope) | yes (counts) | 4/5 (no policies: no graph ids) or 5/5 (uncovered) |
 | RequirementCoverageFindingEngine | when uncovered | yes (`requirement-coverage-relation`) | yes | concrete (link via RELATES_TO vs defer/descope) | yes (totals) | 5/5 when emitted |
+| OrphanedAzureResourceFindingEngine | empty (extractor inventory) | yes (`orphaned-azure-resource-classifier`) | yes | concrete (attach/delete/reassign branches per resource type) | yes (resource type + id) | 4/5 |
 | Topology gap findings (`FindingFactory.CreateTopologyGapFinding`) | yes | yes (`topology-gap-{gapCode}`) | yes | sentinel (`ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote`) | — | 4/5 (no Notes) |
 | `IFindingEngine` plugin sample (`PluginSampleFindingEngine`) | — | yes (`plugin-sample-stub`) | yes | sentinel | — | 4/5 |
 

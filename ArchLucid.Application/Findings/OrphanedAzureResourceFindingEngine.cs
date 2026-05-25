@@ -41,28 +41,36 @@ public sealed class OrphanedAzureResourceFindingEngine(
         IReadOnlyList<OrphanedResourceFinding> orphans = OrphanedResourceClassifier.ClassifyFromResourcesJson(resourcesJson);
 
         return orphans
-            .Select(static orphan => new Finding
+            .Select(static orphan =>
             {
-                FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
-                FindingType = "OrphanedAzureResource",
-                Category = orphan.Category,
-                EngineType = "orphaned-azure-resource",
-                Severity = FindingSeverity.Warning,
-                Title = $"Orphaned resource: {orphan.ResourceType}",
-                Rationale = orphan.Message,
-                RelatedNodeIds = [],
-                PayloadType = nameof(RequirementFindingPayload),
-                Payload = new RequirementFindingPayload
+                IReadOnlyList<string> alternativePaths =
+                    OrphanedAzureResourceExplainabilityAlternatives.ResolveForResourceType(orphan.ResourceType);
+
+                return new Finding
                 {
-                    RequirementName = orphan.ResourceId,
-                    RequirementText = orphan.Message,
-                    IsMandatory = false,
-                },
-                Trace = new ExplainabilityTrace
-                {
-                    RulesApplied = ["orphaned-azure-resource-classifier"],
-                    DecisionsTaken = ["Flagged unattached disk, NIC, or public IP from extractor inventory."],
-                },
+                    FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
+                    FindingType = "OrphanedAzureResource",
+                    Category = orphan.Category,
+                    EngineType = "orphaned-azure-resource",
+                    Severity = FindingSeverity.Warning,
+                    Title = $"Orphaned resource: {orphan.ResourceType}",
+                    Rationale = orphan.Message,
+                    RelatedNodeIds = [],
+                    PayloadType = nameof(RequirementFindingPayload),
+                    Payload = new RequirementFindingPayload
+                    {
+                        RequirementName = orphan.ResourceId,
+                        RequirementText = orphan.Message,
+                        IsMandatory = false,
+                    },
+                    Trace = new ExplainabilityTrace
+                    {
+                        RulesApplied = ["orphaned-azure-resource-classifier"],
+                        DecisionsTaken = ["Flagged unattached disk, NIC, or public IP from extractor inventory."],
+                        AlternativePathsConsidered = alternativePaths.ToList(),
+                        Notes = [$"Resource type: {orphan.ResourceType}", $"Resource id: {orphan.ResourceId}"],
+                    },
+                };
             })
             .ToList();
     }
