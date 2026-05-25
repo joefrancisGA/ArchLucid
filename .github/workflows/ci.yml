@@ -2137,6 +2137,9 @@ jobs:
       - name: Assert unique Next.js App Router paths (route-group collision guard)
         run: python3 scripts/ci/assert_archlucid_ui_app_router_unique_paths.py
 
+      - name: Assert Persistence Pilots sources for API Docker context
+        run: python3 scripts/ci/assert_persistence_pilots_docker_context.py
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
