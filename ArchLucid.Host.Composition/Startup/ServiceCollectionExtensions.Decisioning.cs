@@ -35,10 +35,10 @@ public static partial class ServiceCollectionExtensions
             [new FileComplianceRulePackLoader(complianceRulePackPath), new FileComplianceRulePackLoader(gaPath)]));
         services.AddSingleton<IComplianceRulePackLoader>(static sp =>
             (IComplianceRulePackLoader)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IComplianceRulePackLoader>());
-        services.AddScoped<ArchLucid.Core.Persistence.Ports.IComplianceRulePackProvider, PolicyFilteredComplianceRulePackProvider>();
-        services.AddScoped<IComplianceRulePackProvider>(static sp =>
-            new ComplianceRulePackProviderDecisioningPortAdapter(
-                sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IComplianceRulePackProvider>()));
+        services.AddScoped<PolicyFilteredComplianceRulePackProvider>();
+        services.AddScoped<ArchLucid.Core.Persistence.Ports.IComplianceRulePackProvider>(static sp =>
+            sp.GetRequiredService<PolicyFilteredComplianceRulePackProvider>());
+        services.AddScoped<IComplianceRulePackProvider, ComplianceRulePackProviderDecisioningPortAdapter>();
         services.AddSingleton<IComplianceRulePackValidator, ComplianceRulePackValidator>();
         services.AddSingleton<IComplianceEvaluator, GraphComplianceEvaluator>();
 
