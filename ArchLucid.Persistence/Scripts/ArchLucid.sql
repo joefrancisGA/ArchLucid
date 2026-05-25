@@ -5977,6 +5977,79 @@ BEGIN
 END;
 GO
 
+/* 213: Missing FK constraints — policy pack, advisory, composite alerts, provenance (see Migrations/213_MissingForeignKeys.sql). */
+IF OBJECT_ID(N'dbo.PolicyPackVersions', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.PolicyPacks', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_PolicyPackVersions_PolicyPacks')
+BEGIN
+    ALTER TABLE dbo.PolicyPackVersions WITH NOCHECK ADD CONSTRAINT FK_PolicyPackVersions_PolicyPacks
+        FOREIGN KEY (PolicyPackId) REFERENCES dbo.PolicyPacks (PolicyPackId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.PolicyPackAssignments', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.PolicyPacks', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_PolicyPackAssignments_PolicyPacks')
+BEGIN
+    ALTER TABLE dbo.PolicyPackAssignments WITH NOCHECK ADD CONSTRAINT FK_PolicyPackAssignments_PolicyPacks
+        FOREIGN KEY (PolicyPackId) REFERENCES dbo.PolicyPacks (PolicyPackId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.PolicyPackChangeLog', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.PolicyPacks', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_PolicyPackChangeLog_PolicyPacks')
+BEGIN
+    ALTER TABLE dbo.PolicyPackChangeLog WITH NOCHECK ADD CONSTRAINT FK_PolicyPackChangeLog_PolicyPacks
+        FOREIGN KEY (PolicyPackId) REFERENCES dbo.PolicyPacks (PolicyPackId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.CompositeAlertRuleConditions', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.CompositeAlertRules', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_CompositeAlertRuleConditions_CompositeAlertRules')
+BEGIN
+    ALTER TABLE dbo.CompositeAlertRuleConditions WITH NOCHECK ADD CONSTRAINT FK_CompositeAlertRuleConditions_CompositeAlertRules
+        FOREIGN KEY (CompositeRuleId) REFERENCES dbo.CompositeAlertRules (CompositeRuleId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AdvisoryScanExecutions', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.AdvisoryScanSchedules', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AdvisoryScanExecutions_Schedules')
+BEGIN
+    ALTER TABLE dbo.AdvisoryScanExecutions WITH NOCHECK ADD CONSTRAINT FK_AdvisoryScanExecutions_Schedules
+        FOREIGN KEY (ScheduleId) REFERENCES dbo.AdvisoryScanSchedules (ScheduleId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DigestDeliveryAttempts', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.ArchitectureDigests', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_DigestDeliveryAttempts_Digests')
+BEGIN
+    ALTER TABLE dbo.DigestDeliveryAttempts WITH NOCHECK ADD CONSTRAINT FK_DigestDeliveryAttempts_Digests
+        FOREIGN KEY (DigestId) REFERENCES dbo.ArchitectureDigests (DigestId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DigestDeliveryAttempts', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.DigestSubscriptions', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_DigestDeliveryAttempts_Subscriptions')
+BEGIN
+    ALTER TABLE dbo.DigestDeliveryAttempts WITH NOCHECK ADD CONSTRAINT FK_DigestDeliveryAttempts_Subscriptions
+        FOREIGN KEY (SubscriptionId) REFERENCES dbo.DigestSubscriptions (SubscriptionId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.ProvenanceSnapshots', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ProvenanceSnapshots_Runs')
+BEGIN
+    ALTER TABLE dbo.ProvenanceSnapshots WITH NOCHECK ADD CONSTRAINT FK_ProvenanceSnapshots_Runs
+        FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId);
+END;
+GO
+
 /* 094: RowVersionStamp on AlertRecords, RecommendationRecords, BackgroundJobs (see Migrations/094_RowVersion_AlertRecords_RecommendationRecords_BackgroundJobs.sql). */
 IF OBJECT_ID(N'dbo.AlertRecords', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.AlertRecords', N'RowVersionStamp') IS NULL
