@@ -4,6 +4,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
+using ArchLucid.Retrieval.PolicyPacks;
 
 namespace ArchLucid.Retrieval.Queries;
 

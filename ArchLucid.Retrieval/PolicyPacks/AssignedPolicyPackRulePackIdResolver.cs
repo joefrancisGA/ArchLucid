@@ -1,4 +1,5 @@
 using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Retrieval.Indexing;
 
 using Microsoft.Extensions.Options;
 
