@@ -29,8 +29,14 @@ variable "storage_account_name" {
 
 variable "account_replication_type" {
   type        = string
-  description = "LRS for dev; ZRS or GRS for production resilience."
-  default     = "LRS"
+  description = "Storage replication type. Use LRS for dev/test. Production should use GRS or RAGRS for cross-region artifact durability (blob artifacts are primary evidence records)."
+
+  default = "LRS"
+
+  validation {
+    condition     = contains(["LRS", "ZRS", "GRS", "RAGRS", "GZRS", "RAGZRS"], var.account_replication_type)
+    error_message = "account_replication_type must be a valid Azure storage redundancy value."
+  }
 }
 
 variable "public_network_access_enabled" {

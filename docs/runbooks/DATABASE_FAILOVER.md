@@ -74,6 +74,7 @@ Store connection strings in **Key Vault** (or managed identity–backed settings
 
 ## Related
 
+- [BACKUP_RESTORE_DRILL.md](./BACKUP_RESTORE_DRILL.md) — annual PITR, LTR, and geo-failover drill procedure.
 - [MIGRATION_ROLLBACK.md](./MIGRATION_ROLLBACK.md) — schema change rollback posture (distinct from HA failover).
 - [SECRET_AND_CERT_ROTATION.md](./SECRET_AND_CERT_ROTATION.md) — credential updates.
 - [../DEPLOYMENT.md](../library/DEPLOYMENT.md) — umbrella deploy/rollback.
