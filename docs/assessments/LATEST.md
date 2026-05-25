@@ -96,7 +96,7 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Score:** 94
 - **Weight:** 2
 - **Weighted Deficiency:** 12
-- **Justification:** Central Package Management, warnings-as-errors, `EnforceCodeStyleInBuild`, strict CI, dependency vulnerability scanning, SBOM publication, gitleaks, merged coverage gates, and a clear bounded-context layout make this codebase exceptionally maintainable. SQL persistence layer has two notable maintainability debts: (1) the archive cascade logic — eight `IF COL_LENGTH` / `UPDATE … SET ArchivedUtc` blocks — is duplicated verbatim in both `ArchiveRunsCreatedBeforeAsync` and `ArchiveRunsByIdsAsync`; (2) `ArchiveRunsByIdsAsync` makes two sequential SQL round trips (SELECT state, then UPDATE cascade) where one is sufficient.
+- **Justification:** Central Package Management, warnings-as-errors, `EnforceCodeStyleInBuild`, strict CI, dependency vulnerability scanning, SBOM publication, gitleaks, merged coverage gates, and a clear bounded-context layout make this codebase exceptionally maintainable. SQL persistence layer has two notable maintainability debts: (1) the archive cascade logic — eight `IF COL_LENGTH` / `UPDATE … SET ArchivedUtc` blocks — is duplicated verbatim in both `ArchiveRunsCreatedBeforeAsync` and `ArchiveRunsByIdsAsync`; (2) `ArchiveRunsByIdsAsync` makes two sequential SQL round trips (SELECT state, then UPDATE cascade) where one is sufficient. Architecture test coverage has 13 identified gaps: two hexagonal guard omissions (`Provenance` and `Capabilities.Cost` are not protected from `Persistence`), two `Api` boundary tests that enforce only at the type level rather than the stricter assembly-metadata level, and nine unguarded lateral domain couplings spanning `Decisioning→Notifications`, `Provenance→{ArtifactSynthesis,Decisioning,KnowledgeGraph}`, `Retrieval→{Decisioning,ArtifactSynthesis,Provenance}`, and `AgentRuntime→{Decisioning,Provenance}` (see Improvement #53).
 - **Tradeoffs:** Strict CI gates raise contributor friction; offset by good `*.slnf` filters and the dev container.
 - **Recommendations:** Add an `AgentResultBlobCleanupHostedService` to prevent unbounded `IArtifactBlobStore` growth from accumulated agent trace blobs. Add filtered covering indexes for `HasWarnings` and `HasGovernanceWarnings` correlated EXISTS subqueries (Improvement #26). Extract the duplicated archive cascade SQL to a TVP stored procedure and collapse `ArchiveRunsByIdsAsync` to a single batch round trip (Improvement #28).
 - **Status:** Fixable in V1.
@@ -156,7 +156,7 @@ CPA SOC 2 Type II, third-party pen-test publication, automated GDPR tenant erasu
 
 ---
 
-## Top 8 Engineering Risks
+## Top 10 Engineering Risks
 
 1. **RAG retrieval failures could degrade agent output quality silently:** Without strict faithfulness evaluation, hallucinations may slip through.
 2. **Cross-tenant ROI aggregation could leak data:** If RLS or scoping context fails during background aggregation.
@@ -166,6 +166,8 @@ CPA SOC 2 Type II, third-party pen-test publication, automated GDPR tenant erasu
 6. **The `DataConsistencyOrphanProbe` might miss edge cases:** As new tables are added and not registered with the probe.
 7. **`NVARCHAR(64)` run-ID columns block FK integrity and make archive cascade non-SARGable:** `dbo.AgentTasks`, `dbo.AgentExecutionTraces`, `dbo.DecisionTraces`, and related tables store `RunId` as a string instead of `UNIQUEIDENTIFIER`. The archive cascade is forced to `TRY_CAST` every row — a non-SARGable predicate that cannot use an index seek. This grows more expensive as these tables accumulate rows (see Improvement #27).
 8. **Missing `RunId`-based index on `dbo.AlertRecords` causes a per-row scan on every run list query:** The `HasGovernanceWarnings` EXISTS subquery fires once per run row and has no `RunId` index path on `dbo.AlertRecords`. For tenants with many active alert records this degrades linearly with table size (see Improvement #26).
+9. **Unguarded lateral domain couplings allow hidden transitive dependency creep:** `Decisioning→Notifications`, `Provenance→{ArtifactSynthesis,Decisioning,KnowledgeGraph}`, `Retrieval→{Decisioning,ArtifactSynthesis,Provenance}`, and `AgentRuntime→{Decisioning,Provenance}` are live `ProjectReference` edges with no prohibiting architecture test. Any of these chains can silently deepen — a new `using` statement is the only trigger — and no CI gate will catch it until the architectural boundary has already been crossed (see Improvements #53, #55).
+10. **Dead `ProjectReference` entries in `Api.csproj` create latent coupling risk:** `Api.csproj` carries live references to `ArchLucid.Decisioning` and `ArchLucid.KnowledgeGraph` even though no types from those assemblies are consumed by the API. The current `Api_must_not_depend_on_Decisioning` and `Api_must_not_depend_on_KnowledgeGraph` tests pass only at the NetArchTest type-level (IL reference scan); they do not catch that the assemblies are already on the compilation closure. Any future developer can introduce a `using` statement without a build or test failure (see Improvements #53, #54).
 
 ---
 
@@ -2936,9 +2938,168 @@ Acceptance Criteria: Every non-obvious Terraform idiom in the priority-list file
 
 ---
 
+## Improvement #53 — Close 13 Missing Assertions in `ArchLucid.Architecture.Tests.DependencyConstraintTests`
+
+**Assessment date:** 2026-05-24
+**Status:** Gap — 13 boundary rules exist in the intended layer model but are not asserted in CI
+
+### Finding
+
+A full walk of the 56-project `ProjectReference` graph against the documented `Contracts → Core → Domain → Application → Host/Adapters` layering identified 13 assertions that `DependencyConstraintTests.cs` does not currently make. The existing test suite is comprehensive in many areas, but these specific gaps allow violations to be introduced silently.
+
+| ID | Missing assertion | Category |
+|----|-------------------|----------|
+| M1 | `Provenance_must_not_depend_on_Persistence` | Hexagonal guard — matches the pattern already applied to Decisioning, Notifications, KnowledgeGraph, ContextIngestion, ArtifactSynthesis, Cli, Retrieval |
+| M2 | `Api_must_not_reference_Decisioning_assembly` (assembly metadata) | Promote from NetArchTest type-level to `GetReferencedAssemblies()` — same upgrade already applied to Retrieval |
+| M3 | `Api_must_not_reference_KnowledgeGraph_assembly` (assembly metadata) | Same promotion as M2 |
+| M4 | `Application_must_not_reference_SqlClient_or_Dapper` | `Application.csproj` declares `Dapper` and `Microsoft.Data.SqlClient` as direct `PackageReference` entries; check `application.GetReferencedAssemblies()` |
+| M5 | `Application_must_not_reference_Notifications_assembly` | Preventive guard — Application does not currently reference Notifications but the edge is unguarded |
+| M6 | `AgentRuntime_must_not_depend_on_Decisioning` | Adapter boundary — parallel to the existing `AgentRuntime_must_not_reference_Persistence_assembly` |
+| M7 | `AgentRuntime_must_not_depend_on_Provenance` | Adapter boundary — same reasoning as M6 |
+| M8 | `Decisioning_must_not_depend_on_Notifications` | Lateral domain coupling — or document as intentional with a pinning test and rationale |
+| M9 | `Provenance_must_not_depend_on_ArtifactSynthesis` | Lateral domain coupling |
+| M10 | `Provenance_must_not_depend_on_Decisioning` | Lateral domain coupling |
+| M11 | `Provenance_must_not_depend_on_KnowledgeGraph` | Lateral domain coupling |
+| M12 | `Capabilities_Cost_must_not_depend_on_Persistence` | Hexagonal guard — `Capabilities.Cost` is in the domain tier but absent from the Tier 3 guard list |
+| M13 | `Backfill_Cli_must_not_reference_Persistence_assembly` | Either prohibit or document as intentional migration-tool exception with a pinning test |
+
+M8–M11 and M13 require a team decision before the prohibiting test can be written. If the coupling is intentional, add a pinning test with a rationale comment modelled on the existing `AgentRuntime_references_AgentSimulator_by_design` fact.
+
+### Recommended Actions
+
+1. Add M1, M2, M3, M4, M5, M6, M7, M12 to `DependencyConstraintTests.cs` as new `[Fact]` methods — each is a straightforward `GetReferencedAssemblies()` or `HaveDependencyOn` call with a clear `because:` explanation.
+2. For M8 (`Decisioning→Notifications`): decide whether alerts should be dispatched through an Application mediator. If yes, add a prohibiting fact and move the dependency inversion to Improvement #55. If no, add a pinning fact.
+3. For M9–M11 (`Provenance→{ArtifactSynthesis,Decisioning,KnowledgeGraph}`): decide whether Provenance should receive projections via ports. If yes, add prohibiting facts and move the refactoring to Improvement #55. If no, add pinning facts.
+4. For M13 (`Backfill.Cli→Persistence`): if this is a deliberate migration tool, add a pinning fact; if not, add a prohibiting fact (enforcement will follow in Improvement #54).
+
+```
+Cursor prompt:
+Add 13 missing assertions to ArchLucid.Architecture.Tests/DependencyConstraintTests.cs.
+
+Read docs/assessments/LATEST.md Improvement #53 for the full list (M1–M13) and the
+rationale for each. Follow the exact style of the existing facts in that file:
+  - [Fact] [Trait("Suite","Core")] [Trait("Category","Unit")]
+  - Assembly-metadata checks (GetReferencedAssemblies) for M2, M3, M4, M5, M6, M7, M12, M13
+  - NetArchTest HaveDependencyOn for M1, M8, M9, M10, M11
+  - Every because: string must name the INV or boundary rule it enforces
+
+For M8 (Decisioning→Notifications), M9–M11 (Provenance laterals), and M13 (Backfill.Cli→Persistence):
+add a pinning test with a rationale comment if the coupling is confirmed intentional,
+or a prohibiting test if it is not.
+
+Do not change any production code. Do not change any csproj files.
+All existing tests must remain green.
+```
+
+Acceptance Criteria: All 13 new facts exist in `DependencyConstraintTests.cs`; `dotnet test ArchLucid.Architecture.Tests` exits 0; no existing test is renamed, removed, or weakened.
+
+---
+
+## Improvement #54 — Prune Dead `ProjectReference` Entries from `Api.csproj`
+
+**Assessment date:** 2026-05-24
+**Status:** Gap — two assembly references in `Api.csproj` have no type-level consumers and undermine existing boundary tests
+
+### Finding
+
+`ArchLucid.Api/ArchLucid.Api.csproj` declares `ProjectReference` entries for both `ArchLucid.Decisioning` and `ArchLucid.KnowledgeGraph`. The existing `Api_must_not_depend_on_Decisioning` and `Api_must_not_depend_on_KnowledgeGraph` facts in `DependencyConstraintTests.cs` pass at the NetArchTest type-level (no IL reference exists), but the `ProjectReference` entries remain and:
+
+- copy both assemblies into the Api output directory on every build
+- include both assemblies in the `ArchLucid.Api` compilation closure, meaning any developer can add a `using ArchLucid.Decisioning;` statement without a compile error
+- are not caught by the assembly-metadata-level check that already exists for `ArchLucid.Retrieval` (which uses `GetReferencedAssemblies()` instead of `HaveDependencyOn`)
+
+If Improvement #53 lands first and M2/M3 are added as `GetReferencedAssemblies()` checks, those new facts will fail immediately — this improvement unblocks them.
+
+### Recommended Actions
+
+1. Remove the `<ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />` line from `Api.csproj`.
+2. Remove the `<ProjectReference Include="..\ArchLucid.KnowledgeGraph\ArchLucid.KnowledgeGraph.csproj" />` line from `Api.csproj`.
+3. Run `dotnet build ArchLucid.Api` and `dotnet test ArchLucid.Api.Tests` to confirm nothing broke.
+4. Confirm `ArchLucid.Architecture.Tests` still passes (the existing type-level tests should continue to pass; the new M2/M3 assembly-metadata tests from Improvement #53 will now also pass).
+
+```
+Cursor prompt:
+Remove two dead ProjectReference entries from ArchLucid.Api/ArchLucid.Api.csproj.
+
+1. Delete the line:
+   <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
+
+2. Delete the line:
+   <ProjectReference Include="..\ArchLucid.KnowledgeGraph\ArchLucid.KnowledgeGraph.csproj" />
+
+3. Run dotnet build on ArchLucid.Api and confirm zero errors.
+4. Run dotnet test on ArchLucid.Api.Tests and ArchLucid.Architecture.Tests and confirm
+   all tests remain green.
+
+Do not change any C# source files. Do not add any new ProjectReference entries.
+```
+
+Acceptance Criteria: `Api.csproj` no longer references `Decisioning` or `KnowledgeGraph`; `dotnet build ArchLucid.Api` exits 0; `dotnet test ArchLucid.Api.Tests` exits 0; `dotnet test ArchLucid.Architecture.Tests` exits 0.
+
+---
+
+## Improvement #55 — Resolve Lateral Domain Coupling Policy across Provenance, Retrieval, AgentRuntime, and Decisioning
+
+**Assessment date:** 2026-05-24
+**Status:** Decision required — six live `ProjectReference` edges cross domain-module boundaries without a recorded architectural intent
+
+### Finding
+
+The following `ProjectReference` edges exist in the production graph and create lateral coupling between domain-tier modules. None is prohibited by the current architecture tests; none is documented with a rationale comment comparable to `AgentRuntime_references_AgentSimulator_by_design`.
+
+| Source | → Target | Concern |
+|--------|-----------|---------|
+| `Decisioning` | `Notifications` | Decisioning should produce decisions/alerts; Application or a mediator should dispatch to Notifications. Direct reference tight-couples alert evaluation to webhook delivery. |
+| `Provenance` | `ArtifactSynthesis` | Provenance records system output; it should receive projections pushed via Contracts ports, not pull from the artifact generation assembly. |
+| `Provenance` | `Decisioning` | Same: Provenance should be driven by events, not by direct reference to the decisioning engine. |
+| `Provenance` | `KnowledgeGraph` | Same: graph data should be projected to Provenance via domain events, not via a direct assembly dependency. |
+| `Retrieval` | `Decisioning` | Retrieval is an adapter; intelligence logic should be consumed through Application ports. |
+| `Retrieval` | `ArtifactSynthesis` | Same: artifact types needed by retrieval should be modelled in Contracts, not referenced from the synthesis assembly. |
+| `AgentRuntime` | `Decisioning` | AgentRuntime already has a carefully guarded boundary with Application (only `AgentRuntime.Explanation` may touch Application). The same care should apply to Decisioning — the runtime should consume decisioning results through orchestration ports, not by directly referencing the Decisioning assembly. |
+| `AgentRuntime` | `Provenance` | Same boundary concern. Provenance writes should flow through Application ports. |
+
+Each coupling also pulls its transitive closure: `Provenance→Decisioning` means any Provenance consumer transitively depends on KnowledgeGraph and Notifications. `Retrieval→Provenance` transitively pulls in ArtifactSynthesis, Decisioning, KnowledgeGraph, and Notifications.
+
+### Decision Required
+
+For each edge above, the team must choose one of:
+
+**Option A — Prohibit:** Invert the dependency to a port interface in `ArchLucid.Contracts`. Add the prohibiting test from Improvement #53. Schedule the refactoring.
+
+**Option B — Pin as intentional:** Add a `*_by_design` fact in `DependencyConstraintTests.cs` with a rationale comment, acknowledging the coupling as a deliberate trade-off. No refactoring required.
+
+### Recommended Actions (if Option A is chosen for any edge)
+
+1. **`Decisioning→Notifications`:** Define an `IAlertNotificationDispatcher` port in `Contracts`. Implement it in `Notifications`. Register in `Host.Composition`. Remove the `Notifications` `ProjectReference` from `Decisioning.csproj`. Wire through `Application` if the dispatch is orchestrated, or inject directly into `Decisioning` via the port interface.
+2. **`Provenance` laterals (ArtifactSynthesis, Decisioning, KnowledgeGraph):** Define `IProvenanceProjection` port types in `Contracts`. Each domain module pushes projections. Remove three `ProjectReference` entries from `Provenance.csproj`.
+3. **`Retrieval` laterals (Decisioning, ArtifactSynthesis):** Move shared types to `Contracts`. Remove two `ProjectReference` entries from `Retrieval.csproj`. The `Provenance` reference in `Retrieval.csproj` becomes removable once `Provenance` itself is decoupled.
+4. **`AgentRuntime` laterals (Decisioning, Provenance):** Ensure AgentRuntime consumes both through `Application` orchestration ports. The `Decisioning` reference may be absorbed into the existing `AgentRuntime.Explanation` port boundary if applicable; otherwise define a new port.
+
+```
+Cursor prompt:
+Resolve the lateral domain coupling policy for the six ProjectReference edges documented
+in docs/assessments/LATEST.md Improvement #55.
+
+For each edge:
+1. Read the current source and target assemblies to understand what types are actually
+   consumed across the boundary.
+2. Propose either Option A (invert to port) or Option B (pin as intentional) for each,
+   with a one-sentence rationale.
+3. If Option A: sketch the port interface name, which Contracts namespace it belongs in,
+   and which csproj changes are required.
+4. If Option B: write the pinning [Fact] for DependencyConstraintTests.cs.
+
+Do not make any code changes yet — output the decision table and draft tests/port sketches
+for team review first.
+```
+
+Acceptance Criteria: Each of the six edges has a recorded decision (Option A or B). All Option-B edges have a pinning `[Fact]` in `DependencyConstraintTests.cs`. All Option-A edges have a tracked backlog item with the port interface name, target namespace, and csproj delta.
+
+---
+
 ## Prompt Batching Guidance
 
-All 50 improvements are now V1-actionable (or resolved). Batches optimized for context-window reuse:
+All 53 improvements are now V1-actionable (or resolved). Batches optimized for context-window reuse:
 
 **Batch 1 — RAG & AI quality (highest leverage)**
 Run prompts **1** (Policy-Pack Indexing), **2** (LLM Faithfulness Evaluator), and **23** (Prior-Manifest Chunks) together. Shared namespaces: `ArchLucid.Retrieval`, `ArchLucid.AgentRuntime.Evaluation`. Same TB-021 / RAG-V1-* engineering charter.
@@ -2993,6 +3154,9 @@ Apply **#50** (RetrievalIndexingOutbox leasing + dead-letter + Prometheus gauge)
 
 **Batch 18 — Terraform documentation**
 Apply **#51** (Terraform advisory C# inline documentation) and **#52** (inline documentation pass on existing `infra/` Terraform roots) together in a single documentation PR. #51 is pure XML doc-comment changes on C# files with no logic edits; #52 is pure `#` comment additions to existing `.tf` files with no HCL logic changes. Run #51 first, then #52 in the same branch. Neither touches application code, schema migrations, or tests. No dependency on any other batch; both are safe to land at any time.
+
+**Batch 19 — Architecture boundary hardening**
+Run **#53** (13 missing `DependencyConstraintTests` assertions), **#54** (prune dead `Api.csproj` `ProjectReference` entries), and **#55** (lateral domain coupling policy decision) in this order. Start with #55's decision table: it determines whether M8–M11 in #53 become prohibiting tests or pinning tests. Once decisions are recorded, write all 13 facts in #53 (a single `DependencyConstraintTests.cs` edit). Finally apply #54 to remove the two dead `ProjectReference` entries from `Api.csproj`; the newly added M2/M3 assembly-metadata facts will then pass. All three items touch only `ArchLucid.Architecture.Tests` (for #53) and `ArchLucid.Api/ArchLucid.Api.csproj` (for #54) — no production logic changes and no schema migrations. No dependency on any other batch.
 
 ---
 
