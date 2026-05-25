@@ -1,4 +1,4 @@
-{
+﻿{
   "annotations": { "list": [] },
   "editable": true,
   "fiscalYearStartMonth": 0,
@@ -11,7 +11,7 @@
       "gridPos": { "h": 7, "w": 24, "x": 0, "y": 0 },
       "id": 10,
       "options": {
-        "content": "## Authority pipeline (meter **ArchLucid**)\n\nStable names match **`docs/library/OBSERVABILITY.md`** (source **`ArchLucidInstrumentation.cs`**).\n\n| Signal | What good looks like | Alert rule |\n|--------|---------------------|-------------|\n| **`archlucid_authority_pipeline_work_pending`** | Well **below 50** for normal load | **`ArchLucidAuthorityPipelineWorkBacklog`**: **`> 50`** for **15m** |\n| **`archlucid_authority_pipeline_work_dead_letter`** | **Zero** (`DeadLetteredUtc` unset) | **`ArchLucidAuthorityPipelineWorkDeadLetters`**: **`> 0`** for **30m** |\n| **`archlucid_authority_pipeline_work_oldest_pending_age_seconds`** | Seconds near zero | **`ArchLucidAuthorityPipelineWorkStale`**: **`> 3600`** for **20m** |\n| **`archlucid_data_consistency_*_total`** | Zero **`rate`** in steady state | **`ArchLucidDataConsistencyOrphansDetected`** / **`ArchLucidDataConsistencyAlertsRaised`** ( **`1h`** windows in **`infra/prometheus/archlucid-alerts.yml`** ) |\n\n**Import:** Grafana → **Dashboards** → **Import** → upload this JSON → bind variable **`${datasource}`** to **Prometheus**. Optional Terraform root: **`infra/terraform-monitoring/grafana_dashboards.tf`**. Runbook **`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`** (clone).",
+        "content": "## Authority pipeline (meter **ArchLucid**)\n\nStable names match **`docs/library/OBSERVABILITY.md`** (source **`ArchLucidInstrumentation.cs`**).\n\n| Signal | What good looks like | Alert rule |\n|--------|---------------------|-------------|\n| **`archlucid_authority_pipeline_work_pending`** | Well **below 50** for normal load | **`ArchLucidAuthorityPipelineWorkBacklog`**: **`> 50`** for **15m** |\n| **`archlucid_authority_pipeline_work_dead_letter`** | **Zero** (`DeadLetteredUtc` unset) | **`ArchLucidAuthorityPipelineWorkDeadLetters`**: **`> 0`** for **30m** |\n| **`archlucid_authority_pipeline_work_oldest_pending_age_seconds`** | Seconds near zero | **`ArchLucidAuthorityPipelineWorkStale`**: **`> 3600`** for **20m** |\n| **`archlucid_data_consistency_*_total`** | Zero **`rate`** in steady state | **`ArchLucidDataConsistencyOrphansDetected`** / **`ArchLucidDataConsistencyAlertsRaised`** ( **`1h`** windows in **`infra/prometheus/archlucid-alerts.yml`** ) |\n\n**Import:** Grafana â†’ **Dashboards** â†’ **Import** â†’ upload this JSON â†’ bind variable **`${datasource}`** to **Prometheus**. Optional Terraform root: **`infra/terraform-monitoring/grafana_dashboards.tf`**. Runbook **`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`** (clone).",
         "mode": "markdown"
       },
       "title": "Meter / alert alignment",
@@ -23,7 +23,7 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "description": "Histogram **`archlucid_authority_pipeline_stage_duration_ms`** — labels **`stage`**, **`outcome`** per **`OBSERVABILITY.md`**. If empty, confirm OTLP histogram export names (`*_bucket`) on scrape.",
+      "description": "Histogram **`archlucid_authority_pipeline_stage_duration_ms`** â€” labels **`stage`**, **`outcome`** per **`OBSERVABILITY.md`**. If empty, confirm OTLP histogram export names (`*_bucket`) on scrape.",
       "fieldConfig": {
         "defaults": { "decimals": 1, "unit": "ms" },
         "overrides": []
@@ -121,7 +121,7 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "description": "Count of **`AuthorityPipelineWorkOutbox`** rows with **`DeadLetteredUtc`** set. Prometheus **`ArchLucidAuthorityPipelineWorkDeadLetters`** fires when **`> 0`** for **30m** (critical); panel marks **≥1** red.",
+      "description": "Count of **`AuthorityPipelineWorkOutbox`** rows with **`DeadLetteredUtc`** set. Prometheus **`ArchLucidAuthorityPipelineWorkDeadLetters`** fires when **`> 0`** for **30m** (critical); panel marks **â‰¥1** red.",
       "fieldConfig": {
         "defaults": {
           "thresholds": {
@@ -156,7 +156,7 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "description": "Detection-only orphans vs **`ArchLucidDataConsistencyOrphansDetected`**; **`alerts_total`** vs **`ArchLucidDataConsistencyAlertsRaised`**; **`orphans_quarantined_total`** when quarantine mode inserts rows. Alerts use **`1h`** `rate`; panel uses **`5m`** for responsiveness — widen if noisy.",
+      "description": "Detection-only orphans vs **`ArchLucidDataConsistencyOrphansDetected`**; **`alerts_total`** vs **`ArchLucidDataConsistencyAlertsRaised`**; **`orphans_quarantined_total`** when quarantine mode inserts rows. Alerts use **`1h`** `rate`; panel uses **`5m`** for responsiveness â€” widen if noisy.",
       "fieldConfig": { "defaults": {}, "overrides": [] },
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
       "id": 14,
@@ -236,7 +236,7 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "description": "Meter **ArchLucid** counters. Empty series ⇒ confirm Prometheus scrape translates histogram/counter names (OTLP mapping version).",
+      "description": "Meter **ArchLucid** counters. Empty series â‡’ confirm Prometheus scrape translates histogram/counter names (OTLP mapping version).",
       "fieldConfig": { "defaults": {}, "overrides": [] },
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 40 },
       "id": 3,
@@ -302,6 +302,56 @@
       ],
       "title": "LLM token rates (Azure OpenAI completions)",
       "type": "timeseries"
+    },
+    {
+      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 56 },
+      "id": 20,
+      "options": {
+        "content": "## Business Value\n\nDirectional ROI proxy from **`archlucid_findings_produced_total`** (severity-weighted rate). Actual USD savings are computed at runtime in the Executive ROI API — use this panel for operational trend visibility only.",
+        "mode": "markdown"
+      },
+      "title": "Business Value",
+      "type": "text"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Findings produced per severity after authority runs complete. Pair with Executive ROI export for USD estimates.",
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 59 },
+      "id": 21,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "sum by (severity) (rate(archlucid_findings_produced_total[5m]))",
+          "legendFormat": "{{severity}} / s",
+          "refId": "A"
+        }
+      ],
+      "title": "Findings produced rate (by severity)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Heuristic severity-weighted findings rate (Critical×4 + Error×3 + Warning×2 + Info×1). Not USD — directional business-value proxy per Improvement 12.",
+      "fieldConfig": { "defaults": { "decimals": 2 }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 59 },
+      "id": 22,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(archlucid_findings_produced_total{severity=\"Critical\"}[5m])) * 4 + sum(rate(archlucid_findings_produced_total{severity=\"Error\"}[5m])) * 3 + sum(rate(archlucid_findings_produced_total{severity=\"Warning\"}[5m])) * 2 + sum(rate(archlucid_findings_produced_total{severity=\"Info\"}[5m]))",
+          "legendFormat": "weighted findings / s",
+          "refId": "A"
+        }
+      ],
+      "title": "Severity-weighted findings proxy",
+      "type": "timeseries"
     }
   ],
   "refresh": "30s",
@@ -325,7 +375,7 @@
   "time": { "from": "now-6h", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
-  "title": "ArchLucid — Authority pipeline",
+  "title": "ArchLucid â€” Authority pipeline",
   "uid": "archlucid-authority",
   "version": 3,
   "weekStart": ""

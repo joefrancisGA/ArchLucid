@@ -1,0 +1,195 @@
+﻿{
+  "annotations": { "list": [] },
+  "description": "Integration event outbox depth, publish outcomes, and outbound webhook delivery health (Improvement 19).",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 0 },
+      "id": 10,
+      "options": {
+        "content": "## Integration & webhook health\n\nOutbox gauges from **`OutboxOperationalMetricsHostedService`** (`dbo.IntegrationEventOutbox`). Publish success/failure counters from **`IntegrationEventOutboxProcessor`**. HTTP webhook POST attempts use **`archlucid.webhook.deliveries`** (`HttpWebhookPoster`).",
+        "mode": "markdown"
+      },
+      "title": "Signals",
+      "type": "text"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Actionable rows eligible for Service Bus publish (`archlucid_integration_event_outbox_publish_pending`).",
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 150 },
+              { "color": "red", "value": 200 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 4 },
+      "id": 1,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "expr": "archlucid_integration_event_outbox_publish_pending",
+          "legendFormat": "publish pending",
+          "refId": "A"
+        }
+      ],
+      "title": "Integration outbox depth (publish pending)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Rows with exhausted publish retries (`archlucid_integration_event_outbox_dead_letter`).",
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 4 },
+      "id": 2,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "expr": "archlucid_integration_event_outbox_dead_letter",
+          "legendFormat": "dead letter rows",
+          "refId": "A"
+        }
+      ],
+      "title": "Integration outbox dead letters",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Age of oldest actionable integration outbox row.",
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 2700 },
+              { "color": "red", "value": 3600 }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 4 },
+      "id": 3,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "expr": "archlucid_integration_event_outbox_oldest_actionable_pending_age_seconds",
+          "legendFormat": "oldest age",
+          "refId": "A"
+        }
+      ],
+      "title": "Oldest actionable outbox age",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Service Bus publish outcomes from the integration outbox processor.",
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "id": 4,
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "sum by (event_type) (rate(archlucid_integration_event_delivery_success_total[5m]))",
+          "legendFormat": "success {{event_type}} / s",
+          "refId": "A"
+        },
+        {
+          "expr": "sum by (event_type) (rate(archlucid_integration_event_delivery_failed_total[5m]))",
+          "legendFormat": "failed {{event_type}} / s",
+          "refId": "B"
+        }
+      ],
+      "title": "Integration outbox publish outcomes / s",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Outbound HTTP webhook POST attempts (alerts, digests, chat ops).",
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+      "id": 5,
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "sum by (event_type) (rate(archlucid_webhook_deliveries_total{succeeded=\"true\"}[5m]))",
+          "legendFormat": "ok {{event_type}} / s",
+          "refId": "A"
+        },
+        {
+          "expr": "sum by (event_type) (rate(archlucid_webhook_deliveries_total{succeeded=\"false\"}[5m]))",
+          "legendFormat": "fail {{event_type}} / s",
+          "refId": "B"
+        }
+      ],
+      "title": "Webhook deliveries / s (by event_type)",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["archlucid", "integrations", "webhooks", "prometheus"],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "hide": 0,
+        "label": "Datasource",
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "ArchLucid — Integrations & webhooks",
+  "uid": "archlucid-integrations",
+  "version": 1,
+  "weekStart": ""
+}

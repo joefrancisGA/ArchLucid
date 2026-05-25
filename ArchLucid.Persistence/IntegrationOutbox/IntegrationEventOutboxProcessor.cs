@@ -72,9 +72,12 @@ public sealed class IntegrationEventOutboxProcessor(
                     ct);
 
                 await outbox.MarkProcessedAsync(entry.OutboxId, ct);
+                ArchLucidInstrumentation.RecordIntegrationEventDeliverySuccess(entry.EventType);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
+                ArchLucidInstrumentation.RecordIntegrationEventDeliveryFailure(entry.EventType);
+
                 int newRetryCount = entry.RetryCount + 1;
                 string err = ex.Message;
 

@@ -65,3 +65,10 @@ resource "grafana_dashboard" "cost" {
   folder      = grafana_folder.archlucid[0].id
   config_json = file("${path.module}/grafana_dashboards/archlucid-cost.json")
 }
+
+resource "grafana_dashboard" "integrations" {
+  count = local.grafana_dashboards_enabled ? 1 : 0
+
+  folder      = grafana_folder.archlucid[0].id
+  config_json = file("${path.module}/../grafana/dashboard-archlucid-integrations.json")
+}

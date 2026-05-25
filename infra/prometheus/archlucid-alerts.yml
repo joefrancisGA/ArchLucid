@@ -346,3 +346,18 @@ groups:
             At least one row in dbo.MarketingPricingQuoteRequests has been unanswered for more than 24 hours (UTC).
             Review GET /v1/admin/marketing/pricing-quote-aging and docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md.
 
+
+  - name: archlucid-llm-safety
+    rules:
+      - alert: ArchLucidHighPromptRedactionRate
+        expr: |
+          sum(rate(archlucid_llm_prompt_redactions_total[5m])) > 5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Elevated LLM prompt redaction rate
+          description: >-
+            Aggregate deny-list redactions exceed 5/s for 10m on `archlucid_llm_prompt_redactions_total`.
+            Investigate prompt injection attempts, overly aggressive deny-list rules, or upstream data quality.
+            Grafana: `infra/grafana/dashboard-archlucid-llm-usage.json` (Prompt redaction panels).

@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
+using ArchLucid.Core.Retrieval;
+
 namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
@@ -315,6 +317,38 @@ public static class ArchLucidInstrumentation
         AppMeter.CreateCounter<long>(
             "archlucid_rag_retrieval_fallback_total",
             description: "Ask retrieval fell back to SQL text search after vector index failure.");
+
+    /// <summary>
+    ///     Wall time for vector retrieval search (embed + index query; labels <c>corpus_kind</c> = single kind,
+    ///     <c>mixed</c>, or <c>none</c> when empty).
+    /// </summary>
+    public static readonly Histogram<double> RagRetrievalDurationMilliseconds =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_rag_retrieval_duration_ms",
+            "ms",
+            "Wall time for RAG vector retrieval (embed + vector index search).");
+
+    /// <summary>
+    ///     Chunks returned per retrieval search grouped by <c>corpus_kind</c> (Improvement 7; histogram not counter
+    ///     per assessment spec).
+    /// </summary>
+    public static readonly Histogram<int> RagChunksRetrieved =
+        AppMeter.CreateHistogram<int>(
+            "archlucid_rag_chunks_retrieved_total",
+            "{chunk}",
+            "Number of retrieval chunks returned per vector search (label corpus_kind).");
+
+    /// <summary>Integration outbox Service Bus publish succeeded (label <c>event_type</c> low-cardinality literal).</summary>
+    public static readonly Counter<long> IntegrationEventDeliverySuccessTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_integration_event_delivery_success_total",
+            description: "Integration event outbox rows published to Service Bus successfully (label event_type).");
+
+    /// <summary>Integration outbox publish attempt failed (label <c>event_type</c>; row may retry or dead-letter).</summary>
+    public static readonly Counter<long> IntegrationEventDeliveryFailedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_integration_event_delivery_failed_total",
+            description: "Integration event outbox publish failures (label event_type).");
 
     /// <summary>LLM completion response cache hits (<c>CachingLlmCompletionClient</c>, label <c>agent_type</c>).</summary>
     public static readonly Counter<long> LlmCompletionCacheHitsTotal =
@@ -1144,6 +1178,104 @@ public static class ArchLucidInstrumentation
     public static void RecordRagRetrievalFallback()
     {
         RagRetrievalFallbackTotal.Add(1);
+    }
+
+    /// <summary>
+    ///     Records RAG vector search latency and per-<paramref name="hits" /> corpus chunk counts (Improvement 7).
+    ///     Omits <c>tenant_id</c> tags by default (high cardinality); callers pass <paramref name="recordPerTenant" />
+    ///     only for bounded tenant counts.
+    /// </summary>
+    public static void RecordRagRetrievalSearch(
+        double durationMilliseconds,
+        IReadOnlyList<RetrievalHit> hits,
+        Guid tenantId,
+        bool recordPerTenant = false)
+    {
+        if (durationMilliseconds < 0 || double.IsNaN(durationMilliseconds) || double.IsInfinity(durationMilliseconds))
+            return;
+
+        string corpusKindLabel = ResolveRagRetrievalCorpusKindLabel(hits);
+
+        TagList durationTags = new() { { "corpus_kind", corpusKindLabel } };
+
+        if (recordPerTenant && tenantId != Guid.Empty)
+            durationTags.Add("tenant_id", tenantId.ToString("D"));
+
+        RagRetrievalDurationMilliseconds.Record(durationMilliseconds, durationTags);
+
+        if (hits is null || hits.Count == 0)
+        {
+            TagList emptyTags = new() { { "corpus_kind", "none" } };
+
+            if (recordPerTenant && tenantId != Guid.Empty)
+                emptyTags.Add("tenant_id", tenantId.ToString("D"));
+
+            RagChunksRetrieved.Record(0, emptyTags);
+
+            return;
+        }
+
+        Dictionary<string, int> countsByCorpus = new(StringComparer.Ordinal);
+
+        foreach (RetrievalHit hit in hits)
+        {
+            if (hit is null)
+                continue;
+
+            string kind = string.IsNullOrWhiteSpace(hit.CorpusKind) ? "unknown" : hit.CorpusKind.Trim();
+
+            countsByCorpus.TryGetValue(kind, out int existing);
+            countsByCorpus[kind] = existing + 1;
+        }
+
+        foreach (KeyValuePair<string, int> pair in countsByCorpus)
+        {
+            TagList chunkTags = new() { { "corpus_kind", pair.Key } };
+
+            if (recordPerTenant && tenantId != Guid.Empty)
+                chunkTags.Add("tenant_id", tenantId.ToString("D"));
+
+            RagChunksRetrieved.Record(pair.Value, chunkTags);
+        }
+    }
+
+    /// <summary>Increments <see cref="IntegrationEventDeliverySuccessTotal" />.</summary>
+    public static void RecordIntegrationEventDeliverySuccess(string eventType)
+    {
+        string e = string.IsNullOrWhiteSpace(eventType) ? "unknown" : eventType.Trim();
+        IntegrationEventDeliverySuccessTotal.Add(1, new TagList { { "event_type", e } });
+    }
+
+    /// <summary>Increments <see cref="IntegrationEventDeliveryFailedTotal" />.</summary>
+    public static void RecordIntegrationEventDeliveryFailure(string eventType)
+    {
+        string e = string.IsNullOrWhiteSpace(eventType) ? "unknown" : eventType.Trim();
+        IntegrationEventDeliveryFailedTotal.Add(1, new TagList { { "event_type", e } });
+    }
+
+    private static string ResolveRagRetrievalCorpusKindLabel(IReadOnlyList<RetrievalHit>? hits)
+    {
+        if (hits is null || hits.Count == 0)
+            return "none";
+
+        HashSet<string> kinds = new(StringComparer.Ordinal);
+
+        foreach (RetrievalHit hit in hits)
+        {
+            if (hit is null)
+                continue;
+
+            string kind = string.IsNullOrWhiteSpace(hit.CorpusKind) ? "unknown" : hit.CorpusKind.Trim();
+            kinds.Add(kind);
+        }
+
+        if (kinds.Count == 0)
+            return "none";
+
+        if (kinds.Count == 1)
+            return kinds.First();
+
+        return "mixed";
     }
 
     /// <summary>Records one graph snapshot projection cache hit.</summary>

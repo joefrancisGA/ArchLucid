@@ -1,3 +1,6 @@
+using System.Diagnostics;
+
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
@@ -17,7 +20,14 @@ public sealed class RetrievalQueryService(
         ArgumentNullException.ThrowIfNull(query);
         ArgumentException.ThrowIfNullOrWhiteSpace(query.QueryText);
 
+        long startTicks = Stopwatch.GetTimestamp();
+
         float[] embedding = await embeddingService.EmbedAsync(query.QueryText, ct);
-        return await vectorIndex.SearchAsync(query, embedding, ct);
+        IReadOnlyList<RetrievalHit> hits = await vectorIndex.SearchAsync(query, embedding, ct);
+
+        double durationMilliseconds = Stopwatch.GetElapsedTime(startTicks).TotalMilliseconds;
+        ArchLucidInstrumentation.RecordRagRetrievalSearch(durationMilliseconds, hits, query.TenantId);
+
+        return hits;
     }
 }
