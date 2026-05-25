@@ -26,8 +26,8 @@ describe("MarketingCustomPolicyPackAuthoringSection", () => {
     );
 
     const sectionText = screen.getByTestId("custom-policy-pack-authoring-section").textContent ?? "";
-    expect(sectionText).not.toContain("$15,000");
-    expect(sectionText).not.toContain("$40,000");
+    // Locked USD list prices must not appear in UI copy (canonical source: PRICING_PHILOSOPHY.md only).
+    expect(sectionText).not.toMatch(/\$[\d,]+/);
     expect(sectionText).not.toContain(CUSTOM_POLICY_PACK_TIER_INTEREST_LABEL);
   });
 
