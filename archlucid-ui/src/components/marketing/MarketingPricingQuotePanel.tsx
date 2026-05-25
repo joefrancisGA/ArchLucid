@@ -130,12 +130,12 @@ export function MarketingPricingQuotePanel() {
         Request a quote
       </h2>
       <p className="mb-4 text-sm text-neutral-600 dark:text-neutral-400">
-        Submit your procurement details and we will respond with next steps — most teams consolidate requirements over
-        email before workspace provisioning begins.
+        Submit your procurement details and our sales team will follow up within one business day (UTC weekdays) with
+        next steps — most teams consolidate requirements over email before workspace provisioning begins.
       </p>
       {done ? (
         <p className="text-sm text-teal-800 dark:text-teal-200" role="status">
-          Thanks — your request was received.
+          Thanks — your request was received. A member of our team will reach out within one business day.
         </p>
       ) : !panelOpen ? (
         <div className="space-y-3">

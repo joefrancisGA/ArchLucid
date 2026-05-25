@@ -44,6 +44,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/digest-subscriptions": "advanced-only",
   "/admin/health": "admin-only",
   "/admin/configuration": "admin-only",
+  "/admin/pricing-quote-aging": "admin-only",
   "/admin/support": "admin-only",
   "/admin/users": "admin-only",
   "/settings/cloud-connections": "admin-only",

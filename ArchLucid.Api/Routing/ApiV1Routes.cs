@@ -34,6 +34,8 @@ public static class ApiV1Routes
 
     public const string TenantUsageStatus = "v1/tenant/usage-status";
 
+    public const string AdminMarketingPricingQuoteAging = "v1/admin/marketing/pricing-quote-aging";
+
     public const string TenantMeasuredRoi = "v1/tenant/measured-roi";
 
     /// <summary>Workspaces + architecture projects for scope switcher (<c>GET /v1/tenant/workspaces</c>).</summary>

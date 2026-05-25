@@ -261,7 +261,7 @@ Wiring: **`ObservabilityTraceSamplingConfigurator.ConfigureTraceSampling`** runs
 
 | File | Purpose |
 |------|---------|
-| `dashboard-archlucid-authority.json` | Authority pipeline spans and throughput. |
+| `dashboard-archlucid-authority.json` | Authority pipeline spans and throughput; **Sales ops** row (Improvement #6) — pricing quote request age histogram (`archlucid_pricing_quote_request_age_hours` by `breach_status`) and open warn/breach stats. Operator table: **`/admin/pricing-quote-aging`**. |
 | `dashboard-archlucid-slo.json` | HTTP SLO / burn-rate style panels; integration outbox dead-letter gauge (`archlucid_integration_event_outbox_dead_letter`). |
 | `dashboard-archlucid-llm-usage.json` | LLM token rates. |
 | `dashboards/archlucid-container-apps-overview.json` | Container Apps overview. |

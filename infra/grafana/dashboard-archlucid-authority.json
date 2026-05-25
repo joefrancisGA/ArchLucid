@@ -32,7 +32,7 @@
                    {
                        "datasource":  {
                                           "type":  "prometheus",
-                                          "uid":  "${datasource}"
+                                          "uid": "${datasource}"
                                       },
                        "description":  "Histogram **`archlucid_authority_pipeline_stage_duration_ms`** â€” labels **`stage`**, **`outcome`** per **`OBSERVABILITY.md`**. If empty, confirm OTLP histogram export names (`*_bucket`) on scrape.",
                        "fieldConfig":  {
@@ -73,7 +73,7 @@
                    {
                        "datasource":  {
                                           "type":  "prometheus",
-                                          "uid":  "${datasource}"
+                                          "uid": "${datasource}"
                                       },
                        "description":  "Observable gauge depth on **`dbo.AuthorityPipelineWorkOutbox`**. **Yellow / red shading** approximates Prometheus **`ArchLucidAuthorityPipelineWorkBacklog`** (\u003e50 for **15m**).",
                        "fieldConfig":  {
@@ -130,7 +130,7 @@
                    {
                        "datasource":  {
                                           "type":  "prometheus",
-                                          "uid":  "${datasource}"
+                                          "uid": "${datasource}"
                                       },
                        "description":  "Oldest unprocessed **`AuthorityPipelineWorkOutbox`** row age. Prometheus **`ArchLucidAuthorityPipelineWorkStale`** at **\u003e3600s** (**20m** **`for`**). Increase worker replicas when persistently elevated + SQL tier is healthy.",
                        "fieldConfig":  {
@@ -187,7 +187,7 @@
                    {
                        "datasource":  {
                                           "type":  "prometheus",
-                                          "uid":  "${datasource}"
+                                          "uid": "${datasource}"
                                       },
                        "description":  "Count of **`AuthorityPipelineWorkOutbox`** rows with **`DeadLetteredUtc`** set. Prometheus **`ArchLucidAuthorityPipelineWorkDeadLetters`** fires when **`\u003e 0`** for **30m** (critical); panel marks **â‰¥1** red.",
                        "fieldConfig":  {
@@ -240,7 +240,7 @@
                    {
                        "datasource":  {
                                           "type":  "prometheus",
-                                          "uid":  "${datasource}"
+                                          "uid": "${datasource}"
                                       },
                        "description":  "Detection-only orphans vs **`ArchLucidDataConsistencyOrphansDetected`**; **`alerts_total`** vs **`ArchLucidDataConsistencyAlertsRaised`**; **`orphans_quarantined_total`** when quarantine mode inserts rows. Alerts use **`1h`** `rate`; panel uses **`5m`** for responsiveness â€” widen if noisy.",
                        "fieldConfig":  {
@@ -290,7 +290,7 @@
                    {
                        "datasource":  {
                                           "type":  "prometheus",
-                                          "uid":  "${datasource}"
+                                          "uid": "${datasource}"
                                       },
                        "fieldConfig":  {
                                            "defaults":  {
@@ -329,7 +329,7 @@
                    {
                        "datasource":  {
                                           "type":  "prometheus",
-                                          "uid":  "${datasource}"
+                                          "uid": "${datasource}"
                                       },
                        "fieldConfig":  {
                                            "defaults":  {
@@ -368,7 +368,7 @@
                    {
                        "datasource":  {
                                           "type":  "prometheus",
-                                          "uid":  "${datasource}"
+                                          "uid": "${datasource}"
                                       },
                        "description":  "Meter **ArchLucid** counters. Empty series â‡’ confirm Prometheus scrape translates histogram/counter names (OTLP mapping version).",
                        "fieldConfig":  {
@@ -408,7 +408,7 @@
                    {
                        "datasource":  {
                                           "type":  "prometheus",
-                                          "uid":  "${datasource}"
+                                          "uid": "${datasource}"
                                       },
                        "fieldConfig":  {
                                            "defaults":  {
@@ -447,7 +447,7 @@
                    {
                        "datasource":  {
                                           "type":  "prometheus",
-                                          "uid":  "${datasource}"
+                                          "uid": "${datasource}"
                                       },
                        "fieldConfig":  {
                                            "defaults":  {
@@ -506,7 +506,7 @@
                    {
                        "datasource":  {
                                           "type":  "prometheus",
-                                          "uid":  "${datasource}"
+                                          "uid": "${datasource}"
                                       },
                        "description":  "Platform aggregate estimated USD savings from Executive ROI dedup rules (Improvement #4).",
                        "fieldConfig":  {
@@ -552,7 +552,7 @@
                    {
                        "datasource":  {
                                           "type":  "prometheus",
-                                          "uid":  "${datasource}"
+                                          "uid": "${datasource}"
                                       },
                        "description":  "Secondary directional panel: findings produced per severity after authority runs complete.",
                        "fieldConfig":  {
@@ -592,7 +592,7 @@
                    {
                        "datasource":  {
                                           "type":  "prometheus",
-                                          "uid":  "${datasource}"
+                                          "uid": "${datasource}"
                                       },
                        "description":  "Heuristic severity-weighted findings rate (Critical×4 + Error×3 + Warning×2 + Info×1). Not USD — directional business-value proxy per Improvement 12.",
                        "fieldConfig":  {
@@ -627,6 +627,154 @@
                                        }
                                    ],
                        "title":  "Severity-weighted findings proxy (secondary)",
+                       "type":  "timeseries"
+                   },
+                   {
+                       "collapsed":  false,
+                       "gridPos":  {
+                                       "y":  75,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  1
+                                   },
+                       "id":  24,
+                       "panels":  [
+
+                                  ],
+                       "title":  "Sales ops",
+                       "type":  "row"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid": "${datasource}"
+                                      },
+                       "description":  "Open pricing quote requests in warn at 18h band (Improvement #6).",
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "short",
+                                                            "decimals":  0
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "y":  76,
+                                       "w":  12,
+                                       "x":  0,
+                                       "h":  6
+                                   },
+                       "id":  25,
+                       "options":  {
+                                       "textMode":  "auto",
+                                       "graphMode":  "none",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "justifyMode":  "auto",
+                                       "orientation":  "auto",
+                                       "colorMode":  "value"
+                                   },
+                       "targets":  [
+                                       {
+                                           "legendFormat":  "warn",
+                                           "expr":  "sum(archlucid_pricing_quote_request_age_hours_count{breach_status=\"warn at 18h\"})",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "title":  "Pricing quote open (warn at 18h)",
+                       "type":  "stat"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid": "${datasource}"
+                                      },
+                       "description":  "Open pricing quote requests past 24h acknowledgement SLA (Improvement #6).",
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "short",
+                                                            "decimals":  0
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "y":  76,
+                                       "w":  12,
+                                       "x":  12,
+                                       "h":  6
+                                   },
+                       "id":  26,
+                       "options":  {
+                                       "textMode":  "auto",
+                                       "graphMode":  "none",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "justifyMode":  "auto",
+                                       "orientation":  "auto",
+                                       "colorMode":  "value"
+                                   },
+                       "targets":  [
+                                       {
+                                           "legendFormat":  "breach",
+                                           "expr":  "sum(archlucid_pricing_quote_request_age_hours_count{breach_status=\"breach at 24h\"})",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "title":  "Pricing quote open (breach at 24h)",
+                       "type":  "stat"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid": "${datasource}"
+                                      },
+                       "description":  "P95 age in hours for unanswered marketing pricing quote requests by breach_status (Improvement #6).",
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "h",
+                                                            "decimals":  1
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "y":  82,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  8
+                                   },
+                       "id":  27,
+                       "options":  {
+                                       "legend":  {
+                                                      "placement":  "bottom",
+                                                      "displayMode":  "list"
+                                                  },
+                                       "tooltip":  {
+                                                       "mode":  "multi"
+                                                   }
+                                   },
+                       "targets":  [
+                                       {
+                                           "legendFormat":  "{{breach_status}} p95",
+                                           "expr":  "histogram_quantile(0.95, sum(rate(archlucid_pricing_quote_request_age_hours_bucket[5m])) by (le, breach_status))",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "title":  "Pricing quote request age (p95 by breach_status)",
                        "type":  "timeseries"
                    }
                ],

@@ -18,6 +18,7 @@ export const ApiV1Routes = {
   tenantExecDigestPreferences: "v1/tenant/exec-digest-preferences",
   tenantTrialStatus: "v1/tenant/trial-status",
   tenantUsageStatus: "v1/tenant/usage-status",
+  adminPricingQuoteAging: "v1/admin/marketing/pricing-quote-aging",
   tenantCostEstimate: "v1/tenant/cost-estimate",
   tenantMeasuredRoi: "v1/tenant/measured-roi",
   tenantWorkspaces: "v1/tenant/workspaces",

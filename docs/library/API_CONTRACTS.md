@@ -148,6 +148,8 @@ CLI: `archlucid first-value-report <runId> [--save]` · `archlucid reference-evi
 
 **Admin reference bundle (ZIP):** `GET /v1/admin/tenants/{tenantId}/reference-evidence?includeDemo=false` — **AdminAuthority**. Returns **`application/zip`** (`pilot-run-deltas.json`, first-value Markdown/PDF when build succeeds, sponsor one-pager when Standard-tier path succeeds, `README.txt`) scoped to the tenant’s latest committed non-demo run unless `includeDemo=true`. **404** when no suitable run exists. CLI: `archlucid reference-evidence --tenant <tenantId> [--out <dir>] [--include-demo]`.
 
+**Admin marketing pricing quote aging:** `GET /v1/admin/marketing/pricing-quote-aging` — **AdminAuthority**. Returns **`MarketingPricingQuoteAgingResponse`** — open rows from **`dbo.MarketingPricingQuoteRequestsAging`** with **`warnCount`** / **`breachCount`** aggregates for operator triage (Improvement #6). Operator UI: **`/admin/pricing-quote-aging`**. Runbook: **`docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`**.
+
 ## Tenant self-service (`/v1/tenant`)
 
 | Method | Path | Response | Notes |
