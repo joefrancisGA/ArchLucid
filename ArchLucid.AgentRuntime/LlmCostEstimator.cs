@@ -30,29 +30,15 @@ public sealed class LlmCostEstimator(
         if (inputTokens == 0 && outputTokens == 0 && reasoningTokens == 0)
             return null;
 
-        decimal inputRate = o.InputUsdPerMillionTokens;
-        decimal outputRate = o.OutputUsdPerMillionTokens;
-
-        if (_usdRateOverride.TryGetUsdPerMillionRates(out decimal persistedIn, out decimal persistedOut))
+        if (!LlmCostEstimationEffectiveRates.TryResolve(
+                o,
+                _usdRateOverride,
+                deploymentLabel,
+                out decimal inputRate,
+                out decimal outputRate,
+                out decimal reasoningRate))
         {
-            inputRate = persistedIn;
-            outputRate = persistedOut;
-        }
-
-        decimal reasoningRate =
-            o.ReasoningUsdPerMillionTokens > 0m ? o.ReasoningUsdPerMillionTokens : outputRate;
-
-        if (!string.IsNullOrWhiteSpace(deploymentLabel)
-            && o.Deployments.TryGetValue(deploymentLabel.Trim(), out LlmDeploymentUsdRates? dep))
-        {
-            if (dep.InputUsdPerMillionTokens > 0m)
-                inputRate = dep.InputUsdPerMillionTokens;
-
-            if (dep.OutputUsdPerMillionTokens > 0m)
-                outputRate = dep.OutputUsdPerMillionTokens;
-
-            if (dep.ReasoningUsdPerMillionTokens > 0m)
-                reasoningRate = dep.ReasoningUsdPerMillionTokens;
+            return null;
         }
 
         decimal inPart = inputTokens * inputRate / 1_000_000m;

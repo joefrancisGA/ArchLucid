@@ -20,8 +20,8 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         ArgumentNullException.ThrowIfNull(traces);
         ArgumentNullException.ThrowIfNull(costEstimator);
 
-        int promptSum = 0;
-        int completionSum = 0;
+        long promptSum = 0;
+        long completionSum = 0;
         decimal costAccum = 0m;
         bool anyCost = false;
 
@@ -91,6 +91,6 @@ public static class AgentExecutionTraceRunLlmCostAggregator
 /// <summary>Per-run LLM usage totals derived from <see cref="AgentExecutionTrace" /> rows.</summary>
 public sealed record AgentExecutionTraceRunLlmCostSummary(
     decimal? EstimatedCostUsd,
-    int PromptTokens,
-    int CompletionTokens,
+    long PromptTokens,
+    long CompletionTokens,
     string ModelLabel);

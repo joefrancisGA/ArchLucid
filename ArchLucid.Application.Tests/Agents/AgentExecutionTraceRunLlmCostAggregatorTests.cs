@@ -120,4 +120,27 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
         summary.CompletionTokens.Should().Be(5);
         summary.EstimatedCostUsd.Should().BeNull();
     }
+
+    [Fact]
+    public void Compute_LargeTokenTotals_UseLongAccumulationWithoutOverflow()
+    {
+        Mock<ILlmCostEstimator> estimator = new();
+        estimator.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>()))
+            .Returns(1m);
+
+        const int tokensPerTrace = 1_500_000_000;
+
+        List<AgentExecutionTrace> traces =
+        [
+            new() { ModelDeploymentName = "dep-a", InputTokenCount = tokensPerTrace, OutputTokenCount = 0 },
+            new() { ModelDeploymentName = "dep-a", InputTokenCount = tokensPerTrace, OutputTokenCount = 0 },
+        ];
+
+        AgentExecutionTraceRunLlmCostSummary summary =
+            AgentExecutionTraceRunLlmCostAggregator.Compute(traces, estimator.Object);
+
+        summary.PromptTokens.Should().Be((long)tokensPerTrace * 2);
+        summary.PromptTokens.Should().BeGreaterThan(int.MaxValue);
+        summary.EstimatedCostUsd.Should().Be(2m);
+    }
 }

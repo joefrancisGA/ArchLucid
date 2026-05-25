@@ -6,7 +6,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Priority order:** Items are listed highest → lowest priority. When picking up work, start at the top. Re-sort when new items are added: items that affect customer-visible correctness rank above ops/observability improvements, which rank above developer-experience polish.
 
-**Recently shipped (IDs kept for grep, ADRs, and code comments — spec text removed below):** **TB-001** (informational async audit best-effort + counter), **TB-002** (`archlucid_startup_config_warnings_total`), **TB-003** (named-query p95 allowlist + `archlucid_query_p95_ms`), **TB-006** (`ComparisonRecords` run id GUID + FK migration).
+**Recently shipped (IDs kept for grep, ADRs, and code comments — spec text removed below):** **TB-001** (informational async audit best-effort + counter), **TB-002** (`archlucid_startup_config_warnings_total`), **TB-003** (named-query p95 allowlist + `archlucid_query_p95_ms`), **TB-006** (`ComparisonRecords` run id GUID + FK migration), **TB-022** (long-safe run token aggregation), **TB-026** (`LlmCostEstimationOptions` negative-rate validation + runtime guard).
 
 **TB-022 – TB-026** were added 2026-05-24 from an audit-grade correctness review of `LlmCostEstimator` (see `ArchLucid.AgentRuntime/LlmCostEstimator.cs` and `ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs`). They form a single thematic cluster: TB-022 + TB-026 are correctness fixes; TB-024 is test coverage; TB-023 + TB-025 are documentation/annotation.
 
@@ -16,8 +16,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001 done, INV-005, INV-006) | Multi-tenant + prod boot safety — **INV-001 shipped 2026-05-09**; remaining: startup validator parity + composition-root scan | S (remainder) |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | Honesty + economics — persisted execution mode, durable budget coherence, single quality-gate truth, replay scope isolation | L |
 | TB-012 | Architecture invariant enforcement — Wave C (INV-007–INV-011, INV-014–INV-015) | Contributor hygiene — time/cancellation/idempotency/HTTP/analyzer pack + webhook ordering + INV-003 path markers | L |
-| TB-022 | `LlmCostEstimator` — `int` overflow in aggregator token-count fields | Correctness — `promptSum` / `completionSum` + summary record fields silently wrap at ~2.1B tokens; high-context batch runs at risk | XS |
-| TB-026 | `LlmCostEstimator` — negative-rate guard on `LlmDeploymentUsdRates` | Correctness / safety — a misconfigured negative rate bypasses the `> 0m` guard and produces negative cost slices; startup validator or annotation needed | XS |
+| TB-022 | `LlmCostEstimator` — `int` overflow in aggregator token-count fields | Done (Improvement **#19**, 2026-05-25) | XS |
+| TB-026 | `LlmCostEstimator` — negative-rate guard on `LlmDeploymentUsdRates` | Done (Improvement **#19**, 2026-05-25) | XS |
 | TB-004 | Wire OTel exporters + verify agent-output metrics; add Azure alerts | Ops / release bar — conservative quality posture needs visible trends (`archlucid_agent_output_*`) | ~1–2 h |
 | TB-005 | AI-assisted owner pen-test support (Cursor agent) | Security / V1 assurance — structured help for 2026-Q2 owner exercise | Ongoing (time-boxed sessions) |
 | TB-007 | LLM correctness boundary — cohort gate promotion + eval real-mode scenarios | Correctness posture — gated real-model CI blocked on prereqs (Gap A+C open) | A: ~1 h ops; C: ~4 h eng |
@@ -579,7 +579,12 @@ After each smoke wave, update **`docs/library/CONNECTOR_READINESS_MATRIX.md`** (
 
 ---
 
-## TB-022 — `LlmCostEstimator` — `int` overflow in aggregator token-count fields
+## TB-022 — `LlmCostEstimator` — `int` overflow in aggregator token-count fields — **Done (Improvement #19, 2026-05-25)**
+
+**Shipped:** `AgentExecutionTraceRunLlmCostAggregator` and `AgentExecutionTraceRunLlmCostSummary` use `long` token totals; `RunLlmTokenCountsResponse` uses `long`; overflow regression test in `AgentExecutionTraceRunLlmCostAggregatorTests`.
+
+<details>
+<summary>Original spec (archived)</summary>
 
 **Source:** Cost estimator audit-grade correctness review (2026-05-24).
 
@@ -618,9 +623,16 @@ public sealed record AgentExecutionTraceRunLlmCostSummary(
 
 **Size estimate:** **XS** — ~30 min mechanical change + test annotation.
 
+</details>
+
 ---
 
-## TB-026 — `LlmCostEstimator` — negative-rate guard on `LlmDeploymentUsdRates`
+## TB-026 — `LlmCostEstimator` — negative-rate guard on `LlmDeploymentUsdRates` — **Done (Improvement #19, 2026-05-25)**
+
+**Shipped:** `LlmCostEstimationOptionsValidator` + `ValidateOnStart`; `LlmCostEstimationEffectiveRates.TryResolve` returns false for negative effective rates (including SQL override path); tests in Core + AgentRuntime.
+
+<details>
+<summary>Original spec (archived)</summary>
 
 **Source:** Cost estimator audit-grade correctness review (2026-05-24).
 
@@ -648,6 +660,8 @@ The `LlmCostTuningRequestValidator` correctly rejects negative values on the adm
 - [`ArchLucid.AgentRuntime.Tests/LlmCostEstimatorTests.cs`](../../ArchLucid.AgentRuntime.Tests/LlmCostEstimatorTests.cs)
 
 **Size estimate:** **XS** — ~1 h including annotation, IValidateOptions check, and test.
+
+</details>
 
 ---
 

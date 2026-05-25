@@ -39,6 +39,7 @@ using ArchLucid.Persistence.Repositories;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Composition.Startup;
 
@@ -68,8 +69,10 @@ public static partial class ServiceCollectionExtensions
         services.Configure<RunExplanationAggregateOptions>(
             configuration.GetSection(RunExplanationAggregateOptions.SectionPath));
         // Binds AgentExecution:LlmCostEstimation; option type defaults keep cost visibility on when the section is absent.
-        services.Configure<LlmCostEstimationOptions>(
-            configuration.GetSection(LlmCostEstimationOptions.SectionPath));
+        services.AddOptions<LlmCostEstimationOptions>()
+            .Bind(configuration.GetSection(LlmCostEstimationOptions.SectionPath))
+            .ValidateOnStart();
+        services.AddSingleton<IValidateOptions<LlmCostEstimationOptions>, LlmCostEstimationOptionsValidator>();
 
         ArchLucidOptions coordinatorStorage = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
         RegisterLlmCostEstimationUsdRateOverride(services, coordinatorStorage);

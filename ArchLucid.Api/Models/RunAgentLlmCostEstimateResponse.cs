@@ -6,13 +6,13 @@ namespace ArchLucid.Api.Models;
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
 public sealed class RunLlmTokenCountsResponse
 {
-    public int Prompt
+    public long Prompt
     {
         get;
         set;
     }
 
-    public int Completion
+    public long Completion
     {
         get;
         set;
