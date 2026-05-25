@@ -76,6 +76,7 @@ describe("TenantSettingsPage", () => {
             JSON.stringify({
               architectHourlyRateUsd: 150,
               averageIncidentCostUsd: 25000,
+              eaDiscountMultiplier: 1,
               isTenantConfigured: false,
               updatedUtc: null,
             }),

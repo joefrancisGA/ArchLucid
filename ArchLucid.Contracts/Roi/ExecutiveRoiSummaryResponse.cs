@@ -39,6 +39,20 @@ public sealed class ExecutiveRoiSummaryResponse
         get;
         set;
     } = [];
+
+    /// <summary>Enterprise Agreement discount multiplier applied to cost-category savings (1.0 = Retail list).</summary>
+    public decimal EaDiscountMultiplier
+    {
+        get;
+        set;
+    } = 1.0m;
+
+    /// <summary><see cref="ExecutiveRoiSavingsPricingBasis.Retail" /> or <see cref="ExecutiveRoiSavingsPricingBasis.EaAdjusted" />.</summary>
+    public string SavingsPricingBasis
+    {
+        get;
+        set;
+    } = ExecutiveRoiSavingsPricingBasis.Retail;
 }
 
 /// <summary>ROI snapshot for the newest committed run of a single system.</summary>

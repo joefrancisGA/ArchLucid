@@ -4,6 +4,8 @@ export type ExecutiveRoiSummary = {
   totalEstimatedUsdSavings: number;
   systemCount: number;
   latestRunCount: number;
+  eaDiscountMultiplier: number;
+  savingsPricingBasis: string;
   systems: Array<{
     systemName: string;
     runId: string;
@@ -42,6 +44,7 @@ export function buildExecutiveSummaryMarkdown(summary: ExecutiveRoiSummary): str
   lines.push("# Executive summary — portfolio ROI");
   lines.push("");
   lines.push(`- **Estimated USD savings:** ${formatUsd(summary.totalEstimatedUsdSavings)}`);
+  lines.push(`- **Savings pricing basis:** ${summary.savingsPricingBasis} (EA multiplier ${summary.eaDiscountMultiplier})`);
   lines.push(`- **Systems reviewed:** ${summary.systemCount}`);
   lines.push(`- **Latest runs included:** ${summary.latestRunCount}`);
   lines.push("");

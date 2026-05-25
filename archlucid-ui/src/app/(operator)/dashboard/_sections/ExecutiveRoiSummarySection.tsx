@@ -66,8 +66,13 @@ export function ExecutiveRoiSummarySection() {
           affectedResource?: string | null;
           estimatedUsdSavings?: number | null;
         }>;
+        savingsPricingBasis?: string;
+        eaDiscountMultiplier?: number;
       };
 
+      const pricingBasis = json.savingsPricingBasis ?? "Retail";
+      const eaMultiplier = json.eaDiscountMultiplier ?? 1;
+      const preamble = `# Savings pricing basis: ${pricingBasis} (EA discount multiplier ${eaMultiplier})`;
       const header = "FindingId,RunId,SystemName,Environment,Category,Severity,Title,AffectedResource,EstimatedUsdSavings";
       const lines = (json.rows ?? []).map((row) =>
         [
@@ -83,7 +88,7 @@ export function ExecutiveRoiSummarySection() {
         ].join(","),
       );
 
-      const blob = new Blob([[header, ...lines].join("\n")], { type: "text/csv;charset=utf-8" });
+      const blob = new Blob([[preamble, header, ...lines].join("\n")], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
@@ -191,6 +196,11 @@ export function ExecutiveRoiSummarySection() {
             <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Estimated USD savings</div>
             <div className="mt-1 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
               {formatUsd(data.totalEstimatedUsdSavings)}
+            </div>
+            <div className="mt-1 text-xs text-neutral-600 dark:text-neutral-400" data-testid="exec-roi-pricing-basis">
+              {(data.savingsPricingBasis ?? "Retail") === "EA-adjusted"
+                ? `EA-adjusted (multiplier ${data.eaDiscountMultiplier ?? 1})`
+                : "Retail list pricing"}
             </div>
           </div>
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">

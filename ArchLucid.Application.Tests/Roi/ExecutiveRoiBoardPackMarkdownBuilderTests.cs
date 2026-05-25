@@ -21,6 +21,8 @@ public sealed class ExecutiveRoiBoardPackMarkdownBuilderTests
             [
                 new SystemicIssueSummary { Category = "Security", Severity = "Critical", Count = 3 }
             ],
+            EaDiscountMultiplier = 0.85m,
+            SavingsPricingBasis = ExecutiveRoiSavingsPricingBasis.EaAdjusted,
             Systems =
             [
                 new SystemLatestRunRoi
@@ -41,6 +43,8 @@ public sealed class ExecutiveRoiBoardPackMarkdownBuilderTests
 
         markdown.Should().Contain("Acme Corp");
         markdown.Should().Contain("$12,500");
+        markdown.Should().Contain("EA-adjusted");
+        markdown.Should().Contain("0.85");
         markdown.Should().Contain("Security");
         markdown.Should().Contain("Payments");
         markdown.Should().Contain("00-abc-trace");

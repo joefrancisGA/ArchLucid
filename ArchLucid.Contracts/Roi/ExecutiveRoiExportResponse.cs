@@ -73,6 +73,20 @@ public sealed class ExecutiveRoiExportResponse
         get;
         init;
     } = [];
+
+    /// <summary>Enterprise Agreement discount multiplier applied to cost-category savings (1.0 = Retail list).</summary>
+    public decimal EaDiscountMultiplier
+    {
+        get;
+        init;
+    } = 1.0m;
+
+    /// <summary><see cref="ExecutiveRoiSavingsPricingBasis.Retail" /> or <see cref="ExecutiveRoiSavingsPricingBasis.EaAdjusted" />.</summary>
+    public string SavingsPricingBasis
+    {
+        get;
+        init;
+    } = ExecutiveRoiSavingsPricingBasis.Retail;
 }
 
 /// <summary>One environment slice for savings pie charts.</summary>

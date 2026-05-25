@@ -12,6 +12,7 @@ using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Roi;
 
 using FluentAssertions;
 
@@ -463,20 +464,44 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
         response.Rows[0].Environment.Should().Be("production");
         response.SavingsByEnvironment.Should().ContainSingle(slice =>
             slice.Environment == "production" && slice.EstimatedUsdSavings == 100m);
+        response.SavingsPricingBasis.Should().Be(ExecutiveRoiSavingsPricingBasis.Retail);
+        response.EaDiscountMultiplier.Should().Be(1.0m);
     }
 
     private static ExecutiveRoiSummaryService CreateSut(
         IRunDetailQueryService runDetailQueryService,
         ITenantEstimatedUsdSavingsResolver tenantEstimatedUsdSavingsResolver,
         ITenantRepository? tenantRepository = null,
-        IScimUserRepository? scimUserRepository = null)
+        IScimUserRepository? scimUserRepository = null,
+        ExecutiveRoiTenantPricingContextResolver? pricingContextResolver = null)
     {
         return new ExecutiveRoiSummaryService(
             runDetailQueryService,
             tenantEstimatedUsdSavingsResolver,
             tenantRepository ?? Mock.Of<ITenantRepository>(),
             scimUserRepository ?? Mock.Of<IScimUserRepository>(),
+            pricingContextResolver ?? CreateDefaultPricingContextResolver(),
             NullLogger<ExecutiveRoiSummaryService>.Instance);
+    }
+
+    private static ExecutiveRoiTenantPricingContextResolver CreateDefaultPricingContextResolver()
+    {
+        Mock<ITenantCostSettingsRepository> repository = new();
+        repository
+            .Setup(repo => repo.TryGetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantCostSettingsRecord?)null);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(provider => provider.GetCurrentScope())
+            .Returns(new ScopeContext
+            {
+                TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            });
+
+        return new ExecutiveRoiTenantPricingContextResolver(repository.Object, scopeProvider.Object);
     }
 
     private static ExecutiveRoiSummaryService CreateSutWithAccessibleTenants(

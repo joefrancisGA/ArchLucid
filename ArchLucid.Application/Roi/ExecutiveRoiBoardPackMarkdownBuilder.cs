@@ -25,6 +25,8 @@ public static class ExecutiveRoiBoardPackMarkdownBuilder
         sb.AppendLine($"**Tenant:** {tenant}");
         sb.AppendLine($"**Generated (UTC):** {generatedUtc:yyyy-MM-dd HH:mm:ss} Z");
         sb.AppendLine($"**Systems in scope:** {summary.SystemCount.ToString(CultureInfo.InvariantCulture)}");
+        sb.AppendLine(
+            $"**Savings pricing basis:** {summary.SavingsPricingBasis} (EA discount multiplier {summary.EaDiscountMultiplier.ToString("0.####", CultureInfo.InvariantCulture)})");
         sb.AppendLine();
         sb.AppendLine($"## Estimated savings: {FormatUsd(summary.TotalEstimatedUsdSavings)}");
         sb.AppendLine();

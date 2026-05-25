@@ -226,6 +226,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IGlobalSearchService, GlobalSearchService>();
         services.AddScoped<ICustomRoleService, CustomRoleService>();
         services.AddScoped<ICustomRolePermissionEvaluator, CustomRolePermissionEvaluator>();
+        services.AddScoped<ExecutiveRoiTenantPricingContextResolver>();
         services.AddScoped<ExecutiveRoiSummaryService>();
         services.AddScoped<IExecutiveRoiSummaryService, CachingExecutiveRoiSummaryService>();
         services.AddScoped<ExecutiveRoiBoardPackPdfBuilder>();

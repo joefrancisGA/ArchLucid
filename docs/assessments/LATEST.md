@@ -1,12 +1,12 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 93.73%
+# ArchLucid Assessment – (A) Headline Readiness: 93.77%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items such as SOC 2 CPA attestation, third-party pen tests, MCP, the commerce un-hold, multi-cloud (AWS/GCP) analysis, multi-region active/active, automated tenant erasure, Graph-RAG / agentic retrieval, hosted Tier 2 continuous polling, **non-SCIM bulk-CSV user onboarding (V2)**, **self-hosted Enterprise commercial deals (V2)**, and related sub-milestones (capacity guide, private-endpoint reference architecture).*
 
 **Score ledger:** Incremental history through legacy **archived #1–#57** and owner rescoring (**87.74% → 92.63%**) lives in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md).
 
-**Rescore 2026-05-25 (post Improvements #1–#25):** Headline **93.73%** (+0.92% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**, **#12 orphan-probe CI guard +0.02%**, **#13 agent-trace blob lifecycle Terraform +0.02%**, **#14 integration outbox DLQ operator UI +0.02%**, **#15 Azure OpenAI circuit breaker brownout tuning +0.02%**, **#16 Persistence hexagonal guards +0.01%**, **#17 Tier-2 Azure SP wizard +0.05%**, **#18 Tier-1 ZIP upload error parsing +0.02%**, **#19 LlmCostEstimator overflow + negative-rate guards +0.02%**, **#20 LlmCostEstimator reasoning-token tests +0.01%**, **#21 INV-005/006 Wave A remainder +0.03%**, **#24 RAG telemetry cardinality gate +0.01%**, **#25 SAML claim-mapping checklist +0.02%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#22–#23** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
+**Rescore 2026-05-25 (post Improvements #1–#25, #23):** Headline **93.77%** (+0.96% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**, **#12 orphan-probe CI guard +0.02%**, **#13 agent-trace blob lifecycle Terraform +0.02%**, **#14 integration outbox DLQ operator UI +0.02%**, **#15 Azure OpenAI circuit breaker brownout tuning +0.02%**, **#16 Persistence hexagonal guards +0.01%**, **#17 Tier-2 Azure SP wizard +0.05%**, **#18 Tier-1 ZIP upload error parsing +0.02%**, **#19 LlmCostEstimator overflow + negative-rate guards +0.02%**, **#20 LlmCostEstimator reasoning-token tests +0.01%**, **#21 INV-005/006 Wave A remainder +0.03%**, **#23 EA discount multiplier transparency +0.04%**, **#24 RAG telemetry cardinality gate +0.01%**, **#25 SAML claim-mapping checklist +0.02%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#22** remains. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
 
 ## Executive Summary
 
@@ -177,7 +177,7 @@ Open mitigations only — active Improvements **#1–#25**. Legacy shipped work 
 
 ## Most Important Truth
 
-ArchLucid is **ready to ship V1 GA at 93.73%**. **Improvements #1–#25 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#22–#23** do not move headline.
+ArchLucid is **ready to ship V1 GA at 93.77%**. **Improvements #1–#25 and #23 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#22** does not move headline.
 
 ---
 
@@ -684,23 +684,12 @@ Wire Azure Monitor / Prometheus alerts for agent-output quality metrics (Improve
 Acceptance Criteria: Alerts deploy via Terraform; test notification in Staging; TB-004 marked done.
 ```
 
-### 23. Add Configurable EA Discount Multiplier for Executive ROI (actionable now — post-GA)
+### 23. Add Configurable EA Discount Multiplier for Executive ROI — **SHIPPED 2026-05-25**
 - **Why it matters:** Executive ROI uses Retail pricing; Enterprise Agreement buyers see inflated savings vs their contracted rates — finance reviewers discount ArchLucid ROI claims.
-- **Expected impact:** Proof-of-ROI Readiness (+2 pts), Executive Value Visibility (+1 pt). Weighted readiness impact: **+0.04%** when shipped. **Do not rescored until shipped.**
+- **Expected impact:** Proof-of-ROI Readiness (+2 pts), Executive Value Visibility (+1 pt). Weighted readiness impact: **+0.04%** when shipped. **Rescored 2026-05-25 → 93.77%.**
 - **Affected qualities:** Proof-of-ROI Readiness, Executive Value Visibility.
 - **Actionable now:** Yes — post-GA; tenant/workspace setting, not Stripe SKU.
-```cursor
-Add configurable EA discount multiplier for Executive ROI transparency (Improvement #23).
-
-1. Add tenant/workspace-level EA discount multiplier (0–100%) in settings API + persistence — default 0 (Retail).
-2. Apply multiplier in ExecutiveRoiSummaryService / savings resolver with audit log when non-default.
-3. Surface multiplier + "Retail vs EA-adjusted" labels in executive ROI UI and board-pack export (archived #24).
-4. Unit tests: multiplier 0 vs 15% changes rollup predictably; export rows document basis.
-
-Constraints: Do not scrape EA billing APIs (V1); manual config only with transparency logging.
-
-Acceptance Criteria: Settings persist; ROI summary reflects multiplier; tests and docs updated.
-```
+- **Status:** **Shipped 2026-05-25** — `PUT /v1/tenant/cost-settings` + tenant settings UI EA multiplier, `EaDiscountMultiplier` / `SavingsPricingBasis` on executive summary + CSV/board-pack export, audit payload includes pricing basis.
 
 ### 24. Gate Per-Tenant RAG Telemetry Behind Bounded Cardinality Flag — **SHIPPED 2026-05-25**
 - **Why it matters:** RAG retrieval telemetry (archived #7) and future per-tenant savings (#4) risk Prometheus cardinality explosions at scale. Supportability section recommends gating per-tenant RAG tags.

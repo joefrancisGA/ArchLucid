@@ -21,6 +21,7 @@ public sealed class ExecutiveRoiSummaryService(
     ITenantEstimatedUsdSavingsResolver tenantEstimatedUsdSavingsResolver,
     ITenantRepository tenantRepository,
     IScimUserRepository scimUserRepository,
+    ExecutiveRoiTenantPricingContextResolver executiveRoiTenantPricingContextResolver,
     ILogger<ExecutiveRoiSummaryService> logger) : IExecutiveRoiSummaryService
 {
     /// <summary>Max distinct systems whose run details are loaded per request (defense against huge tenants).</summary>
@@ -39,9 +40,16 @@ public sealed class ExecutiveRoiSummaryService(
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
+    private readonly ExecutiveRoiTenantPricingContextResolver _executiveRoiTenantPricingContextResolver =
+        executiveRoiTenantPricingContextResolver ?? throw new ArgumentNullException(nameof(executiveRoiTenantPricingContextResolver));
+
     /// <inheritdoc/>
     public async Task<ExecutiveRoiSummaryResponse> BuildAsync(CancellationToken cancellationToken = default)
     {
+        (decimal eaDiscountMultiplier, string savingsPricingBasis) = await _executiveRoiTenantPricingContextResolver
+            .ResolveAsync(cancellationToken)
+            .ConfigureAwait(false);
+
         Dictionary<string, RunSummary> latestBySystem = await CollectLatestCommittedRunPerSystemAsync(cancellationToken).ConfigureAwait(false);
         List<RunSummary> selectedSummaries = latestBySystem.Values
             .OrderByDescending(static summary => summary.CreatedUtc)
@@ -87,6 +95,8 @@ public sealed class ExecutiveRoiSummaryService(
             LatestRunCount = systems.Count,
             Systems = systems,
             TopSystemicIssues = topIssues,
+            EaDiscountMultiplier = eaDiscountMultiplier,
+            SavingsPricingBasis = savingsPricingBasis,
         };
     }
 
@@ -264,6 +274,10 @@ public sealed class ExecutiveRoiSummaryService(
     /// <inheritdoc />
     public async Task<ExecutiveRoiExportResponse> BuildExportAsync(CancellationToken cancellationToken = default)
     {
+        (decimal eaDiscountMultiplier, string savingsPricingBasis) = await _executiveRoiTenantPricingContextResolver
+            .ResolveAsync(cancellationToken)
+            .ConfigureAwait(false);
+
         Dictionary<string, RunSummary> latestBySystem = await CollectLatestCommittedRunPerSystemAsync(cancellationToken).ConfigureAwait(false);
         List<RunSummary> selectedSummaries = latestBySystem.Values
             .OrderByDescending(static summary => summary.CreatedUtc)
@@ -325,6 +339,8 @@ public sealed class ExecutiveRoiSummaryService(
         {
             Rows = rows,
             SavingsByEnvironment = slices,
+            EaDiscountMultiplier = eaDiscountMultiplier,
+            SavingsPricingBasis = savingsPricingBasis,
         };
     }
 
