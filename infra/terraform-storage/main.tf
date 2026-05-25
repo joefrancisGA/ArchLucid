@@ -126,8 +126,8 @@ resource "azurerm_storage_management_policy" "agent_trace_blob_lifecycle" {
 
     actions {
       base_blob {
-        tier_to_cool_after_days_since_modification_greater_than    = var.agent_trace_blob_cool_tier_after_days
-        delete_after_days_since_modification_greater_than          = var.agent_trace_blob_delete_after_days
+        tier_to_cool_after_days_since_modification_greater_than = var.agent_trace_blob_cool_tier_after_days
+        delete_after_days_since_modification_greater_than       = var.agent_trace_blob_delete_after_days
       }
     }
   }
