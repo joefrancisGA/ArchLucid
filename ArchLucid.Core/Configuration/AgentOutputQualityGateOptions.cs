@@ -110,7 +110,7 @@ public sealed class AgentOutputQualityGateOptions
     {
         get;
         set;
-    }
+    } = 0.7;
 
     /// <summary>
     ///     Semantic score strictly below this yields <c>rejected</c>. Set above zero in production; zero disables reject
@@ -120,7 +120,7 @@ public sealed class AgentOutputQualityGateOptions
     {
         get;
         set;
-    }
+    } = 0.5;
 
     /// <summary>
     ///     Optional per-agent overrides for warn/reject floors. Dictionary keys match
