@@ -92,6 +92,16 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     text: "Architect hourly rate and average incident cost drive estimated USD savings on pilot run deltas and the executive ROI summary. Until you save, platform defaults from the ROI model apply.",
     learnMoreUrl: "/docs/go-to-market/ROI_MODEL.md",
   },
+  "admin-configuration": {
+    text:
+      "Effective host configuration (masked). With more than one API replica, per-process graph caches are not shared — configure Redis before scale-out.",
+    learnMoreUrl: "/docs/operations/PROJECTION_CACHE_AND_REPLICAS.md",
+  },
+  "admin-pricing-quote-aging": {
+    text:
+      "Open marketing pricing quote requests with SLA posture (warn at 18h, breach at 24h). Sales follow-up is manual — no automated buyer replies.",
+    learnMoreUrl: "/docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md",
+  },
   "admin-users-page": {
     text: "Principals in this tenant and their effective authority rank. The API is authoritative; role changes need the admin user management endpoints to be available on your environment.",
     learnMoreUrl: "/docs/library/API_CONTRACTS.md",
@@ -107,16 +117,6 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   "system-health": {
     text: "System health shows API readiness checks, circuit breaker state, and onboarding milestone rates. For full metrics, connect Prometheus or Application Insights — see docs/library/OBSERVABILITY.md.",
     learnMoreUrl: "/docs/library/OBSERVABILITY.md",
-  },
-  "admin-configuration": {
-    text:
-      "Effective host configuration (masked). With more than one API replica, per-process graph caches are not shared — configure Redis before scale-out.",
-    learnMoreUrl: "/docs/operations/PROJECTION_CACHE_AND_REPLICAS.md",
-  },
-  "admin-pricing-quote-aging": {
-    text:
-      "Open marketing pricing quote requests with SLA posture (warn at 18h, breach at 24h). Sales follow-up is manual — no automated buyer replies.",
-    learnMoreUrl: "/docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md",
   },
 };
 
