@@ -11,6 +11,7 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import { showError, showSuccess } from "@/lib/toast";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { parseAzureExtractorUploadFailure } from "@/lib/azure-extractor-upload-failure";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 
 const EXTRACTOR_SCRIPT_CDN_URL =
@@ -102,7 +103,12 @@ export function ExtractUploadSettingsPageClient() {
           problem: apiError.problem,
           correlationId: apiError.correlationId ?? correlationId,
         });
-        showError("Azure upload", apiError.message);
+        const presentation = parseAzureExtractorUploadFailure(
+          apiError.problem,
+          apiError.message,
+          apiError.correlationId ?? correlationId,
+        );
+        showError("Azure upload", presentation.heading);
 
         return;
       }

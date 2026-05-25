@@ -1,17 +1,17 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 93.62%
+# ArchLucid Assessment – (A) Headline Readiness: 93.64%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items such as SOC 2 CPA attestation, third-party pen tests, MCP, the commerce un-hold, multi-cloud (AWS/GCP) analysis, multi-region active/active, automated tenant erasure, Graph-RAG / agentic retrieval, hosted Tier 2 continuous polling, **non-SCIM bulk-CSV user onboarding (V2)**, **self-hosted Enterprise commercial deals (V2)**, and related sub-milestones (capacity guide, private-endpoint reference architecture).*
 
 **Score ledger:** Incremental history through legacy **archived #1–#57** and owner rescoring (**87.74% → 92.63%**) lives in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md).
 
-**Rescore 2026-05-25 (post Improvements #1–#17):** Headline **93.62%** (+0.81% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**, **#12 orphan-probe CI guard +0.02%**, **#13 agent-trace blob lifecycle Terraform +0.02%**, **#14 integration outbox DLQ operator UI +0.02%**, **#15 Azure OpenAI circuit breaker brownout tuning +0.02%**, **#16 Persistence hexagonal guards +0.01%**, **#17 Tier-2 Azure SP wizard +0.05%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#18–#25** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
+**Rescore 2026-05-25 (post Improvements #1–#18):** Headline **93.64%** (+0.83% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**, **#12 orphan-probe CI guard +0.02%**, **#13 agent-trace blob lifecycle Terraform +0.02%**, **#14 integration outbox DLQ operator UI +0.02%**, **#15 Azure OpenAI circuit breaker brownout tuning +0.02%**, **#16 Persistence hexagonal guards +0.01%**, **#17 Tier-2 Azure SP wizard +0.05%**, **#18 Tier-1 ZIP upload error parsing +0.02%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#19–#25** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**
-ArchLucid is ready for **V1 GA at 93.62%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#17 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM, Azure Retail cost grounding, platform docs corpus, finding-engine `AlternativePathsConsidered`, Executive ROI RLS hardening, orphan-probe registry CI guard, agent-trace blob lifecycle Terraform, integration outbox DLQ operator UI, Azure OpenAI circuit breaker brownout tuning, Persistence hexagonal guards, Tier-2 Azure SP wizard). **No `(A)` items remain in the V1 GA gate set.**
+ArchLucid is ready for **V1 GA at 93.64%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#18 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM, Azure Retail cost grounding, platform docs corpus, finding-engine `AlternativePathsConsidered`, Executive ROI RLS hardening, orphan-probe registry CI guard, agent-trace blob lifecycle Terraform, integration outbox DLQ operator UI, Azure OpenAI circuit breaker brownout tuning, Persistence hexagonal guards, Tier-2 Azure SP wizard, Tier-1 ZIP upload error parsing). **No `(A)` items remain in the V1 GA gate set.**
 
 **`(B)` Procurement / Market-Motion Realism (Informational — zero weight on `(A)`)**
 Enterprise procurement teams will still ask for CPA-issued SOC 2 Type II, an external pen-test summary, automated GDPR erasure, multi-region active/active, AWS/GCP target analysis, and **self-hosted / on-premises deployment**. Every one of these items is **explicitly out of `(A)` scope** per `V1_DEFERRED.md` §6c, §6l, §6m, §6n, **§6t**, and the scope rule. The right posture is honest trust-center narrative — **V1 GA is hosted SaaS**; self-hosted Enterprise is **V2** — not score deductions.
@@ -112,7 +112,7 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Recommendations:** Enable per-tenant RAG tags only for bounded tenant counts.
 - **Status:** **#14 shipped 2026-05-25.** **#6 shipped 2026-05-25.** **#4 shipped 2026-05-25.** **#2 shipped 2026-05-25.**
 
-**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.62%** (documented +0.81% from shipped **#1–#17**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
+**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.64%** (documented +0.83% from shipped **#1–#18**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
 
 ---
 
@@ -129,7 +129,7 @@ All V1.1 / V2 items removed per `Assessment-Scope-V1_1.mdc`. Items **1–7** are
 7. **Quality-gate reject telemetry — SHIPPED 2026-05-25 (Improvement #2):** Fail-fast on reject is the V1 contract; `reject_reason` / `execution_mode` labels shipped on `archlucid_agent_output_quality_gate_total`.
 8. **Azure Retail cost grounding — SHIPPED 2026-05-25 (Improvement #8):** `CostRetailGroundingBuilder`, `AzureRetailPricesCatalogStructuredLookup`, and `AgentRuntime.CostAgentHandler` inject Retail rows before USD citations (RAG-V1-003); non-Azure workloads skip Retail attribution.
 9. **Platform docs corpus for Ask — SHIPPED 2026-05-25 (Improvement #9):** `PlatformDocCorpusIndexer` + `AskRetrievalIntentDetector.DetectPlatformDocIntent` index allow-listed ADR/library paths (RAG-V1-004).
-10. **Tier-1 extractor ZIP upload errors opaque — post-GA (Improvement #18):** Ingestion failures surface generic errors in UI; prospects and trials cannot self-remediate without support — measurable adoption friction after GA.
+10. ~~**Tier-1 extractor ZIP upload errors opaque — post-GA (Improvement #18):**~~ **Mitigated 2026-05-25** — semantic error codes, remediation copy, and doc links on **`/settings/extract-upload`** via **`AzureExtractorUploadFailureCallout`** + **`azure-extractor-upload-error-resolver`**.
 
 ---
 
@@ -153,7 +153,7 @@ CPA SOC 2 Type II, third-party pen-test publication, automated GDPR tenant erasu
 2. **Custom policy pack authoring GTM:** Shipped (Improvement **#7**, 2026-05-25).
 3. **Team→Professional expansion CTA:** Shipped (Improvement **#5**, 2026-05-25).
 4. **SAML claim-mapping relies on docs, not in-product guidance — post-GA (Improvement #25):** Wizard is out of V1 scope (owner 2026-05-25); hosted Enterprise onboarding checklist (archived #17) still needs explicit IdP attribute → role mapping tables for top IdPs.
-5. **Tier-1 extractor ZIP upload errors opaque — post-GA (Improvement #18):** Enterprise pilots hitting ingestion validation failures depend on support unless UI surfaces structured remediation.
+5. ~~**Tier-1 extractor ZIP upload errors opaque — post-GA (Improvement #18):**~~ **Mitigated 2026-05-25** — structured upload failure callout with semantic codes and troubleshooting doc links on **`/settings/extract-upload`**.
 
 ---
 
@@ -177,7 +177,7 @@ Open mitigations only — active Improvements **#1–#25**. Legacy shipped work 
 
 ## Most Important Truth
 
-ArchLucid is **ready to ship V1 GA at 93.62%**. **Improvements #1–#17 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#18–#25** do not move headline.
+ArchLucid is **ready to ship V1 GA at 93.64%**. **Improvements #1–#18 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#19–#25** do not move headline.
 
 ---
 
@@ -186,7 +186,7 @@ ArchLucid is **ready to ship V1 GA at 93.62%**. **Improvements #1–#17 shipped 
 Shipped improvements (**archived #1–#57**, 2026-05-24 – 2026-05-25) are documented in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md). **Active tasks in this file: #1–#25** (renumbered 2026-05-25; do not confuse with legacy archive IDs).
 
 **V1 GA gates (ship before GA):** **None remaining — #1–#7 shipped 2026-05-25.**
-**Additional V1 actionable (post-GA or parallel):** **#18–#25** (8 items).
+**Additional V1 actionable (post-GA or parallel):** **#19–#25** (7 items).
 **Total:** **25** actionable improvements in this assessment.
 
 ### 1. Wire Agent-Output Eval Corpus Baseline Regression — **SHIPPED 2026-05-25**
@@ -644,20 +644,11 @@ Acceptance Criteria: New integration tests pass; runbook note in OBSERVABILITY.m
 - **Affected qualities:** Adoption Friction, Time-to-Value.
 - **Shipped:** **`/settings/cloud-connections`** multi-step wizard (`Tier2ConnectionWizard`) — RBAC checklist, Azure CLI script copy, client-side GUID validation, `POST /v1/azure-extractor/connections`, optional `POST /v1/admin/azure-extractor/hosted/run` validation; doc links to **`HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md`** §9, **`PROCUREMENT_FAQ.md`**, trust center; Vitest coverage in **`CloudConnectionsPageClient.test.tsx`**.
 
-### 18. Parse Tier-1 Extractor ZIP Upload Errors in UI (actionable now — post-GA)
+### 18. Parse Tier-1 Extractor ZIP Upload Errors in UI — **shipped 2026-05-25**
 - **Why it matters:** Tier-1 upload failures return opaque errors — prospects cannot self-serve troubleshoot extractor ZIP issues without support intervention.
-- **Expected impact:** Adoption Friction (+1 pt), Supportability (+1 pt). Weighted readiness impact: **+0.02%** when shipped. **Do not rescored until shipped.**
+- **Expected impact:** Adoption Friction (+1 pt), Supportability (+1 pt). Weighted readiness impact: **+0.02%** when shipped.
 - **Affected qualities:** Adoption Friction, Supportability, Time-to-Value.
-- **Actionable now:** Yes — post-GA.
-```cursor
-Add structured Tier-1 extractor ZIP upload error parsing in UI (Improvement #18).
-
-1. Map API validation error codes from ingestion/upload endpoints to user-facing messages with remediation steps (wrong manifest version, missing required files, corrupt ZIP, tenant scope mismatch).
-2. Surface error code + doc link in archlucid-ui upload component.
-3. Add archlucid-ui tests for at least 3 error code → message mappings.
-
-Acceptance Criteria: Upload failure shows actionable message, not generic 400; tests green.
-```
+- **Shipped:** **`azure-extractor-upload-error-resolver`** semantic codes (unsupported schema, missing manifest/resources, corrupt ZIP, run scope mismatch, size/no-file); **`AzureExtractorUploadFailureCallout`** surfaces code + API **`VALIDATION_FAILED`** + troubleshooting doc link on **`/settings/extract-upload`**; Vitest in **`azure-extractor-upload-failure.test.ts`** and **`ExtractUploadSettingsPageClient.test.tsx`**.
 
 ### 19. Fix LlmCostEstimator Overflow and Negative-Rate Guards (actionable now — post-GA)
 - **Why it matters:** **TB-022** / **TB-026** — token sums can wrap at ~2.1B and misconfigured negative USD rates bypass guards, producing negative cost slices in FinOps telemetry.
@@ -801,7 +792,7 @@ Run **#7** — public `/pricing` PS section + sales kit links. Can batch with **
 Run **#11** (ROI RLS audit), **#12** (orphan probe CI guard), **#13** (blob lifecycle Terraform), **#14** (outbox DLQ UI), **#15** (OpenAI circuit breaker tuning) — sequence by incident priority; **#22** (agent-output alerts) after **#2**.
 
 **Batch 18 — Adoption and FinOps polish (post-GA)**
-Run **#18** (Tier-1 ZIP errors), **#25** (SAML claim-mapping checklist). FinOps cluster: **#19**, **#20** (LlmCostEstimator fixes + tests). ~~**#17** (Tier-2 SP wizard)~~ **shipped 2026-05-25**.
+Run ~~**#18** (Tier-1 ZIP errors)~~ **shipped 2026-05-25**, **#25** (SAML claim-mapping checklist). FinOps cluster: **#19**, **#20** (LlmCostEstimator fixes + tests). ~~**#17** (Tier-2 SP wizard)~~ **shipped 2026-05-25**.
 
 **Batch 19 — Architecture hygiene (post-GA)**
 Run **#16** (hexagonal guards), **#21** (INV-005/006 Wave A remainder) — keep separate from feature batches.

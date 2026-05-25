@@ -1,62 +1,24 @@
 import type { ApiProblemDetails } from "@/lib/api-problem";
 
-export type AzureExtractorUploadFailureKind = "schema" | "archive" | "validation" | "unknown";
+import {
+  resolveAzureExtractorUploadError,
+  type AzureExtractorUploadFailureKind,
+} from "@/lib/azure-extractor-upload-error-resolver";
+
+export type { AzureExtractorUploadFailureKind };
 
 export type AzureExtractorUploadFailurePresentation = {
   heading: string;
   guidance: string;
   failureKind: AzureExtractorUploadFailureKind;
+  /** UI-facing semantic code derived from API detail + failureKind. */
+  errorCode: string;
+  /** RFC 9457 extension from the API when present (typically VALIDATION_FAILED). */
+  apiErrorCode: string | null;
+  docPath: string;
   errors: readonly string[];
   copyPayload: Record<string, unknown>;
 };
-
-function readFailureKind(problem: ApiProblemDetails | null): AzureExtractorUploadFailureKind {
-  const raw = problem?.failureKind;
-
-  if (raw === "schema" || raw === "archive" || raw === "validation") {
-    return raw;
-  }
-
-  const detail = problem?.detail?.toLowerCase() ?? "";
-
-  if (detail.includes("schemaversion") || detail.includes("manifest.json")) {
-    return "schema";
-  }
-
-  if (detail.includes("zip") || detail.includes("archive")) {
-    return "archive";
-  }
-
-  return "unknown";
-}
-
-function guidanceForFailureKind(kind: AzureExtractorUploadFailureKind, detail: string): string {
-  if (kind === "schema") {
-    if (detail.toLowerCase().includes("unsupported manifest schemaversion")) {
-      return "Re-run Get-ArchLucidAzurePackage.ps1 from the current CDN script so manifest.json uses a supported schemaVersion, then upload the new ZIP.";
-    }
-
-    if (detail.toLowerCase().includes("missing manifest.json")) {
-      return "The ZIP must contain manifest.json at the archive root. Re-run the extractor script and upload the complete package.";
-    }
-
-    if (detail.toLowerCase().includes("valid json")) {
-      return "manifest.json is not valid JSON. Re-run the extractor locally and confirm the file opens cleanly before uploading.";
-    }
-
-    return "Fix manifest.json (schemaVersion and required fields) using the current extractor script output, then upload again.";
-  }
-
-  if (kind === "archive") {
-    return "Upload a complete .zip produced by Get-ArchLucidAzurePackage.ps1. Partial downloads or renamed folders often fail archive validation.";
-  }
-
-  if (kind === "validation") {
-    return "Review the validation messages below, correct the extractor package, and retry the upload.";
-  }
-
-  return "Review the error detail, fix the extractor package, and retry. Include the copied error details when opening a support ticket.";
-}
 
 /**
  * Maps Azure extractor upload Problem Details into operator-facing guidance and a support copy payload.
@@ -66,27 +28,25 @@ export function parseAzureExtractorUploadFailure(
   fallbackMessage: string,
   correlationId: string | null,
 ): AzureExtractorUploadFailurePresentation {
-  const failureKind = readFailureKind(problem);
+  const resolution = resolveAzureExtractorUploadError(problem, fallbackMessage);
   const extensionErrors = problem?.errors ?? [];
   const detail = problem?.detail?.trim() ?? fallbackMessage.trim();
   const errors = extensionErrors.length > 0 ? extensionErrors : detail.length > 0 ? [detail] : [fallbackMessage];
-
-  const heading =
-    failureKind === "schema"
-      ? "Extractor manifest rejected"
-      : failureKind === "archive"
-        ? "Invalid ZIP archive"
-        : "Azure extractor upload failed";
+  const apiErrorCode = problem?.errorCode?.trim() ?? null;
 
   return {
-    heading,
-    guidance: guidanceForFailureKind(failureKind, detail),
-    failureKind,
+    heading: resolution.heading,
+    guidance: resolution.guidance,
+    failureKind: resolution.failureKind,
+    errorCode: resolution.semanticCode,
+    apiErrorCode,
+    docPath: resolution.docPath,
     errors,
     copyPayload: {
       status: problem?.status ?? null,
-      errorCode: problem?.errorCode ?? null,
-      failureKind,
+      errorCode: resolution.semanticCode,
+      apiErrorCode,
+      failureKind: resolution.failureKind,
       detail,
       errors,
       correlationId: correlationId ?? problem?.correlationId ?? null,
