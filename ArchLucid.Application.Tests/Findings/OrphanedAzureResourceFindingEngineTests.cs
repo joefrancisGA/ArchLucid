@@ -63,7 +63,7 @@ public sealed class OrphanedAzureResourceFindingEngineTests
     {
         string resourceIdType = resourceType.Replace('/', '.');
         string resourcesJson =
-            $$"""
+            $"""
             [
               {{
                 "resourceType": "{resourceType}",
