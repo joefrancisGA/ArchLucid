@@ -1,8 +1,9 @@
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Persistence.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging.Abstractions;
