@@ -5,6 +5,7 @@ using ArchLucid.Decisioning.Compliance.Evaluators;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Plugins;
+using ArchLucid.Host.Composition.Compliance;
 using ArchLucid.Persistence.Coordination.Compliance;
 using ArchLucid.Provenance;
 
@@ -36,7 +37,8 @@ public static partial class ServiceCollectionExtensions
             (IComplianceRulePackLoader)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IComplianceRulePackLoader>());
         services.AddScoped<ArchLucid.Core.Persistence.Ports.IComplianceRulePackProvider, PolicyFilteredComplianceRulePackProvider>();
         services.AddScoped<IComplianceRulePackProvider>(static sp =>
-            (IComplianceRulePackProvider)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IComplianceRulePackProvider>());
+            new ComplianceRulePackProviderDecisioningPortAdapter(
+                sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IComplianceRulePackProvider>()));
         services.AddSingleton<IComplianceRulePackValidator, ComplianceRulePackValidator>();
         services.AddSingleton<IComplianceEvaluator, GraphComplianceEvaluator>();
 
