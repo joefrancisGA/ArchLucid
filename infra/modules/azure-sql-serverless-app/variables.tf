@@ -133,3 +133,39 @@ variable "monitor_action_group_id" {
   description = "Existing Azure Monitor action group ID for SQL metric alerts."
   default     = null
 }
+
+variable "backup_storage_redundancy" {
+  type        = string
+  description = "Backup storage redundancy (Geo replicates to paired region)."
+  default     = "Geo"
+}
+
+variable "sql_pitr_retention_days" {
+  type        = number
+  description = "Point-in-time restore retention days (max 35 for GP Serverless)."
+  default     = 35
+}
+
+variable "sql_ltr_weekly_retention" {
+  type        = string
+  description = "ISO 8601 weekly LTR retention (PT0S disables)."
+  default     = "P1M"
+}
+
+variable "sql_ltr_monthly_retention" {
+  type        = string
+  description = "ISO 8601 monthly LTR retention (PT0S disables)."
+  default     = "P12M"
+}
+
+variable "sql_ltr_yearly_retention" {
+  type        = string
+  description = "ISO 8601 yearly LTR retention (PT0S disables)."
+  default     = "P7Y"
+}
+
+variable "sql_ltr_week_of_year" {
+  type        = number
+  description = "ISO week number for yearly LTR snapshot."
+  default     = 1
+}

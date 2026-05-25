@@ -24,6 +24,12 @@ resource "azurerm_mssql_database" "app" {
   min_capacity                = var.min_capacity
   storage_account_type        = var.storage_account_type
   max_size_gb                 = var.max_size_gb
+  backup_storage_redundancy   = var.backup_storage_redundancy
+
+  short_term_retention_policy {
+    retention_days           = var.sql_pitr_retention_days
+    backup_interval_in_hours = 12
+  }
 }
 
 resource "azurerm_mssql_database" "read_replica" {

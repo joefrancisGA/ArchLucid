@@ -8,3 +8,11 @@ entra_admin_login = "ArchLucid SQL Admins"
 entra_admin_object_id = "00000000-0000-0000-0000-000000000000"
 sql_sku = "GP_S_Gen5_2"
 private_endpoint_subnet_id = "/subscriptions/.../resourceGroups/rg-archlucid-prod/providers/Microsoft.Network/virtualNetworks/vnet-app/subnets/snet-data"
+
+# Backup / DR (Improvement #43)
+backup_storage_redundancy = "Geo"
+sql_pitr_retention_days   = 35
+sql_ltr_weekly_retention  = "P1M"
+sql_ltr_monthly_retention = "P12M"
+sql_ltr_yearly_retention  = "P7Y"
+sql_ltr_week_of_year      = 1
