@@ -33,5 +33,9 @@ module "azure_sql_serverless_app" {
   enable_sql_defender        = var.enable_sql_defender
   alert_email_address        = var.alert_email_address
   sql_audit_retention_days   = var.sql_audit_retention_days
+  enable_sql_tde_cmk              = var.enable_sql_tde_cmk
+  key_vault_name                  = var.key_vault_name
+  key_vault_resource_group_name   = var.key_vault_resource_group_name
 }
+
 

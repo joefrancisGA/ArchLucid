@@ -193,3 +193,27 @@ variable "vuln_scan_storage_account_name" {
   description = "Globally unique LRS storage account name for Defender vulnerability scan results. Auto-derived from sql_server_name when empty."
   default     = ""
 }
+
+variable "enable_sql_tde_cmk" {
+  type        = bool
+  description = "When true, configure TDE with a customer-managed key from Key Vault. When false, Azure uses service-managed TDE."
+  default     = false
+}
+
+variable "key_vault_name" {
+  type        = string
+  description = "Name of the existing Key Vault used for the TDE key (from terraform-keyvault output)."
+  default     = ""
+}
+
+variable "key_vault_resource_group_name" {
+  type        = string
+  description = "Resource group containing the Key Vault."
+  default     = ""
+}
+
+variable "sql_tde_key_name" {
+  type        = string
+  description = "Key Vault key name for SQL server TDE protector."
+  default     = "sql-tde-key"
+}

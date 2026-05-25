@@ -23,3 +23,8 @@ sql_ltr_week_of_year      = 1
 # enable_sql_defender        = true
 # alert_email_address        = "ops@example.com"
 # sql_audit_retention_days   = 90
+
+# TDE CMK (Improvement #49) — requires terraform-keyvault + SQL server system-assigned identity
+# enable_sql_tde_cmk            = true
+# key_vault_name                = "kv-archlucid-prod"
+# key_vault_resource_group_name = "rg-archlucid-prod"

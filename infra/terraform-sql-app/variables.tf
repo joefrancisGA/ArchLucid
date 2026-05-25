@@ -77,3 +77,21 @@ variable "sql_audit_retention_days" {
   description = "SQL extended auditing retention days."
   default     = 90
 }
+
+variable "enable_sql_tde_cmk" {
+  type        = bool
+  description = "Configure SQL TDE with a customer-managed Key Vault key."
+  default     = false
+}
+
+variable "key_vault_name" {
+  type        = string
+  description = "Key Vault name for SQL TDE CMK."
+  default     = ""
+}
+
+variable "key_vault_resource_group_name" {
+  type        = string
+  description = "Resource group of the Key Vault for SQL TDE CMK."
+  default     = ""
+}

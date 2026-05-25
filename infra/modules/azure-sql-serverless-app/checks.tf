@@ -12,3 +12,13 @@ check "sql_defender_requires_log_analytics_for_auditing" {
     error_message = "enable_sql_defender = true requires log_analytics_workspace_id for unified SQL auditing."
   }
 }
+
+check "sql_tde_cmk_requires_key_vault" {
+  assert {
+    condition = !var.enable_sql_tde_cmk || (
+      length(trimspace(var.key_vault_name)) > 0 &&
+      length(trimspace(var.key_vault_resource_group_name)) > 0
+    )
+    error_message = "enable_sql_tde_cmk = true requires key_vault_name and key_vault_resource_group_name."
+  }
+}
