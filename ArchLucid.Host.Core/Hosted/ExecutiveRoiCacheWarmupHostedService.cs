@@ -1,5 +1,7 @@
 using ArchLucid.Application.Roi;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Hosting;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -83,7 +85,10 @@ public sealed class ExecutiveRoiCacheWarmupHostedService(
 
         int warmed = await ExecutiveRoiBackgroundTenantRollup.ForEachActiveTenantAsync(
             tenantRepository,
-            async (_, ct) => { _ = await roiService.BuildAsync(ct).ConfigureAwait(false); },
+            async (ScopeContext tenantScope, CancellationToken ct) =>
+            {
+                await roiService.BuildAsync(ct).ConfigureAwait(false);
+            },
             _logger,
             cancellationToken).ConfigureAwait(false);
 

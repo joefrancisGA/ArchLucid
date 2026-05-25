@@ -4,6 +4,8 @@ using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Hosting;
 
 using Microsoft.Extensions.DependencyInjection;
