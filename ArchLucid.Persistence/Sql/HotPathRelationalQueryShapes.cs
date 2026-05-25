@@ -158,14 +158,14 @@ internal static class HotPathRelationalQueryShapes
                                                             """;
 
     /// <summary>Default audit timeline (<c>DapperAuditRepository.GetByScopeAsync</c>).</summary>
-    public const string AuditEventsGetByScope = """
+    public const string AuditEventsGetByScopeNoLock = """
                                                 SELECT TOP (@Take)
                                                     EventId, OccurredUtc, EventType,
                                                     ActorUserId, ActorUserName,
                                                     TenantId, WorkspaceId, ProjectId,
                                                     RunId, ManifestId, ArtifactId,
                                                     DataJson, CorrelationId
-                                                FROM dbo.AuditEvents
+                                                FROM dbo.AuditEvents WITH (NOLOCK)
                                                 WHERE TenantId = @TenantId
                                                   AND WorkspaceId = @WorkspaceId
                                                   AND ProjectId = @ProjectId
@@ -176,14 +176,14 @@ internal static class HotPathRelationalQueryShapes
     ///     Opening clause for filtered audit search (<c>DapperAuditRepository.GetFilteredAsync</c>);
     ///     dynamic filters append <c>AND …</c> before <see cref="AuditEventsFilteredOrderByOccurredUtcEventIdDesc" />.
     /// </summary>
-    public const string AuditEventsFilteredSelectFromWhereScope = """
+    public const string AuditEventsFilteredSelectFromWhereScopeNoLock = """
                                                                   SELECT TOP (@Take)
                                                                       EventId, OccurredUtc, EventType,
                                                                       ActorUserId, ActorUserName,
                                                                       TenantId, WorkspaceId, ProjectId,
                                                                       RunId, ManifestId, ArtifactId,
                                                                       DataJson, CorrelationId
-                                                                  FROM dbo.AuditEvents
+                                                                  FROM dbo.AuditEvents WITH (NOLOCK)
                                                                   WHERE TenantId = @TenantId
                                                                     AND WorkspaceId = @WorkspaceId
                                                                     AND ProjectId = @ProjectId
@@ -200,9 +200,9 @@ internal static class HotPathRelationalQueryShapes
                                                                           """;
 
     /// <summary>Opening clause for <c>DapperAuditRepository.CountFilteredAsync</c>; dynamic filters append before terminator.</summary>
-    public const string AuditEventsFilteredCountFromWhereScope = """
+    public const string AuditEventsFilteredCountFromWhereScopeNoLock = """
                                                                  SELECT COUNT(*)
-                                                                 FROM dbo.AuditEvents
+                                                                 FROM dbo.AuditEvents WITH (NOLOCK)
                                                                  WHERE TenantId = @TenantId
                                                                    AND WorkspaceId = @WorkspaceId
                                                                    AND ProjectId = @ProjectId

@@ -46,8 +46,8 @@ public sealed class DapperWeeklyArchitectureCriticalFindingSummaryRepository(
         CommandDefinition countCommand = new(
             """
             SELECT COUNT_BIG(1)
-            FROM dbo.FindingRecords AS fr
-            INNER JOIN dbo.FindingsSnapshots AS fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
+            FROM dbo.FindingRecords AS fr WITH (NOLOCK)
+            INNER JOIN dbo.FindingsSnapshots AS fs WITH (NOLOCK) ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
             WHERE fs.CreatedUtc >= @CutoffUtc
               AND fs.ArchivedUtc IS NULL
               AND fr.Severity = @Severity;
@@ -69,8 +69,8 @@ public sealed class DapperWeeklyArchitectureCriticalFindingSummaryRepository(
                    fr.Category,
                    fr.TenantId,
                    fs.CreatedUtc AS SnapshotCreatedUtc
-            FROM dbo.FindingRecords AS fr
-            INNER JOIN dbo.FindingsSnapshots AS fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
+            FROM dbo.FindingRecords AS fr WITH (NOLOCK)
+            INNER JOIN dbo.FindingsSnapshots AS fs WITH (NOLOCK) ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
             WHERE fs.CreatedUtc >= @CutoffUtc
               AND fs.ArchivedUtc IS NULL
               AND fr.Severity = @Severity

@@ -110,7 +110,7 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                    PriorityScore, Status, CreatedUtc, LastUpdatedUtc,
                    ReviewedByUserId, ReviewedByUserName, ReviewComment, ResolutionRationale,
                    SupportingFindingIdsJson, SupportingDecisionIdsJson, SupportingArtifactIdsJson
-            FROM dbo.RecommendationRecords
+            FROM dbo.RecommendationRecords WITH (NOLOCK)
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
@@ -151,7 +151,7 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                    PriorityScore, Status, CreatedUtc, LastUpdatedUtc,
                    ReviewedByUserId, ReviewedByUserName, ReviewComment, ResolutionRationale,
                    SupportingFindingIdsJson, SupportingDecisionIdsJson, SupportingArtifactIdsJson
-            FROM dbo.RecommendationRecords
+            FROM dbo.RecommendationRecords WITH (NOLOCK)
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId

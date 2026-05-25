@@ -23,7 +23,7 @@ public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory 
 
         const string runsByStatusSql = """
                                        SELECT COALESCE(LegacyRunStatus, '(unknown)') AS LegacyRunStatusLabel, COUNT_BIG(*) AS Cnt
-                                       FROM dbo.Runs
+                                       FROM dbo.Runs WITH (NOLOCK)
                                        WHERE TenantId = @TenantId
                                          AND WorkspaceId = @WorkspaceId
                                          AND ScopeProjectId = @ProjectId
@@ -35,7 +35,7 @@ public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory 
 
         const string runsCompletedSql = """
                                         SELECT COUNT_BIG(*)
-                                        FROM dbo.Runs
+                                        FROM dbo.Runs WITH (NOLOCK) WITH (NOLOCK)
                                         WHERE TenantId = @TenantId
                                           AND WorkspaceId = @WorkspaceId
                                           AND ScopeProjectId = @ProjectId
@@ -47,7 +47,7 @@ public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory 
 
         const string manifestsSql = """
                                     SELECT COUNT_BIG(*)
-                                    FROM dbo.GoldenManifests
+                                    FROM dbo.GoldenManifests WITH (NOLOCK)
                                     WHERE TenantId = @TenantId
                                       AND WorkspaceId = @WorkspaceId
                                       AND ProjectId = @ProjectId
@@ -58,7 +58,7 @@ public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory 
 
         const string governanceSql = """
                                      SELECT COUNT_BIG(*)
-                                     FROM dbo.AuditEvents
+                                     FROM dbo.AuditEvents WITH (NOLOCK) WITH (NOLOCK)
                                      WHERE TenantId = @TenantId
                                        AND WorkspaceId = @WorkspaceId
                                        AND ProjectId = @ProjectId
@@ -69,7 +69,7 @@ public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory 
 
         const string driftSql = """
                                 SELECT COUNT_BIG(*)
-                                FROM dbo.AuditEvents
+                                FROM dbo.AuditEvents WITH (NOLOCK)
                                 WHERE TenantId = @TenantId
                                   AND WorkspaceId = @WorkspaceId
                                   AND ProjectId = @ProjectId
@@ -111,7 +111,7 @@ public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory 
 
         const string findingFeedbackSql = """
                                           SELECT COALESCE(SUM(CAST(Score AS BIGINT)), 0) AS NetScore, COUNT_BIG(*) AS VoteCount
-                                          FROM dbo.FindingFeedback
+                                          FROM dbo.FindingFeedback WITH (NOLOCK)
                                           WHERE TenantId = @TenantId
                                             AND WorkspaceId = @WorkspaceId
                                             AND ProjectId = @ProjectId
@@ -129,7 +129,7 @@ public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory 
                                                 BaselineManualPrepHoursPerReview,
                                                 BaselinePeoplePerReview,
                                                 ArchitectureTeamSize
-                                         FROM dbo.Tenants
+                                         FROM dbo.Tenants WITH (NOLOCK)
                                          WHERE Id = @TenantId;
                                          """;
 
@@ -143,8 +143,8 @@ public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory 
                                       SELECT
                                           AVG(CAST(DATEDIFF(SECOND, r.CreatedUtc, m.CreatedUtc) AS DECIMAL(18, 6))) / 3600.0 AS AvgHours,
                                           COUNT_BIG(*) AS Cnt
-                                      FROM dbo.GoldenManifests m
-                                      INNER JOIN dbo.Runs r ON m.RunId = r.RunId
+                                      FROM dbo.GoldenManifests WITH (NOLOCK) m WITH (NOLOCK)
+                                      INNER JOIN dbo.Runs r WITH (NOLOCK) ON m.RunId = r.RunId
                                       WHERE m.TenantId = @TenantId
                                         AND m.WorkspaceId = @WorkspaceId
                                         AND m.ProjectId = @ProjectId

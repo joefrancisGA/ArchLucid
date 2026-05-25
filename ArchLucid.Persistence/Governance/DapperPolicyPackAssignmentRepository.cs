@@ -96,7 +96,7 @@ public sealed class DapperPolicyPackAssignmentRepository(
                                AssignmentId, TenantId, WorkspaceId, ProjectId,
                                PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc, ArchivedUtc,
                                BlockCommitOnCritical, BlockCommitMinimumSeverity
-                           FROM dbo.PolicyPackAssignments
+                           FROM dbo.PolicyPackAssignments WITH (NOLOCK)
                            WHERE TenantId = @TenantId
                              AND ArchivedUtc IS NULL
                              AND (

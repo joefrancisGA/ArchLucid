@@ -50,7 +50,7 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
                 DigestId, TenantId, WorkspaceId, ProjectId,
                 RunId, ComparedToRunId, GeneratedUtc,
                 Title, Summary, ContentMarkdown, MetadataJson, ArchivedUtc
-            FROM dbo.ArchitectureDigests
+            FROM dbo.ArchitectureDigests WITH (NOLOCK)
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId

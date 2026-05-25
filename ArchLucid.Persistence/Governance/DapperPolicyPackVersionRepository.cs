@@ -237,7 +237,7 @@ public sealed class DapperPolicyPackVersionRepository(
     {
         const string sql = """
                            SELECT TOP 200 PolicyPackVersionId, PolicyPackId, [Version] AS Version, ContentJson, CreatedUtc, IsPublished
-                           FROM dbo.PolicyPackVersions
+                           FROM dbo.PolicyPackVersions WITH (NOLOCK)
                            WHERE PolicyPackId = @PolicyPackId
                            ORDER BY CreatedUtc DESC;
                            """;

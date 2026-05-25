@@ -92,10 +92,10 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
                            r.CreatedUtc)) AS PeriodEndUtc,
                    AVG(CAST(commitLag.CommitSeconds AS FLOAT)) AS AverageRequestToCommitSeconds,
                    (SELECT COUNT_BIG(*)
-                    FROM dbo.FindingRecords AS frAgg
-                             INNER JOIN dbo.GoldenManifests AS gmAgg
+                    FROM dbo.FindingRecords AS frAgg WITH (NOLOCK)
+                             INNER JOIN dbo.GoldenManifests AS gmAgg WITH (NOLOCK)
                                         ON gmAgg.FindingsSnapshotId = frAgg.FindingsSnapshotId
-                             INNER JOIN dbo.Runs AS rAgg ON rAgg.RunId = gmAgg.RunId
+                             INNER JOIN dbo.Runs AS rAgg WITH (NOLOCK) ON rAgg.RunId = gmAgg.RunId
                     WHERE rAgg.ArchivedUtc IS NULL
                       AND gmAgg.ArchivedUtc IS NULL
                       AND rAgg.TenantId = @TenantId
@@ -105,11 +105,11 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
                            (NULLIF(LTRIM(RTRIM(rAgg.CurrentManifestVersion)), N'') IS NOT NULL)
                         OR (rAgg.GoldenManifestId IS NOT NULL)
                        )) AS TotalFindingRowsSnapshot
-            FROM dbo.Runs AS r
+            FROM dbo.Runs AS r WITH (NOLOCK)
                      OUTER APPLY (
                 SELECT TOP (1)
                            DATEDIFF_BIG(SECOND, r.CreatedUtc, gm.CreatedUtc) AS CommitSeconds
-                FROM dbo.GoldenManifests AS gm
+                FROM dbo.GoldenManifests AS gm WITH (NOLOCK)
                 WHERE gm.RunId = r.RunId
                   AND gm.TenantId = r.TenantId
                   AND gm.WorkspaceId = r.WorkspaceId
@@ -119,7 +119,7 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
             ) AS commitLag
                      OUTER APPLY (
                 SELECT MAX(gmx.CreatedUtc) AS ManifestCommittedUtc
-                FROM dbo.GoldenManifests AS gmx
+                FROM dbo.GoldenManifests AS gm WITH (NOLOCK)x WITH (NOLOCK)
                 WHERE gmx.RunId = r.RunId
                   AND gmx.TenantId = r.TenantId
                   AND gmx.WorkspaceId = r.WorkspaceId
@@ -141,11 +141,11 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
 
             SELECT COALESCE(fr.Severity, '(unknown)') AS Severity,
                    COUNT_BIG(*) AS SeverityBucketCount
-            FROM dbo.FindingRecords AS fr
-                     INNER JOIN dbo.GoldenManifests AS gm
+            FROM dbo.FindingRecords AS fr WITH (NOLOCK)
+                     INNER JOIN dbo.GoldenManifests AS gm WITH (NOLOCK)
                                 ON gm.FindingsSnapshotId = fr.FindingsSnapshotId
                                    AND gm.ArchivedUtc IS NULL
-                     INNER JOIN dbo.Runs AS r ON r.RunId = gm.RunId
+                     INNER JOIN dbo.Runs AS r WITH (NOLOCK) ON r.RunId = gm.RunId
 
             WHERE 
 
@@ -170,7 +170,7 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
             """
 
             SELECT COUNT_BIG(*)
-            FROM dbo.GovernanceApprovalRequests g
+            FROM dbo.GovernanceApprovalRequests g WITH (NOLOCK)
             WHERE g.TenantId = @TenantId
               AND g.WorkspaceId = @WorkspaceId
               AND g.ProjectId = @ScopeProjectId
@@ -182,7 +182,7 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
             """
 
             SELECT COUNT_BIG(*)
-            FROM dbo.GovernanceApprovalRequests g
+            FROM dbo.GovernanceApprovalRequests g WITH (NOLOCK)
             WHERE g.TenantId = @TenantId
               AND g.WorkspaceId = @WorkspaceId
               AND g.ProjectId = @ScopeProjectId
@@ -194,7 +194,7 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
             """
 
             SELECT COUNT_BIG(*)
-            FROM dbo.AuditEvents ae
+            FROM dbo.AuditEvents ae WITH (NOLOCK)
             WHERE ae.TenantId = @TenantId
               AND ae.WorkspaceId = @WorkspaceId
               AND ae.ProjectId = @ScopeProjectId
@@ -213,9 +213,9 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
                             abInner.WorkspaceId,
                             abInner.ProjectId,
                             art.ArtifactType
-                     FROM dbo.ArtifactBundleArtifacts AS art
-                              INNER JOIN dbo.ArtifactBundles AS abInner ON abInner.BundleId = art.BundleId
-                              INNER JOIN dbo.Runs AS rInner ON rInner.RunId = abInner.RunId
+                     FROM dbo.ArtifactBundleArtifacts AS art WITH (NOLOCK)
+                              INNER JOIN dbo.ArtifactBundles AS abInner WITH (NOLOCK) ON abInner.BundleId = art.BundleId
+                              INNER JOIN dbo.Runs AS rInner WITH (NOLOCK) ON rInner.RunId = abInner.RunId
                      WHERE abInner.ArchivedUtc IS NULL
 
                        AND 
@@ -229,7 +229,7 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
 
                        AND EXISTS (
                      SELECT 1
-                     FROM dbo.GoldenManifests AS gmProbe
+                     FROM dbo.GoldenManifests AS gm WITH (NOLOCK)Probe WITH (NOLOCK)
                      WHERE gmProbe.ManifestId = abInner.ManifestId
                        AND gmProbe.RunId = abInner.RunId
                        AND gmProbe.TenantId = abInner.TenantId

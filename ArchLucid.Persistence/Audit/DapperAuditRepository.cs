@@ -82,7 +82,7 @@ public sealed class DapperAuditRepository(
             await using SqlConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(ct);
             IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
                 new CommandDefinition(
-                    HotPathRelationalQueryShapes.AuditEventsGetByScope,
+                    HotPathRelationalQueryShapes.AuditEventsGetByScopeNoLock,
                     new
                     {
                         TenantId = tenantId,
@@ -114,7 +114,7 @@ public sealed class DapperAuditRepository(
         int take = Math.Clamp(filter.Take <= 0 ? 100 : filter.Take, 1, 500);
 
         // RCSI-backed read committed: no dirty reads on audit listing (see migration 091).
-        StringBuilder sql = new(HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScope);
+        StringBuilder sql = new(HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScopeNoLock);
 
         DynamicParameters parameters = new();
         parameters.Add("TenantId", tenantId);
@@ -154,7 +154,7 @@ public sealed class DapperAuditRepository(
     {
         ArgumentNullException.ThrowIfNull(filter);
 
-        StringBuilder sql = new(HotPathRelationalQueryShapes.AuditEventsFilteredCountFromWhereScope);
+        StringBuilder sql = new(HotPathRelationalQueryShapes.AuditEventsFilteredCountFromWhereScopeNoLock);
         DynamicParameters parameters = new();
         parameters.Add("TenantId", tenantId);
         parameters.Add("WorkspaceId", workspaceId);
@@ -251,7 +251,7 @@ public sealed class DapperAuditRepository(
         ValidateFilteredExportFilter(filter);
 
         int take = Math.Clamp(filter.Take <= 0 ? 10_000 : filter.Take, 1, 10_000);
-        StringBuilder sql = new(HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScope);
+        StringBuilder sql = new(HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScopeNoLock);
         DynamicParameters parameters = new();
         parameters.Add("TenantId", tenantId);
         parameters.Add("WorkspaceId", workspaceId);

@@ -96,9 +96,9 @@ public sealed class HotPathRelationalQueryShapeTests
     [SkippableFact]
     public void Audit_get_by_scope_retains_scope_and_stable_occurred_event_order()
     {
-        const string sql = HotPathRelationalQueryShapes.AuditEventsGetByScope;
+        const string sql = HotPathRelationalQueryShapes.AuditEventsGetByScopeNoLock;
 
-        sql.Should().Contain("FROM dbo.AuditEvents");
+        sql.Should().Contain("FROM dbo.AuditEvents WITH (NOLOCK)");
         sql.Should().Contain("SELECT TOP (@Take)");
         sql.Should().Contain("TenantId = @TenantId");
         sql.Should().Contain("WorkspaceId = @WorkspaceId");
@@ -109,10 +109,10 @@ public sealed class HotPathRelationalQueryShapeTests
     [SkippableFact]
     public void Audit_filtered_shape_prefix_suffix_allow_dynamic_and_predicate_between()
     {
-        const string prefix = HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScope;
+        const string prefix = HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScopeNoLock;
         const string suffix = HotPathRelationalQueryShapes.AuditEventsFilteredOrderByOccurredUtcEventIdDesc;
 
-        prefix.Should().Contain("FROM dbo.AuditEvents");
+        prefix.Should().Contain("FROM dbo.AuditEvents WITH (NOLOCK)");
         prefix.Should().Contain("TenantId = @TenantId");
         prefix.Should().Contain("AND ProjectId = @ProjectId");
 
@@ -126,10 +126,10 @@ public sealed class HotPathRelationalQueryShapeTests
     [SkippableFact]
     public void Audit_count_shape_prefix_contains_count_star_and_scope_keys()
     {
-        const string countShape = HotPathRelationalQueryShapes.AuditEventsFilteredCountFromWhereScope;
+        const string countShape = HotPathRelationalQueryShapes.AuditEventsFilteredCountFromWhereScopeNoLock;
 
         countShape.Should().Contain("SELECT COUNT(*)");
-        countShape.Should().Contain("FROM dbo.AuditEvents");
+        countShape.Should().Contain("FROM dbo.AuditEvents WITH (NOLOCK)");
         countShape.Should().Contain("TenantId = @TenantId");
         countShape.Should().Contain("WorkspaceId = @WorkspaceId");
         countShape.Should().Contain("ProjectId = @ProjectId");
