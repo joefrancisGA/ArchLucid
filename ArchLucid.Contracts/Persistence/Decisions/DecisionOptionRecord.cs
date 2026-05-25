@@ -32,6 +32,8 @@ public sealed class DecisionOptionRecord
         set;
     }
 
+    public double FinalScore => BaseConfidence + SupportScore - OppositionScore;
+
     public List<string> EvidenceRefs
     {
         get;
