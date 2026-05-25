@@ -115,3 +115,21 @@ variable "block_public_sql_access" {
   description = "Disable public network access and add deny-all firewall rule."
   default     = true
 }
+
+variable "enable_sql_monitoring" {
+  type        = bool
+  description = "Enable Azure SQL diagnostic settings and platform metric alerts."
+  default     = false
+}
+
+variable "log_analytics_workspace_id" {
+  type        = string
+  description = "Log Analytics workspace ID for SQL diagnostic settings."
+  default     = null
+}
+
+variable "monitor_action_group_id" {
+  type        = string
+  description = "Existing Azure Monitor action group ID for SQL metric alerts."
+  default     = null
+}
