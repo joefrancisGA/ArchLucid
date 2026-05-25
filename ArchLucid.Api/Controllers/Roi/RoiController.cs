@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text;
 
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
@@ -65,7 +66,7 @@ public sealed class RoiController(
         CancellationToken cancellationToken)
     {
         if (!TryParseBoardPackFormat(format, out ExecutiveRoiBoardPackFormat parsedFormat))
-            return BadRequest("format must be md or pdf.");
+            return this.BadRequestProblem("format must be md or pdf.", ProblemTypes.ValidationFailed);
 
         string? traceId = Activity.Current?.TraceId.ToString();
 

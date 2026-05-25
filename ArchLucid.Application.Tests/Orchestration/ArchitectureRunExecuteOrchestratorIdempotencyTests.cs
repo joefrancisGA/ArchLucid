@@ -125,11 +125,15 @@ public sealed class ArchitectureRunExecuteOrchestratorIdempotencyTests
             });
 
         Mock<IAgentTaskRepository> taskRepo = new();
+        string topologyTaskId = existingResults.Count > 0
+            ? existingResults[0].TaskId
+            : "topology-task-idempotent";
+
         taskRepo
             .Setup(t => t.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
-                new AgentTask { RunId = runId, AgentType = AgentType.Topology, TaskId = existingResults[0].TaskId },
+                new AgentTask { RunId = runId, AgentType = AgentType.Topology, TaskId = topologyTaskId },
             ]);
 
         Mock<IAgentResultRepository> resultRepo = new();
