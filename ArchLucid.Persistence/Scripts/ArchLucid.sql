@@ -2791,6 +2791,37 @@ IF OBJECT_ID(N'dbo.AlertRecords', N'U') IS NOT NULL
         CHECK (Status IN (N'Open', N'Acknowledged', N'Resolved', N'Suppressed'));
 GO
 
+IF OBJECT_ID(N'dbo.PolicyPacks', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_PolicyPacks_PackType')
+    ALTER TABLE dbo.PolicyPacks ADD CONSTRAINT CK_PolicyPacks_PackType
+        CHECK (PackType IN (
+            N'BuiltIn', N'PlatformDefault', N'TenantCustom', N'WorkspaceCustom', N'ProjectCustom'));
+GO
+
+IF OBJECT_ID(N'dbo.PolicyPackAssignments', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_PolicyPackAssignments_ScopeLevel')
+    ALTER TABLE dbo.PolicyPackAssignments ADD CONSTRAINT CK_PolicyPackAssignments_ScopeLevel
+        CHECK (ScopeLevel IN (N'Tenant', N'Workspace', N'Project'));
+GO
+
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_FindingRecords_Severity')
+    ALTER TABLE dbo.FindingRecords ADD CONSTRAINT CK_FindingRecords_Severity
+        CHECK (Severity IN (N'Info', N'Warning', N'Error', N'Critical'));
+GO
+
+IF OBJECT_ID(N'dbo.ConversationMessages', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_ConversationMessages_Role')
+    ALTER TABLE dbo.ConversationMessages ADD CONSTRAINT CK_ConversationMessages_Role
+        CHECK (Role IN (N'User', N'Assistant', N'System'));
+GO
+
+IF OBJECT_ID(N'dbo.ImportedArchitectureRequests', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_ImportedArchitectureRequests_Status')
+    ALTER TABLE dbo.ImportedArchitectureRequests ADD CONSTRAINT CK_ImportedArchitectureRequests_Status
+        CHECK (Status IN (N'Draft', N'Processing', N'Completed', N'Failed'));
+GO
+
 /* ---- DbUp 019–021 parity (post-bootstrap migrations; idempotent add for brownfield / reference) ---- */
 
 IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'RetrievalIndexingOutbox' AND schema_id = SCHEMA_ID('dbo'))
