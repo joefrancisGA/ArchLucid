@@ -5,6 +5,7 @@ using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ArtifactSynthesis.Services;
 using ArchLucid.Backfill.Cli;
+using ArchLucid.Capabilities.Cost;
 using ArchLucid.Cli;
 using ArchLucid.ContextIngestion;
 using ArchLucid.Contracts.Metadata;
@@ -18,6 +19,7 @@ using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Coordination.Replay;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Repositories;
+using ArchLucid.Provenance;
 using ArchLucid.Retrieval.Queries;
 using ArchLucid.TestSupport;
 
@@ -887,6 +889,214 @@ public sealed class DependencyConstraintTests
         references.Should().NotContain(
             a => a.Name == "ArchLucid.Persistence",
             because: "AgentRuntime must use ports, not the Persistence assembly.");
+    }
+
+    // ── Tier 9 — Dependency graph gap closure (2026-05-24, Improvement #53) ───
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Provenance_must_not_depend_on_Persistence()
+    {
+        Assembly provenance = typeof(ProvenanceBuilder).Assembly;
+
+        TestResult result = Types
+            .InAssembly(provenance)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Persistence")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Provenance is domain logic; SQL/Dapper types belong in persistence adapters only (INV hexagonal tier-3 guard). Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Api_csproj_must_not_declare_Decisioning_project_reference()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string csprojPath = Path.Combine(root!, "ArchLucid.Api", "ArchLucid.Api.csproj");
+        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+        declaredReferences.Should().NotContain(
+            "ArchLucid.Decisioning",
+            because: "Api must reach decisioning through Application orchestration, not a direct csproj reference (INV host seam).");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Api_csproj_must_not_declare_KnowledgeGraph_project_reference()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string csprojPath = Path.Combine(root!, "ArchLucid.Api", "ArchLucid.Api.csproj");
+        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+        declaredReferences.Should().NotContain(
+            "ArchLucid.KnowledgeGraph",
+            because: "Api must depend on graph ports in Contracts/Core, not a direct KnowledgeGraph csproj reference.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Application_must_not_reference_SqlClient_or_Dapper_assemblies()
+    {
+        Assembly application = typeof(ArchitectureRunCreateOrchestrator).Assembly;
+        AssemblyName[] references = application.GetReferencedAssemblies();
+
+        references.Should().NotContain(
+            a => a.Name == "Microsoft.Data.SqlClient",
+            because: "Application orchestrates use cases; Microsoft.Data.SqlClient belongs in ArchLucid.Persistence only.");
+
+        references.Should().NotContain(
+            a => a.Name == "Dapper",
+            because: "Application orchestrates use cases; Dapper belongs in ArchLucid.Persistence only.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Application_must_not_reference_Notifications_assembly()
+    {
+        Assembly application = typeof(ArchitectureRunCreateOrchestrator).Assembly;
+        AssemblyName[] references = application.GetReferencedAssemblies();
+
+        references.Should().NotContain(
+            a => a.Name == "ArchLucid.Notifications",
+            because: "Application must dispatch alerts through orchestration ports, not reference the Notifications delivery assembly directly.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void AgentRuntime_references_Decisioning_by_design()
+    {
+        // AgentRuntime consumes decisioning models during agent execution (findings, alerts) before Application
+        // orchestration ports fully absorb those edges. Pinning documents intentional coupling pending #55 port inversion.
+        Assembly agentRuntime = typeof(RealAgentExecutor).Assembly;
+        AssemblyName[] references = agentRuntime.GetReferencedAssemblies();
+
+        references.Should().Contain(
+            a => a.Name == "ArchLucid.Decisioning",
+            because: "AgentRuntime currently references Decisioning for in-process agent evaluation; refactor to Application ports is tracked under Improvement #55.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void AgentRuntime_references_Provenance_by_design()
+    {
+        // AgentRuntime builds provenance snapshots during execution; Provenance graph assembly is consumed in-process.
+        // Pinning documents the lateral edge until IProvenanceProjection ports land (Improvement #55 Option A).
+        Assembly agentRuntime = typeof(RealAgentExecutor).Assembly;
+        AssemblyName[] references = agentRuntime.GetReferencedAssemblies();
+
+        references.Should().Contain(
+            a => a.Name == "ArchLucid.Provenance",
+            because: "AgentRuntime currently references Provenance for run-time provenance assembly; port inversion is tracked under Improvement #55.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Decisioning_csproj_references_Notifications_by_design()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string csprojPath = Path.Combine(root!, "ArchLucid.Decisioning", "ArchLucid.Decisioning.csproj");
+        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+        declaredReferences.Should().Contain(
+            "ArchLucid.Notifications",
+            because: "Decisioning currently references Notifications for alert delivery; mediator/port inversion is tracked under Improvement #55.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Provenance_csproj_references_ArtifactSynthesis_by_design()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string csprojPath = Path.Combine(root!, "ArchLucid.Provenance", "ArchLucid.Provenance.csproj");
+        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+        declaredReferences.Should().Contain(
+            "ArchLucid.ArtifactSynthesis",
+            because: "ProvenanceBuilder ingests synthesized artifact models directly; projection ports are tracked under Improvement #55.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Provenance_csproj_references_Decisioning_by_design()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string csprojPath = Path.Combine(root!, "ArchLucid.Provenance", "ArchLucid.Provenance.csproj");
+        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+        declaredReferences.Should().Contain(
+            "ArchLucid.Decisioning",
+            because: "Provenance graphs include decision traces from Decisioning today; event-driven projection is tracked under Improvement #55.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Provenance_csproj_references_KnowledgeGraph_by_design()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string csprojPath = Path.Combine(root!, "ArchLucid.Provenance", "ArchLucid.Provenance.csproj");
+        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+        declaredReferences.Should().Contain(
+            "ArchLucid.KnowledgeGraph",
+            because: "ProvenanceBuilder embeds graph snapshot nodes from KnowledgeGraph; port-based projection is tracked under Improvement #55.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Capabilities_Cost_must_not_depend_on_Persistence()
+    {
+        Assembly capabilitiesCost = typeof(CostAgentHandler).Assembly;
+
+        TestResult result = Types
+            .InAssembly(capabilitiesCost)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Persistence")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Capabilities.Cost is domain-tier logic and must not reference ArchLucid.Persistence (INV hexagonal tier-3 guard). Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void BackfillCli_references_Persistence_by_design()
+    {
+        // One-time SqlRelationalBackfill migration host composes Persistence.Coordination.Backfill directly.
+        Assembly backfillCli = typeof(BackfillCliAssemblyAnchor).Assembly;
+        AssemblyName[] references = backfillCli.GetReferencedAssemblies();
+
+        references.Should().Contain(
+            a => a.Name == "ArchLucid.Persistence",
+            because: "Backfill.Cli is a deliberate maintenance host over Persistence adapters; see docs/library/SqlRelationalBackfill.md.");
     }
 
     private static HashSet<string> CollectTransitiveFirstPartyAssemblyReferences(Assembly assembly)
