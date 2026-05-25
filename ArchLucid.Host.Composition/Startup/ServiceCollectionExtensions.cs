@@ -115,6 +115,7 @@ public static partial class ServiceCollectionExtensions
         RegisterDataArchivalHostedService(services, configuration, hostingRole);
         RegisterAgentResultBlobCleanupHostedService(services, configuration, hostingRole);
         RegisterExecutiveRoiCacheWarmupHostedService(services, configuration, hostingRole);
+        RegisterExecutiveRoiSavingsGaugeHostedService(services, configuration, hostingRole);
         RegisterFirstTenantFunnelArchivalHostedService(services, configuration, hostingRole);
         RegisterArchitectureProjectRetentionPurgeHostedService(services, hostingRole);
         RegisterSampleRunTtlHostedService(services, hostingRole);

@@ -230,6 +230,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IExecutiveRoiBoardPackExporter, ExecutiveRoiBoardPackExporter>();
         services.Configure<ExecutiveRoiCacheWarmupOptions>(
             configuration.GetSection(ExecutiveRoiCacheWarmupOptions.SectionPath));
+        services.Configure<ExecutiveRoiSavingsGaugeOptions>(
+            configuration.GetSection(ExecutiveRoiSavingsGaugeOptions.SectionPath));
         services.AddScoped<ResourceCoverageReportService>();
         services
             .AddHttpClient<IPublisherConnector, ConfluenceCloudPublisherConnector>(

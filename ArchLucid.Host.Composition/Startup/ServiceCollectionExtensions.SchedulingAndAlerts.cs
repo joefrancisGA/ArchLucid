@@ -86,6 +86,24 @@ public static partial class ServiceCollectionExtensions
         services.AddHostedService<ExecutiveRoiCacheWarmupHostedService>();
     }
 
+    private static void RegisterExecutiveRoiSavingsGaugeHostedService(
+        IServiceCollection services,
+        IConfiguration configuration,
+        ArchLucidHostingRole hostingRole)
+    {
+        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
+            return;
+
+        ExecutiveRoiSavingsGaugeOptions opts =
+            configuration.GetSection(ExecutiveRoiSavingsGaugeOptions.SectionPath).Get<ExecutiveRoiSavingsGaugeOptions>()
+            ?? new ExecutiveRoiSavingsGaugeOptions();
+
+        if (!opts.Enabled)
+            return;
+
+        services.AddHostedService<ExecutiveRoiSavingsGaugeHostedService>();
+    }
+
     private static void RegisterArchitectureProjectRetentionPurgeHostedService(
         IServiceCollection services,
         ArchLucidHostingRole hostingRole)

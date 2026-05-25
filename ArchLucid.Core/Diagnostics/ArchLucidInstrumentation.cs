@@ -55,6 +55,8 @@ public static class ArchLucidInstrumentation
     private static int _llmTenantBudgetUtilizationObservableGaugeRegistered;
 
     private static int _llmTenantBudgetRemainingObservableGaugeRegistered;
+
+    private static int _executiveRoiSavingsObservableGaugeRegistered;
     private static long _llmCompletionCacheHitsAggregate;
 
     private static long _llmCompletionCacheMissesAggregate;
@@ -80,6 +82,8 @@ public static class ArchLucidInstrumentation
     private static Func<Measurement<double>[]>? _llmBudgetUtilizationReader;
 
     private static Func<Measurement<double>[]>? _llmBudgetRemainingReader;
+
+    private static Func<Measurement<double>[]>? _executiveRoiSavingsReader;
 
     private static Func<string, bool>? _firstTenantFunnelEventNameValidator;
 
@@ -918,6 +922,9 @@ public static class ArchLucidInstrumentation
     public static void SetLlmBudgetRemainingReader(Func<Measurement<double>[]> reader) =>
         Volatile.Write(ref _llmBudgetRemainingReader, reader);
 
+    public static void SetExecutiveRoiSavingsReader(Func<Measurement<double>[]> reader) =>
+        Volatile.Write(ref _executiveRoiSavingsReader, reader);
+
     public static void SetFirstTenantFunnelEventNameValidator(Func<string, bool> validator) =>
         Volatile.Write(ref _firstTenantFunnelEventNameValidator, validator);
 
@@ -1083,6 +1090,19 @@ public static class ArchLucidInstrumentation
             () => _llmBudgetRemainingReader?.Invoke() ?? Array.Empty<Measurement<double>>(),
             "USD",
             "UTC-month LLM dollar headroom remaining under hard cutoff + purchased bump (non-negative; label tenant_id).");
+    }
+
+    /// <summary>Registers observable executive ROI savings gauge (platform aggregate + optional per-tenant rows).</summary>
+    public static void EnsureExecutiveRoiSavingsObservableGaugeRegistered()
+    {
+        if (Interlocked.Exchange(ref _executiveRoiSavingsObservableGaugeRegistered, 1) != 0)
+            return;
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_tenant_estimated_savings_usd",
+            () => _executiveRoiSavingsReader?.Invoke() ?? Array.Empty<Measurement<double>>(),
+            "USD",
+            "Estimated USD savings rollup from Executive ROI dedup rules. Labels: scope=platform|tenant; tenant_id when scope=tenant.");
     }
 
     /// <summary>Updates the cached value read by <c>archlucid_trial_active_tenants</c> (background metrics collector).</summary>

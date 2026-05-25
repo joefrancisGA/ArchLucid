@@ -1,382 +1,672 @@
-{
-  "annotations": { "list": [] },
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
-  "id": null,
-  "links": [],
-  "liveNow": false,
-  "panels": [
-    {
-      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 0 },
-      "id": 10,
-      "options": {
-        "content": "## Authority pipeline (meter **ArchLucid**)\n\nStable names match **`docs/library/OBSERVABILITY.md`** (source **`ArchLucidInstrumentation.cs`**).\n\n| Signal | What good looks like | Alert rule |\n|--------|---------------------|-------------|\n| **`archlucid_authority_pipeline_work_pending`** | Well **below 50** for normal load | **`ArchLucidAuthorityPipelineWorkBacklog`**: **`> 50`** for **15m** |\n| **`archlucid_authority_pipeline_work_dead_letter`** | **Zero** (`DeadLetteredUtc` unset) | **`ArchLucidAuthorityPipelineWorkDeadLetters`**: **`> 0`** for **30m** |\n| **`archlucid_authority_pipeline_work_oldest_pending_age_seconds`** | Seconds near zero | **`ArchLucidAuthorityPipelineWorkStale`**: **`> 3600`** for **20m** |\n| **`archlucid_data_consistency_*_total`** | Zero **`rate`** in steady state | **`ArchLucidDataConsistencyOrphansDetected`** / **`ArchLucidDataConsistencyAlertsRaised`** ( **`1h`** windows in **`infra/prometheus/archlucid-alerts.yml`** ) |\n\n**Import:** Grafana â†’ **Dashboards** â†’ **Import** â†’ upload this JSON â†’ bind variable **`${datasource}`** to **Prometheus**. Optional Terraform root: **`infra/terraform-monitoring/grafana_dashboards.tf`**. Runbook **`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`** (clone).",
-        "mode": "markdown"
-      },
-      "title": "Meter / alert alignment",
-      "transparent": false,
-      "type": "text"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "description": "Histogram **`archlucid_authority_pipeline_stage_duration_ms`** â€” labels **`stage`**, **`outcome`** per **`OBSERVABILITY.md`**. If empty, confirm OTLP histogram export names (`*_bucket`) on scrape.",
-      "fieldConfig": {
-        "defaults": { "decimals": 1, "unit": "ms" },
-        "overrides": []
-      },
-      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 7 },
-      "id": 11,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "multi" }
-      },
-      "targets": [
-        {
-          "expr": "histogram_quantile(0.95, sum(rate(archlucid_authority_pipeline_stage_duration_ms_bucket[5m])) by (le, stage, outcome))",
-          "legendFormat": "{{stage}} {{outcome}} p95",
-          "refId": "A"
-        }
-      ],
-      "title": "Pipeline stage duration (p95 per stage/outcome)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "description": "Observable gauge depth on **`dbo.AuthorityPipelineWorkOutbox`**. **Yellow / red shading** approximates Prometheus **`ArchLucidAuthorityPipelineWorkBacklog`** (>50 for **15m**).",
-      "fieldConfig": {
-        "defaults": {
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 40 },
-              { "color": "red", "value": 50 }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 16 },
-      "id": 12,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
-      },
-      "targets": [
-        {
-          "expr": "archlucid_authority_pipeline_work_pending",
-          "legendFormat": "pending rows",
-          "refId": "A"
-        }
-      ],
-      "title": "Authority outbox backlog (gauge)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "description": "Oldest unprocessed **`AuthorityPipelineWorkOutbox`** row age. Prometheus **`ArchLucidAuthorityPipelineWorkStale`** at **>3600s** (**20m** **`for`**). Increase worker replicas when persistently elevated + SQL tier is healthy.",
-      "fieldConfig": {
-        "defaults": {
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 2700 },
-              { "color": "red", "value": 3600 }
-            ]
-          },
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 16 },
-      "id": 13,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
-      },
-      "targets": [
-        {
-          "expr": "archlucid_authority_pipeline_work_oldest_pending_age_seconds",
-          "legendFormat": "oldest age",
-          "refId": "A"
-        }
-      ],
-      "title": "Oldest pending age (authority outbox)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "description": "Count of **`AuthorityPipelineWorkOutbox`** rows with **`DeadLetteredUtc`** set. Prometheus **`ArchLucidAuthorityPipelineWorkDeadLetters`** fires when **`> 0`** for **30m** (critical); panel marks **â‰¥1** red.",
-      "fieldConfig": {
-        "defaults": {
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "red", "value": 1 }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 16 },
-      "id": 15,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
-      },
-      "targets": [
-        {
-          "expr": "archlucid_authority_pipeline_work_dead_letter",
-          "legendFormat": "dead letter rows",
-          "refId": "A"
-        }
-      ],
-      "title": "Authority outbox dead letters (gauge)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "description": "Detection-only orphans vs **`ArchLucidDataConsistencyOrphansDetected`**; **`alerts_total`** vs **`ArchLucidDataConsistencyAlertsRaised`**; **`orphans_quarantined_total`** when quarantine mode inserts rows. Alerts use **`1h`** `rate`; panel uses **`5m`** for responsiveness â€” widen if noisy.",
-      "fieldConfig": { "defaults": {}, "overrides": [] },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
-      "id": 14,
-      "options": {
-        "legend": { "displayMode": "table", "placement": "bottom" },
-        "tooltip": { "mode": "multi" }
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(archlucid_data_consistency_orphans_detected_total[5m])) by (table)",
-          "legendFormat": "orphans/s {{table}}",
-          "refId": "A"
-        },
-        {
-          "expr": "sum(rate(archlucid_data_consistency_alerts_total[5m])) by (table)",
-          "legendFormat": "alert signal/s {{table}}",
-          "refId": "B"
-        },
-        {
-          "expr": "sum(rate(archlucid_data_consistency_orphans_quarantined_total[5m])) by (table)",
-          "legendFormat": "quarantined/s {{table}}",
-          "refId": "C"
-        }
-      ],
-      "title": "Data consistency: orphans vs alerts vs quarantine (rates)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": { "unit": "s" },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 32 },
-      "id": 1,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
-      },
-      "targets": [
-        {
-          "expr": "histogram_quantile(0.95, sum(rate(traces_span_latency_bucket{span_name=~\"authority\\\\.(context_ingestion|graph|findings|decisioning|artifacts)\"}[5m])) by (le, span_name))",
-          "legendFormat": "{{span_name}} p95",
-          "refId": "A"
-        }
-      ],
-      "title": "Authority stage span latency (OTel traces, p95)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": { "defaults": {}, "overrides": [] },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 32 },
-      "id": 2,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
-      },
-      "targets": [
-        {
-          "expr": "sum(increase(traces_span_count{span_name=\"AuthorityRun\"}[5m]))",
-          "legendFormat": "Authority runs (5m)",
-          "refId": "A"
-        }
-      ],
-      "title": "Authority run throughput (OTel spans)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "description": "Meter **ArchLucid** counters. Empty series â‡’ confirm Prometheus scrape translates histogram/counter names (OTLP mapping version).",
-      "fieldConfig": { "defaults": {}, "overrides": [] },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 40 },
-      "id": 3,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(archlucid_authority_runs_completed_total[5m]))",
-          "legendFormat": "authority runs completed / s",
-          "refId": "A"
-        }
-      ],
-      "title": "Authority runs completed (app counter)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": { "defaults": {}, "overrides": [] },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 40 },
-      "id": 4,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "multi" }
-      },
-      "targets": [
-        {
-          "expr": "sum by (agent_type_key, outcome) (rate(archlucid_agent_handler_invocations_total[5m]))",
-          "legendFormat": "{{agent_type_key}} {{outcome}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Agent handler invocations (by type)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": { "defaults": {}, "overrides": [] },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 48 },
-      "id": 5,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(archlucid_llm_prompt_tokens_total[5m]))",
-          "legendFormat": "prompt tokens/s",
-          "refId": "A"
-        },
-        {
-          "expr": "sum(rate(archlucid_llm_completion_tokens_total[5m]))",
-          "legendFormat": "completion tokens/s",
-          "refId": "B"
-        }
-      ],
-      "title": "LLM token rates (Azure OpenAI completions)",
-      "type": "timeseries"
-    },
-    {
-      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 56 },
-      "id": 20,
-      "options": {
-        "content": "## Business Value\n\nDirectional ROI proxy from **`archlucid_findings_produced_total`** (severity-weighted rate). Actual USD savings are computed at runtime in the Executive ROI API — use this panel for operational trend visibility only.",
-        "mode": "markdown"
-      },
-      "title": "Business Value",
-      "type": "text"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "description": "Findings produced per severity after authority runs complete. Pair with Executive ROI export for USD estimates.",
-      "fieldConfig": { "defaults": {}, "overrides": [] },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 59 },
-      "id": 21,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "multi" }
-      },
-      "targets": [
-        {
-          "expr": "sum by (severity) (rate(archlucid_findings_produced_total[5m]))",
-          "legendFormat": "{{severity}} / s",
-          "refId": "A"
-        }
-      ],
-      "title": "Findings produced rate (by severity)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "description": "Heuristic severity-weighted findings rate (Critical×4 + Error×3 + Warning×2 + Info×1). Not USD — directional business-value proxy per Improvement 12.",
-      "fieldConfig": { "defaults": { "decimals": 2 }, "overrides": [] },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 59 },
-      "id": 22,
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(archlucid_findings_produced_total{severity=\"Critical\"}[5m])) * 4 + sum(rate(archlucid_findings_produced_total{severity=\"Error\"}[5m])) * 3 + sum(rate(archlucid_findings_produced_total{severity=\"Warning\"}[5m])) * 2 + sum(rate(archlucid_findings_produced_total{severity=\"Info\"}[5m]))",
-          "legendFormat": "weighted findings / s",
-          "refId": "A"
-        }
-      ],
-      "title": "Severity-weighted findings proxy",
-      "type": "timeseries"
-    }
-  ],
-  "refresh": "30s",
-  "schemaVersion": 38,
-  "tags": ["archlucid", "authority", "authority-pipeline", "prometheus"],
-  "templating": {
-    "list": [
-      {
-        "current": {},
-        "hide": 0,
-        "label": "Datasource",
-        "name": "datasource",
-        "options": [],
-        "query": "prometheus",
-        "refresh": 1,
-        "regex": "",
-        "type": "datasource"
-      }
-    ]
-  },
-  "time": { "from": "now-6h", "to": "now" },
-  "timepicker": {},
-  "timezone": "browser",
-  "title": "ArchLucid â€” Authority pipeline",
-  "uid": "archlucid-authority",
-  "version": 3,
-  "weekStart": ""
+﻿{
+    "annotations":  {
+                        "list":  [
+
+                                 ]
+                    },
+    "editable":  true,
+    "fiscalYearStartMonth":  0,
+    "graphTooltip":  0,
+    "id":  null,
+    "links":  [
+
+              ],
+    "liveNow":  false,
+    "panels":  [
+                   {
+                       "gridPos":  {
+                                       "h":  7,
+                                       "w":  24,
+                                       "x":  0,
+                                       "y":  0
+                                   },
+                       "id":  10,
+                       "options":  {
+                                       "content":  "## Authority pipeline (meter **ArchLucid**)\n\nStable names match **`docs/library/OBSERVABILITY.md`** (source **`ArchLucidInstrumentation.cs`**).\n\n| Signal | What good looks like | Alert rule |\n|--------|---------------------|-------------|\n| **`archlucid_authority_pipeline_work_pending`** | Well **below 50** for normal load | **`ArchLucidAuthorityPipelineWorkBacklog`**: **`\u003e 50`** for **15m** |\n| **`archlucid_authority_pipeline_work_dead_letter`** | **Zero** (`DeadLetteredUtc` unset) | **`ArchLucidAuthorityPipelineWorkDeadLetters`**: **`\u003e 0`** for **30m** |\n| **`archlucid_authority_pipeline_work_oldest_pending_age_seconds`** | Seconds near zero | **`ArchLucidAuthorityPipelineWorkStale`**: **`\u003e 3600`** for **20m** |\n| **`archlucid_data_consistency_*_total`** | Zero **`rate`** in steady state | **`ArchLucidDataConsistencyOrphansDetected`** / **`ArchLucidDataConsistencyAlertsRaised`** ( **`1h`** windows in **`infra/prometheus/archlucid-alerts.yml`** ) |\n\n**Import:** Grafana â†’ **Dashboards** â†’ **Import** â†’ upload this JSON â†’ bind variable **`${datasource}`** to **Prometheus**. Optional Terraform root: **`infra/terraform-monitoring/grafana_dashboards.tf`**. Runbook **`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`** (clone).",
+                                       "mode":  "markdown"
+                                   },
+                       "title":  "Meter / alert alignment",
+                       "transparent":  false,
+                       "type":  "text"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "${datasource}"
+                                      },
+                       "description":  "Histogram **`archlucid_authority_pipeline_stage_duration_ms`** â€” labels **`stage`**, **`outcome`** per **`OBSERVABILITY.md`**. If empty, confirm OTLP histogram export names (`*_bucket`) on scrape.",
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "decimals":  1,
+                                                            "unit":  "ms"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "h":  9,
+                                       "w":  24,
+                                       "x":  0,
+                                       "y":  7
+                                   },
+                       "id":  11,
+                       "options":  {
+                                       "legend":  {
+                                                      "displayMode":  "list",
+                                                      "placement":  "bottom"
+                                                  },
+                                       "tooltip":  {
+                                                       "mode":  "multi"
+                                                   }
+                                   },
+                       "targets":  [
+                                       {
+                                           "expr":  "histogram_quantile(0.95, sum(rate(archlucid_authority_pipeline_stage_duration_ms_bucket[5m])) by (le, stage, outcome))",
+                                           "legendFormat":  "{{stage}} {{outcome}} p95",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "title":  "Pipeline stage duration (p95 per stage/outcome)",
+                       "type":  "timeseries"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "${datasource}"
+                                      },
+                       "description":  "Observable gauge depth on **`dbo.AuthorityPipelineWorkOutbox`**. **Yellow / red shading** approximates Prometheus **`ArchLucidAuthorityPipelineWorkBacklog`** (\u003e50 for **15m**).",
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "thresholds":  {
+                                                                               "mode":  "absolute",
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "color":  "green",
+                                                                                                 "value":  null
+                                                                                             },
+                                                                                             {
+                                                                                                 "color":  "yellow",
+                                                                                                 "value":  40
+                                                                                             },
+                                                                                             {
+                                                                                                 "color":  "red",
+                                                                                                 "value":  50
+                                                                                             }
+                                                                                         ]
+                                                                           },
+                                                            "unit":  "short"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "h":  8,
+                                       "w":  8,
+                                       "x":  0,
+                                       "y":  16
+                                   },
+                       "id":  12,
+                       "options":  {
+                                       "legend":  {
+                                                      "displayMode":  "list",
+                                                      "placement":  "bottom"
+                                                  },
+                                       "tooltip":  {
+                                                       "mode":  "single"
+                                                   }
+                                   },
+                       "targets":  [
+                                       {
+                                           "expr":  "archlucid_authority_pipeline_work_pending",
+                                           "legendFormat":  "pending rows",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "title":  "Authority outbox backlog (gauge)",
+                       "type":  "timeseries"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "${datasource}"
+                                      },
+                       "description":  "Oldest unprocessed **`AuthorityPipelineWorkOutbox`** row age. Prometheus **`ArchLucidAuthorityPipelineWorkStale`** at **\u003e3600s** (**20m** **`for`**). Increase worker replicas when persistently elevated + SQL tier is healthy.",
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "thresholds":  {
+                                                                               "mode":  "absolute",
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "color":  "green",
+                                                                                                 "value":  null
+                                                                                             },
+                                                                                             {
+                                                                                                 "color":  "yellow",
+                                                                                                 "value":  2700
+                                                                                             },
+                                                                                             {
+                                                                                                 "color":  "red",
+                                                                                                 "value":  3600
+                                                                                             }
+                                                                                         ]
+                                                                           },
+                                                            "unit":  "s"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "h":  8,
+                                       "w":  8,
+                                       "x":  8,
+                                       "y":  16
+                                   },
+                       "id":  13,
+                       "options":  {
+                                       "legend":  {
+                                                      "displayMode":  "list",
+                                                      "placement":  "bottom"
+                                                  },
+                                       "tooltip":  {
+                                                       "mode":  "single"
+                                                   }
+                                   },
+                       "targets":  [
+                                       {
+                                           "expr":  "archlucid_authority_pipeline_work_oldest_pending_age_seconds",
+                                           "legendFormat":  "oldest age",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "title":  "Oldest pending age (authority outbox)",
+                       "type":  "timeseries"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "${datasource}"
+                                      },
+                       "description":  "Count of **`AuthorityPipelineWorkOutbox`** rows with **`DeadLetteredUtc`** set. Prometheus **`ArchLucidAuthorityPipelineWorkDeadLetters`** fires when **`\u003e 0`** for **30m** (critical); panel marks **â‰¥1** red.",
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "thresholds":  {
+                                                                               "mode":  "absolute",
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "color":  "green",
+                                                                                                 "value":  null
+                                                                                             },
+                                                                                             {
+                                                                                                 "color":  "red",
+                                                                                                 "value":  1
+                                                                                             }
+                                                                                         ]
+                                                                           },
+                                                            "unit":  "short"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "h":  8,
+                                       "w":  8,
+                                       "x":  16,
+                                       "y":  16
+                                   },
+                       "id":  15,
+                       "options":  {
+                                       "legend":  {
+                                                      "displayMode":  "list",
+                                                      "placement":  "bottom"
+                                                  },
+                                       "tooltip":  {
+                                                       "mode":  "single"
+                                                   }
+                                   },
+                       "targets":  [
+                                       {
+                                           "expr":  "archlucid_authority_pipeline_work_dead_letter",
+                                           "legendFormat":  "dead letter rows",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "title":  "Authority outbox dead letters (gauge)",
+                       "type":  "timeseries"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "${datasource}"
+                                      },
+                       "description":  "Detection-only orphans vs **`ArchLucidDataConsistencyOrphansDetected`**; **`alerts_total`** vs **`ArchLucidDataConsistencyAlertsRaised`**; **`orphans_quarantined_total`** when quarantine mode inserts rows. Alerts use **`1h`** `rate`; panel uses **`5m`** for responsiveness â€” widen if noisy.",
+                       "fieldConfig":  {
+                                           "defaults":  {
+
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "h":  8,
+                                       "w":  24,
+                                       "x":  0,
+                                       "y":  24
+                                   },
+                       "id":  14,
+                       "options":  {
+                                       "legend":  {
+                                                      "displayMode":  "table",
+                                                      "placement":  "bottom"
+                                                  },
+                                       "tooltip":  {
+                                                       "mode":  "multi"
+                                                   }
+                                   },
+                       "targets":  [
+                                       {
+                                           "expr":  "sum(rate(archlucid_data_consistency_orphans_detected_total[5m])) by (table)",
+                                           "legendFormat":  "orphans/s {{table}}",
+                                           "refId":  "A"
+                                       },
+                                       {
+                                           "expr":  "sum(rate(archlucid_data_consistency_alerts_total[5m])) by (table)",
+                                           "legendFormat":  "alert signal/s {{table}}",
+                                           "refId":  "B"
+                                       },
+                                       {
+                                           "expr":  "sum(rate(archlucid_data_consistency_orphans_quarantined_total[5m])) by (table)",
+                                           "legendFormat":  "quarantined/s {{table}}",
+                                           "refId":  "C"
+                                       }
+                                   ],
+                       "title":  "Data consistency: orphans vs alerts vs quarantine (rates)",
+                       "type":  "timeseries"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "${datasource}"
+                                      },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "s"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "h":  8,
+                                       "w":  12,
+                                       "x":  0,
+                                       "y":  32
+                                   },
+                       "id":  1,
+                       "options":  {
+                                       "legend":  {
+                                                      "displayMode":  "list",
+                                                      "placement":  "bottom"
+                                                  },
+                                       "tooltip":  {
+                                                       "mode":  "single"
+                                                   }
+                                   },
+                       "targets":  [
+                                       {
+                                           "expr":  "histogram_quantile(0.95, sum(rate(traces_span_latency_bucket{span_name=~\"authority\\\\.(context_ingestion|graph|findings|decisioning|artifacts)\"}[5m])) by (le, span_name))",
+                                           "legendFormat":  "{{span_name}} p95",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "title":  "Authority stage span latency (OTel traces, p95)",
+                       "type":  "timeseries"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "${datasource}"
+                                      },
+                       "fieldConfig":  {
+                                           "defaults":  {
+
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "h":  8,
+                                       "w":  12,
+                                       "x":  12,
+                                       "y":  32
+                                   },
+                       "id":  2,
+                       "options":  {
+                                       "legend":  {
+                                                      "displayMode":  "list",
+                                                      "placement":  "bottom"
+                                                  },
+                                       "tooltip":  {
+                                                       "mode":  "single"
+                                                   }
+                                   },
+                       "targets":  [
+                                       {
+                                           "expr":  "sum(increase(traces_span_count{span_name=\"AuthorityRun\"}[5m]))",
+                                           "legendFormat":  "Authority runs (5m)",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "title":  "Authority run throughput (OTel spans)",
+                       "type":  "timeseries"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "${datasource}"
+                                      },
+                       "description":  "Meter **ArchLucid** counters. Empty series â‡’ confirm Prometheus scrape translates histogram/counter names (OTLP mapping version).",
+                       "fieldConfig":  {
+                                           "defaults":  {
+
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "h":  8,
+                                       "w":  12,
+                                       "x":  0,
+                                       "y":  40
+                                   },
+                       "id":  3,
+                       "options":  {
+                                       "legend":  {
+                                                      "displayMode":  "list",
+                                                      "placement":  "bottom"
+                                                  },
+                                       "tooltip":  {
+                                                       "mode":  "single"
+                                                   }
+                                   },
+                       "targets":  [
+                                       {
+                                           "expr":  "sum(rate(archlucid_authority_runs_completed_total[5m]))",
+                                           "legendFormat":  "authority runs completed / s",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "title":  "Authority runs completed (app counter)",
+                       "type":  "timeseries"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "${datasource}"
+                                      },
+                       "fieldConfig":  {
+                                           "defaults":  {
+
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "h":  8,
+                                       "w":  12,
+                                       "x":  12,
+                                       "y":  40
+                                   },
+                       "id":  4,
+                       "options":  {
+                                       "legend":  {
+                                                      "displayMode":  "list",
+                                                      "placement":  "bottom"
+                                                  },
+                                       "tooltip":  {
+                                                       "mode":  "multi"
+                                                   }
+                                   },
+                       "targets":  [
+                                       {
+                                           "expr":  "sum by (agent_type_key, outcome) (rate(archlucid_agent_handler_invocations_total[5m]))",
+                                           "legendFormat":  "{{agent_type_key}} {{outcome}}",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "title":  "Agent handler invocations (by type)",
+                       "type":  "timeseries"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "${datasource}"
+                                      },
+                       "fieldConfig":  {
+                                           "defaults":  {
+
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "h":  8,
+                                       "w":  24,
+                                       "x":  0,
+                                       "y":  48
+                                   },
+                       "id":  5,
+                       "options":  {
+                                       "legend":  {
+                                                      "displayMode":  "list",
+                                                      "placement":  "bottom"
+                                                  },
+                                       "tooltip":  {
+                                                       "mode":  "single"
+                                                   }
+                                   },
+                       "targets":  [
+                                       {
+                                           "expr":  "sum(rate(archlucid_llm_prompt_tokens_total[5m]))",
+                                           "legendFormat":  "prompt tokens/s",
+                                           "refId":  "A"
+                                       },
+                                       {
+                                           "expr":  "sum(rate(archlucid_llm_completion_tokens_total[5m]))",
+                                           "legendFormat":  "completion tokens/s",
+                                           "refId":  "B"
+                                       }
+                                   ],
+                       "title":  "LLM token rates (Azure OpenAI completions)",
+                       "type":  "timeseries"
+                   },
+                   {
+                       "gridPos":  {
+                                       "h":  3,
+                                       "w":  24,
+                                       "x":  0,
+                                       "y":  56
+                                   },
+                       "id":  20,
+                       "options":  {
+                                       "content":  "## Business Value\n\nPrimary: **\u0007rchlucid_tenant_estimated_savings_usd** (platform scope) — true Executive ROI USD rollup refreshed by ExecutiveRoiSavingsGaugeHostedService. Secondary panels below retain the severity-weighted findings proxy for directional trend visibility.",
+                                       "mode":  "markdown"
+                                   },
+                       "title":  "Business Value",
+                       "type":  "text"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "${datasource}"
+                                      },
+                       "description":  "Platform aggregate estimated USD savings from Executive ROI dedup rules (Improvement #4).",
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "currencyUSD",
+                                                            "decimals":  0
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "y":  59,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  8
+                                   },
+                       "id":  23,
+                       "options":  {
+                                       "textMode":  "auto",
+                                       "graphMode":  "none",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "justifyMode":  "auto",
+                                       "orientation":  "auto",
+                                       "colorMode":  "value"
+                                   },
+                       "targets":  [
+                                       {
+                                           "legendFormat":  "platform USD",
+                                           "expr":  "archlucid_tenant_estimated_savings_usd{scope=\"platform\"}",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "title":  "Estimated USD savings (platform aggregate)",
+                       "type":  "stat"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "${datasource}"
+                                      },
+                       "description":  "Secondary directional panel: findings produced per severity after authority runs complete.",
+                       "fieldConfig":  {
+                                           "defaults":  {
+
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "h":  8,
+                                       "w":  12,
+                                       "x":  0,
+                                       "y":  67
+                                   },
+                       "id":  21,
+                       "options":  {
+                                       "legend":  {
+                                                      "displayMode":  "list",
+                                                      "placement":  "bottom"
+                                                  },
+                                       "tooltip":  {
+                                                       "mode":  "multi"
+                                                   }
+                                   },
+                       "targets":  [
+                                       {
+                                           "expr":  "sum by (severity) (rate(archlucid_findings_produced_total[5m]))",
+                                           "legendFormat":  "{{severity}} / s",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "title":  "Findings produced rate (by severity)",
+                       "type":  "timeseries"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "${datasource}"
+                                      },
+                       "description":  "Heuristic severity-weighted findings rate (Critical×4 + Error×3 + Warning×2 + Info×1). Not USD — directional business-value proxy per Improvement 12.",
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "decimals":  2
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "h":  8,
+                                       "w":  12,
+                                       "x":  12,
+                                       "y":  67
+                                   },
+                       "id":  22,
+                       "options":  {
+                                       "legend":  {
+                                                      "displayMode":  "list",
+                                                      "placement":  "bottom"
+                                                  },
+                                       "tooltip":  {
+                                                       "mode":  "single"
+                                                   }
+                                   },
+                       "targets":  [
+                                       {
+                                           "expr":  "sum(rate(archlucid_findings_produced_total{severity=\"Critical\"}[5m])) * 4 + sum(rate(archlucid_findings_produced_total{severity=\"Error\"}[5m])) * 3 + sum(rate(archlucid_findings_produced_total{severity=\"Warning\"}[5m])) * 2 + sum(rate(archlucid_findings_produced_total{severity=\"Info\"}[5m]))",
+                                           "legendFormat":  "weighted findings / s",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "title":  "Severity-weighted findings proxy (secondary)",
+                       "type":  "timeseries"
+                   }
+               ],
+    "refresh":  "30s",
+    "schemaVersion":  38,
+    "tags":  [
+                 "archlucid",
+                 "authority",
+                 "authority-pipeline",
+                 "prometheus"
+             ],
+    "templating":  {
+                       "list":  [
+                                    {
+                                        "current":  {
+
+                                                    },
+                                        "hide":  0,
+                                        "label":  "Datasource",
+                                        "name":  "datasource",
+                                        "options":  [
+
+                                                    ],
+                                        "query":  "prometheus",
+                                        "refresh":  1,
+                                        "regex":  "",
+                                        "type":  "datasource"
+                                    }
+                                ]
+                   },
+    "time":  {
+                 "from":  "now-6h",
+                 "to":  "now"
+             },
+    "timepicker":  {
+
+                   },
+    "timezone":  "browser",
+    "title":  "ArchLucid â€” Authority pipeline",
+    "uid":  "archlucid-authority",
+    "version":  4,
+    "weekStart":  ""
 }
