@@ -219,7 +219,7 @@ When the release posture includes real Azure OpenAI, attach the live run evidenc
 
 **Get email when something is wrong (or on a schedule)**
 
-1. **Threshold alert (recommended first):** In Azure Monitor or Grafana, define an alert when, for example, **semantic score p10** over **24h** drops below your release bar, or **`rejected`** gate **`rate()`** exceeds a small baseline. Attach an **Action group** → **Email** to yourself.
+1. **Threshold alert (recommended first):** Use committed rules — **`infra/prometheus/archlucid-alerts.yml`** group **`archlucid-agent-output-quality`**, or **`infra/terraform-monitoring/prometheus_agent_output_rules.tf`** when **`enable_prometheus_slo_rule_group`** is **true** (Azure Monitor managed Prometheus → **`azurerm_monitor_action_group.ops`**). Alert when **semantic score p10/p50** or **LLM faithfulness p50** drops below baseline, or **`rejected`** gate **`rate()`** is non-zero. **Staging:** after **`terraform apply`**, run one execute and **Test** a rule from Azure Portal.
 2. **Scheduled summary:** **Azure Monitor scheduled query alert** or **Grafana report** (if licensed) on a saved query that aggregates last **7 days** of the same metrics — less common for histograms; often easier to alert on **SLO-style** thresholds than “digest of percentiles.”
 3. **DIY:** Small scheduled job (Logic App, GitHub Action, or **Azure Function**) that calls **`agent-evaluation`** for a **fixture run id** or queries your metrics API and emails JSON — use only if hosted metrics are not available yet.
 

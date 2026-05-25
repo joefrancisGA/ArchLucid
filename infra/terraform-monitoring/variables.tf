@@ -127,7 +127,7 @@ variable "grafana_auth" {
 
 variable "enable_prometheus_slo_rule_group" {
   type        = bool
-  description = "When true with enable_monitoring_stack, deploy azurerm_monitor_alert_prometheus_rule_group for p99 / 5xx / outbox PromQL (requires azure_monitor_workspace_id)."
+  description = "When true with enable_monitoring_stack, deploy azurerm_monitor_alert_prometheus_rule_group for p99 / 5xx / outbox / agent-output quality PromQL (requires azure_monitor_workspace_id)."
   default     = false
 }
 

@@ -1,12 +1,12 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 93.77%
+# ArchLucid Assessment – (A) Headline Readiness: 93.79%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items such as SOC 2 CPA attestation, third-party pen tests, MCP, the commerce un-hold, multi-cloud (AWS/GCP) analysis, multi-region active/active, automated tenant erasure, Graph-RAG / agentic retrieval, hosted Tier 2 continuous polling, **non-SCIM bulk-CSV user onboarding (V2)**, **self-hosted Enterprise commercial deals (V2)**, and related sub-milestones (capacity guide, private-endpoint reference architecture).*
 
 **Score ledger:** Incremental history through legacy **archived #1–#57** and owner rescoring (**87.74% → 92.63%**) lives in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md).
 
-**Rescore 2026-05-25 (post Improvements #1–#25, #23):** Headline **93.77%** (+0.96% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**, **#12 orphan-probe CI guard +0.02%**, **#13 agent-trace blob lifecycle Terraform +0.02%**, **#14 integration outbox DLQ operator UI +0.02%**, **#15 Azure OpenAI circuit breaker brownout tuning +0.02%**, **#16 Persistence hexagonal guards +0.01%**, **#17 Tier-2 Azure SP wizard +0.05%**, **#18 Tier-1 ZIP upload error parsing +0.02%**, **#19 LlmCostEstimator overflow + negative-rate guards +0.02%**, **#20 LlmCostEstimator reasoning-token tests +0.01%**, **#21 INV-005/006 Wave A remainder +0.03%**, **#23 EA discount multiplier transparency +0.04%**, **#24 RAG telemetry cardinality gate +0.01%**, **#25 SAML claim-mapping checklist +0.02%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#22** remains. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
+**Rescore 2026-05-25 (post Improvements #1–#25, #22–#23):** Headline **93.79%** (+0.98% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**, **#12 orphan-probe CI guard +0.02%**, **#13 agent-trace blob lifecycle Terraform +0.02%**, **#14 integration outbox DLQ operator UI +0.02%**, **#15 Azure OpenAI circuit breaker brownout tuning +0.02%**, **#16 Persistence hexagonal guards +0.01%**, **#17 Tier-2 Azure SP wizard +0.05%**, **#18 Tier-1 ZIP upload error parsing +0.02%**, **#19 LlmCostEstimator overflow + negative-rate guards +0.02%**, **#20 LlmCostEstimator reasoning-token tests +0.01%**, **#21 INV-005/006 Wave A remainder +0.03%**, **#22 agent-output Azure Monitor alerts +0.02%**, **#23 EA discount multiplier transparency +0.04%**, **#24 RAG telemetry cardinality gate +0.01%**, **#25 SAML claim-mapping checklist +0.02%**). **All V1 GA gates and post-GA improvements #1–#25 shipped 2026-05-25.** V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
 
 ## Executive Summary
 
@@ -107,10 +107,10 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Score:** 99
 - **Weight:** 1
 - **Weighted Deficiency:** 1
-- **Justification:** OpenTelemetry depth (custom `ArchLucid` meter with ~50 instruments), persisted W3C trace IDs on runs, Serilog + correlation IDs, `archlucid doctor`, CLI `support-bundle`, multiple committed Grafana dashboards, RAG retrieval duration/chunk histograms (archived #7), Prometheus alert rules, detailed `/health` with circuit-breaker introspection and vector-store readiness probing (archived #10). **Improvements #2, #4, #6, and #14 shipped 2026-05-25** — **`reject_reason` / `execution_mode`** on `archlucid_agent_output_quality_gate_total`, **`archlucid_tenant_estimated_savings_usd`** observable gauge, pricing-quote aging **Sales ops** Grafana row + operator triage dashboard, and **`/operate/integration-events/dlq`** dead-letter list with tenant/age, single/bulk retry, suppress + audit.
+- **Justification:** OpenTelemetry depth (custom `ArchLucid` meter with ~50 instruments), persisted W3C trace IDs on runs, Serilog + correlation IDs, `archlucid doctor`, CLI `support-bundle`, multiple committed Grafana dashboards, RAG retrieval duration/chunk histograms (archived #7), Prometheus alert rules, detailed `/health` with circuit-breaker introspection and vector-store readiness probing (archived #10). **Improvements #2, #4, #6, #14, and #22 shipped 2026-05-25** — **`reject_reason` / `execution_mode`** on `archlucid_agent_output_quality_gate_total`, **`archlucid_tenant_estimated_savings_usd`** observable gauge, pricing-quote aging **Sales ops** Grafana row + operator triage dashboard, **`/operate/integration-events/dlq`** dead-letter list with tenant/age, single/bulk retry, suppress + audit, and **`prometheus_agent_output_rules.tf`** Azure Monitor alerts for agent-output quality metrics (TB-004).
 - **Tradeoffs:** More telemetry costs ingest dollars in Azure Monitor / Prometheus; per-tenant cardinality is gated behind `LlmTelemetry:RecordPerTenantTokens`, `ExecutiveRoi:SavingsGauge:RecordPerTenantSavings`, and **`RetrievalTelemetry:RecordPerTenantTags`** (Improvement **#24**).
 - **Recommendations:** Enable per-tenant RAG tags only for bounded tenant counts; set **`EstimatedTenantCount`** when enabling on production-like hosts so startup advisories fire before ingest cost spikes.
-- **Status:** **#24 shipped 2026-05-25.** **#14 shipped 2026-05-25.** **#6 shipped 2026-05-25.** **#4 shipped 2026-05-25.** **#2 shipped 2026-05-25.**
+- **Status:** **#22 shipped 2026-05-25.** **#24 shipped 2026-05-25.** **#14 shipped 2026-05-25.** **#6 shipped 2026-05-25.** **#4 shipped 2026-05-25.** **#2 shipped 2026-05-25.**
 
 **Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.71%** (documented +0.90% from shipped **#1–#24**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
 
@@ -170,14 +170,14 @@ Open mitigations only — active Improvements **#1–#25**. Legacy shipped work 
 8. ~~**`LlmCostEstimator` overflow and negative-rate misconfig:**~~ **Mitigated 2026-05-25** — long-safe run token aggregation (TB-022), `LlmCostEstimationOptionsValidator` + runtime negative-rate guard (TB-026); Improvement **#19**.
 9. ~~**Prometheus cardinality at tenant scale:**~~ **Mitigated 2026-05-25** — **`RetrievalTelemetry:RecordPerTenantTags`** (default false) gates RAG `tenant_id` labels; **`RetrievalTelemetryProductionWarningPostConfigure`** emits startup advisory when enabled with high **`EstimatedTenantCount`** on production-like hosts (Improvement **#24**). ROI gauge remains gated by **`ExecutiveRoi:SavingsGauge:RecordPerTenantSavings`**.
 10. ~~**Boot-time architecture invariant gaps:**~~ **Mitigated 2026-05-25** — INV-005 catalog/fail-fast parity and INV-006 composition-root scan (Improvement **#21**, TB-010 Wave A).
-11. **Agent-output quality metrics lack production alert routing:** Faithfulness and gate-reject regressions may go unnoticed until customer impact — **#22** (post-GA; TB-004; after **#2**).
+11. ~~**Agent-output quality metrics lack production alert routing:**~~ **Mitigated 2026-05-25** — **`infra/terraform-monitoring/prometheus_agent_output_rules.tf`** + **`archlucid-alerts.yml`** faithfulness **p50** (Improvement **#22**, TB-004).
 12. **Persistence hexagonal guard holes:** ~~`Persistence→Provenance` and `Persistence→Capabilities.Cost` lack architecture-test guards — **#16** (post-GA).~~ **Mitigated 2026-05-25** — **`Persistence_must_not_depend_on_Capabilities_Cost`**, Provenance NetArchTest guard, and **`Persistence_csproj_must_not_reference_Provenance_or_Capabilities_Cost_by_design`**.
 
 ---
 
 ## Most Important Truth
 
-ArchLucid is **ready to ship V1 GA at 93.77%**. **Improvements #1–#25 and #23 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#22** does not move headline.
+ArchLucid is **ready to ship V1 GA at 93.79%**. **Improvements #1–#25 shipped 2026-05-25**. The **V1 GA gate set and post-GA improvement batch are closed**.
 
 ---
 
@@ -186,7 +186,7 @@ ArchLucid is **ready to ship V1 GA at 93.77%**. **Improvements #1–#25 and #23 
 Shipped improvements (**archived #1–#57**, 2026-05-24 – 2026-05-25) are documented in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md). **Active tasks in this file: #1–#25** (renumbered 2026-05-25; do not confuse with legacy archive IDs).
 
 **V1 GA gates (ship before GA):** **None remaining — #1–#7 shipped 2026-05-25.**
-**Additional V1 actionable (post-GA or parallel):** **#22–#25** (4 items).
+**Additional V1 actionable (post-GA or parallel):** **None remaining — #22–#25 shipped 2026-05-25.**
 **Total:** **25** actionable improvements in this assessment.
 
 ### 1. Wire Agent-Output Eval Corpus Baseline Regression — **SHIPPED 2026-05-25**
@@ -668,21 +668,11 @@ Acceptance Criteria: New integration tests pass; runbook note in OBSERVABILITY.m
 - **Affected qualities:** Reliability, Maintainability.
 - **Shipped:** Bidirectional **`ConfigurationCatalogProductionProfileGuardParityTests`** (catalog guard metadata ↔ `ProductionDangerousMisconfigurationLint`); extended **`ConfigurationKeyCatalog`** for monitored fail-fast keys; **`SingleCompositionRootServiceCollectionExtensionsTests`** coverage for **`ArchLucid.Notifications.Email.RazorLight`**; **`ARCHITECTURE_INVARIANTS.md`** enforcement notes.
 
-### 22. Wire Azure Monitor Alerts for Agent-Output Quality Metrics (actionable now — post-GA)
+### 22. Wire Azure Monitor Alerts for Agent-Output Quality Metrics — **SHIPPED 2026-05-25**
 - **Why it matters:** **TB-004** — agent-output metrics (`archlucid_agent_output_*`, faithfulness, quality gate) need visible production alerts, especially after LLM faithfulness default enablement (2026-05-25).
-- **Expected impact:** Supportability (+1 pt), Reliability (+1 pt). Weighted readiness impact: **+0.02%** when shipped. **Do not rescored until shipped.**
+- **Expected impact:** Supportability (+1 pt), Reliability (+1 pt). Weighted readiness impact: **+0.02%** when shipped. **Rescored 2026-05-25 → 93.79%.**
 - **Affected qualities:** Supportability, Reliability, AI/Agent Readiness.
-- **Actionable now:** Yes — post-GA; schedule after **#2** telemetry lands.
-- **Backlog refs:** **TB-004**; complements **#2**.
-```cursor
-Wire Azure Monitor / Prometheus alerts for agent-output quality metrics (Improvement #22 — TB-004).
-
-1. Add alert rules for: quality_gate reject rate spike, llm_faithfulness_score p50 drop, eval baseline CI failure (when merge-blocking).
-2. Terraform in infra/terraform alerting module — route P0 to existing action group (archived #46).
-3. Document alert thresholds and runbook steps in OBSERVABILITY.md and AGENT_OUTPUT_EVALUATION.md.
-
-Acceptance Criteria: Alerts deploy via Terraform; test notification in Staging; TB-004 marked done.
-```
+- **Status:** **Shipped 2026-05-25** — **`infra/terraform-monitoring/prometheus_agent_output_rules.tf`** (quality-gate reject rate, semantic **p10/p50**, LLM faithfulness **p50**, parse failures, trace blob upload failures → **`azurerm_monitor_action_group.ops`**); **`ArchLucidAgentOutputLlmFaithfulnessScoreP50Low`** in **`infra/prometheus/archlucid-alerts.yml`**; runbook in **`OBSERVABILITY.md`** + **`AGENT_OUTPUT_EVALUATION.md`** §9; TB-004 closed.
 
 ### 23. Add Configurable EA Discount Multiplier for Executive ROI — **SHIPPED 2026-05-25**
 - **Why it matters:** Executive ROI uses Retail pricing; Enterprise Agreement buyers see inflated savings vs their contracted rates — finance reviewers discount ArchLucid ROI claims.

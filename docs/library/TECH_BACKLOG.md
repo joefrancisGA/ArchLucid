@@ -18,7 +18,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-012 | Architecture invariant enforcement — Wave C (INV-007–INV-011, INV-014–INV-015) | Contributor hygiene — time/cancellation/idempotency/HTTP/analyzer pack + webhook ordering + INV-003 path markers | L |
 | TB-022 | `LlmCostEstimator` — `int` overflow in aggregator token-count fields | Done (Improvement **#19**, 2026-05-25) | XS |
 | TB-026 | `LlmCostEstimator` — negative-rate guard on `LlmDeploymentUsdRates` | Done (Improvement **#19**, 2026-05-25) | XS |
-| TB-004 | Wire OTel exporters + verify agent-output metrics; add Azure alerts | Ops / release bar — conservative quality posture needs visible trends (`archlucid_agent_output_*`) | ~1–2 h |
+| TB-004 | Wire OTel exporters + verify agent-output metrics; add Azure alerts | **Done (Improvement #22, 2026-05-25)** — `prometheus_agent_output_rules.tf` + `archlucid-alerts.yml` faithfulness p50 | ~1–2 h |
 | TB-005 | AI-assisted owner pen-test support (Cursor agent) | Security / V1 assurance — structured help for 2026-Q2 owner exercise | Ongoing (time-boxed sessions) |
 | TB-007 | LLM correctness boundary — cohort gate promotion + eval real-mode scenarios | Correctness posture — gated real-model CI blocked on prereqs (Gap A+C open) | A: ~1 h ops; C: ~4 h eng |
 | TB-021 | RAG quality program — V1 foundation (corpus seam, policy pack, prior manifest, Retail lookup, platform docs, faithfulness eval) | Agent faithfulness + citation density — extends existing `ArchLucid.Retrieval` + `AskService`; schedule from assessments | M–L (phased) |
@@ -88,6 +88,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-004 — Wire OTel exporters + verify agent-output metrics; add Azure alerts
 
+**Status (2026-05-25):** **Closed for production-like hosts with managed Prometheus.** **`infra/terraform-monitoring/prometheus_agent_output_rules.tf`** deploys Azure Monitor Prometheus rules mirroring **`infra/prometheus/archlucid-alerts.yml`** group **`archlucid-agent-output-quality`** (quality-gate rejects, semantic **p10/p50**, LLM faithfulness **p50**, parse failures, trace blob upload failures) to **`azurerm_monitor_action_group.ops`**. Requires **`enable_prometheus_slo_rule_group`** + non-empty **`azure_monitor_workspace_id`**. Eval baseline CI failure remains a **GitHub Actions** alert path (not Terraform). See **`docs/library/OBSERVABILITY.md`** and **`docs/library/AGENT_OUTPUT_EVALUATION.md`** §9.
+
 **Decision / context (2026-05-01):** Product stance for agent quality favors a **conservative** release bar; **`archlucid_agent_output_*`** histograms and **`archlucid_agent_output_quality_gate_total`** must reach a backend before **trend charts** or **email alerts** are possible. Code already emits metrics after successful execute; **`ObservabilityExtensions`** exports when App Insights connection string, OTLP endpoint, or Prometheus scrape is configured (`docs/library/OBSERVABILITY.md` § *Export path configuration*).
 
 **What to do (checklist):**
@@ -103,7 +105,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 3. **Smoke verification:** After deploy, run **one full execute**; in **Application Insights → Metrics** (or OTLP sink), confirm **`archlucid_agent_output_semantic_score`**, **`archlucid_agent_output_structural_completeness_ratio`**, and **`archlucid_agent_output_quality_gate_total`** appear (Azure may normalize names — search by meter / namespace).
 
-4. **Alerts:** Create **Azure Monitor metric alerts** (or Grafana rules) + **Action group → email** — e.g. semantic **p10** over 24h below agreed floor, or elevated **`rejected`** rate on **`quality_gate_total`**. Product does not ship pre-built rules.
+4. **Alerts:** **Shipped (Improvement #22, 2026-05-25)** — Terraform **`prometheus_agent_output_rules.tf`** + committed Prometheus YAML. Staging: **`terraform apply`**, one execute smoke, Azure Portal **Test** on a rule. Eval baseline CI remains warn-soak until merge-blocking flip (Improvement **#1** exit criterion).
 
 5. **Optional:** Deploy **`infra/terraform-otel-collector`** for tail sampling; lower **`Observability:Tracing:SamplingRatio`** affects **traces**, not the agent-output **metric** path — document any sampling choice for on-call.
 

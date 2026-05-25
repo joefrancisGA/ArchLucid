@@ -47,10 +47,15 @@ Example **Prometheus** alert rules (tune thresholds and `for` windows per enviro
 | `ArchLucidAgentOutputQualityGateRejected` | Non-zero rate of **`outcome="rejected"`** on **`archlucid_agent_output_quality_gate_total`**. |
 | `ArchLucidAgentOutputSemanticScoreP10Low` | **`histogram_quantile(0.1, …)`** on **`archlucid_agent_output_semantic_score_bucket`** below baseline. Interprets the same **heuristic / optional-judge** signal as the histogram description — not embedding similarity. |
 | `ArchLucidAgentOutputSemanticScoreP50Low` | Median of the same signal below baseline (see above). |
+| `ArchLucidAgentOutputLlmFaithfulnessScoreP50Low` | **`histogram_quantile(0.5, …)`** on **`archlucid_agent_output_llm_faithfulness_score_bucket`** below **0.5** (hosted Staging/Production default **`LlmFaithfulness:Enabled=true`**). |
 | `ArchLucidAgentOutputParseFailures` | **`archlucid_agent_output_parse_failures_total`** rate above zero. |
 | `ArchLucidAgentTraceBlobUploadFailures` | **`archlucid_agent_trace_blob_upload_failures_total`** rate above zero. |
 
-**Grafana:** create panels from the same histogram (`heatmap` / **percentiles** by **`agent_type`**) and wire dashboards to your managed Prometheus or Mimir workspace. **Azure Monitor:** if you ingest the same series via **managed Prometheus** or **custom metrics**, translate PromQL using workspace query tools — do not treat scrape endpoints as public; keep **`Observability:Prometheus:RequireScrapeAuthentication`** on for any edge-adjacent deployment (see export table above).
+**Grafana:** create panels from the same histogram (`heatmap` / **percentiles** by **`agent_type`**) and wire dashboards to your managed Prometheus or Mimir workspace.
+
+**Azure Monitor (Terraform — Improvement #22 / TB-004):** when **`enable_prometheus_slo_rule_group`** and **`azure_monitor_workspace_id`** are set on **`infra/terraform-monitoring`**, **`prometheus_agent_output_rules.tf`** deploys **`azurerm_monitor_alert_prometheus_rule_group.archlucid_agent_output`** with the same PromQL as the table above (plus LLM faithfulness **p50**). Alerts route to **`azurerm_monitor_action_group.ops`** (email / webhook). **Staging verification:** `terraform apply` the monitoring stack, run one successful **`POST …/execute`**, confirm series in the workspace, then fire a test notification from the Azure Portal (**Monitor → Alerts → select rule → Test**). Output: **`prometheus_agent_output_rule_group_id`**.
+
+**Self-hosted Prometheus only:** if you ingest via scrape rather than managed Prometheus, translate PromQL using workspace query tools — do not treat scrape endpoints as public; keep **`Observability:Prometheus:RequireScrapeAuthentication`** on for any edge-adjacent deployment (see export table above).
 
 Optional Azure **OpenTelemetry Collector** (tail sampling): **`infra/terraform-otel-collector/README.md`**.
 

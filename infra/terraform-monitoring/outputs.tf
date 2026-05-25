@@ -39,3 +39,8 @@ output "prometheus_p0_rule_group_id" {
   description = "Azure Monitor Prometheus P0 rule group resource ID when critical + prometheus SLO rule group are enabled."
   value       = try(azurerm_monitor_alert_prometheus_rule_group.archlucid_p0[0].id, null)
 }
+
+output "prometheus_agent_output_rule_group_id" {
+  description = "Azure Monitor Prometheus agent-output quality rule group resource ID when enable_prometheus_slo_rule_group is true."
+  value       = try(azurerm_monitor_alert_prometheus_rule_group.archlucid_agent_output[0].id, null)
+}

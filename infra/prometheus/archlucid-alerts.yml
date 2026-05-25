@@ -1,4 +1,4 @@
-﻿# Recording / alert rules for ArchLucid when scraping OTLP â†’ Prometheus or app metrics.
+# Recording / alert rules for ArchLucid when scraping OTLP â†’ Prometheus or app metrics.
 # Adjust metric names to match your Prometheus scrape (e.g. OTel SDK exporter naming).
 groups:
   - name: archlucid-authority
@@ -309,6 +309,22 @@ groups:
             Median heuristic/optional-judge semantic score below 0.45 â€” broader regression than p10 alone. Verify exporter
             mapping if histogram is missing from Prometheus.
 
+
+      - alert: ArchLucidAgentOutputLlmFaithfulnessScoreP50Low
+        expr: |
+          histogram_quantile(
+            0.5,
+            sum(rate(archlucid_agent_output_llm_faithfulness_score_bucket[30m])) by (le, agent_type)
+          ) < 0.5
+        for: 2h
+        labels:
+          severity: warning
+        annotations:
+          summary: Agent LLM faithfulness score p50 is low (per agent_type)
+          description: >-
+            Median of `archlucid_agent_output_llm_faithfulness_score` below 0.5 over 30m rate window.
+            Requires `ArchLucid:Agents:LlmFaithfulness:Enabled=true` (default on hosted Staging/Production).
+            Tune threshold after baseline; see `docs/library/AGENT_OUTPUT_EVALUATION.md`.
       - alert: ArchLucidAgentOutputParseFailures
         expr: |
           sum(rate(archlucid_agent_output_parse_failures_total[15m])) > 0
