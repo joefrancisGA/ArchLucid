@@ -56,3 +56,10 @@ check "sql_automatic_tuning_primary_not_placeholder" {
     error_message = "With enable_sql_automatic_tuning = true, set primary_sql_server_resource_id to a real Microsoft.Sql/servers ARM id (not the default placeholder)."
   }
 }
+
+check "sql_failover_required_for_production_tier" {
+  assert {
+    condition     = var.environment_tier != "production" || var.enable_sql_failover_group
+    error_message = "enable_sql_failover_group must be true when environment_tier is production. The RTO/RPO target of RPO < 5 minutes cannot be met without an active failover group."
+  }
+}

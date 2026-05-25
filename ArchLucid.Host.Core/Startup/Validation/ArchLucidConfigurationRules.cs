@@ -65,6 +65,8 @@ public static class ArchLucidConfigurationRules
         if (!environment.IsProduction())
             return errors;
 
+        SqlFailoverRules.Collect(configuration, environment, archLucidOptions, errors);
+
         AuthenticationRules.CollectProductionApiKeyPlaceholders(configuration, errors);
 
         ArchLucidHostingRole hostingRole = HostingRoleResolver.Resolve(configuration);

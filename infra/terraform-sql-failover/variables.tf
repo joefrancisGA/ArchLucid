@@ -157,3 +157,14 @@ variable "sql_automatic_tuning_drop_index" {
     error_message = "sql_automatic_tuning_drop_index must be On, Off, or Default."
   }
 }
+
+variable "environment_tier" {
+  type        = string
+  description = "Environment tier (development, staging, production). When production, enable_sql_failover_group must be true."
+  default     = "development"
+
+  validation {
+    condition     = contains(["development", "staging", "production"], var.environment_tier)
+    error_message = "environment_tier must be development, staging, or production."
+  }
+}

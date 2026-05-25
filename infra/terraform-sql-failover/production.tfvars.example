@@ -31,3 +31,5 @@ sql_consumption_budget_amount = 2500
 # sql_consumption_budget_resource_group_id = "/subscriptions/<sub-id>/resourceGroups/rg-sql-primary"
 sql_consumption_budget_contact_emails = ["finops@example.com"]
 sql_consumption_budget_time_period_start = "2026-04-01T00:00:00Z"
+
+environment_tier = "production"

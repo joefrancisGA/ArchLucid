@@ -2448,6 +2448,57 @@ public sealed class ArchLucidConfigurationRulesTests
             && e.Contains("SystemWithPerTenantCatalogs", StringComparison.Ordinal));
     }
 
+    [SkippableFact]
+    public void CollectErrors_WhenProductionAndFailoverListenerFqdnMismatch_contains_error()
+    {
+        Dictionary<string, string?> data = ProductionApiBaselineWithBillingNoop();
+        data["ConnectionStrings:ArchLucid"] =
+            "Server=tcp:sql-primary.database.windows.net,1433;Database=ArchLucid;Encrypt=True;";
+        data["SqlServer:FailoverGroupListenerFqdn"] = "archlucid-prod-sqlfg.database.windows.net";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e =>
+            e.Contains("failover group listener FQDN", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenProductionAndFailoverListenerFqdnMatches_does_not_contain_listener_error()
+    {
+        Dictionary<string, string?> data = ProductionApiBaselineWithBillingNoop();
+        data["ConnectionStrings:ArchLucid"] =
+            "Server=tcp:archlucid-prod-sqlfg.database.windows.net,1433;Database=ArchLucid;Encrypt=True;";
+        data["SqlServer:FailoverGroupListenerFqdn"] = "archlucid-prod-sqlfg.database.windows.net";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e =>
+            e.Contains("failover group listener FQDN", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenProductionAndFailoverListenerFqdnUnset_skips_listener_validation()
+    {
+        Dictionary<string, string?> data = ProductionApiBaselineWithBillingNoop();
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e =>
+            e.Contains("failover group listener FQDN", StringComparison.OrdinalIgnoreCase));
+    }
+
     private static Dictionary<string, string?> ProductionApiBaselineWithBillingNoop() =>
         new()
         {

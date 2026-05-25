@@ -26,6 +26,17 @@ public sealed class SqlServerOptions
         get;
         set;
     }
+
+    /// <summary>
+    ///     Optional. When set and the host is Production, startup validation asserts that
+    ///     <c>ConnectionStrings:ArchLucid</c> contains this FQDN segment (failover group read/write listener).
+    ///     Example: <c>archlucid-prod-sqlfg.database.windows.net</c>.
+    /// </summary>
+    public string? FailoverGroupListenerFqdn
+    {
+        get;
+        set;
+    }
 }
 
 /// <summary>Binding for <c>SqlServer:ReadReplica</c>.</summary>
