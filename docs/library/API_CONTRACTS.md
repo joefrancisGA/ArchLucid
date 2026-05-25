@@ -19,7 +19,7 @@
 - **Headers:** When **`ApiDeprecation:Enabled`** is true, successful responses may include **`Deprecation`** and **`Sunset`** (and optional **`Link`** with relation `deprecation`) per product configuration (`ApiDeprecation:*` in appsettings).
 - **Sunset:** Treat **`Sunset`** as the earliest date after which the version may be removed; plan client upgrades before that date.
 - **Breaking changes:** Ship breaking changes only in a **new major** API version (new path prefix, e.g. `/v2/...`), keep **`v1`** stable for the published sunset window, and document migration in release notes.
-- **Non-breaking:** Minor additive changes (new optional fields, new endpoints under the same major version) do not require a new major version; prefer OpenAPI diff + contract tests to catch accidental breaks.
+- **Non-breaking:** Minor additive changes (new optional fields, new endpoints under the same major version) do not require a new major version; regenerate and commit the OpenAPI snapshot when the HTTP contract changes so CI catches accidental breaks.
 
 ## Contract artifacts
 
@@ -29,7 +29,7 @@
 
 | Artifact | Location | Purpose |
 |----------|----------|-------|
-| OpenAPI (Microsoft document) | Served at **`/openapi/v1.json`**; snapshot in **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** | **Canonical.** CI fails on unexpected HTTP contract drift (`OpenApiContractSnapshotTests`). Regenerate: `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests`. Use for **APIM import**, **OpenAPI Generator**, and downstream SDK artifacts. |
+| OpenAPI (Microsoft document) | Served at **`/openapi/v1.json`**; snapshot in **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** | **Canonical.** CI requires an exact canonical match (`OpenApiContractSnapshotTests`). Regenerate: `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests`. Use for **APIM import**, **OpenAPI Generator**, and downstream SDK artifacts. |
 | OpenAPI (Swashbuckle) | **`/swagger/v1/swagger.json`** | **Interactive explorer only** (Scalar); not the authoritative import surface for APIM or client SDKs. |
 | AsyncAPI (webhooks) | **`docs/contracts/archlucid-asyncapi-2.6.yaml`** | Documents **outbound** alert/digest webhook JSON and optional HMAC header. |
 | Bruno collection | **`contracts/bruno/`** | Manual smoke requests (health, OpenAPI, admin diagnostics); set **`local`** environment `baseUrl` and **`apiKey`** (or switch auth to JWT in Bruno for Entra). |

@@ -9,10 +9,9 @@ using Xunit.Sdk;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Fails when the ASP.NET Core OpenAPI document (<c>MapOpenApi</c>, <c>/openapi/v1.json</c>) introduces breaking
-///     drift relative to <c>Contracts/openapi-v1.contract.snapshot.json</c> after <see cref="OpenApiJsonCanonicalizer" />.
-///     Breaking means removed endpoints, parameters, documented media types/schema fields incompatible with snapshot types/enums/required markers.
-///     Additive-only API changes (extra paths/properties/widened unions) remain compatible and no longer force a snapshot rewrite.
+///     Fails when the ASP.NET Core OpenAPI document (<c>MapOpenApi</c>, <c>/openapi/v1.json</c>) drifts from
+///     <c>Contracts/openapi-v1.contract.snapshot.json</c> after <see cref="OpenApiJsonCanonicalizer" />.
+///     Any canonical difference (additive or breaking) requires an intentional snapshot regeneration and PR review.
 ///     Regenerate baseline JSON when intentional:
 ///     <c>ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests</c> from repo root, or run <c>scripts/ci/check_openapi_contract_snapshot.sh</c> / <c>.ps1</c> with the same env var.
 ///     Optional: install <c>scripts/git-hooks</c> pre-push (<c>Install-GitHooks.ps1</c> / <c>install-git-hooks.sh</c>) to fail locally before CI when API-contract paths drift.
@@ -64,17 +63,26 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
         JsonNode canonicalActual = OpenApiJsonCanonicalizer.Canonicalize(actualNode);
         JsonNode canonicalExpected = OpenApiJsonCanonicalizer.Canonicalize(expectedNode);
 
-        JsonObject baselineObject = canonicalExpected as JsonObject ?? throw BuildOpenApiMustBeCanonicalObjectException();
+        if (canonicalExpected is not JsonObject)
+            throw BuildOpenApiMustBeCanonicalObjectException();
 
-        JsonObject actualObject = canonicalActual as JsonObject ?? throw BuildOpenApiMustBeCanonicalObjectException();
+        if (canonicalActual is not JsonObject)
+            throw BuildOpenApiMustBeCanonicalObjectException();
 
-        OpenApiContractBackwardCompatibilityChecker.ThrowIfUnreadable(canonicalExpected, "snapshot baseline");
-        OpenApiContractBackwardCompatibilityChecker.ThrowIfUnreadable(canonicalActual, "generated /openapi/v1.json");
+        OpenApiContractParseValidator.ThrowIfUnreadable(canonicalExpected, "snapshot baseline");
+        OpenApiContractParseValidator.ThrowIfUnreadable(canonicalActual, "generated /openapi/v1.json");
 
         if (JsonNode.DeepEquals(canonicalExpected, canonicalActual))
             return;
 
-        OpenApiContractBackwardCompatibilityChecker.AssertAdditiveCompatible(baselineObject, actualObject);
+        Assert.Fail(
+            """
+            Generated /openapi/v1.json does not match the committed OpenAPI snapshot after canonicalization.
+            Regenerate intentionally, review the diff, and commit the updated snapshot:
+              ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests
+            or:
+              ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 .\scripts\ci\check_openapi_contract_snapshot.ps1
+            """);
     }
 
     private static XunitException BuildOpenApiMustBeCanonicalObjectException() =>
