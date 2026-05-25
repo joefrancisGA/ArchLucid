@@ -568,9 +568,9 @@ BEGIN
         SnapshotId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
         RunId UNIQUEIDENTIFIER NOT NULL,
         ProjectId NVARCHAR(200) NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ScopeProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
         CanonicalObjectsJson NVARCHAR(MAX) NOT NULL,
         DeltaSummary NVARCHAR(MAX) NULL,
@@ -611,9 +611,9 @@ BEGIN
         CanonicalObjectRowId UNIQUEIDENTIFIER NOT NULL
             CONSTRAINT PK_ContextSnapshotCanonicalObjects PRIMARY KEY,
         SnapshotId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ScopeProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder INT NOT NULL,
         ObjectId NVARCHAR(450) NOT NULL,
         ObjectType NVARCHAR(200) NOT NULL,
@@ -635,9 +635,9 @@ BEGIN
     CREATE TABLE dbo.ContextSnapshotCanonicalObjectProperties
     (
         CanonicalObjectRowId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ScopeProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NOT NULL,
         PropertySortOrder INT NOT NULL,
         PropertyKey NVARCHAR(200) NOT NULL,
         PropertyValue NVARCHAR(MAX) NOT NULL,
@@ -656,9 +656,9 @@ BEGIN
     CREATE TABLE dbo.ContextSnapshotWarnings
     (
         SnapshotId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ScopeProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder INT NOT NULL,
         WarningText NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_ContextSnapshotWarnings PRIMARY KEY (SnapshotId, SortOrder),
@@ -676,9 +676,9 @@ BEGIN
     CREATE TABLE dbo.ContextSnapshotErrors
     (
         SnapshotId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ScopeProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder INT NOT NULL,
         ErrorText NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_ContextSnapshotErrors PRIMARY KEY (SnapshotId, SortOrder),
@@ -696,9 +696,9 @@ BEGIN
     CREATE TABLE dbo.ContextSnapshotSourceHashes
     (
         SnapshotId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ScopeProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder INT NOT NULL,
         SourceKey NVARCHAR(450) NOT NULL,
         HashValue NVARCHAR(MAX) NOT NULL,
@@ -719,9 +719,9 @@ BEGIN
         GraphSnapshotId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
         ContextSnapshotId UNIQUEIDENTIFIER NOT NULL,
         RunId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ScopeProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
         NodesJson NVARCHAR(MAX) NULL,
         EdgesJson NVARCHAR(MAX) NULL,
@@ -778,9 +778,9 @@ BEGIN
     CREATE TABLE dbo.GraphSnapshotEdges
     (
         GraphSnapshotId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ScopeProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NOT NULL,
         EdgeId            NVARCHAR(200) NOT NULL,
         FromNodeId        NVARCHAR(500) NOT NULL,
         ToNodeId          NVARCHAR(500) NOT NULL,
@@ -807,9 +807,9 @@ BEGIN
         GraphNodeRowId   UNIQUEIDENTIFIER NOT NULL
             CONSTRAINT PK_GraphSnapshotNodes PRIMARY KEY,
         GraphSnapshotId  UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ScopeProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder        INT NOT NULL,
         NodeId           NVARCHAR(500) NOT NULL,
         NodeType         NVARCHAR(100) NOT NULL,
@@ -832,9 +832,9 @@ BEGIN
     CREATE TABLE dbo.GraphSnapshotNodeProperties
     (
         GraphNodeRowId    UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ScopeProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NOT NULL,
         PropertySortOrder INT NOT NULL,
         PropertyKey       NVARCHAR(200) NOT NULL,
         PropertyValue     NVARCHAR(MAX) NOT NULL,
@@ -853,9 +853,9 @@ BEGIN
     CREATE TABLE dbo.GraphSnapshotEdgeProperties
     (
         GraphSnapshotId   UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ScopeProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NOT NULL,
         EdgeId            NVARCHAR(200) NOT NULL,
         PropertySortOrder INT NOT NULL,
         PropertyKey       NVARCHAR(200) NOT NULL,
@@ -875,9 +875,9 @@ BEGIN
     CREATE TABLE dbo.GraphSnapshotWarnings
     (
         GraphSnapshotId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ScopeProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder       INT NOT NULL,
         WarningText     NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_GraphSnapshotWarnings PRIMARY KEY (GraphSnapshotId, SortOrder),
@@ -971,9 +971,9 @@ BEGIN
         FindingRecordId     UNIQUEIDENTIFIER NOT NULL
             CONSTRAINT PK_FindingRecords PRIMARY KEY,
         FindingsSnapshotId  UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder           INT NOT NULL,
         FindingId           NVARCHAR(200) NOT NULL,
         FindingSchemaVersion INT NOT NULL,
@@ -1008,9 +1008,9 @@ BEGIN
     CREATE TABLE dbo.FindingRelatedNodes
     (
         FindingRecordId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder       INT NOT NULL,
         NodeId          NVARCHAR(500) NOT NULL,
         CONSTRAINT PK_FindingRelatedNodes PRIMARY KEY (FindingRecordId, SortOrder),
@@ -1028,9 +1028,9 @@ BEGIN
     CREATE TABLE dbo.FindingRecommendedActions
     (
         FindingRecordId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder       INT NOT NULL,
         ActionText      NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_FindingRecommendedActions PRIMARY KEY (FindingRecordId, SortOrder),
@@ -1069,9 +1069,9 @@ BEGIN
     CREATE TABLE dbo.FindingTraceGraphNodesExamined
     (
         FindingRecordId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder       INT NOT NULL,
         NodeId          NVARCHAR(500) NOT NULL,
         CONSTRAINT PK_FindingTraceGraphNodesExamined PRIMARY KEY (FindingRecordId, SortOrder),
@@ -1089,9 +1089,9 @@ BEGIN
     CREATE TABLE dbo.FindingTraceRulesApplied
     (
         FindingRecordId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder       INT NOT NULL,
         RuleText        NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_FindingTraceRulesApplied PRIMARY KEY (FindingRecordId, SortOrder),
@@ -1109,9 +1109,9 @@ BEGIN
     CREATE TABLE dbo.FindingTraceDecisionsTaken
     (
         FindingRecordId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder       INT NOT NULL,
         DecisionText    NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_FindingTraceDecisionsTaken PRIMARY KEY (FindingRecordId, SortOrder),
@@ -1129,9 +1129,9 @@ BEGIN
     CREATE TABLE dbo.FindingTraceAlternativePaths
     (
         FindingRecordId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder       INT NOT NULL,
         PathText        NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_FindingTraceAlternativePaths PRIMARY KEY (FindingRecordId, SortOrder),
@@ -1149,9 +1149,9 @@ BEGIN
     CREATE TABLE dbo.FindingTraceNotes
     (
         FindingRecordId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder       INT NOT NULL,
         NoteText        NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_FindingTraceNotes PRIMARY KEY (FindingRecordId, SortOrder),
@@ -1416,9 +1416,9 @@ BEGIN
         ManifestId      UNIQUEIDENTIFIER NOT NULL,
         SortOrder       INT NOT NULL,
         AssumptionText  NVARCHAR(MAX) NOT NULL,
-        TenantId        UNIQUEIDENTIFIER NULL,
-        WorkspaceId     UNIQUEIDENTIFIER NULL,
-        ProjectId       UNIQUEIDENTIFIER NULL,
+        TenantId        UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId     UNIQUEIDENTIFIER NOT NULL,
+        ProjectId       UNIQUEIDENTIFIER NOT NULL,
         CONSTRAINT PK_GoldenManifestAssumptions PRIMARY KEY (ManifestId, SortOrder),
         CONSTRAINT FK_GoldenManifestAssumptions_GoldenManifests FOREIGN KEY (ManifestId)
             REFERENCES dbo.GoldenManifests (ManifestId) ON DELETE CASCADE
@@ -1448,9 +1448,9 @@ BEGIN
     CREATE TABLE dbo.GoldenManifestWarnings
     (
         ManifestId   UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder    INT NOT NULL,
         WarningText  NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_GoldenManifestWarnings PRIMARY KEY (ManifestId, SortOrder),
@@ -1468,9 +1468,9 @@ BEGIN
     CREATE TABLE dbo.GoldenManifestDecisions
     (
         ManifestId       UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder        INT NOT NULL,
         DecisionId       NVARCHAR(200) NOT NULL,
         Category         NVARCHAR(500) NOT NULL,
@@ -1536,9 +1536,9 @@ BEGIN
     CREATE TABLE dbo.GoldenManifestProvenanceSourceFindings
     (
         ManifestId   UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder    INT NOT NULL,
         FindingId    NVARCHAR(200) NOT NULL,
         CONSTRAINT PK_GoldenManifestProvenanceSourceFindings PRIMARY KEY (ManifestId, SortOrder),
@@ -1556,9 +1556,9 @@ BEGIN
     CREATE TABLE dbo.GoldenManifestProvenanceSourceGraphNodes
     (
         ManifestId   UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder    INT NOT NULL,
         NodeId       NVARCHAR(500) NOT NULL,
         CONSTRAINT PK_GoldenManifestProvenanceSourceGraphNodes PRIMARY KEY (ManifestId, SortOrder),
@@ -1576,9 +1576,9 @@ BEGIN
     CREATE TABLE dbo.GoldenManifestProvenanceAppliedRules
     (
         ManifestId   UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder    INT NOT NULL,
         RuleId       NVARCHAR(200) NOT NULL,
         CONSTRAINT PK_GoldenManifestProvenanceAppliedRules PRIMARY KEY (ManifestId, SortOrder),
@@ -1661,9 +1661,9 @@ BEGIN
     CREATE TABLE dbo.ArtifactBundleArtifacts
     (
         BundleId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder INT NOT NULL,
         ArtifactId UNIQUEIDENTIFIER NOT NULL,
         RunId UNIQUEIDENTIFIER NOT NULL,
@@ -1734,9 +1734,9 @@ BEGIN
     CREATE TABLE dbo.ArtifactBundleTraceGenerators
     (
         BundleId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder INT NOT NULL,
         GeneratorName NVARCHAR(500) NOT NULL,
         CONSTRAINT PK_ArtifactBundleTraceGenerators PRIMARY KEY (BundleId, SortOrder),
@@ -1754,9 +1754,9 @@ BEGIN
     CREATE TABLE dbo.ArtifactBundleTraceDecisionLinks
     (
         BundleId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder INT NOT NULL,
         DecisionId NVARCHAR(200) NOT NULL,
         CONSTRAINT PK_ArtifactBundleTraceDecisionLinks PRIMARY KEY (BundleId, SortOrder),
@@ -1774,9 +1774,9 @@ BEGIN
     CREATE TABLE dbo.ArtifactBundleTraceNotes
     (
         BundleId UNIQUEIDENTIFIER NOT NULL,
-        TenantId UNIQUEIDENTIFIER NULL,
-        WorkspaceId UNIQUEIDENTIFIER NULL,
-        ProjectId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         SortOrder INT NOT NULL,
         NoteText NVARCHAR(MAX) NOT NULL,
         CONSTRAINT PK_ArtifactBundleTraceNotes PRIMARY KEY (BundleId, SortOrder),
