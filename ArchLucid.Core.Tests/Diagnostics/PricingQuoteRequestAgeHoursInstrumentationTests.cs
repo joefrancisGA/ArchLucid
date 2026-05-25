@@ -8,6 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.Core.Tests.Diagnostics;
 
 [Collection("ArchLucidInstrumentation")]
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class PricingQuoteRequestAgeHoursInstrumentationTests
 {
     [Fact]

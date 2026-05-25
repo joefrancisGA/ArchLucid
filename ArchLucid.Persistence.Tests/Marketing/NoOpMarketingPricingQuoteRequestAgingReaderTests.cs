@@ -5,6 +5,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.Marketing;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class NoOpMarketingPricingQuoteRequestAgingReaderTests
 {
     [Fact]

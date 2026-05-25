@@ -5,6 +5,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Host.Core.Tests.Hosted;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class MarketingPricingQuoteAgingMetricsHostedServiceTests
 {
     [Fact]

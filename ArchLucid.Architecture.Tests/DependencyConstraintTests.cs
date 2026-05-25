@@ -43,15 +43,35 @@ public sealed class DependencyConstraintTests
     {
         Assembly core = typeof(IntegrationEventTypes).Assembly;
 
+        // Phase 5 (#33) lifted persistence ports into Core under ArchLucid.Persistence.* namespaces;
+        // NetArchTest namespace matching would false-positive on those shims (same pattern as Api vs Retrieval).
+        string[] forbiddenWithoutPersistenceNamespaceShims = ArchitectureConstraintNamespaces.ForbiddenFromCore
+            .Where(static n => !string.Equals(n, "ArchLucid.Persistence", StringComparison.Ordinal))
+            .ToArray();
+
         TestResult result = Types
             .InAssembly(core)
             .ShouldNot()
-            .HaveDependencyOnAny(ArchitectureConstraintNamespaces.ForbiddenFromCore)
+            .HaveDependencyOnAny(forbiddenWithoutPersistenceNamespaceShims)
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue(
             because: "ArchLucid.Core is the foundation leaf; referencing other ArchLucid assemblies couples infrastructure and domain into the kernel. Offending types: {0}",
             FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Core_must_not_reference_Persistence_assembly()
+    {
+        Assembly core = typeof(IntegrationEventTypes).Assembly;
+        AssemblyName[] references = core.GetReferencedAssemblies();
+
+        references.Should().NotContain(
+            a => a.Name == "ArchLucid.Persistence",
+            because:
+            "Core holds persistence port interfaces under ArchLucid.Persistence.* namespaces but must not reference the Persistence implementation assembly.");
     }
 
     [Fact]

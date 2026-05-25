@@ -4,6 +4,8 @@ using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Tests.Classifiers;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class OrphanedResourceClassifierTests
 {
     [Fact]

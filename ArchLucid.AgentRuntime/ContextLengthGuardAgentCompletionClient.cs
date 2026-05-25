@@ -78,6 +78,7 @@ public sealed class ContextLengthGuardAgentCompletionClient(
         throw new ContextLengthExceededException(estimated, opts.MaxContextTokens, threshold);
     }
 
+    [InformationalAudit]
     private void ScheduleTruncationAudit(int estimatedTokens, int thresholdTokens, int maxContextTokens)
     {
         if (_logger.IsEnabled(LogLevel.Warning))

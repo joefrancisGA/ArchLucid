@@ -4,6 +4,8 @@ using FluentAssertions;
 
 namespace ArchLucid.AgentRuntime.Tests.PromptInjection;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class AzureResourceTagPromptSanitizerTests
 {
     [Fact]

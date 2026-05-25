@@ -6,6 +6,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Identity;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class IdentityClaimRoleMappingValidatorTests
 {
     [Fact]

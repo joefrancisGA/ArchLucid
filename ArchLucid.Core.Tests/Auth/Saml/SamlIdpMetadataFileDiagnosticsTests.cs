@@ -4,6 +4,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Auth.Saml;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class SamlIdpMetadataFileDiagnosticsTests
 {
     [Fact]
