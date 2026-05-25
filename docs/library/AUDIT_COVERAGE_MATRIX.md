@@ -205,7 +205,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 ## Known gaps (mutating behavior without durable `IAuditService` event)
 
-**Last reviewed:** 2026-05-21.
+**Last reviewed:** 2026-05-25.
 
 ### Mutating / lifecycle — verified
 
