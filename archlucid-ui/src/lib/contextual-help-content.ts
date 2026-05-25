@@ -113,6 +113,11 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
       "Effective host configuration (masked). With more than one API replica, per-process graph caches are not shared — configure Redis before scale-out.",
     learnMoreUrl: "/docs/operations/PROJECTION_CACHE_AND_REPLICAS.md",
   },
+  "admin-pricing-quote-aging": {
+    text:
+      "Open marketing pricing quote requests with SLA posture (warn at 18h, breach at 24h). Sales follow-up is manual — no automated buyer replies.",
+    learnMoreUrl: "/docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md",
+  },
 };
 
 /** First sentence (or short excerpt) of help copy — used for the trigger’s accessible name. */
