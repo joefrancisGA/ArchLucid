@@ -66,6 +66,7 @@ public static class ArchLucidConfigurationRules
             return errors;
 
         SqlFailoverRules.Collect(configuration, environment, archLucidOptions, errors);
+        SqlConnectionCredentialRules.Collect(configuration, environment, archLucidOptions, errors);
 
         AuthenticationRules.CollectProductionApiKeyPlaceholders(configuration, errors);
 
@@ -111,4 +112,15 @@ public static class ArchLucidConfigurationRules
     /// </summary>
     public static void LogAgentExecutionRealModeInformation(IConfiguration configuration, ILogger logger) =>
         AgentExecutionRules.LogInformationWhenRealModeConfigured(configuration, logger);
+
+    /// <summary>
+    ///     Logs non-fatal configuration warnings after startup validation succeeds (e.g. Staging SQL auth hygiene).
+    /// </summary>
+    public static void LogConfigurationWarnings(
+        IConfiguration configuration,
+        IWebHostEnvironment environment,
+        ILogger logger)
+    {
+        SqlConnectionCredentialRules.LogStagingWarningsIfPresent(configuration, environment, logger);
+    }
 }

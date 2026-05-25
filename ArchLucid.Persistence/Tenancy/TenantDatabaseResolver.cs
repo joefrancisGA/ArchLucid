@@ -19,21 +19,25 @@ public sealed class TenantDatabaseResolver : ITenantDatabaseResolver
     private readonly string _singleCatalogConnectionString;
     private readonly IOptionsMonitor<SqlTopologyOptions> _topologyOptions;
     private readonly IOptionsMonitor<ArchLucidPersistenceOptions> _persistenceOptions;
+    private readonly bool _enforceServerCertificateTrust;
 
     public TenantDatabaseResolver(
         ITenantDatabaseBindingRepository bindings,
         IMemoryCache cache,
         IOptionsMonitor<SqlTopologyOptions> topologyOptions,
         IOptionsMonitor<ArchLucidPersistenceOptions> persistenceOptions,
-        string singleCatalogConnectionString)
+        string singleCatalogConnectionString,
+        bool enforceServerCertificateTrust = false)
     {
         _bindings = bindings ?? throw new ArgumentNullException(nameof(bindings));
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         _topologyOptions = topologyOptions ?? throw new ArgumentNullException(nameof(topologyOptions));
         _persistenceOptions = persistenceOptions ?? throw new ArgumentNullException(nameof(persistenceOptions));
         ArgumentException.ThrowIfNullOrWhiteSpace(singleCatalogConnectionString);
-        _singleCatalogConnectionString =
-            SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(singleCatalogConnectionString);
+        _singleCatalogConnectionString = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(
+            singleCatalogConnectionString,
+            enforceServerCertificateTrust);
+        _enforceServerCertificateTrust = enforceServerCertificateTrust;
     }
 
     public void InvalidateCachedTenantConnectionString(Guid tenantId)
@@ -91,7 +95,9 @@ public sealed class TenantDatabaseResolver : ITenantDatabaseResolver
         SqlTopologyOptions snapshot = _topologyOptions.CurrentValue;
 
         if (snapshot.Mode == SqlTopologyMode.SingleCatalog)
-            return SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(template);
+            return SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(
+                template,
+                _enforceServerCertificateTrust);
 
         string cacheKey = ReadOnlyCacheKeyPrefix + tenantId.ToString("D");
 

@@ -119,7 +119,12 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
 
         StructuralExecutionModeTypeHandler.Register();
 
-        string connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration)
+        bool enforceServerCertificateTrust =
+            ArchLucidConfigurationBridge.ShouldEnforceSqlServerCertificateTrust(configuration);
+
+        string connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(
+                                      configuration,
+                                      enforceServerCertificateTrust)
                                   ?? throw new InvalidOperationException(
                                       "Missing connection string 'ArchLucid'.");
 
@@ -132,7 +137,9 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
 
         services.TryAddSingleton<IMemoryCache>(_ => new MemoryCache(new MemoryCacheOptions()));
 
-        string? systemConnectionString = ArchLucidConfigurationBridge.ResolveSqlSystemConnectionString(configuration);
+        string? systemConnectionString = ArchLucidConfigurationBridge.ResolveSqlSystemConnectionString(
+            configuration,
+            enforceServerCertificateTrust);
         SqlTopologyOptions topologySnapshot =
             configuration.GetSection(SqlTopologyOptions.SectionPath).Get<SqlTopologyOptions>() ?? new SqlTopologyOptions();
         string effectiveSystemConnectionString = topologySnapshot.Mode == SqlTopologyMode.SystemWithPerTenantCatalogs
@@ -143,11 +150,16 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         RegisterSystemRuntimeInfrastructure(
             services,
             connectionString,
-            effectiveSystemConnectionString);
+            effectiveSystemConnectionString,
+            enforceServerCertificateTrust);
 
         string scriptPath = ResolveArchLucidSqlScriptPath();
 
-        RegisterTenantRuntimeInfrastructure(services, connectionString, scriptPath);
+        RegisterTenantRuntimeInfrastructure(
+            services,
+            connectionString,
+            scriptPath,
+            enforceServerCertificateTrust);
         RegisterTenantRepositories(services, configuration);
 
         RegisterSqlOperationalSingletons(services, configuration, connectionString);
@@ -157,7 +169,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
     private static void RegisterSystemRuntimeInfrastructure(
         IServiceCollection services,
         string connectionString,
-        string effectiveSystemConnectionString)
+        string effectiveSystemConnectionString,
+        bool enforceServerCertificateTrust)
     {
         services.AddSingleton<ISystemSqlConnectionFactory>(sp =>
         {
@@ -167,7 +180,10 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
                 sqlOpenOpts.MaxRetryAttempts,
                 TimeSpan.FromMilliseconds(sqlOpenOpts.BaseDelayMilliseconds));
 
-            return new DedicatedSystemSqlConnectionFactory(effectiveSystemConnectionString, pipeline);
+            return new DedicatedSystemSqlConnectionFactory(
+                effectiveSystemConnectionString,
+                pipeline,
+                enforceServerCertificateTrust);
         });
 
         services.AddScoped<ITenantDatabaseBindingRepository, DapperTenantDatabaseBindingRepository>();
@@ -177,7 +193,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
                 sp.GetRequiredService<IMemoryCache>(),
                 sp.GetRequiredService<IOptionsMonitor<SqlTopologyOptions>>(),
                 sp.GetRequiredService<IOptionsMonitor<ArchLucidPersistenceOptions>>(),
-                connectionString));
+                connectionString,
+                enforceServerCertificateTrust));
 
         services.AddScoped<ITenantSqlCatalogProvisioner, SqlTenantSqlCatalogProvisioner>();
     }
@@ -186,10 +203,11 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
     private static void RegisterTenantRuntimeInfrastructure(
         IServiceCollection services,
         string connectionString,
-        string scriptPath)
+        string scriptPath,
+        bool enforceServerCertificateTrust)
     {
         services.AddSingleton<SqlConnectionFactory>(
-            _ => new SqlConnectionFactory(connectionString));
+            _ => new SqlConnectionFactory(connectionString, enforceServerCertificateTrust));
 
         RegisterBackgroundWorkerSqlResilience(services);
 
@@ -202,7 +220,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
                 sp.GetRequiredService<ISystemSqlConnectionFactory>(),
                 sp.GetRequiredService<ITenantDatabaseResolver>(),
                 sp.GetRequiredService<IScopeContextProvider>(),
-                sp.GetRequiredService<IOptionsMonitor<SqlTopologyOptions>>()));
+                sp.GetRequiredService<IOptionsMonitor<SqlTopologyOptions>>(),
+                enforceServerCertificateTrust));
 
         services.AddScoped<IInternalCrossTenantMetricsCollector, SqlInternalCrossTenantMetricsCollector>();
         services.AddScoped<IInternalCrossTenantRollupRepository, SqlInternalCrossTenantRollupRepository>();
@@ -236,7 +255,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
             sp.GetRequiredService<IOptionsMonitor<ArchLucidPersistenceOptions>>(),
             sp.GetRequiredService<IOptionsMonitor<SqlTopologyOptions>>(),
             sp.GetRequiredService<IOptions<SqlOpenResilienceOptions>>(),
-            sp.GetRequiredService<ILogger<ReadOnlyDbConnectionFactory>>()));
+            sp.GetRequiredService<ILogger<ReadOnlyDbConnectionFactory>>(),
+            enforceServerCertificateTrust));
 
         services.AddScoped<ITenantSqlConnectionFactory>(sp =>
             new DelegatingTenantSqlConnectionFactory(sp.GetRequiredService<ISqlConnectionFactory>()));

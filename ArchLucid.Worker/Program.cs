@@ -47,6 +47,8 @@ public partial class Program
             StartupConfigurationFailureLogger.LogCriticalAndThrow(configurationErrors, app.Logger);
         }
 
+        ArchLucidConfigurationRules.LogConfigurationWarnings(app.Configuration, app.Environment, app.Logger);
+
         StartupConfigurationDiagnostics.LogIfEnabled(
             app.Logger,
             app.Configuration,

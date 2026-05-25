@@ -2499,6 +2499,81 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("failover group listener FQDN", StringComparison.OrdinalIgnoreCase));
     }
 
+    [SkippableFact]
+    public void CollectErrors_WhenProductionAndSqlPasswordInConnectionString_contains_password_error()
+    {
+        Dictionary<string, string?> data = ProductionApiBaselineWithBillingNoop();
+        data["ConnectionStrings:ArchLucid"] =
+            "Server=tcp:sql.database.windows.net,1433;Database=ArchLucid;User ID=sa;Password=secret;Encrypt=True;";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("contains a Password", StringComparison.Ordinal));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenProductionAndSqlUserIdWithoutAuthentication_contains_user_id_error()
+    {
+        Dictionary<string, string?> data = ProductionApiBaselineWithBillingNoop();
+        data["ConnectionStrings:ArchLucid"] =
+            "Server=tcp:sql.database.windows.net,1433;Database=ArchLucid;User ID=sa;Encrypt=True;";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e =>
+            e.Contains("User ID without Authentication=", StringComparison.Ordinal));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenDevelopmentAndSqlPasswordInConnectionString_does_not_contain_password_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=Dev;User ID=sa;Password=secret;TrustServerCertificate=True",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e => e.Contains("contains a Password", StringComparison.Ordinal));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenStagingAndSqlPasswordInConnectionString_does_not_contain_password_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=Staging;User ID=sa;Password=secret;TrustServerCertificate=True",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Staging);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e => e.Contains("contains a Password", StringComparison.Ordinal));
+    }
+
     private static Dictionary<string, string?> ProductionApiBaselineWithBillingNoop() =>
         new()
         {

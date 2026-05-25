@@ -20,10 +20,15 @@ public sealed class DedicatedSystemSqlConnectionFactory : ISystemSqlConnectionFa
     private readonly ResiliencePipeline _sqlOpenRetryPipeline;
 
     /// <summary>Uses <paramref name="sqlOpenRetryPipeline" /> for open attempts; omit or pass a no-op pipeline when retries are undesirable (e.g. contract tests).</summary>
-    public DedicatedSystemSqlConnectionFactory(string connectionString, ResiliencePipeline? sqlOpenRetryPipeline = null)
+    public DedicatedSystemSqlConnectionFactory(
+        string connectionString,
+        ResiliencePipeline? sqlOpenRetryPipeline = null,
+        bool enforceServerCertificateTrust = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
-        _connectionString = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+        _connectionString = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(
+            connectionString,
+            enforceServerCertificateTrust);
         _sqlOpenRetryPipeline =
             sqlOpenRetryPipeline ?? SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(maxRetryAttempts: 0);
     }

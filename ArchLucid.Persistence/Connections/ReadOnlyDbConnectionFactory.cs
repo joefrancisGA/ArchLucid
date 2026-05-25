@@ -23,6 +23,7 @@ public sealed class ReadOnlyDbConnectionFactory : IReadOnlyDbConnectionFactory
     private readonly IScopeContextProvider _scopeContextProvider;
     private readonly ISqlConnectionFactory _primaryFactory;
     private readonly ResiliencePipeline _openRetryPipeline;
+    private readonly bool _enforceServerCertificateTrust;
 
     public ReadOnlyDbConnectionFactory(
         ISqlConnectionFactory primaryFactory,
@@ -31,7 +32,8 @@ public sealed class ReadOnlyDbConnectionFactory : IReadOnlyDbConnectionFactory
         IOptionsMonitor<ArchLucidPersistenceOptions> persistenceOptions,
         IOptionsMonitor<SqlTopologyOptions> topologyOptions,
         IOptions<SqlOpenResilienceOptions> sqlOpenResilienceOptions,
-        ILogger<ReadOnlyDbConnectionFactory> logger)
+        ILogger<ReadOnlyDbConnectionFactory> logger,
+        bool enforceServerCertificateTrust = false)
     {
         _primaryFactory = primaryFactory ?? throw new ArgumentNullException(nameof(primaryFactory));
         _tenantDatabaseResolver =
@@ -49,6 +51,7 @@ public sealed class ReadOnlyDbConnectionFactory : IReadOnlyDbConnectionFactory
             logger,
             opts.MaxRetryAttempts,
             TimeSpan.FromMilliseconds(opts.BaseDelayMilliseconds));
+        _enforceServerCertificateTrust = enforceServerCertificateTrust;
     }
 
     /// <inheritdoc />
@@ -81,7 +84,9 @@ public sealed class ReadOnlyDbConnectionFactory : IReadOnlyDbConnectionFactory
         SqlTopologyOptions topology = _topologyOptions.CurrentValue;
 
         if (topology.Mode == SqlTopologyMode.SingleCatalog)
-            return SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(template);
+            return SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(
+                template,
+                _enforceServerCertificateTrust);
 
         Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
 

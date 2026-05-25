@@ -147,6 +147,8 @@ public partial class Program
 
         ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation(app.Configuration, app.Logger);
 
+        ArchLucidConfigurationRules.LogConfigurationWarnings(app.Configuration, app.Environment, app.Logger);
+
         ProductionLikeHostingMisconfigurationAdvisor.LogWarningsIfPresent(
             app.Logger,
             app.Configuration,

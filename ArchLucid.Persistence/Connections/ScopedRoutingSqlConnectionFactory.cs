@@ -25,11 +25,13 @@ public sealed class ScopedRoutingSqlConnectionFactory : ISqlConnectionFactory
         ISystemSqlConnectionFactory systemSqlConnectionFactory,
         ITenantDatabaseResolver tenantDatabaseResolver,
         IScopeContextProvider scopeContextProvider,
-        IOptionsMonitor<SqlTopologyOptions> topologyOptions)
+        IOptionsMonitor<SqlTopologyOptions> topologyOptions,
+        bool enforceServerCertificateTrust = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(singleCatalogConnectionString);
-        _singleCatalogConnectionString =
-            SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(singleCatalogConnectionString);
+        _singleCatalogConnectionString = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(
+            singleCatalogConnectionString,
+            enforceServerCertificateTrust);
         _systemSqlConnectionFactory =
             systemSqlConnectionFactory ?? throw new ArgumentNullException(nameof(systemSqlConnectionFactory));
         _tenantDatabaseResolver =

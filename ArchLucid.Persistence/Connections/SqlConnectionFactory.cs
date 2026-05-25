@@ -11,10 +11,12 @@ public sealed class SqlConnectionFactory : ISqlConnectionFactory
 {
     private readonly string _connectionString;
 
-    public SqlConnectionFactory(string connectionString)
+    public SqlConnectionFactory(string connectionString, bool enforceServerCertificateTrust = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
-        string secureString = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+        string secureString = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(
+            connectionString,
+            enforceServerCertificateTrust);
         SqlConnectionStringBuilder builder = new(secureString)
         {
             CommandTimeout = 30
