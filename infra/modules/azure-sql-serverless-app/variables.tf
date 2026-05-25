@@ -169,3 +169,27 @@ variable "sql_ltr_week_of_year" {
   description = "ISO week number for yearly LTR snapshot."
   default     = 1
 }
+
+variable "sql_audit_retention_days" {
+  type        = number
+  description = "Days to retain SQL audit logs in the extended auditing policy. Log Analytics workspace retention governs the effective window."
+  default     = 90
+}
+
+variable "enable_sql_defender" {
+  type        = bool
+  description = "When true, enable Microsoft Defender for SQL (threat detection + vulnerability assessment)."
+  default     = false
+}
+
+variable "alert_email_address" {
+  type        = string
+  description = "Operations email for Defender threat and vulnerability assessment notifications."
+  default     = ""
+}
+
+variable "vuln_scan_storage_account_name" {
+  type        = string
+  description = "Globally unique LRS storage account name for Defender vulnerability scan results. Auto-derived from sql_server_name when empty."
+  default     = ""
+}

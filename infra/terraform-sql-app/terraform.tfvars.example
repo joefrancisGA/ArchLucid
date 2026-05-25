@@ -16,3 +16,10 @@ sql_ltr_weekly_retention  = "P1M"
 sql_ltr_monthly_retention = "P12M"
 sql_ltr_yearly_retention  = "P7Y"
 sql_ltr_week_of_year      = 1
+
+# Security / Defender (Improvement #47)
+# log_analytics_workspace_id = "/subscriptions/.../resourceGroups/.../providers/Microsoft.OperationalInsights/workspaces/..."
+# enable_sql_monitoring      = true
+# enable_sql_defender        = true
+# alert_email_address        = "ops@example.com"
+# sql_audit_retention_days   = 90

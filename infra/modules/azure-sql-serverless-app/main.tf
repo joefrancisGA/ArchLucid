@@ -1,4 +1,4 @@
-resource "azurerm_mssql_server" "primary" {
+﻿resource "azurerm_mssql_server" "primary" {
   name                          = var.sql_server_name
   resource_group_name           = var.resource_group_name
   location                      = var.location
@@ -7,6 +7,10 @@ resource "azurerm_mssql_server" "primary" {
   administrator_login_password  = var.sql_admin_password
   minimum_tls_version           = "1.2"
   public_network_access_enabled = var.block_public_sql_access ? false : true
+
+  identity {
+    type = "SystemAssigned"
+  }
 
   azuread_administrator {
     login_username = var.entra_admin_login
