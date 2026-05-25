@@ -102,4 +102,11 @@ public class RetrievalChunk
         get;
         set;
     } = TimeProvider.System.UtcNowDateTime();
+
+    /// <summary>Policy-pack corpus rule-pack id when <see cref="CorpusKind" /> is PolicyPack.</summary>
+    public string? PolicyPackRulePackId
+    {
+        get;
+        set;
+    }
 }

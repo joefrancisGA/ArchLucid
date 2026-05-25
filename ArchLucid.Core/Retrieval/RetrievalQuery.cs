@@ -63,4 +63,14 @@ public class RetrievalQuery
         get;
         set;
     }
+
+    /// <summary>
+    ///     When <see cref="IncludePlatformCorpora" /> is true, limits <see cref="CorpusKind.PolicyPack" /> hits to these
+    ///     rule-pack ids (from tenant assignments). Null = resolver did not run (tests); empty = no assigned packs.
+    /// </summary>
+    public HashSet<string>? AllowedPolicyPackRulePackIds
+    {
+        get;
+        set;
+    }
 }

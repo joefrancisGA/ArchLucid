@@ -137,5 +137,34 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
 
         return Task.FromResult<IReadOnlyList<Guid>>(Array.Empty<Guid>());
     }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<ManifestDocument>> ListPriorCommittedForRetrievalAsync(
+        ScopeContext scope,
+        Guid excludeRunId,
+        int maxManifests,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (maxManifests <= 0)
+            return Task.FromResult<IReadOnlyList<ManifestDocument>>(Array.Empty<ManifestDocument>());
+
+        lock (_lock)
+        {
+            List<ManifestDocument> matches = _store
+                .Where(x =>
+                    x.TenantId == scope.TenantId
+                    && x.WorkspaceId == scope.WorkspaceId
+                    && x.ProjectId == scope.ProjectId
+                    && x.RunId != excludeRunId)
+                .OrderByDescending(x => x.CreatedUtc)
+                .Take(maxManifests)
+                .ToList();
+
+            return Task.FromResult<IReadOnlyList<ManifestDocument>>(matches);
+        }
+    }
 }
 

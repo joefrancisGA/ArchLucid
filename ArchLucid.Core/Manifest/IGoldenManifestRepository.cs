@@ -41,6 +41,16 @@ public interface IGoldenManifestRepository
         CancellationToken ct);
 
     /// <summary>
+    ///     Lists prior committed golden manifests in scope for cross-run prior-manifest retrieval indexing
+    ///     (excludes <paramref name="excludeRunId" />).
+    /// </summary>
+    Task<IReadOnlyList<ManifestDocument>> ListPriorCommittedForRetrievalAsync(
+        ScopeContext scope,
+        Guid excludeRunId,
+        int maxManifests,
+        CancellationToken cancellationToken);
+
+    /// <summary>
     ///     Marks active golden manifests in the scope as superseded when no non-archived run in that scope references them.
     ///     Intended immediately after finalize wires <paramref name="newManifestId" /> onto the committing run (same SQL transaction when provided).
     /// </summary>

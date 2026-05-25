@@ -110,6 +110,8 @@ public sealed class RealAzureOpenAIEndToEndTests
             audit.Object,
             scopeProvider.Object,
             ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
+            ComplianceAgentHandlerTestDependencies.CreateCitationFormatter(),
+            ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
             schemaRemediation,
             ComplianceAgentHandlerTestDependencies.CreateNullLogger());
 

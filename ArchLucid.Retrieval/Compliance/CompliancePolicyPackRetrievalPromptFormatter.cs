@@ -7,8 +7,12 @@ namespace ArchLucid.Retrieval.Compliance;
 /// </summary>
 public static class CompliancePolicyPackRetrievalPromptFormatter
 {
-    public static string FormatPolicyPackBlock(IReadOnlyList<RetrievalHit> hits)
+    public static string FormatPolicyPackBlock(
+        IReadOnlyList<RetrievalHit> hits,
+        IRetrievalCitationFormatter citationFormatter)
     {
+        ArgumentNullException.ThrowIfNull(citationFormatter);
+
         if (hits is null || hits.Count == 0)
             return "Policy Pack Controls (retrieved — cite ruleId when referencing):\n(none retrieved — grounding unavailable)";
 
@@ -21,9 +25,7 @@ public static class CompliancePolicyPackRetrievalPromptFormatter
             sb.Append('[');
             sb.Append(i + 1);
             sb.Append("] ");
-            sb.Append(hit.SourceType);
-            sb.Append(" / ");
-            sb.Append(hit.SourceId);
+            sb.Append(citationFormatter.Format(hit));
             sb.Append(" — ");
             sb.AppendLine(hit.Text);
         }

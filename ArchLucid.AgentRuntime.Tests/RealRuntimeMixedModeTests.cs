@@ -227,6 +227,8 @@ public sealed class RealRuntimeMixedModeTests
             audit.Object,
             scopeProvider.Object,
             ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
+            ComplianceAgentHandlerTestDependencies.CreateCitationFormatter(),
+            ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
             schemaRemediation,
             ComplianceAgentHandlerTestDependencies.CreateNullLogger());
 

@@ -69,6 +69,8 @@
 
 **Implementation design (partial — first PR):** [`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md) §3–§4, §7 (citation formatter + `RetrievalGroundingTrace` deferred to follow-on PR).
 
+**Status (2026-05-25):** **Shipped** — tenant-assigned pack query filter, `IRetrievalCitationFormatter`, `dbo.RetrievalGroundingTrace`, ComplianceAgentHandler grounding trace, architecture test for tenant-bound `RetrievalQuery`.
+
 **Refs:** ADR 0004, ADR 0005; [`DATA_CONSISTENCY_MATRIX.md`](DATA_CONSISTENCY_MATRIX.md).
 
 ---
@@ -118,6 +120,8 @@
 
 - Second run on similar brief retrieves prior decision chunk in Ask top-K.
 - No cross-tenant leakage in integration test with two tenant catalogs.
+
+**Status (2026-05-25):** **Shipped** — `ListPriorCommittedForRetrievalAsync`, `PriorManifestRetrievalOptions.MaxPriorManifestsPerIndex`, cross-run indexing in `RetrievalRunCompletionIndexer`.
 
 ---
 

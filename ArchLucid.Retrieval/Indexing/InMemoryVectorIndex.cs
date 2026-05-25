@@ -96,9 +96,34 @@ public sealed class InMemoryVectorIndex : IVectorIndex
             && (!query.RunId.HasValue || chunk.RunId == query.RunId)
             && (!query.ManifestId.HasValue || chunk.ManifestId == query.ManifestId);
 
-        bool platformMatch = query.IncludePlatformCorpora
-            && chunk.TenantId == CorpusKindSentinels.PlatformSentinelTenantId;
+        if (!tenantMatch && !query.IncludePlatformCorpora)
+            return false;
 
-        return tenantMatch || platformMatch;
+        if (tenantMatch)
+            return true;
+
+        if (chunk.TenantId != CorpusKindSentinels.PlatformSentinelTenantId)
+            return false;
+
+        if (chunk.CorpusKind != CorpusKind.PolicyPack)
+            return true;
+
+        return MatchesAssignedPolicyPack(chunk, query);
+    }
+
+    private static bool MatchesAssignedPolicyPack(RetrievalChunk chunk, RetrievalQuery query)
+    {
+        HashSet<string>? allowed = query.AllowedPolicyPackRulePackIds;
+
+        if (allowed is null)
+            return true;
+
+        if (allowed.Count == 0)
+            return false;
+
+        if (string.IsNullOrWhiteSpace(chunk.PolicyPackRulePackId))
+            return false;
+
+        return allowed.Contains(chunk.PolicyPackRulePackId);
     }
 }

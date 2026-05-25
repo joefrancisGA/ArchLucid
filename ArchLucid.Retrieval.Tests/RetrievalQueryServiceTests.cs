@@ -1,10 +1,14 @@
 using ArchLucid.Core.Retrieval;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Models;
+using ArchLucid.Retrieval.PolicyPacks;
 using ArchLucid.Retrieval.Queries;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -29,7 +33,7 @@ public sealed class RetrievalQueryServiceTests
             .ReturnsAsync(queryVector);
 
         InMemoryVectorIndex index = new();
-        RetrievalQueryService sut = new(embeddings.Object, index);
+        RetrievalQueryService sut = CreateService(embeddings.Object, index);
 
         IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(
             new RetrievalQuery
@@ -118,7 +122,7 @@ public sealed class RetrievalQueryServiceTests
         index.Setup(i => i.SearchAsync(query, expected, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        RetrievalQueryService sut = new(embeddings.Object, index.Object);
+        RetrievalQueryService sut = CreateService(embeddings.Object, index.Object);
 
         await sut.SearchAsync(query, CancellationToken.None);
 
@@ -128,7 +132,7 @@ public sealed class RetrievalQueryServiceTests
     [Fact]
     public async Task SearchAsync_NullQuery_ThrowsArgumentNullException()
     {
-        RetrievalQueryService sut = new(new Mock<IEmbeddingService>().Object, new InMemoryVectorIndex());
+        RetrievalQueryService sut = CreateService(new Mock<IEmbeddingService>().Object, new InMemoryVectorIndex());
 
         Func<Task> act = async () => await sut.SearchAsync(null!, CancellationToken.None);
 
@@ -138,7 +142,7 @@ public sealed class RetrievalQueryServiceTests
     [Fact]
     public async Task SearchAsync_BlankQueryText_ThrowsArgumentException()
     {
-        RetrievalQueryService sut = new(new Mock<IEmbeddingService>().Object, new InMemoryVectorIndex());
+        RetrievalQueryService sut = CreateService(new Mock<IEmbeddingService>().Object, new InMemoryVectorIndex());
 
         Func<Task> act = async () =>
             await sut.SearchAsync(
@@ -152,6 +156,116 @@ public sealed class RetrievalQueryServiceTests
                 CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Fact]
+    public async Task SearchAsync_EmptyTenantId_ThrowsArgumentException()
+    {
+        RetrievalQueryService sut = CreateService(new Mock<IEmbeddingService>().Object, new InMemoryVectorIndex());
+
+        Func<Task> act = async () =>
+            await sut.SearchAsync(
+                new RetrievalQuery
+                {
+                    TenantId = Guid.Empty,
+                    WorkspaceId = WorkspaceId,
+                    ProjectId = ProjectId,
+                    QueryText = "hello",
+                },
+                CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*TenantId is required*");
+    }
+
+    [Fact]
+    public async Task SearchAsync_IncludePlatformCorpora_ResolvesAssignedRulePackIdsBeforeSearch()
+    {
+        Mock<IEmbeddingService> embeddings = new();
+        float[] queryVector = [1f, 0f, 0f];
+        embeddings.Setup(e => e.EmbedAsync("policy", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(queryVector);
+
+        Mock<IVectorIndex> index = new();
+        RetrievalQuery? capturedQuery = null;
+        index.Setup(i => i.SearchAsync(It.IsAny<RetrievalQuery>(), queryVector, It.IsAny<CancellationToken>()))
+            .Callback<RetrievalQuery, float[], CancellationToken>((query, _, _) => capturedQuery = query)
+            .ReturnsAsync([]);
+
+        HashSet<string> assigned = new(StringComparer.OrdinalIgnoreCase) { "pack-a" };
+        RetrievalQueryService sut = CreateService(embeddings.Object, index.Object, assigned);
+
+        await sut.SearchAsync(
+            new RetrievalQuery
+            {
+                TenantId = TenantId,
+                WorkspaceId = WorkspaceId,
+                ProjectId = ProjectId,
+                QueryText = "policy",
+                IncludePlatformCorpora = true,
+            },
+            CancellationToken.None);
+
+        capturedQuery.Should().NotBeNull();
+        capturedQuery!.AllowedPolicyPackRulePackIds.Should().BeEquivalentTo(assigned);
+    }
+
+    private static RetrievalQueryService CreateService(
+        IEmbeddingService embeddingService,
+        IVectorIndex vectorIndex,
+        HashSet<string>? assignedRulePackIds = null)
+    {
+        Mock<IPolicyPackResolver> policyPackResolver = new();
+        policyPackResolver
+            .Setup(r => r.ResolveAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildEffectivePackSet(assignedRulePackIds ?? []));
+
+        IOptionsMonitor<PolicyPackCorpusIndexerOptions> options =
+            new MockOptionsMonitor<PolicyPackCorpusIndexerOptions>(new PolicyPackCorpusIndexerOptions());
+
+        AssignedPolicyPackRulePackIdResolver assignedResolver =
+            new(policyPackResolver.Object, options);
+
+        return new RetrievalQueryService(embeddingService, vectorIndex, assignedResolver);
+    }
+
+    private static EffectivePolicyPackSet BuildEffectivePackSet(IEnumerable<string> rulePackIds)
+    {
+        EffectivePolicyPackSet effective = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+        };
+
+        foreach (string rulePackId in rulePackIds)
+        {
+            effective.Packs.Add(
+                new ResolvedPolicyPack
+                {
+                    ContentJson = $$"""{"metadata":{"rulePackId":"{{rulePackId}}"}}""",
+                });
+        }
+
+        return effective;
+    }
+
+    private sealed class MockOptionsMonitor<T>(T value) : IOptionsMonitor<T> where T : class
+    {
+        public T CurrentValue => value;
+
+        public T Get(string? name) => value;
+
+        public IDisposable OnChange(Action<T, string?> listener) => NullDisposable.Instance;
+
+        private sealed class NullDisposable : IDisposable
+        {
+            internal static readonly NullDisposable Instance = new();
+
+            public void Dispose()
+            {
+            }
+        }
     }
 
     private static RetrievalQuery ScopedQuery(string queryText, int topK)

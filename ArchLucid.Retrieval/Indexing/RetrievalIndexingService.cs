@@ -98,7 +98,8 @@ public sealed class RetrievalIndexingService(
                 Text = t,
                 ChunkOrdinal = i,
                 Embedding = embeddings[i],
-                CreatedUtc = doc.CreatedUtc
+                CreatedUtc = doc.CreatedUtc,
+                PolicyPackRulePackId = doc.PolicyPackRulePackId,
             }));
         }
 

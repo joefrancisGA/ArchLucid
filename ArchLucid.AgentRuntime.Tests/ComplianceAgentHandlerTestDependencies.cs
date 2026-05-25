@@ -1,7 +1,11 @@
 using ArchLucid.Core.Retrieval;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Retrieval.Citations;
+using ArchLucid.Retrieval.Indexing;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -16,6 +20,17 @@ internal static class ComplianceAgentHandlerTestDependencies
             .ReturnsAsync([]);
 
         return retrieval.Object;
+    }
+
+    internal static IRetrievalCitationFormatter CreateCitationFormatter() => new RetrievalCitationFormatter();
+
+    internal static IRetrievalGroundingTraceWriter CreateNoOpGroundingTraceWriter()
+    {
+        Mock<IRetrievalGroundingTraceWriter> writer = new();
+        writer.Setup(w => w.AppendAsync(It.IsAny<RetrievalGroundingTraceInsert>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        return writer.Object;
     }
 
     internal static ILogger<ComplianceAgentHandler> CreateNullLogger() =>

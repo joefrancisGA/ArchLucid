@@ -3,6 +3,7 @@ using System.Diagnostics;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Provenance;
 using ArchLucid.Retrieval.Models;
@@ -15,8 +16,17 @@ namespace ArchLucid.Retrieval.Indexing;
 /// </summary>
 public sealed class RetrievalRunCompletionIndexer(
     IRetrievalDocumentBuilder documentBuilder,
-    IRetrievalIndexingService indexingService) : IRetrievalRunCompletionIndexer
+    IRetrievalIndexingService indexingService,
+    IGoldenManifestRepository goldenManifestRepository,
+    Microsoft.Extensions.Options.IOptionsMonitor<PriorManifestRetrievalOptions> priorManifestOptions)
+    : IRetrievalRunCompletionIndexer
 {
+    private readonly IGoldenManifestRepository _goldenManifestRepository =
+        goldenManifestRepository ?? throw new ArgumentNullException(nameof(goldenManifestRepository));
+
+    private readonly Microsoft.Extensions.Options.IOptionsMonitor<PriorManifestRetrievalOptions> _priorManifestOptions =
+        priorManifestOptions ?? throw new ArgumentNullException(nameof(priorManifestOptions));
+
     /// <inheritdoc />
     public async Task IndexAuthorityRunAsync(
         Guid tenantId,
@@ -53,6 +63,29 @@ public sealed class RetrievalRunCompletionIndexer(
         retrievalDocuments.AddRange(PriorManifestRetrievalDocumentBuilder.BuildFromManifest(
             manifest,
             findingsSnapshot?.CreatedUtc ?? manifest.CreatedUtc));
+
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        };
+
+        int maxPrior = Math.Max(0, _priorManifestOptions.CurrentValue.MaxPriorManifestsPerIndex);
+
+        if (maxPrior > 0)
+        {
+            IReadOnlyList<ManifestDocument> priorManifests = await _goldenManifestRepository
+                .ListPriorCommittedForRetrievalAsync(scope, manifest.RunId, maxPrior, ct)
+                .ConfigureAwait(false);
+
+            foreach (ManifestDocument prior in priorManifests)
+            {
+                retrievalDocuments.AddRange(PriorManifestRetrievalDocumentBuilder.BuildFromManifest(
+                    prior,
+                    prior.CreatedUtc));
+            }
+        }
 
         if (findingsSnapshot?.Findings is { Count: > 0 })
         {

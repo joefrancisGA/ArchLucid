@@ -1,17 +1,17 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 92.85%
+# ArchLucid Assessment – (A) Headline Readiness: 93.04%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items such as SOC 2 CPA attestation, third-party pen tests, MCP, the commerce un-hold, multi-cloud (AWS/GCP) analysis, multi-region active/active, automated tenant erasure, Graph-RAG / agentic retrieval, hosted Tier 2 continuous polling, **non-SCIM bulk-CSV user onboarding (V2)**, **self-hosted Enterprise commercial deals (V2)**, and related sub-milestones (capacity guide, private-endpoint reference architecture).*
 
 **Score ledger:** Incremental history through legacy **archived #1–#57** and owner rescoring (**87.74% → 92.63%**) lives in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md).
 
-**Rescore 2026-05-25 (post Improvements #1–#2):** Headline **92.85%** (+0.04% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%). Open **V1 GA gates #3–#7** remain in pillar scores. **Post-GA ceiling when #3–#7 ship:** **+0.51%** → **93.36%**. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
+**Rescore 2026-05-25 (post Improvements #1–#3):** Headline **93.04%** (+0.23% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**). Open **V1 GA gates #4–#7** remain in pillar scores. **Post-GA ceiling when #4–#7 ship:** **+0.32%** → **93.36%**. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**
-ArchLucid is well past the pilot-credible bar for V1 GA at **92.85%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#2 shipped 2026-05-25** (eval baseline CI warn-soak + classified gate telemetry). **Owner 2026-05-25:** V1 GA is contingent on Improvements **#3–#7** — RAG follow-ons, USD gauge, expansion CTA, quote SLA visibility, and custom pack GTM publication. **No `(A)` items remain outside this gate set.**
+ArchLucid is well past the pilot-credible bar for V1 GA at **93.04%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#3 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons). **Owner 2026-05-25:** V1 GA is contingent on Improvements **#4–#7** — USD gauge, expansion CTA, quote SLA visibility, and custom pack GTM publication. **No `(A)` items remain outside this gate set.**
 
 **`(B)` Procurement / Market-Motion Realism (Informational — zero weight on `(A)`)**
 Enterprise procurement teams will still ask for CPA-issued SOC 2 Type II, an external pen-test summary, automated GDPR erasure, multi-region active/active, AWS/GCP target analysis, and **self-hosted / on-premises deployment**. Every one of these items is **explicitly out of `(A)` scope** per `V1_DEFERRED.md` §6c, §6l, §6m, §6n, **§6t**, and the scope rule. The right posture is honest trust-center narrative — **V1 GA is hosted SaaS**; self-hosted Enterprise is **V2** — not score deductions.
@@ -23,7 +23,7 @@ Pricing is locked and defensible (`PRICING_PHILOSOPHY.md` §5). The trial funnel
 **V1 GA Enterprise is ArchLucid-hosted SaaS** — SCIM, SAML SP, OIDC, RLS, governance, and policy packs on the operated platform. V1 SAML posture: **metadata CLI (archived #4), startup validation (archived #18), and operator docs** — no interactive claim-mapping wizard (explicitly **out of V1 scope**, owner 2026-05-25). **Self-hosted Enterprise deals** (customer-operated deployments, private-endpoint reference architecture, consolidated capacity guide, deployment playbook) are **V2** per [`V1_DEFERRED.md` §6t](../library/V1_DEFERRED.md) — `(B)` procurement realism only, zero `(A)` penalty. Container / Terraform assets remain for engineering and evaluation, not as a V1 contracted buyer path.
 
 **The Engineering Picture**
-The foundation is genuinely strong: warnings-as-errors, strict CI, merged-line coverage gate, vulnerability scanning, SBOM publication, OpenTelemetry depth, circuit breakers, outbox + data-consistency probes, vector-store readiness probing, Ask RAG SQL fallback, policy-pack / prior-manifest corpora (Batch 1), LLM faithfulness enabled by default on hosted Staging/Production (owner 2026-05-25), RAG retrieval duration/chunk telemetry (Batch 2), committed Grafana dashboards for ROI, integration outbox, and LLM redactions, board-pack ROI Markdown/PDF export (archived #24), leader-elected agent-trace blob cleanup (archived #8), eval baseline CI + gate telemetry (**#1–#2 shipped 2026-05-25**), and a deliberate single-replica baseline with documented Redis upgrade path (§6e). **V1 GA engineering gates:** Improvements **#3–#7** (see Most Important Truth).
+The foundation is genuinely strong: warnings-as-errors, strict CI, merged-line coverage gate, vulnerability scanning, SBOM publication, OpenTelemetry depth, circuit breakers, outbox + data-consistency probes, vector-store readiness probing, Ask RAG SQL fallback, policy-pack / prior-manifest corpora (Batch 1), LLM faithfulness enabled by default on hosted Staging/Production (owner 2026-05-25), RAG retrieval duration/chunk telemetry (Batch 2), committed Grafana dashboards for ROI, integration outbox, and LLM redactions, board-pack ROI Markdown/PDF export (archived #24), leader-elected agent-trace blob cleanup (archived #8), eval baseline CI + gate telemetry (**#1–#3 shipped 2026-05-25**), tenant-assigned policy-pack retrieval filter + cross-run prior-manifest indexing + grounding trace (**#3**), and a deliberate single-replica baseline with documented Redis upgrade path (§6e). **V1 GA engineering gates:** Improvements **#4–#7** (see Most Important Truth).
 
 ---
 
@@ -32,22 +32,22 @@ The foundation is genuinely strong: warnings-as-errors, strict CI, merged-line c
 Qualities are ranked from most urgent to least urgent based on their **weighted deficiency** (Weight × (100 - Score)).
 
 ### 1. Cutting-Edge AI Technology
-- **Score:** 88
+- **Score:** 90
 - **Weight:** 8
-- **Weighted Deficiency:** 96
-- **Justification:** ArchLucid runs Azure OpenAI with structured-output JSON contracts, content-safety enforcement, prompt redaction with auditable bypass counters, circuit breakers, caching, embedding-faithfulness optional scorer, and a working retrieval seam (`ArchLucid.Retrieval`). Batch 1 (2026-05-24) shipped policy-pack and prior-manifest corpora. The **agent-output evaluation harness ships** — structural + semantic + faithfulness scorers, quality gate, golden cohort, `eval_agent_corpus.py`. **Improvement #1 shipped 2026-05-25** — committed baselines under `tests/golden-cohort/baselines/` and CI `--baseline` warn-soak. **LLM faithfulness judge enabled by default** on hosted Staging/Production (`ArchLucid:Agents:LlmFaithfulness:Enabled=true`, owner 2026-05-25). **Owner 2026-05-25:** **#3** (RAG follow-ons) ships **before V1 GA**. Graph-RAG and agentic retrieval remain **V2** per §6q.
+- **Weighted Deficiency:** 80
+- **Justification:** ArchLucid runs Azure OpenAI with structured-output JSON contracts, content-safety enforcement, prompt redaction with auditable bypass counters, circuit breakers, caching, embedding-faithfulness optional scorer, and a working retrieval seam (`ArchLucid.Retrieval`). Batch 1 (2026-05-24) shipped policy-pack and prior-manifest corpora. The **agent-output evaluation harness ships** — structural + semantic + faithfulness scorers, quality gate, golden cohort, `eval_agent_corpus.py`. **Improvement #1 shipped 2026-05-25** — committed baselines under `tests/golden-cohort/baselines/` and CI `--baseline` warn-soak. **Improvement #3 shipped 2026-05-25** — tenant-assigned pack query filter, cross-run prior-`GoldenManifest` indexing, `IRetrievalCitationFormatter`, and `RetrievalGroundingTrace`. **LLM faithfulness judge enabled by default** on hosted Staging/Production (`ArchLucid:Agents:LlmFaithfulness:Enabled=true`, owner 2026-05-25). Graph-RAG and agentic retrieval remain **V2** per §6q.
 - **Tradeoffs:** Baseline regression enforcement may fail PRs on model drift — that is the point. Owner 2026-05-25: **warn-only soak first** (`continue-on-error: true`), publish scorecard on every run, flip merge-blocking only after **10 consecutive main-branch green runs** with **zero false-positive PR failures** attributable to LLM/judge noise — not a calendar deadline.
-- **Recommendations:** Ship Improvement **#3** before GA.
-- **Status:** V1 GA gated on **#3** (owner 2026-05-25). **#1 shipped 2026-05-25.**
+- **Recommendations:** Monitor `archlucid_agent_output_llm_faithfulness_score` and retrieval grounding traces after GA.
+- **Status:** **#3 shipped 2026-05-25.** **#1 shipped 2026-05-25.**
 
 ### 2. AI/Agent Readiness
-- **Score:** 95
+- **Score:** 96
 - **Weight:** 8
-- **Weighted Deficiency:** 40
-- **Justification:** The agent runtime is production-grade — circuit breakers, content safety, prompt-redaction telemetry, four agent types, shipped evaluation + quality-gate stack, and **LLM faithfulness judge enabled by default on hosted Staging/Production** (owner 2026-05-25). **Improvements #1–#2 shipped 2026-05-25** — eval baseline CI warn-soak and **`reject_reason` / `execution_mode`** on `archlucid_agent_output_quality_gate_total`. **No automatic retry on quality-gate reject** for V1 (fail-fast; owner 2026-05-25). **Owner 2026-05-25:** **#3** (RAG follow-ons) ships **before V1 GA**. Optional post-gate polish: `AlternativePathsConsidered` on finding engines.
+- **Weighted Deficiency:** 32
+- **Justification:** The agent runtime is production-grade — circuit breakers, content safety, prompt-redaction telemetry, four agent types, shipped evaluation + quality-gate stack, and **LLM faithfulness judge enabled by default on hosted Staging/Production** (owner 2026-05-25). **Improvements #1–#3 shipped 2026-05-25** — eval baseline CI warn-soak, **`reject_reason` / `execution_mode`** on `archlucid_agent_output_quality_gate_total`, and RAG grounding trace on `ComplianceAgentHandler`. **No automatic retry on quality-gate reject** for V1 (fail-fast; owner 2026-05-25). Optional post-gate polish: `AlternativePathsConsidered` on finding engines.
 - **Tradeoffs:** LLM faithfulness adds token cost per real-mode agent trace; `SkipWhenSimulator: true` preserves CI/simulator economics. Auto-retry would compound token spend and mask systematic prompt/evidence failures — deferred to V1.1 pending production **`reject_reason`** data.
-- **Recommendations:** Ship **#3** before GA; monitor `archlucid_agent_output_llm_faithfulness_score` and tenant LLM budget utilization after enablement.
-- **Status:** V1 GA gated on **#3** (owner 2026-05-25). **#1–#2 shipped 2026-05-25.**
+- **Recommendations:** Monitor `archlucid_agent_output_llm_faithfulness_score` and tenant LLM budget utilization after enablement.
+- **Status:** **#3 shipped 2026-05-25.** **#1–#2 shipped 2026-05-25.**
 
 ### 3. Adoption Friction
 - **Score:** 92
@@ -120,8 +120,8 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 
 All V1.1 / V2 items removed per `Assessment-Scope-V1_1.mdc`. Items **1–7** are **V1 GA gates**; **8–10** are **post-GA** `(A)`-actionable gaps (not headline blockers).
 
-1. **RAG-V1 Batch 1 follow-ons — V1 GA gate (Improvement #3):** Tenant-assigned pack query filter, cross-run prior-`GoldenManifest` indexing, and RAG-V1-000 citation formatter / grounding trace must ship before GA (owner 2026-05-25, option A). Core policy-pack and per-run prior-manifest corpora shipped in Batch 1.
-2. **Eval corpus baseline regression — V1 GA gate (Improvement #1):** Per-scenario baseline JSON, `--baseline`, and warn-only CI soak (flip merge-blocking after 10-run exit criterion) must ship before GA (owner 2026-05-25, option A).
+1. **RAG-V1 Batch 1 follow-ons — SHIPPED 2026-05-25 (Improvement #3):** Tenant-assigned pack query filter, cross-run prior-`GoldenManifest` indexing, and RAG-V1-000 citation formatter / grounding trace shipped before remaining GA gates.
+2. **Eval corpus baseline regression — SHIPPED 2026-05-25 (Improvement #1):** Per-scenario baseline JSON, `--baseline`, and warn-only CI soak (flip merge-blocking after 10-run exit criterion).
 3. **USD savings Prometheus gauge not shipped — V1 GA gate (Improvement #4):** Batch 2 added severity-weighted findings proxy (archived #12); runtime `EstimatedUsdSavings` rollup must emit as `archlucid_tenant_estimated_savings_usd` before GA (owner 2026-05-25, option A).
 4. **Custom policy pack authoring GTM — V1 GA gate (Improvement #7):** SKU matrix, SoW, and order-form template exist in repo (archived #6); owner 2026-05-25 requires **public pricing page publication + sales kit cross-links** before GA (option A).
 5. **Team→Professional expansion CTA not shipped — V1 GA gate (Improvement #5):** Paid Team tenants nearing seat or workspace caps need an in-app prompt to request a quote or expand (owner 2026-05-25, option A); trial nudge (archived #14) covers trials only.
@@ -161,10 +161,9 @@ CPA SOC 2 Type II, third-party pen-test publication, automated GDPR tenant erasu
 
 Open mitigations only — active Improvements **#1–#25**. Legacy shipped work uses **archived #1–#57** in the archive file.
 
-1. **RAG retrieval quality gaps without citation grounding:** Tenant-assigned pack scoping, cross-run prior-`GoldenManifest` history, and uniform citation / grounding trace still outstanding — **#3** (V1 GA gate). Monitor `archlucid_agent_output_llm_faithfulness_score` after default enablement (2026-05-25).
-2. **Cross-tenant ROI aggregation could leak data:** RLS or `SESSION_CONTEXT` failure during `ExecutiveRoiCacheWarmupHostedService` or background rollups — **#11** (post-GA).
-3. **AgentResult blob storage lacks storage-account lifecycle policy:** Orphan cleanup runs in-app; Azure blob tiering and retention are not codified in Terraform — **#13** (post-GA).
-4. **Integration outbox dead letters lack operator UI:** Sustained webhook failure still requires SQL or CLI for bulk DLQ triage — **#14** (post-GA).
+1. **Cross-tenant ROI aggregation could leak data:** RLS or `SESSION_CONTEXT` failure during `ExecutiveRoiCacheWarmupHostedService` or background rollups — **#11** (post-GA).
+2. **AgentResult blob storage lacks storage-account lifecycle policy:** Orphan cleanup runs in-app; Azure blob tiering and retention are not codified in Terraform — **#13** (post-GA).
+3. **Integration outbox dead letters lack operator UI:** Sustained webhook failure still requires SQL or CLI for bulk DLQ triage — **#14** (post-GA).
 5. **Azure OpenAI circuit breakers may trip too aggressively:** Latency brownouts can fail entire authority runs instead of degrading gracefully — **#15** (post-GA).
 6. **`DataConsistencyOrphanProbe` may miss new tables:** Schema growth without probe registration or CI guard — **#12** (post-GA).
 7. **Quality-gate rejects lack classified telemetry:** ~~Faithfulness enabled by default on hosted Staging/Production; without **`reject_reason` / `execution_mode`** on `archlucid_agent_output_quality_gate_total`, operators cannot triage reject causes — **#2** (V1 GA gate).~~ **Resolved 2026-05-25** — Improvement **#2** shipped.
@@ -178,7 +177,7 @@ Open mitigations only — active Improvements **#1–#25**. Legacy shipped work 
 
 ## Most Important Truth
 
-ArchLucid is ready to ship V1 GA **after Improvements #3–#7 land**. Batch 1 delivered the highest-leverage AI-quality investments — policy-pack indexing, prior-manifest chunks, and LLM faithfulness evaluation — raising the ceiling on what every other feature can credibly claim. The agent-output evaluation harness **already ships**; **Improvements #1–#2 shipped 2026-05-25** (eval baseline CI warn-soak + gate telemetry). The honest **V1 GA gate set** is **#3–#7** (RAG follow-ons, USD gauge, expansion CTA, quote SLA visibility, custom pack GTM). **Headline is 92.85%** until the full gate set ships; **post-GA ceiling 93.36%** when **#3–#7** land (+0.51% documented combined). Post-GA **#8–#25** do not move headline.
+ArchLucid is ready to ship V1 GA **after Improvements #4–#7 land**. Batch 1 delivered the highest-leverage AI-quality investments — policy-pack indexing, prior-manifest chunks, and LLM faithfulness evaluation — raising the ceiling on what every other feature can credibly claim. The agent-output evaluation harness **already ships**; **Improvements #1–#3 shipped 2026-05-25** (eval baseline CI warn-soak, gate telemetry, RAG follow-ons). The honest **V1 GA gate set** is **#4–#7** (USD gauge, expansion CTA, quote SLA visibility, custom pack GTM). **Headline is 93.04%** until the full gate set ships; **post-GA ceiling 93.36%** when **#4–#7** land (+0.32% documented combined). Post-GA **#8–#25** do not move headline.
 
 ---
 
@@ -186,7 +185,7 @@ ArchLucid is ready to ship V1 GA **after Improvements #3–#7 land**. Batch 1 de
 
 Shipped improvements (**archived #1–#57**, 2026-05-24 – 2026-05-25) are documented in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md). **Active tasks in this file: #1–#25** (renumbered 2026-05-25; do not confuse with legacy archive IDs).
 
-**V1 GA gates (ship before GA):** **#3–#7** (5 items). **#1–#2 shipped 2026-05-25.**
+**V1 GA gates (ship before GA):** **#4–#7** (4 items). **#1–#3 shipped 2026-05-25.**
 **Additional V1 actionable (post-GA or parallel):** **#8–#25** (18 items).
 **Total:** **25** actionable improvements in this assessment.
 
@@ -278,11 +277,11 @@ Acceptance Criteria:
 - Docs state V1 fail-fast posture and that V1.1 auto-retry is a separate future decision.
 ```
 
-### 3. Complete RAG-V1 Batch 1 Follow-Ons Before GA (actionable now — **V1 GA gate**)
-- **Why it matters:** Batch 1 shipped platform policy-pack indexing and per-run prior-manifest corpora, but three TB-021 remainders block trustworthy grounded retrieval: tenants still see **all platform packs** (not just assigned packs), prior-manifest chunks are **per-run only** (no cross-run `GoldenManifest` history), and there is **no uniform citation formatter** or `RetrievalGroundingTrace` for support bundles and eval. Owner 2026-05-25: **all three ship before V1 GA** (option A).
-- **Expected impact:** Directly improves Cutting-Edge AI Technology (+2 pts when shipped) and AI/Agent Readiness (+1 pt). Weighted readiness impact: **+0.19%** when all three land. **Do not rescored until shipped.**
+### 3. Complete RAG-V1 Batch 1 Follow-Ons Before GA (actionable now — **SHIPPED 2026-05-25**)
+- **Why it matters:** Batch 1 shipped platform policy-pack indexing and per-run prior-manifest corpora, but three TB-021 remainders blocked trustworthy grounded retrieval: tenants still saw **all platform packs** (not just assigned packs), prior-manifest chunks were **per-run only** (no cross-run `GoldenManifest` history), and there was **no uniform citation formatter** or `RetrievalGroundingTrace` for support bundles and eval. Owner 2026-05-25: **all three ship before V1 GA** (option A).
+- **Expected impact:** Directly improves Cutting-Edge AI Technology (+2 pts when shipped) and AI/Agent Readiness (+1 pt). Weighted readiness impact: **+0.19%** when all three land. **Rescored 2026-05-25.**
 - **Affected qualities:** Cutting-Edge AI Technology, AI/Agent Readiness, Proof-of-ROI Readiness, Reliability.
-- **Actionable now:** Yes — **V1 GA gate**.
+- **Actionable now:** **Shipped 2026-05-25.**
 - **Owner decision (2026-05-25):** Ship **all three** before GA — not citation-only, not post-GA deferral.
 - **Backlog refs:** [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](../library/RAG_QUALITY_TECHNICAL_BACKLOG.md) **RAG-V1-000** (remainder), **RAG-V1-002**; Improvements **archived #1** / **archived #23** deferred slices.
 ```cursor
@@ -932,7 +931,7 @@ Canonical detail: [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6r and §6t.
 - **Engineering:** Improvement **#7** — publication layer on shipped **archived #6** repo docs (SKU matrix, SoW, ORDER_FORM Addendum C).
 - **Score posture:** Do not rescored until **#7** ships (+0.08% weighted impact documented in improvement).
 
-No other open `(A)`-blocking owner questions — **V1 GA gate set is #3–#7** (all owner decisions recorded 2026-05-25). **#1–#2 shipped 2026-05-25.** Items below were removed because they pertain to V1.1 / V2 scope per `Assessment-Scope-V1_1.mdc` and therefore must not penalize `(A)` or appear as `(A)` pending questions:
+No other open `(A)`-blocking owner questions — **V1 GA gate set is #4–#7** (all owner decisions recorded 2026-05-25). **#1–#3 shipped 2026-05-25.** Items below were removed because they pertain to V1.1 / V2 scope per `Assessment-Scope-V1_1.mdc` and therefore must not penalize `(A)` or appear as `(A)` pending questions:
 
 - ~~Slack App Directory Listing Strategy~~ — V1.1 chat-ops follow-on per `V1_DEFERRED.md` §6a.
 - ~~AWS/GCP Multi-Cloud Analysis Pricing~~ — V1.1 per §6n.

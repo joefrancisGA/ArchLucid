@@ -88,4 +88,11 @@ public class RetrievalDocument
         get;
         set;
     } = TimeProvider.System.UtcNowDateTime();
+
+    /// <summary>Policy-pack corpus rule-pack id (e.g. <c>saas-vertical-v1</c>) when <see cref="CorpusKind" /> is PolicyPack.</summary>
+    public string? PolicyPackRulePackId
+    {
+        get;
+        set;
+    }
 }

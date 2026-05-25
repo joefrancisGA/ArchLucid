@@ -116,6 +116,7 @@ public sealed class PolicyPackCorpusIndexer(IOptionsMonitor<PolicyPackCorpusInde
                 Content = content,
                 ContentHash = contentHash,
                 CreatedUtc = createdUtc,
+                PolicyPackRulePackId = rulePackId,
             };
         }
     }

@@ -791,6 +791,7 @@ public static partial class ServiceCollectionExtensions
     {
         services.Configure<RetrievalEmbeddingCapOptions>(
             configuration.GetSection(RetrievalEmbeddingCapOptions.SectionName));
+        services.Configure<PriorManifestRetrievalOptions>(configuration.GetSection(PriorManifestRetrievalOptions.SectionPath));
 
         services.AddSingleton<SimpleTextChunker>();
         services.AddSingleton<ITextChunker>(static sp => sp.GetRequiredService<SimpleTextChunker>());
@@ -798,6 +799,8 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<PriorManifestChunker>();
         services.AddScoped<IRetrievalDocumentBuilder, RetrievalDocumentBuilder>();
         services.AddScoped<IRetrievalIndexingService, RetrievalIndexingService>();
+        services.AddScoped<AssignedPolicyPackRulePackIdResolver>();
+        services.AddSingleton<IRetrievalCitationFormatter, RetrievalCitationFormatter>();
         services.AddScoped<IRetrievalQueryService, RetrievalQueryService>();
         services.AddScoped<IRetrievalRunCompletionIndexer, RetrievalRunCompletionIndexer>();
 

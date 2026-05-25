@@ -76,6 +76,14 @@ public sealed class CachingGoldenManifestRepository(
     }
 
     /// <inheritdoc />
+    public Task<IReadOnlyList<ManifestDocument>> ListPriorCommittedForRetrievalAsync(
+        ScopeContext scope,
+        Guid excludeRunId,
+        int maxManifests,
+        CancellationToken cancellationToken) =>
+        _inner.ListPriorCommittedForRetrievalAsync(scope, excludeRunId, maxManifests, cancellationToken);
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<Guid>> SupersedeUnreferencedActiveGoldenManifestsAsync(
         ScopeContext scope,
         Guid newManifestId,

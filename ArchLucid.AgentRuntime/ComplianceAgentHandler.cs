@@ -31,6 +31,8 @@ public sealed class ComplianceAgentHandler(
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
     IRetrievalQueryService retrievalQueryService,
+    IRetrievalCitationFormatter retrievalCitationFormatter,
+    IRetrievalGroundingTraceWriter retrievalGroundingTraceWriter,
     IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediationOptions,
     ILogger<ComplianceAgentHandler> logger)
     : IAgentHandler
@@ -42,6 +44,12 @@ public sealed class ComplianceAgentHandler(
 
     private readonly IRetrievalQueryService _retrievalQueryService =
         retrievalQueryService ?? throw new ArgumentNullException(nameof(retrievalQueryService));
+
+    private readonly IRetrievalCitationFormatter _retrievalCitationFormatter =
+        retrievalCitationFormatter ?? throw new ArgumentNullException(nameof(retrievalCitationFormatter));
+
+    private readonly IRetrievalGroundingTraceWriter _retrievalGroundingTraceWriter =
+        retrievalGroundingTraceWriter ?? throw new ArgumentNullException(nameof(retrievalGroundingTraceWriter));
 
     private readonly ILogger<ComplianceAgentHandler> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -75,7 +83,11 @@ public sealed class ComplianceAgentHandler(
 
         string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task);
         IReadOnlyList<RetrievalHit> policyPackHits = [];
-        (baseUserPrompt, policyPackHits) = await AppendPolicyPackRetrievalAsync(request, baseUserPrompt, cancellationToken).ConfigureAwait(false);
+        (baseUserPrompt, policyPackHits) = await AppendPolicyPackRetrievalAsync(
+            request,
+            runId,
+            baseUserPrompt,
+            cancellationToken).ConfigureAwait(false);
 
         string lastCompletionJson = string.Empty;
 
@@ -197,6 +209,7 @@ public sealed class ComplianceAgentHandler(
 
     private async Task<(string Prompt, IReadOnlyList<RetrievalHit> Hits)> AppendPolicyPackRetrievalAsync(
         ArchitectureRequest request,
+        string runId,
         string baseUserPrompt,
         CancellationToken cancellationToken)
     {
@@ -224,8 +237,12 @@ public sealed class ComplianceAgentHandler(
                     scope.TenantId);
             }
 
-            string block = CompliancePolicyPackRetrievalPromptFormatter.FormatPolicyPackBlock(hits);
+            string block = CompliancePolicyPackRetrievalPromptFormatter.FormatPolicyPackBlock(
+                hits,
+                _retrievalCitationFormatter);
             string prompt = baseUserPrompt.TrimEnd() + "\n\n" + block + "\n";
+
+            await AppendGroundingTraceAsync(scope, runId, hits, cancellationToken).ConfigureAwait(false);
 
             return (prompt, hits);
         }
@@ -255,5 +272,49 @@ public sealed class ComplianceAgentHandler(
             RetrievalFaithfulnessEvaluator.Evaluate(hits, agentOutputText);
 
         ArchLucidInstrumentation.RecordRetrievalFaithfulnessRatio(report.SupportRatio);
+    }
+
+    private async Task AppendGroundingTraceAsync(
+        ScopeContext scope,
+        string runId,
+        IReadOnlyList<RetrievalHit> hits,
+        CancellationToken cancellationToken)
+    {
+        if (hits.Count == 0)
+            return;
+
+        if (!AgentRunIdParser.TryParse(runId, out Guid runGuid))
+            return;
+
+        double citationCoverage = RetrievalFaithfulnessEvaluator.Evaluate(hits, string.Empty).SupportRatio;
+        AgentCompletionTokenUsage.TryConsume(out int? tokensIn, out int? tokensOut, out _);
+
+        RetrievalGroundingTraceInsert insert = new()
+        {
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            RunId = runGuid,
+            AgentName = AgentType.Compliance.ToString(),
+            RetrievedChunkIds = hits.Select(static h => h.ChunkId).ToList(),
+            TokensIn = tokensIn,
+            TokensOut = tokensOut,
+            CitationCoverage = citationCoverage,
+        };
+
+        try
+        {
+            await _retrievalGroundingTraceWriter.AppendAsync(insert, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Failed to persist retrieval grounding trace for compliance agent run {RunId}.",
+                    runId);
+            }
+        }
     }
 }

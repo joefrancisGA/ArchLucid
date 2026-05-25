@@ -275,6 +275,68 @@ public sealed class SqlGoldenManifestRepository(
         return await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, ct);
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<ManifestDocument>> ListPriorCommittedForRetrievalAsync(
+        ScopeContext scope,
+        Guid excludeRunId,
+        int maxManifests,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (maxManifests <= 0)
+            return Array.Empty<ManifestDocument>();
+
+        const string sql = """
+                           SELECT TOP (@MaxManifests)
+                               TenantId, WorkspaceId, ProjectId,
+                               ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                               CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                               MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                               ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                               WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
+                           FROM dbo.GoldenManifests WITH (NOLOCK)
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND RunId <> @ExcludeRunId
+                             AND (ArchivedUtc IS NULL)
+                           ORDER BY CreatedUtc DESC;
+                           """;
+
+        await using SqlConnection connection =
+            await manifestLookupReadConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<GoldenManifestStorageRow> rows = await connection.QueryAsync<GoldenManifestStorageRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    ExcludeRunId = excludeRunId,
+                    MaxManifests = maxManifests,
+                },
+                cancellationToken: cancellationToken));
+
+        List<ManifestDocument> documents = [];
+
+        foreach (GoldenManifestStorageRow row in rows)
+        {
+            GoldenManifestStorageRow hydratedRow = await ApplyManifestBlobOverlayIfPresentAsync(row, cancellationToken);
+            ManifestDocument? document =
+                await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, hydratedRow, cancellationToken);
+
+            if (document is not null)
+                documents.Add(document);
+        }
+
+        return documents;
+    }
+
     private async Task SaveCoreAsync(
         ManifestDocument manifest,
         IDbConnection connection,

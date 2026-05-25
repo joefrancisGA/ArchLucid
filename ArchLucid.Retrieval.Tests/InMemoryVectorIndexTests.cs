@@ -85,6 +85,92 @@ public sealed class InMemoryVectorIndexTests
         hits.Should().ContainSingle().Which.Text.Should().Be("v2");
     }
 
+    [Fact]
+    public async Task SearchAsync_IncludePlatformCorpora_FiltersPolicyPackToAssignedRulePackIds()
+    {
+        InMemoryVectorIndex sut = new();
+        await sut.UpsertChunksAsync(
+            [
+                MakePlatformPolicyPackChunk("assigned", "pack-a", [1f, 0f]),
+                MakePlatformPolicyPackChunk("unassigned", "pack-b", [1f, 0f]),
+            ],
+            CancellationToken.None);
+
+        RetrievalQuery query = BaseQuery();
+        query.IncludePlatformCorpora = true;
+        query.AllowedPolicyPackRulePackIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "pack-a" };
+
+        IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(query, [1f, 0f], CancellationToken.None);
+
+        hits.Should().ContainSingle().Which.ChunkId.Should().Be("assigned");
+    }
+
+    [Fact]
+    public async Task SearchAsync_IncludePlatformCorpora_WithNoAssignedPacks_ExcludesAllPolicyPackChunks()
+    {
+        InMemoryVectorIndex sut = new();
+        await sut.UpsertChunksAsync(
+            [MakePlatformPolicyPackChunk("pack-a-chunk", "pack-a", [1f, 0f])],
+            CancellationToken.None);
+
+        RetrievalQuery query = BaseQuery();
+        query.IncludePlatformCorpora = true;
+        query.AllowedPolicyPackRulePackIds = [];
+
+        IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(query, [1f, 0f], CancellationToken.None);
+
+        hits.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SearchAsync_IncludePlatformCorpora_StillReturnsNonPolicyPackPlatformCorpus()
+    {
+        InMemoryVectorIndex sut = new();
+        RetrievalChunk platformDoc = MakeChunk("platform-doc", TenantId, WorkspaceId, ProjectId, [1f, 0f]);
+        platformDoc.TenantId = CorpusKindSentinels.PlatformSentinelTenantId;
+        platformDoc.CorpusKind = CorpusKind.PlatformDoc;
+        await sut.UpsertChunksAsync([platformDoc], CancellationToken.None);
+
+        RetrievalQuery query = BaseQuery();
+        query.IncludePlatformCorpora = true;
+        query.AllowedPolicyPackRulePackIds = [];
+
+        IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(query, [1f, 0f], CancellationToken.None);
+
+        hits.Should().ContainSingle().Which.ChunkId.Should().Be("platform-doc");
+    }
+
+    [Fact]
+    public async Task SearchAsync_TenantScopedPriorManifest_DoesNotLeakOtherTenant()
+    {
+        Guid otherTenantId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        InMemoryVectorIndex sut = new();
+        await sut.UpsertChunksAsync(
+            [
+                MakeChunk("tenant-a", TenantId, WorkspaceId, ProjectId, [1f, 0f]),
+                MakeChunk("tenant-b", otherTenantId, WorkspaceId, ProjectId, [1f, 0f]),
+            ],
+            CancellationToken.None);
+
+        IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(BaseQuery(), [1f, 0f], CancellationToken.None);
+
+        hits.Should().ContainSingle().Which.ChunkId.Should().Be("tenant-a");
+    }
+
+    private static RetrievalChunk MakePlatformPolicyPackChunk(string chunkId, string rulePackId, float[] embedding)
+    {
+        RetrievalChunk chunk = MakeChunk(
+            chunkId,
+            CorpusKindSentinels.PlatformSentinelTenantId,
+            WorkspaceId,
+            ProjectId,
+            embedding);
+        chunk.CorpusKind = CorpusKind.PolicyPack;
+        chunk.PolicyPackRulePackId = rulePackId;
+
+        return chunk;
+    }
+
     private static RetrievalQuery BaseQuery()
     {
         return new RetrievalQuery

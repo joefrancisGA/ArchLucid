@@ -7859,3 +7859,25 @@ IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
         ON dbo.GoldenManifests (TenantId, WorkspaceId, ProjectId, RunId, CreatedUtc, ArchivedUtc, FindingsSnapshotId)
         WITH (ONLINE = ON);
 GO
+
+IF OBJECT_ID(N'dbo.RetrievalGroundingTrace', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.RetrievalGroundingTrace
+    (
+        TraceId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_RetrievalGroundingTrace PRIMARY KEY DEFAULT NEWSEQUENTIALID(),
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
+        RunId UNIQUEIDENTIFIER NOT NULL,
+        AgentName NVARCHAR(64) NOT NULL,
+        RetrievedChunkIdsJson NVARCHAR(MAX) NOT NULL,
+        TokensIn INT NULL,
+        TokensOut INT NULL,
+        CitationCoverage DECIMAL(5, 4) NOT NULL,
+        CreatedUtc DATETIME2 NOT NULL CONSTRAINT DF_RetrievalGroundingTrace_CreatedUtc DEFAULT (SYSUTCDATETIME())
+    );
+
+    CREATE NONCLUSTERED INDEX IX_RetrievalGroundingTrace_RunId
+        ON dbo.RetrievalGroundingTrace (RunId, CreatedUtc DESC);
+END;
+GO

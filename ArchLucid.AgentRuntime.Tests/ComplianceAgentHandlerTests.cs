@@ -98,6 +98,8 @@ public sealed class ComplianceAgentHandlerTests
             audit.Object,
             scopeProvider.Object,
             ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
+            ComplianceAgentHandlerTestDependencies.CreateCitationFormatter(),
+            ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
             AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
             ComplianceAgentHandlerTestDependencies.CreateNullLogger());
 
