@@ -348,22 +348,64 @@ internal static class OpenApiContractBackwardCompatibilityChecker
             JsonObject actualComponents,
             HashSet<string> refsVisited)
         {
-            if (!TryNormalizeToObject(baselineSchemaNode, baselineComponents, actualComponents, refsVisited, baseline: true,
+            Dictionary<string, JsonObject> refCache = new(StringComparer.Ordinal);
+
+            AssertSchemaCompatible(
+                violations,
+                context,
+                baselineSchemaNode,
+                actualSchemaNode,
+                baselineComponents,
+                actualComponents,
+                refsVisited,
+                refCache);
+        }
+
+        private static void AssertSchemaCompatible(
+            List<string> violations,
+            string context,
+            JsonNode baselineSchemaNode,
+            JsonNode actualSchemaNode,
+            JsonObject baselineComponents,
+            JsonObject actualComponents,
+            HashSet<string> refsVisited,
+            Dictionary<string, JsonObject> refCache)
+        {
+            if (!TryNormalizeToObject(
+                    baselineSchemaNode,
+                    baselineComponents,
+                    actualComponents,
+                    refsVisited,
+                    refCache,
+                    baseline: true,
                     out JsonObject baselineResolved))
             {
                 violations.Add($"{context}: could not resolve baseline schema (malformed `$ref`).");
                 return;
             }
 
-            if (!TryNormalizeToObject(actualSchemaNode, baselineComponents, actualComponents, refsVisited, baseline: false,
+            if (!TryNormalizeToObject(
+                    actualSchemaNode,
+                    baselineComponents,
+                    actualComponents,
+                    refsVisited,
+                    refCache,
+                    baseline: false,
                     out JsonObject actualResolved))
             {
                 violations.Add($"{context}: could not resolve actual schema (malformed `$ref`).");
                 return;
             }
 
-            CompareSchemaObjects(violations, context, baselineResolved, actualResolved, baselineComponents, actualComponents,
-                refsVisited);
+            CompareSchemaObjects(
+                violations,
+                context,
+                baselineResolved,
+                actualResolved,
+                baselineComponents,
+                actualComponents,
+                refsVisited,
+                refCache);
         }
 
         /// <remarks>
@@ -374,6 +416,7 @@ internal static class OpenApiContractBackwardCompatibilityChecker
             JsonObject baselineComponents,
             JsonObject actualComponents,
             HashSet<string> refsVisited,
+            Dictionary<string, JsonObject> refCache,
             bool baseline,
             out JsonObject result)
         {
@@ -392,10 +435,17 @@ internal static class OpenApiContractBackwardCompatibilityChecker
 
                 string refTag = (baseline ? "b:" : "a:") + pointer;
 
+                if (refCache.TryGetValue(refTag, out JsonObject? cached))
+                {
+                    result = cached;
+                    return true;
+                }
+
+                // Re-entering the same component while flattening indicates a cyclic $ref; keep the stub.
                 if (!refsVisited.Add(refTag))
                 {
-                    result = null!;
-                    return false;
+                    result = obj;
+                    return true;
                 }
 
                 try
@@ -407,7 +457,20 @@ internal static class OpenApiContractBackwardCompatibilityChecker
 
                     JsonObject flattened = InlineRefShallowMerge(obj, target);
 
-                    return TryNormalizeToObject(flattened, baselineComponents, actualComponents, refsVisited, baseline, out result);
+                    if (!TryNormalizeToObject(
+                            flattened,
+                            baselineComponents,
+                            actualComponents,
+                            refsVisited,
+                            refCache,
+                            baseline,
+                            out result))
+                    {
+                        return false;
+                    }
+
+                    refCache[refTag] = result;
+                    return true;
                 }
                 finally
                 {
@@ -434,14 +497,14 @@ internal static class OpenApiContractBackwardCompatibilityChecker
             JsonObject merged = [];
 
             foreach (KeyValuePair<string, JsonNode?> pair in referenced)
-                merged[pair.Key] = pair.Value?.DeepClone();
+                merged[pair.Key] = pair.Value;
 
             foreach (KeyValuePair<string, JsonNode?> pair in withRef)
             {
                 if (pair.Key.Equals("$ref", StringComparison.Ordinal))
                     continue;
 
-                merged[pair.Key] = pair.Value?.DeepClone();
+                merged[pair.Key] = pair.Value;
             }
 
             return merged;
@@ -472,8 +535,18 @@ internal static class OpenApiContractBackwardCompatibilityChecker
             JsonObject actual,
             JsonObject baselineComponents,
             JsonObject actualComponents,
-            HashSet<string> refsVisited)
+            HashSet<string> refsVisited,
+            Dictionary<string, JsonObject> refCache)
         {
+            if (TryGetComponentSchemaRef(baseline, out string? baselineRef)
+                && TryGetComponentSchemaRef(actual, out string? actualRef))
+            {
+                if (!string.Equals(baselineRef, actualRef, StringComparison.Ordinal))
+                    violations.Add($"{context}: `$ref` changed (`{baselineRef}` → `{actualRef}`).");
+
+                return;
+            }
+
             CompareTypeTokens(violations, context + " → `type`", baseline, actual);
             CompareFormat(violations, context + " → `format`", baseline, actual);
             CompareEnumSubset(violations, context + " → `enum`", baseline, actual);
@@ -510,7 +583,8 @@ internal static class OpenApiContractBackwardCompatibilityChecker
                         actualPropSchema!,
                         baselineComponents,
                         actualComponents,
-                        refsVisited);
+                        refsVisited,
+                        refCache);
                 }
             }
 
@@ -522,23 +596,51 @@ internal static class OpenApiContractBackwardCompatibilityChecker
                     return;
                 }
 
-                AssertSchemaCompatible(violations, $"{context}.items", bItems, aItems, baselineComponents,
-                    actualComponents, refsVisited);
+                AssertSchemaCompatible(
+                    violations,
+                    $"{context}.items",
+                    bItems,
+                    aItems,
+                    baselineComponents,
+                    actualComponents,
+                    refsVisited,
+                    refCache);
             }
 
             CompareCompositionBranch(violations, context + " → allOf", baseline, actual, baselineComponents,
-                actualComponents, refsVisited,
+                actualComponents, refsVisited, refCache,
                 keyword: "allOf");
 
             CompareCompositionBranch(violations, context + " → anyOf", baseline, actual, baselineComponents,
-                actualComponents, refsVisited,
+                actualComponents, refsVisited, refCache,
                 keyword: "anyOf");
 
             CompareCompositionBranch(violations, context + " → oneOf", baseline, actual, baselineComponents,
-                actualComponents, refsVisited,
+                actualComponents, refsVisited, refCache,
                 keyword: "oneOf");
 
-            CompareAdditionalProperties(violations, context, baseline, actual, baselineComponents, actualComponents, refsVisited);
+            CompareAdditionalProperties(
+                violations,
+                context,
+                baseline,
+                actual,
+                baselineComponents,
+                actualComponents,
+                refsVisited,
+                refCache);
+        }
+
+        private static bool TryGetComponentSchemaRef(JsonObject schema, out string? pointer)
+        {
+            pointer = null;
+
+            if (!schema.TryGetPropertyValue("$ref", out JsonNode? refNode) || refNode is not JsonValue refVal)
+                return false;
+
+            pointer = refVal.GetValue<string>();
+
+            return !string.IsNullOrWhiteSpace(pointer)
+                && pointer.StartsWith("#/components/schemas/", StringComparison.Ordinal);
         }
 
         private static void CompareTypeTokens(List<string> violations, string context, JsonObject baseline, JsonObject actual)
@@ -678,6 +780,7 @@ internal static class OpenApiContractBackwardCompatibilityChecker
             JsonObject baselineComponents,
             JsonObject actualComponents,
             HashSet<string> refsVisited,
+            Dictionary<string, JsonObject> refCache,
             string keyword)
         {
             if (baseline[keyword] is not JsonArray baselineBranches)
@@ -751,7 +854,8 @@ internal static class OpenApiContractBackwardCompatibilityChecker
             JsonObject actual,
             JsonObject baselineComponents,
             JsonObject actualComponents,
-            HashSet<string> refsVisited)
+            HashSet<string> refsVisited,
+            Dictionary<string, JsonObject> refCache)
         {
             if (!baseline.TryGetPropertyValue("additionalProperties", out JsonNode? bAdditional) || bAdditional is null)
                 return;
@@ -795,7 +899,8 @@ internal static class OpenApiContractBackwardCompatibilityChecker
                 aAdditional,
                 baselineComponents,
                 actualComponents,
-                refsVisited);
+                refsVisited,
+                refCache);
         }
 
         private static bool IsAdditionalPropertiesBooleanTrue(JsonNode? node) =>
