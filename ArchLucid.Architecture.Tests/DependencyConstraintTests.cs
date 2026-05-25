@@ -1140,7 +1140,7 @@ public sealed class DependencyConstraintTests
     [Trait("Category", "Unit")]
     public void Capabilities_Cost_must_not_depend_on_Persistence()
     {
-        Assembly capabilitiesCost = typeof(CostAgentHandler).Assembly;
+        Assembly capabilitiesCost = typeof(ArchLucid.Capabilities.Cost.CostAgentHandler).Assembly;
 
         TestResult result = Types
             .InAssembly(capabilitiesCost)

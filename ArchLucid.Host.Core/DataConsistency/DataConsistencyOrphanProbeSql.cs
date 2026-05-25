@@ -48,4 +48,14 @@ public static class DataConsistencyOrphanProbeSql
                                                   FROM dbo.Runs r
                                                   WHERE r.RunId = g.RunId);
                                               """;
+
+    /// <summary>Orphan <c>ArtifactBundles</c> rows whose <c>RunId</c> is missing from <c>dbo.Runs</c>.</summary>
+    public const string ArtifactBundlesRunId = """
+                                               SELECT COUNT_BIG(1)
+                                               FROM dbo.ArtifactBundles ab
+                                               WHERE NOT EXISTS (
+                                                   SELECT 1
+                                                   FROM dbo.Runs r
+                                                   WHERE r.RunId = ab.RunId);
+                                               """;
 }

@@ -61,34 +61,27 @@ public sealed class DataConsistencyOrphanProbeExecutor(
         await using DbConnection connection =
             (DbConnection)await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
-        long goldenCount = await LogAndCountOrphansAsync(
-                connection,
-                DataConsistencyOrphanProbeSql.GoldenManifestsRunId,
-                "GoldenManifests",
-                "RunId",
-                cancellationToken)
-            .ConfigureAwait(false);
-        long findingsCount = await LogAndCountOrphansAsync(
-                connection,
-                DataConsistencyOrphanProbeSql.FindingsSnapshotsRunId,
-                "FindingsSnapshots",
-                "RunId",
-                cancellationToken)
-            .ConfigureAwait(false);
-        long contextCount = await LogAndCountOrphansAsync(
-                connection,
-                DataConsistencyOrphanProbeSql.ContextSnapshotsRunId,
-                "ContextSnapshots",
-                "RunId",
-                cancellationToken)
-            .ConfigureAwait(false);
-        long graphCount = await LogAndCountOrphansAsync(
-                connection,
-                DataConsistencyOrphanProbeSql.GraphSnapshotsRunId,
-                "GraphSnapshots",
-                "RunId",
-                cancellationToken)
-            .ConfigureAwait(false);
+        Dictionary<string, long> orphanCounts = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (DataConsistencyOrphanProbeRegistration registration in DataConsistencyOrphanProbeRegistry.BackgroundProbed)
+        {
+            string countSql = DataConsistencyOrphanProbeRegistry.ResolveBackgroundProbeCountSql(registration);
+            long count = await LogAndCountOrphansAsync(
+                    connection,
+                    countSql,
+                    registration.TableName,
+                    registration.ColumnName,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            orphanCounts[registration.TableName] = count;
+        }
+
+        long goldenCount = orphanCounts["GoldenManifests"];
+        long findingsCount = orphanCounts["FindingsSnapshots"];
+        long contextCount = orphanCounts["ContextSnapshots"];
+        long graphCount = orphanCounts["GraphSnapshots"];
+        long artifactCount = orphanCounts["ArtifactBundles"];
 
         await ApplyEnforcementAsync(
                 connection,
@@ -106,7 +99,8 @@ public sealed class DataConsistencyOrphanProbeExecutor(
             goldenCount > 0
             || findingsCount > 0
             || contextCount > 0
-            || graphCount > 0;
+            || graphCount > 0
+            || artifactCount > 0;
 
         if (!anyOrphans)
             return;

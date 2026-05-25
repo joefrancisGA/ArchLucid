@@ -2,7 +2,8 @@ namespace ArchLucid.Application.DataConsistency;
 
 /// <summary>Read-only SQL probes for scheduled reconciliation (SQL Server).</summary>
 /// <remarks>
-/// Orphan fragments align with <c>ArchLucid.Host.Core.DataConsistency.DataConsistencyOrphanProbeSql</c>.
+/// Orphan fragments align with <c>ArchLucid.Host.Core.DataConsistency.DataConsistencyOrphanProbeSql</c>
+/// and <c>DataConsistencyOrphanProbeRegistry</c>.
 /// <c>dbo.ComparisonRecords</c> run ids are FK-backed (DbUp 137) and are not probed here.
 /// </remarks>
 internal static class DataConsistencyReconciliationSql

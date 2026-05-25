@@ -11,6 +11,7 @@ using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;

@@ -1,17 +1,17 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 93.48%
+# ArchLucid Assessment – (A) Headline Readiness: 93.50%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items such as SOC 2 CPA attestation, third-party pen tests, MCP, the commerce un-hold, multi-cloud (AWS/GCP) analysis, multi-region active/active, automated tenant erasure, Graph-RAG / agentic retrieval, hosted Tier 2 continuous polling, **non-SCIM bulk-CSV user onboarding (V2)**, **self-hosted Enterprise commercial deals (V2)**, and related sub-milestones (capacity guide, private-endpoint reference architecture).*
 
 **Score ledger:** Incremental history through legacy **archived #1–#57** and owner rescoring (**87.74% → 92.63%**) lives in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md).
 
-**Rescore 2026-05-25 (post Improvements #1–#11):** Headline **93.48%** (+0.67% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#12–#25** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
+**Rescore 2026-05-25 (post Improvements #1–#12):** Headline **93.50%** (+0.69% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**, **#12 orphan-probe CI guard +0.02%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#13–#25** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**
-ArchLucid is ready for **V1 GA at 93.48%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#11 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM, Azure Retail cost grounding, platform docs corpus, finding-engine `AlternativePathsConsidered`). **No `(A)` items remain in the V1 GA gate set.**
+ArchLucid is ready for **V1 GA at 93.50%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#12 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM, Azure Retail cost grounding, platform docs corpus, finding-engine `AlternativePathsConsidered`, Executive ROI RLS hardening, orphan-probe registry CI guard). **No `(A)` items remain in the V1 GA gate set.**
 
 **`(B)` Procurement / Market-Motion Realism (Informational — zero weight on `(A)`)**
 Enterprise procurement teams will still ask for CPA-issued SOC 2 Type II, an external pen-test summary, automated GDPR erasure, multi-region active/active, AWS/GCP target analysis, and **self-hosted / on-premises deployment**. Every one of these items is **explicitly out of `(A)` scope** per `V1_DEFERRED.md` §6c, §6l, §6m, §6n, **§6t**, and the scope rule. The right posture is honest trust-center narrative — **V1 GA is hosted SaaS**; self-hosted Enterprise is **V2** — not score deductions.
@@ -89,10 +89,10 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Score:** 99
 - **Weight:** 2
 - **Weighted Deficiency:** 2
-- **Justification:** Outbox + data-consistency probes (`DataConsistencyOrphanProbeHostedService`), circuit breakers with health-check exposure, SQL transactions, RLS with `SESSION_CONTEXT`, quarantine paths, `VectorStoreHealthCheck` on `/health/ready` (archived #10, 2026-05-24), Ask RAG SQL fallback (archived #13, 2026-05-24), LLM faithfulness metrics on the agent-output evaluation hook (archived #2, Batch 1, opt-in), integration outbox delivery counters plus dedicated Grafana dashboard (archived #19, Batch 2, 2026-05-24), leader-elected agent-trace orphan blob cleanup with `archlucid_data_archival_blobs_deleted_total` (archived #8, Batch 4, 2026-05-24), and **relational integrity hardening (archived #26–#33, 2026-05-24)** — hot-path indexes, `RunId` `UNIQUEIDENTIFIER` migration, archive cascade TVP, trusted FK constraints, enumeration CHECK constraints, scope `NOT NULL`, and filtered `GoldenManifests` unique index — form a strong V1 baseline. Single-region active/passive is the **V1 contract per §6l** and not a `(A)` defect. Residual hygiene: register new tables with the orphan probe (**#12**, post-GA).
+- **Justification:** Outbox + data-consistency probes (`DataConsistencyOrphanProbeHostedService`, **`DataConsistencyOrphanProbeRegistry`** CI guard — **#12 shipped 2026-05-25**), circuit breakers with health-check exposure, SQL transactions, RLS with `SESSION_CONTEXT`, quarantine paths, `VectorStoreHealthCheck` on `/health/ready` (archived #10, 2026-05-24), Ask RAG SQL fallback (archived #13, 2026-05-24), LLM faithfulness metrics on the agent-output evaluation hook (archived #2, Batch 1, opt-in), integration outbox delivery counters plus dedicated Grafana dashboard (archived #19, Batch 2, 2026-05-24), leader-elected agent-trace orphan blob cleanup with `archlucid_data_archival_blobs_deleted_total` (archived #8, Batch 4, 2026-05-24), and **relational integrity hardening (archived #26–#33, 2026-05-24)** — hot-path indexes, `RunId` `UNIQUEIDENTIFIER` migration, archive cascade TVP, trusted FK constraints, enumeration CHECK constraints, scope `NOT NULL`, and filtered `GoldenManifests` unique index — form a strong V1 baseline. Single-region active/passive is the **V1 contract per §6l** and not a `(A)` defect.
 - **Tradeoffs:** A vector-store health check that fails `/health/ready` could keep an otherwise-healthy API node out of rotation; `Retrieval:VectorStoreHealthCheck:FailReadinessWhenUnavailable` defaults permissive (degraded, not failing).
-- **Recommendations:** Monitor schema growth via **#12** (orphan-probe CI guard, post-GA).
-- **Status:** Relational integrity **shipped** (archived #26–#33); post-GA **#12** optional.
+- **Recommendations:** Keep **`DataConsistencyOrphanProbeRegistryArchitectureTests`** green when adding `FK_*_Runs_RunId` tables.
+- **Status:** Relational integrity **shipped** (archived #26–#33); **#12 shipped 2026-05-25**.
 
 ### 8. Maintainability
 - **Score:** 100
@@ -112,7 +112,7 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Recommendations:** Enable per-tenant RAG tags only for bounded tenant counts.
 - **Status:** **#6 shipped 2026-05-25.** **#4 shipped 2026-05-25.** **#2 shipped 2026-05-25.**
 
-**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.48%** (documented +0.67% from shipped **#1–#11**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
+**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.50%** (documented +0.69% from shipped **#1–#12**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
 
 ---
 
@@ -165,7 +165,7 @@ Open mitigations only — active Improvements **#1–#25**. Legacy shipped work 
 2. **AgentResult blob storage lacks storage-account lifecycle policy:** Orphan cleanup runs in-app; Azure blob tiering and retention are not codified in Terraform — **#13** (post-GA).
 3. **Integration outbox dead letters lack operator UI:** Sustained webhook failure still requires SQL or CLI for bulk DLQ triage — **#14** (post-GA).
 5. **Azure OpenAI circuit breakers may trip too aggressively:** Latency brownouts can fail entire authority runs instead of degrading gracefully — **#15** (post-GA).
-6. **`DataConsistencyOrphanProbe` may miss new tables:** Schema growth without probe registration or CI guard — **#12** (post-GA).
+6. **`DataConsistencyOrphanProbe` may miss new tables:** ~~Schema growth without probe registration or CI guard — **#12** (post-GA).~~ **Mitigated 2026-05-25** — **`DataConsistencyOrphanProbeRegistry`** + **`DataConsistencyOrphanProbeRegistryArchitectureTests`** + **`ArtifactBundles`** background probe.
 7. **Quality-gate rejects lack classified telemetry:** ~~Faithfulness enabled by default on hosted Staging/Production; without **`reject_reason` / `execution_mode`** on `archlucid_agent_output_quality_gate_total`, operators cannot triage reject causes — **#2** (V1 GA gate).~~ **Resolved 2026-05-25** — Improvement **#2** shipped.
 8. **`LlmCostEstimator` overflow and negative-rate misconfig:** Token sums can wrap at ~2.1B; negative USD rates can produce invalid FinOps slices — **#19**, **#20** (post-GA; TB-022/024/026).
 9. **Prometheus cardinality at tenant scale:** Ungated per-tenant labels on RAG and ROI metrics can explode ingest cost — **#24** (post-GA; especially after **#4** gauge ships).
@@ -177,7 +177,7 @@ Open mitigations only — active Improvements **#1–#25**. Legacy shipped work 
 
 ## Most Important Truth
 
-ArchLucid is **ready to ship V1 GA at 93.48%**. **Improvements #1–#11 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#12–#25** do not move headline.
+ArchLucid is **ready to ship V1 GA at 93.50%**. **Improvements #1–#12 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#13–#25** do not move headline.
 
 ---
 
@@ -186,7 +186,7 @@ ArchLucid is **ready to ship V1 GA at 93.48%**. **Improvements #1–#11 shipped 
 Shipped improvements (**archived #1–#57**, 2026-05-24 – 2026-05-25) are documented in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md). **Active tasks in this file: #1–#25** (renumbered 2026-05-25; do not confuse with legacy archive IDs).
 
 **V1 GA gates (ship before GA):** **None remaining — #1–#7 shipped 2026-05-25.**
-**Additional V1 actionable (post-GA or parallel):** **#12–#25** (14 items).
+**Additional V1 actionable (post-GA or parallel):** **#13–#25** (13 items).
 **Total:** **25** actionable improvements in this assessment.
 
 ### 1. Wire Agent-Output Eval Corpus Baseline Regression — **SHIPPED 2026-05-25**
@@ -608,22 +608,11 @@ Audit and harden cross-tenant Executive ROI background jobs for RLS isolation (I
 Acceptance Criteria: New integration tests pass; runbook note in OBSERVABILITY.md or ROI doc; code review checklist item for future background aggregators.
 ```
 
-### 12. Extend DataConsistencyOrphanProbe Registration with CI Guard (actionable now — post-GA)
+### 12. Extend DataConsistencyOrphanProbe Registration with CI Guard — **shipped 2026-05-25**
 - **Why it matters:** New SQL tables can ship without registering orphan-probe coverage. `DataConsistencyOrphanProbeHostedService` misses edge cases as the schema grows.
-- **Expected impact:** Reliability (+1 pt), Maintainability (+1 pt). Weighted readiness impact: **+0.02%** when shipped. **Do not rescored until shipped.**
+- **Expected impact:** Reliability (+1 pt), Maintainability (+1 pt). Weighted readiness impact: **+0.02%** when shipped.
 - **Affected qualities:** Reliability, Maintainability.
-- **Actionable now:** Yes — post-GA.
-```cursor
-Extend DataConsistencyOrphanProbe coverage with a CI guard (Improvement #12).
-
-Context: DataConsistencyOrphanProbeHostedService, DATA_CONSISTENCY_MATRIX.md, DbUp migrations.
-
-1. Audit DATA_CONSISTENCY_MATRIX.md vs probe registrations; register any missing child→parent orphan checks.
-2. Add CI script or architecture test: new dbo.* tables with RunId/TenantId FK semantics must appear in matrix + probe registry (allow explicit opt-out list with rationale).
-3. Unit test: probe detects injected orphan row in at least one newly registered path.
-
-Acceptance Criteria: Matrix and probe in sync; CI fails on unregistered new tables; docs updated.
-```
+- **Shipped:** `DataConsistencyOrphanProbeRegistry`, **`ArtifactBundles`** background probe, **`DataConsistencyOrphanProbeRegistryArchitectureTests`**, matrix doc sync, SQL positive-detection test.
 
 ### 13. Codify AgentResult Blob Retention Lifecycle in Terraform (actionable now — post-GA)
 - **Why it matters:** Leader-elected orphan cleanup (archived #8) runs in-app, but storage accounts lack explicit lifecycle tiering — AgentResult blobs can grow unbounded on cost and compliance dimensions.
