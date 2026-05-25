@@ -1,3 +1,5 @@
+> **Scope:** Operators and SRE running scheduled PITR, LTR, and geo-failover drills to validate documented RTO/RPO — not live incident recovery or day-to-day Azure SQL administration.
+
 # Runbook: Backup Restore and Geo-Failover Drill
 
 **Frequency:** At minimum annually; also run after any Terraform SQL infrastructure change.
