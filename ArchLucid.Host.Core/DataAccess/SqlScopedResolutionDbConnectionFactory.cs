@@ -16,6 +16,9 @@ namespace ArchLucid.Host.Core.DataAccess;
 /// <remarks>
 /// <see cref="CreateOpenConnectionAsync"/> opens one short DI scope only to resolve
 /// <see cref="ISqlConnectionFactory"/>; the returned <see cref="SqlConnection"/> outlives that scope.
+/// Callers must dispose the connection — always wrap results in
+/// <c>await using SqlConnection connection = (SqlConnection)await factory.CreateOpenConnectionAsync(...)</c>
+/// or an equivalent <c>using IDbConnection</c> block. Omitting disposal leaks pooled connections.
 /// <see cref="CreateConnection"/> returns an unopened connection for callers that manage open timing themselves
 /// (e.g. synchronous admin diagnostics); prefer <see cref="CreateOpenConnectionAsync"/> when Polly-backed open retries apply.
 /// When the scoped <see cref="ISqlConnectionFactory"/> is <see cref="ResilientSqlConnectionFactory"/>,
@@ -43,6 +46,7 @@ public sealed class SqlScopedResolutionDbConnectionFactory(
     }
 
     /// <inheritdoc />
+    /// <remarks>Caller must dispose the returned connection (prefer <c>await using</c>).</remarks>
     public async Task<IDbConnection> CreateOpenConnectionAsync(CancellationToken cancellationToken = default)
     {
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();

@@ -1070,6 +1070,54 @@ public sealed class DependencyConstraintTests
     [Fact]
     [Trait("Suite", "Core")]
     [Trait("Category", "Unit")]
+    public void Retrieval_csproj_references_Decisioning_by_design()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string csprojPath = Path.Combine(root!, "ArchLucid.Retrieval", "ArchLucid.Retrieval.csproj");
+        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+        declaredReferences.Should().Contain(
+            "ArchLucid.Decisioning",
+            because: "Retrieval adapters consume Decisioning types in-process today; Contracts port inversion is tracked under Improvement #55 Option B.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Retrieval_csproj_references_ArtifactSynthesis_by_design()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string csprojPath = Path.Combine(root!, "ArchLucid.Retrieval", "ArchLucid.Retrieval.csproj");
+        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+        declaredReferences.Should().Contain(
+            "ArchLucid.ArtifactSynthesis",
+            because: "Retrieval chunking reads synthesized artifact models directly; shared Contracts types are tracked under Improvement #55 Option B.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Retrieval_csproj_references_Provenance_by_design()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string csprojPath = Path.Combine(root!, "ArchLucid.Retrieval", "ArchLucid.Retrieval.csproj");
+        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+        declaredReferences.Should().Contain(
+            "ArchLucid.Provenance",
+            because: "Retrieval indexing references provenance graph assembly today; event-driven projection is tracked under Improvement #55 Option B.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
     public void Capabilities_Cost_must_not_depend_on_Persistence()
     {
         Assembly capabilitiesCost = typeof(CostAgentHandler).Assembly;

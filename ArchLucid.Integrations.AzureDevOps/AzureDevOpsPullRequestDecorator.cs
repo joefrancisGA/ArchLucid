@@ -17,6 +17,9 @@ public sealed class AzureDevOpsPullRequestDecorator(
     IOptions<AzureDevOpsIntegrationOptions> options,
     ILogger<AzureDevOpsPullRequestDecorator> logger) : IAzureDevOpsPullRequestDecorator
 {
+    /// <summary>Named <see cref="HttpClient" /> key registered in Host.Composition.</summary>
+    public const string HttpClientName = nameof(AzureDevOpsPullRequestDecorator);
+
     private static readonly JsonSerializerOptions CompareJsonOptions = new() { PropertyNameCaseInsensitive = true, };
 
     private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));

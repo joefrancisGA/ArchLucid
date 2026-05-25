@@ -12,12 +12,12 @@ namespace ArchLucid.Integrations.AzureDevOps;
 /// Consumes <see cref="IntegrationEventTypes.AuthorityRunCompletedV1"/> and optionally decorates a configured Azure DevOps PR.
 /// </summary>
 public sealed class AuthorityRunCompletedAzureDevOpsIntegrationEventHandler(
-    IAzureDevOpsPullRequestDecorator decorator,
+    IAzureDevOpsPullRequestDecoratorFactory decoratorFactory,
     IOptions<AzureDevOpsIntegrationOptions> options,
     ILogger<AuthorityRunCompletedAzureDevOpsIntegrationEventHandler> logger) : IIntegrationEventHandler
 {
-    private readonly IAzureDevOpsPullRequestDecorator _decorator =
-        decorator ?? throw new ArgumentNullException(nameof(decorator));
+    private readonly IAzureDevOpsPullRequestDecoratorFactory _decoratorFactory =
+        decoratorFactory ?? throw new ArgumentNullException(nameof(decoratorFactory));
 
     private readonly IOptions<AzureDevOpsIntegrationOptions> _options =
         options ?? throw new ArgumentNullException(nameof(options));
@@ -74,7 +74,9 @@ public sealed class AuthorityRunCompletedAzureDevOpsIntegrationEventHandler(
             payload.PreviousRunId,
             links);
 
-        await _decorator.PostManifestDeltaAsync(request, target, cancellationToken).ConfigureAwait(false);
+        IAzureDevOpsPullRequestDecorator decorator = _decoratorFactory.Create();
+
+        await decorator.PostManifestDeltaAsync(request, target, cancellationToken).ConfigureAwait(false);
     }
 
     private static IReadOnlyList<AuthorityRunCompletedFindingLink> MapFindingLinks(

@@ -30,7 +30,7 @@ This document zooms into the most important components inside each container/lib
 
 #### Connection bridging (SQL)
 
-- **`SqlScopedResolutionDbConnectionFactory`** (`ArchLucid.Api.DataAccess`): implements **`ArchLucid.Persistence.Data.Infrastructure.IDbConnectionFactory`** for the SQL storage path. **`CreateOpenConnectionAsync`** resolves scoped **`ISqlConnectionFactory`** ( **`ResilientSqlConnectionFactory`** and optional **`SessionContextSqlConnectionFactory`** ) so Dapper repositories under **`ArchLucid.Persistence.Data.Repositories`** share the same resilience/RLS path as **`ArchLucid.Persistence`** without registering **`IDbConnectionFactory`** as scoped (hosted health checks resolve from the root provider). **`CreateConnection`** returns an unopened **`SqlConnection`** for lightweight probes that open explicitly.
+- **`SqlScopedResolutionDbConnectionFactory`** (`ArchLucid.Api.DataAccess`): implements **`ArchLucid.Persistence.Data.Infrastructure.IDbConnectionFactory`** for the SQL storage path. **`CreateOpenConnectionAsync`** resolves scoped **`ISqlConnectionFactory`** ( **`ResilientSqlConnectionFactory`** and optional **`SessionContextSqlConnectionFactory`** ) so Dapper repositories under **`ArchLucid.Persistence.Data.Repositories`** share the same resilience/RLS path as **`ArchLucid.Persistence`** without registering **`IDbConnectionFactory`** as scoped (hosted health checks resolve from the root provider). Callers must **`await using`** (or **`using`**) every connection returned from **`CreateOpenConnectionAsync`** — the open connection outlives the internal DI scope. **`CreateConnection`** returns an unopened **`SqlConnection`** for lightweight probes that open explicitly.
 
 #### Manifest / trace repository interfaces
 

@@ -20,8 +20,11 @@ public sealed class AuthorityRunCompletedAzureDevOpsIntegrationEventHandlerTests
         Mock<IAzureDevOpsPullRequestDecorator> decorator,
         AzureDevOpsIntegrationOptions options)
     {
+        Mock<IAzureDevOpsPullRequestDecoratorFactory> factory = new();
+        factory.Setup(f => f.Create()).Returns(decorator.Object);
+
         return new AuthorityRunCompletedAzureDevOpsIntegrationEventHandler(
-            decorator.Object,
+            factory.Object,
             Options.Create(options),
             NullLogger<AuthorityRunCompletedAzureDevOpsIntegrationEventHandler>.Instance);
     }
