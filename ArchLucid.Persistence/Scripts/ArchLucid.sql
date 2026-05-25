@@ -2992,10 +2992,39 @@ BEGIN
             OtelTraceId,
             IsDemoWelcomeRun,
             IsPublicShowcase,
+            IsPinned,
+            IsSample,
             RealModeFellBackToSimulator,
             PilotAoaiDeploymentSnapshot,
-            StructuralExecutionMode)
+            StructuralExecutionMode,
+            RetryCount,
+            LastFailureReason)
         WHERE ArchivedUtc IS NULL;
+END;
+GO
+
+/* DbUp 202 parity: filtered indexes for run-list EXISTS predicates (HasWarnings / open alerts). */
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = N'IX_FindingsSnapshots_HasWarnings_RunId'
+      AND object_id = OBJECT_ID(N'dbo.FindingsSnapshots'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_FindingsSnapshots_HasWarnings_RunId
+        ON dbo.FindingsSnapshots (RunId)
+        WHERE ArchivedUtc IS NULL AND HasWarnings = 1;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = N'IX_AlertRecords_RunId_Open'
+      AND object_id = OBJECT_ID(N'dbo.AlertRecords'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_AlertRecords_RunId_Open
+        ON dbo.AlertRecords (RunId)
+        WHERE Status = N'Open';
 END;
 GO
 
