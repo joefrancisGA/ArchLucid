@@ -1,4 +1,4 @@
-﻿resource "azurerm_mssql_database_long_term_retention_policy" "app" {
+resource "azurerm_mssql_database_long_term_retention_policy" "app" {
   database_id = azurerm_mssql_database.app.id
 
   weekly_retention  = var.sql_ltr_weekly_retention

@@ -1,3 +1,4 @@
+﻿# Mandatory for first plan: set enable_storage_account = true plus resource_group_name and location for a minimal plan.
 enable_storage_account = false
 create_resource_group    = false
 resource_group_name    = "rg-archlucid-data"

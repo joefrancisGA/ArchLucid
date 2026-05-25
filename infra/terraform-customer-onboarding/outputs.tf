@@ -1,4 +1,4 @@
-﻿output "customer_app_id" {
+output "customer_app_id" {
   description = "Paste into ArchLucid hosted extractor configure UI (application/client id)."
   value       = azuread_application.extractor.client_id
 }

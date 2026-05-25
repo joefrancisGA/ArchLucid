@@ -28,6 +28,7 @@ variable "tags" {
   description = "Tags applied to created resources."
 }
 
+# FinOps tag keys merged into azurerm resource tags for cost allocation dashboards.
 variable "finops_environment" {
   type        = string
   default     = ""
@@ -58,6 +59,7 @@ variable "container_app_environment_name" {
   default     = "cae-archlucid"
 }
 
+# VNet integration: subnet must delegate to Microsoft.App/environments for private ingress/egress.
 variable "container_apps_subnet_id" {
   type        = string
   description = "Optional subnet ID for VNet-integrated Container Apps Environment (Microsoft.App/environments delegation). Leave empty for a public-only environment endpoint."
@@ -267,12 +269,14 @@ variable "worker_queue_depth_target_messages_per_revision" {
   }
 }
 
+# KEDA prometheus scaler: scales worker replicas from archlucid_authority_pipeline_work_pending (SQL outbox depth).
 variable "worker_enable_authority_outbox_prom_scale" {
   type        = bool
   description = "When true, add a KEDA prometheus custom scale rule on the worker using worker_authority_outbox_prom_query (default: archlucid_authority_pipeline_work_pending). Does not remove the optional azure-queue scaler. Requires a reachable Prometheus HTTP API (e.g. Azure Monitor managed Prometheus query endpoint); optional bearer token via worker_authority_outbox_prom_bearer_token."
   default     = false
 }
 
+# Prometheus query endpoint for KEDA (e.g. Azure Monitor managed Prometheus). MUST be supplied from Key Vault or pipeline secret when bearer auth is used.
 variable "worker_authority_outbox_prom_server_address" {
   type        = string
   description = "Prometheus server base URL for the KEDA prometheus scaler (e.g. https://{workspace}.eastus2.prometheus.monitor.azure.com for Azure Monitor managed Prometheus)."
@@ -307,6 +311,7 @@ variable "worker_authority_outbox_prom_activation_threshold" {
   }
 }
 
+# MUST be supplied from Key Vault or pipeline secret â€” never hardcode in tfvars.
 variable "worker_authority_outbox_prom_bearer_token" {
   type        = string
   description = "Optional bearer token for Prometheus API queries (sensitive). When non-empty, KEDA authModes=bearer is set. For Azure Monitor managed Prometheus prefer a read-scoped token or workload-identity patterns per your platform team."

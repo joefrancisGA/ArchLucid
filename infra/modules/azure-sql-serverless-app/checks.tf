@@ -1,4 +1,4 @@
-﻿
+
 check "sql_defender_requires_alert_email" {
   assert {
     condition     = !var.enable_sql_defender || length(trimspace(var.alert_email_address)) > 0

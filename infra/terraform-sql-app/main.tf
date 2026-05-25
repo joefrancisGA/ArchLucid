@@ -1,4 +1,4 @@
-﻿terraform {
+terraform {
   required_version = ">= 1.5.0"
   required_providers {
     azurerm = {
@@ -27,15 +27,15 @@ module "azure_sql_serverless_app" {
   private_endpoint_subnet_id = var.private_endpoint_subnet_id
 
 
-  log_analytics_workspace_id = var.log_analytics_workspace_id
-  enable_sql_monitoring      = var.enable_sql_monitoring
-  monitor_action_group_id    = var.monitor_action_group_id
-  enable_sql_defender        = var.enable_sql_defender
-  alert_email_address        = var.alert_email_address
-  sql_audit_retention_days   = var.sql_audit_retention_days
-  enable_sql_tde_cmk              = var.enable_sql_tde_cmk
-  key_vault_name                  = var.key_vault_name
-  key_vault_resource_group_name   = var.key_vault_resource_group_name
+  log_analytics_workspace_id    = var.log_analytics_workspace_id
+  enable_sql_monitoring         = var.enable_sql_monitoring
+  monitor_action_group_id       = var.monitor_action_group_id
+  enable_sql_defender           = var.enable_sql_defender
+  alert_email_address           = var.alert_email_address
+  sql_audit_retention_days      = var.sql_audit_retention_days
+  enable_sql_tde_cmk            = var.enable_sql_tde_cmk
+  key_vault_name                = var.key_vault_name
+  key_vault_resource_group_name = var.key_vault_resource_group_name
 }
 
 

@@ -1,3 +1,5 @@
+﻿# Mandatory for first plan: enable_entra_api_app = true and api_identifier_uri (unique in tenant).
+# Optional: external_id_* for CIAM trial flows. Copy to terraform.tfvars (gitignored).
 enable_entra_api_app = true
 
 api_application_display_name = "ArchLucid API (Production)"

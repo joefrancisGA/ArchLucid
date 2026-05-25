@@ -1,4 +1,4 @@
-﻿# TDE with customer-managed Key Vault key (Improvement #49).
+# TDE with customer-managed Key Vault key (Improvement #49).
 
 data "azurerm_client_config" "tde" {
   count = var.enable_sql_tde_cmk ? 1 : 0

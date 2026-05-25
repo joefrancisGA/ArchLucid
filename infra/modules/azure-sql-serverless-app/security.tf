@@ -1,4 +1,4 @@
-﻿# SQL platform auditing and Microsoft Defender for SQL (Improvement #47).
+# SQL platform auditing and Microsoft Defender for SQL (Improvement #47).
 
 locals {
   sql_auditing_enabled = length(trimspace(coalesce(var.log_analytics_workspace_id, ""))) > 0

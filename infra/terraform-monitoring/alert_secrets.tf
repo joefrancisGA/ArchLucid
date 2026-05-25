@@ -1,4 +1,4 @@
-﻿# Optional Key Vault secret resolution for P0 alert routing (Improvement #46).
+# Optional Key Vault secret resolution for P0 alert routing (Improvement #46).
 # Populate secrets with:
 #   az keyvault secret set --vault-name <kv> --name alert-sms-phone-number --value "<digits-only>"
 #   az keyvault secret set --vault-name <kv> --name alert-voice-phone-number --value "<digits-only>"

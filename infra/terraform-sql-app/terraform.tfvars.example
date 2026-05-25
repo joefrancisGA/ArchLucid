@@ -1,3 +1,4 @@
+﻿# Mandatory for first plan: location, resource_group_name, sql_administrator_login (from Key Vault), and sql_administrator_password (secret).
 location = "eastus2"
 resource_group_name = "rg-archlucid-prod"
 sql_server_name = "sql-archlucid-prod"

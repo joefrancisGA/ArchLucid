@@ -1,4 +1,4 @@
-﻿variable "customer_tenant_id" {
+variable "customer_tenant_id" {
   type        = string
   description = "Customer Entra tenant id where the extractor service principal is created."
 }

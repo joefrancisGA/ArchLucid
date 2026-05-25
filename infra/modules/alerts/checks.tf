@@ -1,3 +1,4 @@
+# check blocks (Terraform >= 1.5): plan-time assertions; failures warn but do not block apply (unlike variable validation).
 check "startup_config_warnings_requires_workspace_when_enabled" {
   assert {
     condition = !var.enabled || (

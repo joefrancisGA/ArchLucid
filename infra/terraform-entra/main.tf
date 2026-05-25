@@ -1,9 +1,11 @@
-# Entra app registrations — Terraform resource labels use `archlucid` naming; first `terraform apply` creates tenant objects.
+# Entra app registrations â€” Terraform resource labels use `archlucid` naming; first `terraform apply` creates tenant objects.
 # Rename via `terraform state mv` during a planned maintenance window.
-# Tracked in docs/library/V1_DEFERRED.md §3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
+# Tracked in docs/library/V1_DEFERRED.md Â§3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
 
+# data sources read existing Entra tenant state; Terraform does not create them.
 data "azuread_client_config" "current" {}
 
+# random_uuid generates stable GUIDs required by Entra app roles and OAuth scopes (ids are immutable after first use).
 resource "random_uuid" "role_admin" {}
 
 resource "random_uuid" "role_operator" {}
@@ -13,9 +15,11 @@ resource "random_uuid" "role_reader" {}
 resource "random_uuid" "oauth_scope_access_as_user" {}
 
 locals {
+  # Gate every resource below: count = enabled ? 1 : 0 means zero Azure objects when enable_entra_api_app is false.
   entra_enabled = var.enable_entra_api_app
 }
 
+# resource blocks declare Entra objects Terraform creates and owns in state.
 resource "azuread_application" "api" {
   count = local.entra_enabled ? 1 : 0
 
@@ -41,6 +45,7 @@ resource "azuread_application" "api" {
     }
   }
 
+  # App roles map to ArchLucid.Api authorization policies (Admin / Operator / Reader).
   app_role {
     allowed_member_types = ["User", "Application"]
     description          = "Full access to ArchLucid API operations."
@@ -68,6 +73,7 @@ resource "azuread_application" "api" {
     value                = "Reader"
   }
 
+  # dynamic emits optional_claims only when expose_roles_in_tokens is true (for_each empty => block omitted).
   dynamic "optional_claims" {
     for_each = var.expose_roles_in_tokens ? [1] : []
     content {

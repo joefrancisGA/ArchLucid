@@ -1,4 +1,4 @@
-﻿locals {
+locals {
   critical_action_group_enabled = local.enabled && var.enable_critical_action_group
 
   alert_pagerduty_webhook_uri_effective = length(trimspace(var.alert_pagerduty_webhook_uri)) > 0 ? trimspace(var.alert_pagerduty_webhook_uri) : (

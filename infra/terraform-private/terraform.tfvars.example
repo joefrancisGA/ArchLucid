@@ -1,3 +1,4 @@
+﻿# Mandatory for first plan: enable_private_data_plane = true and subnet / DNS inputs from terraform-private/variables.tf.
 enable_private_data_plane = true
 create_resource_group     = true
 resource_group_name       = "rg-archlucid-private"

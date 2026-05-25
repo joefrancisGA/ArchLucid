@@ -1,3 +1,4 @@
+# Profile: top-level Front Door Standard/Premium container in Azure (one per environment).
 resource "azurerm_cdn_frontdoor_profile" "main" {
   count = local.fd_enabled ? 1 : 0
 
@@ -29,6 +30,7 @@ resource "azurerm_cdn_frontdoor_firewall_policy" "main" {
   }
 }
 
+# Endpoint: customer-facing hostname attached to the profile (what DNS CNAME targets).
 resource "azurerm_cdn_frontdoor_endpoint" "main" {
   count = local.fd_enabled ? 1 : 0
 
@@ -90,6 +92,7 @@ resource "azurerm_cdn_frontdoor_origin" "secondary" {
   certificate_name_check_enabled = true
 }
 
+# Route: maps URL path patterns on the endpoint to an origin group (traffic steering layer).
 resource "azurerm_cdn_frontdoor_route" "main" {
   count = local.fd_enabled ? 1 : 0
 

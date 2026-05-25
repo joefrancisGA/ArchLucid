@@ -1,4 +1,4 @@
-﻿# P0 (tier: p0) Prometheus alert rules routed to azurerm_monitor_action_group.critical.
+# P0 (tier: p0) Prometheus alert rules routed to azurerm_monitor_action_group.critical.
 # Mirrors ../prometheus/archlucid-alerts.yml P0 labels; requires Azure Monitor workspace scrape
 # with the same OTel metric names as self-hosted Prometheus.
 

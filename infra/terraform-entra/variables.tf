@@ -27,6 +27,7 @@ variable "sign_in_audience" {
   description = "Entra sign-in audience. Use AzureADMultipleOrgs for multi-tenant SaaS (any organizational directory). AzureADMyOrg restricts to the home tenant only."
   default     = "AzureADMultipleOrgs"
 
+  # validation runs during terraform plan (before Entra Graph writes) to reject unsupported sign_in_audience values.
   validation {
     condition = contains(
       ["AzureADMyOrg", "AzureADMultipleOrgs", "AzureADandPersonalMicrosoftAccount", "PersonalMicrosoftAccount"],
