@@ -47,6 +47,7 @@ All other keys are optional unless **When required** in the detailed table says 
 | --- | --- | --- | --- | --- | --- | --- |
 | Hosting | `Hosting:LogStartupConfigurationSummary` | appsettings, env | true | Optional (not mode-gated) | All (Api, Worker, Combined) | Log effective configuration on startup (host). |
 | Hosting | `Hosting:Role` | appsettings, env | Combined | Optional (not mode-gated) | All (per process) | Api, Worker, or Combined host process. |
+| ProductionValidation | `ProductionValidation:RequireTelemetryExport` | appsettings, env | false | Optional (not mode-gated) | All (Api, Worker, Combined) | When true on production-profile hosts, require OTLP, Application Insights, or Prometheus export. |
 | Metering | `Metering:Enabled` | appsettings, env | false | Optional (not mode-gated) | All (Api, Worker, Combined) | Feature metering toggle. |
 | ArchLucid | `ArchLucid:Secrets:Provider` | appsettings, env, KeyVault ref | EnvironmentVariable | Optional (not mode-gated) | All (Api, Worker, Combined) | How secrets (connection strings, API keys) are loaded. |
 | ArchLucid | `ArchLucid:Secrets:KeyVaultUri` | appsettings, env, KeyVault | empty | Optional (If Key Vault routing) | All (Api, Worker, Combined) | Azure Key Vault base URI when the secrets provider needs it. |
@@ -153,6 +154,7 @@ All other keys are optional unless **When required** in the detailed table says 
 | SchemaValidation | `SchemaValidation:EnableDetailedErrors` | appsettings, env | true | Optional (not mode-gated) | All (Api, Worker, Combined) | Verbose schema errors in early validation (dev). |
 | ArchLucidAuth | `ArchLucidAuth:Mode` | appsettings, env | ApiKey | Optional (not mode-gated) | All (Api, Worker, Combined) | Default auth story for the template (dev API key, etc.). |
 | ArchLucidAuth | `ArchLucidAuth:Authority` | appsettings, env | empty | Optional (When OIDC in use) | All (Api, Worker, Combined) | Identity provider authority (OIDC) when that mode is enabled — generic issuer checklist [GENERIC_OIDC_SETUP.md](../runbooks/GENERIC_OIDC_SETUP.md). |
+| ArchLucidAuth | `ArchLucidAuth:JwtSigningPublicKeyPemPath` | appsettings, env | empty | Optional (Non-production JWT PEM path) | All (Api, Worker, Combined) | Local JWT validation PEM path — disallowed on ASP.NET Core Production / `ARCHLUCID_ENVIRONMENT=Production`. |
 | ArchLucidAuth | `ArchLucidAuth:Audience` | appsettings, env | empty | Optional (When OIDC in use) | All (Api, Worker, Combined) | Token audience (OIDC). |
 | ArchLucidAuth | `ArchLucidAuth:DevUserId` | appsettings, env | dev-user | Optional (not mode-gated) | All (Api, Worker, Combined) | Principal id for the development loop. |
 | ArchLucidAuth | `ArchLucidAuth:DevUserName` | appsettings, env | Developer | Optional (not mode-gated) | All (Api, Worker, Combined) | Display name in dev default principal. |
@@ -227,6 +229,10 @@ All other keys are optional unless **When required** in the detailed table says 
 | Logging | `Logging:LogLevel:Default` | appsettings, env | Information | Optional (not mode-gated) | All (Api, Worker, Combined) | Microsoft logger default (framework). |
 | Observability | `Observability:Otlp:Enabled` | appsettings, env | false | Optional (not mode-gated) | All (Api, Worker, Combined) | Export OpenTelemetry to OTLP collector (host). |
 | Observability | `Observability:Otlp:Endpoint` | env, KeyVault | empty | Required — If OTLP enabled | All (Api, Worker, Combined) | OTLP base URL; required when `Observability:Otlp:Enabled` is true. |
+| Observability | `Observability:AzureMonitor:ApplicationInsightsConnectionString` | env, KeyVault | empty | Optional (When App Insights export) | All (Api, Worker, Combined) | Application Insights connection string under `Observability:AzureMonitor` (host OTel wiring). |
+| Observability | `Observability:Prometheus:Enabled` | appsettings, env | false | Optional (not mode-gated) | All (Api, Worker, Combined) | Expose Prometheus scrape endpoint on `/metrics` (trusted network only). |
+| ApplicationInsights | `ApplicationInsights:ConnectionString` | env, KeyVault | empty | Optional (When telemetry export) | All (Api, Worker, Combined) | Application Insights connection string (appsettings or Key Vault reference). |
+| Environment | `APPLICATIONINSIGHTS_CONNECTION_STRING` | env | empty | Optional (When telemetry export) | All (Api, Worker, Combined) | Azure Application Insights connection string env var (preferred on Azure App Service). |
 | Email | `Email:Provider` | appsettings, env | Noop | Optional (not mode-gated) | All (Api, Worker, Combined) | Noop, Smtp, or Azure Communication Services (see `Email` namespace). |
 | Email | `Email:AzureCommunicationServicesEndpoint` | env, KeyVault | empty | Required — If ACS for email in prod | All (Api, Worker, Combined) | Azure Communication Services **Email** resource endpoint (HTTPS) when that provider is selected (see validation). |
 | Environment | `ASPNETCORE_ENVIRONMENT` | env, launchSettings, Service | (unset) | Optional (not mode-gated) | All | ASPNETCORE_ / DOTNET_ENVIRONMENT — cluster role for startup validation. Checked via environment variable, not appsettings path. |

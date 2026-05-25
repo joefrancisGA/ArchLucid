@@ -31,4 +31,33 @@ public sealed class ConfigurationCatalogProductionProfileGuardParityTests
                 + $"{nameof(ProductionProfileFailFastMonitoredConfigurationPaths.KeysConsultedByDescribeFailFastFindings)}. Missing: "
                 + string.Join("; ", uncovered));
     }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Monitored_fail_fast_keys_are_tagged_in_configuration_key_catalog()
+    {
+        Dictionary<string, ConfigurationKeyProductionProfileGuardKind> catalogByPath =
+            ConfigurationKeyCatalog.All.ToDictionary(
+                static entry => entry.ConfigPath,
+                static entry => entry.ProductionProfileGuardKind,
+                StringComparer.OrdinalIgnoreCase);
+
+        List<string> untagged = [];
+
+        foreach (string monitored in ProductionDangerousMisconfigurationLint.MonitoredConfigurationKeys)
+        {
+            if (!catalogByPath.TryGetValue(monitored, out ConfigurationKeyProductionProfileGuardKind guardKind)
+                || guardKind == ConfigurationKeyProductionProfileGuardKind.None)
+            {
+                untagged.Add(monitored);
+            }
+        }
+
+        untagged.Should()
+            .BeEmpty(
+                "every key consulted by production-profile fail-fast lint must be tagged in "
+                + nameof(ConfigurationKeyCatalog)
+                + " with DeveloperBypass or SoftGuard. Missing: "
+                + string.Join("; ", untagged));
+    }
 }

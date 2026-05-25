@@ -14,8 +14,8 @@
 | [INV-002](#inv-002-structural-execution-mode) | Every persisted agent outcome and buyer-visible run summary carries an explicit structural execution mode (Real / Simulator / Fallback / Mixed); “unknown” is invalid. | P0 | NOT NULL persistence + schema + OpenAPI/UI contract tests |
 | [INV-003](#inv-003-audit-path-contracts) | User-visible transactional paths treat audit as part of the operation contract; informational async audit remains best-effort with retry + metrics per TB-001. | P1 | Narrow transactional tests + disallow silent drops on synchronous governance paths |
 | [INV-004](#inv-004-durable-cost-guardrails) | LLM cost and quota reservations are coherent across replicas (durable or equivalent), with pre-call reservation and post-call settlement. | P1 | Dual-replica integration tests against one SQL budget row |
-| [INV-005](#inv-005-production-host-fail-closed) | Staging / Production hosts fail fast when developer-only auth, missing production secrets disposition, or documented soft-guard misconfigurations are detected. | P0 | `IStartupValidator` + `StartupValidatorTests` + catalog parity CI |
-| [INV-006](#inv-006-single-composition-root) | Production DI registration for app lifetimes is owned by `ArchLucid.Host.Composition` only; stray `Add*` helpers elsewhere are forbidden or allow-listed. | P2 | Architecture test scanning `IServiceCollection` extensions |
+| [INV-005](#inv-005-production-host-fail-closed) | Staging / Production hosts fail fast when developer-only auth, missing production secrets disposition, or documented soft-guard misconfigurations are detected. | P0 | **Enforced** — `ConfigurationCatalogProductionProfileGuardParityTests` + `ProductionDangerousMisconfigurationLint` in `ArchLucidConfigurationRules` |
+| [INV-006](#inv-006-single-composition-root) | Production DI registration for app lifetimes is owned by `ArchLucid.Host.Composition` only; stray `Add*` helpers elsewhere are forbidden or allow-listed. | P2 | **Enforced** — `SingleCompositionRootServiceCollectionExtensionsTests` |
 | [INV-007](#inv-007-injected-time) | Clock reads use `TimeProvider` / `IClock` only; naked `DateTime*.UtcNow` banned in production assemblies (except clock adapter internals). | P2 | Roslyn analyzer |
 | [INV-008](#inv-008-cancellation-forwarding) | Public async boundaries accept and forward `CancellationToken` through to I/O including LLM and connector HTTP. | P2 | Analyzer on `I*Service` + integration smoke |
 | [INV-009](#inv-009-mutating-http-idempotency) | Non-idempotent HTTP mutations require natural idempotency keys or explicit `Idempotency-Key` handling with durable replay protection. | P2 | Filter / attribute + conformance tests |
@@ -80,6 +80,8 @@
 
 **Enforcement sketch:** Extend startup validation rules + `StartupValidatorTests` + diff `ConfigurationKeyCatalog` vs validator registry in CI.
 
+**Enforcement (2026-05-25):** `ProductionDangerousMisconfigurationLint` wired into `ArchLucidConfigurationRules.CollectErrors`; `ConfigurationCatalogProductionProfileGuardParityTests` (bidirectional catalog parity); `ProductionDangerousMisconfigurationLintTests` and `ArchLucidConfigurationRulesTests` fail-fast cases; advisory paths increment `archlucid_startup_config_warnings_total` (TB-002).
+
 ---
 
 ## INV-006: Single composition root
@@ -89,6 +91,8 @@
 **Why:** Prevents hidden singletons, captive dependencies, and test/prod wiring drift across 30+ projects.
 
 **Enforcement sketch:** Architecture test allow-list for `IServiceCollection` extension methods.
+
+**Enforcement (2026-05-25):** `SingleCompositionRootServiceCollectionExtensionsTests` scans product assemblies for public static `IServiceCollection` entry points; allow-list is `ArchLucid.Host.Composition` and `ArchLucid.TestSupport` only.
 
 ---
 

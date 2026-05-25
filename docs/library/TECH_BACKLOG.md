@@ -13,7 +13,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | ID | Title | Priority driver | Size |
 |----|-------|----------------|------|
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
-| TB-010 | Architecture invariant enforcement — Wave A (INV-001 done, INV-005, INV-006) | Multi-tenant + prod boot safety — **INV-001 shipped 2026-05-09**; remaining: startup validator parity + composition-root scan | S (remainder) |
+| TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | Honesty + economics — persisted execution mode, durable budget coherence, single quality-gate truth, replay scope isolation | L |
 | TB-012 | Architecture invariant enforcement — Wave C (INV-007–INV-011, INV-014–INV-015) | Contributor hygiene — time/cancellation/idempotency/HTTP/analyzer pack + webhook ordering + INV-003 path markers | L |
 | TB-022 | `LlmCostEstimator` — `int` overflow in aggregator token-count fields | Done (Improvement **#19**, 2026-05-25) | XS |
@@ -52,7 +52,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-010 — Invariant Wave A — tenant boundary + fail-closed boot + composition root
 
-**Status (2026-05-09):** INV-001 (tenant identity boundary Roslyn analyzer ARCH001) **shipped** — see assessment Improvement 3. Remaining: INV-005 startup-validator catalog parity and INV-006 composition-root architecture test — see assessment Improvement 13.
+**Status (2026-05-25):** **Done** (Improvement **#21**) — INV-001 (tenant identity boundary Roslyn analyzer ARCH001) shipped 2026-05-09; INV-005 startup-validator catalog parity (`ConfigurationCatalogProductionProfileGuardParityTests` + catalog guard metadata); INV-006 composition-root architecture test (`SingleCompositionRootServiceCollectionExtensionsTests`).
 
 **Covers:** **INV-001**, **INV-005**, **INV-006**.
 

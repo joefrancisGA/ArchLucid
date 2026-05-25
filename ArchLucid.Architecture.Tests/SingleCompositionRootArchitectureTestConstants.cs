@@ -24,6 +24,7 @@ public static class SingleCompositionRootArchitectureTestConstants
         "ArchLucid.Integrations.AzureExtractor",
         "ArchLucid.KnowledgeGraph",
         "ArchLucid.Notifications",
+        "ArchLucid.Notifications.Email.RazorLight",
         "ArchLucid.Persistence",
         "ArchLucid.Provenance",
         "ArchLucid.Retrieval",

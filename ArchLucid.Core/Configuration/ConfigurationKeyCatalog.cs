@@ -10,12 +10,15 @@ public static class ConfigurationKeyCatalog
 
     private static IReadOnlyList<ConfigurationKeyEntry> Build()
     {
-        return new List<ConfigurationKeyEntry>(161)
+        return new List<ConfigurationKeyEntry>(168)
         {
             E("Hosting", "Hosting:LogStartupConfigurationSummary", M("appsettings", "env"), "true", "—",
                 "Log effective configuration on startup (host).", ConfigKeyRequirementKind.None),
             E("Hosting", "Hosting:Role", M("appsettings", "env"), "Combined", "—",
                 "Api, Worker, or Combined host process.", ConfigKeyRequirementKind.None),
+            E("ProductionValidation", "ProductionValidation:RequireTelemetryExport", M("appsettings", "env"), "false", "—",
+                "When true on production-profile hosts, require OTLP, Application Insights, or Prometheus export.",
+                ConfigKeyRequirementKind.None, ConfigurationKeyProductionProfileGuardKind.SoftGuard),
             E("Metering", "Metering:Enabled", M("appsettings", "env"), "false", "—", "Feature metering toggle.",
                 ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:Secrets:Provider", M("appsettings", "env", "KeyVault ref"), "EnvironmentVariable",
@@ -268,6 +271,10 @@ public static class ConfigurationKeyCatalog
             E("ArchLucidAuth", "ArchLucidAuth:Authority", M("appsettings", "env"), "empty", "When OIDC in use",
                 "Identity provider authority (OIDC) when that mode is enabled.", ConfigKeyRequirementKind.None,
                 ConfigurationKeyProductionProfileGuardKind.SoftGuard),
+            E("ArchLucidAuth", "ArchLucidAuth:JwtSigningPublicKeyPemPath", M("appsettings", "env"), "empty",
+                "Non-production JWT PEM path",
+                "Local JWT validation PEM path — disallowed on ASP.NET Core Production / ARCHLUCID_ENVIRONMENT=Production.",
+                ConfigKeyRequirementKind.None, ConfigurationKeyProductionProfileGuardKind.SoftGuard),
             E("ArchLucidAuth", "ArchLucidAuth:Audience", M("appsettings", "env"), "empty", "When OIDC in use",
                 "Token audience (OIDC).", ConfigKeyRequirementKind.None),
             E("ArchLucidAuth", "ArchLucidAuth:DevUserId", M("appsettings", "env"), "dev-user", "—",
@@ -422,6 +429,20 @@ public static class ConfigurationKeyCatalog
             E("Observability", "Observability:Otlp:Endpoint", M("env", "KeyVault"), "empty", "If OTLP enabled",
                 "OTLP base URL; required when `Observability:Otlp:Enabled` is true.",
                 ConfigKeyRequirementKind.WhenOtlpEnabled, ConfigurationKeyProductionProfileGuardKind.SoftGuard),
+            E("Observability", "Observability:AzureMonitor:ApplicationInsightsConnectionString", M("env", "KeyVault"),
+                "empty", "When App Insights export",
+                "Application Insights connection string under Observability:AzureMonitor (host OTel wiring).",
+                ConfigKeyRequirementKind.None, ConfigurationKeyProductionProfileGuardKind.SoftGuard),
+            E("Observability", "Observability:Prometheus:Enabled", M("appsettings", "env"), "false", "—",
+                "Expose Prometheus scrape endpoint on /metrics (trusted network only).", ConfigKeyRequirementKind.None,
+                ConfigurationKeyProductionProfileGuardKind.SoftGuard),
+            E("ApplicationInsights", "ApplicationInsights:ConnectionString", M("env", "KeyVault"), "empty",
+                "When telemetry export",
+                "Application Insights connection string (appsettings or Key Vault reference).",
+                ConfigKeyRequirementKind.None, ConfigurationKeyProductionProfileGuardKind.SoftGuard),
+            E("Environment", "APPLICATIONINSIGHTS_CONNECTION_STRING", M("env"), "empty", "When telemetry export",
+                "Azure Application Insights connection string env var (preferred on Azure App Service).",
+                ConfigKeyRequirementKind.None, ConfigurationKeyProductionProfileGuardKind.SoftGuard),
             E("Email", "Email:Provider", M("appsettings", "env"), "Noop", "—",
                 "Noop, Smtp, or Azure Communication Services (see `Email` namespace).", ConfigKeyRequirementKind.None),
             E("Email", "Email:AzureCommunicationServicesEndpoint", M("env", "KeyVault"), "empty",
