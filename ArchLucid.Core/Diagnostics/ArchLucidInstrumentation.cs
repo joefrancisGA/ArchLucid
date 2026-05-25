@@ -788,6 +788,12 @@ public static class ArchLucidInstrumentation
             "archlucid_data_consistency_orphans_detected_total",
             description: "Orphan authority-chain rows detected (labels table, column; e.g. GoldenManifests.RunId).");
 
+    /// <summary>Executive ROI background jobs skipped a tenant because tenant/workspace/project scope failed validation (fail-closed).</summary>
+    public static readonly Counter<long> ExecutiveRoiBackgroundScopeViolationsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_executive_roi_background_scope_violations_total",
+            description: "Leader-elected Executive ROI cache warmup / savings gauge skipped a tenant due to invalid ambient scope (labels reason).");
+
     /// <summary>Environment-graded alert when orphan count meets threshold (labels <c>table</c>, <c>column</c>).</summary>
     public static readonly Counter<long> DataConsistencyAlerts =
         AppMeter.CreateCounter<long>(

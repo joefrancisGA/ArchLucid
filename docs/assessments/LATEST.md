@@ -1,17 +1,17 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 93.45%
+# ArchLucid Assessment – (A) Headline Readiness: 93.48%
 
 *This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items such as SOC 2 CPA attestation, third-party pen tests, MCP, the commerce un-hold, multi-cloud (AWS/GCP) analysis, multi-region active/active, automated tenant erasure, Graph-RAG / agentic retrieval, hosted Tier 2 continuous polling, **non-SCIM bulk-CSV user onboarding (V2)**, **self-hosted Enterprise commercial deals (V2)**, and related sub-milestones (capacity guide, private-endpoint reference architecture).*
 
 **Score ledger:** Incremental history through legacy **archived #1–#57** and owner rescoring (**87.74% → 92.63%**) lives in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md).
 
-**Rescore 2026-05-25 (post Improvements #1–#10):** Headline **93.45%** (+0.64% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#11–#25** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
+**Rescore 2026-05-25 (post Improvements #1–#11):** Headline **93.48%** (+0.67% documented: #1 eval baseline CI +0.02%, #2 gate telemetry +0.02%, **#3 RAG follow-ons +0.19%**, **#4 USD savings gauge +0.09%**, **#5 Team expansion CTA +0.10%**, **#6 quote SLA visibility +0.05%**, **#7 custom pack GTM +0.08%**, **#8 Azure Retail cost grounding +0.04%**, **#9 platform docs corpus +0.03%**, **#10 AlternativePathsConsidered +0.02%**, **#11 Executive ROI RLS hardening +0.03%**). **All V1 GA gates shipped 2026-05-25.** Post-GA **#12–#25** remain. V1 quality-gate posture: **fail-fast** — no auto-retry on reject.
 
 ## Executive Summary
 
 **`(A)` Overall Headline Readiness**
-ArchLucid is ready for **V1 GA at 93.45%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#10 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM, Azure Retail cost grounding, platform docs corpus, finding-engine `AlternativePathsConsidered`). **No `(A)` items remain in the V1 GA gate set.**
+ArchLucid is ready for **V1 GA at 93.48%**. The core architecture, observability, audit, governance, and trial-funnel plumbing are production-ready. The agent-output evaluation harness (structural + semantic + faithfulness scoring, quality gate, golden cohort, `eval_agent_corpus.py`) **ships today** — prior assessments that treated “no evaluation harness” as a `(A)` gap were overstated. **Improvements #1–#11 shipped 2026-05-25** (eval baseline CI warn-soak, classified gate telemetry, RAG Batch 1 follow-ons, USD savings gauge, Team expansion CTA, quote SLA visibility, custom policy pack GTM, Azure Retail cost grounding, platform docs corpus, finding-engine `AlternativePathsConsidered`). **No `(A)` items remain in the V1 GA gate set.**
 
 **`(B)` Procurement / Market-Motion Realism (Informational — zero weight on `(A)`)**
 Enterprise procurement teams will still ask for CPA-issued SOC 2 Type II, an external pen-test summary, automated GDPR erasure, multi-region active/active, AWS/GCP target analysis, and **self-hosted / on-premises deployment**. Every one of these items is **explicitly out of `(A)` scope** per `V1_DEFERRED.md` §6c, §6l, §6m, §6n, **§6t**, and the scope rule. The right posture is honest trust-center narrative — **V1 GA is hosted SaaS**; self-hosted Enterprise is **V2** — not score deductions.
@@ -112,7 +112,7 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Recommendations:** Enable per-tenant RAG tags only for bounded tenant counts.
 - **Status:** **#6 shipped 2026-05-25.** **#4 shipped 2026-05-25.** **#2 shipped 2026-05-25.**
 
-**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.45%** (documented +0.64% from shipped **#1–#10**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
+**Headline check:** `(90×8 + 96×8 + 94×6 + 91×7 + 94×5 + 97×4 + 99×2 + 100×2 + 99×1) ÷ 43 = **93.48%** (documented +0.67% from shipped **#1–#11**). Total weighted deficiency **283** (informational; headline uses scores, not deficiency sum).
 
 ---
 
@@ -161,7 +161,7 @@ CPA SOC 2 Type II, third-party pen-test publication, automated GDPR tenant erasu
 
 Open mitigations only — active Improvements **#1–#25**. Legacy shipped work uses **archived #1–#57** in the archive file.
 
-1. **Cross-tenant ROI aggregation could leak data:** RLS or `SESSION_CONTEXT` failure during `ExecutiveRoiCacheWarmupHostedService` or background rollups — **#11** (post-GA).
+1. **Cross-tenant ROI aggregation could leak data:** ~~RLS or `SESSION_CONTEXT` failure during `ExecutiveRoiCacheWarmupHostedService` or background rollups — **#11** (post-GA).~~ **Mitigated 2026-05-25** — **`ExecutiveRoiBackgroundTenantRollup`** + fail-closed **`ExecutiveRoiBackgroundScopeGuard`** + **`archlucid_executive_roi_background_scope_violations_total`** telemetry.
 2. **AgentResult blob storage lacks storage-account lifecycle policy:** Orphan cleanup runs in-app; Azure blob tiering and retention are not codified in Terraform — **#13** (post-GA).
 3. **Integration outbox dead letters lack operator UI:** Sustained webhook failure still requires SQL or CLI for bulk DLQ triage — **#14** (post-GA).
 5. **Azure OpenAI circuit breakers may trip too aggressively:** Latency brownouts can fail entire authority runs instead of degrading gracefully — **#15** (post-GA).
@@ -177,7 +177,7 @@ Open mitigations only — active Improvements **#1–#25**. Legacy shipped work 
 
 ## Most Important Truth
 
-ArchLucid is **ready to ship V1 GA at 93.45%**. **Improvements #1–#10 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#11–#25** do not move headline.
+ArchLucid is **ready to ship V1 GA at 93.48%**. **Improvements #1–#11 shipped 2026-05-25**. The **V1 GA gate set is closed**. Post-GA **#12–#25** do not move headline.
 
 ---
 
@@ -186,7 +186,7 @@ ArchLucid is **ready to ship V1 GA at 93.45%**. **Improvements #1–#10 shipped 
 Shipped improvements (**archived #1–#57**, 2026-05-24 – 2026-05-25) are documented in [`ARCHIVE_2026_05_25.md`](ARCHIVE_2026_05_25.md). **Active tasks in this file: #1–#25** (renumbered 2026-05-25; do not confuse with legacy archive IDs).
 
 **V1 GA gates (ship before GA):** **None remaining — #1–#7 shipped 2026-05-25.**
-**Additional V1 actionable (post-GA or parallel):** **#11–#25** (15 items).
+**Additional V1 actionable (post-GA or parallel):** **#12–#25** (14 items).
 **Total:** **25** actionable improvements in this assessment.
 
 ### 1. Wire Agent-Output Eval Corpus Baseline Regression — **SHIPPED 2026-05-25**
@@ -592,11 +592,11 @@ Constraints: Do NOT change finding severity, rule fire conditions, or governance
 Acceptance Criteria: Semantic eval scenarios show improved depth scores; no behavior change in Decisioning rule engine tests.
 ```
 
-### 11. Harden Cross-Tenant Executive ROI Background Aggregation for RLS (actionable now — post-GA)
+### 11. Harden Cross-Tenant Executive ROI Background Aggregation for RLS — **SHIPPED 2026-05-25**
 - **Why it matters:** `ExecutiveRoiCacheWarmupHostedService` and background rollups aggregate across tenants. A scoping or `SESSION_CONTEXT` failure could leak cross-tenant savings totals — a high-severity correctness risk.
-- **Expected impact:** Reliability (+1 pt), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: **+0.03%** when shipped. **Do not rescored until shipped.**
+- **Expected impact:** Reliability (+1 pt), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: **+0.03%** when shipped. **Rescored 2026-05-25.**
 - **Affected qualities:** Reliability, Proof-of-ROI Readiness.
-- **Actionable now:** Yes — post-GA; before scaling tenant count.
+- **Actionable now:** ~~Yes — post-GA; before scaling tenant count.~~ **Shipped 2026-05-25.**
 ```cursor
 Audit and harden cross-tenant Executive ROI background jobs for RLS isolation (Improvement #11).
 

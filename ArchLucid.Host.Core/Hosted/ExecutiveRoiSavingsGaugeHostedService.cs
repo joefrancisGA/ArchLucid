@@ -4,8 +4,6 @@ using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Core.Scoping;
-using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Hosting;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -94,41 +92,20 @@ public sealed class ExecutiveRoiSavingsGaugeHostedService(
         ITenantRepository tenantRepository = scope.ServiceProvider.GetRequiredService<ITenantRepository>();
         IExecutiveRoiSummaryService roiService = scope.ServiceProvider.GetRequiredService<IExecutiveRoiSummaryService>();
 
-        IReadOnlyList<TenantRecord> tenants = await tenantRepository.ListAsync(cancellationToken).ConfigureAwait(false);
         List<(Guid TenantId, decimal SavingsUsd)> perTenantRows = [];
         decimal platformTotal = 0m;
 
-        foreach (TenantRecord tenant in tenants)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            if (tenant.SuspendedUtc is not null || tenant.OffboardedUtc is not null)
-                continue;
-
-            TenantWorkspaceLink? workspace =
-                await tenantRepository.GetFirstWorkspaceAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
-
-            if (workspace is null)
-                continue;
-
-            ScopeContext tenantScope = new()
+        await ExecutiveRoiBackgroundTenantRollup.ForEachActiveTenantAsync(
+            tenantRepository,
+            async (tenantScope, ct) =>
             {
-                TenantId = tenant.Id,
-                WorkspaceId = workspace.WorkspaceId,
-                ProjectId = workspace.DefaultProjectId,
-            };
-
-            ExecutiveRoiSummaryResponse summary;
-
-            using (AmbientScopeContext.Push(tenantScope))
-            {
-                summary = await roiService.BuildAsync(cancellationToken).ConfigureAwait(false);
-            }
-
-            decimal tenantTotal = summary.TotalEstimatedUsdSavings;
-            platformTotal += tenantTotal;
-            perTenantRows.Add((tenant.Id, tenantTotal));
-        }
+                ExecutiveRoiSummaryResponse summary = await roiService.BuildAsync(ct).ConfigureAwait(false);
+                decimal tenantTotal = summary.TotalEstimatedUsdSavings;
+                platformTotal += tenantTotal;
+                perTenantRows.Add((tenantScope.TenantId, tenantTotal));
+            },
+            _logger,
+            cancellationToken).ConfigureAwait(false);
 
         Measurement<double>[] measurements = ExecutiveRoiSavingsGaugeTelemetry.BuildMeasurements(
             platformTotal,
