@@ -21,10 +21,7 @@ export type CorePilotCommitContext = {
 };
 
 function isCommittedRunSummary(run: RunSummary): boolean {
-  return (
-    (typeof run.goldenManifestId === "string" && run.goldenManifestId.length > 0) ||
-    run.hasGoldenManifest === true
-  );
+  return run.hasGoldenManifest === true;
 }
 
 /**

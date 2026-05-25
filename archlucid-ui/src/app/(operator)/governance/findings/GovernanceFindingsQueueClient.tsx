@@ -14,7 +14,7 @@ import { getRunExplanationSummary, listRunsByProjectPaged } from "@/lib/api";
 import { severityFromTrace } from "@/lib/executive-finding-severity";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
-import { isStaticDemoPayloadFallbackActiveForRun, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackActiveForRun, isStaticDemoPayloadFallbackEnabled, isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import {
   BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD,
@@ -130,7 +130,9 @@ function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): 
     .map((t) => {
       const findingId = t.findingId.trim();
       const titleRaw = (t.findingTitle ?? findingId).trim();
-      const manifestRaw = (run.goldenManifestId ?? "").trim();
+      const manifestRaw = isDemoRunIdEligibleForStaticFallback(run.runId)
+        ? SHOWCASE_STATIC_DEMO_MANIFEST_ID
+        : "—";
 
       const firstAction = (t.recommendedActions ?? []).find((a: string) => a.trim().length > 0)?.trim();
 
@@ -192,8 +194,12 @@ function governanceQueueGraphEvidenceHref(row: GovernanceFindingQueueRow): strin
   return null;
 }
 
-function manifestHref(manifestId: string): string {
-  return `/manifests/${encodeURIComponent(manifestId)}`;
+function manifestRecordHref(runId: string, manifestId: string): string {
+  if (manifestId !== "—") {
+    return `/manifests/${encodeURIComponent(manifestId)}`;
+  }
+
+  return `/reviews/${encodeURIComponent(runId)}/manifest`;
 }
 
 function governanceQueueSeverityCell(row: GovernanceFindingQueueRow, buyerPolishedShell: boolean): ReactElement {
@@ -575,16 +581,12 @@ export default function GovernanceFindingsQueueClient() {
                       </td>
                       {buyerPolishedShell ? null : (
                         <td className="px-3 py-2 align-top font-mono text-xs text-neutral-700 dark:text-neutral-300">
-                          {row.manifestId !== "—" ? (
-                            <Link
-                              className="font-sans text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                              href={manifestHref(row.manifestId)}
-                            >
-                              Open manifest
-                            </Link>
-                          ) : (
-                            "—"
-                          )}
+                          <Link
+                            className="font-sans text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                            href={manifestRecordHref(row.runId, row.manifestId)}
+                          >
+                            Open manifest
+                          </Link>
                         </td>
                       )}
                       <td className="px-3 py-2 align-top">{row.status}</td>
@@ -642,16 +644,12 @@ export default function GovernanceFindingsQueueClient() {
                       <div>
                         <div className="font-medium text-neutral-600 dark:text-neutral-400">Manifest</div>
                         <div className="mt-0.5">
-                          {row.manifestId !== "—" ? (
-                            <Link
-                              className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                              href={manifestHref(row.manifestId)}
-                            >
-                              Open manifest
-                            </Link>
-                          ) : (
-                            <span className="text-neutral-500 dark:text-neutral-400">—</span>
-                          )}
+                          <Link
+                            className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                            href={manifestRecordHref(row.runId, row.manifestId)}
+                          >
+                            Open manifest
+                          </Link>
                         </div>
                       </div>
                     )}

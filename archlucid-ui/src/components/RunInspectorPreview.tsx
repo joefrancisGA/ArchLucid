@@ -70,7 +70,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const compareHref = comparePageHrefAdaptive(run.runId);
   const graphEvidenceHref = `/graph?runId=${encodeURIComponent(run.runId)}`;
   const replayHref = `/replay?runId=${encodeURIComponent(run.runId)}`;
-  const manifestId = run.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID;
+  const manifestHref = signedManifestExplore.href;
   const findingHref = showcaseStory
     ? showcaseUseWorkspaceQuickLinks
       ? `${workspaceHref}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`
@@ -99,7 +99,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
       : showcaseWalkthroughHref
     : `${workspaceHref}#run-explanation`;
   const artifactsQuickHref = showcaseStory
-    ? `/manifests/${encodeURIComponent(manifestId)}`
+    ? manifestHref
     : `${workspaceHref}#artifacts-exports`;
   const timelineQuickHref = showcaseStory
     ? showcaseUseWorkspaceQuickLinks
@@ -272,7 +272,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                   <>
                     {!buyerSafePrimary ? (
                       <Button variant="outline" size="sm" className="w-full" asChild>
-                        <Link href={`/manifests/${encodeURIComponent(manifestId)}`}>Open manifest</Link>
+                        <Link href={manifestHref}>Open manifest</Link>
                       </Button>
                     ) : null}
                     {hasFindingsLink ? (
@@ -338,7 +338,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                 <div className="mt-2 flex flex-wrap gap-2">
                   {!buyerSafePrimary ? (
                     <Button variant="outline" size="sm" className="h-8" asChild>
-                      <Link href={`/manifests/${encodeURIComponent(manifestId)}`}>Manifest</Link>
+                      <Link href={manifestHref}>Manifest</Link>
                     </Button>
                   ) : null}
                   {hasFindingsLink ? (

@@ -23,10 +23,9 @@ describe("compare-baseline-run", () => {
     window.localStorage.removeItem(COMPARE_BASELINE_RUN_STORAGE_KEY);
   });
 
-  it("isRunCommittedForBaseline respects manifest flag and id", () => {
+  it("isRunCommittedForBaseline respects hasGoldenManifest", () => {
     expect(isRunCommittedForBaseline(minimalRun({ hasGoldenManifest: false }))).toBe(false);
     expect(isRunCommittedForBaseline(minimalRun({ hasGoldenManifest: true }))).toBe(true);
-    expect(isRunCommittedForBaseline(minimalRun({ goldenManifestId: "  m-1  " }))).toBe(true);
   });
 
   it("persists and reads baseline run id", () => {

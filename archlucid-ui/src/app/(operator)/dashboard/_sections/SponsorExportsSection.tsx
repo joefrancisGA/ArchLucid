@@ -29,15 +29,9 @@ export function SponsorExportsSection() {
       const committed = filterCommittedRunsForPicker(items);
 
       for (const run of committed) {
-        const manifestId = run.goldenManifestId?.trim();
-
-        if (manifestId === undefined || manifestId.length === 0) {
-          continue;
-        }
-
         try {
           const response = await fetch(
-            `/api/proxy/v1/artifacts/manifests/${encodeURIComponent(manifestId)}/artifacts`,
+            `/api/proxy/v1/runs/${encodeURIComponent(run.runId)}/artifacts`,
             mergeRegistrationScopeForProxy({ method: "GET" }),
           );
 
@@ -45,12 +39,15 @@ export function SponsorExportsSection() {
             continue;
           }
 
-          const artifacts = (await response.json()) as Array<{ artifactId?: string }>;
+          const artifacts = (await response.json()) as Array<{ artifactId?: string; manifestId?: string | null }>;
           const hasBoard = artifacts.some(
             (row) => (row.artifactId ?? "").toLowerCase() === "architecture-review-board",
           );
+          const manifestId = artifacts
+            .map((row) => (row.manifestId ?? "").trim())
+            .find((id) => id.length > 0);
 
-          if (hasBoard && !cancelled) {
+          if (hasBoard && manifestId !== undefined && !cancelled) {
             setSponsorDocx({ runId: run.runId, manifestId });
             break;
           }

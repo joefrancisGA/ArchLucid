@@ -105,11 +105,7 @@ export async function loadRunsPageModel(resolved: RunsPageSearchParams): Promise
     }
   }
 
-  const firstCommittedRunId: string | null =
-    runs.find(
-      (r) =>
-        (typeof r.goldenManifestId === "string" && r.goldenManifestId.length > 0) || r.hasGoldenManifest === true,
-    )?.runId ?? null;
+  const firstCommittedRunId: string | null = runs.find((r) => r.hasGoldenManifest === true)?.runId ?? null;
 
   const welcomeOnboardingEligible =
     loadFailure === null && malformedMessage === null && totalCount === 0 && !usedStaticRunsFallback;

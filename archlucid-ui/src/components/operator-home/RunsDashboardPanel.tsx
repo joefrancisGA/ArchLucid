@@ -39,7 +39,7 @@ import {
   getShowcaseWalkthroughHref,
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer-safe-review-navigation";
-import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID, SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID, SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -443,17 +443,7 @@ export function RunsDashboardPanel() {
                           <Link href={`/reviews/${encodeURIComponent(showcaseDemoRun.runId)}`}>Review package</Link>
                         </Button>
                         <Button asChild variant="outline" size="sm" className="h-8">
-                          <Link
-                            href={
-                              (showcaseDemoRun.goldenManifestId ?? "").trim() === SHOWCASE_STATIC_DEMO_MANIFEST_ID
-                                ? getShowcaseManifestHref()
-                                : `/manifests/${encodeURIComponent(
-                                    showcaseDemoRun.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID,
-                                  )}`
-                            }
-                          >
-                            Finalized manifest
-                          </Link>
+                          <Link href={getShowcaseManifestHref()}>Finalized manifest</Link>
                         </Button>
                         <Button asChild variant="outline" size="sm" className="h-8">
                           <Link

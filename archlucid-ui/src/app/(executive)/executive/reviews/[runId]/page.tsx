@@ -152,7 +152,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
       ) : null}
 
       {summary !== null ? (
-        <ExecutiveReviewFirstViewport runId={runId} goldenManifestId={runSummary?.goldenManifestId} summary={summary} />
+        <ExecutiveReviewFirstViewport runId={runId} goldenManifestId={undefined} summary={summary} />
       ) : null}
 
       {summary !== null ? (

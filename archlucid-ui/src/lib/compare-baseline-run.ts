@@ -8,13 +8,7 @@ export const COMPARE_BASELINE_CHANGED_EVENT = "archlucid:compare-baseline-change
 
 /** True when the run has a committed golden manifest suitable as a compare anchor. */
 export function isRunCommittedForBaseline(run: RunSummary): boolean {
-  if (run.hasGoldenManifest === true) {
-    return true;
-  }
-
-  const manifestId = run.goldenManifestId?.trim() ?? "";
-
-  return manifestId.length > 0;
+  return run.hasGoldenManifest === true;
 }
 
 export function readCompareBaselineRunId(): string | null {

@@ -230,10 +230,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
           first !== undefined &&
           (first.hasFindingsSnapshot === true ||
             first.hasGraphSnapshot === true ||
-            first.hasContextSnapshot === true ||
-            (typeof first.findingsSnapshotId === "string" && first.findingsSnapshotId.length > 0) ||
-            (typeof first.graphSnapshotId === "string" && first.graphSnapshotId.length > 0) ||
-            (typeof first.contextSnapshotId === "string" && first.contextSnapshotId.length > 0));
+            first.hasContextSnapshot === true);
 
         setLatestRunPipelineSignal(pipelineSignal);
       } catch {

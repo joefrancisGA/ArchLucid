@@ -18,7 +18,7 @@ function runHeadline(run: RunSummary): string {
 }
 
 function isFinalizedReview(run: RunSummary): boolean {
-  return run.hasGoldenManifest === true || (run.goldenManifestId?.trim().length ?? 0) > 0;
+  return run.hasGoldenManifest === true;
 }
 
 /**
