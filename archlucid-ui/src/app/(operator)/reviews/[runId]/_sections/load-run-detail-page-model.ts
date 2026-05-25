@@ -131,13 +131,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     let minUtc: string | null = null;
 
     for (const r of projectRuns) {
-      if (r.graphSnapshotId === undefined || r.graphSnapshotId === null) {
-        continue;
-      }
-
-      const gid = String(r.graphSnapshotId).trim();
-
-      if (gid.length === 0) {
+      if (r.hasGraphSnapshot !== true) {
         continue;
       }
 

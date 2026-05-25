@@ -71,6 +71,9 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
         OpenApiContractBackwardCompatibilityChecker.ThrowIfUnreadable(canonicalExpected, "snapshot baseline");
         OpenApiContractBackwardCompatibilityChecker.ThrowIfUnreadable(canonicalActual, "generated /openapi/v1.json");
 
+        if (JsonNode.DeepEquals(canonicalExpected, canonicalActual))
+            return;
+
         OpenApiContractBackwardCompatibilityChecker.AssertAdditiveCompatible(baselineObject, actualObject);
     }
 

@@ -16,36 +16,16 @@ public sealed class RunSummaryResponseOpenApiContractTransformer : IOpenApiDocum
         _ = context;
         _ = cancellationToken;
 
-        if (document.Components?.Schemas is null || !document.Components.Schemas.TryGetValue(RunSummarySchemaKey, out IOpenApiSchema? schema) || schema is not OpenApiSchema mutable)
+        if (!OpenApiSchemaContractMutator.TryGetMutableSchema(document, RunSummarySchemaKey, out OpenApiSchema mutable))
             return Task.CompletedTask;
 
         mutable.Properties ??= new Dictionary<string, IOpenApiSchema>(StringComparer.Ordinal);
 
-        AddBooleanIfMissing(mutable.Properties, "isDemoWelcomeRun");
-        AddBooleanIfMissing(mutable.Properties, "isPinned");
-        AddBooleanIfMissing(mutable.Properties, "runDegradedExecution");
-        AddStringArrayIfMissing(mutable.Properties, "degradedExecutionAgents");
+        OpenApiSchemaContractMutator.AddBooleanIfMissing(mutable.Properties, "isDemoWelcomeRun");
+        OpenApiSchemaContractMutator.AddBooleanIfMissing(mutable.Properties, "isPinned");
+        OpenApiSchemaContractMutator.AddBooleanIfMissing(mutable.Properties, "runDegradedExecution");
+        OpenApiSchemaContractMutator.AddStringArrayIfMissing(mutable.Properties, "degradedExecutionAgents");
 
         return Task.CompletedTask;
-    }
-
-    private static void AddBooleanIfMissing(IDictionary<string, IOpenApiSchema> properties, string jsonName)
-    {
-        if (properties.ContainsKey(jsonName))
-            return;
-
-        properties[jsonName] = new OpenApiSchema { Type = JsonSchemaType.Boolean };
-    }
-
-    private static void AddStringArrayIfMissing(IDictionary<string, IOpenApiSchema> properties, string jsonName)
-    {
-        if (properties.ContainsKey(jsonName))
-            return;
-
-        properties[jsonName] = new OpenApiSchema
-        {
-            Type = JsonSchemaType.Array,
-            Items = new OpenApiSchema { Type = JsonSchemaType.String }
-        };
     }
 }

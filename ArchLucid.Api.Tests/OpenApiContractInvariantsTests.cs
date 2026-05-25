@@ -64,4 +64,71 @@ public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory 
         submitResponses.ContainsKey("409").Should().BeTrue(
             "runs submit alias documents 409 for quality-gate rejection; regen snapshot if this fails");
     }
+
+    [SkippableFact]
+    public async Task OpenApi_v1_json_documents_required_fields_on_high_traffic_schemas()
+    {
+        using HttpClient client = factory.CreateClient(
+            new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+
+        using HttpResponseMessage response = await client.GetAsync(OpenApiDocumentPath);
+        await response.EnsureSuccessForTestAsync();
+        string body = await response.Content.ReadAsStringAsync();
+        JsonNode? root = JsonNode.Parse(body);
+        root.Should().NotBeNull();
+
+        JsonObject? schemas = root!["components"]?["schemas"]?.AsObject();
+        schemas.Should().NotBeNull();
+
+        AssertRequiredProperties(
+            schemas!,
+            "RunSummaryResponse",
+            "runId",
+            "projectId",
+            "createdUtc");
+
+        AssertRequiredProperties(
+            schemas,
+            "RunRecord",
+            "runId",
+            "projectId",
+            "createdUtc",
+            "structuralExecutionMode");
+
+        AssertRequiredProperties(
+            schemas,
+            "ManifestSummaryResponse",
+            "manifestId",
+            "runId",
+            "createdUtc",
+            "manifestHash",
+            "ruleSetId",
+            "ruleSetVersion",
+            "status",
+            "decisionCount",
+            "warningCount",
+            "unresolvedIssueCount");
+
+        JsonObject? runSummarySchema = schemas["RunSummaryResponse"]?.AsObject();
+        runSummarySchema.Should().NotBeNull();
+        JsonObject runSummaryProperties = runSummarySchema!["properties"]!.AsObject();
+        runSummaryProperties.ContainsKey("isSample").Should().BeTrue();
+        runSummaryProperties.ContainsKey("hasWarnings").Should().BeTrue();
+        runSummaryProperties.ContainsKey("hasGovernanceWarnings").Should().BeTrue();
+    }
+
+    private static void AssertRequiredProperties(JsonObject schemas, string schemaName, params string[] expected)
+    {
+        JsonObject? schema = schemas[schemaName]?.AsObject();
+        schema.Should().NotBeNull($"{schemaName} must be documented in OpenAPI components");
+
+        JsonArray? required = schema!["required"]?.AsArray();
+        required.Should().NotBeNull($"{schemaName} must declare a required array");
+
+        foreach (string propertyName in expected)
+        {
+            required!.Any(n => string.Equals(n?.GetValue<string>(), propertyName, StringComparison.Ordinal)).Should()
+                .BeTrue($"{propertyName} must be required on {schemaName} in OpenAPI");
+        }
+    }
 }

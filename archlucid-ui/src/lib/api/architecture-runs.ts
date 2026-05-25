@@ -1,3 +1,4 @@
+import type { components } from "@/lib/openapi-schemas";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type {
   ComparisonExplanation,
@@ -67,11 +68,9 @@ export type CreateArchitectureRunRequestPayload = {
   infrastructureDeclarations?: CreateArchitectureRunInfrastructureDeclarationPayload[];
 };
 
-/** Response envelope for create run (subset used by the UI). */
-export type CreateArchitectureRunResponsePayload = {
-  run?: { runId?: string; status?: string; requestId?: string };
-  tasks?: { taskId?: string; agentType?: string }[];
-};
+/** Response envelope for POST /v1/architecture/request. */
+export type CreateArchitectureRunResponsePayload =
+  components["schemas"]["CreateArchitectureRunResponse"];
 
 /** Submits a new architecture run (POST /v1/architecture/request). */
 export async function createArchitectureRun(

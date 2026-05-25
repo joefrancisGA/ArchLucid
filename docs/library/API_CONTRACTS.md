@@ -38,6 +38,18 @@
 
 **Operator narrative:** `docs/library/LIVE_E2E_HAPPY_PATH.md` (HTTP request → commit → retrieval parity); **`docs/library/FIRST_RUN_WALKTHROUGH.md`** for the operator wizard surface.
 
+## Run DTO shapes under `/v1`
+
+Two JSON shapes represent an architecture run on different routes. Integrators must not assume one schema applies everywhere.
+
+| Route family | Response shape | Notes |
+|--------------|----------------|-------|
+| `GET /v1/authority/runs/{runId}` | `RunDetailDto.run` → **`RunRecord`** | Persistence/read model with snapshot id fields (`graphSnapshotId`, …). OpenAPI marks `runId`, `projectId`, `createdUtc`, and `structuralExecutionMode` as required. |
+| `POST /v1/architecture/request`, execute/commit/detail paths | **`ArchitectureRun`** | Lifecycle DTO with required `requestId`, `status`, `structuralExecutionMode`, and `createdUtc`. |
+| Run list / summary cards | **`RunSummaryResponse`** | Lightweight flags (`hasGraphSnapshot`, `hasGovernanceWarnings`, …) without snapshot UUID columns. |
+
+When parsing a create-run response, use **`ArchitectureRun`**. When loading authority detail, use **`RunRecord`**. Mapping between them is server-side only; clients should not cast one into the other.
+
 ## LLM cost signals — wire contract vs vendor economics
 
 Documentation and weighted-readiness framing distinguish:

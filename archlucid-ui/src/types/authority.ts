@@ -1,21 +1,12 @@
 import type { components } from "@/lib/openapi-schemas";
 
 /**
- * Optional snapshot/list enrichments not always surfaced on **`RunSummaryResponse`**
- * but returned by list/summary endpoints in practice.
+ * Optional list enrichments not yet on OpenAPI `RunSummaryResponse` but returned by some endpoints.
  */
 type RunSummaryWireExtensions = {
-  contextSnapshotId?: string | null;
-  graphSnapshotId?: string | null;
-  findingsSnapshotId?: string | null;
-  goldenManifestId?: string | null;
-  decisionTraceId?: string | null;
-  artifactBundleId?: string | null;
   findingCount?: number | null;
   warningCount?: number | null;
   artifactCount?: number | null;
-  /** When true, the run has unresolved governance violations or alerts requiring operator action. */
-  hasGovernanceWarnings?: boolean | null;
   /** Architecture request id when returned by list/detail endpoints (used for restore from archive). */
   requestId?: string | null;
   /** When true, the backing architecture request is archived and hidden from default lists. */
@@ -25,7 +16,7 @@ type RunSummaryWireExtensions = {
 };
 
 /**
- * Lightweight summary — **OpenAPI** `RunSummaryResponse` plus list/summary keys the shell treats as present after fetch.
+ * Lightweight summary — **OpenAPI** `RunSummaryResponse` plus sporadic list keys the shell treats as present after fetch.
  */
 export type RunSummary = components["schemas"]["RunSummaryResponse"] &
   RunSummaryWireExtensions & {
