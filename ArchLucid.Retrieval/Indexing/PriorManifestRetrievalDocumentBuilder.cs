@@ -2,13 +2,88 @@ using System.Security.Cryptography;
 using System.Text;
 
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Retrieval.Models;
 
 namespace ArchLucid.Retrieval.Indexing;
 
-/// <summary>Builds tenant-scoped prior-manifest retrieval documents from committed findings.</summary>
+/// <summary>Builds tenant-scoped prior-manifest retrieval documents from committed findings and decisions.</summary>
 public static class PriorManifestRetrievalDocumentBuilder
 {
+    /// <summary>Creates decision and topology documents for cross-run recall.</summary>
+    public static IReadOnlyList<RetrievalDocument> BuildFromManifest(
+        ManifestDocument manifest,
+        DateTime createdUtc)
+    {
+        ArgumentNullException.ThrowIfNull(manifest);
+
+        List<RetrievalDocument> documents = [];
+
+        foreach (ResolvedArchitectureDecision decision in manifest.Decisions)
+        {
+            if (string.IsNullOrWhiteSpace(decision.Title))
+                continue;
+
+            string decisionId = string.IsNullOrWhiteSpace(decision.DecisionId)
+                ? Guid.NewGuid().ToString("N")
+                : decision.DecisionId.Trim();
+
+            string rationale = string.IsNullOrWhiteSpace(decision.Rationale) ? string.Empty : decision.Rationale.Trim();
+            string selected = string.IsNullOrWhiteSpace(decision.SelectedOption)
+                ? string.Empty
+                : decision.SelectedOption.Trim();
+
+            string content =
+                $"[{decision.Category}] Decision {decision.Title}: selected {selected}. {rationale}".Trim();
+
+            if (string.IsNullOrWhiteSpace(content))
+                continue;
+
+            documents.Add(CreateDocument(
+                manifest,
+                $"prior-manifest-{manifest.RunId:N}-decision-{decisionId}",
+                "PriorManifestDecision",
+                decisionId,
+                decision.Title,
+                content,
+                $"{manifest.RunId:N}|decision|{decisionId}|{content}",
+                createdUtc));
+        }
+
+        TopologySection topology = manifest.Topology;
+
+        if (topology.Services.Count > 0 || topology.Datastores.Count > 0 || topology.Relationships.Count > 0)
+        {
+            List<string> serviceNames = topology.Services
+                .Select(static s => s.ServiceName)
+                .Where(static n => !string.IsNullOrWhiteSpace(n))
+                .ToList();
+
+            List<string> datastoreNames = topology.Datastores
+                .Select(static d => d.DatastoreName)
+                .Where(static n => !string.IsNullOrWhiteSpace(n))
+                .ToList();
+
+            string topologyContent =
+                $"Topology services: {string.Join(", ", serviceNames)}. " +
+                $"Datastores: {string.Join(", ", datastoreNames)}. " +
+                $"Relationships: {topology.Relationships.Count}.";
+
+            documents.Add(CreateDocument(
+                manifest,
+                $"prior-manifest-{manifest.RunId:N}-topology",
+                "PriorManifestTopology",
+                manifest.RunId.ToString("N"),
+                "Topology",
+                topologyContent,
+                $"{manifest.RunId:N}|topology|{topologyContent}",
+                createdUtc));
+        }
+
+        return documents;
+    }
+
     /// <summary>Creates one document per active finding for semantic recall of prior decisions.</summary>
     public static IReadOnlyList<RetrievalDocument> BuildFromFindings(
         Guid tenantId,
@@ -41,27 +116,80 @@ public static class PriorManifestRetrievalDocumentBuilder
                 $"[{finding.Category}] {finding.Severity}: {message}";
 
             string hashInput = $"{runId:N}|{findingId}|{content}";
-            string contentHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(hashInput)));
 
-            documents.Add(new RetrievalDocument
-            {
-                DocumentId = $"prior-manifest-{runId:N}-{findingId}",
-                TenantId = tenantId,
-                WorkspaceId = workspaceId,
-                ProjectId = projectId,
-                RunId = runId,
-                ManifestId = manifestId,
-                CorpusKind = CorpusKind.TenantManifest,
-                SourceType = "PriorManifestFinding",
-                SourceId = findingId,
-                Title = finding.Category,
-                Content = content,
-                ContentHash = contentHash,
-                CreatedUtc = createdUtc,
-            });
+            documents.Add(CreateDocument(
+                tenantId,
+                workspaceId,
+                projectId,
+                runId,
+                manifestId,
+                $"prior-manifest-{runId:N}-{findingId}",
+                "PriorManifestFinding",
+                findingId,
+                finding.Category,
+                content,
+                hashInput,
+                createdUtc));
         }
 
         return documents;
+    }
+
+    private static RetrievalDocument CreateDocument(
+        ManifestDocument manifest,
+        string documentId,
+        string sourceType,
+        string sourceId,
+        string title,
+        string content,
+        string hashInput,
+        DateTime createdUtc) =>
+        CreateDocument(
+            manifest.TenantId,
+            manifest.WorkspaceId,
+            manifest.ProjectId,
+            manifest.RunId,
+            manifest.ManifestId,
+            documentId,
+            sourceType,
+            sourceId,
+            title,
+            content,
+            hashInput,
+            createdUtc);
+
+    private static RetrievalDocument CreateDocument(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid runId,
+        Guid manifestId,
+        string documentId,
+        string sourceType,
+        string sourceId,
+        string title,
+        string content,
+        string hashInput,
+        DateTime createdUtc)
+    {
+        string contentHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(hashInput)));
+
+        return new RetrievalDocument
+        {
+            DocumentId = documentId,
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            RunId = runId,
+            ManifestId = manifestId,
+            CorpusKind = CorpusKind.PriorManifest,
+            SourceType = sourceType,
+            SourceId = sourceId,
+            Title = title,
+            Content = content,
+            ContentHash = contentHash,
+            CreatedUtc = createdUtc,
+        };
     }
 
     private static string ResolveFindingMessage(Finding finding)

@@ -59,7 +59,7 @@ public sealed class PriorManifestRetrievalDocumentBuilderTests
         documents.Should().ContainSingle();
         RetrievalDocument doc = documents[0];
         doc.TenantId.Should().Be(tenantId);
-        doc.CorpusKind.Should().Be(CorpusKind.TenantManifest);
+        doc.CorpusKind.Should().Be(CorpusKind.PriorManifest);
         doc.SourceType.Should().Be("PriorManifestFinding");
         doc.SourceId.Should().Be("active-1");
         doc.Content.Should().Contain("Right-size underused VM.");

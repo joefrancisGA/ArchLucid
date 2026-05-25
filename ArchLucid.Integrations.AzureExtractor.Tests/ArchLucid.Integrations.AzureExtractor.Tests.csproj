@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ArchLucid.Integrations.AzureExtractor\ArchLucid.Integrations.AzureExtractor.csproj" />
     <ProjectReference Include="..\ArchLucid.Application\ArchLucid.Application.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence\ArchLucid.Persistence.csproj" />
   </ItemGroup>
 
 </Project>

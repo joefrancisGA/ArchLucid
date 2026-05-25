@@ -680,6 +680,14 @@ public static class ArchLucidInstrumentation
             description: "LLM judge vs heuristic semantic disagreement magnitude (0-1).");
 
     /// <summary>
+    ///     LLM faithfulness score comparing agent JSON against evidence chunks (0–1; label <c>agent_type</c>) when enabled.
+    /// </summary>
+    public static readonly Histogram<double> AgentOutputLlmFaithfulnessScore =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_agent_output_llm_faithfulness_score",
+            description: "LLM faithfulness score vs run evidence package (0-1).");
+
+    /// <summary>
     ///     Quality gate outcomes after structural + semantic evaluation (labels: <c>agent_type</c>, <c>outcome</c>
     ///     =accepted|warned|rejected, <c>gate_mode</c>=disabled|warn_only|pilot_strict).
     /// </summary>

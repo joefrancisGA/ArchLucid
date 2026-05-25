@@ -50,6 +50,10 @@ public sealed class RetrievalRunCompletionIndexer(
             manifest.RunId,
             provenanceGraph));
 
+        retrievalDocuments.AddRange(PriorManifestRetrievalDocumentBuilder.BuildFromManifest(
+            manifest,
+            findingsSnapshot?.CreatedUtc ?? manifest.CreatedUtc));
+
         if (findingsSnapshot?.Findings is { Count: > 0 })
         {
             retrievalDocuments.AddRange(PriorManifestRetrievalDocumentBuilder.BuildFromFindings(

@@ -246,6 +246,14 @@ public static partial class ServiceCollectionExtensions
             o.MaxCompletionTokens = Math.Clamp(o.MaxCompletionTokens, 64, 4096);
             o.TimeoutSeconds = Math.Clamp(o.TimeoutSeconds, 5, 120);
         });
+        services.AddOptions<AgentOutputLlmFaithfulnessOptions>()
+            .Bind(configuration.GetSection(AgentOutputLlmFaithfulnessOptions.SectionPath));
+        services.PostConfigure<AgentOutputLlmFaithfulnessOptions>(static o =>
+        {
+            o.MaxEvidenceCharacters = Math.Clamp(o.MaxEvidenceCharacters, 1024, 500_000);
+            o.MaxInputCharacters = Math.Clamp(o.MaxInputCharacters, 1024, 500_000);
+            o.TimeoutSeconds = Math.Clamp(o.TimeoutSeconds, 5, 120);
+        });
         services.AddSingleton<AgentOutputEvaluator>();
         services.AddSingleton<IAgentOutputEvaluator>(static sp => sp.GetRequiredService<AgentOutputEvaluator>());
         services.AddSingleton<IAgentResultEvidenceFaithfulnessChecker, AgentResultEvidenceFaithfulnessChecker>();
@@ -264,6 +272,9 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<AgentOutputLlmSemanticJudge>();
         services.AddSingleton<IAgentOutputLlmSemanticJudge>(static sp =>
             sp.GetRequiredService<AgentOutputLlmSemanticJudge>());
+        services.AddSingleton<AgentOutputFaithfulnessEvaluator>();
+        services.AddSingleton<IAgentOutputFaithfulnessEvaluator>(static sp =>
+            sp.GetRequiredService<AgentOutputFaithfulnessEvaluator>());
         services.AddSingleton<CompositeAgentOutputSemanticEvaluator>();
         services.AddSingleton<IAgentOutputSemanticEvaluator>(static sp =>
             sp.GetRequiredService<CompositeAgentOutputSemanticEvaluator>());
@@ -781,7 +792,10 @@ public static partial class ServiceCollectionExtensions
         services.Configure<RetrievalEmbeddingCapOptions>(
             configuration.GetSection(RetrievalEmbeddingCapOptions.SectionName));
 
-        services.AddSingleton<ITextChunker, SimpleTextChunker>();
+        services.AddSingleton<SimpleTextChunker>();
+        services.AddSingleton<ITextChunker>(static sp => sp.GetRequiredService<SimpleTextChunker>());
+        services.AddSingleton<PolicyPackChunker>();
+        services.AddSingleton<PriorManifestChunker>();
         services.AddScoped<IRetrievalDocumentBuilder, RetrievalDocumentBuilder>();
         services.AddScoped<IRetrievalIndexingService, RetrievalIndexingService>();
         services.AddScoped<IRetrievalQueryService, RetrievalQueryService>();

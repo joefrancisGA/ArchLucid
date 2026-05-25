@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Marketing;
+using ArchLucid.Persistence.Marketing;
 
 using FluentAssertions;
 

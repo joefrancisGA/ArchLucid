@@ -127,4 +127,14 @@ public sealed class AgentOutputSemanticScore
         get;
         set;
     }
+
+    /// <summary>
+    ///     LLM faithfulness score comparing parsed JSON against evidence chunks when
+    ///     <c>ArchLucid:Agents:LlmFaithfulness:Enabled</c> and quality gate are enabled.
+    /// </summary>
+    public double? LlmFaithfulnessScore
+    {
+        get;
+        set;
+    }
 }

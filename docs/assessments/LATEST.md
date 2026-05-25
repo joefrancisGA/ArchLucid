@@ -156,7 +156,7 @@ CPA SOC 2 Type II, third-party pen-test publication, automated GDPR tenant erasu
 
 ---
 
-## Top 10 Engineering Risks
+## Top 11 Engineering Risks
 
 1. **RAG retrieval failures could degrade agent output quality silently:** Without strict faithfulness evaluation, hallucinations may slip through.
 2. **Cross-tenant ROI aggregation could leak data:** If RLS or scoping context fails during background aggregation.
@@ -168,6 +168,7 @@ CPA SOC 2 Type II, third-party pen-test publication, automated GDPR tenant erasu
 8. **Missing `RunId`-based index on `dbo.AlertRecords` causes a per-row scan on every run list query:** The `HasGovernanceWarnings` EXISTS subquery fires once per run row and has no `RunId` index path on `dbo.AlertRecords`. For tenants with many active alert records this degrades linearly with table size (see Improvement #26).
 9. **Unguarded lateral domain couplings allow hidden transitive dependency creep:** `Decisioning→Notifications`, `Provenance→{ArtifactSynthesis,Decisioning,KnowledgeGraph}`, `Retrieval→{Decisioning,ArtifactSynthesis,Provenance}`, and `AgentRuntime→{Decisioning,Provenance}` are live `ProjectReference` edges with no prohibiting architecture test. Any of these chains can silently deepen — a new `using` statement is the only trigger — and no CI gate will catch it until the architectural boundary has already been crossed (see Improvements #53, #55).
 10. **Dead `ProjectReference` entries in `Api.csproj` create latent coupling risk:** `Api.csproj` carries live references to `ArchLucid.Decisioning` and `ArchLucid.KnowledgeGraph` even though no types from those assemblies are consumed by the API. The current `Api_must_not_depend_on_Decisioning` and `Api_must_not_depend_on_KnowledgeGraph` tests pass only at the NetArchTest type-level (IL reference scan); they do not catch that the assemblies are already on the compilation closure. Any future developer can introduce a `using` statement without a build or test failure (see Improvements #53, #54).
+11. **Public HTTP contract under-documents wire JSON:** `RunSummaryResponse` emits `isSample`, `hasWarnings`, and `hasGovernanceWarnings` at runtime but not in OpenAPI or `ArchLucid.Api.Client`; authority detail uses `RunRecord` (all-optional schema) while create/execute paths use `ArchitectureRun` (required `structuralExecutionMode`). Integrators and APIM imports can drift silently under `/v1` (see Improvement #57).
 
 ---
 
@@ -183,7 +184,8 @@ ArchLucid is ready to ship V1 GA. The remaining `(A)` deficit is concentrated in
 - **Why it matters:** Agents need deep context of organizational policies to make accurate recommendations.
 - **Expected impact:** Directly improves Cutting-Edge AI Technology (+5 pts) and AI/Agent Readiness (+3 pts). Weighted readiness impact: +0.15%.
 - **Affected qualities:** Cutting-Edge AI Technology, AI/Agent Readiness.
-- **Actionable now:** Yes.
+- **Actionable now:** Partial — core indexing shipped; tenant-assignment filter deferred.
+- **Completed (Batch 1, 2026-05-24):** `PolicyPackCorpusIndexer`, `CorpusKind.PolicyPack`, startup indexer, `PolicyPackChunker`, `AskService` policy-keyword detection with `IncludePlatformCorpora`. **Deferred:** per-tenant assigned-pack filter at query time (platform sentinel corpus per approved design).
 ```cursor
 Implement policy-pack indexing for the RAG retrieval system as defined in TB-021.
 1. Modify `ArchLucid.Retrieval.Index` to ingest active policy packs assigned to the tenant.
@@ -198,7 +200,8 @@ Acceptance Criteria: Policy pack rules are successfully indexed and retrieved du
 - **Why it matters:** Heuristic scoring is insufficient for detecting subtle hallucinations in agent outputs.
 - **Expected impact:** Directly improves AI/Agent Readiness (+4 pts) and Reliability (+2 pts). Weighted readiness impact: +0.08%.
 - **Affected qualities:** AI/Agent Readiness, Reliability.
-- **Actionable now:** Yes.
+- **Actionable now:** Partial — evaluator wired; opt-in via config.
+- **Completed (Batch 1, 2026-05-24):** `AgentOutputFaithfulnessEvaluator`, `archlucid_agent_output_llm_faithfulness_score` histogram, wired through `AgentOutputTraceQualityEvaluator` + `AgentOutputEvaluationRecorder`; respects `ArchLucid:AgentOutput:QualityGate:Enabled` and `ArchLucid:Agents:LlmFaithfulness:Enabled` (default off).
 ```cursor
 Implement an LLM-based faithfulness evaluator for agent outputs.
 1. Create `AgentOutputFaithfulnessEvaluator` in `ArchLucid.AgentRuntime.Evaluation`.
@@ -575,7 +578,8 @@ Acceptance Criteria: The quality gate can actively reject and retry poor agent o
 - **Why it matters:** Agents need historical context of the architecture to understand evolution and intent.
 - **Expected impact:** Directly improves Cutting-Edge AI Technology (+4 pts) and AI/Agent Readiness (+3 pts). Weighted readiness impact: +0.13%.
 - **Affected qualities:** Cutting-Edge AI Technology, AI/Agent Readiness.
-- **Actionable now:** Yes.
+- **Actionable now:** Partial — per-run indexing shipped; cross-run golden-manifest history deferred.
+- **Completed (Batch 1, 2026-05-24):** `CorpusKind.PriorManifest`, `PriorManifestChunker`, `PriorManifestRetrievalDocumentBuilder` (findings + decisions + topology), run-completion indexing, `AskService` historical-keyword boost via `AskRetrievalHitRanker`. **Deferred:** dedicated prior-`GoldenManifest` corpus across runs (RAG-V1-002 remainder).
 ```cursor
 Implement prior-manifest chunking for the RAG retrieval system.
 1. Create `PriorManifestChunker` that extracts key decisions and topology changes from previous `GoldenManifests` for the same system.
@@ -2698,6 +2702,64 @@ that a second sp_set_session_context on the same connection for al_rls_bypass ra
 15665 is green.
 ```
 
+### 57. Harden Public HTTP Contract: OpenAPI ↔ Api.Client ↔ UI Nullability Parity (audit 2026-05-24)
+- **Why it matters:** `ArchLucid.Api.Client` and `archlucid-ui` `api-types` are generated from `openapi-v1.contract.snapshot.json`, but several **wire JSON fields exceed the published schema**, two different **run DTO shapes** (`ArchitectureRun` vs `RunRecord`) serve the same concept on different routes, and high-traffic responses omit **`required`** arrays — so integrators and the UI can drift from server behavior without triggering `/v2`. The operator UI already depends on undocumented list fields (`hasGovernanceWarnings`) and runtime guards (`coerceRunDetail`, `coerceManifestSummary`) that are stricter than OpenAPI.
+- **Expected impact:** Directly improves Maintainability (+2 pts) and Adoption Friction (+2 pts) for SDK/APIM integrators. Weighted readiness impact: +0.02%.
+- **Affected qualities:** Maintainability, Adoption Friction, Supportability.
+- **Actionable now:** Yes.
+- **Source:** Engineering audit — diff `ArchLucid.Api.Client` / OpenAPI snapshot / `ArchLucid.Api` wire types / UI zod guards, 2026-05-24.
+```cursor
+Harden the v1 public HTTP contract so wire JSON, OpenAPI, generated clients, and UI guards agree.
+
+Phase A — Close shadow fields on RunSummaryResponse (highest integrator risk):
+1. Add `isSample`, `hasWarnings`, and `hasGovernanceWarnings` to OpenAPI schema
+   `RunSummaryResponse` (already mapped in `AuthorityQueryController.ToRunSummaryResponse`).
+2. Regenerate: `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests`;
+   `dotnet build ArchLucid.Api.Client`; `npm run generate:api-types` from `archlucid-ui/`.
+3. Remove `hasGovernanceWarnings` from `RunSummaryWireExtensions` in `types/authority.ts` once
+   generated types include it; keep `coerceRunSummaryList` requiring only `runId`.
+
+Phase B — Document `required` on high-traffic responses:
+4. Add OpenAPI `required` for `RunSummaryResponse`: `runId`, `projectId`, `createdUtc`.
+5. Add OpenAPI `required` for `RunRecord` core fields to mirror `ArchitectureRun`:
+   `runId`, `requestId`, `status`, `createdUtc`, `structuralExecutionMode` (authority detail path).
+6. Add OpenAPI `required` for `ManifestSummaryResponse` fields already enforced by
+   `coerceManifestSummary` in `operator-response-guards.ts`.
+7. Extend `OpenApiContractInvariantsTests` with one assertion per schema above.
+
+Phase C — Resolve dual run shapes (document or unify):
+8. Add a short section to `docs/library/API_CONTRACTS.md` explaining:
+   - `GET /v1/authority/runs/{runId}` → `RunDetailDto.run` is `RunRecord`.
+   - Create/execute/architecture detail paths → `ArchitectureRun`.
+   - Do not assume `structuralExecutionMode` is required on authority detail until Phase B lands.
+9. Long-term (optional follow-up): single public run DTO or explicit mapper — out of scope for
+   this improvement unless product approves a breaking rename.
+
+Phase D — Request validation ↔ OpenAPI alignment:
+10. Mark `ArchitectureRequest` collection properties in OpenAPI as required (empty array allowed)
+    where `ArchitectureRequestValidator` uses `NotNull()`.
+11. Add `required: [name, contentType, content]` on `ContextDocumentRequest` with OpenAPI note
+    that validation applies when the object is present in `documents[]`.
+
+Phase E — UI contract cleanup:
+12. Replace hand-written `CreateArchitectureRunResponsePayload` in `architecture-runs.ts` with
+    generated `components["schemas"]["CreateArchitectureRunResponse"]`.
+13. Drop stale `RunSummaryWireExtensions` snapshot-id fields (`graphSnapshotId`, etc.) if not
+    emitted by list endpoints; use `hasGraphSnapshot` flags from OpenAPI instead.
+
+Constraints:
+- All OpenAPI snapshot changes must pass `OpenApiContractBackwardCompatibilityChecker` (additive only).
+- Commit snapshot + `ArchLucidApiClient.g.cs` + `api-types.generated.ts` in the same PR.
+- Do not introduce `/v2` for these fixes — they are additive documentation and optional-field
+  tightening only where backward-compat checker allows.
+
+Acceptance Criteria: OpenAPI documents `isSample`, `hasWarnings`, `hasGovernanceWarnings` on
+RunSummaryResponse; generated .NET and TS clients expose them; `RunsDashboardPanel` no longer
+relies on undeclared wire extensions; `OpenApiContractInvariantsTests` asserts required arrays on
+RunSummaryResponse and RunRecord; `API_CONTRACTS.md` documents ArchitectureRun vs RunRecord routing;
+CI green after snapshot regen.
+```
+
 ---
 
 ---
@@ -3132,12 +3194,48 @@ No class in `ArchLucid.Host.Composition` captures `IServiceProvider` as a constr
 
 ---
 
+## Improvement #57 — Harden Public HTTP Contract: OpenAPI ↔ Api.Client ↔ UI Nullability Parity (audit 2026-05-24)
+
+**Quality dimension:** Maintainability / Adoption Friction / Supportability
+**Source:** Engineering audit — `ArchLucid.Api.Client` vs `ArchLucid.Api` vs `archlucid-ui` contract diff, 2026-05-24.
+
+### Context
+
+The canonical public contract is **`GET /openapi/v1.json`**, committed as `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`. **`ArchLucid.Api.Client`** (NSwag) and **`archlucid-ui/packages/api-types`** are generated from that snapshot — they match OpenAPI with **zero property-level mismatches** today. Gaps are elsewhere:
+
+| Gap | Example | Risk |
+|-----|---------|------|
+| **Wire JSON ⊃ OpenAPI** | `RunSummaryResponse` C# maps `IsSample`, `HasWarnings`, `HasGovernanceWarnings`; none appear in snapshot/client/TS | External SDK users miss fields the UI relies on (`RunsDashboardPanel` → `hasGovernanceWarnings`) |
+| **Dual run schemas under `/v1`** | `ArchitectureRun` (required `structuralExecutionMode`) vs `RunRecord` (no `required` array) on authority detail | Integrators parsing create-run responses cannot safely parse `GET /v1/authority/runs/{runId}` |
+| **Under-specified `required`** | `RunSummaryResponse`, `RunDetailDto`, `CreateArchitectureRunResponse`, `ManifestSummaryResponse` omit `required` | Future tightening is breaking; server guarantees exceed contract |
+| **Validation > OpenAPI (requests)** | `ArchitectureRequest` arrays optional in schema; FluentValidation requires non-null; `ContextDocumentRequest` all-optional in schema | Generated clients omit fields the API rejects with 400 |
+| **UI guards > OpenAPI (responses)** | `coerceRunDetail` requires `run.runId/projectId/createdUtc`; `coerceManifestSummary` requires 10+ scalars | Internal only — fails loud on malformed JSON |
+| **UI guards < OpenAPI (responses)** | Hand-written `CreateArchitectureRunResponsePayload` treats `run`/`tasks` as fully optional | Weaker than `CreateArchitectureRunResponse` → `ArchitectureRun` |
+| **Stale UI extensions** | `RunSummaryWireExtensions` documents snapshot IDs not on `RunSummaryResponse` | Dead code paths (e.g. `graphSnapshotId` filter in run detail loader) |
+
+**Versioning posture:** Additive OpenAPI changes are allowed under `/v1` per `OpenApiContractBackwardCompatibilityChecker`. Persisted JSON blobs (`GoldenManifest.schemaVersion`, etc.) evolve separately from HTTP `/v1` (ADR 0013).
+
+### Work plan
+
+See **Improvement #57** cursor block under **Top Improvement Opportunities** (Phases A–E). Recommended PR sequence: **A → B → D → E → C** (document dual shapes last, after `required` arrays land).
+
+### Acceptance Criteria
+
+- [ ] `RunSummaryResponse` OpenAPI includes `isSample`, `hasWarnings`, `hasGovernanceWarnings`; snapshot + NSwag + TS regen committed together.
+- [ ] `OpenApiContractInvariantsTests` asserts `required` on `RunSummaryResponse`, `RunRecord`, and `ManifestSummaryResponse` high-signal fields.
+- [ ] `docs/library/API_CONTRACTS.md` documents `ArchitectureRun` vs `RunRecord` route mapping.
+- [ ] `CreateArchitectureRunResponsePayload` removed in favor of generated types; stale `RunSummaryWireExtensions` snapshot-id fields removed or promoted to OpenAPI.
+- [ ] `OpenApiContractBackwardCompatibilityChecker` and full Core CI suite green.
+
+---
+
 ## Prompt Batching Guidance
 
 All improvements are V1-actionable (or resolved). Batches optimized for context-window reuse:
 
 **Batch 1 — RAG & AI quality (highest leverage)**
 Run prompts **1** (Policy-Pack Indexing), **2** (LLM Faithfulness Evaluator), and **23** (Prior-Manifest Chunks) together. Shared namespaces: `ArchLucid.Retrieval`, `ArchLucid.AgentRuntime.Evaluation`. Same TB-021 / RAG-V1-* engineering charter.
+**Status 2026-05-24:** Core slice implemented (#1 platform policy-pack Ask retrieval + chunker; #2 LLM faithfulness metric opt-in; #23 prior-manifest corpus + Ask boost). Remaining: tenant-assigned pack query filter, cross-run prior golden-manifest indexing, RAG-V1-000 citation formatter / grounding trace.
 
 **Batch 2 — Observability & telemetry**
 Run **7** (RAG Telemetry), **12** (Grafana ROI Panel), **19** (Grafana Outbox Panel), and **25** (Redaction Telemetry) together. Shared files: `ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`, `infra/grafana/*.json`, `infra/prometheus/archlucid-alerts.yml`.
@@ -3192,6 +3290,9 @@ Apply **#51** (Terraform advisory C# inline documentation) and **#52** (inline d
 
 **Batch 19 — Architecture boundary hardening**
 Run **#53** (13 missing `DependencyConstraintTests` assertions), **#54** (prune dead `Api.csproj` `ProjectReference` entries), and **#55** (lateral domain coupling policy decision) in this order. Start with #55's decision table: it determines whether M8–M11 in #53 become prohibiting tests or pinning tests. Once decisions are recorded, write all 13 facts in #53 (a single `DependencyConstraintTests.cs` edit). Finally apply #54 to remove the two dead `ProjectReference` entries from `Api.csproj`; the newly added M2/M3 assembly-metadata facts will then pass. All three items touch only `ArchLucid.Architecture.Tests` (for #53) and `ArchLucid.Api/ArchLucid.Api.csproj` (for #54) — no production logic changes and no schema migrations. No dependency on any other batch.
+
+**Batch 20 — Public HTTP contract hardening**
+Apply **#57** as one or two PRs: (1) OpenAPI snapshot + `RunSummaryResponse` shadow fields + `required` arrays + `OpenApiContractInvariantsTests` + regen `ArchLucid.Api.Client` and `archlucid-ui` `api-types`; (2) UI cleanup (`CreateArchitectureRunResponsePayload`, `RunSummaryWireExtensions`) + `API_CONTRACTS.md` dual-run documentation. Shared files: `openapi-v1.contract.snapshot.json`, `OpenApiContractInvariantsTests.cs`, `types/authority.ts`, `operator-response-guards.ts`, `architecture-runs.ts`. Run `scripts/ci/check_openapi_contract_snapshot.ps1` and `assert_api_types_in_sync` before push. No `/v2` work; additive-only per backward-compat checker.
 
 ---
 

@@ -4,6 +4,7 @@ public enum CorpusKind
 {
     Conversation,
     TenantManifest,
+    PriorManifest,
     PolicyPack,
     PlatformDoc,
     ReferenceArchitecture,

@@ -25,11 +25,6 @@ public sealed class RetrievalIndexingServiceTests
     [Fact]
     public async Task IndexDocumentsAsync_SplitsEmbedManyIntoBatchesPerCap()
     {
-        Mock<ITextChunker> chunker = new();
-        chunker
-            .Setup(c => c.Chunk(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            .Returns(["a", "b", "c", "d", "e"]);
-
         List<int> batchSizes = [];
         Mock<IEmbeddingService> embeddings = new();
         embeddings
@@ -44,18 +39,22 @@ public sealed class RetrievalIndexingServiceTests
 
         InMemoryVectorIndex index = new();
         RetrievalIndexingService sut = new(
-            chunker.Object,
+            new SimpleTextChunker(),
+            new PolicyPackChunker(),
+            new PriorManifestChunker(),
             embeddings.Object,
             index,
             caps.Object);
 
+        string longContent = new('x', 5200);
         RetrievalDocument doc = new()
         {
             DocumentId = "d1",
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
             ProjectId = ProjectId,
-            Content = "ignored-by-mock-chunker",
+            CorpusKind = CorpusKind.Conversation,
+            Content = longContent,
             CreatedUtc = TimeProvider.System.UtcNowDateTime(),
         };
 
@@ -67,11 +66,6 @@ public sealed class RetrievalIndexingServiceTests
     [Fact]
     public async Task IndexDocumentsAsync_WhenTotalChunksExceedsCap_Throws()
     {
-        Mock<ITextChunker> chunker = new();
-        chunker
-            .Setup(c => c.Chunk(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            .Returns(["a", "b", "c", "d"]);
-
         Mock<IEmbeddingService> embeddings = new();
 
         Mock<IOptionsMonitor<RetrievalEmbeddingCapOptions>> caps = new();
@@ -79,7 +73,9 @@ public sealed class RetrievalIndexingServiceTests
             new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16, MaxChunksPerIndexOperation = 3 });
 
         RetrievalIndexingService sut = new(
-            chunker.Object,
+            new SimpleTextChunker(),
+            new PolicyPackChunker(),
+            new PriorManifestChunker(),
             embeddings.Object,
             new InMemoryVectorIndex(),
             caps.Object);
@@ -90,7 +86,8 @@ public sealed class RetrievalIndexingServiceTests
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
             ProjectId = ProjectId,
-            Content = "x",
+            CorpusKind = CorpusKind.Conversation,
+            Content = new('y', 4200),
             CreatedUtc = TimeProvider.System.UtcNowDateTime(),
         };
 

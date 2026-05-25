@@ -39,6 +39,7 @@ public static class AgentOutputTraceQualityEvaluator
         AgentEvidencePackage? evidencePackage = null,
         IAgentResultEvidenceFaithfulnessChecker? agentResultFaithfulnessChecker = null,
         IAgentResultEmbeddingFaithfulnessScorer? embeddingFaithfulnessScorer = null,
+        IAgentOutputFaithfulnessEvaluator? llmFaithfulnessEvaluator = null,
         IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId = null) =>
         TryEvaluateTraceAsyncCore(
             trace,
@@ -50,6 +51,7 @@ public static class AgentOutputTraceQualityEvaluator
             evidencePackage,
             agentResultFaithfulnessChecker,
             embeddingFaithfulnessScorer,
+            llmFaithfulnessEvaluator,
             calibratedConfidenceByTaskId);
 
     private static async Task<TraceQualityEvaluationResult?> TryEvaluateTraceAsyncCore(
@@ -62,6 +64,7 @@ public static class AgentOutputTraceQualityEvaluator
         AgentEvidencePackage? evidencePackage,
         IAgentResultEvidenceFaithfulnessChecker? agentResultFaithfulnessChecker,
         IAgentResultEmbeddingFaithfulnessScorer? embeddingFaithfulnessScorer,
+        IAgentOutputFaithfulnessEvaluator? llmFaithfulnessEvaluator,
         IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId)
     {
         ArgumentNullException.ThrowIfNull(trace);
@@ -150,6 +153,13 @@ public static class AgentOutputTraceQualityEvaluator
             embeddingFaithfulnessScorer,
             cancellationToken).ConfigureAwait(false);
 
+        await ApplyAgentOutputLlmFaithfulnessAsync(
+            trace,
+            evidencePackage,
+            semanticScore,
+            llmFaithfulnessEvaluator,
+            cancellationToken).ConfigureAwait(false);
+
         ApplyJudgeHeuristicDisagreementElevation(semanticScore, ref gateOutcome);
 
         string? evaluationReason = gateOutcome == AgentOutputQualityGateOutcome.Rejected
@@ -205,6 +215,28 @@ public static class AgentOutputTraceQualityEvaluator
 
         if (cosine is { } d)
             semanticScore.AgentResultEmbeddingFaithfulnessMeanCosine = d;
+    }
+
+    private static async Task ApplyAgentOutputLlmFaithfulnessAsync(
+        AgentExecutionTrace trace,
+        AgentEvidencePackage? evidencePackage,
+        AgentOutputSemanticScore semanticScore,
+        IAgentOutputFaithfulnessEvaluator? llmFaithfulnessEvaluator,
+        CancellationToken cancellationToken)
+    {
+        if (llmFaithfulnessEvaluator is null || evidencePackage is null || string.IsNullOrWhiteSpace(trace.ParsedResultJson))
+            return;
+
+        double? score =
+            await llmFaithfulnessEvaluator.TryEvaluateAsync(
+                    trace.TraceId,
+                    trace.ParsedResultJson,
+                    evidencePackage,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+        if (score is { } faithfulness)
+            semanticScore.LlmFaithfulnessScore = faithfulness;
     }
 
     private static async Task<TraceQualityEvaluationResult?> TryEvaluateTraceGateDisabledAsync(

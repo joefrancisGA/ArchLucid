@@ -61,6 +61,15 @@ public sealed class AgentOutputEvaluationRecorderTests
                     It.IsAny<CancellationToken>()))
             .ReturnsAsync((double?)null);
 
+        Mock<IAgentOutputFaithfulnessEvaluator> llmFaithfulness = new();
+        llmFaithfulness
+            .Setup(e => e.TryEvaluateAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<AgentEvidencePackage>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync((double?)null);
+
         InMemoryAgentResultRepository agentResults = new();
 
         Mock<IAgentConfidenceCalibrationService> confidenceCalibration = new();
@@ -83,6 +92,7 @@ public sealed class AgentOutputEvaluationRecorderTests
             archFindingConfidence.Object,
             new AgentResultEvidenceFaithfulnessChecker(),
             embeddingFaithfulness.Object,
+            llmFaithfulness.Object,
             new NoOpAgentOutputEvaluationRepository(),
             logger);
     }

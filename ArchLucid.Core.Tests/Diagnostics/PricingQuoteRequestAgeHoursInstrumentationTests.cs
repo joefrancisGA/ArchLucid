@@ -36,21 +36,29 @@ public sealed class PricingQuoteRequestAgeHoursInstrumentationTests
         public static PricingQuoteAgeMeasurementCapture Start()
         {
             PricingQuoteAgeMeasurementCapture capture = new();
-            capture._listener.InstrumentPublished = (_, instrument) =>
-            {
-                if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
-                    return;
-
-                if (instrument.GetType().Name.Contains("Histogram", StringComparison.Ordinal))
-                    capture._listener.EnableMeasurementEvents(instrument);
-            };
-
-            _ = capture._listener.SetMeasurementEventCallback<double>((instrument, measurement, tags, _) =>
-                capture.DoubleMeasures.Add(new DoubleMeasurementRecord(instrument.Name, measurement, ToList(tags))));
-
+            capture._listener.InstrumentPublished = OnInstrumentPublished;
+            capture._listener.SetMeasurementEventCallback<double>(capture.OnDouble);
             capture._listener.Start();
 
             return capture;
+        }
+
+        private static void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
+        {
+            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            {
+                return;
+            }
+
+            if (instrument.GetType().Name.Contains("Histogram", StringComparison.Ordinal))
+            {
+                meterListener.EnableMeasurementEvents(instrument);
+            }
+        }
+
+        private void OnDouble(Instrument instrument, double measurement, ReadOnlySpan<KeyValuePair<string, object?>> tags, object? state)
+        {
+            DoubleMeasures.Add(new DoubleMeasurementRecord(instrument.Name, measurement, ToList(tags)));
         }
 
         public void Dispose()

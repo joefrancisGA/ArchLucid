@@ -12,11 +12,22 @@ namespace ArchLucid.Retrieval.Indexing;
 ///     <see cref="IVectorIndex.UpsertChunksAsync" />.
 /// </summary>
 public sealed class RetrievalIndexingService(
-    ITextChunker chunker,
+    SimpleTextChunker defaultChunker,
+    PolicyPackChunker policyPackChunker,
+    PriorManifestChunker priorManifestChunker,
     IEmbeddingService embeddingService,
     IVectorIndex vectorIndex,
     IOptionsMonitor<RetrievalEmbeddingCapOptions> capOptions) : IRetrievalIndexingService
 {
+    private readonly SimpleTextChunker _defaultChunker =
+        defaultChunker ?? throw new ArgumentNullException(nameof(defaultChunker));
+
+    private readonly PolicyPackChunker _policyPackChunker =
+        policyPackChunker ?? throw new ArgumentNullException(nameof(policyPackChunker));
+
+    private readonly PriorManifestChunker _priorManifestChunker =
+        priorManifestChunker ?? throw new ArgumentNullException(nameof(priorManifestChunker));
+
     /// <inheritdoc />
     public async Task IndexDocumentsAsync(IReadOnlyList<RetrievalDocument> documents, CancellationToken ct)
     {
@@ -35,7 +46,7 @@ public sealed class RetrievalIndexingService(
         {
             ct.ThrowIfCancellationRequested();
 
-            IReadOnlyList<string> split = chunker.Chunk(doc.Content);
+            IReadOnlyList<string> split = SelectChunker(doc.CorpusKind).Chunk(doc.Content);
 
             if (split.Count == 0)
                 continue;
@@ -94,4 +105,12 @@ public sealed class RetrievalIndexingService(
         if (chunks.Count > 0)
             await vectorIndex.UpsertChunksAsync(chunks, ct);
     }
+
+    private ITextChunker SelectChunker(CorpusKind corpusKind) =>
+        corpusKind switch
+        {
+            CorpusKind.PolicyPack => _policyPackChunker,
+            CorpusKind.PriorManifest => _priorManifestChunker,
+            _ => _defaultChunker,
+        };
 }

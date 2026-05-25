@@ -8,12 +8,16 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Recently shipped (IDs kept for grep, ADRs, and code comments — spec text removed below):** **TB-001** (informational async audit best-effort + counter), **TB-002** (`archlucid_startup_config_warnings_total`), **TB-003** (named-query p95 allowlist + `archlucid_query_p95_ms`), **TB-006** (`ComparisonRecords` run id GUID + FK migration).
 
+**TB-022 – TB-026** were added 2026-05-24 from an audit-grade correctness review of `LlmCostEstimator` (see `ArchLucid.AgentRuntime/LlmCostEstimator.cs` and `ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs`). They form a single thematic cluster: TB-022 + TB-026 are correctness fixes; TB-024 is test coverage; TB-023 + TB-025 are documentation/annotation.
+
 | ID | Title | Priority driver | Size |
 |----|-------|----------------|------|
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001 done, INV-005, INV-006) | Multi-tenant + prod boot safety — **INV-001 shipped 2026-05-09**; remaining: startup validator parity + composition-root scan | S (remainder) |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | Honesty + economics — persisted execution mode, durable budget coherence, single quality-gate truth, replay scope isolation | L |
 | TB-012 | Architecture invariant enforcement — Wave C (INV-007–INV-011, INV-014–INV-015) | Contributor hygiene — time/cancellation/idempotency/HTTP/analyzer pack + webhook ordering + INV-003 path markers | L |
+| TB-022 | `LlmCostEstimator` — `int` overflow in aggregator token-count fields | Correctness — `promptSum` / `completionSum` + summary record fields silently wrap at ~2.1B tokens; high-context batch runs at risk | XS |
+| TB-026 | `LlmCostEstimator` — negative-rate guard on `LlmDeploymentUsdRates` | Correctness / safety — a misconfigured negative rate bypasses the `> 0m` guard and produces negative cost slices; startup validator or annotation needed | XS |
 | TB-004 | Wire OTel exporters + verify agent-output metrics; add Azure alerts | Ops / release bar — conservative quality posture needs visible trends (`archlucid_agent_output_*`) | ~1–2 h |
 | TB-005 | AI-assisted owner pen-test support (Cursor agent) | Security / V1 assurance — structured help for 2026-Q2 owner exercise | Ongoing (time-boxed sessions) |
 | TB-007 | LLM correctness boundary — cohort gate promotion + eval real-mode scenarios | Correctness posture — gated real-model CI blocked on prereqs (Gap A+C open) | A: ~1 h ops; C: ~4 h eng |
@@ -22,6 +26,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-013 | Documentation library audience split — Phases 2–3 (customer-facing vs contributor-reference) | Developer experience — lower onboarding cognitive load without breaking bookmarks or procurement/UI doc paths | M |
 | TB-014 | LLM monthly budget top-up — **`PurchasedCapBumpUsd`** column + effective cap (manual SQL / test hook today); Stripe SKU + webhook + UI TBD | Self-service headroom before UTC month roll | M |
 | TB-015 | Per-agent/per-invoke-kind LLM token dimensions + CI export of real-mode averages | FinOps honesty — truthful Topology/Cost/Compliance/Critic token envelopes for `cost-preview` + cohort budgeting (no guesses) | M |
+| TB-024 | `LlmCostEstimator` — reasoning-token test coverage | Test coverage — `reasoningTokens > 0` path in `LlmCostEstimatorTests` is untested; rate fallback and per-deployment reasoning override need explicit cases | XS |
+| TB-023 | `LlmCostEstimator` — document replay-rate semantics (live rate vs stored-per-trace divergence) | Developer clarity / FinOps honesty — recomputed aggregate uses live rates, not historical rates; diverges from stored `EstimatedCostUsd` after admin rate changes; must be documented on `ILlmCostEstimator` and the aggregator | XS |
+| TB-025 | `LlmCostEstimator` — annotate OTel `double` cast and pretax nature | Informational / monitoring honesty — `(double)estimatedCostUsd` in `RecordLlmCostUsd` introduces IEEE 754 error; `archlucid_llm_cost_usd_total` is pretax and monitoring-grade only; neither is documented | XS |
 | TB-016 | ITSM + chat vendor sandbox accounts — provision, secrets, inbound webhooks — for recurring live smoke | Trust / interoperability — mocks are not proofs; gated CI + CONNECTOR_READINESS_MATRIX need operator-owned URLs + tokens | S–M |
 | TB-017 | Trial orphaned-catalog teardown SOP + only then tighten unattended `Trial:Lifecycle` purge | Hosted COGS — idle dormant trials burn negligible AOAI; manual Azure SQL/catalog drop suffices at low cardinality (`TRIAL_AND_SIGNUP` §4, `TRIAL_LIFECYCLE`) | S |
 | TB-018 | Warm tenant catalogs in elastic pool — replenish + fast claim (`RunTenant`-skip path) | Signup SLA — elastic pool amortizes DDL; standby empties shorten hot path (`TENANT_DATABASE_TOPOLOGY` Operational notes warm catalogs) | M |
@@ -569,4 +576,168 @@ After each smoke wave, update **`docs/library/CONNECTOR_READINESS_MATRIX.md`** (
 **Refs:** [ADR 0004](../architecture/adrs/0004-transactional-outbox-retrieval-indexing.md); [ADR 0005](../architecture/adrs/0005-llm-completion-pipeline.md); [`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md); [`AI_LEVERAGE_ROADMAP.md`](AI_LEVERAGE_ROADMAP.md) (#3, #11); [`authoring-prompts/PACK_CONTEXTS.md`](authoring-prompts/PACK_CONTEXTS.md) AI-05.
 
 **Size estimate:** **M–L** phased — ~2–3 weeks eng if executed sequentially; **first slice** (`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`) is ~3–5 eng days.
+
+---
+
+## TB-022 — `LlmCostEstimator` — `int` overflow in aggregator token-count fields
+
+**Source:** Cost estimator audit-grade correctness review (2026-05-24).
+
+**Problem:** `AgentExecutionTraceRunLlmCostAggregator.Compute` accumulates token totals into `int` locals and returns them via `AgentExecutionTraceRunLlmCostSummary` record fields also typed `int`:
+
+```csharp
+// AgentExecutionTraceRunLlmCostAggregator.cs
+int promptSum = 0;
+int completionSum = 0;
+// ...
+promptSum += inTok;   // overflows at int.MaxValue ≈ 2.1 B tokens
+completionSum += outTok;
+
+// AgentExecutionTraceRunLlmCostSummary record
+public sealed record AgentExecutionTraceRunLlmCostSummary(
+    decimal? EstimatedCostUsd,
+    int PromptTokens,    // silently wraps on overflow
+    int CompletionTokens,
+    string ModelLabel);
+```
+
+`int.MaxValue` is 2,147,483,647 (~2.1 B). A run with 500 traces averaging 5 M input tokens each reaches 2.5 B tokens and overflows silently, corrupting the token counts returned to the API response and OTel instrumentation. The `decimal costAccum` is unaffected and produces a correct cost estimate. Only the displayed totals corrupt.
+
+**What to do:**
+
+1. Change `promptSum` and `completionSum` locals to `long` in `AgentExecutionTraceRunLlmCostAggregator.Compute`.
+2. Change `PromptTokens` and `CompletionTokens` on `AgentExecutionTraceRunLlmCostSummary` to `long`.
+3. Update `RunLlmTokenCountsResponse` fields (`Prompt`, `Completion`) and any callers that downcast to `int` — check `RunAgentExecutionLlmCostEstimateAppender` and any frontend DTO mapping.
+4. Update `AgentExecutionTraceRunLlmCostAggregatorTests` with assertions that would have caught the overflow (e.g. token counts > `int.MaxValue` across multiple traces — or at minimum add a comment warning for future large-scale tests).
+
+**Affected files:**
+- [`ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs`](../../ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs)
+- [`ArchLucid.Api/Support/RunAgentExecutionLlmCostEstimateAppender.cs`](../../ArchLucid.Api/Support/RunAgentExecutionLlmCostEstimateAppender.cs)
+- [`ArchLucid.Api/Models/RunAgentLlmCostEstimateResponse.cs`](../../ArchLucid.Api/Models/RunAgentLlmCostEstimateResponse.cs) (if `Prompt`/`Completion` fields are `int`)
+- [`ArchLucid.Application.Tests/Agents/AgentExecutionTraceRunLlmCostAggregatorTests.cs`](../../ArchLucid.Application.Tests/Agents/AgentExecutionTraceRunLlmCostAggregatorTests.cs)
+
+**Size estimate:** **XS** — ~30 min mechanical change + test annotation.
+
+---
+
+## TB-026 — `LlmCostEstimator` — negative-rate guard on `LlmDeploymentUsdRates`
+
+**Source:** Cost estimator audit-grade correctness review (2026-05-24).
+
+**Problem:** `LlmCostEstimator.EstimateUsd` uses `> 0m` to decide whether a configured deployment rate overrides the global rate:
+
+```csharp
+if (dep.InputUsdPerMillionTokens > 0m)
+    inputRate = dep.InputUsdPerMillionTokens;
+```
+
+This silently applies a negative rate (e.g. from a typo in `appsettings.json`) because negative values pass the `> 0m` test and replace the previously correct positive rate. The result is a negative cost slice that corrupts the `AgentExecutionTraceRunLlmCostSummary.EstimatedCostUsd` aggregate for that run.
+
+The `LlmCostTuningRequestValidator` correctly rejects negative values on the admin API path, but static `appsettings.json` / environment variable configuration has no equivalent guard.
+
+**What to do:**
+
+1. Add `[Range(0.0, (double)LlmCostTuningRequestValidator.MaxUsdPerMillionTokens)]` (or equivalent `decimal`-compatible annotation) to `LlmDeploymentUsdRates.InputUsdPerMillionTokens`, `OutputUsdPerMillionTokens`, and `ReasoningUsdPerMillionTokens`.
+2. If `DataAnnotations` range validation is already wired for `LlmCostEstimationOptions` at startup (via `ValidateDataAnnotations()`), confirm the `Deployments` dictionary values are also validated — dictionary-value validation is not automatic in `Microsoft.Extensions.Options` and may require a custom `IValidateOptions<LlmCostEstimationOptions>`.
+3. Add a startup advisory warning (reuse `ArchLucidInstrumentation.RecordStartupConfigWarning`) if any configured rate is negative, as a belt-and-suspenders fallback even before the `Options` validation path catches it.
+4. Add a unit test asserting that a negative deployment rate either throws at options-validation time or is ignored in favor of the global rate (pick one and document the choice).
+
+**Affected files:**
+- [`ArchLucid.Core/Configuration/LlmDeploymentUsdRates.cs`](../../ArchLucid.Core/Configuration/LlmDeploymentUsdRates.cs)
+- [`ArchLucid.Core/Configuration/LlmCostEstimationOptions.cs`](../../ArchLucid.Core/Configuration/LlmCostEstimationOptions.cs) (IValidateOptions wiring if not present)
+- [`ArchLucid.AgentRuntime.Tests/LlmCostEstimatorTests.cs`](../../ArchLucid.AgentRuntime.Tests/LlmCostEstimatorTests.cs)
+
+**Size estimate:** **XS** — ~1 h including annotation, IValidateOptions check, and test.
+
+---
+
+## TB-024 — `LlmCostEstimator` — reasoning-token test coverage
+
+**Source:** Cost estimator audit-grade correctness review (2026-05-24).
+
+**Problem:** All three existing `LlmCostEstimatorTests` pass `reasoningTokens = 0` (implicitly, via the default parameter). The following paths are untested:
+
+- Reasoning tokens billed at the explicit `ReasoningUsdPerMillionTokens` rate.
+- Reasoning tokens falling back to `outputRate` when `ReasoningUsdPerMillionTokens == 0`.
+- Per-deployment `ReasoningUsdPerMillionTokens` override.
+- Global rate override (`ILlmCostEstimationUsdRateOverride`) combined with reasoning fallback — the fallback uses the *overridden* output rate, not the config output rate; this is correct but currently invisible in tests.
+
+**What to do:**
+
+Add at least three tests to `LlmCostEstimatorTests`:
+
+```csharp
+// 1. Explicit reasoning rate
+EstimateUsd_applies_explicit_reasoning_rate_when_configured()
+// options: Input=3, Output=15, Reasoning=20
+// call: EstimateUsd(1_000_000, 0, 1_000_000)
+// expected: 3m + 20m = 23m
+
+// 2. Reasoning falls back to output rate when reasoning rate is zero
+EstimateUsd_reasoning_falls_back_to_output_rate_when_zero()
+// options: Input=3, Output=15, Reasoning=0
+// call: EstimateUsd(0, 0, 1_000_000)
+// expected: 15m (output rate used)
+
+// 3. Per-deployment reasoning override
+EstimateUsd_per_deployment_reasoning_overrides_global()
+// global: Reasoning=5, dep-o: ReasoningUsdPerMillionTokens=25
+// call: EstimateUsd(0, 0, 1_000_000, "dep-o")
+// expected: 25m
+```
+
+**Affected files:**
+- [`ArchLucid.AgentRuntime.Tests/LlmCostEstimatorTests.cs`](../../ArchLucid.AgentRuntime.Tests/LlmCostEstimatorTests.cs)
+
+**Size estimate:** **XS** — ~30 min.
+
+---
+
+## TB-023 — `LlmCostEstimator` — document replay-rate semantics (live rate vs. stored-per-trace divergence)
+
+**Source:** Cost estimator audit-grade correctness review (2026-05-24).
+
+**Problem:** `ILlmCostEstimationUsdRateOverride.TryGetUsdPerMillionRates` is resolved at call time, not at trace-recording time. This means:
+
+1. Replaying historical traces through `AgentExecutionTraceRunLlmCostAggregator.Compute` after an admin rate update produces a different aggregate cost than what was originally recorded.
+2. The per-trace `AgentExecutionTrace.EstimatedCostUsd` field (populated at trace-recording time with the rates live then) diverges from the recomputed aggregate — they can disagree on the same run.
+
+Neither the interface XML doc nor the aggregator XML doc currently states this behavior. Operators who treat the "estimated cost" on a run detail page as a stable audit number will be surprised when it changes after an admin tunes rates.
+
+**What to do:**
+
+1. Add a `<remarks>` block to `ILlmCostEstimator.EstimateUsd` stating: "Estimates reflect the **currently configured** rates (including any live admin override via `ILlmCostEstimationUsdRateOverride`). Replaying historical token counts after a rate change produces a different result — this is intentional and is not a stable audit-grade record."
+2. Add a corresponding `<remarks>` to `AgentExecutionTraceRunLlmCostAggregator.Compute` stating: "Re-estimates each trace using current live rates. The returned `EstimatedCostUsd` may differ from the per-trace `AgentExecutionTrace.EstimatedCostUsd` values populated at trace-recording time if rates were changed between recording and this call."
+3. Add a brief note to `docs/library/PER_TENANT_COST_MODEL.md` (or `OPERATIONS_LLM_QUOTA.md`) in the rate-tuning section explaining the recomputation behavior for operator awareness.
+
+**Affected files:**
+- [`ArchLucid.Core/Configuration/ILlmCostEstimator.cs`](../../ArchLucid.Core/Configuration/ILlmCostEstimator.cs)
+- [`ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs`](../../ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs)
+- `docs/library/PER_TENANT_COST_MODEL.md` or `docs/OPERATIONS_LLM_QUOTA.md` (whichever covers rate-tuning guidance)
+
+**Size estimate:** **XS** — ~30 min (comments + one paragraph in ops doc).
+
+---
+
+## TB-025 — `LlmCostEstimator` — annotate OTel `double` cast and pretax nature
+
+**Source:** Cost estimator audit-grade correctness review (2026-05-24).
+
+**Problem:** Two undocumented correctness caveats exist in the metrics emission path:
+
+1. **`decimal → double` precision loss.** `ArchLucidInstrumentation.RecordLlmCostUsd` casts the `decimal` estimate to `double` before adding to the `Counter<double>` OTel instrument (`archlucid_llm_cost_usd_total`). Values like `$0.000003` are not exactly representable in IEEE 754 `double`, introducing rounding error that accumulates in the Prometheus counter. The in-process `decimal` and any SQL-persisted values are unaffected.
+
+2. **Pretax only, not labeled as such.** The counter description ("Estimated LLM USD from token counts × rates") does not state that the value is pretax. Operators reconciling the counter against an Azure invoice (which includes VAT/GST depending on jurisdiction) will see unexplained discrepancies.
+
+**What to do:**
+
+1. Update the `LlmCostUsdTotal` counter description to read: *"Pre-tax estimated LLM spend in USD from token counts × configured per-million rates (label tenant). Monitoring-grade only — not invoice-reconciliation-grade; the decimal-to-double cast introduces sub-microdollar IEEE 754 rounding. Does not include VAT/GST."*
+2. Add an inline comment on the `(double)estimatedCostUsd` cast in `RecordLlmCostUsd` explaining the precision loss and why it is acceptable for monitoring purposes.
+3. Update the `ILlmCostEstimator.EstimateUsd` XML doc (or `LlmCostEstimationOptions` section header) to state "returns pre-tax estimated cost."
+
+**Affected files:**
+- [`ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`](../../ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs) — `LlmCostUsdTotal` counter definition and `RecordLlmCostUsd` method
+- [`ArchLucid.Core/Configuration/ILlmCostEstimator.cs`](../../ArchLucid.Core/Configuration/ILlmCostEstimator.cs)
+
+**Size estimate:** **XS** — ~20 min (comments + description string updates).
 

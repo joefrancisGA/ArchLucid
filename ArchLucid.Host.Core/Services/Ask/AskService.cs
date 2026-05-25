@@ -301,7 +301,11 @@ public sealed class AskService(
 
         try
         {
-            retrievalHits = await retrievalQuery.SearchAsync(
+            bool includePolicyPacks = AskRetrievalIntentDetector.DetectPolicyPackIntent(question);
+            bool boostPriorManifest = AskRetrievalIntentDetector.DetectPriorManifestIntent(question);
+            const int retrievalTopK = 8;
+
+            IReadOnlyList<RetrievalHit> rawHits = await retrievalQuery.SearchAsync(
                 new RetrievalQuery
                 {
                     TenantId = scope.TenantId,
@@ -310,10 +314,12 @@ public sealed class AskService(
                     RunId = null,
                     ManifestId = null,
                     QueryText = question,
-                    TopK = 8
+                    TopK = retrievalTopK,
+                    IncludePlatformCorpora = includePolicyPacks,
                 },
                 ct);
 
+            retrievalHits = AskRetrievalHitRanker.Rank(rawHits, boostPriorManifest, retrievalTopK);
             retrievalContext = BuildRetrievalContext(retrievalHits);
         }
         catch (Exception ex)

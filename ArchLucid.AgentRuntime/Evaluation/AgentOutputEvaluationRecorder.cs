@@ -32,6 +32,7 @@ public sealed class AgentOutputEvaluationRecorder(
     Contracts.Findings.IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher,
     IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
     IAgentResultEmbeddingFaithfulnessScorer embeddingFaithfulnessScorer,
+    IAgentOutputFaithfulnessEvaluator llmFaithfulnessEvaluator,
     IAgentOutputEvaluationRepository agentOutputEvaluationRepository,
     ILogger<AgentOutputEvaluationRecorder> logger)
 {
@@ -67,6 +68,9 @@ public sealed class AgentOutputEvaluationRecorder(
 
     private readonly IAgentResultEmbeddingFaithfulnessScorer _embeddingFaithfulnessScorer =
         embeddingFaithfulnessScorer ?? throw new ArgumentNullException(nameof(embeddingFaithfulnessScorer));
+
+    private readonly IAgentOutputFaithfulnessEvaluator _llmFaithfulnessEvaluator =
+        llmFaithfulnessEvaluator ?? throw new ArgumentNullException(nameof(llmFaithfulnessEvaluator));
 
     private readonly IAgentOutputEvaluationRepository _agentOutputEvaluationRepository =
         agentOutputEvaluationRepository ?? throw new ArgumentNullException(nameof(agentOutputEvaluationRepository));
@@ -125,6 +129,7 @@ public sealed class AgentOutputEvaluationRecorder(
                     evidence,
                     agentResultEvidenceFaithfulnessChecker,
                     _embeddingFaithfulnessScorer,
+                    _llmFaithfulnessEvaluator,
                     calibratedLookup).ConfigureAwait(false);
 
             if (evaluated is null)
@@ -196,6 +201,9 @@ public sealed class AgentOutputEvaluationRecorder(
                     ArchLucidInstrumentation.AgentOutputEmbeddingFaithfulnessMeanCosine.Record(
                         EmbeddingFaithfulnessVectorMath.ToTelemetryUnitInterval(embCos),
                         tags);
+
+                if (evaluated.Semantic.LlmFaithfulnessScore is { } faithfulness)
+                    ArchLucidInstrumentation.AgentOutputLlmFaithfulnessScore.Record(faithfulness, tags);
 
                 if (evaluated.Semantic.OverallSemanticScore < LowSemanticScoreThreshold)
                     logger.LogWarningAgentOutputSemanticScoreBelowThreshold(
