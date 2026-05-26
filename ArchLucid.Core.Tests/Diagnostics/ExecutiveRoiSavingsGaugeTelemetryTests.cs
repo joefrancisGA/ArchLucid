@@ -18,7 +18,21 @@ public sealed class ExecutiveRoiSavingsGaugeTelemetryTests
 
         measurements.Should().ContainSingle();
         measurements[0].Value.Should().BeApproximately(12500.75, 0.001);
-        measurements[0].Tags.ToArray().Should().Contain(t => t.Key == "scope" && (string?)t.Value == ExecutiveRoiSavingsGaugeTelemetry.PlatformScope);
+        MeasurementHasScopeTag(measurements[0], ExecutiveRoiSavingsGaugeTelemetry.PlatformScope).Should().BeTrue();
+    }
+
+    private static bool MeasurementHasScopeTag(Measurement<double> measurement, string scope) =>
+        MeasurementHasTagValue(measurement, "scope", scope);
+
+    private static bool MeasurementHasTagValue(Measurement<double> measurement, string key, string expectedValue)
+    {
+        foreach (KeyValuePair<string, object?> tag in measurement.Tags)
+        {
+            if (tag.Key == key && (string?)tag.Value == expectedValue)
+                return true;
+        }
+
+        return false;
     }
 
     [Fact]
@@ -32,12 +46,11 @@ public sealed class ExecutiveRoiSavingsGaugeTelemetryTests
             recordPerTenant: true);
 
         measurements.Should().HaveCount(2);
-        measurements.Should().Contain(m =>
-            m.Tags.ToArray().Any(t => t.Key == "scope" && (string?)t.Value == ExecutiveRoiSavingsGaugeTelemetry.PlatformScope));
+        measurements.Should().Contain(m => MeasurementHasScopeTag(m, ExecutiveRoiSavingsGaugeTelemetry.PlatformScope));
         measurements.Should().Contain(m =>
             m.Value == 9000d
-            && m.Tags.ToArray().Any(t => t.Key == "scope" && (string?)t.Value == ExecutiveRoiSavingsGaugeTelemetry.TenantScope)
-            && m.Tags.ToArray().Any(t => t.Key == "tenant_id" && (string?)t.Value == tenantId.ToString("D")));
+            && MeasurementHasScopeTag(m, ExecutiveRoiSavingsGaugeTelemetry.TenantScope)
+            && MeasurementHasTagValue(m, "tenant_id", tenantId.ToString("D")));
     }
 
     [Fact]

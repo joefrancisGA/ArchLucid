@@ -2,9 +2,11 @@ using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Decisioning.Alerts.Simulation;
 using ArchLucid.Decisioning.Alerts.Tuning;
-using ArchLucid.Contracts.Alerts.Tuning;
 
 using FluentAssertions;
+
+using ThresholdRecommendationRequest = ArchLucid.Contracts.Alerts.Tuning.ThresholdRecommendationRequest;
+using ThresholdRecommendationResult = ArchLucid.Contracts.Alerts.Tuning.ThresholdRecommendationResult;
 
 using Moq;
 
