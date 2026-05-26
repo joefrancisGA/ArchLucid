@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Core.Alerts;
 using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Decisioning.Alerts.Simulation;
 using ArchLucid.Persistence.Alerts.Simulation;

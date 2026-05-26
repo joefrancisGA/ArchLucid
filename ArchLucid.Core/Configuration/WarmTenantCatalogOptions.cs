@@ -16,7 +16,7 @@ public sealed class WarmTenantCatalogOptions
     {
         get;
         init;
-    } = 2;
+    } = 3;
 
     /// <summary>Replenish loop interval in minutes.</summary>
     public int ReplenishIntervalMinutes

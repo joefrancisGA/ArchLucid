@@ -1801,13 +1801,15 @@ jobs:
           head -n 50 "${OUT}/Summary.txt" | grep -E 'Line coverage:|Branch coverage:' | sed 's/^[[:space:]]*//' > "${{ runner.temp }}/coverage-metrics.txt"
           ART_DIR="${{ runner.temp }}/coverage-metrics-artifact"
           mkdir -p "${ART_DIR}"
-          # Merged line minimum is 75; full ratchet (.coverage-floor) is V1.1 (`docs/library/V1_DEFERRED.md`).
+          # Merged line minimum is 95; full ratchet (.coverage-floor) is enabled.
           python3 scripts/ci/assert_merged_line_coverage_min.py \
-            "${OUT}/Cobertura.xml" 75 \
+            "${OUT}/Cobertura.xml" 95 \
             --min-branch-pct 63 \
             --min-package-line-pct 63 \
             --warn-below-package-line-pct 70 \
             --annotations-file "${ART_DIR}/coverage-annotations-assert.txt"
+          python3 scripts/ci/assert_coverage_floor_ratchet.py \
+            "${OUT}/Cobertura.xml"
           cp "${{ runner.temp }}/coverage-metrics.txt" "${ART_DIR}/coverage-metrics.txt"
 
       - uses: actions/upload-artifact@v6
