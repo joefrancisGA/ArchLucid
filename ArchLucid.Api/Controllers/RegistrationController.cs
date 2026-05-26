@@ -29,7 +29,8 @@ public sealed class RegistrationController(
     ITenantProvisioningService provisioning,
     IAuditService audit,
     ITrialTenantBootstrapService trialBootstrap,
-    IMarketingAttributionService marketingAttribution) : ControllerBase
+    IMarketingAttributionService marketingAttribution,
+    TimeProvider timeProvider) : ControllerBase
 {
     private const string FriendlyValidation =
         "The registration could not be completed. Check the organization name, email, and optional review-cycle fields, then try again.";
@@ -47,6 +48,8 @@ public sealed class RegistrationController(
 
     private readonly IMarketingAttributionService _marketingAttribution =
         marketingAttribution ?? throw new ArgumentNullException(nameof(marketingAttribution));
+
+    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     /// <summary>Creates a Free-tier tenant and default workspace (idempotent by organization slug).</summary>
     [HttpPost]
@@ -244,7 +247,7 @@ public sealed class RegistrationController(
                 cancellationToken);
 
             TrialSignupBaselineReviewCycleCapture? baselineCapture = body.BaselineReviewCycleHours is { } h
-                ? new TrialSignupBaselineReviewCycleCapture(h, normalizedBaselineSource, TimeProvider.System.GetUtcNow())
+                ? new TrialSignupBaselineReviewCycleCapture(h, normalizedBaselineSource, _timeProvider.GetUtcNow())
                 : null;
 
             bool hasCompanyProfile = body.CompanySize is not null
@@ -298,7 +301,7 @@ public sealed class RegistrationController(
                 ArchLucidInstrumentation.RecordTrialSignupBaselineSkipped();
 
             MarketingAttributionSnapshot? firstTouch =
-                MarketingAttributionHeaderParser.TryParse(Request.Headers["x-archlucid-first-touch"].FirstOrDefault());
+                MarketingAttributionHeaderParser.TryParse(Request.Headers["x-archlucid-first-touch"].FirstOrDefault(), _timeProvider);
 
             await _marketingAttribution.PersistFirstTouchIfPresentAsync(
                 result.TenantId,

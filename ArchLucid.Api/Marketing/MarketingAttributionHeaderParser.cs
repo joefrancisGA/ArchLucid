@@ -10,7 +10,7 @@ public static class MarketingAttributionHeaderParser
 {
     private const int MaxFieldLength = 120;
 
-    public static MarketingAttributionSnapshot? TryParse(string? headerValue)
+    public static MarketingAttributionSnapshot? TryParse(string? headerValue, TimeProvider timeProvider)
     {
         if (string.IsNullOrWhiteSpace(headerValue))
             return null;
@@ -29,7 +29,7 @@ public static class MarketingAttributionHeaderParser
                 UtmMedium = Sanitize(GetString(root, "utm_medium")),
                 UtmCampaign = Sanitize(GetString(root, "utm_campaign")),
                 UtmContent = Sanitize(GetString(root, "utm_content")),
-                CapturedUtc = ParseCapturedUtc(root),
+                CapturedUtc = ParseCapturedUtc(root, timeProvider),
             };
 
             if (string.IsNullOrWhiteSpace(snapshot.UtmSource)
@@ -50,7 +50,7 @@ public static class MarketingAttributionHeaderParser
         }
     }
 
-    private static DateTimeOffset ParseCapturedUtc(JsonElement root)
+    private static DateTimeOffset ParseCapturedUtc(JsonElement root, TimeProvider timeProvider)
     {
         if (root.TryGetProperty("capturedUtc", out JsonElement value)
             && value.ValueKind == JsonValueKind.String
@@ -59,7 +59,7 @@ public static class MarketingAttributionHeaderParser
             return parsed.ToUniversalTime();
         }
 
-        return DateTimeOffset.UtcNow;
+        return timeProvider.GetUtcNow();
     }
 
     private static string? GetString(JsonElement root, string propertyName)

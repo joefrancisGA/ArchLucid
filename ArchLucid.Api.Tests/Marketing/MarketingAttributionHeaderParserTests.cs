@@ -15,8 +15,8 @@ public sealed class MarketingAttributionHeaderParserTests
     [Fact]
     public void TryParse_returns_null_for_empty_header()
     {
-        MarketingAttributionHeaderParser.TryParse(null).Should().BeNull();
-        MarketingAttributionHeaderParser.TryParse("   ").Should().BeNull();
+        MarketingAttributionHeaderParser.TryParse(null, TimeProvider.System).Should().BeNull();
+        MarketingAttributionHeaderParser.TryParse("   ", TimeProvider.System).Should().BeNull();
     }
 
     [Fact]
@@ -24,7 +24,7 @@ public sealed class MarketingAttributionHeaderParserTests
     {
         string json = """{"utm_source":"google","utm_medium":"cpc","utm_campaign":"spring","utm_content":"hero"}""";
 
-        MarketingAttributionSnapshot? snapshot = MarketingAttributionHeaderParser.TryParse(json);
+        MarketingAttributionSnapshot? snapshot = MarketingAttributionHeaderParser.TryParse(json, TimeProvider.System);
 
         snapshot.Should().NotBeNull();
         snapshot!.UtmSource.Should().Be("google");
@@ -39,7 +39,7 @@ public sealed class MarketingAttributionHeaderParserTests
         string json = """{"utm_source":"linkedin","utm_medium":"social"}""";
         string encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
 
-        MarketingAttributionSnapshot? snapshot = MarketingAttributionHeaderParser.TryParse(encoded);
+        MarketingAttributionSnapshot? snapshot = MarketingAttributionHeaderParser.TryParse(encoded, TimeProvider.System);
 
         snapshot.Should().NotBeNull();
         snapshot!.UtmSource.Should().Be("linkedin");
@@ -52,7 +52,7 @@ public sealed class MarketingAttributionHeaderParserTests
         string longCampaign = new('x', 200);
         string json = JsonSerializer.Serialize(new { utm_source = "google", utm_campaign = longCampaign + "\u0007" });
 
-        MarketingAttributionSnapshot? snapshot = MarketingAttributionHeaderParser.TryParse(json);
+        MarketingAttributionSnapshot? snapshot = MarketingAttributionHeaderParser.TryParse(json, TimeProvider.System);
 
         snapshot.Should().NotBeNull();
         snapshot!.UtmCampaign.Should().HaveLength(120);
