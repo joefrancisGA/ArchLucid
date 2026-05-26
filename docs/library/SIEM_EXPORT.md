@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid — Audit log export for SIEM integration - full detail, payload examples for Splunk HEC and Microsoft Sentinel, and links in the sections below.
+> **Scope:** Contributor-reference — ArchLucid — Audit log export for SIEM integration - full detail, payload examples for Splunk HEC and Microsoft Sentinel, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

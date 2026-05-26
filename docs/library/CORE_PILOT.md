@@ -1,4 +1,4 @@
-> **Scope:** Pointer to the Core Pilot path narrative — canonical content lives in `docs/CORE_PILOT.md`; performance smoke budgets are documented in `docs/library/PERFORMANCE_TESTING.md`.
+> **Scope:** Customer-facing — Pointer to the Core Pilot path narrative — canonical content lives in `docs/CORE_PILOT.md`; performance smoke budgets are documented in `docs/library/PERFORMANCE_TESTING.md`.
 
 # Core Pilot (pointer)
 

@@ -1,4 +1,4 @@
-> **Scope:** Degraded mode — LLM and agent availability - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Degraded mode — LLM and agent availability - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

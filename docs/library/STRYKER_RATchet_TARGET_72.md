@@ -1,4 +1,4 @@
-> **Scope:** Stryker mutation score ratchet — target 72% - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Stryker mutation score ratchet — target 72% - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

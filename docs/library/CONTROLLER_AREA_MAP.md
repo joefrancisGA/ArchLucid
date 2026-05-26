@@ -1,4 +1,4 @@
-> **Scope:** API controller area map - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — API controller area map - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

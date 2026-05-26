@@ -1,4 +1,4 @@
-> **Scope:** Curated policy pack rule sizing and priority tiers (P0/P1/P2) — product assumptions for authors, operators, and compliance evaluation; not legal certification guidance.
+> **Scope:** Contributor-reference — Curated policy pack rule sizing and priority tiers (P0/P1/P2) — product assumptions for authors, operators, and compliance evaluation; not legal certification guidance.
 
 > **Spine doc:** [`POLICY_PACK_CONTENT_BACKLOG.md`](POLICY_PACK_CONTENT_BACKLOG.md) · Buyer summary: [`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md)
 

@@ -1,4 +1,4 @@
-> **Scope:** Engineering backlog for retrieval-augmented generation (RAG) quality improvements — extends existing `ArchLucid.Retrieval` + `AskService` infrastructure; not procurement copy or a product roadmap commitment.
+> **Scope:** Contributor-reference — Engineering backlog for retrieval-augmented generation (RAG) quality improvements — extends existing `ArchLucid.Retrieval` + `AskService` infrastructure; not procurement copy or a product roadmap commitment.
 
 # RAG quality — technical backlog
 

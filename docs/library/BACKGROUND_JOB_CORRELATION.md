@@ -1,4 +1,4 @@
-> **Scope:** Background job correlation (Activity + Serilog) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Background job correlation (Activity + Serilog) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

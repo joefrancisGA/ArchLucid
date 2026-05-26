@@ -1,4 +1,4 @@
-> **Scope:** SQL DDL discipline (single source of truth) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — SQL DDL discipline (single source of truth) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

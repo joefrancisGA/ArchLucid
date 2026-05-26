@@ -1,4 +1,4 @@
-> **Scope:** What exists today for **pilot scorecard** and **ROI baselines** in product vs manual spreadsheets.
+> **Scope:** Contributor-reference — What exists today for **pilot scorecard** and **ROI baselines** in product vs manual spreadsheets.
 
 # Pilot scorecard and ROI baselines
 

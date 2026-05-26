@@ -1,4 +1,4 @@
-> **Scope:** For engineers and reviewers: documents current commercial-tier API enforcement behavior; not an entitlement matrix, SKU roadmap, or policy for changing 404 vs 402 semantics.
+> **Scope:** Buyer — For engineers and reviewers: documents current commercial-tier API enforcement behavior; not an entitlement matrix, SKU roadmap, or policy for changing 404 vs 402 semantics.
 
 # Commercial tier enforcement (`[RequiresCommercialTenantTier]`) — as-built
 

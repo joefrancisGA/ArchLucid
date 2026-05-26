@@ -1,4 +1,4 @@
-> **Scope:** Persistence Project Split - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Persistence Project Split - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

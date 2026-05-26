@@ -1,4 +1,4 @@
-> **Scope:** Operator first-run and trial surfaces (UI routes) — full detail in the sections below.
+> **Scope:** Customer-facing — Operator first-run and trial surfaces (UI routes) — full detail in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

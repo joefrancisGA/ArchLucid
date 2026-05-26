@@ -1,4 +1,4 @@
-> **Scope:** Minimal read list for LLM-driven weighted readiness / first-principles assessments; audience is coding agents and the owner; not a customer or operator deliverable. Expand beyond this list only when the user asks a scoped question (for example UI-only or billing-only).
+> **Scope:** Evaluator — Minimal read list for LLM-driven weighted readiness / first-principles assessments; audience is coding agents and the owner; not a customer or operator deliverable. Expand beyond this list only when the user asks a scoped question (for example UI-only or billing-only).
 
 # Assessment inputs (canonical read list)
 

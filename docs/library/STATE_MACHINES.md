@@ -1,4 +1,4 @@
-> **Scope:** Reference for backend engineers and DB migration authors; documents all lifecycle state machines on core authority entities and what illegal transitions are enforced — not a user-facing workflow guide.
+> **Scope:** Contributor-reference — Reference for backend engineers and DB migration authors; documents all lifecycle state machines on core authority entities and what illegal transitions are enforced — not a user-facing workflow guide.
 
 # ArchLucid backend state machines
 

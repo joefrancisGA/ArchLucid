@@ -1,4 +1,4 @@
-> **Scope:** Extended onboarding narrative and tables formerly in `docs/START_HERE.md` — split 2026-04-27 so the root hub stays a ≤40-line routing tree. **Start at [../START_HERE.md](../START_HERE.md).**
+> **Scope:** Contributor-reference — Extended onboarding narrative and tables formerly in `docs/START_HERE.md` — split 2026-04-27 so the root hub stays a ≤40-line routing tree. **Start at [../START_HERE.md](../START_HERE.md).**
 
 # Start here — depth (buyer + contributor)
 

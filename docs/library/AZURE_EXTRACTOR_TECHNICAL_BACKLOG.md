@@ -1,4 +1,4 @@
-> **Scope:** Engineering backlog for the customer Azure extractor ZIP path, Terraform export, and citations — extends `docs/library/V1_SCOPE.md` sections 2.16–2.17; not procurement copy.
+> **Scope:** Contributor-reference — Engineering backlog for the customer Azure extractor ZIP path, Terraform export, and citations — extends `docs/library/V1_SCOPE.md` sections 2.16–2.17; not procurement copy.
 
 # Azure extractor and Terraform export — technical backlog
 

@@ -1,4 +1,4 @@
-> **Scope:** Integration events and webhook interoperability - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Integration events and webhook interoperability - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

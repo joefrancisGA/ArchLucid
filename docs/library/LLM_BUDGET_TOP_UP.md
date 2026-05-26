@@ -1,4 +1,4 @@
-> **Scope:** Operator / finance runbook for raising a tenant’s **UTC-month LLM dollar hard cap** and for the **self-serve non-expiring wallet** (TB-014). Complements **`LlmMonthlyTenantDollarBudget`** in app settings.
+> **Scope:** Contributor-reference — Operator / finance runbook for raising a tenant’s **UTC-month LLM dollar hard cap** and for the **self-serve non-expiring wallet** (TB-014). Complements **`LlmMonthlyTenantDollarBudget`** in app settings.
 
 # LLM budget headroom — operator bump + self-serve wallet (TB-014)
 

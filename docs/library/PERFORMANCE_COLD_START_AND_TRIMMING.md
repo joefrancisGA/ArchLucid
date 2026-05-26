@@ -1,4 +1,4 @@
-> **Scope:** Cold start, profiling, and trimming (API) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Cold start, profiling, and trimming (API) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

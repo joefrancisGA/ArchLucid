@@ -1,4 +1,4 @@
-> **Scope:** Integration guide for external/custom agent handlers — out-of-process webhook boundary, sample payloads aligned with `AgentResult`; not shipping code, MCP membrane specs, or in-host plugin APIs.
+> **Scope:** Contributor-reference — Integration guide for external/custom agent handlers — out-of-process webhook boundary, sample payloads aligned with `AgentResult`; not shipping code, MCP membrane specs, or in-host plugin APIs.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

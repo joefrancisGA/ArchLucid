@@ -1,4 +1,4 @@
-> **Scope:** Decisioning golden corpus — CI contract, layout, recording workflow, and maintenance rules for `tests/golden-corpus/decisioning/`.
+> **Scope:** Contributor-reference — Decisioning golden corpus — CI contract, layout, recording workflow, and maintenance rules for `tests/golden-corpus/decisioning/`.
 
 # Decisioning golden corpus
 

@@ -1,4 +1,4 @@
-> **Scope:** Step-by-Step Implementation Plan: CLI–API Architecture - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Step-by-Step Implementation Plan: CLI–API Architecture - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

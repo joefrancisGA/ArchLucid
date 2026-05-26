@@ -1,4 +1,4 @@
-> **Scope:** Proof-of-value sponsor snapshot — how to assemble real-mode timings, API load-test JSON, Pilot ROI deltas, and explainability completeness into one dated evidence narrative; **not** a financial guarantee or substitute for purchaser legal diligence.
+> **Scope:** Buyer — Proof-of-value sponsor snapshot — how to assemble real-mode timings, API load-test JSON, Pilot ROI deltas, and explainability completeness into one dated evidence narrative; **not** a financial guarantee or substitute for purchaser legal diligence.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

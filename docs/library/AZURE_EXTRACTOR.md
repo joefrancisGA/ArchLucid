@@ -1,4 +1,4 @@
-> **Scope:** Operator and customer onboarding for Azure extractor Tier 1 (local ZIP) and Tier 2 (hosted WIF pull).
+> **Scope:** Contributor-reference — Operator and customer onboarding for Azure extractor Tier 1 (local ZIP) and Tier 2 (hosted WIF pull).
 
 # Azure extractor
 

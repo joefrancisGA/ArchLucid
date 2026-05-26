@@ -1,4 +1,4 @@
-> **Scope:** Audit mapping `docs/go-to-market/PRICING_PHILOSOPHY.md` packaging rows to implemented API tier enforcement (`dbo.Tenants.Tier`).
+> **Scope:** Buyer — Audit mapping `docs/go-to-market/PRICING_PHILOSOPHY.md` packaging rows to implemented API tier enforcement (`dbo.Tenants.Tier`).
 
 # Commercial tier ↔ code alignment audit
 

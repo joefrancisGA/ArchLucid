@@ -1,4 +1,4 @@
-> **Scope:** Reference for **built-in finding engines** — identifiers, owning assemblies, and representative output patterns.
+> **Scope:** Contributor-reference — Reference for **built-in finding engines** — identifiers, owning assemblies, and representative output patterns.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

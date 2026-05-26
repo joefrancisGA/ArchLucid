@@ -1,4 +1,4 @@
-> **Scope:** Canonical operator action map — UI routes, APIs, CLI, and authority hints in one place.
+> **Scope:** Customer-facing — Canonical operator action map — UI routes, APIs, CLI, and authority hints in one place.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

@@ -1,4 +1,4 @@
-> **Scope:** Terraform / Azure variables (reference sketch) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Terraform / Azure variables (reference sketch) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

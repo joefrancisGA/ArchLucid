@@ -1,4 +1,4 @@
-> **Scope:** Per-tenant and host-level LLM cost **estimation** methodology (not billing invoices).
+> **Scope:** Contributor-reference — Per-tenant and host-level LLM cost **estimation** methodology (not billing invoices).
 
 # Per-tenant cost model (estimation)
 

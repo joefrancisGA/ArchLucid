@@ -1,4 +1,4 @@
-> **Scope:** Engineering audit mapping [PRICING_PHILOSOPHY.md §3 Feature gates](../go-to-market/PRICING_PHILOSOPHY.md) rows to repo enforcement (`RequiresCommercialTenantTier`, RBAC policies, trial limits); not a price sheet, SKU definition change, or legal interpretation.
+> **Scope:** Buyer — Engineering audit mapping [PRICING_PHILOSOPHY.md §3 Feature gates](../go-to-market/PRICING_PHILOSOPHY.md) rows to repo enforcement (`RequiresCommercialTenantTier`, RBAC policies, trial limits); not a price sheet, SKU definition change, or legal interpretation.
 
 # Feature gate enforcement vs PRICING_PHILOSOPHY §3 (audit)
 

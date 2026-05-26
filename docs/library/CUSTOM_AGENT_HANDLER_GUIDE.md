@@ -1,4 +1,4 @@
-> **Scope:** Advanced integrators authoring and registering custom agent handlers in the ArchLucid orchestration pipeline.
+> **Scope:** Contributor-reference — Advanced integrators authoring and registering custom agent handlers in the ArchLucid orchestration pipeline.
 
 # Custom agent handler guide
 

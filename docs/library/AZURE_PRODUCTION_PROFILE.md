@@ -1,4 +1,4 @@
-> **Scope:** Canonical Azure production profile for multi-tenant ArchLucid SaaS — summary only; advanced roots remain documented separately.
+> **Scope:** Contributor-reference — Canonical Azure production profile for multi-tenant ArchLucid SaaS — summary only; advanced roots remain documented separately.
 
 # Azure production profile (ArchLucid multi-tenant SaaS)
 

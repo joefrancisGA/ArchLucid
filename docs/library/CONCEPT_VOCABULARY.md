@@ -1,4 +1,4 @@
-> **Scope:** Writer-facing canonical-vs-rejected vocabulary for docs and copy — not the five-minute mental model (`CONCEPTS_IN_5_MINUTES.md`); not term definitions (`GLOSSARY.md`).
+> **Scope:** Contributor-reference — Writer-facing canonical-vs-rejected vocabulary for docs and copy — not the five-minute mental model (`CONCEPTS_IN_5_MINUTES.md`); not term definitions (`GLOSSARY.md`).
 
 # Concept vocabulary (canonical forms)
 

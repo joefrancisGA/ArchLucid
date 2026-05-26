@@ -1,4 +1,4 @@
-> **Scope:** Enterprise audit retention extension contract — documentation only; enforcement remains operator-initiated unless a future release adds automated expiry.
+> **Scope:** Contributor-reference — Enterprise audit retention extension contract — documentation only; enforcement remains operator-initiated unless a future release adds automated expiry.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

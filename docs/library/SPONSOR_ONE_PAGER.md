@@ -1,4 +1,4 @@
-> **Scope:** Sponsor one-pager PDF — API, CLI, tier gate, and how it relates to pilot ROI docs.
+> **Scope:** Buyer — Sponsor one-pager PDF — API, CLI, tier gate, and how it relates to pilot ROI docs.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

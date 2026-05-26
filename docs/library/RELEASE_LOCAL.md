@@ -1,4 +1,4 @@
-> **Scope:** Local release candidate packaging (Change Set 56R) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Local release candidate packaging (Change Set 56R) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

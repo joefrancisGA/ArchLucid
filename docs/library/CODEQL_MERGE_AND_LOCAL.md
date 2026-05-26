@@ -1,4 +1,4 @@
-> **Scope:** Operators & developers — branch protection, strict SARIF gate in CI, and local CodeQL CLI parity; not per-alert triage (see [CODEQL_TRIAGE.md](CODEQL_TRIAGE.md)).
+> **Scope:** Contributor-reference — Operators & developers — branch protection, strict SARIF gate in CI, and local CodeQL CLI parity; not per-alert triage (see [CODEQL_TRIAGE.md](CODEQL_TRIAGE.md)).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md). Read this file when wiring merge gates or running CodeQL locally.
 

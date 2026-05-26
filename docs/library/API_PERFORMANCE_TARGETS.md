@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid HTTP API — merge-blocking k6 p95 latency ceilings tied to measured baselines — not customer SLA text (see **`API_SLOS.md`**) and not SQL named-query allowlists (**TB-003** / **`OBSERVABILITY.md`**).
+> **Scope:** Contributor-reference — ArchLucid HTTP API — merge-blocking k6 p95 latency ceilings tied to measured baselines — not customer SLA text (see **`API_SLOS.md`**) and not SQL named-query allowlists (**TB-003** / **`OBSERVABILITY.md`**).
 
 # API performance targets (k6-enforced p95)
 

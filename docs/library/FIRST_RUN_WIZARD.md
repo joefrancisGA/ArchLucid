@@ -1,4 +1,4 @@
-> **Scope:** First-run wizard (operator UI) - full detail, tables, and links in the sections below.
+> **Scope:** Customer-facing — First-run wizard (operator UI) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

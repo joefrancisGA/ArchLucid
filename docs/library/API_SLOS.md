@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid API — service level objectives (SLOs) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — ArchLucid API — service level objectives (SLOs) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

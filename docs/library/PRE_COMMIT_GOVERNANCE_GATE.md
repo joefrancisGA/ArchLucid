@@ -1,4 +1,4 @@
-> **Scope:** Pre-commit governance gate (optional) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Pre-commit governance gate (optional) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

@@ -1,4 +1,4 @@
-> **Scope:** CI migration and demo seeding regression loop - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — CI migration and demo seeding regression loop - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

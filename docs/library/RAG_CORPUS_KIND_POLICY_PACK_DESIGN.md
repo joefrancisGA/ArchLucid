@@ -1,4 +1,4 @@
-> **Scope:** Engineering design for RAG-V1-000 (partial) + RAG-V1-001 — `CorpusKind`, platform corpus seam, and `PolicyPackCorpusIndexer`; extends [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) and [`TECH_BACKLOG.md`](TECH_BACKLOG.md) **TB-021**; not procurement copy.
+> **Scope:** Contributor-reference — Engineering design for RAG-V1-000 (partial) + RAG-V1-001 — `CorpusKind`, platform corpus seam, and `PolicyPackCorpusIndexer`; extends [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) and [`TECH_BACKLOG.md`](TECH_BACKLOG.md) **TB-021**; not procurement copy.
 
 # RAG — `CorpusKind` + `PolicyPackCorpusIndexer` design
 

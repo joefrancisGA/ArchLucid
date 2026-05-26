@@ -1,4 +1,4 @@
-> **Scope:** Pointer — canonical SAML SP signing certificate rotation procedure lives under `docs/runbooks/` (this file is not duplicated here).
+> **Scope:** Contributor-reference — Pointer — canonical SAML SP signing certificate rotation procedure lives under `docs/runbooks/` (this file is not duplicated here).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

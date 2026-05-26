@@ -1,4 +1,4 @@
-> **Scope:** Authority run orchestrator retry, timeout, and resume semantics for operators and support.
+> **Scope:** Contributor-reference — Authority run orchestrator retry, timeout, and resume semantics for operators and support.
 
 # Authority orchestrator — retries, timeouts, and resume
 

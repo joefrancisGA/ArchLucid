@@ -1,4 +1,4 @@
-> **Scope:** Test execution model (54R — release readiness) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Test execution model (54R — release readiness) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

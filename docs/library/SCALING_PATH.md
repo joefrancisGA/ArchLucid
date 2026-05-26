@@ -1,4 +1,4 @@
-> **Scope:** Scaling path (capacity, tenancy, and regions) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Scaling path (capacity, tenancy, and regions) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

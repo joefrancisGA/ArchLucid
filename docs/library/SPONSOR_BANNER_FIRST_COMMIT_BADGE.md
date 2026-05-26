@@ -1,4 +1,4 @@
-> **Scope:** Operators and sponsors interpreting the post-commit sponsor banner day badge; not general trial billing or unrelated UI components.
+> **Scope:** Buyer — Operators and sponsors interpreting the post-commit sponsor banner day badge; not general trial billing or unrelated UI components.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

@@ -1,4 +1,4 @@
-> **Scope:** Agent execution trace forensics (full prompt storage) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Agent execution trace forensics (full prompt storage) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

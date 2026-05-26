@@ -1,4 +1,4 @@
-> **Scope:** Platform engineers applying ArchLucid `infra/terraform-*` roots with separate state files; operational safety, ordering contracts, and hand-off variables-not a Terraform tutorial for greenfield IaC authoring.
+> **Scope:** Contributor-reference — Platform engineers applying ArchLucid `infra/terraform-*` roots with separate state files; operational safety, ordering contracts, and hand-off variables-not a Terraform tutorial for greenfield IaC authoring.
 
 ---
 

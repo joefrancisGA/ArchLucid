@@ -1,4 +1,4 @@
-> **Scope:** For backend engineers owning CustomerSuccess persistence; documents Azure SQL + Dapper architecture, RLS, scaling, and hardening paths for `ArchLucid.Persistence/CustomerSuccess` and core models—not end-user guides, OpenAPI contracts, or ORM-centric designs.
+> **Scope:** Buyer — For backend engineers owning CustomerSuccess persistence; documents Azure SQL + Dapper architecture, RLS, scaling, and hardening paths for `ArchLucid.Persistence/CustomerSuccess` and core models—not end-user guides, OpenAPI contracts, or ORM-centric designs.
 
 # CustomerSuccess Module — Persistent, Scalable Design
 

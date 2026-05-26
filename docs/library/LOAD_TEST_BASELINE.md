@@ -1,4 +1,4 @@
-> **Scope:** Load test baseline (API hot paths) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Load test baseline (API hot paths) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

@@ -1,4 +1,4 @@
-> **Scope:** Maintainer-facing checklist for collapsing `ArchLucid.Persistence.*` class libraries into a single `ArchLucid.Persistence` project — not runtime API docs, exhaustive ADR history, or a substitute for running `dotnet build` / `dotnet test` after edits.
+> **Scope:** Contributor-reference — Maintainer-facing checklist for collapsing `ArchLucid.Persistence.*` class libraries into a single `ArchLucid.Persistence` project — not runtime API docs, exhaustive ADR history, or a substitute for running `dotnet build` / `dotnet test` after edits.
 
 # ArchLucid.Persistence Consolidation Plan
 

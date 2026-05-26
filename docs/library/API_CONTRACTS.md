@@ -1,4 +1,4 @@
-> **Scope:** API contracts (notable behaviors) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — API contracts (notable behaviors) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

@@ -1,4 +1,4 @@
-> **Scope:** Developers interpreting in-process `Category=Slow` / core-pilot timing targets in API tests — not production latency SLOs or load-test methodology.
+> **Scope:** Contributor-reference — Developers interpreting in-process `Category=Slow` / core-pilot timing targets in API tests — not production latency SLOs or load-test methodology.
 
 # Performance baselines (in-process)
 

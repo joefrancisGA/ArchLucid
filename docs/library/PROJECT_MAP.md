@@ -1,4 +1,4 @@
-> **Scope:** Solution project map (bounded contexts) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Solution project map (bounded contexts) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

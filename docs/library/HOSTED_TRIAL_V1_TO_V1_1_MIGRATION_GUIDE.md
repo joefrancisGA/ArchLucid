@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid **V1.1 documentation** — consolidated expectations for **hosted trial** tenants when the product ships **V1.1**-scoped deltas (rollup memo). Full contracts remain **`V1_SCOPE.md`**, **`CHANGELOG.md`**, and procurement **`BREAKING_CHANGES`** (dist pack).
+> **Scope:** Buyer — ArchLucid **V1.1 documentation** — consolidated expectations for **hosted trial** tenants when the product ships **V1.1**-scoped deltas (rollup memo). Full contracts remain **`V1_SCOPE.md`**, **`CHANGELOG.md`**, and procurement **`BREAKING_CHANGES`** (dist pack).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

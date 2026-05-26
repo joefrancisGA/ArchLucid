@@ -1,4 +1,4 @@
-> **Scope:** Short entry for operators: webhook URLs and where the full billing design lives — not a substitute for the canonical architecture doc in `docs/library/`.
+> **Scope:** Contributor-reference — Short entry for operators: webhook URLs and where the full billing design lives — not a substitute for the canonical architecture doc in `docs/library/`.
 
 # Billing documentation (entry)
 

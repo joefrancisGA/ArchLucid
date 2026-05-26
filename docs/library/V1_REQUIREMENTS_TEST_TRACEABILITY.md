@@ -1,4 +1,4 @@
-> **Scope:** V1 requirements ↔ tests / scripts traceability - full detail, tables, and links in the sections below.
+> **Scope:** Buyer — V1 requirements ↔ tests / scripts traceability - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

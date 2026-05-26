@@ -1,4 +1,4 @@
-> **Scope:** Canonical mapping of ArchLucid Azure subscriptions, the regions and tenants they target, and where each ID is consumed (CD pipeline, Terraform, runbooks).
+> **Scope:** Contributor-reference — Canonical mapping of ArchLucid Azure subscriptions, the regions and tenants they target, and where each ID is consumed (CD pipeline, Terraform, runbooks).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

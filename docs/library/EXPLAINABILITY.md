@@ -1,4 +1,4 @@
-> **Scope:** Explainability — operator surfaces (finding inspector contract, links to trace coverage and citation rendering).
+> **Scope:** Contributor-reference — Explainability — operator surfaces (finding inspector contract, links to trace coverage and citation rendering).
 
 # Explainability — operator surfaces
 

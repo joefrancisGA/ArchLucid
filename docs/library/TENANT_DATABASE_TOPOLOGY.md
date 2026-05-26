@@ -1,4 +1,4 @@
-> **Scope:** Pre-release launch architecture for Azure SQL: one **system** database (tenant routing, provisioning state, authoritative directory for cross-tenant queries) and one **product** database per tenant (runs, artifacts, governance, billing tables tied to local `dbo.Tenants`, RLS, workspaces). No backfill of production customer data.
+> **Scope:** Contributor-reference — Pre-release launch architecture for Azure SQL: one **system** database (tenant routing, provisioning state, authoritative directory for cross-tenant queries) and one **product** database per tenant (runs, artifacts, governance, billing tables tied to local `dbo.Tenants`, RLS, workspaces). No backfill of production customer data.
 
 ## Objective
 

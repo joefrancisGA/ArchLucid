@@ -1,4 +1,4 @@
-> **Scope:** DI registration map (Host.Composition) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — DI registration map (Host.Composition) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

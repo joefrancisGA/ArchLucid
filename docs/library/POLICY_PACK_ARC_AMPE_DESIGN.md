@@ -1,4 +1,4 @@
-> **Scope:** Design spec for V1 GA bundled pack **#24 — ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities)**. Content authoring (rule JSON) is **out of scope** for this document and tracked separately under the LLM → critic → human pipeline in [`POLICY_PACK_CONTENT_BACKLOG.md`](POLICY_PACK_CONTENT_BACKLOG.md).
+> **Scope:** Contributor-reference — Design spec for V1 GA bundled pack **#24 — ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities)**. Content authoring (rule JSON) is **out of scope** for this document and tracked separately under the LLM → critic → human pipeline in [`POLICY_PACK_CONTENT_BACKLOG.md`](POLICY_PACK_CONTENT_BACKLOG.md).
 >
 > **Buyer-safe invariant:** Architecture-review prompts mapped thematically to ARC-AMPE Volumes I and II — **not** CMS conformity assessment, **not** SSPP authoring, **not** third-party attestation, **not** legal advice on ACA/Medicaid scope. Same posture as every other bundled pack.
 

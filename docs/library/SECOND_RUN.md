@@ -1,4 +1,4 @@
-> **Scope:** One-page “second run” inputs after `archlucid try` — no extra operator docs required.
+> **Scope:** Customer-facing — One-page “second run” inputs after `archlucid try` — no extra operator docs required.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

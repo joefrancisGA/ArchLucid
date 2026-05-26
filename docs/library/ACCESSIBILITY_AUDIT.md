@@ -1,4 +1,4 @@
-> **Scope:** Operator-shell WCAG 2.2 AA–aligned axe coverage — what is enforced in CI and how to run locally.
+> **Scope:** Contributor-reference — Operator-shell WCAG 2.2 AA–aligned axe coverage — what is enforced in CI and how to run locally.
 
 # Accessibility audit (operator shell)
 

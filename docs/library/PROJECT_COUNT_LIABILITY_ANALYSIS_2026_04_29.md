@@ -1,4 +1,4 @@
-> **Scope:** Engineering readers assessing whether `.csproj` proliferation helps or hurts the solution; bounded analysis only (counts, leverage, friction), not a mandate to merge or split projects.
+> **Scope:** Contributor-reference — Engineering readers assessing whether `.csproj` proliferation helps or hurts the solution; bounded analysis only (counts, leverage, friction), not a mandate to merge or split projects.
 
 # Project Count: Asset vs. Liability Analysis
 

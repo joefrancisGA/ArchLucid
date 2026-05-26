@@ -1,4 +1,4 @@
-> **Scope:** Persistence project fan-in consolidation (proposal) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Persistence project fan-in consolidation (proposal) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

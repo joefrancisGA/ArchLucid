@@ -1,4 +1,4 @@
-> **Scope:** Hosted Enterprise onboarding — ArchLucid-operated SaaS only (not self-hosted).
+> **Scope:** Buyer — Hosted Enterprise onboarding — ArchLucid-operated SaaS only (not self-hosted).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

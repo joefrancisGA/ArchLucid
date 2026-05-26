@@ -1,4 +1,4 @@
-> **Scope:** For release operators gathering post-build verification signals (tests, snapshots, smoke); not a substitute for full CI or formal release sign-off.
+> **Scope:** Contributor-reference — For release operators gathering post-build verification signals (tests, snapshots, smoke); not a substitute for full CI or formal release sign-off.
 
 # Release evidence summary (operator)
 

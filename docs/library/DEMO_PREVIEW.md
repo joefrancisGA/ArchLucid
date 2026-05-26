@@ -1,4 +1,4 @@
-> **Scope:** Marketing and API integrators — public demo commit-page preview route, caching, and privacy boundaries; not production tenant configuration.
+> **Scope:** Customer-facing — Marketing and API integrators — public demo commit-page preview route, caching, and privacy boundaries; not production tenant configuration.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

@@ -1,4 +1,4 @@
-> **Scope:** SQL relational backfill and cutover (JSON → child tables) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — SQL relational backfill and cutover (JSON → child tables) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

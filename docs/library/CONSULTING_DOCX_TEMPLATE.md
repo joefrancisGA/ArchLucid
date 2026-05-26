@@ -1,4 +1,4 @@
-> **Scope:** Consulting DOCX template configuration - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Consulting DOCX template configuration - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

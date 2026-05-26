@@ -1,4 +1,4 @@
-﻿> **Scope:** Operators and integrators looking up recognized configuration keys and host roles — not secret material, deployment order, or full environment architecture.
+> **Scope:** Contributor-reference — Operators and integrators looking up recognized configuration keys and host roles — not secret material, deployment order, or full environment architecture.
 
 # Configuration reference
 

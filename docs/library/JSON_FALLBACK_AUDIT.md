@@ -1,4 +1,4 @@
-> **Scope:** JSON fallback removal — relational-first reads (post-53R) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — JSON fallback removal — relational-first reads (post-53R) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

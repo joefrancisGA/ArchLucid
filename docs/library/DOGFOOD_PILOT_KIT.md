@@ -1,4 +1,4 @@
-> **Scope:** Internal dogfood pilot kit — run ArchLucid on ArchLucid-shaped work — full detail, tables, and worksheets in the sections below.
+> **Scope:** Contributor-reference — Internal dogfood pilot kit — run ArchLucid on ArchLucid-shaped work — full detail, tables, and worksheets in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

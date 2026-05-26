@@ -1,4 +1,4 @@
-> **Scope:** Canonical operator pipeline — request through commit; links to deeper architecture docs below.
+> **Scope:** Customer-facing — Canonical operator pipeline — request through commit; links to deeper architecture docs below.
 
 # Canonical review pipeline (operator view)
 

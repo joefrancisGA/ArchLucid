@@ -1,4 +1,4 @@
-> **Scope:** Azure AI Search — SKU notes for ArchLucid retrieval - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Azure AI Search — SKU notes for ArchLucid retrieval - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

@@ -1,4 +1,4 @@
-> **Scope:** LLM per-call retry and circuit breaker - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — LLM per-call retry and circuit breaker - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

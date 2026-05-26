@@ -1,4 +1,4 @@
-> **Scope:** Canonical AI leverage catalogue for product and engineering leads; prioritised opportunities to exploit AI across the platform—not the reliability/usability backlog in `LATEST.md` or a procurement deliverable.
+> **Scope:** Contributor-reference — Canonical AI leverage catalogue for product and engineering leads; prioritised opportunities to exploit AI across the platform—not the reliability/usability backlog in `LATEST.md` or a procurement deliverable.
 
 # ArchLucid AI Leverage Roadmap
 

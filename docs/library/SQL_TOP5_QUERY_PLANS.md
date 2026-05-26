@@ -1,4 +1,4 @@
-> **Scope:** Top five frequent SQL queries — execution plan reference - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Top five frequent SQL queries — execution plan reference - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

@@ -1,4 +1,4 @@
-> **Scope:** Product learning (pilot feedback) — operator & product owner guide (58R) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Product learning (pilot feedback) — operator & product owner guide (58R) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

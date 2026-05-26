@@ -1,4 +1,4 @@
-> **Scope:** Method and API documentation (XML comments) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Method and API documentation (XML comments) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

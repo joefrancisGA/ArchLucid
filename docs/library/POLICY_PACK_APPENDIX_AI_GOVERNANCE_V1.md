@@ -1,4 +1,4 @@
-> **Scope:** Appendix — Pack A: AI Governance / Responsible AI (V1 bundled default) - full detail, tables, and links in the sections below.
+> **Scope:** Buyer — Appendix — Pack A: AI Governance / Responsible AI (V1 bundled default) - full detail, tables, and links in the sections below.
 
 # Appendix — Pack A: AI Governance / Responsible AI (V1 bundled default)
 

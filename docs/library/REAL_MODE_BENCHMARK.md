@@ -1,4 +1,4 @@
-> **Scope:** Real-mode end-to-end benchmark (request → committed manifest) — how to run, interpret, and compare results.
+> **Scope:** Contributor-reference — Real-mode end-to-end benchmark (request → committed manifest) — how to run, interpret, and compare results.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

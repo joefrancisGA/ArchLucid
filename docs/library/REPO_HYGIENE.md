@@ -1,4 +1,4 @@
-> **Scope:** Repository hygiene (clone and release surfaces) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Repository hygiene (clone and release surfaces) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
