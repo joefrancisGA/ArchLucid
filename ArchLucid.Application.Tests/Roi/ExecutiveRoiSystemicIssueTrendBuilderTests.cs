@@ -15,7 +15,8 @@ public sealed class ExecutiveRoiSystemicIssueTrendBuilderTests
     [Fact]
     public void Build_ReturnsTopSeriesWithMonthlyPoints()
     {
-        DateTime monthUtc = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 15, 0, 0, 0, DateTimeKind.Utc);
+        DateTime monthUtc = new(2026, 3, 15, 0, 0, 0, DateTimeKind.Utc);
+        FakeTimeProvider timeProvider = new(new DateTimeOffset(monthUtc, TimeSpan.Zero));
         string monthKey = monthUtc.ToString("yyyy-MM", System.Globalization.CultureInfo.InvariantCulture);
 
         ArchitectureFinding finding = new()
@@ -47,7 +48,8 @@ public sealed class ExecutiveRoiSystemicIssueTrendBuilderTests
         };
 
         List<ExecutiveRoiSystemicIssueTrendSeries> trends = ExecutiveRoiSystemicIssueTrendBuilder.Build(
-            [(summary, detail)]);
+            [(summary, detail)],
+            timeProvider);
 
         trends.Should().ContainSingle();
         trends[0].FindingId.Should().Be("finding-stable-1");

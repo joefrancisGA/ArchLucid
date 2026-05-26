@@ -103,8 +103,7 @@ public sealed class RetrievalQueryService(
             QueryText = query.QueryText,
             TopK = topK,
             IncludePlatformCorpora = query.IncludePlatformCorpora,
-            AllowedPolicyPackRulePackIds = query.AllowedPolicyPackRulePackIds,
-            CorpusKindFilter = query.CorpusKindFilter,
+            AllowedPolicyPackRulePackIds = query.AllowedPolicyPackRulePackIds
         };
     }
 }

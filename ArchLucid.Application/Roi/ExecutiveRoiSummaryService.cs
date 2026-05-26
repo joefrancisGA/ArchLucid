@@ -98,7 +98,7 @@ public sealed class ExecutiveRoiSummaryService(
         List<(RunSummary Summary, ArchitectureRunDetail Detail)> trendRuns =
             await CollectCommittedRunsForTrendsAsync(cancellationToken).ConfigureAwait(false);
         List<ExecutiveRoiSystemicIssueTrendSeries> historicalTrends =
-            ExecutiveRoiSystemicIssueTrendBuilder.Build(trendRuns);
+            ExecutiveRoiSystemicIssueTrendBuilder.Build(trendRuns, TimeProvider.System);
         decimal totalSavings = systems.Sum(static system => system.EstimatedUsdSavings ?? 0m);
 
         Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
@@ -372,7 +372,7 @@ public sealed class ExecutiveRoiSummaryService(
         CancellationToken cancellationToken)
     {
         const int maxRuns = 400;
-        DateTime cutoffUtc = DateTime.UtcNow.AddMonths(-6);
+        DateTime cutoffUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddMonths(-6);
         List<(RunSummary Summary, ArchitectureRunDetail Detail)> results = [];
         string? cursor = null;
         const int take = 100;

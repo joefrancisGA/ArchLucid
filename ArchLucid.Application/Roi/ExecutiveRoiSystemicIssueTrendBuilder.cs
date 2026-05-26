@@ -18,11 +18,13 @@ public static class ExecutiveRoiSystemicIssueTrendBuilder
     ///     <see cref="TopSeriesCount" /> finding identities, and returns monthly counts per series.
     /// </summary>
     public static List<ExecutiveRoiSystemicIssueTrendSeries> Build(
-        IReadOnlyList<(RunSummary Summary, ArchitectureRunDetail Detail)> committedRuns)
+        IReadOnlyList<(RunSummary Summary, ArchitectureRunDetail Detail)> committedRuns,
+        TimeProvider timeProvider)
     {
         ArgumentNullException.ThrowIfNull(committedRuns);
+        ArgumentNullException.ThrowIfNull(timeProvider);
 
-        DateTime cutoffUtc = DateTime.UtcNow.AddMonths(-TrendMonths);
+        DateTime cutoffUtc = timeProvider.GetUtcNow().UtcDateTime.AddMonths(-TrendMonths);
         Dictionary<string, Dictionary<string, int>> countsByFindingAndMonth = new(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, (string Category, string Severity)> labelsByFinding = new(StringComparer.OrdinalIgnoreCase);
 
@@ -66,7 +68,7 @@ public static class ExecutiveRoiSystemicIssueTrendBuilder
             .Select(static pair => pair.Key)
             .ToList();
 
-        List<string> monthKeys = BuildTrailingMonthKeys(TrendMonths);
+        List<string> monthKeys = BuildTrailingMonthKeys(TrendMonths, timeProvider);
         List<ExecutiveRoiSystemicIssueTrendSeries> series = [];
 
         foreach (string findingId in topFindingIds)
@@ -97,9 +99,10 @@ public static class ExecutiveRoiSystemicIssueTrendBuilder
         return series;
     }
 
-    private static List<string> BuildTrailingMonthKeys(int months)
+    private static List<string> BuildTrailingMonthKeys(int months, TimeProvider timeProvider)
     {
-        DateTime cursor = new(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTimeOffset now = timeProvider.GetUtcNow();
+        DateTime cursor = new(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         List<string> keys = [];
 
         for (int index = months - 1; index >= 0; index--)

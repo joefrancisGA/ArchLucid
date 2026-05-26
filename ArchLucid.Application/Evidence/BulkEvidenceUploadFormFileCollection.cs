@@ -16,7 +16,7 @@ public sealed class BulkEvidenceUploadFormFileCollection : IFormFileCollection
     public IFormFile? this[string name] =>
         _files.FirstOrDefault(file => string.Equals(file.Name, name, StringComparison.OrdinalIgnoreCase));
 
-    public IFormFile? this[int index] => index >= 0 && index < _files.Count ? _files[index] : null;
+    public IFormFile this[int index] => _files[index];
 
     public int Count => _files.Count;
 
