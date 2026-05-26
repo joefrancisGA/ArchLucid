@@ -5,6 +5,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Provenance;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Models;
+using ArchLucid.Contracts.Persistence.Artifacts;
 
 using FluentAssertions;
 
@@ -67,7 +68,7 @@ public sealed class RetrievalRunCompletionIndexerTests
 
         Mock<IRetrievalDocumentBuilder> documentBuilder = new();
         documentBuilder.Setup(b => b.BuildForManifest(currentManifest)).Returns([]);
-        documentBuilder.Setup(b => b.BuildForArtifacts(tenantId, workspaceId, projectId, It.IsAny<IReadOnlyList<SynthesizedArtifact>>()))
+        documentBuilder.Setup(b => b.BuildForArtifacts(tenantId, workspaceId, projectId, It.IsAny<IReadOnlyList<ArchLucid.Contracts.Persistence.Artifacts.SynthesizedArtifact>>()))
             .Returns([]);
         documentBuilder.Setup(b => b.BuildForProvenance(tenantId, workspaceId, projectId, currentRunId, It.IsAny<DecisionProvenanceGraph>()))
             .Returns([]);

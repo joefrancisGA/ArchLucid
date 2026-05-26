@@ -1,5 +1,6 @@
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Citations;
+using ArchLucid.Retrieval.Models;
 
 using FluentAssertions;
 

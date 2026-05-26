@@ -62,6 +62,52 @@ public sealed class LlmCompletionAccountingClientTests
     }
 
     [Fact]
+    public async Task CompleteJsonAsync_records_dimensional_token_metrics_with_scoped_tags()
+    {
+        Guid tenant = Guid.NewGuid();
+        Mock<IAgentCompletionClient> inner = new();
+        inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("stub", "stub"));
+        inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                AzureOpenAiCompletionClient.SeedLastCompletionTokenUsageForTests(10, 20);
+                return Task.FromResult("{}");
+            });
+
+        LlmCompletionAccountingClient sut = CreateClient(inner.Object, tenant);
+
+        using System.Diagnostics.Metrics.MeterListener meterListener = new();
+        int dimensionalMeasurements = 0;
+        meterListener.InstrumentPublished = (instrument, listener) =>
+        {
+            if (instrument.Meter.Name == ArchLucidInstrumentation.MeterName && instrument.Name == "archlucid.llm.completion_tokens")
+            {
+                listener.EnableMeasurementEvents(instrument);
+            }
+        };
+
+        meterListener.SetMeasurementEventCallback<long>((instrument, measurement, tags, state) =>
+        {
+            if (instrument.Name == "archlucid.llm.completion_tokens")
+            {
+                dimensionalMeasurements++;
+                measurement.Should().Be(20);
+                tags.ToArray().Should().Contain(t => t.Key == "archlucid.llm.consume_role" && t.Value?.ToString() == "Topology");
+                tags.ToArray().Should().Contain(t => t.Key == "archlucid.llm.invoke_kind" && t.Value?.ToString() == "Primary");
+            }
+        });
+
+        meterListener.Start();
+
+        using (LlmAccountingInvocationScope.Begin(AgentType.Topology, LlmInvokeKind.Primary))
+        {
+            await sut.CompleteJsonAsync("sys", "user", cancellationToken: CancellationToken.None);
+        }
+
+        dimensionalMeasurements.Should().Be(1);
+    }
+
+    [Fact]
     public async Task CompleteJsonAsync_when_redaction_disabled_invokes_inner_with_original_prompts()
     {
         Mock<IAgentCompletionClient> inner = new();

@@ -368,3 +368,18 @@ jobs:
         run: >
           dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj --configuration Release --
           golden-cohort drift --strict-real --structural-only
+
+      - name: Scrape token metrics
+        env:
+          ARCHLUCID_API_URL: ${{ secrets.ARCHLUCID_GOLDEN_COHORT_API_HOST }}
+        run: curl -s "${ARCHLUCID_API_URL}/metrics" > metrics.txt
+
+      - name: Aggregate LLM Token Metrics
+        run: python scripts/ci/aggregate_llm_token_metrics.py --metrics metrics.txt --output golden-cohort-llm-token-report.md
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: golden-cohort-llm-token-report
+          path: golden-cohort-llm-token-report.md
+          if-no-files-found: warn

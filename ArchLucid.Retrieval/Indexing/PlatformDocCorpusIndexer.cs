@@ -104,6 +104,8 @@ public sealed class PlatformDocCorpusIndexer(IOptionsMonitor<PlatformDocCorpusIn
                 Content = content,
                 ContentHash = contentHash,
                 CreatedUtc = File.GetLastWriteTimeUtc(path),
+                DecisionId = null,
+                FindingId = null
             });
         }
     }

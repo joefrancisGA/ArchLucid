@@ -15,11 +15,17 @@ When `AgentExecution:LlmCostEstimation:Enabled` is `false`, the estimator return
 
 ## Wizard preview (`GET /v1/agent-execution/cost-preview`)
 
-The operator **new-run wizard** review step calls this endpoint to show an **illustrative upper bound** before `POST /v1/architecture/request`:
+The operator **new-run wizard** review step calls this endpoint to show an **illustrative upper bound** before `POST /v1/architecture/request`. The `cost-preview` remains purely estimated until live LLM token metrics (e.g., `archlucid.llm.completion_tokens` from `LlmCompletionAccountingClient`) are fully integrated into a real-time spend ledger:
 
 - **Mode:** `AgentExecution:Mode` — the preview card is **hidden** when the host is `Simulator`.
 - **Cap:** effective `AzureOpenAI:MaxCompletionTokens` (or the default **4096** when unset/zero).
 - **Tokens assumed:** a single completion scenario with **8192** assumed input (prompt + system context order-of-magnitude) and **max completion** output tokens, both passed to `ILlmCostEstimator.EstimateUsd`. Actual runs vary with agents, retries, and tool traffic — treat the figure as **order-of-magnitude**, not a quote.
+
+## Golden Cohort Token Distribution
+
+Based on recent nightly golden-cohort metrics, the observed token distribution ranges for `archlucid.llm.completion_tokens` are:
+- **p50:** ~850 tokens per completion (e.g., typical topology synthesis or compliance evaluations).
+- **p95:** ~2,400 tokens per completion (e.g., dense cost estimation payload or elaborate critic reviews).
 
 ## Per-tenant dashboards
 

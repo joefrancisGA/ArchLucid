@@ -5,6 +5,7 @@ using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Models;
 using ArchLucid.Retrieval.PolicyPacks;
 using ArchLucid.Retrieval.Queries;
+using ArchLucid.Contracts.PolicyPacks;
 
 using FluentAssertions;
 

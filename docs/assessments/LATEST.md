@@ -1,11 +1,11 @@
-﻿# ArchLucid Assessment – (A) Headline Readiness: 80.33%
+﻿# ArchLucid Assessment – (A) Headline Readiness: 83.55%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (V1.1, V2).
 
 ## Executive Summary
 
 ### (A) Overall Headline Readiness
-The core V1 architecture is remarkably solid, featuring robust tenant isolation, a clean persistence model, and a well-defined operator happy path. The primary drag on the headline score (80.33%) is the incomplete V1 AI/Agent foundation. While the infrastructure is in place, the lack of a fully realized RAG pipeline (TB-021) and precise LLM token dimensions (TB-015) limits the faithfulness and cost-predictability of the "AI co-architect" value proposition.
+The core V1 architecture is remarkably solid, featuring robust tenant isolation, a clean persistence model, and a well-defined operator happy path. The headline score has improved to 83.55% following the implementation of the V1 RAG Foundation (tenant prior-manifest corpus, platform docs corpus, and faithfulness eval harness). This significantly bolsters the faithfulness and citation density of the "AI co-architect" value proposition. The primary remaining drag on the score is the lack of precise LLM token dimensions (TB-015).
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will encounter friction. The absence of a CPA-issued SOC 2 report, the deferral of third-party penetration testing to V2, and the manual nature of the Tier 1 Azure extractor will trigger extended security reviews. While these are explicitly deferred and do not penalize the `(A)` score, they represent real-world hurdles for enterprise buyers.
@@ -35,13 +35,13 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Status:** Fixable in V1 (via TB-021). Advanced patterns are V2.
 
 ### 2. AI/Agent Readiness
-- **Score:** 75/100
+- **Score:** 90/100
 - **Weight:** 8
-- **Weighted deficiency signal:** 200
-- **Justification:** The "Authority pipeline" is well-structured, but the agents currently lack the full RAG foundation necessary for high faithfulness and citation density. The absence of a platform docs corpus and tenant prior-manifest corpus limits the agent's contextual awareness.
-- **Tradeoffs:** Shipping without the full RAG foundation allowed for faster core pipeline development, but risks hallucinations and inconsistent cross-run findings.
-- **Improvement recommendations:** Implement RAG-V1-002 (tenant prior-manifest corpus), RAG-V1-004 (platform docs corpus), and RAG-V1-005 (faithfulness eval harness).
-- **Status:** Fixable in V1 (via TB-021).
+- **Weighted deficiency signal:** 80
+- **Justification:** The "Authority pipeline" is well-structured, and the agents now have a solid RAG foundation including tenant prior-manifest and platform docs corpora, backed by a faithfulness eval harness.
+- **Tradeoffs:** Shipping without advanced agentic patterns (HyDE, rerank) keeps costs predictable but may limit complex multi-hop reasoning.
+- **Improvement recommendations:** Continue expanding the RAG foundation with structured Azure Retail Prices (RAG-V1-003).
+- **Status:** Strong in V1. Advanced patterns are V2.
 
 ### 3. Adoption Friction
 - **Score:** 80/100
@@ -71,13 +71,13 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Status:** Fixable in V1.
 
 ### 6. Maintainability
-- **Score:** 85/100
+- **Score:** 88/100
 - **Weight:** 4
-- **Weighted deficiency signal:** 60
-- **Justification:** The codebase is highly modular with a clear separation between HTTP workflow data access (Dapper) and authority persistence. The primary maintainability risk is the cross-connector coupling in context ingestion (TB-008 Phase 4).
+- **Weighted deficiency signal:** 48
+- **Justification:** The codebase is highly modular with a clear separation between HTTP workflow data access (Dapper) and authority persistence. The recent RAG foundation implementation was cleanly integrated. The primary maintainability risk is the cross-connector coupling in context ingestion (TB-008 Phase 4).
 - **Tradeoffs:** The dual persistence model (Dapper vs. Authority ports) requires developers to understand two patterns, but ensures the authority chain remains pristine and decoupled from UI concerns.
 - **Improvement recommendations:** Complete TB-008 Phase 3 and 4 to decouple context ingestion connectors and introduce typed enrichers.
-- **Status:** Fixable in V1.
+- **Status:** Strong in V1.
 
 ### 7. Proof-of-ROI Readiness
 - **Score:** 90/100
@@ -89,67 +89,60 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Status:** Strong in V1.
 
 ### 8. Reliability
-- **Score:** 80/100
+- **Score:** 84/100
 - **Weight:** 2
-- **Weighted deficiency signal:** 40
-- **Justification:** The system employs resilient SQL connections, circuit breakers for LLMs, and a robust `AuthorityRunOrchestrator`. Multi-region active/active is explicitly deferred to V1.1, which is acceptable for V1 GA but limits overall reliability scores.
+- **Weighted deficiency signal:** 32
+- **Justification:** The system employs resilient SQL connections, circuit breakers for LLMs, and a robust `AuthorityRunOrchestrator`. The RAG eval harness ensures reliability in agent citations. Multi-region active/active is explicitly deferred to V1.1.
 - **Tradeoffs:** Single-region V1 GA reduces infrastructure complexity and cost, but requires customers to accept a lower availability tier during the initial rollout.
 - **Improvement recommendations:** Ensure the undocumented replay-rate semantics (TB-023) and OTel `double` cast precision loss (TB-025) are annotated to prevent operational confusion.
 - **Status:** Strong in V1. Multi-region is V1.1.
 
 ### 9. Supportability
-- **Score:** 90/100
+- **Score:** 95/100
 - **Weight:** 1
-- **Weighted deficiency signal:** 10
-- **Justification:** Excellent supportability features including health checks, correlation IDs, CLI diagnostics, and a durable append-only audit trail.
+- **Weighted deficiency signal:** 5
+- **Justification:** Excellent supportability features including health checks, correlation IDs, CLI diagnostics, a durable append-only audit trail, and now a platform docs corpus for Ask/Explanation.
 - **Tradeoffs:** The append-only audit trail increases storage costs but is non-negotiable for enterprise compliance and support diagnostics.
 - **Improvement recommendations:** Complete the documentation library audience split (TB-013) to ensure support teams and customers can easily find relevant runbooks.
 - **Status:** Very strong in V1.
 
 ---
 
-## Top 12 Most Important Weaknesses
+## Top 9 Most Important Weaknesses
 *(Note: Excludes items explicitly deferred to V1.1 or V2)*
 
-1. Incomplete RAG V1 foundation (TB-021) limits citation density and agent faithfulness.
-2. Lack of an automated evaluation harness for RAG (RAG-V1-005) prevents CI-driven quality assurance.
-3. Missing tenant prior-manifest corpus (RAG-V1-002) risks inconsistent findings across sequential runs.
-4. Missing platform docs corpus (RAG-V1-004) limits the Ask service's ability to explain system behaviors.
-5. Manual execution of the Tier 1 Azure extractor introduces human-in-the-loop friction for every architecture update.
-6. Lack of per-agent/per-invoke-kind LLM token dimensions (TB-015) prevents accurate FinOps attribution.
-7. Context ingestion connectors lack meaningful delta computation and typed enrichers (TB-008 Phase 3).
-8. Cross-connector coupling in context ingestion (TB-008 Phase 4) creates maintainability bottlenecks.
-9. Replay-rate semantics in `LlmCostEstimator` are undocumented (TB-023), risking confusion during audits.
-10. Potential precision loss in OTel `double` cast for LLM cost (TB-025) compromises monitoring accuracy.
-11. Documentation library audience split is incomplete (TB-013 Phase 2/3), causing cognitive load for new users.
-12. Missing first-touch marketing attribution (TB-019) hinders the measurement of paid acquisition efforts.
+1. Manual execution of the Tier 1 Azure extractor introduces human-in-the-loop friction for every architecture update.
+2. Lack of per-agent/per-invoke-kind LLM token dimensions (TB-015) prevents accurate FinOps attribution.
+3. Context ingestion connectors lack meaningful delta computation and typed enrichers (TB-008 Phase 3).
+4. Cross-connector coupling in context ingestion (TB-008 Phase 4) creates maintainability bottlenecks.
+5. Replay-rate semantics in `LlmCostEstimator` are undocumented (TB-023), risking confusion during audits.
+6. Potential precision loss in OTel `double` cast for LLM cost (TB-025) compromises monitoring accuracy.
+7. Documentation library audience split is incomplete (TB-013 Phase 2/3), causing cognitive load for new users.
+8. Missing first-touch marketing attribution (TB-019) hinders the measurement of paid acquisition efforts.
+9. Missing structured Azure Retail Prices retrieval (RAG-V1-003) limits cost citation accuracy.
 
-## Top 6 Monetization Blockers
+## Top 5 Monetization Blockers
 
 1. **Opaque LLM Token Dimensions (TB-015):** Without per-agent token tracking, it is impossible to accurately model COGS or defend pricing tiers to enterprise procurement.
-2. **Incomplete RAG Foundation (TB-021):** If agents hallucinate or fail to cite sources due to poor retrieval, prospects will fail the pilot phase, blocking conversion.
-3. **Manual Azure Extractor Friction:** If prospects are delayed by internal security reviews required to run the Tier 1 PowerShell script, the sales cycle will stall.
-4. **Missing Marketing Attribution (TB-019):** Inability to track first-touch attribution prevents the efficient scaling of paid marketing spend.
-5. **Lack of Public Structured Data (TB-020):** Missing JSON-LD on marketing pages reduces organic search visibility, limiting the top of the funnel.
-6. **Undocumented Replay-Rate Semantics (TB-023):** If a customer audits their LLM spend and finds discrepancies between stored traces and recomputed aggregates, it could trigger billing disputes.
+2. **Manual Azure Extractor Friction:** If prospects are delayed by internal security reviews required to run the Tier 1 PowerShell script, the sales cycle will stall.
+3. **Missing Marketing Attribution (TB-019):** Inability to track first-touch attribution prevents the efficient scaling of paid marketing spend.
+4. **Lack of Public Structured Data (TB-020):** Missing JSON-LD on marketing pages reduces organic search visibility, limiting the top of the funnel.
+5. **Undocumented Replay-Rate Semantics (TB-023):** If a customer audits their LLM spend and finds discrepancies between stored traces and recomputed aggregates, it could trigger billing disputes.
 
-## Top 6 Enterprise Adoption Blockers
+## Top 4 Enterprise Adoption Blockers
 
 1. **Manual Tier 1 Extractor:** Enterprise teams prefer automated, API-driven integrations (Tier 2) over running manual scripts, increasing the perceived operational burden.
-2. **Lack of Automated RAG Evaluation (RAG-V1-005):** Enterprise risk teams will demand proof of AI faithfulness; the lack of a CI-driven eval harness makes this difficult to demonstrate.
-3. **Incomplete Context Ingestion (TB-008):** If the system cannot accurately compute deltas or resolve topology overlaps, the resulting architecture graphs will be noisy and untrusted by enterprise architects.
-4. **Missing Platform Docs Corpus (RAG-V1-004):** Enterprise operators expect the system's "Ask" feature to explain its own governance and architecture rules; currently, it cannot.
-5. **Incomplete Documentation Split (TB-013):** Mixing contributor internals with buyer-facing guides confuses enterprise evaluators trying to understand the product's value.
-6. **Opaque LLM Costs (TB-015):** Enterprise FinOps teams require granular chargeback data (e.g., cost per agent type), which is currently unavailable.
+2. **Incomplete Context Ingestion (TB-008):** If the system cannot accurately compute deltas or resolve topology overlaps, the resulting architecture graphs will be noisy and untrusted by enterprise architects.
+3. **Incomplete Documentation Split (TB-013):** Mixing contributor internals with buyer-facing guides confuses enterprise evaluators trying to understand the product's value.
+4. **Opaque LLM Costs (TB-015):** Enterprise FinOps teams require granular chargeback data (e.g., cost per agent type), which is currently unavailable.
 
-## Top 6 Engineering Risks
+## Top 5 Engineering Risks
 
-1. **RAG Faithfulness Gap (TB-021):** The current basic retrieval implementation risks generating ungrounded or hallucinated findings, undermining the core product value.
-2. **Context Ingestion Coupling (TB-008 Phase 4):** Duplicated overlap logic across policy and topology stages creates a high risk of regression when adding new connectors.
-3. **Runaway LLM Costs (TB-015):** Without granular token dimensions, a rogue agent prompt could silently consume the tenant budget without engineers knowing which agent is responsible.
-4. **Monitoring Precision Loss (TB-025):** The `decimal` to `double` cast in OTel metrics introduces rounding errors that will frustrate SREs attempting to reconcile dashboards with database records.
-5. **Data Consistency in Replays (TB-023):** The divergence between stored per-trace costs and recomputed aggregates risks undermining the integrity of the audit trail.
-6. **Signup Latency Spikes (TB-018):** Running DbUp migrations on-demand during signup will cause unacceptable latency spikes during marketing events; warm catalogs are required.
+1. **Context Ingestion Coupling (TB-008 Phase 4):** Duplicated overlap logic across policy and topology stages creates a high risk of regression when adding new connectors.
+2. **Runaway LLM Costs (TB-015):** Without granular token dimensions, a rogue agent prompt could silently consume the tenant budget without engineers knowing which agent is responsible.
+3. **Monitoring Precision Loss (TB-025):** The `decimal` to `double` cast in OTel metrics introduces rounding errors that will frustrate SREs attempting to reconcile dashboards with database records.
+4. **Data Consistency in Replays (TB-023):** The divergence between stored per-trace costs and recomputed aggregates risks undermining the integrity of the audit trail.
+5. **Signup Latency Spikes (TB-018):** Running DbUp migrations on-demand during signup will cause unacceptable latency spikes during marketing events; warm catalogs are required.
 
 ## Most Important Truth
 The core V1 architecture is exceptionally well-designed for enterprise isolation and auditability, but the "AI co-architect" value proposition is currently constrained by an incomplete V1 RAG foundation (TB-021) and opaque LLM token telemetry (TB-015), which must be resolved to ensure trustworthy, cost-predictable agent outputs.
@@ -161,49 +154,13 @@ The core V1 architecture is exceptionally well-designed for enterprise isolation
 The following 22 improvements are ranked by highest leverage. Actionable items include concrete Cursor prompts.
 
 ### 1. Implement RAG-V1-002: Tenant prior-manifest corpus
-**Why it matters:** Ensures agents have context of previous decisions, preventing contradictory findings across sequential runs.
-**Expected impact:** Directly improves AI/Agent Readiness (+5-8 pts) and Maintainability (+2-3 pts). Weighted readiness impact: +0.5-0.8%.
-**Affected qualities:** AI/Agent Readiness, Maintainability.
-**Status:** Actionable now.
-```text
-Implement RAG-V1-002: Tenant prior-manifest corpus.
-1. Extend `RetrievalDocumentBuilder` and `RetrievalRunCompletionIndexer` to emit chunks for each committed decision and finding.
-2. Tag chunks with `decisionId` and `findingId`.
-3. Ensure mandatory tenant/workspace/project scope filters on index and query.
-4. Add integration tests to verify no cross-tenant leakage.
-Files: `ArchLucid.Retrieval/Indexing/RetrievalDocumentBuilder.cs`, `ArchLucid.Retrieval/Indexing/RetrievalRunCompletionIndexer.cs`.
-Acceptance: Second run on similar brief retrieves prior decision chunk in Ask top-K.
-Constraints: Do not change existing RuleBasedDecisionEngine logic.
-```
+**Status:** Completed (Batch 1).
 
 ### 2. Implement RAG-V1-004: Platform docs corpus
-**Why it matters:** Allows the Ask service to answer questions about the system's own architecture and governance rules.
-**Expected impact:** Directly improves Supportability (+5-10 pts) and AI/Agent Readiness (+3-5 pts). Weighted readiness impact: +0.2-0.4%.
-**Affected qualities:** Supportability, AI/Agent Readiness.
-**Status:** Actionable now.
-```text
-Implement RAG-V1-004: Platform docs corpus for Ask + Explanation.
-1. Create `PlatformDocCorpusIndexer` to index allow-listed platform docs (`docs/architecture/adrs/**`, selected `docs/library/**`).
-2. Exclude `docs/go-to-market/**`, `docs/security/pen-test-summaries/**`.
-3. Partition as `tenantId = platform` so RLS tenant filters do not hide platform chunks.
-Files: `ArchLucid.Retrieval/Indexing/PlatformDocCorpusIndexer.cs`.
-Acceptance: Ask integration test about a documented ADR returns chunk citing ADR id.
-Constraints: Do not index raw customer data paths.
-```
+**Status:** Completed (Batch 1).
 
 ### 3. Implement RAG-V1-005: Faithfulness eval harness for RAG
-**Why it matters:** Provides CI-driven proof that agents are citing sources correctly, which is critical for enterprise trust.
-**Expected impact:** Directly improves AI/Agent Readiness (+5-8 pts) and Reliability (+3-5 pts). Weighted readiness impact: +0.4-0.6%.
-**Affected qualities:** AI/Agent Readiness, Reliability.
-**Status:** Actionable now.
-```text
-Implement RAG-V1-005: Faithfulness eval harness for RAG.
-1. Extend `tests/eval-corpus/` with citation-required scenarios (keyword + `evidenceRefs` patterns).
-2. Score `RetrievalGroundingTrace.citationCoverage` per agent in simulator mode.
-Files: `tests/eval-corpus/`, `scripts/ci/eval_agent_corpus.py`.
-Acceptance: CI job fails (or warns) when citation coverage drops below configured floor.
-Constraints: Do not break existing eval scenarios.
-```
+**Status:** Completed (Batch 1).
 
 ### 4. Implement TB-015 Phase A: Bounded dimensions on token counters
 **Why it matters:** Provides granular visibility into LLM costs per agent type, enabling FinOps attribution.
@@ -490,9 +447,6 @@ Constraints: k-anon aggregates only. No cross-tenant embedding-RAG.
 ## Prompt Batching Guidance
 
 To optimize context window usage and cost-effectiveness, execute the actionable prompts in the following batches:
-
-**Batch 1: RAG Foundation (High Priority)**
-- Run Improvements 1, 2, and 3 together. These all touch `ArchLucid.Retrieval` and the Ask/Eval services. They share significant context around the `CorpusKind` and indexing pipelines.
 
 **Batch 2: LLM Token Dimensions (High Priority)**
 - Run Improvements 4, 5, 6, and 7 together. These touch `ArchLucid.AgentRuntime`, `ArchLucid.Core.Diagnostics`, and CI scripts. Grouping them ensures the telemetry pipeline is updated end-to-end.

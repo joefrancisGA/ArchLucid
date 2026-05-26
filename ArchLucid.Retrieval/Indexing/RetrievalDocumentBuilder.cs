@@ -38,7 +38,9 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
                 Title = manifest.Metadata.Name,
                 Content = JsonSerializer.Serialize(manifest, JsonOptions),
                 ContentHash = manifest.ManifestHash,
-                CreatedUtc = manifest.CreatedUtc
+                CreatedUtc = manifest.CreatedUtc,
+                DecisionId = null,
+                FindingId = null
             }
         ];
 
@@ -113,7 +115,9 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
                 Title = "Topology",
                 Content = topologyContent,
                 ContentHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes($"{manifest.RunId:N}|topology|{topologyContent}"))),
-                CreatedUtc = manifest.CreatedUtc
+                CreatedUtc = manifest.CreatedUtc,
+                DecisionId = null,
+                FindingId = null
             });
         }
 
@@ -141,7 +145,9 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
             Title = x.Name,
             Content = x.Content,
             ContentHash = x.ContentHash,
-            CreatedUtc = x.CreatedUtc
+            CreatedUtc = x.CreatedUtc,
+            DecisionId = null,
+            FindingId = null
         }).ToList();
     }
 
@@ -166,7 +172,9 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
             Title = x.Role,
             Content = x.Content,
             ContentHash = x.MessageId.ToString("N"),
-            CreatedUtc = x.CreatedUtc
+            CreatedUtc = x.CreatedUtc,
+            DecisionId = null,
+            FindingId = null
         }).ToList();
     }
 
@@ -195,7 +203,9 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
                 Title = $"Provenance for Run {runId}",
                 Content = summary,
                 ContentHash = runId.ToString("N"),
-                CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                DecisionId = null,
+                FindingId = null
             }
         ];
     }
