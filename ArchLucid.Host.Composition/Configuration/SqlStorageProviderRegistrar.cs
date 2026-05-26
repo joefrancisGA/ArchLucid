@@ -344,6 +344,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         // not registered as IAuthorityRunOrchestrator in production DI since DTF parity confirmed — SQL host uses Durable Task port.
         services.AddScoped<AuthorityRunOrchestrator>();
         services.AddScoped<IAuthorityRunOrchestrator, DtfAuthorityRunOrchestrator>();
+        services.AddScoped<IAuditSqlRetryPolicyProvider, AuditSqlRetryPolicyProvider>();
         services.AddScoped<IAuditRepository, DapperAuditRepository>();
         services.AddScoped<IPilotScorecardMetricsReader, DapperPilotScorecardMetricsReader>();
         services.AddScoped<IPilotReportCardMetricsReader, DapperPilotReportCardMetricsReader>();

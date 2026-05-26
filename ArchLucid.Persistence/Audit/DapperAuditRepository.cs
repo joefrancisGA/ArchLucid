@@ -15,6 +15,11 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Audit;
 
+public interface IAuditSqlRetryPolicyProvider
+{
+    Polly.IAsyncPolicy GetRetryPolicy();
+}
+
 /// <summary>
 ///     SQL Server-backed implementation of <see cref="IAuditRepository" />.
 ///     Appends <see cref="AuditEvent" /> rows to <c>dbo.AuditEvents</c> and retrieves them
@@ -23,13 +28,16 @@ namespace ArchLucid.Persistence.Audit;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperAuditRepository(
     ISqlConnectionFactory writeConnectionFactory,
-    IReadOnlyDbConnectionFactory readConnectionFactory) : IAuditRepository
+    IReadOnlyDbConnectionFactory readConnectionFactory,
+    IAuditSqlRetryPolicyProvider? retryPolicyProvider = null) : IAuditRepository
 {
     private readonly ISqlConnectionFactory _writeConnectionFactory =
         writeConnectionFactory ?? throw new ArgumentNullException(nameof(writeConnectionFactory));
 
     private readonly IReadOnlyDbConnectionFactory _readConnectionFactory =
         readConnectionFactory ?? throw new ArgumentNullException(nameof(readConnectionFactory));
+
+    private readonly Polly.IAsyncPolicy _retryPolicy = retryPolicyProvider?.GetRetryPolicy() ?? Polly.Policy.NoOpAsync();
 
     public async Task AppendAsync(AuditEvent auditEvent, CancellationToken ct)
     {
@@ -56,8 +64,11 @@ public sealed class DapperAuditRepository(
 
         try
         {
-            await using SqlConnection connection = await _writeConnectionFactory.CreateOpenConnectionAsync(ct);
-            await connection.ExecuteAsync(new CommandDefinition(sql, auditEvent, cancellationToken: ct));
+            await _retryPolicy.ExecuteAsync(async () =>
+            {
+                await using SqlConnection connection = await _writeConnectionFactory.CreateOpenConnectionAsync(ct);
+                await connection.ExecuteAsync(new CommandDefinition(sql, auditEvent, cancellationToken: ct));
+            });
         }
         finally
         {

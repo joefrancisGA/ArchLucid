@@ -1,13 +1,13 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 92.80%
+# ArchLucid Assessment – (A) Headline Readiness: 92.93%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding all deferred items (V1.1, V1.x, V2). No penalties have been applied for out-of-scope features such as native SAML 2.0, SCIM 2.0 inbound provisioning, multi-cloud AWS/GCP analysis, MCP interfaces, first-party ITSM/chat connectors, or third-party penetration testing.
 
 ## Executive Summary
 
 ### (A) Overall Headline Readiness
-The core V1 architecture is exceptionally secure, isolated, and scalable, anchored by a database-per-tenant topology. Following the completion of Terraform export safety improvements, the "AI co-architect" value proposition is grounded and reliable. The headline readiness score has increased to 92.80%. With SAML 2.0 and SCIM 2.0 explicitly classified as V1.1 deliverables, the remaining V1 GA gaps are localized to minor operational friction (Tier 1 extractor UX) and structured cost retrieval accuracy (RAG-V1-003).
+The core V1 architecture is exceptionally secure, isolated, and scalable, anchored by a database-per-tenant topology. Following the completion of Terraform export safety improvements and credential/audit enhancements, the "AI co-architect" value proposition is grounded and reliable. The headline readiness score has increased to 92.93%. With SAML 2.0 and SCIM 2.0 explicitly classified as V1.1 deliverables, the remaining V1 GA gaps are localized to minor operational friction (Tier 1 extractor UX) and structured cost retrieval accuracy (RAG-V1-003).
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will encounter friction, independent of the `(A)` technical score. The explicit deferral of a CPA-issued SOC 2 report, external third-party penetration testing, native SAML 2.0, and SCIM 2.0 to V1.1/V2 will extend enterprise security and identity reviews. Additionally, while the Tier 1 Azure extractor bypasses the need for vendor credentials, its manual nature represents an operational hurdle that buyers must accept until V1.x Tier 2 automation is rolled out.
@@ -82,10 +82,10 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Status:** Very strong in V1 GA.
 
 ### 7. Reliability
-- **Score:** 98/100
+- **Score:** 99/100
 - **Weight:** 2
-- **Weighted deficiency signal:** 4
-- **Justification:** Solid SQL connections, circuit breakers, and RAG eval harness. Terraform exports are fully regression-tested for destructive blocks.
+- **Weighted deficiency signal:** 2
+- **Justification:** Solid SQL connections, circuit breakers, and RAG eval harness. Terraform exports are fully regression-tested for destructive blocks. Keys and audits have enforced pagination and retry capabilities.
 - **Tradeoffs:** Single-region V1 GA simplifies infrastructure but reduces the availability tier for initial rollouts.
 - **Improvement recommendations:** Add rate limit handling and explicit logging for the Azure Retail Prices API.
 - **Status:** Very strong in V1 GA.
@@ -100,29 +100,27 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Status:** Very strong in V1 GA.
 
 ### 9. Supportability
-- **Score:** 96/100
+- **Score:** 100/100
 - **Weight:** 1
-- **Weighted deficiency signal:** 4
-- **Justification:** Durable append-only audit trail, correlation IDs, and CLI diagnostics are comprehensive. Keyset pagination on the audit search API requires strict enforcement.
+- **Weighted deficiency signal:** 0
+- **Justification:** Durable append-only audit trail, correlation IDs, and CLI diagnostics are comprehensive. Keyset pagination on the audit search API is strictly enforced, and API keys are rotatable natively.
 - **Tradeoffs:** The append-only audit log increases storage costs but is non-negotiable for compliance.
-- **Improvement recommendations:** Enforce keyset pagination on `GET /v1/audit/search` and add API key rotation endpoints.
+- **Improvement recommendations:** Enhance error messages for missing JWT bearer claims mapping.
 - **Status:** Very strong in V1 GA.
 
 ---
 
-## Top 12 Most Important Weaknesses
+## Top 10 Most Important Weaknesses
 *(Note: Explicitly excludes items deferred to V1.1, V1.x, or V2)*
 
 1. Manual execution of the Tier 1 Azure extractor creates ongoing friction for customers updating their architecture context.
 2. Missing structured Azure Retail Prices retrieval (RAG-V1-003) limits accuracy of automated cost citations.
 3. Warm-catalog standby pool (TB-018) requires tuning and monitoring to prevent DB claim failures during spikes.
-4. API Key rotation endpoints are missing, hindering programmatic credential lifecycle management.
-5. Audit search keyset pagination lacks strict enforcement, risking DB overload during large investigations.
-6. Token dimension aggregation is missing from the governance dashboard views.
-7. 30-day trailing comparison is missing from the Executive ROI summary service.
-8. OTel `double` cast precision loss (TB-025) requires telemetry monitoring to ensure cost accuracy.
-9. Azure Retail Prices API rate limit handling and explicit logging are missing, posing a reliability risk.
-10. Orphaned tenant SQL catalogs lack an automated cleanup job, risking storage bloat.
+4. Token dimension aggregation is missing from the governance dashboard views.
+5. 30-day trailing comparison is missing from the Executive ROI summary service.
+6. OTel `double` cast precision loss (TB-025) requires telemetry monitoring to ensure cost accuracy.
+7. Azure Retail Prices API rate limit handling and explicit logging are missing, posing a reliability risk.
+8. Orphaned tenant SQL catalogs lack an automated cleanup job, risking storage bloat.
 
 ---
 
@@ -137,13 +135,11 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 
 ---
 
-## Top 6 Enterprise Adoption Blockers
+## Top 4 Enterprise Adoption Blockers
 
 1. Manual Tier 1 Azure extractor requires human-in-the-loop updates, increasing operational burden.
-2. API Key rotation endpoints are missing, violating enterprise credential rotation policies.
-3. Audit search keyset pagination lacks strict enforcement, hindering enterprise compliance investigations.
-4. Lack of a customizable SSO login banner delays alignment with enterprise compliance requirements.
-5. Absence of role-based access control mapping validation tool complicates initial OIDC generic setups.
+2. Lack of a customizable SSO login banner delays alignment with enterprise compliance requirements.
+3. Absence of role-based access control mapping validation tool complicates initial OIDC generic setups.
 
 ---
 

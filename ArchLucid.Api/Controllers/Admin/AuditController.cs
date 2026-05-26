@@ -106,6 +106,13 @@ public sealed class AuditController(
                 ProblemTypes.ValidationFailed);
         }
 
+        if (beforeUtc.HasValue && !beforeEventId.HasValue && opaque is null)
+        {
+            return this.BadRequestProblem(
+                "beforeUtc requires beforeEventId for stable keyset pagination.",
+                ProblemTypes.ValidationFailed);
+        }
+
         int clampedTake = Math.Clamp(take, 1, PaginationDefaults.MaxListingTake);
         ScopeContext scope = scopeProvider.GetCurrentScope();
 

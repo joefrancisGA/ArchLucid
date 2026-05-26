@@ -555,6 +555,8 @@ public static class AuditEventTypes
     /// <summary>Admin issued new host API key rotation material (payload excludes key material).</summary>
     public const string AdminApiKeyRotationMaterialIssued = "Admin.ApiKeyRotationMaterialIssued";
 
+    public const string ApiKeyRotated = "Security.ApiKeyRotated";
+
     /// <summary>
     ///     Outbound subscriber URL probe without persistence (<c>POST /v1/webhooks/dry-run</c>). Payload excludes shared
     ///     secrets and response bodies.

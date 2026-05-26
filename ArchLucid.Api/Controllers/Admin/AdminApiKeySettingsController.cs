@@ -81,4 +81,48 @@ public sealed class AdminApiKeySettingsController(
 
         return Ok(response);
     }
+
+    [HttpPost("/v{version:apiVersion}/admin/apikeys/{keyId}/rotate")]
+    [ProducesResponseType(typeof(AdminApiKeyRotateResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> RotateKeyIdAsync(
+        [FromRoute] string keyId,
+        CancellationToken cancellationToken)
+    {
+        AdminApiKeyRotateResponse response;
+
+        try
+        {
+            response = _apiKeySettingsService.Rotate(new AdminApiKeyRotateRequest { Slot = keyId, InvalidatePrevious = true });
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string actor = User.Identity?.Name ?? "admin";
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ApiKeyRotated,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        keyId = keyId,
+                        slot = response.Slot,
+                        deploymentAction = response.DeploymentAction,
+                        configPath = response.ConfigPath
+                    })
+            },
+            cancellationToken).ConfigureAwait(false);
+
+        return Ok(response);
+    }
 }
