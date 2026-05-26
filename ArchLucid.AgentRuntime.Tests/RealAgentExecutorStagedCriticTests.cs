@@ -123,7 +123,7 @@ public sealed class RealAgentExecutorStagedCriticTests
             AgentType = AgentType.Critic,
         };
 
-        AgentResult[] results = await sut.ExecuteAsync(runId, request, evidence, [tTopo, tCrit], CancellationToken.None);
+        IReadOnlyList<AgentResult> results = await sut.ExecuteAsync(runId, request, evidence, [tTopo, tCrit], CancellationToken.None);
 
         results.Should().HaveCount(2);
         results.Single(r => r.AgentType == AgentType.Critic).Confidence.Should().Be(0);
