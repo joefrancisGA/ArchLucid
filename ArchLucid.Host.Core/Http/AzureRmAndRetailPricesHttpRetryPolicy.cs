@@ -80,6 +80,18 @@ public static class AzureRmAndRetailPricesHttpRetryPolicy
         HttpResponseMessage? result = args.Outcome.Result;
 
         if (result is not null)
+        {
+            if (result.StatusCode == HttpStatusCode.TooManyRequests)
+            {
+                logger.LogWarning(
+                    "Azure ARM / Retail Prices HTTP outbound hit rate limit (HTTP 429); Retry-After={RetryAfter}; scheduling retry attempt {RetryAttempt} of {MaxRetries} (delay {RetryDelay}).",
+                    TryReadRetryAfterHeader(result) ?? "unspecified",
+                    args.AttemptNumber,
+                    MaxRetryAttempts,
+                    args.RetryDelay);
+
+                return;
+            }
 
             logger.LogWarning(
                 "Azure ARM / Retail Prices HTTP outbound scheduling retry after HTTP {HttpStatus}; attempt {RetryAttempt} of {MaxRetries} (delay {RetryDelay}).",
@@ -88,7 +100,10 @@ public static class AzureRmAndRetailPricesHttpRetryPolicy
                 MaxRetryAttempts,
                 args.RetryDelay);
 
-        else if (args.Outcome.Exception is Exception ex)
+            return;
+        }
+
+        if (args.Outcome.Exception is Exception ex)
 
             logger.LogWarning(
                 ex,
@@ -96,5 +111,20 @@ public static class AzureRmAndRetailPricesHttpRetryPolicy
                 args.AttemptNumber,
                 MaxRetryAttempts,
                 args.RetryDelay);
+    }
+
+    internal static string? TryReadRetryAfterHeader(HttpResponseMessage response)
+    {
+        ArgumentNullException.ThrowIfNull(response);
+
+        if (!response.Headers.TryGetValues("Retry-After", out IEnumerable<string>? values))
+            return null;
+
+        string? first = values.FirstOrDefault();
+
+        if (string.IsNullOrWhiteSpace(first))
+            return null;
+
+        return first.Trim();
     }
 }

@@ -1095,6 +1095,36 @@ public sealed class DapperTenantRepository(
         return ids.ToList();
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Guid>> ListTenantIdsForOrphanedCatalogCleanupAsync(
+        DateTimeOffset utcNow,
+        DateTimeOffset erasureRequestedOnOrBefore,
+        int take,
+        CancellationToken ct)
+    {
+        await using SqlConnection connection = await OpenDirectoryMetadataConnectionAsync(ct);
+
+        const string sql = """
+                           SELECT TOP (@Take) Id
+                           FROM dbo.Tenants
+                           WHERE TenantErasureRequestedUtc IS NOT NULL
+                             AND TenantErasureRequestedUtc <= @ErasureRequestedOnOrBefore
+                             AND TenantErasureApprovedUtc IS NOT NULL
+                             AND (LegalHoldUntilUtc IS NULL OR LegalHoldUntilUtc <= @UtcNow)
+                           ORDER BY TenantErasureRequestedUtc ASC;
+                           """;
+
+        IEnumerable<Guid> ids =
+            await connection.QueryAsync<Guid>(new CommandDefinition(sql, new
+            {
+                Take = take,
+                ErasureRequestedOnOrBefore = erasureRequestedOnOrBefore,
+                UtcNow = utcNow
+            }, cancellationToken: ct));
+
+        return ids.ToList();
+    }
+
     private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc)
     {
         if (trialExpiresUtc is null)

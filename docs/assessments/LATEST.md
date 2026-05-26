@@ -1,13 +1,13 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 94.78%
+# ArchLucid Assessment – (A) Headline Readiness: 94.89%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding all deferred items (V1.1, V1.x, V2). No penalties have been applied for out-of-scope features such as native SAML 2.0, SCIM 2.0 inbound provisioning, multi-cloud AWS/GCP analysis, MCP interfaces, first-party ITSM/chat connectors, or third-party penetration testing.
 
 ## Executive Summary
 
 ### (A) Overall Headline Readiness
-The core V1 architecture is exceptionally secure, isolated, and scalable, anchored by a database-per-tenant topology. Following Terraform export safety, credential/audit enhancements, dashboard/ROI reporting, Tier 1 extractor UX/validation hardening, and core reliability/caching work (Polly-backed audit append retries, resilient Dapper SQL opens, Azure OpenAI readiness probes, distributed LLM cache circuit breaker with in-memory fallback, graph projection invalidation on manifest commit), the "AI co-architect" value proposition is grounded and reliable. The headline readiness score has increased to 94.78%. With SAML 2.0 and SCIM 2.0 explicitly classified as V1.1 deliverables, the remaining V1 GA gaps are localized to structured cost retrieval accuracy (RAG-V1-003) and operational tuning (warm-catalog standby pool).
+The core V1 architecture is exceptionally secure, isolated, and scalable, anchored by a database-per-tenant topology. Following Terraform export safety, credential/audit enhancements, dashboard/ROI reporting, Tier 1 extractor UX/validation hardening, core reliability/caching, and health/operations work (Retail Prices 429 logging with Retry-After, control-plane SQL liveness on `/health/live`, leader-elected orphaned tenant catalog cleanup), the "AI co-architect" value proposition is grounded and reliable. The headline readiness score has increased to 94.89%. With SAML 2.0 and SCIM 2.0 explicitly classified as V1.1 deliverables, the remaining V1 GA gaps are localized to structured cost retrieval accuracy (RAG-V1-003) and operational tuning (warm-catalog standby pool).
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will encounter friction, independent of the `(A)` technical score. The explicit deferral of a CPA-issued SOC 2 report, external third-party penetration testing, native SAML 2.0, and SCIM 2.0 to V1.1/V2 will extend enterprise security and identity reviews. Additionally, while the Tier 1 Azure extractor bypasses the need for vendor credentials, its manual nature represents an operational hurdle that buyers must accept until V1.x Tier 2 automation is rolled out.
@@ -19,7 +19,7 @@ The commercial foundation is strong. The `ExecutiveRoiSummaryService` provides t
 Enterprise adoption is supported by robust audit trails, row-level security, comprehensive pre-commit governance gates, and generic OIDC (JWT bearer) integration. Identity teams will need to rely on OIDC or manual role mapping in V1 GA until native SAML 2.0 SP and SCIM 2.0 inbound provisioning are delivered in V1.1. 
 
 ### Engineering Picture
-The engineering architecture is highly maintainable, separating Dapper data access from the Authority persistence chain. The V1 RAG foundation is decoupled and robust. Remaining engineering risks center around scaling operational features: tuning the warm-catalog standby pool, handling OTel `double` cast precision loss, managing orphaned tenant SQL catalogs, and ensuring Terraform advisory constraints are backed by strict snapshot tests.
+The engineering architecture is highly maintainable, separating Dapper data access from the Authority persistence chain. The V1 RAG foundation is decoupled and robust. Remaining engineering risks center around scaling operational features: tuning the warm-catalog standby pool, handling OTel `double` cast precision loss, and ensuring Terraform advisory constraints are backed by strict snapshot tests.
 
 ---
 
@@ -55,11 +55,11 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Status:** Very strong in V1 GA.
 
 ### 4. Proof-of-ROI Readiness
-- **Score:** 95/100
+- **Score:** 96/100
 - **Weight:** 5
-- **Weighted deficiency signal:** 25
-- **Justification:** Cross-run executive ROI aggregation is implemented with deduplication by stable ID and trailing 30-day resolved/newly-discovered finding counts. However, cost citations lack fully structured retrieval for Azure Retail Prices (RAG-V1-003).
-- **Tradeoffs:** Using illustrative fallback prices allows progress without API limits, but risks finance scrutiny during ROI validation.
+- **Weighted deficiency signal:** 20
+- **Justification:** Cross-run executive ROI aggregation is implemented with deduplication by stable ID and trailing 30-day resolved/newly-discovered finding counts. Azure Retail Prices outbound calls now emit structured 429 warnings including `Retry-After` headers before retrying, improving cost-ingestion observability during ROI validation.
+- **Tradeoffs:** Using illustrative fallback prices allows progress without API limits, but risks finance scrutiny during ROI validation until RAG-V1-003 lands.
 - **Improvement recommendations:** Implement structured Azure Retail Prices retrieval to ensure exact, citation-backed cost claims in artifacts.
 - **Status:** Fixable in V1 GA.
 
@@ -76,18 +76,18 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Score:** 100/100
 - **Weight:** 4
 - **Weighted deficiency signal:** 0
-- **Justification:** Highly modular architecture with clean separation of workflow data access and authority persistence. Terraform export constraints are bound by snapshot tests, ensuring advisory-only generation. Graph snapshot projection caches invalidate on golden manifest commit. CI line coverage is strictly enforced at 95%.
+- **Justification:** Highly modular architecture with clean separation of workflow data access and authority persistence. Terraform export constraints are bound by snapshot tests, ensuring advisory-only generation. Graph snapshot projection caches invalidate on golden manifest commit. Leader-elected orphaned tenant catalog cleanup throttles hard purges after erasure quarantine. CI line coverage is strictly enforced at 95%.
 - **Tradeoffs:** Maintaining dual persistence models requires developer discipline but ensures pristine authority chains. High line coverage floors may slow down rapid prototyping.
-- **Improvement recommendations:** Introduce an automated cleanup job for orphaned catalogs.
+- **Improvement recommendations:** None material for V1 GA catalog lifecycle automation.
 - **Status:** Very strong in V1 GA.
 
 ### 7. Reliability
 - **Score:** 100/100
 - **Weight:** 2
 - **Weighted deficiency signal:** 0
-- **Justification:** Solid SQL connections, circuit breakers, and RAG eval harness. Terraform exports are fully regression-tested for destructive blocks. Dapper repositories use Polly-backed transient SQL retries; audit appends retry on transient failures; `/health/ready` includes an Azure OpenAI TCP probe when Real agent mode is enabled.
+- **Justification:** Solid SQL connections, circuit breakers, and RAG eval harness. Terraform exports are fully regression-tested for destructive blocks. Dapper repositories use Polly-backed transient SQL retries; audit appends retry on transient failures; `/health/live` probes control-plane SQL with a short timeout; `/health/ready` includes an Azure OpenAI TCP probe when Real agent mode is enabled.
 - **Tradeoffs:** Single-region V1 GA simplifies infrastructure but reduces the availability tier for initial rollouts.
-- **Improvement recommendations:** Add rate limit handling and explicit logging for the Azure Retail Prices API.
+- **Improvement recommendations:** None material for V1 GA health probes.
 - **Status:** Very strong in V1 GA.
 
 ### 8. Executive Value Visibility
@@ -116,8 +116,6 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 1. Missing structured Azure Retail Prices retrieval (RAG-V1-003) limits accuracy of automated cost citations.
 2. Warm-catalog standby pool (TB-018) requires tuning and monitoring to prevent DB claim failures during spikes.
 3. OTel `double` cast precision loss (TB-025) requires telemetry monitoring to ensure cost accuracy.
-4. Azure Retail Prices API rate limit handling and explicit logging are missing, posing a reliability risk.
-5. Orphaned tenant SQL catalogs lack an automated cleanup job, risking storage bloat.
 
 ---
 

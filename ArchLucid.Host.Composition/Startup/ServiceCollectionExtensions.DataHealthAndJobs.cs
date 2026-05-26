@@ -33,6 +33,10 @@ public static partial class ServiceCollectionExtensions
                 "liveness",
                 () => HealthCheckResult.Healthy("ArchLucid API process is running."),
                 tags: [ReadinessTags.Live])
+            .AddCheck<DatabaseLivenessHealthCheck>(
+                DatabaseLivenessHealthCheck.RegistrationName,
+                failureStatus: HealthStatus.Unhealthy,
+                tags: [ReadinessTags.Live])
             .AddCheck<AgentExecutionModeHealthCheck>(
                 AgentExecutionModeHealthCheck.RegistrationName,
                 tags: [ReadinessTags.Ready]);

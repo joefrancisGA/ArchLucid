@@ -67,6 +67,10 @@ public static partial class ServiceCollectionExtensions
         services.Configure<SampleRunPurgeOptions>(
             configuration.GetSection(SampleRunPurgeOptions.SectionName));
         services.Configure<TenantErasurePurgeOptions>(configuration.GetSection(TenantErasurePurgeOptions.SectionName));
+        services.Configure<OrphanedTenantCatalogCleanupOptions>(
+            configuration.GetSection(OrphanedTenantCatalogCleanupOptions.SectionName));
+        services.Configure<DatabaseLivenessHealthCheckOptions>(
+            configuration.GetSection(DatabaseLivenessHealthCheckOptions.SectionName));
         services.Configure<HostLeaderElectionOptions>(configuration.GetSection(HostLeaderElectionOptions.SectionName));
         services.AddScoped<IDemoSeedService, DemoSeedService>();
         services.AddKeyedScoped<IArchitectureRunExecuteOrchestrator>(
@@ -120,6 +124,7 @@ public static partial class ServiceCollectionExtensions
         RegisterArchitectureProjectRetentionPurgeHostedService(services, hostingRole);
         RegisterSampleRunTtlHostedService(services, hostingRole);
         RegisterTenantErasureEligiblePurgeHostedService(services, hostingRole);
+        RegisterOrphanedTenantCleanupHostedService(services, hostingRole);
         RegisterAzureExtractorAutoPullHostedService(services, hostingRole);
         RegisterWarmTenantCatalogReplenishHostedService(services, hostingRole);
         RegisterDataConsistencyReconciliation(services, configuration, hostingRole);

@@ -191,5 +191,15 @@ public interface ITenantRepository
         DateTimeOffset utcNow,
         int take,
         CancellationToken ct);
+
+    /// <summary>
+    ///     Tenants with <c>TenantErasureRequestedUtc</c> on or before <paramref name="erasureRequestedOnOrBefore" />
+    ///     and approved erasure, for orphaned catalog cleanup.
+    /// </summary>
+    Task<IReadOnlyList<Guid>> ListTenantIdsForOrphanedCatalogCleanupAsync(
+        DateTimeOffset utcNow,
+        DateTimeOffset erasureRequestedOnOrBefore,
+        int take,
+        CancellationToken ct);
 }
 

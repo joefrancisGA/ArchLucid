@@ -137,6 +137,16 @@ public static partial class ServiceCollectionExtensions
         services.AddHostedService<TenantErasureEligiblePurgeHostedService>();
     }
 
+    private static void RegisterOrphanedTenantCleanupHostedService(
+        IServiceCollection services,
+        ArchLucidHostingRole hostingRole)
+    {
+        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
+            return;
+
+        services.AddHostedService<OrphanedTenantCleanupHostedService>();
+    }
+
     private static void RegisterAzureExtractorAutoPullHostedService(
         IServiceCollection services,
         ArchLucidHostingRole hostingRole)

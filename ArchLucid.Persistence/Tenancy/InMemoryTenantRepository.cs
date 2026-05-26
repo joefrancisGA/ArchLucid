@@ -919,6 +919,34 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     }
 
     /// <inheritdoc />
+    public Task<IReadOnlyList<Guid>> ListTenantIdsForOrphanedCatalogCleanupAsync(
+        DateTimeOffset utcNow,
+        DateTimeOffset erasureRequestedOnOrBefore,
+        int take,
+        CancellationToken ct)
+    {
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            int clamped = Math.Clamp(take, 1, 100);
+
+            List<Guid> ids = _byId.Values
+                .Where(t =>
+                    t.TenantErasureRequestedUtc is not null &&
+                    t.TenantErasureRequestedUtc <= erasureRequestedOnOrBefore &&
+                    t.TenantErasureApprovedUtc is not null &&
+                    (t.LegalHoldUntilUtc is null || t.LegalHoldUntilUtc <= utcNow))
+                .OrderBy(static t => t.TenantErasureRequestedUtc)
+                .Take(clamped)
+                .Select(static t => t.Id)
+                .ToList();
+
+            return Task.FromResult<IReadOnlyList<Guid>>(ids);
+        }
+    }
+
+    /// <inheritdoc />
     public Task EnqueueTrialArchitecturePreseedAsync(Guid tenantId, CancellationToken ct)
     {
         _ = ct;
