@@ -814,15 +814,14 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IRetrievalQueryService, RetrievalQueryService>();
         services.AddScoped<IRetrievalRunCompletionIndexer, RetrievalRunCompletionIndexer>();
 
+        // Always registered: AzureAiSearchSemanticRetrievalReranker checks IsConfigured before calling search APIs.
+        services.AddSingleton<IAzureSearchClient, NotConfiguredAzureSearchClient>();
+
         string vectorMode = configuration["Retrieval:VectorIndex"] ?? "InMemory";
 
         if (string.Equals(vectorMode, "AzureSearch", StringComparison.OrdinalIgnoreCase))
-        {
-            services.AddSingleton<IAzureSearchClient, NotConfiguredAzureSearchClient>();
             services.AddSingleton<IVectorIndex, AzureAiSearchVectorIndex>();
-        }
         else
-
             services.AddSingleton<IVectorIndex, InMemoryVectorIndex>();
 
 
