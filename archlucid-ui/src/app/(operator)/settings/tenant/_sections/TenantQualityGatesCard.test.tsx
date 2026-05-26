@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { TenantQualityGatesCard } from "./TenantQualityGatesCard";
@@ -9,19 +9,25 @@ describe("TenantQualityGatesCard", () => {
   });
 
   it("loads mode and applies PilotStrict on button click", async () => {
+    let effectiveMode: "WarnOnly" | "PilotStrict" = "WarnOnly";
+    let source: "HostDefault" | "TenantOverride" = "HostDefault";
+
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
 
       if (url.includes("agent-output-quality-gate-mode") && (!init?.method || init.method === "GET")) {
         return new Response(
-          JSON.stringify({ effectiveMode: "WarnOnly", source: "HostDefault", hostDefaultMode: "WarnOnly" }),
+          JSON.stringify({ effectiveMode, source, hostDefaultMode: "WarnOnly" }),
           { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
 
       if (url.includes("agent-output-quality-gate-mode") && init?.method === "PUT") {
+        effectiveMode = "PilotStrict";
+        source = "TenantOverride";
+
         return new Response(
-          JSON.stringify({ effectiveMode: "PilotStrict", source: "TenantOverride", hostDefaultMode: "WarnOnly" }),
+          JSON.stringify({ effectiveMode, source, hostDefaultMode: "WarnOnly" }),
           { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
@@ -63,7 +69,8 @@ describe("TenantQualityGatesCard", () => {
     fireEvent.click(screen.getByRole("button", { name: "Pilot strict" }));
 
     await waitFor(() => {
-      expect(screen.getByText(/PilotStrict/)).toBeInTheDocument();
+      const controls = screen.getByTestId("quality-gate-mode-controls");
+      expect(within(controls).getByText("PilotStrict")).toBeInTheDocument();
     });
 
     expect(fetchMock).toHaveBeenCalledWith(
