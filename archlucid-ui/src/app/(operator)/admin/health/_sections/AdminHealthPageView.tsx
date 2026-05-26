@@ -169,6 +169,56 @@ export function AdminHealthPageView(props: Props) {
 
       <Card>
         <CardHeader>
+          <CardTitle className="text-base">Configuration probes</CardTitle>
+          <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+            Live connectivity checks for SQL, OIDC authority metadata, and optional Key Vault — from{" "}
+            <code className="text-xs">GET /v1/diagnostics/configuration-health</code>.
+          </p>
+        </CardHeader>
+        <CardContent>
+          {m.configurationHealthNote !== null ? (
+            <p className="m-0 text-sm text-amber-900 dark:text-amber-100" data-testid="admin-health-configuration-health-note">
+              {m.configurationHealthNote}
+            </p>
+          ) : null}
+          {m.configurationHealth !== null && (m.configurationHealth.checks?.length ?? 0) > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm" data-testid="admin-health-configuration-health-table">
+                <thead>
+                  <tr className="border-b border-neutral-200 text-xs uppercase text-neutral-500 dark:border-neutral-700">
+                    <th className="py-2 pr-3">Probe</th>
+                    <th className="py-2 pr-3">Status</th>
+                    <th className="py-2 pr-3">Detail</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(m.configurationHealth.checks ?? []).map((row) => (
+                    <tr key={row.name} className="border-b border-neutral-100 dark:border-neutral-800">
+                      <td className="py-2 pr-3 font-mono text-xs text-neutral-800 dark:text-neutral-200">{row.name}</td>
+                      <td className="py-2 pr-3">
+                        <StatusPill
+                          status={row.status}
+                          domain="health"
+                          uppercase={false}
+                          className="rounded-md px-2 py-0.5 text-xs font-medium"
+                        />
+                      </td>
+                      <td className="py-2 pr-3 text-neutral-600 dark:text-neutral-400">{row.detail ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            !m.configurationHealthNote && (
+              <p className="m-0 text-sm text-neutral-500">No configuration probe results returned.</p>
+            )
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle className="text-base">Environment health (config lint)</CardTitle>
           <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
             Parity with <code className="text-xs">archlucid config lint</code> — blocking findings and hosting advisor rows

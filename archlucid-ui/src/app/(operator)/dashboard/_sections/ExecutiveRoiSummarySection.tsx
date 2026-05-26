@@ -8,6 +8,7 @@ import {
   executiveSummaryMarkdownFilename,
   type ExecutiveRoiSummary,
 } from "@/lib/executive-summary-markdown";
+import { ExecutiveRoiSystemicIssueTrendChart } from "@/components/ExecutiveRoiSystemicIssueTrendChart";
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import { showError } from "@/lib/toast";
 
@@ -233,6 +234,17 @@ export function ExecutiveRoiSummarySection() {
             No committed runs with findings yet — run an architecture review to populate this summary.
           </p>
         )}
+
+        {(data.historicalTrends?.length ?? 0) > 0 ? (
+          <div>
+            <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              Systemic issue trends (last 6 months)
+            </h3>
+            <div className="mt-3">
+              <ExecutiveRoiSystemicIssueTrendChart series={data.historicalTrends ?? []} />
+            </div>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );

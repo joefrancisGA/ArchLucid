@@ -5,7 +5,7 @@ import type {
   VersionInfoResponse,
 } from "@/lib/health-dashboard-types";
 
-import type { AdminHealthConfigLintPayload } from "./admin-health-types";
+import type { AdminHealthConfigLintPayload, ConfigurationHealthPayload } from "./admin-health-types";
 
 /** Props from `useAdminHealthPage` to `AdminHealthPageView`. */
 export type AdminHealthPageViewModel = {
@@ -21,4 +21,6 @@ export type AdminHealthPageViewModel = {
   readonly ratesNote: string | null;
   readonly configLint: AdminHealthConfigLintPayload | null;
   readonly configLintNote: string | null;
+  readonly configurationHealth: ConfigurationHealthPayload | null;
+  readonly configurationHealthNote: string | null;
 };

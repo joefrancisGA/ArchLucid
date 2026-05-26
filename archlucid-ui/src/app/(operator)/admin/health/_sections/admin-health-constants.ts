@@ -7,3 +7,5 @@ export const ADMIN_HEALTH_DIAGNOSTICS_PATH = "/api/proxy/health/diagnostics";
 export const ADMIN_HEALTH_OPERATOR_RATES_PATH = "/api/proxy/v1/diagnostics/operator-task-success-rates";
 
 export const ADMIN_HEALTH_CONFIG_LINT_PATH = "/api/proxy/v1/admin/config-lint?includeAdvisory=true";
+
+export const ADMIN_HEALTH_CONFIGURATION_HEALTH_PATH = "/api/proxy/v1/diagnostics/configuration-health";

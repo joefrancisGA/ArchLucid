@@ -15,12 +15,13 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 
 import {
   ADMIN_HEALTH_CONFIG_LINT_PATH,
+  ADMIN_HEALTH_CONFIGURATION_HEALTH_PATH,
   ADMIN_HEALTH_DIAGNOSTICS_PATH,
   ADMIN_HEALTH_OPERATOR_RATES_PATH,
   ADMIN_HEALTH_READY_PATH,
   ADMIN_HEALTH_VERSION_PATH,
 } from "./admin-health-constants";
-import type { AdminHealthConfigLintPayload } from "./admin-health-types";
+import type { AdminHealthConfigLintPayload, ConfigurationHealthPayload } from "./admin-health-types";
 import type { AdminHealthPageViewModel } from "./admin-health-view-model";
 import type { AdminHealthPageServerLoad } from "./load-admin-health-page-data";
 
@@ -37,6 +38,8 @@ export function useAdminHealthPage(loaded: AdminHealthPageServerLoad): AdminHeal
   const [ratesNote, setRatesNote] = useState<string | null>(null);
   const [configLint, setConfigLint] = useState<AdminHealthConfigLintPayload | null>(null);
   const [configLintNote, setConfigLintNote] = useState<string | null>(null);
+  const [configurationHealth, setConfigurationHealth] = useState<ConfigurationHealthPayload | null>(null);
+  const [configurationHealthNote, setConfigurationHealthNote] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -44,6 +47,7 @@ export function useAdminHealthPage(loaded: AdminHealthPageServerLoad): AdminHeal
     setCircuitNote(null);
     setRatesNote(null);
     setConfigLintNote(null);
+    setConfigurationHealthNote(null);
 
     const jsonInit = mergeRegistrationScopeForProxy({
       headers: { Accept: "application/json" },
@@ -51,12 +55,13 @@ export function useAdminHealthPage(loaded: AdminHealthPageServerLoad): AdminHeal
     });
 
     try {
-      const [readyRes, versionRes, healthRes, ratesRes, lintRes] = await Promise.all([
+      const [readyRes, versionRes, healthRes, ratesRes, lintRes, configurationHealthRes] = await Promise.all([
         fetch(ADMIN_HEALTH_READY_PATH, jsonInit),
         fetch(ADMIN_HEALTH_VERSION_PATH, jsonInit),
         fetch(ADMIN_HEALTH_DIAGNOSTICS_PATH, jsonInit),
         fetch(ADMIN_HEALTH_OPERATOR_RATES_PATH, jsonInit),
         fetch(ADMIN_HEALTH_CONFIG_LINT_PATH, jsonInit),
+        fetch(ADMIN_HEALTH_CONFIGURATION_HEALTH_PATH, jsonInit),
       ]);
 
       if (readyRes.ok) {
@@ -110,6 +115,18 @@ export function useAdminHealthPage(loaded: AdminHealthPageServerLoad): AdminHeal
             : `Config lint unavailable (HTTP ${lintRes.status}).`,
         );
       }
+
+      if (configurationHealthRes.ok) {
+        setConfigurationHealth((await configurationHealthRes.json()) as ConfigurationHealthPayload);
+        setConfigurationHealthNote(null);
+      } else {
+        setConfigurationHealth(null);
+        setConfigurationHealthNote(
+          configurationHealthRes.status === 401 || configurationHealthRes.status === 403
+            ? "Configuration probes require an Admin session — sign in with a tenant administrator account."
+            : `Configuration probes unavailable (HTTP ${configurationHealthRes.status}).`,
+        );
+      }
     } catch (e) {
       setReadyError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -138,5 +155,7 @@ export function useAdminHealthPage(loaded: AdminHealthPageServerLoad): AdminHeal
     ratesNote,
     configLint,
     configLintNote,
+    configurationHealth,
+    configurationHealthNote,
   };
 }

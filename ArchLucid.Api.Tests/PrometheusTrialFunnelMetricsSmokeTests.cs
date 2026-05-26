@@ -59,5 +59,12 @@ public sealed class PrometheusTrialFunnelMetricsSmokeTests
         {
             body.Should().Contain(needle, $"expected Prometheus exposition to mention {needle}");
         }
+
+        ArchLucidInstrumentation.EnsureWarmCatalogsAvailableObservableGaugeRegistered();
+        ArchLucidInstrumentation.PublishWarmCatalogsAvailable(2);
+
+        HttpResponseMessage metricsAfterWarmCatalog = await client.GetAsync(new Uri("/metrics", UriKind.Relative));
+        string warmCatalogBody = await metricsAfterWarmCatalog.Content.ReadAsStringAsync();
+        warmCatalogBody.Should().Contain("archlucid.tenancy.warm_catalogs_available");
     }
 }

@@ -62,6 +62,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/AdminQualityGateDiagnosticsController.cs",
+      "class_name": "AdminQualityGateDiagnosticsController",
+      "route_template": "v{version:apiVersion}/admin/diagnostics",
+      "normalized_prefix": "/v1/admin/diagnostics",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/AdminTenantsController.cs",
       "class_name": "AdminTenantsController",
       "route_template": "v{version:apiVersion}/admin/tenants",

@@ -1,5 +1,17 @@
 import { buildSponsorMarkdownMethodologyFooter } from "@/lib/sponsor-markdown-footer";
 
+export type ExecutiveRoiSystemicIssueTrendPoint = {
+  monthKey: string;
+  count: number;
+};
+
+export type ExecutiveRoiSystemicIssueTrendSeries = {
+  category: string;
+  severity: string;
+  findingId: string;
+  points: ExecutiveRoiSystemicIssueTrendPoint[];
+};
+
 export type ExecutiveRoiSummary = {
   totalEstimatedUsdSavings: number;
   systemCount: number;
@@ -17,6 +29,7 @@ export type ExecutiveRoiSummary = {
     severity: string;
     count: number;
   }>;
+  historicalTrends?: ExecutiveRoiSystemicIssueTrendSeries[];
 };
 
 function formatUsd(value: number | null): string {

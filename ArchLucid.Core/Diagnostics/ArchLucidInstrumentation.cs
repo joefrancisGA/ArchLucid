@@ -81,6 +81,10 @@ public static class ArchLucidInstrumentation
 
     private static long _trialActiveTenantsCached;
 
+    private static long _warmCatalogsAvailableCached;
+
+    private static int _warmCatalogsAvailableObservableGaugeRegistered;
+
     private static Func<long>? _auditRetryQueuePendingReader;
 
     private static Func<IReadOnlyList<(string GateName, string State)>>? _circuitBreakerSnapshotReader;
@@ -1170,6 +1174,29 @@ public static class ArchLucidInstrumentation
             count = 0;
 
         Volatile.Write(ref _trialActiveTenantsCached, count);
+    }
+
+    /// <summary>Registers warm tenant catalog pool depth gauge once (leader-elected replenish worker publishes counts).</summary>
+    public static void EnsureWarmCatalogsAvailableObservableGaugeRegistered()
+    {
+        if (Interlocked.Exchange(ref _warmCatalogsAvailableObservableGaugeRegistered, 1) != 0)
+            return;
+
+        AppMeter.CreateObservableGauge(
+            "archlucid.tenancy.warm_catalogs_available",
+            () => new Measurement<long>(Volatile.Read(ref _warmCatalogsAvailableCached)),
+            description:
+            "Unclaimed warm tenant SQL catalogs ready for trial signup (SystemWithPerTenantCatalogs topology only).");
+    }
+
+    /// <summary>Updates the cached value read by <c>archlucid.tenancy.warm_catalogs_available</c>.</summary>
+    public static void PublishWarmCatalogsAvailable(long count)
+    {
+        if (count < 0)
+
+            count = 0;
+
+        Volatile.Write(ref _warmCatalogsAvailableCached, count);
     }
 
     /// <summary>Records one pricing quote request age observation for SLA histogram export.</summary>

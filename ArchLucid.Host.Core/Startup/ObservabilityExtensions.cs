@@ -95,6 +95,7 @@ public static class ObservabilityExtensions
         ArchLucidInstrumentation.EnsureLlmTenantBudgetUtilizationObservableGaugeRegistered();
         ArchLucidInstrumentation.EnsureLlmTenantBudgetRemainingUsdObservableGaugeRegistered();
         ArchLucidInstrumentation.EnsureExecutiveRoiSavingsObservableGaugeRegistered();
+        ArchLucidInstrumentation.EnsureWarmCatalogsAvailableObservableGaugeRegistered();
 
         ArchLucidInstrumentation.SetCircuitBreakerSnapshotReader(CircuitBreakerGateMetricsRegistry.SnapshotStates);
         ArchLucidInstrumentation.SetLlmBudgetUtilizationReader(LlmTenantBudgetUtilizationMetricsHostedService.UtilizationGaugeState.SnapshotMeasurements);

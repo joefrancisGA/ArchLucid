@@ -270,6 +270,7 @@ public sealed class RunQueryController(
 
     /// <summary>Knowledge-graph snapshot packaged for interactive Cytoscape.js renders.</summary>
     [HttpGet("runs/{runId}/graph/interactive")]
+    [HttpGet("runs/{runId}/graph/cytoscape")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(CytoscapeInteractiveGraphResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -283,6 +284,11 @@ public sealed class RunQueryController(
         if (!TryParseRunId(runId, out Guid runGuid))
             return this.BadRequestProblem("Run id must be a valid GUID.", ProblemTypes.ValidationFailed);
 
+        return await GetCytoscapeGraphSnapshotAsync(runGuid, cancellationToken);
+    }
+
+    private async Task<IActionResult> GetCytoscapeGraphSnapshotAsync(Guid runGuid, CancellationToken cancellationToken)
+    {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
 

@@ -212,6 +212,43 @@ public sealed class TrialFunnelInstrumentationTests
         observed.Should().Contain(11);
     }
 
+    [Fact]
+    public void WarmCatalogsAvailable_observable_gauge_reads_published_count()
+    {
+        ArchLucidInstrumentationTestSupport.EnsureInitialized();
+        ArchLucidInstrumentation.EnsureWarmCatalogsAvailableObservableGaugeRegistered();
+        ArchLucidInstrumentation.PublishWarmCatalogsAvailable(4);
+
+        using MeterListener listener = new();
+        List<long> observed = [];
+
+        listener.InstrumentPublished = (instrument, meterListener) =>
+        {
+            if (instrument.Meter.Name != ArchLucidInstrumentationTestSupport.MeterName)
+            {
+                return;
+            }
+
+            if (instrument.Name == "archlucid.tenancy.warm_catalogs_available")
+            {
+                meterListener.EnableMeasurementEvents(instrument);
+            }
+        };
+
+        listener.SetMeasurementEventCallback<long>((instrument, measurement, _, _) =>
+        {
+            if (instrument.Name == "archlucid.tenancy.warm_catalogs_available")
+            {
+                observed.Add(measurement);
+            }
+        });
+
+        listener.Start();
+        listener.RecordObservableInstruments();
+
+        observed.Should().Contain(4);
+    }
+
     private sealed class TrialFunnelCapture : IDisposable
     {
         private static readonly string[] LongNames =
