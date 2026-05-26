@@ -12,6 +12,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Roi;
 
 using FluentAssertions;
@@ -241,14 +242,32 @@ public sealed class ExecutiveRoiSummaryServiceTests
     private static ExecutiveRoiSummaryService CreateSut(
         IRunDetailQueryService runDetailQueryService,
         ITenantEstimatedUsdSavingsResolver tenantEstimatedUsdSavingsResolver,
-        ExecutiveRoiTenantPricingContextResolver? pricingContextResolver = null)
+        ExecutiveRoiTenantPricingContextResolver? pricingContextResolver = null,
+        IFindingReviewTrailRepository? findingReviewTrailRepository = null)
     {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(provider => provider.GetCurrentScope())
+            .Returns(new ScopeContext
+            {
+                TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            });
+
+        Mock<IFindingReviewTrailRepository> reviewTrail = new();
+        reviewTrail
+            .Setup(repo => repo.ListSinceUtcAsync(It.IsAny<Guid>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         return new ExecutiveRoiSummaryService(
             runDetailQueryService,
             tenantEstimatedUsdSavingsResolver,
             Mock.Of<ITenantRepository>(),
             Mock.Of<IScimUserRepository>(),
             pricingContextResolver ?? CreateDefaultPricingContextResolver(),
+            scopeProvider.Object,
+            findingReviewTrailRepository ?? reviewTrail.Object,
             NullLogger<ExecutiveRoiSummaryService>.Instance);
     }
 

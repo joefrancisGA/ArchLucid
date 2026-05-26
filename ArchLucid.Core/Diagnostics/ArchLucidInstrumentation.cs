@@ -1459,11 +1459,20 @@ public static class ArchLucidInstrumentation
         ExplanationFaithfulnessRatio.Record(clamped);
     }
 
-    /// <summary>Records <see cref="RetrievalFaithfulnessRatio" /> (clamped 0–1).</summary>
-    public static void RecordRetrievalFaithfulnessRatio(double ratio)
+    /// <summary>Records <see cref="RetrievalFaithfulnessRatio" /> (clamped 0–1) with tenant and corpus tags.</summary>
+    public static void RecordRetrievalFaithfulnessRatio(
+        double ratio,
+        Guid tenantId,
+        IReadOnlyList<RetrievalHit>? hits)
     {
         double clamped = Math.Clamp(ratio, 0.0, 1.0);
-        RetrievalFaithfulnessRatio.Record(clamped);
+        string corpusSource = ResolveRagRetrievalCorpusKindLabel(hits);
+        TagList tags = new() { { "corpus_source", corpusSource } };
+
+        if (tenantId != Guid.Empty)
+            tags.Add("tenant_id", tenantId.ToString("D"));
+
+        RetrievalFaithfulnessRatio.Record(clamped, tags);
     }
 
     /// <summary>Increments <see cref="TrialSignupsTotal" />.</summary>

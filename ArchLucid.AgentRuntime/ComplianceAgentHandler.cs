@@ -112,7 +112,7 @@ public sealed class ComplianceAgentHandler(
             lastCompletionJson = rawJson;
 
             string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
-            RecordRetrievalFaithfulness(policyPackHits, parsedJson);
+            RecordRetrievalFaithfulness(policyPackHits, parsedJson, tenantId);
 
             AgentCompletionTokenUsage.TryConsume(out int? inTok, out int? outTok, out int? reasoningTok);
             AgentCompletionModelMetadata.TryConsume(out string? modelDeploy, out string? modelVer);
@@ -265,15 +265,12 @@ public sealed class ComplianceAgentHandler(
         }
     }
 
-    private static void RecordRetrievalFaithfulness(IReadOnlyList<RetrievalHit> hits, string agentOutputText)
+    private static void RecordRetrievalFaithfulness(IReadOnlyList<RetrievalHit> hits, string agentOutputText, Guid tenantId)
     {
         if (hits.Count == 0)
             return;
 
-        RetrievalFaithfulnessReport report =
-            RetrievalFaithfulnessEvaluator.Evaluate(hits, agentOutputText);
-
-        ArchLucidInstrumentation.RecordRetrievalFaithfulnessRatio(report.SupportRatio);
+        RetrievalFaithfulnessEvaluator.EvaluateAndRecord(hits, agentOutputText, tenantId);
     }
 
     private async Task AppendGroundingTraceAsync(

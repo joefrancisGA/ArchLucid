@@ -10,6 +10,7 @@ using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
 
@@ -22,6 +23,8 @@ public sealed class ExecutiveRoiSummaryService(
     ITenantRepository tenantRepository,
     IScimUserRepository scimUserRepository,
     ExecutiveRoiTenantPricingContextResolver executiveRoiTenantPricingContextResolver,
+    IScopeContextProvider scopeContextProvider,
+    IFindingReviewTrailRepository findingReviewTrailRepository,
     ILogger<ExecutiveRoiSummaryService> logger) : IExecutiveRoiSummaryService
 {
     /// <summary>Max distinct systems whose run details are loaded per request (defense against huge tenants).</summary>
@@ -42,6 +45,12 @@ public sealed class ExecutiveRoiSummaryService(
 
     private readonly ExecutiveRoiTenantPricingContextResolver _executiveRoiTenantPricingContextResolver =
         executiveRoiTenantPricingContextResolver ?? throw new ArgumentNullException(nameof(executiveRoiTenantPricingContextResolver));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IFindingReviewTrailRepository _findingReviewTrailRepository =
+        findingReviewTrailRepository ?? throw new ArgumentNullException(nameof(findingReviewTrailRepository));
 
     /// <inheritdoc/>
     public async Task<ExecutiveRoiSummaryResponse> BuildAsync(CancellationToken cancellationToken = default)
@@ -88,6 +97,14 @@ public sealed class ExecutiveRoiSummaryService(
         List<SystemicIssueSummary> topIssues = AggregateTopSystemicIssues(latestDetails, _logger);
         decimal totalSavings = systems.Sum(static system => system.EstimatedUsdSavings ?? 0m);
 
+        Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
+        (int resolvedCount, int newlyDiscoveredCount) =
+            await ExecutiveRoiTrailing30DayMetricsCalculator.ComputeAsync(
+                _runDetailQueryService,
+                _findingReviewTrailRepository,
+                tenantId,
+                cancellationToken).ConfigureAwait(false);
+
         return new ExecutiveRoiSummaryResponse
         {
             TotalEstimatedUsdSavings = totalSavings,
@@ -97,6 +114,8 @@ public sealed class ExecutiveRoiSummaryService(
             TopSystemicIssues = topIssues,
             EaDiscountMultiplier = eaDiscountMultiplier,
             SavingsPricingBasis = savingsPricingBasis,
+            ResolvedFindingsCount30Days = resolvedCount,
+            NewlyDiscoveredFindingsCount30Days = newlyDiscoveredCount,
         };
     }
 

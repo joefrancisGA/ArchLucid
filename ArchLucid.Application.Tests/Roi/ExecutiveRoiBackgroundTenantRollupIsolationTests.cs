@@ -8,6 +8,7 @@ using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Roi;
 
 using FluentAssertions;
@@ -105,6 +106,8 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
             tenantRepository.Object,
             Mock.Of<IScimUserRepository>(),
             CreateAmbientPricingContextResolver(),
+            CreateAmbientScopeContextProvider(),
+            CreateEmptyFindingReviewTrailRepository(),
             NullLogger<ExecutiveRoiSummaryService>.Instance);
 
         List<(Guid TenantId, decimal TotalUsd)> observed = [];
@@ -281,5 +284,25 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
             .Returns(() => AmbientScopeContext.CurrentOverride ?? new ScopeContext());
 
         return new ExecutiveRoiTenantPricingContextResolver(repository.Object, scopeProvider.Object);
+    }
+
+    private static IScopeContextProvider CreateAmbientScopeContextProvider()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(provider => provider.GetCurrentScope())
+            .Returns(() => AmbientScopeContext.CurrentOverride ?? new ScopeContext());
+
+        return scopeProvider.Object;
+    }
+
+    private static IFindingReviewTrailRepository CreateEmptyFindingReviewTrailRepository()
+    {
+        Mock<IFindingReviewTrailRepository> repository = new();
+        repository
+            .Setup(repo => repo.ListSinceUtcAsync(It.IsAny<Guid>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        return repository.Object;
     }
 }

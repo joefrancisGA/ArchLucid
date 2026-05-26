@@ -1,13 +1,13 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 92.93%
+# ArchLucid Assessment – (A) Headline Readiness: 93.84%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding all deferred items (V1.1, V1.x, V2). No penalties have been applied for out-of-scope features such as native SAML 2.0, SCIM 2.0 inbound provisioning, multi-cloud AWS/GCP analysis, MCP interfaces, first-party ITSM/chat connectors, or third-party penetration testing.
 
 ## Executive Summary
 
 ### (A) Overall Headline Readiness
-The core V1 architecture is exceptionally secure, isolated, and scalable, anchored by a database-per-tenant topology. Following the completion of Terraform export safety improvements and credential/audit enhancements, the "AI co-architect" value proposition is grounded and reliable. The headline readiness score has increased to 92.93%. With SAML 2.0 and SCIM 2.0 explicitly classified as V1.1 deliverables, the remaining V1 GA gaps are localized to minor operational friction (Tier 1 extractor UX) and structured cost retrieval accuracy (RAG-V1-003).
+The core V1 architecture is exceptionally secure, isolated, and scalable, anchored by a database-per-tenant topology. Following Terraform export safety, credential/audit enhancements, and dashboard/ROI reporting improvements (token dimensions, 30-day trailing metrics, RAG faithfulness telemetry), the "AI co-architect" value proposition is grounded and reliable. The headline readiness score has increased to 93.84%. With SAML 2.0 and SCIM 2.0 explicitly classified as V1.1 deliverables, the remaining V1 GA gaps are localized to minor operational friction (Tier 1 extractor UX) and structured cost retrieval accuracy (RAG-V1-003).
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will encounter friction, independent of the `(A)` technical score. The explicit deferral of a CPA-issued SOC 2 report, external third-party penetration testing, native SAML 2.0, and SCIM 2.0 to V1.1/V2 will extend enterprise security and identity reviews. Additionally, while the Tier 1 Azure extractor bypasses the need for vendor credentials, its manual nature represents an operational hurdle that buyers must accept until V1.x Tier 2 automation is rolled out.
@@ -55,10 +55,10 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Status:** Fixable in V1 GA.
 
 ### 4. Proof-of-ROI Readiness
-- **Score:** 90/100
+- **Score:** 95/100
 - **Weight:** 5
-- **Weighted deficiency signal:** 50
-- **Justification:** Cross-run executive ROI aggregation is implemented, deduplicating findings by stable ID. However, cost citations lack fully structured retrieval for Azure Retail Prices (RAG-V1-003).
+- **Weighted deficiency signal:** 25
+- **Justification:** Cross-run executive ROI aggregation is implemented with deduplication by stable ID and trailing 30-day resolved/newly-discovered finding counts. However, cost citations lack fully structured retrieval for Azure Retail Prices (RAG-V1-003).
 - **Tradeoffs:** Using illustrative fallback prices allows progress without API limits, but risks finance scrutiny during ROI validation.
 - **Improvement recommendations:** Implement structured Azure Retail Prices retrieval to ensure exact, citation-backed cost claims in artifacts.
 - **Status:** Fixable in V1 GA.
@@ -67,7 +67,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Score:** 95/100
 - **Weight:** 8
 - **Weighted deficiency signal:** 40
-- **Justification:** The Authority pipeline and RAG foundation (faithfulness eval, prior-manifest chunks) are well-structured and fully implemented for V1.
+- **Justification:** The Authority pipeline and RAG foundation (faithfulness eval with tenant/corpus-tagged OTel metrics, prior-manifest chunks) are well-structured and fully implemented for V1.
 - **Tradeoffs:** Standard LLM completions without advanced agentic loops limit complex multi-hop reasoning, but ensure predictable execution times.
 - **Improvement recommendations:** Expand the RAG foundation with RAG-V1-003.
 - **Status:** Very strong in V1 GA.
@@ -91,12 +91,12 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Status:** Very strong in V1 GA.
 
 ### 8. Executive Value Visibility
-- **Score:** 95/100
+- **Score:** 99/100
 - **Weight:** 4
-- **Weighted deficiency signal:** 20
-- **Justification:** The `ExecutiveRoiSummaryService` provides excellent portfolio-level visibility, backed by granular LLM token dimensions.
+- **Weighted deficiency signal:** 4
+- **Justification:** The `ExecutiveRoiSummaryService` provides excellent portfolio-level visibility with trailing 30-day finding trends; the governance dashboard aggregates LLM token dimensions alongside policy compliance.
 - **Tradeoffs:** Tracking detailed token dimensions adds minor telemetry overhead but builds enterprise trust.
-- **Improvement recommendations:** Extend the ROI summary service with 30-day trailing comparison logic for trend analysis.
+- **Improvement recommendations:** None material for V1 GA.
 - **Status:** Very strong in V1 GA.
 
 ### 9. Supportability
@@ -116,11 +116,9 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 1. Manual execution of the Tier 1 Azure extractor creates ongoing friction for customers updating their architecture context.
 2. Missing structured Azure Retail Prices retrieval (RAG-V1-003) limits accuracy of automated cost citations.
 3. Warm-catalog standby pool (TB-018) requires tuning and monitoring to prevent DB claim failures during spikes.
-4. Token dimension aggregation is missing from the governance dashboard views.
-5. 30-day trailing comparison is missing from the Executive ROI summary service.
-6. OTel `double` cast precision loss (TB-025) requires telemetry monitoring to ensure cost accuracy.
-7. Azure Retail Prices API rate limit handling and explicit logging are missing, posing a reliability risk.
-8. Orphaned tenant SQL catalogs lack an automated cleanup job, risking storage bloat.
+4. OTel `double` cast precision loss (TB-025) requires telemetry monitoring to ensure cost accuracy.
+5. Azure Retail Prices API rate limit handling and explicit logging are missing, posing a reliability risk.
+6. Orphaned tenant SQL catalogs lack an automated cleanup job, risking storage bloat.
 
 ---
 
@@ -214,31 +212,7 @@ Implement API key rotation.
 Constraints: Only users with the `Admin` role can invoke this endpoint.
 ```
 
-### 5. Add token dimension aggregation for the governance dashboard
-- **Why it matters:** Surfaces AI execution costs directly to operators alongside policy compliance, enhancing cost visibility.
-- **Expected impact:** Directly improves Executive Value Visibility (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-- **Affected qualities:** Executive Value Visibility
-- **Actionable:** Yes
-```text
-Add token dimension aggregation to governance views.
-1. Extend `GovernanceDashboardService` to aggregate `TotalPromptTokens` and `TotalCompletionTokens` across recent runs.
-2. Expose these metrics in the governance dashboard API response payload.
-Constraints: Ensure aggregation honors RLS tenant isolation.
-```
-
-### 6. Extend `ExecutiveRoiSummaryService` with 30-day trailing comparison
-- **Why it matters:** Provides executives with trend analysis, proving the ongoing value of architectural improvements over time.
-- **Expected impact:** Directly improves Proof-of-ROI Readiness (+4-6 pts). Weighted readiness impact: +0.3-0.5%.
-- **Affected qualities:** Proof-of-ROI Readiness, Executive Value Visibility
-- **Actionable:** Yes
-```text
-Extend the Executive ROI summary with trailing comparison.
-1. Modify `ExecutiveRoiSummaryService` to calculate finding resolution velocity over the last 30 days.
-2. Include `ResolvedFindingsCount30Days` and `NewlyDiscoveredFindingsCount30Days` in the response DTO.
-Constraints: Deduplicate findings by stable `FindingId` per the recent owner decision.
-```
-
-### 7. Add DbUp pre-flight validation for down-level migrations
+### 5. Add DbUp pre-flight validation for down-level migrations
 - **Why it matters:** Prevents accidental deployment of older schema scripts that could corrupt the tenant database.
 - **Expected impact:** Directly improves Reliability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 - **Affected qualities:** Reliability, Maintainability
@@ -374,18 +348,6 @@ Implement circuit breaker for LlmCompletionCache.
 Constraints: Log a warning when the circuit breaks.
 ```
 
-### 21. Add telemetry metrics for RAG eval harness faithfulness scores
-- **Why it matters:** Surfaces AI quality metrics directly to engineering observability dashboards, tracking model degradation.
-- **Expected impact:** Directly improves Maintainability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-- **Affected qualities:** Maintainability
-- **Actionable:** Yes
-```text
-Add telemetry metrics for RAG faithfulness.
-1. Update the faithfulness eval harness to emit an OTel `Histogram<double>` metric for the faithfulness score.
-2. Tag the metric with `TenantId` and `CorpusSource`.
-Constraints: Ensure the metric emission does not block the main evaluation pipeline.
-```
-
 ### 22. Add rigorous validation for Tier 1 Azure Extractor schemaVersion
 - **Why it matters:** Ensures the API strictly rejects malformed or outdated ZIP uploads, preventing downstream ingestion errors.
 - **Expected impact:** Directly improves Reliability (+2-4 pts). Weighted readiness impact: +0.1-0.2%.
@@ -441,11 +403,11 @@ Constraints: Throttle deletion to process no more than 5 catalogs per hour to pr
 
 ## Prompt Batching Guidance
 
-- **Batch 1 (Audit & Credential Management):** Run #3, #4, and #9 together. These touch the `ArchLucid.Api` admin/audit controllers, enforce keyset pagination, rotate API keys, and add Polly retries to the underlying audit service.
-- **Batch 2 (Dashboard & ROI Reporting):** Run #5, #6, and #18 together. These extend analytical services for executive value visibility and surface RAG faithfulness metrics.
-- **Batch 3 (Tier 1 Extractor & Validation):** Run #2, #16, and #19 together. Enhances the Tier 1 PowerShell script, streamlines the UI upload, and hardens the API validation.
-- **Batch 4 (Core Reliability & Caching):** Run #12, #14, and #17 together. Adds resilient Dapper SQL retries, implements the LLM cache circuit breaker, and enforces Graph snapshot invalidation.
-- **Batch 5 (Health & Operations):** Run #11, #20, #21, and #22 together. Adds explicit health checks, logging for rate limits, and the automated cleanup job for orphaned catalogs.
+- **Batch 1 (Audit & Credential Management):** Shipped — keyset pagination, API key rotation, audit SQL retry.
+- **Batch 2 (Dashboard & ROI Reporting):** Shipped — governance token aggregation, executive ROI 30-day trailing metrics, RAG faithfulness telemetry.
+- **Batch 3 (Tier 1 Extractor & Validation):** Run #2, #16, and #22 together. Enhances the Tier 1 PowerShell script, streamlines the UI upload, and hardens the API validation.
+- **Batch 4 (Core Reliability & Caching):** Run #12, #14, #17, and #20 together. Adds resilient Dapper SQL retries, implements the LLM cache circuit breaker, and enforces Graph snapshot invalidation.
+- **Batch 5 (Health & Operations):** Run #23, #24, and #25 together. Adds explicit health checks, logging for rate limits, and the automated cleanup job for orphaned catalogs.
 
 ---
 

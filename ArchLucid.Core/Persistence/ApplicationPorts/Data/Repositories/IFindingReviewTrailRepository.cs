@@ -10,4 +10,9 @@ public interface IFindingReviewTrailRepository
         Guid tenantId,
         string findingId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<FindingReviewEventRecord>> ListSinceUtcAsync(
+        Guid tenantId,
+        DateTimeOffset sinceUtc,
+        CancellationToken cancellationToken = default);
 }

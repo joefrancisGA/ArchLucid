@@ -15,4 +15,10 @@ public sealed class NoOpFindingReviewTrailRepository : IFindingReviewTrailReposi
         string findingId,
         CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<FindingReviewEventRecord>>([]);
+
+    public Task<IReadOnlyList<FindingReviewEventRecord>> ListSinceUtcAsync(
+        Guid tenantId,
+        DateTimeOffset sinceUtc,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<FindingReviewEventRecord>>([]);
 }

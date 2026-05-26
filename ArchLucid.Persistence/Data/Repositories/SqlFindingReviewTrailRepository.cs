@@ -61,4 +61,24 @@ public sealed class SqlFindingReviewTrailRepository(ISqlConnectionFactory connec
 
         return rows.ToList();
     }
+
+    public async Task<IReadOnlyList<FindingReviewEventRecord>> ListSinceUtcAsync(
+        Guid tenantId,
+        DateTimeOffset sinceUtc,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT EventId, TenantId, WorkspaceId, ProjectId, FindingId, ReviewerUserId, Action, Notes, OccurredAtUtc, RunId
+                           FROM dbo.FindingReviewEvents
+                           WHERE TenantId = @TenantId AND OccurredAtUtc >= @SinceUtc
+                           ORDER BY OccurredAtUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<FindingReviewEventRecord> rows = await conn.QueryAsync<FindingReviewEventRecord>(
+            new CommandDefinition(sql, new { TenantId = tenantId, SinceUtc = sinceUtc }, cancellationToken: cancellationToken));
+
+        return rows.ToList();
+    }
 }

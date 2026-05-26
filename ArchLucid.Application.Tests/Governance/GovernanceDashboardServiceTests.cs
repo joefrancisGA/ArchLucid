@@ -1,4 +1,7 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Data.Repositories;
@@ -46,7 +49,13 @@ public sealed class GovernanceDashboardServiceTests
             .Setup(c => c.GetByTenantAsync(tenantId, 20, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<PolicyPackChangeLogEntry> { change });
 
-        IGovernanceDashboardService sut = new GovernanceDashboardService(approvals.Object, changes.Object);
+        (Mock<IRunDetailQueryService> runQuery, Mock<IAgentExecutionTraceRepository> traces) = CreateEmptyTokenMocks();
+
+        IGovernanceDashboardService sut = new GovernanceDashboardService(
+            approvals.Object,
+            changes.Object,
+            runQuery.Object,
+            traces.Object);
 
         GovernanceDashboardSummary summary = await sut.GetDashboardAsync(tenantId);
 
@@ -54,6 +63,8 @@ public sealed class GovernanceDashboardServiceTests
         summary.RecentDecisions.Should().ContainSingle().Which.ApprovalRequestId.Should().Be("d1");
         summary.RecentChanges.Should().ContainSingle().Which.TenantId.Should().Be(tenantId);
         summary.PendingCount.Should().Be(1);
+        summary.TotalPromptTokens.Should().Be(0);
+        summary.TotalCompletionTokens.Should().Be(0);
     }
 
     [SkippableFact]
@@ -68,7 +79,13 @@ public sealed class GovernanceDashboardServiceTests
         Mock<IPolicyPackChangeLogRepository> changes = new();
         changes.Setup(c => c.GetByTenantAsync(tenantId, 20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
-        IGovernanceDashboardService sut = new GovernanceDashboardService(approvals.Object, changes.Object);
+        (Mock<IRunDetailQueryService> runQuery, Mock<IAgentExecutionTraceRepository> traces) = CreateEmptyTokenMocks();
+
+        IGovernanceDashboardService sut = new GovernanceDashboardService(
+            approvals.Object,
+            changes.Object,
+            runQuery.Object,
+            traces.Object);
 
         GovernanceDashboardSummary summary = await sut.GetDashboardAsync(tenantId);
 
@@ -76,5 +93,69 @@ public sealed class GovernanceDashboardServiceTests
         summary.RecentDecisions.Should().BeEmpty();
         summary.RecentChanges.Should().BeEmpty();
         summary.PendingCount.Should().Be(0);
+    }
+
+    [SkippableFact]
+    public async Task GetDashboard_AggregatesTokenDimensionsFromRecentRuns()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
+        string runId = Guid.NewGuid().ToString("N");
+        DateTime createdUtc = TimeProvider.System.UtcNowDateTime();
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals.Setup(a => a.GetPendingAsync(20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        approvals.Setup(a => a.GetRecentDecisionsAsync(20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+
+        Mock<IPolicyPackChangeLogRepository> changes = new();
+        changes.Setup(c => c.GetByTenantAsync(tenantId, 20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+
+        Mock<IRunDetailQueryService> runQuery = new();
+        runQuery
+            .Setup(q => q.ListRunSummariesKeysetAsync(null, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((
+                new List<RunSummary>
+                {
+                    new()
+                    {
+                        RunId = runId,
+                        Status = nameof(ArchitectureRunStatus.Committed),
+                        CreatedUtc = createdUtc,
+                        CurrentManifestVersion = "v1",
+                    },
+                },
+                false,
+                (string?)null));
+
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        traces
+            .Setup(t => t.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<AgentExecutionTrace>
+            {
+                new() { InputTokenCount = 120, OutputTokenCount = 45 },
+                new() { InputTokenCount = 80, OutputTokenCount = 55 },
+            });
+
+        IGovernanceDashboardService sut = new GovernanceDashboardService(
+            approvals.Object,
+            changes.Object,
+            runQuery.Object,
+            traces.Object);
+
+        GovernanceDashboardSummary summary = await sut.GetDashboardAsync(tenantId);
+
+        summary.TotalPromptTokens.Should().Be(200);
+        summary.TotalCompletionTokens.Should().Be(100);
+    }
+
+    private static (Mock<IRunDetailQueryService> RunQuery, Mock<IAgentExecutionTraceRepository> Traces) CreateEmptyTokenMocks()
+    {
+        Mock<IRunDetailQueryService> runQuery = new();
+        runQuery
+            .Setup(q => q.ListRunSummariesKeysetAsync(null, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Array.Empty<RunSummary>(), false, (string?)null));
+
+        Mock<IAgentExecutionTraceRepository> traces = new();
+
+        return (runQuery, traces);
     }
 }

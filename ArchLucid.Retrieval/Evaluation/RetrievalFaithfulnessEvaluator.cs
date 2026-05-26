@@ -1,3 +1,4 @@
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Retrieval;
 
 namespace ArchLucid.Retrieval.Evaluation;
@@ -49,6 +50,25 @@ public static class RetrievalFaithfulnessEvaluator
         double ratio = supported / (double)hits.Count;
 
         return new RetrievalFaithfulnessReport(hits.Count, supported, ratio, unsupported);
+    }
+
+    /// <summary>
+    ///     Evaluates retrieval faithfulness and records <see cref="ArchLucidInstrumentation.RetrievalFaithfulnessRatio" />
+    ///     without blocking the caller beyond the in-process histogram write.
+    /// </summary>
+    public static RetrievalFaithfulnessReport EvaluateAndRecord(
+        IReadOnlyList<RetrievalHit> hits,
+        string agentOutputText,
+        Guid tenantId)
+    {
+        RetrievalFaithfulnessReport report = Evaluate(hits, agentOutputText);
+
+        if (hits.Count == 0)
+            return report;
+
+        ArchLucidInstrumentation.RecordRetrievalFaithfulnessRatio(report.SupportRatio, tenantId, hits);
+
+        return report;
     }
 
     private static bool ContainsCitation(string output, string? token)

@@ -33,4 +33,18 @@ public sealed class GovernanceDashboardSummary
         get;
         init;
     }
+
+    /// <summary>Sum of prompt tokens across recent committed runs included in the aggregation window.</summary>
+    public long TotalPromptTokens
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Sum of completion tokens across recent committed runs included in the aggregation window.</summary>
+    public long TotalCompletionTokens
+    {
+        get;
+        init;
+    }
 }

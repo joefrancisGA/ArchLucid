@@ -53,6 +53,26 @@ public sealed class ExecutiveRoiSummaryResponse
         get;
         set;
     } = ExecutiveRoiSavingsPricingBasis.Retail;
+
+    /// <summary>
+    ///     Distinct findings approved (or overridden) in the trailing 30-day window, deduplicated by stable
+    ///     <see cref="ArchitectureFinding.FindingId" />.
+    /// </summary>
+    public int ResolvedFindingsCount30Days
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Distinct findings discovered on committed runs in the trailing 30-day window, deduplicated by stable
+    ///     <see cref="ArchitectureFinding.FindingId" />.
+    /// </summary>
+    public int NewlyDiscoveredFindingsCount30Days
+    {
+        get;
+        set;
+    }
 }
 
 /// <summary>ROI snapshot for the newest committed run of a single system.</summary>
