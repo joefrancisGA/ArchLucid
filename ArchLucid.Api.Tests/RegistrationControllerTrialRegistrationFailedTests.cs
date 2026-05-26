@@ -1,6 +1,5 @@
 ﻿using ArchLucid.Api.Controllers;
 using ArchLucid.Api.Models.Tenancy;
-using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Tenancy;
@@ -23,8 +22,7 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
         Mock<IAuditService> audit = new();
         Mock<ITenantProvisioningService> prov = new();
         Mock<ITrialTenantBootstrapService> boot = new();
-        Mock<IMarketingAttributionService> marketing = new();
-        RegistrationController controller = new(prov.Object, audit.Object, boot.Object, marketing.Object, TimeProvider.System)
+        RegistrationController controller = new(prov.Object, audit.Object, boot.Object, TimeProvider.System)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -65,8 +63,7 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
                     TenantId = t, DefaultWorkspaceId = w, DefaultProjectId = p, WasAlreadyProvisioned = true
                 });
         Mock<ITrialTenantBootstrapService> boot = new();
-        Mock<IMarketingAttributionService> marketing = new();
-        RegistrationController controller = new(prov.Object, audit.Object, boot.Object, marketing.Object, TimeProvider.System)
+        RegistrationController controller = new(prov.Object, audit.Object, boot.Object, TimeProvider.System)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -98,8 +95,7 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
             .Setup(p => p.ProvisionAsync(It.IsAny<TenantProvisioningRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("simulated"));
         Mock<ITrialTenantBootstrapService> boot = new();
-        Mock<IMarketingAttributionService> marketing = new();
-        RegistrationController controller = new(prov.Object, audit.Object, boot.Object, marketing.Object, TimeProvider.System)
+        RegistrationController controller = new(prov.Object, audit.Object, boot.Object, TimeProvider.System)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
