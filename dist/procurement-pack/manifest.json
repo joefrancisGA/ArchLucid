@@ -1,25 +1,25 @@
 {
-  "generated_utc": "2026-05-16T15:04:27.205239+00:00",
+  "generated_utc": "2026-05-26T08:11:02.352166+00:00",
   "files": [
     {
       "pack_path": "SECURITY.md",
-      "source_repo_path": "docs/library/SECURITY.md",
-      "bytes": 15373,
-      "sha256": "dd7ef5505a0f34576af4ac5a2f5d6775ea7f9273be9d03cbf26cc9ff136e66db",
+      "source_repo_path": "docs/library/contributor-reference/SECURITY.md",
+      "bytes": 15291,
+      "sha256": "a783764971ec845dcb368c712f84eeef630eab00d232f00996924ba90e0db366",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "README.md",
-      "source_repo_path": "README.md",
-      "bytes": 37030,
-      "sha256": "291d4ffe6fa2b257d754a716191e4e93d64538329e2d16dcf3d17f2840900ff3",
+      "source_repo_path": "docs/REPOSITORY_README.md",
+      "bytes": 37216,
+      "sha256": "4e6b25ce9f454667d9ba888828da161c78382a5269821b4b1af1001ca5bbacfb",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "TRUST_CENTER.md",
       "source_repo_path": "docs/go-to-market/TRUST_CENTER.md",
-      "bytes": 23414,
-      "sha256": "2930dd8f0b5535bbfb4eed6c8a79584e1500af1a4a64c34922325ed307755155",
+      "bytes": 23703,
+      "sha256": "be7f4b15674d7a2453817aedb916e333a5ee43b929ef0f7a16583fa120a4b5d0",
       "artifact_status": "Evidence"
     },
     {
@@ -46,8 +46,8 @@
     {
       "pack_path": "DPA_TEMPLATE.md",
       "source_repo_path": "docs/go-to-market/DPA_TEMPLATE.md",
-      "bytes": 8385,
-      "sha256": "63e1bf8a45e4ac659ddd621d34bb01bb95e4c8a6714b4be4f000a1b8e232d87c",
+      "bytes": 8451,
+      "sha256": "b5cf5d72b5485dce447bc55f72fdd1e64918f98c9f7e17bf57389b52340e5290",
       "artifact_status": "Template"
     },
     {
@@ -60,43 +60,43 @@
     {
       "pack_path": "INTEGRATION_CATALOG.md",
       "source_repo_path": "docs/go-to-market/INTEGRATION_CATALOG.md",
-      "bytes": 13819,
-      "sha256": "1e5b4fd81f80881b5c2840495a26bb3fb8268539b45145f5faddcb5a26590d3b",
+      "bytes": 14982,
+      "sha256": "830f3ca0949879edfdf9167ffe07fe798018d551ef99a9b1651043afaa70b02a",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "AUDIT_COVERAGE_MATRIX.md",
       "source_repo_path": "docs/library/AUDIT_COVERAGE_MATRIX.md",
-      "bytes": 63878,
-      "sha256": "11018ba5e70d840669e513f76b1102a550ad342ace6476703a872a8f6d4d73ac",
+      "bytes": 83484,
+      "sha256": "17675bb710936ba27b393e89784a2566bd1e21caab955058ebdebcbe993cd722",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "MULTI_TENANT_RLS.md",
       "source_repo_path": "docs/security/MULTI_TENANT_RLS.md",
-      "bytes": 11619,
-      "sha256": "9dc7537e1ff9fca494cb84a5aa148fc655b534d69f907cde5363f1a1deba2d55",
+      "bytes": 12452,
+      "sha256": "08ce6dbec5322c5aa0341760166d65c07118728d62c03b022cea10cdf1c22453",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "ACCESSIBILITY.md",
       "source_repo_path": "docs/library/ACCESSIBILITY.md",
-      "bytes": 2228,
-      "sha256": "706da28fbecbb6433874730f9476ae07850a3c8691d79faf73214969ceaf8f1a",
+      "bytes": 2219,
+      "sha256": "c5b5dc03ee325c3a94289d682b35b7260ee48bf038021384b107f7d72e06eb4b",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "SECURITY.txt",
       "source_repo_path": "archlucid-ui/public/.well-known/security.txt",
-      "bytes": 450,
-      "sha256": "5f2f8e10ffe1e72b1467011f585d29d654a1ba0c740aa8ee1f6502d9fb051877",
+      "bytes": 430,
+      "sha256": "49c40da2e707e455d0fdccfebfdda86fd8dc88ca14c6e151cea2bb0efee29927",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "OWNER_SECURITY_ASSESSMENT_REDACTED.md",
       "source_repo_path": "docs/go-to-market/OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md",
-      "bytes": 1902,
-      "sha256": "e4448a2802b258fd3e8db2ca67c2bc191b052a642c9b3700c7071ea123270deb",
+      "bytes": 1924,
+      "sha256": "6d9d9720376ab7c9bd182ec1cadd58dab549e075b801e9684df8a8b136fa2eeb",
       "artifact_status": "Self-assessment"
     },
     {
@@ -116,36 +116,36 @@
     {
       "pack_path": "API_CONTRACTS.md",
       "source_repo_path": "docs/library/API_CONTRACTS.md",
-      "bytes": 40993,
-      "sha256": "1e4c181f79d8afc4cc1ac5c6d49452cc37a5b80c3fe543e4703dae3ed4381925",
+      "bytes": 43987,
+      "sha256": "3c2f1daaa3aa1c4e63f7bacad7d213c32d98bdb1e7fda898732931a54321c168",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "INTEGRATION_EVENTS_AND_WEBHOOKS.md",
       "source_repo_path": "docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md",
-      "bytes": 19929,
-      "sha256": "b3a7400c2b862c0b19db511fb451f80ad0383e5e72e5245f68f8f0bf0ef2305a",
+      "bytes": 19955,
+      "sha256": "b72a9a5dacd5ce911c741bfeb368a083a30074cf6c08f4f917afc8a01e53ae27",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "CUSTOMER_TRUST_AND_ACCESS.md",
       "source_repo_path": "docs/library/CUSTOMER_TRUST_AND_ACCESS.md",
-      "bytes": 5387,
-      "sha256": "d8740dd402af28fb97a1899e14970c2a3424d05a40a006e3c24e46585cff2a85",
+      "bytes": 5377,
+      "sha256": "27703ebaecb6f1dbad486f2a72bb97814cd3ac06ca0dbe937a06d4646eccc5b5",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "V1_SCOPE.md",
       "source_repo_path": "docs/library/V1_SCOPE.md",
-      "bytes": 38730,
-      "sha256": "aaae4e082e3ef81737fe32e610c62d826873f2eff7a2310a02c8838310b9cd4b",
+      "bytes": 45531,
+      "sha256": "bf5a33bace16a717d9289620428d4b4f92fb78e63776ad91257ddd83db1bd5d7",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "BREAKING_CHANGES.md",
       "source_repo_path": "BREAKING_CHANGES.md",
-      "bytes": 3253,
-      "sha256": "0d18308e6d09781396d46391477824ab858570a6a13db40425df4a47e0c99f5f",
+      "bytes": 3300,
+      "sha256": "a9f9ac0f6af350a614538426f2f33f6c348e05f9ac6fb779984faece1b9a6839",
       "artifact_status": "Evidence"
     },
     {
@@ -172,8 +172,8 @@
     {
       "pack_path": "DSAR_PROCESS.md",
       "source_repo_path": "docs/security/DSAR_PROCESS.md",
-      "bytes": 9831,
-      "sha256": "910653495153baa17fe9e9f64412a4db8916252b840ae4244c1c8e033a14a84f",
+      "bytes": 9993,
+      "sha256": "f4fdc8949852edaa3b58b84a3546ab98e3e70c6ec403cbaf39f0a5f5a2c48690",
       "artifact_status": "Evidence"
     },
     {

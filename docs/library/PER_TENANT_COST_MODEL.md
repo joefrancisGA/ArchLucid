@@ -13,6 +13,8 @@ Runtime cost estimates use `ILlmCostEstimator`, which applies USD-per-million ra
 
 When `AgentExecution:LlmCostEstimation:Enabled` is `false`, the estimator returns no USD value (previews show a null estimate).
 
+Note: Cost aggregations (like `AgentExecutionTraceRunLlmCostAggregator`) re-estimate costs using live rates rather than strictly summing historical point-in-time estimates.
+
 ## Wizard preview (`GET /v1/agent-execution/cost-preview`)
 
 The operator **new-run wizard** review step calls this endpoint to show an **illustrative upper bound** before `POST /v1/architecture/request`. The `cost-preview` remains purely estimated until live LLM token metrics (e.g., `archlucid.llm.completion_tokens` from `LlmCompletionAccountingClient`) are fully integrated into a real-time spend ledger:

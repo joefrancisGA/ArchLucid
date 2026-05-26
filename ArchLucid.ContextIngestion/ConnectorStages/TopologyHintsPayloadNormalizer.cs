@@ -5,8 +5,11 @@ using ArchLucid.ContextIngestion.Topology;
 
 namespace ArchLucid.ContextIngestion.ConnectorStages;
 
-public sealed class TopologyHintsPayloadNormalizer : IConnectorNormalizer<TopologyHintsPayload>
+public sealed class TopologyHintsPayloadNormalizer(IPolicyTopologyOverlapResolver overlapResolver) : IConnectorNormalizer<TopologyHintsPayload>
 {
+    private readonly IPolicyTopologyOverlapResolver _overlapResolver =
+        overlapResolver ?? throw new ArgumentNullException(nameof(overlapResolver));
+
     public Task<NormalizedContextBatch> NormalizeAsync(
         TopologyHintsPayload payload,
         CancellationToken ct)
@@ -31,14 +34,14 @@ public sealed class TopologyHintsPayloadNormalizer : IConnectorNormalizer<Topolo
                 if (parentName.Length > 0 && childRemainder.Length > 0)
                 {
                     // parentNodeId must match GraphNodeFactory: obj-{CanonicalObject.ObjectId}
-                    string parentObjId = TopologyHintStableObjectIds.FromHintName(parentName);
+                    string parentObjId = _overlapResolver.ResolveStableObjectId(parentName);
                     properties["parentNodeId"] = $"obj-{parentObjId}";
                 }
             }
 
             batch.CanonicalObjects.Add(new CanonicalObject
             {
-                ObjectId = TopologyHintStableObjectIds.FromHintName(trimmed),
+                ObjectId = _overlapResolver.ResolveStableObjectId(trimmed),
                 ObjectType = "TopologyResource",
                 Name = trimmed,
                 SourceType = "TopologyHint",

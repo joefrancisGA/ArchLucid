@@ -32,7 +32,7 @@ public sealed class RetrievalQueryService(
         ArgumentNullException.ThrowIfNull(query);
         ArgumentException.ThrowIfNullOrWhiteSpace(query.QueryText);
 
-        if (query.TenantId == Guid.Empty)
+        if (query.TenantId == Guid.Empty && !query.IncludePlatformCorpora)
             throw new ArgumentException("TenantId is required for tenant-bound retrieval.", nameof(query));
 
         if (query.IncludePlatformCorpora && query.AllowedPolicyPackRulePackIds is null)

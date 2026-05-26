@@ -88,4 +88,4 @@ Pack content document (`*.json` without `-rules-`) may set:
 |-----|---------|
 | [`POLICY_PACK_CONTENT_BACKLOG.md`](POLICY_PACK_CONTENT_BACKLOG.md) | Pack list + LLM pipeline |
 | [`docs/samples/policy-packs/README.md`](../samples/policy-packs/README.md) | Import / validate |
-| [`GOVERNANCE.md`](GOVERNANCE.md) | Pack lifecycle |
+| [`contributor-reference/GOVERNANCE.md`](contributor-reference/GOVERNANCE.md) | Pack lifecycle |

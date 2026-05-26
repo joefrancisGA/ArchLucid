@@ -22,8 +22,7 @@ public sealed class CommercialPackagingTierResolverTests
     [SkippableFact]
     public void ResolveCommercialTierLabel_returns_null_for_active_trial()
     {
-        TenantRecord tenant = PaidTenant(TenantTier.Free);
-        tenant.TrialStatus = TrialLifecycleStatus.Active;
+        TenantRecord tenant = PaidTenant(TenantTier.Free, TrialLifecycleStatus.Active);
 
         string? label = CommercialPackagingTierResolver.ResolveCommercialTierLabel(tenant, null, 1, 2);
 
@@ -55,15 +54,14 @@ public sealed class CommercialPackagingTierResolverTests
     [SkippableFact]
     public void ResolveCommercialTierLabel_defaults_to_team_for_sales_led_standard_without_billing_row()
     {
-        TenantRecord tenant = PaidTenant(TenantTier.Standard);
-        tenant.TrialStatus = TrialLifecycleStatus.Converted;
+        TenantRecord tenant = PaidTenant(TenantTier.Standard, TrialLifecycleStatus.Converted);
 
         string? label = CommercialPackagingTierResolver.ResolveCommercialTierLabel(tenant, null, 1, 4);
 
         label.Should().Be(CommercialPackagingTierLabels.Team);
     }
 
-    private static TenantRecord PaidTenant(TenantTier tier)
+    private static TenantRecord PaidTenant(TenantTier tier, TrialLifecycleStatus trialStatus = TrialLifecycleStatus.None)
     {
         return new TenantRecord
         {
@@ -73,7 +71,8 @@ public sealed class CommercialPackagingTierResolverTests
             Tier = tier,
             CreatedUtc = TimeProvider.System.GetUtcNow(),
             TrialRunsUsed = 0,
-            TrialSeatsUsed = 0
+            TrialSeatsUsed = 0,
+            TrialStatus = trialStatus
         };
     }
 }

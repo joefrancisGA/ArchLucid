@@ -940,6 +940,7 @@ public static class ArchLucidInstrumentation
 
     /// <summary>
     ///     Estimated LLM spend (USD) from configured per-million token rates on recorded traces (label <c>tenant</c>).
+    ///     This is a pre-tax estimate subject to IEEE 754 rounding.
     /// </summary>
     public static readonly Counter<double> LlmCostUsdTotal =
         AppMeter.CreateCounter<double>(
@@ -1854,6 +1855,7 @@ public static class ArchLucidInstrumentation
         string tenant = string.IsNullOrWhiteSpace(tenantLabel) ? "unknown" : tenantLabel.Trim();
         TagList tags = new() { { "tenant", tenant } };
 
+        // Cast to double for OTel counter; this is a pre-tax estimate subject to IEEE 754 rounding.
         LlmCostUsdTotal.Add((double)estimatedCostUsd, tags);
     }
 

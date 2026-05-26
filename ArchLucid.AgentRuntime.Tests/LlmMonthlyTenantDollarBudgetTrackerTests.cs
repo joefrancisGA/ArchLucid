@@ -15,8 +15,6 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-using ArchLucid.AgentRuntime.Tests.Support;
-
 namespace ArchLucid.AgentRuntime.Tests;
 
 [Trait("Category", "Unit")]

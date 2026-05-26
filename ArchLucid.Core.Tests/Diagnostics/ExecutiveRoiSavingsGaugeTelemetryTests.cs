@@ -1,3 +1,4 @@
+using System.Diagnostics.Metrics;
 using ArchLucid.Core.Diagnostics;
 
 using FluentAssertions;

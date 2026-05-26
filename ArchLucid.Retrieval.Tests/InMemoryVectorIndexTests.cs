@@ -157,6 +157,35 @@ public sealed class InMemoryVectorIndexTests
         hits.Should().ContainSingle().Which.ChunkId.Should().Be("tenant-a");
     }
 
+    [Fact]
+    public async Task SearchAsync_TenantScopedPriorManifest_DoesNotLeakOtherTenant_DecisionsAndFindings()
+    {
+        Guid otherTenantId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        InMemoryVectorIndex sut = new();
+
+        RetrievalChunk myDecision = MakeChunk("my-dec", TenantId, WorkspaceId, ProjectId, [1f, 0f]);
+        myDecision.DecisionId = "dec-1";
+        
+        RetrievalChunk otherDecision = MakeChunk("other-dec", otherTenantId, WorkspaceId, ProjectId, [1f, 0f]);
+        otherDecision.DecisionId = "dec-2";
+        
+        RetrievalChunk myFinding = MakeChunk("my-fin", TenantId, WorkspaceId, ProjectId, [1f, 0f]);
+        myFinding.FindingId = "fin-1";
+        
+        RetrievalChunk otherFinding = MakeChunk("other-fin", otherTenantId, WorkspaceId, ProjectId, [1f, 0f]);
+        otherFinding.FindingId = "fin-2";
+
+        await sut.UpsertChunksAsync(
+            [myDecision, otherDecision, myFinding, otherFinding],
+            CancellationToken.None);
+
+        IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(BaseQuery(), [1f, 0f], CancellationToken.None);
+
+        hits.Should().HaveCount(2);
+        hits.Select(h => h.ChunkId).Should().Contain(new[] { "my-dec", "my-fin" });
+        hits.Select(h => h.ChunkId).Should().NotContain(new[] { "other-dec", "other-fin" });
+    }
+
     private static RetrievalChunk MakePlatformPolicyPackChunk(string chunkId, string rulePackId, float[] embedding)
     {
         RetrievalChunk chunk = MakeChunk(

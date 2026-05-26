@@ -1,5 +1,6 @@
 using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.ConnectorStages;
+using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Models;
 
@@ -20,7 +21,8 @@ public sealed class InfrastructureDeclarationConnectorTests
     {
         InfrastructureDeclarationConnector sut = new(
             new InfrastructureDeclarationsPayloadExtractor(),
-            new InfrastructureDeclarationsPayloadNormalizer([]));
+            new InfrastructureDeclarationsPayloadNormalizer([]),
+            new Moq.Mock<ArchLucid.ContextIngestion.Delta.IConnectorDeltaComputer>().Object);
         RawContextPayload payload = new()
         {
             InfrastructureDeclarations =
@@ -58,7 +60,8 @@ public sealed class InfrastructureDeclarationConnectorTests
 
         InfrastructureDeclarationConnector sut = new(
             new InfrastructureDeclarationsPayloadExtractor(),
-            new InfrastructureDeclarationsPayloadNormalizer([parser.Object]));
+            new InfrastructureDeclarationsPayloadNormalizer([parser.Object]),
+            new Moq.Mock<ArchLucid.ContextIngestion.Delta.IConnectorDeltaComputer>().Object);
         RawContextPayload payload = new()
         {
             InfrastructureDeclarations =

@@ -39,15 +39,15 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`NAV
 
 1. **Triage in UI** — Open `/runs/{runId}` or `/reviews/{runId}`; drill **findings** (`/reviews/{runId}/findings/{findingId}`) and confirm severity labels match your pack intent.
 2. **Assign / confirm policy** — UI: `/policy-packs` · API: `/v1/policy-packs…` · Behaviour matrix: [PRE_COMMIT_GOVERNANCE_GATE.md](../PRE_COMMIT_GOVERNANCE_GATE.md) (`BlockCommitOnCritical`, `BlockCommitMinimumSeverity`).
-3. **Pre-commit dry run** — API: `POST /v1/governance/approval-requests?dryRun=true` (validation path per [GOVERNANCE.md](../GOVERNANCE.md)).
-4. **Workflow** — UI: `/governance`, `/governance/dashboard` · API: `POST /v1/governance/approval-requests`, promote/activate routes on `GovernanceController` as needed ([GOVERNANCE.md](../GOVERNANCE.md)).
+3. **Pre-commit dry run** — API: `POST /v1/governance/approval-requests?dryRun=true` (validation path per [GOVERNANCE.md](../contributor-reference/GOVERNANCE.md)).
+4. **Workflow** — UI: `/governance`, `/governance/dashboard` · API: `POST /v1/governance/approval-requests`, promote/activate routes on `GovernanceController` as needed ([GOVERNANCE.md](../contributor-reference/GOVERNANCE.md)).
 5. **Optional gate feature flag** — Host: `ArchLucid:Governance:PreCommitGateEnabled` ([PRE_COMMIT_GOVERNANCE_GATE.md](../PRE_COMMIT_GOVERNANCE_GATE.md)).
 
 **Expected outputs:** Recorded approval request or documented rejection; commit either allowed or blocked with a clear policy reason in API/UI.
 
 **Failure hints:** `403` → authority tier; commit still succeeds when gate flag off → expected until gate enabled; mismatch between finding severity and pack thresholds → adjust assignment or severity taxonomy in workflow docs ([GOVERNANCE_WORKFLOW_UI.md](../GOVERNANCE_WORKFLOW_UI.md)).
 
-**Reference:** [GOVERNANCE.md](../GOVERNANCE.md), [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](../COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md).
+**Reference:** [GOVERNANCE.md](../contributor-reference/GOVERNANCE.md), [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](../COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md).
 
 ---
 
@@ -68,7 +68,7 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`NAV
 
 **Failure hints:** Empty or missing run exports → run not committed or wrong `runId`; `429` on public endpoints → backoff; do not mistake **self-assessment / SoW templates** in the ZIP for finished CPA reports ([trust-center.md](../../go-to-market/trust-center.md)).
 
-**Reference:** [SECURITY.md](../SECURITY.md), [API_CONTRACTS.md](../API_CONTRACTS.md).
+**Reference:** [SECURITY.md](../contributor-reference/SECURITY.md), [API_CONTRACTS.md](../API_CONTRACTS.md).
 
 ---
 

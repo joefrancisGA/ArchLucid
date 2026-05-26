@@ -14,59 +14,10 @@ export type HelpDocSearchRecord = {
 export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/library/PILOT_GUIDE.md",
-    "docTitle": "Pilot guide (redirect)",
+    "docTitle": "Moved — pilot guide",
     "sectionSlug": "",
-    "sectionHeading": "Pilot guide (redirect) — overview",
-    "excerpt": "Operator / pilot material is merged into the command-first quickstart. V1 boundary (scope, gates) stays in [V1_SCOPE.md](V1_SCOPE.md)."
-  },
-  {
-    "docPath": "docs/library/PILOT_GUIDE.md",
-    "docTitle": "Pilot guide (redirect)",
-    "sectionSlug": "verification-ladder",
-    "sectionHeading": "Verification ladder",
-    "excerpt": "1. A — Run / deploy readiness — environment checks your team already runs before declaring “ready.” 2. B — Release smoke — [RELEASE_SMOKE.md](RELEASE_SMOKE.md) (API + CLI + artifact checks). 3. C — Live E2E (UI + SQL truth) — merge-blocking Playwright *`live-api-.spec.ts` per `TEST_STRUCTURE.md`; happy path [LIVE_E2…"
-  },
-  {
-    "docPath": "docs/library/PILOT_GUIDE.md",
-    "docTitle": "Pilot guide (redirect)",
-    "sectionSlug": "reference-architecture-payloads-instant-runs",
-    "sectionHeading": "Reference architecture payloads (instant runs)",
-    "excerpt": "Starter `ArchitectureRequest` JSON files aligned with `POST /v1/architecture/request` live under [`templates/reference-architectures/README.md`](../../templates/reference-architectures/README.md) (pattern samples) and [`templates/architecture-requests/README.md`](../../templates/architecture-requests/README.md) (nam…"
-  },
-  {
-    "docPath": "docs/library/PILOT_GUIDE.md",
-    "docTitle": "Pilot guide (redirect)",
-    "sectionSlug": "when-you-report-an-issue",
-    "sectionHeading": "When you report an issue",
-    "excerpt": "Include API `GET /version`, `X-Correlation-ID`, relevant logs, and (if policy allows) a support bundle (`dotnet run --project ArchLucid.Cli -- support-bundle --zip`). Full checklist: [archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md#when-you-report-an-issue](../archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md#when-you-repor…"
-  },
-  {
-    "docPath": "docs/library/PILOT_GUIDE.md",
-    "docTitle": "Pilot guide (redirect)",
-    "sectionSlug": "getting-help",
-    "sectionHeading": "Getting help",
-    "excerpt": "- Product / pilot support: support@archlucid.net — how-to, integration behavior, non-security defects during pilots. - Security vulnerabilities: security@archlucid.net — coordinated disclosure only; see [SECURITY.md](../../SECURITY.md). - Accessibility barriers (non-security): accessibility@archlucid.net — WCAG / us…"
-  },
-  {
-    "docPath": "docs/library/PILOT_GUIDE.md",
-    "docTitle": "Pilot guide (redirect)",
-    "sectionSlug": "capturing-your-baseline-at-signup",
-    "sectionHeading": "Capturing your baseline at signup",
-    "excerpt": "Optional review-cycle baseline fields on anonymous `POST /v1/register` (see [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) §3.1):"
-  },
-  {
-    "docPath": "docs/library/PILOT_GUIDE.md",
-    "docTitle": "Pilot guide (redirect)",
-    "sectionSlug": "post-commit-sponsor-banner-first-commit-clock",
-    "sectionHeading": "Post-commit sponsor banner (first commit clock)",
-    "excerpt": "After the first golden manifest commit, the operator-shell review detail page (`/runs/[runId]` — legacy URL; may redirect to `/reviews/…`) shows the “Email this review to your sponsor” banner when the review has a manifest (exact banner text may still say run until label-only UI updates land). The banner may add a s…"
-  },
-  {
-    "docPath": "docs/library/PILOT_GUIDE.md",
-    "docTitle": "Pilot guide (redirect)",
-    "sectionSlug": "pull-request-decoration-in-your-ci",
-    "sectionHeading": "Pull-request decoration in your CI",
-    "excerpt": "ArchLucid surfaces `GET /v1/compare` Markdown in CI/CD for both GitHub Actions and Azure DevOps Pipelines — pick the entry point that matches your vendor:"
+    "sectionHeading": "Moved — pilot guide — overview",
+    "excerpt": "Canonical pilot onboarding material now lives here:"
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",
@@ -284,6 +235,20 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "sectionSlug": "10-can-we-speak-with-reference-customers",
     "sectionHeading": "10. Can we speak with reference customers?",
     "excerpt": "Answer: Public Published references are tracked ([reference-customers/README.md](reference-customers/README.md)) with Status placeholders until V1.1-program approvals—coordinate via sales for permissioned pilots."
+  },
+  {
+    "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
+    "docTitle": "Procurement FAQ (Enterprise)",
+    "sectionSlug": "11-how-do-we-get-extended-audit-retention-eg-7-years",
+    "sectionHeading": "11. How do we get extended audit retention (e.g. 7 years)?",
+    "excerpt": "Answer: Per-tier defaults are 90 days (Team), 1 year (Professional), and custom (Enterprise) — see [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md). Extended retention is an Enterprise-negotiated add-on documented in [`AUDIT_RETENTION_EXTENSION.md`](../library/AUDIT_RETENTION_EXTENSION.md): scheduled CSV exports to …"
+  },
+  {
+    "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
+    "docTitle": "Procurement FAQ (Enterprise)",
+    "sectionSlug": "12-can-we-commission-custom-policy-packs-beyond-bundled-defaults",
+    "sectionHeading": "12. Can we commission custom policy packs beyond bundled defaults?",
+    "excerpt": "Answer: Yes — V1 professional services. ArchLucid ships productized Custom Policy Pack Authoring SKUs (Starter / Standard / Program) with customer-exclusive or ArchLucid-owned IP tiers. Scope, delivery windows, and canonical USD list prices are in [PRICING_PHILOSOPHY.md §4.2](PRICING_PHILOSOPHY.md#42-custom-policy-p…"
   },
   {
     "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",

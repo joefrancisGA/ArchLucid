@@ -299,7 +299,7 @@ public sealed class SetDiffConnectorDeltaComputerTests
     {
         TopologyHintsConnector connector = new(
             new TopologyHintsPayloadExtractor(),
-            new TopologyHintsPayloadNormalizer(),
+            new TopologyHintsPayloadNormalizer(new PolicyTopologyOverlapResolver()),
             _sut);
 
         NormalizedContextBatch batch = await connector.NormalizeAsync(
@@ -317,7 +317,7 @@ public sealed class SetDiffConnectorDeltaComputerTests
     {
         TopologyHintsConnector connector = new(
             new TopologyHintsPayloadExtractor(),
-            new TopologyHintsPayloadNormalizer(),
+            new TopologyHintsPayloadNormalizer(new PolicyTopologyOverlapResolver()),
             _sut);
 
         // Build the previous batch through the normalizer so ObjectId and Properties match exactly.

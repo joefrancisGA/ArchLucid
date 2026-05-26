@@ -98,7 +98,7 @@ internal static class PackExportScaffoldWriter
 
         ## Policy Pack Hub references (ArchLucid repo)
 
-        - `docs/library/GOVERNANCE.md` — create, publish, and assign flows
+        - `docs/library/contributor-reference/GOVERNANCE.md` — create, publish, and assign flows
         - `docs/templates/policy-packs/README.md` — curl import templates and WAF analogue starter
         - `docs/library/PRE_COMMIT_GOVERNANCE_GATE.md` — wire packs into CI / pre-commit gates
         - `templates/policy-packs/` — vertical starter packs for inspiration

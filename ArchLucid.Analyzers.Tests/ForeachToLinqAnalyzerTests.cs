@@ -55,7 +55,7 @@ internal static class Accumulator
         CSharpCodeFixTest<ForeachToLinqAnalyzer, ForeachToLinqCodeFixProvider, DefaultVerifier> verifier = new()
         {
             TestCode = beforeSource,
-            FixedCode = fixedSourceWithLinq,
+            FixedCode = fixedSourceWithLinq.ReplaceLineEndings(),
             ExpectedDiagnostics = { diagnostic },
             ReferenceAssemblies = ReferenceAssemblies.Net.Net80,
             SolutionTransforms = { RenameTestProjectToAnalyzableAssembly }
@@ -113,7 +113,7 @@ internal static class Accumulator
         CSharpCodeFixTest<ForeachToLinqAnalyzer, ForeachToLinqCodeFixProvider, DefaultVerifier> verifier = new()
         {
             TestCode = beforeSource,
-            FixedCode = fixedSourceWithLinq,
+            FixedCode = fixedSourceWithLinq.ReplaceLineEndings(),
             ExpectedDiagnostics = { diagnostic },
             ReferenceAssemblies = ReferenceAssemblies.Net.Net80,
             SolutionTransforms = { RenameTestProjectToAnalyzableAssembly }

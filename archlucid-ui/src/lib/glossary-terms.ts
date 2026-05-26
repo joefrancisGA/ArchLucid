@@ -121,7 +121,7 @@ export const GLOSSARY_TERMS = {
   governance_resolution: {
     term: "Governance resolution",
     definition: "The operator workflow that applies policy, reconciles risk, and routes outcomes after findings or compliance signals—before or instead of a formal approval in some tenants.",
-    docLink: "/docs/library/GOVERNANCE.md",
+    docLink: "/docs/library/contributor-reference/GOVERNANCE.md",
   },
 } as const satisfies Readonly<Record<string, GlossaryTermEntry>>;
 

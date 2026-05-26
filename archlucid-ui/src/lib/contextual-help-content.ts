@@ -50,7 +50,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   "governance-workflow": {
     text:
       "Submit governed changes for approval, promote manifest versions, and activate environments. Execute role required for mutations; readers can review pending items.",
-    learnMoreUrl: "/docs/library/GOVERNANCE.md",
+    learnMoreUrl: "/docs/library/contributor-reference/GOVERNANCE.md",
   },
   "replay-run": {
     text: "Replay re-validates a stored comparison. Verify mode detects drift since the original comparison.",

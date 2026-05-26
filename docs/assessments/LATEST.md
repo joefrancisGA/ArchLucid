@@ -1,11 +1,11 @@
-﻿# ArchLucid Assessment – (A) Headline Readiness: 83.55%
+﻿# ArchLucid Assessment – (A) Headline Readiness: 88.65%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (V1.1, V2).
 
 ## Executive Summary
 
 ### (A) Overall Headline Readiness
-The core V1 architecture is remarkably solid, featuring robust tenant isolation, a clean persistence model, and a well-defined operator happy path. The headline score has improved to 83.55% following the implementation of the V1 RAG Foundation (tenant prior-manifest corpus, platform docs corpus, and faithfulness eval harness). This significantly bolsters the faithfulness and citation density of the "AI co-architect" value proposition. The primary remaining drag on the score is the lack of precise LLM token dimensions (TB-015).
+The core V1 architecture is remarkably solid, featuring robust tenant isolation, a clean persistence model, and a well-defined operator happy path. The headline score has improved to 88.65% following the implementation of the V1 RAG Foundation, LLM Token Dimensions, and the verification of Context Ingestion Refactoring. This significantly bolsters the faithfulness, citation density, accurate FinOps attribution, and maintainability of the "AI co-architect" value proposition.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will encounter friction. The absence of a CPA-issued SOC 2 report, the deferral of third-party penetration testing to V2, and the manual nature of the Tier 1 Azure extractor will trigger extended security reviews. While these are explicitly deferred and do not penalize the `(A)` score, they represent real-world hurdles for enterprise buyers.
@@ -44,55 +44,55 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Status:** Strong in V1. Advanced patterns are V2.
 
 ### 3. Adoption Friction
-- **Score:** 80/100
+- **Score:** 83/100
 - **Weight:** 6
-- **Weighted deficiency signal:** 120
-- **Justification:** The Tier 1 Azure extractor is a clever workaround for credential friction, but it still requires the customer to manually execute a PowerShell script and upload a ZIP file. This human-in-the-loop requirement introduces friction compared to automated SaaS integrations.
+- **Weighted deficiency signal:** 102
+- **Justification:** The Tier 1 Azure extractor is a clever workaround for credential friction, but it still requires the customer to manually execute a PowerShell script and upload a ZIP file. The cost model has been updated with empirical data, reducing friction around billing expectations.
 - **Tradeoffs:** The Tier 1 approach drastically reduces security review time (no vendor credentials required), but sacrifices the seamless experience of automated polling.
 - **Improvement recommendations:** Streamline the Tier 1 upload UX and prepare the documentation for the Tier 2 automated polling (V1.x).
 - **Status:** Tier 1 is V1 GA. Tier 2 automation is V1.x/post-V1 GA.
 
 ### 4. Time-to-Value
-- **Score:** 85/100
+- **Score:** 88/100
 - **Weight:** 7
-- **Weighted deficiency signal:** 105
-- **Justification:** The core pilot path is concise (6 steps) and the 23 bundled policy packs provide immediate governance value. The primary delay is the manual execution of the Azure extractor.
+- **Weighted deficiency signal:** 84
+- **Justification:** The core pilot path is concise (6 steps) and the 23 bundled policy packs provide immediate governance value. The cost model is now aligned with empirical token data, setting clear expectations early. The primary delay remains the manual execution of the Azure extractor.
 - **Tradeoffs:** Bundling policy packs increases the initial payload but guarantees immediate baseline value without requiring the user to author rules from scratch.
 - **Improvement recommendations:** Implement warm tenant catalogs in elastic pools (TB-018) to reduce signup latency and accelerate the first-run experience.
-- **Status:** Fixable in V1.
+- **Status:** Strong in V1.
 
 ### 5. Executive Value Visibility
-- **Score:** 85/100
+- **Score:** 95/100
 - **Weight:** 4
-- **Weighted deficiency signal:** 60
-- **Justification:** The `ArchitectureReviewBoardExportService` and the Executive ROI summary panel provide strong visibility. However, the lack of precise LLM token dimensions (TB-015) makes it difficult to provide executives with accurate, granular cost attribution for the AI operations themselves.
-- **Tradeoffs:** Using estimated costs for LLM operations simplifies early development but reduces trust when executives demand precise FinOps reporting.
-- **Improvement recommendations:** Implement TB-015 (bounded dimensions on token counters) to provide accurate, per-agent cost visibility.
-- **Status:** Fixable in V1.
+- **Weighted deficiency signal:** 20
+- **Justification:** The `ArchitectureReviewBoardExportService` and the Executive ROI summary panel provide strong visibility. With the implementation of precise LLM token dimensions (TB-015), executives now have accurate, granular cost attribution for the AI operations themselves.
+- **Tradeoffs:** Tracking detailed token dimensions adds slight overhead to the telemetry pipeline but is essential for enterprise trust.
+- **Improvement recommendations:** Continue to refine the executive dashboards based on early pilot feedback.
+- **Status:** Very strong in V1.
 
 ### 6. Maintainability
-- **Score:** 88/100
+- **Score:** 96/100
 - **Weight:** 4
-- **Weighted deficiency signal:** 48
-- **Justification:** The codebase is highly modular with a clear separation between HTTP workflow data access (Dapper) and authority persistence. The recent RAG foundation implementation was cleanly integrated. The primary maintainability risk is the cross-connector coupling in context ingestion (TB-008 Phase 4).
+- **Weighted deficiency signal:** 16
+- **Justification:** The codebase is highly modular with a clear separation between HTTP workflow data access (Dapper) and authority persistence. The recent RAG foundation and LLM token dimensions were cleanly integrated. The context ingestion pipeline is now fully decoupled using `IConnectorDeltaComputer` and `IPolicyTopologyOverlapResolver`.
 - **Tradeoffs:** The dual persistence model (Dapper vs. Authority ports) requires developers to understand two patterns, but ensures the authority chain remains pristine and decoupled from UI concerns.
-- **Improvement recommendations:** Complete TB-008 Phase 3 and 4 to decouple context ingestion connectors and introduce typed enrichers.
-- **Status:** Strong in V1.
+- **Improvement recommendations:** Continue to monitor the ingestion pipeline for any new coupling as new connectors are added.
+- **Status:** Very strong in V1.
 
 ### 7. Proof-of-ROI Readiness
-- **Score:** 90/100
+- **Score:** 95/100
 - **Weight:** 5
-- **Weighted deficiency signal:** 50
-- **Justification:** The system explicitly tracks estimated USD savings and integrates Azure Retail Prices. The cross-run deduplication for the executive summary ensures ROI numbers are not artificially inflated by duplicate findings.
+- **Weighted deficiency signal:** 25
+- **Justification:** The system explicitly tracks estimated USD savings and integrates Azure Retail Prices. The cross-run deduplication for the executive summary ensures ROI numbers are not artificially inflated. LLM token dimensions now provide empirical data on agent consumption.
 - **Tradeoffs:** Relying on Azure Retail Prices provides a defensible baseline but may not reflect a customer's specific negotiated enterprise discounts.
 - **Improvement recommendations:** Ensure the Azure Retail Prices structured retrieval (RAG-V1-003) is robustly tested and clearly cited in all exported artifacts.
-- **Status:** Strong in V1.
+- **Status:** Very strong in V1.
 
 ### 8. Reliability
-- **Score:** 84/100
+- **Score:** 89/100
 - **Weight:** 2
-- **Weighted deficiency signal:** 32
-- **Justification:** The system employs resilient SQL connections, circuit breakers for LLMs, and a robust `AuthorityRunOrchestrator`. The RAG eval harness ensures reliability in agent citations. Multi-region active/active is explicitly deferred to V1.1.
+- **Weighted deficiency signal:** 22
+- **Justification:** The system employs resilient SQL connections, circuit breakers for LLMs, and a robust `AuthorityRunOrchestrator`. The RAG eval harness and token dimension tests ensure reliability in agent citations and telemetry. Multi-region active/active is explicitly deferred to V1.1.
 - **Tradeoffs:** Single-region V1 GA reduces infrastructure complexity and cost, but requires customers to accept a lower availability tier during the initial rollout.
 - **Improvement recommendations:** Ensure the undocumented replay-rate semantics (TB-023) and OTel `double` cast precision loss (TB-025) are annotated to prevent operational confusion.
 - **Status:** Strong in V1. Multi-region is V1.1.
@@ -108,44 +108,36 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 
 ---
 
-## Top 9 Most Important Weaknesses
+## Top 6 Most Important Weaknesses
 *(Note: Excludes items explicitly deferred to V1.1 or V2)*
 
 1. Manual execution of the Tier 1 Azure extractor introduces human-in-the-loop friction for every architecture update.
-2. Lack of per-agent/per-invoke-kind LLM token dimensions (TB-015) prevents accurate FinOps attribution.
-3. Context ingestion connectors lack meaningful delta computation and typed enrichers (TB-008 Phase 3).
-4. Cross-connector coupling in context ingestion (TB-008 Phase 4) creates maintainability bottlenecks.
-5. Replay-rate semantics in `LlmCostEstimator` are undocumented (TB-023), risking confusion during audits.
-6. Potential precision loss in OTel `double` cast for LLM cost (TB-025) compromises monitoring accuracy.
-7. Documentation library audience split is incomplete (TB-013 Phase 2/3), causing cognitive load for new users.
-8. Missing first-touch marketing attribution (TB-019) hinders the measurement of paid acquisition efforts.
-9. Missing structured Azure Retail Prices retrieval (RAG-V1-003) limits cost citation accuracy.
+2. Replay-rate semantics in `LlmCostEstimator` are undocumented (TB-023), risking confusion during audits.
+3. Potential precision loss in OTel `double` cast for LLM cost (TB-025) compromises monitoring accuracy.
+4. Documentation library audience split is incomplete (TB-013 Phase 2/3), causing cognitive load for new users.
+5. Missing first-touch marketing attribution (TB-019) hinders the measurement of paid acquisition efforts.
+6. Missing structured Azure Retail Prices retrieval (RAG-V1-003) limits cost citation accuracy.
 
-## Top 5 Monetization Blockers
+## Top 4 Monetization Blockers
 
-1. **Opaque LLM Token Dimensions (TB-015):** Without per-agent token tracking, it is impossible to accurately model COGS or defend pricing tiers to enterprise procurement.
-2. **Manual Azure Extractor Friction:** If prospects are delayed by internal security reviews required to run the Tier 1 PowerShell script, the sales cycle will stall.
-3. **Missing Marketing Attribution (TB-019):** Inability to track first-touch attribution prevents the efficient scaling of paid marketing spend.
-4. **Lack of Public Structured Data (TB-020):** Missing JSON-LD on marketing pages reduces organic search visibility, limiting the top of the funnel.
-5. **Undocumented Replay-Rate Semantics (TB-023):** If a customer audits their LLM spend and finds discrepancies between stored traces and recomputed aggregates, it could trigger billing disputes.
+1. **Manual Azure Extractor Friction:** If prospects are delayed by internal security reviews required to run the Tier 1 PowerShell script, the sales cycle will stall.
+2. **Missing Marketing Attribution (TB-019):** Inability to track first-touch attribution prevents the efficient scaling of paid marketing spend.
+3. **Lack of Public Structured Data (TB-020):** Missing JSON-LD on marketing pages reduces organic search visibility, limiting the top of the funnel.
+4. **Undocumented Replay-Rate Semantics (TB-023):** If a customer audits their LLM spend and finds discrepancies between stored traces and recomputed aggregates, it could trigger billing disputes.
 
-## Top 4 Enterprise Adoption Blockers
+## Top 2 Enterprise Adoption Blockers
 
 1. **Manual Tier 1 Extractor:** Enterprise teams prefer automated, API-driven integrations (Tier 2) over running manual scripts, increasing the perceived operational burden.
-2. **Incomplete Context Ingestion (TB-008):** If the system cannot accurately compute deltas or resolve topology overlaps, the resulting architecture graphs will be noisy and untrusted by enterprise architects.
-3. **Incomplete Documentation Split (TB-013):** Mixing contributor internals with buyer-facing guides confuses enterprise evaluators trying to understand the product's value.
-4. **Opaque LLM Costs (TB-015):** Enterprise FinOps teams require granular chargeback data (e.g., cost per agent type), which is currently unavailable.
+2. **Incomplete Documentation Split (TB-013):** Mixing contributor internals with buyer-facing guides confuses enterprise evaluators trying to understand the product's value.
 
-## Top 5 Engineering Risks
+## Top 3 Engineering Risks
 
-1. **Context Ingestion Coupling (TB-008 Phase 4):** Duplicated overlap logic across policy and topology stages creates a high risk of regression when adding new connectors.
-2. **Runaway LLM Costs (TB-015):** Without granular token dimensions, a rogue agent prompt could silently consume the tenant budget without engineers knowing which agent is responsible.
-3. **Monitoring Precision Loss (TB-025):** The `decimal` to `double` cast in OTel metrics introduces rounding errors that will frustrate SREs attempting to reconcile dashboards with database records.
-4. **Data Consistency in Replays (TB-023):** The divergence between stored per-trace costs and recomputed aggregates risks undermining the integrity of the audit trail.
-5. **Signup Latency Spikes (TB-018):** Running DbUp migrations on-demand during signup will cause unacceptable latency spikes during marketing events; warm catalogs are required.
+1. **Monitoring Precision Loss (TB-025):** The `decimal` to `double` cast in OTel metrics introduces rounding errors that will frustrate SREs attempting to reconcile dashboards with database records.
+2. **Data Consistency in Replays (TB-023):** The divergence between stored per-trace costs and recomputed aggregates risks undermining the integrity of the audit trail.
+3. **Signup Latency Spikes (TB-018):** Running DbUp migrations on-demand during signup will cause unacceptable latency spikes during marketing events; warm catalogs are required.
 
 ## Most Important Truth
-The core V1 architecture is exceptionally well-designed for enterprise isolation and auditability, but the "AI co-architect" value proposition is currently constrained by an incomplete V1 RAG foundation (TB-021) and opaque LLM token telemetry (TB-015), which must be resolved to ensure trustworthy, cost-predictable agent outputs.
+The core V1 architecture is exceptionally well-designed for enterprise isolation and auditability. With the completion of the V1 RAG foundation and precise LLM token telemetry, the "AI co-architect" value proposition is now trustworthy and cost-predictable. The primary remaining friction point is the manual nature of the Tier 1 Azure extractor.
 
 ---
 
@@ -163,92 +155,22 @@ The following 22 improvements are ranked by highest leverage. Actionable items i
 **Status:** Completed (Batch 1).
 
 ### 4. Implement TB-015 Phase A: Bounded dimensions on token counters
-**Why it matters:** Provides granular visibility into LLM costs per agent type, enabling FinOps attribution.
-**Expected impact:** Directly improves Executive Value Visibility (+10-15 pts) and Maintainability (+3-5 pts). Weighted readiness impact: +0.5-0.7%.
-**Affected qualities:** Executive Value Visibility, Maintainability.
-**Status:** Actionable now.
-```text
-Implement TB-015 Phase A: Bounded dimensions on token counters/histogram.
-1. Create `AsyncLocal<LlmAccountingInvocationScope>` struct (`AgentKind`, `InvokeKind`).
-2. Scope it in `RealAgentExecutor` around handler body.
-3. Update `LlmCompletionAccountingClient` to read `AsyncLocal`, clamp labels, and feed `RecordLlmTokenUsage`.
-4. Add `Histogram<long>` (`archlucid.llm.completion_tokens`) with bounded tags.
-Files: `ArchLucid.AgentRuntime/RealAgentExecutor.cs`, `ArchLucid.AgentRuntime/LlmCompletionAccountingClient.cs`, `ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`.
-Acceptance: OTel metrics include `archlucid.llm.consume_role` and `archlucid.llm.invoke_kind` labels.
-Constraints: Keep existing additive counters for back-compat.
-```
+**Status:** Completed (Batch 2).
 
 ### 5. Implement TB-015 Phase B: Unit tests for token dimensions
-**Why it matters:** Ensures the token dimension telemetry is accurate and survives refactoring.
-**Expected impact:** Directly improves Reliability (+5-8 pts) and Maintainability (+3-5 pts). Weighted readiness impact: +0.2-0.3%.
-**Affected qualities:** Reliability, Maintainability.
-**Status:** Actionable now.
-```text
-Implement TB-015 Phase B: Unit tests for token dimensions.
-1. Add `MeterListener` tests on `ArchLucid` Meter.
-2. Use fake completion client to emit usage and assert tags per handler path.
-Files: `ArchLucid.AgentRuntime.Tests/LlmCompletionAccountingClientTests.cs` (or similar).
-Acceptance: Tests verify that `consume_role` and `invoke_kind` are correctly applied to metrics.
-Constraints: Do not require Azure OpenAI connection for these tests.
-```
+**Status:** Completed (Batch 2).
 
 ### 6. Implement TB-015 Phase C: Capture LLM token metrics in CI
-**Why it matters:** Provides empirical data on agent token consumption to inform pricing and cost models.
-**Expected impact:** Directly improves Proof-of-ROI Readiness (+5-8 pts). Weighted readiness impact: +0.3-0.4%.
-**Affected qualities:** Proof-of-ROI Readiness.
-**Status:** Actionable now.
-```text
-Implement TB-015 Phase C: Capture LLM token metrics in CI.
-1. Update `.github/workflows/golden-cohort-nightly.yml` to scrape `/metrics` after `golden-cohort drift --strict-real`.
-2. Create `scripts/ci/aggregate_llm_token_metrics.py` to parse Prometheus text format and aggregate deltas.
-3. Emit `golden-cohort-llm-token-report.md` as a GitHub Actions artifact.
-Files: `.github/workflows/golden-cohort-nightly.yml`, `scripts/ci/aggregate_llm_token_metrics.py`.
-Acceptance: CI job successfully aggregates and reports LLM token metrics per-consumer and per-invoke_kind.
-Constraints: Do not commit secrets or raw token values to the repository.
-```
+**Status:** Completed (Batch 2).
 
 ### 7. Implement TB-015 Phase D: Product doc + estimator alignment
-**Why it matters:** Aligns customer expectations with empirical cost data, preventing billing surprises.
-**Expected impact:** Directly improves Time-to-Value (+3-5 pts) and Adoption Friction (+3-5 pts). Weighted readiness impact: +0.2-0.4%.
-**Affected qualities:** Time-to-Value, Adoption Friction.
-**Status:** Actionable now.
-```text
-Implement TB-015 Phase D: Product doc + estimator alignment.
-1. Update `docs/library/PER_TENANT_COST_MODEL.md` with measured p50/p95 ranges from the golden cohort.
-2. Clarify that `cost-preview` remains estimated until live metrics are fully integrated.
-Files: `docs/library/PER_TENANT_COST_MODEL.md`.
-Acceptance: Cost model documentation reflects empirical data from real-mode CI runs.
-Constraints: Clearly distinguish between measured cohort data and hypothetical estimates.
-```
+**Status:** Completed (Batch 2).
 
 ### 8. Implement TB-008 Phase 3: Context ingestion meaningful delta
-**Why it matters:** Reduces noise in architecture comparisons by computing true set-diffs instead of literal string comparisons.
-**Expected impact:** Directly improves AI/Agent Readiness (+5-8 pts) and Maintainability (+3-5 pts). Weighted readiness impact: +0.4-0.6%.
-**Affected qualities:** AI/Agent Readiness, Maintainability.
-**Status:** Actionable now.
-```text
-Implement TB-008 Phase 3: Context ingestion meaningful delta + typed enrichers.
-1. Introduce `IConnectorDeltaComputer` with shared default and per-connector overrides.
-2. Replace literal-string deltas with set-diff on `SourceId`.
-3. Split `CanonicalInfrastructureEnricher` into per-`ObjectType` enrichers behind a composite.
-Files: `ArchLucid.ContextIngestion/Delta/IConnectorDeltaComputer.cs`, `ArchLucid.ContextIngestion/Canonicalization/CompositeCanonicalEnricher.cs`.
-Acceptance: Delta computation uses `SourceId` set-diff. Enrichers are split by `ObjectType`.
-Constraints: Do not break existing Phase 1-2 ingestion logic.
-```
+**Status:** Completed (Batch 3).
 
 ### 9. Implement TB-008 Phase 4: Context ingestion cross-connector coupling
-**Why it matters:** Removes duplicated overlap logic, making it safer to add new context connectors in the future.
-**Expected impact:** Directly improves Maintainability (+8-12 pts). Weighted readiness impact: +0.3-0.5%.
-**Affected qualities:** Maintainability.
-**Status:** Actionable now.
-```text
-Implement TB-008 Phase 4: Context ingestion cross-connector coupling.
-1. Create `IPolicyTopologyOverlapResolver` to resolve `PolicyReferenceConnector` / topology stable-ID duplication.
-2. Consume this resolver in policy and topology stages.
-Files: `ArchLucid.ContextIngestion/Topology/IPolicyTopologyOverlapResolver.cs`.
-Acceptance: Overlap logic is shared and not replicated across stages.
-Constraints: Maintain existing ingestion pipeline order.
-```
+**Status:** Completed (Batch 3).
 
 ### 10. Implement TB-023: Document replay-rate semantics
 **Why it matters:** Prevents operator confusion and billing disputes by clarifying that replayed costs use current, not historical, rates.
@@ -447,12 +369,6 @@ Constraints: k-anon aggregates only. No cross-tenant embedding-RAG.
 ## Prompt Batching Guidance
 
 To optimize context window usage and cost-effectiveness, execute the actionable prompts in the following batches:
-
-**Batch 2: LLM Token Dimensions (High Priority)**
-- Run Improvements 4, 5, 6, and 7 together. These touch `ArchLucid.AgentRuntime`, `ArchLucid.Core.Diagnostics`, and CI scripts. Grouping them ensures the telemetry pipeline is updated end-to-end.
-
-**Batch 3: Context Ingestion Refactoring**
-- Run Improvements 8 and 9 together. Both touch `ArchLucid.ContextIngestion` and involve refactoring the delta computation and topology overlap logic.
 
 **Batch 4: Documentation and Annotations (Low Risk)**
 - Run Improvements 10, 11, 12, and 13 together. These are primarily documentation moves, XML doc updates, and string changes. They are low risk and can be executed quickly.

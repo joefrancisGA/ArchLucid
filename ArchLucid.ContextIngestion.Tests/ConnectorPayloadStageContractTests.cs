@@ -1,5 +1,6 @@
 using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.ConnectorStages;
+using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 
@@ -42,7 +43,8 @@ public sealed class ConnectorPayloadStageContractTests
 
         StaticRequestContextConnector facade = new(
             new StaticRequestPayloadExtractor(),
-            new StaticRequestPayloadNormalizer());
+            new StaticRequestPayloadNormalizer(),
+            new Moq.Mock<ArchLucid.ContextIngestion.Delta.IConnectorDeltaComputer>().Object);
 
         RawContextPayload raw = await facade.FetchAsync(request, CancellationToken.None);
         NormalizedContextBatch batch = await facade.NormalizeAsync(raw, CancellationToken.None);

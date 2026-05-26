@@ -2,6 +2,7 @@ using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Topology;
 
 using FluentAssertions;
 

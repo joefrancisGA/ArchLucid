@@ -1,4 +1,4 @@
-> **Scope:** Customer trust and access - full detail, tables, and links in the sections below.
+> **Scope:** Buyer — Customer trust and access - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -84,7 +84,7 @@ flowchart LR
 ## 8. Operational considerations
 
 - **Correlation:** Send **`X-Correlation-ID`** from clients; it flows through Front Door and the API for support and incident alignment.
-- **Cutover:** Apply private endpoints, validate connectivity from integrated compute, then **disable public** SQL/storage access per runbook.
+- **Cutover:** Apply private endpoints, validate connectivity from integrated compute, then **disable public** SQL/storage access per runbook ([`PRIVATE_ENDPOINT_SETUP.md`](../runbooks/PRIVATE_ENDPOINT_SETUP.md)).
 - **Entra:** After Terraform registers the API app, assign roles to users or service principals; update **`ArchLucidAuth`** and redeploy the API.
 - **Backlog:** Optional **AI Search** private endpoints remain a future enhancement. OpenAPI **`securitySchemes`** for Entra is implemented when **`ArchLucidAuth:Mode`** is **`JwtBearer`** (see **`docs/API_CONTRACTS.md`**).
 

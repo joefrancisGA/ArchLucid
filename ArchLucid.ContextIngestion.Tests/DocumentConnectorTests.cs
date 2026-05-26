@@ -1,6 +1,7 @@
 using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.Contracts;
 using ArchLucid.ContextIngestion.ConnectorStages;
+using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Models;
 
 using FluentAssertions;
@@ -23,7 +24,8 @@ public sealed class DocumentConnectorTests
 
         DocumentConnector sut = new(
             new DocumentConnectorPayloadExtractor(),
-            new DocumentConnectorPayloadNormalizer([mockParser.Object]));
+            new DocumentConnectorPayloadNormalizer([mockParser.Object]),
+            new Moq.Mock<ArchLucid.ContextIngestion.Delta.IConnectorDeltaComputer>().Object);
         RawContextPayload payload = new()
         {
             Documents =
@@ -69,7 +71,8 @@ public sealed class DocumentConnectorTests
 
         DocumentConnector sut = new(
             new DocumentConnectorPayloadExtractor(),
-            new DocumentConnectorPayloadNormalizer([first.Object, second.Object]));
+            new DocumentConnectorPayloadNormalizer([first.Object, second.Object]),
+            new Moq.Mock<ArchLucid.ContextIngestion.Delta.IConnectorDeltaComputer>().Object);
         RawContextPayload payload = new()
         {
             Documents =

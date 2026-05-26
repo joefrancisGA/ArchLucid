@@ -54,8 +54,8 @@ Ship tracks **V1.1** ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13)
 
 | Method | Use case | Reference |
 |--------|----------|-----------|
-| **Entra ID (JWT)** | Production integrations, CI/CD pipelines with service principals | [../SECURITY.md](../library/SECURITY.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md) |
-| **API keys** | Automation, scripts, lightweight integrations | [../SECURITY.md](../library/SECURITY.md) (RBAC, key rotation) |
+| **Entra ID (JWT)** | Production integrations, CI/CD pipelines with service principals | [../SECURITY.md](../library/contributor-reference/SECURITY.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md) |
+| **API keys** | Automation, scripts, lightweight integrations | [../SECURITY.md](../library/contributor-reference/SECURITY.md) (RBAC, key rotation) |
 
 ---
 

@@ -208,7 +208,7 @@ This section **promotes MCP from backlog-only text to the named V1.1 release win
 
 ## 6g. Identity — generic OIDC **and native SAML SP** in **V1 GA** (OIDC owner **2026-05-09**; SAML owner **2026-05-15**)
 
-**Generic OIDC** workforce sign-in — **`ArchLucidAuth:Mode=JwtBearer`** with **`ArchLucidAuth:Authority`** pointed at a **non-Microsoft OIDC issuer** (standard discovery + JWKS validation; claim mapping to **`ArchLucidRoles`** per **[SECURITY.md](SECURITY.md)**) — is **in scope for V1 GA** per [V1_SCOPE.md §2.12](V1_SCOPE.md).
+**Generic OIDC** workforce sign-in — **`ArchLucidAuth:Mode=JwtBearer`** with **`ArchLucidAuth:Authority`** pointed at a **non-Microsoft OIDC issuer** (standard discovery + JWKS validation; claim mapping to **`ArchLucidRoles`** per **[SECURITY.md](contributor-reference/SECURITY.md)**) — is **in scope for V1 GA** per [V1_SCOPE.md §2.12](V1_SCOPE.md).
 
 **Supersedes:** procurement copy and assessments that described generic OIDC as **roadmap-only** or implied Entra was the **only** first-class workforce IdP.
 

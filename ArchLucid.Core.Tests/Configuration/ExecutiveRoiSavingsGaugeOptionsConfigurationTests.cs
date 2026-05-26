@@ -2,6 +2,8 @@ using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Configuration;
+
 namespace ArchLucid.Core.Tests.Configuration;
 
 [Trait("Category", "Unit")]

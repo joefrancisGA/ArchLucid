@@ -1,3 +1,4 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph.Caching;
 using ArchLucid.KnowledgeGraph.Configuration;
@@ -22,17 +23,18 @@ public sealed class GraphSnapshotProjectionDistributedCacheTests
         ServiceCollection services = new();
         services.AddDistributedMemoryCache();
 
-        KnowledgeGraphProjectionCacheOptions options = new()
+        ArchLucid.Core.Configuration.KnowledgeGraphProjectionCacheOptions options = new()
         {
             Enabled = true,
             Backend = GraphProjectionCacheBackend.Distributed,
             AbsoluteExpirationSeconds = 600,
         };
 
-        Mock<IOptionsMonitor<KnowledgeGraphProjectionCacheOptions>> monitor = new();
+        Mock<IOptionsMonitor<ArchLucid.Core.Configuration.KnowledgeGraphProjectionCacheOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(options);
 
         services.AddSingleton(monitor.Object);
+        services.AddSingleton(Mock.Of<IGraphProjectionCacheInvalidationBroadcaster>());
         services.AddSingleton<GraphSnapshotProjectionDistributedCache>();
 
         await using ServiceProvider sp = services.BuildServiceProvider();

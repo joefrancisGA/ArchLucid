@@ -2,7 +2,7 @@
   "canonical_entries": [
     {
       "pack_path": "SECURITY.md",
-      "source_repo_path": "docs/library/SECURITY.md",
+      "source_repo_path": "docs/library/contributor-reference/SECURITY.md",
       "description": "Security policy and operational commitments",
       "artifact_status": "Evidence"
     },

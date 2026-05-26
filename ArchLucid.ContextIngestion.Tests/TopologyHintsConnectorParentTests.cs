@@ -19,7 +19,7 @@ public sealed class TopologyHintsConnectorParentTests
     {
         TopologyHintsConnector sut = new(
             new TopologyHintsPayloadExtractor(),
-            new TopologyHintsPayloadNormalizer(),
+            new TopologyHintsPayloadNormalizer(new PolicyTopologyOverlapResolver()),
             new SetDiffConnectorDeltaComputer());
         RawContextPayload raw = new() { TopologyHints = ["parentNet/childSubnet"] };
 
@@ -37,7 +37,7 @@ public sealed class TopologyHintsConnectorParentTests
     {
         TopologyHintsConnector sut = new(
             new TopologyHintsPayloadExtractor(),
-            new TopologyHintsPayloadNormalizer(),
+            new TopologyHintsPayloadNormalizer(new PolicyTopologyOverlapResolver()),
             new SetDiffConnectorDeltaComputer());
         RawContextPayload raw = new() { TopologyHints = ["standalone-vnet"] };
 

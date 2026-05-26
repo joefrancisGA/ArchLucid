@@ -1,5 +1,8 @@
 using ArchLucid.Core.Budgeting;
+using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.Billing.Stripe;
+
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -8,7 +11,7 @@ namespace ArchLucid.Persistence.Tests.Billing;
 internal static class StripeBillingProviderTestSupport
 {
     internal static StripeBillingProvider CreateSut(
-        TestMonitor<ArchLucid.Core.Configuration.BillingOptions> monitor,
+        IOptionsMonitor<ArchLucid.Core.Configuration.BillingOptions> monitor,
         Mock<ArchLucid.Core.Billing.IBillingLedger> ledger,
         BillingWebhookTrialActivator activator,
         Mock<ArchLucid.Core.Billing.IMarketplaceChangePlanWebhookMutationHandler> changePlan)

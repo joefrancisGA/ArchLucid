@@ -9,7 +9,7 @@ namespace ArchLucid.ContextIngestion.Tests;
 ///     Tests for Canonical Infrastructure Enricher.
 /// </summary>
 [Trait("Category", "Unit")]
-public sealed class CanonicalInfrastructureEnricherTests
+public sealed class CompositeCanonicalEnricherTests
 {
     private readonly CompositeCanonicalEnricher _sut = new(
     [

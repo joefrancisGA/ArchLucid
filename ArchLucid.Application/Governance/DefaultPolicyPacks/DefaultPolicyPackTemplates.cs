@@ -6,7 +6,7 @@ namespace ArchLucid.Application.Governance.DefaultPolicyPacks;
 ///     <c>POST /v1/policy-packs</c> after tailoring metadata. Includes Azure WAF analogue, SaaS security baseline, AI
 ///     governance starter (<see cref="AiGovernanceResponsibleAiV1Json" />), and cloud security baseline (
 ///     <see cref="SecurityArchitectureBaselineV1Json" />). Tenant provisioning seeds platform defaults via
-///     <c>IDefaultPolicyPackSeeder</c> — not a silent SQL migration for existing tenants; see <c>docs/library/GOVERNANCE.md</c>
+///     <c>IDefaultPolicyPackSeeder</c> — not a silent SQL migration for existing tenants; see <c>docs/library/contributor-reference/GOVERNANCE.md</c>
 ///     and change management for catalog updates.
 /// </summary>
 public static class DefaultPolicyPackTemplates

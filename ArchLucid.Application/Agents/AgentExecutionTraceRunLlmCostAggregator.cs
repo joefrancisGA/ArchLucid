@@ -13,6 +13,7 @@ public static class AgentExecutionTraceRunLlmCostAggregator
     /// <param name="traces">All execution traces for the run (typically from <c>GetByRunIdAsync</c>).</param>
     /// <param name="costEstimator">Host-configured estimator (respects <see cref="LlmCostEstimationOptions.Enabled" />).</param>
     /// <returns>Token totals, optional summed USD, and a display label for model/deployment names.</returns>
+    /// <remarks>Re-estimates using live rates.</remarks>
     public static AgentExecutionTraceRunLlmCostSummary Compute(
         IReadOnlyList<AgentExecutionTrace> traces,
         ILlmCostEstimator costEstimator)

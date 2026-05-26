@@ -26,7 +26,7 @@ public sealed class GraphSnapshotPaginationTests
             ]
         };
 
-        GraphSnapshotNodesPage page = GraphSnapshotPagination.CreatePage(snapshot, 1, 2);
+        GraphSnapshotNodesPage page = ArchLucid.Core.Persistence.Graph.GraphSnapshotPagination.CreatePage(snapshot, 1, 2);
 
         page.TotalNodes.Should().Be(3);
         page.Nodes.Should().HaveCount(2);
@@ -43,7 +43,7 @@ public sealed class GraphSnapshotPaginationTests
     {
         GraphSnapshot snapshot = new() { Nodes = [new GraphNode { NodeId = "x", NodeType = "t", Label = "X" }] };
 
-        GraphSnapshotNodesPage page = GraphSnapshotPagination.CreatePage(snapshot, 1, 50);
+        GraphSnapshotNodesPage page = ArchLucid.Core.Persistence.Graph.GraphSnapshotPagination.CreatePage(snapshot, 1, 50);
 
         page.HasMore.Should().BeFalse();
         page.TotalNodes.Should().Be(1);

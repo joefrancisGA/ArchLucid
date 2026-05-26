@@ -2,6 +2,7 @@ using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.Contracts;
 using ArchLucid.ContextIngestion.ConnectorStages;
+using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
@@ -28,7 +29,8 @@ public sealed class DocumentConnectorIntegrationTests
         IReadOnlyList<IContextDocumentParser> parsers = [new PlainTextContextDocumentParser()];
         DocumentConnector connector = new(
             new DocumentConnectorPayloadExtractor(),
-            new DocumentConnectorPayloadNormalizer(parsers));
+            new DocumentConnectorPayloadNormalizer(parsers),
+            new SetDiffConnectorDeltaComputer());
 
         IReadOnlyList<IConnectorDescriptor> descriptors = [new ConnectorDescriptor(1, connector)];
 

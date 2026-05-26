@@ -1,0 +1,3 @@
+﻿# ArchLucid advisory – review before apply
+# WARNING: Generated Terraform snippet failed validation and was omitted.
+# Reason: terraform validate failed: Process must exit before requested information can be determined.

@@ -1,10 +1,14 @@
 using System.Collections.Immutable;
+using System.Diagnostics.Metrics;
 
 using ArchLucid.AgentRuntime.Tests.Support;
+using ArchLucid.Contracts.Common;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Llm;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
@@ -17,8 +21,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
-
-using ArchLucid.AgentRuntime.Tests.Support;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
@@ -76,7 +78,7 @@ public sealed class LlmCompletionAccountingClientTests
 
         LlmCompletionAccountingClient sut = CreateClient(inner.Object, tenant);
 
-        using System.Diagnostics.Metrics.MeterListener meterListener = new();
+        using MeterListener meterListener = new();
         int dimensionalMeasurements = 0;
         meterListener.InstrumentPublished = (instrument, listener) =>
         {
@@ -92,8 +94,10 @@ public sealed class LlmCompletionAccountingClientTests
             {
                 dimensionalMeasurements++;
                 measurement.Should().Be(20);
-                tags.ToArray().Should().Contain(t => t.Key == "archlucid.llm.consume_role" && t.Value?.ToString() == "Topology");
-                tags.ToArray().Should().Contain(t => t.Key == "archlucid.llm.invoke_kind" && t.Value?.ToString() == "Primary");
+
+                KeyValuePair<string, object?>[] tagArray = tags.ToArray();
+                tagArray.Single(t => t.Key == "archlucid.llm.consume_role").Value.Should().Be("Topology");
+                tagArray.Single(t => t.Key == "archlucid.llm.invoke_kind").Value.Should().Be("Primary");
             }
         });
 

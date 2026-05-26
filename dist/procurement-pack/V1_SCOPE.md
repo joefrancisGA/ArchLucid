@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid V1 — scope contract - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — ArchLucid V1 — scope contract - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -15,10 +15,10 @@ This scope document lists in-scope capabilities, explicit out-of-scope items, th
 
 ## Related
 
-- **[README.md](../../docs/REPOSITORY_README.md)** — repo overview and install spine
+- **[README.md](../REPOSITORY_README.md)** — repo overview and install spine
 - **[GLOSSARY.md](GLOSSARY.md)** — terms and naming
 - **[BREAKING_CHANGES.md](../../BREAKING_CHANGES.md)** — breaking change trail
-- **[V1_DEFERRED.md](../../docs/library/V1_DEFERRED.md) §3** — remaining rename / Terraform brownfield cleanup
+- **[V1_DEFERRED.md](V1_DEFERRED.md) §3** — remaining rename / Terraform brownfield cleanup (canonical pointer after checklist retirement)
 - **[ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md)** — architecture poster
 - **[OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)** — operator atlas
 
@@ -30,7 +30,7 @@ This scope document lists in-scope capabilities, explicit out-of-scope items, th
 - States **what is out of V1** (deferred, optional, or non-goals).
 - Defines the **core operator happy path** and **minimum release checks** aligned with existing scripts and guides.
 
-For deeper flow detail, use [ONBOARDING_HAPPY_PATH.md](ONBOARDING_HAPPY_PATH.md) and [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md).
+For deeper flow detail, use **[First architecture review walkthrough](FIRST_RUN_WALKTHROUGH.md)**, [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md), and [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md).
 
 **Deferred / exploratory inventory (doc-sourced):** [V1_DEFERRED.md](V1_DEFERRED.md) — consolidates partial stories so V1 does not read as open-ended.
 
@@ -46,10 +46,10 @@ V1 capabilities map to **two** product layers (**Pilot** and **Operate**). See [
 
 The minimum set every pilot must complete. Delivered by default; no additional configuration beyond API + SQL.
 
-#### 2.1 Run lifecycle: request → execute → commit
+#### 2.1 Review lifecycle: request → execute → commit
 
-- Create a **run** from a structured **architecture request** (`POST /v1/architecture/request`).
-- Drive the run through **execution** so agent work completes under the configured **simulator or real** execution mode.
+- Create a **review** from a structured **architecture request** (`POST /v1/architecture/request`).
+- Drive the **review** through **execution** so agent work completes under the configured **simulator or real** execution mode.
 - **Commit** a **golden manifest** (`POST /v1/architecture/run/{runId}/commit`), with documented state and conflict behavior ([API_CONTRACTS.md](API_CONTRACTS.md)).
 - End-to-end request → execute → commit behavior, including convergence on manifests and artifacts, is described in [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md).
 
@@ -57,60 +57,61 @@ The minimum set every pilot must complete. Delivered by default; no additional c
 
 - **API:** list and download manifest-scoped artifacts; export-related endpoints per OpenAPI/Swagger.
 - **CLI:** `artifacts`, `status` per [CLI_USAGE.md](CLI_USAGE.md).
-- **Operator UI:** runs list, run detail, manifest summary, artifact review, and download ([operator-shell.md](operator-shell.md)).
+- **Operator UI:** reviews list, review detail (legacy labels may still say *Runs*), manifest summary, artifact review, and download ([operator-shell.md](operator-shell.md)).
 
 #### 2.3 Export and package generation
 
 - **Markdown/DOCX** exports and **replay** from persisted export records ([ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md)).
-- **ZIP** downloads (bundle and run-export) from run detail.
+- **ZIP** downloads (bundle and run-export) from **review** detail.
 
 #### 2.4 Deployability and supportability
 
 - **Container images** and **docker compose** profiles ([CONTAINERIZATION.md](CONTAINERIZATION.md)).
 - **SQL Server** persistence via DbUp migrations; automatic on startup ([SQL_SCRIPTS.md](SQL_SCRIPTS.md)). **`SystemWithPerTenantCatalogs`** (**database-per-tenant** with **`TenantDatabaseBindings`** and a control-plane system catalog) is the **only supported multitenant isolation model for hosted workloads**, **including self-serve trial tenants** ([TENANT_DATABASE_TOPOLOGY.md](TENANT_DATABASE_TOPOLOGY.md)). **`SingleCatalog`** remains available for narrow **developer/CI ergonomics**, not as a substitute for tenant isolation on hosted SaaS.
-- **Hosted SaaS LLM execution (real mode):** On **ArchLucid-operated** deployments, agent **real** execution uses **platform-provisioned Azure OpenAI** from environment configuration (**`AzureOpenAI:*`** / Key Vault-backed secrets — [CONFIGURATION_REFERENCE.md](CONFIGURATION_REFERENCE.md)). The **standard hosted and trial-tenant path** does **not** treat customer-supplied model endpoints as a prerequisite for normal operation, and **sales-engineer-assisted LLM onboarding is not a V1 gate** on that path. **Self-hosted** installs, deliberate **simulator** environments, or **bring-your-own** inference endpoints remain configuration-owned per [README.md](../../docs/REPOSITORY_README.md).
+- **Hosted SaaS LLM execution (real mode):** On **ArchLucid-operated** deployments, agent **real** execution uses **platform-provisioned Azure OpenAI** from environment configuration (**`AzureOpenAI:*`** / Key Vault-backed secrets — [CONFIGURATION_REFERENCE.md](CONFIGURATION_REFERENCE.md)). The **standard hosted and trial-tenant path** does **not** treat customer-supplied model endpoints as a prerequisite for normal operation, and **sales-engineer-assisted LLM onboarding is not a V1 gate** on that path. **Self-hosted** installs, deliberate **simulator** environments, or **bring-your-own** inference endpoints remain configuration-owned per [README.md](../REPOSITORY_README.md).
 - **Health:** `/health/live`, `/health/ready`, `/health`; `GET /version` for support attribution.
 - **Correlation IDs**, **CLI diagnostics** (`doctor`, `support-bundle`), and **Troubleshooting** runbooks.
-- **Authentication modes:** development bypass, JWT bearer, API key ([README.md](../../docs/REPOSITORY_README.md)).
+- **Authentication modes:** development bypass, JWT bearer, API key ([README.md](../REPOSITORY_README.md)).
 - **Infrastructure-as-code** examples (Terraform modules under `infra/`).
 
 ---
 
 ### Layer 2 — Operate
 
-**Operate** is the second buyer-facing layer. It includes deeper investigation and comparison tools (available once you have at least one committed run; in the operator UI, enable via **Show more links** in the sidebar) **and** governance, auditability, and compliance tooling (configuration-driven; most features require explicit enablement; full surface visible after enabling extended/advanced links in the sidebar).
+**Operate** is the second buyer-facing layer. It includes deeper investigation and comparison tools (available once you have at least one committed **review**; in the operator UI, enable via **Show more links** in the sidebar) **and** governance, auditability, and compliance tooling (configuration-driven; most features require explicit enablement; full surface visible after enabling extended/advanced links in the sidebar).
 
 #### 2.5 Compare
 
-- **Two-run** comparison: structured golden-manifest deltas + legacy diff + optional AI explanation ([COMPARISON_REPLAY.md](COMPARISON_REPLAY.md)).
-- Operator UI: **Compare runs** workflow ([operator-shell.md](operator-shell.md)).
+- **Two-review** comparison: structured golden-manifest deltas + legacy diff + optional AI explanation ([COMPARISON_REPLAY.md](COMPARISON_REPLAY.md)).
+- Operator UI: **Compare reviews** workflow ([operator-shell.md](operator-shell.md)).
 
 #### 2.6 Replay
 
 - **Comparison replay** (artifact vs regenerate vs verify modes) for persisted comparison records.
-- **Run replay** (authority chain re-validation) with validation flags surfaced in the operator shell.
+- **Authority replay** (authority chain re-validation; UI may still label *Run replay*) with validation flags surfaced in the operator shell.
 
 #### 2.7 Graph
 
-- **Knowledge / provenance / architecture graph** for a single run in the operator UI ([KNOWLEDGE_GRAPH.md](KNOWLEDGE_GRAPH.md)).
+- **Knowledge / provenance / architecture graph** for a single **review** in the operator UI ([KNOWLEDGE_GRAPH.md](KNOWLEDGE_GRAPH.md)).
 
 #### 2.8 Advisory, Q&A, and pilot signals
 
 - **Ask** — natural-language queries against architecture context.
 - **Advisory scans** — architecture digests and scheduled scans.
 - **Pilot feedback** — rollup and triage of product learning signals.
-- **Planning materialization (59R)** — bounded, deterministic drafting of improvement **themes** and **plans** from ranked pilot-feedback opportunities via **`POST /v1/learning/planning/materialize`** (**ExecuteAuthority**); operator-triggered; ties evidence with **pilot signal** links only; does **not** mutate prompts, agents, or governance packs ([`PRODUCT_LEARNING.md`](PRODUCT_LEARNING.md) §4.1–§4.2, [`LearningController.cs`](../../ArchLucid.Api/Controllers/Advisory/LearningController.cs)). **Planning bridge UX (V1 GA)** — dedicated in-shell flow on **`/product-learning`** to align **`since`** / **`maxPlansToMaterialize`** with the dashboard, invoke **`POST /v1/learning/planning/materialize`**, surface **`ProductLearningPlanningMaterializeResult`**, and deep-link operators to **`/planning`** ([`PRODUCT_LEARNING.md`](PRODUCT_LEARNING.md) §4.2; assessment improvement **#16**).
-- **Recommendation learning** — learning profiles per run.
-- **Integration events** (optional Azure Service Bus, CloudEvents envelope, webhooks) ([INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md)).
+- **Planning materialization (59R)** — bounded, deterministic drafting of improvement **themes** and **plans** from ranked pilot-feedback opportunities via **`POST /v1/learning/planning/materialize`** (**ExecuteAuthority**); operator-triggered; ties evidence with **pilot signal** links only; does **not** mutate prompts, agents, or governance packs ([`PRODUCT_LEARNING.md`](PRODUCT_LEARNING.md) §4.1–§4.2, [`LearningController.cs`](../../ArchLucid.Api/Controllers/Advisory/LearningController.cs)). **Planning bridge UX (V1 GA)** — dedicated in-shell flow on **`/product-learning`** ( **`PlanningBridgePanel`**) to align **`since`** / **`maxPlansToMaterialize`** with the dashboard, invoke **`POST /v1/learning/planning/materialize`**, surface **`ProductLearningPlanningMaterializeResult`**, and deep-link operators to **`/planning`** ([`PRODUCT_LEARNING.md`](PRODUCT_LEARNING.md) §4.2).
+- **Recommendation learning** — learning profiles per **review**.
+- **Cross-run executive ROI summary (V1 GA)** — tenant-scoped portfolio rollup for sponsor dashboards: **`GET /v1/roi/executive-summary`** ([`ExecutiveRoiSummaryService`](../../ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs), [`PILOT_SCORECARD_API.md`](PILOT_SCORECARD_API.md)); operator UI panel on Home ([`ExecutiveRoiSummarySection`](../../archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveRoiSummarySection.tsx)). **Aggregation semantics (owner 2026-05-22):** include the **latest committed run per system**; **sum** estimated USD savings across those runs; **top systemic issues** grouped by category and severity. When the same stable **`FindingId`** appears across multiple included runs, **deduplicate by unique finding identity** before counting (do **not** raw-sum duplicate CI reruns; do **not** use max-only — under-counts distinct systems). Complements per-run **`GET /v1/architecture/run/{runId}/roi`**, pilot scorecard, and value report APIs — **not** a V1.1 deferral.
+- **Integration events** (optional Azure Service Bus, CloudEvents envelope, **outbound HTTPS webhook** subscriptions to customer collectors) — **In scope for V1.1** as a **buyer-contract** integration surface ([INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md)). **V1 GA** does **not** treat Service Bus fan-out, signed webhook delivery, or recipe-driven bridges as **committed** integration obligations — the **V1** buyer bar for automation remains **REST**, **CLI**, **operator UI**, and **§2.16+** HTTP surfaces until **V1.1**.
 
-Use these surfaces when the next question is analytical: what changed, why it changed, what the architecture or provenance graph shows, or how two runs differ.
+Use these surfaces when the next question is analytical: what changed, why it changed, what the architecture or provenance graph shows, or how two **reviews** differ.
 
 #### 2.9 Governance workflows
 
 - **Approval workflow** with segregation of duties (self-approval blocked), SLA tracking, and webhook escalation on breach.
 - **Pre-commit governance gate** — `ArchLucid:Governance:PreCommitGateEnabled` blocks manifest commit when findings exceed configured severity thresholds ([PRE_COMMIT_GOVERNANCE_GATE.md](PRE_COMMIT_GOVERNANCE_GATE.md)).
 - **Policy packs** — versioned rule sets with scope assignments and effective governance resolution.
-- **Governance dashboard** — cross-run pending approvals and policy change summary.
+- **Governance dashboard** — cross-review pending approvals and policy change summary.
 
 #### 2.10 Audit and compliance
 
@@ -122,14 +123,14 @@ Use these surfaces when the next question is analytical: what changed, why it ch
 #### 2.11 Alerts
 
 - **Alert rules, routing, composite rules, tuning** — configurable alert pipeline.
-- **Alert inbox** — open and acknowledged alerts with correlation to runs and manifests.
+- **Alert inbox** — open and acknowledged alerts with correlation to **reviews** and manifests.
 - **Alert simulation** — evaluate rules against synthetic payloads.
 
 #### 2.12 Trust and access
 
 - **JWT bearer (`ArchLucidAuth:Mode=JwtBearer`) — OIDC issuers**
   - **Microsoft Entra ID** — reference Terraform sample (`infra/terraform-entra/`), app roles, audience wiring.
-  - **Generic OIDC IdPs** — **In scope for V1 GA** (**owner 2026-05-09**): configure **`ArchLucidAuth:Authority`** (and related JWT/OIDC settings) against **any standards-compliant OIDC issuer** (metadata discovery + JWKS); map IdP claims to **`ArchLucidRoles`** per **[SECURITY.md](SECURITY.md)** and **[CONFIGURATION_REFERENCE.md](CONFIGURATION_REFERENCE.md)**. Entra remains the **default documented path** for hosted SaaS; Okta / Auth0 / Ping / Keycloak-style integrations use the **same** **`JwtBearer`** surface with tenant-specific configuration.
+  - **Generic OIDC IdPs** — **In scope for V1 GA** (**owner 2026-05-09**): configure **`ArchLucidAuth:Authority`** (and related JWT/OIDC settings) against **any standards-compliant OIDC issuer** (metadata discovery + JWKS); map IdP claims to **`ArchLucidRoles`** per **[SECURITY.md](contributor-reference/SECURITY.md)** and **[CONFIGURATION_REFERENCE.md](CONFIGURATION_REFERENCE.md)**. Entra remains the **default documented path** for hosted SaaS; Okta / Auth0 / Ping / Keycloak-style integrations use the **same** **`JwtBearer`** surface with tenant-specific configuration.
 - **Native SAML 2.0 Service Provider (workforce SSO)** — **In scope for V1 GA** (**owner 2026-05-15**): ArchLucid operates as a SAML **SP** against customer IdPs that mandate SAML Web SSO (**HTTP-Redirect / POST**, signed assertions, metadata exchange — profile details finalized in **`SECURITY.md`** / **`CONFIGURATION_REFERENCE.md`** at implementation). **Coexistence:** **`JwtBearer`** OIDC paths above remain **first-class**; tenants enable **either** SAML SP configuration **or** OIDC issuer wiring per environment (mutually exclusive primary workforce SSO mode per tenant deployment unless separately promoted for dual-stack). Mapped identities and **`ArchLucidRoles`** must meet the **same RBAC and tenant isolation bar** as JWT bearer authentication; SAML login emits durable audit parity with OIDC sign-in events.
 - **API key** automation surface where environments allow it; **RBAC roles** (Admin / Operator / Reader / Auditor).
 - **SCIM 2.0 inbound provisioning** — dedicated `ScimBearer` automation surface (`/scim/v2/*`) with per-tenant bearer tokens, group→role mapping, and enterprise seat accounting ([`docs/integrations/SCIM_PROVISIONING.md`](../integrations/SCIM_PROVISIONING.md), ADR [`0032`](../architecture/adrs/0032-scim-v2-service-provider.md)).
@@ -140,24 +141,24 @@ Use these surfaces when the next question is governance or trust: approvals, pol
 
 #### 2.13 First-party ITSM connectors (Jira, ServiceNow)
 
-**In scope for V1 GA** — first-party connectors are **committed product obligations** for V1 (not deferred to V1.1). **Implementation sequencing:** **ServiceNow** before the **Atlassian** first-party surfaces. **Atlassian pair** (**Jira** here + **Confluence** in §2.15): engineer and release as **one workstream** — **Confluence** publish **before** **Jira** issue depth (**owner policy 2026-05-05**); **Jira** follows **immediately** in the **same** V1 tranche (not a separate delayed program). Historical *Resolved 2026-04-27* **ServiceNow-before-Jira** ordering is **superseded** for **Atlassian** by *Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)* in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md). **Scope pinning** for Jira and ServiceNow was moved from V1.1 to V1 by *Resolved 2026-05-05 (Jira + ServiceNow — promoted to V1 scope)*. Atlassian Marketplace and ServiceNow Store listings **may trail** functional connectors in the same delivery window.
+**In scope for V1.1** — first-party **Jira** and **ServiceNow** connectors are **committed product obligations** for the **V1.1** release window — **not** gatekeepers for **V1 GA**. **V1 GA** covers ITSM- / docs- / chat-shaped workflows via **REST**, **CLI**, **operator UI**, **SCIM**, **Azure DevOps** / **GitHub** PR and manifest decoration, **`GET /v1/compare`**-style CI surfaces, and the **Azure extractor ZIP** path (**§2.16**) — **not** via **Microsoft Teams**, **CloudEvents webhooks**, or **customer-operated** recipes under [`docs/integrations/recipes/`](../integrations/recipes/README.md) as **contracted** buyer paths (**§2.8**, **§2.14**). **Implementation sequencing (V1.1):** **ServiceNow** before the **Atlassian** first-party surfaces. **Atlassian pair** (**Jira** here + **Confluence** in §2.15): engineer and release as **one workstream** — **Confluence** publish **before** **Jira** issue depth (**owner policy 2026-05-05**); **Jira** follows **immediately** in the **same** V1.1 tranche. Historical *Resolved 2026-04-27* **ServiceNow-before-Jira** ordering is **superseded** for **Atlassian** by *Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)* in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md). **Supersedes** *Resolved 2026-05-05 / 2026-05-06* **V1 GA** pinning for ITSM; authoritative release-window move: *Resolved 2026-05-18 (First-party connectors — V1.1 window)* in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md). Atlassian Marketplace and ServiceNow Store listings **may trail** functional connectors.
 
-**Owner unblocker — ServiceNow engineering tenant (2026-05-15):** **`V1` GA** includes bidirectional ServiceNow sync (**ServiceNow row below**). Engineering validation (**[`docs/assessments/LATEST.md`](../assessments/LATEST.md)** improvement **#22**) assumes the owner provisions a **cost-free** ServiceNow **Developer Program** / personal developer-style instance — **not** a paid sandbox SKU. Absence of an instance today **queues #22 only**; **`V1_SCOPE.md`** §2.13 stays authoritative unless explicitly amended via **`PENDING_QUESTIONS.md`** — see **`LATEST.md` P10**.
+**Owner unblocker — ServiceNow engineering tenant (2026-05-15):** **V1.1** validation includes bidirectional ServiceNow sync (**ServiceNow row below**). Engineering validation assumes the owner provisions a **cost-free** ServiceNow **Developer Program** / personal developer-style instance — **not** a paid sandbox SKU. Until that instance exists, connector validation may be **queued** — track owner / engineering status in **[PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md)**; **[V1_SCOPE.md](V1_SCOPE.md)** §2.13 stays authoritative unless explicitly amended there.
 
-- **ServiceNow** — Incident creation from Authority-shaped findings (`incident` table) with correlation back-link; basic-auth patterns. **`cmdb_ci`** — when set — uses the **`cmdb_ci_appl`** class: match **`SystemName`** to CMDB **`name`**, set **`cmdb_ci`** to the matched **`sys_id`**, or leave empty when no match; optional tenant flag **`ServiceNow:AutoCreateCmdbCi`** (default **`false`**) may create an Application CI when no match exists. **Two-way status sync** (ServiceNow → ArchLucid finding state) is **committed for V1 GA** — status-only sync using a configurable per-tenant mapping (default: `New`/`In Progress` → `Open`/`InProgress`; `Resolved`/`Closed` → `Resolved`); OAuth 2.0 is a follow-on (*Resolved 2026-05-06 (ITSM bidirectional sync — both connectors)* in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md)).
-- **Jira** — Issue creation from findings with correlation back-link; **bi-directional status sync** (Jira → ArchLucid finding state) is **committed for V1 GA** using a configurable per-tenant mapping (default: `To Do` → `Open`; `In Progress` → `InProgress`; `Done` → `Resolved`); OAuth 2.0 / API token auth (*Resolved 2026-05-06 (ITSM bidirectional sync — both connectors)*).
+- **ServiceNow** — Incident creation from Authority-shaped findings (`incident` table) with correlation back-link; basic-auth patterns. **`cmdb_ci`** — when set — uses the **`cmdb_ci_appl`** class: match **`SystemName`** to CMDB **`name`**, set **`cmdb_ci`** to the matched **`sys_id`**, or leave empty when no match; optional tenant flag **`ServiceNow:AutoCreateCmdbCi`** (default **`false`**) may create an Application CI when no match exists. **Two-way status sync** (ServiceNow → ArchLucid finding state) is **committed for V1.1** — status-only sync using a configurable per-tenant mapping (default: `New`/`In Progress` → `Open`/`InProgress`; `Resolved`/`Closed` → `Resolved`); OAuth 2.0 is a follow-on (*Resolved 2026-05-06 (ITSM bidirectional sync — both connectors)* in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) — **delivery window** per *Resolved 2026-05-18*).
+- **Jira** — Issue creation from findings with correlation back-link; **bi-directional status sync** (Jira → ArchLucid finding state) is **committed for V1.1** using a configurable per-tenant mapping (default: `To Do` → `Open`; `In Progress` → `InProgress`; `Done` → `Resolved`); OAuth 2.0 / API token auth (*Resolved 2026-05-06 (ITSM bidirectional sync — both connectors)* — **delivery window** per *Resolved 2026-05-18*).
 
 **First-party outbound create (minimal slice)** — operators with **ExecuteAuthority** call **`POST /v1/integrations/itsm/outbound/issues`** with `{ "provider": "Jira" | "ServiceNow", "findingId": "…" }` to open a ticket from the persisted **Authority-shaped** finding payload. Deployment defaults live under **`Integrations:ItsmOutbound`** in configuration; optional per-tenant overrides (e.g. Jira project key override, **`JiraSendInfoSeverity`**, issue-type-by-severity JSON, **`ServiceNowAutoCreateCmdbCi`**) are stored in **`dbo.TenantItsmOutboundSettings`**. Successful creates persist **`dbo.ItsmFindingCorrelations`** so inbound webhooks can sync status. Durable audit event types include **`Integration.JiraIssueCreateSucceeded`**, **`Integration.JiraIssueCreateSkipped`**, **`Integration.JiraIssueCreateFailed`**, and the ServiceNow **`Integration.ServiceNowIncidentCreate*`** counterparts.
 
-Until these connectors are enabled in a given environment, customers may still use **CloudEvents webhooks**, **REST**, and **customer-operated** recipes under [`docs/integrations/recipes/`](../integrations/recipes/README.md).
+Until **V1.1** surfaces in **§2.8** (integration events), **§2.14** (Teams / Slack), and **§2.13–§2.15** (first-party ITSM / docs) are available in a given environment, the **V1 GA** buyer contract for comparable automation remains **REST**, **CLI**, **operator UI**, **SCIM**, **Azure DevOps** / **GitHub** CI decoration, and other **V1 GA** paths enumerated in **§2** — not **webhooks**, **Teams**, or **recipe** bridges.
 
-#### 2.14 Slack (first-party chat-ops)
+#### 2.14 Microsoft Teams and Slack (first-party chat-ops)
 
-**In scope for V1 GA** — first-party **Slack** outbound notification sink with **parity** to the shipped **Microsoft Teams** chat-ops path: same per-tenant **`EnabledTriggersJson`** opt-in matrix (and canonical trigger / event-type catalog), secret material in **Azure Key Vault** with only a **secret-name** reference persisted in SQL, and the same Authority-shaped payloads used by existing webhook delivery (`DigestSlackWebhookDeliveryChannel`, `AlertSlackWebhookDeliveryChannel`, alert routing). **Slack App Directory** listing, OAuth-based Slack app installation UX, and **in-Slack interactive actions** (acknowledge / approve) are **not** committed for V1 unless an explicit owner decision adds them.
+**In scope for V1.1** — **Microsoft Teams** incoming-webhook notification delivery for the canonical integration-event catalog (per-tenant connections, **Azure Key Vault** secret-name references, **`EnabledTriggersJson`**, Authority-shaped payloads, optional Logic Apps fan-out per deployment — [`MICROSOFT_TEAMS_NOTIFICATIONS.md`](../integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md)) **and** first-party **Slack** outbound notification sink with **parity** to the Teams path: same per-tenant **`EnabledTriggersJson`** opt-in matrix (and canonical trigger / event-type catalog), secret material in **Azure Key Vault** with only a **secret-name** reference persisted in SQL, and the same Authority-shaped payloads used by existing webhook delivery (`DigestSlackWebhookDeliveryChannel`, `AlertSlackWebhookDeliveryChannel`, alert routing). **V1 GA** does **not** treat Teams or Slack as **buyer-contract** chat-ops commitments. **Slack App Directory** listing, OAuth-based Slack app installation UX, and **in-Slack interactive actions** (acknowledge / approve) are **not** committed for **V1.1** unless an explicit owner decision adds them.
 
 #### 2.15 Confluence (first-party documentation publish)
 
-**In scope for V1 GA** — first-party **Confluence Cloud** connector to **publish** architecture findings or run summaries as pages in a customer space. **Minimum viable shape** (per historical Improvement 3 design intent, now promoted from V1.1 to V1): **one-way** publish to a **single fixed `Confluence:DefaultSpaceKey`** per tenant configuration (**3a** — no multi-space or dynamic routing in the initial shipped shape unless an owner decision extends it). **Authentication** (**3b**): **Confluence API token** with **basic auth** for the V1 MVP; **OAuth 2.0** is a **follow-on** within the V1 delivery window if a buyer requires it. **Implementation sequencing:** Same as §2.13 — **ServiceNow** first; then **Confluence** **before** **Jira** inside the **paired Atlassian** workstream (*Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)* in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)). Atlassian Marketplace listing **may trail** a usable connector.
+**In scope for V1.1** — first-party **Confluence Cloud** connector to **publish** architecture findings or **review** summaries as pages in a customer space. **Minimum viable shape:** **one-way** publish to a **single fixed `Confluence:DefaultSpaceKey`** per tenant configuration (**3a** — no multi-space or dynamic routing in the initial shipped shape unless an owner decision extends it). **Authentication** (**3b**): **Confluence API token** with **basic auth** for the **V1.1** MVP; **OAuth 2.0** is a **follow-on** within the **V1.1** delivery window if a buyer requires it. **Implementation sequencing:** Same as §2.13 — **ServiceNow** first; then **Confluence** **before** **Jira** inside the **paired Atlassian** workstream (*Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)* in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)). Atlassian Marketplace listing **may trail** a usable connector.
 
 #### 2.16 Customer-controlled Azure extractor (PowerShell + ZIP) and ingest
 
@@ -165,7 +166,7 @@ Until these connectors are enabled in a given environment, customers may still u
 
 - **`Get-ArchLucidAzurePackage.ps1`** — signed, auditable PowerShell script customers download, review, and run inside their own Azure environment. Collects ARM resource inventory (`-SubscriptionId`, optional `-ResourceGroupScope`), and optionally Azure Cost Management actual/amortized costs, Advisor cost recommendations, and orphan candidates (`-IncludeCost` switch). Appends public Azure Retail Prices API rows for collected SKUs for Retail-rate scenario citation. Never collects secrets, Key Vault contents, or certificate private keys.
 - **Schema-versioned ZIP output** — `manifest.json` (schema version, script version, collection timestamp UTC, subscription id, switches used), `resources.json`, `cost-actual.json` / `cost-amortized.json` / `advisor-cost.json` / `orphan-candidates.json` (when cost enabled), `retail-prices.json`, `README.txt`.
-- **Ingest endpoint** — `POST /v1/azure-extractor/upload`: validates schema version (rejects unknowns), stores the package, associates it with an architecture review run, emits durable audit events. Requires ExecuteAuthority.
+- **Ingest endpoint** — `POST /v1/azure-extractor/upload`: validates schema version (rejects unknowns), stores the package, associates it with a **review** (`runId` in API/SQL), emits durable audit events. Requires ExecuteAuthority.
 - **Citation contract** — cost or savings lines in the evidence bundle that derive from an uploaded ZIP must cite the `manifest.json` `collectionTimestamp` and schema version as the proof point, satisfying the exact + citation-backed cost doctrine.
 - **Access posture** (document in trust center and extractor README):
   - **Tier 1 (default):** No vendor access to customer cloud whatsoever.
@@ -190,6 +191,29 @@ Until these connectors are enabled in a given environment, customers may still u
 - **What this is:** guides and clarity — walkthrough quality bar consistent with other engineering-facing docs in `docs/library/` (exact filename is owner-chosen; link from [Navigation.mdc](../../.cursor/rules/Navigation.mdc) / onboarding spine when published).
 - **What this is not:** no **mandatory** third-party plugin SDK, marketplace listing, or new public HTTP contracts unless separately promoted (**speculative ecosystem** row in §3 below remains unchanged).
 
+#### 2.19 Multi-cloud architecture **analysis** (AWS and GCP targets; Azure-hosted product)
+
+**In scope for V1.1** — ArchLucid remains **hosted on Azure** per [ADR 0020](../architecture/adrs/0020-azure-primary-platform-permanent.md); **V1.1** adds the ability to **analyze customer architectures whose primary target cloud is AWS or GCP**, not only Azure.
+
+**Minimum V1.1 contract (Phases 1–2 in [MULTI_CLOUD_ANALYSIS_V1_1.md](MULTI_CLOUD_ANALYSIS_V1_1.md)):**
+
+- **`CloudProvider.Aws`** and **`CloudProvider.Gcp`** on **`ArchitectureRequest`** (API, CLI, operator UI when the baseline wizard exposes provider selection).
+- **Terraform ingestion** for AWS/GCP declarations (`simple-terraform`, `terraform-show-json`) with resource classification into existing **`CanonicalObject`** types (`TopologyResource`, `SecurityBaseline`, `PolicyControl`).
+- **Illustrative infrastructure cost** lines and human-readable service labels for AWS/GCP platforms (no false “Azure Retail” attribution when the request target is Aws/Gcp).
+
+**Full V1.1 contract (Phases 3–4):**
+
+- **Customer-controlled inventory ZIPs** for AWS and GCP (read-only scripts in customer accounts; upload + audit parity with **§2.16** Azure extractor posture — Tier 1 default: **no** ArchLucid credentials in customer AWS/GCP).
+- **Live public pricing** enrichment where AWS Price List / GCP Cloud Billing Catalog probes succeed, with illustrative fallback rows when they do not.
+- **Cloud-aware agent context** so findings and cost narratives reference the **target** provider when `CloudProvider` is Aws or Gcp.
+
+**Explicit non-goals for V1.1 (unchanged hosting posture):**
+
+- **Not in V1.1:** production hosting of ArchLucid on AWS or GCP; Entra ID replacement; Service Bus / Azure SQL / Blob / Azure AI Search replacement for the **product** control plane.
+- **Not in V1.1 unless separately promoted:** ArchLucid-held live inventory connectors (long-lived IAM into customer AWS/GCP); single review merging Azure + AWS + GCP graphs; AWS/GCP-native Well-Architected certification parity.
+
+**V1 GA posture:** **Azure-only** `CloudProvider` enum value and Azure-first extractor (**§2.16**) remain the shipped contract. AWS/GCP-primary buyers are a **V1.1** fit, not a V1 GA gap for headline readiness assessments once **§2.19** is authoritative (*owner scope 2026-05-19*).
+
 ---
 
 ## 3. Out of scope for V1 (explicit non-goals or V1.1+)
@@ -203,6 +227,7 @@ Until these connectors are enabled in a given environment, customers may still u
 | **VS Code (or IDE) shell integration** | No committed product surface for a VS Code–native operator experience; CLI and HTTP remain the primary integration points outside the web UI. |
 | **Multi-region active/active product guarantees** | Documentation may describe **tier targets** and failover runbooks ([RTO_RPO_TARGETS.md](RTO_RPO_TARGETS.md)); V1 does not promise a fully specified multi-region SaaS topology out of the box. |
 | **Speculative ecosystem** | Marketplace plugins, third-party agent stores, and similar ecosystem features are **not** V1 commitments. **MCP** is **not** V1; it is explicitly a **V1.1** membrane surface — see the MCP row at the end of this table and [V1_DEFERRED.md §6d](V1_DEFERRED.md). |
+| **Microsoft Teams incoming webhooks**, **CloudEvents webhook subscriptions**, and **documented customer-operated bridges** under [`docs/integrations/recipes/`](../integrations/recipes/README.md) **as buyer-contract integration paths** | **V1.1** (owner scope clarification **2026-05-18**). **V1 GA** integration **commitments** for ITSM- / docs- / chat- / event-driven workflows are **REST**, **CLI**, **operator UI**, **SCIM**, **Azure DevOps** / **GitHub** surfaces (**§2** Pilot/Operate + **§2.16**), not Teams/webhook/recipe obligations. Implementation may ship earlier; **support / SLA / procurement copy** for those channels follows **§2.8** and **§2.14**. |
 | **Full UI E2E against every live API configuration** | Playwright operator smoke may use **deterministic mocks**; passing it does not replace SQL-backed API validation ([RELEASE_SMOKE.md](RELEASE_SMOKE.md)). |
 | **Net-new public HTTP routes that extend only the Coordinator repository family** | After [ADR 0021](../architecture/adrs/0021-coordinator-pipeline-strangler-plan.md) acceptance, new externally-visible surfaces must converge on Authority semantics (or go through the unified read façade) — do not add coordinator-only endpoints without an explicit superseding ADR. |
 | **Commerce un-hold (Stripe live keys flipped + Marketplace listing published + `signup.archlucid.net` DNS cutover)** | **V1.1 candidate** (Resolved 2026-04-23). Not in V1: no live Stripe keys in production, no `Published` Marketplace SaaS offer, no production DNS cutover for `signup.archlucid.net`. **What is in V1:** all wiring (`BillingStripeWebhookController`, `BillingMarketplaceWebhookController`, `BillingCheckoutController`, `BillingProductionSafetyRules`, `[RequiresCommercialTenantTier]` 402 filter, Marketplace alignment doc, `/pricing` page) plus the trial funnel TEST-mode end-to-end on staging (Improvement 2 in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](../archive/quality/2026-04-21-assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) §3). The V1 commercial motion is **sales-led**: `/pricing` displays numbers, `ORDER_FORM_TEMPLATE.md` drives quote-to-cash. The Stripe-live-keys flip and the Marketplace `Published` state are both **owner-only** (Partner Center seller verification, tax profile, and payout account cannot be filed by the assistant). Tracked under V1.1 in [V1_DEFERRED.md §6b](V1_DEFERRED.md). |
@@ -211,9 +236,10 @@ Until these connectors are enabled in a given environment, customers may still u
 | **Third-party pen-test summary publication (vendor redacted summary / Trust Center row)** | **V2 candidate** (owner 2026-05-01; supersedes prior V1.1 Aeronova framing). Not in V1: no **external** third-party pen test, no assessor redacted summary row tied to a vendor engagement. **What is in V1:** owner-conducted penetration-style exercise ([`2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)), self-assessment and CI security gates, SoW + redacted-summary **templates** at [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md) and [`2026-Q2-REDACTED-SUMMARY.md`](../security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) reserved for a future **V2** vendor cycle. **Independent quality assessments must not** penalize V1 readiness for lacking third-party pen-test publication. Tracked under **V2** in [V1_DEFERRED.md §6c](V1_DEFERRED.md). |
 | **PGP key drop for `security@archlucid.net` (coordinated-disclosure key)** | **V1.1 candidate** (Resolved 2026-04-23, sixth pass). Not in V1: no public PGP key block at `archlucid-ui/public/.well-known/pgp-key.txt`, no marketing `/security` page key reference, no `SECURITY.md` key-fingerprint update. **What is in V1:** the recipe at [`docs/security/PGP_KEY_GENERATION_RECIPE.md`](../security/PGP_KEY_GENERATION_RECIPE.md) and CI guard that turns green automatically when the key file appears. Key generation, custodian naming, and the same-day single PR that drops the key + updates `SECURITY.md` + updates the marketing `/security` page are all **V1.1**, gated on `archlucid.net` domain acquisition + `security@archlucid.net` mailbox provisioning. Tracked under V1.1 in [V1_DEFERRED.md §6c](V1_DEFERRED.md). |
 | **Model Context Protocol (MCP) server — tenant-scoped agent tool surface** | **V1.1 candidate** (scope documentation 2026-04-24; **V1.1 slice pinned 2026-05-15** in [`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`](MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md) **§5.1**). Not in V1: no first-party MCP host in the shipping solution, no MCP SDK as a dependency of core libraries (`ArchLucid.Application` and below). **What is in V1:** REST API, CLI, and operator UI remain the supported integration paths for humans and automation. **In scope for V1.1:** a **thin MCP membrane** (dedicated façade project) exposing **exactly seven** **read-only** tools per **§5.1**; **Streamable HTTP** for production (private endpoint); optional **`stdio`** for local/self-hosted non-SLA use; same **RLS / `SESSION_CONTEXT`** guarantees as HTTP reads; typed **audit** events; **quota / circuit-breaker / observability** parity with the existing LLM completion pipeline; **no SMB/445** transport. Product intent, tool inventory, and non-goals (e.g. outbound ArchLucid-as-MCP-client to arbitrary third-party servers deferred past V1.1 unless separately promoted) are in [`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`](MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md) and summarized in [V1_DEFERRED.md §6d](V1_DEFERRED.md). |
-| **Hosted trial tenants — documented `V1` → `V1.1` migration path** | **V1.1 candidate** (product note 2026-05-10). **Not required for `(A)` V1 headline readiness:** a consolidated tenant-admin / buyer-visible narrative for how **existing hosted trial tenants** should expect to cross the **`V1` → `V1.1`** boundary does **not** gate **V1 GA**. **What is in V1:** vendor-applied DbUp-forward migrations within the **`V1` contract**, `CHANGELOG` / **`BREAKING_CHANGES`** discipline, and incremental runbooks. **`V1.1`** documents the migration outlook as described in [V1_DEFERRED.md §6i](V1_DEFERRED.md). **Independent quality assessments must not** treat absence of this guide as a **`(A)` V1 defect** against Evolvability, Documentation, Adoption Friction, or related pillars — it is **`V1.1` documentation scope**, not latent **`V1` debt**. **Owner scope clarification 2026-05-15** (`docs/assessments/LATEST.md` **P5**): artifact is **explicitly excluded from V1 GA** and scheduled with **V1.1** rollout documentation. |
+| **Hosted trial tenants — documented `V1` → `V1.1` migration path** | **V1.1 candidate** (product note 2026-05-10). **Not required for `(A)` V1 headline readiness:** a consolidated tenant-admin / buyer-visible narrative for how **existing hosted trial tenants** should expect to cross the **`V1` → `V1.1`** boundary does **not** gate **V1 GA**. **What is in V1:** vendor-applied DbUp-forward migrations within the **`V1` contract**, `CHANGELOG` / **`BREAKING_CHANGES`** discipline, and incremental runbooks. **`V1.1`** documents the migration outlook as described in [V1_DEFERRED.md §6i](V1_DEFERRED.md). **Independent quality assessments must not** treat absence of this guide as a **`(A)` V1 defect** against Evolvability, Documentation, Adoption Friction, or related pillars — it is **`V1.1` documentation scope**, not latent **`V1` debt**. **Owner scope clarification 2026-05-15:** artifact is **explicitly excluded from V1 GA** and scheduled with **V1.1** rollout documentation (see **[PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md)** when pinned).
 | **Distributed cache — Redis baseline for scaled fleets + distributed graph projection cache** | **V2 candidate** (engineering note 2026-05-06). **What is in V1:** Optional Redis via **`HotPathCache`** (**`Auto`** picks Redis when replica count > 1 and connection string is set), optional **`LlmCompletionCache:Provider=Distributed`**, and in-process **`GraphSnapshotProjectionMemoryCache`**. **What is not a V1 contract:** mandatory Azure Cache for Redis in single-replica setups, IaC/private-endpoint baseline as a GA gate, or a distributed **`IGraphSnapshotProjectionCache`**. **V2 enhancement:** elevated Redis posture for multi-replica production defaults, Terraform/runbook parity, optional distributed graph projection implementation, and operational hardening — see [V1_DEFERRED.md §6e](V1_DEFERRED.md). |
 | **Azure Container Apps Jobs + Durable Task Framework for worker orchestration** | **V2 backlog candidate, situational** (engineering note 2026-05-07). **What is in V1:** **`ArchLucid.Worker`** and **`AuthorityRunOrchestrator`** own long-running authority pipelines with retry, queuing, and state transitions. **What is not a V1 contract:** moving orchestration to **Durable Task Framework** (library orchestration with checkpoint/replay) or offloading bursty one-shot work to **Azure Container Apps Jobs**. **V2:** reconsider only if pipeline complexity (multi-step agents, approval/time-bound workflows, compensation) clearly outgrows the current pattern — see [V1_DEFERRED.md §6f](V1_DEFERRED.md). |
+| **AWS / GCP architecture analysis** (target-cloud reviews while product stays Azure-hosted) | **V1.1** ([V1_SCOPE.md](V1_SCOPE.md) **§2.19**, [MULTI_CLOUD_ANALYSIS_V1_1.md](MULTI_CLOUD_ANALYSIS_V1_1.md), [V1_DEFERRED.md §6n](V1_DEFERRED.md)). **V1:** `CloudProvider` is Azure-only; competitive docs may note AWS/GCP buyer friction — **do not** score **`(A)` V1 GA** solely for inability to analyze non-Azure target architectures. **V1.1:** committed analyze path (Terraform + inventory ZIP + costing + cloud-aware agents). **Still out of V1.1:** re-hosting ArchLucid on AWS/GCP ([ADR 0020](../architecture/adrs/0020-azure-primary-platform-permanent.md)). |
 
 ---
 
@@ -225,10 +251,10 @@ The **Pilot** path is the minimum journey every pilot must complete. It maps 1:1
 
 1. **Configure** storage (typically **Sql**), connection string, and auth for the environment ([PILOT_GUIDE.md](PILOT_GUIDE.md)).
 2. **Start** the API; confirm **live/ready** and note **version** for any ticket.
-3. **Create a run** from a structured request (`POST /v1/architecture/request`) — use the seven-step wizard in the operator UI or the CLI.
-4. **Execute** the run and wait until it is ready to commit (watch the pipeline timeline in the UI or poll the API).
+3. **Create a review** from a structured request (`POST /v1/architecture/request`) — use the seven-step wizard in the operator UI or the CLI.
+4. **Execute** the **review** and wait until it is ready to commit (watch the pipeline timeline in the UI or poll the API).
 5. **Commit** (`POST /v1/architecture/run/{runId}/commit`) to produce a **golden manifest** and **artifacts**.
-6. **Review** the manifest and artifacts in the operator UI (run detail → Artifacts table) or via API/CLI ([operator-shell.md](operator-shell.md)).
+6. **Review** the manifest and artifacts in the operator UI (**review** detail → Artifacts table) or via API/CLI ([operator-shell.md](operator-shell.md)).
 
 This is the complete first-pilot deliverable. Nothing beyond step 6 is required to call a pilot successful.
 
@@ -238,12 +264,12 @@ This is the complete first-pilot deliverable. Nothing beyond step 6 is required 
 
 #### Analysis (Show more links)
 
-Enable these once you have at least one committed run. In the operator UI, click **Show more links** in the sidebar.
+Enable these once you have at least one committed **review**. In the operator UI, click **Show more links** in the sidebar.
 
-- **Compare** two runs (`/compare`) — structured manifest deltas + legacy diff.
-- **Replay** a run (`/replay`) — re-validate the authority chain and surface drift flags.
-- **Graph** (`/graph`) — visual provenance or architecture graph for a single run ID.
-- **Export** — download bundle ZIP and run-export ZIP from run detail → Artifacts.
+- **Compare** two **reviews** (`/compare`) — structured manifest deltas + legacy diff.
+- **Replay** a **review** (`/replay`) — re-validate the authority chain and surface drift flags.
+- **Graph** (`/graph`) — visual provenance or architecture graph for a single **`runId`**.
+- **Export** — download bundle ZIP and run-export ZIP from **review** detail → Artifacts.
 
 Use these when the next question is analytical rather than operational: what changed, why it changed, or how to inspect the result more deeply.
 
@@ -269,7 +295,7 @@ These are **practical gates** already encoded or described in-repo—not an exha
 |-----------|------------------|
 | **Solution builds** in Release | CI and [BUILD.md](BUILD.md) |
 | **Core-tier tests** pass for the agreed filter (e.g. fast core / `Suite=Core` conventions) | [TEST_STRUCTURE.md](TEST_STRUCTURE.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
-| **API starts** against Sql configuration; **health/live** and **health/ready** succeed when dependencies are up | [README.md](../../docs/REPOSITORY_README.md), [PILOT_GUIDE.md](PILOT_GUIDE.md) |
+| **API starts** against Sql configuration; **health/live** and **health/ready** succeed when dependencies are up | [README.md](../REPOSITORY_README.md), [PILOT_GUIDE.md](PILOT_GUIDE.md) |
 | **One scripted end-to-end run** produces a committed manifest and **at least one** artifact descriptor | `scripts/release-smoke.ps1` expectations ([RELEASE_SMOKE.md](RELEASE_SMOKE.md)) |
 | **Operator UI** builds when Node is in use; Vitest/build steps as per readiness scripts | [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [archlucid-ui/README.md](../../archlucid-ui/README.md) |
 | **Version and diagnostics** available for handoff (`GET /version`, CLI `doctor`, support bundle discipline) | [PILOT_GUIDE.md](PILOT_GUIDE.md) |
@@ -299,4 +325,4 @@ These are **practical gates** already encoded or described in-repo—not an exha
 
 ---
 
-**Change control:** When V1 boundaries shift, update **this file** first, then align [PILOT_GUIDE.md](PILOT_GUIDE.md) and [README.md](../../docs/REPOSITORY_README.md) so pilots do not see conflicting messages.
+**Change control:** When V1 boundaries shift, update **this file** first, then align [PILOT_GUIDE.md](PILOT_GUIDE.md) and [README.md](../REPOSITORY_README.md) so pilots do not see conflicting messages.

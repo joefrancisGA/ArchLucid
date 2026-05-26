@@ -31,7 +31,8 @@ ArchLucid stores personal data in the following locations. "Personal data" means
 | `dbo.AuditEvents` | `ActorUserId`, `ActorUserName` | Append-only audit trail for governance, compliance, and forensic review | Operator-managed (see [AUDIT_RETENTION_POLICY.md](../library/AUDIT_RETENTION_POLICY.md)); no automatic expiry |
 | `dbo.TrialIdentityUsers` | `Email`, `DisplayName`, `UserId` | Local identity for trial/self-service users (when trial auth is configured) | Tenant lifecycle; purged on tenant hard-delete |
 | `dbo.TenantRegistrations` | `ContactEmail`, `ContactName`, `OrganizationName` | Tenant onboarding and billing contact | Retained for commercial/legal record; removable on request |
-| `dbo.MarketingPricingQuoteRequests` | `Email`, `Name`, `OrganizationName` | Pricing quote requests from the public marketing page | Sales follow-up; removable on request |
+| `dbo.MarketingPricingQuoteRequests` | `WorkEmail`, `CompanyName` | Pricing quote requests from the public marketing page | Sales follow-up; removable on request |
+| `dbo.MarketingEarlyAccessRequests` | `Email`, `CompanyName`, `Role` | Early-access / waitlist from the public `/welcome` hero | Sales follow-up; removable on request |
 | `dbo.SentEmails` | `RecipientEmail` | Email delivery log for trial lifecycle and notifications | Operator-managed retention |
 | `dbo.ScimUsers` | `UserName`, `DisplayName`, `ExternalId`, `Emails` (JSON) | SCIM 2.0 inbound provisioning from external IdP | Synced with IdP; removable on SCIM DELETE |
 | `dbo.TenantNotificationChannelPreferences` | `Email` (where channel is email) | Per-tenant notification routing preferences | Tenant lifecycle |

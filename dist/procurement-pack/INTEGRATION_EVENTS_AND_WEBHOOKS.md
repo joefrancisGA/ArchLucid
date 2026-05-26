@@ -1,4 +1,4 @@
-> **Scope:** Integration events and webhook interoperability - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Integration events and webhook interoperability - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -66,7 +66,7 @@ Events using the outbox today:
 
 When `TransactionalOutboxEnabled` is **false**, the same call sites use **best-effort** `IIntegrationEventPublisher.PublishAsync` (failures are logged; domain commits are not rolled back).
 
-**Operations:** pending and dead-letter depth surface in metrics; admin APIs remain `GET /admin/integration-outbox/dead-letters` and `POST /admin/integration-outbox/retry` (see API OpenAPI).
+**Operations:** pending and dead-letter depth surface in metrics; operator UI at **`/operate/integration-events/dlq`** lists dead letters with tenant, age, single/bulk retry, and suppress; admin APIs: `GET /admin/integration-outbox/dead-letters`, `POST /admin/integration-outbox/dead-letters/{outboxId}/retry`, `POST /admin/integration-outbox/dead-letters/{outboxId}/suppress`, and bulk `POST /admin/integrations/outbox/retry-dead-letter` (see API OpenAPI).
 
 ### Worker subscription consumer
 

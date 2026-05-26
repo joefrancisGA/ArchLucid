@@ -1,4 +1,4 @@
-> **Scope:** API contracts (notable behaviors) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — API contracts (notable behaviors) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -19,7 +19,7 @@
 - **Headers:** When **`ApiDeprecation:Enabled`** is true, successful responses may include **`Deprecation`** and **`Sunset`** (and optional **`Link`** with relation `deprecation`) per product configuration (`ApiDeprecation:*` in appsettings).
 - **Sunset:** Treat **`Sunset`** as the earliest date after which the version may be removed; plan client upgrades before that date.
 - **Breaking changes:** Ship breaking changes only in a **new major** API version (new path prefix, e.g. `/v2/...`), keep **`v1`** stable for the published sunset window, and document migration in release notes.
-- **Non-breaking:** Minor additive changes (new optional fields, new endpoints under the same major version) do not require a new major version; prefer OpenAPI diff + contract tests to catch accidental breaks.
+- **Non-breaking:** Minor additive changes (new optional fields, new endpoints under the same major version) do not require a new major version; regenerate and commit the OpenAPI snapshot when the HTTP contract changes so CI catches accidental breaks.
 
 ## Contract artifacts
 
@@ -29,14 +29,26 @@
 
 | Artifact | Location | Purpose |
 |----------|----------|-------|
-| OpenAPI (Microsoft document) | Served at **`/openapi/v1.json`**; snapshot in **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** | **Canonical.** CI fails on unexpected HTTP contract drift (`OpenApiContractSnapshotTests`). Regenerate: `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests`. Use for **APIM import**, **OpenAPI Generator**, and downstream SDK artifacts. |
+| OpenAPI (Microsoft document) | Served at **`/openapi/v1.json`**; snapshot in **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** | **Canonical.** CI requires an exact canonical match (`OpenApiContractSnapshotTests`). Regenerate: `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests`. Use for **APIM import**, **OpenAPI Generator**, and downstream SDK artifacts. |
 | OpenAPI (Swashbuckle) | **`/swagger/v1/swagger.json`** | **Interactive explorer only** (Scalar); not the authoritative import surface for APIM or client SDKs. |
 | AsyncAPI (webhooks) | **`docs/contracts/archlucid-asyncapi-2.6.yaml`** | Documents **outbound** alert/digest webhook JSON and optional HMAC header. |
 | Bruno collection | **`contracts/bruno/`** | Manual smoke requests (health, OpenAPI, admin diagnostics); set **`local`** environment `baseUrl` and **`apiKey`** (or switch auth to JWT in Bruno for Entra). |
 
 **Architecture request body (`POST /v1/architecture/request`):** Field-level summary and integrator notes live in **[`ARCHITECTURE_REQUEST_WIRE_FORMAT.md`](ARCHITECTURE_REQUEST_WIRE_FORMAT.md)** (canonical shapes remain **`GET /openapi/v1.json`** and **`ArchLucid.Contracts.Requests.ArchitectureRequest`**).
 
-**Operator narrative:** `docs/ONBOARDING_HAPPY_PATH.md` (request → commit → retrieval). **Consistency guarantees:** `docs/DATA_CONSISTENCY_MATRIX.md`. **Admin / runbooks:** `docs/OPERATIONS_ADMIN.md`, **`docs/OPERATIONS_LLM_QUOTA.md`** (token budgets, quotas, hosted LLM posture). **ADRs:** `docs/architecture/adrs/README.md`.
+**Operator narrative:** `docs/library/LIVE_E2E_HAPPY_PATH.md` (HTTP request → commit → retrieval parity); **`docs/library/FIRST_RUN_WALKTHROUGH.md`** for the operator wizard surface.
+
+## Run DTO shapes under `/v1`
+
+Two JSON shapes represent an architecture run on different routes. Integrators must not assume one schema applies everywhere.
+
+| Route family | Response shape | Notes |
+|--------------|----------------|-------|
+| `GET /v1/authority/runs/{runId}` | `RunDetailDto.run` → **`RunRecord`** | Persistence/read model with snapshot id fields (`graphSnapshotId`, …). OpenAPI marks `runId`, `projectId`, `createdUtc`, and `structuralExecutionMode` as required. |
+| `POST /v1/architecture/request`, execute/commit/detail paths | **`ArchitectureRun`** | Lifecycle DTO with required `requestId`, `status`, `structuralExecutionMode`, and `createdUtc`. |
+| Run list / summary cards | **`RunSummaryResponse`** | Lightweight flags (`hasGraphSnapshot`, `hasGovernanceWarnings`, …) without snapshot UUID columns. |
+
+When parsing a create-run response, use **`ArchitectureRun`**. When loading authority detail, use **`RunRecord`**. Mapping between them is server-side only; clients should not cast one into the other.
 
 ## LLM cost signals — wire contract vs vendor economics
 
@@ -136,11 +148,14 @@ CLI: `archlucid first-value-report <runId> [--save]` · `archlucid reference-evi
 
 **Admin reference bundle (ZIP):** `GET /v1/admin/tenants/{tenantId}/reference-evidence?includeDemo=false` — **AdminAuthority**. Returns **`application/zip`** (`pilot-run-deltas.json`, first-value Markdown/PDF when build succeeds, sponsor one-pager when Standard-tier path succeeds, `README.txt`) scoped to the tenant’s latest committed non-demo run unless `includeDemo=true`. **404** when no suitable run exists. CLI: `archlucid reference-evidence --tenant <tenantId> [--out <dir>] [--include-demo]`.
 
+**Admin marketing pricing quote aging:** `GET /v1/admin/marketing/pricing-quote-aging` — **AdminAuthority**. Returns **`MarketingPricingQuoteAgingResponse`** — open rows from **`dbo.MarketingPricingQuoteRequestsAging`** with **`warnCount`** / **`breachCount`** aggregates for operator triage (Improvement #6). Operator UI: **`/admin/pricing-quote-aging`**. Runbook: **`docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`**.
+
 ## Tenant self-service (`/v1/tenant`)
 
 | Method | Path | Response | Notes |
 |--------|------|----------|-------|
 | `GET` | **`/v1/tenant/trial-status`** | **`TenantTrialStatusResponse`** | **ReadAuthority**. Trial window metadata plus optional baseline review-cycle fields. **`firstCommitUtc`** (`DateTimeOffset?`, JSON camelCase): UTC of the tenant’s **first committed golden manifest** when known (`dbo.Tenants.TrialFirstManifestCommittedUtc`, set on first authority commit for **all** tiers). Present on both the **Status = "None"** (non-trial / blank `TrialStatus`) and active-trial branches when the column is set — drives the sponsor banner day badge in the operator UI. |
+| `GET` | **`/v1/tenant/usage-status`** | **`TenantUsageStatusResponse`** | **ReadAuthority**. Paid-tenant seat/workspace headroom for Team→Professional expansion nudges (Improvement #5): **`commercialTier`** (`Team` \| `Professional` \| `Enterprise`), **`isTrial`**, usage vs packaging caps. Active trials return **`isTrial: true`** so the UI defers to **`TrialUsageUpgradeNudge`**. |
 
 Optional operator telemetry (same policy: **ReadAuthority**): **`POST /v1/diagnostics/sponsor-banner-first-commit-badge`** with body **`{ "daysSinceFirstCommitBucket": "0" \| "1-3" \| "4-7" \| "8-30" \| "30+" }`** — increments **`archlucid.ui.sponsor_banner.first_commit_badge_rendered`** with **`tenant_id`** from ambient scope (see **`docs/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`**).
 
@@ -329,8 +344,14 @@ Governance is packaged as **versioned, assignable** bundles. Pack **content** is
 | `GET` | `/v1/policy-packs/effective-content` | **Merged** document: union of IDs (distinct), **advisoryDefaults** / **metadata** last-wins per key. |
 | `GET` | `/v1/policy-packs/{policyPackId}/explain` | Returns **`text/markdown`**: plain-English summary of the pack’s **current** version **`ContentJson`** (LLM-assisted; **advisory only**). **ReadAuthority**; **`expensive`** rate limit. **404** when the pack is out of scope, or when the current version has no content. |
 | `POST` | `/v1/policy-packs/simulate` | Typed façade over **`POST /v1/governance/policy-packs/dry-run`**: body **`runId`** + **`content`** (**`PolicyPackContentDocument`**) plus optional gate overrides. **ReadAuthority**; **`governancePolicyPackDryRun`** rate limit. **404** when the run is missing in scope. |
+| `GET` | `/v1/policy-packs/catalog` | Lists **promoted** platform catalog entries (snapshot metadata). **ReadAuthority**. |
+| `GET` | `/v1/policy-packs/catalog/{policyPackCatalogEntryId}` | One promoted entry including **snapshot JSON** for cloning. **ReadAuthority**. **404** when missing or not promoted. |
+| `POST` | `/v1/policy-packs/catalog/promote` | Snapshots **`sourcePolicyPackId`** at **`version`** from the **caller's scope** into **`dbo.PolicyPackCatalogEntry`** and marks it promoted. **AdminAuthority**. **404** when the pack/version is not in scope or has no content. Emits **`PolicyPackCatalogPromoted`**. |
+| `POST` | `/v1/policy-packs/catalog/demote` | Sets **`IsPromoted`** false (row retained; hidden from catalog list). Body **`policyPackCatalogEntryId`**. **AdminAuthority**. **204** on success. **404** when the entry id does not exist. Emits **`PolicyPackCatalogDemoted`**. |
 
-**Validation:** Create / publish / assign bodies are validated with **FluentValidation**. Invalid JSON in `initialContentJson` or `contentJson`, unknown `packType`, or empty `version` returns **400** with problem details (same style as other validated endpoints).
+**Policy pack catalog (hub):** Tenants **browse** promoted snapshots globally and **clone** into a **new tenant-owned pack** via existing create APIs; there is **no multi-tenant write sharing** of authoring state—only curated read-only snapshots.
+
+**Validation:** Create / publish / assign bodies are validated with **FluentValidation**. **Promote** / **demote** catalog bodies are validated the same way. Invalid JSON in `initialContentJson` or `contentJson`, unknown `packType`, or empty `version` returns **400** with problem details (same style as other validated endpoints).
 
 **Effective governance, compliance, and alerts:** When merged **`alertRuleIds`** or **`compositeAlertRuleIds`** is **non-empty**, simple and composite **alert evaluation** restricts rules to those IDs. When **`complianceRuleIds`** and **`complianceRuleKeys`** are both **empty**, compliance uses the full file-based rule pack; otherwise evaluation uses only rules matching those keys or GUID **RuleId** values. **Empty alert lists** mean *no pack filter* for alerts (all enabled rules in scope still run). Advisory scans load merged content **once** per run, copy **`advisoryDefaults`** onto **`ImprovementPlan.PolicyPackAdvisoryDefaults`**, and pass merged content on **`AlertEvaluationContext.EffectiveGovernanceContent`** so simple and composite evaluation do not each reload it.
 
