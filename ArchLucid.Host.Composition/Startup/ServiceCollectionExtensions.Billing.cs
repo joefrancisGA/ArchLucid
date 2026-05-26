@@ -1,4 +1,5 @@
 using ArchLucid.Application.Billing;
+using ArchLucid.Application.Budgeting;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Http;
@@ -23,6 +24,13 @@ public static partial class ServiceCollectionExtensions
             .AddOutboundExternalHttpResilience();
         services.AddScoped<BillingWebhookTrialActivator>();
         services.AddScoped<StripeBillingProvider>();
+        services.AddScoped<IStripeWalletGateway, StripeWalletGateway>();
+        services.AddScoped<ILlmTenantWalletStripeWebhookProcessor, LlmTenantWalletStripeWebhookProcessor>();
+        services.AddSingleton<LlmWalletSettlementQueue>();
+        services.AddSingleton<ILlmWalletSettlementQueue>(sp => sp.GetRequiredService<LlmWalletSettlementQueue>());
+        services.AddScoped<LlmTenantWalletService>();
+        services.AddScoped<ILlmTenantWalletService>(sp => sp.GetRequiredService<LlmTenantWalletService>());
+        services.AddHostedService<LlmWalletSettlementHostedService>();
         services.AddScoped<NoopBillingProvider>();
         services.AddScoped<IMarketplaceChangePlanWebhookMutationHandler, MarketplaceChangePlanWebhookMutationHandler>();
         services.AddScoped<IMarketplaceChangeQuantityWebhookMutationHandler, MarketplaceChangeQuantityWebhookMutationHandler>();

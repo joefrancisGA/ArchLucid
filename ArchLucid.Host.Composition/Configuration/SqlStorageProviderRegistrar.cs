@@ -22,6 +22,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Feedback;
 using ArchLucid.Core.GoToMarket;
+using ArchLucid.Core.Marketing;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Search;
@@ -426,6 +427,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ITrialIdentityUserRepository, SqlTrialIdentityUserRepository>();
         services.AddScoped<IUsageEventRepository, DapperUsageEventRepository>();
         services.AddScoped<ILlmTenantBudgetRepository, SqlLlmTenantBudgetRepository>();
+        services.AddScoped<ILlmTenantWalletRepository, SqlLlmTenantWalletRepository>();
         services.AddScoped<IReferenceEvidenceRunLookup, SqlReferenceEvidenceRunLookup>();
     }
 

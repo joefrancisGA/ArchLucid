@@ -610,6 +610,15 @@ public static class AuditEventTypes
     /// </summary>
     public const string LlmTenantMonthlyDollarBudgetApproaching = "LlmTenantMonthlyDollarBudgetApproaching";
 
+    /// <summary>LLM prepaid wallet auto-refill succeeded (Stripe PaymentIntent).</summary>
+    public const string LlmWalletRefillSucceeded = "LlmWalletRefillSucceeded";
+
+    /// <summary>LLM prepaid wallet auto-refill failed (card declined or Stripe error).</summary>
+    public const string LlmWalletRefillFailed = "LlmWalletRefillFailed";
+
+    /// <summary>Operator updated LLM prepaid wallet settings (auto-replenish, monthly cap, payment method).</summary>
+    public const string LlmWalletSettingsUpdated = "LlmWalletSettingsUpdated";
+
     /// <summary>Admin updated persisted LLM USD-per-token rates used for cost estimation (input/output).</summary>
     public const string LlmCostTuningUpdated = "LlmCostTuningUpdated";
 

@@ -1,5 +1,7 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using System.Globalization;
 
 using ArchLucid.Core.Retrieval;
 
@@ -57,6 +59,10 @@ public static class ArchLucidInstrumentation
     private static int _llmTenantBudgetRemainingObservableGaugeRegistered;
 
     private static int _executiveRoiSavingsObservableGaugeRegistered;
+
+    private static int _llmWalletBalanceObservableGaugeRegistered;
+
+    private static readonly ConcurrentDictionary<string, double> LlmWalletBalanceUsdByTenant = new(StringComparer.Ordinal);
     private static long _llmCompletionCacheHitsAggregate;
 
     private static long _llmCompletionCacheMissesAggregate;
@@ -459,6 +465,19 @@ public static class ArchLucidInstrumentation
         AppMeter.CreateCounter<long>(
             "archlucid_signup_marketing_conversion_total",
             description: "First-touch signup attribution persisted after successful trial provision (coarse buckets only).");
+
+    /// <summary>LLM wallet auto-refill USD credited (TB-014).</summary>
+    public static readonly Counter<double> LlmWalletRefillUsdTotal =
+        AppMeter.CreateCounter<double>(
+            "archlucid_llm_wallet_refill_usd_total",
+            "USD",
+            "LLM prepaid wallet refill USD credited after successful Stripe charge.");
+
+    /// <summary>LLM wallet auto-refill failures (label: <c>stripe_decline_code</c>).</summary>
+    public static readonly Counter<long> LlmWalletRefillFailuresTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_wallet_refill_failures_total",
+            description: "LLM wallet auto-refill Stripe failures (label stripe_decline_code).");
 
     /// <summary>Failed signup / trial bootstrap attempts (labels: <c>stage</c>, <c>reason</c>).</summary>
     public static readonly Counter<long> TrialSignupFailuresTotal =
@@ -1468,6 +1487,62 @@ public static class ArchLucidInstrumentation
         };
 
         SignupMarketingConversionTotal.Add(1, tags);
+    }
+
+    /// <summary>Increments <see cref="LlmWalletRefillUsdTotal" /> after a successful wallet credit.</summary>
+    public static void RecordLlmWalletRefillUsd(decimal amountUsd)
+    {
+        if (amountUsd <= 0m)
+            return;
+
+        LlmWalletRefillUsdTotal.Add((double)amountUsd);
+    }
+
+    /// <summary>Increments <see cref="LlmWalletRefillFailuresTotal" /> (label: stripe_decline_code).</summary>
+    public static void RecordLlmWalletRefillFailure(string? declineCode)
+    {
+        TagList tags = new()
+        {
+            { "stripe_decline_code", string.IsNullOrWhiteSpace(declineCode) ? "unknown" : declineCode.Trim() },
+        };
+
+        LlmWalletRefillFailuresTotal.Add(1, tags);
+    }
+
+    /// <summary>Updates per-tenant wallet balance snapshot for <c>archlucid_llm_wallet_balance_usd</c>.</summary>
+    public static void RecordLlmWalletBalanceUsd(Guid tenantId, decimal balanceUsd)
+    {
+        if (tenantId == Guid.Empty)
+            return;
+
+        EnsureLlmWalletBalanceObservableGaugeRegistered();
+        LlmWalletBalanceUsdByTenant[tenantId.ToString("D", CultureInfo.InvariantCulture)] = (double)balanceUsd;
+    }
+
+    /// <summary>Registers observable per-tenant LLM wallet balance gauge (TB-014).</summary>
+    public static void EnsureLlmWalletBalanceObservableGaugeRegistered()
+    {
+        if (Interlocked.Exchange(ref _llmWalletBalanceObservableGaugeRegistered, 1) != 0)
+            return;
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_llm_wallet_balance_usd",
+            () =>
+            {
+                List<Measurement<double>> measurements = new(LlmWalletBalanceUsdByTenant.Count);
+
+                foreach (KeyValuePair<string, double> kv in LlmWalletBalanceUsdByTenant)
+                {
+                    measurements.Add(
+                        new Measurement<double>(
+                            kv.Value,
+                            new KeyValuePair<string, object?>("tenant_id", kv.Key)));
+                }
+
+                return measurements;
+            },
+            "USD",
+            "Non-expiring LLM prepaid wallet balance (label tenant_id).");
     }
 
     /// <summary>Increments <see cref="TrialSignupFailuresTotal" />.</summary>

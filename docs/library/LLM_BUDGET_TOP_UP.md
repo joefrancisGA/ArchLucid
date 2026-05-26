@@ -39,7 +39,7 @@ Use **optimistic concurrency** in production tools if you extend this to an admi
 
 ---
 
-## Self-serve wallet (TB-014 — target billing model)
+## Self-serve wallet (TB-014 — shipped)
 
 **Decision (operator, 2026-05-25):** Non-expiring **prepaid auto-replenishing wallet**. Real-time card charge per refill (Stripe PaymentIntent). **No month-end settlement** — ArchLucid never carries more than one refill increment of unbilled exposure per tenant.
 
@@ -66,7 +66,7 @@ Use **optimistic concurrency** in production tools if you extend this to an admi
 3. After each debit, if balance **< $10** and auto-replenish is enabled and the monthly cap allows another refill → **`TryAutoRefillAsync`** (Stripe PaymentIntent for **$50**).
 4. Monthly cap enforcement: `(AutoRefillsThisUtcMonthCount × RefillIncrementUsd) < MonthlyCapUsd`; counter resets when UTC year/month changes.
 
-### Persistence (implementation target)
+### Persistence (shipped — migration **221**, `ArchLucid.sql` parity)
 
 - **`dbo.LlmTenantWalletState`** — balance, auto-replenish settings, Stripe customer/payment-method refs, UTC-month refill counter.
 - **`dbo.LlmTenantWalletLedger`** — append-only **`Refill` | `Consume` | `OperatorAdjustment`** entries with **`BalanceAfterUsd`** and optional **`StripePaymentIntentId`**.
@@ -74,14 +74,14 @@ Use **optimistic concurrency** in production tools if you extend this to an admi
 
 **INV-004 note:** The wallet is **not** a second monthly budget ledger. **`dbo.LlmMonthlyTenantBudgetState`** remains the single source of truth for included/warn/hard-cutoff spend within the UTC month. The wallet holds **prepaid overage credit** only.
 
-### API / UI (implementation target)
+### API / UI (shipped)
 
-- **`GET /v1/billing/wallet`** — balance, cap, auto-replenish state, last refill.
-- **`PUT /v1/billing/wallet`** — toggle auto-replenish, set **`MonthlyCapUsd`** in **$50** steps (**$0–$500**), attach payment method.
-- **`POST /v1/billing/stripe/webhook`** — idempotent **`payment_intent.succeeded`** / **`payment_intent.payment_failed`**.
-- **`archlucid-ui`** — **`/settings/billing`**: balance, cap slider, auto-replenish toggle, Stripe Elements card form.
+- **`GET /v1/billing/wallet`** — balance, cap, auto-replenish state, last refill, Stripe publishable key.
+- **`PUT /v1/billing/wallet`** — toggle auto-replenish, set **`MonthlyCapUsd`** in **$50** steps (**$0–$500**), attach Stripe customer/payment-method ids.
+- **`POST /v1/billing/webhooks/stripe`** — idempotent **`payment_intent.succeeded`** / **`payment_intent.payment_failed`** (existing billing webhook route).
+- **`archlucid-ui`** — **`/settings/billing`**: balance, cap slider, auto-replenish toggle; Stripe TEST customer/payment-method ids (Stripe Elements card form is a follow-on).
 
-### Metrics (implementation target)
+### Metrics (shipped)
 
 - **`archlucid_llm_wallet_balance_usd`** (gauge, tagged **`tenant_id`**)
 - **`archlucid_llm_wallet_refill_usd_total`** (counter)
@@ -98,8 +98,8 @@ Use **optimistic concurrency** in production tools if you extend this to an admi
 ## Code hooks
 
 - **`InMemoryLlmTenantBudgetRepository.ApplyMonthlyPurchasedCapBumpAsync`** — tests and local dev parity with SQL bump semantics (operator path).
-- **`ILlmTenantWalletRepository` / `LlmTenantWalletService`** — wallet balance, consume, auto-refill (self-serve path; TB-014 remainder).
-- **`IStripeWalletGateway`** — Stripe.net PaymentIntent integration (**`Billing:Stripe:SecretKey`**).
+- **`ILlmTenantWalletRepository` / `LlmTenantWalletService`** — wallet balance, consume, auto-refill (self-serve path; TB-014).
+- **`IStripeWalletGateway`** — Stripe.net PaymentIntent integration (**`Billing:Stripe:SecretKey`**, interface in **`ArchLucid.Core.Billing`**).
 
 ## Related
 

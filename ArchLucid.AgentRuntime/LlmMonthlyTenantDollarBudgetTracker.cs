@@ -6,6 +6,8 @@ using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 
+using ArchLucid.Application.Budgeting;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -21,6 +23,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
     IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> optionsMonitor,
     ILlmCostEstimator costEstimator,
     ILlmTenantBudgetRepository budgetRepository,
+    ILlmTenantWalletService walletService,
     IConfiguration configuration,
     IHostEnvironment hostEnvironment,
     TimeProvider timeProvider)
@@ -31,6 +34,9 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
 
     private readonly ILlmTenantBudgetRepository _budgetRepository =
         budgetRepository ?? throw new ArgumentNullException(nameof(budgetRepository));
+
+    private readonly ILlmTenantWalletService _walletService =
+        walletService ?? throw new ArgumentNullException(nameof(walletService));
 
     private readonly ILlmCostEstimator _costEstimator = costEstimator ?? throw new ArgumentNullException(nameof(costEstimator));
 
@@ -83,6 +89,9 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
 
         if (state.TotalUsdPressure + assumed > effectiveMax)
         {
+            if (await _walletService.TryAuthorizeOverageSpendAsync(tenantId, assumed, cancellationToken).ConfigureAwait(false))
+                return;
+
             (int year, int month) = GetUtcYearMonth();
             DateTimeOffset retryAfterUtc = FirstInstantOfNextUtcMonth(year, month);
 
@@ -126,6 +135,9 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
 
             if (reserved.HardCapBlocked)
             {
+                if (await _walletService.TryAuthorizeOverageSpendAsync(tenantId, assumed, cancellationToken).ConfigureAwait(false))
+                    return;
+
                 LlmTenantBudgetStateReadModel blocked = reserved.NewState ?? state;
                 (int year, int month) = GetUtcYearMonth();
                 DateTimeOffset retryAfterUtc = FirstInstantOfNextUtcMonth(year, month);
@@ -159,6 +171,22 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
     {
         if (tenantId == Guid.Empty || providerKind.IsExcludedFromBudgetTracking())
             return;
+
+        if (LlmTenantWalletOverageScope.IsActive)
+        {
+            decimal? walletUsd = _costEstimator.EstimateUsd(promptTokens, completionTokens);
+
+            if (walletUsd is > 0m)
+            {
+                LlmTenantWalletOverageScope.Clear();
+
+                await _walletService
+                    .QueueOverageSettlementAsync(tenantId, walletUsd.Value, Guid.NewGuid(), cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
+            return;
+        }
 
         LlmMonthlyTenantDollarBudgetOptions opts = _optionsMonitor.CurrentValue;
 
@@ -243,7 +271,12 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
         decimal? pending = PendingReservedAssumedUsd.Value;
 
         if (pending is null or <= 0m)
+        {
+            if (LlmTenantWalletOverageScope.IsActive)
+                LlmTenantWalletOverageScope.Clear();
+
             return;
+        }
 
         string periodKey = MonthlyPeriodKey(GetUtcYearMonth());
         decimal warnAt = decimal.Round(

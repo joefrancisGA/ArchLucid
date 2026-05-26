@@ -1,25 +1,25 @@
 ﻿> **Scope:** Canonical engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 83.36%
+# ArchLucid Assessment – (A) Headline Readiness: 83.40%
 
-*Note: This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (such as V1.1/V2 scope). Rescored 2026-05-26 after Batch E (engineering backlog: TB-008, TB-013 Phase 2, TB-015 Phase A, TB-019, TB-020 remainder) shipped on `master`.*
+*Note: This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred items (such as V1.1/V2 scope). Rescored 2026-05-26 after Batch F (TB-014 LLM prepaid wallet) shipped on `master`.*
 
 ## Executive Summary
 
 ### (A) Overall Headline Readiness
-The core architecture pipeline (Topology, Cost, Compliance, Critic) is solid, and the AI leverage program (Batches A–E) is now largely **on `master`**: streaming Ask, multi-model tier routing, adversarial Critic, calibrated confidence, operator workflow assistants, narrative/artifact generators, agent-curated evidence proposals, LLM-assisted Azure extractor enrichment, templates-pack nightly drift sentinel, golden-cohort real-LLM gate + real-mode eval corpus wiring, RAG policy-pack grounding with citation traces, context ingestion delta/enricher refactor, per-agent LLM token dimensions, signup marketing attribution, and consent-gated marketing analytics kill-switch. Headline readiness is **83.36%** — a strong engineering and operator-AI foundation with remaining gaps in self-serve wallet billing (TB-014) and economy-tier tuning.
+The core architecture pipeline (Topology, Cost, Compliance, Critic) is solid, and the AI leverage program (Batches A–F) is now largely **on `master`**: streaming Ask, multi-model tier routing, adversarial Critic, calibrated confidence, operator workflow assistants, narrative/artifact generators, agent-curated evidence proposals, LLM-assisted Azure extractor enrichment, templates-pack nightly drift sentinel, golden-cohort real-LLM gate + real-mode eval corpus wiring, RAG policy-pack grounding with citation traces, context ingestion delta/enricher refactor, per-agent LLM token dimensions, signup marketing attribution, consent-gated marketing analytics kill-switch, and **self-serve LLM prepaid wallet (TB-014)**. Headline readiness is **83.40%** — a strong engineering and operator-AI foundation with remaining gaps in economy-tier tuning and Stripe Elements UX polish.
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise buyers will encounter friction due to the absence of a CPA-issued SOC 2 report and third-party penetration testing (both correctly deferred to post-V1.1/V2). While the self-assessment and Trust Center provide a good stopgap, RFP processes will require manual navigation. The lack of multi-region active/active guarantees and automated tenant erasure pipelines will also trigger scrutiny from tier-1 enterprise procurement teams.
 
 ### Commercial Picture
-Executive summary one-pagers, compare-run narratives, and findings prioritization now ship. Signup marketing attribution (TB-019) wires first-touch cookie → signup header → SQL + low-cardinality counters. Remaining commercial friction: self-serve LLM wallet (TB-014) for expansion revenue without sales touch.
+Executive summary one-pagers, compare-run narratives, and findings prioritization now ship. Signup marketing attribution (TB-019) wires first-touch cookie → signup header → SQL + low-cardinality counters. Self-serve LLM wallet (TB-014) enables expansion revenue on Stripe TEST without operator SQL bumps.
 
 ### Enterprise Picture
 The blank-page tax is largely addressed (request draft, policy-pack draft, governance explainers, finding ask). Extractor enrichment is config-gated (`AgentRuntime:AzureExtractorEnrichment:Enabled`). RAG policy-pack corpus indexing and compliance `groundingMissing` honesty now ship (RAG-V1-000/001).
 
 ### Engineering Picture
-Agent confidence calibration, tiered model routing, OTel agent-output alerts (TB-004), RAG grounding traces, templates-pack drift JSON + nightly annotations, real-mode eval corpus in `golden-cohort-nightly.yml`, meaningful connector deltas, composite canonical enrichers, shared policy/topology overlap resolver, and per-agent/per-invoke-kind LLM token histograms are in place. Remaining engineering focus: TB-014 wallet tables/Stripe gateway and doc audience Phase 3. (Jira, ServiceNow, Confluence, Slack sandboxes deferred to V1.1.)
+Agent confidence calibration, tiered model routing, OTel agent-output alerts (TB-004), RAG grounding traces, templates-pack drift JSON + nightly annotations, real-mode eval corpus in `golden-cohort-nightly.yml`, meaningful connector deltas, composite canonical enrichers, shared policy/topology overlap resolver, per-agent/per-invoke-kind LLM token histograms, and TB-014 wallet persistence/Stripe gateway are in place. Remaining engineering focus: doc audience Phase 3 and economy-tier defaults. (Jira, ServiceNow, Confluence, Slack sandboxes deferred to V1.1.)
 
 ---
 
@@ -90,19 +90,19 @@ Agent confidence calibration, tiered model routing, OTel agent-output alerts (TB
 ---
 
 ## Top 6 Most Important Weaknesses
-1. Self-serve LLM wallet (TB-014) not implemented — expansion revenue requires operator SQL bumps today.
-2. Economy-tier model defaults not tuned — run cost may exceed tier allowance at scale.
-3. Inferred extractor fields not yet surfaced in archlucid-ui (backend enrichment ships config-gated).
-4. TB-013 Phase 3 — contributor-only contract docs still mixed at `library/` root.
+1. Economy-tier model defaults not tuned — run cost may exceed tier allowance at scale.
+2. Inferred extractor fields not yet surfaced in archlucid-ui (backend enrichment ships config-gated).
+3. TB-013 Phase 3 — contributor-only contract docs still mixed at `library/` root.
+4. Stripe Elements card collection not yet in wallet UI (TEST uses manual customer/payment-method ids).
 5. Branch protection for `cohort-real-llm-gate` requires one-time GitHub UI step (documented, not yet enforced org-wide).
 6. SOC 2 / pen-test artifacts deferred (correct for V1 scope).
 
 ---
 
 ## Top 3 Monetization Blockers
-1. Self-serve LLM wallet (TB-014) not yet live for Stripe TEST/staging.
-2. Economy-tier model defaults not tuned — run cost may exceed tier allowance at scale.
-3. Sales-led checkout remains default until TB-014 wallet ships.
+1. Economy-tier model defaults not tuned — run cost may exceed tier allowance at scale.
+2. Sales-led checkout remains default for Team tier unless `NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED` is set.
+3. Stripe live-key commerce flip still gated per V1_DEFERRED §6b (TEST wallet path ships).
 
 ---
 
@@ -114,15 +114,15 @@ Agent confidence calibration, tiered model routing, OTel agent-output alerts (TB
 ---
 
 ## Top 4 Engineering Risks
-1. TB-014 wallet persistence/Stripe idempotency not yet implemented.
-2. TB-013 Phase 3 — guarded moves for `API_CONTRACTS.md` and contributor maps remain.
-3. Branch protection for `cohort-real-llm-gate` requires one-time GitHub UI step (documented, not yet enforced org-wide).
-4. Inferred extractor UI surfacing lag vs config-gated backend enrichment.
+1. TB-013 Phase 3 — guarded moves for `API_CONTRACTS.md` and contributor maps remain.
+2. Branch protection for `cohort-real-llm-gate` requires one-time GitHub UI step (documented, not yet enforced org-wide).
+3. Inferred extractor UI surfacing lag vs config-gated backend enrichment.
+4. Economy-tier model defaults may understate run cost at scale until tuned.
 
 ---
 
 ## Most Important Truth
-The AI leverage roadmap (Batches A–E) is largely **shipped** — ArchLucid now behaves like a collaborative operator assistant with closed-loop eval hardening, measurable LLM dimensions, and acquisition attribution. The remaining readiness gap is **self-serve monetization** (wallet) and **economy-tier tuning** — not core agent UX, RAG foundation, or context ingestion architecture.
+The AI leverage roadmap (Batches A–F) is largely **shipped** — ArchLucid now behaves like a collaborative operator assistant with closed-loop eval hardening, measurable LLM dimensions, acquisition attribution, and self-serve LLM overage wallet. The remaining readiness gap is **economy-tier tuning** and **doc/UI polish** — not core agent UX, RAG foundation, or context ingestion architecture.
 
 ---
 
@@ -166,40 +166,45 @@ The AI leverage roadmap (Batches A–E) is largely **shipped** — ArchLucid now
 
 ---
 
+## Shipped Improvements (Batch F, 2026-05-26)
+
+| # | Item | Evidence on `master` |
+|---|------|----------------------|
+| 25 | TB-014 — LLM prepaid wallet | `221_LlmTenantWallet.sql`, `LlmTenantWalletService`, `WalletController`, `StripeWalletGateway`, billing wallet UI panel |
+
+---
+
 ## Top Improvement Opportunities
 
-### 1. LLM token wallet — non-expiring auto-replenish (TB-014)
-- **Why it matters:** Lets tenants self-serve more LLM headroom without waiting for UTC month-roll or contacting sales, and eliminates the financial-perception trap of "use it or lose it" prepay. A non-expiring wallet with customer-set monthly cap is the industry-standard pattern (Cursor, OpenAI API, Anthropic API, AWS) and bounds ArchLucid's settlement exposure to a single refill increment per tenant (~$50) rather than a full month of accrued overage.
-- **Expected impact:** Improves Adoption Friction (+3) and Supportability (+2). Weighted readiness impact: +0.04%.
-- **Affected qualities:** Adoption Friction, Supportability.
-- **Actionable now:** Yes — Stripe TEST keys ready for staging; Azure OpenAI golden-cohort deployment in place; existing `LlmMonthlyTenantBudgetState.PurchasedCapBumpUsd` column and test hook remain for operator-grant scenarios.
-- **Billing model:** Non-expiring prepaid wallet. Refill increment **$50**, refill trigger when balance **< $10**, default monthly auto-replenish cap **$0 (opt-in)** with a max of **$500/month** before sales engagement. Card is charged in real time (via Stripe PaymentIntent) at each refill, so ArchLucid never carries more than one increment of unbilled exposure. Balance carries forward indefinitely; on tenant cancellation, balance is non-refundable credit only.
-- **Prompt:**
-```text
-Implement TB-014 as a non-expiring auto-replenishing wallet. Create dbo.LlmTenantWalletState via a DbUp migration with columns: TenantId UNIQUEIDENTIFIER PRIMARY KEY, BalanceUsd DECIMAL(10,2) NOT NULL DEFAULT 0, AutoReplenishEnabled BIT NOT NULL DEFAULT 0, RefillIncrementUsd DECIMAL(10,2) NOT NULL DEFAULT 50.00, RefillTriggerThresholdUsd DECIMAL(10,2) NOT NULL DEFAULT 10.00, MonthlyCapUsd DECIMAL(10,2) NOT NULL DEFAULT 0, AutoRefillsThisUtcMonthCount INT NOT NULL DEFAULT 0, AutoRefillsThisUtcMonthYearMonth INT NOT NULL DEFAULT 0, LastRefillUtc DATETIME2 NULL, StripeCustomerId NVARCHAR(255) NULL, StripePaymentMethodId NVARCHAR(255) NULL, RowVersion ROWVERSION. Create dbo.LlmTenantWalletLedger (LedgerId IDENTITY PK, TenantId, EntryType NVARCHAR(32) — 'Refill'|'Consume'|'OperatorAdjustment', AmountUsd DECIMAL(10,2), BalanceAfterUsd DECIMAL(10,2), StripePaymentIntentId NVARCHAR(255) NULL, CorrelationId UNIQUEIDENTIFIER, CreatedUtc DATETIME2). Add ILlmTenantWalletRepository in ArchLucid.Application/Budgeting/. Add IStripeWalletGateway in ArchLucid.Application/Billing/ with a StripeWalletGateway implementation in ArchLucid.Infrastructure/Billing/ using Stripe.net PaymentIntents and the staging TEST key from configuration block Billing:Stripe:SecretKey. Create LlmTenantWalletService with methods: GetBalanceAsync(TenantId), TryAutoRefillAsync(TenantId, CorrelationId) — checks Balance < RefillTriggerThresholdUsd AND (AutoRefillsThisUtcMonthCount * RefillIncrementUsd) < MonthlyCapUsd AND AutoReplenishEnabled, calls Stripe PaymentIntent, on success credits balance, increments month counter (resetting if YearMonth changed), writes ledger entry, raises 'LlmWalletRefillSucceeded' audit event; on failure raises 'LlmWalletRefillFailed'; ConsumeAsync(TenantId, UsdAmount, CorrelationId) — debits wallet for overage consumption after monthly cap exhausted, ledger entry, returns success/insufficient-funds. Update LlmCompletionAccountingClient: after the existing month-cap check fails (would exceed effective cap), check wallet balance; if BalanceUsd >= estimated cost, allow the call and queue wallet.ConsumeAsync via an IBackgroundTaskQueue post-call; otherwise reject with the existing LlmTokenQuotaExceeded path. After each ConsumeAsync, if balance < RefillTriggerThresholdUsd queue TryAutoRefillAsync. Add controller endpoints in ArchLucid.Api/Controllers/Billing/WalletController.cs: GET /v1/billing/wallet (returns balance, monthly cap, auto-replenish state, last refill), PUT /v1/billing/wallet (toggles AutoReplenishEnabled, sets MonthlyCapUsd in $50 increments 0–500, attaches StripePaymentMethodId), POST /v1/billing/stripe/webhook (verifies Stripe-Signature header, idempotent handling of payment_intent.succeeded and payment_intent.payment_failed using a new dbo.StripeWebhookIdempotency table). In archlucid-ui, add a Wallet Settings page at /settings/billing showing: current balance, last refill timestamp, MonthlyCapUsd slider ($0–$500 step $50), AutoReplenishEnabled toggle, and a Stripe Elements card-collection form. Add metrics archlucid_llm_wallet_balance_usd (gauge, tagged tenant_id), archlucid_llm_wallet_refill_usd_total (counter), archlucid_llm_wallet_refill_failures_total (counter, tagged stripe_decline_code). Update docs/library/LLM_BUDGET_TOP_UP.md and docs/go-to-market/PRICING_PHILOSOPHY.md to document the non-expiring wallet model, the $50 increment, the $500 default cap ceiling, and non-refundability on cancellation. Keep the existing PurchasedCapBumpUsd column and InMemoryLlmTenantBudgetRepository.ApplyMonthlyPurchasedCapBumpAsync test hook intact for operator-grant scenarios. Add unit tests for LlmTenantWalletService (refill threshold, cap enforcement, ledger writes, idempotency) and an integration test that simulates the full flow against Stripe TEST keys using a fixture customer.
-```
+### 1. Economy-tier model defaults tuning
+- **Why it matters:** Real-mode run cost may exceed tier review allowances at scale if economy-tier deployments stay on premium defaults.
+- **Expected impact:** Improves FinOps honesty and reduces surprise overage/wallet usage.
+- **Actionable now:** Yes — golden-cohort token histograms (TB-015 Phase A) provide baseline data.
+
+### TB-014 — LLM token wallet **Shipped (Batch F, 2026-05-26)**
+
+Non-expiring prepaid wallet with **$50** refill increment, **$10** trigger, **$0–$500** monthly auto-replenish cap, Stripe PaymentIntent + webhook idempotency, `GET/PUT /v1/billing/wallet`, operator billing panel. See [`docs/library/LLM_BUDGET_TOP_UP.md`](../library/LLM_BUDGET_TOP_UP.md).
 
 ---
 
 ## Prompt Batching Guidance
 
-Batches A–E are **shipped** (see tables above). Remaining work:
-
-- **Batch F: Monetization (Self-Serve Headroom)**
-  - LLM token wallet — non-expiring auto-replenish (#1 in Top Improvement Opportunities)
+Batches A–F are **shipped** (see tables above). Remaining work:
 
 - **Follow-on (not batched)**
   - TB-013 Phase 3 — guarded contributor doc moves
   - Economy-tier model defaults tuning
   - Inferred extractor UI surfacing
+  - Stripe Elements card form in wallet UI
 
 ---
 
 ## Decisions Confirmed This Session
 
-- **Batches A–E shipped on `master`** — assessment rescored to **83.36%** (2026-05-26).
-- **Batch E landed this commit:** TB-008 Phases 3–4; TB-013 Phase 2; TB-015 Phase A; TB-019; TB-020 kill-switch.
+- **Batches A–F shipped on `master`** — assessment rescored to **83.40%** (2026-05-26).
+- **Batch F landed:** TB-014 LLM prepaid wallet (persistence, Stripe gateway, API, UI panel, metrics, tests).
+- **Batch E landed prior:** TB-008 Phases 3–4; TB-013 Phase 2; TB-015 Phase A; TB-019; TB-020 kill-switch.
 - **Batch D landed prior:** templates-pack drift JSON + nightly cron; `cohort-real-llm-gate` job rename; `cohort-real-mode-eval-corpus`; compliance `groundingMissing` prompt honesty.
-- **TB-014 billing model:** Non-expiring auto-replenishing wallet (Batch F #7 — not yet implemented).
+- **TB-014 billing model:** Non-expiring auto-replenishing wallet — **shipped**.
 - **Golden cohort:** `archlucid-golden-cohort` in `eastus` as `gpt-4o`; `cohort-real-llm-gate` documented in branch protection — enable in GitHub UI after first green run.
 - **V1.1 deferrals:** Jira, ServiceNow, Confluence, Slack sandboxes (TB-016).

@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Core.Billing;
+using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Options;
@@ -17,7 +18,9 @@ public sealed class StripeBillingProvider(
     IOptionsMonitor<BillingOptions> billingOptions,
     IBillingLedger ledger,
     BillingWebhookTrialActivator trialActivator,
-    IMarketplaceChangePlanWebhookMutationHandler changePlanWebhookMutationHandler) : IBillingProvider
+    IMarketplaceChangePlanWebhookMutationHandler changePlanWebhookMutationHandler,
+    ILlmTenantWalletStripeWebhookProcessor walletWebhookProcessor,
+    ILlmTenantWalletRepository walletRepository) : IBillingProvider
 {
     private readonly IOptionsMonitor<BillingOptions> _billingOptions =
         billingOptions ?? throw new ArgumentNullException(nameof(billingOptions));
@@ -29,6 +32,12 @@ public sealed class StripeBillingProvider(
 
     private readonly BillingWebhookTrialActivator _trialActivator =
         trialActivator ?? throw new ArgumentNullException(nameof(trialActivator));
+
+    private readonly ILlmTenantWalletStripeWebhookProcessor _walletWebhookProcessor =
+        walletWebhookProcessor ?? throw new ArgumentNullException(nameof(walletWebhookProcessor));
+
+    private readonly ILlmTenantWalletRepository _walletRepository =
+        walletRepository ?? throw new ArgumentNullException(nameof(walletRepository));
 
     public string ProviderName => BillingProviderNames.Stripe;
 
@@ -156,6 +165,10 @@ public sealed class StripeBillingProvider(
                 if (session is not null)
                     await HandleCheckoutSessionCompletedAsync(session, inbound.RawBody, cancellationToken);
             }
+            else if (stripeEvent.Type.StartsWith("payment_intent.", StringComparison.OrdinalIgnoreCase))
+            {
+                await HandleWalletPaymentIntentEventAsync(stripeEvent, cancellationToken).ConfigureAwait(false);
+            }
 
             await _ledger.MarkWebhookProcessedAsync(stripeEvent.Id, "Processed", cancellationToken);
 
@@ -178,6 +191,53 @@ public sealed class StripeBillingProvider(
         // EventConverter still stores data.object on RawObject; deserialize as Session so metadata activation works.
         if (stripeEvent.Data?.RawObject is JToken token)
             return token.ToObject<Session>(Newtonsoft.Json.JsonSerializer.Create(StripeConfiguration.SerializerSettings));
+
+        return null;
+    }
+
+    private async Task HandleWalletPaymentIntentEventAsync(Event stripeEvent, CancellationToken cancellationToken)
+    {
+        PaymentIntent? intent = TryGetPaymentIntentFromEvent(stripeEvent);
+
+        if (intent?.Metadata is null)
+            return;
+
+        if (!intent.Metadata.TryGetValue("purpose", out string? purpose)
+            || !string.Equals(purpose, "llm_wallet_refill", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        intent.Metadata.TryGetValue("tenant_id", out string? tenantIdRaw);
+        intent.Metadata.TryGetValue("correlation_id", out string? correlationRaw);
+
+        Guid correlationId = Guid.TryParse(correlationRaw, out Guid parsedCorrelation) ? parsedCorrelation : Guid.NewGuid();
+
+        if (!await _walletRepository.TryInsertStripeWebhookIdempotencyAsync(stripeEvent.Id, stripeEvent.Type, cancellationToken)
+                .ConfigureAwait(false))
+        {
+            return;
+        }
+
+        await _walletWebhookProcessor
+            .ProcessPaymentIntentEventAsync(
+                stripeEvent.Type,
+                intent.Id,
+                tenantIdRaw,
+                intent.Amount,
+                intent.LastPaymentError?.DeclineCode,
+                correlationId,
+                cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    private static PaymentIntent? TryGetPaymentIntentFromEvent(Event stripeEvent)
+    {
+        if (stripeEvent.Data?.Object is PaymentIntent fromTyped)
+            return fromTyped;
+
+        if (stripeEvent.Data?.RawObject is JToken token)
+            return token.ToObject<PaymentIntent>(Newtonsoft.Json.JsonSerializer.Create(StripeConfiguration.SerializerSettings));
 
         return null;
     }

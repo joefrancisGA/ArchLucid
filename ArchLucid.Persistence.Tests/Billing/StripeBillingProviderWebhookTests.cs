@@ -39,7 +39,7 @@ public sealed class StripeBillingProviderWebhookTests
             .Setup(h => h.HandleAsync(It.IsAny<Guid>(), It.IsAny<JsonElement>(), It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(MarketplaceWebhookMutationOutcome.Applied);
-        StripeBillingProvider sut = new(monitor, ledger.Object, activator, changePlan.Object);
+        StripeBillingProvider sut = StripeBillingProviderTestSupport.CreateSut(monitor, ledger, activator, changePlan);
 
         BillingWebhookHandleResult result = await sut.HandleWebhookAsync(
             new BillingWebhookInbound { RawBody = "{}", StripeSignatureHeader = null },
@@ -104,7 +104,7 @@ public sealed class StripeBillingProviderWebhookTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(MarketplaceWebhookMutationOutcome.Applied);
 
-        StripeBillingProvider sut = new(monitor, ledger.Object, activator, changePlan.Object);
+        StripeBillingProvider sut = StripeBillingProviderTestSupport.CreateSut(monitor, ledger, activator, changePlan);
 
         // data.object intentionally omits Stripe's resource "object":"checkout.session" — StripeObjectConverter
         // leaves EventData.Object null; RawObject fallback must still produce a Session with metadata.

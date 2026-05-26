@@ -24,7 +24,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-021 | RAG quality program — V1 foundation (corpus seam, policy pack, prior manifest, Retail lookup, platform docs, faithfulness eval) | Agent faithfulness + citation density — extends existing `ArchLucid.Retrieval` + `AskService`; schedule from assessments | M–L (phased) |
 | TB-008 | Context ingestion connectors — Phases 3–4 (meaningful delta + enrichers, policy/topology coupling) | Architecture maintainability — Phases 1–2 shipped | L |
 | TB-013 | Documentation library audience split — Phases 2–3 (customer-facing vs contributor-reference) | Developer experience — lower onboarding cognitive load without breaking bookmarks or procurement/UI doc paths | M |
-| TB-014 | LLM token wallet — non-expiring auto-replenish (**`PurchasedCapBumpUsd`** operator bump shipped; wallet + Stripe + UI remainder) | Self-service overage headroom without month-end settlement risk | M |
+| TB-014 | LLM token wallet — non-expiring auto-replenish | Done (Batch F, 2026-05-26) — wallet tables, Stripe gateway, webhook idempotency, API, UI panel, metrics | M |
 | TB-015 | Per-agent/per-invoke-kind LLM token dimensions + CI export of real-mode averages | FinOps honesty — truthful Topology/Cost/Compliance/Critic token envelopes for `cost-preview` + cohort budgeting (no guesses) | M |
 | TB-024 | `LlmCostEstimator` — reasoning-token test coverage | Done (Improvement **#20**, 2026-05-25) | XS |
 | TB-023 | `LlmCostEstimator` — document replay-rate semantics (live rate vs stored-per-trace divergence) | Developer clarity / FinOps honesty — recomputed aggregate uses live rates, not historical rates; diverges from stored `EstimatedCostUsd` after admin rate changes; must be documented on `ILlmCostEstimator` and the aggregator | XS |
@@ -242,9 +242,9 @@ Default new **`library/`** root files to **`contributor-reference/`** unless the
 
 **Progress (2026-05-10):** Operator path shipped — persistent bump column **`PurchasedCapBumpUsd`** on **`dbo.LlmMonthlyTenantBudgetState`** (migration **`155_LlmMonthlyTenantBudgetPurchasedCapBump.sql`**) + effective cap in **`LlmMonthlyTenantDollarBudgetTracker`**; runbook **[`LLM_BUDGET_TOP_UP.md`](LLM_BUDGET_TOP_UP.md)**; test hook **`InMemoryLlmTenantBudgetRepository.ApplyMonthlyPurchasedCapBumpAsync`**.
 
-**Progress (2026-05-25):** Billing model ratified — **non-expiring prepaid auto-replenishing wallet** (Cursor / OpenAI API pattern). Stripe **TEST** keys confirmed for staging. Assessment item **#27** in [`docs/assessments/LATEST.md`](../assessments/LATEST.md) is actionable with a full implementation prompt.
+**Progress (2026-05-26):** **Shipped (Batch F)** — `221_LlmTenantWallet.sql`, `LlmTenantWalletService`, `StripeWalletGateway`, wallet webhook handling on existing Stripe route, `GET/PUT /v1/billing/wallet`, operator billing wallet panel, metrics, unit tests. Operator **`PurchasedCapBumpUsd`** path unchanged.
 
-**Remaining:** `dbo.LlmTenantWalletState`, `dbo.LlmTenantWalletLedger`, `LlmTenantWalletService`, Stripe PaymentIntent gateway, idempotent webhook, wallet settings UI, metrics, tests.
+**Remaining follow-ons:** Stripe Elements card collection in UI (TEST uses manual `cus_`/`pm_` ids today); optional live-key flip per [`V1_DEFERRED.md`](V1_DEFERRED.md) §6b.
 
 **Decision (operator, 2026-05-11):** **Greenlit in principle.** There is **no** target cost-per-run budget — runs are bounded by **`LlmMonthlyTenantDollarBudget`** + **`LlmTokenQuota`**, not by a per-run prompt-design ceiling. Tenants who legitimately exhaust their **`HardCutoffUsdPerUtcMonth`** before the UTC month rolls should be able to **buy more LLM headroom** self-serve, rather than waiting or contacting sales.
 

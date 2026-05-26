@@ -18,6 +18,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
+using ArchLucid.AgentRuntime.Tests.Support;
+
 namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
@@ -232,6 +234,7 @@ public sealed class LlmCompletionAccountingClientTests
             new FixedValueOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>(monthlyOptsBinding),
             costEstimator.Object,
             monthlyRepoBinding,
+            new NoOpLlmTenantWalletService(),
             new ConfigurationBuilder().Build(),
             CreateNonProductionHostEnvironment(),
             TimeProvider.System);

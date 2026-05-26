@@ -742,6 +742,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Billing/WalletController.cs",
+      "class_name": "WalletController",
+      "route_template": "v{version:apiVersion}/billing/wallet",
+      "normalized_prefix": "/v1/billing/wallet",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Demo/DemoCommitPagePreviewController.cs",
       "class_name": "DemoCommitPagePreviewController",
       "route_template": "v{version:apiVersion}/demo",

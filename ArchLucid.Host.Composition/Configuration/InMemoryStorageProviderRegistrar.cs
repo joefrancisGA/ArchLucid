@@ -21,6 +21,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Feedback;
 using ArchLucid.Core.GoToMarket;
+using ArchLucid.Core.Marketing;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Authorization;
@@ -222,6 +223,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
             sp.GetRequiredService<ILogger<AgentTraceOrphanBlobCleanupService>>()));
         services.AddSingleton<IUsageEventRepository, InMemoryUsageEventRepository>();
         services.AddSingleton<ILlmTenantBudgetRepository, InMemoryLlmTenantBudgetRepository>();
+        services.AddSingleton<ILlmTenantWalletRepository, InMemoryLlmTenantWalletRepository>();
         services.AddSingleton<IMarketingPricingQuoteRequestRepository, NoOpMarketingPricingQuoteRequestRepository>();
         services.AddSingleton<IMarketingPricingQuoteRequestAgingReader, NoOpMarketingPricingQuoteRequestAgingReader>();
         services.AddSingleton<IMarketingEarlyAccessRequestRepository, NoOpMarketingEarlyAccessRequestRepository>();

@@ -15,6 +15,8 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
+using ArchLucid.AgentRuntime.Tests.Support;
+
 namespace ArchLucid.AgentRuntime.Tests;
 
 [Trait("Category", "Unit")]
@@ -277,6 +279,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
             options,
             costEstimator,
             repository,
+            new NoOpLlmTenantWalletService(),
             effectiveConfiguration,
             effectiveHostEnvironment,
             timeProvider ?? TimeProvider.System);
