@@ -111,7 +111,7 @@ describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 },
     expect(screen.getByTestId("wizard-baseline-zip-field")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Pilot wizard (3 steps)" })).toHaveAttribute("aria-pressed", "true");
 
-    const zipInput = within(screen.getByTestId("wizard-baseline-zip-field")).getByLabelText("Azure packager ZIP");
+    const zipInput = within(screen.getByTestId("wizard-baseline-zip-field")).getByTestId("wizard-baseline-zip-field-input");
     const zipFile = makeArchLucidPackageZip();
 
     await act(async () => {

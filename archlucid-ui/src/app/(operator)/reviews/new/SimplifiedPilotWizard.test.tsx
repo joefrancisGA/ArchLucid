@@ -66,7 +66,7 @@ describe("SimplifiedPilotWizard", () => {
     expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 1 of 3/i);
     expect(screen.getByTestId("wizard-baseline-zip-field")).toBeInTheDocument();
 
-    const zipInput = within(screen.getByTestId("wizard-baseline-zip-field")).getByLabelText("Azure packager ZIP");
+    const zipInput = within(screen.getByTestId("wizard-baseline-zip-field")).getByTestId("wizard-baseline-zip-field-input");
     const zipFile = makeArchLucidPackageZip();
 
     await act(async () => {
