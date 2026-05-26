@@ -74,6 +74,19 @@ internal static class AuthenticationRules
     }
 
     /// <summary>
+    ///     Rejects <c>Authentication:ApiKey:DevelopmentBypassAll=true</c> on Production hosts (fail-fast startup).
+    /// </summary>
+    public static void CollectProductionApiKeyDevelopmentBypassDisallowed(IConfiguration configuration, List<string> errors)
+    {
+        if (!configuration.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false))
+            return;
+
+        errors.Add(
+            "Authentication:ApiKey:DevelopmentBypassAll must be false in Production. "
+            + "The API refuses to start when the development bypass flag is enabled.");
+    }
+
+    /// <summary>
     ///     Production ASP.NET Core-only API key checks. Dangerous auth combinations are validated for a broader
     ///     production profile via <see cref="ProductionDangerousMisconfigurationLint" /> (includes ARCHLUCID_ENVIRONMENT
     ///     and strict staging).

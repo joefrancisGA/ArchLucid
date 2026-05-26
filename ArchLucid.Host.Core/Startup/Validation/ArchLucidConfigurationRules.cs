@@ -65,6 +65,8 @@ public static class ArchLucidConfigurationRules
         if (!environment.IsProduction())
             return errors;
 
+        AuthenticationRules.CollectProductionApiKeyDevelopmentBypassDisallowed(configuration, errors);
+
         SqlFailoverRules.Collect(configuration, environment, archLucidOptions, errors);
         SqlConnectionCredentialRules.Collect(configuration, environment, archLucidOptions, errors);
 

@@ -104,6 +104,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ArchLucidPersistenceOptions.SectionPath));
         services.Configure<ContentSafetyOptions>(configuration.GetSection(ContentSafetyOptions.SectionPath));
         services.AddSingleton<IPostConfigureOptions<ContentSafetyOptions>, ContentSafetyProductionLikePostConfigure>();
+        services.AddSingleton<IPostConfigureOptions<ContentSafetyOptions>,
+            ContentSafetyAllowNullGuardProductionWarningPostConfigure>();
         services.Configure<CircuitBreakerOptions>(
             "ContentSafetyAzure",
             configuration.GetSection($"{ContentSafetyOptions.SectionPath}:CircuitBreaker"));

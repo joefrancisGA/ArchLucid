@@ -70,6 +70,30 @@ public sealed class HostEnvironmentClassificationTests
         result.Should().BeFalse();
     }
 
+    [Fact]
+    public void IsDevelopmentOrSandbox_IsTrue_for_development()
+    {
+        IHostEnvironment env = new TestHostEnvironment(Environments.Development);
+
+        HostEnvironmentClassification.IsDevelopmentOrSandbox(env).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsDevelopmentOrSandbox_IsTrue_for_sandbox_environment_name()
+    {
+        IHostEnvironment env = new TestHostEnvironment("Sandbox");
+
+        HostEnvironmentClassification.IsDevelopmentOrSandbox(env).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsDevelopmentOrSandbox_IsFalse_for_staging()
+    {
+        IHostEnvironment env = new TestHostEnvironment(Environments.Staging);
+
+        HostEnvironmentClassification.IsDevelopmentOrSandbox(env).Should().BeFalse();
+    }
+
     private sealed class TestHostEnvironment : IHostEnvironment
     {
         public TestHostEnvironment(string environmentName)

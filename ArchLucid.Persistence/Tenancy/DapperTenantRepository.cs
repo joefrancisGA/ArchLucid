@@ -40,6 +40,7 @@ public sealed class DapperTenantRepository(
 
         const string sql = """
                            SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
+                                  TenantErasureRequestedUtc,
                                   OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
                                   TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                   TrialStatus, TrialSampleRunId,
@@ -69,6 +70,7 @@ public sealed class DapperTenantRepository(
 
         const string sql = """
                            SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
+                                  TenantErasureRequestedUtc,
                                   OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
                                   TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                   TrialStatus, TrialSampleRunId,
@@ -96,6 +98,7 @@ public sealed class DapperTenantRepository(
 
         const string sql = """
                            SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
+                                  TenantErasureRequestedUtc,
                                   OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
                                   TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                   TrialStatus, TrialSampleRunId,
@@ -123,6 +126,7 @@ public sealed class DapperTenantRepository(
 
         const string sql = """
                            SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
+                                  TenantErasureRequestedUtc,
                                   OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
                                   TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                   TrialStatus, TrialSampleRunId,
@@ -1370,6 +1374,12 @@ public sealed class DapperTenantRepository(
             init;
         }
 
+        public DateTimeOffset? TenantErasureRequestedUtc
+        {
+            get;
+            init;
+        }
+
         public DateTimeOffset? OffboardedUtc
         {
             get;
@@ -1556,6 +1566,7 @@ public sealed class DapperTenantRepository(
                 DataRegion = TenantDataRegions.NormalizeOptional(DataRegion),
                 CreatedUtc = CreatedUtc,
                 SuspendedUtc = SuspendedUtc,
+                TenantErasureRequestedUtc = TenantErasureRequestedUtc,
                 OffboardedUtc = OffboardedUtc,
                 ErasureEligibleUtc = ErasureEligibleUtc,
                 LegalHoldUntilUtc = LegalHoldUntilUtc,

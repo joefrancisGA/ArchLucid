@@ -202,9 +202,11 @@ public sealed class AgentOutputEvaluationRecorder(
                     ArchLucidInstrumentation.AgentOutputJudgeDisagreement.Record(disagreement, tags);
 
                 if (evaluated.Semantic.AgentResultEmbeddingFaithfulnessMeanCosine is { } embCos)
-                    ArchLucidInstrumentation.AgentOutputEmbeddingFaithfulnessMeanCosine.Record(
-                        EmbeddingFaithfulnessVectorMath.ToTelemetryUnitInterval(embCos),
-                        tags);
+                {
+                    double cosineUnit = EmbeddingFaithfulnessVectorMath.ToTelemetryUnitInterval(embCos);
+                    ArchLucidInstrumentation.AgentOutputEmbeddingFaithfulnessMeanCosine.Record(cosineUnit, tags);
+                    ArchLucidInstrumentation.AgentFaithfulnessCosine.Record(cosineUnit, tags);
+                }
 
                 if (evaluated.Semantic.LlmFaithfulnessScore is { } faithfulness)
                     ArchLucidInstrumentation.AgentOutputLlmFaithfulnessScore.Record(faithfulness, tags);

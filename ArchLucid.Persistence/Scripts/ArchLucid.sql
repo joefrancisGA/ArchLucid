@@ -6654,6 +6654,22 @@ BEGIN
 END;
 GO
 
+/* 222: Explicit tenant erasure request timestamp (see Migrations/222_Tenants_TenantErasureRequestedUtc.sql). */
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Tenants', N'TenantErasureRequestedUtc') IS NULL
+BEGIN
+    ALTER TABLE dbo.Tenants ADD TenantErasureRequestedUtc DATETIMEOFFSET NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Tenants', N'TenantErasureRequestedUtc') IS NOT NULL
+BEGIN
+    UPDATE dbo.Tenants
+    SET TenantErasureRequestedUtc = OffboardedUtc
+    WHERE OffboardedUtc IS NOT NULL
+      AND TenantErasureRequestedUtc IS NULL;
+END;
+GO
+
 /* 171: Global policy pack catalog hub (see Migrations/171_PolicyPackCatalogEntry.sql). */
 IF OBJECT_ID(N'dbo.PolicyPackCatalogEntry', N'U') IS NULL
 BEGIN

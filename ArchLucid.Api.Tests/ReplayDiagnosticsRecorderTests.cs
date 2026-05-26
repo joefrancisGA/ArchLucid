@@ -15,10 +15,24 @@ namespace ArchLucid.Api.Tests;
 public sealed class ReplayDiagnosticsRecorderTests
 {
     [SkippableFact]
+    public void Record_defaults_max_retained_records_to_one_hundred()
+    {
+        Mock<IOptionsMonitor<ReplayDiagnosticsOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new ReplayDiagnosticsOptions());
+        ReplayDiagnosticsRecorder sut = new(options.Object);
+
+        for (int i = 0; i < 101; i++)
+            sut.Record(NewEntry($"entry-{i}"));
+
+        sut.GetRecent(200).Should().HaveCount(100);
+        sut.GetRecent(200)[0].ComparisonRecordId.Should().Be("entry-1");
+    }
+
+    [SkippableFact]
     public void Record_respects_capacity()
     {
         Mock<IOptionsMonitor<ReplayDiagnosticsOptions>> options = new();
-        options.Setup(o => o.CurrentValue).Returns(new ReplayDiagnosticsOptions { Capacity = 2, RetentionMinutes = 0 });
+        options.Setup(o => o.CurrentValue).Returns(new ReplayDiagnosticsOptions { MaxRetainedRecords = 2, RetentionMinutes = 0 });
         ReplayDiagnosticsRecorder sut = new(options.Object);
 
         sut.Record(NewEntry("a"));
@@ -35,7 +49,7 @@ public sealed class ReplayDiagnosticsRecorderTests
     {
         Mock<IOptionsMonitor<ReplayDiagnosticsOptions>> options = new();
         options.Setup(o => o.CurrentValue)
-            .Returns(new ReplayDiagnosticsOptions { Capacity = 100, RetentionMinutes = 60 });
+            .Returns(new ReplayDiagnosticsOptions { MaxRetainedRecords = 100, RetentionMinutes = 60 });
         ReplayDiagnosticsRecorder sut = new(options.Object);
 
         sut.Record(new ReplayDiagnosticsEntry

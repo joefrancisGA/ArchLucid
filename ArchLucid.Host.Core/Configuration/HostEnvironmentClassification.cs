@@ -31,4 +31,17 @@ public static class HostEnvironmentClassification
         return string.Equals(trimmed, "Production", StringComparison.OrdinalIgnoreCase) ||
                string.Equals(trimmed, "Staging", StringComparison.OrdinalIgnoreCase);
     }
+
+    /// <summary>
+    ///     True for ASP.NET Core Development hosts or hosts whose environment name is <c>Sandbox</c> (case-insensitive).
+    /// </summary>
+    public static bool IsDevelopmentOrSandbox(IHostEnvironment hostEnvironment)
+    {
+        ArgumentNullException.ThrowIfNull(hostEnvironment);
+
+        if (hostEnvironment.IsDevelopment())
+            return true;
+
+        return string.Equals(hostEnvironment.EnvironmentName, "Sandbox", StringComparison.OrdinalIgnoreCase);
+    }
 }

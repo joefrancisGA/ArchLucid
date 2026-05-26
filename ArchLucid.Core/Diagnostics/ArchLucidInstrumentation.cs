@@ -771,6 +771,15 @@ public static class ArchLucidInstrumentation
             "archlucid_agent_output_embedding_faithfulness_mean_cosine",
             description: "Mean cosine similarity between claims/findings and evidence chunks (0-1 clamp).");
 
+    /// <summary>
+    ///     Embedding faithfulness cosine score for agent output evaluation (0–1; label <c>agent_type</c>) when
+    ///     <c>ArchLucid:Agents:Faithfulness:EmbeddingEnabled</c> is true.
+    /// </summary>
+    public static readonly Histogram<double> AgentFaithfulnessCosine =
+        AppMeter.CreateHistogram<double>(
+            "archlucid.agent.faithfulness_cosine",
+            description: "Embedding faithfulness cosine similarity for agent JSON vs evidence (0-1).");
+
     /// <summary>Absolute delta between LLM judge median score and heuristic semantic score (label <c>agent_type</c>).</summary>
     public static readonly Histogram<double> AgentOutputJudgeDisagreement =
         AppMeter.CreateHistogram<double>(

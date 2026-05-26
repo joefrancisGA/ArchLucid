@@ -107,6 +107,32 @@ public sealed class StartupConfigWarningsInstrumentationTests
     }
 
     [Fact]
+    public void ContentSafetyAllowNullGuard_PostConfigure_when_enabled_outside_development_increments_metric()
+    {
+        _ = ArchLucidInstrumentation.StartupConfigWarningsTotal;
+
+        using StartupConfigWarningsCapture capture = StartupConfigWarningsCapture.Start();
+
+        ContentSafetyAllowNullGuardProductionWarningPostConfigure sut = new(
+            new StubHostEnvironment(Environments.Staging),
+            NullLogger<ContentSafetyAllowNullGuardProductionWarningPostConfigure>.Instance);
+
+        sut.PostConfigure(
+            null,
+            new ContentSafetyOptions { Enabled = false, AllowNullGuardInDevelopment = true });
+
+        capture.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid_startup_config_warnings_total"
+            && m.Value == 1
+            && m.Tags.Any(t =>
+                t.Key == "rule_name"
+                && string.Equals(
+                    t.Value as string,
+                    ContentSafetyStartupWarningRuleNames.AllowNullGuardOutsideDevelopmentOrSandbox,
+                    StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public void RetrievalTelemetry_PostConfigure_when_per_tenant_tags_exceed_estimate_on_production_like_increments_metric()
     {
         _ = ArchLucidInstrumentation.StartupConfigWarningsTotal;
