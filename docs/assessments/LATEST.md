@@ -9,7 +9,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 ## Executive Summary
 
 **Headline Readiness (A)**
-At 93.53% headline readiness, the V1 solution is architecturally mature and highly resilient. Batch 4 prepared V2 privacy workflows (`TenantErasureRequestedUtc`), bounded graph projection memory via byte-weighted cache entries, Tier 2 hosted extractor manual run API, LLM monthly budget approaching audit events, PSScriptAnalyzer CI on the Tier 1 extractor script, and production-like per-tenant telemetry cardinality startup warnings.
+At 94.00% headline readiness, the V1 solution is architecturally mature and highly resilient. Batch 4 prepared V2 privacy workflows (`TenantErasureRequestedUtc`), bounded graph projection memory via byte-weighted cache entries, Tier 2 hosted extractor manual run API, LLM monthly budget approaching audit events, PSScriptAnalyzer CI on the Tier 1 extractor script, and production-like per-tenant telemetry cardinality startup warnings.
 
 **Procurement/Market-Motion Realism (B)**
 Despite strong technical isolation, enterprise procurement will encounter some friction. The lack of an automated GDPR/CCPA tenant erasure pipeline will require careful navigation and roadmap assurances during enterprise privacy reviews. SSO onboarding still requires manual claim mapping, though unified identity-provider health diagnostics now shorten mean time to diagnose misconfigurations.
@@ -47,7 +47,7 @@ Engineering hygiene is exceptional. Batch 4 tightened extractor script CI valida
 - **Weighted Deficiency:** 36
 - **Justification:** Tier 1 Azure Extractor requires no credentials. `POST /v1/admin/azure-extractor/hosted/run` lets operators synchronously test Tier 2 WIF extraction before background auto-pull. Identity-provider health diagnostics shorten SSO misconfiguration diagnosis time.
 - **Tradeoffs:** Database-per-tenant isolation adds backend provisioning complexity and latency during tenant creation but ensures bulletproof data segregation.
-- **Improvement Recommendations:** Ship hosted extractor background auto-pull worker (V1.1) to eliminate manual run triggers for steady-state ingestion.
+- **Improvement Recommendations:** Ship hosted extractor background auto-pull worker (V1.x) to eliminate manual run triggers for steady-state ingestion.
 
 **4. Proof-of-ROI Readiness**
 - **Score:** 96
