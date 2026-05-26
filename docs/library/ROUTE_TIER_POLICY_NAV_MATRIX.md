@@ -60,7 +60,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/DocsController.cs` | `/docs` | none | ReadAuthority |  | static_operator_docs_html |
 | `Admin/EvidenceProposalsController.cs` | `/v1/admin/evidence` | none | AdminAuthority |  |  |
 | `Admin/HostedAzureExtractorAdminController.cs` | `/v1/admin/azure-extractor/hosted` | none | AdminAuthority |  |  |
-| `Admin/HostedAzureExtractorRunController.cs` | `/v1/admin/azure-extractor/hosted` | none | ExecuteAuthority |  |  |
+| `Admin/HostedAzureExtractorRunController.cs` | `/v1/admin/azure-extractor/hosted` | none | AdminAuthority |  |  |
 | `Admin/IdentityProviderConfigurationController.cs` | `/v1/admin/identity` | none | AdminAuthority |  |  |
 | `Admin/JobsController.cs` | `/v1/jobs` | none | ReadAuthority |  |  |
 | `Admin/MarketingPricingQuoteAgingAdminController.cs` | `/v1/admin/marketing/pricing-quote-aging` | none | AdminAuthority |  |  |

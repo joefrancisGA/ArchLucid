@@ -1,23 +1,65 @@
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
 
+using Microsoft.Extensions.Caching.Memory;
+
 namespace ArchLucid.Application.Analysis;
 
 /// <inheritdoc cref = "IComparisonReplayCostEstimator"/>
-public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository comparisonRecords) : IComparisonReplayCostEstimator
+public sealed class ComparisonReplayCostEstimator(
+    IComparisonRecordRepository comparisonRecords,
+    IMemoryCache memoryCache) : IComparisonReplayCostEstimator
 {
+    private static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(15);
+
     private readonly IComparisonRecordRepository _comparisonRecords = comparisonRecords.ThrowIfNull();
+
+    private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
 
     /// <inheritdoc/>
     public async Task<ComparisonReplayCostEstimate?> TryEstimateAsync(string comparisonRecordId, string? format, string? replayMode, bool persistReplay,
         CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
-        ComparisonRecord? record = await _comparisonRecords.GetByIdAsync(comparisonRecordId, ct);
-        if (record is null)
-            return null;
+
         string normalizedFormat = ComparisonReplayRequestParsing.NormalizeFormat(format);
         ComparisonReplayMode mode = ComparisonReplayRequestParsing.ParseReplayMode(replayMode);
+        string cacheKey = BuildCacheKey(comparisonRecordId, normalizedFormat, mode, persistReplay);
+
+        if (_memoryCache.TryGetValue(cacheKey, out ComparisonReplayCostEstimate? cached) && cached is not null)
+            return cached;
+
+        ComparisonReplayCostEstimate? estimate = await ComputeEstimateAsync(
+                comparisonRecordId,
+                normalizedFormat,
+                mode,
+                persistReplay,
+                ct)
+            .ConfigureAwait(false);
+
+        if (estimate is not null)
+        {
+            _memoryCache.Set(
+                cacheKey,
+                estimate,
+                new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = CacheTtl });
+        }
+
+        return estimate;
+    }
+
+    private async Task<ComparisonReplayCostEstimate?> ComputeEstimateAsync(
+        string comparisonRecordId,
+        string normalizedFormat,
+        ComparisonReplayMode mode,
+        bool persistReplay,
+        CancellationToken ct)
+    {
+        ComparisonRecord? record = await _comparisonRecords.GetByIdAsync(comparisonRecordId, ct);
+
+        if (record is null)
+            return null;
+
         List<string> factors = [];
         int score = ScoreForRecord(record, normalizedFormat, mode, factors);
         score += ComparisonReplayPayloadComplexity.ScorePayloadComplexity(record.PayloadJson, factors);
@@ -29,6 +71,7 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
         }
 
         int payloadChars = record.PayloadJson.Length;
+
         if (payloadChars > 500_000)
         {
             score += 3;
@@ -37,6 +80,7 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
 
         int clamped = Math.Clamp(score, 0, 100);
         string band = clamped <= 4 ? "low" : clamped <= 12 ? "medium" : "high";
+
         return new ComparisonReplayCostEstimate
         {
             ComparisonRecordId = record.ComparisonRecordId,
@@ -50,13 +94,23 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
         };
     }
 
+    private static string BuildCacheKey(
+        string comparisonRecordId,
+        string normalizedFormat,
+        ComparisonReplayMode mode,
+        bool persistReplay) =>
+        $"comparison-replay-cost:{comparisonRecordId}:{normalizedFormat}:{mode}:{persistReplay}";
+
     private static int ScoreForRecord(ComparisonRecord record, string normalizedFormat, ComparisonReplayMode mode, List<string> factors)
     {
         if (string.Equals(record.ComparisonType, ComparisonTypes.EndToEndReplay, StringComparison.OrdinalIgnoreCase))
             return ScoreEndToEnd(normalizedFormat, mode, factors);
+
         if (string.Equals(record.ComparisonType, ComparisonTypes.ExportRecordDiff, StringComparison.OrdinalIgnoreCase))
             return ScoreExportDiff(normalizedFormat, mode, factors);
+
         factors.Add($"Comparison type '{record.ComparisonType}' is not replayable via the standard replay API.");
+
         return 25;
     }
 
@@ -77,6 +131,7 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
             ComparisonReplayMode.Verify => "Verify regenerates and compares against the stored payload (highest cost).",
             _ => "Replay mode factor applied."
         });
+
         return modeBase + formatWeight;
     }
 
@@ -91,6 +146,7 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
             _ => 2
         };
         factors.Add("Export-record diff touches two export rows when regenerating.");
+
         return modeBase + formatWeight;
     }
 
@@ -98,25 +154,30 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
     {
         if (string.Equals(normalizedFormat, "markdown", StringComparison.OrdinalIgnoreCase))
             return 0;
+
         if (string.Equals(normalizedFormat, "html", StringComparison.OrdinalIgnoreCase))
         {
             factors.Add("HTML formatting adds rendering work versus plain markdown.");
+
             return 1;
         }
 
         if (string.Equals(normalizedFormat, "docx", StringComparison.OrdinalIgnoreCase))
         {
             factors.Add("DOCX generation is significantly more expensive than markdown.");
+
             return 3;
         }
 
         if (string.Equals(normalizedFormat, "pdf", StringComparison.OrdinalIgnoreCase))
         {
             factors.Add("PDF generation is typically the most expensive text export format.");
+
             return 4;
         }
 
         factors.Add($"Format '{normalizedFormat}' is non-standard; replay may fail at execution time.");
+
         return 2;
     }
 
@@ -124,13 +185,16 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
     {
         if (string.Equals(normalizedFormat, "markdown", StringComparison.OrdinalIgnoreCase))
             return 0;
+
         if (string.Equals(normalizedFormat, "docx", StringComparison.OrdinalIgnoreCase))
         {
             factors.Add("DOCX export for export diffs uses the document pipeline.");
+
             return 3;
         }
 
         factors.Add($"Export-record diff replays support markdown and docx only; '{normalizedFormat}' would be rejected on replay.");
+
         return 2;
     }
 }

@@ -79,6 +79,7 @@ public static class WorkerHostPipelineExtensions
         app.MapHealthChecks("/health/ready", new HealthCheckOptions
             {
                 Predicate = static check => check.Tags.Contains(ReadinessTags.Ready),
+                ResultStatusCodes = ArchLucidReadinessHealthCheckOptions.ReadyEndpointResultStatusCodes,
                 ResponseWriter = static (ctx, r) =>
                     DetailedHealthCheckResponseWriter.WriteAsync(ctx, r, HealthCheckResponseDetailLevel.Summary),
             })

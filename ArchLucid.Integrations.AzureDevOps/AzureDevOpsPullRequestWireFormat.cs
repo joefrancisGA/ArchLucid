@@ -36,16 +36,18 @@ public static class AzureDevOpsPullRequestWireFormat
     }
 
     /// <summary>Serializes the POST <c>…/pullrequests/{id}/statuses</c> body.</summary>
-    public static string SerializeStatusCreate(string? description, string? targetUrl)
+    public static string SerializeStatusCreate(string? description, string? targetUrl, string state = "succeeded")
     {
         string desc = description ?? string.Empty;
 
         if (desc.Length > 512)
             desc = desc[..512];
 
+        string normalizedState = string.IsNullOrWhiteSpace(state) ? "succeeded" : state.Trim().ToLowerInvariant();
+
         StatusCreateDto body = new()
         {
-            State = "succeeded",
+            State = normalizedState,
             Description = desc,
             Context = new StatusContextDto { Name = "archlucid-manifest", Genre = "archlucid" },
             TargetUrl = string.IsNullOrWhiteSpace(targetUrl) ? null : targetUrl.Trim(),

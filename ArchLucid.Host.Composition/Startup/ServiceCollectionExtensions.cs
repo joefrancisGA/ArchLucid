@@ -118,6 +118,7 @@ public static partial class ServiceCollectionExtensions
         RegisterRetrievalIndexingOutbox(services, hostingRole);
         RegisterIntegrationEventOutbox(services, hostingRole);
         RegisterIntegrationEventConsumer(services, configuration, hostingRole);
+        RegisterAzureDevOpsCommitStatusPublisher(services, configuration);
         RegisterDataArchivalHostedService(services, configuration, hostingRole);
         RegisterAgentResultBlobCleanupHostedService(services, configuration, hostingRole);
         RegisterExecutiveRoiCacheWarmupHostedService(services, configuration, hostingRole);

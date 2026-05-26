@@ -7,6 +7,8 @@ using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Caching.Memory;
+
 using Moq;
 
 namespace ArchLucid.Application.Tests.Analysis;
@@ -18,11 +20,28 @@ namespace ArchLucid.Application.Tests.Analysis;
 public sealed class ComparisonReplayCostEstimatorTests
 {
     [SkippableFact]
+    public async Task TryEstimateAsync_second_call_uses_memory_cache()
+    {
+        Mock<IComparisonRecordRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c1", ComparisonType = ComparisonTypes.EndToEndReplay, PayloadJson = "{}"
+            });
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
+
+        _ = await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+        _ = await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+
+        repo.Verify(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [SkippableFact]
     public async Task TryEstimateAsync_missing_record_returns_null()
     {
         Mock<IComparisonRecordRepository> repo = new();
         repo.Setup(r => r.GetByIdAsync("missing", It.IsAny<CancellationToken>())).ReturnsAsync((ComparisonRecord?)null);
-        ComparisonReplayCostEstimator sut = new(repo.Object);
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
 
         ComparisonReplayCostEstimate? result =
             await sut.TryEstimateAsync("missing", null, "artifact", false, CancellationToken.None);
@@ -39,7 +58,7 @@ public sealed class ComparisonReplayCostEstimatorTests
             {
                 ComparisonRecordId = "c1", ComparisonType = ComparisonTypes.EndToEndReplay, PayloadJson = "{}"
             });
-        ComparisonReplayCostEstimator sut = new(repo.Object);
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
 
         ComparisonReplayCostEstimate? result =
             await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
@@ -55,7 +74,7 @@ public sealed class ComparisonReplayCostEstimatorTests
         Mock<IComparisonRecordRepository> repo = new();
         repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
             new ComparisonRecord { ComparisonRecordId = "c1", ComparisonType = ComparisonTypes.EndToEndReplay });
-        ComparisonReplayCostEstimator sut = new(repo.Object);
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
 
         Func<Task> act = async () =>
             await sut.TryEstimateAsync("c1", null, "not-a-mode", false, CancellationToken.None);
@@ -72,7 +91,7 @@ public sealed class ComparisonReplayCostEstimatorTests
             {
                 ComparisonRecordId = "c1", ComparisonType = ComparisonTypes.EndToEndReplay, PayloadJson = "{}"
             });
-        ComparisonReplayCostEstimator sut = new(repo.Object);
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
 
         ComparisonReplayCostEstimate? withPersist =
             await sut.TryEstimateAsync("c1", "markdown", "artifact", true, CancellationToken.None);
@@ -97,7 +116,7 @@ public sealed class ComparisonReplayCostEstimatorTests
                 ComparisonType = ComparisonTypes.EndToEndReplay,
                 PayloadJson = largePayload
             });
-        ComparisonReplayCostEstimator sut = new(repo.Object);
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
 
         ComparisonReplayCostEstimate? result =
             await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
@@ -123,7 +142,7 @@ public sealed class ComparisonReplayCostEstimatorTests
                 PayloadJson = payloadJson
             });
 
-        ComparisonReplayCostEstimator sut = new(repo.Object);
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
 
         ComparisonReplayCostEstimate? rich =
             await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
@@ -166,7 +185,7 @@ public sealed class ComparisonReplayCostEstimatorTests
                 PayloadJson = payloadJson
             });
 
-        ComparisonReplayCostEstimator sut = new(repo.Object);
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
 
         ComparisonReplayCostEstimate? rich =
             await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
@@ -213,7 +232,7 @@ public sealed class ComparisonReplayCostEstimatorTests
                 PayloadJson = payloadJson
             });
 
-        ComparisonReplayCostEstimator sut = new(repo.Object);
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
 
         ComparisonReplayCostEstimate? result =
             await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
@@ -233,7 +252,7 @@ public sealed class ComparisonReplayCostEstimatorTests
                 ComparisonType = ComparisonTypes.EndToEndReplay,
                 PayloadJson = "{}"
             });
-        ComparisonReplayCostEstimator sut = new(repo.Object);
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
 
         ComparisonReplayCostEstimate? result =
             await sut.TryEstimateAsync("c1", "html", "artifact", true, CancellationToken.None);
@@ -254,7 +273,7 @@ public sealed class ComparisonReplayCostEstimatorTests
                 ComparisonType = ComparisonTypes.ExportRecordDiff,
                 PayloadJson = "{}"
             });
-        ComparisonReplayCostEstimator sut = new(repo.Object);
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
 
         ComparisonReplayCostEstimate? result =
             await sut.TryEstimateAsync("c1", "markdown", "regenerate", false, CancellationToken.None);
@@ -275,7 +294,7 @@ public sealed class ComparisonReplayCostEstimatorTests
                 ComparisonType = ComparisonTypes.EndToEndReplay,
                 PayloadJson = "{}"
             });
-        ComparisonReplayCostEstimator sut = new(repo.Object);
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
 
         ComparisonReplayCostEstimate? result =
             await sut.TryEstimateAsync("c1", "html", "verify", false, CancellationToken.None);
@@ -296,7 +315,7 @@ public sealed class ComparisonReplayCostEstimatorTests
                 ComparisonType = ComparisonTypes.EndToEndReplay,
                 PayloadJson = "{}"
             });
-        ComparisonReplayCostEstimator sut = new(repo.Object);
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
 
         ComparisonReplayCostEstimate? result =
             await sut.TryEstimateAsync("c1", "pdf", "verify", false, CancellationToken.None);
@@ -317,7 +336,7 @@ public sealed class ComparisonReplayCostEstimatorTests
                 ComparisonType = ComparisonTypes.EndToEndReplay,
                 PayloadJson = "{}"
             });
-        ComparisonReplayCostEstimator sut = new(repo.Object);
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
 
         ComparisonReplayCostEstimate? result =
             await sut.TryEstimateAsync("c1", "yaml", "verify", false, CancellationToken.None);
@@ -338,7 +357,7 @@ public sealed class ComparisonReplayCostEstimatorTests
                 ComparisonType = "not-replayable",
                 PayloadJson = "{}"
             });
-        ComparisonReplayCostEstimator sut = new(repo.Object);
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
 
         ComparisonReplayCostEstimate? result =
             await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
@@ -359,7 +378,7 @@ public sealed class ComparisonReplayCostEstimatorTests
                 ComparisonType = ComparisonTypes.ExportRecordDiff,
                 PayloadJson = "{}"
             });
-        ComparisonReplayCostEstimator sut = new(repo.Object);
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
 
         ComparisonReplayCostEstimate? result =
             await sut.TryEstimateAsync("c1", "docx", "verify", false, CancellationToken.None);
@@ -368,4 +387,7 @@ public sealed class ComparisonReplayCostEstimatorTests
         result.ApproximateRelativeScore.Should().Be(12);
         result.RelativeCostBand.Should().Be("medium");
     }
+
+    private static ComparisonReplayCostEstimator CreateSut(IComparisonRecordRepository repository) =>
+        new(repository, new MemoryCache(new MemoryCacheOptions()));
 }

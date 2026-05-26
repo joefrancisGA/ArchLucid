@@ -10,6 +10,7 @@ using ArchLucid.Application.Findings;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Application.Runs.Telemetry;
+using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
@@ -80,6 +81,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IOptions<GenerateIacStubsOptions> generateIacStubsOptions,
     IOptions<RerankFindingsOptions> rerankFindingsOptions,
     ArchLucid.Application.Runs.Orchestration.Events.IReviewCompletedEventHandler reviewCompletedEventHandler,
+    IAzureDevOpsCommitStatusPublisher azureDevOpsCommitStatusPublisher,
     ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
     private const int CommitRunTransientMaxAttempts = 5;
@@ -161,6 +163,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     private readonly IRunStateTransitionService _runStateTransitionService =
         runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
 
+    private readonly IAzureDevOpsCommitStatusPublisher _azureDevOpsCommitStatusPublisher =
+        azureDevOpsCommitStatusPublisher ?? throw new ArgumentNullException(nameof(azureDevOpsCommitStatusPublisher));
+
     /// <inheritdoc/>
     public Task<CommitRunResult> CommitRunAsync(string runId, CancellationToken cancellationToken = default) =>
         CommitRunAsync(runId, null, cancellationToken);
@@ -182,6 +187,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             catch (RunNotFoundException)
             {
                 await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, runId, "Run not found.", cancellationToken);
+                await TryPublishAzureDevOpsCommitStatusBestEffortAsync(runId, succeeded: false, cancellationToken);
                 throw;
             }
             catch (Exception ex) when (SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex))
@@ -259,6 +265,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         {
             await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, runId, $"Commit blocked: {ex.Message}",
                 cancellationToken);
+            await TryPublishAzureDevOpsCommitStatusBestEffortAsync(runId, succeeded: false, cancellationToken);
             throw;
         }
 
@@ -306,6 +313,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, runId, ex.GetType().Name, cancellationToken);
+            await TryPublishAzureDevOpsCommitStatusBestEffortAsync(runId, succeeded: false, cancellationToken);
             throw;
         }
 
@@ -347,6 +355,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         {
             await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, runId, $"Persist failed: {ex.GetType().Name}",
                 cancellationToken);
+            await TryPublishAzureDevOpsCommitStatusBestEffortAsync(runId, succeeded: false, cancellationToken);
             throw;
         }
 
@@ -407,7 +416,36 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         TryScheduleFindingPriorityRerank(runId);
         TryScheduleReviewCompletedEvent(runId, scope.ProjectId.ToString("N"));
 
+        await TryPublishAzureDevOpsCommitStatusBestEffortAsync(runId, succeeded: true, cancellationToken);
+
         return new CommitRunResult { Manifest = contract, DecisionTraces = [DecisionTraceRecordMapper.ToDto(trace)], Warnings = persisted.Warnings.Count == 0 ? [] : [.. persisted.Warnings] };
+    }
+
+    private async Task TryPublishAzureDevOpsCommitStatusBestEffortAsync(
+        string runId,
+        bool succeeded,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParseExact(runId, "N", out Guid runGuid) && !Guid.TryParse(runId, out runGuid))
+            return;
+
+        try
+        {
+            await _azureDevOpsCommitStatusPublisher
+                .PublishCommitOutcomeAsync(runGuid, succeeded, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Azure DevOps commit status publish failed for RunId={RunId} (Succeeded={Succeeded}).",
+                    LogSanitizer.Sanitize(runId),
+                    succeeded);
+            }
+        }
     }
 
     private void TryScheduleReviewCompletedEvent(string runId, string projectId)

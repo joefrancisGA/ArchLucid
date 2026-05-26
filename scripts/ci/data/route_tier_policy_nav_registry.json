@@ -187,7 +187,7 @@
       "route_template": "v{version:apiVersion}/admin/azure-extractor/hosted",
       "normalized_prefix": "/v1/admin/azure-extractor/hosted",
       "commercial_tier": "none",
-      "class_policy": "ExecuteAuthority",
+      "class_policy": "AdminAuthority",
       "exemption": null,
       "nav_operator_href": null
     },

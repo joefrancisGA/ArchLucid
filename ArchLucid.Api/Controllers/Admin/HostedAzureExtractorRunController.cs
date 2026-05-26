@@ -13,10 +13,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>
-///     Triggers Tier 2 hosted Azure extractor collection (ExecuteAuthority — ingest audit emitted by upload pipeline).
+///     Triggers Tier 2 hosted Azure extractor collection (AdminAuthority — ingest audit emitted by upload pipeline).
 /// </summary>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+[Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin/azure-extractor/hosted")]
 public sealed class HostedAzureExtractorRunController(

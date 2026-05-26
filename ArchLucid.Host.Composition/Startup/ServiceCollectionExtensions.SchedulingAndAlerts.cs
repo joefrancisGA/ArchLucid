@@ -206,6 +206,17 @@ public static partial class ServiceCollectionExtensions
 
     }
 
+    private static void RegisterAzureDevOpsCommitStatusPublisher(
+        IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.Configure<AzureDevOpsIntegrationOptions>(configuration.GetSection(AzureDevOpsIntegrationOptions.SectionName));
+        services.AddHttpClient(
+            AzureDevOpsCommitStatusPublisher.HttpClientName,
+            static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.DevOpsIntegration));
+        services.AddScoped<IAzureDevOpsCommitStatusPublisher, AzureDevOpsCommitStatusPublisher>();
+    }
+
     private static void RegisterIntegrationEventConsumer(
         IServiceCollection services,
         IConfiguration configuration,
