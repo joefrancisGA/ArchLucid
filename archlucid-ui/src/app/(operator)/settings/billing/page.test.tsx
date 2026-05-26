@@ -1,9 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const showError = vi.fn();
 const showInfo = vi.fn();
 
 vi.mock("@/lib/toast", () => ({
+  showError: (...args: unknown[]) => showError(...args),
   showInfo: (...args: unknown[]) => showInfo(...args),
 }));
 
@@ -45,15 +47,36 @@ const pricingFixture = {
   ],
 };
 
+const walletFixture = {
+  balanceUsd: 25,
+  autoReplenishEnabled: false,
+  monthlyCapUsd: 0,
+  refillIncrementUsd: 25,
+  refillTriggerThresholdUsd: 5,
+  autoRefillsThisUtcMonthCount: 0,
+  hasPaymentMethod: false,
+  rowVersionBase64: "dGVzdA==",
+};
+
 describe("BillingSettingsPage", () => {
   beforeEach(() => {
+    showError.mockClear();
     showInfo.mockClear();
   });
 
   it("loads tiers from pricing.json and shows Stripe pending toast when upgrading to Team", async () => {
     const fetchMock = vi.fn(async (input: string | URL) => {
-      if (String(input).includes("/pricing.json")) {
+      const url = String(input);
+
+      if (url.includes("/pricing.json")) {
         return new Response(JSON.stringify(pricingFixture), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      if (url.includes("/api/proxy/v1/billing/wallet")) {
+        return new Response(JSON.stringify(walletFixture), {
           status: 200,
           headers: { "Content-Type": "application/json" },
         });
