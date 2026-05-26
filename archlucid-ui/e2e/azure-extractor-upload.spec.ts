@@ -25,7 +25,7 @@ test.describe("Azure extractor ZIP wizard field", () => {
       }),
     };
 
-    await page.getByTestId("wizard-baseline-zip-field").getByLabel("Azure packager ZIP file").setInputFiles(zipFile);
+    await page.getByTestId("wizard-baseline-zip-field-input").setInputFiles(zipFile);
 
     await expect(page.getByTestId("wizard-azure-zip-error")).toHaveCount(0, { timeout: 15_000 });
     await expect(page.getByTestId("wizard-azure-zip-schema-warning")).toHaveCount(0);
@@ -43,7 +43,7 @@ test.describe("Azure extractor ZIP wizard field", () => {
       buffer: Buffer.from(zipSync({ "readme.txt": strToU8("not a packager zip") })),
     };
 
-    await page.getByTestId("wizard-baseline-zip-field").getByLabel("Azure packager ZIP file").setInputFiles(zipFile);
+    await page.getByTestId("wizard-baseline-zip-field-input").setInputFiles(zipFile);
 
     await expect(page.getByTestId("wizard-azure-zip-error")).toContainText(/manifest\.json/i, { timeout: 15_000 });
   });
@@ -61,7 +61,7 @@ test.describe("Azure extractor ZIP wizard field", () => {
       }),
     };
 
-    await page.getByTestId("wizard-baseline-zip-field").getByLabel("Azure packager ZIP file").setInputFiles(zipFile);
+    await page.getByTestId("wizard-baseline-zip-field-input").setInputFiles(zipFile);
 
     await expect(page.getByTestId("wizard-azure-zip-error")).toContainText(
       /Unsupported schema version/i,

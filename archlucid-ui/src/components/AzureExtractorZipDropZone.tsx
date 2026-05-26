@@ -105,7 +105,8 @@ export function AzureExtractorZipDropZone(props: AzureExtractorZipDropZoneProps)
         type="file"
         accept=".zip,application/zip"
         disabled={isDisabled}
-        aria-label={ariaLabel}
+        aria-hidden="true"
+        tabIndex={-1}
         className="sr-only"
         data-testid={testId ? `${testId}-input` : "azure-extractor-zip-drop-input"}
         onChange={(event) => {

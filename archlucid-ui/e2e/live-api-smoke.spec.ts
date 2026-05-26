@@ -146,10 +146,7 @@ test.describe("live-api-smoke", () => {
 
     const zipFile = makeLiveSmokeArchLucidZipForInput();
 
-    await page
-      .getByTestId("wizard-baseline-zip-field")
-      .getByLabel("Azure packager ZIP file")
-      .setInputFiles(zipFile);
+    await page.getByTestId("wizard-baseline-zip-field-input").setInputFiles(zipFile);
 
     await expect(page.getByTestId("wizard-azure-zip-error")).toHaveCount(0, { timeout: 30_000 });
 
