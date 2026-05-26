@@ -7,7 +7,7 @@ namespace ArchLucid.Host.Core.Health;
 public static class ArchLucidReadinessHealthCheckOptions
 {
     /// <summary>Maps degraded readiness checks to HTTP 503 so load balancers stop routing traffic.</summary>
-    public static IReadOnlyDictionary<HealthStatus, int> ReadyEndpointResultStatusCodes { get; } =
+    public static IDictionary<HealthStatus, int> ReadyEndpointResultStatusCodes { get; } =
         new Dictionary<HealthStatus, int>
         {
             [HealthStatus.Healthy] = StatusCodes.Status200OK,
