@@ -4,14 +4,17 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
+import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import { showError, showSuccess } from "@/lib/toast";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { parseAzureExtractorUploadFailure } from "@/lib/azure-extractor-upload-failure";
+import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
+import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
+import { readArchLucidAzurePackageZipFromFile } from "@/lib/read-arch-lucid-azure-package-zip";
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { showError, showSuccess } from "@/lib/toast";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 
 const EXTRACTOR_SCRIPT_CDN_URL =
@@ -33,6 +36,7 @@ export function ExtractUploadSettingsPageClient() {
   } | null>(null);
   const [packageId, setPackageId] = useState<string | null>(null);
   const [extractorUpdateBanner, setExtractorUpdateBanner] = useState<string | null>(null);
+  const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
 
   useEffect(() => {
     let cancelled = false;
@@ -75,11 +79,29 @@ export function ExtractUploadSettingsPageClient() {
     };
   }, []);
 
-  async function onUpload(file: File) {
-    setBusy(true);
-    setSelectedFileLabel(`${file.name} (${Math.max(1, Math.round(file.size / 1024))} KB)`);
+  async function onZipSelected(file: File): Promise<void> {
     setUploadError(null);
     setPackageId(null);
+    setSelectedFileLabel(`${file.name} (${Math.max(1, Math.round(file.size / 1024))} KB)`);
+
+    const validation = await readArchLucidAzurePackageZipFromFile(file);
+
+    if (!validation.ok) {
+      setUploadError({
+        message: validation.message,
+        problem: null,
+        correlationId: null,
+      });
+      showError("Azure upload", validation.message);
+
+      return;
+    }
+
+    await onUpload(file);
+  }
+
+  async function onUpload(file: File) {
+    setBusy(true);
 
     try {
       const formData = new FormData();
@@ -188,32 +210,25 @@ export function ExtractUploadSettingsPageClient() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Step 4 — Upload ZIP</CardTitle>
-          <CardDescription>Server validates manifest schema; 422 errors show inline below.</CardDescription>
+          <CardDescription>
+            Drag and drop or browse. Client-side checks validate <code>manifest.json</code> schemaVersion before the API
+            call (max {maxMb} MB).
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          <input
-            type="file"
-            accept=".zip,application/zip"
-            disabled={busy}
-            aria-label="Azure extractor ZIP upload"
-            data-testid="extract-upload-file-input"
-            className="block w-full text-sm"
-            onChange={(event) => {
-              const file = event.currentTarget.files?.[0];
-
-              if (file === undefined) {
-                return;
-              }
-
-              void onUpload(file);
-              event.currentTarget.value = "";
-            }}
+          <AzureExtractorZipDropZone
+            ariaLabel="Azure extractor ZIP upload"
+            busy={busy}
+            testId="extract-upload-drop-zone"
+            hint={
+              selectedFileLabel !== null ? (
+                <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" data-testid="extract-upload-file-meta">
+                  Selected: {selectedFileLabel}
+                </p>
+              ) : null
+            }
+            onZipSelected={onZipSelected}
           />
-          {selectedFileLabel !== null ? (
-            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" data-testid="extract-upload-file-meta">
-              Selected: {selectedFileLabel}
-            </p>
-          ) : null}
           {uploadError !== null ? (
             <AzureExtractorUploadFailureCallout
               fallbackMessage={uploadError.message}

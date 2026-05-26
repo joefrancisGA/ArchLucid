@@ -8,6 +8,7 @@ import {
   shellBootstrapReadPrincipal,
   type CurrentPrincipal,
 } from "@/lib/current-principal";
+import { publishOperatorShellPrincipalSnapshot } from "@/lib/operator-shell-principal-snapshot";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
@@ -55,6 +56,7 @@ export function OperatorNavAuthorityProvider({ children }: { children: ReactNode
 
       setCallerAuthorityRank(principal.authorityRank);
       setCurrentPrincipal(principal);
+      publishOperatorShellPrincipalSnapshot(principal);
     } catch {
       setCallerAuthorityRank(AUTHORITY_RANK.ReadAuthority);
       setCurrentPrincipal(shellBootstrapReadPrincipal);

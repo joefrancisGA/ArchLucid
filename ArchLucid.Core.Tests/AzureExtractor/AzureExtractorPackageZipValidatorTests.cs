@@ -49,6 +49,21 @@ public sealed class AzureExtractorPackageZipValidatorTests
         result.IsValid.Should().BeFalse();
         result.IsSchemaRejection.Should().BeTrue();
         result.ErrorDetail.Should().Contain("schemaVersion");
+        result.ErrorDetail.Should().Contain("Required schemaVersion: 1");
+    }
+
+    [Fact]
+    public void Validate_legacy_schema_zero_is_schema_rejection()
+    {
+        byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 0, includeResources: true);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("below the required V1 GA minimum");
     }
 
     [Fact]

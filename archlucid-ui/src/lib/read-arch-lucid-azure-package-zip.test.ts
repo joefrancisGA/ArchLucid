@@ -33,6 +33,25 @@ describe("readArchLucidAzurePackageZipFromBytes", () => {
     expect(result.manifest.scope).toContain("resourceGroups");
   });
 
+  it("rejects unsupported schemaVersion before upload", () => {
+    const bytes = zipWithManifest({
+      schemaVersion: 2,
+      scriptVersion: "0.2.0",
+      collectionTimestamp: "2026-05-17T12:00:00.000Z",
+      subscriptionId: "11111111-1111-1111-1111-111111111111",
+      scope: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/RgName",
+    });
+
+    const result = readArchLucidAzurePackageZipFromBytes(bytes);
+    expect(result.ok).toBe(false);
+
+    if (result.ok) {
+      return;
+    }
+
+    expect(result.message).toContain("Required schemaVersion is 1");
+  });
+
   it("rejects ZIPs without manifest.json", () => {
     const bytes = zipSync({ "readme.txt": strToU8("x") });
     const result = readArchLucidAzurePackageZipFromBytes(bytes);

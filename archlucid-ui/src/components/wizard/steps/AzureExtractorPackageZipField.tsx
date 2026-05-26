@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useState } from "react";
+import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
+import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
 import { HelpLink } from "@/components/HelpLink";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -31,7 +32,6 @@ export type AzureExtractorPackageZipFieldProps = {
 export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFieldProps) {
   const { variant } = props;
   const { setValue } = useFormContext<WizardFormValues>();
-  const inputId = useId();
   const [busy, setBusy] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
@@ -80,12 +80,9 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
   }
 
   return (
-    <div
-      className="space-y-2"
-      data-testid={variant === "baseline" ? "wizard-baseline-zip-field" : "wizard-azure-zip-field"}
-    >
+    <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-2">
-        <Label htmlFor={inputId} className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+        <Label className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
           Azure packager ZIP
         </Label>
         <HelpLink
@@ -94,92 +91,82 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
           className="h-5 w-5"
         />
       </div>
-      <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-        Same artifact as{" "}
-        <code className="rounded bg-neutral-100 px-1 py-0.5 text-[11px] dark:bg-neutral-800">
-          Get-ArchLucidAzurePackage.ps1
-        </code>{" "}
-        (read-only inventory). Maximum size {maxMb} MB (matches server upload limit). Only{" "}
-        <code className="rounded bg-neutral-100 px-1 py-0.5 text-[11px] dark:bg-neutral-800">manifest.json</code>{" "}
-        is parsed in the browser; upload the full ZIP to ingestion when your run is configured.
-      </p>
-      <input
-        id={inputId}
-        type="file"
-        accept=".zip,application/zip"
-        disabled={busy}
-        aria-label="Azure packager ZIP file"
-        className="block w-full max-w-md text-sm text-neutral-800 file:mr-3 file:rounded-md file:border file:border-neutral-300 file:bg-white file:px-3 file:py-1.5 file:text-sm file:font-medium dark:text-neutral-200 dark:file:border-neutral-600 dark:file:bg-neutral-900"
-        onChange={(event) => {
-          const input = event.currentTarget;
-          const file = input.files?.[0] ?? null;
-
-          if (file === null) {
-            return;
-          }
-
+      <AzureExtractorZipDropZone
+        ariaLabel="Azure packager ZIP file"
+        busy={busy}
+        testId={variant === "baseline" ? "wizard-baseline-zip-field" : "wizard-azure-zip-field"}
+        hint={
+          <>
+            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+              Same artifact as{" "}
+              <code className="rounded bg-neutral-100 px-1 py-0.5 text-[11px] dark:bg-neutral-800">
+                Get-ArchLucidAzurePackage.ps1
+              </code>{" "}
+              (read-only inventory). Maximum size {maxMb} MB (matches server upload limit). Only{" "}
+              <code className="rounded bg-neutral-100 px-1 py-0.5 text-[11px] dark:bg-neutral-800">manifest.json</code>{" "}
+              is parsed in the browser; upload the full ZIP to ingestion when your run is configured.
+            </p>
+            {variant === "baseline" ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={busy}
+                data-testid="wizard-azure-zip-try-sample"
+                onClick={loadSampleZip}
+              >
+                Try with Sample Data
+              </Button>
+            ) : null}
+            {busy ? (
+              <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400" data-testid="wizard-azure-zip-busy">
+                Reading manifest…
+              </p>
+            ) : null}
+            {localError !== null && localError.length > 0 ? (
+              <p className="m-0 text-sm text-red-600 dark:text-red-400" role="alert" data-testid="wizard-azure-zip-error">
+                {localError}
+              </p>
+            ) : null}
+            {variant === "ingest" ? (
+              <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                Need the command?{" "}
+                <span className="font-mono text-[11px]">
+                  {buildGetArchLucidAzurePackageCommandLine().split(/\s+/).slice(0, 3).join(" ")}…
+                </span>{" "}
+                (full line copied from the block below). Or use the{" "}
+                <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/reviews/new?baseline=1">
+                  baseline-first wizard
+                </Link>{" "}
+                to lead with ZIP upload.
+              </p>
+            ) : null}
+          </>
+        }
+        onZipSelected={async (file) => {
           setLocalError(null);
           setBusy(true);
 
-          void (async () => {
-            try {
-              if (file.size > 50 * 1024 * 1024) {
-                // Warning toast for files > 50MB
-                showError("Large file detected", "Processing may take longer than usual.", { type: "warning" });
-              }
-
-              const result = await readArchLucidAzurePackageZipFromFile(file);
-
-              if (!result.ok) {
-                setLocalError(result.message);
-                showError("Extractor ZIP", result.message);
-
-                return;
-              }
-
-              applyManifestToWizard(result.manifest);
-            } finally {
-              setBusy(false);
-              input.value = "";
+          try {
+            if (file.size > 50 * 1024 * 1024) {
+              showError("Large file detected", "Processing may take longer than usual.", { type: "warning" });
             }
-          })();
+
+            const result = await readArchLucidAzurePackageZipFromFile(file);
+
+            if (!result.ok) {
+              setLocalError(result.message);
+              showError("Extractor ZIP", result.message);
+
+              return;
+            }
+
+            applyManifestToWizard(result.manifest);
+          } finally {
+            setBusy(false);
+          }
         }}
       />
-      {variant === "baseline" ? (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={busy}
-          data-testid="wizard-azure-zip-try-sample"
-          onClick={loadSampleZip}
-        >
-          Try with Sample Data
-        </Button>
-      ) : null}
-      {busy ? (
-        <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400" data-testid="wizard-azure-zip-busy">
-          Reading manifest…
-        </p>
-      ) : null}
-      {localError !== null && localError.length > 0 ? (
-        <p className="m-0 text-sm text-red-600 dark:text-red-400" role="alert" data-testid="wizard-azure-zip-error">
-          {localError}
-        </p>
-      ) : null}
-      {variant === "ingest" ? (
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          Need the command?{" "}
-          <span className="font-mono text-[11px]">
-            {buildGetArchLucidAzurePackageCommandLine().split(/\s+/).slice(0, 3).join(" ")}…
-          </span>{" "}
-          (full line copied from the block below). Or use the{" "}
-          <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/reviews/new?baseline=1">
-            baseline-first wizard
-          </Link>{" "}
-          to lead with ZIP upload.
-        </p>
-      ) : null}
     </div>
   );
 }

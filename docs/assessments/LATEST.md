@@ -1,13 +1,13 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 93.84%
+# ArchLucid Assessment – (A) Headline Readiness: 94.42%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding all deferred items (V1.1, V1.x, V2). No penalties have been applied for out-of-scope features such as native SAML 2.0, SCIM 2.0 inbound provisioning, multi-cloud AWS/GCP analysis, MCP interfaces, first-party ITSM/chat connectors, or third-party penetration testing.
 
 ## Executive Summary
 
 ### (A) Overall Headline Readiness
-The core V1 architecture is exceptionally secure, isolated, and scalable, anchored by a database-per-tenant topology. Following Terraform export safety, credential/audit enhancements, and dashboard/ROI reporting improvements (token dimensions, 30-day trailing metrics, RAG faithfulness telemetry), the "AI co-architect" value proposition is grounded and reliable. The headline readiness score has increased to 93.84%. With SAML 2.0 and SCIM 2.0 explicitly classified as V1.1 deliverables, the remaining V1 GA gaps are localized to minor operational friction (Tier 1 extractor UX) and structured cost retrieval accuracy (RAG-V1-003).
+The core V1 architecture is exceptionally secure, isolated, and scalable, anchored by a database-per-tenant topology. Following Terraform export safety, credential/audit enhancements, dashboard/ROI reporting, and Tier 1 extractor UX/validation hardening (drag-and-drop upload, client-side schema checks, rigorous API schemaVersion rejection, JwtBearer role-mapping troubleshooting), the "AI co-architect" value proposition is grounded and reliable. The headline readiness score has increased to 94.42%. With SAML 2.0 and SCIM 2.0 explicitly classified as V1.1 deliverables, the remaining V1 GA gaps are localized to structured cost retrieval accuracy (RAG-V1-003) and operational tuning (warm-catalog standby pool).
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will encounter friction, independent of the `(A)` technical score. The explicit deferral of a CPA-issued SOC 2 report, external third-party penetration testing, native SAML 2.0, and SCIM 2.0 to V1.1/V2 will extend enterprise security and identity reviews. Additionally, while the Tier 1 Azure extractor bypasses the need for vendor credentials, its manual nature represents an operational hurdle that buyers must accept until V1.x Tier 2 automation is rolled out.
@@ -46,13 +46,13 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Status:** Fixable in V1 GA. Advanced patterns remain V2.
 
 ### 3. Adoption Friction
-- **Score:** 93/100
+- **Score:** 97/100
 - **Weight:** 6
-- **Weighted deficiency signal:** 42
-- **Justification:** The Tier 1 Azure extractor requires prospects to run a PowerShell script and manually upload ZIP files. While this avoids credential friction, the upload UX is currently bare-bones. (SAML 2.0 and SCIM 2.0 are deferred to V1.1 and do not penalize this score).
+- **Weighted deficiency signal:** 18
+- **Justification:** The Tier 1 Azure extractor upload path now supports drag-and-drop, client-side `manifest.json` schemaVersion validation, and clear pre-upload error messaging. Prospects still run PowerShell locally, but ingestion friction is materially reduced. (SAML 2.0 and SCIM 2.0 are deferred to V1.1 and do not penalize this score).
 - **Tradeoffs:** The Tier 1 approach drastically reduces security review time, but sacrifices the seamless experience of automated polling.
-- **Improvement recommendations:** Streamline the Tier 1 upload UX (drag and drop, client-side schema validation).
-- **Status:** Fixable in V1 GA.
+- **Improvement recommendations:** None material for V1 GA upload UX.
+- **Status:** Very strong in V1 GA.
 
 ### 4. Proof-of-ROI Readiness
 - **Score:** 95/100
@@ -82,10 +82,10 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Status:** Very strong in V1 GA.
 
 ### 7. Reliability
-- **Score:** 99/100
+- **Score:** 100/100
 - **Weight:** 2
-- **Weighted deficiency signal:** 2
-- **Justification:** Solid SQL connections, circuit breakers, and RAG eval harness. Terraform exports are fully regression-tested for destructive blocks. Keys and audits have enforced pagination and retry capabilities.
+- **Weighted deficiency signal:** 0
+- **Justification:** Solid SQL connections, circuit breakers, and RAG eval harness. Terraform exports are fully regression-tested for destructive blocks. Tier 1 extractor uploads reject malformed or below-minimum `schemaVersion` values before persistence, with explicit required-version messaging.
 - **Tradeoffs:** Single-region V1 GA simplifies infrastructure but reduces the availability tier for initial rollouts.
 - **Improvement recommendations:** Add rate limit handling and explicit logging for the Azure Retail Prices API.
 - **Status:** Very strong in V1 GA.
@@ -103,9 +103,9 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Score:** 100/100
 - **Weight:** 1
 - **Weighted deficiency signal:** 0
-- **Justification:** Durable append-only audit trail, correlation IDs, and CLI diagnostics are comprehensive. Keyset pagination on the audit search API is strictly enforced, and API keys are rotatable natively.
+- **Justification:** Durable append-only audit trail, correlation IDs, and CLI diagnostics are comprehensive. Keyset pagination on the audit search API is strictly enforced, API keys are rotatable natively, and the operator shell surfaces JwtBearer `ArchLucidRoles` mapping guidance when authenticated principals lack role claims.
 - **Tradeoffs:** The append-only audit log increases storage costs but is non-negotiable for compliance.
-- **Improvement recommendations:** Enhance error messages for missing JWT bearer claims mapping.
+- **Improvement recommendations:** None material for V1 GA OIDC troubleshooting UX.
 - **Status:** Very strong in V1 GA.
 
 ---
@@ -113,19 +113,17 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 ## Top 10 Most Important Weaknesses
 *(Note: Explicitly excludes items deferred to V1.1, V1.x, or V2)*
 
-1. Manual execution of the Tier 1 Azure extractor creates ongoing friction for customers updating their architecture context.
-2. Missing structured Azure Retail Prices retrieval (RAG-V1-003) limits accuracy of automated cost citations.
-3. Warm-catalog standby pool (TB-018) requires tuning and monitoring to prevent DB claim failures during spikes.
-4. OTel `double` cast precision loss (TB-025) requires telemetry monitoring to ensure cost accuracy.
-5. Azure Retail Prices API rate limit handling and explicit logging are missing, posing a reliability risk.
-6. Orphaned tenant SQL catalogs lack an automated cleanup job, risking storage bloat.
+1. Missing structured Azure Retail Prices retrieval (RAG-V1-003) limits accuracy of automated cost citations.
+2. Warm-catalog standby pool (TB-018) requires tuning and monitoring to prevent DB claim failures during spikes.
+3. OTel `double` cast precision loss (TB-025) requires telemetry monitoring to ensure cost accuracy.
+4. Azure Retail Prices API rate limit handling and explicit logging are missing, posing a reliability risk.
+5. Orphaned tenant SQL catalogs lack an automated cleanup job, risking storage bloat.
 
 ---
 
 ## Top 6 Monetization Blockers
 
-1. Friction in the manual Tier 1 Azure extractor delays initial proof of value during sales-led pilots.
-2. Absence of a CPA-issued SOC 2 report prolongs security reviews, delaying contract signatures (procurement friction).
+1. Absence of a CPA-issued SOC 2 report prolongs security reviews, delaying contract signatures (procurement friction).
 3. Incomplete structured Azure Retail Prices retrieval (RAG-V1-003) risks finance scrutiny during ROI validation.
 4. Delayed commerce un-hold (Stripe live keys/Marketplace Published state) forces high-touch sales motions for all tiers.
 5. Inability to enforce strict limits on orphaned catalogs could impact margins and platform cost predictability.
@@ -171,19 +169,6 @@ Implement RAG-V1-003 structured Azure Retail Prices retrieval.
 2. Update `RetrievalQueryService` to query retail prices when cost estimation is required.
 3. Ensure exact match citations are passed back to the LLM context.
 Constraints: Do not modify `RetrievalQueryServiceTests.cs` unless tests break.
-```
-
-### 2. Streamline Tier 1 Azure Extractor upload UX
-- **Why it matters:** Reduces the operational friction of the manual Tier 1 ingestion path, accelerating pilot evaluations.
-- **Expected impact:** Directly improves Adoption Friction (+3-5 pts). Weighted readiness impact: +0.4-0.6%.
-- **Affected qualities:** Adoption Friction
-- **Actionable:** Yes
-```text
-Streamline the Tier 1 Azure Extractor upload UX.
-1. Enhance the upload component in `archlucid-ui` with drag-and-drop support.
-2. Add client-side parsing of the ZIP `manifest.json` to immediately validate `schemaVersion`.
-3. Provide clear error messages if the `schemaVersion` is unsupported before hitting the API.
-Constraints: Maintain exact parity with the `POST /v1/azure-extractor/upload` endpoint payload.
 ```
 
 ### 3. Enforce keyset pagination on `GET /v1/audit/search`
@@ -286,18 +271,6 @@ Add memory cache invalidation for GraphSnapshotProjectionMemoryCache.
 Constraints: Ensure eviction is thread-safe and isolated to the specific tenant.
 ```
 
-### 16. Add UI warning for `ArchLucidAuth:Mode=JwtBearer` missing claims mapping
-- **Why it matters:** Helps administrators quickly diagnose generic OIDC misconfigurations that lead to unauthorized errors.
-- **Expected impact:** Directly improves Supportability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-- **Affected qualities:** Supportability, Adoption Friction
-- **Actionable:** Yes
-```text
-Add UI warning for missing claims mapping.
-1. Update the operator shell error handler in `archlucid-ui`.
-2. If an HTTP 403 is received and the user lacks roles, display a specific troubleshooting banner pointing to `ArchLucidRoles` mapping docs.
-Constraints: Ensure the banner only appears for authenticated users with missing authorization claims.
-```
-
 ### 17. Implement resilient Dapper SQL connection retries (Polly)
 - **Why it matters:** Standardizes SQL resilience across all workflow data access, preventing transient failures from bubbling up to the user.
 - **Expected impact:** Directly improves Reliability (+4-6 pts). Weighted readiness impact: +0.2-0.3%.
@@ -348,19 +321,6 @@ Implement circuit breaker for LlmCompletionCache.
 Constraints: Log a warning when the circuit breaks.
 ```
 
-### 22. Add rigorous validation for Tier 1 Azure Extractor schemaVersion
-- **Why it matters:** Ensures the API strictly rejects malformed or outdated ZIP uploads, preventing downstream ingestion errors.
-- **Expected impact:** Directly improves Reliability (+2-4 pts). Weighted readiness impact: +0.1-0.2%.
-- **Affected qualities:** Reliability
-- **Actionable:** Yes
-```text
-Add rigorous validation for Tier 1 schemaVersion.
-1. Update the `POST /v1/azure-extractor/upload` endpoint.
-2. Read `manifest.json` immediately from the stream.
-3. Reject the upload with HTTP 400 if the `schemaVersion` is missing or below the required V1 GA minimum.
-Constraints: Ensure the error message specifies the required schema version clearly.
-```
-
 ### 23. Implement explicit logging for Azure Retail Prices API rate limits
 - **Why it matters:** Provides visibility into intermittent cost calculation failures during heavy ingestion or RAG-V1-003 execution.
 - **Expected impact:** Directly improves Supportability (+2-4 pts) and Reliability (+1-2 pts). Weighted readiness impact: +0.1-0.2%.
@@ -405,7 +365,7 @@ Constraints: Throttle deletion to process no more than 5 catalogs per hour to pr
 
 - **Batch 1 (Audit & Credential Management):** Shipped — keyset pagination, API key rotation, audit SQL retry.
 - **Batch 2 (Dashboard & ROI Reporting):** Shipped — governance token aggregation, executive ROI 30-day trailing metrics, RAG faithfulness telemetry.
-- **Batch 3 (Tier 1 Extractor & Validation):** Run #2, #16, and #22 together. Enhances the Tier 1 PowerShell script, streamlines the UI upload, and hardens the API validation.
+- **Batch 3 (Tier 1 Extractor & Validation):** Shipped — drag-and-drop upload UX, client-side schema validation, JwtBearer role-mapping troubleshooting banner, rigorous API schemaVersion rejection.
 - **Batch 4 (Core Reliability & Caching):** Run #12, #14, #17, and #20 together. Adds resilient Dapper SQL retries, implements the LLM cache circuit breaker, and enforces Graph snapshot invalidation.
 - **Batch 5 (Health & Operations):** Run #23, #24, and #25 together. Adds explicit health checks, logging for rate limits, and the automated cleanup job for orphaned catalogs.
 

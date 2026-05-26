@@ -142,13 +142,7 @@ public static class AzureExtractorPackageZipValidator
 
             if (schemaVersion != SupportedSchemaVersion)
             {
-                // Legacy schema 0 (0.x packages) is upgraded in-memory during ingest via AzureExtractorManifestSchemaUpgrader.
-                if (schemaVersion == 0)
-                    return null;
-
-                return schemaVersion < SupportedSchemaVersion
-                    ? "manifest.json schemaVersion is missing or invalid."
-                    : $"Unsupported manifest schemaVersion: {schemaVersion}.";
+                return FormatUnsupportedSchemaVersionError(schemaVersion);
             }
 
             return null;
@@ -157,5 +151,16 @@ public static class AzureExtractorPackageZipValidator
         {
             return "manifest.json is not valid JSON.";
         }
+    }
+
+    private static string FormatUnsupportedSchemaVersionError(int schemaVersion)
+    {
+        if (schemaVersion < SupportedSchemaVersion)
+        {
+            return
+                $"manifest.json schemaVersion {schemaVersion} is below the required V1 GA minimum ({SupportedSchemaVersion}). Re-pack with Get-ArchLucidAzurePackage.ps1.";
+        }
+
+        return $"Unsupported manifest schemaVersion: {schemaVersion}. Required schemaVersion: {SupportedSchemaVersion}.";
     }
 }

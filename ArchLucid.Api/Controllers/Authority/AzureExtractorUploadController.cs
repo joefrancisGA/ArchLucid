@@ -5,6 +5,7 @@ using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
@@ -250,15 +251,19 @@ public sealed class AzureExtractorUploadController(
         if (result.IsInvalidArchive || result.IsSchemaRejection)
         {
             string failureKind = result.IsSchemaRejection ? "schema" : "archive";
+            Dictionary<string, object?> extensions = new()
+            {
+                ["failureKind"] = failureKind,
+                ["errors"] = new[] { detail },
+            };
+
+            if (result.IsSchemaRejection)
+                extensions["requiredSchemaVersion"] = AzureExtractorPackageZipValidator.SupportedSchemaVersion;
 
             return this.BadRequestProblem(
                 detail,
                 ProblemTypes.ValidationFailed,
-                extensions: new Dictionary<string, object?>
-                {
-                    ["failureKind"] = failureKind,
-                    ["errors"] = new[] { detail },
-                });
+                extensions: extensions);
         }
 
         return this.UnprocessableEntityProblem(

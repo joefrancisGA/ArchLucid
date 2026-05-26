@@ -2,6 +2,7 @@ using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.AzureExtractorChunkUpload;
 using ArchLucid.Persistence.Data.Repositories;
@@ -74,6 +75,37 @@ public sealed class AzureExtractorUploadControllerTests
 
         ObjectResult problem = result.Should().BeOfType<ObjectResult>().Subject;
         problem.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task UploadAsync_schema_rejection_includes_required_schema_version_extension()
+    {
+        Mock<IAzureExtractorIngestService> ingest = new();
+        ingest.Setup(s => s.IngestZipAsync(
+                It.IsAny<IFormFile?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<string?>()))
+            .ReturnsAsync(new AzureExtractorIngestResult
+            {
+                Succeeded = false,
+                IsSchemaRejection = true,
+                FailureDetail = "Unsupported manifest schemaVersion: 99. Required schemaVersion: 1.",
+            });
+
+        AzureExtractorUploadController sut = CreateController(ingest.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.UploadAsync(file: null, runId: null, CancellationToken.None);
+
+        ObjectResult problem = result.Should().BeOfType<ObjectResult>().Subject;
+        problem.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        Microsoft.AspNetCore.Mvc.ProblemDetails details =
+            problem.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+
+        details.Extensions.Should().ContainKey("requiredSchemaVersion");
+        details.Extensions["requiredSchemaVersion"].Should().Be(AzureExtractorPackageZipValidator.SupportedSchemaVersion);
     }
 
     private static AzureExtractorUploadController CreateController(IAzureExtractorIngestService ingestService)

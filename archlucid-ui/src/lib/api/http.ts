@@ -1,5 +1,6 @@
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { notifyTrialLimitFromApiError } from "@/lib/trial-limit-modal-bridge";
+import { shouldShowJwtBearerMissingRoleBanner } from "@/lib/operator-shell-principal-snapshot";
 import { parseTrialLimitProblemDetails } from "@/lib/trial-limit-problem";
 import { CORRELATION_ID_HEADER, generateCorrelationId } from "@/lib/correlation";
 import { getServerApiBaseUrl } from "@/lib/config";
@@ -122,6 +123,17 @@ export function throwApiRequestError(response: Response, bodyText: string): neve
     if (trial !== null) {
       notifyTrialLimitFromApiError(err.problem?.title, err.problem?.detail, trial);
     }
+  }
+
+  if (isBrowser() && err.httpStatus === 403 && shouldShowJwtBearerMissingRoleBanner()) {
+    void import("@/lib/api-error-toast").then(({ showApiError }) => {
+      showApiError("Not permitted — missing ArchLucid role", {
+        type: "warning",
+        detail:
+          "Your token is authenticated but lacks ArchLucidRoles (Admin, Operator, Reader, or Auditor). Map IdP claims via ArchLucidAuth:RoleClaimSources — see CONFIGURATION_REFERENCE.md.",
+        correlationId: err.correlationId,
+      });
+    });
   }
 
   if (isBrowser() && err.httpStatus >= 500) {

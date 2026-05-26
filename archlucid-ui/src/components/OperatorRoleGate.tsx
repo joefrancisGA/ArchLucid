@@ -6,6 +6,7 @@ import { useEffect, type ReactNode } from "react";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
+import { OperatorJwtBearerRoleMappingCallout } from "@/components/OperatorJwtBearerRoleMappingCallout";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 
@@ -64,13 +65,21 @@ export function OperatorRoleGate({ children }: OperatorRoleGateProps) {
 
 /** Static unauthorized page for principals missing ArchLucid app roles. */
 export function OperatorUnauthorizedPageClient() {
+  const showJwtRoleMappingCallout = isJwtAuthMode() && isLikelySignedIn();
+
   return (
     <div className="mx-auto max-w-lg space-y-4 py-16 text-center" data-testid="operator-unauthorized-page">
       <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Access not authorized</h1>
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">
-        Your identity signed in successfully, but no ArchLucid app role (Admin, Operator, Reader, or Auditor) was found on
-        your token. Ask your tenant administrator to assign an app role in your identity provider, then sign in again.
-      </p>
+      {showJwtRoleMappingCallout ? (
+        <div className="text-left">
+          <OperatorJwtBearerRoleMappingCallout testId="operator-unauthorized-jwt-role-callout" />
+        </div>
+      ) : (
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          Your identity signed in successfully, but no ArchLucid app role (Admin, Operator, Reader, or Auditor) was found on
+          your token. Ask your tenant administrator to assign an app role in your identity provider, then sign in again.
+        </p>
+      )}
       <Button asChild variant="outline">
         <Link href="/auth/sign-in">Return to sign-in</Link>
       </Button>
