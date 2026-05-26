@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Mcp.Tools;
 

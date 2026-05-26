@@ -1,5 +1,6 @@
 using ArchLucid.Application.Analytics;
 using ArchLucid.Contracts.Analytics;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 
 using Asp.Versioning;
