@@ -20,7 +20,7 @@ public sealed class RuleSimulationServiceTests
     public async Task SimulateAsync_WhenUseHistoricalWindowFalseAndNoRunId_ReturnsZeroEvaluationsWithNote()
     {
         RuleSimulationService sut = CreateSut(
-            Mock.Of<ArchLucid.Core.Alerts.IAlertEvaluator>(),
+            Mock.Of<IAlertEvaluator>(),
             Mock.Of<IAlertMetricSnapshotBuilder>(),
             Mock.Of<ICompositeAlertRuleEvaluator>(),
             Mock.Of<IAlertSuppressionPolicy>(),
@@ -58,7 +58,7 @@ public sealed class RuleSimulationServiceTests
             .ReturnsAsync([]);
 
         RuleSimulationService sut = CreateSut(
-            Mock.Of<ArchLucid.Core.Alerts.IAlertEvaluator>(),
+            Mock.Of<IAlertEvaluator>(),
             Mock.Of<IAlertMetricSnapshotBuilder>(),
             Mock.Of<ICompositeAlertRuleEvaluator>(),
             Mock.Of<IAlertSuppressionPolicy>(),
@@ -120,7 +120,7 @@ public sealed class RuleSimulationServiceTests
             DeduplicationKey = "k1",
         };
 
-        Mock<ArchLucid.Core.Alerts.IAlertEvaluator> evaluator = new();
+        Mock<IAlertEvaluator> evaluator = new();
         evaluator
             .Setup(x => x.Evaluate(It.IsAny<IReadOnlyList<AlertRule>>(), It.IsAny<AlertEvaluationContext>()))
             .Returns([generated]);
@@ -201,7 +201,7 @@ public sealed class RuleSimulationServiceTests
                 });
 
         RuleSimulationService sut = CreateSut(
-            Mock.Of<ArchLucid.Core.Alerts.IAlertEvaluator>(),
+            Mock.Of<IAlertEvaluator>(),
             metrics.Object,
             compositeEval.Object,
             suppression.Object,
@@ -221,7 +221,7 @@ public sealed class RuleSimulationServiceTests
     }
 
     private static RuleSimulationService CreateSut(
-        ArchLucid.Core.Alerts.IAlertEvaluator alertEvaluator,
+        IAlertEvaluator alertEvaluator,
         IAlertMetricSnapshotBuilder metricSnapshotBuilder,
         ICompositeAlertRuleEvaluator compositeEvaluator,
         IAlertSuppressionPolicy suppressionPolicy,
