@@ -12,6 +12,7 @@ START_HERE.md (you are here)
 │   ├─ https://archlucid.net
 │   ├─ go-to-market/EXECUTIVE_SPONSOR_BRIEF.md  (sponsor story)
 │   ├─ onboarding/EVALUATION_GUIDE.md     (guided architecture review / review package in product)
+│   ├─ runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md  (V1 pilot: SQL, extractor ZIP, execute/commit, sponsor export)
 │   ├─ runbooks/PILOT_RESCUE_PLAYBOOK.md  (stuck mid-pilot — symptom index)
 │   └─ library/PILOT_ROI_MODEL.md         (optional depth)
 │

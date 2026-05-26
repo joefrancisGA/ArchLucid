@@ -18,7 +18,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-function stubIdentityProvidersFetch(keys: unknown[]): void {
+function stubIdentityProvidersFetch(keys: unknown[], oidcDiagnostics?: unknown): void {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: RequestInfo | URL) => {
@@ -30,6 +30,25 @@ function stubIdentityProvidersFetch(keys: unknown[]): void {
             oidc: { status: "NotApplicable", summary: "ArchLucidAuth:Mode is not JwtBearer." },
             saml: { status: "NotApplicable", summary: "SAML 2.0 SP integration is disabled." },
           }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      if (url.includes("/auth/oidc-diagnostics")) {
+        return new Response(
+          JSON.stringify(
+            oidcDiagnostics ?? {
+              authMode: "JwtBearer",
+              configuredAuthority: "https://login.example.com/",
+              configuredAudience: "api://demo",
+              discoveryAttempted: true,
+              discoverySucceeded: true,
+              openIdConfigurationUrl: "https://login.example.com/.well-known/openid-configuration",
+            },
+          ),
           {
             status: 200,
             headers: { "Content-Type": "application/json" },
@@ -81,6 +100,43 @@ describe("IdentityProvidersSettingsPage", () => {
     const samlCard = await screen.findByTestId("saml-operational-health-card");
 
     expect(samlCard).toHaveTextContent("SAML 2.0 SP operational signals");
+
+    const oidcCard = await screen.findByTestId("oidc-diagnostics-card");
+
+    expect(oidcCard).toHaveTextContent("OIDC discovery diagnostics");
+    expect(oidcCard).toHaveTextContent("Healthy");
+  });
+
+  it("renders unhealthy OIDC discovery diagnostics", async () => {
+    stubIdentityProvidersFetch(
+      [
+        {
+          section: "ArchLucidAuth",
+          configPath: "ArchLucidAuth:Authority",
+          isSet: true,
+          effectiveValue: "https://login.example.com",
+        },
+      ],
+      {
+        authMode: "JwtBearer",
+        configuredAuthority: "https://login.example.com/",
+        configuredAudience: "api://demo",
+        discoveryAttempted: true,
+        discoverySucceeded: false,
+        discoveryError: "HTTP 404 Not Found",
+        openIdConfigurationUrl: "https://login.example.com/.well-known/openid-configuration",
+      },
+    );
+
+    const page = await IdentityProvidersSettingsPage();
+
+    render(page);
+
+    const oidcCard = await screen.findByTestId("oidc-diagnostics-card");
+
+    expect(oidcCard).toHaveTextContent("OIDC discovery diagnostics");
+    expect(screen.getByTestId("oidc-diagnostics-discovery-status")).toHaveTextContent("Unreachable");
+    expect(screen.getByTestId("oidc-diagnostics-discovery-error")).toHaveTextContent("HTTP 404 Not Found");
   });
 
   it("renders ArchLucidAuth rows from configuration summary", async () => {
@@ -115,5 +171,9 @@ describe("IdentityProvidersSettingsPage", () => {
     const samlCard = await screen.findByTestId("saml-operational-health-card");
 
     expect(samlCard).toHaveTextContent("SAML 2.0 SP operational signals");
+
+    const oidcCard = await screen.findByTestId("oidc-diagnostics-card");
+
+    expect(oidcCard).toHaveTextContent("OIDC discovery diagnostics");
   });
 });

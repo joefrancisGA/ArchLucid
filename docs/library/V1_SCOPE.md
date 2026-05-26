@@ -30,7 +30,7 @@ This scope document lists in-scope capabilities, explicit out-of-scope items, th
 - States **what is out of V1** (deferred, optional, or non-goals).
 - Defines the **core operator happy path** and **minimum release checks** aligned with existing scripts and guides.
 
-For deeper flow detail, use **[First architecture review walkthrough](FIRST_RUN_WALKTHROUGH.md)**, [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md), and [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md).
+For deeper flow detail, use **[First-run evidence checklist](../runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md)**, **[First architecture review walkthrough](FIRST_RUN_WALKTHROUGH.md)**, [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md), and [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md).
 
 **Deferred / exploratory inventory (doc-sourced):** [V1_DEFERRED.md](V1_DEFERRED.md) — consolidates partial stories so V1 does not read as open-ended.
 
@@ -314,6 +314,7 @@ These are **practical gates** already encoded or described in-repo—not an exha
 | [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) | Actionable pre-handoff checklist (scope freeze, deploy, health, operator flow, exports, recovery) |
 | [V1_DEFERRED.md](V1_DEFERRED.md) | Doc inventory: V1.1+ candidates, audit gaps, Phase 7 rename, infra polish, maintainer backlog |
 | [PILOT_GUIDE.md](PILOT_GUIDE.md) | Pilot onboarding narrative |
+| [FIRST_RUN_EVIDENCE_CHECKLIST.md](../runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md) | Buyer-safe V1 pilot checklist (extractor ZIP through sponsor export) |
 | [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) | Command-oriented operator entry |
 | [operator-shell.md](operator-shell.md) | UI workflows and API expectations |
 | [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md) | Export, comparison, replay sequences |

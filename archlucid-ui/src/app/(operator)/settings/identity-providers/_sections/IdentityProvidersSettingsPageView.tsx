@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { IdentityProviderHealthStrip } from "./IdentityProviderHealthStrip";
+import { OidcDiagnosticsStrip } from "./OidcDiagnosticsStrip";
 import { SamlOperationalHealthStrip } from "./SamlOperationalHealthStrip";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
 
@@ -17,6 +18,9 @@ export function IdentityProvidersSettingsPageView({ model }: IdentityProvidersSe
     identityProviderDiagnostics,
     identityProviderDiagnosticsNote,
     identityProviderDiagnosticsLoaded,
+    oidcDiagnostics,
+    oidcDiagnosticsNote,
+    oidcDiagnosticsLoaded,
     samlOperationalHealth,
     samlOperationalHealthNote,
     samlOperationalHealthLoaded,
@@ -89,6 +93,10 @@ export function IdentityProvidersSettingsPageView({ model }: IdentityProvidersSe
           payload={identityProviderDiagnostics}
           fetchNote={identityProviderDiagnosticsNote}
         />
+      ) : null}
+
+      {oidcDiagnosticsLoaded ? (
+        <OidcDiagnosticsStrip payload={oidcDiagnostics} fetchNote={oidcDiagnosticsNote} />
       ) : null}
 
       {samlOperationalHealthLoaded ? (

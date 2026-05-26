@@ -323,6 +323,13 @@ jobs:
       - name: Buyer-facing canonical claim drift guard unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_buyer_claim_drift.py"
 
+      - name: Customer WIF templates — validate (warn-only when CLI missing)
+        continue-on-error: true
+        run: python scripts/ci/validate_customer_wif_templates.py
+
+      - name: Customer WIF templates validation guard unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_validate_customer_wif_templates.py"
+
       - name: BillingProductionSafetyRules — sk_live_ + Marketplace landing + GA offer-id checks shipped
         run: python scripts/ci/assert_billing_safety_rules_shipped.py
 

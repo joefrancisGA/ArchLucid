@@ -75,6 +75,20 @@ Map groups or expressions into an **`roles`** claim on the **access token**. Exa
 
 Use an Action to **`api.accessToken.setCustomClaim('roles', assignedRoles)`** with role names **`Admin`**, **`Operator`**, **`Reader`**, **`Auditor`**. See **[SSO — Auth0 §2.3](../integrations/SSO_AUTH0_CONFIGURATION.md)**.
 
+### Microsoft Entra ID (OIDC / JWT bearer)
+
+When **`ArchLucidAuth:Mode=JwtBearer`** with Entra as issuer:
+
+| Setting | Typical value |
+| --- | --- |
+| **`Authority`** | `https://login.microsoftonline.com/{tenant-id}/v2.0` |
+| **`Audience`** | App registration **Application ID URI** or client id (must match token **`aud`**) |
+| **`MultiTenantEntra`** | `true` only when validating multi-tenant v2 issuers; otherwise `false` for single-tenant apps |
+
+**App roles → token `roles` claim:** Define app roles in the Entra app registration (`Admin`, `Operator`, `Reader`, `Auditor`) and assign users/groups. Access tokens should include **`roles`** as a JSON array. If users receive **403** with valid **401** boundary, verify **Enterprise applications → Users and groups** assignments and that the client requests the API scope exposing app roles.
+
+**Common misconfiguration:** Using the **ID token** instead of an **access token** for API calls, or setting **`Audience`** to the Graph resource while tokens are minted for your custom API identifier.
+
 If authenticated requests return **403** while **401** is gone, decode a sample token (non-production) and confirm **`roles`** contains at least one known **`ArchLucidRoles`** value. Unmapped roles are recorded in the auth diagnostics ring buffer (see **`ArchLucidRoleClaimsTransformation`**).
 
 Full RBAC table: **[SECURITY.md](../library/SECURITY.md)** (Role-based access control).

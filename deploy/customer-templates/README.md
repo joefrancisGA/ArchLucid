@@ -27,16 +27,22 @@ Run these templates **once per customer Azure subscription** to provision a read
 ```powershell
 cd deploy/customer-templates/terraform
 terraform init
+terraform validate
+terraform fmt -check -recursive .
 terraform apply `
+  -var-file=terraform.tfvars.example `
   -var "archlucid_tenant_id=<guid>" `
   -var "archlucid_managed_identity_object_id=<guid>" `
   -var "subscription_id=<guid>"
 ```
 
+Copy `terraform.tfvars.example` to `terraform.tfvars` for local dry-runs (do not commit real subscription ids).
+
 ## Bicep
 
 ```powershell
 cd deploy/customer-templates/bicep
+az bicep build --file main.bicep
 az deployment sub create `
   --location eastus `
   --template-file main.bicep `
@@ -44,5 +50,15 @@ az deployment sub create `
                archLucidManagedIdentityObjectId=<guid> `
                subscriptionId=<guid>
 ```
+
+## Validate (no Azure credentials)
+
+From repo root:
+
+```powershell
+python scripts/ci/validate_customer_wif_templates.py
+```
+
+CI runs the same script in warn-only mode when `terraform` / `az` / `bicep` CLIs are available.
 
 See also: `docs/library/AZURE_EXTRACTOR.md`.

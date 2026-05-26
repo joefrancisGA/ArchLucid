@@ -11,6 +11,7 @@ import type { IdentityProvidersSettingsPageServerLoad } from "./load-identity-pr
 type AdminConfigSummaryResponse = components["schemas"]["AdminConfigSummaryResponse"];
 type AdminIdentityProviderDiagnosticsResponse =
   components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
+type AdminOidcDiagnosticsResponse = components["schemas"]["AdminOidcDiagnosticsResponse"];
 type AdminSamlOperationalHealthResponse = components["schemas"]["AdminSamlOperationalHealthResponse"];
 type ConfigSummaryKeyRow = components["schemas"]["ConfigSummaryKeyRow"];
 
@@ -20,6 +21,9 @@ export type UseIdentityProvidersSettingsPageModel = {
   identityProviderDiagnostics: AdminIdentityProviderDiagnosticsResponse | null;
   identityProviderDiagnosticsNote: string | null;
   identityProviderDiagnosticsLoaded: boolean;
+  oidcDiagnostics: AdminOidcDiagnosticsResponse | null;
+  oidcDiagnosticsNote: string | null;
+  oidcDiagnosticsLoaded: boolean;
   samlOperationalHealth: AdminSamlOperationalHealthResponse | null;
   samlOperationalHealthNote: string | null;
   samlOperationalHealthLoaded: boolean;
@@ -38,6 +42,10 @@ export function useIdentityProvidersSettingsPage(
   const [identityProviderDiagnosticsNote, setIdentityProviderDiagnosticsNote] = useState<string | null>(null);
   const [identityProviderDiagnosticsLoaded, setIdentityProviderDiagnosticsLoaded] = useState(false);
 
+  const [oidcDiagnostics, setOidcDiagnostics] = useState<AdminOidcDiagnosticsResponse | null>(null);
+  const [oidcDiagnosticsNote, setOidcDiagnosticsNote] = useState<string | null>(null);
+  const [oidcDiagnosticsLoaded, setOidcDiagnosticsLoaded] = useState(false);
+
   const [samlOperationalHealth, setSamlOperationalHealth] = useState<AdminSamlOperationalHealthResponse | null>(null);
   const [samlOperationalHealthNote, setSamlOperationalHealthNote] = useState<string | null>(null);
   const [samlOperationalHealthLoaded, setSamlOperationalHealthLoaded] = useState(false);
@@ -48,6 +56,9 @@ export function useIdentityProvidersSettingsPage(
     setIdentityProviderDiagnostics(null);
     setIdentityProviderDiagnosticsNote(null);
     setIdentityProviderDiagnosticsLoaded(false);
+    setOidcDiagnostics(null);
+    setOidcDiagnosticsNote(null);
+    setOidcDiagnosticsLoaded(false);
     setSamlOperationalHealth(null);
     setSamlOperationalHealthNote(null);
     setSamlOperationalHealthLoaded(false);
@@ -55,9 +66,10 @@ export function useIdentityProvidersSettingsPage(
     try {
       const opts = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" });
 
-      const [summaryRes, diagnosticsRes, samlRes] = await Promise.all([
+      const [summaryRes, diagnosticsRes, oidcRes, samlRes] = await Promise.all([
         fetch("/api/proxy/v1/admin/configuration/summary?includeEffectiveValues=true", opts),
         fetch("/api/proxy/v1/admin/diagnostics/identity-providers", opts),
+        fetch("/api/proxy/v1/admin/auth/oidc-diagnostics", opts),
         fetch("/api/proxy/v1/admin/auth/saml-operational-health", opts),
       ]);
 
@@ -90,6 +102,20 @@ export function useIdentityProvidersSettingsPage(
         setIdentityProviderDiagnosticsNote(null);
       }
 
+      if (!oidcRes.ok) {
+        setOidcDiagnostics(null);
+        setOidcDiagnosticsNote(
+          oidcRes.status === 401 || oidcRes.status === 403
+            ? "Admin session required to read OIDC discovery diagnostics."
+            : `OIDC diagnostics unavailable (HTTP ${oidcRes.status}).`,
+        );
+      } else {
+        const body = (await oidcRes.json()) as AdminOidcDiagnosticsResponse;
+
+        setOidcDiagnostics(body);
+        setOidcDiagnosticsNote(null);
+      }
+
       if (!samlRes.ok) {
         setSamlOperationalHealth(null);
         setSamlOperationalHealthNote(
@@ -108,10 +134,13 @@ export function useIdentityProvidersSettingsPage(
       setNote(e instanceof Error ? e.message : String(e));
       setIdentityProviderDiagnostics(null);
       setIdentityProviderDiagnosticsNote("Identity provider diagnostics could not be loaded.");
+      setOidcDiagnostics(null);
+      setOidcDiagnosticsNote("OIDC discovery diagnostics could not be loaded.");
       setSamlOperationalHealth(null);
       setSamlOperationalHealthNote("SAML operational health could not be loaded.");
     } finally {
       setIdentityProviderDiagnosticsLoaded(true);
+      setOidcDiagnosticsLoaded(true);
       setSamlOperationalHealthLoaded(true);
     }
   }, []);
@@ -126,6 +155,9 @@ export function useIdentityProvidersSettingsPage(
     identityProviderDiagnostics,
     identityProviderDiagnosticsNote,
     identityProviderDiagnosticsLoaded,
+    oidcDiagnostics,
+    oidcDiagnosticsNote,
+    oidcDiagnosticsLoaded,
     samlOperationalHealth,
     samlOperationalHealthNote,
     samlOperationalHealthLoaded,

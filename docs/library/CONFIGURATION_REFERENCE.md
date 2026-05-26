@@ -282,3 +282,40 @@ ArchLucidAuth:
 **Notes on mapping IdP claims:**
 Ensure your Identity Provider is configured to include the roles or groups in the token claims. You can map these IdP claims to `ArchLucidRoles` by adding the claim names to `ArchLucidAuth:RoleClaimSources`. The API will map these sources to `ClaimTypes.Role` for authorization.
 
+Full cross-vendor checklist: **[GENERIC_OIDC_SETUP.md](../runbooks/GENERIC_OIDC_SETUP.md)** (includes Entra OIDC app-role guidance).
+
+### SAML 2.0 SP claim mapping examples
+
+When **`ArchLucidAuth:Saml2:Enabled=true`**, map IdP assertion attributes to ArchLucid scope and roles using the `ArchLucidAuth:Saml2:*ClaimType` keys above. **Validate attribute names with your IdP administrator** — URIs differ by vendor.
+
+**Generic SAML IdP (illustrative attribute URIs)**
+
+```json
+"ArchLucidAuth": {
+  "Saml2": {
+    "Enabled": true,
+    "Issuer": "https://api.example.com/saml2/sp",
+    "IdPMetadata": "https://idp.example.com/FederationMetadata/2007-06/FederationMetadata.xml",
+    "RoleClaimSources": [
+      "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+    ],
+    "TenantIdClaimType": "tenant_id",
+    "WorkspaceIdClaimType": "workspace_id",
+    "ProjectIdClaimType": "project_id"
+  }
+}
+```
+
+**Okta / Auth0-style SAML (group → role promotion)**
+
+- Map a **`groups`** or **`memberOf`** attribute into **`RoleClaimSources`**, then ensure released values match **`Admin`**, **`Operator`**, **`Reader`**, or **`Auditor`**.
+- Scope claims (`tenant_id`, `workspace_id`, `project_id`) are optional; when absent, the host uses the default registration scope.
+
+**Common misconfigurations**
+
+- IdP sends **`Role`** with display names that do not match **`ArchLucidRoles`** → **403** after successful SSO.
+- **`IdPMetadata`** URL blocked from the API egress network → SAML login fails at metadata load.
+- SP signing certificate expired → see **`GET /v1/admin/auth/saml-operational-health`** and **[SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md](SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md)**.
+
+Operator UI: **Settings → Identity providers** surfaces OIDC discovery and SAML operational health (Admin session).
+
