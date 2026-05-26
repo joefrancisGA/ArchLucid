@@ -31,7 +31,7 @@ Engineering hygiene is exceptional. Batch 4 tightened extractor script CI valida
 - **Weighted Deficiency:** 112
 - **Justification:** Utilizes Azure OpenAI for core extraction and analysis. Azure AI Search semantic reranking is functional, but advanced graph-RAG, agentic retrieval (HyDE), and online fine-tuning are explicitly deferred to V2.
 - **Tradeoffs:** Trading cutting-edge retrieval methods (HyDE, Cohere) for single-tenant Azure compliance and reduced context latency is appropriate for V1 but lowers the raw AI capability ceiling.
-- **Improvement Recommendations:** Continuously evaluate RAG faithfulness trends via the `archlucid.agent.faithfulness_cosine` histogram; extend heuristic SKU coverage as new Azure families appear.
+- **Improvement Recommendations:** DEFERRED to V1.1: Continuously evaluate RAG faithfulness trends via the `archlucid.agent.faithfulness_cosine` histogram; extend heuristic SKU coverage as new Azure families appear.
 
 **2. AI/Agent Readiness**
 - **Score:** 94
@@ -39,7 +39,7 @@ Engineering hygiene is exceptional. Batch 4 tightened extractor script CI valida
 - **Weighted Deficiency:** 48
 - **Justification:** Solid RAG foundation with policy-pack indexing and prior-manifest chunks. `PilotStrict` gates enforce structural and semantic quality; effective reject floors and PilotStrict thresholds are exposed via `GET /v1/admin/diagnostics/quality-gates`. Embedding faithfulness cosine scores are emitted to `archlucid.agent.faithfulness_cosine` for longitudinal hallucination monitoring.
 - **Tradeoffs:** The strictness of the quality gates may reject borderline acceptable LLM outputs, requiring manual operator intervention to bypass.
-- **Improvement Recommendations:** Tune PilotStrict thresholds using faithfulness histogram percentiles once sufficient production telemetry accumulates.
+- **Improvement Recommendations:** DEFERRED to V1.1: Tune PilotStrict thresholds using faithfulness histogram percentiles once sufficient production telemetry accumulates.
 
 **3. Adoption Friction**
 - **Score:** 94
