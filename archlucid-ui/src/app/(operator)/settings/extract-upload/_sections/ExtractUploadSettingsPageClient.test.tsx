@@ -56,7 +56,18 @@ describe("ExtractUploadSettingsPageClient", () => {
     render(<ExtractUploadSettingsPageClient />);
 
     const fileInput = screen.getByTestId("extract-upload-drop-zone-input");
-    const file = new File(["not-a-zip"], "broken.zip", { type: "application/zip" });
+    const bytes = zipSync({
+      "manifest.json": strToU8(
+        JSON.stringify({
+          schemaVersion: 1,
+          scriptVersion: "1.0.0",
+          collectionTimestamp: "2026-01-01T00:00:00Z",
+          subscriptionId: "11111111-1111-1111-1111-111111111111",
+          scope: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg",
+        }),
+      ),
+    });
+    const file = new File([bytes], "broken.zip", { type: "application/zip" });
 
     fireEvent.change(fileInput, { target: { files: [file] } });
 
