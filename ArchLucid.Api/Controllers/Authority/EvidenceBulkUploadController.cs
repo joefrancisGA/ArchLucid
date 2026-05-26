@@ -53,11 +53,28 @@ public sealed class EvidenceBulkUploadController(
         // Bind files from the parsed form: [FromForm] IFormFileCollection can surface as empty for multi-part
         // multipart/integration clients even when parts are present (ReadFormAsync is authoritative).
         IFormCollection form = await Request.ReadFormAsync(cancellationToken);
-        IFormFileCollection files = form.Files;
+        IFormFileCollection allFiles = form.Files;
+        EvidenceBulkUploadOptions uploadOptions = bulkUploadOptions.Value;
+
+        long declaredBytes = BulkEvidenceUploadBatchSelector.SumDeclaredBytes(allFiles);
+
+        if (declaredBytes > uploadOptions.EvidenceBulkUploadMaxTotalBytes)
+        {
+            return this.PayloadTooLargeProblem(
+                $"Bulk evidence upload exceeds the maximum total size of {uploadOptions.EvidenceBulkUploadMaxTotalBytes} bytes.",
+                ProblemTypes.RequestPayloadTooLarge);
+        }
+
+        string? paginationToken = form["paginationToken"].FirstOrDefault();
+        IReadOnlyList<IFormFile> batchFiles = BulkEvidenceUploadBatchSelector.SelectBatch(
+            allFiles,
+            paginationToken,
+            uploadOptions.EvidenceBulkUploadBatchSize);
+        BulkEvidenceUploadFormFileCollection files = new(batchFiles);
 
         string partitionKey = RateLimitingRolePartitionBuilder.ResolveClientPartitionKey(HttpContext);
 
-        if (anomalyTracker.RecordAndEvaluate(partitionKey, files.Count))
+        if (anomalyTracker.RecordAndEvaluate(partitionKey, batchFiles.Count))
         {
             int throttleMinutes = Math.Max(1, anomalyOptions.Value.ThrottleDurationMinutes);
 
@@ -85,7 +102,7 @@ public sealed class EvidenceBulkUploadController(
 
         if (result.ErrorCode == ProblemErrorCodes.EvidenceBulkUploadLimitExceeded)
         {
-            return this.EvidenceBulkUploadLimitProblem(bulkUploadOptions.Value.EvidenceBulkUploadMaxFiles, files.Count);
+            return this.EvidenceBulkUploadLimitProblem(uploadOptions.EvidenceBulkUploadMaxFiles, batchFiles.Count);
         }
 
         if (result.ErrorCode == ProblemErrorCodes.ValidationFailed)

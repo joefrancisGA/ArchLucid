@@ -17,4 +17,11 @@ public static class StartupValidationWarningRuleNames
 
     public const string RetrievalTelemetryPerTenantTagsProductionLike =
         "retrieval_telemetry_per_tenant_tags_production_like";
+
+    public const string OidcAuthorityUnreachable = "oidc_authority_unreachable";
+
+    public const string LlmCostEstimationNonPositiveGlobalRate = "llm_cost_estimation_non_positive_global_rate";
+
+    public const string LlmCostEstimationNonPositiveDeploymentRate =
+        "llm_cost_estimation_non_positive_deployment_rate";
 }

@@ -95,62 +95,26 @@ public sealed class ConfigurationHealthProbe(
 
     private async Task<ConfigurationHealthCheckResult> ProbeOidcAuthorityAsync(CancellationToken cancellationToken)
     {
-        string mode = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(_configuration, "Mode") ?? string.Empty;
+        HttpClient client = _httpClientFactory.CreateClient(nameof(ConfigurationHealthProbe));
+        OidcAuthorityMetadataProbe.ProbeResult result =
+            await OidcAuthorityMetadataProbe.ProbeAsync(_configuration, client, cancellationToken).ConfigureAwait(false);
 
-        if (!string.Equals(mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
+        if (!result.IsApplicable)
+        {
             return new ConfigurationHealthCheckResult
             {
                 Name = "oidc_authority",
                 Status = "skipped",
-                Detail = $"Auth mode is '{mode}' — OIDC metadata probe not applicable."
-            };
-
-        string? authority =
-            ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(_configuration, "Authority");
-
-        if (string.IsNullOrWhiteSpace(authority))
-            return new ConfigurationHealthCheckResult
-            {
-                Name = "oidc_authority",
-                Status = "failed",
-                Detail = "JwtBearer mode but ArchLucidAuth:Authority (or legacy equivalent) is empty."
-            };
-
-        string trimmed = authority.TrimEnd('/');
-        string metadataUrl = $"{trimmed}/.well-known/openid-configuration";
-
-        try
-        {
-            HttpClient client = _httpClientFactory.CreateClient(nameof(ConfigurationHealthProbe));
-            using HttpResponseMessage response =
-                await client.GetAsync(metadataUrl, cancellationToken).ConfigureAwait(false);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                return new ConfigurationHealthCheckResult
-                {
-                    Name = "oidc_authority",
-                    Status = "failed",
-                    Detail = $"GET {metadataUrl} returned {(int)response.StatusCode} {response.ReasonPhrase}."
-                };
-            }
-
-            return new ConfigurationHealthCheckResult
-            {
-                Name = "oidc_authority",
-                Status = "ok",
-                Detail = $"OIDC discovery document reachable ({metadataUrl})."
+                Detail = result.Detail,
             };
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+
+        return new ConfigurationHealthCheckResult
         {
-            return new ConfigurationHealthCheckResult
-            {
-                Name = "oidc_authority",
-                Status = "failed",
-                Detail = $"{ex.GetType().Name}: {ex.Message}"
-            };
-        }
+            Name = "oidc_authority",
+            Status = result.Succeeded ? "ok" : "failed",
+            Detail = result.Detail,
+        };
     }
 
     private async Task<ConfigurationHealthCheckResult> ProbeKeyVaultListAsync(CancellationToken cancellationToken)

@@ -11,27 +11,21 @@ namespace ArchLucid.Persistence.Tests.Audit;
 public sealed class AuditSqlRetryPolicyProviderTests
 {
     [Fact]
-    public void GetRetryPolicy_RetriesTransientSqlException()
+    public async Task GetRetryPolicy_RetriesTransientSqlException()
     {
         AuditSqlRetryPolicyProvider provider = new();
         IAsyncPolicy policy = provider.GetRetryPolicy();
         int attempts = 0;
 
-        Func<Task> action = async () =>
+        Func<Task> action = () =>
         {
             attempts++;
-
-            await Task.CompletedTask;
-
-            throw SqlExceptionTestFactory.Create(40613);
+            return Task.FromException(SqlExceptionTestFactory.Create(40613));
         };
 
-        Func<Task> act = async () =>
-        {
-            await policy.ExecuteAsync(async _ => await action(), CancellationToken.None);
-        };
+        Func<Task> act = async () => await policy.ExecuteAsync(action);
         
-        act.Should().ThrowAsync<Microsoft.Data.SqlClient.SqlException>().GetAwaiter().GetResult();
+        await act.Should().ThrowAsync<Microsoft.Data.SqlClient.SqlException>();
         attempts.Should().Be(4);
     }
 }

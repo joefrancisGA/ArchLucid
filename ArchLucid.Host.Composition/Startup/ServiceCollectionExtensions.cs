@@ -33,6 +33,7 @@ public static partial class ServiceCollectionExtensions
         ArchLucidHostingRole hostingRole)
     {
         services.AddHostedService<ConfigurationValidationHostedService>();
+        services.AddHostedService<OidcAuthorityStartupProbeHostedService>();
         services.AddSingleton<StartupMigrationHealthState>();
         services.AddSingleton<ExportFormatterService>();
         services.AddSingleton<TemplateProvider>();

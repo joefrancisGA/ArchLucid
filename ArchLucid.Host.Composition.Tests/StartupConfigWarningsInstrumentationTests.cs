@@ -142,6 +142,27 @@ public sealed class StartupConfigWarningsInstrumentationTests
     }
 
     [Fact]
+    public void LlmCostEstimation_PostConfigure_when_global_rate_non_positive_increments_metric()
+    {
+        _ = ArchLucidInstrumentation.StartupConfigWarningsTotal;
+
+        using StartupConfigWarningsCapture capture = StartupConfigWarningsCapture.Start();
+
+        LlmCostEstimationStartupRateWarningPostConfigure sut = new();
+        sut.PostConfigure(null, new LlmCostEstimationOptions { OutputUsdPerMillionTokens = -1m });
+
+        capture.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid_startup_config_warnings_total"
+            && m.Value == 1
+            && m.Tags.Any(t =>
+                t.Key == "rule_name"
+                && string.Equals(
+                    t.Value as string,
+                    StartupValidationWarningRuleNames.LlmCostEstimationNonPositiveGlobalRate,
+                    StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public void ContentSafetyConfigurationWarnings_when_fail_open_in_staging_emits_metric_and_log()
     {
         _ = ArchLucidInstrumentation.StartupConfigWarningsTotal;

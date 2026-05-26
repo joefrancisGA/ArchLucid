@@ -29,6 +29,7 @@ using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Llm;
 using ArchLucid.Host.Core.Services.Ask;
+using ArchLucid.Host.Core.Startup;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Data.Repositories;
@@ -73,6 +74,7 @@ public static partial class ServiceCollectionExtensions
             .Bind(configuration.GetSection(LlmCostEstimationOptions.SectionPath))
             .ValidateOnStart();
         services.AddSingleton<IValidateOptions<LlmCostEstimationOptions>, LlmCostEstimationOptionsValidator>();
+        services.AddSingleton<IPostConfigureOptions<LlmCostEstimationOptions>, LlmCostEstimationStartupRateWarningPostConfigure>();
 
         ArchLucidOptions coordinatorStorage = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
         RegisterLlmCostEstimationUsdRateOverride(services, coordinatorStorage);
