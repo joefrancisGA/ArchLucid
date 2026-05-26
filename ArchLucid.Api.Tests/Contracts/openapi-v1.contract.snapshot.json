@@ -10534,6 +10534,107 @@
         },
         "type": "object"
       },
+      "LlmTenantWalletGetResponse": {
+        "properties": {
+          "autoRefillsThisUtcMonthCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "autoReplenishEnabled": {
+            "type": "boolean"
+          },
+          "balanceUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "hasPaymentMethod": {
+            "type": "boolean"
+          },
+          "lastRefillUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "monthlyCapUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "refillIncrementUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "refillTriggerThresholdUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "rowVersionBase64": {
+            "type": "string"
+          },
+          "stripePublishableKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "LlmTenantWalletPutRequest": {
+        "properties": {
+          "autoReplenishEnabled": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "monthlyCapUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "rowVersionBase64": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "stripeCustomerId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "stripePaymentMethodId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "ManifestBundleResponse": {
         "properties": {
           "diagram": {
@@ -38091,6 +38192,102 @@
         ]
       }
     },
+    "/v1/billing/wallet": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LlmTenantWalletGetResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LlmTenantWalletGetResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LlmTenantWalletGetResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Wallet"
+        ]
+      },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/LlmTenantWalletPutRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/LlmTenantWalletPutRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/LlmTenantWalletPutRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LlmTenantWalletGetResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LlmTenantWalletGetResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LlmTenantWalletGetResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Wallet"
+        ]
+      }
+    },
     "/v1/billing/webhooks/marketplace": {
       "post": {
         "responses": {
@@ -56224,6 +56421,9 @@
     },
     {
       "name": "Version"
+    },
+    {
+      "name": "Wallet"
     },
     {
       "name": "WebhookConnections"
