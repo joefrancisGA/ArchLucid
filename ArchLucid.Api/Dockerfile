@@ -51,7 +51,8 @@ COPY ArchLucid.KnowledgeGraph/*.csproj     ArchLucid.KnowledgeGraph/
 COPY ArchLucid.Notifications/*.csproj      ArchLucid.Notifications/
 COPY ArchLucid.Persistence/*.csproj        ArchLucid.Persistence/
 # Pilot scorecard repos must be in context before restore; publish inherits this tree (see publish-stage COPY).
-COPY ArchLucid.Persistence/Pilots/         ArchLucid.Persistence/Pilots/
+# Use *.cs (not directory COPY) so BuildKit cannot cache an empty Pilots/ tree when context was incomplete.
+COPY ArchLucid.Persistence/Pilots/*.cs     ArchLucid.Persistence/Pilots/
 COPY ArchLucid.Provenance/*.csproj         ArchLucid.Provenance/
 COPY ArchLucid.Retrieval/*.csproj          ArchLucid.Retrieval/
 
@@ -89,7 +90,7 @@ FROM restore AS publish
 
 COPY . .
 # Re-sync Pilots after full-tree COPY (wrong context, stale cache, or incomplete checkout).
-COPY ArchLucid.Persistence/Pilots/         ArchLucid.Persistence/Pilots/
+COPY ArchLucid.Persistence/Pilots/*.cs     ArchLucid.Persistence/Pilots/
 RUN test -f ArchLucid.Persistence/Pilots/InMemoryPilotBaselineRepository.cs \
     && test -f ArchLucid.Persistence/Pilots/DapperPilotBaselineRepository.cs \
     || (echo "FATAL: ArchLucid.Persistence/Pilots sources missing from Docker context. Use repo root as context (docker build -f ArchLucid.Api/Dockerfile .) and ensure Pilots/*.cs are committed." >&2; exit 1)

@@ -105,8 +105,8 @@ jobs:
           pull: true
           provenance: false
           sbom: false
-          cache-from: type=gha,scope=api-docker-smoke
-          cache-to: type=gha,scope=api-docker-smoke,mode=max
+          cache-from: type=gha,scope=api-docker-smoke-v2
+          cache-to: type=gha,scope=api-docker-smoke-v2,mode=max
 
       - name: Build and push UI image (BuildKit + GHA cache from CI smoke)
         id: build_push_ui

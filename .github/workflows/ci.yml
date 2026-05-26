@@ -2170,8 +2170,8 @@ jobs:
           pull: true
           provenance: false
           sbom: false
-          cache-from: type=gha,scope=api-docker-smoke
-          cache-to: type=gha,scope=api-docker-smoke,mode=max
+          cache-from: type=gha,scope=api-docker-smoke-v2
+          cache-to: type=gha,scope=api-docker-smoke-v2,mode=max
 
       - name: Build API image (read-only GHA cache)
         if: steps.gha_cache_write.outputs.enabled != 'true'
@@ -2184,7 +2184,7 @@ jobs:
           pull: true
           provenance: false
           sbom: false
-          cache-from: type=gha,scope=api-docker-smoke
+          cache-from: type=gha,scope=api-docker-smoke-v2
 
       - name: Build Operator UI image (read/write GHA cache)
         if: steps.gha_cache_write.outputs.enabled == 'true'
@@ -3152,7 +3152,7 @@ jobs:
           pull: true
           provenance: false
           sbom: false
-          cache-from: type=gha,scope=api-docker-smoke
+          cache-from: type=gha,scope=api-docker-smoke-v2
 
       - name: Run API on Docker network and ZAP baseline
         env:
