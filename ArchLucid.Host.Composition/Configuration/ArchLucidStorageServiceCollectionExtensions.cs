@@ -1,4 +1,7 @@
 using ArchLucid.AgentRuntime;
+
+using Polly;
+
 using ArchLucid.Application.DataConsistency;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Notifications.Email;
@@ -249,7 +252,18 @@ public static class ArchLucidStorageServiceCollectionExtensions
         if (string.Equals(llm.Provider, "Distributed", StringComparison.OrdinalIgnoreCase))
         {
             services.AddSingleton<ILlmCompletionResponseStore>(sp =>
-                new DistributedLlmCompletionResponseStore(sp.GetRequiredService<IDistributedCache>()));
+            {
+                ResiliencePipeline circuitBreaker = LlmCompletionDistributedStoreResilienceDefaults.BuildCircuitBreakerPipeline(
+                    sp.GetRequiredService<ILogger<ResilientDistributedLlmCompletionResponseStore>>());
+
+                MemoryLlmCompletionResponseStore fallback = new(Math.Max(1, llm.MaxEntries));
+
+                return new ResilientDistributedLlmCompletionResponseStore(
+                    new DistributedLlmCompletionResponseStore(sp.GetRequiredService<IDistributedCache>()),
+                    fallback,
+                    circuitBreaker,
+                    sp.GetRequiredService<ILogger<ResilientDistributedLlmCompletionResponseStore>>());
+            });
 
             return;
         }

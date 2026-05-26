@@ -1,13 +1,13 @@
 ﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
 
-# ArchLucid Assessment – (A) Headline Readiness: 94.42%
+# ArchLucid Assessment – (A) Headline Readiness: 94.78%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding all deferred items (V1.1, V1.x, V2). No penalties have been applied for out-of-scope features such as native SAML 2.0, SCIM 2.0 inbound provisioning, multi-cloud AWS/GCP analysis, MCP interfaces, first-party ITSM/chat connectors, or third-party penetration testing.
 
 ## Executive Summary
 
 ### (A) Overall Headline Readiness
-The core V1 architecture is exceptionally secure, isolated, and scalable, anchored by a database-per-tenant topology. Following Terraform export safety, credential/audit enhancements, dashboard/ROI reporting, and Tier 1 extractor UX/validation hardening (drag-and-drop upload, client-side schema checks, rigorous API schemaVersion rejection, JwtBearer role-mapping troubleshooting), the "AI co-architect" value proposition is grounded and reliable. The headline readiness score has increased to 94.42%. With SAML 2.0 and SCIM 2.0 explicitly classified as V1.1 deliverables, the remaining V1 GA gaps are localized to structured cost retrieval accuracy (RAG-V1-003) and operational tuning (warm-catalog standby pool).
+The core V1 architecture is exceptionally secure, isolated, and scalable, anchored by a database-per-tenant topology. Following Terraform export safety, credential/audit enhancements, dashboard/ROI reporting, Tier 1 extractor UX/validation hardening, and core reliability/caching work (Polly-backed audit append retries, resilient Dapper SQL opens, Azure OpenAI readiness probes, distributed LLM cache circuit breaker with in-memory fallback, graph projection invalidation on manifest commit), the "AI co-architect" value proposition is grounded and reliable. The headline readiness score has increased to 94.78%. With SAML 2.0 and SCIM 2.0 explicitly classified as V1.1 deliverables, the remaining V1 GA gaps are localized to structured cost retrieval accuracy (RAG-V1-003) and operational tuning (warm-catalog standby pool).
 
 ### (B) Procurement/Market-Motion Realism
 Enterprise procurement will encounter friction, independent of the `(A)` technical score. The explicit deferral of a CPA-issued SOC 2 report, external third-party penetration testing, native SAML 2.0, and SCIM 2.0 to V1.1/V2 will extend enterprise security and identity reviews. Additionally, while the Tier 1 Azure extractor bypasses the need for vendor credentials, its manual nature represents an operational hurdle that buyers must accept until V1.x Tier 2 automation is rolled out.
@@ -64,10 +64,10 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Status:** Fixable in V1 GA.
 
 ### 5. AI/Agent Readiness
-- **Score:** 95/100
+- **Score:** 97/100
 - **Weight:** 8
-- **Weighted deficiency signal:** 40
-- **Justification:** The Authority pipeline and RAG foundation (faithfulness eval with tenant/corpus-tagged OTel metrics, prior-manifest chunks) are well-structured and fully implemented for V1.
+- **Weighted deficiency signal:** 24
+- **Justification:** The Authority pipeline and RAG foundation are well-structured for V1. Distributed LLM completion caching now uses a circuit breaker with seamless in-memory fallback when Redis is unavailable, so agent execution continues during cache outages.
 - **Tradeoffs:** Standard LLM completions without advanced agentic loops limit complex multi-hop reasoning, but ensure predictable execution times.
 - **Improvement recommendations:** Expand the RAG foundation with RAG-V1-003.
 - **Status:** Very strong in V1 GA.
@@ -76,7 +76,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Score:** 100/100
 - **Weight:** 4
 - **Weighted deficiency signal:** 0
-- **Justification:** Highly modular architecture with clean separation of workflow data access and authority persistence. Terraform export constraints are bound by snapshot tests, ensuring advisory-only generation. CI line coverage is strictly enforced at 95%.
+- **Justification:** Highly modular architecture with clean separation of workflow data access and authority persistence. Terraform export constraints are bound by snapshot tests, ensuring advisory-only generation. Graph snapshot projection caches invalidate on golden manifest commit. CI line coverage is strictly enforced at 95%.
 - **Tradeoffs:** Maintaining dual persistence models requires developer discipline but ensures pristine authority chains. High line coverage floors may slow down rapid prototyping.
 - **Improvement recommendations:** Introduce an automated cleanup job for orphaned catalogs.
 - **Status:** Very strong in V1 GA.
@@ -85,7 +85,7 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 - **Score:** 100/100
 - **Weight:** 2
 - **Weighted deficiency signal:** 0
-- **Justification:** Solid SQL connections, circuit breakers, and RAG eval harness. Terraform exports are fully regression-tested for destructive blocks. Tier 1 extractor uploads reject malformed or below-minimum `schemaVersion` values before persistence, with explicit required-version messaging.
+- **Justification:** Solid SQL connections, circuit breakers, and RAG eval harness. Terraform exports are fully regression-tested for destructive blocks. Dapper repositories use Polly-backed transient SQL retries; audit appends retry on transient failures; `/health/ready` includes an Azure OpenAI TCP probe when Real agent mode is enabled.
 - **Tradeoffs:** Single-region V1 GA simplifies infrastructure but reduces the availability tier for initial rollouts.
 - **Improvement recommendations:** Add rate limit handling and explicit logging for the Azure Retail Prices API.
 - **Status:** Very strong in V1 GA.
@@ -222,18 +222,6 @@ Add OWASP ZAP baseline scan to CI.
 Constraints: Run this job only on branches targeting `main`.
 ```
 
-### 12. Implement `IAuditService` fallback retry on transient SQL failure
-- **Why it matters:** Ensures durable audit logs are not dropped during transient database connection issues.
-- **Expected impact:** Directly improves Reliability (+4-6 pts). Weighted readiness impact: +0.2-0.3%.
-- **Affected qualities:** Reliability, Supportability
-- **Actionable:** Yes
-```text
-Implement IAuditService fallback retry.
-1. Use Polly to wrap the `ExecuteAsync` calls in the Dapper implementation of `IAuditService`.
-2. Configure a transient error retry policy (e.g., 3 retries with exponential backoff).
-Constraints: Ensure the retry policy is injected via DI, not hardcoded.
-```
-
 ### 13. Add `CorrelationId` to all logging scopes in `ArchLucid.Worker`
 - **Why it matters:** Enhances diagnostic traceability for long-running authority pipelines.
 - **Expected impact:** Directly improves Supportability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
@@ -244,43 +232,6 @@ Add CorrelationId to logging scopes in Worker.
 1. Update `AuthorityRunOrchestrator` to extract the `CorrelationId` from the run context.
 2. Push the ID into the `ILogger` scope using `logger.BeginScope`.
 Constraints: Ensure the scope is properly disposed when the orchestration completes.
-```
-
-### 14. Add health check for Azure OpenAI endpoints
-- **Why it matters:** Prevents the API from returning ready status if the underlying LLM provider is completely unreachable.
-- **Expected impact:** Directly improves Reliability (+2-4 pts). Weighted readiness impact: +0.1-0.2%.
-- **Affected qualities:** Reliability
-- **Actionable:** Yes
-```text
-Add health check for Azure OpenAI.
-1. Create `AzureOpenAiHealthCheck` implementing `IHealthCheck`.
-2. Perform a lightweight ping to the configured Azure OpenAI endpoint.
-3. Register it with `/health/ready`.
-Constraints: Ensure a fast timeout (e.g., 2 seconds) to avoid blocking the health endpoint.
-```
-
-### 15. Add memory cache invalidation for `GraphSnapshotProjectionMemoryCache`
-- **Why it matters:** Prevents stale architecture graphs from being served after a new golden manifest is committed.
-- **Expected impact:** Directly improves Maintainability (+2-4 pts). Weighted readiness impact: +0.1-0.2%.
-- **Affected qualities:** Maintainability
-- **Actionable:** Yes
-```text
-Add memory cache invalidation for GraphSnapshotProjectionMemoryCache.
-1. Update `GraphSnapshotProjectionMemoryCache` to subscribe to manifest commit events.
-2. Evict the cached projection for the specific `runId` when a commit occurs.
-Constraints: Ensure eviction is thread-safe and isolated to the specific tenant.
-```
-
-### 17. Implement resilient Dapper SQL connection retries (Polly)
-- **Why it matters:** Standardizes SQL resilience across all workflow data access, preventing transient failures from bubbling up to the user.
-- **Expected impact:** Directly improves Reliability (+4-6 pts). Weighted readiness impact: +0.2-0.3%.
-- **Affected qualities:** Reliability
-- **Actionable:** Yes
-```text
-Implement resilient Dapper SQL connection retries.
-1. Create an `ISqlConnectionFactory` wrapper that applies a Polly retry policy for transient SQL errors (e.g., error codes 40613, 40197, 40501, 40645).
-2. Inject this factory into all Dapper repository classes.
-Constraints: Do not apply retries to non-transient errors (e.g., syntax errors, permission denied).
 ```
 
 ### 18. Add configuration validation for `ArchLucid:SqlTopology:Mode` on startup
@@ -306,19 +257,6 @@ Enhance AzureExtractor with Advisor cost deduplication.
 1. Update `Get-ArchLucidAzurePackage.ps1`.
 2. When parsing Advisor recommendations, filter out overlapping cost savings for the same resource ID before appending to `advisor-cost.json`.
 Constraints: Do not modify the existing `manifest.json` schema version unless required.
-```
-
-### 20. Implement circuit breaker for `LlmCompletionCache` fallback to memory
-- **Why it matters:** Prevents a failure in the distributed cache (if enabled) from halting LLM execution, falling back to memory seamlessly.
-- **Expected impact:** Directly improves Reliability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-- **Affected qualities:** Reliability
-- **Actionable:** Yes
-```text
-Implement circuit breaker for LlmCompletionCache.
-1. Update `DistributedLlmCompletionResponseStore`.
-2. Wrap the distributed cache calls in a Polly circuit breaker.
-3. On break, fallback to a local in-memory cache temporarily.
-Constraints: Log a warning when the circuit breaks.
 ```
 
 ### 23. Implement explicit logging for Azure Retail Prices API rate limits
@@ -366,7 +304,7 @@ Constraints: Throttle deletion to process no more than 5 catalogs per hour to pr
 - **Batch 1 (Audit & Credential Management):** Shipped — keyset pagination, API key rotation, audit SQL retry.
 - **Batch 2 (Dashboard & ROI Reporting):** Shipped — governance token aggregation, executive ROI 30-day trailing metrics, RAG faithfulness telemetry.
 - **Batch 3 (Tier 1 Extractor & Validation):** Shipped — drag-and-drop upload UX, client-side schema validation, JwtBearer role-mapping troubleshooting banner, rigorous API schemaVersion rejection.
-- **Batch 4 (Core Reliability & Caching):** Run #12, #14, #17, and #20 together. Adds resilient Dapper SQL retries, implements the LLM cache circuit breaker, and enforces Graph snapshot invalidation.
+- **Batch 4 (Core Reliability & Caching):** Shipped — Polly audit append retries, resilient Dapper SQL connection opens, Azure OpenAI readiness TCP probe, distributed LLM completion cache circuit breaker with in-memory fallback, graph projection invalidation on manifest commit.
 - **Batch 5 (Health & Operations):** Run #23, #24, and #25 together. Adds explicit health checks, logging for rate limits, and the automated cleanup job for orphaned catalogs.
 
 ---
