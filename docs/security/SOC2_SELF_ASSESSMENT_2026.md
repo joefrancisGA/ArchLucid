@@ -1,4 +1,4 @@
-> **Scope:** SOC 2 Trust Services Criteria — **self-assessment only** (not CPA attestation). **2026-05-01:** third-party pen test is **V2**; V1 uses owner-conducted testing per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c. CAIQ/SIG pre-filled; Type I scoping funded as a **readiness** milestone (not yet an opinion).
+> **Scope:** SOC 2 Trust Services Criteria — **self-assessment only** (not CPA attestation). **2026-05-01:** third-party pen test is **V2**; V1 uses owner-conducted testing per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c. CAIQ/SIG pre-filled; Type I scoping remains a **readiness planning** milestone (not yet an opinion).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -6,6 +6,8 @@
 # SOC 2 — Owner self-assessment (2026)
 
 > **IMPORTANT:** This document is an **internal / buyer-transparency self-assessment**. It is **not** a SOC 2 Type I or Type II **audit opinion** and must not be represented as third-party attestation.
+
+**Last reviewed:** 2026-05-26
 
 ## Scope
 
@@ -28,14 +30,14 @@
 | G-002 | Third-party pen-test redacted summary not yet published | Security | Execute **V2** vendor programme when funded | **Open** — **V1** uses owner-conducted testing ([`pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)); SoW **template** [`pen-test-summaries/2026-Q2-SOW.md`](pen-test-summaries/2026-Q2-SOW.md); **independent V1 assessments must not** treat this gap as a V1 deficit ([`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c, owner 2026-05-01); publication audit via `SecurityAssessmentPublished` when executed |
 | G-003 | CAIQ / SIG not pre-filled | Security | Publish alongside trust center | **Closed (artifacts)** — [`CAIQ_LITE_2026.md`](CAIQ_LITE_2026.md), [`SIG_CORE_2026.md`](SIG_CORE_2026.md) |
 
-## SOC 2 Type I — funded scoping (Q2–Q3 2026)
+## SOC 2 Type I — readiness planning (Q2–Q3 2026)
 
-**Intent:** Move from self-assessment to **procurement-ready** third-party validation within **one quarter** for *readiness* (control narrative, evidence index, observation-period plan), **not** a guaranteed Type I opinion date.
+**Intent:** Move from self-assessment toward **procurement-ready** third-party validation planning (control narrative, evidence index, observation-period plan), **not** a guaranteed Type I opinion date.
 
 | Milestone | Target | Notes |
 |-----------|--------|------|
-| Readiness consultant engaged | 2026-06-15 | Shortlist 3 CPA-aligned boutiques; scope: gap workshop + evidence room |
-| Control baseline freeze for observation | 2026-07-31 | Align with pen-test remediation closure for material findings |
+| Readiness consultant engaged | Illustrative — owner/budget gated | Shortlist 3 CPA-aligned boutiques; scope: gap workshop + evidence room |
+| Control baseline freeze for observation | Illustrative — owner/budget gated | Align with owner-conducted testing closure and any V2 third-party pen-test findings when funded |
 | Type I observation period start | 2026-09-01 | Illustrative — confirm with selected CPA |
 | Type I report (stretch) | 2026-Q4 | Requires executed attestation agreement |
 

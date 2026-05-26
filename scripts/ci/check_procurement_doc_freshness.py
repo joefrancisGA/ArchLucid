@@ -31,10 +31,14 @@ def main() -> int:
     today = datetime.now(timezone.utc).date()
     targets = [
         (root / "docs" / "go-to-market" / "TRUST_CENTER.md", 45),
+        (root / "docs" / "go-to-market" / "ASSURANCE_STATUS_CANONICAL.md", 90),
+        (root / "docs" / "go-to-market" / "PROCUREMENT_PACK_INDEX.md", 90),
         (root / "docs" / "go-to-market" / "SUBPROCESSORS.md", 90),
         (root / "docs" / "go-to-market" / "SLA_SUMMARY.md", 45),
         (root / "docs" / "go-to-market" / "INCIDENT_COMMUNICATIONS_POLICY.md", 45),
         (root / "docs" / "go-to-market" / "CURRENT_ASSURANCE_POSTURE.md", 45),
+        (root / "docs" / "go-to-market" / "SOC2_ROADMAP.md", 120),
+        (root / "docs" / "security" / "SOC2_SELF_ASSESSMENT_2026.md", 120),
     ]
 
     stale = False

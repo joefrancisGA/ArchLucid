@@ -316,6 +316,13 @@ jobs:
         shell: pwsh
         run: ./scripts/Scan-BuyerDocClaims.ps1
 
+      - name: Buyer-facing canonical claim drift (Python, warn-only)
+        continue-on-error: true
+        run: python scripts/ci/check_buyer_claim_drift.py
+
+      - name: Buyer-facing canonical claim drift guard unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_buyer_claim_drift.py"
+
       - name: BillingProductionSafetyRules — sk_live_ + Marketplace landing + GA offer-id checks shipped
         run: python scripts/ci/assert_billing_safety_rules_shipped.py
 

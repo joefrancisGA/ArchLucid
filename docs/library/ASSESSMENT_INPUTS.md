@@ -18,19 +18,20 @@ Read these **before** grepping broadly or opening large code regions. For scorin
 
 | Order | Document | Role |
 |------:|----------|------|
-| 0 | [`REPO_DIGEST.md`](REPO_DIGEST.md) *(regenerate via `python scripts/repo_digest/build_repo_digest.py`)* | Skim surface: project inventory, invariant pointer, doc anchors — **not** a substitute for V1 docs |
-| 1 | [`V1_SCOPE.md`](V1_SCOPE.md) | In-contract V1 / V1.1 engineering and product boundaries |
-| 2 | [`V1_DEFERRED.md`](V1_DEFERRED.md) | Explicit deferrals (what is **not** a headline gate) |
-| 3 | [`../go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) | Trust / buyer-facing commitments |
-| 4 | [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) | SOC 2 self-assessment posture (narrate CPA gap under `(B)` only) |
-| 5 | [`../go-to-market/SOC2_ROADMAP.md`](../go-to-market/SOC2_ROADMAP.md) | SOC 2 roadmap narrative |
-| 6 | [`ARCHITECTURE_COMPONENTS.md`](ARCHITECTURE_COMPONENTS.md) | Component map |
-| 7 | [`SYSTEM_MAP.md`](SYSTEM_MAP.md) | System flows |
-| 8 | [`API_CONTRACTS.md`](API_CONTRACTS.md) | HTTP / OpenAPI contract of record |
-| 9 | [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md) | Operator configuration surface |
-|10 | [`../go-to-market/PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) | Commercial motion and design-partner context (for `(B)` when asked) |
-|11 | [`../../.cursor/rules/Architecture-Invariants.mdc`](../../.cursor/rules/Architecture-Invariants.mdc) | INV-* catalog pointer |
-|12 | [`../START_HERE.md`](../START_HERE.md) | Evaluator spine and doc routing |
+| 0 | [`ASSESSMENT_QUALITY_MODEL.md`](ASSESSMENT_QUALITY_MODEL.md) | Canonical quality names, weights, definitions, and weighted scoring formula |
+| 1 | [`REPO_DIGEST.md`](REPO_DIGEST.md) *(regenerate via `python scripts/repo_digest/build_repo_digest.py`)* | Skim surface: project inventory, invariant pointer, doc anchors — **not** a substitute for V1 docs |
+| 2 | [`V1_SCOPE.md`](V1_SCOPE.md) | In-contract V1 / V1.1 engineering and product boundaries |
+| 3 | [`V1_DEFERRED.md`](V1_DEFERRED.md) | Explicit deferrals (what is **not** a headline gate) |
+| 4 | [`../go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) | Trust / buyer-facing commitments |
+| 5 | [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) | SOC 2 self-assessment posture (narrate CPA gap under `(B)` only) |
+| 6 | [`../go-to-market/SOC2_ROADMAP.md`](../go-to-market/SOC2_ROADMAP.md) | SOC 2 roadmap narrative |
+| 7 | [`ARCHITECTURE_COMPONENTS.md`](ARCHITECTURE_COMPONENTS.md) | Component map |
+| 8 | [`SYSTEM_MAP.md`](SYSTEM_MAP.md) | System flows |
+| 9 | [`API_CONTRACTS.md`](API_CONTRACTS.md) | HTTP / OpenAPI contract of record |
+|10 | [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md) | Operator configuration surface |
+|11 | [`../go-to-market/PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) | Commercial motion and design-partner context (for `(B)` when asked) |
+|12 | [`../../.cursor/rules/Architecture-Invariants.mdc`](../../.cursor/rules/Architecture-Invariants.mdc) | INV-* catalog pointer |
+|13 | [`../START_HERE.md`](../START_HERE.md) | Evaluator spine and doc routing |
 
 **Outputs:** Write the latest pass to the rolling file under **`docs/assessments/`** (**today:** overwrite **[`docs/assessments/LATEST.md`](../assessments/LATEST.md)** in place — if that filename changes, update this sentence only). **Do not** add new dated multi-thousand-line assessment files under `docs/library/` unless the team explicitly opts back in — archive prior snapshots under **`docs/archive/assessments/`** instead.
 

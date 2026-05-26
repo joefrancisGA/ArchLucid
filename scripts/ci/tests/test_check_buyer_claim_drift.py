@@ -1,0 +1,82 @@
+from __future__ import annotations
+
+import importlib.util
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+
+_REPO = Path(__file__).resolve().parents[3]
+_CI = _REPO / "scripts" / "ci"
+
+
+def _load_guard():
+    script = _CI / "check_buyer_claim_drift.py"
+    spec = importlib.util.spec_from_file_location("_check_buyer_claim_drift", script)
+
+    if spec is None or spec.loader is None:
+        raise RuntimeError("Cannot load buyer claim drift guard.")
+
+    sys.path.insert(0, str(_CI))
+
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = mod
+    spec.loader.exec_module(mod)
+
+    return mod
+
+
+G = _load_guard()
+
+
+class TestBuyerClaimDrift(unittest.TestCase):
+    def test_safe_fixture_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            for rel in G.DOCS_TO_SCAN:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(
+                    "SOC 2 Type II is not currently issued. Generic OIDC is supported when configured.\n",
+                    encoding="utf-8",
+                )
+
+            self.assertEqual(G.buyer_claim_drift_violations(root), [])
+
+    def test_generic_oidc_roadmap_phrase_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            for rel in G.DOCS_TO_SCAN:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("Safe default text.\n", encoding="utf-8")
+
+            bad = root / "docs/go-to-market/PRICING_PHILOSOPHY.md"
+            bad.write_text("Authentication: Entra ID + generic OIDC (roadmap)\n", encoding="utf-8")
+
+            violations = G.buyer_claim_drift_violations(root)
+
+            self.assertTrue(any("generic OIDC" in violation for violation in violations))
+
+    def test_issued_soc_report_phrase_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            for rel in G.DOCS_TO_SCAN:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("Safe default text.\n", encoding="utf-8")
+
+            bad = root / "docs/go-to-market/TRUST_CENTER.md"
+            bad.write_text("SOC 2 Type II report is available.\n", encoding="utf-8")
+
+            violations = G.buyer_claim_drift_violations(root)
+
+            self.assertTrue(any("SOC 2 CPA reports" in violation for violation in violations))
+
+
+if __name__ == "__main__":
+    unittest.main()

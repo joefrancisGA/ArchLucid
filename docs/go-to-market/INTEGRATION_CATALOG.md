@@ -17,6 +17,18 @@
 
 ---
 
+## Commitment boundary
+
+| Window | Buyer-contract surfaces | Not implied |
+|--------|-------------------------|-------------|
+| **V1 GA** | REST API / OpenAPI, .NET client, CLI, operator UI, SCIM provisioning, Azure DevOps / GitHub CI surfaces, Azure extractor ZIP ingest, procurement ZIP, SIEM-friendly audit export docs | First-party Jira / ServiceNow / Confluence / Slack / Teams obligations; CloudEvents webhook delivery as a buyer-contract path; customer-operated recipe support obligations |
+| **V1.1 committed** | First-party ServiceNow, Confluence, Jira, Microsoft Teams, Slack, integration events / CloudEvents webhooks, and customer-operated bridge recipes as documented in [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8 and §2.13–§2.15 | Marketplace / store listings on day one; OAuth upgrades where the V1.1 MVP says basic auth or API token is enough; arbitrary connector expansion |
+| **Later / unpinned** | Azure DevOps Work Items native connector, Structurizr DSL, ArchiMate XML, Terraform state import expansion, SIEM export productization beyond current methods | Any promise of a release window without a separate owner decision |
+
+Use this table when answering procurement questions: implementation may exist early in the repo, but the buyer contract follows the window above unless `V1_SCOPE.md` is amended.
+
+---
+
 ## 1. Available today (code) — V1 GA buyer contract
 
 **Surfaces in the V1 GA buyer contract** center on **REST API**, **.NET client**, **CLI**, **SCIM**, **Azure DevOps** / **GitHub** PR/manifest decoration, **Azure extractor ZIP ingest**, and contracts (**OpenAPI**). **Webhooks / CloudEvents**, optional **Azure Service Bus** integration events, **Microsoft Teams** incoming webhooks, copy-paste **recipes**, and **first-party** **Slack**, **Confluence**, **Jira**, and **ServiceNow** are **V1.1 program** obligations ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3) — see the **[connector readiness matrix](../library/CONNECTOR_READINESS_MATRIX.md)** for implementation status, tests, and smoke.

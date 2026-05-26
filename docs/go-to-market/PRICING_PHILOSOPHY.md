@@ -60,7 +60,7 @@
 | **Governance** | Basic (pre-commit gate) | Full (approval workflows, policy packs, segregation of duties) | Full + custom policy packs |
 | **Comparison / drift** | Included | Included | Included |
 | **Audit trail** | 90-day retention | 1-year retention | Custom retention + export |
-| **Authentication** | Entra ID | Entra ID | Entra ID + generic OIDC (roadmap) |
+| **Authentication** | Entra ID default; generic OIDC / SAML 2.0 SP when configured | Entra ID default; generic OIDC / SAML 2.0 SP when configured | Entra ID default; generic OIDC / SAML 2.0 SP when configured |
 | **Support** | Community / email | Business hours email + onboarding call | Dedicated CSM, priority response |
 | **SLA** | Shared SLO targets | Shared SLO targets | Custom SLA with credits |
 
@@ -69,6 +69,8 @@ Platform fee $199 + (3 × $79) = **$436 / month** (within the < $500 discretiona
 
 **Example monthly invoice — Professional, 8 seats, 1 workspace:**
 Platform fee $899 + (8 × $179) = **$2,331 / month** (within the $2K–$5K manager-approval range).
+
+**Authentication scope.** Entra ID remains the default documented hosted-SaaS path. Generic OIDC issuers and native SAML 2.0 SP workforce SSO are V1-supported configuration surfaces where the tenant provides issuer / metadata / claim mapping details; see [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.12 and [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md). Turnkey per-vendor admin wizards are separate implementation polish, not new pricing-tier commitments.
 
 ### Feature gates
 
@@ -262,7 +264,7 @@ Each gate below removes its associated discount from the stack. Trigger a **prod
 
 | Gate | Discount removed | Expected list price increase |
 |------|-----------------|------------------------------|
-| SOC 2 Type II report available under NDA | −25% trust discount | Raise list ~25% |
+| CPA SOC 2 evidence gate cleared under NDA | −25% trust discount | Raise list ~25% |
 | Two named, referenceable customers (case study or logo + quote) | −15% reference discount | Raise list ~15% |
 | Self-serve signup → tenant → billing loop in production | −10% self-serve discount | Raise list ~10% |
 
@@ -276,7 +278,7 @@ Each gate below removes its associated discount from the stack. Trigger a **prod
 
 | Discount line | Magnitude | Owner | Target close date | Evidence link | Re-rate trigger |
 |---------------|-----------|-------|-------------------|---------------|-----------------|
-| Trust discount (SOC 2 Type II + published pen-test) | −25% | TBD (security lead) | TBD (gated on auditor selection) | `docs/security/PEN_TEST_PROGRAM.md` once it lands (file does not yet exist; the link will be made live in the same PR that introduces the program); SOC 2 attestation available under NDA | Auditor opinion letter received **and** filed in the trust portal; pen-test report (or executive summary) approved for prospect distribution |
+| Trust discount (SOC 2 Type II + published pen-test) | −25% | TBD (security lead) | TBD (gated on auditor selection) | `docs/security/PEN_TEST_PROGRAM.md` once it lands (file does not yet exist; the link will be made live in the same PR that introduces the program); future CPA attestation evidence filed under NDA after issuance | Auditor opinion letter received **and** filed in the trust portal; pen-test report (or executive summary) approved for prospect distribution |
 | Reference discount (named, published reference customer) | −15% | **Product marketing** (standardized 2026-04-21) | Standing offer — clears the moment first row reaches `Status: Published` | [`reference-customers/README.md`](reference-customers/README.md) — first row reaching `Status: Published`; CI runs `scripts/ci/check_reference_customer_status.py` twice in `.github/workflows/ci.yml` — warn-only first, then a **strict** re-run **only when** the warn step succeeds (auto-flip; **do not** remove `continue-on-error` by hand on publish day) | At least **one** row in the reference-customers index has `Status: Published` **and** the strict re-run step is active (same commit that introduces the Published row is enough). **Outbound offer to subsequent customers is the standardized 15% per § 4.1** — no per-deal negotiation required. |
 
 > **TODO (reference discount copy removal):** Do **not** delete the −15% line from §5.1 / §5.2 until product leadership runs the §5.3 **re-rate review**. The **engineering** signal that the gate is ready is the **same** merge to `main` where the first README row hits `Published` (strict CI step auto-flips — no YAML surgery).
