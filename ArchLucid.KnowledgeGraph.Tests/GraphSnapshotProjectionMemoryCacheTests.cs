@@ -128,7 +128,7 @@ public sealed class GraphSnapshotProjectionMemoryCacheTests
     [Fact]
     public async Task GetOrLoadAsync_sets_entry_size_from_snapshot_byte_estimate_when_size_limit_enabled()
     {
-        MemoryCache backing = new(new MemoryCacheOptions { SizeLimit = 1_000_000 });
+        MemoryCache backing = new(new MemoryCacheOptions { SizeLimit = 1_000_000, TrackStatistics = true });
 
         Mock<IOptionsMonitor<KnowledgeGraphProjectionCacheOptions>> opts = new();
         opts.Setup(m => m.CurrentValue).Returns(new KnowledgeGraphProjectionCacheOptions { Enabled = true });
@@ -162,7 +162,54 @@ public sealed class GraphSnapshotProjectionMemoryCacheTests
             GraphSnapshotProjectionCacheKeys.Projection(scope, runId, graphSnapshotId),
             out _).Should().BeTrue();
 
-        backing.GetCurrentSize().Should().Be(expectedSize);
+        backing.GetCurrentStatistics()!.CurrentEstimatedSize.Should().Be(expectedSize);
+    }
+
+    [Fact]
+    public async Task GetOrLoadAsync_bypasses_cache_when_entry_exceeds_max_single_entry_bytes()
+    {
+        MemoryCache backing = new(new MemoryCacheOptions { SizeLimit = 1_000_000_000 });
+
+        Mock<IOptionsMonitor<KnowledgeGraphProjectionCacheOptions>> opts = new();
+        opts.Setup(m => m.CurrentValue)
+            .Returns(new KnowledgeGraphProjectionCacheOptions
+            {
+                Enabled = true,
+                MaxSingleEntryBytes = 16,
+            });
+
+        GraphSnapshotProjectionMemoryCache sut = new(backing, opts.Object);
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+        GraphSnapshot materialized = new()
+        {
+            GraphSnapshotId = graphSnapshotId,
+            RunId = runId,
+            ContextSnapshotId = Guid.NewGuid(),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "oversized-node",
+                    NodeType = "Service",
+                    Label = new string('x', 4096),
+                },
+            ],
+        };
+
+        GraphSnapshot? loaded = await sut.GetOrLoadAsync(
+            scope,
+            runId,
+            graphSnapshotId,
+            _ => Task.FromResult<GraphSnapshot?>(materialized),
+            CancellationToken.None);
+
+        loaded.Should().BeSameAs(materialized);
+        backing.TryGetValue(
+            GraphSnapshotProjectionCacheKeys.Projection(scope, runId, graphSnapshotId),
+            out _).Should().BeFalse();
     }
 
     private static ScopeContext CreateScope()

@@ -41,7 +41,7 @@ public sealed class ThresholdRecommendationServiceTests
         WouldCreateCount = wouldCreate
     };
 
-    private static NoiseScoreBreakdown ScoreWith(double finalScore) => new()
+    private static ArchLucid.Decisioning.Alerts.Tuning.NoiseScoreBreakdown ScoreWith(double finalScore) => new()
     {
         CoverageScore = finalScore,
         FinalScore = finalScore
