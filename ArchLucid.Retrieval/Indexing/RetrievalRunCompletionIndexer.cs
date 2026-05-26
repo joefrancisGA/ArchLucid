@@ -60,10 +60,6 @@ public sealed class RetrievalRunCompletionIndexer(
             manifest.RunId,
             provenanceGraph));
 
-        retrievalDocuments.AddRange(PriorManifestRetrievalDocumentBuilder.BuildFromManifest(
-            manifest,
-            findingsSnapshot?.CreatedUtc ?? manifest.CreatedUtc));
-
         ScopeContext scope = new()
         {
             TenantId = tenantId,
@@ -89,7 +85,7 @@ public sealed class RetrievalRunCompletionIndexer(
 
         if (findingsSnapshot?.Findings is { Count: > 0 })
         {
-            retrievalDocuments.AddRange(PriorManifestRetrievalDocumentBuilder.BuildFromFindings(
+            retrievalDocuments.AddRange(documentBuilder.BuildForFindings(
                 tenantId,
                 workspaceId,
                 projectId,

@@ -45,10 +45,12 @@ public static class PriorManifestRetrievalDocumentBuilder
                 $"prior-manifest-{manifest.RunId:N}-decision-{decisionId}",
                 "PriorManifestDecision",
                 decisionId,
-                decision.Title,
-                content,
-                $"{manifest.RunId:N}|decision|{decisionId}|{content}",
-                createdUtc));
+                title: decision.Title,
+                content: content,
+                hashInput: $"{manifest.RunId:N}|decision|{decisionId}|{content}",
+                createdUtc: createdUtc,
+                decisionId: decisionId,
+                findingId: null));
         }
 
         TopologySection topology = manifest.Topology;
@@ -78,7 +80,9 @@ public static class PriorManifestRetrievalDocumentBuilder
                 "Topology",
                 topologyContent,
                 $"{manifest.RunId:N}|topology|{topologyContent}",
-                createdUtc));
+                createdUtc,
+                decisionId: null,
+                findingId: null));
         }
 
         return documents;
@@ -129,7 +133,9 @@ public static class PriorManifestRetrievalDocumentBuilder
                 finding.Category,
                 content,
                 hashInput,
-                createdUtc));
+                createdUtc,
+                decisionId: null,
+                findingId: findingId));
         }
 
         return documents;
@@ -143,7 +149,9 @@ public static class PriorManifestRetrievalDocumentBuilder
         string title,
         string content,
         string hashInput,
-        DateTime createdUtc) =>
+        DateTime createdUtc,
+        string? decisionId,
+        string? findingId) =>
         CreateDocument(
             manifest.TenantId,
             manifest.WorkspaceId,
@@ -156,7 +164,9 @@ public static class PriorManifestRetrievalDocumentBuilder
             title,
             content,
             hashInput,
-            createdUtc);
+            createdUtc,
+            decisionId,
+            findingId);
 
     private static RetrievalDocument CreateDocument(
         Guid tenantId,
@@ -170,7 +180,9 @@ public static class PriorManifestRetrievalDocumentBuilder
         string title,
         string content,
         string hashInput,
-        DateTime createdUtc)
+        DateTime createdUtc,
+        string? decisionId,
+        string? findingId)
     {
         string contentHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(hashInput)));
 
@@ -189,6 +201,8 @@ public static class PriorManifestRetrievalDocumentBuilder
             Content = content,
             ContentHash = contentHash,
             CreatedUtc = createdUtc,
+            DecisionId = decisionId,
+            FindingId = findingId
         };
     }
 

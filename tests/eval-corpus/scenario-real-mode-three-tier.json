@@ -19,7 +19,8 @@
       "id": "e topology baseline",
       "category": "Topology",
       "minimumSeverity": "Low",
-      "evidenceMustContain": ["three-tier", "HTTPS"]
+      "evidenceMustContain": ["three-tier", "HTTPS"],
+      "evidenceRefsMustContain": ["three-tier-web-pattern"]
     },
     {
       "id": "e identity posture",

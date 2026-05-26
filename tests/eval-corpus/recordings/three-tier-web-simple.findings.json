@@ -5,7 +5,8 @@
       "category": "Topology",
       "severity": "Low",
       "title": "Baseline layout",
-      "detail": "This sample preserves a textbook three-tier pattern with CDN static assets over HTTPS origins."
+      "detail": "This sample preserves a textbook three-tier pattern with CDN static assets over HTTPS origins.",
+      "evidenceRefs": ["three-tier-web-pattern"]
     },
     {
       "findingId": "f-3t-2",

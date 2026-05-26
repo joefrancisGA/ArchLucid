@@ -100,6 +100,8 @@ public sealed class RetrievalIndexingService(
                 Embedding = embeddings[i],
                 CreatedUtc = doc.CreatedUtc,
                 PolicyPackRulePackId = doc.PolicyPackRulePackId,
+                DecisionId = doc.DecisionId,
+                FindingId = doc.FindingId,
             }));
         }
 

@@ -87,9 +87,10 @@ def _meets_expected(actual: Sequence[Mapping[str, Any]], rule: Mapping[str, Any]
     min_rank = _norm_severity(str(rule.get("minimumSeverity")))
     want_cat = str(rule.get("category") or "").strip() or None
     phrases = [str(p).strip().lower() for p in (rule.get("evidenceMustContain") or []) if str(p).strip()]
+    refs_phrases = [str(p).strip().lower() for p in (rule.get("evidenceRefsMustContain") or []) if str(p).strip()]
 
-    if not phrases:
-        return False, "expected rule missing evidenceMustContain"
+    if not phrases and not refs_phrases:
+        return False, "expected rule missing evidenceMustContain or evidenceRefsMustContain"
 
     for fi in actual:
         cat_ok = _category_matches(str(fi.get("category") or ""), want_cat)
@@ -101,8 +102,17 @@ def _meets_expected(actual: Sequence[Mapping[str, Any]], rule: Mapping[str, Any]
             continue
 
         text = _combined_text(fi)
+        
+        text_ok = True
+        if phrases:
+            text_ok = all(p in text for p in phrases)
+            
+        refs_ok = True
+        if refs_phrases:
+            actual_refs = [str(r).strip().lower() for r in (fi.get("evidenceRefs") or [])]
+            refs_ok = all(any(p in r for r in actual_refs) for p in refs_phrases)
 
-        if all(p in text for p in phrases):
+        if text_ok and refs_ok:
             return True, str(fi.get("findingId") or "(no id)")
 
     return False, ""
@@ -309,16 +319,19 @@ def _evaluate_claims_block(root: dict[str, Any]) -> tuple[float, int]:
 
     for claim in claims_el:
         total += 1
-        if not isinstance(claim, dict):
-            continue
+        if isinstance(claim, dict):
+            refs = claim.get("evidenceRefs")
+            has_refs = isinstance(refs, list) and len(refs) > 0
+            ev = claim.get("evidence")
+            has_ev = isinstance(ev, str) and len(ev) > 0
 
-        refs = claim.get("evidenceRefs")
-        has_refs = isinstance(refs, list) and len(refs) > 0
-        ev = claim.get("evidence")
-        has_ev = isinstance(ev, str) and len(ev) > 0
-
-        if has_refs or has_ev:
-            with_evidence += 1
+            if has_refs or has_ev:
+                with_evidence += 1
+        elif isinstance(claim, str):
+            # For string claims, we check if there are any top-level evidenceRefs
+            refs = root.get("evidenceRefs")
+            if isinstance(refs, list) and len(refs) > 0:
+                with_evidence += 1
 
     if total == 0:
         return 0.0, 0
@@ -510,6 +523,11 @@ def score_committed_agent_result_json(text: str) -> dict[str, Any]:
     overall = _compute_overall_semantic(claims_ratio, findings_ratio, doc)
     gate = _apply_quality_gate(structural, overall)
 
+    trace = doc.get("retrievalGroundingTrace")
+    faithfulness = 0.0
+    if isinstance(trace, dict):
+        faithfulness = float(trace.get("citationCoverage") or 0.0)
+
     return {
         "parse_failure": False,
         "structural_ratio": structural,
@@ -517,6 +535,7 @@ def score_committed_agent_result_json(text: str) -> dict[str, Any]:
         "claims_quality_ratio": claims_ratio,
         "findings_quality_ratio": findings_ratio,
         "overall_semantic": overall,
+        "faithfulness_support_ratio": faithfulness,
         "empty_claim_count": empty_claims,
         "incomplete_finding_count": incomplete_findings,
         "gate_outcome": gate,

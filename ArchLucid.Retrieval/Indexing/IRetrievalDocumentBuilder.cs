@@ -60,4 +60,13 @@ public interface IRetrievalDocumentBuilder
         Guid projectId,
         Guid runId,
         DecisionProvenanceGraph graph);
+    /// <summary>One document per finding.</summary>
+    IReadOnlyList<RetrievalDocument> BuildForFindings(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid runId,
+        Guid manifestId,
+        IReadOnlyList<ArchLucid.Contracts.Findings.Finding> findings,
+        DateTime createdUtc);
 }

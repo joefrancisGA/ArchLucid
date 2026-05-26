@@ -1,0 +1,10 @@
+---
+description: Minimize Windows shell/process churn — one Shell per turn, no parallel terminals, prefer read-only tools
+alwaysApply: true
+---
+
+# Agent shell discipline (Windows)
+
+Canonical shell rules — **`block_until_ms` tiers**, lifecycle, git chaining, compile verification, cleanup, and **terminal heartbeat** — live in **`shell-hygiene.mdc`** and **`shell-heartbeat.mdc`**. This file remains the name referenced from **`docs/engineering/AGENTS.md`**.
+
+Follow **`shell-hygiene.mdc`** and **`shell-heartbeat.mdc`** in full for every agent turn that uses **`Shell`**.

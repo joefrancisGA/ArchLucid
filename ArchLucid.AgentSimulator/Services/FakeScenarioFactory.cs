@@ -140,6 +140,7 @@ public static class FakeScenarioFactory
                     "Topology is optimized for MVP simplicity."
                 ]
             },
+            RetrievalGroundingTrace = new AgentResultRetrievalGroundingTrace { CitationCoverage = 1.0 },
             CreatedUtc = SimulatorSyntheticCreatedUtc
         };
     }
@@ -188,6 +189,7 @@ public static class FakeScenarioFactory
                     "Search and token usage should be tracked from day one."
                 ]
             },
+            RetrievalGroundingTrace = new AgentResultRetrievalGroundingTrace { CitationCoverage = 1.0 },
             CreatedUtc = SimulatorSyntheticCreatedUtc
         };
     }
@@ -258,6 +260,7 @@ public static class FakeScenarioFactory
                     "Any public network access should require explicit exception review."
                 ]
             },
+            RetrievalGroundingTrace = new AgentResultRetrievalGroundingTrace { CitationCoverage = 1.0 },
             CreatedUtc = SimulatorSyntheticCreatedUtc
         };
     }
@@ -305,6 +308,7 @@ public static class FakeScenarioFactory
                     "Future growth may justify revisiting hosting and indexing topology."
                 ]
             },
+            RetrievalGroundingTrace = new AgentResultRetrievalGroundingTrace { CitationCoverage = 1.0 },
             CreatedUtc = SimulatorSyntheticCreatedUtc
         };
     }

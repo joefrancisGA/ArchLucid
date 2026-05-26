@@ -1,0 +1,85 @@
+---
+description: Agent shell lifecycle, block_until_ms tiers, one Shell per turn — Windows
+alwaysApply: true
+---
+
+# Shell hygiene
+
+**No background shells. Stop everything you start before you finish.**
+
+Each **`Shell`** invocation on Windows typically spawns **powershell.exe** (+ **conhost.exe**). Parallel **`Shell`** batches multiply startup cost (~10–20s per call). Prefer **`Read`**, **`Grep`**, **`Glob`**, and **`SemanticSearch`** over shell for exploration.
+
+## Windows shell (PowerShell only)
+
+Agent shells run **Windows PowerShell**, not bash. Do **not** use Unix-only commands or pipelines such as `head`, `tail`, `sed`, `awk`, `grep`, `find`, `xargs`, or `wc`.
+
+For file preview and search, use **`Read`**, **`Grep`**, and **`Glob`** — not `cat | head` or similar.
+
+When shell file I/O is unavoidable, use PowerShell idioms:
+
+| Need | Use |
+|------|-----|
+| First N lines | `Get-Content path -TotalCount N` |
+| Last N lines | `Get-Content path -Tail N` |
+| Search in file | `Select-String pattern path` or **`Grep`** |
+| Find files by name | `Get-ChildItem -Recurse -Filter *.ext` or **`Glob`** |
+
+Do not switch to WSL/bash just to run Unix text tools unless the user explicitly requests a Linux shell.
+
+## Hard limits
+
+- **At most one `Shell` tool call per assistant turn.** Never issue multiple `Shell` calls in the same turn, including “run these in parallel.”
+- Do not background shell commands unless the user explicitly asked for a long-running process.
+- **No nested launcher:** invoke repo scripts directly from repo root (e.g. `.\scripts\ci\agent-compile-check.ps1 -ProjectPath …`), not wrapped in `powershell -NoProfile -File …`.
+- **No WSL / bash / sh** for routine agent work unless the user explicitly requests a Linux shell command.
+- **No speculative shells:** do not run full-solution `dotnet build`, `dotnet test`, `npm`/`pnpm` install, Docker, or broad `git` history unless the user asked or the task cannot complete without it.
+- Never start dev servers, watchers, log tails, or `gh pr checks --watch` unless the user requested them.
+- Before ending a turn that used shells: stop every process you started and report how many agent shells remain.
+- Do not use Task subagents for command execution; reserve them for codebase search and read-only exploration.
+
+## `block_until_ms` tiers (Shell tool)
+
+`block_until_ms` is the **maximum wait before backgrounding**, not idle time after success. Use the **smallest tier that fits**; never default to 600000.
+
+| Tier | `block_until_ms` | Command class | Examples |
+|------|------------------|---------------|----------|
+| **Fast** | **15000–30000** (default **30000**) | Inspection, git, gh, listing | `git status`, `git diff`, `gh pr view`, `ls`, `pwd`, `Get-ChildItem` |
+| **Medium** | **120000–180000** | Scoped build/test/lint | `.\scripts\ci\agent-compile-check.ps1`, `dotnet build *.slnf`, single test project, `npm run lint` |
+| **Slow** | **300000–600000** | Full solution or heavy I/O | full `dotnet build`, full `dotnet test`, `npm ci`, Docker pull |
+
+**Never** use **600000** for git, gh, or read-only inspection. If a fast command exceeds 30s, suspect a **hung shell** (see cleanup below), not a need for a longer ceiling.
+
+## Git (single invocation)
+
+When git is required, **chain** in one `Shell` call from repo root:
+
+```powershell
+git status --short; git diff --stat; git log -5 --oneline
+```
+
+Do **not** split `git status`, `git diff`, and `git log` into separate `Shell` calls.
+
+## Terminal heartbeat
+
+For commands expected **>15s** (Medium/Slow tiers), emit **`STILL EXECUTING... HH:mm:ss`** every **8 seconds** while the child runs. See **`shell-heartbeat.mdc`** for the wrapper pattern and skip rules.
+
+## Compile verification
+
+- Run **at most one** scoped compile check per task (plus **one** retry on exit code **1** on the **same** scope).
+- Skip compile when the user defers verification or the turn was read-only / docs-only.
+- Use: `.\scripts\ci\agent-compile-check.ps1` with `-ProjectPath` or `-Ui`.
+
+## Cleanup script
+
+When orphaned agent shells accumulate or commands feel stuck:
+
+```powershell
+.\scripts\cleanup-agent-shells.ps1 -DryRun   # preview
+.\scripts\cleanup-agent-shells.ps1 -Force    # stop matches
+```
+
+The script targets Cursor agent one-shot `powershell -c` wrappers and script runners. It skips integrated IDE terminal tabs (`-noexit`).
+
+## User overrides
+
+If the user says **no shell**, **read-only**, or **at most one command per turn**, treat that as stricter than this rule for the rest of the session.

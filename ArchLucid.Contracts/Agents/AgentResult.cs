@@ -151,4 +151,13 @@ public sealed class AgentResult
         get;
         set;
     }
+
+    /// <summary>
+    ///     Optional retrieval grounding trace metrics for offline evaluation.
+    /// </summary>
+    public AgentResultRetrievalGroundingTrace? RetrievalGroundingTrace
+    {
+        get;
+        set;
+    }
 }

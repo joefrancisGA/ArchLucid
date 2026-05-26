@@ -56,7 +56,9 @@ public sealed class InMemoryVectorIndex : IVectorIndex
                     SourceId = x.SourceId,
                     Title = x.Title,
                     Text = x.Text,
-                    Score = Cosine(queryEmbedding, x.Embedding)
+                    Score = Cosine(queryEmbedding, x.Embedding),
+                    DecisionId = x.DecisionId,
+                    FindingId = x.FindingId
                 })
                 .OrderByDescending(x => x.Score)
                 .Take(query.TopK)

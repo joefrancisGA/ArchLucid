@@ -109,4 +109,16 @@ public class RetrievalChunk
         get;
         set;
     }
+
+    public string? DecisionId
+    {
+        get;
+        set;
+    }
+
+    public string? FindingId
+    {
+        get;
+        set;
+    }
 }

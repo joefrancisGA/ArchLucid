@@ -60,4 +60,18 @@ public class RetrievalHit
         get;
         set;
     }
+
+    /// <summary>Optional decision ID if the chunk is derived from a decision.</summary>
+    public string? DecisionId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Optional finding ID if the chunk is derived from a finding.</summary>
+    public string? FindingId
+    {
+        get;
+        set;
+    }
 }

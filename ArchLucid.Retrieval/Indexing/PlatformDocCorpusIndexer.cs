@@ -32,7 +32,7 @@ public sealed class PlatformDocCorpusIndexer(IOptionsMonitor<PlatformDocCorpusIn
         List<RetrievalDocument> documents = [];
         IEnumerable<string> files = Directory
             .EnumerateFiles(root, "*.md", SearchOption.TopDirectoryOnly)
-            .Where(static path => !IsDeniedFileName(Path.GetFileName(path)))
+            .Where(static path => !IsDeniedFileName(Path.GetFileName(path)) && !IsDeniedRelativePath(path))
             .OrderBy(static path => path, StringComparer.OrdinalIgnoreCase)
             .Take(Math.Max(1, opts.MaxDocuments));
 
