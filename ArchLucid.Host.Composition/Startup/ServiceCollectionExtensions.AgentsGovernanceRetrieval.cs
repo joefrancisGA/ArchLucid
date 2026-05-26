@@ -51,6 +51,7 @@ using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.PolicyPacks;
+using ArchLucid.Retrieval.Reranking;
 using ArchLucid.Retrieval.Pricing;
 using ArchLucid.Retrieval.Queries;
 
@@ -795,7 +796,12 @@ public static partial class ServiceCollectionExtensions
     {
         services.Configure<RetrievalEmbeddingCapOptions>(
             configuration.GetSection(RetrievalEmbeddingCapOptions.SectionName));
+        services.Configure<RetrievalRerankingOptions>(configuration.GetSection(RetrievalRerankingOptions.SectionPath));
         services.Configure<PriorManifestRetrievalOptions>(configuration.GetSection(PriorManifestRetrievalOptions.SectionPath));
+
+        services.AddSingleton<PassThroughRetrievalReranker>();
+        services.AddSingleton<LexicalOverlapRetrievalReranker>();
+        services.AddSingleton<IRetrievalReranker, AzureAiSearchSemanticRetrievalReranker>();
 
         services.AddSingleton<SimpleTextChunker>();
         services.AddSingleton<ITextChunker>(static sp => sp.GetRequiredService<SimpleTextChunker>());

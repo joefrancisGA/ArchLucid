@@ -15,6 +15,9 @@ namespace ArchLucid.Retrieval.Indexing;
 public sealed class NotConfiguredAzureSearchClient : IAzureSearchClient
 {
     /// <inheritdoc />
+    public bool IsConfigured => false;
+
+    /// <inheritdoc />
     /// <exception cref="InvalidOperationException">Always — search is not configured.</exception>
     public Task UpsertChunksAsync(IReadOnlyList<RetrievalChunk> chunks, CancellationToken ct)
     {
@@ -27,6 +30,18 @@ public sealed class NotConfiguredAzureSearchClient : IAzureSearchClient
     public Task<IReadOnlyList<RetrievalHit>> SearchAsync(
         RetrievalQuery query,
         float[] queryEmbedding,
+        CancellationToken ct)
+    {
+        throw new InvalidOperationException(
+            "Azure AI Search is not configured. Register a concrete IAzureSearchClient or use InMemoryVectorIndex (Retrieval:VectorIndex = InMemory).");
+    }
+
+    /// <inheritdoc />
+    /// <exception cref="InvalidOperationException">Always — search is not configured.</exception>
+    public Task<IReadOnlyList<RetrievalHit>> SemanticRerankAsync(
+        string queryText,
+        IReadOnlyList<RetrievalHit> candidates,
+        int finalTopK,
         CancellationToken ct)
     {
         throw new InvalidOperationException(

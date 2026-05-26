@@ -6,6 +6,7 @@ using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Models;
 using ArchLucid.Retrieval.PolicyPacks;
 using ArchLucid.Retrieval.Queries;
+using ArchLucid.Retrieval.Reranking;
 
 using FluentAssertions;
 
@@ -232,7 +233,18 @@ public sealed class RetrievalQueryServiceTests
             new MockOptionsMonitor<RetrievalTelemetryOptions>(
                 new RetrievalTelemetryOptions { RecordPerTenantTags = recordPerTenantTags });
 
-        return new RetrievalQueryService(embeddingService, vectorIndex, assignedResolver, telemetryOptions);
+        IOptionsMonitor<RetrievalRerankingOptions> rerankingOptions =
+            new MockOptionsMonitor<RetrievalRerankingOptions>(new RetrievalRerankingOptions { Enabled = false });
+
+        PassThroughRetrievalReranker passThrough = new();
+
+        return new RetrievalQueryService(
+            embeddingService,
+            vectorIndex,
+            passThrough,
+            assignedResolver,
+            telemetryOptions,
+            rerankingOptions);
     }
 
     private static EffectivePolicyPackSet BuildEffectivePackSet(IEnumerable<string> rulePackIds)

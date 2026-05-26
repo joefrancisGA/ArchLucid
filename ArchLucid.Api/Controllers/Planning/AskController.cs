@@ -36,6 +36,14 @@ public sealed class AskController(
 {
     private static readonly JsonSerializerOptions StreamSerializerOptions = new(JsonSerializerDefaults.Web);
 
+    /// <summary>Returns default Ask prompt templates for operator UI chips (Improvement #11).</summary>
+    [HttpGet("templates")]
+    [ProducesResponseType(typeof(IReadOnlyList<AskPromptTemplate>), StatusCodes.Status200OK)]
+    public ActionResult<IReadOnlyList<AskPromptTemplate>> GetTemplates()
+    {
+        return Ok(AskPromptTemplateCatalog.GetTemplates());
+    }
+
     /// <summary>Grounded Q&amp;A over GoldenManifest, provenance graph, optional run comparison, and retrieval hits.</summary>
     /// <param name="request">Thread/run anchors and question (see validation rules in method body).</param>
     /// <param name="ct">Cancellation token.</param>

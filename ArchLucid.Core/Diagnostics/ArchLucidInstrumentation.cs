@@ -344,6 +344,13 @@ public static class ArchLucidInstrumentation
             "ms",
             "Wall time for RAG vector retrieval (embed + vector index search).");
 
+    /// <summary>Post-vector semantic rerank wall time (Improvement #23).</summary>
+    public static readonly Histogram<double> RetrievalRerankLatencyMilliseconds =
+        AppMeter.CreateHistogram<double>(
+            "archlucid.rerank.latency_ms",
+            "ms",
+            "Wall time for retrieval rerank (semantic ranker or lexical fallback).");
+
     /// <summary>
     ///     Chunks returned per retrieval search grouped by <c>corpus_kind</c> (Improvement 7; histogram not counter
     ///     per assessment spec).
@@ -1318,6 +1325,16 @@ public static class ArchLucidInstrumentation
 
             RagChunksRetrieved.Record(pair.Value, chunkTags);
         }
+    }
+
+    /// <summary>Records <see cref="RetrievalRerankLatencyMilliseconds" /> for a completed rerank call.</summary>
+    public static void RecordRetrievalRerankLatency(double durationMilliseconds, int resultCount)
+    {
+        if (durationMilliseconds < 0 || double.IsNaN(durationMilliseconds) || double.IsInfinity(durationMilliseconds))
+            return;
+
+        TagList tags = new() { { "result_count", Math.Clamp(resultCount, 0, 50).ToString() } };
+        RetrievalRerankLatencyMilliseconds.Record(durationMilliseconds, tags);
     }
 
     /// <summary>Increments <see cref="IntegrationEventDeliverySuccessTotal" />.</summary>

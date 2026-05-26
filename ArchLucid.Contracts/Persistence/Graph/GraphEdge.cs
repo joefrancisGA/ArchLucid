@@ -1,5 +1,10 @@
 ﻿namespace ArchLucid.Contracts.Persistence.Graph;
 
+/// <summary>
+///     Directed edge in a <see cref="GraphSnapshot" />.
+///     SchemaVersion 1 shipped and stable as of 2026-05-26. Changes must be additive (new optional fields) or bump
+///     <see cref="GraphSnapshot.SchemaVersion" />. Field removals, type changes, and renames are breaking.
+/// </summary>
 public class GraphEdge
 {
     public string EdgeId

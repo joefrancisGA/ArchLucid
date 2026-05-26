@@ -11,6 +11,12 @@ namespace ArchLucid.Retrieval.Indexing;
 /// <remarks>Placeholder registration: <see cref="NotConfiguredAzureSearchClient" /> throws with configuration guidance.</remarks>
 public interface IAzureSearchClient
 {
+    /// <summary>True when a concrete search endpoint is registered (not <see cref="NotConfiguredAzureSearchClient" />).</summary>
+    bool IsConfigured
+    {
+        get;
+    }
+
     /// <summary>Uploads or merges chunk documents with embeddings into the search index.</summary>
     /// <param name="chunks">Chunks to upsert (idempotent by <see cref="RetrievalChunk.ChunkId" />).</param>
     /// <param name="ct">Cancellation token.</param>
@@ -24,5 +30,14 @@ public interface IAzureSearchClient
     Task<IReadOnlyList<RetrievalHit>> SearchAsync(
         RetrievalQuery query,
         float[] queryEmbedding,
+        CancellationToken ct);
+
+    /// <summary>
+    ///     Re-ranks <paramref name="candidates" /> with the index semantic ranker (LATEST semantic ranker path).
+    /// </summary>
+    Task<IReadOnlyList<RetrievalHit>> SemanticRerankAsync(
+        string queryText,
+        IReadOnlyList<RetrievalHit> candidates,
+        int finalTopK,
         CancellationToken ct);
 }

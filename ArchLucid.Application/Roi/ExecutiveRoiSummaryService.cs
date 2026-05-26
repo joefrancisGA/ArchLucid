@@ -95,6 +95,10 @@ public sealed class ExecutiveRoiSummaryService(
         }
 
         List<SystemicIssueSummary> topIssues = AggregateTopSystemicIssues(latestDetails, _logger);
+        List<(RunSummary Summary, ArchitectureRunDetail Detail)> trendRuns =
+            await CollectCommittedRunsForTrendsAsync(cancellationToken).ConfigureAwait(false);
+        List<ExecutiveRoiSystemicIssueTrendSeries> historicalTrends =
+            ExecutiveRoiSystemicIssueTrendBuilder.Build(trendRuns);
         decimal totalSavings = systems.Sum(static system => system.EstimatedUsdSavings ?? 0m);
 
         Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
@@ -116,6 +120,7 @@ public sealed class ExecutiveRoiSummaryService(
             SavingsPricingBasis = savingsPricingBasis,
             ResolvedFindingsCount30Days = resolvedCount,
             NewlyDiscoveredFindingsCount30Days = newlyDiscoveredCount,
+            HistoricalTrends = historicalTrends,
         };
     }
 
@@ -361,6 +366,46 @@ public sealed class ExecutiveRoiSummaryService(
             EaDiscountMultiplier = eaDiscountMultiplier,
             SavingsPricingBasis = savingsPricingBasis,
         };
+    }
+
+    private async Task<List<(RunSummary Summary, ArchitectureRunDetail Detail)>> CollectCommittedRunsForTrendsAsync(
+        CancellationToken cancellationToken)
+    {
+        const int maxRuns = 400;
+        DateTime cutoffUtc = DateTime.UtcNow.AddMonths(-6);
+        List<(RunSummary Summary, ArchitectureRunDetail Detail)> results = [];
+        string? cursor = null;
+        const int take = 100;
+
+        while (results.Count < maxRuns)
+        {
+            (IReadOnlyList<RunSummary> items, bool hasMore, string? next) =
+                await _runDetailQueryService.ListRunSummariesKeysetAsync(cursor, take, cancellationToken).ConfigureAwait(false);
+
+            foreach (RunSummary summary in items)
+            {
+                if (results.Count >= maxRuns)
+                    break;
+
+                if (!IsCommittedSummary(summary) || summary.CreatedUtc < cutoffUtc)
+                    continue;
+
+                ArchitectureRunDetail? detail =
+                    await _runDetailQueryService.GetRunDetailAsync(summary.RunId, cancellationToken).ConfigureAwait(false);
+
+                if (detail is null)
+                    continue;
+
+                results.Add((summary, detail));
+            }
+
+            if (!hasMore || string.IsNullOrEmpty(next))
+                break;
+
+            cursor = next;
+        }
+
+        return results;
     }
 
     private async Task<Dictionary<string, RunSummary>> CollectLatestCommittedRunPerSystemAsync(CancellationToken cancellationToken)

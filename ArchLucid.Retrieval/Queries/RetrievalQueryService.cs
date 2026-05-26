@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.PolicyPacks;
+using ArchLucid.Retrieval.Reranking;
 
 namespace ArchLucid.Retrieval.Queries;
 
@@ -17,14 +18,22 @@ namespace ArchLucid.Retrieval.Queries;
 public sealed class RetrievalQueryService(
     IEmbeddingService embeddingService,
     IVectorIndex vectorIndex,
+    IRetrievalReranker retrievalReranker,
     AssignedPolicyPackRulePackIdResolver assignedPolicyPackRulePackIdResolver,
-    IOptionsMonitor<RetrievalTelemetryOptions> retrievalTelemetryOptions) : IRetrievalQueryService
+    IOptionsMonitor<RetrievalTelemetryOptions> retrievalTelemetryOptions,
+    IOptionsMonitor<RetrievalRerankingOptions> rerankingOptions) : IRetrievalQueryService
 {
+    private readonly IRetrievalReranker _retrievalReranker =
+        retrievalReranker ?? throw new ArgumentNullException(nameof(retrievalReranker));
+
     private readonly AssignedPolicyPackRulePackIdResolver _assignedPolicyPackRulePackIdResolver =
         assignedPolicyPackRulePackIdResolver ?? throw new ArgumentNullException(nameof(assignedPolicyPackRulePackIdResolver));
 
     private readonly IOptionsMonitor<RetrievalTelemetryOptions> _retrievalTelemetryOptions =
         retrievalTelemetryOptions ?? throw new ArgumentNullException(nameof(retrievalTelemetryOptions));
+
+    private readonly IOptionsMonitor<RetrievalRerankingOptions> _rerankingOptions =
+        rerankingOptions ?? throw new ArgumentNullException(nameof(rerankingOptions));
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<RetrievalHit>> SearchAsync(RetrievalQuery query, CancellationToken ct)
@@ -46,8 +55,30 @@ public sealed class RetrievalQueryService(
 
         long startTicks = Stopwatch.GetTimestamp();
 
+        int finalTopK = Math.Clamp(query.TopK, 1, 25);
+        RetrievalRerankingOptions rerankOptions = _rerankingOptions.CurrentValue;
+        int candidateTopK = rerankOptions.Enabled
+            ? Math.Max(finalTopK, rerankOptions.GetEffectiveMaxCandidates())
+            : finalTopK;
+
+        RetrievalQuery searchQuery = CloneWithTopK(query, candidateTopK);
+
         float[] embedding = await embeddingService.EmbedAsync(query.QueryText, ct);
-        IReadOnlyList<RetrievalHit> hits = await vectorIndex.SearchAsync(query, embedding, ct);
+        IReadOnlyList<RetrievalHit> hits = await vectorIndex.SearchAsync(searchQuery, embedding, ct).ConfigureAwait(false);
+
+        if (rerankOptions.Enabled && hits.Count > 0)
+        {
+            hits = await _retrievalReranker
+                .RerankAsync(query.QueryText, hits, finalTopK, ct)
+                .ConfigureAwait(false);
+        }
+        else if (hits.Count > finalTopK)
+        {
+            hits = hits
+                .OrderByDescending(static hit => hit.Score)
+                .Take(finalTopK)
+                .ToList();
+        }
 
         double durationMilliseconds = Stopwatch.GetElapsedTime(startTicks).TotalMilliseconds;
         bool recordPerTenantTags = _retrievalTelemetryOptions.CurrentValue.RecordPerTenantTags;
@@ -58,5 +89,22 @@ public sealed class RetrievalQueryService(
             recordPerTenantTags);
 
         return hits;
+    }
+
+    private static RetrievalQuery CloneWithTopK(RetrievalQuery query, int topK)
+    {
+        return new RetrievalQuery
+        {
+            TenantId = query.TenantId,
+            WorkspaceId = query.WorkspaceId,
+            ProjectId = query.ProjectId,
+            RunId = query.RunId,
+            ManifestId = query.ManifestId,
+            QueryText = query.QueryText,
+            TopK = topK,
+            IncludePlatformCorpora = query.IncludePlatformCorpora,
+            AllowedPolicyPackRulePackIds = query.AllowedPolicyPackRulePackIds,
+            CorpusKindFilter = query.CorpusKindFilter,
+        };
     }
 }

@@ -143,8 +143,8 @@ public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory 
                                       SELECT
                                           AVG(CAST(DATEDIFF(SECOND, r.CreatedUtc, m.CreatedUtc) AS DECIMAL(18, 6))) / 3600.0 AS AvgHours,
                                           COUNT_BIG(*) AS Cnt
-                                      FROM dbo.GoldenManifests WITH (NOLOCK) m WITH (NOLOCK)
-                                      INNER JOIN dbo.Runs r WITH (NOLOCK) ON m.RunId = r.RunId
+                                      FROM dbo.GoldenManifests m WITH (NOLOCK)
+                                      INNER JOIN dbo.Runs r ON m.RunId = r.RunId
                                       WHERE m.TenantId = @TenantId
                                         AND m.WorkspaceId = @WorkspaceId
                                         AND m.ProjectId = @ProjectId

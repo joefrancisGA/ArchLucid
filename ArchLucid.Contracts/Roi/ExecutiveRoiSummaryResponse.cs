@@ -73,6 +73,13 @@ public sealed class ExecutiveRoiSummaryResponse
         get;
         set;
     }
+
+    /// <summary>Top five systemic issue themes by month for the trailing six months (Improvement #12).</summary>
+    public List<ExecutiveRoiSystemicIssueTrendSeries> HistoricalTrends
+    {
+        get;
+        set;
+    } = [];
 }
 
 /// <summary>ROI snapshot for the newest committed run of a single system.</summary>

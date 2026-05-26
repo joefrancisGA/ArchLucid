@@ -26,11 +26,12 @@ public sealed class AuditSqlRetryPolicyProviderTests
             throw SqlExceptionTestFactory.Create(40613);
         };
 
-        Func<Task> wrapped = policy.WrapAsync(action);
-
-        Func<Task> act = async () => await wrapped();
-
-        act.Should().ThrowAsync<Microsoft.Data.SqlClient.SqlException>();
+        Func<Task> act = async () =>
+        {
+            await policy.ExecuteAsync(async _ => await action(), CancellationToken.None);
+        };
+        
+        act.Should().ThrowAsync<Microsoft.Data.SqlClient.SqlException>().GetAwaiter().GetResult();
         attempts.Should().Be(4);
     }
 }

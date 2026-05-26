@@ -212,9 +212,16 @@
 
 | ID | Title | Trigger to reconsider |
 |----|-------|------------------------|
-| **RAG-V2-001** | Graph-RAG over knowledge / provenance graph | Graph surface stable; latency budget proven in production |
+| **RAG-V2-001** | Graph-RAG over knowledge / provenance graph | Schema stable as of 2026-05-26 (ADR 0036); promote to V2 implementation only after V1 RAG foundation + reranker + faithfulness harness fail to hit faithfulness floor on two consecutive golden-cohort weeks |
 | **RAG-V2-002** | Agentic retrieval (HyDE, query rewrite, cross-encoder rerank) | V1 eval shows single-hop retrieval insufficient; budget for extra LLM hops approved |
 | **RAG-V2-003** | Online fine-tuning on accepted manifests | Explicit DPA + owner ADR; separate from retrieval |
+
+### Reranking — V1 decision (2026-05-26)
+
+- **Primary:** Azure AI Search semantic ranker via `IRetrievalReranker` / `AzureAiSearchSemanticRetrievalReranker` (max 50 candidates; disabled in Development via `Retrieval:Reranking:Enabled`).
+- **Fallback (dev):** Lexical overlap when search is not configured.
+- **Contingency:** Cohere Rerank-v3.5 via Azure AI Foundry only if golden-cohort citation precision stays below 0.80 for two consecutive weeks after semantic ranker ships.
+- **Telemetry:** `archlucid.rerank.latency_ms` histogram.
 
 ---
 

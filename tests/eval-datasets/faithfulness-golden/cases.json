@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "minSupportRatio": 0.8,
+  "cases": [
+    {
+      "id": "faithfulness-policy-cited",
+      "retrievalHits": [
+        { "sourceId": "rule-kv-01", "title": "Key Vault" },
+        { "sourceId": "rule-mi-02", "title": "Managed Identity" }
+      ],
+      "agentOutputText": "Per rule-kv-01, use Key Vault references. Managed Identity (rule-mi-02) should access secrets."
+    },
+    {
+      "id": "faithfulness-partial-citation",
+      "retrievalHits": [
+        { "sourceId": "chunk-a", "title": "Front Door" },
+        { "sourceId": "chunk-b", "title": "App Service" }
+      ],
+      "agentOutputText": "HTTPS terminates at Front Door before App Service."
+    },
+    {
+      "id": "faithfulness-uncited",
+      "retrievalHits": [
+        { "sourceId": "fabricated-1", "title": "Fabricated Service" }
+      ],
+      "agentOutputText": "No retrieval grounding in this answer."
+    }
+  ]
+}

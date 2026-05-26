@@ -141,6 +141,10 @@ Round-trip serialization uses the **canonical** names. See **`JsonEntitySerializ
 | 5 | `ArchLucid.KnowledgeGraph.Tests` — inferrer, validator, graph builder, and extensions unit tests | ✓ Done |
 | 6 | `GraphEdge.Weight`, `GraphSnapshotEdges` index table, `ListIndexedEdgesAsync`, fingerprint + clone reuse in `AuthorityRunOrchestrator` | ✓ Done |
 
+### Graph-RAG reserved property prefix (ADR 0036)
+
+`GraphNode.Properties` keys prefixed with **`embedding:`** (for example `embedding:model`, `embedding:dim`, `embedding:hash`) are reserved for future Graph-RAG metadata. Other features must not use this prefix; PR review enforces the convention.
+
 ### Open items
 
 1. **Traversal consumers** — use **`Weight`** and **`ListIndexedEdgesAsync`** in read paths that today deserialize full **`EdgesJson`** (when those APIs are added).

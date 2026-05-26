@@ -253,16 +253,16 @@ public static class ArchLucidStorageServiceCollectionExtensions
         {
             services.AddSingleton<ILlmCompletionResponseStore>(sp =>
             {
-                ResiliencePipeline circuitBreaker = ArchLucid.Persistence.Coordination.Resilience.LlmCompletionDistributedStoreResilienceDefaults.BuildCircuitBreakerPipeline(
-                    sp.GetRequiredService<ILogger<ArchLucid.Persistence.Coordination.Caching.ResilientDistributedLlmCompletionResponseStore>>());
+                ResiliencePipeline circuitBreaker = ArchLucid.AgentRuntime.LlmCompletionDistributedStoreResilienceDefaults.BuildCircuitBreakerPipeline(
+                    sp.GetRequiredService<ILogger<ArchLucid.AgentRuntime.ResilientDistributedLlmCompletionResponseStore>>());
 
                 MemoryLlmCompletionResponseStore fallback = new(Math.Max(1, llm.MaxEntries));
 
-                return new ArchLucid.Persistence.Coordination.Caching.ResilientDistributedLlmCompletionResponseStore(
+                return new ArchLucid.AgentRuntime.ResilientDistributedLlmCompletionResponseStore(
                     new DistributedLlmCompletionResponseStore(sp.GetRequiredService<IDistributedCache>()),
                     fallback,
                     circuitBreaker,
-                    sp.GetRequiredService<ILogger<ArchLucid.Persistence.Coordination.Caching.ResilientDistributedLlmCompletionResponseStore>>());
+                    sp.GetRequiredService<ILogger<ArchLucid.AgentRuntime.ResilientDistributedLlmCompletionResponseStore>>());
             });
 
             return;
