@@ -1,4 +1,4 @@
-﻿# Agent-output quality Prometheus alert rules for Azure Monitor managed Prometheus.
+# Agent-output quality Prometheus alert rules for Azure Monitor managed Prometheus.
 # Mirrors ../prometheus/archlucid-alerts.yml group archlucid-agent-output-quality.
 # Routes to the ops (email) action group — warning-tier regressions, not P0 phone alerts.
 
