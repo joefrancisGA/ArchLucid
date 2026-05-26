@@ -34,7 +34,7 @@ public sealed class LlmTenantWalletServiceTests
         InMemoryLlmTenantWalletRepository repository = new();
         Guid tenantId = Guid.NewGuid();
 
-        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), null, 202605, [], CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), null, int.Parse(DateTime.UtcNow.ToString("yyyyMM")), [], CancellationToken.None);
 
         LlmTenantWalletService service = CreateService(repository);
 
@@ -76,7 +76,7 @@ public sealed class LlmTenantWalletServiceTests
             },
             CancellationToken.None);
 
-        await repository.TryCreditRefillAsync(tenantId, 5m, Guid.NewGuid(), null, 202605, [], CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 5m, Guid.NewGuid(), null, int.Parse(DateTime.UtcNow.ToString("yyyyMM")), [], CancellationToken.None);
 
         Mock<IStripeWalletGateway> stripe = new();
         stripe
@@ -122,7 +122,7 @@ public sealed class LlmTenantWalletServiceTests
             },
             CancellationToken.None);
 
-        await repository.TryCreditRefillAsync(tenantId, 5m, Guid.NewGuid(), null, 202605, [], CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 5m, Guid.NewGuid(), null, int.Parse(DateTime.UtcNow.ToString("yyyyMM")), [], CancellationToken.None);
 
         Mock<IStripeWalletGateway> stripe = new();
         stripe

@@ -57,10 +57,19 @@ public static class SqlOpenResilienceDefaults
             .AddRetry(new RetryStrategyOptions
             {
                 MaxRetryAttempts = maxRetryAttempts,
-                Delay = delay,
-                BackoffType = DelayBackoffType.Exponential,
-                UseJitter = true,
                 ShouldHandle = new PredicateBuilder().Handle<Exception>(SqlTransientDetector.IsTransient),
+                DelayGenerator = args =>
+                {
+                    double baseMilliseconds = delay.TotalMilliseconds * Math.Pow(2, args.AttemptNumber - 1);
+                    int jitterSpan = SqlOpenRetryDelayCalculator.ComputeJitterSpanMilliseconds(baseMilliseconds);
+                    int jitterOffsetMs = jitterSpan == 0 ? 0 : Random.Shared.Next(-jitterSpan, jitterSpan + 1);
+                    TimeSpan retryDelay = SqlOpenRetryDelayCalculator.Calculate(
+                        args.AttemptNumber,
+                        delay,
+                        jitterOffsetMs);
+
+                    return new ValueTask<TimeSpan?>(retryDelay);
+                },
                 OnRetry = args =>
                 {
                     if (logger is null)

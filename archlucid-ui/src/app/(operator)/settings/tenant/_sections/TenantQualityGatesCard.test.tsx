@@ -33,6 +33,21 @@ describe("TenantQualityGatesCard", () => {
         });
       }
 
+      if (url.includes("diagnostics/quality-gates")) {
+        return new Response(
+          JSON.stringify({
+            enabled: true,
+            mode: "WarnOnly",
+            structuralRejectBelow: 0.7,
+            semanticRejectBelow: 0.5,
+            pilotStrictMinStructuralCompleteness: 0.9,
+            pilotStrictMinSemanticScore: 0.55,
+            pilotStrictMinEvidenceRefCount: 2,
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
       return new Response("not found", { status: 404 });
     });
 
@@ -42,6 +57,7 @@ describe("TenantQualityGatesCard", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("quality-gate-mode-controls")).toBeInTheDocument();
+      expect(screen.getByTestId("quality-gate-diagnostics-panel")).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Pilot strict" }));

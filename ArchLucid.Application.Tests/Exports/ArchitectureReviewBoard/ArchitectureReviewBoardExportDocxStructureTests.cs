@@ -84,7 +84,7 @@ public sealed class ArchitectureReviewBoardExportDocxStructureTests
 
         string xml = ArchitectureReviewBoardDocxTestHelpers.ExtractMainDocumentXml(bytes);
 
-        xml.Should().Contain("Architecture review board packet");
+        xml.Should().Contain("ArchLucid Architecture Review");
         xml.Should().Contain("Review (run) ID: golden-architecture-review-board-run-001");
         xml.Should().Contain("Generated on");
 

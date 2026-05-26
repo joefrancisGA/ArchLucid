@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Roi;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Roi;
 
@@ -79,10 +80,10 @@ public sealed class TenantCostSettingsController(
                 ProblemTypes.ValidationFailed);
         }
 
-        if (body.EaDiscountMultiplier is <= 0m or > 1m)
+        if (!TryResolveEaDiscountMultiplier(body, out decimal eaDiscountMultiplier, out string? eaValidationError))
         {
             return this.BadRequestProblem(
-                "EA discount multiplier must be between 0 (exclusive) and 1 (inclusive).",
+                eaValidationError ?? "EA discount values are invalid.",
                 ProblemTypes.ValidationFailed);
         }
 
@@ -95,7 +96,7 @@ public sealed class TenantCostSettingsController(
             TenantId = scope.TenantId,
             ArchitectHourlyRateUsd = body.ArchitectHourlyRateUsd,
             AverageIncidentCostUsd = body.AverageIncidentCostUsd,
-            EaDiscountMultiplier = body.EaDiscountMultiplier,
+            EaDiscountMultiplier = eaDiscountMultiplier,
             UpdatedUtc = updatedUtc,
             UpdatedByActorId = actor,
         };
@@ -135,18 +136,59 @@ public sealed class TenantCostSettingsController(
                 ArchitectHourlyRateUsd = _defaults.FullyLoadedArchitectHourlyUsd,
                 AverageIncidentCostUsd = _defaults.DefaultAverageIncidentCostUsd,
                 EaDiscountMultiplier = 1.0m,
+                EaDiscountPercentage = 0m,
                 IsTenantConfigured = false,
                 UpdatedUtc = null,
             };
         }
 
+        decimal multiplier = row.EaDiscountMultiplier <= 0m ? 1.0m : row.EaDiscountMultiplier;
+
         return new TenantCostSettingsGetResponse
         {
             ArchitectHourlyRateUsd = row.ArchitectHourlyRateUsd,
             AverageIncidentCostUsd = row.AverageIncidentCostUsd,
-            EaDiscountMultiplier = row.EaDiscountMultiplier <= 0m ? 1.0m : row.EaDiscountMultiplier,
+            EaDiscountMultiplier = multiplier,
+            EaDiscountPercentage = TenantEaDiscountMath.PercentageFromMultiplier(multiplier),
             IsTenantConfigured = true,
             UpdatedUtc = row.UpdatedUtc,
         };
+    }
+
+    private static bool TryResolveEaDiscountMultiplier(
+        TenantCostSettingsPutRequest body,
+        out decimal eaDiscountMultiplier,
+        out string? validationError)
+    {
+        if (body.EaDiscountPercentage is { } percentage)
+        {
+            if (percentage is < 0m or > 100m)
+            {
+                eaDiscountMultiplier = 0m;
+                validationError = "EA discount percentage must be between 0 and 100 (inclusive).";
+
+                return false;
+            }
+
+            eaDiscountMultiplier = TenantEaDiscountMath.MultiplierFromPercentage(percentage);
+            validationError = null;
+
+            return true;
+        }
+
+        decimal multiplier = body.EaDiscountMultiplier ?? 1.0m;
+
+        if (multiplier is <= 0m or > 1m)
+        {
+            eaDiscountMultiplier = 0m;
+            validationError = "EA discount multiplier must be between 0 (exclusive) and 1 (inclusive).";
+
+            return false;
+        }
+
+        eaDiscountMultiplier = multiplier;
+        validationError = null;
+
+        return true;
     }
 }

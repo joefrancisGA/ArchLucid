@@ -1,6 +1,9 @@
 using System.Net;
 
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Http;
+
+using Polly;
 
 namespace ArchLucid.Host.Core.Diagnostics;
 
@@ -41,10 +44,15 @@ public static class OidcAuthorityMetadataProbe
 
         string metadataUrl = $"{authority.TrimEnd('/')}/.well-known/openid-configuration";
 
+        ResiliencePipeline<HttpResponseMessage> retryPipeline = OidcAuthorityMetadataProbeHttpResilience.BuildPipeline();
+
         try
         {
-            using HttpResponseMessage response =
-                await httpClient.GetAsync(metadataUrl, cancellationToken).ConfigureAwait(false);
+            using HttpResponseMessage response = await retryPipeline
+                .ExecuteAsync(
+                    async ct => await httpClient.GetAsync(metadataUrl, ct).ConfigureAwait(false),
+                    cancellationToken)
+                .ConfigureAwait(false);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {

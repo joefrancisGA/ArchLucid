@@ -77,6 +77,7 @@ describe("TenantSettingsPage", () => {
               architectHourlyRateUsd: 150,
               averageIncidentCostUsd: 25000,
               eaDiscountMultiplier: 1,
+              eaDiscountPercentage: 0,
               isTenantConfigured: false,
               updatedUtc: null,
             }),

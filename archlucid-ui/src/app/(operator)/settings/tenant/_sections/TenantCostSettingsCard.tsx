@@ -41,7 +41,7 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
   const [isTenantConfigured, setIsTenantConfigured] = useState(false);
   const [hourlyRate, setHourlyRate] = useState("");
   const [incidentCost, setIncidentCost] = useState("");
-  const [eaDiscountMultiplier, setEaDiscountMultiplier] = useState("1");
+  const [eaDiscountPercentage, setEaDiscountPercentage] = useState("0");
 
   const load = useCallback(async () => {
     if (demoMode) {
@@ -69,7 +69,7 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
       setIsTenantConfigured(data.isTenantConfigured);
       setHourlyRate(String(data.architectHourlyRateUsd));
       setIncidentCost(String(data.averageIncidentCostUsd));
-      setEaDiscountMultiplier(String(data.eaDiscountMultiplier ?? 1));
+      setEaDiscountPercentage(String(data.eaDiscountPercentage ?? 0));
     } catch (error: unknown) {
       setLoadFailure(toApiLoadFailure(error).message);
     } finally {
@@ -91,15 +91,15 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
 
       const architectHourlyRateUsd = parseUsdField(hourlyRate);
       const averageIncidentCostUsd = parseUsdField(incidentCost);
-      const eaDiscount = parseUsdField(eaDiscountMultiplier);
+      const eaDiscountPct = parseUsdField(eaDiscountPercentage);
 
       if (
         architectHourlyRateUsd === null ||
         averageIncidentCostUsd === null ||
-        eaDiscount === null ||
+        eaDiscountPct === null ||
         Number.isNaN(architectHourlyRateUsd) ||
         Number.isNaN(averageIncidentCostUsd) ||
-        Number.isNaN(eaDiscount)
+        Number.isNaN(eaDiscountPct)
       ) {
         showError("Invalid values", "Enter numeric values for all fields.");
 
@@ -112,8 +112,8 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
         return;
       }
 
-      if (eaDiscount <= 0 || eaDiscount > 1) {
-        showError("Invalid EA multiplier", "EA discount multiplier must be greater than 0 and at most 1 (1.0 = Retail list).");
+      if (eaDiscountPct < 0 || eaDiscountPct > 100) {
+        showError("Invalid EA discount", "EA discount percentage must be between 0 and 100.");
 
         return;
       }
@@ -121,7 +121,7 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
       const body: TenantCostSettingsPutRequest = {
         architectHourlyRateUsd,
         averageIncidentCostUsd,
-        eaDiscountMultiplier: eaDiscount,
+        eaDiscountPercentage: eaDiscountPct,
       };
 
       setSaving(true);
@@ -145,7 +145,7 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
         setIsTenantConfigured(saved.isTenantConfigured);
         setHourlyRate(String(saved.architectHourlyRateUsd));
         setIncidentCost(String(saved.averageIncidentCostUsd));
-        setEaDiscountMultiplier(String(saved.eaDiscountMultiplier ?? 1));
+        setEaDiscountPercentage(String(saved.eaDiscountPercentage ?? 0));
         showSuccess("Cost settings saved.");
       } catch (error: unknown) {
         showError("Could not save cost settings", toApiLoadFailure(error).message);
@@ -153,7 +153,7 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
         setSaving(false);
       }
     },
-    [canEdit, demoMode, hourlyRate, incidentCost, eaDiscountMultiplier],
+    [canEdit, demoMode, hourlyRate, incidentCost, eaDiscountPercentage],
   );
 
   if (demoMode) {
@@ -219,17 +219,17 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
             </div>
 
             <div>
-              <Label htmlFor="ea-discount-multiplier">EA discount multiplier (Cost findings)</Label>
+              <Label htmlFor="ea-discount-percentage">Enterprise Agreement discount (% off Azure Retail)</Label>
               <Input
-                id="ea-discount-multiplier"
+                id="ea-discount-percentage"
                 inputMode="decimal"
-                value={eaDiscountMultiplier}
-                onChange={(ev) => setEaDiscountMultiplier(ev.target.value)}
+                value={eaDiscountPercentage}
+                onChange={(ev) => setEaDiscountPercentage(ev.target.value)}
                 readOnly={!canEdit}
-                data-testid="tenant-cost-ea-multiplier"
+                data-testid="tenant-cost-ea-percentage"
               />
               <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                1.0 = Azure Retail list pricing. 0.85 = 15% EA discount applied to Cost-category savings only.
+                0 = list pricing. 15 applies EffectivePrice = RetailPrice × 0.85 to Cost-category ROI savings.
               </p>
             </div>
 

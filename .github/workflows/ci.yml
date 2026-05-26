@@ -772,6 +772,31 @@ jobs:
           Set-PSRepository PSGallery -InstallationPolicy Trusted
           Install-Module Pester -Force -Scope CurrentUser -MinimumVersion 5.0.0 -MaximumVersion 5.99.99
 
+      - name: Install PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          Install-Module PSScriptAnalyzer -Force -Scope CurrentUser -MinimumVersion 1.21.0
+
+      - name: PSScriptAnalyzer security gate (Get-ArchLucidAzurePackage.ps1)
+        shell: pwsh
+        run: |
+          $scriptPath = Join-Path $env:GITHUB_WORKSPACE 'scripts/azure/Get-ArchLucidAzurePackage.ps1'
+          $findings = Invoke-ScriptAnalyzer -Path $scriptPath -Severity Error, Warning
+          $blocking = @($findings | Where-Object {
+              $_.Severity -eq 'Error' -or
+              $_.RuleName -in @(
+                'PSAvoidUsingInvokeExpression',
+                'PSAvoidUsingPlainTextForPassword',
+                'PSUseCredentialType',
+                'PSAvoidUsingConvertToSecureStringWithPlainText'
+              )
+            })
+          if ($blocking.Count -gt 0) {
+            $blocking | Format-Table -AutoSize
+            throw "PSScriptAnalyzer reported blocking findings on Get-ArchLucidAzurePackage.ps1"
+          }
+
       - name: Get-ArchLucidAzurePackage.Tests.ps1
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/Get-ArchLucidAzurePackage.Tests.ps1'

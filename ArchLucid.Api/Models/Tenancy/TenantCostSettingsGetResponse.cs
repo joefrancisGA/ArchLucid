@@ -24,6 +24,13 @@ public sealed class TenantCostSettingsGetResponse
         init;
     } = 1.0m;
 
+    /// <summary>EA discount as percentage off Azure Retail list (0 = none; 15 = 15% off).</summary>
+    public decimal EaDiscountPercentage
+    {
+        get;
+        init;
+    }
+
     /// <summary>When <see langword="true" />, values come from <c>dbo.TenantCostSettings</c>; otherwise ROI model defaults.</summary>
     public bool IsTenantConfigured
     {

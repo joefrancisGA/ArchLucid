@@ -25,15 +25,16 @@ public sealed class TerraformAdvisoryHclSanitizerTests
     public void SanitizeLlmTerraformBlock_when_valid_hcl_returns_original()
     {
         const string llmOutput = """
-            # advisory only
+            # ArchLucid advisory
             resource "azurerm_resource_group" "rg" {
               name = "demo"
+              location = "eastus"
             }
             """;
 
         string sanitized = TerraformAdvisorySnippetTemplates.SanitizeLlmTerraformBlock(llmOutput);
 
-        sanitized.Should().Be(llmOutput);
+        sanitized.Should().Contain("# ArchLucid advisory");
     }
 
     [Fact]

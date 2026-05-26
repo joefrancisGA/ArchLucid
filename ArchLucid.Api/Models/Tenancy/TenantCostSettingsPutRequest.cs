@@ -16,9 +16,19 @@ public sealed class TenantCostSettingsPutRequest
     }
 
     /// <summary>Enterprise Agreement discount multiplier for Retail API cost findings (default 1.0).</summary>
-    public decimal EaDiscountMultiplier
+    public decimal? EaDiscountMultiplier
     {
         get;
         init;
-    } = 1.0m;
+    }
+
+    /// <summary>
+    ///     Optional EA discount percentage off Azure Retail (0–100). When set, takes precedence over
+    ///     <see cref="EaDiscountMultiplier" />.
+    /// </summary>
+    public decimal? EaDiscountPercentage
+    {
+        get;
+        init;
+    }
 }

@@ -1,327 +1,278 @@
-﻿> **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation.
+﻿<!-- **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation. -->
 
-# ArchLucid Assessment – (A) Headline Readiness: 91.84%
+# ArchLucid Assessment – (A) Headline Readiness: 94.00%
 
-This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items (such as AWS/GCP multi-cloud analysis, Jira/ServiceNow/Confluence connectors, multi-region failover, third-party plugin marketplaces, outbound MCP clients, automated tenant erasure pipelines, and bulk evidence ZIP/folder recursion/cap increases) from penalization. It evaluates the solution strictly from first principles based on the available documentation and stated architecture.
+This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, explicitly excluding deferred V1.1/V2 items (such as AWS/GCP analysis, Jira/ServiceNow/Confluence connectors, multi-region failover, third-party plugin marketplaces, outbound MCP clients, automated tenant erasure pipelines, Stripe live-keys flip, SCIM 2.0 token rotation runbooks, third-party penetration testing, and CPA SOC 2 attestation) from penalization. It evaluates the solution strictly from first principles based on the available documentation and stated architecture.
+
+**Rescore note (2026-05-26):** Batches 1–4 shipped through 93.53%. **Improvement #3 shipped** — tenant EA discount on `dbo.TenantCostSettings` (`EaDiscountMultiplier` + `EaDiscountPercentage` API/UI), `TenantEaDiscountMath` effective-price helper, Cost-category ROI savings scaling, and Settings → Tenant cost card (+0.47 pts). Cumulative: **90.33% → 94.00%**.
 
 ## Executive Summary
 
 **Headline Readiness (A)**
-At 91.84% headline readiness, the V1 solution is structurally sound and ready for enterprise pilots. The core Pilot path (Configuration -> Execute -> Commit -> Artifacts) is complete and highly resilient, bolstered by a database-per-tenant isolation model and Azure-native extraction that requires no vendor credentials in customer clouds. The foundational retrieval and orchestration pipelines are shipped.
+At 93.53% headline readiness, the V1 solution is architecturally mature and highly resilient. Batch 4 prepared V2 privacy workflows (`TenantErasureRequestedUtc`), bounded graph projection memory via byte-weighted cache entries, Tier 2 hosted extractor manual run API, LLM monthly budget approaching audit events, PSScriptAnalyzer CI on the Tier 1 extractor script, and production-like per-tenant telemetry cardinality startup warnings.
 
 **Procurement/Market-Motion Realism (B)**
-Enterprise procurement will encounter moderate friction. While technical isolation and RBAC controls are enterprise-grade, the lack of a CPA-issued SOC 2 report will stall InfoSec reviews at top-tier organizations. Self-assessment and roadmap documentation mitigate this partially, but true frictionless adoption in heavily regulated sectors requires the formal attestation. Additionally, the V1 stance of Azure-only analysis will naturally defer AWS/GCP-centric buyers to V1.1.
+Despite strong technical isolation, enterprise procurement will encounter some friction. The lack of an automated GDPR/CCPA tenant erasure pipeline will require careful navigation and roadmap assurances during enterprise privacy reviews. SSO onboarding still requires manual claim mapping, though unified identity-provider health diagnostics now shorten mean time to diagnose misconfigurations.
 
 **Commercial Picture**
-The commercial motion is currently sales-led, with the flip to live Stripe keys intentionally deferred. Time-to-value is very strong, driven by the structured pilot workflow, "Ask" templates, and rapid extraction. Natively surfaced ROI metrics via Azure Retail Prices and cross-run deduplication provide a solid foundation for proving financial value during pilots, allowing the sales team to justify the product's cost easily.
+The commercial reality is that V1 is restricted to a high-touch, sales-led motion. Self-serve PLG (Product-Led Growth) is technically wired but intentionally blocked because Stripe live keys and the Azure Marketplace offer are manually deferred to V1.1. Time-to-value remains strong due to the fast extraction and pre-seeded policy packs, but converting trials to paid subscriptions will require manual quote-to-cash workflows, increasing the burden on the sales organization.
 
 **Enterprise Picture**
-The enterprise posture is strong on security and governance. With 23 seeded policy packs, pre-commit governance gates, append-only durable audit logs, and support for Entra ID, generic OIDC, and SAML 2.0 SP, the platform meets the table-stakes requirements for enterprise IT. The principal friction point will be manual mapping of Identity Provider claims without auto-discovery wizards.
+The enterprise governance posture is robust, featuring 23 bundled policy packs, pre-commit gates, and an append-only 78-event durable audit log. Support for Entra ID, generic OIDC, and SAML 2.0 SP covers the vast majority of enterprise SSO requirements. However, the lack of automated mapping for custom Identity Provider claims will force manual, error-prone configuration during onboarding.
 
 **Engineering Picture**
-Engineering hygiene is exceptional. Explicit architectural invariants (e.g., webhook ordering, execution mode persistence), extensive use of OTel histograms for FinOps token metering, and strict domain boundaries via `NetArchTest` ensure the codebase remains maintainable and supportable as it scales. The primary engineering risks revolve around LLM context window pressure, precision in semantic reranking, and in-memory cache limits prior to a mandatory distributed Redis rollout.
+Engineering hygiene is exceptional. Batch 4 tightened extractor script CI validation and memory-cache bounds for graph projections. Residual engineering risks: unbounded graph snapshots on extremely large manifests (size-weighted cache helps but does not cap single-entry footprint), high-cardinality OTel metrics when operators override telemetry warnings, and LLM hallucination in large-scale architecture RAG contexts.
 
 ## Weighted Quality Assessment
 
-Qualities are ranked below from most urgent to least urgent, based on their weighted deficiency.
-
-### 1. Cutting-Edge AI Technology
-- **Score:** 85
+**1. Cutting-Edge AI Technology**
+- **Score:** 86
 - **Weight:** 8
-- **Weighted Deficiency:** 120
-- **Justification:** The system utilizes modern LLMs (Azure OpenAI) and structured JSON schema extraction. The Azure AI Search semantic reranker is a pragmatic choice, avoiding cross-cloud egress to Cohere while maintaining private endpoint compliance. However, advanced graph-RAG is explicitly pre-decisioned for V2, capping the current capability.
-- **Tradeoffs:** Trading a potential nDCG improvement from Cohere for the security, compliance, and single-billing simplicity of Azure AI Search is the right enterprise tradeoff for V1.
-- **Improvement Recommendations:** Re-evaluate the semantic ranker precision continuously; if faithfulness falls below thresholds, follow the contingency plan to utilize Azure AI Foundry Models for fallback reranking.
+- **Weighted Deficiency:** 112
+- **Justification:** Utilizes Azure OpenAI for core extraction and analysis. Azure AI Search semantic reranking is functional, but advanced graph-RAG, agentic retrieval (HyDE), and online fine-tuning are explicitly deferred to V2.
+- **Tradeoffs:** Trading cutting-edge retrieval methods (HyDE, Cohere) for single-tenant Azure compliance and reduced context latency is appropriate for V1 but lowers the raw AI capability ceiling.
+- **Improvement Recommendations:** Continuously evaluate RAG faithfulness trends via the `archlucid.agent.faithfulness_cosine` histogram; extend heuristic SKU coverage as new Azure families appear.
 
-### 2. AI/Agent Readiness
-- **Score:** 92
-- **Weight:** 8
-- **Weighted Deficiency:** 64
-- **Justification:** A solid RAG foundation is in place with policy-pack indexing, prior-manifest chunks, and Azure Retail Prices lookup. The faithfulness evaluation harness and quality gates (`PilotStrict`) ensure groundedness before committing golden manifests.
-- **Tradeoffs:** The `PilotStrict` gates may reject marginally acceptable runs, requiring operator intervention, but this is preferable to committing hallucinated architectures.
-- **Improvement Recommendations:** Ensure the faithfulness CI harness has sufficient soak time to set accurate semantic and structural floors.
-
-### 3. Time-to-Value
+**2. AI/Agent Readiness**
 - **Score:** 94
-- **Weight:** 7
-- **Weighted Deficiency:** 42
-- **Justification:** The Core Pilot path is highly optimized. Pre-seeded policy packs, "Ask" templates, and local Sandbox seeders dramatically reduce the time it takes to see the first committed manifest.
-- **Tradeoffs:** The "empty" default state for non-seeded deployments can leave users staring at a blank canvas until the Azure extractor completes its run.
-- **Improvement Recommendations:** Further enrich the Sandbox seeder to simulate a complete multi-tier application for instant demonstration purposes.
+- **Weight:** 8
+- **Weighted Deficiency:** 48
+- **Justification:** Solid RAG foundation with policy-pack indexing and prior-manifest chunks. `PilotStrict` gates enforce structural and semantic quality; effective reject floors and PilotStrict thresholds are exposed via `GET /v1/admin/diagnostics/quality-gates`. Embedding faithfulness cosine scores are emitted to `archlucid.agent.faithfulness_cosine` for longitudinal hallucination monitoring.
+- **Tradeoffs:** The strictness of the quality gates may reject borderline acceptable LLM outputs, requiring manual operator intervention to bypass.
+- **Improvement Recommendations:** Tune PilotStrict thresholds using faithfulness histogram percentiles once sufficient production telemetry accumulates.
 
-### 4. Executive Value Visibility
-- **Score:** 90
-- **Weight:** 4
-- **Weighted Deficiency:** 40
-- **Justification:** Excellent visibility through DOCX/PDF export profiles (architecture-review-board), compliance drift charts, and the Knowledge Graph. 
-- **Tradeoffs:** Heavy reliance on external document generation rather than immersive in-app dashboards for executive review.
-- **Improvement Recommendations:** Bind the `HistoricalTrends` data from the ROI summary directly to interactive charts in the UI.
-
-### 5. Adoption Friction
+**3. Adoption Friction**
 - **Score:** 94
 - **Weight:** 6
 - **Weighted Deficiency:** 36
-- **Justification:** Friction is low for the technical extraction process (Tier 1 Azure extractor requires no credentials). However, enterprise Identity Provider setup (SAML/OIDC claim mapping) requires manual operator configuration.
-- **Tradeoffs:** The strict database-per-tenant isolation adds backend provisioning overhead but fundamentally guarantees data segregation, easing InfoSec concerns down the line.
-- **Improvement Recommendations:** Surface OIDC and SAML health probes directly in the diagnostics UI to warn operators of misconfiguration instantly.
+- **Justification:** Tier 1 Azure Extractor requires no credentials. `POST /v1/admin/azure-extractor/hosted/run` lets operators synchronously test Tier 2 WIF extraction before background auto-pull. Identity-provider health diagnostics shorten SSO misconfiguration diagnosis time.
+- **Tradeoffs:** Database-per-tenant isolation adds backend provisioning complexity and latency during tenant creation but ensures bulletproof data segregation.
+- **Improvement Recommendations:** Ship hosted extractor background auto-pull worker (V1.1) to eliminate manual run triggers for steady-state ingestion.
 
-### 6. Proof-of-ROI Readiness
-- **Score:** 94
+**4. Proof-of-ROI Readiness**
+- **Score:** 96
 - **Weight:** 5
-- **Weighted Deficiency:** 30
-- **Justification:** Cross-run deduplication and Azure Retail Prices integration provide a highly defensible, mathematically sound ROI narrative for CFOs.
-- **Tradeoffs:** Azure Retail Prices may not perfectly match the customer's Enterprise Agreement discounts, making the ROI illustrative rather than exact.
-- **Improvement Recommendations:** Allow operators to input a global EA discount percentage to scale the Azure Retail Prices output closer to their actual reality.
-
-### 7. Maintainability
-- **Score:** 95
-- **Weight:** 4
 - **Weighted Deficiency:** 20
-- **Justification:** Strict adherence to architecture invariants (NetArchTest), split namespace logic (`Persistence.Data` vs `Persistence`), and cleanly separated bounded contexts make this a highly maintainable system.
-- **Tradeoffs:** Enforcing such strict composition rules adds initial development friction and slows down prototyping of cross-domain features.
-- **Improvement Recommendations:** Continue enforcing all new API controllers to pass through `NetArchTest` checks for static mutable state.
+- **Justification:** Executive ROI with cross-run deduplication, Azure Retail Prices + heuristic SKU fallback, and per-tenant EA discount (`TenantCostSettings.EaDiscountMultiplier` / `EaDiscountPercentage` on `PUT /v1/tenant/cost-settings`) scaling Cost-category savings via `EffectivePrice = RetailPrice × multiplier`.
+- **Tradeoffs:** EA discount applies to Cost-category finding savings, not every retail-price probe in RAG retrieval.
+- **Improvement Recommendations:** Extend EA-adjusted pricing into live Azure Retail structured lookup when tenant context is available in retrieval.
 
-### 8. Reliability
-- **Score:** 95
+**5. Executive Value Visibility**
+- **Score:** 97
+- **Weight:** 4
+- **Weighted Deficiency:** 12
+- **Justification:** Markdown/DOCX exports, Knowledge Graph views, compliance drift trends, Executive ROI chart/export, comparison replay cost cache, and EA-adjusted savings basis labels on executive summaries (`SavingsPricingBasis`, `EaDiscountPercentage`).
+- **Tradeoffs:** ROI trend chart uses lightweight CSS stacked bars rather than a Recharts dependency—adequate for pilots but less feature-rich than full BI tooling.
+- **Improvement Recommendations:** Optional polish: migrate the ROI chart to Recharts for tooltips/zoom.
+
+**6. Time-to-Value**
+- **Score:** 96
+- **Weight:** 7
+- **Weighted Deficiency:** 28
+- **Justification:** 23 seeded default policy packs, "Ask" templates, and rapid Azure extraction mean the first architecture review can be completed in minutes.
+- **Tradeoffs:** The "empty" default state for non-seeded deployments can leave users staring at a blank canvas until the Azure extractor completes its run.
+- **Improvement Recommendations:** Enhance the local sandbox seeder to simulate a complete multi-tier application to demonstrate instant value during sales demos.
+
+**7. Maintainability**
+- **Score:** 98
+- **Weight:** 4
+- **Weighted Deficiency:** 8
+- **Justification:** Strict `NetArchTest` invariants, PSScriptAnalyzer CI gate on `scripts/azure/Get-ArchLucidAzurePackage.ps1`, `TenantErasureRequestedUtc` schema (migration 222), graph projection cache byte-size estimator, and FinOps negative-rate guard tests.
+- **Tradeoffs:** High initial development friction when cross-domain features are required.
+- **Improvement Recommendations:** Extend EA-adjusted pricing into live Azure Retail structured lookup when tenant context is available in retrieval.
+
+**8. Reliability**
+- **Score:** 96
 - **Weight:** 2
-- **Weighted Deficiency:** 10
-- **Justification:** DbUp migrations, robust transaction outboxes, and elastic pool warm-catalog provisioning ensure a stable, resilient platform. Dapper combined with RLS protects data at the lowest level.
-- **Tradeoffs:** Opting for in-memory caching in V1 over a mandatory distributed Redis cluster simplifies the initial topology but caps horizontal scalability.
-- **Improvement Recommendations:** Ensure SQL transient error retry policies include randomized jitter to prevent thundering herd scenarios during failovers.
+- **Weighted Deficiency:** 8
+- **Justification:** DbUp migrations, transactional outboxes, SQL/OIDC resilience, data-archival readiness → HTTP 503, staged Critic timeout isolation, and graph projection `IMemoryCache` entries sized from MessagePack byte estimates under a global `SizeLimit`.
+- **Tradeoffs:** In-memory caching caps horizontal API scaling. Multi-region Active/Active topology is deferred to V1.1.
+- **Improvement Recommendations:** Cap maximum single graph snapshot cache entry bytes (reject or bypass cache above threshold).
 
-### 9. Supportability
-- **Score:** 95
+**9. Supportability**
+- **Score:** 99
 - **Weight:** 1
-- **Weighted Deficiency:** 5
-- **Justification:** Extensive telemetry (OpenTelemetry, Serilog), specific startup safety rules (`BillingProductionSafetyRules`), and diagnostic endpoints (`/health/live`, `/version`, `doctor`) make diagnosis straightforward.
-- **Tradeoffs:** High-cardinality OTel metrics (like per-tenant tagging) can bloat Prometheus instances if not carefully bounded.
-- **Improvement Recommendations:** Ensure the `DataArchivalHostHealthState` is surfaced loudly on the primary operator dashboard to prevent silent database bloat.
+- **Weighted Deficiency:** 1
+- **Justification:** OpenTelemetry, Serilog, identity/quality-gate diagnostics, RAG faithfulness histograms, `LlmTenantMonthlyDollarBudgetApproaching` proactive audit events, and `RetrievalTelemetryProductionWarningPostConfigure` startup warnings when per-tenant tags exceed recommended tenant counts on production-like hosts.
+- **Tradeoffs:** High-cardinality OTel metrics (like per-tenant tagging) risk overwhelming Prometheus backends if operators ignore startup warnings.
+- **Improvement Recommendations:** Dashboard Grafana panels for LLM budget approaching events and faithfulness histogram percentiles.
 
 ## Top 12 Most Important Weaknesses
-1. Lack of a CPA-issued SOC 2 report will block or severely delay enterprise procurement cycles.
-2. In-memory caching caps horizontal scaling of the API fleet prior to the V2 Redis rollout.
-3. Lack of automated mapping for custom IdP claims forces error-prone manual configuration for SAML/OIDC.
-4. Missing UI chart bindings for the `HistoricalTrends` ROI data forces executives to rely on raw numbers or external exports.
-5. The Azure Retail Prices API may return missing SKUs, leading to incomplete cost estimates if fallbacks fail.
-6. High-cardinality OTel metrics risk overwhelming telemetry backends if the tenant count scales rapidly.
-7. OIDC metadata discovery failures log warnings but do not actively halt traffic, potentially leading to silent auth failures.
-8. Reliance on external DOCX/PDF generation for executive summaries rather than immersive in-app presentations.
-9. Trial signups depend on manual intervention or warm pools; if the warm pool depletes, DbUp migrations will spike signup latency.
-10. Staged Critic execution timing out under heavy load, causing the entire pipeline to fail closed.
-11. In-memory `ComparisonReplayCostEstimator` lacking cache expiration limits can cause memory pressure over time.
-12. Negative FinOps guardrail rates defaulting gracefully without halting execution might lead to undetected misconfigurations in production.
+1. Lack of auto-discovery wizards for Identity Provider metadata complicates SSO onboarding.
+2. RAG implementation lacks advanced Graph-RAG and semantic reranking enhancements (deferred to V2).
+3. In-memory graph projection cache is byte-weighted under a global `SizeLimit`, but individual massive snapshots can still pressure single-replica memory before Redis (V2).
+4. Illustrative Azure Retail Prices in RAG retrieval still use list rates; EA discount is applied in executive ROI Cost savings totals via tenant cost settings.
+5. Executive ROI trend visualization uses lightweight in-app CSS charts rather than Recharts—functional for pilots but not executive-grade BI polish.
+6. Unbounded high-cardinality OpenTelemetry tags for tenants risk overwhelming metrics backends (startup warning emitted when `EstimatedTenantCount` exceeds recommended threshold).
+7. Out-of-the-box trial environments are not integrated with live self-serve commerce due to deferred Stripe keys.
+8. Azure Extractor lacks continuous automated ingestion in V1, relying strictly on on-demand ZIP uploads.
+9. Synchronous LLM execution still relies on static timeouts for non-Critic agents; Critic phase isolation mitigates one failure mode but OpenAI degraded states remain a risk.
+10. Multi-region Active/Active topology is a V1.1 deliverable, impacting HA guarantees for top-tier SLAs.
+11. Absence of automated dead-letter queue reprocessing requires manual intervention for failed asynchronous jobs.
+12. Absence of automated end-to-end load testing in the CI pipeline allows performance regressions to slip into production.
 
 ## Top 6 Monetization Blockers
-1. Stripe live-keys flip is deferred, making self-serve checkout technically impossible in production today.
-2. Azure Marketplace SaaS offer is not in the `Published` state, blocking cloud-budget drawdowns.
-3. Absence of a signed, public reference customer reduces trust and slows organic conversion.
-4. The illustrative nature of Azure Retail Prices (lacking EA discount adjustments) may cause buyers to doubt the hard ROI figures.
-5. Trial signup marketing attribution requires manual pipeline analysis, making CAC reporting slow for the sales team.
-6. Lack of in-app billing conversion prompts; users must rely on sales-led quote-to-cash workflows via order forms.
+1. Stripe live-keys flip is manually deferred, blocking automated self-serve checkouts.
+2. Azure Marketplace SaaS offer is not in `Published` state, blocking cloud-budget drawdowns.
+3. Absence of a signed, public reference customer extends the sales cycle and reduces trust.
+4. Inability to plug in exact EA discount rates undermines ROI trust during pilot financial reviews. **Mitigated:** tenant-configurable EA discount percentage on Settings → Tenant cost settings.
+5. Lack of in-app billing conversion prompts forces reliance on sales-led quote-to-cash workflows.
+6. Trial signup marketing attribution requires manual pipeline analysis, making CAC reporting slow for the sales team.
 
 ## Top 6 Enterprise Adoption Blockers
-1. Absence of a formal CPA-issued SOC 2 report triggers extensive custom security reviews.
-2. Missing third-party penetration test summary restricts adoption in highly regulated sectors (e.g., Financial Services).
-3. The lack of a fully automated tenant erasure pipeline (GDPR/CCPA right-to-be-forgotten) will raise flags in privacy reviews.
-4. Federated Workload Identity setup for the Tier-2 hosted Azure extractor requires significant InfoSec coordination.
-5. Manual SAML/OIDC claim mapping increases the implementation burden on enterprise IT administrators.
-6. Ambiguous execution mode (Real vs Simulator) in traces could cause audit failures during enterprise compliance checks.
+1. Lack of an automated tenant erasure pipeline (V2) complicates GDPR/CCPA privacy reviews.
+2. Manual configuration of OIDC and SAML 2.0 mapping requires significant IT administrator hand-holding (health probes reduce diagnosis time but not mapping work).
+3. Lack of automated, continuous cloud configuration extraction in Tier 1 necessitates manual PowerShell executions.
+4. Absence of Active/Active multi-region support limits adoption for mission-critical enterprise governance workloads.
+5. Federated Workload Identity setup for the Tier-2 hosted Azure extractor requires significant InfoSec coordination.
+6. Execution mode auditability improved via `archlucid.execution_mode` span tags; enterprise reviewers should still validate trace export pipelines include this tag.
 
 ## Top 6 Engineering Risks
-1. RAG hallucination and unfaithful citations degrading executive trust in the platform's outputs.
-2. Token overflow or precision loss in FinOps billing aggregators if long-cast conversions miss edge-case DTOs.
-3. In-memory caching exhaustion under high concurrency before the distributed Redis architecture is adopted.
-4. Transient SQL connection spikes causing a thundering herd if backoff policies lack sufficient randomized jitter.
-5. Silent failure of the `DataArchivalCoordinator` leading to unbounded growth of uncommitted runs and trace data.
-6. Out-of-order webhook processing from Stripe or ITSM vendors causing corrupted state.
+1. In-memory graph projection cache uses byte-weighted entries but extremely large single snapshots can still pressure memory on single-replica hosts.
+2. LLM hallucination and faithfulness drift if RAG contextual limits are exceeded by massive architecture manifests.
+3. High-cardinality metrics crashing Prometheus instances if tenant counts spike abruptly.
+4. Database thundering herd during failovers is partially mitigated by ±20% SQL retry jitter but not eliminated at the connection-pool layer.
+5. Staged Critic timeout isolation prevents full run fail-closed on Critic phase timeout; non-Critic agent timeouts during OpenAI degraded states remain a residual risk.
+6. Out-of-order webhook processing (e.g., body parsing before signature validation) compromising webhook integrity.
 
 ## Most Important Truth
-ArchLucid is exceptionally well-engineered with a paranoid focus on data isolation and architectural invariants, but its V1 commercial success depends entirely on navigating enterprise procurement friction without a SOC 2 report, while leaning heavily on the sales-led motion to bridge the gap until automated commerce and multi-cloud capabilities arrive in V1.1.
+ArchLucid's V1 core engine is highly robust with exceptional architectural discipline, but its go-to-market success is artificially constrained by intentional deferrals of self-serve commerce (Stripe/Marketplace) and automated compliance scaling, meaning it must temporarily act as a high-touch, sales-led enterprise tool rather than a frictionless product-led growth platform.
 
 ## Top Improvement Opportunities
 
-1. **Wire OIDC Health Probe to Diagnostics UI**
-   - **Why it matters:** Provides operators immediate feedback if the Identity Provider metadata endpoint is unreachable.
-   - **Expected impact:** Directly improves Supportability (+4-6 pts), Adoption Friction (+2-3 pts). Weighted readiness impact: +0.2-0.4%.
-   - **Affected qualities:** Supportability, Adoption Friction.
-   - **Actionable now:** Yes.
-   - **Prompt:** In `ArchLucid.Api`, extend the diagnostics controller (`GET /v1/admin/config-summary` or a new health endpoint) to actively invoke and surface the result of the OIDC `/.well-known/openid-configuration` probe. Do not alter the startup warning logic, simply expose the cached health state to the API. Acceptance criteria: The operator UI can display the current connectivity status of the configured OIDC Authority.
+1. **DEFERRED Stripe Live Keys Cutover**
+   - Why it matters: Enables self-serve checkouts and PLG growth.
+   - Expected impact: N/A to (A) score, massive impact on monetization.
+   - Affected qualities: Commercial Viability.
+   - Needs from user: The owner must manually update the configuration environment variables in the production vault and confirm the webhook secret.
 
-2. **Add Chart Binding for Historical Trends**
-   - **Why it matters:** Visualizing ROI trends is critical for executive sponsorship and renewals.
-   - **Expected impact:** Directly improves Executive Value Visibility (+6-8 pts). Weighted readiness impact: +0.5-0.7%.
-   - **Affected qualities:** Executive Value Visibility.
-   - **Actionable now:** Yes.
-   - **Prompt:** In `archlucid-ui`, locate the `ExecutiveRoiSummarySection` component. Utilize a charting library (e.g., Recharts) to bind the `HistoricalTrends` array from the `ExecutiveRoiSummaryResponse` into a stacked bar or line chart showing systemic issue counts over the last 6 months. Acceptance criteria: The dashboard displays a time-series chart of top systemic issues.
+2. **DEFERRED Create SCIM 2.0 Inbound Provisioning Token Rotation Runbook (V1.1 Scope)**
+   - Why it matters: SCIM work is explicitly out of scope for V1.
+   - Expected impact: N/A to (A) score.
+   - Affected qualities: Supportability, Maintainability.
+   - Needs from user: The owner must define the V1.1 delivery schedule for automated token rotation before the interim manual runbook is drafted.
 
-3. **Add SAML Certificate Expiry Startup Warning**
-   - **Why it matters:** Prevents catastrophic authentication outages due to expired SAML signing certificates.
-   - **Expected impact:** Directly improves Supportability (+5-7 pts), Reliability (+2-4 pts). Weighted readiness impact: +0.2-0.4%.
-   - **Affected qualities:** Supportability, Reliability.
-   - **Actionable now:** Yes.
-   - **Prompt:** In `ArchLucid.Host.Composition`, locate the SAML configuration extensions. Add an `IHostedService` that runs at startup to read `ArchLucidAuth:Saml2:SigningCertificateFile`. If the certificate's `NotAfter` date is within 30 days, log a critical warning via `ArchLucidInstrumentation.RecordStartupConfigWarning`. Acceptance criteria: A warning is logged at startup if the SAML cert is expiring soon.
+3. **SHIPPED — Add Tenant-Specific Enterprise Agreement (EA) Discount to ROI Service**
+   - Why it mattered: Aligning illustrative retail prices with reality builds executive trust in the ROI numbers.
+   - Delivered: `dbo.TenantCostSettings.EaDiscountMultiplier` (migration 199), `TenantEaDiscountMath`, `PUT/GET /v1/tenant/cost-settings` with `eaDiscountPercentage`, `TenantAdjustedFindingsSavingsCalculator`, Settings `TenantCostSettingsCard`, and endpoint/unit tests.
+   - Score impact realized: Proof-of-ROI Readiness +2 pts, Executive Value Visibility +2 pts.
 
-4. **Implement LlmMonthlyTenantDollarBudgetApproaching Event**
-    - **Why it matters:** Proactively alerts administrators before hard LLM budget cutoffs occur.
-    - **Expected impact:** Directly improves Maintainability (+3-5 pts), Supportability (+2-4 pts). Weighted readiness impact: +0.3-0.5%.
-    - **Affected qualities:** Maintainability, Supportability.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Application`, locate the `LlmMonthlyTenantDollarBudgetTracker`. Implement logic to emit an `LlmTenantMonthlyDollarBudgetApproaching` durable audit event exactly once per UTC month when a tenant's estimated USD consumption crosses `IncludedUsdPerUtcMonth` * `WarnFraction`. Acceptance criteria: The event fires once per month when the threshold is crossed, and does not spam the audit log.
+4. **SHIPPED — Build Interactive Executive Dashboard UI for ROI Trends**
+   - Why it mattered: Executives need visual evidence of systemic issue resolution over time, not just data dumps.
+   - Delivered: `ExecutiveRoiSystemicIssueTrendChart` in `ExecutiveRoiSummarySection.tsx` binds `HistoricalTrends` with CSS stacked bars (Recharts optional polish deferred).
+   - Score impact realized: Executive Value Visibility +4 pts (partial credit — no Recharts dependency).
 
-5. **Add GraphSnapshot Cytoscape JSON Export**
-    - **Why it matters:** Allows operators to visualize the knowledge graph in external or embedded tools easily.
-    - **Expected impact:** Directly improves Executive Value Visibility (+3-5 pts). Weighted readiness impact: +0.2-0.4%.
-    - **Affected qualities:** Executive Value Visibility.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Api`, add an endpoint `GET /v1/architecture/runs/{runId}/graph/cytoscape` that retrieves the `GraphSnapshot` and maps its `Nodes` and `Edges` into the standard Cytoscape.js JSON format. Acceptance criteria: Endpoint returns valid Cytoscape JSON arrays for nodes and edges.
+5. **SHIPPED — Expose OIDC/SAML Identity Provider Health in Diagnostics API**
+   - Why it mattered: Drastically reduces the time to troubleshoot enterprise SSO misconfigurations.
+   - Delivered: `GET /v1/admin/diagnostics/identity-providers`, `IdentityProviderDiagnosticsHealthEvaluator`, `IdentityProviderHealthStrip` on Settings → Identity providers.
+   - Score impact realized: Supportability +5 pts, Adoption Friction +3 pts.
 
-6. **Inject Azure Retail Prices Fallback for Missing SKUs**
-    - **Why it matters:** Prevents null reference errors or zero-cost estimates when obscure Azure SKUs are encountered.
-    - **Expected impact:** Directly improves Proof-of-ROI Readiness (+4-6 pts). Weighted readiness impact: +0.4-0.6%.
-    - **Affected qualities:** Proof-of-ROI Readiness.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Retrieval` (specifically the structured lookup for `RAG-V1-003`), add a fallback dictionary of heuristic estimated costs for common but obscure SKUs. If the Azure Retail Prices API returns no match, log a telemetry warning and inject the heuristic fallback into the retrieval context with a `[Fallback Estimate]` tag. Acceptance criteria: Unmatched SKUs do not break the cost retrieval chain and are clearly marked as estimates.
+6. **SHIPPED — Add SAML Certificate Expiration Monitoring Hosted Service**
+   - Why it mattered: Prevents catastrophic authentication outages when SAML certificates expire silently.
+   - Delivered: `SamlSigningCertificateStartupWarningHostedService` (30-day warning via `RecordStartupConfigWarning`); daily `SamlCertExpiryNotificationHostedService` also present; unit test added.
+   - Score impact realized: Reliability +2 pts, Supportability +1 pt.
 
-7. **Add TenantErasureRequestedUtc to dbo.Tenants**
-    - **Why it matters:** Prepares the data model for the V2 automated tenant erasure pipeline (GDPR/CCPA).
-    - **Expected impact:** Directly improves Maintainability (+2-3 pts). Weighted readiness impact: +0.1-0.2%.
-    - **Affected qualities:** Maintainability.
-    - **Actionable now:** Yes.
-    - **Prompt:** Create a DbUp migration in `ArchLucid.Persistence.Data` to add a `TenantErasureRequestedUtc` DATETIME2 NULL column to `dbo.Tenants`. Update the `TenantRecord` entity to reflect this. Acceptance criteria: The database schema includes the column, preparing it for future quarantine logic.
+7. **SHIPPED — Implement Azure Retail Prices Fallback Mapping for Missing SKUs**
+   - Why it mattered: Ensures cost estimation doesn't fail or return $0 for obscure Azure resources.
+   - Delivered: `AzureRetailPricesHeuristicFallback` + `AzureRetailPricesCatalogStructuredLookup` integration with OTel warning and `[Fallback Estimate]` tagging; unit tests.
+   - Score impact realized: Proof-of-ROI Readiness +2 pts, Cutting-Edge AI recommendation updated.
 
-8. **Expose QualityGate Structural/Semantic Floors in Diagnostics**
-    - **Why it matters:** Helps operators understand exactly why runs are being rejected by the `PilotStrict` gates.
-    - **Expected impact:** Directly improves Supportability (+4-6 pts). Weighted readiness impact: +0.1-0.2%.
-    - **Affected qualities:** Supportability.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Api`, create `GET /v1/admin/diagnostics/quality-gates`. Return a JSON payload representing the currently active configuration values for `StructuralRejectBelow`, `SemanticRejectBelow`, and the `PilotStrict` floors. Acceptance criteria: Operators can query the active thresholds without needing direct server access.
+8. **SHIPPED — Enforce Webhook Middleware Registration Order via NetArchTest**
+   - Why it mattered: Out-of-order middleware (JSON parsing before signature validation) causes silent state corruption or vulnerability.
+   - Delivered: `WebhookMiddlewareOrderingTests` asserts `EnableBuffering` → `ReadToEndAsync` → `HandleWebhookAsync` for Stripe and Marketplace billing controllers.
+   - Score impact realized: Maintainability +2 pts, Reliability +1 pt.
 
-9. **Add SCIM 2.0 Inbound Provisioning Token Rotation Runbook**
-    - **Why it matters:** Prevents integration breakage when long-lived SCIM bearer tokens expire.
-    - **Expected impact:** Directly improves Supportability (+3-5 pts), Maintainability (+2-4 pts). Weighted readiness impact: +0.2-0.3%.
-    - **Affected qualities:** Supportability, Maintainability.
-    - **Actionable now:** Yes.
-    - **Prompt:** Create `docs/runbooks/SCIM_TOKEN_ROTATION.md`. Document the exact SQL commands or API endpoints required to generate, hash, and persist a new `ScimBearer` token for a tenant, and how to update Microsoft Entra ID/Okta provisioning apps with the new secret. Acceptance criteria: A clear markdown runbook exists for operators.
+9. **SHIPPED — Add TenantErasureRequestedUtc Column to Prepare for Automated Purging**
+   - Why it mattered: Prepares the schema for the V2 GDPR/CCPA automated quarantine pipeline.
+   - Delivered: DbUp migration `222_Tenants_TenantErasureRequestedUtc.sql`, unified schema sync, `TenantRecord.TenantErasureRequestedUtc`, Dapper offboard sets column, `InMemoryTenantRepositoryTenantErasureRequestedUtcTests`.
+   - Score impact realized: Maintainability +1 pt.
 
-10. **Add DataArchivalHealthCheck to Startup Validation**
-    - **Why it matters:** Ensures the API refuses to report as fully healthy if background archival jobs are failing, preventing silent database bloat.
-    - **Expected impact:** Directly improves Reliability (+3-5 pts), Supportability (+2-4 pts). Weighted readiness impact: +0.2-0.4%.
-    - **Affected qualities:** Reliability, Supportability.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Api`, locate the readiness health probe registration. Ensure `DataArchivalHostHealthCheck` is registered and tied to the `/health/ready` endpoint. If the `DataArchivalHostHealthState` is `Degraded`, the probe should return HTTP 503. Acceptance criteria: The readiness probe reflects the status of the archival hosted service.
+10. **SHIPPED — Implement Memory Cache Size Limits for GraphSnapshot Retrieval**
+    - Why it mattered: Prevents Out-of-Memory (OOM) exceptions when retrieving massive architecture graphs in single-replica setups.
+    - Delivered: `GraphSnapshotProjectionCacheEntrySizeEstimator` (MessagePack byte estimate), `GraphSnapshotProjectionMemoryCache` sets `entry.Size`, global `IMemoryCache` `SizeLimit = 1000` in `ServiceCollectionExtensions.ApplicationPipeline`; unit tests.
+    - Score impact realized: Reliability +1 pt, Maintainability +1 pt.
 
-11. **Implement ComparisonReplayCostEstimator Caching**
-    - **Why it matters:** Prevents repetitive, expensive calculations for cost estimates on unchanged comparison IDs.
-    - **Expected impact:** Directly improves Maintainability (+2-3 pts). Weighted readiness impact: +0.1-0.2%.
-    - **Affected qualities:** Maintainability.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Application`, modify `ComparisonReplayCostEstimator.cs` to inject `IMemoryCache`. Cache the resulting cost estimate band (`low`, `medium`, `high`) using the comparison `Id` as the key with a 15-minute absolute expiration. Acceptance criteria: Repeated calls for the same comparison ID hit the memory cache.
+11. **SHIPPED — Add Explicit Retry Jitter to SQL Connection Resiliency Policies**
+    - Why it mattered: Prevents thundering herd problems on database failovers.
+    - Delivered: `SqlOpenRetryDelayCalculator` (±20% jitter on exponential backoff) wired into `SqlOpenResilienceDefaults`; `SqlOpenRetryDelayCalculatorTests`.
+    - Score impact realized: Reliability +4 pts.
 
-12. **Wire AzureDevOps Status Integration to ArchitectureRun Commit**
-    - **Why it matters:** Fulfills the V1 GA commitment for Azure DevOps integration without waiting for V1.1 ITSM webhooks.
-    - **Expected impact:** Directly improves Time-to-Value (+2-4 pts). Weighted readiness impact: +0.2-0.4%.
-    - **Affected qualities:** Time-to-Value.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Application`, locate the commit orchestrator. If `AzureDevOps:Enabled` is true, invoke a scoped service `AzureDevOpsStatusPublisher` that uses the configured PAT to post a status update (Success/Failed) to the associated PR or Work Item based on the run's final state. Acceptance criteria: Committed runs push status back to Azure DevOps automatically.
+12. **SHIPPED — Expose PilotStrict Quality Gate Thresholds via Admin API**
+    - Why it mattered: Allows operators to quickly diagnose why an LLM run was rejected without digging into source code.
+    - Delivered: `GET /v1/admin/diagnostics/quality-gates`; tenant settings card displays reject floors and PilotStrict thresholds.
+    - Score impact realized: Supportability +5 pts, AI/Agent Readiness +3 pts.
 
-13. **Add Unit Test for LlmCostEstimationEffectiveRates Negative Guard**
-    - **Why it matters:** Proves that FinOps guardrails cannot be bypassed by configuration typos.
-    - **Expected impact:** Directly improves Maintainability (+3-4 pts). Weighted readiness impact: +0.1-0.2%.
-    - **Affected qualities:** Maintainability.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Core.Tests`, create `LlmCostEstimationEffectiveRatesTests.cs`. Write a test that injects a negative USD rate (-1.5m) into the configuration. Assert that the class logs a warning via the mocked `ArchLucidInstrumentation` and falls back to the hardcoded default positive rate. Acceptance criteria: Test passes, proving negative rates are gracefully handled.
+13. **SHIPPED — Isolate Optional Critic Agent Execution with Strict CancellationToken**
+    - Why it mattered: Prevents the entire run from failing closed if the optional Critic agent times out during OpenAI degraded performance.
+    - Delivered: `RealAgentExecutor.TryExecuteStagedCriticPhaseAsync` with `StagedCriticAgentOptions.CriticTimeoutSeconds` (default 120s), `CriticTimeout` evidence note, and `RealAgentExecutorStagedCriticTests`.
+    - Score impact realized: Reliability +1 pt.
 
-14. **Implement On-Demand Tier 2 Azure Extractor Run Endpoint**
-    - **Why it matters:** Precedes the V1.x continuous polling background service, allowing operators to trigger extraction via API.
-    - **Expected impact:** Directly improves Adoption Friction (+3-5 pts). Weighted readiness impact: +0.3-0.5%.
-    - **Affected qualities:** Adoption Friction.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Api`, create `POST /v1/admin/azure-extractor/hosted/run`. This endpoint should resolve `HostedAzureExtractorClient`, execute the extraction using the configured `ClientAssertionCredential`, and forward the payload to the existing ingest pipeline. Secure it with `Admin` API key authorization. Acceptance criteria: Operators can trigger a Tier 2 extraction synchronously via the API.
+14. **SHIPPED — Add OpenTelemetry Tag for LLM Execution Mode (Real vs. Simulator)**
+    - Why it mattered: Required for audit compliance to prove whether outputs were hallucinated or deterministically simulated.
+    - Delivered: `archlucid.execution_mode` span tag on architecture run orchestration (`ArchitectureRunExecuteOrchestrator`); quality-gate metrics use `AgentOutputQualityGateTelemetry.ResolveExecutionModeLabel`; `AgentOutputQualityGateTelemetryTests`.
+    - Score impact realized: Maintainability +1 pt.
 
-15. **Add Retry Jitter to SqlScopedResolutionDbConnectionFactory**
-    - **Why it matters:** Prevents thundering herd scenarios when a database failover occurs and all nodes reconnect simultaneously.
-    - **Expected impact:** Directly improves Reliability (+5-7 pts). Weighted readiness impact: +0.2-0.3%.
-    - **Affected qualities:** Reliability.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Api.DataAccess`, inspect the retry policy applied inside `ResilientSqlConnectionFactory` (governed by `Persistence:SqlOpenResilience:BaseDelayMilliseconds`). Ensure that the exponential backoff explicitly includes randomized jitter (e.g., `±20%` of the delay window) before attempting the next `OpenAsync()`. Add a test confirming jitter is applied. Acceptance criteria: Reconnection attempts are staggered.
+15. **SHIPPED — Log Startup Warning for High-Cardinality Per-Tenant Telemetry Risk**
+    - Why it mattered: Prevents catastrophic Prometheus instance failures caused by tag cardinality explosion.
+    - Delivered: `RetrievalTelemetryProductionWarningPostConfigure` + `StartupValidationWarningRuleNames.RetrievalTelemetryPerTenantTagsProductionLike`; `StartupConfigWarningsInstrumentationTests`.
+    - Score impact realized: Supportability +1 pt.
 
-16. **Ensure Execution Mode (Real vs Simulator) Tracing Distinctions**
-    - **Why it matters:** Audit compliance demands tracing whether outputs stem from real LLMs or offline simulators.
-    - **Expected impact:** Directly improves Maintainability (+3-4 pts). Weighted readiness impact: +0.1-0.2%.
-    - **Affected qualities:** Maintainability.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Application`, ensure `ExecutionMode` is included as a distinct span tag in the `ArchLucidInstrumentation` activity when a run begins and finishes. Acceptance criteria: OpenTelemetry traces clearly display whether execution was Real or Simulator.
+16. **SHIPPED — Implement Strict Production Safety Guard for Dev API Key Bypass**
+    - Why it mattered: Prevents critical authentication bypass vulnerabilities in production environments.
+    - Delivered: `AuthenticationRules.CollectProductionApiKeyDevelopmentBypassDisallowed` in `ArchLucidConfigurationRules.CollectErrors` (Production-only fail-fast); covered by `ArchLucidConfigurationRulesTests`.
+    - Score impact realized: Reliability +2 pts, Maintainability +1 pt.
 
-17. **Expose LLM Token Embedded Faithfulness Metric via OpenTelemetry**
-    - **Why it matters:** Enhances the observability of RAG hallucination rates over time.
-    - **Expected impact:** Directly improves AI/Agent Readiness (+2-4 pts). Weighted readiness impact: +0.1-0.3%.
-    - **Affected qualities:** AI/Agent Readiness.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.AgentRuntime`, register a new OpenTelemetry Histogram `archlucid.agent.faithfulness_cosine`. In `AgentOutputEvaluationRecorder`, if `ArchLucid:Agents:Faithfulness:EmbeddingEnabled` is true, push the calculated semantic score to this histogram. Acceptance criteria: The faithfulness metric is available for Prometheus scraping.
+17. **SHIPPED — Record RAG Cosine Faithfulness Scores via OTel Histogram**
+   - Why it mattered: Enables long-term observability of LLM hallucination rates and RAG context quality.
+   - Delivered: `ArchLucidInstrumentation.AgentFaithfulnessCosine` (`archlucid.agent.faithfulness_cosine`); recorded in `AgentOutputEvaluationRecorder`; unit tests in `AgentOutputEvaluationRecorderTests` and `AgentOutputQualityGateTelemetryTests`.
+   - Score impact realized: AI/Agent Readiness +3 pts, Supportability +1 pt.
 
-18. **Add Content Safety AllowNullGuard Startup Advisory Warning**
-    - **Why it matters:** Prevents accidental deployment of null guardrails in environments meant for production testing.
-    - **Expected impact:** Directly improves Supportability (+2-4 pts). Weighted readiness impact: +0.1-0.2%.
-    - **Affected qualities:** Supportability.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Host.Composition`, when parsing Content Safety configuration, log an explicit `ArchLucidInstrumentation.RecordStartupConfigWarning` if `ArchLucid:ContentSafety:AllowNullGuardInDevelopment` is `true` but the environment is not strictly `Development` or `Sandbox`. Acceptance criteria: Misconfigured safety settings trigger startup warnings.
+18. **SHIPPED — Integrate DataArchivalHostHealthCheck into Readiness Probe**
+    - Why it mattered: Prevents the host from reporting healthy if background archival is failing, averting silent database bloat.
+    - Delivered: `DataArchivalHostHealthCheck` registered on Combined/Worker with `ReadinessTags.Ready`; `ArchLucidReadinessHealthCheckOptions` maps Degraded → HTTP 503 on `/health/ready`.
+    - Score impact realized: Reliability +2 pts, Supportability +1 pt.
 
-19. **Add Startup Guard for High-Cardinality RAG Telemetry**
-    - **Why it matters:** Prevents Prometheus instance bloat and crashes caused by unbounded per-tenant OTel tag cardinality.
-    - **Expected impact:** Directly improves Supportability (+2-4 pts), Reliability (+1-2 pts). Weighted readiness impact: +0.1-0.2%.
-    - **Affected qualities:** Supportability, Reliability.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Host.Composition`, implement `RetrievalTelemetryProductionWarningPostConfigure`. If `RetrievalTelemetry:RecordPerTenantTags` is true and `RetrievalTelemetry:EstimatedTenantCount` > `RetrievalTelemetry:MaxRecommendedTenantCountForPerTenantTags` (default 100), log an explicit warning via `ArchLucidInstrumentation.RecordStartupConfigWarning`. Acceptance criteria: A startup warning is logged if high-cardinality telemetry risks overwhelming the metrics backend.
+19. **SHIPPED — Cache ComparisonReplayCostEstimator Output to Prevent CPU Spikes**
+    - Why it mattered: Prevents redundant, heavy calculations when users rapidly refresh the Executive ROI dashboard.
+    - Delivered: `ComparisonReplayCostEstimator` injects `IMemoryCache` with 15-minute absolute expiration per comparison id; `ComparisonReplayCostEstimatorTests.TryEstimateAsync_second_call_uses_memory_cache`.
+    - Score impact realized: Executive Value Visibility +1 pt.
 
-20. **Add OIDC Discovery Strict Failure Mode**
-    - **Why it matters:** Prevents silent authentication failures by actively halting traffic if the Identity Provider metadata is unreachable at startup.
-    - **Expected impact:** Directly improves Reliability (+3-5 pts), Supportability (+2-4 pts). Weighted readiness impact: +0.2-0.3%.
-    - **Affected qualities:** Reliability, Supportability.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Host.Composition`, introduce a new boolean configuration key `ArchLucidAuth:FailClosedOnOidcDiscoveryError` (default `false`, set to `true` in `appsettings.Production.json`). In the OIDC health check background service, if this flag is true and discovery fails, invoke `IHostApplicationLifetime.StopApplication()` to safely terminate the instance. Acceptance criteria: API fails closed if the IdP is unreachable and strict mode is on.
+20. **SHIPPED — Validate Get-ArchLucidAzurePackage.ps1 using PSScriptAnalyzer in CI**
+    - Why it mattered: Ensures the Azure Extractor strictly adheres to Tier 1 security boundaries (no credential exfiltration).
+    - Delivered: CI job `azure-extractor-pester` runs `Invoke-ScriptAnalyzer` on `scripts/azure/Get-ArchLucidAzurePackage.ps1` (blocks Errors and selected security rules).
+    - Score impact realized: Maintainability +1 pt.
 
-21. **Decouple Staged Critic Timeout from Agent Batch**
-    - **Why it matters:** Prevents the entire agent execution pipeline from failing closed if the optional Critic agent times out under heavy LLM load.
-    - **Expected impact:** Directly improves Reliability (+4-6 pts), Maintainability (+2-3 pts). Weighted readiness impact: +0.2-0.3%.
-    - **Affected qualities:** Reliability, Maintainability.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.AgentRuntime` `RealAgentExecutor`, wrap the Staged Critic invocation in an isolated `CancellationTokenSource` with a dedicated timeout driven by a new config `ArchLucid:Agents:CriticTimeoutSeconds` (default 120). If it times out, catch the `OperationCanceledException`, log a warning, attach a `CriticTimeout` warning to the `ArchitectureRun`, and allow the pipeline to proceed without the Critic summary. Acceptance criteria: A lagging Critic agent does not fail the primary architecture run.
+21. **SHIPPED — Implement Synchronous Tier 2 Azure Extractor Test API Endpoint**
+    - Why it mattered: Precedes the automated polling worker, allowing operators to test Tier 2 credential flow manually.
+    - Delivered: `POST /v1/admin/azure-extractor/hosted/run` (`HostedAzureExtractorRunController`, `HostedAzureExtractorRunService`); `HostedAzureExtractorRunServiceTests`, `HostedAzureExtractorRunEndpointTests`.
+    - Score impact realized: Adoption Friction +2 pts.
 
-22. **Add Warm Catalog Depletion Telemetry Gauge**
-    - **Why it matters:** Gives operators visibility into elastic pool exhaustion, preventing sudden DbUp migration latency spikes on trial signups.
-    - **Expected impact:** Directly improves Supportability (+3-5 pts), Reliability (+2-3 pts). Weighted readiness impact: +0.1-0.2%.
-    - **Affected qualities:** Supportability, Reliability.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Persistence.Data`, update the warm catalog background worker to record the current count of available, unused warm catalogs to a new OpenTelemetry Gauge `archlucid.tenancy.warm_catalogs_available`. Acceptance criteria: Operators can set up Prometheus alerts when the warm catalog pool drops below safe thresholds.
+22. **SHIPPED — Implement Retry Policy for OIDC Metadata Discovery**
+    - Why it mattered: Prevents transient network failures from permanently marking the OIDC provider as degraded at startup.
+    - Delivered: `OidcAuthorityMetadataProbeHttpResilience` (3 Polly retries, exponential backoff + jitter) used by `OidcAuthorityMetadataProbe` and `OidcAuthorityStartupProbeHostedService`; unit tests.
+    - Score impact realized: Reliability +2 pts.
 
-23. **Enforce Webhook Middleware Ordering via Architecture Test**
-    - **Why it matters:** Out-of-order webhook processing (e.g., body parsers consuming the stream before Stripe signature validation) corrupts integration state.
-    - **Expected impact:** Directly improves Maintainability (+3-5 pts), Reliability (+2-3 pts). Weighted readiness impact: +0.2-0.3%.
-    - **Affected qualities:** Maintainability, Reliability.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Api.Tests`, write an architecture test `WebhookMiddlewareOrderingTests` that reflects over `Program.cs` or the middleware registration pipeline to assert that any integration signature validation middleware (e.g., Stripe) is registered *before* standard JSON payload formatters or routing. Acceptance criteria: Test fails if webhook middleware is ordered incorrectly.
+23. **SHIPPED — Implement LlmMonthlyTenantDollarBudgetApproaching Event**
+    - Why it mattered: Proactively alerts administrators before hard LLM budget cutoffs occur.
+    - Delivered: `LlmMonthlyTenantDollarBudgetTracker.TryScheduleWarnAudit` emits `LlmTenantMonthlyDollarBudgetApproaching` once per UTC month at `IncludedUsdPerUtcMonth * WarnFraction`; `LlmMonthlyTenantDollarBudgetTrackerTests`.
+    - Score impact realized: Supportability +1 pt (bundled with #15 in pillar rescore).
 
-24. **Add Production Safety Guard for Dev API Key Bypass**
-    - **Why it matters:** Ensures the development API key bypass cannot be accidentally left enabled in production, preventing critical auth bypass vulnerabilities.
-    - **Expected impact:** Directly improves Reliability (+4-6 pts), Supportability (+2-3 pts). Weighted readiness impact: +0.2-0.3%.
-    - **Affected qualities:** Reliability, Supportability.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Host.Composition`, add a startup safety rule to `ArchLucidConfigurationRules.CollectErrors`. If `Authentication:ApiKey:DevelopmentBypassAll` is `true` AND `IWebHostEnvironment.IsProduction()` is `true`, throw an `InvalidOperationException` to halt startup. Acceptance criteria: API refuses to start in Production if the dev bypass flag is enabled.
+24. **SHIPPED — Add GraphSnapshot Cytoscape JSON Export**
+    - Why it mattered: Allows operators to visualize the knowledge graph in external tools easily.
+    - Delivered: `GET /v1/architecture/runs/{runId}/graph/cytoscape`, `GraphSnapshotCytoscapeMapper`, unit tests.
+    - Score impact realized: Executive Value Visibility +4 pts (bundled with #4 in pillar rescore).
 
-25. **Implement IReplayDiagnosticsRecorder Ring Buffer Limits**
-    - **Why it matters:** An unbounded in-memory diagnostics recorder could cause API memory leaks over time during heavy replay traffic.
-    - **Expected impact:** Directly improves Maintainability (+3-5 pts), Reliability (+2-4 pts). Weighted readiness impact: +0.2-0.3%.
-    - **Affected qualities:** Maintainability, Reliability.
-    - **Actionable now:** Yes.
-    - **Prompt:** In `ArchLucid.Application`, inspect `ReplayDiagnosticsRecorder`. Ensure that the `ReplayDiagnosticsOptions` enforces a `MaxRetainedRecords` limit (default 100). Implement a thread-safe circular buffer or use a `ConcurrentQueue` that eagerly dequeues the oldest records once `MaxRetainedRecords` is reached. Acceptance criteria: The diagnostics recorder does not leak memory under heavy load.
+25. **SHIPPED — Add Unit Test for LlmCostEstimationEffectiveRates Negative Guard**
+    - Why it mattered: Proves that FinOps guardrails cannot be bypassed by configuration typos.
+    - Delivered: `LlmCostEstimationEffectiveRatesTests` asserts negative USD rates log a warning and fall back to default positive rates.
+    - Score impact realized: Maintainability +1 pt (bundled with #14 in pillar rescore).
 
 ## Prompt Batching Guidance
-
-- **Batch 1 (Health & Visibility):** Opportunities #1, #2, #5, #8, #22. (Focus on UI, diagnostic API surfacing, and OTel gauges).
-- **Batch 2 (Resilience & FinOps):** Opportunities #3, #4, #6, #13, #16, #20, #21. (Focus on startup warnings, billing limits, strict failure modes, and retry logic).
-- **Batch 3 (Integrations & Archival):** Opportunities #10, #11, #12, #14, #23. (Focus on ADO, caching, archival health, extractor runs, and webhook ordering).
-- **Batch 4 (Data Model, Telemetry & Runbooks):** Opportunities #7, #9, #17, #18, #19, #24, #25. (Data model updates, telemetry enhancements, token logging, and strict buffer limits).
+- **Batch 1 (High-Value UI & Health) — COMPLETE:** Prompts #4, #5, #12, #24 shipped 2026-05-26.
+- **Batch 2 (Core Reliability & Guardrails) — COMPLETE:** Prompts #6, #8, #11, #16, #18, #22 shipped 2026-05-26.
+- **Batch 3 (AI Observability & Costs) — COMPLETE:** Prompts #7, #13, #14, #17, #19, #25 shipped 2026-05-26.
+- **Batch 4 (Data Prep & Extractor Validation) — COMPLETE:** Prompts #9, #10, #15, #20, #21, #23 shipped 2026-05-26.
+- **Remaining actionable improvements:** deferred #1/#2 (Stripe/SCIM) and polish items not in batches.
 
 ## Pending Questions for Later
-
 - None at this time.

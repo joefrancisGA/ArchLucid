@@ -641,6 +641,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/apikeys/{keyId}/rotate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    keyId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminApiKeyRotateResponse"];
+                        "text/json": components["schemas"]["AdminApiKeyRotateResponse"];
+                        "text/plain": components["schemas"]["AdminApiKeyRotateResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/auth-diagnostics": {
         parameters: {
             query?: never;
@@ -1351,6 +1401,80 @@ export interface paths {
                         "application/json": components["schemas"]["AdminOutboxSnapshot"];
                         "text/json": components["schemas"]["AdminOutboxSnapshot"];
                         "text/plain": components["schemas"]["AdminOutboxSnapshot"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/diagnostics/quality-gates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminQualityGateDiagnosticsResponse"];
+                        "text/json": components["schemas"]["AdminQualityGateDiagnosticsResponse"];
+                        "text/plain": components["schemas"]["AdminQualityGateDiagnosticsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/diagnostics/identity-providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
+                        "text/json": components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
+                        "text/plain": components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
                     };
                 };
             };
@@ -10865,6 +10989,79 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/architecture/runs/{runId}/graph/cytoscape": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CytoscapeInteractiveGraphResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/architecture/runs/{runId}/graph/interactive": {
         parameters: {
             query?: never;
@@ -11845,6 +12042,43 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/ask/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AskPromptTemplate"][];
+                        "text/json": components["schemas"]["AskPromptTemplate"][];
+                        "text/plain": components["schemas"]["AskPromptTemplate"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -27089,6 +27323,14 @@ export interface components {
         AdminConfigSummaryResponse: {
             keys?: null | components["schemas"]["ConfigSummaryKeyRow"][];
         };
+        AdminIdentityProviderDiagnosticsResponse: {
+            oidc?: components["schemas"]["AdminIdentityProviderHealthProbe"];
+            saml?: components["schemas"]["AdminIdentityProviderHealthProbe"];
+        };
+        AdminIdentityProviderHealthProbe: {
+            status?: string;
+            summary?: string;
+        };
         AdminOidcDiagnosticsResponse: {
             authMode?: string;
             authorizationEndpoint?: null | string;
@@ -27118,6 +27360,30 @@ export interface components {
             integrationEventOutboxPublishPending: number | string;
             /** Format: int64 */
             retrievalIndexingPending: number | string;
+        };
+        AdminQualityGateDiagnosticsResponse: {
+            blockRunOnReject?: boolean;
+            enabled?: boolean;
+            enforceOnReject?: boolean;
+            mode?: string;
+            /** Format: double */
+            pilotStrictMinAgentResultFaithfulnessSupportRatio?: null | number | string;
+            /** Format: int32 */
+            pilotStrictMinEvidenceRefCount?: number;
+            /** Format: double */
+            pilotStrictMinFaithfulnessSupportRatio?: null | number | string;
+            /** Format: double */
+            pilotStrictMinSemanticScore?: number | string;
+            /** Format: double */
+            pilotStrictMinStructuralCompleteness?: number | string;
+            /** Format: double */
+            semanticRejectBelow?: number | string;
+            /** Format: double */
+            semanticWarnBelow?: number | string;
+            /** Format: double */
+            structuralRejectBelow?: number | string;
+            /** Format: double */
+            structuralWarnBelow?: number | string;
         };
         AdminSamlOperationalHealthResponse: {
             idpMetadataDiagnosticSummary?: null | string;
@@ -27832,6 +28098,11 @@ export interface components {
             revisionCount?: number;
             trendKey?: string;
             windowLabel?: null | string;
+        };
+        AskPromptTemplate: {
+            id?: string;
+            prompt?: string;
+            title?: string;
         };
         AskRequest: {
             /** Format: uuid */
@@ -28991,8 +29262,13 @@ export interface components {
         ExecutiveRoiSummaryResponse: {
             /** Format: double */
             eaDiscountMultiplier?: number | string;
+            historicalTrends?: components["schemas"]["ExecutiveRoiSystemicIssueTrendSeries"][];
             /** Format: int32 */
             latestRunCount?: number;
+            /** Format: int32 */
+            newlyDiscoveredFindingsCount30Days?: number;
+            /** Format: int32 */
+            resolvedFindingsCount30Days?: number;
             savingsPricingBasis?: string;
             /** Format: int32 */
             systemCount?: number;
@@ -29000,6 +29276,17 @@ export interface components {
             topSystemicIssues?: components["schemas"]["SystemicIssueSummary"][];
             /** Format: double */
             totalEstimatedUsdSavings?: number | string;
+        };
+        ExecutiveRoiSystemicIssueTrendPoint: {
+            /** Format: int32 */
+            count?: number;
+            monthKey?: string;
+        };
+        ExecutiveRoiSystemicIssueTrendSeries: {
+            category?: string;
+            findingId?: string;
+            points?: components["schemas"]["ExecutiveRoiSystemicIssueTrendPoint"][];
+            severity?: string;
         };
         ExecutiveSummaryResponse: {
             /** Format: int32 */
@@ -29446,6 +29733,10 @@ export interface components {
             pendingCount?: number;
             recentChanges?: components["schemas"]["PolicyPackChangeLogEntry"][];
             recentDecisions?: components["schemas"]["GovernanceApprovalRequest"][];
+            /** Format: int64 */
+            totalCompletionTokens?: number | string;
+            /** Format: int64 */
+            totalPromptTokens?: number | string;
         };
         GovernanceDiffItem: {
             changeType?: string;
@@ -32055,6 +32346,8 @@ export interface components {
             averageIncidentCostUsd?: number | string;
             /** Format: double */
             eaDiscountMultiplier?: number | string;
+            /** Format: double */
+            eaDiscountPercentage?: number | string;
             isTenantConfigured?: boolean;
             /** Format: date-time */
             updatedUtc?: null | string;
@@ -32065,7 +32358,9 @@ export interface components {
             /** Format: double */
             averageIncidentCostUsd?: number | string;
             /** Format: double */
-            eaDiscountMultiplier?: number | string;
+            eaDiscountMultiplier?: null | number | string;
+            /** Format: double */
+            eaDiscountPercentage?: null | number | string;
         };
         TenantErasureLegalHoldRequest: {
             reason?: null | string;

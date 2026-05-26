@@ -1188,7 +1188,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             IndustryVerticalOther = source.IndustryVerticalOther,
             EnterpriseSeatsLimit = source.EnterpriseSeatsLimit,
             EnterpriseSeatsUsed = enterpriseSeatsUsedOverride ?? source.EnterpriseSeatsUsed,
-            TenantErasureRequestedUtc = source.TenantErasureRequestedUtc,
+            TenantErasureRequestedUtc = clearErasureQuarantine
+                ? null
+                : offboardedUtc ?? source.TenantErasureRequestedUtc,
             TenantErasureApprovedUtc = source.TenantErasureApprovedUtc,
             TenantErasureApprovedByUserId = source.TenantErasureApprovedByUserId
         };

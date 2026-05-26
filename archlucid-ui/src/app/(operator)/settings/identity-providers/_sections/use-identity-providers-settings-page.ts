@@ -9,12 +9,17 @@ import { filterArchLucidAuthConfigRows } from "./filter-arch-lucid-auth-config-r
 import type { IdentityProvidersSettingsPageServerLoad } from "./load-identity-providers-settings-page-data";
 
 type AdminConfigSummaryResponse = components["schemas"]["AdminConfigSummaryResponse"];
+type AdminIdentityProviderDiagnosticsResponse =
+  components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
 type AdminSamlOperationalHealthResponse = components["schemas"]["AdminSamlOperationalHealthResponse"];
 type ConfigSummaryKeyRow = components["schemas"]["ConfigSummaryKeyRow"];
 
 export type UseIdentityProvidersSettingsPageModel = {
   note: string | null;
   rows: ConfigSummaryKeyRow[] | null;
+  identityProviderDiagnostics: AdminIdentityProviderDiagnosticsResponse | null;
+  identityProviderDiagnosticsNote: string | null;
+  identityProviderDiagnosticsLoaded: boolean;
   samlOperationalHealth: AdminSamlOperationalHealthResponse | null;
   samlOperationalHealthNote: string | null;
   samlOperationalHealthLoaded: boolean;
@@ -28,6 +33,11 @@ export function useIdentityProvidersSettingsPage(
   const [rows, setRows] = useState<ConfigSummaryKeyRow[] | null>(null);
   const [note, setNote] = useState<string | null>(null);
 
+  const [identityProviderDiagnostics, setIdentityProviderDiagnostics] =
+    useState<AdminIdentityProviderDiagnosticsResponse | null>(null);
+  const [identityProviderDiagnosticsNote, setIdentityProviderDiagnosticsNote] = useState<string | null>(null);
+  const [identityProviderDiagnosticsLoaded, setIdentityProviderDiagnosticsLoaded] = useState(false);
+
   const [samlOperationalHealth, setSamlOperationalHealth] = useState<AdminSamlOperationalHealthResponse | null>(null);
   const [samlOperationalHealthNote, setSamlOperationalHealthNote] = useState<string | null>(null);
   const [samlOperationalHealthLoaded, setSamlOperationalHealthLoaded] = useState(false);
@@ -35,6 +45,9 @@ export function useIdentityProvidersSettingsPage(
   const load = useCallback(async () => {
     setNote(null);
     setRows(null);
+    setIdentityProviderDiagnostics(null);
+    setIdentityProviderDiagnosticsNote(null);
+    setIdentityProviderDiagnosticsLoaded(false);
     setSamlOperationalHealth(null);
     setSamlOperationalHealthNote(null);
     setSamlOperationalHealthLoaded(false);
@@ -42,8 +55,9 @@ export function useIdentityProvidersSettingsPage(
     try {
       const opts = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" });
 
-      const [summaryRes, samlRes] = await Promise.all([
+      const [summaryRes, diagnosticsRes, samlRes] = await Promise.all([
         fetch("/api/proxy/v1/admin/configuration/summary?includeEffectiveValues=true", opts),
+        fetch("/api/proxy/v1/admin/diagnostics/identity-providers", opts),
         fetch("/api/proxy/v1/admin/auth/saml-operational-health", opts),
       ]);
 
@@ -62,6 +76,20 @@ export function useIdentityProvidersSettingsPage(
         setRows(authRows);
       }
 
+      if (!diagnosticsRes.ok) {
+        setIdentityProviderDiagnostics(null);
+        setIdentityProviderDiagnosticsNote(
+          diagnosticsRes.status === 401 || diagnosticsRes.status === 403
+            ? "Admin session required to read identity provider health probes."
+            : `Identity provider diagnostics unavailable (HTTP ${diagnosticsRes.status}).`,
+        );
+      } else {
+        const body = (await diagnosticsRes.json()) as AdminIdentityProviderDiagnosticsResponse;
+
+        setIdentityProviderDiagnostics(body);
+        setIdentityProviderDiagnosticsNote(null);
+      }
+
       if (!samlRes.ok) {
         setSamlOperationalHealth(null);
         setSamlOperationalHealthNote(
@@ -78,9 +106,12 @@ export function useIdentityProvidersSettingsPage(
     } catch (e: unknown) {
       setRows(null);
       setNote(e instanceof Error ? e.message : String(e));
+      setIdentityProviderDiagnostics(null);
+      setIdentityProviderDiagnosticsNote("Identity provider diagnostics could not be loaded.");
       setSamlOperationalHealth(null);
       setSamlOperationalHealthNote("SAML operational health could not be loaded.");
     } finally {
+      setIdentityProviderDiagnosticsLoaded(true);
       setSamlOperationalHealthLoaded(true);
     }
   }, []);
@@ -92,6 +123,9 @@ export function useIdentityProvidersSettingsPage(
   return {
     note,
     rows,
+    identityProviderDiagnostics,
+    identityProviderDiagnosticsNote,
+    identityProviderDiagnosticsLoaded,
     samlOperationalHealth,
     samlOperationalHealthNote,
     samlOperationalHealthLoaded,

@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph.Caching;
 using ArchLucid.KnowledgeGraph.Configuration;
@@ -122,6 +123,46 @@ public sealed class GraphSnapshotProjectionMemoryCacheTests
         sut.Invalidate(scope, runId, graphSnapshotId);
 
         backing.TryGetValue(key, out _).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task GetOrLoadAsync_sets_entry_size_from_snapshot_byte_estimate_when_size_limit_enabled()
+    {
+        MemoryCache backing = new(new MemoryCacheOptions { SizeLimit = 1_000_000 });
+
+        Mock<IOptionsMonitor<KnowledgeGraphProjectionCacheOptions>> opts = new();
+        opts.Setup(m => m.CurrentValue).Returns(new KnowledgeGraphProjectionCacheOptions { Enabled = true });
+
+        GraphSnapshotProjectionMemoryCache sut = new(backing, opts.Object);
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+        GraphSnapshot materialized = new()
+        {
+            GraphSnapshotId = graphSnapshotId,
+            RunId = runId,
+            ContextSnapshotId = Guid.NewGuid(),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "cache-size-node",
+                    NodeType = "Service",
+                    Label = new string('z', 2048),
+                },
+            ],
+        };
+
+        long expectedSize = GraphSnapshotProjectionCacheEntrySizeEstimator.EstimateCacheEntrySize(materialized);
+
+        await sut.GetOrLoadAsync(scope, runId, graphSnapshotId, _ => Task.FromResult<GraphSnapshot?>(materialized), CancellationToken.None);
+
+        backing.TryGetValue(
+            GraphSnapshotProjectionCacheKeys.Projection(scope, runId, graphSnapshotId),
+            out _).Should().BeTrue();
+
+        backing.GetCurrentSize().Should().Be(expectedSize);
     }
 
     private static ScopeContext CreateScope()

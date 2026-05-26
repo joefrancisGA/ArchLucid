@@ -9,6 +9,7 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import { agentOutputQualityGateConfigPaths, selectAgentOutputQualityGateRows } from "@/lib/quality-gate-config-summary";
 
 type AdminConfigSummaryResponse = components["schemas"]["AdminConfigSummaryResponse"];
+type AdminQualityGateDiagnosticsResponse = components["schemas"]["AdminQualityGateDiagnosticsResponse"];
 type TenantAgentOutputQualityGateModeResponse = components["schemas"]["TenantAgentOutputQualityGateModeResponse"];
 
 type QualityGateMode = "WarnOnly" | "PilotStrict";
@@ -16,7 +17,13 @@ type QualityGateMode = "WarnOnly" | "PilotStrict";
 type LoadState =
   | { status: "idle" }
   | { status: "loading" }
-  | { status: "ready"; mode: TenantAgentOutputQualityGateModeResponse; rows: ReturnType<typeof selectAgentOutputQualityGateRows> }
+  | {
+      status: "ready";
+      mode: TenantAgentOutputQualityGateModeResponse;
+      rows: ReturnType<typeof selectAgentOutputQualityGateRows>;
+      diagnostics: AdminQualityGateDiagnosticsResponse | null;
+      diagnosticsNote: string | null;
+    }
   | { status: "blocked"; note: string };
 
 const modeEndpoint = "/api/proxy/v1/admin/settings/agent-output-quality-gate-mode";
@@ -115,9 +122,10 @@ export function TenantQualityGatesCard() {
         cache: "no-store",
       });
 
-      const [modeRes, summaryRes] = await Promise.all([
+      const [modeRes, summaryRes, diagnosticsRes] = await Promise.all([
         fetch(modeEndpoint, fetchOpts),
         fetch("/api/proxy/v1/admin/config-summary?includeEffectiveValues=true", fetchOpts),
+        fetch("/api/proxy/v1/admin/diagnostics/quality-gates", fetchOpts),
       ]);
 
       if (!modeRes.ok || !summaryRes.ok) {
@@ -143,10 +151,24 @@ export function TenantQualityGatesCard() {
         return;
       }
 
+      let diagnostics: AdminQualityGateDiagnosticsResponse | null = null;
+      let diagnosticsNote: string | null = null;
+
+      if (!diagnosticsRes.ok) {
+        diagnosticsNote =
+          diagnosticsRes.status === 401 || diagnosticsRes.status === 403
+            ? "Admin session required to read quality gate diagnostics."
+            : `Quality gate diagnostics unavailable (HTTP ${diagnosticsRes.status}).`;
+      } else {
+        diagnostics = (await diagnosticsRes.json()) as AdminQualityGateDiagnosticsResponse;
+      }
+
       setState({
         status: "ready",
         mode: modeBody,
         rows: selectAgentOutputQualityGateRows(summaryBody.keys ?? []),
+        diagnostics,
+        diagnosticsNote,
       });
     } catch (e: unknown) {
       setState({ status: "blocked", note: e instanceof Error ? e.message : String(e) });
@@ -225,7 +247,9 @@ export function TenantQualityGatesCard() {
           Tenant override for{" "}
           <span className="font-mono text-xs text-neutral-800 dark:text-neutral-200">{agentOutputQualityGateConfigPaths.mode}</span>{" "}
           (<code>WarnOnly</code> vs <code>PilotStrict</code>). Warn floors below remain host-configured via{" "}
-          <span className="font-mono text-xs">GET /v1/admin/config-summary</span>.
+          <span className="font-mono text-xs">GET /v1/admin/config-summary</span>. Effective reject floors and PilotStrict
+          thresholds come from{" "}
+          <span className="font-mono text-xs">GET /v1/admin/diagnostics/quality-gates</span>.
         </p>
 
         {state.status === "loading" ? <p className="m-0 text-neutral-500">Loading quality gate settings…</p> : null}
@@ -270,6 +294,34 @@ export function TenantQualityGatesCard() {
                 );
               })}
             </dl>
+            {state.diagnosticsNote ? (
+              <p className="m-0 text-xs text-amber-900 dark:text-amber-100" data-testid="quality-gate-diagnostics-note">
+                {state.diagnosticsNote}
+              </p>
+            ) : null}
+            {state.diagnostics ? (
+              <dl
+                className="m-0 grid grid-cols-[minmax(0,220px)_1fr] gap-x-3 gap-y-2 rounded-md border border-neutral-200 p-3 font-mono text-xs dark:border-neutral-700"
+                data-testid="quality-gate-diagnostics-panel"
+              >
+                <dt className="m-0 text-neutral-500">StructuralRejectBelow</dt>
+                <dd className="m-0 text-neutral-900 dark:text-neutral-100">{state.diagnostics.structuralRejectBelow}</dd>
+                <dt className="m-0 pt-2 text-neutral-500">SemanticRejectBelow</dt>
+                <dd className="m-0 pt-2 text-neutral-900 dark:text-neutral-100">{state.diagnostics.semanticRejectBelow}</dd>
+                <dt className="m-0 pt-2 text-neutral-500">PilotStrictMinStructuralCompleteness</dt>
+                <dd className="m-0 pt-2 text-neutral-900 dark:text-neutral-100">
+                  {state.diagnostics.pilotStrictMinStructuralCompleteness}
+                </dd>
+                <dt className="m-0 pt-2 text-neutral-500">PilotStrictMinSemanticScore</dt>
+                <dd className="m-0 pt-2 text-neutral-900 dark:text-neutral-100">
+                  {state.diagnostics.pilotStrictMinSemanticScore}
+                </dd>
+                <dt className="m-0 pt-2 text-neutral-500">PilotStrictMinEvidenceRefCount</dt>
+                <dd className="m-0 pt-2 text-neutral-900 dark:text-neutral-100">
+                  {state.diagnostics.pilotStrictMinEvidenceRefCount}
+                </dd>
+              </dl>
+            ) : null}
           </>
         ) : null}
       </CardContent>

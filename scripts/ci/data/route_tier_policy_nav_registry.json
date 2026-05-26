@@ -32,6 +32,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/AdminIdentityProviderDiagnosticsController.cs",
+      "class_name": "AdminIdentityProviderDiagnosticsController",
+      "route_template": "v{version:apiVersion}/admin/diagnostics",
+      "normalized_prefix": "/v1/admin/diagnostics",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/AdminIntegrationsController.cs",
       "class_name": "AdminIntegrationsController",
       "route_template": "v{version:apiVersion}/admin/integrations",

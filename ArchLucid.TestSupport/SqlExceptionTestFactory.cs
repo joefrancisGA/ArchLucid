@@ -29,7 +29,7 @@ public static class SqlExceptionTestFactory
                 "message",
                 "procedure",
                 0,
-                0,
+                (uint)0,
                 null
             ],
             null)!;

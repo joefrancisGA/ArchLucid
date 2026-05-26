@@ -29,9 +29,14 @@ public sealed class AgentOutputEvaluationRecorderTests
     private static AgentOutputEvaluationRecorder CreateRecorder(
         IAgentExecutionTraceRepository traceRepository,
         ILogger<AgentOutputEvaluationRecorder> logger,
-        AgentOutputQualityGateOptions? gateOptions = null)
+        AgentOutputQualityGateOptions? gateOptions = null,
+        double? embeddingFaithfulnessCosine = null,
+        IAgentEvidencePackageRepository? evidencePackageRepository = null)
     {
         AgentOutputQualityGateOptions opts = gateOptions ?? new AgentOutputQualityGateOptions { Enabled = false };
+
+        IAgentEvidencePackageRepository evidenceRepo =
+            evidencePackageRepository ?? new InMemoryAgentEvidencePackageRepository();
 
         Mock<IOptionsMonitor<AgentExecutionReferenceEvaluationOptions>> refOpts = new();
         refOpts.Setup(o => o.CurrentValue).Returns(new AgentExecutionReferenceEvaluationOptions { Enabled = false });
@@ -59,7 +64,7 @@ public sealed class AgentOutputEvaluationRecorderTests
                     It.IsAny<string>(),
                     It.IsAny<AgentEvidencePackage>(),
                     It.IsAny<CancellationToken>()))
-            .ReturnsAsync((double?)null);
+            .ReturnsAsync(embeddingFaithfulnessCosine);
 
         Mock<IAgentOutputFaithfulnessEvaluator> llmFaithfulness = new();
         llmFaithfulness
@@ -82,7 +87,7 @@ public sealed class AgentOutputEvaluationRecorderTests
 
         return new AgentOutputEvaluationRecorder(
             traceRepository,
-            new InMemoryAgentEvidencePackageRepository(),
+            evidenceRepo,
             agentResults,
             new AgentOutputEvaluator(),
             semanticFacade,
@@ -399,6 +404,50 @@ public sealed class AgentOutputEvaluationRecorderTests
         semantic[0].Value.Should().BeGreaterThan(0.0);
     }
 
+    [SkippableFact]
+    public async Task EvaluateAndRecordMetricsAsync_records_faithfulness_cosine_histogram_when_embedding_scorer_returns_value()
+    {
+        _ = ArchLucidInstrumentation.AgentFaithfulnessCosine;
+
+        InMemoryAgentExecutionTraceRepository repo = new();
+        const string json =
+            """
+            {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[{"text":"x","evidence":"y"}],"evidenceRefs":[],"confidence":0.5,"findings":[{"severity":"High","description":"Long enough description text","recommendation":"Fix it"}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z"}
+            """;
+
+        await repo.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "t-faithfulness",
+                RunId = "run-faithfulness",
+                TaskId = "task-1",
+                AgentType = AgentType.Topology,
+                ParseSucceeded = true,
+                ParsedResultJson = json
+            },
+            CancellationToken.None);
+
+        using EvaluationHistogramCapture capture = EvaluationHistogramCapture.Start();
+        InMemoryAgentEvidencePackageRepository evidenceRepo = new();
+        await evidenceRepo.CreateAsync(
+            new AgentEvidencePackage { RunId = "run-faithfulness", EvidencePackageId = "ev-1" },
+            CancellationToken.None);
+
+        AgentOutputEvaluationRecorder sut = CreateRecorder(
+            repo,
+            NullLogger<AgentOutputEvaluationRecorder>.Instance,
+            embeddingFaithfulnessCosine: 0.82,
+            evidencePackageRepository: evidenceRepo);
+
+        await sut.EvaluateAndRecordMetricsAsync("run-faithfulness", CancellationToken.None);
+
+        IReadOnlyList<DoubleMeasurementRecord> faithfulness =
+            capture.MeasurementsFor("archlucid.agent.faithfulness_cosine");
+
+        faithfulness.Should().ContainSingle();
+        faithfulness[0].Value.Should().BeApproximately(0.91, 0.0001);
+    }
+
     private sealed class EmptyReferenceCatalog : IAgentOutputReferenceCaseCatalog
     {
         public IReadOnlyList<AgentOutputReferenceCaseDefinition> Cases => [];
@@ -482,7 +531,9 @@ public sealed class AgentOutputEvaluationRecorderTests
             }
 
             if (instrument.Name is "archlucid_agent_output_structural_completeness_ratio"
-                or "archlucid_agent_output_semantic_score")
+                or "archlucid_agent_output_semantic_score"
+                or "archlucid.agent.faithfulness_cosine"
+                or "archlucid_agent_output_embedding_faithfulness_mean_cosine")
             {
                 meterListener.EnableMeasurementEvents(instrument);
             }
