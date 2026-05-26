@@ -257,44 +257,6 @@ Enhance AzureExtractor with Advisor cost deduplication.
 Constraints: Do not modify the existing `manifest.json` schema version unless required.
 ```
 
-### 23. Implement explicit logging for Azure Retail Prices API rate limits
-- **Why it matters:** Provides visibility into intermittent cost calculation failures during heavy ingestion or RAG-V1-003 execution.
-- **Expected impact:** Directly improves Supportability (+2-4 pts) and Reliability (+1-2 pts). Weighted readiness impact: +0.1-0.2%.
-- **Affected qualities:** Supportability, Reliability
-- **Actionable:** Yes
-```text
-Implement explicit logging for Azure Retail Prices API rate limits.
-1. Update `RetrievalQueryService` to capture HTTP 429 Too Many Requests responses from the Retail Prices API.
-2. Log a structured warning event with `Retry-After` headers if present.
-Constraints: Do not fail the overall retrieval request; return a fallback response gracefully.
-```
-
-### 24. Implement `/health/live` check for database connectivity
-- **Why it matters:** Ensures Kubernetes and Load Balancers can accurately detect when the primary data plane is unreachable and restart or shift traffic.
-- **Expected impact:** Directly improves Reliability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
-- **Affected qualities:** Reliability
-- **Actionable:** Yes
-```text
-Implement `/health/live` check for database connectivity.
-1. Add `DatabaseLivenessHealthCheck` in `ArchLucid.Host.Composition`.
-2. Perform a lightweight `SELECT 1` query against the master database using a short timeout (1-2 seconds).
-3. Register the check with the ASP.NET Core Health Checks routing for `/health/live`.
-Constraints: Do not query tenant databases for the global liveness check.
-```
-
-### 25. Add automated cleanup job for orphaned tenant SQL catalogs
-- **Why it matters:** Prevents storage bloat and protects platform margins by ensuring deleted or abandoned trial tenants have their data purged efficiently.
-- **Expected impact:** Directly improves Maintainability (+3-5 pts) and Reliability (+1-2 pts). Weighted readiness impact: +0.1-0.2%.
-- **Affected qualities:** Maintainability, Reliability
-- **Actionable:** Yes
-```text
-Add automated cleanup job for orphaned tenant SQL catalogs.
-1. Create `OrphanedTenantCleanupHostedService` in `ArchLucid.Host.Core/Hosted`.
-2. Query `dbo.Tenants` for records where `TenantErasureRequestedUtc` is older than 30 days.
-3. Invoke `ITenantHardPurgeService` to drop the associated catalogs and delete the control-plane binding.
-Constraints: Throttle deletion to process no more than 5 catalogs per hour to prevent DTU exhaustion on the master DB.
-```
-
 ---
 
 ## Prompt Batching Guidance
@@ -303,7 +265,7 @@ Constraints: Throttle deletion to process no more than 5 catalogs per hour to pr
 - **Batch 2 (Dashboard & ROI Reporting):** Shipped — governance token aggregation, executive ROI 30-day trailing metrics, RAG faithfulness telemetry.
 - **Batch 3 (Tier 1 Extractor & Validation):** Shipped — drag-and-drop upload UX, client-side schema validation, JwtBearer role-mapping troubleshooting banner, rigorous API schemaVersion rejection.
 - **Batch 4 (Core Reliability & Caching):** Shipped — Polly audit append retries, resilient Dapper SQL connection opens, Azure OpenAI readiness TCP probe, distributed LLM completion cache circuit breaker with in-memory fallback, graph projection invalidation on manifest commit.
-- **Batch 5 (Health & Operations):** Run #23, #24, and #25 together. Adds explicit health checks, logging for rate limits, and the automated cleanup job for orphaned catalogs.
+- **Batch 5 (Health & Operations):** Shipped — Retail Prices HTTP 429 logging with Retry-After, control-plane SQL liveness on `/health/live`, leader-elected orphaned tenant catalog cleanup (5/hour throttle).
 
 ---
 
