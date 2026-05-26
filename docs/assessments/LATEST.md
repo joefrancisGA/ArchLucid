@@ -124,10 +124,10 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 ## Top 6 Monetization Blockers
 
 1. Absence of a CPA-issued SOC 2 report prolongs security reviews, delaying contract signatures (procurement friction).
-3. Incomplete structured Azure Retail Prices retrieval (RAG-V1-003) risks finance scrutiny during ROI validation.
-4. Delayed commerce un-hold (Stripe live keys/Marketplace Published state) forces high-touch sales motions for all tiers.
-5. Inability to enforce strict limits on orphaned catalogs could impact margins and platform cost predictability.
-6. Missing out-of-the-box integration validation tools delays enterprise PoC deployments relying on generic OIDC.
+2. Incomplete structured Azure Retail Prices retrieval (RAG-V1-003) risks finance scrutiny during ROI validation.
+3. Delayed commerce un-hold (Stripe live keys/Marketplace Published state) forces high-touch sales motions for all tiers.
+4. Inability to enforce strict limits on orphaned catalogs could impact margins and platform cost predictability.
+5. Missing out-of-the-box integration validation tools delays enterprise PoC deployments relying on generic OIDC.
 
 ---
 
