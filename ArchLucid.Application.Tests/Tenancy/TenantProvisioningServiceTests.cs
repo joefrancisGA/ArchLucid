@@ -5,6 +5,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
+using ArchLucid.Application.Marketing;
 
 using FluentAssertions;
 
@@ -58,7 +59,8 @@ public sealed class TenantProvisioningServiceTests
             NullLogger<TenantProvisioningService>.Instance,
             options.Object,
             sqlCatalog.Object,
-            packSeeder.Object);
+            packSeeder.Object,
+            new Mock<IMarketingAttributionService>().Object);
 
         TenantProvisioningRequest req = new()
         {
@@ -100,7 +102,8 @@ public sealed class TenantProvisioningServiceTests
             NullLogger<TenantProvisioningService>.Instance,
             options.Object,
             Mock.Of<ITenantSqlCatalogProvisioner>(),
-            Mock.Of<IDefaultPolicyPackSeeder>());
+            Mock.Of<IDefaultPolicyPackSeeder>(),
+            new Mock<IMarketingAttributionService>().Object);
 
         TenantProvisioningRequest req =
             new() { Name = "R Co", AdminEmail = "root@example.com", Tier = TenantTier.Standard, DataRegion = "eastus" };
@@ -152,7 +155,8 @@ public sealed class TenantProvisioningServiceTests
             NullLogger<TenantProvisioningService>.Instance,
             options.Object,
             sqlCatalog.Object,
-            packSeeder.Object);
+            packSeeder.Object,
+            new Mock<IMarketingAttributionService>().Object);
 
         TenantProvisioningRequest req = new()
 
@@ -246,7 +250,8 @@ public sealed class TenantProvisioningServiceTests
             NullLogger<TenantProvisioningService>.Instance,
             options.Object,
             sqlCatalog.Object,
-            packSeeder.Object);
+            packSeeder.Object,
+            new Mock<IMarketingAttributionService>().Object);
 
         TenantProvisioningRequest req = new()
         {
@@ -334,7 +339,8 @@ public sealed class TenantProvisioningServiceTests
             NullLogger<TenantProvisioningService>.Instance,
             options.Object,
             sqlCatalog.Object,
-            packSeeder.Object);
+            packSeeder.Object,
+            new Mock<IMarketingAttributionService>().Object);
 
         TenantProvisioningRequest req = new()
         {

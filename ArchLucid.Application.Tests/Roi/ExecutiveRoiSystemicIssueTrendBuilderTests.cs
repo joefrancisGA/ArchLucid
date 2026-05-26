@@ -1,9 +1,11 @@
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Roi;
+using Microsoft.Extensions.Time.Testing;
 
 using FluentAssertions;
 
@@ -23,7 +25,7 @@ public sealed class ExecutiveRoiSystemicIssueTrendBuilderTests
         {
             FindingId = "finding-stable-1",
             Category = "Security",
-            Severity = FindingSeverity.High,
+            Severity = FindingSeverity.Critical,
             Message = "Open port",
         };
 
@@ -53,7 +55,7 @@ public sealed class ExecutiveRoiSystemicIssueTrendBuilderTests
 
         trends.Should().ContainSingle();
         trends[0].FindingId.Should().Be("finding-stable-1");
-        trends[0].Points.Should().Contain(static point =>
+        trends[0].Points.Should().Contain(point =>
             point.MonthKey == monthKey && point.Count == 1);
     }
 }

@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Contracts.Architecture;
 
 using FluentAssertions;
 
@@ -120,7 +121,6 @@ public sealed class GovernanceDashboardServiceTests
                         RunId = runId,
                         Status = nameof(ArchitectureRunStatus.Committed),
                         CreatedUtc = createdUtc,
-                        CurrentManifestVersion = "v1",
                     },
                 },
                 false,

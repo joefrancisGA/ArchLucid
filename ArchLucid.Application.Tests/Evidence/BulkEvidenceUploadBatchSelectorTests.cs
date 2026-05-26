@@ -56,7 +56,12 @@ public sealed class BulkEvidenceUploadBatchSelectorTests
             files.Add(CreateFileMock(10, $"file-{index}.txt").Object);
         }
 
-        return new FormFileCollection(files);
+        FormFileCollection collection = new();
+        foreach (IFormFile file in files)
+        {
+            collection.Add(file);
+        }
+        return collection;
     }
 
     private static Mock<IFormFile> CreateFileMock(long length, string fileName = "file.txt")
