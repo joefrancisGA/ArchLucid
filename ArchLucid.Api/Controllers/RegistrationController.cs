@@ -3,9 +3,12 @@ using System.Text.Json;
 
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Tenancy;
+using ArchLucid.Api.Marketing;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Marketing;
 using ArchLucid.Core.Tenancy;
 
 using Asp.Versioning;
@@ -25,7 +28,8 @@ namespace ArchLucid.Api.Controllers;
 public sealed class RegistrationController(
     ITenantProvisioningService provisioning,
     IAuditService audit,
-    ITrialTenantBootstrapService trialBootstrap) : ControllerBase
+    ITrialTenantBootstrapService trialBootstrap,
+    IMarketingAttributionService marketingAttribution) : ControllerBase
 {
     private const string FriendlyValidation =
         "The registration could not be completed. Check the organization name, email, and optional review-cycle fields, then try again.";
@@ -40,6 +44,9 @@ public sealed class RegistrationController(
 
     private readonly ITrialTenantBootstrapService _trialBootstrap =
         trialBootstrap ?? throw new ArgumentNullException(nameof(trialBootstrap));
+
+    private readonly IMarketingAttributionService _marketingAttribution =
+        marketingAttribution ?? throw new ArgumentNullException(nameof(marketingAttribution));
 
     /// <summary>Creates a Free-tier tenant and default workspace (idempotent by organization slug).</summary>
     [HttpPost]
@@ -289,6 +296,14 @@ public sealed class RegistrationController(
             }
             else
                 ArchLucidInstrumentation.RecordTrialSignupBaselineSkipped();
+
+            MarketingAttributionSnapshot? firstTouch =
+                MarketingAttributionHeaderParser.TryParse(Request.Headers["x-archlucid-first-touch"].FirstOrDefault());
+
+            await _marketingAttribution.PersistFirstTouchIfPresentAsync(
+                result.TenantId,
+                firstTouch,
+                cancellationToken);
 
             ArchLucidInstrumentation.RecordOperatorTaskSuccess("first_session_completed");
 

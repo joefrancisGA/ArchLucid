@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.ConnectorStages;
+using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
@@ -7,7 +8,8 @@ namespace ArchLucid.ContextIngestion.Connectors;
 
 public sealed class InfrastructureDeclarationConnector(
     IConnectorInput<InfrastructureDeclarationsPayload> payloadInput,
-    IConnectorNormalizer<InfrastructureDeclarationsPayload> payloadNormalizer) : IContextConnector
+    IConnectorNormalizer<InfrastructureDeclarationsPayload> payloadNormalizer,
+    IConnectorDeltaComputer deltaComputer) : IContextConnector
 {
     public string ConnectorType => "infrastructure-declarations";
 
@@ -40,23 +42,13 @@ public sealed class InfrastructureDeclarationConnector(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(current);
-        _ = ct;
 
-        int currentCount = current.CanonicalObjects.Count;
-
-        if (previous is null)
-            return Task.FromResult(new ContextDelta
-            {
-                Summary = $"Initial infrastructure declaration ingestion: {currentCount} object(s)."
-            });
-
-        int previousCount = previous.CanonicalObjects.Count;
-        int diff = currentCount - previousCount;
-
-        string summary = diff == 0
-            ? $"Infrastructure declaration ingestion: {currentCount} object(s), no count change."
-            : $"Infrastructure declaration ingestion: {currentCount} object(s) (\u0394{diff:+#;-#;0} from prior snapshot).";
-
-        return Task.FromResult(new ContextDelta { Summary = summary });
+        return ConnectorDeltaAsyncHelper.ComputeAsync(
+            current,
+            previous,
+            sourceType: "InfrastructureDeclaration",
+            static o => o.SourceId,
+            deltaComputer,
+            ct);
     }
 }

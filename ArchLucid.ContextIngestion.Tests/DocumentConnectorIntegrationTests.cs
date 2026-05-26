@@ -34,7 +34,11 @@ public sealed class DocumentConnectorIntegrationTests
 
         return new ContextIngestionService(
             new DefaultConnectorPipelineOrchestrator(descriptors, new DefaultContextDeltaSummaryBuilder()),
-            new CanonicalInfrastructureEnricher(),
+            new CompositeCanonicalEnricher(
+            [
+                new TopologyResourceCanonicalEnricher(),
+                new SecurityBaselineCanonicalEnricher(),
+            ]),
             new CanonicalDeduplicator(),
             new InMemoryContextSnapshotRepository());
     }

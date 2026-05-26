@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.ConnectorStages;
+using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
@@ -7,7 +8,8 @@ namespace ArchLucid.ContextIngestion.Connectors;
 
 public sealed class StaticRequestContextConnector(
     IConnectorInput<StaticRequestPayload> payloadInput,
-    IConnectorNormalizer<StaticRequestPayload> payloadNormalizer) : IContextConnector
+    IConnectorNormalizer<StaticRequestPayload> payloadNormalizer,
+    IConnectorDeltaComputer deltaComputer) : IContextConnector
 {
     public string ConnectorType => "static-request";
 
@@ -39,12 +41,14 @@ public sealed class StaticRequestContextConnector(
         ContextSnapshot? previous,
         CancellationToken ct)
     {
-        _ = current;
-        _ = ct;
+        ArgumentNullException.ThrowIfNull(current);
 
-        return Task.FromResult(new ContextDelta
-        {
-            Summary = previous is null ? "Initial ingestion" : "Updated ingestion"
-        });
+        return ConnectorDeltaAsyncHelper.ComputeAsync(
+            current,
+            previous,
+            sourceType: "StaticRequest",
+            static o => o.SourceId,
+            deltaComputer,
+            ct);
     }
 }

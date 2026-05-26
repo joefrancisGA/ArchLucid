@@ -1,0 +1,74 @@
+using ArchLucid.ContextIngestion.Models;
+
+namespace ArchLucid.ContextIngestion.Canonicalization;
+
+/// <summary>
+///     Adds inferred <c>category</c> for <see cref="CanonicalObject.ObjectType" /> = TopologyResource.
+/// </summary>
+public sealed class TopologyResourceCanonicalEnricher : ICanonicalObjectTypeEnricher
+{
+    public bool CanEnrich(CanonicalObject item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+
+        return string.Equals(item.ObjectType, "TopologyResource", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public CanonicalObject Enrich(CanonicalObject item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+
+        if (!item.Properties.ContainsKey("category"))
+            item.Properties["category"] = InferCategory(item);
+
+        return item;
+    }
+
+    private static string InferCategory(CanonicalObject item)
+    {
+        if (item.Properties.TryGetValue("terraformType", out string? terraformType))
+        {
+            string t = terraformType.ToLowerInvariant();
+
+            if (t.Contains("virtual_network", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("subnet", StringComparison.OrdinalIgnoreCase))
+                return "network";
+
+            if (t.Contains("storage", StringComparison.OrdinalIgnoreCase))
+                return "storage";
+
+            if (t.Contains("web_app", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("linux_web_app", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("container", StringComparison.OrdinalIgnoreCase))
+                return "compute";
+
+            if (t.Contains("sql", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("postgres", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("database", StringComparison.OrdinalIgnoreCase))
+                return "data";
+        }
+
+        if (!item.Properties.TryGetValue("resourceType", out string? resourceType))
+            return "general";
+
+        string r = resourceType.ToLowerInvariant();
+
+        if (r.Contains("network", StringComparison.OrdinalIgnoreCase) ||
+            r.Contains("subnet", StringComparison.OrdinalIgnoreCase) ||
+            r.Contains("vnet", StringComparison.OrdinalIgnoreCase))
+            return "network";
+
+        if (r.Contains("storage", StringComparison.OrdinalIgnoreCase))
+            return "storage";
+
+        if (r.Contains("compute", StringComparison.OrdinalIgnoreCase) ||
+            r.Contains("appservice", StringComparison.OrdinalIgnoreCase) ||
+            r.Contains("container", StringComparison.OrdinalIgnoreCase))
+            return "compute";
+
+        if (r.Contains("database", StringComparison.OrdinalIgnoreCase))
+            return "data";
+
+        return r.Contains("identity", StringComparison.OrdinalIgnoreCase) ? "identity" : "general";
+    }
+}

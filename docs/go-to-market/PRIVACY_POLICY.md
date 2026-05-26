@@ -56,6 +56,8 @@ ArchLucid is a B2B SaaS platform that provides AI-assisted architecture workflow
 
 On **`archlucid.net` public marketing routes only**, we may offer **Microsoft Clarity** session replay / heatmaps **after** you click **Accept** on the in-app consent banner. **Decline** stores a local preference and does not load Clarity. The signed-in **operator** application shell does not use this banner; product telemetry remains governed by your subscription, DPA, and Application Insights posture documented elsewhere.
 
+Operators may disable marketing analytics entirely via the **`NEXT_PUBLIC_ARCHLUCID_MARKETING_ANALYTICS_DISABLED=true`** environment flag on the marketing front (Clarity does not load even after consent). See **`archlucid-ui/.env.example`**.
+
 Clarity is a Microsoft subprocessors path — see [`SUBPROCESSORS.md`](SUBPROCESSORS.md). You can clear the preference anytime by removing site data for `archlucid.net` or using browser controls.
 
 ---

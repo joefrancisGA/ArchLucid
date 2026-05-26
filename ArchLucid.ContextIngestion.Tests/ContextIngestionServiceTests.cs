@@ -26,7 +26,11 @@ public sealed class ContextIngestionServiceTests
             new DefaultConnectorPipelineOrchestrator(
                 new List<IConnectorDescriptor> { new ConnectorDescriptor(1, countingConnector) },
                 new DefaultContextDeltaSummaryBuilder()),
-            new CanonicalInfrastructureEnricher(),
+            new CompositeCanonicalEnricher(
+            [
+                new TopologyResourceCanonicalEnricher(),
+                new SecurityBaselineCanonicalEnricher(),
+            ]),
             new CanonicalDeduplicator(),
             repo);
 

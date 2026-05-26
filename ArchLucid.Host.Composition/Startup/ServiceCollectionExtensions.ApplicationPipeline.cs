@@ -364,6 +364,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IConnectorNormalizer<DocumentConnectorPayload>, DocumentConnectorPayloadNormalizer>();
         services.AddSingleton<IConnectorInput<PolicyReferencePayload>, PolicyReferencePayloadExtractor>();
         services.AddSingleton<IConnectorNormalizer<PolicyReferencePayload>, PolicyReferencePayloadNormalizer>();
+        services.AddSingleton<IPolicyTopologyOverlapResolver, PolicyTopologyOverlapResolver>();
         services.AddSingleton<IConnectorInput<TopologyHintsPayload>, TopologyHintsPayloadExtractor>();
         services.AddSingleton<IConnectorNormalizer<TopologyHintsPayload>, TopologyHintsPayloadNormalizer>();
         services.AddSingleton<IConnectorInput<SecurityBaselineHintsPayload>, SecurityBaselineHintsPayloadExtractor>();
@@ -393,7 +394,14 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IEnumerable<ContextConnector>>(static sp =>
             ContextConnectorPipeline.CreateOrderedContextConnectorPipeline(sp));
 
-        services.AddSingleton<ICanonicalEnricher, CanonicalInfrastructureEnricher>();
+        services.AddSingleton<TopologyResourceCanonicalEnricher>();
+        services.AddSingleton<SecurityBaselineCanonicalEnricher>();
+        services.AddSingleton<ICanonicalEnricher>(static sp =>
+            new CompositeCanonicalEnricher(
+            [
+                sp.GetRequiredService<TopologyResourceCanonicalEnricher>(),
+                sp.GetRequiredService<SecurityBaselineCanonicalEnricher>(),
+            ]));
         services.AddSingleton<ICanonicalDeduplicator, CanonicalDeduplicator>();
         services.AddSingleton<IContextDeltaSummaryBuilder, DefaultContextDeltaSummaryBuilder>();
         services.AddSingleton<IConnectorDeltaComputer, SetDiffConnectorDeltaComputer>();

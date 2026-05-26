@@ -124,6 +124,9 @@ jobs:
       - name: Assert docs/START_HERE.md links resolve
         run: python scripts/ci/assert_start_here_links_valid.py
 
+      - name: Assert docs/library root markdown declares audience (TB-013 Phase 2)
+        run: python scripts/ci/assert_library_root_audience.py
+
       - name: Assert CONNECTOR_READINESS_MATRIX.md links and code paths resolve
         run: python scripts/ci/assert_connector_readiness_matrix_paths.py
 

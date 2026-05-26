@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { MarketingAnalyticsConsentBanner } from "@/components/MarketingAnalyticsConsentBanner";
+import { MarketingFirstTouchCapture } from "@/components/MarketingFirstTouchCapture";
 import { MarketingJsonLd } from "@/components/MarketingJsonLd";
 import { MicrosoftClarityLoader } from "@/components/MicrosoftClarityLoader";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
@@ -28,6 +29,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
 
   return (
     <ShellReadySurface className="min-h-screen bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
+      <MarketingFirstTouchCapture />
       <MarketingJsonLd />
       <MicrosoftClarityLoader projectId={clarityProjectId} />
       <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/90 shadow-sm backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/90">

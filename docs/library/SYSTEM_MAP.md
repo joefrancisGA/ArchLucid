@@ -90,4 +90,17 @@ Section `FeatureManagement:FeatureFlags` in configuration. Used for gradual roll
 
 - **Traces**: `ArchLucidInstrumentation` activity sources (including `ArchLucid.AuthorityRun` and per-stage child activities).
 - **Metrics**: OpenTelemetry meter **`ArchLucid`** (`ArchLucidInstrumentation.MeterName`); Prometheus scrape path under `Observability:Prometheus`. (Exported **metric series names** for queue depth and LLM usage use an `archlucid_*` prefix — see `infra/prometheus/`.)
+- **LLM token dimensions (TB-015 Phase A)**: `LlmAccountingInvocationScope` (`AsyncLocal`) tags completion accounting with `consume_role` + `invoke_kind`; histogram **`archlucid.llm.completion_tokens`**.
 - **Dashboards / alerts**: `infra/grafana/` and `infra/prometheus/` (reference JSON and rule files for operators).
+
+---
+
+## Context ingestion (TB-008 Phases 3–4)
+
+| Component | Location | Role |
+|-----------|----------|------|
+| **`IConnectorDeltaComputer`** | `ArchLucid.ContextIngestion/Delta/` | Set-diff on `SourceId` replaces literal-string deltas (shared default + per-connector overrides via `ConnectorDeltaAsyncHelper`). |
+| **`CompositeCanonicalEnricher`** | `ArchLucid.ContextIngestion/Canonicalization/` | Routes per-`ObjectType` enrichers (`TopologyResourceCanonicalEnricher`, `SecurityBaselineCanonicalEnricher`, …). |
+| **`IPolicyTopologyOverlapResolver`** | `ArchLucid.ContextIngestion/Topology/` | Shared stable-ID overlap logic consumed by policy + topology stages (no duplicated normalizer rules). |
+
+See [CONTEXT_INGESTION.md](./CONTEXT_INGESTION.md) for pipeline ordering and connector matrix.

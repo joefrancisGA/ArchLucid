@@ -41,19 +41,14 @@ public sealed class TopologyHintsConnector(
         ContextSnapshot? previous,
         CancellationToken ct)
     {
-        _ = ct;
         ArgumentNullException.ThrowIfNull(current);
 
-        // Filter the previous snapshot to only this connector's objects (SourceType = "TopologyHint").
-        // All topology hints share SourceId = "topology-hint", so we use ObjectId as the stable key —
-        // TopologyHintsPayloadNormalizer derives ObjectId deterministically via TopologyHintStableObjectIds.
-        IReadOnlyList<CanonicalObject> previousSlice = previous?.CanonicalObjects
-            .Where(static o => o.SourceType == "TopologyHint")
-            .ToList() ?? [];
-
-        return Task.FromResult(deltaComputer.Compute(
-            current.CanonicalObjects,
-            previousSlice,
-            static o => o.ObjectId));
+        return ConnectorDeltaAsyncHelper.ComputeAsync(
+            current,
+            previous,
+            sourceType: "TopologyHint",
+            static o => o.ObjectId,
+            deltaComputer,
+            ct);
     }
 }

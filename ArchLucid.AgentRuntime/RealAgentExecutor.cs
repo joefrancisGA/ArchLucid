@@ -9,7 +9,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Core.Llm.Redaction;
+using ArchLucid.Core.Llm;
 using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
@@ -410,17 +410,20 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
                 try
                 {
-                    result = await _concurrencyGate.ExecuteAsync(
-                        async ct =>
-                            await handlerTimeoutPipeline.ExecuteAsync(
-                                async (_, innerCt) => await handler.ExecuteAsync(
-                                    runId,
-                                    request,
-                                    evidence,
-                                    task,
-                                    innerCt),
-                                ct, ct),
-                        cancellationToken);
+                    using (LlmAccountingInvocationScope.Begin(task.AgentType, LlmInvokeKind.Primary))
+                    {
+                        result = await _concurrencyGate.ExecuteAsync(
+                            async ct =>
+                                await handlerTimeoutPipeline.ExecuteAsync(
+                                    async (_, innerCt) => await handler.ExecuteAsync(
+                                        runId,
+                                        request,
+                                        evidence,
+                                        task,
+                                        innerCt),
+                                    ct, ct),
+                            cancellationToken);
+                    }
 
                     ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
                         1,

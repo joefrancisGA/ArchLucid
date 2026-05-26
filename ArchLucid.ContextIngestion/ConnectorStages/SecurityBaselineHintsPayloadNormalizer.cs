@@ -1,3 +1,6 @@
+using System.Security.Cryptography;
+using System.Text;
+
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
@@ -22,11 +25,17 @@ public sealed class SecurityBaselineHintsPayloadNormalizer : IConnectorNormalize
                 ObjectType = "SecurityBaseline",
                 Name = hint,
                 SourceType = "SecurityBaselineHint",
-                SourceId = "security-hint",
+                SourceId = StableHintSourceId(hint),
                 Properties = new Dictionary<string, string> { ["text"] = hint, ["status"] = "declared" }
             });
 
 
         return Task.FromResult(batch);
+    }
+
+    private static string StableHintSourceId(string hint)
+    {
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(hint.Trim()));
+        return Convert.ToHexString(hash.AsSpan(0, 16)).ToLowerInvariant();
     }
 }

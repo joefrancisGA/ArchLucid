@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.ConnectorStages;
+using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
@@ -7,7 +8,8 @@ namespace ArchLucid.ContextIngestion.Connectors;
 
 public sealed class SecurityBaselineHintsConnector(
     IConnectorInput<SecurityBaselineHintsPayload> payloadInput,
-    IConnectorNormalizer<SecurityBaselineHintsPayload> payloadNormalizer) : IContextConnector
+    IConnectorNormalizer<SecurityBaselineHintsPayload> payloadNormalizer,
+    IConnectorDeltaComputer deltaComputer) : IContextConnector
 {
     public string ConnectorType => "security-baseline-hints";
 
@@ -39,14 +41,14 @@ public sealed class SecurityBaselineHintsConnector(
         ContextSnapshot? previous,
         CancellationToken ct)
     {
-        _ = current;
-        _ = ct;
+        ArgumentNullException.ThrowIfNull(current);
 
-        return Task.FromResult(new ContextDelta
-        {
-            Summary = previous is null
-                ? "Initial security baseline hint ingestion"
-                : "Updated security baseline hint ingestion"
-        });
+        return ConnectorDeltaAsyncHelper.ComputeAsync(
+            current,
+            previous,
+            sourceType: "SecurityBaselineHint",
+            static o => o.SourceId,
+            deltaComputer,
+            ct);
     }
 }

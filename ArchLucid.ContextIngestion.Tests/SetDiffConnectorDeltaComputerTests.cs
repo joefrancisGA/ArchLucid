@@ -245,7 +245,7 @@ public sealed class SetDiffConnectorDeltaComputerTests
     {
         PolicyReferenceConnector connector = new(
             new PolicyReferencePayloadExtractor(),
-            new PolicyReferencePayloadNormalizer(),
+            new PolicyReferencePayloadNormalizer(new PolicyTopologyOverlapResolver()),
             _sut);
 
         NormalizedContextBatch batch = await connector.NormalizeAsync(
@@ -263,7 +263,7 @@ public sealed class SetDiffConnectorDeltaComputerTests
     {
         PolicyReferenceConnector connector = new(
             new PolicyReferencePayloadExtractor(),
-            new PolicyReferencePayloadNormalizer(),
+            new PolicyReferencePayloadNormalizer(new PolicyTopologyOverlapResolver()),
             _sut);
 
         // Build the previous batch through the normalizer so Properties match exactly.

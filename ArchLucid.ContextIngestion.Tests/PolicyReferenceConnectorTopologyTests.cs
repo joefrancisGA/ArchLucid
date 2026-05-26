@@ -18,7 +18,7 @@ public sealed class PolicyReferenceConnectorTopologyTests
     {
         PolicyReferenceConnector sut = new(
             new PolicyReferencePayloadExtractor(),
-            new PolicyReferencePayloadNormalizer(),
+            new PolicyReferencePayloadNormalizer(new PolicyTopologyOverlapResolver()),
             new SetDiffConnectorDeltaComputer());
         RawContextPayload raw = new()
         {
@@ -39,7 +39,7 @@ public sealed class PolicyReferenceConnectorTopologyTests
     {
         PolicyReferenceConnector sut = new(
             new PolicyReferencePayloadExtractor(),
-            new PolicyReferencePayloadNormalizer(),
+            new PolicyReferencePayloadNormalizer(new PolicyTopologyOverlapResolver()),
             new SetDiffConnectorDeltaComputer());
         RawContextPayload raw = new() { PolicyReferences = ["SOC2"], TopologyHints = ["unrelated-vnet"] };
 

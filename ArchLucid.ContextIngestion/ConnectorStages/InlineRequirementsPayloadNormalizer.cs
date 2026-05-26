@@ -1,3 +1,6 @@
+using System.Security.Cryptography;
+using System.Text;
+
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
@@ -22,11 +25,17 @@ public sealed class InlineRequirementsPayloadNormalizer : IConnectorNormalizer<I
                 ObjectType = "Requirement",
                 Name = requirement.Length > 80 ? requirement[..80] : requirement,
                 SourceType = "InlineRequirement",
-                SourceId = "inline",
+                SourceId = StableRequirementSourceId(requirement),
                 Properties = new Dictionary<string, string> { ["text"] = requirement }
             });
 
 
         return Task.FromResult(batch);
+    }
+
+    private static string StableRequirementSourceId(string requirement)
+    {
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(requirement.Trim()));
+        return Convert.ToHexString(hash.AsSpan(0, 16)).ToLowerInvariant();
     }
 }

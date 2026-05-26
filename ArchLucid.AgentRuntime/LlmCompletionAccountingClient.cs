@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Llm;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
@@ -213,6 +214,7 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                 string? tenantKey = perTenant && scope.TenantId != Guid.Empty ? scope.TenantId.ToString("N") : null;
 
                 LlmTelemetryLabelOptions labels = _labelOptions.CurrentValue;
+                LlmAccountingInvocationScope? invocationScope = LlmAccountingInvocationScope.GetCurrent();
 
                 ArchLucidInstrumentation.RecordLlmTokenUsage(
                     promptTok,
@@ -220,7 +222,9 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                     perTenant,
                     tenantKey,
                     labels.ProviderId,
-                    labels.ModelDeploymentLabel);
+                    labels.ModelDeploymentLabel,
+                    invocationScope?.ResolveConsumeRoleLabel(),
+                    invocationScope?.ResolveInvokeKindLabel());
 
                 LlmCompletionCostDeltaLogger.LogIfEnabled(
                     _logger,
@@ -350,6 +354,7 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                 string? tenantKey = perTenant && scope.TenantId != Guid.Empty ? scope.TenantId.ToString("N") : null;
 
                 LlmTelemetryLabelOptions labels = _labelOptions.CurrentValue;
+                LlmAccountingInvocationScope? invocationScope = LlmAccountingInvocationScope.GetCurrent();
 
                 ArchLucidInstrumentation.RecordLlmTokenUsage(
                     promptTok,
@@ -357,7 +362,9 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                     perTenant,
                     tenantKey,
                     labels.ProviderId,
-                    labels.ModelDeploymentLabel);
+                    labels.ModelDeploymentLabel,
+                    invocationScope?.ResolveConsumeRoleLabel(),
+                    invocationScope?.ResolveInvokeKindLabel());
 
                 LlmCompletionCostDeltaLogger.LogIfEnabled(
                     _logger,

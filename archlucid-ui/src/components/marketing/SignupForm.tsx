@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
+import { readFirstTouchCookie, serializeFirstTouchHeader } from "@/lib/marketing-first-touch";
 import {
   BASELINE_REVIEW_CYCLE_HOURS_MAX,
   companySizeOptions,
@@ -116,9 +117,20 @@ export function SignupForm() {
         }
       }
 
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      };
+
+      const firstTouch = readFirstTouchCookie();
+
+      if (firstTouch) {
+        headers["x-archlucid-first-touch"] = serializeFirstTouchHeader(firstTouch);
+      }
+
       const res = await fetch("/api/proxy/v1/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers,
         body: JSON.stringify(payload),
       });
 

@@ -2,7 +2,9 @@ using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Llm;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -143,6 +145,7 @@ public sealed class AgentOutputLlmSemanticJudge(
                 client,
                 judgeOpts,
                 traceId,
+                agentType,
                 systemPrompt,
                 userPrompt,
                 cancellationToken)
@@ -153,6 +156,7 @@ public sealed class AgentOutputLlmSemanticJudge(
         IAgentCompletionClient client,
         AgentOutputLlmSemanticJudgeOptions judgeOpts,
         string traceId,
+        AgentType agentType,
         string systemPrompt,
         string userPrompt,
         CancellationToken cancellationToken)
@@ -164,14 +168,17 @@ public sealed class AgentOutputLlmSemanticJudge(
 
         try
         {
-            string raw = await client.CompleteJsonAsync(
-                    systemPrompt,
-                    userPrompt,
-                    maxTokens: null,
-                    cancellationToken: linked.Token)
-                .ConfigureAwait(false);
+            using (LlmAccountingInvocationScope.Begin(agentType, LlmInvokeKind.SemanticJudge))
+            {
+                string raw = await client.CompleteJsonAsync(
+                        systemPrompt,
+                        userPrompt,
+                        maxTokens: null,
+                        cancellationToken: linked.Token)
+                    .ConfigureAwait(false);
 
-            return TryParseJudgeResponse(raw);
+                return TryParseJudgeResponse(raw);
+            }
         }
         catch (OperationCanceledException ex) when (!cancellationToken.IsCancellationRequested)
         {

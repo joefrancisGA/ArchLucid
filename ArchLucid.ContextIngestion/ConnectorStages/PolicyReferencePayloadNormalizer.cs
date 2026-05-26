@@ -1,3 +1,5 @@
+using ArchLucid.ContextIngestion.ConnectorStages;
+using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
@@ -5,8 +7,12 @@ using ArchLucid.ContextIngestion.Topology;
 
 namespace ArchLucid.ContextIngestion.ConnectorStages;
 
-public sealed class PolicyReferencePayloadNormalizer : IConnectorNormalizer<PolicyReferencePayload>
+public sealed class PolicyReferencePayloadNormalizer(IPolicyTopologyOverlapResolver overlapResolver)
+    : IConnectorNormalizer<PolicyReferencePayload>
 {
+    private readonly IPolicyTopologyOverlapResolver _overlapResolver =
+        overlapResolver ?? throw new ArgumentNullException(nameof(overlapResolver));
+
     /// <summary>Must match <c>CanonicalGraphPropertyKeys.ApplicableTopologyNodeIds</c> in the knowledge-graph project.</summary>
     private const string ApplicableTopologyNodeIdsKey = "applicableTopologyNodeIds";
 
@@ -26,7 +32,7 @@ public sealed class PolicyReferencePayloadNormalizer : IConnectorNormalizer<Poli
                 ["reference"] = policy, ["status"] = "referenced"
             };
 
-            string? targeted = BuildApplicableTopologyNodeIds(policy, payload.TopologyHints);
+            string? targeted = _overlapResolver.ResolveApplicableTopologyNodeIds(policy, payload.TopologyHints);
 
             if (!string.IsNullOrWhiteSpace(targeted))
                 properties[ApplicableTopologyNodeIdsKey] = targeted;
@@ -42,37 +48,5 @@ public sealed class PolicyReferencePayloadNormalizer : IConnectorNormalizer<Poli
         }
 
         return Task.FromResult(batch);
-    }
-
-    /// <summary>
-    ///     When a topology hint name overlaps the policy reference (substring, case-insensitive),
-    ///     links the policy to <c>obj-{stableId}</c> for that hint so graph inference can narrow <c>APPLIES_TO</c>.
-    /// </summary>
-    private static string? BuildApplicableTopologyNodeIds(
-        string policyReference,
-        IReadOnlyList<string> topologyHints)
-    {
-        if (topologyHints.Count == 0)
-            return null;
-
-        HashSet<string> ids = [];
-
-        foreach (string? trimmed in from hint in topologyHints
-                 where !string.IsNullOrWhiteSpace(hint)
-                 select hint.Trim()
-                 into trimmed
-                 where PolicyReferenceOverlapsTopology(policyReference, trimmed)
-                 select trimmed)
-
-            ids.Add($"obj-{TopologyHintStableObjectIds.FromHintName(trimmed)}");
-
-
-        return ids.Count == 0 ? null : string.Join(',', ids);
-    }
-
-    private static bool PolicyReferenceOverlapsTopology(string policyReference, string topologyHint)
-    {
-        return topologyHint.Contains(policyReference, StringComparison.OrdinalIgnoreCase)
-               || policyReference.Contains(topologyHint, StringComparison.OrdinalIgnoreCase);
     }
 }

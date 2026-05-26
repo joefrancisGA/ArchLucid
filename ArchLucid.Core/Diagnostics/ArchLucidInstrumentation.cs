@@ -454,6 +454,12 @@ public static class ArchLucidInstrumentation
             "archlucid_trial_signups_total",
             description: "Self-service trial funnel: successful trial activations (labels: source, mode).");
 
+    /// <summary>Signup marketing attribution conversions (labels: <c>attribution.medium</c>, <c>attribution.platform</c>).</summary>
+    public static readonly Counter<long> SignupMarketingConversionTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_signup_marketing_conversion_total",
+            description: "First-touch signup attribution persisted after successful trial provision (coarse buckets only).");
+
     /// <summary>Failed signup / trial bootstrap attempts (labels: <c>stage</c>, <c>reason</c>).</summary>
     public static readonly Counter<long> TrialSignupFailuresTotal =
         AppMeter.CreateCounter<long>(
@@ -890,6 +896,12 @@ public static class ArchLucidInstrumentation
         AppMeter.CreateCounter<long>(
             "archlucid_llm_completion_tokens_total",
             description: "Cumulative completion tokens reported by Azure OpenAI completions.");
+
+    /// <summary>Completion token distribution tagged by agent consume role and invoke kind (TB-015).</summary>
+    public static readonly Histogram<long> LlmCompletionTokensDimensional =
+        AppMeter.CreateHistogram<long>(
+            "archlucid.llm.completion_tokens",
+            description: "Completion token distribution tagged by archlucid.llm.consume_role and archlucid.llm.invoke_kind.");
 
     /// <summary>Embedding input tokens reported by Azure OpenAI embeddings (<c>AzureOpenAiEmbeddingClient</c>).</summary>
     public static readonly Counter<long> LlmEmbeddingInputTokensTotal =
@@ -1446,6 +1458,18 @@ public static class ArchLucidInstrumentation
         TrialSignupsTotal.Add(1, tags);
     }
 
+    /// <summary>Increments <see cref="SignupMarketingConversionTotal" /> with coarse attribution buckets (TB-019).</summary>
+    public static void RecordSignupMarketingConversion(string coarseMedium, string coarsePlatform)
+    {
+        TagList tags = new()
+        {
+            { "attribution.medium", string.IsNullOrWhiteSpace(coarseMedium) ? "unknown" : coarseMedium.Trim() },
+            { "attribution.platform", string.IsNullOrWhiteSpace(coarsePlatform) ? "unknown" : coarsePlatform.Trim() },
+        };
+
+        SignupMarketingConversionTotal.Add(1, tags);
+    }
+
     /// <summary>Increments <see cref="TrialSignupFailuresTotal" />.</summary>
     public static void RecordTrialSignupFailure(string stage, string reason)
     {
@@ -1770,11 +1794,15 @@ public static class ArchLucidInstrumentation
         bool recordPerTenant,
         string? tenantIdNormalized,
         string? llmProviderId = null,
-        string? llmDeploymentLabel = null)
+        string? llmDeploymentLabel = null,
+        string? consumeRole = null,
+        string? invokeKind = null)
     {
+        bool hasDimensionalTags = !string.IsNullOrEmpty(consumeRole) || !string.IsNullOrEmpty(invokeKind);
         bool hasTags = (recordPerTenant && !string.IsNullOrEmpty(tenantIdNormalized))
                        || !string.IsNullOrEmpty(llmProviderId)
-                       || !string.IsNullOrEmpty(llmDeploymentLabel);
+                       || !string.IsNullOrEmpty(llmDeploymentLabel)
+                       || hasDimensionalTags;
 
         if (promptTokens > 0)
             if (hasTags)
@@ -1789,6 +1817,9 @@ public static class ArchLucidInstrumentation
             LlmCompletionTokensTotal.Add(completionTokens, BuildTags());
         else
             LlmCompletionTokensTotal.Add(completionTokens);
+
+        if (hasDimensionalTags)
+            LlmCompletionTokensDimensional.Record(completionTokens, BuildDimensionalTags());
 
         return;
 
@@ -1805,6 +1836,25 @@ public static class ArchLucidInstrumentation
 
             if (!string.IsNullOrEmpty(llmDeploymentLabel))
                 tags.Add("llm_deployment", llmDeploymentLabel);
+
+            if (!string.IsNullOrEmpty(consumeRole))
+                tags.Add("archlucid.llm.consume_role", consumeRole);
+
+            if (!string.IsNullOrEmpty(invokeKind))
+                tags.Add("archlucid.llm.invoke_kind", invokeKind);
+
+            return tags;
+        }
+
+        TagList BuildDimensionalTags()
+        {
+            TagList tags = [];
+
+            if (!string.IsNullOrEmpty(consumeRole))
+                tags.Add("archlucid.llm.consume_role", consumeRole);
+
+            if (!string.IsNullOrEmpty(invokeKind))
+                tags.Add("archlucid.llm.invoke_kind", invokeKind);
 
             return tags;
         }

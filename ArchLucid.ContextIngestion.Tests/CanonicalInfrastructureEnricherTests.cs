@@ -11,7 +11,11 @@ namespace ArchLucid.ContextIngestion.Tests;
 [Trait("Category", "Unit")]
 public sealed class CanonicalInfrastructureEnricherTests
 {
-    private readonly CanonicalInfrastructureEnricher _sut = new();
+    private readonly CompositeCanonicalEnricher _sut = new(
+    [
+        new TopologyResourceCanonicalEnricher(),
+        new SecurityBaselineCanonicalEnricher(),
+    ]);
 
     [Fact]
     public void Enrich_AddsCategory_ForJsonResourceTypes()

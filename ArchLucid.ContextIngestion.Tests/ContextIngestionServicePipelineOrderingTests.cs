@@ -38,7 +38,11 @@ public sealed class ContextIngestionServicePipelineOrderingTests
 
         ContextIngestionService sut = new(
             new DefaultConnectorPipelineOrchestrator(descriptors, new DefaultContextDeltaSummaryBuilder()),
-            new CanonicalInfrastructureEnricher(),
+            new CompositeCanonicalEnricher(
+            [
+                new TopologyResourceCanonicalEnricher(),
+                new SecurityBaselineCanonicalEnricher(),
+            ]),
             new CanonicalDeduplicator(),
             new InMemoryContextSnapshotRepository());
 
@@ -74,7 +78,11 @@ public sealed class ContextIngestionServicePipelineOrderingTests
 
         ContextIngestionService sut = new(
             new DefaultConnectorPipelineOrchestrator(descriptors, new DefaultContextDeltaSummaryBuilder()),
-            new CanonicalInfrastructureEnricher(),
+            new CompositeCanonicalEnricher(
+            [
+                new TopologyResourceCanonicalEnricher(),
+                new SecurityBaselineCanonicalEnricher(),
+            ]),
             new CanonicalDeduplicator(),
             new InMemoryContextSnapshotRepository());
 

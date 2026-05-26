@@ -1,20 +1,15 @@
 using ArchLucid.ContextIngestion.ConnectorStages;
+using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 
 namespace ArchLucid.ContextIngestion.Connectors;
 
-/// <summary>
-///     Normalizes inline <see cref="ContextDocumentReference" /> items using the first
-///     <see cref="Contracts.IContextDocumentParser" /> in
-///     <see
-///         cref="ArchLucid.ContextIngestion.Infrastructure.ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers" />
-///     order where <see cref="Contracts.IContextDocumentParser.CanParse" /> returns true.
-/// </summary>
 public sealed class DocumentConnector(
     IConnectorInput<DocumentConnectorPayload> payloadInput,
-    IConnectorNormalizer<DocumentConnectorPayload> payloadNormalizer) : IContextConnector
+    IConnectorNormalizer<DocumentConnectorPayload> payloadNormalizer,
+    IConnectorDeltaComputer deltaComputer) : IContextConnector
 {
     public string ConnectorType => "documents";
 
@@ -46,12 +41,14 @@ public sealed class DocumentConnector(
         ContextSnapshot? previous,
         CancellationToken ct)
     {
-        _ = current;
-        _ = ct;
+        ArgumentNullException.ThrowIfNull(current);
 
-        return Task.FromResult(new ContextDelta
-        {
-            Summary = previous is null ? "Initial document ingestion" : "Updated document ingestion"
-        });
+        return ConnectorDeltaAsyncHelper.ComputeAsync(
+            current,
+            previous,
+            sourceType: "Document",
+            static o => $"{o.SourceId}:{o.Name}",
+            deltaComputer,
+            ct);
     }
 }
