@@ -383,6 +383,63 @@ def _format_summary(scores: Iterable[ScenarioScore]) -> str:
     return "\n".join(lines)
 
 
+def _format_json_summary(scores: Sequence[ScenarioScore]) -> dict[str, Any]:
+    pass_count = sum(1 for s in scores if s.passed)
+    scenarios: list[dict[str, Any]] = []
+
+    for s in scores:
+        scenarios.append(
+            {
+                "scenarioId": s.scenario_id,
+                "title": s.title,
+                "passed": s.passed,
+                "recallPct": round(s.recall_pct, 2),
+                "recallFloorPct": s.recall_floor_pct,
+                "expectedHits": s.expected_hits,
+                "expectedTotal": s.expected_total,
+                "unexpectedHitCount": len(s.unexpected_hits),
+                "error": s.error,
+            }
+        )
+
+    return {
+        "generatedUtc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "passCount": pass_count,
+        "totalCount": len(scores),
+        "scenarios": scenarios,
+    }
+
+
+def emit_github_warning_annotations(summary: Mapping[str, Any]) -> None:
+    for scenario in summary.get("scenarios") or []:
+        if not isinstance(scenario, Mapping):
+            continue
+
+        if scenario.get("passed"):
+            continue
+
+        scenario_id = str(scenario.get("scenarioId") or "(unknown)")
+        recall_pct = scenario.get("recallPct")
+        recall_floor = scenario.get("recallFloorPct")
+        unexpected = scenario.get("unexpectedHitCount")
+        error = scenario.get("error")
+
+        if error:
+            message = f"templates-pack scenario `{scenario_id}` error: {error}"
+        elif unexpected:
+            message = (
+                f"templates-pack scenario `{scenario_id}` tripped {unexpected} unexpected hit(s) "
+                f"(recall {recall_pct}% vs floor {recall_floor}%)."
+            )
+        else:
+            message = (
+                f"templates-pack scenario `{scenario_id}` recall {recall_pct}% "
+                f"below floor {recall_floor}%."
+            )
+
+        print(f"::warning title=Templates-pack drift::{message}")
+
+
 def run_score_mode(args: argparse.Namespace) -> int:
     rubric = load_rubric()
     scenarios = list_scenarios()
@@ -400,6 +457,17 @@ def run_score_mode(args: argparse.Namespace) -> int:
         report_path.parent.mkdir(parents=True, exist_ok=True)
         report_path.write_text(report + "\n", encoding="utf-8")
         print(f"\n[eval-harness] Report saved: {report_path}", file=sys.stderr)
+
+    json_summary = _format_json_summary(scores)
+
+    if args.json_summary:
+        json_path = Path(args.json_summary)
+        json_path.parent.mkdir(parents=True, exist_ok=True)
+        json_path.write_text(json.dumps(json_summary, indent=2) + "\n", encoding="utf-8")
+        print(f"[eval-harness] JSON summary saved: {json_path}", file=sys.stderr)
+
+    if args.emit_annotations:
+        emit_github_warning_annotations(json_summary)
 
     any_failed = any(not s.passed for s in scores)
     enforce_now = args.enforce or rubric.enforce_by_default
@@ -607,6 +675,16 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         "--report",
         default=None,
         help="optional markdown report output path (score mode).",
+    )
+    p.add_argument(
+        "--json-summary",
+        default=None,
+        help="optional machine-readable JSON summary output path (score mode).",
+    )
+    p.add_argument(
+        "--emit-annotations",
+        action="store_true",
+        help="emit GitHub Actions ::warning:: annotations for failed scenarios (score mode).",
     )
     return p.parse_args(argv)
 

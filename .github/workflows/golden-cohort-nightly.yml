@@ -1,7 +1,7 @@
 # Nightly golden cohort: JSON contract (always) + simulator drift when repository variable
 # ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED is "true".
 #
-# Optional real-LLM **preflight** (cohort-real-llm-preflight job): budget probe + fixture presence check only —
+# Optional real-LLM **gate** (cohort-real-llm-gate job): budget probe + fixture presence check only —
 # no live OpenAI invoke in CI. **`cohort-real-llm-live`** runs (**a**) **workflow_dispatch** with
 # **run_live_invoke=true**, or (**b**) the **Sunday 06:00 UTC** schedule when **vars** below enable it —
 # gated on **preflight budget exit** 0/1 only (warn/kill-skip suppresses live the same as preflight dotnet steps).
@@ -112,7 +112,7 @@ jobs:
             docs/quality/archive/*.md
           if-no-files-found: warn
 
-  cohort-real-llm-preflight:
+  cohort-real-llm-gate:
     needs: cohort-contract
     if: ${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true' }}
     outputs:
@@ -276,14 +276,53 @@ jobs:
           path: tests/golden-cohort/usage-mtd.json
           if-no-files-found: warn
 
+  cohort-real-mode-eval-corpus:
+    needs: cohort-real-llm-gate
+    if: >-
+      ${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true'
+      && (needs['cohort-real-llm-gate'].outputs.budget_exit_code == '0'
+        || needs['cohort-real-llm-gate'].outputs.budget_exit_code == '1') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Eval corpus (real-mode exemplars + quality gates)
+        env:
+          ARCHLUCID_EVAL_CORPUS_MARKDOWN_REPORT: ${{ runner.temp }}/eval-corpus-nightly-real-mode.md
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-smoke.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_COST_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-cost.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_COMPLIANCE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-compliance.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_CRITIC_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-critic.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_THREE_TIER_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-three-tier.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_MICROSERVICES_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-microservices.real.json
+        run: |
+          set -euo pipefail
+          REP="${ARCHLUCID_EVAL_CORPUS_MARKDOWN_REPORT}"
+          python3 scripts/ci/eval_agent_corpus.py \
+            --markdown-report "${REP}" \
+            --enforce-quality-gate \
+            --enforce-real-quality-gate
+          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then cat "${REP}" >> "${GITHUB_STEP_SUMMARY}"; fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-corpus-nightly-real-mode
+          path: ${{ runner.temp }}/eval-corpus-nightly-real-mode.md
+          if-no-files-found: warn
+
   cohort-real-llm-live:
     needs:
       - cohort-contract
-      - cohort-real-llm-preflight
+      - cohort-real-llm-gate
     if: >-
       ${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true'
-      && (needs['cohort-real-llm-preflight'].outputs.budget_exit_code == '0'
-        || needs['cohort-real-llm-preflight'].outputs.budget_exit_code == '1')
+      && (needs['cohort-real-llm-gate'].outputs.budget_exit_code == '0'
+        || needs['cohort-real-llm-gate'].outputs.budget_exit_code == '1')
       && (
         (github.event_name == 'workflow_dispatch' && inputs.run_live_invoke == true)
         || (

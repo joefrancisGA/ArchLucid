@@ -121,6 +121,101 @@ public sealed class ComplianceAgentHandlerRetrievalTests
 
         completionClient.LastUserPrompt.Should().Contain("saas-ctrl-002");
         completionClient.LastUserPrompt.Should().Contain("Policy Pack Controls");
+        completionClient.LastUserPrompt.Should().Contain("groundingMissing: false");
+        completionClient.LastUserPrompt.Should().Contain("Encrypt data.");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_sets_groundingMissing_when_policy_pack_retrieval_returns_no_hits()
+    {
+        const string runId = AgentHandlerTestRunIds.Run001;
+        const string complianceJson = """
+                                      {
+                                        "resultId": "RES-COMP-001",
+                                        "taskId": "TASK-COMP-001",
+                                        "runId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                        "agentType": "Compliance",
+                                        "claims": ["Managed identity is required."],
+                                        "evidenceRefs": [],
+                                        "confidence": 0.95,
+                                        "findings": [],
+                                        "proposedChanges": {
+                                          "proposalId": "PROP-COMP-001",
+                                          "sourceAgent": "Compliance",
+                                          "addedServices": [],
+                                          "addedDatastores": [],
+                                          "addedRelationships": [],
+                                          "requiredControls": ["Managed Identity"],
+                                          "warnings": []
+                                        },
+                                        "createdUtc": "2026-03-15T14:05:00Z"
+                                      }
+                                      """;
+
+        CapturingCompletionClient completionClient = new(complianceJson);
+        AgentResultParser parser = new();
+        NoOpTraceRecorder traceRecorder = new();
+        IAgentSystemPromptCatalog catalog = AgentPromptCatalogTestFactory.Create();
+        Mock<ArchLucid.Core.Audit.IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<ArchLucid.Core.Audit.AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        Mock<ArchLucid.Core.Scoping.IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(
+            new ArchLucid.Core.Scoping.ScopeContext
+            {
+                TenantId = Guid.NewGuid(),
+                WorkspaceId = Guid.NewGuid(),
+                ProjectId = Guid.NewGuid(),
+            });
+
+        Mock<IRetrievalQueryService> retrieval = new();
+        retrieval.Setup(r => r.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RetrievalHit>());
+
+        ComplianceAgentHandler handler = new(
+            AgentTierCompletionRouterTestFactory.CreatePassThrough(completionClient),
+            parser,
+            traceRecorder,
+            catalog,
+            audit.Object,
+            scopeProvider.Object,
+            retrieval.Object,
+            ComplianceAgentHandlerTestDependencies.CreateCitationFormatter(),
+            ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
+            AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
+            ComplianceAgentHandlerTestDependencies.CreateNullLogger());
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "REQ-001",
+            SystemName = "EnterpriseRag",
+            Description = "Design a secure Azure RAG system.",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+        };
+
+        AgentTask task = new()
+        {
+            TaskId = "TASK-COMP-001",
+            RunId = runId,
+            AgentType = AgentType.Compliance,
+            Objective = "Produce a compliance proposal.",
+        };
+
+        AgentEvidencePackage evidence = new()
+        {
+            RunId = runId,
+            RequestId = request.RequestId,
+            SystemName = request.SystemName,
+            Environment = request.Environment,
+            CloudProvider = request.CloudProvider.ToString(),
+            Request = new RequestEvidence { Description = request.Description },
+        };
+
+        await handler.ExecuteAsync(runId, request, evidence, task);
+
+        completionClient.LastUserPrompt.Should().Contain("groundingMissing: true");
+        completionClient.LastUserPrompt.Should().Contain("none retrieved — grounding unavailable");
     }
 
     [Fact]

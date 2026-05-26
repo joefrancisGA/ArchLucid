@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Guardrail: golden-cohort nightly keeps honest job ids (preflight vs live)."""
+"""Guardrail: golden-cohort nightly keeps honest job ids (gate vs live)."""
 
 from __future__ import annotations
 
@@ -12,15 +12,15 @@ def main() -> int:
     path = root / ".github" / "workflows" / "golden-cohort-nightly.yml"
     text = path.read_text(encoding="utf-8")
 
-    if "cohort-real-llm-gate:" in text:
+    if "cohort-real-llm-preflight:" in text:
         print(
-            "::error::golden-cohort-nightly.yml regressed job id cohort-real-llm-gate; "
-            "rename back to cohort-real-llm-preflight or split naming deliberately."
+            "::error::golden-cohort-nightly.yml regressed to cohort-real-llm-preflight; "
+            "use cohort-real-llm-gate for branch-protection check name parity."
         )
         return 1
 
-    if "cohort-real-llm-preflight:" not in text:
-        print("::error::golden-cohort-nightly.yml missing cohort-real-llm-preflight job")
+    if "cohort-real-llm-gate:" not in text:
+        print("::error::golden-cohort-nightly.yml missing cohort-real-llm-gate job")
         return 1
 
     return 0

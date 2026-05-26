@@ -13,13 +13,22 @@ public static class CompliancePolicyPackRetrievalPromptFormatter
     {
         ArgumentNullException.ThrowIfNull(citationFormatter);
 
-        if (hits is null || hits.Count == 0)
-            return "Policy Pack Controls (retrieved — cite ruleId when referencing):\n(none retrieved — grounding unavailable)";
+        bool groundingMissing = hits is null || hits.Count == 0;
+
+        if (groundingMissing)
+        {
+            return """
+                Policy Pack Controls (retrieved — cite ruleId when referencing):
+                - groundingMissing: true — no policy-pack rule hit; do not invent control IDs or quote pack text.
+                (none retrieved — grounding unavailable)
+                """.Trim();
+        }
 
         System.Text.StringBuilder sb = new();
         sb.AppendLine("Policy Pack Controls (retrieved — cite ruleId when referencing):");
+        sb.AppendLine("- groundingMissing: false — cite these rules when stating compliance requirements:");
 
-        for (int i = 0; i < hits.Count; i++)
+        for (int i = 0; i < hits!.Count; i++)
         {
             RetrievalHit hit = hits[i];
             sb.Append('[');

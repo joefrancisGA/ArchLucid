@@ -13,6 +13,9 @@ name: template-eval-harness
 #    the harness itself; uploads a markdown report artifact; never blocks.
 
 on:
+  schedule:
+    # Nightly drift sentinel (inform-only; annotations surface regressions without blocking).
+    - cron: "0 3 * * *"
   workflow_dispatch:
     inputs:
       mode:
@@ -51,6 +54,7 @@ on:
   push:
     branches:
       - main
+      - master
     paths:
       - "tests/eval-corpus/templates-pack/**"
       - "scripts/ci/eval_template_harness.py"
@@ -88,7 +92,16 @@ jobs:
           python3 scripts/ci/eval_template_harness.py \
             --mode score \
             --report "${RUNNER_TEMP}/templates-pack-eval.md" \
+            --json-summary "${RUNNER_TEMP}/eval-harness-summary.json" \
+            --emit-annotations \
             ${ENFORCE_FLAG}
+
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.mode.outputs.mode == 'score'
+        with:
+          name: templates-pack-eval-summary
+          path: ${{ runner.temp }}/eval-harness-summary.json
+          if-no-files-found: warn
 
       - name: Capture findings from live API
         if: steps.mode.outputs.mode == 'capture'

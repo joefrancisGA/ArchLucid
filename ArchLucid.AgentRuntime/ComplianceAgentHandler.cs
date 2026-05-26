@@ -257,7 +257,9 @@ public sealed class ComplianceAgentHandler(
             }
 
             string prompt = baseUserPrompt.TrimEnd()
-                + "\n\nPolicy Pack Controls (retrieved — cite ruleId when referencing):\n(none retrieved — grounding unavailable)\n";
+                + "\n\n"
+                + CompliancePolicyPackRetrievalPromptFormatter.FormatPolicyPackBlock([], _retrievalCitationFormatter)
+                + "\n";
 
             return (prompt, []);
         }

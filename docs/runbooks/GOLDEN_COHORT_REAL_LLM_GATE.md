@@ -10,8 +10,9 @@
 
 | Job | Purpose |
 |-----|---------|
-| **`cohort-real-llm-preflight`** | When **`vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM`** is **`true`**, runs the budget probe / kill-switch (**[`scripts/golden_cohort_budget_probe.py`](../../scripts/golden_cohort_budget_probe.py)**), opens GitHub issues on WARN/KILL, then runs **`GoldenCohortRealLlmGateTests`** (fixture presence / structural checks). **No live Azure OpenAI invoke** happens inside this job. |
-| **`cohort-real-llm-live`** | After **preflight** records budget exit **`0`** (under warn) **`1`** (warn band: still below kill), invokes live drift when (**a**) **`workflow_dispatch`** with **`run_live_invoke=true`**, or (**b**) **`schedule`** cron **`0 6 * * 0`** (Sunday 06:00 UTC) **and** repository variable **`ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED`** is **`true`**. Requires **`vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM`** and secret **`ARCHLUCID_GOLDEN_COHORT_API_HOST`** (mapped to **`ARCHLUCID_API_URL`**). Runs **`dotnet run … golden-cohort drift --strict-real --structural-only`**. Prefer protected environments for secrets — see §2. |
+| **`cohort-real-llm-gate`** | When **`vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM`** is **`true`**, runs the budget probe / kill-switch (**[`scripts/golden_cohort_budget_probe.py`](../../scripts/golden_cohort_budget_probe.py)**), opens GitHub issues on WARN/KILL, then runs **`GoldenCohortRealLlmGateTests`** (fixture presence / structural checks). **No live Azure OpenAI invoke** happens inside this job. Required status check name for branch protection matches this job id. |
+| **`cohort-real-llm-live`** | After **gate** records budget exit **`0`** (under warn) **`1`** (warn band: still below kill), invokes live drift when (**a**) **`workflow_dispatch`** with **`run_live_invoke=true`**, or (**b**) **`schedule`** cron **`0 6 * * 0`** (Sunday 06:00 UTC) **and** repository variable **`ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED`** is **`true`**. Requires **`vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM`** and secret **`ARCHLUCID_GOLDEN_COHORT_API_HOST`** (mapped to **`ARCHLUCID_API_URL`**). Runs **`dotnet run … golden-cohort drift --strict-real --structural-only`**. Prefer protected environments for secrets — see §2. |
+| **`cohort-real-mode-eval-corpus`** | After **gate** budget exit **`0`** or **`1`**, scores committed real-mode AgentResult exemplars via **`eval_agent_corpus.py`** with quality gates enforced. Gated on **`vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM`**. |
 
 Both paths honor probe semantics (see section 3): exit **2** skips downstream cohort steps **including live** without failing the workflow.
 
@@ -23,8 +24,8 @@ The Q15 ($50/month) approval was **conditional on the kill-switch being shipped*
 
 After the dedicated Azure OpenAI deployment exists in the production subscription **and** the protected GitHub Environment has the secrets injected (both owner-only operational tasks per Q15), promotion is:
 
-1. Ensure **`cohort-real-llm-preflight`** is **required** in the GitHub branch-protection rule for **`main`** (required status check name matches the job id).
-2. Optionally tighten the workflow later by removing or narrowing the **`if:`** on **`cohort-real-llm-preflight`** once you intend the job to run unconditionally whenever **`ARCHLUCID_GOLDEN_COHORT_REAL_LLM`** is true — coordinate that edit with owners (see stop-and-ask boundaries below).
+1. Ensure **`cohort-real-llm-gate`** is **required** in the GitHub branch-protection rule for **`main`** / **`master`** (required status check name matches the job id). See [`.github/BRANCH_PROTECTION.md`](../../.github/BRANCH_PROTECTION.md).
+2. Optionally tighten the workflow later by removing or narrowing the **`if:`** on **`cohort-real-llm-gate`** once you intend the job to run unconditionally whenever **`ARCHLUCID_GOLDEN_COHORT_REAL_LLM`** is true — coordinate that edit with owners (see stop-and-ask boundaries below).
 
 **Do not** flip branch protection in the same PR that ships the deployment — separate the two so a single PR can be reverted.
 
@@ -95,7 +96,7 @@ These are explicitly listed in `docs/archive/root-superseded-2026-05-01/CURSOR_P
 
 * **Provisioning the dedicated Azure OpenAI deployment** â€” Cognitive Services account, deployment name, model SKU, region quota.
 * **Injecting the Azure OpenAI secret** into the protected GitHub Environment.
-* **Removing the `if:` guard on `cohort-real-llm-preflight`** (optional → always scheduled when you intend unconditional probe runs). Coordinate with owners; unattended **`cohort-real-llm-live`** is opt-in (**`ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED`**) plus budget exit **`0`**/**`1`**. Documented in section 2.
+* **Removing the `if:` guard on `cohort-real-llm-gate`** (optional → always scheduled when you intend unconditional probe runs). Coordinate with owners; unattended **`cohort-real-llm-live`** is opt-in (**`ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED`**) plus budget exit **`0`**/**`1`**. Documented in section 2.
 
 ## 7. Structural validation (real-LLM output)
 

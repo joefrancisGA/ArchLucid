@@ -35,6 +35,7 @@ Use **exact** names as they appear on a completed run (Settings shows autocomple
 | `Containers: Docker build smoke` |
 | `CodeQL (csharp)` |
 | `CodeQL (javascript)` |
+| `cohort-real-llm-gate` — when **`vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM`** is **`true`**; see [`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`](docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md) |
 | `PR: coverage comment` — optional on **full CI** (`workflow_dispatch`): posts only on same-repo **pull_request** events when wired that way; trimmed PR runs skip merged coverage so this job does not apply on PR |
 
 **Note:** Matrix Terraform jobs publish **one check per matrix value**; include each leg you care about.
