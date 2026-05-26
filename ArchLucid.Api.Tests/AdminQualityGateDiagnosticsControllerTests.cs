@@ -59,5 +59,40 @@ public sealed class AdminQualityGateDiagnosticsControllerTests
         body.PilotStrictMinAgentResultFaithfulnessSupportRatio.Should().Be(0.58);
         body.EnforceOnReject.Should().BeTrue();
         body.BlockRunOnReject.Should().BeFalse();
+        body.PerAgentTypeFloors.Should().NotBeEmpty();
+        body.PerAgentTypeFloors.Single(f => f.AgentType == "Topology").StructuralRejectBelow.Should().Be(0.71);
+    }
+
+    [SkippableFact]
+    public void GetQualityGates_marks_per_agent_override_when_configured()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            StructuralRejectBelow = 0.7,
+            PerAgentTypeFloors =
+            {
+                ["Topology"] = new AgentTypeQualityFloors { StructuralRejectBelow = 0.91 },
+            },
+        };
+
+        Mock<IOptionsMonitor<AgentOutputQualityGateOptions>> monitor = new();
+        monitor.Setup(m => m.CurrentValue).Returns(options);
+
+        AdminQualityGateDiagnosticsController sut = new(monitor.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        OkObjectResult ok = sut.GetQualityGates().Result.Should().BeOfType<OkObjectResult>().Subject;
+        AdminQualityGateDiagnosticsResponse body =
+            ok.Value.Should().BeOfType<AdminQualityGateDiagnosticsResponse>().Subject;
+
+        AdminQualityGateAgentFloorDiagnostics topology =
+            body.PerAgentTypeFloors.Single(f => f.AgentType == "Topology");
+
+        topology.HasPerAgentOverride.Should().BeTrue();
+        topology.StructuralRejectBelow.Should().Be(0.91);
+
+        body.PerAgentTypeFloors.Single(f => f.AgentType == "Cost").HasPerAgentOverride.Should().BeFalse();
     }
 }

@@ -46,8 +46,32 @@ public sealed class AdminQualityGateDiagnosticsController(
                 options.PilotStrictMinAgentResultFaithfulnessSupportRatio,
             EnforceOnReject = options.EnforceOnReject,
             BlockRunOnReject = options.BlockRunOnReject,
+            PerAgentTypeFloors = MapPerAgentFloors(options),
         };
 
         return Ok(body);
+    }
+
+    private static IReadOnlyList<AdminQualityGateAgentFloorDiagnostics> MapPerAgentFloors(
+        AgentOutputQualityGateOptions options)
+    {
+        return AgentOutputQualityGateEffectiveFloorsResolver
+            .ResolveForAllAgentTypes(options)
+            .Select(entry =>
+            {
+                AgentOutputQualityGateEffectiveFloorsResolver.EffectiveFloors floors = entry.Floors;
+                string agentTypeName = entry.AgentType.ToString();
+
+                return new AdminQualityGateAgentFloorDiagnostics
+                {
+                    AgentType = agentTypeName,
+                    HasPerAgentOverride = options.PerAgentTypeFloors.ContainsKey(agentTypeName),
+                    StructuralWarnBelow = floors.StructuralWarnBelow,
+                    StructuralRejectBelow = floors.StructuralRejectBelow,
+                    SemanticWarnBelow = floors.SemanticWarnBelow,
+                    SemanticRejectBelow = floors.SemanticRejectBelow,
+                };
+            })
+            .ToArray();
     }
 }

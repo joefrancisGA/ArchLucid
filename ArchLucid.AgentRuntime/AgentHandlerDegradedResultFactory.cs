@@ -7,11 +7,16 @@ namespace ArchLucid.AgentRuntime;
 public static class AgentHandlerDegradedResultFactory
 {
     /// <summary>Creates a zero-confidence result explaining the degraded handler outcome.</summary>
-    public static AgentResult Create(string runId, AgentTask task, string reason)
+    public static AgentResult Create(
+        string runId,
+        AgentTask task,
+        string degradationReasonCode,
+        string operatorMessage)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(task);
-        ArgumentException.ThrowIfNullOrWhiteSpace(reason);
+        ArgumentException.ThrowIfNullOrWhiteSpace(degradationReasonCode);
+        ArgumentException.ThrowIfNullOrWhiteSpace(operatorMessage);
 
         return new AgentResult
         {
@@ -19,9 +24,10 @@ public static class AgentHandlerDegradedResultFactory
             RunId = runId,
             AgentType = task.AgentType,
             Confidence = 0,
-            Claims = [reason.Trim()],
+            Claims = [operatorMessage.Trim()],
             EvidenceRefs = [],
             Findings = [],
+            DegradationReasonCode = degradationReasonCode.Trim(),
         };
     }
 }

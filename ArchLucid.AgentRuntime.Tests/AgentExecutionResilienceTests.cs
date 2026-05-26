@@ -181,6 +181,40 @@ public sealed class AgentExecutionResilienceTests
         thrown.Which.InnerException!.InnerException.Should().BeOfType<TimeoutRejectedException>();
     }
 
+    [SkippableFact]
+    public async Task Per_handler_timeout_fails_closed_for_critic_even_when_degraded_fallback_enabled()
+    {
+        IOptions<AgentExecutionResilienceOptions> ro = Options.Create(
+            new AgentExecutionResilienceOptions
+            {
+                MaxConcurrentHandlers = 0,
+                PerHandlerTimeoutSeconds = 1,
+                NonCriticDegradedFallbackEnabled = true,
+            });
+
+        RealAgentExecutor sut = new(
+            [new HangingHandler(AgentType.Critic)],
+            NullLogger<RealAgentExecutor>.Instance,
+            new StubPromptMonitor(new AgentPromptCatalogOptions()),
+            new FixedScopeProvider(),
+            new AgentHandlerConcurrencyGate(ro),
+            ro,
+            Options.Create(new StagedCriticAgentOptions()),
+            Options.Create(new AgentOutputQualityGateOptions()),
+            new NoOpPromptRedactor(),
+            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()));
+
+        ArchitectureRequest request = MinimalRequest();
+        AgentEvidencePackage evidence = new();
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = new() { TaskId = "critic-1", RunId = runId, AgentType = AgentType.Critic };
+
+        Func<Task> act = async () =>
+            await sut.ExecuteAsync(runId, request, evidence, [task], CancellationToken.None);
+
+        await act.Should().ThrowAsync<AgentExecutionFailedException>();
+    }
+
     private sealed class StubPromptMonitor(AgentPromptCatalogOptions value) : IOptionsMonitor<AgentPromptCatalogOptions>
     {
         public AgentPromptCatalogOptions CurrentValue

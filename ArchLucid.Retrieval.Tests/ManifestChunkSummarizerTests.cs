@@ -61,6 +61,87 @@ public sealed class ManifestChunkSummarizerTests
             Times.AtLeastOnce);
     }
 
+    [Fact]
+    public async Task MaybeSummarizeAsync_preserves_high_score_manifest_chunks_verbatim()
+    {
+        Mock<IManifestChunkSummaryCompletionClient> summaryClient = new();
+        summaryClient
+            .Setup(c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("summary bullets");
+
+        ManifestChunkSummarizer sut = CreateSummarizer(summaryClient.Object, safeTokenLimit: 80);
+
+        string heavyText = new('x', 400);
+        IReadOnlyList<RetrievalHit> hits =
+        [
+            CreateManifestHit("critical", score: 0.99, text: heavyText),
+            CreateManifestHit("expendable", score: 0.05, text: heavyText),
+        ];
+
+        IReadOnlyList<RetrievalHit> result = await sut.MaybeSummarizeAsync(hits, CancellationToken.None);
+
+        result.Single(hit => hit.ChunkId == "critical").Text.Should().Be(heavyText);
+        result.Single(hit => hit.ChunkId == "expendable").Text.Should().StartWith("[Summarized manifest chunk]");
+    }
+
+    [Fact]
+    public async Task MaybeSummarizeAsync_does_not_summarize_non_manifest_corpus_hits()
+    {
+        Mock<IManifestChunkSummaryCompletionClient> summaryClient = new();
+        ManifestChunkSummarizer sut = CreateSummarizer(summaryClient.Object, safeTokenLimit: 10);
+
+        string heavyText = new('x', 400);
+        IReadOnlyList<RetrievalHit> hits =
+        [
+            new RetrievalHit
+            {
+                ChunkId = "policy",
+                DocumentId = "doc-policy",
+                CorpusKind = nameof(CorpusKind.PolicyPack),
+                SourceType = "PolicyPackRule",
+                SourceId = "rule-1",
+                Title = "rule-1",
+                Text = heavyText,
+                Score = 0.5,
+            },
+        ];
+
+        IReadOnlyList<RetrievalHit> result = await sut.MaybeSummarizeAsync(hits, CancellationToken.None);
+
+        result.Should().BeSameAs(hits);
+        summaryClient.Verify(
+            c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task MaybeSummarizeAsync_when_disabled_returns_hits_unchanged()
+    {
+        Mock<IManifestChunkSummaryCompletionClient> summaryClient = new();
+        IOptionsMonitor<ManifestChunkSummarizationOptions> options =
+            new MockOptionsMonitor<ManifestChunkSummarizationOptions>(
+                new ManifestChunkSummarizationOptions
+                {
+                    Enabled = false,
+                    SafeTokenLimit = 10,
+                });
+
+        ManifestChunkSummarizer sut = new(summaryClient.Object, options);
+
+        string heavyText = new('x', 400);
+        IReadOnlyList<RetrievalHit> hits =
+        [
+            CreateManifestHit("only", score: 0.5, text: heavyText),
+        ];
+
+        IReadOnlyList<RetrievalHit> result = await sut.MaybeSummarizeAsync(hits, CancellationToken.None);
+
+        result.Should().BeSameAs(hits);
+        summaryClient.Verify(
+            c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static ManifestChunkSummarizer CreateSummarizer(
         IManifestChunkSummaryCompletionClient summaryClient,
         int safeTokenLimit)

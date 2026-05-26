@@ -5,12 +5,13 @@
 
 # Operations — Admin diagnostics API
 
-**Last reviewed:** 2026-04-04
+**Last reviewed:** 2026-05-26
 
 Privileged routes under **`GET /v1/admin/...`** require **`AdminAuthority`** policy.
 
 | Route | Purpose |
 |-------|---------|
+| `GET /v1/admin/diagnostics/quality-gates` | Effective agent output quality gate floors (global + per-agent), PilotStrict faithfulness minimums, enforcement flags. |
 | `GET /v1/admin/diagnostics/outboxes` | Pending authority pipeline and retrieval indexing work (depth snapshot). |
 | `GET /v1/admin/analytics/cross-tenant-summary` | Aggregate-only SQL counters across tenants (`dbo.Runs` — distinct tenants, committed vs total); **AdminAuthority**; no per-tenant breakdown. |
 | `GET /v1/admin/diagnostics/leases` | SQL host leader lease rows (empty when not applicable). |

@@ -527,10 +527,20 @@ public sealed class RealAgentExecutor : IAgentExecutor
                                 dispatchKey);
                         }
 
+                        string degradationReason = AgentHandlerDegradationTelemetry.ResolveReasonCode(ex);
+
                         result = AgentHandlerDegradedResultFactory.Create(
                             runId,
                             task,
+                            degradationReason,
                             "Agent output degraded due to upstream LLM latency or circuit-open state; review run telemetry.");
+
+                        AgentHandlerDegradationTelemetry.Record(
+                            activity,
+                            runId,
+                            task,
+                            dispatchKey,
+                            degradationReason);
 
                         ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
                             1,

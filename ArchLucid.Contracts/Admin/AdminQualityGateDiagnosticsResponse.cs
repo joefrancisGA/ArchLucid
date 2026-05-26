@@ -80,4 +80,11 @@ public sealed class AdminQualityGateDiagnosticsResponse
         get;
         init;
     }
+
+    /// <summary>Effective warn/reject floors per agent type (global defaults merged with overrides).</summary>
+    public IReadOnlyList<AdminQualityGateAgentFloorDiagnostics> PerAgentTypeFloors
+    {
+        get;
+        init;
+    } = [];
 }

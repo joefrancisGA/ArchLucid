@@ -715,11 +715,20 @@ public static class ArchLucidInstrumentation
             "archlucid_billing_checkouts_total",
             description: "Billing checkout sessions (labels: provider, tier, outcome).");
 
-    /// <summary>Production agent handler completions (label: <c>agent_type_key</c>, <c>outcome</c>=success|error).</summary>
+    /// <summary>Production agent handler completions (label: <c>agent_type_key</c>, <c>outcome</c>=success|error|degraded).</summary>
     public static readonly Counter<long> AgentHandlerInvocationsTotal =
         AppMeter.CreateCounter<long>(
             "archlucid_agent_handler_invocations_total",
             description: "Agent handler invocations by type and outcome.");
+
+    /// <summary>
+    ///     Non-Critic handler resilience fallbacks that returned a degraded placeholder (labels: <c>agent_type_key</c>,
+    ///     <c>degradation_reason</c>).
+    /// </summary>
+    public static readonly Counter<long> AgentHandlerDegradationsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_agent_handler_degradations_total",
+            description: "Non-Critic agent handler degraded fallbacks (labels: agent_type_key, degradation_reason).");
 
     /// <summary>
     ///     Fraction of expected <c>AgentResult</c> JSON keys present on <c>ParsedResultJson</c> (0.0–1.0; label
@@ -1515,6 +1524,21 @@ public static class ArchLucidInstrumentation
         tags.Add("deployment", label);
 
         LlmCompletionFallbackEngagementsTotal.Add(1, tags);
+    }
+
+    /// <summary>Increments <see cref="AgentHandlerDegradationsTotal" /> for degraded non-Critic handler fallbacks.</summary>
+    public static void RecordAgentHandlerDegraded(string agentTypeKey, string degradationReasonCode)
+    {
+        string agentType = string.IsNullOrWhiteSpace(agentTypeKey) ? "unknown" : agentTypeKey.Trim();
+        string reason = string.IsNullOrWhiteSpace(degradationReasonCode) ? "unknown" : degradationReasonCode.Trim();
+
+        TagList tags = new()
+        {
+            { "agent_type_key", agentType },
+            { "degradation_reason", reason },
+        };
+
+        AgentHandlerDegradationsTotal.Add(1, tags);
     }
 
     /// <summary>Increments <c>archlucid.try.real_mode.attempted_total</c>.</summary>

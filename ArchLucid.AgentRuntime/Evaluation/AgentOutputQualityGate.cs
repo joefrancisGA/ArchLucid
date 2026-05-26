@@ -108,24 +108,12 @@ public sealed class AgentOutputQualityGate(IOptions<AgentOutputQualityGateOption
         out double structuralWarn,
         out double semanticWarn)
     {
-        structuralWarn = _options.StructuralWarnBelow;
-        semanticWarn = _options.SemanticWarnBelow;
-        structuralReject = _options.StructuralRejectBelow;
-        semanticReject = _options.SemanticRejectBelow;
+        AgentOutputQualityGateEffectiveFloorsResolver.EffectiveFloors floors =
+            AgentOutputQualityGateEffectiveFloorsResolver.Resolve(_options, agentType);
 
-        if (!_options.PerAgentTypeFloors.TryGetValue(agentType.ToString(), out AgentTypeQualityFloors? floors))
-            return;
-
-        if (floors.StructuralWarnBelow.HasValue)
-            structuralWarn = floors.StructuralWarnBelow.Value;
-
-        if (floors.StructuralRejectBelow.HasValue)
-            structuralReject = floors.StructuralRejectBelow.Value;
-
-        if (floors.SemanticWarnBelow.HasValue)
-            semanticWarn = floors.SemanticWarnBelow.Value;
-
-        if (floors.SemanticRejectBelow.HasValue)
-            semanticReject = floors.SemanticRejectBelow.Value;
+        structuralWarn = floors.StructuralWarnBelow;
+        semanticWarn = floors.SemanticWarnBelow;
+        structuralReject = floors.StructuralRejectBelow;
+        semanticReject = floors.SemanticRejectBelow;
     }
 }

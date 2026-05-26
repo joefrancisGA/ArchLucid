@@ -160,4 +160,14 @@ public sealed class AgentResult
         get;
         set;
     }
+
+    /// <summary>
+    ///     Set when <see cref="AgentHandlerDegradedResultFactory" /> returns a placeholder row (not part of LLM JSON schema).
+    /// </summary>
+    [JsonIgnore]
+    public string? DegradationReasonCode
+    {
+        get;
+        set;
+    }
 }
