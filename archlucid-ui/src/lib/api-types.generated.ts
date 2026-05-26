@@ -1832,6 +1832,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/integration-outbox/dead-letters/{outboxId}/suppress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    outboxId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["IntegrationOutboxDeadLetterSuppressRequest"];
+                    "application/json": null | components["schemas"]["IntegrationOutboxDeadLetterSuppressRequest"];
+                    "text/json": null | components["schemas"]["IntegrationOutboxDeadLetterSuppressRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/integrations/confluence/first-value-report": {
         parameters: {
             query?: never;
@@ -14875,6 +14927,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/diagnostics/team-expansion-nudge/clicked": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["TeamExpansionNudgeTelemetryRequest"];
+                    "application/json": null | components["schemas"]["TeamExpansionNudgeTelemetryRequest"];
+                    "text/json": null | components["schemas"]["TeamExpansionNudgeTelemetryRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/diagnostics/team-expansion-nudge/shown": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["TeamExpansionNudgeTelemetryRequest"];
+                    "application/json": null | components["schemas"]["TeamExpansionNudgeTelemetryRequest"];
+                    "text/json": null | components["schemas"]["TeamExpansionNudgeTelemetryRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/diagnostics/trial-upgrade-nudge/clicked": {
         parameters: {
             query?: never;
@@ -26200,6 +26352,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/tenant/usage-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantUsageStatusResponse"];
+                        "text/json": components["schemas"]["TenantUsageStatusResponse"];
+                        "text/plain": components["schemas"]["TenantUsageStatusResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/tenant/workspace-baseline-artifacts": {
         parameters: {
             query?: never;
@@ -28770,8 +28959,11 @@ export interface components {
             estimatedUsdSavings?: number | string;
         };
         ExecutiveRoiExportResponse: {
+            /** Format: double */
+            eaDiscountMultiplier?: number | string;
             rows?: components["schemas"]["ExecutiveRoiExportRow"][];
             savingsByEnvironment?: components["schemas"]["ExecutiveRoiEnvironmentSavingsSlice"][];
+            savingsPricingBasis?: string;
         };
         ExecutiveRoiExportRow: {
             affectedResource?: null | string;
@@ -28797,8 +28989,11 @@ export interface components {
             points?: components["schemas"]["ExecutiveRoiHistoryPoint"][];
         };
         ExecutiveRoiSummaryResponse: {
+            /** Format: double */
+            eaDiscountMultiplier?: number | string;
             /** Format: int32 */
             latestRunCount?: number;
+            savingsPricingBasis?: string;
             /** Format: int32 */
             systemCount?: number;
             systems?: components["schemas"]["SystemLatestRunRoi"][];
@@ -29626,6 +29821,9 @@ export interface components {
             /** Format: int32 */
             retriedCount?: number;
             retriedOutboxIds?: string[];
+        };
+        IntegrationOutboxDeadLetterSuppressRequest: {
+            comment?: null | string;
         };
         InternalCrossTenantAnalyticsResponse: {
             /** Format: double */
@@ -31495,10 +31693,10 @@ export interface components {
             systemName?: string;
         };
         RunLlmTokenCountsResponse: {
-            /** Format: int32 */
-            completion?: number;
-            /** Format: int32 */
-            prompt?: number;
+            /** Format: int64 */
+            completion?: number | string;
+            /** Format: int64 */
+            prompt?: number | string;
         };
         RunMetadataDiffResult: {
             changedFields?: string[];
@@ -31792,6 +31990,9 @@ export interface components {
             count?: number;
             severity?: string;
         };
+        TeamExpansionNudgeTelemetryRequest: {
+            trigger?: null | string;
+        };
         TeamsIncomingWebhookConnectionResponse: {
             enabledTriggers?: string[];
             isConfigured?: boolean;
@@ -32075,6 +32276,18 @@ export interface components {
             trialStartUtc?: null | string;
             /** Format: uuid */
             trialWelcomeRunId?: null | string;
+        };
+        TenantUsageStatusResponse: {
+            commercialTier?: null | string;
+            isTrial?: boolean;
+            /** Format: int32 */
+            seatsLimit?: null | number;
+            /** Format: int32 */
+            seatsUsed?: number;
+            /** Format: int32 */
+            workspacesLimit?: null | number;
+            /** Format: int32 */
+            workspacesUsed?: number;
         };
         TenantUsageSummary: {
             kind?: components["schemas"]["UsageMeterKind"];

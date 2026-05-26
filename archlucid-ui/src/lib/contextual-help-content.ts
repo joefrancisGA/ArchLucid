@@ -89,7 +89,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/library/API_CONTRACTS.md",
   },
   "tenant-cost-settings": {
-    text: "Architect hourly rate, average incident cost, and EA discount multiplier drive estimated USD savings on pilot run deltas and the executive ROI summary. Multiplier 1.0 = Retail list; lower values apply EA-adjusted Cost-category savings only.",
+    text: "Architect rate, incident cost, and EA discount multiplier drive USD savings on pilot run deltas and executive ROI. 1.0 = Retail list; lower applies EA-adjusted Cost-category savings only.",
     learnMoreUrl: "/docs/go-to-market/ROI_MODEL.md",
   },
   "admin-configuration": {

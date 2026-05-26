@@ -6773,6 +6773,14 @@
       },
       "ExecutiveRoiExportResponse": {
         "properties": {
+          "eaDiscountMultiplier": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
           "rows": {
             "items": {
               "$ref": "#/components/schemas/ExecutiveRoiExportRow"
@@ -6784,6 +6792,9 @@
               "$ref": "#/components/schemas/ExecutiveRoiEnvironmentSavingsSlice"
             },
             "type": "array"
+          },
+          "savingsPricingBasis": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -6863,9 +6874,20 @@
       },
       "ExecutiveRoiSummaryResponse": {
         "properties": {
+          "eaDiscountMultiplier": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
           "latestRunCount": {
             "format": "int32",
             "type": "integer"
+          },
+          "savingsPricingBasis": {
+            "type": "string"
           },
           "systemCount": {
             "format": "int32",
@@ -9722,6 +9744,10 @@
               "null",
               "string"
             ]
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
           }
         },
         "required": [
@@ -9763,6 +9789,17 @@
               "type": "string"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "IntegrationOutboxDeadLetterSuppressRequest": {
+        "properties": {
+          "comment": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -15860,12 +15897,20 @@
       "RunLlmTokenCountsResponse": {
         "properties": {
           "completion": {
-            "format": "int32",
-            "type": "integer"
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "prompt": {
-            "format": "int32",
-            "type": "integer"
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -16799,6 +16844,17 @@
           },
           "severity": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TeamExpansionNudgeTelemetryRequest": {
+        "properties": {
+          "trigger": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -17802,6 +17858,42 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "TenantUsageStatusResponse": {
+        "properties": {
+          "commercialTier": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isTrial": {
+            "type": "boolean"
+          },
+          "seatsLimit": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "seatsUsed": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "workspacesLimit": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "workspacesUsed": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -20371,6 +20463,89 @@
             }
           }
         ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/v1/admin/integration-outbox/dead-letters/{outboxId}/suppress": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "outboxId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/IntegrationOutboxDeadLetterSuppressRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/IntegrationOutboxDeadLetterSuppressRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/IntegrationOutboxDeadLetterSuppressRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": "No Content"
@@ -39328,6 +39503,150 @@
         ]
       }
     },
+    "/v1/diagnostics/team-expansion-nudge/clicked": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TeamExpansionNudgeTelemetryRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TeamExpansionNudgeTelemetryRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TeamExpansionNudgeTelemetryRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "ClientErrorTelemetry"
+        ]
+      }
+    },
+    "/v1/diagnostics/team-expansion-nudge/shown": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TeamExpansionNudgeTelemetryRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TeamExpansionNudgeTelemetryRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TeamExpansionNudgeTelemetryRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "ClientErrorTelemetry"
+        ]
+      }
+    },
     "/v1/diagnostics/trial-upgrade-nudge/clicked": {
       "post": {
         "requestBody": {
@@ -54610,6 +54929,35 @@
         ]
       }
     },
+    "/v1/tenant/usage-status": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantUsageStatusResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantUsageStatusResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantUsageStatusResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "TenantUsageStatus"
+        ]
+      }
+    },
     "/v1/tenant/workspace-baseline-artifacts": {
       "get": {
         "responses": {
@@ -55846,6 +56194,9 @@
     },
     {
       "name": "TenantTrial"
+    },
+    {
+      "name": "TenantUsageStatus"
     },
     {
       "name": "TenantWeeklyDigestHealth"

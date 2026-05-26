@@ -4,9 +4,11 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Roi;
+using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Roi;
 
 using FluentAssertions;
 
@@ -101,7 +103,8 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
             runQuery.Object,
             savingsResolver.Object,
             tenantRepository.Object,
-            Mock.Of<ArchLucid.Core.Scim.IScimUserRepository>(),
+            Mock.Of<IScimUserRepository>(),
+            CreateAmbientPricingContextResolver(),
             NullLogger<ExecutiveRoiSummaryService>.Instance);
 
         List<(Guid TenantId, decimal TotalUsd)> observed = [];
@@ -109,7 +112,7 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
 
         int processed = await ExecutiveRoiBackgroundTenantRollup.ForEachActiveTenantAsync(
             tenantRepository.Object,
-            async (_, ct) =>
+            async (tenantScope, ct) =>
             {
                 ScopeContext ambient = AmbientScopeContext.CurrentOverride
                                        ?? throw new InvalidOperationException("Ambient scope required.");
@@ -194,7 +197,7 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
             Guid snapshotId = Guid.NewGuid();
             RunSummary summary = new()
             {
-                RunId = runId,
+                RunId = runId.ToString("N"),
                 SystemName = tenantId.ToString("N"),
                 Status = nameof(ArchitectureRunStatus.Committed),
                 CreatedUtc = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc),
@@ -203,7 +206,7 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
 
             ArchitectureRunDetail detail = new()
             {
-                Run = new ArchitectureRun { RunId = runId, CompletedUtc = summary.CreatedUtc },
+                Run = new ArchitectureRun { RunId = runId.ToString("N"), CompletedUtc = summary.CreatedUtc },
                 Manifest = new GoldenManifest
                 {
                     RunId = runId.ToString("N"),
@@ -231,15 +234,15 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
             });
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Guid runId, CancellationToken _) =>
+            .Setup(query => query.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string runId, CancellationToken _) =>
             {
                 Guid? ambientTenant = AmbientScopeContext.CurrentOverride?.TenantId;
 
                 if (ambientTenant is null || !byTenant.TryGetValue(ambientTenant.Value, out (RunSummary Summary, ArchitectureRunDetail Detail, Guid SnapshotId) row))
                     return null;
 
-                if (row.Summary.RunId != runId)
+                if (!string.Equals(row.Summary.RunId, runId, StringComparison.Ordinal))
                     return null;
 
                 row.Detail.Run.FindingsSnapshotId = row.SnapshotId;
@@ -258,5 +261,25 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
             Slug = tenantId.ToString("N")[..12],
             Tier = TenantTier.Enterprise,
         };
+    }
+
+    /// <summary>
+    ///     Default-multiplier (1.0 = Retail list) pricing resolver that reads the ambient scope
+    ///     pushed by <see cref="ExecutiveRoiBackgroundTenantRollup.ForEachActiveTenantAsync"/>, so the
+    ///     resolver runs under the same per-tenant scope as the rest of the ROI service under test.
+    /// </summary>
+    private static ExecutiveRoiTenantPricingContextResolver CreateAmbientPricingContextResolver()
+    {
+        Mock<ITenantCostSettingsRepository> repository = new();
+        repository
+            .Setup(repo => repo.TryGetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantCostSettingsRecord?)null);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(provider => provider.GetCurrentScope())
+            .Returns(() => AmbientScopeContext.CurrentOverride ?? new ScopeContext());
+
+        return new ExecutiveRoiTenantPricingContextResolver(repository.Object, scopeProvider.Object);
     }
 }
