@@ -358,6 +358,93 @@
         ],
         "type": "object"
       },
+      "AdminQualityGateDiagnosticsResponse": {
+        "properties": {
+          "blockRunOnReject": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "enforceOnReject": {
+            "type": "boolean"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "pilotStrictMinAgentResultFaithfulnessSupportRatio": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "pilotStrictMinEvidenceRefCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pilotStrictMinFaithfulnessSupportRatio": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "pilotStrictMinSemanticScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "pilotStrictMinStructuralCompleteness": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "semanticRejectBelow": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "semanticWarnBelow": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "structuralRejectBelow": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "structuralWarnBelow": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "AdminSamlOperationalHealthResponse": {
         "properties": {
           "idpMetadataDiagnosticSummary": {
@@ -2950,6 +3037,20 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "AskPromptTemplate": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -6905,7 +7006,21 @@
               "string"
             ]
           },
+          "historicalTrends": {
+            "items": {
+              "$ref": "#/components/schemas/ExecutiveRoiSystemicIssueTrendSeries"
+            },
+            "type": "array"
+          },
           "latestRunCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "newlyDiscoveredFindingsCount30Days": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "resolvedFindingsCount30Days": {
             "format": "int32",
             "type": "integer"
           },
@@ -6935,6 +7050,38 @@
               "number",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "ExecutiveRoiSystemicIssueTrendPoint": {
+        "properties": {
+          "count": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "monthKey": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ExecutiveRoiSystemicIssueTrendSeries": {
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "findingId": {
+            "type": "string"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/ExecutiveRoiSystemicIssueTrendPoint"
+            },
+            "type": "array"
+          },
+          "severity": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -8611,6 +8758,22 @@
               "$ref": "#/components/schemas/GovernanceApprovalRequest"
             },
             "type": "array"
+          },
+          "totalCompletionTokens": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "totalPromptTokens": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -19396,6 +19559,65 @@
         ]
       }
     },
+    "/v1/admin/apikeys/{keyId}/rotate": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "keyId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminApiKeyRotateResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminApiKeyRotateResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminApiKeyRotateResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "AdminApiKeySettings"
+        ]
+      }
+    },
     "/v1/admin/auth-diagnostics": {
       "get": {
         "parameters": [
@@ -20179,6 +20401,35 @@
         },
         "tags": [
           "Admin"
+        ]
+      }
+    },
+    "/v1/admin/diagnostics/quality-gates": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminQualityGateDiagnosticsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminQualityGateDiagnosticsResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminQualityGateDiagnosticsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "AdminQualityGateDiagnostics"
         ]
       }
     },
@@ -34378,6 +34629,75 @@
         ]
       }
     },
+    "/v1/architecture/runs/{runId}/graph/cytoscape": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CytoscapeInteractiveGraphResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "tags": [
+          "RunQuery"
+        ]
+      }
+    },
     "/v1/architecture/runs/{runId}/graph/interactive": {
       "get": {
         "parameters": [
@@ -35627,6 +35947,44 @@
               }
             },
             "description": "Not Found"
+          }
+        },
+        "tags": [
+          "Ask"
+        ]
+      }
+    },
+    "/v1/ask/templates": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AskPromptTemplate"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AskPromptTemplate"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AskPromptTemplate"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
           }
         },
         "tags": [
@@ -56357,6 +56715,9 @@
     },
     {
       "name": "AdminLlmMonthlyDollarBudgetStatus"
+    },
+    {
+      "name": "AdminQualityGateDiagnostics"
     },
     {
       "name": "AdminTenants"
