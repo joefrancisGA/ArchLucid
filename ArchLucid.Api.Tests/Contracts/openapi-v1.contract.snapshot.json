@@ -1144,6 +1144,16 @@
           "resultId": {
             "type": "string"
           },
+          "retrievalGroundingTrace": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AgentResultRetrievalGroundingTrace"
+              }
+            ]
+          },
           "runId": {
             "type": "string"
           },
@@ -1294,6 +1304,19 @@
               "type": "string"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "AgentResultRetrievalGroundingTrace": {
+        "properties": {
+          "citationCoverage": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -11386,6 +11409,24 @@
         },
         "type": "object"
       },
+      "McpRetrievalSearchBody": {
+        "properties": {
+          "queryText": {
+            "type": "string"
+          },
+          "topK": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        },
+        "required": [
+          "queryText"
+        ],
+        "type": "object"
+      },
       "NoiseScoreBreakdown": {
         "properties": {
           "coverageScore": {
@@ -11767,6 +11808,24 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PatternInsightCard": {
+        "properties": {
+          "contributingTenantCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "industryVertical": {
+            "type": "string"
+          },
+          "patternKey": {
+            "type": "string"
           },
           "summary": {
             "type": "string"
@@ -12585,6 +12644,24 @@
             "type": "boolean"
           },
           "runId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PlanningMaterializeCitation": {
+        "properties": {
+          "commentSnippet": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "signalId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "subject": {
             "type": "string"
           }
         },
@@ -13714,6 +13791,12 @@
       },
       "ProductLearningPlanningMaterializeResult": {
         "properties": {
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/PlanningMaterializeCitation"
+            },
+            "type": "array"
+          },
           "plansInserted": {
             "format": "int32",
             "type": "integer"
@@ -15128,8 +15211,20 @@
           "corpusKind": {
             "type": "string"
           },
+          "decisionId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "documentId": {
             "type": "string"
+          },
+          "findingId": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "score": {
             "format": "double",
@@ -15146,6 +15241,37 @@
             "type": "string"
           },
           "text": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RetrievalMcpToolHit": {
+        "properties": {
+          "corpusKind": {
+            "type": "string"
+          },
+          "documentId": {
+            "type": "string"
+          },
+          "score": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "snippet": {
+            "type": "string"
+          },
+          "sourceId": {
+            "type": "string"
+          },
+          "sourceType": {
             "type": "string"
           },
           "title": {
@@ -24512,6 +24638,53 @@
         },
         "tags": [
           "Alerts"
+        ]
+      }
+    },
+    "/v1/analytics/patterns": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "industryVertical",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PatternInsightCard"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PatternInsightCard"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PatternInsightCard"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "PatternInsights"
         ]
       }
     },
@@ -48120,6 +48293,180 @@
         ]
       }
     },
+    "/v1/mcp/retrieval/policy-pack-search": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/McpRetrievalSearchBody"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/McpRetrievalSearchBody"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/McpRetrievalSearchBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RetrievalMcpToolHit"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RetrievalMcpToolHit"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RetrievalMcpToolHit"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "McpRetrievalTools"
+        ]
+      }
+    },
+    "/v1/mcp/retrieval/price-row-lookup": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/McpRetrievalSearchBody"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/McpRetrievalSearchBody"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/McpRetrievalSearchBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RetrievalMcpToolHit"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RetrievalMcpToolHit"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RetrievalMcpToolHit"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "McpRetrievalTools"
+        ]
+      }
+    },
+    "/v1/mcp/retrieval/prior-decision-search": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/McpRetrievalSearchBody"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/McpRetrievalSearchBody"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/McpRetrievalSearchBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RetrievalMcpToolHit"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RetrievalMcpToolHit"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RetrievalMcpToolHit"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "McpRetrievalTools"
+        ]
+      }
+    },
     "/v1/notifications/customer-channel-preferences": {
       "get": {
         "responses": {
@@ -56246,6 +56593,9 @@
       "name": "MarketingShowcase"
     },
     {
+      "name": "McpRetrievalTools"
+    },
+    {
       "name": "MeteringAdmin"
     },
     {
@@ -56256,6 +56606,9 @@
     },
     {
       "name": "OutboundWebhookDryRun"
+    },
+    {
+      "name": "PatternInsights"
     },
     {
       "name": "Pilots"
