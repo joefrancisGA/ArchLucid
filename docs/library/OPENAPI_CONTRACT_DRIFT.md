@@ -53,28 +53,31 @@ Prevent accidental HTTP surface changes: the committed OpenAPI document for **v1
 
 ## 8. Operational considerations
 
+**CI regenerate (recommended when local builds are slow):**
+
+1. **Automatic (same-repo PRs):** Push API-surface changes; workflow **Refresh OpenAPI v1 snapshot** (`.github/workflows/openapi-snapshot-refresh.yml`) runs on pull requests when OpenAPI-relevant paths change, regenerates the snapshot on Linux, and commits back to the PR branch when needed.
+2. **Manual:** Actions → **Refresh OpenAPI v1 snapshot** → **Run workflow** on your branch. Optional inputs: regenerate TypeScript api-types and/or the .NET NSwag client.
+
 **Local regenerate (after you intentionally change routes or OpenAPI metadata):**
 
 ```bash
-# Repo root (PowerShell)
-$env:ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT = "1"
-dotnet test ArchLucid.Api.Tests --filter "OpenApiContractSnapshotTests"
+# Repo root — regenerate + verify (Git Bash / Linux / macOS)
+bash scripts/ci/update_openapi_contract_snapshot.sh
 ```
 
-Equivalent (recommended before push):
+```powershell
+# Repo root (PowerShell)
+.\scripts\ci\update_openapi_contract_snapshot.ps1
+```
+
+Low-level (snapshot file only):
 
 ```powershell
-# Repo root — faster than full FastCore (builds ArchLucid.Api.Tests only)
 $env:ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT = "1"
 .\scripts\ci\check_openapi_contract_snapshot.ps1
 ```
 
-```bash
-# Git Bash / Linux / macOS
-ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 bash scripts/ci/check_openapi_contract_snapshot.sh
-```
-
-Then commit the updated `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`.
+Then commit the updated `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json` (or let CI commit it on the PR).
 
 **Downstream generated clients (same PR as intentional contract changes):**
 

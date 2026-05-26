@@ -1,0 +1,167 @@
+# Regenerate ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json in CI and commit back.
+# Use when API surface changes make openapi-contract-snapshot fail locally is slow or unavailable.
+#
+# Triggers:
+#   - workflow_dispatch — manual refresh on any branch
+#   - pull_request (same-repo only) — auto-commit when OpenAPI-relevant paths change
+#
+# See docs/library/OPENAPI_CONTRACT_DRIFT.md
+name: "Refresh OpenAPI v1 snapshot"
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: "Git ref to refresh (defaults to the branch that ran the workflow)"
+        required: false
+        type: string
+      regenerate_ui_api_types:
+        description: "Also regenerate archlucid-ui/src/lib/api-types.generated.ts"
+        required: false
+        type: boolean
+        default: false
+      regenerate_dotnet_client:
+        description: "Also regenerate ArchLucid.Api.Client NSwag output (slow, large diff)"
+        required: false
+        type: boolean
+        default: false
+      commit_and_push:
+        description: "Commit and push when generated files differ"
+        required: false
+        type: boolean
+        default: true
+
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'ArchLucid.Api/**'
+      - 'ArchLucid.Api.Tests/**'
+      - 'ArchLucid.Application/**'
+      - 'ArchLucid.ArtifactSynthesis/**'
+      - 'ArchLucid.ContextIngestion/**'
+      - 'ArchLucid.Contracts/**'
+      - 'ArchLucid.Core/**'
+      - 'ArchLucid.Decisioning/**'
+      - 'ArchLucid.KnowledgeGraph/**'
+      - 'ArchLucid.Mcp/**'
+      - 'ArchLucid.Provenance/**'
+      - 'ArchLucid.Retrieval/**'
+      - 'ArchLucid.Host.Composition/**'
+      - 'ArchLucid.Host.Core/**'
+      - 'ArchLucid.Persistence/**'
+      - 'ArchLucid.Persistence.Integration/**'
+      - 'ArchLucid.Persistence.Runtime/**'
+      - 'schemas/**'
+      - 'Directory.Build.props'
+      - 'Directory.Build.targets'
+      - 'Directory.Packages.props'
+      - 'global.json'
+
+concurrency:
+  group: openapi-snapshot-refresh-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  refresh:
+    name: "Regenerate OpenAPI v1 contract snapshot"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: >-
+      github.event_name == 'workflow_dispatch'
+      || (
+        github.event_name == 'pull_request'
+        && github.event.pull_request.head.repo.full_name == github.repository
+      )
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: >-
+            ${{
+              github.event_name == 'pull_request'
+              && format('{0}', github.event.pull_request.head.sha)
+              || (inputs.target_ref != '' && inputs.target_ref || github.ref)
+            }}
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Setup Node (UI api-types)
+        if: github.event_name == 'workflow_dispatch' && inputs.regenerate_ui_api_types
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Install archlucid-ui dependencies
+        if: github.event_name == 'workflow_dispatch' && inputs.regenerate_ui_api_types
+        working-directory: archlucid-ui
+        run: npm ci
+
+      - name: Regenerate OpenAPI snapshot (+ optional clients)
+        env:
+          ARCHLUCID_REGENERATE_UI_API_TYPES: >-
+            ${{
+              github.event_name == 'workflow_dispatch'
+              && inputs.regenerate_ui_api_types
+              && '1'
+              || '0'
+            }}
+          ARCHLUCID_REGENERATE_DOTNET_CLIENT: >-
+            ${{
+              github.event_name == 'workflow_dispatch'
+              && inputs.regenerate_dotnet_client
+              && '1'
+              || '0'
+            }}
+        run: bash scripts/ci/update_openapi_contract_snapshot.sh
+
+      - name: Commit and push
+        if: >-
+          (github.event_name == 'workflow_dispatch' && inputs.commit_and_push)
+          || github.event_name == 'pull_request'
+        env:
+          PUSH_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          paths=(
+            ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json
+            archlucid-ui/src/lib/api-types.generated.ts
+            ArchLucid.Api.Client/Generated/ArchLucidApiClient.g.cs
+          )
+
+          changed=0
+          for path in "${paths[@]}"; do
+            if git status --porcelain -- "$path" | grep -q .; then
+              changed=1
+              git add -- "$path"
+            fi
+          done
+
+          if [ "$changed" -eq 0 ]; then
+            echo "No OpenAPI snapshot or client files changed; nothing to commit."
+            exit 0
+          fi
+
+          git commit -m "chore: refresh OpenAPI v1 contract snapshot"
+          git push origin "HEAD:${PUSH_REF}"
