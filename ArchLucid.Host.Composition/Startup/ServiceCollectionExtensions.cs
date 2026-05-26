@@ -34,6 +34,7 @@ public static partial class ServiceCollectionExtensions
     {
         services.AddHostedService<ConfigurationValidationHostedService>();
         services.AddHostedService<OidcAuthorityStartupProbeHostedService>();
+        services.AddHostedService<SamlSigningCertificateStartupWarningHostedService>();
         services.AddSingleton<StartupMigrationHealthState>();
         services.AddSingleton<ExportFormatterService>();
         services.AddSingleton<TemplateProvider>();

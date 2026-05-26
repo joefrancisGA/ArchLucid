@@ -170,11 +170,12 @@ public sealed class RealAgentExecutor : IAgentExecutor
                         phase2Activity?.SetTag("archlucid.run_id", runId);
                         phase2Activity?.SetTag("archlucid.staged_critic.summarized_claims_count", summarizedClaimsCount);
 
-                        phase2Results = await ExecutePhaseWhenAllAsync(
+                        phase2Results = await TryExecuteStagedCriticPhaseAsync(
                                 runId,
                                 request,
                                 evidence,
                                 phase2,
+                                stagedOpts,
                                 linked)
                             .ConfigureAwait(false);
                     }
@@ -231,6 +232,87 @@ public sealed class RealAgentExecutor : IAgentExecutor
                 ArchLucidInstrumentation.LlmCallsPerRun.Record(n);
             }
         }
+    }
+
+    private async Task<AgentResult[]> TryExecuteStagedCriticPhaseAsync(
+        string runId,
+        ArchitectureRequest request,
+        AgentEvidencePackage evidence,
+        IReadOnlyList<AgentTask> criticTasks,
+        StagedCriticAgentOptions stagedOpts,
+        CancellationTokenSource linkedCancellation)
+    {
+        if (criticTasks.Count == 0)
+            return [];
+
+        if (stagedOpts.CriticTimeoutSeconds <= 0)
+        {
+            return await ExecutePhaseWhenAllAsync(
+                    runId,
+                    request,
+                    evidence,
+                    criticTasks,
+                    linkedCancellation)
+                .ConfigureAwait(false);
+        }
+
+        using CancellationTokenSource criticPhaseCancellation =
+            CancellationTokenSource.CreateLinkedTokenSource(linkedCancellation.Token);
+
+        criticPhaseCancellation.CancelAfter(TimeSpan.FromSeconds(stagedOpts.CriticTimeoutSeconds));
+
+        try
+        {
+            return await ExecutePhaseWhenAllAsync(
+                    runId,
+                    request,
+                    evidence,
+                    criticTasks,
+                    criticPhaseCancellation)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex) when (IsStagedCriticPhaseTimeout(ex, criticPhaseCancellation, linkedCancellation))
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Staged Critic phase timed out after {TimeoutSeconds}s for RunId={RunId}; continuing without Critic output.",
+                    stagedOpts.CriticTimeoutSeconds,
+                    runId);
+            }
+
+            evidence.Notes.Add(new EvidenceNote
+            {
+                NoteType = EvidenceNoteTypes.CriticTimeout,
+                Message =
+                    $"Staged Critic phase exceeded the dedicated {stagedOpts.CriticTimeoutSeconds}s timeout; Critic output was skipped.",
+            });
+
+            return StagedCriticSkippedResultFactory.CreateSkippedResults(
+                runId,
+                criticTasks,
+                stagedOpts.CriticTimeoutSeconds);
+        }
+    }
+
+    private static bool IsStagedCriticPhaseTimeout(
+        Exception ex,
+        CancellationTokenSource criticPhaseCancellation,
+        CancellationTokenSource linkedCancellation)
+    {
+        if (criticPhaseCancellation.IsCancellationRequested && !linkedCancellation.IsCancellationRequested)
+            return true;
+
+        for (Exception? walker = ex; walker is not null; walker = walker.InnerException)
+        {
+            if (walker is OperationCanceledException
+                && criticPhaseCancellation.IsCancellationRequested
+                && !linkedCancellation.IsCancellationRequested)
+                return true;
+        }
+
+        return false;
     }
 
     private async Task<AgentResult[]> ExecutePhaseWhenAllAsync(

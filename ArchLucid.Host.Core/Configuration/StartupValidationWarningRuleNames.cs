@@ -20,6 +20,8 @@ public static class StartupValidationWarningRuleNames
 
     public const string OidcAuthorityUnreachable = "oidc_authority_unreachable";
 
+    public const string SamlSigningCertificateExpiringSoon = "saml_signing_certificate_expiring_soon";
+
     public const string LlmCostEstimationNonPositiveGlobalRate = "llm_cost_estimation_non_positive_global_rate";
 
     public const string LlmCostEstimationNonPositiveDeploymentRate =

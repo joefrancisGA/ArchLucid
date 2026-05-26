@@ -24,4 +24,7 @@ public static class EvidenceNoteTypes
     ///     is on (see <c>RealAgentExecutor</c>). Consumed by the Critic user prompt only.
     /// </summary>
     public const string StagedPriorAgentsSummary = "StagedPriorAgentsSummary";
+
+    /// <summary>Recorded when the optional staged Critic phase exceeds <c>ArchLucid:Agents:CriticTimeoutSeconds</c>.</summary>
+    public const string CriticTimeout = "CriticTimeout";
 }

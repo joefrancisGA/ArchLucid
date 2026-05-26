@@ -7,7 +7,8 @@ public sealed record AzureRetailPriceRow(
     string Region,
     string Sku,
     decimal UnitPriceUsd,
-    string CurrencyCode);
+    string CurrencyCode,
+    bool IsHeuristicFallback = false);
 
 /// <summary>Structured lookup for Azure Retail Prices rows (RAG-V1-003).</summary>
 public interface IAzureRetailPriceStructuredLookup
@@ -58,8 +59,10 @@ public sealed class InMemoryAzureRetailPriceStructuredLookup : IAzureRetailPrice
     {
         ArgumentNullException.ThrowIfNull(row);
 
-        return
-            $"Azure Retail row: service={row.ServiceName}; meter={row.MeterName}; region={row.Region}; sku={row.Sku}; unitPrice={row.UnitPriceUsd:0.####} {row.CurrencyCode}";
+        string prefix = row.IsHeuristicFallback ? "[Fallback Estimate] " : string.Empty;
+
+        return prefix +
+               $"Azure Retail row: service={row.ServiceName}; meter={row.MeterName}; region={row.Region}; sku={row.Sku}; unitPrice={row.UnitPriceUsd:0.####} {row.CurrencyCode}";
     }
 
     private static List<AzureRetailPriceRow> DefaultRows()

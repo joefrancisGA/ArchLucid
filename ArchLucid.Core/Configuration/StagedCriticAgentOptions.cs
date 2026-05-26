@@ -16,6 +16,15 @@ public sealed class StagedCriticAgentOptions
         set;
     }
 
+    /// <summary>
+    ///     Isolated wall-clock timeout for the staged Critic phase (seconds). Default 120. 0 disables the dedicated cap.
+    /// </summary>
+    public int CriticTimeoutSeconds
+    {
+        get;
+        set;
+    } = 120;
+
     /// <summary>Upper bound on the injected summary body (characters). Default 12 000.</summary>
     public int SummaryMaxTotalChars
     {
@@ -61,6 +70,7 @@ public sealed class StagedCriticAgentOptions
     /// <summary>Clamps tuning knobs after configuration bind.</summary>
     public void Normalize()
     {
+        CriticTimeoutSeconds = Math.Clamp(CriticTimeoutSeconds, 0, 86400);
         SummaryMaxTotalChars = Math.Clamp(SummaryMaxTotalChars, 2_000, 100_000);
         SummaryPerAgentMaxChars = Math.Clamp(SummaryPerAgentMaxChars, 500, SummaryMaxTotalChars);
         MaxClaimsPerAgentIncluded = Math.Clamp(MaxClaimsPerAgentIncluded, 0, 50);

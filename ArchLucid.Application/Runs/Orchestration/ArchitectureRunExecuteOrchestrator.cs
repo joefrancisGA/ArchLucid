@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using System.Diagnostics;
+
 using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
@@ -164,8 +166,31 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     private async Task<ExecuteRunResult> ExecuteRunCoreAsync(string runId, string actor, CancellationToken cancellationToken)
     {
+        string executionModeLabel =
+            AgentOutputQualityGateTelemetry.ResolveExecutionModeLabel(_agentExecutionOptions.Value.Mode);
+
+        using Activity? runActivity = ArchLucidInstrumentation.AgentExecution.StartActivity("architecture.run.execute");
+        runActivity?.SetTag("archlucid.run_id", runId);
+        runActivity?.SetTag("archlucid.execution_mode", executionModeLabel);
+
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Executing architecture run: RunId={RunId}", LogSanitizer.Sanitize(runId));
+
+        try
+        {
+            return await ExecuteRunCoreInnerAsync(runId, actor, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            runActivity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+            runActivity?.AddException(ex);
+
+            throw;
+        }
+    }
+
+    private async Task<ExecuteRunResult> ExecuteRunCoreInnerAsync(string runId, string actor, CancellationToken cancellationToken)
+    {
 
         ArchitectureRun? run =
             await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(runRepository, scopeContextProvider, taskRepository, runId, cancellationToken);

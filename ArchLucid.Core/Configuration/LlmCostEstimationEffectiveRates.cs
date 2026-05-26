@@ -3,8 +3,15 @@ namespace ArchLucid.Core.Configuration;
 /// <summary>Resolves effective USD/M token rates for <see cref="ILlmCostEstimator" />.</summary>
 public static class LlmCostEstimationEffectiveRates
 {
+    /// <summary>Hardcoded positive defaults when configuration or overrides are non-positive (Improvement #13).</summary>
+    public const decimal DefaultInputUsdPerMillionTokens = 0.5m;
+
+    /// <summary>Hardcoded positive defaults when configuration or overrides are non-positive (Improvement #13).</summary>
+    public const decimal DefaultOutputUsdPerMillionTokens = 1.5m;
+
     /// <summary>
-    ///     Resolves input/output/reasoning USD per 1M token rates. Returns <see langword="false" /> when any effective rate is negative.
+    ///     Resolves input/output/reasoning USD per 1M token rates. Non-positive configured values fall back to
+    ///     <see cref="DefaultInputUsdPerMillionTokens" /> / <see cref="DefaultOutputUsdPerMillionTokens" />.
     /// </summary>
     public static bool TryResolve(
         LlmCostEstimationOptions options,
@@ -17,13 +24,13 @@ public static class LlmCostEstimationEffectiveRates
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(usdRateOverride);
 
-        inputRate = options.InputUsdPerMillionTokens;
-        outputRate = options.OutputUsdPerMillionTokens;
+        inputRate = PositiveOrDefault(options.InputUsdPerMillionTokens, DefaultInputUsdPerMillionTokens);
+        outputRate = PositiveOrDefault(options.OutputUsdPerMillionTokens, DefaultOutputUsdPerMillionTokens);
 
         if (usdRateOverride.TryGetUsdPerMillionRates(out decimal persistedIn, out decimal persistedOut))
         {
-            inputRate = persistedIn;
-            outputRate = persistedOut;
+            inputRate = PositiveOrDefault(persistedIn, inputRate);
+            outputRate = PositiveOrDefault(persistedOut, outputRate);
         }
 
         reasoningRate =
@@ -43,9 +50,13 @@ public static class LlmCostEstimationEffectiveRates
                 reasoningRate = dep.ReasoningUsdPerMillionTokens;
         }
 
-        if (inputRate < 0m || outputRate < 0m || reasoningRate < 0m)
-            return false;
+        inputRate = PositiveOrDefault(inputRate, DefaultInputUsdPerMillionTokens);
+        outputRate = PositiveOrDefault(outputRate, DefaultOutputUsdPerMillionTokens);
+        reasoningRate = PositiveOrDefault(reasoningRate, DefaultOutputUsdPerMillionTokens);
 
         return true;
     }
+
+    private static decimal PositiveOrDefault(decimal candidate, decimal fallback) =>
+        candidate > 0m ? candidate : fallback;
 }

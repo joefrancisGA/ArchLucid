@@ -338,6 +338,12 @@ public static class ArchLucidInstrumentation
             "archlucid_rag_retrieval_fallback_total",
             description: "Ask retrieval fell back to SQL text search after vector index failure.");
 
+    /// <summary>Azure Retail Prices structured lookup used a heuristic monthly USD estimate (Improvement #6).</summary>
+    public static readonly Counter<long> AzureRetailPricesHeuristicFallbackTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_azure_retail_prices_heuristic_fallback_total",
+            description: "Azure Retail Prices catalog miss resolved via heuristic SKU estimate.");
+
     /// <summary>
     ///     Wall time for vector retrieval search (embed + index query; labels <c>corpus_kind</c> = single kind,
     ///     <c>mixed</c>, or <c>none</c> when empty).
@@ -1293,6 +1299,15 @@ public static class ArchLucidInstrumentation
     public static void RecordRagRetrievalFallback()
     {
         RagRetrievalFallbackTotal.Add(1);
+    }
+
+    /// <summary>Records one heuristic Azure Retail Prices fallback row (Improvement #6).</summary>
+    public static void RecordAzureRetailPricesHeuristicFallback(string serviceName, string sku)
+    {
+        AzureRetailPricesHeuristicFallbackTotal.Add(
+            1,
+            new KeyValuePair<string, object?>("service_name", serviceName),
+            new KeyValuePair<string, object?>("sku", sku));
     }
 
     /// <summary>

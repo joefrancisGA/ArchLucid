@@ -1,4 +1,5 @@
 using ArchLucid.Core.Costing;
+using ArchLucid.Core.Diagnostics;
 
 namespace ArchLucid.Retrieval.Pricing;
 
@@ -31,8 +32,24 @@ public sealed class AzureRetailPricesCatalogStructuredLookup(AzureRetailPricesCa
 
         if (monthlyUsd is null or <= 0m)
         {
-            row = null!;
-            return false;
+            if (!AzureRetailPricesHeuristicFallback.TryGetMonthlyUsd(serviceName, sku, out decimal heuristicMonthlyUsd))
+            {
+                row = null!;
+                return false;
+            }
+
+            ArchLucidInstrumentation.RecordAzureRetailPricesHeuristicFallback(serviceName, sku);
+
+            row = new AzureRetailPriceRow(
+                serviceName,
+                MeterName: sku,
+                region,
+                sku,
+                UnitPriceUsd: heuristicMonthlyUsd,
+                CurrencyCode: "USD",
+                IsHeuristicFallback: true);
+
+            return true;
         }
 
         row = new AzureRetailPriceRow(
@@ -51,7 +68,9 @@ public sealed class AzureRetailPricesCatalogStructuredLookup(AzureRetailPricesCa
     {
         ArgumentNullException.ThrowIfNull(row);
 
-        return
-            $"Azure Retail row: service={row.ServiceName}; meter={row.MeterName}; region={row.Region}; sku={row.Sku}; estimatedMonthlyUsd={row.UnitPriceUsd:0.####} {row.CurrencyCode}";
+        string prefix = row.IsHeuristicFallback ? "[Fallback Estimate] " : string.Empty;
+
+        return prefix +
+               $"Azure Retail row: service={row.ServiceName}; meter={row.MeterName}; region={row.Region}; sku={row.Sku}; estimatedMonthlyUsd={row.UnitPriceUsd:0.####} {row.CurrencyCode}";
     }
 }

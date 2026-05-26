@@ -122,4 +122,14 @@ public class ArchLucidAuthOptions
         get;
         set;
     }
+
+    /// <summary>
+    ///     When true and OIDC authority metadata is unreachable at startup, the host stops gracefully instead of continuing
+    ///     with a broken IdP configuration (Improvement #20).
+    /// </summary>
+    public bool FailClosedOnOidcDiscoveryError
+    {
+        get;
+        set;
+    }
 }

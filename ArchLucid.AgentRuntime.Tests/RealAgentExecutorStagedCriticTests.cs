@@ -1,7 +1,7 @@
 using System.Diagnostics;
 
-using ArchLucid.AgentRuntime.Tests.Support;
 using ArchLucid.Application.Evidence;
+using ArchLucid.AgentRuntime.Tests.Support;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -94,6 +94,41 @@ public sealed class RealAgentExecutorStagedCriticTests
         await sut.ExecuteAsync(runId, request, evidence, [tTopo, tComp, tCrit], CancellationToken.None);
 
         critic.ObservedPhase1FinishedAtCriticStart.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task StagedCriticTimeout_skips_critic_and_records_evidence_note()
+    {
+        IAgentHandler topo = new SimpleReturnHandler(AgentType.Topology, "topo-claim", "res-topo");
+        IAgentHandler slowCritic = new SignalAfterDelayHandler(AgentType.Critic, 5000, static () => { });
+
+        RealAgentExecutor sut = CreateSut(
+            Options.Create(new StagedCriticAgentOptions { StagedCriticEnabled = true, CriticTimeoutSeconds = 1 }),
+            topo,
+            slowCritic);
+
+        ArchitectureRequest request = MinimalRequest();
+        AgentEvidencePackage evidence = new();
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask tTopo = new()
+        {
+            TaskId = "tz",
+            RunId = runId,
+            AgentType = AgentType.Topology,
+        };
+        AgentTask tCrit = new()
+        {
+            TaskId = "tk",
+            RunId = runId,
+            AgentType = AgentType.Critic,
+        };
+
+        AgentResult[] results = await sut.ExecuteAsync(runId, request, evidence, [tTopo, tCrit], CancellationToken.None);
+
+        results.Should().HaveCount(2);
+        results.Single(r => r.AgentType == AgentType.Critic).Confidence.Should().Be(0);
+        evidence.Notes.Should().Contain(n =>
+            string.Equals(n.NoteType, EvidenceNoteTypes.CriticTimeout, StringComparison.Ordinal));
     }
 
     [SkippableFact]
