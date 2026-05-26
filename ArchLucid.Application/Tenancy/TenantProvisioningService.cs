@@ -1,6 +1,8 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Marketing;
+using ArchLucid.Core.Marketing;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
@@ -21,7 +23,8 @@ public sealed class TenantProvisioningService(
     ILogger<TenantProvisioningService> logger,
     IOptionsMonitor<TenantProvisioningOptions> tenantProvisioningOptions,
     ITenantSqlCatalogProvisioner tenantSqlCatalogProvisioner,
-    IDefaultPolicyPackSeeder defaultPolicyPackSeeder) : ITenantProvisioningService
+    IDefaultPolicyPackSeeder defaultPolicyPackSeeder,
+    IMarketingAttributionService marketingAttributionService) : ITenantProvisioningService
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -39,6 +42,9 @@ public sealed class TenantProvisioningService(
 
     private readonly IOptionsMonitor<TenantProvisioningOptions> _tenantProvisioningOptions =
         tenantProvisioningOptions ?? throw new ArgumentNullException(nameof(tenantProvisioningOptions));
+
+    private readonly IMarketingAttributionService _marketingAttributionService =
+        marketingAttributionService ?? throw new ArgumentNullException(nameof(marketingAttributionService));
 
     /// <inheritdoc/>
     public async Task<TenantProvisioningResult> ProvisionAsync(TenantProvisioningRequest request, CancellationToken ct)
@@ -91,6 +97,11 @@ public sealed class TenantProvisioningService(
                 await _architectureProjectRepository.InsertAsync(projectId, tenantId, workspaceId, "default", ct);
 
                 await _defaultPolicyPackSeeder.EnsureDefaultPolicyPacksAsync(tenantId, workspaceId, projectId, ct);
+
+                if (request.FirstTouch is not null)
+                {
+                    await _marketingAttributionService.PersistFirstTouchIfPresentAsync(tenantId, request.FirstTouch, ct);
+                }
             }
             catch (Exception ex)
             {

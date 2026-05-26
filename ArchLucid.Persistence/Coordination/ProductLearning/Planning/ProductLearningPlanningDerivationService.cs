@@ -69,6 +69,8 @@ public sealed class ProductLearningPlanningDerivationService(
 
         int signalLinksInserted = 0;
 
+        List<PlanningMaterializeCitation> citations = [];
+
         foreach (ImprovementOpportunity opportunity in opportunities)
         {
             if (themesInserted >= cap)
@@ -115,10 +117,23 @@ public sealed class ProductLearningPlanningDerivationService(
             if (storedPlan is null)
                 continue;
 
-            int linked = await LinkSignalsAsync(planningRepository, scopedSignals, opportunity, storedPlan.PlanId,
+            (int linked, IReadOnlyList<PlanningMaterializeCitation> planCitations) = await LinkSignalsAsync(
+                planningRepository,
+                scopedSignals,
+                opportunity,
+                storedPlan.PlanId,
                 cancellationToken).ConfigureAwait(false);
 
             signalLinksInserted += linked;
+
+            foreach (PlanningMaterializeCitation citation in planCitations)
+            {
+                if (citations.Count >= 40)
+                    break;
+
+                if (citations.All(c => c.SignalId != citation.SignalId))
+                    citations.Add(citation);
+            }
 
             themesInserted++;
 
@@ -135,7 +150,9 @@ public sealed class ProductLearningPlanningDerivationService(
 
             SkippedExistingThemeKeys = skippedExisting,
 
-            SignalLinksInserted = signalLinksInserted
+            SignalLinksInserted = signalLinksInserted,
+
+            Citations = citations
         };
     }
 
@@ -151,7 +168,7 @@ public sealed class ProductLearningPlanningDerivationService(
             MaxPilotSignalsHydrate,
             cancellationToken);
 
-    private static async Task<int> LinkSignalsAsync(
+    private static async Task<(int Inserted, IReadOnlyList<PlanningMaterializeCitation> Citations)> LinkSignalsAsync(
         IProductLearningPlanningRepository repository,
         IReadOnlyList<ProductLearningPilotSignalRecord> scopedSignals,
         ImprovementOpportunity opportunity,
@@ -164,6 +181,8 @@ public sealed class ProductLearningPlanningDerivationService(
         int budget = MaxSignalLinksPerPlan;
 
         int inserted = 0;
+
+        List<PlanningMaterializeCitation> citations = [];
 
         foreach (ProductLearningPilotSignalRecord row in matches.TakeWhile(_ => budget-- > 0))
         {
@@ -179,9 +198,26 @@ public sealed class ProductLearningPlanningDerivationService(
                 .ConfigureAwait(false);
 
             inserted++;
+
+            citations.Add(ToCitation(row));
         }
 
-        return inserted;
+        return (inserted, citations);
+    }
+
+    private static PlanningMaterializeCitation ToCitation(ProductLearningPilotSignalRecord row)
+    {
+        string? comment = row.CommentShort;
+
+        if (!string.IsNullOrWhiteSpace(comment) && comment.Length > 240)
+            comment = comment[..240];
+
+        return new PlanningMaterializeCitation
+        {
+            SignalId = row.SignalId,
+            Subject = row.SubjectType,
+            CommentSnippet = comment
+        };
     }
 
     private static IEnumerable<ProductLearningPilotSignalRecord> MatchSignalsForOpportunity(

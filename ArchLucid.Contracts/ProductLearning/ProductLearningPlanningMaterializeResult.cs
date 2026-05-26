@@ -28,4 +28,11 @@ public sealed class ProductLearningPlanningMaterializeResult
         get;
         init;
     }
+
+    /// <summary>Citable pilot-feedback excerpts surfaced for the materialize response.</summary>
+    public IReadOnlyList<PlanningMaterializeCitation> Citations
+    {
+        get;
+        init;
+    } = [];
 }

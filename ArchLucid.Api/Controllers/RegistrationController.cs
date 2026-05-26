@@ -3,7 +3,6 @@ using System.Text.Json;
 
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Api.Marketing;
 using ArchLucid.Core.Audit;
@@ -29,7 +28,6 @@ public sealed class RegistrationController(
     ITenantProvisioningService provisioning,
     IAuditService audit,
     ITrialTenantBootstrapService trialBootstrap,
-    IMarketingAttributionService marketingAttribution,
     TimeProvider timeProvider) : ControllerBase
 {
     private const string FriendlyValidation =
@@ -45,9 +43,6 @@ public sealed class RegistrationController(
 
     private readonly ITrialTenantBootstrapService _trialBootstrap =
         trialBootstrap ?? throw new ArgumentNullException(nameof(trialBootstrap));
-
-    private readonly IMarketingAttributionService _marketingAttribution =
-        marketingAttribution ?? throw new ArgumentNullException(nameof(marketingAttribution));
 
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
@@ -186,6 +181,7 @@ public sealed class RegistrationController(
                     Name = body.OrganizationName.Trim(),
                     AdminEmail = body.AdminEmail.Trim(),
                     Tier = TenantTier.Free,
+                    FirstTouch = MarketingAttributionHeaderParser.TryParse(Request.Headers["x-archlucid-first-touch"].FirstOrDefault(), _timeProvider),
                     AuditActorOverride = body.AdminEmail.Trim()
                 },
                 cancellationToken);
@@ -299,14 +295,6 @@ public sealed class RegistrationController(
             }
             else
                 ArchLucidInstrumentation.RecordTrialSignupBaselineSkipped();
-
-            MarketingAttributionSnapshot? firstTouch =
-                MarketingAttributionHeaderParser.TryParse(Request.Headers["x-archlucid-first-touch"].FirstOrDefault(), _timeProvider);
-
-            await _marketingAttribution.PersistFirstTouchIfPresentAsync(
-                result.TenantId,
-                firstTouch,
-                cancellationToken);
 
             ArchLucidInstrumentation.RecordOperatorTaskSuccess("first_session_completed");
 

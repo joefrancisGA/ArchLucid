@@ -69,6 +69,31 @@ public static class DatabaseMigrator
         }
     }
 
+    public static bool IsTenantUpgradeRequired(string connectionString)
+    {
+        string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        string catalogScopeLabel = CatalogScopeLabelFromConnectionString(secured);
+
+        List<SqlScript> scripts = assembly.GetManifestResourceNames()
+            .Where(static n =>
+                n.Contains(".Migrations.", StringComparison.OrdinalIgnoreCase) &&
+                n.EndsWith(".sql", StringComparison.OrdinalIgnoreCase) &&
+                !n.Contains(".Migrations.Baseline.", StringComparison.OrdinalIgnoreCase))
+            .Where(SqlMigrationPlanes.IsTenantPlaneScript)
+            .OrderBy(static n => n, StringComparer.OrdinalIgnoreCase)
+            .Select(name => CreateSqlScriptForMigration(assembly, name, catalogScopeLabel))
+            .ToList();
+
+        UpgradeEngine upgrader = DeployChanges.To
+            .SqlDatabase(secured)
+            .WithScripts(scripts)
+            .LogToConsole()
+            .Build();
+
+        return upgrader.IsUpgradeRequired();
+    }
+
     /// <summary>
     ///     Applies embedded migrations in order, excluding the last <paramref name="trailingScriptCountToSkip" /> scripts
     ///     (upgrade-from-N-1 CI path).

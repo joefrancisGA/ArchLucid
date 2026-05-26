@@ -121,6 +121,7 @@ public static partial class ServiceCollectionExtensions
         RegisterSampleRunTtlHostedService(services, hostingRole);
         RegisterTenantErasureEligiblePurgeHostedService(services, hostingRole);
         RegisterAzureExtractorAutoPullHostedService(services, hostingRole);
+        RegisterWarmTenantCatalogReplenishHostedService(services, hostingRole);
         RegisterDataConsistencyReconciliation(services, configuration, hostingRole);
         services.Configure<SqlConnectionHealthCheckOptions>(
             configuration.GetSection(SqlConnectionHealthCheckOptions.SectionName));

@@ -1,3 +1,5 @@
+using ArchLucid.Core.Marketing;
+
 namespace ArchLucid.Core.Tenancy;
 
 /// <summary>Input for <see cref="ITenantProvisioningService.ProvisionAsync" />.</summary>
@@ -34,6 +36,12 @@ public sealed class TenantProvisioningRequest
         get;
         init;
     } = TenantDataRegions.Default;
+
+    public MarketingAttributionSnapshot? FirstTouch
+    {
+        get;
+        init;
+    }
 
     /// <summary>When set, used as audit actor instead of HTTP actor context (e.g. self-service registration email).</summary>
     public string? AuditActorOverride

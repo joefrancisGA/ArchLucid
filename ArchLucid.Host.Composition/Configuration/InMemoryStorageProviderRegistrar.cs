@@ -111,6 +111,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<ISystemSqlConnectionFactory, UnusedSystemSqlConnectionFactory>();
         services.AddSingleton<ITenantSqlConnectionFactory, UnusedTenantSqlConnectionFactory>();
         services.AddScoped<ITenantSqlCatalogProvisioner, NoOpTenantSqlCatalogProvisioner>();
+        services.AddScoped<IWarmTenantCatalogStandbyRepository, NoOpWarmTenantCatalogStandbyRepository>();
         services.AddSingleton<IContextSnapshotRepository, InMemoryContextSnapshotRepository>();
         services.AddSingleton<IGraphSnapshotRepository, InMemoryGraphSnapshotRepository>();
         services.AddSingleton<IFindingsSnapshotRepository, InMemoryFindingsSnapshotRepository>();

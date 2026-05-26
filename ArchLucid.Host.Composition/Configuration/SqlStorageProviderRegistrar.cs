@@ -133,6 +133,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
 
         services.Configure<SqlServerOptions>(configuration.GetSection(SqlServerOptions.SectionName));
         services.Configure<SqlTopologyOptions>(configuration.GetSection(SqlTopologyOptions.SectionPath));
+        services.Configure<WarmTenantCatalogOptions>(configuration.GetSection(WarmTenantCatalogOptions.SectionPath));
 
         ArchLucidStorageServiceCollectionExtensions.RegisterArtifactLargePayloadBlobStore(services, configuration);
         ArchLucidStorageServiceCollectionExtensions.RegisterHotPathReadCaching(services, configuration);
@@ -190,6 +191,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         });
 
         services.AddScoped<ITenantDatabaseBindingRepository, DapperTenantDatabaseBindingRepository>();
+        services.AddScoped<IWarmTenantCatalogStandbyRepository, DapperWarmTenantCatalogStandbyRepository>();
+        services.AddScoped<IWarmTenantCatalogReplenishService, WarmTenantCatalogReplenishService>();
         services.AddScoped<ITenantDatabaseResolver>(sp =>
             new TenantDatabaseResolver(
                 sp.GetRequiredService<ITenantDatabaseBindingRepository>(),

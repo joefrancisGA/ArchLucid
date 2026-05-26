@@ -52,4 +52,6 @@ public static class HostElectionLeaseNames
     public const string ExecutiveRoiSavingsGauge = "hosted:executive-roi-savings-gauge";
 
     public const string AgentResultBlobCleanup = "hosted:agent-result-blob-cleanup";
+
+    public const string WarmTenantCatalogReplenish = "hosted:warm-tenant-catalog-replenish";
 }

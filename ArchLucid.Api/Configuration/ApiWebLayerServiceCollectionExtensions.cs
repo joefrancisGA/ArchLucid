@@ -8,7 +8,9 @@ using ArchLucid.Api.Services.Billing;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Api.Services.Evolution;
 using ArchLucid.Api.Validators;
+using ArchLucid.Application.Analytics;
 using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Mcp.Tools;
 using ArchLucid.Application.Import;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.Configuration;
@@ -82,6 +84,9 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<IHostedAzureExtractorConfigurationService, HostedAzureExtractorConfigurationService>();
         services.AddScoped<ITier2ConnectionService, Tier2ConnectionService>();
         services.AddScoped<IHostedAzureExtractorRunService, HostedAzureExtractorRunService>();
+        services.AddScoped<IAzureExtractorAutoPullOrchestrator, AzureExtractorAutoPullOrchestrator>();
+        services.AddScoped<IPatternInsightsService, PatternInsightsService>();
+        services.AddScoped<RetrievalTools>();
         services.Configure<HostedAzureExtractorOptions>(configuration.GetSection(HostedAzureExtractorOptions.SectionName));
         services.AddSingleton<IHostedAzureExtractorCredentialFactory, WorkloadIdentityHostedAzureExtractorCredentialFactory>();
         services.AddHttpClient<IHostedAzureArmReadClient, GetOnlyHostedAzureArmReadClient>(static client =>

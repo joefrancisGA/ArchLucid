@@ -142,6 +142,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Integrations.Azur
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Notifications.Email.RazorLight", "ArchLucid.Notifications.Email.RazorLight\ArchLucid.Notifications.Email.RazorLight.csproj", "{A40798E8-32F0-417A-94A4-90CC71FDA832}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Mcp", "ArchLucid.Mcp\ArchLucid.Mcp.csproj", "{4274E9D5-6BE7-4070-B96F-81E75AB0BCAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -788,6 +790,18 @@ Global
 		{A40798E8-32F0-417A-94A4-90CC71FDA832}.Release|x64.Build.0 = Release|Any CPU
 		{A40798E8-32F0-417A-94A4-90CC71FDA832}.Release|x86.ActiveCfg = Release|Any CPU
 		{A40798E8-32F0-417A-94A4-90CC71FDA832}.Release|x86.Build.0 = Release|Any CPU
+		{4274E9D5-6BE7-4070-B96F-81E75AB0BCAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4274E9D5-6BE7-4070-B96F-81E75AB0BCAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4274E9D5-6BE7-4070-B96F-81E75AB0BCAA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4274E9D5-6BE7-4070-B96F-81E75AB0BCAA}.Debug|x64.Build.0 = Debug|Any CPU
+		{4274E9D5-6BE7-4070-B96F-81E75AB0BCAA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4274E9D5-6BE7-4070-B96F-81E75AB0BCAA}.Debug|x86.Build.0 = Debug|Any CPU
+		{4274E9D5-6BE7-4070-B96F-81E75AB0BCAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4274E9D5-6BE7-4070-B96F-81E75AB0BCAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4274E9D5-6BE7-4070-B96F-81E75AB0BCAA}.Release|x64.ActiveCfg = Release|Any CPU
+		{4274E9D5-6BE7-4070-B96F-81E75AB0BCAA}.Release|x64.Build.0 = Release|Any CPU
+		{4274E9D5-6BE7-4070-B96F-81E75AB0BCAA}.Release|x86.ActiveCfg = Release|Any CPU
+		{4274E9D5-6BE7-4070-B96F-81E75AB0BCAA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

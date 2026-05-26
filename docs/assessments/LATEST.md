@@ -113,26 +113,26 @@ Qualities are ranked from most urgent to least urgent based on their weighted de
 ## Top 3 Most Important Weaknesses
 *(Note: Excludes items explicitly deferred to V1.1 or V2)*
 
-1. Manual execution of the Tier 1 Azure extractor introduces human-in-the-loop friction for every architecture update.
-2. Missing first-touch marketing attribution (TB-019) hinders the measurement of paid acquisition efforts.
-3. Missing structured Azure Retail Prices retrieval (RAG-V1-003) limits cost citation accuracy.
+1. Manual execution of the Tier 1 Azure extractor introduces human-in-the-loop friction for every architecture update (Tier 2 auto-pull requires per-tenant WIF configuration).
+2. Missing structured Azure Retail Prices retrieval (RAG-V1-003) limits cost citation accuracy in agent outputs and exports.
+3. Pattern library and MCP retrieval are V1-functional but not fully hardened (seed-only pattern aggregates; HTTP bridge tools vs full Streamable HTTP MCP server per ADR 0029).
 
 ## Top 3 Monetization Blockers
 
-1. **Manual Azure Extractor Friction:** If prospects are delayed by internal security reviews required to run the Tier 1 PowerShell script, the sales cycle will stall.
-2. **Missing Marketing Attribution (TB-019):** Inability to track first-touch attribution prevents the efficient scaling of paid marketing spend.
-3. **Lack of Public Structured Data (TB-020):** Missing JSON-LD on marketing pages reduces organic search visibility, limiting the top of the funnel.
+1. **Manual Azure Extractor Friction:** Prospects still run the Tier 1 PowerShell ZIP path unless Tier 2 hosted polling is configured.
+2. **Procurement evidence gaps:** CPA-issued SOC 2 and third-party penetration testing remain deferred to V1.1/V2 and extend enterprise security reviews.
+3. **RAG-V1-003:** Without robust Azure Retail Prices structured retrieval, cost-citation claims in pilots may face finance scrutiny.
 
 ## Top 1 Enterprise Adoption Blockers
 
-1. **Manual Tier 1 Extractor:** Enterprise teams prefer automated, API-driven integrations (Tier 2) over running manual scripts, increasing the perceived operational burden.
+1. **Tier 2 operational setup:** Hosted auto-pull is implemented but requires Entra workload identity federation and per-tenant extractor configuration before estates update without manual ZIP uploads.
 
 ## Top 1 Engineering Risks
 
-1. **Signup Latency Spikes (TB-018):** Running DbUp migrations on-demand during signup will cause unacceptable latency spikes during marketing events; warm catalogs are required.
+1. **Warm-catalog operations (TB-018):** Standby pool code ships behind `ArchLucid:WarmTenantCatalog:Enabled`; production requires system migration `003_WarmTenantCatalogStandby.sql`, depth/replenish tuning, and monitoring of claim failures.
 
 ## Most Important Truth
-The core V1 architecture is exceptionally well-designed for enterprise isolation and auditability. With the completion of the V1 RAG foundation and precise LLM token telemetry, the "AI co-architect" value proposition is now trustworthy and cost-predictable. The primary remaining friction point is the manual nature of the Tier 1 Azure extractor.
+The core V1 architecture is exceptionally well-designed for enterprise isolation and auditability. With the completion of all 22 improvement batches, the "AI co-architect" value proposition is trustworthy, cost-predictable, and materially faster to adopt (warm catalogs, Tier 2 auto-pull, expanded RAG). Remaining friction is operational—enabling warm pools and WIF-backed extractors in each environment—not structural gaps in the V1 codebase.
 
 ---
 

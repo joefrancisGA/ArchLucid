@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Embedding;

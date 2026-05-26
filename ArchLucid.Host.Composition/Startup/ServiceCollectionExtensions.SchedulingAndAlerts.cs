@@ -147,6 +147,16 @@ public static partial class ServiceCollectionExtensions
         services.AddHostedService<AzureExtractorAutoPullHostedService>();
     }
 
+    private static void RegisterWarmTenantCatalogReplenishHostedService(
+        IServiceCollection services,
+        ArchLucidHostingRole hostingRole)
+    {
+        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
+            return;
+
+        services.AddHostedService<WarmTenantCatalogReplenishHostedService>();
+    }
+
     private static void RegisterFirstTenantFunnelArchivalHostedService(
         IServiceCollection services,
         IConfiguration configuration,

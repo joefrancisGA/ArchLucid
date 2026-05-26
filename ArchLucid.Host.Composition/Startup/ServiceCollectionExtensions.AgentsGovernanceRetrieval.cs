@@ -827,6 +827,11 @@ public static partial class ServiceCollectionExtensions
         services.Configure<PlatformDocCorpusIndexerOptions>(configuration.GetSection(PlatformDocCorpusIndexerOptions.SectionPath));
         services.AddSingleton<PlatformDocCorpusIndexer>();
         services.AddHostedService<PlatformDocCorpusStartupIndexerHostedService>();
+
+        services.Configure<ExemplarCorpusIndexerOptions>(configuration.GetSection(ExemplarCorpusIndexerOptions.SectionPath));
+        services.AddSingleton<ExemplarCorpusIndexer>();
+        services.AddHostedService<ExemplarCorpusStartupIndexerHostedService>();
+
         services.AddSingleton<IAzureRetailPriceStructuredLookup, InMemoryAzureRetailPriceStructuredLookup>();
 
         string? embedDeployment = configuration["AzureOpenAI:EmbeddingDeploymentName"];

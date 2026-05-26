@@ -33,8 +33,6 @@ public sealed record AnalysisReportDocxWorkUnit(AnalysisReportDocxJobPayload Pay
         init;
     } = ContentType ?? throw new ArgumentNullException(nameof(ContentType));
 }
-
-/// <summary>Consulting-style analysis report exported as DOCX.</summary>
 [method: JsonConstructor]
 public sealed record ConsultingDocxWorkUnit(ConsultingDocxJobPayload Payload, string FileName, string ContentType) : BackgroundJobWorkUnit
 {
@@ -56,3 +54,4 @@ public sealed record ConsultingDocxWorkUnit(ConsultingDocxJobPayload Payload, st
         init;
     } = ContentType ?? throw new ArgumentNullException(nameof(ContentType));
 }
+

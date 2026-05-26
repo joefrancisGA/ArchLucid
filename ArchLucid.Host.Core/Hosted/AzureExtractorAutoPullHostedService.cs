@@ -1,18 +1,22 @@
+using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Core.Configuration;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>
-///     Leader-elected placeholder for Tier-2 Azure extractor auto-pull (federated credentials → ARM/cost snapshots →
-///     architecture requests). Implements pacing + discovery logging only until ingest is productized.
+///     Leader-elected Tier-2 Azure extractor auto-pull (WIF → ARM/cost snapshots → ingest pipeline).
 /// </summary>
 public sealed class AzureExtractorAutoPullHostedService(
+    IServiceScopeFactory scopeFactory,
     IOptionsMonitor<AzureExtractorAutoPullOptions> optionsMonitor,
     ILogger<AzureExtractorAutoPullHostedService> logger,
     HostLeaderElectionCoordinator electionCoordinator) : BackgroundService
 {
+    private readonly IServiceScopeFactory _scopeFactory =
+        scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
     private readonly IOptionsMonitor<AzureExtractorAutoPullOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
@@ -41,9 +45,23 @@ public sealed class AzureExtractorAutoPullHostedService(
 
             if (opts.Enabled)
             {
-                _logger.LogInformation(
-                    "Azure extractor Tier-2 auto-pull scaffold: ARM/Cost ingest not implemented yet (Batch 3). Next check in {Delay}.",
-                    delay);
+                try
+                {
+                    using IServiceScope scope = _scopeFactory.CreateScope();
+                    IAzureExtractorAutoPullOrchestrator orchestrator =
+                        scope.ServiceProvider.GetRequiredService<IAzureExtractorAutoPullOrchestrator>();
+
+                    await orchestrator.RunScheduledPullAsync(leaderToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    if (_logger.IsEnabled(LogLevel.Warning))
+                        _logger.LogWarning(ex, "Azure extractor auto-pull pass failed; continuing fail-open.");
+                }
             }
             else
             {

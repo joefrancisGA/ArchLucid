@@ -16,7 +16,9 @@ public sealed class SqlTenantSqlCatalogProvisioner(
     ISystemSqlConnectionFactory systemSqlConnectionFactory,
     ITenantDatabaseBindingRepository bindingRepository,
     ITenantDatabaseResolver tenantDatabaseResolver,
+    IWarmTenantCatalogStandbyRepository warmStandbyRepository,
     IOptionsMonitor<SqlTopologyOptions> topologyOptions,
+    IOptionsMonitor<WarmTenantCatalogOptions> warmCatalogOptions,
     ILogger<SqlTenantSqlCatalogProvisioner> logger) : ITenantSqlCatalogProvisioner
 {
     private readonly ISystemSqlConnectionFactory _systemSqlConnectionFactory =
@@ -28,8 +30,14 @@ public sealed class SqlTenantSqlCatalogProvisioner(
     private readonly ITenantDatabaseResolver _tenantDatabaseResolver =
         tenantDatabaseResolver ?? throw new ArgumentNullException(nameof(tenantDatabaseResolver));
 
+    private readonly IWarmTenantCatalogStandbyRepository _warmStandbyRepository =
+        warmStandbyRepository ?? throw new ArgumentNullException(nameof(warmStandbyRepository));
+
     private readonly IOptionsMonitor<SqlTopologyOptions> _topologyOptions =
         topologyOptions ?? throw new ArgumentNullException(nameof(topologyOptions));
+
+    private readonly IOptionsMonitor<WarmTenantCatalogOptions> _warmCatalogOptions =
+        warmCatalogOptions ?? throw new ArgumentNullException(nameof(warmCatalogOptions));
 
     private readonly ILogger<SqlTenantSqlCatalogProvisioner> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -46,7 +54,18 @@ public sealed class SqlTenantSqlCatalogProvisioner(
 
         try
         {
-            await _bindingRepository.UpsertPendingAsync(tenantId, sqlLogicalDatabaseName, cancellationToken);
+            string effectiveLogicalName = sqlLogicalDatabaseName.Trim();
+            WarmTenantCatalogStandbyRecord? claimedStandby = null;
+
+            if (_warmCatalogOptions.CurrentValue.Enabled)
+            {
+                claimedStandby = await _warmStandbyRepository.TryClaimOldestUnclaimedAsync(cancellationToken);
+
+                if (claimedStandby is not null)
+                    effectiveLogicalName = claimedStandby.SqlLogicalDatabaseName.Trim();
+            }
+
+            await _bindingRepository.UpsertPendingAsync(tenantId, effectiveLogicalName, cancellationToken);
 
             if (string.IsNullOrWhiteSpace(snapshot.TenantCatalogConnectionStringTemplate))
 
@@ -55,11 +74,22 @@ public sealed class SqlTenantSqlCatalogProvisioner(
 
             string tenantConnectionString = SqlTenantCatalogConnectionStringFactory.FromTemplate(
                 snapshot.TenantCatalogConnectionStringTemplate.Trim(),
-                sqlLogicalDatabaseName.Trim());
+                effectiveLogicalName);
 
-            DatabaseMigrator.RunTenant(tenantConnectionString);
+            if (DatabaseMigrator.IsTenantUpgradeRequired(tenantConnectionString))
+                DatabaseMigrator.RunTenant(tenantConnectionString);
+            else if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation(
+                    "Skipping RunTenant for tenant {TenantId}; warm catalog schema is current ({Database}).",
+                    tenantId,
+                    effectiveLogicalName);
+
             await MirrorTenantRowFromSystemAsync(tenantId, tenantConnectionString, cancellationToken);
             await _bindingRepository.MarkActiveAsync(tenantId, cancellationToken);
+
+            if (claimedStandby is not null)
+                await _warmStandbyRepository.MarkClaimedAsync(claimedStandby.StandbyId, cancellationToken);
+
             _tenantDatabaseResolver.InvalidateCachedTenantConnectionString(tenantId);
         }
         catch (Exception ex)
