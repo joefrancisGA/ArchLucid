@@ -201,7 +201,7 @@ ArchLucid is exceptionally well-engineered with a paranoid focus on data isolati
     - **Expected impact:** Directly improves Supportability (+3-5 pts), Maintainability (+2-4 pts). Weighted readiness impact: +0.2-0.3%.
     - **Affected qualities:** Supportability, Maintainability.
     - **Actionable now:** Yes.
-    - **Prompt:** Create `docs/runbooks/SCIM_TOKEN_ROTATION.md`. Document the exact SQL commands or API endpoints required to generate, hash, and persist a new `ScimBearer` token for a tenant, and how to update Azure AD/Okta provisioning apps with the new secret. Acceptance criteria: A clear markdown runbook exists for operators.
+    - **Prompt:** Create `docs/runbooks/SCIM_TOKEN_ROTATION.md`. Document the exact SQL commands or API endpoints required to generate, hash, and persist a new `ScimBearer` token for a tenant, and how to update Microsoft Entra ID/Okta provisioning apps with the new secret. Acceptance criteria: A clear markdown runbook exists for operators.
 
 10. **Add DataArchivalHealthCheck to Startup Validation**
     - **Why it matters:** Ensures the API refuses to report as fully healthy if background archival jobs are failing, preventing silent database bloat.
