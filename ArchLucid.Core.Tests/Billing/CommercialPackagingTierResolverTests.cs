@@ -61,7 +61,7 @@ public sealed class CommercialPackagingTierResolverTests
         label.Should().Be(CommercialPackagingTierLabels.Team);
     }
 
-    private static TenantRecord PaidTenant(TenantTier tier, TrialLifecycleStatus trialStatus = TrialLifecycleStatus.None)
+    private static TenantRecord PaidTenant(TenantTier tier, string? trialStatus = null)
     {
         return new TenantRecord
         {
