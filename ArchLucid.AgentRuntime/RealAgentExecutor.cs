@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm;
+using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
