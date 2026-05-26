@@ -1,8 +1,8 @@
 namespace ArchLucid.Core.Configuration;
 
 /// <summary>
-///     Tier-2 Azure extractor continuous pull (worker). **Scaffold only:** ARM + Cost Management ingest is not wired yet;
-///     the hosted loop logs and backs off on the interval when <see cref="Enabled"/> is true.
+///     Tier-2 Azure extractor continuous pull worker. Polls configured tenants and runs hosted extraction when
+///     <see cref="Enabled"/> is true (leader-elected; per-subscription session lock prevents concurrent runs).
 /// </summary>
 public sealed class AzureExtractorAutoPullOptions
 {

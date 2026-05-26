@@ -6,19 +6,34 @@ import {
 } from "@/lib/trial-upgrade-nudge-trigger";
 
 describe("resolveTrialUpgradeNudgeTrigger", () => {
-  it("returns null for non-active trials", () => {
-    expect(resolveTrialUpgradeNudgeTrigger({ status: "Expired", daysRemaining: 1 })).toBeNull();
+  it("returns expiry for expired trials", () => {
+    expect(resolveTrialUpgradeNudgeTrigger({ status: "Expired", daysRemaining: 0 })).toBe("expiry");
+  });
+
+  it("returns null for converted trials", () => {
+    expect(resolveTrialUpgradeNudgeTrigger({ status: "Converted", daysRemaining: 1 })).toBeNull();
   });
 
   it("returns expiry when days remaining is within urgent window", () => {
     expect(
       resolveTrialUpgradeNudgeTrigger({
         status: "Active",
-        daysRemaining: 6,
+        daysRemaining: 2,
         trialRunsUsed: 1,
         trialRunsLimit: 10,
       }),
     ).toBe("expiry");
+  });
+
+  it("returns null when days remaining is outside urgent window", () => {
+    expect(
+      resolveTrialUpgradeNudgeTrigger({
+        status: "Active",
+        daysRemaining: 4,
+        trialRunsUsed: 1,
+        trialRunsLimit: 10,
+      }),
+    ).toBeNull();
   });
 
   it("returns runs when usage crosses 70 percent", () => {

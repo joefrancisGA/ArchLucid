@@ -436,6 +436,7 @@ public sealed class AgentOutputEvaluationRecorderTests
         AgentOutputEvaluationRecorder sut = CreateRecorder(
             repo,
             NullLogger<AgentOutputEvaluationRecorder>.Instance,
+            gateOptions: new AgentOutputQualityGateOptions { Enabled = true },
             embeddingFaithfulnessCosine: 0.82,
             evidencePackageRepository: evidenceRepo);
 

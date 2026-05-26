@@ -48,15 +48,36 @@ public sealed class GraphSnapshotProjectionMemoryCache(
         if (created is null)
             return null;
 
+        long entrySize = GraphSnapshotProjectionCacheEntrySizeEstimator.EstimateCacheEntrySize(created);
+        long maxSingleEntryBytes = ResolveMaxSingleEntryBytes();
+
+        if (entrySize > maxSingleEntryBytes)
+        {
+            ArchLucidInstrumentation.RecordGraphProjectionCacheOversizedBypass();
+
+            return created;
+        }
+
         TimeSpan ttl = ResolveTtl();
 
         using ICacheEntry entry = _memoryCache.CreateEntry(key);
         entry.AbsoluteExpirationRelativeToNow = ttl;
         entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-        entry.Size = GraphSnapshotProjectionCacheEntrySizeEstimator.EstimateCacheEntrySize(created);
+        entry.Size = entrySize;
         entry.Value = created;
 
         return created;
+    }
+
+    private long ResolveMaxSingleEntryBytes()
+    {
+        KnowledgeGraphProjectionCacheOptions options = _optionsMonitor.CurrentValue;
+        long maxBytes = options.MaxSingleEntryBytes;
+
+        if (maxBytes < KnowledgeGraphProjectionCacheOptions.DefaultMaxSingleEntryBytes / 10)
+            maxBytes = KnowledgeGraphProjectionCacheOptions.DefaultMaxSingleEntryBytes;
+
+        return maxBytes;
     }
 
     /// <inheritdoc />

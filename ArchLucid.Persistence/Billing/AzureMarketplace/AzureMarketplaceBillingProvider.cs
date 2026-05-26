@@ -16,6 +16,7 @@ namespace ArchLucid.Persistence.Billing.AzureMarketplace;
 public sealed class AzureMarketplaceBillingProvider(
     IOptionsMonitor<BillingOptions> billingOptions,
     IBillingLedger ledger,
+    IBillingWebhookReplayGuard webhookReplayGuard,
     BillingWebhookTrialActivator trialActivator,
     IMarketplaceWebhookTokenVerifier tokenVerifier,
     IHttpClientFactory httpClientFactory,
@@ -36,6 +37,9 @@ public sealed class AzureMarketplaceBillingProvider(
         httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 
     private readonly IBillingLedger _ledger = ledger ?? throw new ArgumentNullException(nameof(ledger));
+
+    private readonly IBillingWebhookReplayGuard _webhookReplayGuard =
+        webhookReplayGuard ?? throw new ArgumentNullException(nameof(webhookReplayGuard));
 
     private readonly IMarketplaceWebhookTokenVerifier _tokenVerifier =
         tokenVerifier ?? throw new ArgumentNullException(nameof(tokenVerifier));
@@ -106,6 +110,12 @@ public sealed class AzureMarketplaceBillingProvider(
 
         string dedupeKey = $"{subscriptionId}|{action}|{root.GetRawText().GetHashCode(StringComparison.Ordinal):X8}";
 
+        if (await _webhookReplayGuard.HasSeenAsync(ProviderName, dedupeKey, cancellationToken).ConfigureAwait(false))
+        {
+            return BillingWebhookHandleResult.ReplayRejected(
+                $"Marketplace webhook '{dedupeKey}' was already processed within the replay protection window.");
+        }
+
         bool inserted = await _ledger.TryInsertWebhookEventAsync(
             dedupeKey,
             ProviderName,
@@ -118,7 +128,8 @@ public sealed class AzureMarketplaceBillingProvider(
             string? prior = await _ledger.GetWebhookEventResultStatusAsync(dedupeKey, cancellationToken);
 
             if (string.Equals(prior, "Processed", StringComparison.OrdinalIgnoreCase))
-                return BillingWebhookHandleResult.Duplicate();
+                return BillingWebhookHandleResult.ReplayRejected(
+                    $"Marketplace webhook '{dedupeKey}' was already processed.");
         }
 
         try
@@ -128,6 +139,7 @@ public sealed class AzureMarketplaceBillingProvider(
             if (tenantId == Guid.Empty)
             {
                 await _ledger.MarkWebhookProcessedAsync(dedupeKey, "IgnoredMissingTenant", cancellationToken);
+                await _webhookReplayGuard.RememberAsync(ProviderName, dedupeKey, cancellationToken).ConfigureAwait(false);
 
                 return BillingWebhookHandleResult.Ok();
             }
@@ -150,6 +162,7 @@ public sealed class AzureMarketplaceBillingProvider(
                 : "Processed";
 
             await _ledger.MarkWebhookProcessedAsync(dedupeKey, webhookResultStatus, cancellationToken);
+            await _webhookReplayGuard.RememberAsync(ProviderName, dedupeKey, cancellationToken).ConfigureAwait(false);
 
             if (completion == MarketplaceDispatchCompletion.DeferredNoIntegration)
                 return BillingWebhookHandleResult.AcceptedDeferred();

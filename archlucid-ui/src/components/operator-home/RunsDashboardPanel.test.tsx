@@ -124,23 +124,15 @@ describe("RunsDashboardPanel", () => {
       render(<RunsDashboardPanel />);
 
       await waitFor(() => {
-        expect(screen.getByTestId("operator-home-getting-started")).toBeInTheDocument();
+        expect(screen.getByTestId("operator-home-azure-extractor-empty-state")).toBeInTheDocument();
       });
       expect(
-        screen.getByText(
-          /You have no architecture reviews yet\. Create a request to produce a manifest/i,
-        ),
+        screen.getByText(/Import your Azure environment to get started/i),
       ).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Create your first request" })).toHaveAttribute("href", "/reviews/new");
-      expect(screen.getByTestId("example-request-panel")).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "Use this example" })).toHaveAttribute(
-        "href",
-        "/reviews/new?example=healthcare-claims-intake",
-      );
-      expect(screen.getByRole("link", { name: "See completed output" })).toHaveAttribute(
-        "href",
-        "/reviews?projectId=default",
-      );
+      expect(screen.getByRole("link", { name: "Open Azure Extractor settings" })).toHaveAttribute("href", "/settings/tenant");
+      expect(screen.getByRole("link", { name: "First-review checklist" })).toHaveAttribute("href", "/onboarding");
+      expect(screen.queryByTestId("example-request-panel")).toBeNull();
     } finally {
       fallbackSpy.mockRestore();
     }

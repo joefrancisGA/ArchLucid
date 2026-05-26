@@ -105,10 +105,51 @@ public sealed class AgentExecutionResilienceTests
     }
 
     [SkippableFact]
-    public async Task Per_handler_timeout_aborts_hanging_handler()
+    public async Task Per_handler_timeout_returns_degraded_result_for_non_critic_when_enabled()
     {
         IOptions<AgentExecutionResilienceOptions> ro = Options.Create(
-            new AgentExecutionResilienceOptions { MaxConcurrentHandlers = 0, PerHandlerTimeoutSeconds = 1 });
+            new AgentExecutionResilienceOptions
+            {
+                MaxConcurrentHandlers = 0,
+                PerHandlerTimeoutSeconds = 1,
+                NonCriticDegradedFallbackEnabled = true,
+            });
+
+        RealAgentExecutor sut = new(
+            [new HangingHandler(AgentType.Topology)],
+            NullLogger<RealAgentExecutor>.Instance,
+            new StubPromptMonitor(new AgentPromptCatalogOptions()),
+            new FixedScopeProvider(),
+            new AgentHandlerConcurrencyGate(ro),
+            ro,
+            Options.Create(new StagedCriticAgentOptions()),
+            Options.Create(new AgentOutputQualityGateOptions()),
+            new NoOpPromptRedactor(),
+            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()));
+
+        ArchitectureRequest request = MinimalRequest();
+        AgentEvidencePackage evidence = new();
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = new() { TaskId = "t1", RunId = runId, AgentType = AgentType.Topology };
+
+        IReadOnlyList<AgentResult> results =
+            await sut.ExecuteAsync(runId, request, evidence, [task], CancellationToken.None);
+
+        results.Should().ContainSingle();
+        results[0].Confidence.Should().Be(0);
+        results[0].Claims.Should().ContainSingle(c => c.Contains("degraded", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
+    public async Task Per_handler_timeout_aborts_hanging_handler_when_degraded_fallback_disabled()
+    {
+        IOptions<AgentExecutionResilienceOptions> ro = Options.Create(
+            new AgentExecutionResilienceOptions
+            {
+                MaxConcurrentHandlers = 0,
+                PerHandlerTimeoutSeconds = 1,
+                NonCriticDegradedFallbackEnabled = false,
+            });
 
         RealAgentExecutor sut = new(
             [new HangingHandler(AgentType.Topology)],

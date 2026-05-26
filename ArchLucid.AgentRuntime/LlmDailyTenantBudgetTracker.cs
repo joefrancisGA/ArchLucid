@@ -29,18 +29,18 @@ public sealed class LlmDailyTenantBudgetTracker(
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
     /// <summary>Throws <see cref="LlmTokenQuotaExceededException" /> when the next call would exceed the UTC-day cap.</summary>
-    public async Task EnsureWithinBudgetBeforeCallAsync(
+    public async Task<long?> EnsureWithinBudgetBeforeCallAsync(
         Guid tenantId,
         string providerKind,
         CancellationToken cancellationToken = default)
     {
         if (tenantId == Guid.Empty || providerKind.IsExcludedFromBudgetTracking())
-            return;
+            return null;
 
         LlmDailyTenantTokenWindowOptions opts = _optionsMonitor.CurrentValue;
 
         if (!opts.Enabled || opts.HardCutoffTokensPerUtcDay < 1)
-            return;
+            return null;
 
         int assumed = Math.Clamp(opts.AssumedMaxTotalTokensPerRequest, 1, 2_000_000);
         long max = opts.HardCutoffTokensPerUtcDay;
@@ -107,9 +107,7 @@ public sealed class LlmDailyTenantBudgetTracker(
                     retryAfterUtc);
             }
 
-            PendingReservedAssumedTokens.Value = assumed;
-
-            return;
+            return assumed;
         }
 
         throw new InvalidOperationException("LLM daily token budget reserve could not complete after optimistic retries.");
@@ -123,6 +121,7 @@ public sealed class LlmDailyTenantBudgetTracker(
         IAuditService? auditService,
         int promptTokens,
         int completionTokens,
+        long? pendingReserved,
         CancellationToken cancellationToken = default)
     {
         if (tenantId == Guid.Empty || providerKind.IsExcludedFromBudgetTracking())
@@ -141,7 +140,6 @@ public sealed class LlmDailyTenantBudgetTracker(
         string periodKey = DailyPeriodKey(today);
         long max = opts.HardCutoffTokensPerUtcDay;
         long warnAt = (long)Math.Floor(max * (double)decimal.Clamp(opts.WarnFraction, 0.01m, 0.99m));
-        long? pendingReserved = PendingReservedAssumedTokens.Value;
 
         for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
         {
@@ -171,8 +169,6 @@ public sealed class LlmDailyTenantBudgetTracker(
                 continue;
             }
 
-            PendingReservedAssumedTokens.Value = null;
-
             long newTotal =
                 settled.NewState?.TokensConsumed ?? throw new InvalidOperationException("Missing token state after update.");
 
@@ -191,6 +187,7 @@ public sealed class LlmDailyTenantBudgetTracker(
     public async Task ReleasePendingReservationIfAnyAsync(
         Guid tenantId,
         string providerKind,
+        long? pending,
         CancellationToken cancellationToken = default)
     {
         if (tenantId == Guid.Empty || providerKind.IsExcludedFromBudgetTracking())
@@ -200,8 +197,6 @@ public sealed class LlmDailyTenantBudgetTracker(
 
         if (!opts.Enabled || opts.HardCutoffTokensPerUtcDay < 1)
             return;
-
-        long? pending = PendingReservedAssumedTokens.Value;
 
         if (pending is null or < 1)
             return;
@@ -238,8 +233,6 @@ public sealed class LlmDailyTenantBudgetTracker(
 
                 continue;
             }
-
-            PendingReservedAssumedTokens.Value = null;
 
             return;
         }

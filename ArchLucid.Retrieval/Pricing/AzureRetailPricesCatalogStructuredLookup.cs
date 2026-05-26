@@ -7,11 +7,15 @@ namespace ArchLucid.Retrieval.Pricing;
 ///     Production <see cref="IAzureRetailPriceStructuredLookup" /> backed by
 ///     <see cref="AzureRetailPricesCatalogClient" /> (RAG-V1-003).
 /// </summary>
-public sealed class AzureRetailPricesCatalogStructuredLookup(AzureRetailPricesCatalogClient catalog)
-    : IAzureRetailPriceStructuredLookup
+public sealed class AzureRetailPricesCatalogStructuredLookup(
+    AzureRetailPricesCatalogClient catalog,
+    IAzureRetailPriceTenantCostSettingsContext tenantCostSettingsContext) : IAzureRetailPriceStructuredLookup
 {
     private readonly AzureRetailPricesCatalogClient _catalog =
         catalog ?? throw new ArgumentNullException(nameof(catalog));
+
+    private readonly IAzureRetailPriceTenantCostSettingsContext _tenantCostSettingsContext =
+        tenantCostSettingsContext ?? throw new ArgumentNullException(nameof(tenantCostSettingsContext));
 
     /// <inheritdoc />
     public bool TryLookup(string serviceName, string region, string? sku, out AzureRetailPriceRow row)
@@ -40,25 +44,25 @@ public sealed class AzureRetailPricesCatalogStructuredLookup(AzureRetailPricesCa
 
             ArchLucidInstrumentation.RecordAzureRetailPricesHeuristicFallback(serviceName, sku);
 
-            row = new AzureRetailPriceRow(
+            row = ApplyEaDiscount(new AzureRetailPriceRow(
                 serviceName,
                 MeterName: sku,
                 region,
                 sku,
                 UnitPriceUsd: heuristicMonthlyUsd,
                 CurrencyCode: "USD",
-                IsHeuristicFallback: true);
+                IsHeuristicFallback: true));
 
             return true;
         }
 
-        row = new AzureRetailPriceRow(
+        row = ApplyEaDiscount(new AzureRetailPriceRow(
             serviceName,
             MeterName: sku,
             region,
             sku,
             UnitPriceUsd: monthlyUsd.Value,
-            CurrencyCode: "USD");
+            CurrencyCode: "USD"));
 
         return true;
     }
@@ -72,5 +76,15 @@ public sealed class AzureRetailPricesCatalogStructuredLookup(AzureRetailPricesCa
 
         return prefix +
                $"Azure Retail row: service={row.ServiceName}; meter={row.MeterName}; region={row.Region}; sku={row.Sku}; estimatedMonthlyUsd={row.UnitPriceUsd:0.####} {row.CurrencyCode}";
+    }
+
+    private AzureRetailPriceRow ApplyEaDiscount(AzureRetailPriceRow row)
+    {
+        decimal multiplier = _tenantCostSettingsContext.EaDiscountMultiplier;
+
+        if (multiplier >= 1.0m)
+            return row;
+
+        return row with { UnitPriceUsd = row.UnitPriceUsd * multiplier };
     }
 }

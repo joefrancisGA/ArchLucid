@@ -44,6 +44,20 @@ public sealed class BillingWebhookHandleResult
         init;
     }
 
+    /// <summary>When true, caller should return 400 — replayed provider event id within the retention window.</summary>
+    public bool IsReplayRejected
+    {
+        get;
+        init;
+    }
+
+    public static BillingWebhookHandleResult ReplayRejected(string detail)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(detail);
+
+        return new BillingWebhookHandleResult { IsReplayRejected = true, ErrorDetail = detail };
+    }
+
     public static BillingWebhookHandleResult Ok()
     {
         return new BillingWebhookHandleResult { Succeeded = true };

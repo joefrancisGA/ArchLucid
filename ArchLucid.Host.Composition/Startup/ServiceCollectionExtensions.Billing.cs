@@ -24,6 +24,7 @@ public static partial class ServiceCollectionExtensions
                 static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration))
             .AddOutboundExternalHttpResilience();
         services.AddScoped<BillingWebhookTrialActivator>();
+        services.AddSingleton<IBillingWebhookReplayGuard, MemoryCacheBillingWebhookReplayGuard>();
         services.AddScoped<StripeBillingProvider>();
         services.AddScoped<IStripeWalletGateway, StripeWalletGateway>();
         services.AddScoped<ILlmTenantWalletStripeWebhookProcessor, LlmTenantWalletStripeWebhookProcessor>();

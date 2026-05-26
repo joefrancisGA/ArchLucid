@@ -76,6 +76,9 @@ public sealed class BillingMarketplaceWebhookController(
         BillingWebhookHandleResult result =
             await _marketplaceBillingProvider.HandleWebhookAsync(inbound, cancellationToken);
 
+        if (result.IsReplayRejected)
+            return this.BadRequestProblem(result.ErrorDetail ?? "Marketplace webhook replay rejected.", ProblemTypes.BadRequest);
+
         if (result is
             {
                 Succeeded: true, DuplicateIgnored: false, Returns202Accepted: false,

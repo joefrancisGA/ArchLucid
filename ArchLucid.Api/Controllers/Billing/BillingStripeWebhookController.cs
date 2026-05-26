@@ -43,9 +43,9 @@ public sealed class BillingStripeWebhookController(StripeBillingProvider stripeB
         BillingWebhookHandleResult result =
             await _stripeBillingProvider.HandleWebhookAsync(inbound, cancellationToken);
 
-        if (result.DuplicateIgnored || result.Succeeded)
-            return Ok();
+        if (result.IsReplayRejected || !result.Succeeded)
+            return this.BadRequestProblem(result.ErrorDetail ?? "Stripe webhook rejected.", ProblemTypes.BadRequest);
 
-        return this.BadRequestProblem(result.ErrorDetail ?? "Stripe webhook rejected.", ProblemTypes.BadRequest);
+        return Ok();
     }
 }

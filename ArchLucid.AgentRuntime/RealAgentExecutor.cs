@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Diagnostics;
 
 using ArchLucid.Application.Evidence;
@@ -36,8 +35,6 @@ namespace ArchLucid.AgentRuntime;
 /// </remarks>
 public sealed class RealAgentExecutor : IAgentExecutor
 {
-    private static readonly ConcurrentDictionary<int, ResiliencePipeline<AgentResult>> TimeoutPipelines = new();
-
     private readonly IAgentHandlerConcurrencyGate _concurrencyGate;
     private readonly IOptions<AgentOutputQualityGateOptions> _agentOutputBudgetGate;
     private readonly IOptionsMonitor<ArchLucidLlmOptions> _archLucidLlmOptions;
@@ -474,7 +471,9 @@ public sealed class RealAgentExecutor : IAgentExecutor
                     $"No handler is registered for agent type key '{dispatchKey}'.");
 
             int timeoutSeconds = _resilienceOptions.Value.ResolveTimeoutSecondsForAgent(dispatchKey);
-            ResiliencePipeline<AgentResult> handlerTimeoutPipeline = ResolveTimeoutPipeline(timeoutSeconds);
+            AgentExecutionResilienceOptions resilienceOptions = _resilienceOptions.Value;
+            ResiliencePipeline<AgentResult> handlerPipeline =
+                RealAgentExecutorHandlerResiliencePipeline.Resolve(dispatchKey, timeoutSeconds, resilienceOptions);
 
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -497,7 +496,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                     {
                         result = await _concurrencyGate.ExecuteAsync(
                             async ct =>
-                                await handlerTimeoutPipeline.ExecuteAsync(
+                                await handlerPipeline.ExecuteAsync(
                                     async (_, innerCt) => await handler.ExecuteAsync(
                                         runId,
                                         request,
@@ -515,18 +514,47 @@ public sealed class RealAgentExecutor : IAgentExecutor
                 }
                 catch (Exception ex)
                 {
-                    activity?.SetStatus(ActivityStatusCode.Error, "Agent handler failed.");
-                    activity?.AddException(ex);
+                    if (RealAgentExecutorHandlerResiliencePipeline.ShouldUseDegradedFallback(task, resilienceOptions)
+                        && RealAgentExecutorHandlerResiliencePipeline.IsDegradableFailure(ex))
+                    {
+                        if (_logger.IsEnabled(LogLevel.Warning))
+                        {
+                            _logger.LogWarning(
+                                ex,
+                                "Non-Critic agent handler degraded for RunId={RunId} TaskId={TaskId} Agent={AgentTypeKey}.",
+                                runId,
+                                task.TaskId,
+                                dispatchKey);
+                        }
 
-                    ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
-                        1,
-                        new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
-                        new KeyValuePair<string, object?>("outcome", "error"));
+                        result = AgentHandlerDegradedResultFactory.Create(
+                            runId,
+                            task,
+                            "Agent output degraded due to upstream LLM latency or circuit-open state; review run telemetry.");
 
-                    throw new AgentExecutionFailedException(
-                        runId,
-                        task.TaskId,
-                        new AgentHandlerExecutionException(dispatchKey, task.AgentType, ex));
+                        ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
+                            1,
+                            new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
+                            new KeyValuePair<string, object?>("outcome", "degraded"));
+
+                        activity?.SetStatus(ActivityStatusCode.Error, "Agent handler degraded.");
+                        activity?.AddException(ex);
+                    }
+                    else
+                    {
+                        activity?.SetStatus(ActivityStatusCode.Error, "Agent handler failed.");
+                        activity?.AddException(ex);
+
+                        ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
+                            1,
+                            new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
+                            new KeyValuePair<string, object?>("outcome", "error"));
+
+                        throw new AgentExecutionFailedException(
+                            runId,
+                            task.TaskId,
+                            new AgentHandlerExecutionException(dispatchKey, task.AgentType, ex));
+                    }
                 }
 
                 activity?.SetTag("archlucid.agent.confidence", result.Confidence);
@@ -569,18 +597,6 @@ public sealed class RealAgentExecutor : IAgentExecutor
         result.ReasoningTrace = outcome.Text;
 
         return result;
-    }
-
-    private static ResiliencePipeline<AgentResult> ResolveTimeoutPipeline(int timeoutSeconds)
-    {
-        if (timeoutSeconds <= 0)
-            return ResiliencePipeline<AgentResult>.Empty;
-
-        return TimeoutPipelines.GetOrAdd(
-            timeoutSeconds,
-            secs => new ResiliencePipelineBuilder<AgentResult>()
-                .AddTimeout(TimeSpan.FromSeconds(secs))
-                .Build());
     }
 
     private string ResolvePromptVersion(string agentTypeKey)

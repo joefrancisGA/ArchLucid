@@ -43,8 +43,8 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         LlmMonthlyTenantDollarBudgetTracker tracker = CreateTracker(monitor.Object, cost.Object, repo);
         Guid tenant = Guid.NewGuid();
 
-        await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
-        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", CreateScopeProvider(tenant), null, 100, 100, CancellationToken.None);
+        (decimal? reserved, bool overage) = await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", CreateScopeProvider(tenant), null, 100, 100, reserved, overage, CancellationToken.None);
         await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
     }
 
@@ -68,9 +68,9 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         LlmMonthlyTenantDollarBudgetTracker tracker = CreateTracker(monitor.Object, cost.Object, new InMemoryLlmTenantBudgetRepository());
         Guid tenant = Guid.NewGuid();
 
-        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", CreateScopeProvider(tenant), null, 10, 10, CancellationToken.None);
-        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", CreateScopeProvider(tenant), null, 10, 10, CancellationToken.None);
-        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", CreateScopeProvider(tenant), null, 10, 10, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", CreateScopeProvider(tenant), null, 10, 10, null, false, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", CreateScopeProvider(tenant), null, 10, 10, null, false, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", CreateScopeProvider(tenant), null, 10, 10, null, false, CancellationToken.None);
 
         Func<Task> act = async () =>
             await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
@@ -101,15 +101,15 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
 
         IScopeContextProvider scopeProvider = CreateScopeProvider(tenant);
 
-        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, audit.Object, 10, 10, CancellationToken.None);
-        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, audit.Object, 10, 10, CancellationToken.None);
-        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, audit.Object, 10, 10, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, audit.Object, 10, 10, null, false, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, audit.Object, 10, 10, null, false, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, audit.Object, 10, 10, null, false, CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
-        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, audit.Object, 10, 10, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, audit.Object, 10, 10, null, false, CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(
@@ -117,7 +117,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
-        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, audit.Object, 1, 1, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, audit.Object, 1, 1, null, false, CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(
@@ -173,7 +173,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         for (int i = 0; i < tasks.Length; i++)
         {
             tasks[i] = tracker.RecordUsageAndMaybeWarnAsync(
-                tenant, "azure-openai", scope, null, 1, 1, CancellationToken.None);
+                tenant, "azure-openai", scope, null, 1, 1, null, false, CancellationToken.None);
         }
 
         await Task.WhenAll(tasks);
@@ -213,13 +213,13 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         LlmMonthlyTenantDollarBudgetTracker tracker = CreateTracker(monitor.Object, cost.Object, repo);
         IScopeContextProvider scopeProvider = CreateScopeProvider(tenant);
 
-        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, null, 10, 10, CancellationToken.None);
-        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, null, 10, 10, CancellationToken.None);
-        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, null, 10, 10, CancellationToken.None);
-        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, null, 10, 10, CancellationToken.None);
-        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, null, 10, 10, CancellationToken.None);
-        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, null, 10, 10, CancellationToken.None);
-        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, null, 10, 10, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, null, 10, 10, null, false, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, null, 10, 10, null, false, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, null, 10, 10, null, false, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, null, 10, 10, null, false, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, null, 10, 10, null, false, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, null, 10, 10, null, false, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, null, 10, 10, null, false, CancellationToken.None);
 
         await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
     }

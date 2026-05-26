@@ -67,8 +67,9 @@ public sealed class StripeBillingProviderCheckoutWebhookIdempotencyTests
             new BillingWebhookInbound { RawBody = json, StripeSignatureHeader = signature },
             CancellationToken.None);
 
-        result.Succeeded.Should().BeTrue();
-        result.DuplicateIgnored.Should().BeTrue();
+        result.IsReplayRejected.Should().BeTrue();
+        result.Succeeded.Should().BeFalse();
+        result.ErrorDetail.Should().Contain("evt_dup_test_ping_1");
         changePlan.Verify(
             h => h.HandleAsync(It.IsAny<Guid>(), It.IsAny<JsonElement>(), It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),

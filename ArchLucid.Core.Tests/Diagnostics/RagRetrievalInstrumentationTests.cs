@@ -113,6 +113,38 @@ public sealed class RagRetrievalInstrumentationTests
     }
 
     [Fact]
+    public void RecordRagRetrievalSearch_when_circuit_breaker_open_drops_tenant_id_tags()
+    {
+        _ = ArchLucidInstrumentation.RagRetrievalDurationMilliseconds;
+        _ = ArchLucidInstrumentation.RagChunksRetrieved;
+
+        ArchLucidInstrumentation.SetRetrievalTelemetryPerTenantTagCircuitBreaker(static () => true);
+
+        try
+        {
+            using RagRetrievalCapture cap = RagRetrievalCapture.Start();
+
+            IReadOnlyList<RetrievalHit> hits =
+            [
+                new RetrievalHit { CorpusKind = "TenantManifest", ChunkId = "a" },
+            ];
+
+            ArchLucidInstrumentation.RecordRagRetrievalSearch(42, hits, TenantId, recordPerTenant: true);
+
+            cap.DoubleMeasures.Should().ContainSingle(m =>
+                m.Name == "archlucid_rag_retrieval_duration_ms"
+                && m.Tags.All(t => t.Key != "tenant_id"));
+            cap.IntMeasures.Should().ContainSingle(m =>
+                m.Name == "archlucid_rag_chunks_retrieved_total"
+                && m.Tags.All(t => t.Key != "tenant_id"));
+        }
+        finally
+        {
+            ArchLucidInstrumentation.SetRetrievalTelemetryPerTenantTagCircuitBreaker(null);
+        }
+    }
+
+    [Fact]
     public void RecordIntegrationEventDeliverySuccess_and_failure_emit_counters()
     {
         _ = ArchLucidInstrumentation.IntegrationEventDeliverySuccessTotal;

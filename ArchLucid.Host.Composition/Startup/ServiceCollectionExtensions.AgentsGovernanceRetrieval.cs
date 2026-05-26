@@ -54,6 +54,7 @@ using ArchLucid.Retrieval.PolicyPacks;
 using ArchLucid.Retrieval.Reranking;
 using ArchLucid.Retrieval.Pricing;
 using ArchLucid.Retrieval.Queries;
+using ArchLucid.Retrieval.Summarization;
 
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
@@ -800,6 +801,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(RetrievalEmbeddingCapOptions.SectionName));
         services.Configure<RetrievalRerankingOptions>(configuration.GetSection(RetrievalRerankingOptions.SectionPath));
         services.Configure<PriorManifestRetrievalOptions>(configuration.GetSection(PriorManifestRetrievalOptions.SectionPath));
+        services.Configure<ManifestChunkSummarizationOptions>(
+            configuration.GetSection(ManifestChunkSummarizationOptions.SectionPath));
 
         services.AddSingleton<PassThroughRetrievalReranker>();
         services.AddSingleton<LexicalOverlapRetrievalReranker>();
@@ -813,6 +816,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IRetrievalIndexingService, RetrievalIndexingService>();
         services.AddScoped<AssignedPolicyPackRulePackIdResolver>();
         services.AddSingleton<IRetrievalCitationFormatter, RetrievalCitationFormatter>();
+        services.AddScoped<IManifestChunkSummaryCompletionClient, ManifestChunkSummaryCompletionClient>();
+        services.AddScoped<IManifestChunkSummarizer, ManifestChunkSummarizer>();
         services.AddScoped<IRetrievalQueryService, RetrievalQueryService>();
         services.AddScoped<IRetrievalRunCompletionIndexer, RetrievalRunCompletionIndexer>();
 
@@ -839,7 +844,14 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<ExemplarCorpusIndexer>();
         services.AddHostedService<ExemplarCorpusStartupIndexerHostedService>();
 
-        services.AddSingleton<IAzureRetailPriceStructuredLookup, InMemoryAzureRetailPriceStructuredLookup>();
+        services.AddScoped<IAzureRetailPriceTenantCostSettingsContext, ScopedAzureRetailPriceTenantCostSettingsContext>();
+        services.AddScoped<AzureRetailPricesCatalogStructuredLookup>();
+        services.AddScoped<IAzureRetailPriceStructuredLookup>(static sp =>
+            new CachedAzureRetailPriceStructuredLookup(
+                sp.GetRequiredService<AzureRetailPricesCatalogStructuredLookup>(),
+                sp.GetRequiredService<IMemoryCache>(),
+                sp.GetRequiredService<IAzureRetailPriceTenantCostSettingsContext>(),
+                TimeProvider.System));
 
         string? embedDeployment = configuration["AzureOpenAI:EmbeddingDeploymentName"];
         string? endpoint = configuration["AzureOpenAI:Endpoint"];

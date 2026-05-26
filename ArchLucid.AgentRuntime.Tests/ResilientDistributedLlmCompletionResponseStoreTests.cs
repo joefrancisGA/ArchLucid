@@ -23,7 +23,7 @@ public sealed class ResilientDistributedLlmCompletionResponseStoreTests
 
         ResiliencePipeline pipeline = LlmCompletionDistributedStoreResilienceDefaults.BuildCircuitBreakerPipeline(
             NullLogger.Instance,
-            failureThreshold: 1,
+            failureThreshold: 2,
             breakDurationSeconds: 30);
 
         using MemoryLlmCompletionResponseStore fallback = new(maxEntries: 8);
@@ -50,7 +50,7 @@ public sealed class ResilientDistributedLlmCompletionResponseStoreTests
 
         ResiliencePipeline pipeline = LlmCompletionDistributedStoreResilienceDefaults.BuildCircuitBreakerPipeline(
             NullLogger.Instance,
-            failureThreshold: 1,
+            failureThreshold: 2,
             breakDurationSeconds: 30);
 
         using MemoryLlmCompletionResponseStore fallback = new(maxEntries: 8);

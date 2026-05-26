@@ -99,8 +99,6 @@ public sealed class LlmTenantWalletService(
         if (state.BalanceUsd + 0.0001m < estimatedUsd)
             return false;
 
-        LlmTenantWalletOverageScope.Begin(estimatedUsd);
-
         return true;
     }
 

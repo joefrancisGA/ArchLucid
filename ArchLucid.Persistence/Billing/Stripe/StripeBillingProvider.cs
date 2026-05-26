@@ -17,6 +17,7 @@ namespace ArchLucid.Persistence.Billing.Stripe;
 public sealed class StripeBillingProvider(
     IOptionsMonitor<BillingOptions> billingOptions,
     IBillingLedger ledger,
+    IBillingWebhookReplayGuard webhookReplayGuard,
     BillingWebhookTrialActivator trialActivator,
     IMarketplaceChangePlanWebhookMutationHandler changePlanWebhookMutationHandler,
     ILlmTenantWalletStripeWebhookProcessor walletWebhookProcessor,
@@ -29,6 +30,9 @@ public sealed class StripeBillingProvider(
         changePlanWebhookMutationHandler ?? throw new ArgumentNullException(nameof(changePlanWebhookMutationHandler));
 
     private readonly IBillingLedger _ledger = ledger ?? throw new ArgumentNullException(nameof(ledger));
+
+    private readonly IBillingWebhookReplayGuard _webhookReplayGuard =
+        webhookReplayGuard ?? throw new ArgumentNullException(nameof(webhookReplayGuard));
 
     private readonly BillingWebhookTrialActivator _trialActivator =
         trialActivator ?? throw new ArgumentNullException(nameof(trialActivator));
@@ -141,6 +145,12 @@ public sealed class StripeBillingProvider(
             return BillingWebhookHandleResult.Rejected(ex.Message);
         }
 
+        if (await _webhookReplayGuard.HasSeenAsync(ProviderName, stripeEvent.Id, cancellationToken).ConfigureAwait(false))
+        {
+            return BillingWebhookHandleResult.ReplayRejected(
+                $"Stripe webhook event '{stripeEvent.Id}' was already processed within the replay protection window.");
+        }
+
         bool inserted = await _ledger.TryInsertWebhookEventAsync(
             stripeEvent.Id,
             ProviderName,
@@ -153,7 +163,8 @@ public sealed class StripeBillingProvider(
             string? prior = await _ledger.GetWebhookEventResultStatusAsync(stripeEvent.Id, cancellationToken);
 
             if (string.Equals(prior, "Processed", StringComparison.OrdinalIgnoreCase))
-                return BillingWebhookHandleResult.Duplicate();
+                return BillingWebhookHandleResult.ReplayRejected(
+                    $"Stripe webhook event '{stripeEvent.Id}' was already processed.");
         }
 
         try
@@ -171,6 +182,7 @@ public sealed class StripeBillingProvider(
             }
 
             await _ledger.MarkWebhookProcessedAsync(stripeEvent.Id, "Processed", cancellationToken);
+            await _webhookReplayGuard.RememberAsync(ProviderName, stripeEvent.Id, cancellationToken).ConfigureAwait(false);
 
             return BillingWebhookHandleResult.Ok();
         }

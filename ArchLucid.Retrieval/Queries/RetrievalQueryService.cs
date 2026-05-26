@@ -9,6 +9,7 @@ using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.PolicyPacks;
 using ArchLucid.Retrieval.Reranking;
+using ArchLucid.Retrieval.Summarization;
 
 namespace ArchLucid.Retrieval.Queries;
 
@@ -20,6 +21,7 @@ public sealed class RetrievalQueryService(
     IVectorIndex vectorIndex,
     IRetrievalReranker retrievalReranker,
     AssignedPolicyPackRulePackIdResolver assignedPolicyPackRulePackIdResolver,
+    IManifestChunkSummarizer manifestChunkSummarizer,
     IOptionsMonitor<RetrievalTelemetryOptions> retrievalTelemetryOptions,
     IOptionsMonitor<RetrievalRerankingOptions> rerankingOptions) : IRetrievalQueryService
 {
@@ -28,6 +30,9 @@ public sealed class RetrievalQueryService(
 
     private readonly AssignedPolicyPackRulePackIdResolver _assignedPolicyPackRulePackIdResolver =
         assignedPolicyPackRulePackIdResolver ?? throw new ArgumentNullException(nameof(assignedPolicyPackRulePackIdResolver));
+
+    private readonly IManifestChunkSummarizer _manifestChunkSummarizer =
+        manifestChunkSummarizer ?? throw new ArgumentNullException(nameof(manifestChunkSummarizer));
 
     private readonly IOptionsMonitor<RetrievalTelemetryOptions> _retrievalTelemetryOptions =
         retrievalTelemetryOptions ?? throw new ArgumentNullException(nameof(retrievalTelemetryOptions));
@@ -79,6 +84,8 @@ public sealed class RetrievalQueryService(
                 .Take(finalTopK)
                 .ToList();
         }
+
+        hits = await _manifestChunkSummarizer.MaybeSummarizeAsync(hits, ct).ConfigureAwait(false);
 
         double durationMilliseconds = Stopwatch.GetElapsedTime(startTicks).TotalMilliseconds;
         bool recordPerTenantTags = _retrievalTelemetryOptions.CurrentValue.RecordPerTenantTags;

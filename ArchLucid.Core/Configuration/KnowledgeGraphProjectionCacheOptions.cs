@@ -9,6 +9,9 @@ public class KnowledgeGraphProjectionCacheOptions
 
     public const int DefaultMaxAbsoluteExpirationSeconds = 86400;
 
+    /// <summary>Default per-entry byte cap (50 MiB) before bypassing in-process projection cache.</summary>
+    public const long DefaultMaxSingleEntryBytes = 52_428_800;
+
     public GraphProjectionCacheBackend Backend
     {
         get;
@@ -50,4 +53,14 @@ public class KnowledgeGraphProjectionCacheOptions
         get;
         set;
     } = 86400;
+
+    /// <summary>
+    ///     Maximum estimated bytes for a single hydrated graph projection eligible for <see cref="IMemoryCache" /> storage.
+    ///     Oversized snapshots are returned without caching.
+    /// </summary>
+    public long MaxSingleEntryBytes
+    {
+        get;
+        set;
+    } = DefaultMaxSingleEntryBytes;
 }

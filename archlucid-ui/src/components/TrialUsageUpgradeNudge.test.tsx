@@ -67,7 +67,33 @@ describe("TrialUsageUpgradeNudge", () => {
     expect(screen.queryByTestId("trial-usage-upgrade-nudge")).not.toBeInTheDocument();
   });
 
-  it("renders expiry trigger and links to pricing with trial-nudge query params", async () => {
+  it("renders expiry trigger within three-day window and links to pricing with trial-nudge query params", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        return new Response(
+          JSON.stringify({
+            status: "Active",
+            daysRemaining: 2,
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }),
+    );
+
+    render(<TrialUsageUpgradeNudge />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("trial-usage-upgrade-nudge")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("trial-usage-upgrade-nudge")).toHaveAttribute("data-trigger", "expiry");
+    expect(screen.getByRole("button", { name: /upgrade now/i })).toBeInTheDocument();
+    expect(screen.getByTestId("trial-expired-upgrade-modal")).toBeInTheDocument();
+    expect(mockShown).toHaveBeenCalledWith("expiry");
+  });
+
+  it("does not render expiry trigger outside three-day window", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => {
@@ -84,15 +110,36 @@ describe("TrialUsageUpgradeNudge", () => {
     render(<TrialUsageUpgradeNudge />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("trial-usage-upgrade-nudge")).toBeInTheDocument();
+      expect(vi.mocked(fetch)).toHaveBeenCalled();
     });
 
-    expect(screen.getByTestId("trial-usage-upgrade-nudge")).toHaveAttribute("data-trigger", "expiry");
-    expect(screen.getByRole("link", { name: /request a quote/i })).toHaveAttribute(
-      "href",
-      "/pricing?source=trial-nudge&trigger=expiry#pricing-quote-request",
+    expect(screen.queryByTestId("trial-usage-upgrade-nudge")).not.toBeInTheDocument();
+  });
+
+  it("renders non-dismissible expired trial modal", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        return new Response(
+          JSON.stringify({
+            status: "Expired",
+            daysRemaining: 0,
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }),
     );
-    expect(mockShown).toHaveBeenCalledWith("expiry");
+
+    render(<TrialUsageUpgradeNudge />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("trial-expired-upgrade-modal")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/your trial has expired/i)).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /dismiss trial upgrade nudge for 24 hours/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("does not render again in the same session after first show", async () => {

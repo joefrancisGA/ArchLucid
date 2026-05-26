@@ -1,4 +1,5 @@
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -11,14 +12,17 @@ public interface IAzureExtractorAutoPullOrchestrator
     Task RunScheduledPullAsync(CancellationToken cancellationToken);
 }
 
-/// <summary>Iterates tenants with hosted extractor configuration and runs Tier-2 pull (Batch 6).</summary>
+/// <summary>Iterates tenants with hosted extractor configuration and runs Tier-2 pull under per-subscription locks.</summary>
 public sealed class AzureExtractorAutoPullOrchestrator(
     ITenantRepository tenantRepository,
     ITenantHostedExtractorConfigurationRepository configurationRepository,
     IHostedAzureExtractorRunService runService,
+    IDistributedCreateRunIdempotencyLock distributedLock,
     ILogger<AzureExtractorAutoPullOrchestrator> logger) : IAzureExtractorAutoPullOrchestrator
 {
     private const string SystemActor = "hosted:azure-extractor-auto-pull";
+
+    private const int LockWaitMilliseconds = 0;
 
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
@@ -28,6 +32,9 @@ public sealed class AzureExtractorAutoPullOrchestrator(
 
     private readonly IHostedAzureExtractorRunService _runService =
         runService ?? throw new ArgumentNullException(nameof(runService));
+
+    private readonly IDistributedCreateRunIdempotencyLock _distributedLock =
+        distributedLock ?? throw new ArgumentNullException(nameof(distributedLock));
 
     private readonly ILogger<AzureExtractorAutoPullOrchestrator> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -64,32 +71,59 @@ public sealed class AzureExtractorAutoPullOrchestrator(
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    HostedAzureExtractorRunResult result = await _runService
-                        .RunAsync(
-                            tenant.Id,
-                            config.SubscriptionId,
-                            runId: null,
-                            SystemActor,
-                            correlationId: null,
-                            cancellationToken)
-                        .ConfigureAwait(false);
+                    string lockResource =
+                        $"hosted-azure-extractor-auto-pull:{tenant.Id:N}:{config.SubscriptionId}";
 
-                    if (_logger.IsEnabled(LogLevel.Information) && result.Succeeded)
+                    IAsyncDisposable? runLock = null;
+
+                    try
                     {
-                        _logger.LogInformation(
-                            "Azure extractor auto-pull succeeded for tenant {TenantId} subscription {SubscriptionId} ({ResourceCount} resources).",
-                            tenant.Id,
-                            config.SubscriptionId,
-                            result.ResourceCount);
+                        runLock = await _distributedLock
+                            .AcquireExclusiveSessionLockAsync(lockResource, LockWaitMilliseconds, cancellationToken)
+                            .ConfigureAwait(false);
+                    }
+                    catch (TimeoutException)
+                    {
+                        if (_logger.IsEnabled(LogLevel.Debug))
+                        {
+                            _logger.LogDebug(
+                                "Azure extractor auto-pull skipped tenant {TenantId} subscription {SubscriptionId}; another run holds the lock.",
+                                tenant.Id,
+                                config.SubscriptionId);
+                        }
+
+                        continue;
                     }
 
-                    if (!result.Succeeded && _logger.IsEnabled(LogLevel.Warning))
+                    await using (runLock)
                     {
-                        _logger.LogWarning(
-                            "Azure extractor auto-pull failed for tenant {TenantId} subscription {SubscriptionId}: {Detail}",
-                            tenant.Id,
-                            config.SubscriptionId,
-                            result.FailureDetail ?? result.FailureKind.ToString());
+                        HostedAzureExtractorRunResult result = await _runService
+                            .RunAsync(
+                                tenant.Id,
+                                config.SubscriptionId,
+                                runId: null,
+                                SystemActor,
+                                correlationId: null,
+                                cancellationToken)
+                            .ConfigureAwait(false);
+
+                        if (_logger.IsEnabled(LogLevel.Information) && result.Succeeded)
+                        {
+                            _logger.LogInformation(
+                                "Azure extractor auto-pull succeeded for tenant {TenantId} subscription {SubscriptionId} ({ResourceCount} resources).",
+                                tenant.Id,
+                                config.SubscriptionId,
+                                result.ResourceCount);
+                        }
+
+                        if (!result.Succeeded && _logger.IsEnabled(LogLevel.Warning))
+                        {
+                            _logger.LogWarning(
+                                "Azure extractor auto-pull failed for tenant {TenantId} subscription {SubscriptionId}: {Detail}",
+                                tenant.Id,
+                                config.SubscriptionId,
+                                result.FailureDetail ?? result.FailureKind.ToString());
+                        }
                     }
                 }
             }

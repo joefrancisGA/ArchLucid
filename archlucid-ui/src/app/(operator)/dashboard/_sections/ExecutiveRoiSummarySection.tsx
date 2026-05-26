@@ -241,7 +241,10 @@ export function ExecutiveRoiSummarySection() {
               Systemic issue trends (last 6 months)
             </h3>
             <div className="mt-3">
-              <ExecutiveRoiSystemicIssueTrendChart series={data.historicalTrends ?? []} />
+              <ExecutiveRoiSystemicIssueTrendChart
+                series={data.historicalTrends ?? []}
+                savingsPricingBasis={data.savingsPricingBasis}
+              />
             </div>
           </div>
         ) : null}

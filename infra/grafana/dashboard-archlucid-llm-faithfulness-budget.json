@@ -1,0 +1,99 @@
+{
+  "title": "ArchLucid LLM faithfulness and budget",
+  "schemaVersion": 38,
+  "version": 1,
+  "uid": "archlucid-llm-faithfulness-budget",
+  "tags": ["archlucid", "llm", "supportability"],
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 0,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Agent faithfulness cosine (p50 / p95) — archlucid.agent.faithfulness_cosine",
+      "description": "Prometheus scrape name may appear as archlucid_agent_faithfulness_cosine depending on OTel exporter settings.",
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (le, agent_type) (rate(archlucid_agent_faithfulness_cosine_bucket[5m])))",
+          "legendFormat": "p50 {{agent_type}}",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, agent_type) (rate(archlucid_agent_faithfulness_cosine_bucket[5m])))",
+          "legendFormat": "p95 {{agent_type}}",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "LLM monthly budget approaching (utilization ≥ warn fraction)",
+      "description": "Uses archlucid_llm_budget_utilization_fraction (WarnFraction default 0.75). Complements durable audit LlmTenantMonthlyDollarBudgetApproaching.",
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 0.75 },
+              { "color": "red", "value": 0.9 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "max by (tenant_id) (archlucid_llm_budget_utilization_fraction >= 0.75)",
+          "legendFormat": "{{tenant_id}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "logs",
+      "title": "Audit: LlmTenantMonthlyDollarBudgetApproaching",
+      "description": "Bind ${DS_LOKI} to the environment Loki datasource. Filters durable audit event type emitted once per tenant per UTC month.",
+      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
+      "targets": [
+        {
+          "expr": "{app=\"archlucid\"} |= \"LlmTenantMonthlyDollarBudgetApproaching\"",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "time": { "from": "now-24h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "DS_PROMETHEUS",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": { "text": "Prometheus", "value": "Prometheus" },
+        "hide": 0
+      },
+      {
+        "name": "DS_LOKI",
+        "type": "datasource",
+        "query": "loki",
+        "current": { "text": "Loki", "value": "Loki" },
+        "hide": 0
+      }
+    ]
+  }
+}

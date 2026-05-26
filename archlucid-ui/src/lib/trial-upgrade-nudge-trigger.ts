@@ -12,13 +12,21 @@ export type TrialUpgradeNudgeStatusPayload = {
 
 const RUNS_USAGE_THRESHOLD = 0.7;
 const SEATS_USAGE_THRESHOLD = 0.8;
-const EXPIRY_URGENT_DAYS_MAX = 7;
+const EXPIRY_URGENT_DAYS_MAX = 3;
 
 /** Returns the highest-priority active trigger, or null when no nudge threshold is met. */
 export function resolveTrialUpgradeNudgeTrigger(
   payload: TrialUpgradeNudgeStatusPayload | null,
 ): TrialUpgradeNudgeTrigger | null {
-  if (payload === null || payload.status !== "Active") {
+  if (payload === null) {
+    return null;
+  }
+
+  if (payload.status === "Expired" || payload.status === "ReadOnly") {
+    return "expiry";
+  }
+
+  if (payload.status !== "Active") {
     return null;
   }
 

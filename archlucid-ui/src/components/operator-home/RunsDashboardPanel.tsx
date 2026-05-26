@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 import { formatFindings, formatHours, safeCommittedRunWindowCount } from "@/components/BeforeAfterDelta/formatDelta";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorHomeAzureExtractorEmptyState } from "@/components/operator-home/OperatorHomeAzureExtractorEmptyState";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -471,40 +472,26 @@ export function RunsDashboardPanel() {
               ) : null}
 
               {(phase === "ready" || phase === "error") && filteredItems.length === 0 && effectiveItems.length === 0 && !runListError ? (
-                <div
-                  className="space-y-3 rounded-lg border border-teal-200 bg-teal-50/60 px-3 py-3 dark:border-teal-900 dark:bg-teal-950/30"
-                  data-testid="operator-home-getting-started"
-                >
-                  <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Getting started</p>
-                  <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                    {buyerPolishedShell
-                      ? "Open the full review package above to walk a governed Claims Intake review end to end."
-                      : "You have no architecture reviews yet. Create a request to produce a manifest, findings, and exportable artifacts — or walk the pilot checklist first."}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {!buyerPolishedShell ? (
-                      <Button asChild variant="primary" size="sm" className="h-8">
-                        <Link href="/reviews/new">Create your first request</Link>
-                      </Button>
-                    ) : (
+                buyerPolishedShell ? (
+                  <div
+                    className="space-y-3 rounded-lg border border-teal-200 bg-teal-50/60 px-3 py-3 dark:border-teal-900 dark:bg-teal-950/30"
+                    data-testid="operator-home-getting-started"
+                  >
+                    <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Getting started</p>
+                    <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                      Open the full review package above to walk a governed Claims Intake review end to end.
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
                       <Button asChild variant="outline" size="sm" className="h-8">
                         <Link href={getCanonicalReviewWorkspaceHref(SHOWCASE_STATIC_DEMO_RUN_ID)}>
                           View review package
                         </Link>
                       </Button>
-                    )}
-                    {buyerPolishedShell ? null : (
-                      <>
-                        <Button asChild variant="outline" size="sm" className="h-8">
-                          <Link href="/onboarding">First-review checklist</Link>
-                        </Button>
-                        <Button asChild variant="outline" size="sm" className="h-8">
-                          <Link href="/help">How this works</Link>
-                        </Button>
-                      </>
-                    )}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <OperatorHomeAzureExtractorEmptyState />
+                )
               ) : null}
 
               {(phase === "ready" || phase === "error") && showcaseDemoRun && buyerPolishedShell ? (

@@ -7,6 +7,7 @@ using ArchLucid.Retrieval.Models;
 using ArchLucid.Retrieval.PolicyPacks;
 using ArchLucid.Retrieval.Queries;
 using ArchLucid.Retrieval.Reranking;
+using ArchLucid.Retrieval.Summarization;
 
 using FluentAssertions;
 
@@ -243,6 +244,7 @@ public sealed class RetrievalQueryServiceTests
             vectorIndex,
             passThrough,
             assignedResolver,
+            new NoOpManifestChunkSummarizer(),
             telemetryOptions,
             rerankingOptions);
     }

@@ -79,6 +79,8 @@ public static class ArchLucidInstrumentation
 
     private static long _graphProjectionCacheMissesAggregate;
 
+    private static long _graphProjectionCacheOversizedBypassAggregate;
+
     private static long _trialActiveTenantsCached;
 
     private static long _warmCatalogsAvailableCached;
@@ -96,6 +98,8 @@ public static class ArchLucidInstrumentation
     private static Func<Measurement<double>[]>? _executiveRoiSavingsReader;
 
     private static Func<string, bool>? _firstTenantFunnelEventNameValidator;
+
+    private static Func<bool>? _retrievalTelemetryPerTenantTagCircuitBreaker;
 
     /// <summary>Root span name for <see cref="AuthorityRun" /> (matches <c>authority.*</c> stage naming for trace sampling).</summary>
     public const string AuthorityRunRootActivityName = "authority.run";
@@ -255,6 +259,13 @@ public static class ArchLucidInstrumentation
             "archlucid_llm_rate_limit_total",
             description:
             "LLM completion rate-limit responses (HTTP 429) before retry wait (labels: retry_after=header|fallback).");
+
+    /// <summary>Integration outbox dead-letter rows skipped after exhausting automatic DLQ requeue attempts.</summary>
+    public static readonly Counter<long> IntegrationEventDlqPermanentFailureTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_integration_event_dlq_permanent_failure_total",
+            description:
+            "Integration outbox dead-letter rows that exceeded automatic DLQ requeue retry budget.");
 
     /// <summary>
     ///     Hits on the in-resolve <c>(packId, version)</c> deserialized content cache inside
@@ -1004,6 +1015,13 @@ public static class ArchLucidInstrumentation
     public static void SetFirstTenantFunnelEventNameValidator(Func<string, bool> validator) =>
         Volatile.Write(ref _firstTenantFunnelEventNameValidator, validator);
 
+    /// <summary>
+    ///     Supplies the RAG per-tenant tag circuit breaker (drops <c>tenant_id</c> when tenant estimates exceed safe
+    ///     thresholds).
+    /// </summary>
+    public static void SetRetrievalTelemetryPerTenantTagCircuitBreaker(Func<bool>? shouldSuppressTenantIdTags) =>
+        Volatile.Write(ref _retrievalTelemetryPerTenantTagCircuitBreaker, shouldSuppressTenantIdTags);
+
     /// <summary>Registers observable gauges once (call from OpenTelemetry host setup).</summary>
     public static void EnsureOutboxDepthObservableGaugesRegistered()
     {
@@ -1335,9 +1353,11 @@ public static class ArchLucidInstrumentation
 
         string corpusKindLabel = ResolveRagRetrievalCorpusKindLabel(hits);
 
+        bool emitTenantId = ShouldEmitRagRetrievalTenantIdTag(recordPerTenant, tenantId);
+
         TagList durationTags = new() { { "corpus_kind", corpusKindLabel } };
 
-        if (recordPerTenant && tenantId != Guid.Empty)
+        if (emitTenantId)
             durationTags.Add("tenant_id", tenantId.ToString("D"));
 
         RagRetrievalDurationMilliseconds.Record(durationMilliseconds, durationTags);
@@ -1346,7 +1366,7 @@ public static class ArchLucidInstrumentation
         {
             TagList emptyTags = new() { { "corpus_kind", "none" } };
 
-            if (recordPerTenant && tenantId != Guid.Empty)
+            if (emitTenantId)
                 emptyTags.Add("tenant_id", tenantId.ToString("D"));
 
             RagChunksRetrieved.Record(0, emptyTags);
@@ -1371,11 +1391,24 @@ public static class ArchLucidInstrumentation
         {
             TagList chunkTags = new() { { "corpus_kind", pair.Key } };
 
-            if (recordPerTenant && tenantId != Guid.Empty)
+            if (emitTenantId)
                 chunkTags.Add("tenant_id", tenantId.ToString("D"));
 
             RagChunksRetrieved.Record(pair.Value, chunkTags);
         }
+    }
+
+    private static bool ShouldEmitRagRetrievalTenantIdTag(bool recordPerTenant, Guid tenantId)
+    {
+        if (!recordPerTenant || tenantId == Guid.Empty)
+            return false;
+
+        Func<bool>? circuitBreaker = Volatile.Read(ref _retrievalTelemetryPerTenantTagCircuitBreaker);
+
+        if (circuitBreaker is not null && circuitBreaker.Invoke())
+            return false;
+
+        return true;
     }
 
     /// <summary>Records <see cref="RetrievalRerankLatencyMilliseconds" /> for a completed rerank call.</summary>
@@ -1437,6 +1470,21 @@ public static class ArchLucidInstrumentation
     public static void RecordGraphProjectionCacheMiss()
     {
         _ = Interlocked.Increment(ref _graphProjectionCacheMissesAggregate);
+    }
+
+    /// <summary>Records one oversized graph projection that bypassed in-process cache storage.</summary>
+    public static void RecordGraphProjectionCacheOversizedBypass()
+    {
+        _ = Interlocked.Increment(ref _graphProjectionCacheOversizedBypassAggregate);
+    }
+
+    /// <summary>Records permanently failed integration outbox DLQ rows observed in one auto-retry pass.</summary>
+    public static void RecordIntegrationEventDlqPermanentFailures(long count)
+    {
+        if (count <= 0)
+            return;
+
+        IntegrationEventDlqPermanentFailureTotal.Add(count);
     }
 
     /// <summary>Returns process-life cache counters for operator diagnostics.</summary>

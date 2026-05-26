@@ -54,13 +54,13 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
     ///     Throws <see cref="LlmTokenQuotaExceededException" /> when the next call would exceed the UTC-month hard
     ///     cutoff.
     /// </summary>
-    public async Task EnsureWithinBudgetBeforeCallAsync(
+    public async Task<(decimal? ReservedUsd, bool OverageActive)> EnsureWithinBudgetBeforeCallAsync(
         Guid tenantId,
         string providerKind,
         CancellationToken cancellationToken = default)
     {
         if (tenantId == Guid.Empty || providerKind.IsExcludedFromBudgetTracking())
-            return;
+            return (null, false);
 
         if (ShouldSimulateBudgetExhausted())
             throw CreateSimulatedBudgetExhaustedException();
@@ -68,7 +68,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
         LlmMonthlyTenantDollarBudgetOptions opts = _optionsMonitor.CurrentValue;
 
         if (!opts.Enabled || opts.HardCutoffUsdPerUtcMonth < 0.01m)
-            return;
+            return (null, false);
 
         int assumedPrompt = Math.Clamp(opts.AssumedMaxPromptTokensPerRequest, 1, 1_000_000);
         int assumedCompletion = Math.Clamp(opts.AssumedMaxCompletionTokensPerRequest, 1, 262_144);
@@ -76,7 +76,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
         decimal assumed = assumedUsd ?? 0m;
 
         if (assumed <= 0m)
-            return;
+            return (null, false);
 
         string periodKey = MonthlyPeriodKey(GetUtcYearMonth());
         decimal max = opts.HardCutoffUsdPerUtcMonth;
@@ -90,7 +90,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
         if (state.TotalUsdPressure + assumed > effectiveMax)
         {
             if (await _walletService.TryAuthorizeOverageSpendAsync(tenantId, assumed, cancellationToken).ConfigureAwait(false))
-                return;
+                return (null, true);
 
             (int year, int month) = GetUtcYearMonth();
             DateTimeOffset retryAfterUtc = FirstInstantOfNextUtcMonth(year, month);
@@ -136,7 +136,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
             if (reserved.HardCapBlocked)
             {
                 if (await _walletService.TryAuthorizeOverageSpendAsync(tenantId, assumed, cancellationToken).ConfigureAwait(false))
-                    return;
+                    return (null, true);
 
                 LlmTenantBudgetStateReadModel blocked = reserved.NewState ?? state;
                 (int year, int month) = GetUtcYearMonth();
@@ -151,9 +151,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
                     retryAfterUtc);
             }
 
-            PendingReservedAssumedUsd.Value = assumed;
-
-            return;
+            return (assumed, false);
         }
 
         throw new InvalidOperationException("LLM monthly dollar budget reserve could not complete after optimistic retries.");
@@ -167,19 +165,19 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
         IAuditService? auditService,
         int promptTokens,
         int completionTokens,
+        decimal? pendingReservedUsd,
+        bool overageActive,
         CancellationToken cancellationToken = default)
     {
         if (tenantId == Guid.Empty || providerKind.IsExcludedFromBudgetTracking())
             return;
 
-        if (LlmTenantWalletOverageScope.IsActive)
+        if (overageActive)
         {
             decimal? walletUsd = _costEstimator.EstimateUsd(promptTokens, completionTokens);
 
             if (walletUsd is > 0m)
             {
-                LlmTenantWalletOverageScope.Clear();
-
                 await _walletService
                     .QueueOverageSettlementAsync(tenantId, walletUsd.Value, Guid.NewGuid(), cancellationToken)
                     .ConfigureAwait(false);
@@ -207,7 +205,6 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
             MidpointRounding.AwayFromZero);
 
         string periodKey = MonthlyPeriodKey(GetUtcYearMonth());
-        decimal? pendingReserved = PendingReservedAssumedUsd.Value;
 
         for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
         {
@@ -223,7 +220,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
                         Period = LlmBudgetPeriod.Monthly,
                         PeriodKey = periodKey,
                         ActualUsd = addUsd.Value,
-                        ReleaseReservedUsd = pendingReserved ?? 0m,
+                        ReleaseReservedUsd = pendingReservedUsd ?? 0m,
                         WarnAtUsd = warnAt,
                         ExpectedRowVersion = read.RowVersion
                     },
@@ -236,8 +233,6 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
 
                 continue;
             }
-
-            PendingReservedAssumedUsd.Value = null;
 
             decimal newTotal =
                 settled.NewState?.CommittedUsd ?? throw new InvalidOperationException("Missing spend state after update.");
@@ -258,6 +253,8 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
     public async Task ReleasePendingReservationIfAnyAsync(
         Guid tenantId,
         string providerKind,
+        decimal? pending,
+        bool overageActive,
         CancellationToken cancellationToken = default)
     {
         if (tenantId == Guid.Empty || providerKind.IsExcludedFromBudgetTracking())
@@ -268,15 +265,8 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
         if (!opts.Enabled || opts.HardCutoffUsdPerUtcMonth < 0.01m)
             return;
 
-        decimal? pending = PendingReservedAssumedUsd.Value;
-
         if (pending is null or <= 0m)
-        {
-            if (LlmTenantWalletOverageScope.IsActive)
-                LlmTenantWalletOverageScope.Clear();
-
             return;
-        }
 
         string periodKey = MonthlyPeriodKey(GetUtcYearMonth());
         decimal warnAt = decimal.Round(
@@ -311,8 +301,6 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
 
                 continue;
             }
-
-            PendingReservedAssumedUsd.Value = null;
 
             return;
         }

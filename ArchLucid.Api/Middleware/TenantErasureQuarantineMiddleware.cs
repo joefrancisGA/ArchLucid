@@ -5,7 +5,8 @@ using ArchLucid.Core.Tenancy;
 namespace ArchLucid.Api.Middleware;
 
 /// <summary>
-///     Blocks tenant-scoped traffic while <c>dbo.Tenants.OffboardedUtc</c> is set (scheduled erasure quarantine).
+///     Blocks tenant-scoped traffic while erasure quarantine is active
+///     (<c>OffboardedUtc</c> or past-due <c>TenantErasureRequestedUtc</c>).
 /// </summary>
 internal sealed class TenantErasureQuarantineMiddleware(RequestDelegate next)
 {
@@ -46,8 +47,10 @@ internal sealed class TenantErasureQuarantineMiddleware(RequestDelegate next)
 
         ITenantRepository tenants = context.RequestServices.GetRequiredService<ITenantRepository>();
         TenantRecord? tenant = await tenants.GetByIdAsync(scope.TenantId, context.RequestAborted);
+        TimeProvider timeProvider = context.RequestServices.GetRequiredService<TimeProvider>();
+        DateTimeOffset utcNow = timeProvider.GetUtcNow();
 
-        if (tenant is null || tenant.OffboardedUtc is null)
+        if (tenant is null || !TenantErasureEligibility.IsTenantLoginBlocked(tenant, utcNow))
         {
             await next(context);
 

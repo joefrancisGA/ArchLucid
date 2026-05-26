@@ -63,6 +63,7 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
         AzureMarketplaceBillingProvider sut = new(
             monitor,
             ledger.Object,
+            BillingWebhookReplayGuardTestSupport.CreatePermissiveReplayGuard().Object,
             activator,
             verifier.Object,
             httpFactory.Object,
@@ -138,6 +139,7 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
         AzureMarketplaceBillingProvider sut = new(
             monitor,
             ledger.Object,
+            BillingWebhookReplayGuardTestSupport.CreatePermissiveReplayGuard().Object,
             activator,
             verifier.Object,
             httpFactory.Object,

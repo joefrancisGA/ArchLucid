@@ -149,7 +149,7 @@ public sealed class ItsmOutboundServiceNowWireMockHttpIntegrationTests
 
         server
             .Given(Request.Create().WithPath("/api/now/table/incident").UsingPost())
-            .RespondWith(Response.Create().WithStatusCode((int)HttpStatusCode.BadRequest).WithBody("{\"error\":\"nope\"}"));
+            .RespondWith(Response.Create().WithStatusCode((int)HttpStatusCode.ServiceUnavailable).WithBody("{\"error\":\"nope\"}"));
 
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
@@ -199,7 +199,7 @@ public sealed class ItsmOutboundServiceNowWireMockHttpIntegrationTests
             await sut.TryCreateForFindingAsync(ItsmOutboundIssueProvider.ServiceNow, scope: Scope(), "f-sn400", CancellationToken.None);
 
         got.Kind.Should().Be(ItsmOutboundCreateTerminalKind.VendorError);
-        got.VendorStatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+        got.VendorStatusCode.Should().Be((int)HttpStatusCode.ServiceUnavailable);
 
         _ = ItsmOutboundWireMockAssertions.RequireSingleOutbound(server, MatchesIncidentPost);
     }

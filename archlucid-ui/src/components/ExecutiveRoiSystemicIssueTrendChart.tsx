@@ -1,16 +1,24 @@
+"use client";
+
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+
 import type { ExecutiveRoiSystemicIssueTrendSeries } from "@/lib/executive-summary-markdown";
 
 export type ExecutiveRoiSystemicIssueTrendChartProps = {
   series: ExecutiveRoiSystemicIssueTrendSeries[];
+  savingsPricingBasis?: string | null;
 };
 
-const SERIES_COLORS = [
-  "bg-sky-600/90 dark:bg-sky-500/90",
-  "bg-violet-600/90 dark:bg-violet-500/90",
-  "bg-amber-500/90",
-  "bg-teal-700/90 dark:bg-teal-500/90",
-  "bg-rose-600/90 dark:bg-rose-500/90",
-] as const;
+const SERIES_COLORS = ["#0284c7", "#7c3aed", "#f59e0b", "#0f766e", "#e11d48"] as const;
 
 function safeCount(value: unknown): number {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -30,9 +38,28 @@ function formatMonthKey(monthKey: string): string {
   return `${match[2]}/${match[1].slice(2)}`;
 }
 
-/** Stacked bar chart for top systemic issue counts over the trailing six months. */
+function formatPricingBasisLabel(savingsPricingBasis: string | null | undefined): string {
+  const basis = (savingsPricingBasis ?? "Retail").trim();
+
+  if (basis.length === 0) {
+    return "Retail list pricing";
+  }
+
+  if (basis.toLowerCase() === "ea-adjusted") {
+    return "EA-adjusted savings basis";
+  }
+
+  return `${basis} savings basis`;
+}
+
+type ChartRow = Record<string, string | number> & {
+  monthKey: string;
+  monthLabel: string;
+};
+
+/** Recharts stacked bar chart for top systemic issue counts over the trailing six months. */
 export function ExecutiveRoiSystemicIssueTrendChart(props: ExecutiveRoiSystemicIssueTrendChartProps) {
-  const { series } = props;
+  const { series, savingsPricingBasis } = props;
 
   if (series.length === 0) {
     return (
@@ -44,73 +71,45 @@ export function ExecutiveRoiSystemicIssueTrendChart(props: ExecutiveRoiSystemicI
 
   const monthKeys = series[0]?.points.map((point) => point.monthKey) ?? [];
   const normalized = series.map((entry, index) => ({
-    key: `${entry.category}-${entry.severity}-${entry.findingId}`,
-    label: `${entry.category} · ${entry.severity}`,
-    colorClass: SERIES_COLORS[index % SERIES_COLORS.length],
+    dataKey: `${entry.category} · ${entry.severity}`,
+    color: SERIES_COLORS[index % SERIES_COLORS.length],
     countsByMonth: new Map(entry.points.map((point) => [point.monthKey, safeCount(point.count)])),
   }));
 
-  const totalsByMonth = monthKeys.map((monthKey) =>
-    normalized.reduce((sum, entry) => sum + (entry.countsByMonth.get(monthKey) ?? 0), 0),
-  );
-  const maxStack = Math.max(...totalsByMonth, 1);
-  const barMaxPx = 120;
+  const chartRows: ChartRow[] = monthKeys.map((monthKey) => {
+    const row: ChartRow = {
+      monthKey,
+      monthLabel: formatMonthKey(monthKey),
+    };
+
+    for (const entry of normalized) {
+      row[entry.dataKey] = entry.countsByMonth.get(monthKey) ?? 0;
+    }
+
+    return row;
+  });
+
+  const pricingBasisLabel = formatPricingBasisLabel(savingsPricingBasis);
 
   return (
-    <div className="space-y-3" data-testid="exec-roi-systemic-issue-trend-chart">
-      <div
-        className="flex gap-1 border-b border-neutral-200 pb-1 dark:border-neutral-700"
-        role="img"
-        aria-label="Systemic issue counts by month — stacked bars show top recurring themes"
-      >
-        {monthKeys.map((monthKey, monthIndex) => {
-          const stack = totalsByMonth[monthIndex] ?? 0;
-          const stackPx = stack === 0 ? 0 : Math.max(2, (stack / maxStack) * barMaxPx);
-
-          return (
-            <div
-              key={monthKey}
-              className="flex min-h-[144px] min-w-0 flex-1 flex-col items-center justify-end gap-1"
-            >
-              <div
-                className="flex w-full max-w-[2rem] flex-col justify-end overflow-hidden rounded-t"
-                style={{ height: stackPx }}
-                title={`${stack} findings across top themes`}
-              >
-                {normalized.map((entry) => {
-                  const count = entry.countsByMonth.get(monthKey) ?? 0;
-
-                  if (count === 0 || stack === 0) {
-                    return null;
-                  }
-
-                  const segmentPx = (count / stack) * stackPx;
-
-                  return (
-                    <div
-                      key={entry.key}
-                      className={`w-full ${entry.colorClass}`}
-                      style={{ height: segmentPx }}
-                      title={`${entry.label}: ${count}`}
-                    />
-                  );
-                })}
-              </div>
-              <span className="truncate text-[10px] text-neutral-500 dark:text-neutral-400">
-                {formatMonthKey(monthKey)}
-              </span>
-            </div>
-          );
-        })}
+    <div className="space-y-2" data-testid="exec-roi-systemic-issue-trend-chart">
+      <div className="h-64 w-full min-w-0" role="img" aria-label="Systemic issue counts by month">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={chartRows} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <XAxis dataKey="monthLabel" tick={{ fontSize: 11 }} />
+            <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={32} />
+            <Tooltip
+              formatter={(value: number, name: string) => [`${value} findings`, name]}
+              labelFormatter={(label: string) => `${label} · ${pricingBasisLabel}`}
+            />
+            <Legend wrapperStyle={{ fontSize: "12px" }} />
+            {normalized.map((entry) => (
+              <Bar key={entry.dataKey} dataKey={entry.dataKey} stackId="issues" fill={entry.color} />
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
       </div>
-      <ul className="m-0 flex list-none flex-wrap gap-4 p-0 text-xs text-neutral-600 dark:text-neutral-400">
-        {normalized.map((entry) => (
-          <li key={entry.key} className="flex items-center gap-1.5">
-            <span className={`inline-block h-2.5 w-2.5 rounded-sm ${entry.colorClass}`} aria-hidden />
-            {entry.label}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }

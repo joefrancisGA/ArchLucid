@@ -1,3 +1,4 @@
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.IntegrationOutbox;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -8,8 +9,6 @@ namespace ArchLucid.Host.Core.Hosted;
 /// <summary>Automatically requeues dead-lettered integration events with bounded retries.</summary>
 public static class IntegrationEventDlqRetryBackgroundWork
 {
-    private const int MaxAutoRetryCount = 3;
-
     /// <summary>Runs one DLQ auto-retry pass (leader-elected hosts call this on a timer).</summary>
     public static async Task RunSinglePassAsync(
         IServiceScopeFactory scopeFactory,
@@ -26,17 +25,39 @@ public static class IntegrationEventDlqRetryBackgroundWork
         IReadOnlyList<IntegrationEventOutboxDeadLetterRow> deadLetters =
             await repository.ListDeadLettersAsync(100, cancellationToken).ConfigureAwait(false);
 
+        DateTime utcNow = DateTime.UtcNow;
         int requeued = 0;
+        int permanentlyFailed = 0;
 
         foreach (IntegrationEventOutboxDeadLetterRow row in deadLetters)
         {
-            if (row.RetryCount >= MaxAutoRetryCount)
+            if (IntegrationEventDlqRetryPolicy.IsPermanentlyFailed(row))
+            {
+                permanentlyFailed++;
+
+                continue;
+            }
+
+            if (!IntegrationEventDlqRetryPolicy.IsEligibleForAutoRetry(row, utcNow))
                 continue;
 
             bool ok = await repository.ResetDeadLetterForRetryAsync(row.OutboxId, cancellationToken).ConfigureAwait(false);
 
             if (ok)
                 requeued++;
+        }
+
+        if (permanentlyFailed > 0)
+        {
+            ArchLucidInstrumentation.RecordIntegrationEventDlqPermanentFailures(permanentlyFailed);
+
+            if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning(
+                    "Integration event DLQ auto-retry skipped {Count} permanently failed dead-letter row(s) (RetryCount >= {MaxRetries}).",
+                    permanentlyFailed,
+                    IntegrationEventDlqRetryPolicy.MaxAutoRetryCount);
+            }
         }
 
         if (requeued > 0 && logger.IsEnabled(LogLevel.Information))

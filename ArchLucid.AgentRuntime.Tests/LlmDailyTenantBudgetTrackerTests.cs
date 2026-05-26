@@ -33,7 +33,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
         LlmDailyTenantBudgetTracker tracker = new(monitor.Object, repo);
         Guid tenant = Guid.NewGuid();
 
-        await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
+        long? reserved = await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
         await tracker.RecordUsageAndMaybeWarnAsync(
             tenant,
             "azure-openai",
@@ -41,6 +41,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
             null,
             100,
             100,
+            reserved,
             CancellationToken.None);
         await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
     }
@@ -66,6 +67,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
             null,
             400,
             0,
+            null,
             CancellationToken.None);
 
         Func<Task> act = async () =>
@@ -97,6 +99,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
             audit.Object,
             700,
             0,
+            null,
             CancellationToken.None);
 
         audit.Verify(
@@ -110,6 +113,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
             audit.Object,
             150,
             0,
+            null,
             CancellationToken.None);
 
         audit.Verify(
@@ -125,6 +129,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
             audit.Object,
             10,
             0,
+            null,
             CancellationToken.None);
 
         audit.Verify(
@@ -157,7 +162,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
         for (int i = 0; i < tasks.Length; i++)
         {
             tasks[i] = tracker.RecordUsageAndMaybeWarnAsync(
-                tenant, "azure-openai", scope, null, 1, 1, CancellationToken.None);
+                tenant, "azure-openai", scope, null, 1, 1, null, CancellationToken.None);
         }
 
         await Task.WhenAll(tasks);

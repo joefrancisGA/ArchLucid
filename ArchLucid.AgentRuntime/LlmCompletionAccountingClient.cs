@@ -118,15 +118,19 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         string providerKind = _inner.Descriptor.ProviderKind;
 
+        long? dailyReserved = null;
+        decimal? monthlyReserved = null;
+        bool overageActive = false;
+
         try
         {
             if (_dailyTenantBudgetOptions.CurrentValue.Enabled)
-                await _dailyTenantBudgetTracker
+                dailyReserved = await _dailyTenantBudgetTracker
                     .EnsureWithinBudgetBeforeCallAsync(scope.TenantId, providerKind, cancellationToken)
                     .ConfigureAwait(false);
 
             if (_monthlyDollarBudgetOptions.CurrentValue.Enabled)
-                await _monthlyDollarBudgetTracker
+                (monthlyReserved, overageActive) = await _monthlyDollarBudgetTracker
                     .EnsureWithinBudgetBeforeCallAsync(scope.TenantId, providerKind, cancellationToken)
                     .ConfigureAwait(false);
 
@@ -175,11 +179,11 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
             if (!consumed)
             {
                 await _dailyTenantBudgetTracker
-                    .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, CancellationToken.None)
+                    .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, dailyReserved, CancellationToken.None)
                     .ConfigureAwait(false);
 
                 await _monthlyDollarBudgetTracker
-                    .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, CancellationToken.None)
+                    .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, monthlyReserved, overageActive, CancellationToken.None)
                     .ConfigureAwait(false);
             }
             else
@@ -196,6 +200,7 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                         _auditService,
                         promptTok,
                         completionTok,
+                        dailyReserved,
                         CancellationToken.None)
                     .ConfigureAwait(false);
 
@@ -207,6 +212,8 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                         _auditService,
                         promptTok,
                         completionTok,
+                        monthlyReserved,
+                        overageActive,
                         CancellationToken.None)
                     .ConfigureAwait(false);
 
@@ -249,15 +256,19 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         string providerKind = _inner.Descriptor.ProviderKind;
 
+        long? dailyReserved = null;
+        decimal? monthlyReserved = null;
+        bool overageActive = false;
+
         try
         {
             if (_dailyTenantBudgetOptions.CurrentValue.Enabled)
-                await _dailyTenantBudgetTracker
+                dailyReserved = await _dailyTenantBudgetTracker
                     .EnsureWithinBudgetBeforeCallAsync(scope.TenantId, providerKind, cancellationToken)
                     .ConfigureAwait(false);
 
             if (_monthlyDollarBudgetOptions.CurrentValue.Enabled)
-                await _monthlyDollarBudgetTracker
+                (monthlyReserved, overageActive) = await _monthlyDollarBudgetTracker
                     .EnsureWithinBudgetBeforeCallAsync(scope.TenantId, providerKind, cancellationToken)
                     .ConfigureAwait(false);
 
@@ -315,11 +326,11 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
             if (!consumed)
             {
                 await _dailyTenantBudgetTracker
-                    .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, CancellationToken.None)
+                    .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, dailyReserved, CancellationToken.None)
                     .ConfigureAwait(false);
 
                 await _monthlyDollarBudgetTracker
-                    .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, CancellationToken.None)
+                    .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, monthlyReserved, overageActive, CancellationToken.None)
                     .ConfigureAwait(false);
             }
             else
@@ -336,6 +347,7 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                         _auditService,
                         promptTok,
                         completionTok,
+                        dailyReserved,
                         CancellationToken.None)
                     .ConfigureAwait(false);
 
@@ -347,6 +359,8 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                         _auditService,
                         promptTok,
                         completionTok,
+                        monthlyReserved,
+                        overageActive,
                         CancellationToken.None)
                     .ConfigureAwait(false);
 

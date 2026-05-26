@@ -57,6 +57,30 @@ public sealed class AgentExecutionResilienceOptions
         set;
     } = 10;
 
+    /// <summary>
+    ///     When <see langword="true"/>, non-Critic handler timeouts and open handler circuits return degraded placeholder
+    ///     results instead of failing the batch.
+    /// </summary>
+    public bool NonCriticDegradedFallbackEnabled
+    {
+        get;
+        set;
+    } = true;
+
+    /// <summary>Consecutive handler failures before the per-dispatch circuit opens. Default 3. 0 disables the breaker.</summary>
+    public int HandlerCircuitBreakerFailureThreshold
+    {
+        get;
+        set;
+    } = 3;
+
+    /// <summary>Seconds the handler circuit remains open after tripping. Default 60.</summary>
+    public int HandlerCircuitBreakerBreakSeconds
+    {
+        get;
+        set;
+    } = 60;
+
     /// <summary>Clamps resilience settings to safe ranges (call after binding from configuration).</summary>
     public void Normalize()
     {
@@ -64,6 +88,8 @@ public sealed class AgentExecutionResilienceOptions
         LlmCallBaseDelayMilliseconds = Math.Clamp(LlmCallBaseDelayMilliseconds, 50, 30_000);
         LlmCallMaxDelaySeconds = Math.Clamp(LlmCallMaxDelaySeconds, 1, 120);
         PerHandlerTimeoutSeconds = Math.Clamp(PerHandlerTimeoutSeconds, 0, 86400);
+        HandlerCircuitBreakerFailureThreshold = Math.Clamp(HandlerCircuitBreakerFailureThreshold, 0, 20);
+        HandlerCircuitBreakerBreakSeconds = Math.Clamp(HandlerCircuitBreakerBreakSeconds, 1, 3600);
     }
 
     /// <summary>

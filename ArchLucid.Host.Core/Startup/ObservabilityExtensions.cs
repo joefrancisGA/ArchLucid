@@ -7,6 +7,9 @@ using ArchLucid.Contracts.Telemetry;
 
 using Azure.Monitor.OpenTelemetry.Exporter;
 
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -102,6 +105,11 @@ public static class ObservabilityExtensions
         ArchLucidInstrumentation.SetLlmBudgetRemainingReader(LlmTenantBudgetUtilizationMetricsHostedService.RemainingGaugeState.SnapshotMeasurements);
         ArchLucidInstrumentation.SetExecutiveRoiSavingsReader(ExecutiveRoiSavingsGaugeHostedService.GaugeState.SnapshotMeasurements);
         ArchLucidInstrumentation.SetFirstTenantFunnelEventNameValidator(FirstTenantFunnelEventNames.IsValid);
+
+        services.AddSingleton<RetrievalTelemetryPerTenantTagCircuitBreaker>();
+        services.AddSingleton<IPostConfigureOptions<ArchLucid.Core.Configuration.RetrievalTelemetryOptions>>(
+            static sp => new RetrievalTelemetryPerTenantTagCircuitBreakerPostConfigure(
+                sp.GetRequiredService<RetrievalTelemetryPerTenantTagCircuitBreaker>()));
 
         services.AddOpenTelemetry()
             .ConfigureResource(resource => resource

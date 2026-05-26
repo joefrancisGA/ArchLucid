@@ -992,11 +992,11 @@ public sealed class DemoSeedService(
             AuthorityDemoChainIds.GraphSnapshot(runGuid), AuthorityDemoChainIds.ContextSnapshot(runGuid), utc);
 
         AuthorityManifestPersistResult persisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, runGuid, "Contoso Cloud Platform",
-            manifest, chainIds, utc, richFindingsAndGraph: false, cancellationToken, connection: null, transaction: null, committedFindingsOverride: findings,
+            manifest, chainIds, utc, richFindingsAndGraph: true, cancellationToken, connection: null, transaction: null, committedFindingsOverride: findings,
             seedCustomization: customization);
 
         await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, _scopeContextProvider, _actorContext, logger, runGuid,
-            "Contoso Cloud Platform", persisted, "product-tour-demo-seed", richFindingsAndGraph: false, cancellationToken);
+            "Contoso Cloud Platform", persisted, "product-tour-demo-seed", richFindingsAndGraph: true, cancellationToken);
 
         RunRecord? committed = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
 
@@ -1217,11 +1217,11 @@ public sealed class DemoSeedService(
             AuthorityDemoChainIds.GraphSnapshot(runGuid), AuthorityDemoChainIds.ContextSnapshot(runGuid), utc);
 
         AuthorityManifestPersistResult persisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, runGuid,
-            alpineSystemName, manifest, chainIds, utc, richFindingsAndGraph: false, cancellationToken, connection: null, transaction: null,
+            alpineSystemName, manifest, chainIds, utc, richFindingsAndGraph: true, cancellationToken, connection: null, transaction: null,
             committedFindingsOverride: findings, seedCustomization: customization);
 
         await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, _scopeContextProvider, _actorContext, logger, runGuid,
-            alpineSystemName, persisted, "regulated-scenario-demo-seed", richFindingsAndGraph: false, cancellationToken);
+            alpineSystemName, persisted, "regulated-scenario-demo-seed", richFindingsAndGraph: true, cancellationToken);
 
         RunRecord? committed = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
 

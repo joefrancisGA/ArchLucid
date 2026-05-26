@@ -34,15 +34,13 @@ public sealed class LlmTenantWalletServiceTests
         InMemoryLlmTenantWalletRepository repository = new();
         Guid tenantId = Guid.NewGuid();
 
-        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), null, int.Parse(DateTime.UtcNow.ToString("yyyyMM")), [], CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], CancellationToken.None);
 
         LlmTenantWalletService service = CreateService(repository);
 
         bool authorized = await service.TryAuthorizeOverageSpendAsync(tenantId, 25m, CancellationToken.None);
 
         authorized.Should().BeTrue();
-        LlmTenantWalletOverageScope.IsActive.Should().BeTrue();
-        LlmTenantWalletOverageScope.Clear();
     }
 
     [SkippableFact]
@@ -76,7 +74,7 @@ public sealed class LlmTenantWalletServiceTests
             },
             CancellationToken.None);
 
-        await repository.TryCreditRefillAsync(tenantId, 5m, Guid.NewGuid(), null, int.Parse(DateTime.UtcNow.ToString("yyyyMM")), [], CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], CancellationToken.None);
 
         Mock<IStripeWalletGateway> stripe = new();
         stripe
@@ -122,7 +120,7 @@ public sealed class LlmTenantWalletServiceTests
             },
             CancellationToken.None);
 
-        await repository.TryCreditRefillAsync(tenantId, 5m, Guid.NewGuid(), null, int.Parse(DateTime.UtcNow.ToString("yyyyMM")), [], CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 5m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], CancellationToken.None);
 
         Mock<IStripeWalletGateway> stripe = new();
         stripe

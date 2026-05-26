@@ -18,8 +18,8 @@ Customers who cannot run local scripts provision a **read-only service principal
 
 | Artifact | Path |
 |----------|------|
-| Terraform | [`infra/terraform-customer-onboarding/`](../../infra/terraform-customer-onboarding/) |
-| Bicep | [`infra/bicep-customer-onboarding/main.bicep`](../../infra/bicep-customer-onboarding/main.bicep) |
+| Terraform | [`deploy/customer-templates/terraform/`](../../deploy/customer-templates/terraform/) |
+| Bicep | [`deploy/customer-templates/bicep/main.bicep`](../../deploy/customer-templates/bicep/main.bicep) |
 
 Parameters (published by ArchLucid):
 
