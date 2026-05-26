@@ -1,0 +1,8 @@
+---
+description: Never check in docs/assessments/LATEST.md
+globs: 
+  - "docs/assessments/LATEST.md"
+---
+# Ignore LATEST.md
+
+**Never** check in `docs/assessments/LATEST.md`. This file is a local working copy only and should not be tracked by git. It is already in `.gitignore`, but this rule is to ensure that you do not force-add it or commit it.
