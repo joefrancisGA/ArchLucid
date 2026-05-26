@@ -55,6 +55,7 @@ using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.ContextIngestion.Services;
 using ArchLucid.ContextIngestion.Summaries;
+using ArchLucid.ContextIngestion.Topology;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Configuration;
