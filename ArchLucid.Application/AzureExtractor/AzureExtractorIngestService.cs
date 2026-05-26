@@ -14,7 +14,11 @@ using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.AspNetCore.Http;
+using ArchLucid.Contracts.AzureExtractor;
+using ArchLucid.Core.Configuration;
+
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.AzureExtractor;
 
@@ -26,6 +30,8 @@ public sealed class AzureExtractorIngestService(
     IRunRepository runRepository,
     IAgentTaskRepository agentTaskRepository,
     IEvidenceBundleRepository evidenceBundleRepository,
+    IAzureExtractorResultEnricher inventoryEnricher,
+    IOptions<AzureExtractorEnrichmentOptions> enrichmentOptions,
     ILogger<AzureExtractorIngestService> logger) : IAzureExtractorIngestService
 {
     internal const long MaxUploadedZipBytes = AzureExtractorUploadLimits.MaxZipBytes;
@@ -238,6 +244,8 @@ public sealed class AzureExtractorIngestService(
                 safeName,
                 zipBytes.LongLength,
                 ct);
+
+        zipBytes = await TryEnrichPackageInventoryAsync(zipBytes, ct).ConfigureAwait(false);
 
         if (runId is { } runGuid)
         {
@@ -469,5 +477,21 @@ public sealed class AzureExtractorIngestService(
         }
 
         return ms.ToArray();
+    }
+
+    private async Task<byte[]> TryEnrichPackageInventoryAsync(byte[] zipBytes, CancellationToken ct)
+    {
+        if (!enrichmentOptions.Value.Enabled)
+            return zipBytes;
+
+        IReadOnlyList<AzureExtractorInventoryResourceLine> lines = AzureExtractorInventoryZipPatcher.ReadLines(zipBytes);
+
+        if (lines.Count == 0)
+            return zipBytes;
+
+        IReadOnlyList<EnrichedAzureExtractorInventoryLine> enriched =
+            await inventoryEnricher.EnrichAsync(lines, ct).ConfigureAwait(false);
+
+        return AzureExtractorInventoryZipPatcher.TryPatchResourcesJson(zipBytes, enriched);
     }
 }

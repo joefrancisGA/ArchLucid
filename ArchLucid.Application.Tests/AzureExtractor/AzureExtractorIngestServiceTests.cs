@@ -4,6 +4,9 @@ using System.Text.Json;
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Contracts.AzureExtractor;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -13,6 +16,7 @@ using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -257,6 +261,23 @@ public sealed class AzureExtractorIngestServiceTests
             runRepo.Object,
             tasks.Object,
             evidence.Object,
+            new PassthroughAzureExtractorResultEnricher(),
+            Microsoft.Extensions.Options.Options.Create(new AzureExtractorEnrichmentOptions { Enabled = false }),
             NullLogger<AzureExtractorIngestService>.Instance);
+    }
+
+    private sealed class PassthroughAzureExtractorResultEnricher : IAzureExtractorResultEnricher
+    {
+        public Task<IReadOnlyList<EnrichedAzureExtractorInventoryLine>> EnrichAsync(
+            IReadOnlyList<AzureExtractorInventoryResourceLine> lines,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<EnrichedAzureExtractorInventoryLine>>(
+                lines.Select(static line => new EnrichedAzureExtractorInventoryLine
+                {
+                    Name = line.Name,
+                    ResourceType = line.ResourceType,
+                    Location = line.Location,
+                    Tier = line.SkuName,
+                }).ToList());
     }
 }

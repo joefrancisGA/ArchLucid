@@ -90,6 +90,9 @@ public static class ApiWebLayerServiceCollectionExtensions
         });
         services.AddScoped<IHostedAzureExtractorClient, HostedAzureExtractorClient>();
         services.AddScoped<IAzureExtractorIngestService, AzureExtractorIngestService>();
+        services.AddScoped<IAzureExtractorResultEnricher, AzureExtractorResultEnricher>();
+        services.Configure<AzureExtractorEnrichmentOptions>(
+            configuration.GetSection(AzureExtractorEnrichmentOptions.SectionPath));
         services.AddScoped<AzureExtractorChunkedUploadService>();
         services.AddScoped<PolicyPackMarkdownExplainService>();
 

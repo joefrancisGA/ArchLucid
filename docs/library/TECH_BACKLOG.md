@@ -24,7 +24,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-021 | RAG quality program — V1 foundation (corpus seam, policy pack, prior manifest, Retail lookup, platform docs, faithfulness eval) | Agent faithfulness + citation density — extends existing `ArchLucid.Retrieval` + `AskService`; schedule from assessments | M–L (phased) |
 | TB-008 | Context ingestion connectors — Phases 3–4 (meaningful delta + enrichers, policy/topology coupling) | Architecture maintainability — Phases 1–2 shipped | L |
 | TB-013 | Documentation library audience split — Phases 2–3 (customer-facing vs contributor-reference) | Developer experience — lower onboarding cognitive load without breaking bookmarks or procurement/UI doc paths | M |
-| TB-014 | LLM monthly budget top-up — **`PurchasedCapBumpUsd`** column + effective cap (manual SQL / test hook today); Stripe SKU + webhook + UI TBD | Self-service headroom before UTC month roll | M |
+| TB-014 | LLM token wallet — non-expiring auto-replenish (**`PurchasedCapBumpUsd`** operator bump shipped; wallet + Stripe + UI remainder) | Self-service overage headroom without month-end settlement risk | M |
 | TB-015 | Per-agent/per-invoke-kind LLM token dimensions + CI export of real-mode averages | FinOps honesty — truthful Topology/Cost/Compliance/Critic token envelopes for `cost-preview` + cohort budgeting (no guesses) | M |
 | TB-024 | `LlmCostEstimator` — reasoning-token test coverage | Done (Improvement **#20**, 2026-05-25) | XS |
 | TB-023 | `LlmCostEstimator` — document replay-rate semantics (live rate vs stored-per-trace divergence) | Developer clarity / FinOps honesty — recomputed aggregate uses live rates, not historical rates; diverges from stored `EstimatedCostUsd` after admin rate changes; must be documented on `ILlmCostEstimator` and the aggregator | XS |
@@ -238,77 +238,105 @@ Default new **`library/`** root files to **`contributor-reference/`** unless the
 
 ---
 
-## TB-014 — LLM monthly budget top-up SKU
+## TB-014 — LLM token wallet (non-expiring auto-replenish)
 
-**Progress (2026-05-10):** Persistent bump column **`PurchasedCapBumpUsd`** on **`dbo.LlmMonthlyTenantBudgetState`** (migration **`155_LlmMonthlyTenantBudgetPurchasedCapBump.sql`**) + effective cap in **`LlmMonthlyTenantDollarBudgetTracker`**; runbook **[`LLM_BUDGET_TOP_UP.md`](LLM_BUDGET_TOP_UP.md)**; test hook **`InMemoryLlmTenantBudgetRepository.ApplyMonthlyPurchasedCapBumpAsync`**. **Remaining:** Stripe SKU, idempotent purchase webhook, operator UI surfacing, audit event names.
+**Progress (2026-05-10):** Operator path shipped — persistent bump column **`PurchasedCapBumpUsd`** on **`dbo.LlmMonthlyTenantBudgetState`** (migration **`155_LlmMonthlyTenantBudgetPurchasedCapBump.sql`**) + effective cap in **`LlmMonthlyTenantDollarBudgetTracker`**; runbook **[`LLM_BUDGET_TOP_UP.md`](LLM_BUDGET_TOP_UP.md)**; test hook **`InMemoryLlmTenantBudgetRepository.ApplyMonthlyPurchasedCapBumpAsync`**.
 
-**Decision (operator, 2026-05-11):** **Greenlit in principle.** There is **no** target cost-per-run budget — runs are bounded by **`LlmMonthlyTenantDollarBudget`** + **`LlmTokenQuota`**, not by a per-run prompt-design ceiling. Tenants who legitimately exhaust their **`HardCutoffUsdPerUtcMonth`** before the UTC month rolls should be able to **buy more tokens** (or more dollars of estimated LLM spend) self-serve, rather than waiting or contacting sales.
+**Progress (2026-05-25):** Billing model ratified — **non-expiring prepaid auto-replenishing wallet** (Cursor / OpenAI API pattern). Stripe **TEST** keys confirmed for staging. Assessment item **#27** in [`docs/assessments/LATEST.md`](../assessments/LATEST.md) is actionable with a full implementation prompt.
 
-**Why it's not in the current session:** Requires Stripe SKU + Marketplace plan-add-on alignment with [`docs/go-to-market/PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) (already has **run overage** concepts — token top-up is the **adjacent** SKU governing the AOAI envelope), commerce un-hold sequencing in [`docs/library/V1_DEFERRED.md`](V1_DEFERRED.md) §6b, and a runtime path that lifts the per-tenant cap **after** the purchase webhook is durable.
+**Remaining:** `dbo.LlmTenantWalletState`, `dbo.LlmTenantWalletLedger`, `LlmTenantWalletService`, Stripe PaymentIntent gateway, idempotent webhook, wallet settings UI, metrics, tests.
+
+**Decision (operator, 2026-05-11):** **Greenlit in principle.** There is **no** target cost-per-run budget — runs are bounded by **`LlmMonthlyTenantDollarBudget`** + **`LlmTokenQuota`**, not by a per-run prompt-design ceiling. Tenants who legitimately exhaust their **`HardCutoffUsdPerUtcMonth`** before the UTC month rolls should be able to **buy more LLM headroom** self-serve, rather than waiting or contacting sales.
+
+**Decision (operator, 2026-05-25):** **Wallet model (replaces month-scoped prepaid SKU).**
+
+| Parameter | Value |
+|-----------|-------|
+| Refill increment | **$50** |
+| Refill trigger | Balance **< $10** |
+| Default at signup | **Overage off** (`MonthlyCapUsd = 0`) |
+| Max auto-replenish cap | **$500 / UTC month** |
+| Balance expiry | **Never** — carries forward indefinitely |
+| Settlement | **Real-time** Stripe PaymentIntent per refill (no UTC month-end billing) |
+| Cancellation | Balance is **non-refundable credit** |
 
 **Objective**
 
-Allow a paying tenant who has hit `HardCutoffUsdPerUtcMonth` to add headroom **for the current UTC month** without operator intervention; default behaviour is unchanged for tenants that do not buy.
+Allow a paying tenant who has hit the effective monthly cap to continue real-mode LLM usage via a **prepaid wallet** without operator intervention. Default behaviour is unchanged for tenants that do not opt in.
 
 **Assumptions**
 
-- Tenant monthly budget already governs envelope — see [`ArchLucid.Core/Configuration/LlmMonthlyTenantDollarBudgetOptions.cs`](../../ArchLucid.Core/Configuration/LlmMonthlyTenantDollarBudgetOptions.cs) and `LlmCompletionAccountingClient` enforcement.
-- Stripe live keys flip per [`docs/library/V1_DEFERRED.md`](V1_DEFERRED.md) §6b (un-hold) — staging stays **TEST** until then.
-- Marketplace mapping is additive (not a tier change); see [`docs/go-to-market/PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) §expansion levers.
-- Audit + accounting reuse existing **`LlmTenantMonthlyDollarBudgetApproaching`** / **`LlmTokenQuotaExceeded`** plumbing rather than introducing a parallel ledger.
+- Tenant monthly budget still governs **included** envelope — see [`ArchLucid.Core/Configuration/LlmMonthlyTenantDollarBudgetOptions.cs`](../../ArchLucid.Core/Configuration/LlmMonthlyTenantDollarBudgetOptions.cs) and `LlmCompletionAccountingClient` enforcement.
+- Wallet covers **overage only** — after effective cap would be exceeded, debit wallet; do not inflate **`PurchasedCapBumpUsd`** for self-serve purchases.
+- Stripe **TEST** keys on staging (confirmed 2026-05-25); live keys flip per [`docs/library/V1_DEFERRED.md`](V1_DEFERRED.md) §6b.
+- **Azure Marketplace plan-add-on** for wallet refills is **deferred** — ship Stripe-only self-serve for V1; Marketplace alignment when commerce un-holds.
+- Audit + quota plumbing reuse existing **`LlmTenantMonthlyDollarBudgetApproaching`** / **`LlmTokenQuotaExceeded`** paths for hard stops when wallet is empty.
+- Operator **`PurchasedCapBumpUsd`** SQL bump remains for sales-assisted grants (does not roll over month-to-month).
 
 **Constraints**
 
-- **No new budget *table*.** Top-up purchases must adjust the **same** `dbo.LlmMonthlyTenantBudgetState` monthly row (e.g. **`PurchasedCapBumpUsd`**) read by `LlmCompletionAccountingClient`, not a second spend ledger. A parallel ledger would violate **INV-004** coherence — see [`docs/library/ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md).
-- **Idempotent purchase webhook.** Stripe (or Marketplace) → API webhook must be replay-safe; reuse the existing webhook idempotency pipeline.
-- **Refund / proration policy.** Top-ups are consumed within the **current UTC month** and **do not roll over** unless product decides otherwise; document explicitly in **`PRICING_PHILOSOPHY`** before shipping.
-- **Audit.** Issue durable audit on purchase + apply (event names TBD; reuse **`AuditEventTypes.Llm*`** family) and emit a metric (e.g. `archlucid_llm_budget_topup_usd_total`).
-- **Surface.** Operator UI shows top-up purchase + remaining headroom alongside the existing budget banner; trial tenants should see top-up only after conversion (or be explicitly disabled per `PRICING_PHILOSOPHY` free-trial row).
+- **Monthly budget row stays authoritative for included spend.** `dbo.LlmMonthlyTenantBudgetState` is still the single source of truth for warn/hard-cutoff within the UTC month (**INV-004**). The wallet is a **prepaid overage credit store**, not a second monthly spend ledger.
+- **Idempotent Stripe webhook.** `payment_intent.succeeded` / `payment_intent.payment_failed` must be replay-safe via **`dbo.StripeWebhookIdempotency`** (or equivalent).
+- **Real-time settlement.** Charge the card **at refill time** (when balance drops below **$10**), not at UTC month end — bounds unbilled exposure to one refill increment (~**$50**) per tenant.
+- **No balance expiry.** Wallet balance **never** expires; rejects the earlier “use it or lose it within UTC month” draft.
+- **Non-refundable on cancellation.** Document in **`PRICING_PHILOSOPHY`** and **`LLM_BUDGET_TOP_UP.md`** before shipping.
+- **Audit.** `LlmWalletRefillSucceeded`, `LlmWalletRefillFailed` (or **`AuditEventTypes.Llm*`** family); metrics **`archlucid_llm_wallet_refill_usd_total`**, **`archlucid_llm_wallet_refill_failures_total`**, gauge **`archlucid_llm_wallet_balance_usd`**.
+- **Surface.** `/settings/billing` wallet page + budget banner shows balance and cap; trial tenants disabled until conversion (per **`PRICING_PHILOSOPHY`** free-trial row).
 
 **Architecture overview**
 
 ```mermaid
 flowchart LR
-  UI[Operator UI<br/>budget banner] --> Buy[Buy more tokens]
-  Buy --> Stripe[Stripe Checkout / Marketplace]
-  Stripe -->|webhook| API[ArchLucid.Api<br/>idempotent handler]
-  API --> Grant[Apply monthly grant<br/>same ledger as budget]
-  Grant --> Acct[LlmCompletionAccountingClient]
-  Acct --> Audit[(AuditEvents +<br/>archlucid_llm_budget_topup_usd_total)]
+  Acct[LlmCompletionAccountingClient] --> Cap{Within monthly<br/>effective cap?}
+  Cap -->|yes| Allow[Allow LLM call]
+  Cap -->|no| Wallet{Wallet balance<br/>≥ estimated cost?}
+  Wallet -->|yes| Allow
+  Allow --> Consume[Debit wallet post-call]
+  Consume --> Low{Balance < $10?}
+  Low -->|yes + auto-replenish| Stripe[Stripe PaymentIntent $50]
+  Stripe -->|success| Credit[Credit wallet + ledger]
+  Wallet -->|no| Block[LlmTokenQuotaExceeded / 402]
+  UI[/settings/billing] --> Config[MonthlyCapUsd + card]
+  Config --> Stripe
 ```
 
-**Component breakdown (sketch)**
+**Component breakdown**
 
-- **Stripe / Marketplace SKU:** “LLM token pack — $25” (or similar). One-time charge, scoped to tenant + UTC month.
-- **Webhook handler:** reuses the existing Stripe webhook idempotency mechanism; on success, invokes a top-up application service.
-- **Application service:** records the top-up, increments the monthly grant for the tenant, emits durable audit, increments the metric.
-- **Accounting client:** unchanged enforcement path; reads the same effective `(IncludedUsd + GrantsUsd)` envelope.
-- **UI:** two new states on the budget banner (`approaching` already exists) — `topup-available` and `topup-applied`.
+- **`dbo.LlmTenantWalletState`** — balance, auto-replenish flag, refill increment/trigger defaults, monthly cap, UTC-month refill counter, Stripe customer/payment-method refs.
+- **`dbo.LlmTenantWalletLedger`** — append-only **`Refill` | `Consume` | `OperatorAdjustment`** with **`BalanceAfterUsd`**, optional **`StripePaymentIntentId`**.
+- **`LlmTenantWalletService`** — `GetBalanceAsync`, `ConsumeAsync`, `TryAutoRefillAsync` (cap + threshold checks).
+- **`IStripeWalletGateway`** — Stripe.net PaymentIntent; config **`Billing:Stripe:SecretKey`**.
+- **`LlmCompletionAccountingClient`** — after monthly cap check fails, consult wallet; queue consume + optional refill via background task.
+- **`WalletController`** — `GET/PUT /v1/billing/wallet`, `POST /v1/billing/stripe/webhook`.
+- **UI** — balance, cap slider (**$0–$500**, step **$50**), auto-replenish toggle, Stripe Elements.
 
 **Out of scope for this item**
 
-- Rolling unused top-up balance into the next month (decide before shipping; default is **no rollover**).
-- Replacing per-tier `LlmMonthlyTenantDollarBudget` defaults — top-up is **additive**, not a tier change.
-- Per-run dollar ceilings (explicitly rejected — see assessment Improvement 4 resolution).
+- Azure Marketplace wallet SKU (follow-on at commerce un-hold).
+- Replacing per-tier **`LlmMonthlyTenantDollarBudget`** defaults — wallet is **additive overage**, not a tier change.
+- Per-run dollar ceilings (explicitly rejected).
+- Refunding wallet balance on tenant cancellation.
 
 **Security model**
 
-Purchase + grant requires the same **`Admin`** authority as billing changes today; webhook handler validates Stripe signature and tenant binding. No PII beyond what existing billing flows already capture.
+Wallet config requires **`Admin`** (same as billing today). Webhook validates Stripe signature and tenant binding. Payment method stored as Stripe **`PaymentMethodId`** only — no raw PAN in ArchLucid SQL.
 
 **Operational considerations**
 
-- Reconciliation: Stripe ledger ↔ ArchLucid grants must match; nightly reconciliation script (or Power BI report) recommended once volume justifies it.
-- Support tooling: an admin “revoke grant” path is desirable for refunds; not blocking for v1 of the SKU.
+- Reconciliation: Stripe PaymentIntents ↔ **`LlmTenantWalletLedger`** **`Refill`** rows; nightly script once volume justifies it.
+- Support: operator **`OperatorAdjustment`** ledger entries for goodwill credits; no automatic refund path in V1.
 
 **Refs:**
 - [`ArchLucid.Core/Configuration/LlmMonthlyTenantDollarBudgetOptions.cs`](../../ArchLucid.Core/Configuration/LlmMonthlyTenantDollarBudgetOptions.cs)
-- [`docs/go-to-market/PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) (run overage rows; add token top-up before SKU goes live)
+- [`docs/library/LLM_BUDGET_TOP_UP.md`](LLM_BUDGET_TOP_UP.md)
+- [`docs/go-to-market/PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md)
 - [`docs/go-to-market/STRIPE_CHECKOUT.md`](../go-to-market/STRIPE_CHECKOUT.md)
 - [`docs/library/ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md) (**INV-004** budget coherence)
 - [`docs/library/V1_DEFERRED.md`](V1_DEFERRED.md) §6b (commerce un-hold sequencing)
-- [`docs/OPERATIONS_LLM_QUOTA.md`](../OPERATIONS_LLM_QUOTA.md) (existing cap + audit posture)
+- [`docs/OPERATIONS_LLM_QUOTA.md`](../OPERATIONS_LLM_QUOTA.md)
+- [`docs/assessments/LATEST.md`](../assessments/LATEST.md) — Improvement **#27** (implementation prompt)
 
-**Size estimate:** **M** — ~1–2 days end-to-end (SKU + webhook + grant ledger reuse + UI banner + audit + tests + docs). Treat the runtime grant path as the gating piece; the SKU and UI are smaller.
+**Size estimate:** **M** — ~1–2 days end-to-end (wallet tables + service + Stripe gateway + webhook + UI + metrics + tests + doc sync). Gating piece is **`LlmCompletionAccountingClient`** wallet fallback path.
 
 ---
 
