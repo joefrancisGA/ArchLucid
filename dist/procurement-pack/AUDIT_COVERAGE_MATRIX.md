@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:239 -->
+<!-- audit-core-const-count:241 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -193,6 +193,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Admin SSO wizard identity provider metadata discovery (read-only) | `IdentityProviderConfigurationController` (`POST /v1/admin/identity/discover`) | — | — | Fetches IdP metadata for wizard UI only — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Admin SSO wizard sandbox test login (JWT preview) | `IdentityProviderConfigurationController` (`POST /v1/admin/identity/test-login`) | — | — | Sandbox JWT preview only; **no** tenant configuration persisted (`[MutatingAuditExcluded]` on controller) |
 | Admin SSO wizard activated tenant identity provider configuration | `IdentityProviderConfigurationController` (`POST /v1/admin/identity/activate`) | `IdentitySsoConfigurationActivated` | Tenant/Workspace/Project from ambient scope | `{ protocol, issuerUri, keyVaultSecretName }` — **no** certificate or client secret material |
+| Admin acknowledged marketing pricing quote request (first-response SLA) | `MarketingPricingQuoteFollowUpAdminController` (`POST /v1/admin/marketing/pricing-quote-requests/{id}/acknowledge`) | `MarketingPricingQuoteRequestAcknowledged` | Tenant/Workspace/Project from ambient scope | `{ quoteRequestId, assignedOwner }` |
+| Admin closed marketing pricing quote request (removed from aging triage) | `MarketingPricingQuoteFollowUpAdminController` (`POST /v1/admin/marketing/pricing-quote-requests/{id}/close`) | `MarketingPricingQuoteRequestClosed` | Tenant/Workspace/Project from ambient scope | `{ quoteRequestId }` |
 | Pilot `try --real` execute started (Development; real AOAI path) | `RunsController` (`POST .../execute`) when pilot real headers present | `FirstRealValueRunStarted` | RunId | pilot / real-mode context (JSON) |
 | Pilot `try --real` execute completed without fallback | `RunsController` | `FirstRealValueRunCompleted` | RunId | completion summary (JSON) |
 | Pilot `try --real` seed after AOAI fallback | `ArchitectureApplicationService` (`SeedFakeResultsAsync` with `PilotSeedFakeResultsOptions.MarkRealModeFellBackToSimulator`) | `FirstRealValueRunFellBackToSimulator` | RunId | marks run row + deployment snapshot; see [`docs/library/FIRST_REAL_VALUE.md`](FIRST_REAL_VALUE.md) |
@@ -461,6 +463,8 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `Saml2ServiceProviderSignInFailed` | `Saml2ServiceProviderSignInFailed` | `ArchLucidSaml2SignInAudit.TryAppendProtocolFailureAudit` (`/Auth/*` ITfoxtec protocol faults; best-effort) |
 | `IdentitySsoConfigurationActivated` | `Identity.SsoConfigurationActivated` | `IdentityProviderConfigurationController` (`POST /v1/admin/identity/activate`) |
 | `IntegrationHostedAzureExtractorConfigured` | `Integration.HostedAzureExtractorConfigured` | `HostedAzureExtractorAdminController` (`POST /v1/admin/azure-extractor/hosted/configure`) |
+| `MarketingPricingQuoteRequestAcknowledged` | `Marketing.PricingQuoteRequestAcknowledged` | `MarketingPricingQuoteFollowUpAdminController` (`POST /v1/admin/marketing/pricing-quote-requests/{id}/acknowledge`) |
+| `MarketingPricingQuoteRequestClosed` | `Marketing.PricingQuoteRequestClosed` | `MarketingPricingQuoteFollowUpAdminController` (`POST /v1/admin/marketing/pricing-quote-requests/{id}/close`) |
 | `IdentityCustomRoleCreated` | `Identity.CustomRoleCreated` | `CustomRolesAdminController` (`POST /v1/admin/roles`) |
 | `IdentityCustomRoleUpdated` | `Identity.CustomRoleUpdated` | `CustomRolesAdminController` (`PUT /v1/admin/roles/{roleId}`) |
 | `IdentityCustomRoleAssigned` | `Identity.CustomRoleAssigned` | `CustomRolesAdminController` (`POST /v1/admin/roles/{roleId}/assign`) |
