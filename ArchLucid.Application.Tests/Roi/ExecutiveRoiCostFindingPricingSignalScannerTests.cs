@@ -1,8 +1,10 @@
 using ArchLucid.Application.Roi;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
 
 using FluentAssertions;
 
