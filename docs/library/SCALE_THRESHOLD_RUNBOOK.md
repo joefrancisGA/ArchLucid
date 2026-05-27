@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — Scale threshold runbook (hosted SaaS) — when to enable V1-optional scale controls and progressive capacity steps.
+
 # Scale threshold runbook (hosted SaaS)
 
 Operators use this runbook to decide when a **single-replica / small-fleet** posture is no longer sufficient and which **V1-optional** scale controls to enable. V1 does **not** require Redis, read replicas, or worker separation for GA; these are **progressive** controls documented in [V1_SCOPE.md](V1_SCOPE.md) and [V1_DEFERRED.md](V1_DEFERRED.md).
