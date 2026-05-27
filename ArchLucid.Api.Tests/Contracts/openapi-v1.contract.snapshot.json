@@ -949,6 +949,12 @@
               "string"
             ]
           },
+          "provenanceCorrelationId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "qualityRejected": {
             "type": "boolean"
           },
@@ -9411,6 +9417,12 @@
       },
       "GraphNodeVm": {
         "properties": {
+          "agentExecutionTraceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "id": {
             "type": "string"
           },
@@ -14473,6 +14485,12 @@
       },
       "ProvenanceNode": {
         "properties": {
+          "agentExecutionTraceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "id": {
             "format": "uuid",
             "type": "string"
