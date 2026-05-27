@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,7 +47,7 @@ export function FindingInspectGovernanceStickinessPanel({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  async function reload(): Promise<void> {
+  const reload = useCallback(async (): Promise<void> => {
     const [dispositions, waivers] = await Promise.all([
       listFindingDispositions(findingId),
       listRiskExceptions(),
@@ -57,7 +57,7 @@ export function FindingInspectGovernanceStickinessPanel({
     setActiveWaiver(
       waivers.find((w) => w.findingId === findingId && w.status === "Active") ?? null,
     );
-  }
+  }, [findingId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -73,7 +73,7 @@ export function FindingInspectGovernanceStickinessPanel({
     return () => {
       cancelled = true;
     };
-  }, [findingId]);
+  }, [reload]);
 
   async function submitDisposition(): Promise<void> {
     setBusy(true);

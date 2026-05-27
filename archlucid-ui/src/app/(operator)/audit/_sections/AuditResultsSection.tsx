@@ -17,14 +17,13 @@ import {
   auditResultsSectionHeadingBuyerPolished,
   auditResultsSectionHeadingOperator,
   auditResultsSectionHeadingReader,
-  auditResultsSectionIntroBuyerPolished,
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
-import { BUYER_AUDIT_TIMELINE_INTRO, BUYER_AUDIT_TRAIL_COMPLETE_HEADING, BUYER_VIEWING_AS_DEMO_ROLE } from "@/lib/buyer-polish-copy";
+import { BUYER_AUDIT_DOWNLOAD_CTA, BUYER_AUDIT_SYSTEM_EVENTS_EXPLANATION, BUYER_AUDIT_TIMELINE_INTRO, BUYER_AUDIT_TRAIL_COMPLETE_HEADING } from "@/lib/buyer-polish-copy";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
-import { cn } from "@/lib/utils";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { cn } from "@/lib/utils";
 import { AuditTimelineEventCard } from "./AuditTimelineEventCard";
 import { BuyerAuditEventsTechnicalAppendix } from "./BuyerAuditEventsTechnicalAppendix";
 
@@ -82,7 +81,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
       </h3>
       <p className="text-neutral-600 dark:text-neutral-400 text-[13px] mt-0 mb-2 max-w-2xl">
         {buyerPolishedShell ? (
-          <>{auditResultsSectionIntroBuyerPolished}</>
+          <>{BUYER_AUDIT_TIMELINE_INTRO}</>
         ) : (
           <>
             Each card is one <GlossaryTooltip termKey="audit_event">audit event</GlossaryTooltip>
@@ -93,14 +92,6 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
           </>
         )}
       </p>
-      {buyerPolishedShell && isNextPublicDemoMode() ? (
-        <p className="m-0 mb-2 max-w-2xl text-sm text-neutral-600 dark:text-neutral-400">
-          {BUYER_AUDIT_TIMELINE_INTRO}
-        </p>
-      ) : null}
-      {buyerPolishedShell ? (
-        <p className="m-0 mb-2 max-w-2xl text-xs text-neutral-500 dark:text-neutral-400">{BUYER_VIEWING_AS_DEMO_ROLE}</p>
-      ) : null}
       <p role="status" aria-live="polite" aria-atomic="true" className="text-neutral-600 dark:text-neutral-400 text-sm mt-0">
         {formatAuditSummaryHeading(events.length, hasMoreResults)}.
         {buyerPolishedShell ? null : " Newest first; use Load more for older entries."}
@@ -124,8 +115,8 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
         >
           <span className="font-medium text-neutral-800 dark:text-neutral-200">Named reviewers</span> appear with role
           labels (for example architecture reviewer or approver).{" "}
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">System-recorded</span> events are
-          lifecycle milestones logged when no named human actor is attached to the row.
+          <span className="font-medium text-neutral-800 dark:text-neutral-200">System-recorded</span> events{" "}
+          {BUYER_AUDIT_SYSTEM_EVENTS_EXPLANATION}
         </p>
       ) : null}
 
@@ -135,7 +126,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
         ) : (
           <>
             {displayEventGroups !== null ? (
-              <div className="space-y-8">
+              <div className={buyerPolishedShell ? "space-y-5" : "space-y-8"}>
                 {displayEventGroups.map((group) => (
                   <div
                     key={group.stage}
@@ -149,7 +140,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                         {group.events.length} event{group.events.length === 1 ? "" : "s"}
                       </p>
                     </div>
-                    <div className="mt-3 grid gap-3">
+                    <div className={cn("mt-3 grid", buyerPolishedShell ? "gap-2" : "gap-3")}>
                       {group.events.map((ev) => (
                         <AuditTimelineEventCard
                           key={ev.eventId}
@@ -205,7 +196,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button type="button" variant="primary" size="sm" onClick={() => void onExportCsv()} disabled={!csvExportUiAllowed || exporting}>
-                    Download audit package (CSV)
+                    {BUYER_AUDIT_DOWNLOAD_CTA}
                   </Button>
                   <Button type="button" variant="outline" size="sm" asChild>
                     <Link href={getShowcaseExecutiveHref()}>Return to executive summary</Link>
