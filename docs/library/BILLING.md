@@ -56,7 +56,7 @@ Provide a **single** `IBillingProvider` surface for trial conversion checkout an
   - `POST /v1/billing/webhooks/stripe`
   - `POST /v1/billing/webhooks/marketplace`
 - Key Vault secret names (illustrative): `billing-stripe-secret`, `billing-stripe-webhook-signing-secret`.
-- **Idempotency:** duplicate provider event id → **HTTP 200** without re-processing once `ResultStatus=Processed`.
+- **Idempotency:** duplicate provider event id → **HTTP 200** without re-processing once `ResultStatus=Processed`. Replay within the 24-hour in-memory guard or duplicate processed ledger rows → **HTTP 400** — see [`runbooks/BILLING_WEBHOOK_REPLAY_GUARD.md`](../runbooks/BILLING_WEBHOOK_REPLAY_GUARD.md).
 - **Marketplace GA flag:** `Billing:AzureMarketplace:GaEnabled` — **default `true` since 2026-04-20** (Quality Assessment Improvement 4 Marketplace flip; previously `false`). When `true`, `ChangePlan` / `ChangeQuantity` return **HTTP 200**, persist `Processed`, and call `sp_Billing_ChangePlan` / `sp_Billing_ChangeQuantity` to mutate `dbo.BillingSubscriptions`. The `false` branch is **preserved** as the supported rollback path: it returns **HTTP 202 Accepted**, persists `AcknowledgedNoOp`, and does **not** mutate any subscription row. Operators can flip the flag at the App Configuration / appsettings layer without redeploying — see [`runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md`](../runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md).
 
 ## Provider matrix

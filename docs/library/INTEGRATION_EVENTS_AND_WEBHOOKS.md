@@ -66,7 +66,7 @@ Events using the outbox today:
 
 When `TransactionalOutboxEnabled` is **false**, the same call sites use **best-effort** `IIntegrationEventPublisher.PublishAsync` (failures are logged; domain commits are not rolled back).
 
-**Operations:** pending and dead-letter depth surface in metrics; operator UI at **`/operate/integration-events/dlq`** lists dead letters with tenant, age, single/bulk retry, and suppress; admin APIs: `GET /admin/integration-outbox/dead-letters`, `POST /admin/integration-outbox/dead-letters/{outboxId}/retry`, `POST /admin/integration-outbox/dead-letters/{outboxId}/suppress`, and bulk `POST /admin/integrations/outbox/retry-dead-letter` (see API OpenAPI).
+**Operations:** pending and dead-letter depth surface in metrics; operator UI at **`/operate/integration-events/dlq`** lists dead letters with tenant, age, single/bulk retry, and suppress; admin APIs: `GET /admin/integration-outbox/dead-letters`, `POST /admin/integration-outbox/dead-letters/{outboxId}/retry`, `POST /admin/integration-outbox/dead-letters/{outboxId}/suppress`, and bulk `POST /admin/integrations/outbox/retry-dead-letter` (see API OpenAPI). Retry cadence, permanent failure, and acknowledgement guidance: [`docs/runbooks/INTEGRATION_EVENT_DLQ_RETRY_POLICY.md`](../runbooks/INTEGRATION_EVENT_DLQ_RETRY_POLICY.md).
 
 ### Worker subscription consumer
 

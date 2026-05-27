@@ -109,7 +109,7 @@ Optional Azure **OpenTelemetry Collector** (tail sampling): **`infra/terraform-o
 
 Serilog log events also include OpenTelemetry correlation identifiers when a trace is active via `WithOpenTelemetryTraceId()` and `WithOpenTelemetrySpanId()` in host startup.
 
-**Grafana dashboard:** committed JSON **`infra/grafana/dashboard-archlucid-authority.json`** (dashboard uid **`archlucid-authority`**) includes Prometheus panels for **`archlucid_authority_pipeline_stage_duration_ms`**, **`archlucid_authority_pipeline_work_pending`**, **`archlucid_authority_pipeline_work_oldest_pending_age_seconds`**, and **`archlucid_data_consistency_*_total`**, with thresholds described against the same alert bundle. Operator runbook: **[`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`](../runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md)**.
+**Grafana dashboard:** committed JSON **`infra/grafana/dashboard-archlucid-authority.json`** (dashboard uid **`archlucid-authority`**) includes Prometheus panels for **`archlucid_authority_pipeline_stage_duration_ms`**, **`archlucid_authority_pipeline_work_pending`**, **`archlucid_authority_pipeline_work_oldest_pending_age_seconds`**, and **`archlucid_data_consistency_*_total`**, with thresholds described against the same alert bundle. Operator runbooks: **[`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`](../runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md)** (remediation) and **[`docs/runbooks/GRAFANA_DASHBOARD_BINDING_GUIDE.md`](../runbooks/GRAFANA_DASHBOARD_BINDING_GUIDE.md)** (datasource UID import/provisioning).
 
 For the full set, read **`ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`**.
 

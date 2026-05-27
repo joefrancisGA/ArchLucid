@@ -5,7 +5,7 @@
 
 # Runbooks index
 
-**Last reviewed:** 2026-05-01
+**Last reviewed:** 2026-05-26
 
 Operational guides for ArchLucid operators. Each runbook is self-contained; cross-links point to deeper design docs where useful.
 
@@ -41,6 +41,9 @@ Tags are **guidance for paging and training**; they do not replace your org’s 
 | **P2** | [DATA_ARCHIVAL_HEALTH.md](./DATA_ARCHIVAL_HEALTH.md) | `data_archival` health degraded or archival host errors. |
 | **P2** | [PROVENANCE_INDEXING.md](./PROVENANCE_INDEXING.md) | Provenance indexing lag or failures. |
 | **P2** | [AUTHORITY_PIPELINE_OBSERVABILITY.md](./AUTHORITY_PIPELINE_OBSERVABILITY.md) | Grafana / Prometheus: authority outbox backlog, stale rows, data-consistency counters vs alerts; scale and SQL triage. |
+| **P2** | [BILLING_WEBHOOK_REPLAY_GUARD.md](./BILLING_WEBHOOK_REPLAY_GUARD.md) | Stripe/Marketplace webhook replay vs signature verification, SQL ledger investigation, safe resend. |
+| **P2** | [INTEGRATION_EVENT_DLQ_RETRY_POLICY.md](./INTEGRATION_EVENT_DLQ_RETRY_POLICY.md) | Outbox dead-letter auto-retry cadence, permanent failure, manual retry/suppress. |
+| **P2** | [GRAFANA_DASHBOARD_BINDING_GUIDE.md](./GRAFANA_DASHBOARD_BINDING_GUIDE.md) | Import/provision Grafana JSON; datasource UIDs; RAG per-tenant tag cardinality. |
 | **P2** | [SLO_PROMETHEUS_GRAFANA.md](./SLO_PROMETHEUS_GRAFANA.md) | Metrics, SLOs, Grafana panels. |
 | **P2** | [INFRASTRUCTURE_OPS.md](./INFRASTRUCTURE_OPS.md) | Terraform stacks (APIM, Front Door, Entra, private endpoints): validate, roll out, triage. |
 | **P2** | [MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md](./MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md) | Roll Marketplace `ChangePlan` / `ChangeQuantity` back to `AcknowledgedNoOp` (flip `Billing:AzureMarketplace:GaEnabled=false`); the supported escape hatch for the 2026-04-20 GA flip. |

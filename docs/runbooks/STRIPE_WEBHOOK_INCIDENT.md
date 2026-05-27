@@ -61,5 +61,6 @@ If Stripe is unavailable, replay from the saved request body using `archlucid bi
 ## Related
 
 - `docs/BILLING.md`
+- `docs/runbooks/BILLING_WEBHOOK_REPLAY_GUARD.md`
 - `docs/architecture/adrs/0016-billing-provider-abstraction.md`
 - `docs/runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md` (sibling provider rollback pattern)
