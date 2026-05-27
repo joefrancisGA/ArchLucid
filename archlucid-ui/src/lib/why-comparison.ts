@@ -21,7 +21,7 @@ export const WHY_COMPARISON_TABLE_ROW_LABELS_IN_ORDER = [
   "Every commit produces a versioned, immutable manifest",
   "Every material change produces a typed audit record in an append-only store",
   "Tenant isolation is enforced at SQL via Row-Level Security with SESSION_CONTEXT",
-  "Authentication is designed to fail closed by default (API keys disabled until enabled)",
+  "Authentication fails closed by default (API keys disabled until enabled)",
   "Comparison replay can re-derive the same artifact and detect drift",
   "Findings carry typed payloads per category, not free-text",
   "Governance gate can block configured high-severity changes before approval",
