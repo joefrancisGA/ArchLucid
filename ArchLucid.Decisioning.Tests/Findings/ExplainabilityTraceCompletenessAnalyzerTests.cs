@@ -168,6 +168,26 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerTests
     }
 
     [Fact]
+    public void AnalyzeFinding_sentinel_alternative_path_does_not_count_as_populated()
+    {
+        Finding finding = new()
+        {
+            FindingId = "sentinel",
+            EngineType = "rule",
+            Trace = new ExplainabilityTrace
+            {
+                AlternativePathsConsidered = [ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote],
+            },
+        };
+
+        TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(finding);
+
+        score.HasAlternativePaths.Should().BeFalse();
+        score.PopulatedFieldCount.Should().Be(0);
+        score.CompletenessRatio.Should().Be(0.0);
+    }
+
+    [Fact]
     public void AnalyzeSnapshot_zero_findings_returns_empty_by_engine()
     {
         FindingsSnapshot snapshot = new()

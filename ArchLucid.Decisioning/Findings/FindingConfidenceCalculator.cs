@@ -1,11 +1,15 @@
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Decisioning.Findings;
 
 /// <summary>
 ///     Combines schema/harness pass, optional reference-case match, and explainability trace completeness into a single
 ///     operator-facing score.
 /// </summary>
-public sealed class FindingConfidenceCalculator
+public sealed class FindingConfidenceCalculator(ILogger<FindingConfidenceCalculator>? logger = null)
 {
+    private readonly ILogger<FindingConfidenceCalculator>? _logger = logger;
+
     /// <summary>
     ///     Maps additive signals to a 0–100 score and a discrete <see cref="FindingConfidenceLevel" /> for operator-facing display.
     /// </summary>
@@ -17,23 +21,25 @@ public sealed class FindingConfidenceCalculator
     /// </param>
     /// <param name="traceCompletenessRatio">
     ///     Proportion of explainability trace fields populated in <c>[0,1]</c>; contributes up to 25 points after rounding.
-    ///     Ratios outside finite values yield <see langword="null" /> (unknown confidence).
+    ///     <see langword="null" /> yields <see cref="FindingConfidenceStatus.Unknown" /> (not treated as zero).
     /// </param>
     /// <returns>
-    ///     A <see cref="FindingConfidenceCalculationResult" /> with clamped score and derived level; <see langword="null" /> if
-    ///     <paramref name="traceCompletenessRatio" /> is non-finite or an unexpected arithmetic failure occurs.
+    ///     A <see cref="FindingConfidenceCalculationResult" /> with status, optional score/level, and optional failure reason.
     /// </returns>
     /// <remarks>
     ///     Thresholds: score ≥ 75 → <see cref="FindingConfidenceLevel.High" />, ≥ 45 → <see cref="FindingConfidenceLevel.Medium" />, else Low.
     ///     Those cutoffs split the 0–100 range so “High” requires both structural gates and most of the trace weight, or reference match plus solid trace.
     /// </remarks>
-    public FindingConfidenceCalculationResult? Calculate(
+    public FindingConfidenceCalculationResult Calculate(
         bool schemaValidationPassed,
         bool referenceCaseMatched,
         decimal? traceCompletenessRatio)
     {
         try
         {
+            if (traceCompletenessRatio is null)
+                return new FindingConfidenceCalculationResult(FindingConfidenceStatus.Unknown, null, null);
+
             int score = 0;
 
             // +35 / +40 / +25 partition the maximum 100 so no single boolean dominates entirely: reference (40) + schema (35) already caps explanatory power of trace (25).
@@ -44,10 +50,10 @@ public sealed class FindingConfidenceCalculator
             if (referenceCaseMatched)
                 score += 40;
 
-            double ratioRaw = traceCompletenessRatio is { } d ? (double)d : 0.0;
+            double ratioRaw = (double)traceCompletenessRatio.Value;
 
             if (double.IsNaN(ratioRaw) || double.IsInfinity(ratioRaw))
-                return null;
+                return new FindingConfidenceCalculationResult(FindingConfidenceStatus.Unknown, null, null);
 
             double clamped = Math.Clamp(ratioRaw, 0.0, 1.0);
             // Trace term: linear in [0,1] with weight 25 → incomplete traces cap total below “perfect” even when both booleans are true.
@@ -61,12 +67,19 @@ public sealed class FindingConfidenceCalculator
                     ? FindingConfidenceLevel.Medium
                     : FindingConfidenceLevel.Low;
 
-            return new FindingConfidenceCalculationResult(score, level);
+            return new FindingConfidenceCalculationResult(FindingConfidenceStatus.Computed, score, level);
         }
-        catch
+        catch (Exception ex)
         {
-            return null;
+            if (_logger is not null && _logger.IsEnabled(LogLevel.Warning))
+
+                _logger.LogWarning(ex, "Finding confidence calculation failed.");
+
+            return new FindingConfidenceCalculationResult(
+                FindingConfidenceStatus.Failed,
+                null,
+                null,
+                ex.GetType().Name);
         }
     }
 }
-

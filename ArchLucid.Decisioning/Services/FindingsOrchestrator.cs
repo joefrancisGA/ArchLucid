@@ -160,7 +160,10 @@ public partial class FindingsOrchestrator(
         };
 
         if (engineFailures.Count > 0 && successfulEngineInvocations > 0)
+        {
+            ArchLucidInstrumentation.RecordFindingsEnginePartialFailure();
             LogPartialEngineFailures(runId, engineFailures.Count);
+        }
 
         LogSnapshotBuilt(runId, snapshot.FindingsSnapshotId, snapshot.Findings.Count, snapshot.SchemaVersion);
 

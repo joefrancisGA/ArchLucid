@@ -51,4 +51,18 @@ public class ResolvedArchitectureDecision
         get;
         set;
     }
+
+    /// <summary>Operator-facing confidence in [0,100] when measured; null when unknown.</summary>
+    public double? Confidence
+    {
+        get;
+        set;
+    }
+
+    /// <summary>How <see cref="Confidence" /> was derived; <see cref="DecisionConfidenceSource.Unknown" /> when absent.</summary>
+    public DecisionConfidenceSource ConfidenceSource
+    {
+        get;
+        set;
+    } = DecisionConfidenceSource.Unknown;
 }

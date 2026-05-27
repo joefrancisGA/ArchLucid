@@ -23,7 +23,7 @@ public static class ExplainabilityTraceCompletenessAnalyzer
         bool hasGraph = ListHasMeaningfulContent(trace.GraphNodeIdsExamined);
         bool hasRules = ListHasMeaningfulContent(trace.RulesApplied);
         bool hasDecisions = ListHasMeaningfulContent(trace.DecisionsTaken);
-        bool hasAlt = ListHasMeaningfulContent(trace.AlternativePathsConsidered);
+        bool hasAlt = ListHasMeaningfulAlternativePaths(trace.AlternativePathsConsidered);
         bool hasNotes = ListHasMeaningfulContent(trace.Notes);
         bool hasCitations = ListHasMeaningfulContent(trace.Citations);
 
@@ -151,5 +151,18 @@ public static class ExplainabilityTraceCompletenessAnalyzer
             return false;
 
         return list.Any(s => !string.IsNullOrWhiteSpace(s));
+    }
+
+    /// <summary>
+    ///     Ignores the deterministic single-path sentinel so completeness is not inflated when no real alternatives were explored.
+    /// </summary>
+    private static bool ListHasMeaningfulAlternativePaths(IReadOnlyList<string>? list)
+    {
+        if (list is null || list.Count == 0)
+            return false;
+
+        return list.Any(s =>
+            !string.IsNullOrWhiteSpace(s)
+            && !string.Equals(s, ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote, StringComparison.Ordinal));
     }
 }

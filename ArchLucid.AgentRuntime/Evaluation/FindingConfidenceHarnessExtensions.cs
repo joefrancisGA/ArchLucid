@@ -6,7 +6,7 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 public static class FindingConfidenceHarnessExtensions
 {
     /// <inheritdoc cref="FindingConfidenceCalculator.Calculate(bool,bool,System.Decimal?)" />
-    public static FindingConfidenceCalculationResult? CalculateFromHarness(
+    public static FindingConfidenceCalculationResult CalculateFromHarness(
         this FindingConfidenceCalculator calculator,
         AgentOutputHarnessResult? harnessResult,
         decimal? traceCompletenessRatio,

@@ -175,7 +175,7 @@ public static class FindingFactory
             Title = finding.Message.Length > 500 ? finding.Message[..500] : finding.Message,
             Rationale = finding.Message,
             RelatedNodeIds = [],
-            ConfidenceScore = finding.ConfidenceScore ?? agentResult.Confidence,
+            ConfidenceScore = finding.ConfidenceScore,
             EvaluationConfidenceScore = finding.EvaluationConfidenceScore,
             ConfidenceLevel = finding.ConfidenceLevel,
             AgentExecutionTraceId = agentExecutionTraceId,

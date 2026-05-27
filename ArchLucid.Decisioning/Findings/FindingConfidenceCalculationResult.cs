@@ -1,4 +1,8 @@
 namespace ArchLucid.Decisioning.Findings;
 
-/// <summary>0–100 gate-derived score plus mapped <see cref="FindingConfidenceLevel" />.</summary>
-public sealed record FindingConfidenceCalculationResult(int Score, FindingConfidenceLevel Level);
+/// <summary>Gate-derived score, level, and computation status for operator-facing finding confidence.</summary>
+public sealed record FindingConfidenceCalculationResult(
+    FindingConfidenceStatus Status,
+    int? Score,
+    FindingConfidenceLevel? Level,
+    string? FailureReason = null);

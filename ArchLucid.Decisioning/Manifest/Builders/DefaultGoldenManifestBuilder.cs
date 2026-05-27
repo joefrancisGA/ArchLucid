@@ -5,6 +5,8 @@ using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Factories;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Manifest;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph;
@@ -63,6 +65,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         manifest.Metadata.Status = manifest.UnresolvedIssues.Items.Count == 0
             ? "Resolved"
             : "NeedsAttention";
+
+        AppendManifestHonestyWarnings(manifest, findingsSnapshot);
 
         NormalizeManifestOrdering(manifest);
 
@@ -171,7 +175,11 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             RequirementFindingPayload? payload = FindingPayloadConverter.ToRequirementPayload(finding);
 
             if (payload is null)
+            {
+                WarnSkippedFindingPayload(manifest, finding, "Requirements");
+
                 continue;
+            }
 
             RequirementCoverageItem item = new()
             {
@@ -184,14 +192,16 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
             manifest.Requirements.Covered.Add(item);
 
-            manifest.Decisions.Add(new ResolvedArchitectureDecision
+            ResolvedArchitectureDecision requirementDecision = new()
             {
                 Category = "Requirement",
                 Title = payload.RequirementName,
                 SelectedOption = "Accepted",
                 Rationale = payload.RequirementText,
                 SupportingFindingIds = [finding.FindingId]
-            });
+            };
+            ManifestDecisionConfidenceProjector.ApplyTo(requirementDecision, finding);
+            manifest.Decisions.Add(requirementDecision);
         }
     }
 
@@ -301,7 +311,11 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             SecurityControlFindingPayload? payload = FindingPayloadConverter.ToSecurityControlPayload(finding);
 
             if (payload is null)
+            {
+                WarnSkippedFindingPayload(manifest, finding, "Security");
+
                 continue;
+            }
 
             manifest.Security.Controls.Add(new SecurityPostureItem
             {
@@ -321,14 +335,16 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                 SupportingFindingIds = [finding.FindingId]
             });
 
-            manifest.Decisions.Add(new ResolvedArchitectureDecision
+            ResolvedArchitectureDecision securityDecision = new()
             {
                 Category = "Security",
                 Title = $"Enforce control: {payload.ControlName}",
                 SelectedOption = "RequiredRemediation",
                 Rationale = payload.Impact,
                 SupportingFindingIds = [finding.FindingId]
-            });
+            };
+            ManifestDecisionConfidenceProjector.ApplyTo(securityDecision, finding);
+            manifest.Decisions.Add(securityDecision);
         }
     }
 
@@ -341,7 +357,11 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             ComplianceFindingPayload? payload = FindingPayloadConverter.ToCompliancePayload(finding);
 
             if (payload is null)
+            {
+                WarnSkippedFindingPayload(manifest, finding, "Compliance");
+
                 continue;
+            }
 
             manifest.Compliance.Controls.Add(new CompliancePostureItem
             {
@@ -371,7 +391,11 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             CostConstraintFindingPayload? payload = FindingPayloadConverter.ToCostConstraintPayload(finding);
 
             if (payload is null)
+            {
+                WarnSkippedFindingPayload(manifest, finding, "Cost");
+
                 continue;
+            }
 
             if (payload.MaxMonthlyCost.HasValue)
                 manifest.Cost.MaxMonthlyCost = payload.MaxMonthlyCost.Value;
@@ -396,7 +420,11 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             PolicyApplicabilityFindingPayload? payload = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding);
 
             if (payload is null)
+            {
+                WarnSkippedFindingPayload(manifest, finding, "PolicyApplicability");
+
                 continue;
+            }
 
             if (finding.Severity == FindingSeverity.Warning)
             {
@@ -424,7 +452,11 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             PolicyApplicabilityFindingPayload? payload = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding);
 
             if (payload is null)
+            {
+                WarnSkippedFindingPayload(manifest, finding, "Policy");
+
                 continue;
+            }
 
             string pack = string.IsNullOrWhiteSpace(payload.PolicyReference) ? "Inferred" : payload.PolicyReference!;
             string controlId = string.IsNullOrWhiteSpace(payload.PolicyReference)
@@ -458,7 +490,11 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             PolicyCoverageFindingPayload? payload = FindingPayloadConverter.ToPolicyCoveragePayload(finding);
 
             if (payload is null)
+            {
+                WarnSkippedFindingPayload(manifest, finding, "PolicyCoverage");
+
                 continue;
+            }
 
             if (payload.UncoveredResources.Count == 0)
             {
@@ -490,7 +526,14 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         {
             TopologyCoverageFindingPayload? payload = FindingPayloadConverter.ToTopologyCoveragePayload(finding);
 
-            if (payload is null || payload.MissingCategories.Count == 0)
+            if (payload is null)
+            {
+                WarnSkippedFindingPayload(manifest, finding, "TopologyCoverage");
+
+                continue;
+            }
+
+            if (payload.MissingCategories.Count == 0)
                 continue;
 
             foreach (string category in payload.MissingCategories)
@@ -511,7 +554,11 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             SecurityCoverageFindingPayload? payload = FindingPayloadConverter.ToSecurityCoveragePayload(finding);
 
             if (payload is null)
+            {
+                WarnSkippedFindingPayload(manifest, finding, "SecurityCoverage");
+
                 continue;
+            }
 
             foreach (string resource in payload.UnprotectedResources)
                 manifest.Security.Gaps.Add($"{resource} is not protected");
@@ -531,7 +578,11 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             PolicyCoverageFindingPayload? payload = FindingPayloadConverter.ToPolicyCoveragePayload(finding);
 
             if (payload is null)
+            {
+                WarnSkippedFindingPayload(manifest, finding, "PolicyCoverageWarnings");
+
                 continue;
+            }
 
             manifest.UnresolvedIssues.Items.Add(new ManifestIssue
             {
@@ -601,6 +652,31 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         manifest.Provenance.AppliedRuleIds = trace.AppliedRuleIds
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
+    }
+
+    private static void AppendManifestHonestyWarnings(ManifestDocument manifest, FindingsSnapshot findingsSnapshot)
+    {
+        if (findingsSnapshot.EvaluationConfidenceEnrichmentSkipped)
+
+            manifest.Warnings.Add(
+                "Evaluation confidence enrichment was skipped for this host profile; finding evaluation scores may be absent.");
+
+        if (findingsSnapshot.EngineFailures.Count == 0)
+            return;
+
+        manifest.Warnings.Add(
+            $"Finding engines: {findingsSnapshot.EngineFailures.Count} failed during snapshot generation; findings may be incomplete.");
+
+        foreach (FindingEngineFailure failure in findingsSnapshot.EngineFailures)
+
+            manifest.Warnings.Add(
+                $"Finding engine failure [{failure.EngineType}/{failure.Category}]: {failure.ExceptionType} — {failure.ErrorMessage}");
+    }
+
+    private static void WarnSkippedFindingPayload(ManifestDocument manifest, Finding finding, string section)
+    {
+        manifest.Warnings.Add(
+            $"Manifest section '{section}' skipped finding '{finding.FindingId}' ({finding.Title}): typed payload could not be resolved.");
     }
 }
 

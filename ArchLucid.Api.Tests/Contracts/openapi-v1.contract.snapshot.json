@@ -15415,6 +15415,19 @@
           "category": {
             "type": "string"
           },
+          "confidence": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "confidenceSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "decisionId": {
             "type": "string"
           },

@@ -1,3 +1,4 @@
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Serialization;
@@ -186,7 +187,8 @@ internal static class GoldenManifestPhase1RelationalRead
         CancellationToken ct)
     {
         const string decisionsSql = """
-                                    SELECT SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson
+                                    SELECT SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson,
+                                           Confidence, ConfidenceSource
                                     FROM dbo.GoldenManifestDecisions
                                     WHERE ManifestId = @ManifestId
                                     ORDER BY SortOrder;
@@ -260,6 +262,13 @@ internal static class GoldenManifestPhase1RelationalRead
             nodesByDecision.TryGetValue(dr.DecisionId, out List<string>? nodes);
             nodes ??= [];
 
+            DecisionConfidenceSource confidenceSource = Enum.TryParse(
+                dr.ConfidenceSource,
+                ignoreCase: true,
+                out DecisionConfidenceSource parsed)
+                ? parsed
+                : DecisionConfidenceSource.Unknown;
+
             result.Add(
                 new ResolvedArchitectureDecision
                 {
@@ -270,7 +279,9 @@ internal static class GoldenManifestPhase1RelationalRead
                     Rationale = dr.Rationale,
                     SupportingFindingIds = ev,
                     RelatedNodeIds = nodes,
-                    RawDecisionJson = dr.RawDecisionJson
+                    RawDecisionJson = dr.RawDecisionJson,
+                    Confidence = dr.Confidence,
+                    ConfidenceSource = confidenceSource
                 });
         }
 
@@ -362,6 +373,18 @@ internal static class GoldenManifestPhase1RelationalRead
         } = null!;
 
         public string? RawDecisionJson
+        {
+            get;
+            init;
+        }
+
+        public double? Confidence
+        {
+            get;
+            init;
+        }
+
+        public string? ConfidenceSource
         {
             get;
             init;

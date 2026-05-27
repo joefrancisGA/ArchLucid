@@ -88,12 +88,14 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
 
                 TraceCompletenessScore completeness = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(finding);
 
-                FindingConfidenceCalculationResult? calculated = _confidenceCalculator.Calculate(
+                decimal? traceRatio = finding.Trace is null ? null : (decimal)completeness.CompletenessRatio;
+
+                FindingConfidenceCalculationResult calculated = _confidenceCalculator.Calculate(
                     schemaPassed,
                     referenceMatched,
-                    (decimal)completeness.CompletenessRatio);
+                    traceRatio);
 
-                if (calculated is null)
+                if (calculated.Status != FindingConfidenceStatus.Computed)
                     continue;
 
                 finding.EvaluationConfidenceScore = calculated.Score;

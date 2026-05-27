@@ -324,6 +324,13 @@ public static class ArchLucidInstrumentation
             description:
             "Finding engines that failed during findings snapshot generation (labels: engine_type, category).");
 
+    /// <summary>Findings snapshots saved with at least one engine failure but some engines succeeded.</summary>
+    public static readonly Counter<long> FindingsEnginePartialFailureTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_findings_engine_partial_failure_total",
+            description:
+            "Findings snapshots built with partial engine failures (at least one engine failed, at least one succeeded).");
+
     /// <summary>LLM completion calls made during a single <c>RealAgentExecutor.ExecuteAsync</c> batch.</summary>
     public static readonly Histogram<int> LlmCallsPerRun =
         AppMeter.CreateHistogram<int>(
@@ -1585,6 +1592,12 @@ public static class ArchLucidInstrumentation
         TagList tags = new() { { "engine_type", engineType }, { "category", category } };
 
         FindingEngineFailuresTotal.Add(1, tags);
+    }
+
+    /// <summary>Increments <c>archlucid_findings_engine_partial_failure_total</c>.</summary>
+    public static void RecordFindingsEnginePartialFailure()
+    {
+        FindingsEnginePartialFailureTotal.Add(1);
     }
 
     /// <summary>Increments <c>archlucid_agent_result_schema_validations_total</c> (outcome: valid or invalid).</summary>

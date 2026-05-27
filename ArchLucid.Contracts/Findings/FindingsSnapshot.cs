@@ -53,6 +53,15 @@ public class FindingsSnapshot
         set;
     } = [];
 
+    /// <summary>
+    ///     Set when the host uses a no-op evaluation-confidence enricher so operators can distinguish "not run" from "computed zero".
+    /// </summary>
+    public bool EvaluationConfidenceEnrichmentSkipped
+    {
+        get;
+        set;
+    }
+
     public List<Finding> Findings
     {
         get;

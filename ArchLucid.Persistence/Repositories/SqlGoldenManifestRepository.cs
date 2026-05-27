@@ -649,11 +649,13 @@ public sealed class SqlGoldenManifestRepository(
                                          INSERT INTO dbo.GoldenManifestDecisions
                                          (
                                              ManifestId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson,
+                                             Confidence, ConfidenceSource,
                                              TenantId, WorkspaceId, ProjectId
                                          )
                                          VALUES
                                          (
                                              @ManifestId, @SortOrder, @DecisionId, @Category, @Title, @SelectedOption, @Rationale, @RawDecisionJson,
+                                             @Confidence, @ConfidenceSource,
                                              @TenantId, @WorkspaceId, @ProjectId
                                          );
                                          """;
@@ -689,6 +691,8 @@ public sealed class SqlGoldenManifestRepository(
                         decision.SelectedOption,
                         decision.Rationale,
                         decision.RawDecisionJson,
+                        decision.Confidence,
+                        ConfidenceSource = decision.ConfidenceSource.ToString(),
                         manifest.TenantId,
                         manifest.WorkspaceId,
                         manifest.ProjectId

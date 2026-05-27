@@ -11,6 +11,8 @@ public sealed class NullFindingsSnapshotEvaluationConfidenceEnricher : IFindings
         ArgumentNullException.ThrowIfNull(snapshot);
         cancellationToken.ThrowIfCancellationRequested();
 
+        snapshot.EvaluationConfidenceEnrichmentSkipped = true;
+
         return Task.CompletedTask;
     }
 }

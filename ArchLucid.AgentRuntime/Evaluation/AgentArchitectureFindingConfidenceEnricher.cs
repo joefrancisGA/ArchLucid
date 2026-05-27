@@ -103,12 +103,14 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
 
                     TraceCompletenessScore completeness = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(shaped);
 
-                    FindingConfidenceCalculationResult? calculated = _confidenceCalculator.Calculate(
+                    decimal? traceRatio = shaped.Trace is null ? null : (decimal)completeness.CompletenessRatio;
+
+                    FindingConfidenceCalculationResult calculated = _confidenceCalculator.Calculate(
                         schemaPassed,
                         referenceMatched,
-                        (decimal)completeness.CompletenessRatio);
+                        traceRatio);
 
-                    if (calculated is null)
+                    if (calculated.Status != FindingConfidenceStatus.Computed)
                         continue;
 
                     finding.EvaluationConfidenceScore = calculated.Score;

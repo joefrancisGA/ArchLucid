@@ -32034,6 +32034,8 @@ export interface components {
         };
         ResolvedArchitectureDecision: {
             category?: string;
+            confidence?: null | number;
+            confidenceSource?: null | string;
             decisionId?: string;
             rationale?: string;
             rawDecisionJson?: null | string;
