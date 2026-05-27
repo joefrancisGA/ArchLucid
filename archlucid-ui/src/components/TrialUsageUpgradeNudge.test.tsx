@@ -136,7 +136,7 @@ describe("TrialUsageUpgradeNudge", () => {
       expect(screen.getByTestId("trial-expired-upgrade-modal")).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/your trial has expired/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /your trial has expired/i })).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /dismiss trial upgrade nudge for 24 hours/i }),
     ).not.toBeInTheDocument();
