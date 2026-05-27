@@ -1,3 +1,5 @@
+> **Scope:** V1 pilot first-run evidence checklist for buyer operators — Azure extractor Tier 1 path, pre-demo and design-partner kickoff validation; Tier 2 WIF is optional (see end of page).
+
 # First-run evidence checklist (V1 pilot)
 
 **Last reviewed:** 2026-05-26

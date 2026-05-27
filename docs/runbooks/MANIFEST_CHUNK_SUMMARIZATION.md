@@ -1,8 +1,8 @@
+> **Scope:** Post-retrieval token budgeting for tenant/prior manifest corpus hits before agent or Ask context assembly.
+
 # Manifest chunk summarization operations
 
 **Last reviewed:** 2026-05-26
-
-**Scope:** Post-retrieval token budgeting for tenant/prior manifest corpus hits before agent or Ask context assembly.
 
 ## What it does
 
