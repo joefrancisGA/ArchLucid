@@ -380,6 +380,49 @@
         ],
         "type": "object"
       },
+      "AdminQualityGateAgentFloorDiagnostics": {
+        "properties": {
+          "agentType": {
+            "type": "string"
+          },
+          "hasPerAgentOverride": {
+            "type": "boolean"
+          },
+          "semanticRejectBelow": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "semanticWarnBelow": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "structuralRejectBelow": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "structuralWarnBelow": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "AdminQualityGateDiagnosticsResponse": {
         "properties": {
           "blockRunOnReject": {
@@ -393,6 +436,12 @@
           },
           "mode": {
             "type": "string"
+          },
+          "perAgentTypeFloors": {
+            "items": {
+              "$ref": "#/components/schemas/AdminQualityGateAgentFloorDiagnostics"
+            },
+            "type": "array"
           },
           "pilotStrictMinAgentResultFaithfulnessSupportRatio": {
             "format": "double",
@@ -6919,11 +6968,25 @@
       },
       "ExecutiveRoiExportResponse": {
         "properties": {
+          "costEvidenceFreshnessStatus": {
+            "type": "string"
+          },
+          "costEvidenceStaleAfterDays": {
+            "format": "int32",
+            "type": "integer"
+          },
           "eaDiscountMultiplier": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
             "type": [
               "number",
+              "string"
+            ]
+          },
+          "latestCostEvidenceCollectionTimestampUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
               "string"
             ]
           },
@@ -6941,6 +7004,12 @@
           },
           "savingsPricingBasis": {
             "type": "string"
+          },
+          "savingsPricingBasisDescription": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -7020,6 +7089,13 @@
       },
       "ExecutiveRoiSummaryResponse": {
         "properties": {
+          "costEvidenceFreshnessStatus": {
+            "type": "string"
+          },
+          "costEvidenceStaleAfterDays": {
+            "format": "int32",
+            "type": "integer"
+          },
           "eaDiscountMultiplier": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
@@ -7033,6 +7109,13 @@
               "$ref": "#/components/schemas/ExecutiveRoiSystemicIssueTrendSeries"
             },
             "type": "array"
+          },
+          "latestCostEvidenceCollectionTimestampUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "latestRunCount": {
             "format": "int32",
@@ -7048,6 +7131,12 @@
           },
           "savingsPricingBasis": {
             "type": "string"
+          },
+          "savingsPricingBasisDescription": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "systemCount": {
             "format": "int32",

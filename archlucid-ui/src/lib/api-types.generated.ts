@@ -27593,11 +27593,24 @@ export interface components {
             /** Format: int64 */
             retrievalIndexingPending: number | string;
         };
+        AdminQualityGateAgentFloorDiagnostics: {
+            agentType?: string;
+            hasPerAgentOverride?: boolean;
+            /** Format: double */
+            semanticRejectBelow?: number | string;
+            /** Format: double */
+            semanticWarnBelow?: number | string;
+            /** Format: double */
+            structuralRejectBelow?: number | string;
+            /** Format: double */
+            structuralWarnBelow?: number | string;
+        };
         AdminQualityGateDiagnosticsResponse: {
             blockRunOnReject?: boolean;
             enabled?: boolean;
             enforceOnReject?: boolean;
             mode?: string;
+            perAgentTypeFloors?: components["schemas"]["AdminQualityGateAgentFloorDiagnostics"][];
             /** Format: double */
             pilotStrictMinAgentResultFaithfulnessSupportRatio?: null | number | string;
             /** Format: int32 */
@@ -29467,11 +29480,17 @@ export interface components {
             estimatedUsdSavings?: number | string;
         };
         ExecutiveRoiExportResponse: {
+            costEvidenceFreshnessStatus?: string;
+            /** Format: int32 */
+            costEvidenceStaleAfterDays?: number;
             /** Format: double */
             eaDiscountMultiplier?: number | string;
+            /** Format: date-time */
+            latestCostEvidenceCollectionTimestampUtc?: null | string;
             rows?: components["schemas"]["ExecutiveRoiExportRow"][];
             savingsByEnvironment?: components["schemas"]["ExecutiveRoiEnvironmentSavingsSlice"][];
             savingsPricingBasis?: string;
+            savingsPricingBasisDescription?: null | string;
         };
         ExecutiveRoiExportRow: {
             affectedResource?: null | string;
@@ -29497,9 +29516,14 @@ export interface components {
             points?: components["schemas"]["ExecutiveRoiHistoryPoint"][];
         };
         ExecutiveRoiSummaryResponse: {
+            costEvidenceFreshnessStatus?: string;
+            /** Format: int32 */
+            costEvidenceStaleAfterDays?: number;
             /** Format: double */
             eaDiscountMultiplier?: number | string;
             historicalTrends?: components["schemas"]["ExecutiveRoiSystemicIssueTrendSeries"][];
+            /** Format: date-time */
+            latestCostEvidenceCollectionTimestampUtc?: null | string;
             /** Format: int32 */
             latestRunCount?: number;
             /** Format: int32 */
@@ -29507,6 +29531,7 @@ export interface components {
             /** Format: int32 */
             resolvedFindingsCount30Days?: number;
             savingsPricingBasis?: string;
+            savingsPricingBasisDescription?: null | string;
             /** Format: int32 */
             systemCount?: number;
             systems?: components["schemas"]["SystemLatestRunRoi"][];
