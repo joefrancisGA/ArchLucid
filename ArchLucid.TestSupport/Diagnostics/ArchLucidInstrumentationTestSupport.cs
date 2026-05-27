@@ -2,10 +2,10 @@ using System.Runtime.CompilerServices;
 
 using ArchLucid.Core.Diagnostics;
 
-namespace ArchLucid.Core.Tests.Diagnostics;
+namespace ArchLucid.TestSupport.Diagnostics;
 
 /// <summary>Test-only helpers for safe access to <see cref="ArchLucidInstrumentation" /> under xUnit parallelism.</summary>
-internal static class ArchLucidInstrumentationTestSupport
+public static class ArchLucidInstrumentationTestSupport
 {
     /// <inheritdoc cref="ArchLucidMeterNames.Meter" />
     public static string MeterName => ArchLucidMeterNames.Meter;

@@ -33,7 +33,7 @@ public sealed class AgentHandlerDegradationTelemetryTests
     [SkippableFact]
     public void Record_adds_activity_event_and_degradation_tags_without_prompt_content()
     {
-        ArchLucid.Core.Tests.Diagnostics.ArchLucidInstrumentationTestSupport.EnsureInitialized();
+        ArchLucidInstrumentationTestSupport.EnsureInitialized();
 
         using ActivityListener listener = new()
         {

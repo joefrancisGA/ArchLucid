@@ -2,7 +2,6 @@ using System.Diagnostics.Metrics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Resilience;
-using ArchLucid.Core.Tests.Diagnostics;
 using ArchLucid.Core.Time;
 
 using FluentAssertions;
