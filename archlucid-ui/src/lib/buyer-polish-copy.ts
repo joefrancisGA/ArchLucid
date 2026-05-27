@@ -65,7 +65,7 @@ export const BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA = "View finding and 
 export const BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA = "View evidence trail";
 
 export const BUYER_ASK_GROUNDING_ONCE =
-  "In connected workspaces, answers are scoped to selected review evidence and source anchors. Validate conclusions against your finalized signed manifest — Ask does not replace formal governance records.";
+  "In connected workspaces, answers are scoped to selected review evidence and cited evidence sources. Validate conclusions against your finalized signed manifest — Ask does not replace formal governance records.";
 
 export const BUYER_ASK_SHOWCASE_ANCHORS_LINE =
   "On the Claims Intake review package, replies include quick links to executive summary, manifest, policy basis, evidence trail, and audit anchors where available.";
@@ -124,4 +124,52 @@ export const BUYER_AUDIT_TIMELINE_INTRO = "Recorded timeline for this review pac
 
 export const BUYER_AUDIT_TRAIL_COMPLETE_HEADING = "Audit trail complete";
 
+export const BUYER_AUDIT_SYSTEM_EVENTS_EXPLANATION =
+  "System-recorded events capture automated lifecycle steps.";
+
+export const BUYER_AUDIT_DOWNLOAD_CTA = "Download governance evidence package";
+
 export const BUYER_VIEWING_AS_DEMO_ROLE = "Role: Architecture reviewer";
+
+export const BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL = "Sample workspace";
+
+export const BUYER_APPROVED_WITH_MONITORING_DEFINITION =
+  "Approved for implementation planning; one residual risk accepted with active monitoring; no blocking issues.";
+
+export const BUYER_FINDING_EVALUATION_CONFIDENCE_EXPLANATION =
+  "Finding evaluation confidence — how strongly cited policy rules and evidence support this specific finding (not overall product accuracy).";
+
+export const BUYER_GRAPH_WHAT_THIS_PROVES =
+  "A reviewer can trace the accepted PHI minimization risk from source context through policy basis, decision, approval, signed manifest, and audit record.";
+
+export const BUYER_GRAPH_FILTER_SUMMARY = "Filter by evidence type, decision, or risk";
+
+export const BUYER_RUNS_DASHBOARD_SECTION_HEADING = "Review packages";
+
+export const BUYER_RUNS_DASHBOARD_TAB_APPROVED = "Approved";
+
+export const BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING = "Approved with monitoring";
+
+export const BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION = "Needs attention";
+
+export const BUYER_ASK_INPUT_PLACEHOLDER = "Ask about this review package…";
+
+export const BUYER_ASK_GROUNDING_SOURCES_LABEL = "cited evidence";
+
+export const BUYER_SIGNED_DECISION_RECORD_LABEL = "Signed decision record";
+
+export const BUYER_MANIFEST_SECTION_DECISION = "Decision";
+
+export const BUYER_MANIFEST_SECTION_EVIDENCE = "Evidence";
+
+export const BUYER_MANIFEST_SECTION_DOWNLOADS = "Downloads";
+
+export const BUYER_MANIFEST_SECTION_DILIGENCE = "Diligence";
+
+export const BUYER_EXECUTIVE_BRIEFING_PACKAGE_LABEL = "Executive briefing package";
+
+export const BUYER_ASK_GROUNDING_PRIMARY_SOURCE_LIMIT = 4;
+
+export const BUYER_TECHNICAL_APPENDIX_LABEL = "Technical appendix";
+
+export const BUYER_DECISION_KEY_SUMMARY = "Decision key";
