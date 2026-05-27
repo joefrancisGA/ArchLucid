@@ -6,6 +6,7 @@ import {
   phiMinimizationControlNarrative,
   phiMinimizationRecommendedActionFallback,
 } from "@/lib/finding-display-from-inspect";
+import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer-finding-severity-display";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
@@ -87,17 +88,21 @@ export function fallbackSeverity(payload: FindingInspectPayload | null, findingI
   if (payload !== null) {
     const severity = findingInspectPrimaryLabels(payload).severityLabel;
 
+    if (isBuyerPolishedOperatorShellEnv()) {
+      return buyerFindingSeverityDisplayLabel(severity, payload.findingId ?? findingId);
+    }
+
     if (severity !== null && severity.trim().length > 0) {
       return severity;
     }
 
     if (isPhiMinimizationSampleFinding(payload)) {
-      return "High severity";
+      return "High";
     }
   }
 
   if (isPhiMinimizationFindingId(findingId)) {
-    return "High severity";
+    return isBuyerPolishedOperatorShellEnv() ? "High" : "High severity";
   }
 
   return "Severity pending";

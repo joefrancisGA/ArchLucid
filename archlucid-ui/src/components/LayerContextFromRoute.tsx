@@ -27,7 +27,13 @@ export function LayerContextFromRoute() {
 
   // Home already carries pilot context in the hero; avoid a second mission strip that reads like a weak breadcrumb.
   // New request is the primary create flow — keep the header uncluttered like home.
-  if (pathname === "/" || pathname === "/reviews/new") {
+  // Marketing/diagnostic pages should not force the golden-path frame.
+  if (
+    pathname === "/" ||
+    pathname === "/reviews/new" ||
+    pathname === "/why-archlucid" ||
+    pathname.startsWith("/help")
+  ) {
     return null;
   }
 

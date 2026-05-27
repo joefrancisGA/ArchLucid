@@ -310,7 +310,7 @@ function labelForSegment(
       prev === "policy-packs")
   ) {
     if (buyer && segment === "phi-minimization-risk") {
-      return "High severity: PHI minimization risk";
+      return "PHI minimization finding (High)";
     }
 
     return demoTitle;
@@ -348,13 +348,13 @@ function labelForSegment(
 
     if (buyer === true && segment === "reviews") {
 
-      return "Reviews";
+      return "Review packages";
     }
 
 
     if (buyer === true && segment === "audit") {
 
-      return "Audit Trail";
+      return "Audit trail";
     }
 
 

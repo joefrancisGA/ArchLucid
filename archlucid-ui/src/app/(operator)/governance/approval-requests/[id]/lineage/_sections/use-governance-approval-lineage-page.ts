@@ -6,6 +6,7 @@ import { getApprovalRequestLineage } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { tryStaticDemoGovernanceApprovalLineage } from "@/lib/operator-static-demo";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
 import type { GovernanceApprovalLineagePageServerLoad } from "./load-governance-approval-lineage-page-data";
@@ -46,6 +47,14 @@ export function useGovernanceApprovalLineagePage(
 
       setData(result);
     } catch (e: unknown) {
+      const fallback = tryStaticDemoGovernanceApprovalLineage(approvalRequestId);
+
+      if (fallback !== null) {
+        setData(fallback);
+
+        return;
+      }
+
       setData(null);
       setFailure(toApiLoadFailure(e));
     } finally {

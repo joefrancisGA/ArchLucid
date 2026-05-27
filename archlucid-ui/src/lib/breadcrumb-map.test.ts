@@ -77,10 +77,10 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("buyer-polished: audit crumb reads Audit Trail", () => {
+  it("buyer-polished: audit crumb reads Audit trail", () => {
     expect(getBreadcrumbs("/audit", { buyerPolishedShell: true })).toEqual([
       { label: "Home", href: "/" },
-      { label: "Audit Trail" },
+      { label: "Audit trail" },
     ]);
   });
 
@@ -115,7 +115,7 @@ describe("getBreadcrumbs", () => {
     ).toEqual([
       { label: "Home", href: "/" },
       { label: "Baseline Claims Intake Review", href: "/reviews/claims-intake-run-v1" },
-      { label: "Audit Trail" },
+      { label: "Audit trail" },
     ]);
   });
 
@@ -154,11 +154,11 @@ describe("getBreadcrumbs", () => {
       ),
     ).toEqual([
       { label: "Home", href: "/" },
-      { label: "Reviews", href: "/reviews" },
+      { label: "Review packages", href: "/reviews" },
       { label: SHOWCASE_BUYER_REVIEW_TITLE, href: "/reviews/claims-intake-modernization" },
       { label: "Findings", href: "/reviews/claims-intake-modernization/findings" },
       {
-        label: "High severity: PHI minimization risk",
+        label: "PHI minimization finding (High)",
         href: "/reviews/claims-intake-modernization/findings/phi-minimization-risk",
       },
       { label: "Evidence trace" },

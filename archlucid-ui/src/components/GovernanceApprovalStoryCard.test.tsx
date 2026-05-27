@@ -27,7 +27,7 @@ describe("GovernanceApprovalStoryCard", () => {
     expect(screen.getByText("Submitted for review")).toBeInTheDocument();
     expect(screen.getByText("Architecture review completed")).toBeInTheDocument();
     expect(screen.getByText("Governance approval recorded")).toBeInTheDocument();
-    expect(screen.getByText(/Recorded 2026-01-14T22:05:00\.000Z/)).toBeInTheDocument();
+    expect(screen.getByText(/Recorded Jan 14, 2026.*ET/)).toBeInTheDocument();
     expect(screen.getByText("Approved as architecture decision record")).toBeInTheDocument();
     expect(
       screen.getByText(/Ready for implementation planning, subject to enterprise change control\./),

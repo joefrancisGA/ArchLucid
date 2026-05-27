@@ -12,6 +12,7 @@ import {
   BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer-polish-copy";
+import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +34,7 @@ export function GovernanceApprovalStoryCard(props: {
   const reviewed = (row.reviewedBy?.trim().length ?? 0) > 0;
   const approved = row.status.trim().toLowerCase() === "approved";
   const promoteReady = approved && reviewed;
-  const approvalTimestamp = row.reviewedUtc?.trim() ?? BUYER_SHOWCASE_APPROVAL_UTC;
+  const approvalTimestamp = formatInstantForBuyerGovernance(row.reviewedUtc?.trim() ?? BUYER_SHOWCASE_APPROVAL_UTC);
 
   const steps: { label: string; done: boolean; detail: string }[] = [
     {

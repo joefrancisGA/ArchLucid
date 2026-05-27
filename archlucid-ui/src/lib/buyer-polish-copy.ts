@@ -60,7 +60,7 @@ export const BUYER_GOVERNANCE_DECISION_REGISTER_TITLE = "Decision register";
 export const BUYER_GOVERNANCE_DECISION_REGISTER_LEAD =
   "Durable manifest decisions across signed reviews — category, confidence source, supporting findings, and lineage.";
 
-export const BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA = "View risk observation and evidence";
+export const BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA = "View finding and evidence";
 
 export const BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA = "View evidence trail";
 
@@ -74,7 +74,7 @@ export const BUYER_COMPARE_SECONDARY_PAGE_LEAD =
   "Advanced review comparison is a secondary diligence view. Start from the finalized review package, then load a prior vs later pair when you need an explicit delta.";
 
 export const BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER =
-  "The monitored risk is included in the findings count. Residual PHI risk was knowingly accepted with monitoring — not waived.";
+  "The monitored PHI risk is counted among findings but does not block approval — it remains under active oversight.";
 
 export const BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY = "Download finalized review package";
 
@@ -124,4 +124,4 @@ export const BUYER_AUDIT_TIMELINE_INTRO = "Recorded timeline for this review pac
 
 export const BUYER_AUDIT_TRAIL_COMPLETE_HEADING = "Audit trail complete";
 
-export const BUYER_VIEWING_AS_DEMO_ROLE = "Viewing as: Architecture reviewer (read-only demonstration)";
+export const BUYER_VIEWING_AS_DEMO_ROLE = "Role: Architecture reviewer";

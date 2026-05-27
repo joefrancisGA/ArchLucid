@@ -21,6 +21,19 @@ function runPackageExportHref(runId: string, format: "docx" | "pdf" | "html"): s
   return `/api/proxy/v1/runs/${encodeURIComponent(runId)}/export/${format}`;
 }
 
+function BuyerExecutiveBriefExports({ runId }: { runId: string }) {
+  return (
+    <details className="text-right">
+      <summary className="cursor-pointer list-none text-sm font-semibold text-teal-800 underline decoration-teal-300 underline-offset-2 marker:content-none dark:text-teal-200">
+        Download executive brief
+      </summary>
+      <div className="mt-2">
+        <RunPackageExportButtons runId={runId} />
+      </div>
+    </details>
+  );
+}
+
 function RunPackageExportButtons({ runId }: { runId: string }) {
   return (
     <div className="mt-1 flex flex-wrap gap-2">
@@ -183,7 +196,7 @@ export function RunDetailPageHeader({
               ) : (
                 <p className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-50">Finalized package</p>
               )}
-              {hasGoldenManifest ? <RunPackageExportButtons runId={runId} /> : null}
+              {hasGoldenManifest ? <BuyerExecutiveBriefExports runId={runId} /> : null}
             </div>
           ) : (
             <div className="flex shrink-0 flex-col gap-1.5">
@@ -192,7 +205,7 @@ export function RunDetailPageHeader({
                 <ContextualHelp helpKey="commit-manifest" />
               </p>
               <CommitRunButton runId={runId} disabled={hasGoldenManifest} />
-              {hasGoldenManifest ? <RunPackageExportButtons runId={runId} /> : null}
+              {hasGoldenManifest ? <BuyerExecutiveBriefExports runId={runId} /> : null}
               <p className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
                 <span className="whitespace-nowrap">Governance approval</span>
                 <ContextualHelp helpKey="governance-gate" placement="left" />

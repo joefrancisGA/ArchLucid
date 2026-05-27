@@ -69,7 +69,7 @@ function formatGovernanceQueueRecordKind(kind: GovernanceFindingQueueRecordKind,
     return buyerPolishedShell ? "Decision" : "Architecture decision";
   }
 
-  return buyerPolishedShell ? BUYER_SURFACE_VOCABULARY.riskObservation : "Finding";
+  return buyerPolishedShell ? BUYER_SURFACE_VOCABULARY.finding : "Finding";
 }
 
 function governanceBuyerRecordTypePrimary(row: GovernanceFindingQueueRow): string {

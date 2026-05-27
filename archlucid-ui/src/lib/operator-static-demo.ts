@@ -28,6 +28,7 @@ import type { RunExplanationSummary } from "@/types/explanation";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import type { EffectivePolicyPackSet, PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 import type { GovernanceApprovalRequest, GovernancePromotionRecord } from "@/types/governance-workflow";
+import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
 const DEMO_RUN_IDS_FOR_STATIC_FALLBACK = new Set<string>([
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -494,7 +495,7 @@ export function buildStaticDemoPrimaryFindingInspectPayload(effectiveRunId: stri
       whyThisMatters:
         "If PHI volume or retention slips outside the minimization boundary, breach impact, audit scope, and downstream " +
         "processing obligations expand materially — this risk observation is recorded with monitoring in the finalized package.",
-      severity: "Warning",
+      severity: "High",
       category: "Compliance",
       status: "Accepted with monitoring",
       impactedArea: "Intake PHI boundary, adapters, OCR exception paths, and downstream adjudication handoff",
@@ -1115,4 +1116,53 @@ export function tryStaticDemoGovernancePromotions(runId: string): GovernanceProm
       promotedUtc: "2026-01-14T22:06:00.000Z",
     },
   ];
+}
+
+/** Curated approval lineage for the Claims Intake showcase when the lineage API is unavailable. */
+export function tryStaticDemoGovernanceApprovalLineage(approvalRequestId: string): GovernanceLineageResult | null {
+  if (!isBuyerPolishedOperatorShellEnv() && !isStaticDemoPayloadFallbackEnabled()) {
+    return null;
+  }
+
+  const id = approvalRequestId.trim();
+
+  if (id !== "claims-intake-approval-001") {
+    return null;
+  }
+
+  const runId = SHOWCASE_STATIC_DEMO_RUN_ID;
+  const approvals = tryStaticDemoGovernanceApprovalRequests(runId);
+  const promotions = tryStaticDemoGovernancePromotions(runId);
+
+  if (approvals === null || approvals.length === 0) {
+    return null;
+  }
+
+  return {
+    approvalRequest: approvals[0]!,
+    run: {
+      runId,
+      status: "Finalized",
+      createdUtc: "2026-01-12T10:00:00.000Z",
+      completedUtc: "2026-01-14T22:00:00.000Z",
+      currentManifestVersion: "3.4.1",
+    },
+    manifest: {
+      manifestVersion: "3.4.1",
+      decisionCount: 12,
+      unresolvedIssueCount: 0,
+      complianceGapCount: 0,
+    },
+    topFindings: [
+      {
+        findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+        title: "Residual PHI minimization risk (monitored)",
+        engineType: "Policy",
+        severity: "High",
+        traceCompletenessRatio: 0.92,
+      },
+    ],
+    riskPosture: "Approved with monitoring",
+    promotions: promotions ?? [],
+  };
 }

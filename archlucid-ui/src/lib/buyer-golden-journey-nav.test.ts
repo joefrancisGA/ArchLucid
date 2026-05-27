@@ -38,7 +38,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     expect(navA?.currentStepIndex).toBe(1);
     expect(navB?.currentStepIndex).toBe(1);
     expect(navA?.prev?.label).toBe("Executive summary");
-    expect(navA?.next?.label).toBe("View evidence trail");
+    expect(navA?.next?.label).toBe("Evidence trail");
   });
 
   it("treats governance findings as secondary to the numbered spine", () => {
@@ -73,7 +73,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     expect(pack?.summaryLine).toContain("Policy pack basis");
     expect(pack?.currentStepIndex).toBeNull();
     expect(pack?.prev?.label).toBe("Signed manifest");
-    expect(pack?.next?.label).toBe("View evidence trail");
+    expect(pack?.next?.label).toBe("Evidence trail");
   });
 
   it("treats ask as optional satellite between evidence trail and governance", () => {
@@ -81,7 +81,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
 
     expect(ask?.summaryLine).toContain("Evidence Q&A");
     expect(ask?.currentStepIndex).toBeNull();
-    expect(ask?.prev?.label).toBe("View evidence trail");
+    expect(ask?.prev?.label).toBe("Evidence trail");
     expect(ask?.next?.label).toBe("Governance approval");
   });
 
@@ -91,7 +91,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     expect(compare?.summaryLine).toContain("Optional review change comparison");
     expect(compare?.currentStepIndex).toBeNull();
     expect(compare?.prev?.label).toBe("Signed manifest");
-    expect(compare?.next?.label).toBe("View evidence trail");
+    expect(compare?.next?.label).toBe("Evidence trail");
   });
 
   it("treats showcase review workspace as hub between executive and manifest", () => {

@@ -62,6 +62,39 @@ export function formatConversationListDate(iso: string | null | undefined): stri
 }
 
 /**
+ * Buyer-facing governance timestamps — Eastern Time reads more naturally for US procurement demos.
+ */
+export function formatInstantForBuyerGovernance(iso: string | null | undefined): string {
+  if (iso === null || iso === undefined) {
+    return "—";
+  }
+
+  const trimmed = iso.trim();
+
+  if (trimmed.length === 0) {
+    return "—";
+  }
+
+  const ms = Date.parse(trimmed);
+
+  if (!Number.isFinite(ms)) {
+    return trimmed;
+  }
+
+  return (
+    new Date(ms).toLocaleString("en-US", {
+      timeZone: "America/New_York",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    }) + " ET"
+  );
+}
+
+/**
  * Conversation sidebar rows in polished demo builds: show a stable example label to avoid stale-looking
  * static demo dates in buyer captures.
  */

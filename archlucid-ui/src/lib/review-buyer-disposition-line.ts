@@ -28,11 +28,7 @@ export function buildBuyerReviewPackagePlainStatusHeadline(input: BuyerReviewDis
   const unresolved = clampNonNegativeInt(input.unresolvedIssueCountDisplay);
 
   if (postureRaw === "approved with monitoring" && warnings === 1 && (unresolved === null || unresolved === 0)) {
-    return [
-      "Decision: Approved with monitoring",
-      "Remaining risk: PHI minimization at the intake boundary",
-      "Monitoring cadence: Weekly exception-volume review",
-    ].join("\n");
+    return "Approved with one monitored PHI risk; no blocking issues; evidence and audit trail complete.";
   }
 
   if (postureRaw === "approved with monitoring") {

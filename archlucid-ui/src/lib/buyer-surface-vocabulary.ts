@@ -7,10 +7,10 @@ export const BUYER_SURFACE_VOCABULARY = {
   evidenceGraph: "Decision traceability graph",
   /** Sidebar / compact nav — buyer-facing entry label before opening the graph view. */
   evidenceGraphNav: "Evidence trail",
-  auditTrail: "Audit Trail",
+  auditTrail: "Audit trail",
   approvalPath: "Approval path",
-  /** Surface term: a persisted “finding” is presented as a risk observation to buyers. */
-  riskObservation: "Risk observation",
+  /** Surface term for persisted findings in buyer copy. */
+  finding: "Finding",
   phiMinimizationRisk: "PHI minimization risk",
   /** Golden / signed manifest artifact in buyer copy — avoid informal “sealed”. */
   finalizedSignedManifestRecord: "Finalized signed manifest record",

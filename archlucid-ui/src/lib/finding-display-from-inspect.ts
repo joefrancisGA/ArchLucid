@@ -157,7 +157,7 @@ export function findingDetailHeadingTitleForRoute(
     return findingDetailHeadingTitle(payload);
   }
 
-  return BUYER_SURFACE_VOCABULARY.riskObservation;
+  return BUYER_SURFACE_VOCABULARY.finding;
 }
 
 /** Short user-facing primer under the title when structured description is unavailable. */
@@ -223,10 +223,10 @@ export function isPhiMinimizationSampleFinding(payload: FindingInspectPayload): 
  */
 export function findingDetailPageEyebrow(payload: FindingInspectPayload | null, findingId?: string): string {
   if (payload !== null ? isPhiMinimizationSampleFinding(payload) : isPhiMinimizationFindingId(findingId)) {
-    return "Risk observation summary — PHI minimization";
+    return "Finding summary — PHI minimization";
   }
 
-  return "Risk observation summary";
+  return "Finding summary";
 }
 
 /**

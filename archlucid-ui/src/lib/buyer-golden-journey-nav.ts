@@ -27,7 +27,7 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
   },
   {
     step: 3,
-    label: "View evidence trail",
+    label: "Evidence trail",
     href: `/graph?runId=${showcaseRunEnc}`,
     chipTooltip: "Interactive graph linking evidence → findings → decisions → manifest outputs.",
   },

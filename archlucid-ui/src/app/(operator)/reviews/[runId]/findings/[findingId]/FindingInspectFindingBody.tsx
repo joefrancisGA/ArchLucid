@@ -37,7 +37,7 @@ export function FindingInspectFindingBody({
     ? getShowcaseManifestHref()
     : `/reviews/${encodeURIComponent(runId)}`;
   const reviewContextLabel = isDemoRunIdEligibleForStaticFallback(runId)
-    ? "Open review package"
+    ? "Open cited evidence"
     : "Open review detail (artifacts & graph)";
   const labels = findingInspectPrimaryLabels(payload);
   const whyThisMattersNarrative = findingWhyThisMattersText(payload);

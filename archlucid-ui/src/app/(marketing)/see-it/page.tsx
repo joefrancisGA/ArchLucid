@@ -10,7 +10,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: "ArchLucid · See it in 30 seconds",
   description:
-    "No-install look at a sample healthcare architecture review: finalized manifest snapshot, counts, and artifact descriptors — with a static fallback when live preview is unavailable.",
+    "No-install look at a sample healthcare architecture review package: executive summary, signed manifest, evidence trail, and governance-ready outputs.",
   robots: { index: true, follow: true },
   other: {
     "data-demo": "true",
@@ -27,7 +27,8 @@ export default async function SeeItMarketingPage() {
         See a finalized review package in 30 seconds
       </h1>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-        A finalized review package from the Claims Intake workspace — live API when configured, static snapshot otherwise.
+        A finalized review package from the Claims Intake workspace — decisions, findings, evidence, and audit trail in
+        one governed record.
       </p>
       <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
         Sample data.{" "}
@@ -42,8 +43,8 @@ export default async function SeeItMarketingPage() {
           See a full sample review output — no sign-in
         </p>
         <p className="mt-2 m-0 text-sm text-neutral-600 dark:text-neutral-400">
-          Open the read-only demo walkthrough with manifest, audit trail, and artifacts — the same projection buyers use on
-          the commit page (public API optional; static fallback when offline).
+          Open the read-only demo walkthrough with manifest, audit trail, and artifacts — the same projection buyers use
+          on the executive summary and review package pages.
         </p>
         <div className="mt-4">
           <Link

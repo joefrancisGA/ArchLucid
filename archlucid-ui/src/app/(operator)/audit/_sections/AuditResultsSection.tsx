@@ -22,6 +22,7 @@ import {
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import { BUYER_AUDIT_TIMELINE_INTRO, BUYER_AUDIT_TRAIL_COMPLETE_HEADING, BUYER_VIEWING_AS_DEMO_ROLE } from "@/lib/buyer-polish-copy";
+import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { cn } from "@/lib/utils";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { AuditTimelineEventCard } from "./AuditTimelineEventCard";
@@ -123,8 +124,8 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
         >
           <span className="font-medium text-neutral-800 dark:text-neutral-200">Named reviewers</span> appear with role
           labels (for example architecture reviewer or approver).{" "}
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">Automatically recorded</span> events are
-          lifecycle milestones logged by ArchLucid when no named human actor is attached to the row.
+          <span className="font-medium text-neutral-800 dark:text-neutral-200">System-recorded</span> events are
+          lifecycle milestones logged when no named human actor is attached to the row.
         </p>
       ) : null}
 
@@ -204,7 +205,10 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button type="button" variant="primary" size="sm" onClick={() => void onExportCsv()} disabled={!csvExportUiAllowed || exporting}>
-                    Download audit trail (CSV)
+                    Download audit package (CSV)
+                  </Button>
+                  <Button type="button" variant="outline" size="sm" asChild>
+                    <Link href={getShowcaseExecutiveHref()}>Return to executive summary</Link>
                   </Button>
                 </div>
               </section>

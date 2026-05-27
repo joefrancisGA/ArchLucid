@@ -166,7 +166,7 @@ export function FindingDetailPageView(props: Props) {
                     Confidence assessment not available for this finding.
                   </p>
                 )}
-                {evaluationScore !== null && Number.isFinite(evaluationScore) ? (
+                {evaluationScore !== null && Number.isFinite(evaluationScore) && !buyerPolishedShell ? (
                   <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
                     Numerical score: {evaluationScore.toFixed(2)} (evaluation payload)
                   </p>
@@ -185,23 +185,29 @@ export function FindingDetailPageView(props: Props) {
               <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Business impact</h2>
               <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
                 {findingIsPhi
-                  ? "Residual PHI minimization risk accepted with monitoring — breach impact, audit scope, and downstream processing obligations remain controlled under documented ingress and retention boundaries."
-                  : "This risk observation is recorded in the finalized governance package with evidence trail linkage."}
+                  ? "If PHI slips outside minimization boundaries at intake, breach notification scope, audit findings, and downstream processing obligations expand. Documented ingress classification and weekly exception monitoring keep this risk within accepted limits."
+                  : "This finding is recorded in the finalized governance package with evidence trail linkage."}
               </p>
             </div>
             <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4 dark:border-teal-900/60 dark:bg-teal-950/20">
-              <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Monitoring posture</h2>
+              <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Required monitoring</h2>
               <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
                 {mitigationPosture(inspectPayload, decodedFindingId)}
               </p>
             </div>
             <div className="rounded-xl border border-sky-200 bg-sky-50/70 p-4 dark:border-sky-900/60 dark:bg-sky-950/20">
-              <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Recorded acceptance</h2>
+              <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Decision</h2>
               <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-                {validationRequirement(inspectPayload, decodedFindingId)}
+                Accepted with monitoring — non-blocking for approval. See acceptance record below for recorded controls.
               </p>
             </div>
           </div>
+
+          <CollapsibleSection title="Acceptance record" defaultOpen={false}>
+            <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+              {validationRequirement(inspectPayload, decodedFindingId)}
+            </p>
+          </CollapsibleSection>
 
           {findingIsPhi ? (
             <div className="border-t border-neutral-200 bg-neutral-50 p-5 dark:border-neutral-800 dark:bg-neutral-900/40">
@@ -302,11 +308,11 @@ export function FindingDetailPageView(props: Props) {
         <FindingAskInlinePanel findingId={decodedFindingId} />
       ) : null}
 
-      {inspectPayload !== null ? (
+      {inspectPayload !== null && !buyerPolishedShell ? (
         <FindingIacStubPanel runId={runId} findingId={decodedFindingId} />
       ) : null}
 
-      {inspectPayload !== null ? (
+      {inspectPayload !== null && !buyerPolishedShell ? (
         <CollapsibleSection title="Export for work tracking" defaultOpen={false}>
           <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
             Copy a structured summary formatted for your issue tracker (Markdown, GitHub Issues, Azure Boards, or Jira).
@@ -317,7 +323,7 @@ export function FindingDetailPageView(props: Props) {
         </CollapsibleSection>
       ) : null}
 
-      {inspectPayload !== null ? (
+      {inspectPayload !== null && !buyerPolishedShell ? (
         <CollapsibleSection title="Technical identifiers" defaultOpen={false}>
           <dl className="m-0 grid gap-2 text-sm text-neutral-800 dark:text-neutral-200">
             <div>

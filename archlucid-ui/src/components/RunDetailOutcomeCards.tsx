@@ -349,12 +349,14 @@ export function RunDetailOutcomeCards({
         })}
       </p>
       {typeof warningCountDisplay === "number" && warningCountDisplay > 0 ? (
-        <p
-          className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400"
-          data-testid="buyer-review-monitored-risk-clarifier"
-        >
-          {BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER}
-        </p>
+        <details className="mt-2 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+          <summary className="cursor-pointer font-medium text-neutral-700 dark:text-neutral-300">
+            How monitored risks are counted
+          </summary>
+          <p className="m-0 mt-2" data-testid="buyer-review-monitored-risk-clarifier">
+            {BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER}
+          </p>
+        </details>
       ) : null}
       <PackageStatusStrip
         manifestId={manifestId}
@@ -368,7 +370,7 @@ export function RunDetailOutcomeCards({
       />
       <details className="rounded-lg border border-neutral-200 bg-neutral-50/50 dark:border-neutral-800 dark:bg-neutral-900/30">
         <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-          Outcome taxonomy reference
+          How to read this decision
         </summary>
         <div className="border-t border-neutral-200 px-3 py-3 dark:border-neutral-800">
           <ReviewOutcomeTaxonomyLegend />
