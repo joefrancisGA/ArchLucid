@@ -21,6 +21,7 @@
     "test:axe-components": "vitest run src/accessibility",
     "test:e2e": "playwright test -c playwright.mock.config.ts",
     "test:e2e:mock:functional": "playwright test -c playwright.mock.config.ts --project=chromium",
+    "test:e2e:mock:operator-shell": "playwright test -c playwright.operator-mock.config.ts --project=chromium-operator-shell",
     "test:e2e:mock:visual": "playwright test -c playwright.mock.config.ts --project=chromium-visual",
     "test:a11y": "playwright test -c playwright.mock.config.ts --project=chromium-accessibility",
     "test:e2e:accessibility": "playwright test -c playwright.mock.config.ts --project=chromium-accessibility",

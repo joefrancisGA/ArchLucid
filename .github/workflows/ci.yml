@@ -2439,6 +2439,8 @@ jobs:
           npm run build
           MOCK_E2E_SKIP_NEXT_BUILD=1 npx playwright install --with-deps chromium
           MOCK_E2E_SKIP_NEXT_BUILD=1 npm run test:e2e:mock:functional
+          NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator NEXT_PUBLIC_DEMO_MODE=false NEXT_PUBLIC_DEMO_STATIC_OPERATOR=false npm run build
+          MOCK_E2E_SKIP_NEXT_BUILD=1 MOCK_E2E_OPERATOR_PORT=3002 npm run test:e2e:mock:operator-shell
 
       - uses: actions/upload-artifact@v6
         if: always()

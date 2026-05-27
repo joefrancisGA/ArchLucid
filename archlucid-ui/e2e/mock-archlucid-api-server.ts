@@ -127,6 +127,8 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         sendJson(res, 200, {
           name: "E2E mock operator",
           claims: [{ type: "roles", value: "Admin" }],
+          /** Unlocks operate-analysis / operate-governance nav after collapsed-pilot expand in mock E2E. */
+          hasCommittedArchitectureReview: true,
         });
 
         return;
