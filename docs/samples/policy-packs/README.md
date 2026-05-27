@@ -71,6 +71,10 @@ Replace **`BASE`** and **`TOKEN`** with your environment values.
 
 `POST /v1/governance/policy-packs/dry-run` with **`PolicyPackGovernanceDryRunRequest`**: embed file contents in **`policyPackContentJson`**, pass **`targetRunId`** or **`targetManifestId`**, and optionally override **`blockCommitOnCritical`** / **`blockCommitMinimumSeverity`** (overrides win over pack metadata per server merge rules).
 
+## Healthcare claims vertical walkthrough
+
+Step-by-step pilot path using demo seed **`healthcare-claims-v3`** / run **`claims-intake-modernization`**: **[`docs/library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md`](../../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md)**.
+
 ## Customize
 
 - Swap **`complianceRuleKeys`** for ids your organization authors.

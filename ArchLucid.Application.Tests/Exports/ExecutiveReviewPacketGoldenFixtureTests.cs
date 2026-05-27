@@ -1,0 +1,53 @@
+using ArchLucid.Application.Exports;
+using ArchLucid.Contracts.Roi;
+
+using FluentAssertions;
+
+namespace ArchLucid.Application.Tests.Exports;
+
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
+public sealed class ExecutiveReviewPacketGoldenFixtureTests
+{
+    [Fact]
+    public void Seeded_demo_run_packet_matches_golden_markdown()
+    {
+        ExecutiveReviewPacketDemoFixture.DemoPacketInputs inputs =
+            ExecutiveReviewPacketDemoFixture.CreateSeededDemoRun();
+
+        string actual = NormalizeNewlines(ExecutiveReviewPacketComposer.ComposeMarkdown(
+            inputs.Detail,
+            inputs.ExecutiveSummary,
+            inputs.TopFindingTitles,
+            inputs.RoiSummary,
+            ExecutiveReviewPacketDemoFixture.StableGeneratedUtc));
+
+        string golden = NormalizeNewlines(ExecutiveReviewPacketDemoFixture.LoadGoldenMarkdown());
+
+        actual.Should().Be(golden, "Update Exports/Golden/executive-review-packet-demo-run.md when packet sections change deliberately.");
+    }
+
+    private static string NormalizeNewlines(string text)
+    {
+        return text.Replace("\r\n", "\n", StringComparison.Ordinal).Replace("\r", "\n", StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Seeded_demo_run_packet_includes_roi_basis_label()
+    {
+        ExecutiveReviewPacketDemoFixture.DemoPacketInputs inputs =
+            ExecutiveReviewPacketDemoFixture.CreateSeededDemoRun();
+
+        string markdown = ExecutiveReviewPacketComposer.ComposeMarkdown(
+            inputs.Detail,
+            inputs.ExecutiveSummary,
+            inputs.TopFindingTitles,
+            inputs.RoiSummary,
+            ExecutiveReviewPacketDemoFixture.StableGeneratedUtc);
+
+        markdown.Should().Contain($"**Savings pricing basis:** {ExecutiveRoiSavingsPricingBasis.EaAdjusted}");
+        markdown.Should().Contain("**Pricing basis note:**");
+        markdown.Should().Contain("PHI minimization risk at intake boundary");
+        markdown.Should().Contain("Claims Intake Modernization");
+    }
+}

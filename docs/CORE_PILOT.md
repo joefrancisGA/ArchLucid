@@ -18,6 +18,7 @@ Do not mistake the Core Pilot checklist for full product scope — advanced Oper
 | Need | Doc |
 |------|-----|
 | Step-by-step UI + “what good looks like” | [`onboarding/EVALUATION_GUIDE.md`](onboarding/EVALUATION_GUIDE.md) (**Part 2 — Core Pilot**) |
+| Healthcare claims policy pack → run → gate → commit (demo seed) | [`library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md`](library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md) |
 | CLI / curl spine (repository root) | [`library/OPERATOR_QUICKSTART.md`](library/OPERATOR_QUICKSTART.md) |
 | First-session wizard in the hosted operator shell | `/onboarding` (in-product); see [`library/FIRST_RUN_WIZARD.md`](library/FIRST_RUN_WIZARD.md) |
 

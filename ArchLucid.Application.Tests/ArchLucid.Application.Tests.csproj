@@ -55,6 +55,7 @@
 
   <ItemGroup>
     <None Include="Exports\ArchitectureReviewBoard\Golden\architecture-review-board-section-headings-order.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Exports\Golden\executive-review-packet-demo-run.md" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

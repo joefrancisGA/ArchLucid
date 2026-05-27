@@ -140,3 +140,38 @@ describe("SidebarNav (primary navigation)", () => {
     expect(screen.queryByText("Press Shift+? for help and keyboard shortcuts")).toBeNull();
   });
 });
+
+describe("SidebarNav pilot_operator default preset", () => {
+  beforeEach(() => {
+    process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
+    localStorage.clear();
+  });
+
+  it("hides compare and governance workflow until Show all features and disclosure toggles", () => {
+    render(<SidebarNav />);
+
+    const nav = screen.getByRole("navigation", { name: "Review work" });
+
+    expect(within(nav).queryByRole("link", { name: "Compare two reviews" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Governance workflow" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: /Show all features/ }));
+
+    expect(screen.getByRole("navigation", { name: "Analysis" })).toBeInTheDocument();
+    expect(within(nav).queryByRole("link", { name: "Compare two reviews" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Sidebar layout" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }));
+    fireEvent.click(screen.getByRole("button", { name: "Close dialog" }));
+
+    expect(screen.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
+
+    fireEvent.click(screen.getByRole("button", { name: "Sidebar layout" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.advanced.show }));
+    fireEvent.click(screen.getByRole("button", { name: "Close dialog" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "Governance" }));
+
+    expect(screen.getByRole("link", { name: "Governance workflow" })).toHaveAttribute("href", "/governance");
+  });
+});

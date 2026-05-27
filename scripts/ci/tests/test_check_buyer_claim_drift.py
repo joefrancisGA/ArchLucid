@@ -78,5 +78,55 @@ class TestBuyerClaimDrift(unittest.TestCase):
             self.assertTrue(any("SOC 2 CPA reports" in violation for violation in violations))
 
 
+    def test_marketplace_published_phrase_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            for rel in G.DOCS_TO_SCAN:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("Safe default text.\n", encoding="utf-8")
+
+            bad = root / "docs/go-to-market/TRUST_CENTER.md"
+            bad.write_text("Status: Marketplace Published for enterprise buyers.\n", encoding="utf-8")
+
+            violations = G.buyer_claim_drift_violations(root)
+
+            self.assertTrue(any("Marketplace Published" in violation for violation in violations))
+
+    def test_jira_v1_ga_promise_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            for rel in G.DOCS_TO_SCAN:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("Safe default text.\n", encoding="utf-8")
+
+            bad = root / "docs/go-to-market/INTEGRATION_CATALOG.md"
+            bad.write_text("First-party Jira is a V1 GA capability for all tenants.\n", encoding="utf-8")
+
+            violations = G.buyer_claim_drift_violations(root)
+
+            self.assertTrue(any("V1 GA capabilities" in violation for violation in violations))
+
+    def test_allowlist_marker_skips_violation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            for rel in G.DOCS_TO_SCAN:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("Safe default text.\n", encoding="utf-8")
+
+            allowed = root / "docs/go-to-market/SOC2_STATUS_PROCUREMENT.md"
+            allowed.write_text(
+                "SOC 2 Type II issued buyer-claim-drift: allow — fixture documents negative phrasing for reviewers.\n",
+                encoding="utf-8",
+            )
+
+            self.assertEqual(G.buyer_claim_drift_violations(root), [])
+
+
 if __name__ == "__main__":
     unittest.main()
