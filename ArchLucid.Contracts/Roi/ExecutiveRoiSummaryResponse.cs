@@ -54,6 +54,32 @@ public sealed class ExecutiveRoiSummaryResponse
         set;
     } = ExecutiveRoiSavingsPricingBasis.Retail;
 
+    /// <summary>Human-readable pricing basis and freshness context for sponsor-facing UI.</summary>
+    public string? SavingsPricingBasisDescription
+    {
+        get;
+        set;
+    }
+
+    /// <summary><see cref="RoiCostEvidenceFreshness.Fresh" />, <see cref="RoiCostEvidenceFreshness.Stale" />, or <see cref="RoiCostEvidenceFreshness.Missing" />.</summary>
+    public string CostEvidenceFreshnessStatus
+    {
+        get;
+        set;
+    } = RoiCostEvidenceFreshness.Missing;
+
+    public DateTime? LatestCostEvidenceCollectionTimestampUtc
+    {
+        get;
+        set;
+    }
+
+    public int CostEvidenceStaleAfterDays
+    {
+        get;
+        set;
+    } = 90;
+
     /// <summary>
     ///     Distinct findings approved (or overridden) in the trailing 30-day window, deduplicated by stable
     ///     <see cref="ArchitectureFinding.FindingId" />.

@@ -23,6 +23,8 @@ public sealed class ExecutiveRoiSummaryService(
     ITenantRepository tenantRepository,
     IScimUserRepository scimUserRepository,
     ExecutiveRoiTenantPricingContextResolver executiveRoiTenantPricingContextResolver,
+    RoiCostEvidenceFreshnessEvaluator roiCostEvidenceFreshnessEvaluator,
+    IAzureExtractorPackageRepository azureExtractorPackageRepository,
     IScopeContextProvider scopeContextProvider,
     IFindingReviewTrailRepository findingReviewTrailRepository,
     ILogger<ExecutiveRoiSummaryService> logger) : IExecutiveRoiSummaryService
@@ -46,6 +48,12 @@ public sealed class ExecutiveRoiSummaryService(
     private readonly ExecutiveRoiTenantPricingContextResolver _executiveRoiTenantPricingContextResolver =
         executiveRoiTenantPricingContextResolver ?? throw new ArgumentNullException(nameof(executiveRoiTenantPricingContextResolver));
 
+    private readonly RoiCostEvidenceFreshnessEvaluator _roiCostEvidenceFreshnessEvaluator =
+        roiCostEvidenceFreshnessEvaluator ?? throw new ArgumentNullException(nameof(roiCostEvidenceFreshnessEvaluator));
+
+    private readonly IAzureExtractorPackageRepository _azureExtractorPackageRepository =
+        azureExtractorPackageRepository ?? throw new ArgumentNullException(nameof(azureExtractorPackageRepository));
+
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
@@ -55,10 +63,6 @@ public sealed class ExecutiveRoiSummaryService(
     /// <inheritdoc/>
     public async Task<ExecutiveRoiSummaryResponse> BuildAsync(CancellationToken cancellationToken = default)
     {
-        (decimal eaDiscountMultiplier, string savingsPricingBasis) = await _executiveRoiTenantPricingContextResolver
-            .ResolveAsync(cancellationToken)
-            .ConfigureAwait(false);
-
         Dictionary<string, RunSummary> latestBySystem = await CollectLatestCommittedRunPerSystemAsync(cancellationToken).ConfigureAwait(false);
         List<RunSummary> selectedSummaries = latestBySystem.Values
             .OrderByDescending(static summary => summary.CreatedUtc)
@@ -109,6 +113,9 @@ public sealed class ExecutiveRoiSummaryService(
                 tenantId,
                 cancellationToken).ConfigureAwait(false);
 
+        ExecutiveRoiPricingLabels pricingLabels =
+            await ResolveExecutiveRoiPricingLabelsAsync(latestDetails, cancellationToken).ConfigureAwait(false);
+
         return new ExecutiveRoiSummaryResponse
         {
             TotalEstimatedUsdSavings = totalSavings,
@@ -116,8 +123,12 @@ public sealed class ExecutiveRoiSummaryService(
             LatestRunCount = systems.Count,
             Systems = systems,
             TopSystemicIssues = topIssues,
-            EaDiscountMultiplier = eaDiscountMultiplier,
-            SavingsPricingBasis = savingsPricingBasis,
+            EaDiscountMultiplier = pricingLabels.EaDiscountMultiplier,
+            SavingsPricingBasis = pricingLabels.SavingsPricingBasis,
+            SavingsPricingBasisDescription = pricingLabels.SavingsPricingBasisDescription,
+            CostEvidenceFreshnessStatus = pricingLabels.Freshness.Status,
+            LatestCostEvidenceCollectionTimestampUtc = pricingLabels.Freshness.LatestCollectionTimestampUtc,
+            CostEvidenceStaleAfterDays = pricingLabels.Freshness.StaleAfterDays,
             ResolvedFindingsCount30Days = resolvedCount,
             NewlyDiscoveredFindingsCount30Days = newlyDiscoveredCount,
             HistoricalTrends = historicalTrends,
@@ -298,10 +309,6 @@ public sealed class ExecutiveRoiSummaryService(
     /// <inheritdoc />
     public async Task<ExecutiveRoiExportResponse> BuildExportAsync(CancellationToken cancellationToken = default)
     {
-        (decimal eaDiscountMultiplier, string savingsPricingBasis) = await _executiveRoiTenantPricingContextResolver
-            .ResolveAsync(cancellationToken)
-            .ConfigureAwait(false);
-
         Dictionary<string, RunSummary> latestBySystem = await CollectLatestCommittedRunPerSystemAsync(cancellationToken).ConfigureAwait(false);
         List<RunSummary> selectedSummaries = latestBySystem.Values
             .OrderByDescending(static summary => summary.CreatedUtc)
@@ -310,6 +317,7 @@ public sealed class ExecutiveRoiSummaryService(
 
         List<ExecutiveRoiExportRow> rows = [];
         Dictionary<string, decimal> savingsByEnvironment = new(StringComparer.OrdinalIgnoreCase);
+        List<ArchitectureRunDetail> latestDetails = [];
 
         foreach (RunSummary summary in selectedSummaries)
         {
@@ -318,6 +326,7 @@ public sealed class ExecutiveRoiSummaryService(
             if (detail is null)
                 continue;
 
+            latestDetails.Add(detail);
             string systemName = ResolveSystemName(summary, detail);
             string environment = ResolveEnvironmentLabel(detail);
 
@@ -359,14 +368,66 @@ public sealed class ExecutiveRoiSummaryService(
             })
             .ToList();
 
+        ExecutiveRoiPricingLabels pricingLabels =
+            await ResolveExecutiveRoiPricingLabelsAsync(latestDetails, cancellationToken).ConfigureAwait(false);
+
         return new ExecutiveRoiExportResponse
         {
             Rows = rows,
             SavingsByEnvironment = slices,
-            EaDiscountMultiplier = eaDiscountMultiplier,
-            SavingsPricingBasis = savingsPricingBasis,
+            EaDiscountMultiplier = pricingLabels.EaDiscountMultiplier,
+            SavingsPricingBasis = pricingLabels.SavingsPricingBasis,
+            SavingsPricingBasisDescription = pricingLabels.SavingsPricingBasisDescription,
+            CostEvidenceFreshnessStatus = pricingLabels.Freshness.Status,
+            LatestCostEvidenceCollectionTimestampUtc = pricingLabels.Freshness.LatestCollectionTimestampUtc,
+            CostEvidenceStaleAfterDays = pricingLabels.Freshness.StaleAfterDays,
         };
     }
+
+    private async Task<ExecutiveRoiPricingLabels> ResolveExecutiveRoiPricingLabelsAsync(
+        IReadOnlyList<ArchitectureRunDetail> latestDetails,
+        CancellationToken cancellationToken)
+    {
+        (decimal eaDiscountMultiplier, _) = await _executiveRoiTenantPricingContextResolver
+            .ResolveAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        RoiCostEvidenceFreshnessSnapshot freshness = await _roiCostEvidenceFreshnessEvaluator
+            .EvaluateAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        ExecutiveRoiCostFindingPricingSignalScanner.PricingSignals signals =
+            ExecutiveRoiCostFindingPricingSignalScanner.Scan(latestDetails);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        bool hasExtractorPackages = await _azureExtractorPackageRepository
+            .HasAnyInWorkspaceAsync(scope, cancellationToken)
+            .ConfigureAwait(false);
+
+        bool hasUploadedCostEvidence = hasExtractorPackages || signals.HasUploadedExtractorEvidence;
+
+        string savingsPricingBasis = ExecutiveRoiSavingsPricingBasis.Resolve(
+            eaDiscountMultiplier,
+            hasUploadedCostEvidence,
+            signals.HasHeuristicCostEvidence);
+
+        string savingsPricingBasisDescription = ExecutiveRoiSavingsPricingBasisDescriptionBuilder.Build(
+            savingsPricingBasis,
+            eaDiscountMultiplier,
+            freshness);
+
+        return new ExecutiveRoiPricingLabels(
+            eaDiscountMultiplier,
+            savingsPricingBasis,
+            savingsPricingBasisDescription,
+            freshness);
+    }
+
+    private sealed record ExecutiveRoiPricingLabels(
+        decimal EaDiscountMultiplier,
+        string SavingsPricingBasis,
+        string SavingsPricingBasisDescription,
+        RoiCostEvidenceFreshnessSnapshot Freshness);
 
     private async Task<List<(RunSummary Summary, ArchitectureRunDetail Detail)>> CollectCommittedRunsForTrendsAsync(
         CancellationToken cancellationToken)

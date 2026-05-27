@@ -228,6 +228,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ICustomRoleService, CustomRoleService>();
         services.AddScoped<ICustomRolePermissionEvaluator, CustomRolePermissionEvaluator>();
         services.AddScoped<ExecutiveRoiTenantPricingContextResolver>();
+        services.AddScoped<RoiCostEvidenceFreshnessEvaluator>();
         services.AddScoped<ExecutiveRoiSummaryService>();
         services.AddScoped<IExecutiveRoiSummaryService, CachingExecutiveRoiSummaryService>();
         services.AddScoped<ExecutiveRoiBoardPackPdfBuilder>();
@@ -236,6 +237,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ExecutiveRoiCacheWarmupOptions.SectionPath));
         services.Configure<ExecutiveRoiSavingsGaugeOptions>(
             configuration.GetSection(ExecutiveRoiSavingsGaugeOptions.SectionPath));
+        services.Configure<RoiCostEvidenceFreshnessOptions>(
+            configuration.GetSection(RoiCostEvidenceFreshnessOptions.SectionPath));
         services.AddScoped<ResourceCoverageReportService>();
         services
             .AddHttpClient<IPublisherConnector, ConfluenceCloudPublisherConnector>(

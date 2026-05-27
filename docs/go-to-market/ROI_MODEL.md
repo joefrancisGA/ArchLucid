@@ -338,3 +338,26 @@ ArchLucid pays for itself in under 4 months even in the conservative scenario.
 | [POSITIONING.md](POSITIONING.md) | Value pillars that map to the levers above |
 | [../V1_SCOPE.md](../library/V1_SCOPE.md) | What V1 actually ships (grounding for capability claims) |
 | [../PILOT_GUIDE.md](../library/PILOT_GUIDE.md) | Technical pilot onboarding |
+
+---
+
+## 10. Savings confidence labels (executive ROI surfaces)
+
+Portfolio and sponsor-facing ROI totals (`GET /v1/roi/executive-summary`) include **labeling metadata only** — savings math is unchanged.
+
+| Label | Meaning |
+|-------|---------|
+| **Retail** | Azure Retail list prices (public PAYG catalog). |
+| **EA-adjusted** | Tenant-configured EA discount multiplier applied to Retail-derived cost findings. |
+| **Uploaded actual/amortized** | Uploaded Azure extractor `cost-actual.json` / amortized evidence in workspace scope (EA multiplier may also apply). |
+| **Heuristic fallback** | Monthly heuristic estimate when Retail SKU match is unavailable. |
+
+**Cost evidence freshness** (uploaded extractor only):
+
+| Status | Meaning |
+|--------|---------|
+| **Fresh** | Latest extractor collection timestamp is within `ExecutiveRoi:CostEvidenceFreshness:StaleAfterDays` (default **90** days). |
+| **Stale** | Collection timestamp exceeds the threshold — re-run Tier 1/Tier 2 extraction before board/sponsor reviews. |
+| **Missing** | No uploaded extractor packages in the current workspace scope. |
+
+Configure the stale threshold in host configuration (`ExecutiveRoi:CostEvidenceFreshness:StaleAfterDays`). Operator UI surfaces basis text and freshness warnings on the Home → Portfolio ROI summary panel.

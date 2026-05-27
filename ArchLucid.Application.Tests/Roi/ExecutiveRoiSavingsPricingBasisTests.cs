@@ -16,4 +16,19 @@ public sealed class ExecutiveRoiSavingsPricingBasisTests
     {
         ExecutiveRoiSavingsPricingBasis.Resolve(multiplier).Should().Be(expected);
     }
+
+    [Theory]
+    [InlineData(1.0, true, false, ExecutiveRoiSavingsPricingBasis.UploadedActualAmortized)]
+    [InlineData(0.85, true, false, ExecutiveRoiSavingsPricingBasis.UploadedActualAmortized)]
+    [InlineData(0.85, false, false, ExecutiveRoiSavingsPricingBasis.EaAdjusted)]
+    [InlineData(1.0, false, true, ExecutiveRoiSavingsPricingBasis.HeuristicFallback)]
+    [InlineData(1.0, false, false, ExecutiveRoiSavingsPricingBasis.Retail)]
+    public void Resolve_with_signals_maps_to_basis(
+        decimal multiplier,
+        bool hasUploaded,
+        bool hasHeuristic,
+        string expected)
+    {
+        ExecutiveRoiSavingsPricingBasis.Resolve(multiplier, hasUploaded, hasHeuristic).Should().Be(expected);
+    }
 }

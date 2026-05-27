@@ -100,13 +100,34 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
                 return savingsByTenant.TryGetValue(tenantId.Value, out decimal savings) ? savings : 0m;
             });
 
+        Mock<IScopeContextProvider> ambientScopeProvider = new();
+        ambientScopeProvider
+            .Setup(provider => provider.GetCurrentScope())
+            .Returns(() => AmbientScopeContext.CurrentOverride ?? new ScopeContext());
+
+        Mock<IAzureExtractorPackageRepository> packageRepository = new();
+        packageRepository
+            .Setup(repo => repo.HasAnyInWorkspaceAsync(It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        packageRepository
+            .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((DateTime?)null);
+
+        RoiCostEvidenceFreshnessEvaluator freshnessEvaluator = new(
+            packageRepository.Object,
+            ambientScopeProvider.Object,
+            TimeProvider.System,
+            Microsoft.Extensions.Options.Options.Create(new Core.Configuration.RoiCostEvidenceFreshnessOptions()));
+
         ExecutiveRoiSummaryService roiService = new(
             runQuery.Object,
             savingsResolver.Object,
             tenantRepository.Object,
             Mock.Of<IScimUserRepository>(),
             CreateAmbientPricingContextResolver(),
-            CreateAmbientScopeContextProvider(),
+            freshnessEvaluator,
+            packageRepository.Object,
+            ambientScopeProvider.Object,
             CreateEmptyFindingReviewTrailRepository(),
             NullLogger<ExecutiveRoiSummaryService>.Instance);
 

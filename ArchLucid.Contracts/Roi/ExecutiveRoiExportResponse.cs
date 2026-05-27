@@ -87,6 +87,30 @@ public sealed class ExecutiveRoiExportResponse
         get;
         init;
     } = ExecutiveRoiSavingsPricingBasis.Retail;
+
+    public string? SavingsPricingBasisDescription
+    {
+        get;
+        init;
+    }
+
+    public string CostEvidenceFreshnessStatus
+    {
+        get;
+        init;
+    } = RoiCostEvidenceFreshness.Missing;
+
+    public DateTime? LatestCostEvidenceCollectionTimestampUtc
+    {
+        get;
+        init;
+    }
+
+    public int CostEvidenceStaleAfterDays
+    {
+        get;
+        init;
+    } = 90;
 }
 
 /// <summary>One environment slice for savings pie charts.</summary>

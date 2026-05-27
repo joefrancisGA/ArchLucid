@@ -18,6 +18,10 @@ export type ExecutiveRoiSummary = {
   latestRunCount: number;
   eaDiscountMultiplier: number;
   savingsPricingBasis: string;
+  savingsPricingBasisDescription?: string;
+  costEvidenceFreshnessStatus?: string;
+  latestCostEvidenceCollectionTimestampUtc?: string | null;
+  costEvidenceStaleAfterDays?: number;
   systems: Array<{
     systemName: string;
     runId: string;
@@ -58,6 +62,15 @@ export function buildExecutiveSummaryMarkdown(summary: ExecutiveRoiSummary): str
   lines.push("");
   lines.push(`- **Estimated USD savings:** ${formatUsd(summary.totalEstimatedUsdSavings)}`);
   lines.push(`- **Savings pricing basis:** ${summary.savingsPricingBasis} (EA multiplier ${summary.eaDiscountMultiplier})`);
+
+  if (summary.savingsPricingBasisDescription) {
+    lines.push(`- **Pricing basis note:** ${summary.savingsPricingBasisDescription}`);
+  }
+
+  if (summary.costEvidenceFreshnessStatus) {
+    lines.push(`- **Cost evidence freshness:** ${summary.costEvidenceFreshnessStatus}`);
+  }
+
   lines.push(`- **Systems reviewed:** ${summary.systemCount}`);
   lines.push(`- **Latest runs included:** ${summary.latestRunCount}`);
   lines.push("");

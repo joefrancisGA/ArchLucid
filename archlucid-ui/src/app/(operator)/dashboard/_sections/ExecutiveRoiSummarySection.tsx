@@ -9,6 +9,11 @@ import {
   type ExecutiveRoiSummary,
 } from "@/lib/executive-summary-markdown";
 import { ExecutiveRoiSystemicIssueTrendChart } from "@/components/ExecutiveRoiSystemicIssueTrendChart";
+import {
+  formatExecutiveRoiPricingBasisLabel,
+  formatRoiCostEvidenceFreshnessWarning,
+  shouldShowRoiCostEvidenceFreshnessWarning,
+} from "@/lib/roi-pricing-basis-label";
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import { showError } from "@/lib/toast";
 
@@ -69,11 +74,18 @@ export function ExecutiveRoiSummarySection() {
         }>;
         savingsPricingBasis?: string;
         eaDiscountMultiplier?: number;
+        savingsPricingBasisDescription?: string;
+        costEvidenceFreshnessStatus?: string;
       };
 
-      const pricingBasis = json.savingsPricingBasis ?? "Retail";
       const eaMultiplier = json.eaDiscountMultiplier ?? 1;
-      const preamble = `# Savings pricing basis: ${pricingBasis} (EA discount multiplier ${eaMultiplier})`;
+      const preamble = [
+        `# Savings pricing basis: ${json.savingsPricingBasis ?? "Retail"} (EA discount multiplier ${eaMultiplier})`,
+        json.savingsPricingBasisDescription ? `# ${json.savingsPricingBasisDescription}` : null,
+        json.costEvidenceFreshnessStatus ? `# Cost evidence freshness: ${json.costEvidenceFreshnessStatus}` : null,
+      ]
+        .filter(Boolean)
+        .join("\n");
       const header = "FindingId,RunId,SystemName,Environment,Category,Severity,Title,AffectedResource,EstimatedUsdSavings";
       const lines = (json.rows ?? []).map((row) =>
         [
@@ -199,11 +211,30 @@ export function ExecutiveRoiSummarySection() {
               {formatUsd(data.totalEstimatedUsdSavings)}
             </div>
             <div className="mt-1 text-xs text-neutral-600 dark:text-neutral-400" data-testid="exec-roi-pricing-basis">
-              {(data.savingsPricingBasis ?? "Retail") === "EA-adjusted"
-                ? `EA-adjusted (multiplier ${data.eaDiscountMultiplier ?? 1})`
-                : "Retail list pricing"}
+              {formatExecutiveRoiPricingBasisLabel(data.savingsPricingBasis, data.eaDiscountMultiplier)}
             </div>
+            {data.savingsPricingBasisDescription ? (
+              <p
+                className="mt-2 text-xs text-neutral-600 dark:text-neutral-400"
+                data-testid="exec-roi-pricing-basis-description"
+              >
+                {data.savingsPricingBasisDescription}
+              </p>
+            ) : null}
           </div>
+          {shouldShowRoiCostEvidenceFreshnessWarning(data.costEvidenceFreshnessStatus) ? (
+            <div
+              className="sm:col-span-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
+              role="alert"
+              data-testid="exec-roi-cost-evidence-freshness-warning"
+            >
+              {formatRoiCostEvidenceFreshnessWarning(
+                data.costEvidenceFreshnessStatus,
+                data.costEvidenceStaleAfterDays,
+                data.latestCostEvidenceCollectionTimestampUtc ?? null,
+              )}
+            </div>
+          ) : null}
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
             <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Systems reviewed</div>
             <div className="mt-1 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">

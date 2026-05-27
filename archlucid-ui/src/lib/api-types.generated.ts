@@ -1339,6 +1339,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/diagnostics/identity-providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
+                        "text/json": components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
+                        "text/plain": components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/diagnostics/leases": {
         parameters: {
             query?: never;
@@ -1438,43 +1475,6 @@ export interface paths {
                         "application/json": components["schemas"]["AdminQualityGateDiagnosticsResponse"];
                         "text/json": components["schemas"]["AdminQualityGateDiagnosticsResponse"];
                         "text/plain": components["schemas"]["AdminQualityGateDiagnosticsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/admin/diagnostics/identity-providers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
-                        "text/json": components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
-                        "text/plain": components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
                     };
                 };
             };
@@ -4742,6 +4742,45 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/v1/analytics/patterns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    industryVertical?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PatternInsightCard"][];
+                        "text/json": components["schemas"]["PatternInsightCard"][];
+                        "text/plain": components["schemas"]["PatternInsightCard"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/v1/analytics/roi": {
@@ -13994,6 +14033,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/billing/wallet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LlmTenantWalletGetResponse"];
+                        "text/json": components["schemas"]["LlmTenantWalletGetResponse"];
+                        "text/plain": components["schemas"]["LlmTenantWalletGetResponse"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["LlmTenantWalletPutRequest"];
+                    "application/json": null | components["schemas"]["LlmTenantWalletPutRequest"];
+                    "text/json": null | components["schemas"]["LlmTenantWalletPutRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LlmTenantWalletGetResponse"];
+                        "text/json": components["schemas"]["LlmTenantWalletGetResponse"];
+                        "text/plain": components["schemas"]["LlmTenantWalletGetResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/billing/webhooks/marketplace": {
         parameters: {
             query?: never;
@@ -21019,6 +21122,135 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/mcp/retrieval/policy-pack-search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["McpRetrievalSearchBody"];
+                    "application/json": components["schemas"]["McpRetrievalSearchBody"];
+                    "text/json": components["schemas"]["McpRetrievalSearchBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RetrievalMcpToolHit"][];
+                        "text/json": components["schemas"]["RetrievalMcpToolHit"][];
+                        "text/plain": components["schemas"]["RetrievalMcpToolHit"][];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/mcp/retrieval/price-row-lookup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["McpRetrievalSearchBody"];
+                    "application/json": components["schemas"]["McpRetrievalSearchBody"];
+                    "text/json": components["schemas"]["McpRetrievalSearchBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RetrievalMcpToolHit"][];
+                        "text/json": components["schemas"]["RetrievalMcpToolHit"][];
+                        "text/plain": components["schemas"]["RetrievalMcpToolHit"][];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/mcp/retrieval/prior-decision-search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["McpRetrievalSearchBody"];
+                    "application/json": components["schemas"]["McpRetrievalSearchBody"];
+                    "text/json": components["schemas"]["McpRetrievalSearchBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RetrievalMcpToolHit"][];
+                        "text/json": components["schemas"]["RetrievalMcpToolHit"][];
+                        "text/plain": components["schemas"]["RetrievalMcpToolHit"][];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/notifications/customer-channel-preferences": {
         parameters: {
             query?: never;
@@ -27593,6 +27825,7 @@ export interface components {
             proposedChanges?: null | components["schemas"]["AgentTopologyProposal"];
             reasoningTrace?: null | string;
             resultId: string;
+            retrievalGroundingTrace?: null | components["schemas"]["AgentResultRetrievalGroundingTrace"];
             runId: string;
             taskId: string;
         };
@@ -27628,6 +27861,10 @@ export interface components {
             leftRunId?: string;
             rightRunId?: string;
             warnings?: string[];
+        };
+        AgentResultRetrievalGroundingTrace: {
+            /** Format: double */
+            citationCoverage?: number | string;
         };
         AgentTask: {
             agentType: components["schemas"]["AgentType"];
@@ -30357,6 +30594,32 @@ export interface components {
             /** Format: double */
             warnFraction?: null | number | string;
         };
+        LlmTenantWalletGetResponse: {
+            /** Format: int32 */
+            autoRefillsThisUtcMonthCount?: number;
+            autoReplenishEnabled?: boolean;
+            /** Format: double */
+            balanceUsd?: number | string;
+            hasPaymentMethod?: boolean;
+            /** Format: date-time */
+            lastRefillUtc?: null | string;
+            /** Format: double */
+            monthlyCapUsd?: number | string;
+            /** Format: double */
+            refillIncrementUsd?: number | string;
+            /** Format: double */
+            refillTriggerThresholdUsd?: number | string;
+            rowVersionBase64?: string;
+            stripePublishableKey?: null | string;
+        };
+        LlmTenantWalletPutRequest: {
+            autoReplenishEnabled?: null | boolean;
+            /** Format: double */
+            monthlyCapUsd?: null | number | string;
+            rowVersionBase64?: null | string;
+            stripeCustomerId?: null | string;
+            stripePaymentMethodId?: null | string;
+        };
         ManifestBundleResponse: {
             diagram?: string;
             manifest?: components["schemas"]["GoldenManifest"];
@@ -30585,6 +30848,11 @@ export interface components {
             websiteUrl?: null | string;
             workEmail?: string;
         };
+        McpRetrievalSearchBody: {
+            queryText: string;
+            /** Format: int32 */
+            topK?: null | number;
+        };
         NoiseScoreBreakdown: {
             /** Format: double */
             coverageScore?: number | string;
@@ -30700,6 +30968,13 @@ export interface components {
             name?: string;
             patternId?: string;
             suggestedServices?: string[];
+            summary?: string;
+        };
+        PatternInsightCard: {
+            /** Format: int32 */
+            contributingTenantCount?: number;
+            industryVertical?: string;
+            patternKey?: string;
             summary?: string;
         };
         PersistComparisonRequest: {
@@ -30963,6 +31238,12 @@ export interface components {
         PinRunResponse: {
             isPinned?: boolean;
             runId?: string;
+        };
+        PlanningMaterializeCitation: {
+            commentSnippet?: null | string;
+            /** Format: uuid */
+            signalId?: string;
+            subject?: string;
         };
         PolicyControlItem: {
             controlId?: string;
@@ -31321,6 +31602,7 @@ export interface components {
             opportunities?: components["schemas"]["ImprovementOpportunity"][];
         };
         ProductLearningPlanningMaterializeResult: {
+            citations?: components["schemas"]["PlanningMaterializeCitation"][];
             /** Format: int32 */
             plansInserted?: number;
             /** Format: int32 */
@@ -31754,12 +32036,24 @@ export interface components {
         RetrievalHit: {
             chunkId?: string;
             corpusKind?: string;
+            decisionId?: null | string;
             documentId?: string;
+            findingId?: null | string;
             /** Format: double */
             score?: number | string;
             sourceId?: string;
             sourceType?: string;
             text?: string;
+            title?: string;
+        };
+        RetrievalMcpToolHit: {
+            corpusKind?: string;
+            documentId?: string;
+            /** Format: double */
+            score?: number | string;
+            snippet?: string;
+            sourceId?: string;
+            sourceType?: string;
             title?: string;
         };
         RoiBulletinPreviewResponse: {

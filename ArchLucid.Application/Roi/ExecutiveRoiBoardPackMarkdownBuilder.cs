@@ -27,6 +27,16 @@ public static class ExecutiveRoiBoardPackMarkdownBuilder
         sb.AppendLine($"**Systems in scope:** {summary.SystemCount.ToString(CultureInfo.InvariantCulture)}");
         sb.AppendLine(
             $"**Savings pricing basis:** {summary.SavingsPricingBasis} (EA discount multiplier {summary.EaDiscountMultiplier.ToString("0.####", CultureInfo.InvariantCulture)})");
+
+        if (!string.IsNullOrWhiteSpace(summary.SavingsPricingBasisDescription))
+            sb.AppendLine($"**Pricing basis note:** {summary.SavingsPricingBasisDescription.Trim()}");
+
+        if (!string.IsNullOrWhiteSpace(summary.CostEvidenceFreshnessStatus))
+        {
+            sb.AppendLine(
+                $"**Cost evidence freshness:** {summary.CostEvidenceFreshnessStatus} (stale after {summary.CostEvidenceStaleAfterDays.ToString(CultureInfo.InvariantCulture)} days)");
+        }
+
         sb.AppendLine();
         sb.AppendLine($"## Estimated savings: {FormatUsd(summary.TotalEstimatedUsdSavings)}");
         sb.AppendLine();
