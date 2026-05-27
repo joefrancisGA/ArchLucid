@@ -33,6 +33,8 @@ export type ExecutiveRoiSummary = {
     severity: string;
     count: number;
   }>;
+  resolvedFindingsCount30Days?: number;
+  newlyDiscoveredFindingsCount30Days?: number;
   historicalTrends?: ExecutiveRoiSystemicIssueTrendSeries[];
 };
 

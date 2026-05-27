@@ -48,6 +48,13 @@ export type ArchitectureDecisionRegisterResponse = {
   decisions: ArchitectureDecisionRegisterEntry[];
 };
 
+export type RiskExceptionRecord = {
+  riskExceptionId: string;
+  findingId: string;
+  expiresAtUtc: string;
+  status: string;
+};
+
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
 export async function getArchitectureRiskRegister(projectId?: string): Promise<ArchitectureRiskRegisterResponse> {

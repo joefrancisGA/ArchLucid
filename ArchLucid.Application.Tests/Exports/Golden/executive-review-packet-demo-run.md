@@ -9,6 +9,12 @@
 - **Run:** `claims-intake-modernization`
 - **Status:** Committed
 
+## Top decisions
+
+- **PHI ingress classification** — Enforce boundary classifier before persistence
+  - Confidence: Rule audit (0.92)
+  - Evidence: /governance/decision-register
+
 ## Run summary
 
 # Executive run summary — Claims Intake Modernization
@@ -33,6 +39,17 @@ Proceed with claims intake modernization under monitored PHI minimization contro
 - PHI minimization risk at intake boundary
 - Under-provisioned OCR worker autoscale floor
 - Missing regional failover documentation
+
+## Portfolio signals (live)
+
+- **Findings resolved (30d):** 2
+- **Findings discovered (30d):** 3
+- **Stale architecture risks:** 1
+- **Waivers expiring (14d):** 0
+
+### Next actions
+- Review stale PHI minimization risk in the architecture risk register.
+- Confirm EA-adjusted savings assumptions with FinOps before sponsor sign-off.
 
 ## ROI basis
 

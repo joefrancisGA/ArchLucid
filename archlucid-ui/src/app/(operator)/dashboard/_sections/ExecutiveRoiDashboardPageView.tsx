@@ -1,19 +1,18 @@
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 import { ExecutiveComplianceDriftTrendSection } from "./ExecutiveComplianceDriftTrendSection";
 import { ExecutiveDashboardBaselineWarningBanner } from "./ExecutiveDashboardBaselineWarningBanner";
 import { ExecutiveOrphanCandidatesCard } from "./ExecutiveOrphanCandidatesCard";
+import { ExecutiveRoiDashboardLiveKpiCards } from "./ExecutiveRoiDashboardLiveKpiCards";
 import { ExecutiveRoiEnvironmentSavingsSection } from "./ExecutiveRoiEnvironmentSavingsSection";
 import { ExecutiveRoiSummarySection } from "./ExecutiveRoiSummarySection";
 import { ExecutiveRoiTrendSection } from "./ExecutiveRoiTrendSection";
 import { SponsorExportsSection } from "./SponsorExportsSection";
 import { ExecutiveSqlBackupRegionVerificationCard } from "./ExecutiveSqlBackupRegionVerificationCard";
 import { BusinessImpactSummaryWidget } from "./BusinessImpactSummaryWidget";
-import { executiveRoiDashboardMockKpis } from "./executive-roi-dashboard-mock-kpis";
+
 export function ExecutiveRoiDashboardPageView() {
-  const k = executiveRoiDashboardMockKpis;
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
 
   return (
@@ -32,58 +31,9 @@ export function ExecutiveRoiDashboardPageView() {
           {v.roiMetricsSrOnly}
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                {v.architecturalDriftsPreventedMetric.title}
-              </CardTitle>
-              <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
-                {v.architecturalDriftsPreventedMetric.description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
-                {k.architecturalDriftsPrevented}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                {v.estimatedHoursSavedMetric.title}
-              </CardTitle>
-              <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
-                {v.estimatedHoursSavedMetric.description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
-                {k.estimatedHoursSaved}
-                <span className="ml-1 text-2xl font-medium text-neutral-600 dark:text-neutral-400">h</span>
-              </p>
-            </CardContent>
-          </Card>
-
+          <ExecutiveRoiDashboardLiveKpiCards />
           <ExecutiveOrphanCandidatesCard />
-
           <ExecutiveSqlBackupRegionVerificationCard />
-
-          <Card className="sm:col-span-2 lg:col-span-2">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                {v.compliancePostureScoreMetric.title}
-              </CardTitle>
-              <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
-                {v.compliancePostureScoreMetric.description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
-                {k.compliancePosturePercent}%
-              </p>
-            </CardContent>
-          </Card>
         </div>
       </section>
 

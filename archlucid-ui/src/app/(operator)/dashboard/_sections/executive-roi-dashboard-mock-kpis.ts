@@ -1,7 +1,9 @@
 /**
- * Placeholder KPI counts until the executive ROI API exists (`docs/assessments/LATEST.md`).
- * Labels live in `BUYER_EXECUTIVE_SUMMARY_VOCABULARY` (`src/lib/buyer-surface-vocabulary.ts`).
+ * DEMO-ONLY illustrative KPIs — do not import from production `/dashboard` or `/executive` routes.
+ * Production tiles use `ExecutiveRoiDashboardLiveKpiCards` and live APIs (TB-062).
  */
+export const EXECUTIVE_ROI_DASHBOARD_MOCK_KPIS_MODULE = "executive-roi-dashboard-mock-kpis";
+
 export const executiveRoiDashboardMockKpis = {
   architecturalDriftsPrevented: 12,
   compliancePosturePercent: 92,

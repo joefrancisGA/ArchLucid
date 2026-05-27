@@ -106,7 +106,7 @@ export function ExecutiveRoiDashboard() {
         Executive ROI
       </h2>
       <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-        Aggregated impact (placeholder data until analytics storage is connected).
+        Aggregated impact from <span className="font-mono">GET /v1/analytics/roi</span>.
       </p>
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
         <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">

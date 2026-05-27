@@ -20,7 +20,9 @@ public sealed class ExecutiveReviewPacketGoldenFixtureTests
             inputs.ExecutiveSummary,
             inputs.TopFindingTitles,
             inputs.RoiSummary,
-            ExecutiveReviewPacketDemoFixture.StableGeneratedUtc));
+            ExecutiveReviewPacketDemoFixture.StableGeneratedUtc,
+            inputs.TopDecisions,
+            inputs.PortfolioSignals));
 
         string golden = NormalizeNewlines(ExecutiveReviewPacketDemoFixture.LoadGoldenMarkdown());
 
@@ -43,8 +45,14 @@ public sealed class ExecutiveReviewPacketGoldenFixtureTests
             inputs.ExecutiveSummary,
             inputs.TopFindingTitles,
             inputs.RoiSummary,
-            ExecutiveReviewPacketDemoFixture.StableGeneratedUtc);
+            ExecutiveReviewPacketDemoFixture.StableGeneratedUtc,
+            inputs.TopDecisions,
+            inputs.PortfolioSignals);
 
+        markdown.Should().Contain("## Top decisions");
+        markdown.Should().Contain("## Portfolio signals (live)");
+        markdown.Should().Contain("Review stale PHI minimization risk");
+        markdown.Should().NotContain("(mock)");
         markdown.Should().Contain($"**Savings pricing basis:** {ExecutiveRoiSavingsPricingBasis.EaAdjusted}");
         markdown.Should().Contain("**Pricing basis note:**");
         markdown.Should().Contain("PHI minimization risk at intake boundary");

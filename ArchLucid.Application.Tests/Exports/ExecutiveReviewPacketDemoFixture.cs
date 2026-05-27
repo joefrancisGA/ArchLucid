@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Exports;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
@@ -25,6 +26,10 @@ internal static class ExecutiveReviewPacketDemoFixture
         internal IReadOnlyList<string> TopFindingTitles { get; init; } = [];
 
         internal ExecutiveRoiSummaryResponse RoiSummary { get; init; } = null!;
+
+        internal IReadOnlyList<ExecutiveReviewPacketDecisionRow> TopDecisions { get; init; } = [];
+
+        internal ExecutiveReviewPacketPortfolioSignals PortfolioSignals { get; init; } = null!;
     }
 
     internal static DemoPacketInputs CreateSeededDemoRun()
@@ -127,6 +132,8 @@ internal static class ExecutiveReviewPacketDemoFixture
                 "Cost-category findings use EA-adjusted Azure Retail rates for the demo tenant.",
             CostEvidenceFreshnessStatus = RoiCostEvidenceFreshness.Fresh,
             CostEvidenceStaleAfterDays = 90,
+            ResolvedFindingsCount30Days = 2,
+            NewlyDiscoveredFindingsCount30Days = 3,
             TopSystemicIssues =
             [
                 new SystemicIssueSummary { Category = "Compliance", Severity = "Critical", Count = 1 }
@@ -154,7 +161,29 @@ internal static class ExecutiveReviewPacketDemoFixture
                 "Under-provisioned OCR worker autoscale floor",
                 "Missing regional failover documentation"
             ],
-            RoiSummary = roiSummary
+            RoiSummary = roiSummary,
+            TopDecisions =
+            [
+                new ExecutiveReviewPacketDecisionRow
+                {
+                    Title = "PHI ingress classification",
+                    SelectedOption = "Enforce boundary classifier before persistence",
+                    ConfidenceLabel = "Rule audit (0.92)",
+                    EvidenceHref = "/governance/decision-register"
+                }
+            ],
+            PortfolioSignals = new ExecutiveReviewPacketPortfolioSignals
+            {
+                ResolvedFindingsCount30Days = 2,
+                NewlyDiscoveredFindingsCount30Days = 3,
+                StaleRiskCount = 1,
+                ExpiringWaiversCount14Days = 0,
+                NextActions =
+                [
+                    "Review stale PHI minimization risk in the architecture risk register.",
+                    "Confirm EA-adjusted savings assumptions with FinOps before sponsor sign-off."
+                ]
+            }
         };
     }
 

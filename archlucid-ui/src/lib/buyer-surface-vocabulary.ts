@@ -23,19 +23,23 @@ export const BUYER_SURFACE_VOCABULARY = {
 export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   pageTitle: "Executive summary",
   pageLead:
-    "High-level ROI indicators for sponsors. Portfolio savings and systemic issues load from committed runs; remaining KPI tiles stay illustrative until additional analytics land.",
+    "High-level ROI and governance indicators for sponsors. Portfolio savings, 30-day finding activity, and risk-register signals load from live APIs; empty tiles show an em dash when data is unavailable.",
   roiMetricsSrOnly: "Executive ROI metrics",
-  architecturalDriftsPreventedMetric: {
-    title: "Architectural drifts prevented",
-    description: "Early correction count (mock)",
+  resolvedFindings30dMetric: {
+    title: "Findings resolved (30 days)",
+    description: "Accepted, remediated, or approved in trailing window",
   },
-  estimatedHoursSavedMetric: {
-    title: "Estimated hours saved",
-    description: "Architect time (mock)",
+  newlyDiscoveredFindings30dMetric: {
+    title: "Findings discovered (30 days)",
+    description: "New risks on committed runs in trailing window",
   },
-  compliancePostureScoreMetric: {
-    title: "Compliance posture score",
-    description: "Aggregate posture (mock)",
+  staleArchitectureRisksMetric: {
+    title: "Stale architecture risks",
+    description: "Risk register entries needing revisit",
+  },
+  expiringWaiversMetric: {
+    title: "Waivers expiring (14 days)",
+    description: "Active risk exceptions nearing expiration",
   },
   sqlBackupRegionVerificationMetric: {
     title: "SQL backup region verification",

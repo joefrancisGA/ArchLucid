@@ -1,6 +1,7 @@
 using ArchLucid.Application.Governance.FindingDisposition;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+
+using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
 
 using FluentAssertions;
 
@@ -15,7 +16,7 @@ public sealed class FindingDispositionValidationTests
         RecordFindingDispositionRequest request = new()
         {
             FindingId = "f1",
-            Disposition = FindingDisposition.Deferred,
+            Disposition = Disposition.Deferred,
         };
 
         Action act = () => FindingDispositionValidation.Validate(request);
@@ -29,7 +30,7 @@ public sealed class FindingDispositionValidationTests
         RecordFindingDispositionRequest request = new()
         {
             FindingId = "f1",
-            Disposition = FindingDisposition.NeedsEvidence,
+            Disposition = Disposition.NeedsEvidence,
             Rationale = "need docs",
         };
 
