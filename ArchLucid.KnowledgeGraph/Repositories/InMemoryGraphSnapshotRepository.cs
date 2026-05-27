@@ -1,6 +1,6 @@
 using System.Data;
 
-using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.KnowledgeGraph.Repositories;
@@ -34,8 +34,9 @@ public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
         return Task.CompletedTask;
     }
 
-    public Task<GraphSnapshot?> GetByIdAsync(Guid graphSnapshotId, CancellationToken ct)
+    public Task<GraphSnapshot?> GetByIdAsync(ScopeContext scope, Guid graphSnapshotId, CancellationToken ct)
     {
+        _ = scope;
         ct.ThrowIfCancellationRequested();
         lock (_lock)
         {

@@ -43,14 +43,14 @@ public sealed class TenantEstimatedUsdSavingsResolver(
 
         try
         {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
             FindingsSnapshot? snapshot = await _findingsSnapshotRepository
-                .GetByIdAsync(findingsSnapshotId.Value, cancellationToken)
+                .GetByIdAsync(scope, findingsSnapshotId.Value, cancellationToken)
                 .ConfigureAwait(false);
 
             if (snapshot is null)
                 return null;
-
-            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
             TenantCostSettingsRecord? tenantSettings = await _tenantCostSettingsRepository
                 .TryGetAsync(scope.TenantId, cancellationToken)
                 .ConfigureAwait(false);

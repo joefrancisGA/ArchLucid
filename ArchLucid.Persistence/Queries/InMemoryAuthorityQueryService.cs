@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
@@ -21,11 +23,19 @@ public sealed class InMemoryAuthorityQueryService(
     IDecisionTraceRepository decisionTraceRepository,
     IGoldenManifestRepository goldenManifestRepository,
     IArtifactBundleRepository artifactBundleRepository,
-    IAgentExecutionTraceRepository agentExecutionTraceRepository)
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IFindingReviewTrailRepository findingReviewTrailRepository,
+    IRiskExceptionRepository riskExceptionRepository)
     : IAuthorityQueryService
 {
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
         agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
+    private readonly IFindingReviewTrailRepository _findingReviewTrailRepository =
+        findingReviewTrailRepository ?? throw new ArgumentNullException(nameof(findingReviewTrailRepository));
+
+    private readonly IRiskExceptionRepository _riskExceptionRepository =
+        riskExceptionRepository ?? throw new ArgumentNullException(nameof(riskExceptionRepository));
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<RunSummaryDto>> ListRunsByProjectAsync(
@@ -83,18 +93,18 @@ public sealed class InMemoryAuthorityQueryService(
             return null;
 
         Task<ContextSnapshot?> contextTask = run.ContextSnapshotId.HasValue
-            ? contextSnapshotRepository.GetByIdAsync(run.ContextSnapshotId.Value, ct)
+            ? contextSnapshotRepository.GetByIdAsync(scope.ToReadScope(), run.ContextSnapshotId.Value, ct)
             : Task.FromResult<ContextSnapshot?>(null);
         Task<GraphSnapshot?> graphTask = run.GraphSnapshotId.HasValue
             ? graphSnapshotProjectionCache.GetOrLoadAsync(
                 scope,
                 run.RunId,
                 run.GraphSnapshotId.Value,
-                token => graphSnapshotRepository.GetByIdAsync(run.GraphSnapshotId!.Value, token),
+                token => graphSnapshotRepository.GetByIdAsync(scope, run.GraphSnapshotId!.Value, token),
                 ct)
             : Task.FromResult<GraphSnapshot?>(null);
         Task<FindingsSnapshot?> findingsTask = run.FindingsSnapshotId.HasValue
-            ? findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, ct)
+            ? findingsSnapshotRepository.GetByIdAsync(scope, run.FindingsSnapshotId.Value, ct)
             : Task.FromResult<FindingsSnapshot?>(null);
         Task<DecisionTraceDto?> traceTask = run.DecisionTraceId.HasValue
             ? decisionTraceRepository.GetByIdAsync(scope, run.DecisionTraceId.Value, ct)
@@ -130,6 +140,21 @@ public sealed class InMemoryAuthorityQueryService(
 
         RunExecutionDegradation.Apply(detail, run, await degradedAgentsTask);
         RunFindingCoverageProjection.Apply(detail, detail.FindingsSnapshot);
+
+        if (detail.FindingsSnapshot is not null)
+        {
+            DateTimeOffset since = TimeProvider.System.UtcNowDateTime().AddYears(-2);
+            IReadOnlyList<FindingReviewEventRecord> trailEvents =
+                await _findingReviewTrailRepository.ListSinceUtcAsync(scope.TenantId, since, ct);
+            IReadOnlyList<RiskExceptionRecord> activeWaivers =
+                await _riskExceptionRepository.ListActiveForTenantAsync(scope.TenantId, scope.ProjectId, ct);
+            RunFindingDispositionCoverage? dispositionCoverage = RunFindingDispositionCoverageBuilder.Build(
+                detail.FindingsSnapshot,
+                trailEvents,
+                activeWaivers);
+
+            RunFindingCoverageProjection.ApplyDispositionCoverage(detail, dispositionCoverage);
+        }
 
         return detail;
     }

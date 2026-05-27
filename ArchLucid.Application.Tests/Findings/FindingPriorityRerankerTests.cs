@@ -1,5 +1,6 @@
 using ArchLucid.Application.Findings;
 using ArchLucid.Core.Llm;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -61,8 +62,11 @@ public sealed class FindingPriorityRerankerTests
             "Missing failover");
 
         Mock<IFindingsSnapshotRepository> findingsRepository = new();
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+
         findingsRepository
             .Setup(f => f.ListFindingRecordsKeysetAsync(
+                scope,
                 snapshotId,
                 null,
                 null,
@@ -78,11 +82,12 @@ public sealed class FindingPriorityRerankerTests
         IReadOnlyList<(string FindingId, int PriorityRank)>? capturedRanks = null;
         findingsRepository
             .Setup(f => f.UpdatePriorityRanksAsync(
+                scope,
                 snapshotId,
                 It.IsAny<IReadOnlyList<(string FindingId, int PriorityRank)>>(),
                 It.IsAny<CancellationToken>()))
-            .Callback<Guid, IReadOnlyList<(string FindingId, int PriorityRank)>, CancellationToken>(
-                (_, ranks, _) => capturedRanks = ranks)
+            .Callback<ScopeContext, Guid, IReadOnlyList<(string FindingId, int PriorityRank)>, CancellationToken>(
+                (_, _, ranks, _) => capturedRanks = ranks)
             .Returns(Task.CompletedTask);
 
         Mock<IAgentCompletionClient> completionClient = new();
@@ -132,6 +137,7 @@ public sealed class FindingPriorityRerankerTests
 
         findingsRepository.Verify(
             f => f.UpdatePriorityRanksAsync(
+                It.IsAny<ScopeContext>(),
                 It.IsAny<Guid>(),
                 It.IsAny<IReadOnlyList<(string FindingId, int PriorityRank)>>(),
                 It.IsAny<CancellationToken>()),

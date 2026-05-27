@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 
@@ -53,8 +54,9 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         return Task.CompletedTask;
     }
 
-    public Task<FindingsSnapshot?> GetByIdAsync(Guid findingsSnapshotId, CancellationToken ct)
+    public Task<FindingsSnapshot?> GetByIdAsync(ScopeContext scope, Guid findingsSnapshotId, CancellationToken ct)
     {
+        _ = scope;
         _ = ct;
         string? json;
         lock (_lock)
@@ -70,6 +72,7 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
 
     /// <inheritdoc />
     public Task<FindingRecordMetadataPage> ListFindingRecordsKeysetAsync(
+        ScopeContext scope,
         Guid findingsSnapshotId,
         int? cursorSortOrder,
         Guid? cursorFindingRecordId,
@@ -81,6 +84,7 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         bool orderByPriority,
         CancellationToken ct)
     {
+        _ = scope;
         _ = ct;
 
         if (cursorSortOrder.HasValue ^ cursorFindingRecordId.HasValue)
@@ -192,10 +196,12 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
     }
 
     public Task UpdatePriorityRanksAsync(
+        ScopeContext scope,
         Guid findingsSnapshotId,
         IReadOnlyList<(string FindingId, int PriorityRank)> ranks,
         CancellationToken ct)
     {
+        _ = scope;
         _ = ct;
         ArgumentNullException.ThrowIfNull(ranks);
 

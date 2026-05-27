@@ -58,8 +58,9 @@ public sealed class AuthorityPipelineStageContextHydrator(
 
     private async Task<bool> HydrateContextIngestionAsync(AuthorityPipelineContext ctx, CancellationToken ct)
     {
+        ScopeContext scope = ctx.Scope;
         Guid snapshotId = ctx.Run.ContextSnapshotId!.Value;
-        ContextSnapshot? snapshot = await _contextSnapshotRepository.GetByIdAsync(snapshotId, ct);
+        ContextSnapshot? snapshot = await _contextSnapshotRepository.GetByIdAsync(scope.ToReadScope(), snapshotId, ct);
 
         if (snapshot is null)
             return false;
@@ -70,8 +71,9 @@ public sealed class AuthorityPipelineStageContextHydrator(
 
     private async Task<bool> HydrateGraphAsync(AuthorityPipelineContext ctx, CancellationToken ct)
     {
+        ScopeContext scope = ctx.Scope;
         Guid graphId = ctx.Run.GraphSnapshotId!.Value;
-        GraphSnapshot? snapshot = await _graphSnapshotRepository.GetByIdAsync(graphId, ct);
+        GraphSnapshot? snapshot = await _graphSnapshotRepository.GetByIdAsync(scope, graphId, ct);
 
         if (snapshot is null)
             return false;
@@ -83,8 +85,9 @@ public sealed class AuthorityPipelineStageContextHydrator(
 
     private async Task<bool> HydrateFindingsAsync(AuthorityPipelineContext ctx, CancellationToken ct)
     {
+        ScopeContext scope = ctx.Scope;
         Guid findingsId = ctx.Run.FindingsSnapshotId!.Value;
-        FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(findingsId, ct);
+        FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(scope, findingsId, ct);
 
         if (snapshot is null)
             return false;

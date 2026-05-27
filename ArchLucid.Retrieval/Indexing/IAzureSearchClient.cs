@@ -40,4 +40,7 @@ public interface IAzureSearchClient
         IReadOnlyList<RetrievalHit> candidates,
         int finalTopK,
         CancellationToken ct);
+
+    /// <summary>Removes all chunks for <paramref name="documentId" /> within the tenant scope in <paramref name="scope" />.</summary>
+    Task RemoveChunksForDocumentAsync(string documentId, RetrievalQuery scope, CancellationToken ct);
 }

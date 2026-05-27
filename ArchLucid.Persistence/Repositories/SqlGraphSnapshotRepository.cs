@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.GraphSnapshots;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Serialization;
@@ -57,10 +58,10 @@ public sealed class SqlGraphSnapshotRepository(
         }
     }
 
-    public async Task<GraphSnapshot?> GetByIdAsync(Guid graphSnapshotId, CancellationToken ct)
+    public async Task<GraphSnapshot?> GetByIdAsync(ScopeContext scope, Guid graphSnapshotId, CancellationToken ct)
     {
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        return await GetByIdAsync(graphSnapshotId, connection, null, ct);
+        return await GetByIdAsync(scope, graphSnapshotId, connection, null, ct);
     }
 
     public async Task<GraphSnapshot?> GetLatestByContextSnapshotIdAsync(Guid contextSnapshotId, CancellationToken ct)
@@ -269,25 +270,31 @@ public sealed class SqlGraphSnapshotRepository(
             ct);
     }
 
-    /// <inheritdoc cref="GetByIdAsync(System.Guid,System.Threading.CancellationToken)" />
     public async Task<GraphSnapshot?> GetByIdAsync(
+        ScopeContext scope,
         Guid graphSnapshotId,
         IDbConnection connection,
         IDbTransaction? transaction,
         CancellationToken ct)
     {
-        const string sql = """
-                           SELECT
-                               GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc
-                           FROM dbo.GraphSnapshots
-                           WHERE GraphSnapshotId = @GraphSnapshotId;
-                           """;
+        ArgumentNullException.ThrowIfNull(scope);
+
+        string sql = """
+                     SELECT
+                         GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc
+                     FROM dbo.GraphSnapshots
+                     WHERE GraphSnapshotId = @GraphSnapshotId
+                     """ + RepositoryScopePredicate.AndScopeProjectIdTripleWhere(scope) + ";";
+
+        DynamicParameters parameters = new();
+        parameters.Add("GraphSnapshotId", graphSnapshotId);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(parameters, scope);
 
         GraphSnapshotRelationalRead.GraphSnapshotHeaderRow? header =
             await connection.QuerySingleOrDefaultAsync<GraphSnapshotRelationalRead.GraphSnapshotHeaderRow>(
                 new CommandDefinition(
                     sql,
-                    new { GraphSnapshotId = graphSnapshotId },
+                    parameters,
                     transaction,
                     cancellationToken: ct));
 

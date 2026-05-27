@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 
@@ -72,7 +73,12 @@ public sealed class SqlRelationalBackfillService(
                 await using SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
                 await using SqlTransaction tx = conn.BeginTransaction();
 
-                ContextSnapshot? snapshot = await contextSnapshotRepository.GetByIdAsync(snapshotId, conn, tx, ct);
+                ContextSnapshot? snapshot = await contextSnapshotRepository.GetByIdAsync(
+                    ScopedRepositoryScopeValidation.TrustedJobScope,
+                    snapshotId,
+                    conn,
+                    tx,
+                    ct);
                 if (snapshot is null)
                 {
                     tx.Commit();
@@ -118,7 +124,12 @@ public sealed class SqlRelationalBackfillService(
                 await using SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
                 await using SqlTransaction tx = conn.BeginTransaction();
 
-                GraphSnapshot? snapshot = await graphSnapshotRepository.GetByIdAsync(graphSnapshotId, conn, tx, ct);
+                GraphSnapshot? snapshot = await graphSnapshotRepository.GetByIdAsync(
+                    ScopedRepositoryScopeValidation.TrustedJobScope,
+                    graphSnapshotId,
+                    conn,
+                    tx,
+                    ct);
                 if (snapshot is null)
                 {
                     tx.Commit();
@@ -162,25 +173,15 @@ public sealed class SqlRelationalBackfillService(
 
             try
             {
-                FindingsSnapshot? snapshot = await findingsSnapshotRepository.GetByIdAsync(findingsSnapshotId, ct);
-                if (snapshot is null)
-                    continue;
-
                 await using SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
                 await using SqlTransaction tx = conn.BeginTransaction();
 
-                int recordCount = await conn.ExecuteScalarAsync<int>(
-                    new CommandDefinition(
-                        """
-                        SELECT COUNT(1)
-                        FROM dbo.FindingRecords
-                        WHERE FindingsSnapshotId = @FindingsSnapshotId;
-                        """,
-                        new { snapshot.FindingsSnapshotId },
-                        tx,
-                        cancellationToken: ct));
+                FindingsSnapshot? snapshot = await findingsSnapshotRepository.GetByIdAsync(
+                    ScopedRepositoryScopeValidation.TrustedJobScope,
+                    findingsSnapshotId,
+                    ct);
 
-                if (recordCount > 0)
+                if (snapshot is null)
                 {
                     tx.Commit();
                     continue;

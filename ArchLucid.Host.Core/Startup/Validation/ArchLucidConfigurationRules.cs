@@ -86,6 +86,8 @@ public static class ArchLucidConfigurationRules
             BillingProductionSafetyRules.CollectAzureMarketplaceWebhookUrl(configuration, errors);
             BillingProductionSafetyRules.CollectAzureMarketplaceGaRequiresOfferId(configuration, errors);
             ProductionSafetyRules.CollectAzureDevOpsPersonalAccessTokenKeyVaultReference(configuration, errors);
+            ProductionSafetyRules.CollectAzureDevOpsArchLucidApiKeyKeyVaultReference(configuration, errors);
+            ProductionSafetyRules.CollectIntegrationEventsServiceBusConnectionStringKeyVaultReference(configuration, errors);
             ContainerJobsOffloadRules.Collect(configuration, environment, hostingRole, errors);
 
             return errors;
@@ -103,7 +105,10 @@ public static class ArchLucidConfigurationRules
         BillingProductionSafetyRules.CollectAzureMarketplaceWebhookUrl(configuration, errors);
         BillingProductionSafetyRules.CollectAzureMarketplaceGaRequiresOfferId(configuration, errors);
         ProductionSafetyRules.CollectAzureDevOpsPersonalAccessTokenKeyVaultReference(configuration, errors);
+        ProductionSafetyRules.CollectAzureDevOpsArchLucidApiKeyKeyVaultReference(configuration, errors);
+        ProductionSafetyRules.CollectIntegrationEventsServiceBusConnectionStringKeyVaultReference(configuration, errors);
         AuthenticationRules.CollectProductionAuthModes(configuration, errors);
+        AuthenticationRules.CollectProductionApiKeyScopeBinding(configuration, errors);
 
         return errors;
     }

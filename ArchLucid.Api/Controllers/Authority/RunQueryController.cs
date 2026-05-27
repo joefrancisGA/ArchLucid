@@ -171,6 +171,7 @@ public sealed class RunQueryController(
         int pageTake = take ?? FindingPagination.DefaultTake;
 
         FindingRecordMetadataPage page = await findingsSnapshotRepository.ListFindingRecordsKeysetAsync(
+            scope,
             snapshotId,
             cursorSortOrder,
             cursorFindingRecordId,

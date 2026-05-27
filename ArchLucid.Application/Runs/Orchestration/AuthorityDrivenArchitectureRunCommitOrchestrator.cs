@@ -294,12 +294,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 runRecord.FindingsSnapshotId is not { } findingsId)
                 throw new InvalidOperationException(
                     $"Run '{runId}' is missing architecture run pipeline snapshot ids (ContextSnapshotId, GraphSnapshotId, and FindingsSnapshotId are all required for architecture run commit).");
-            GraphSnapshot? graph = await _graphSnapshotRepository.GetByIdAsync(graphId, cancellationToken);
+            GraphSnapshot? graph = await _graphSnapshotRepository.GetByIdAsync(scope, graphId, cancellationToken);
             if (graph is null)
                 throw new InvalidOperationException($"Graph snapshot '{graphId:D}' for run '{runId}' was not found.");
             agentResultsForTelemetry = await _agentResultRepository.GetByRunIdAsync(runId, cancellationToken);
             GraphSnapshot graphForDecision = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, agentResultsForTelemetry);
-            FindingsSnapshot? findings = await _findingsSnapshotRepository.GetByIdAsync(findingsId, cancellationToken);
+            FindingsSnapshot? findings = await _findingsSnapshotRepository.GetByIdAsync(scope, findingsId, cancellationToken);
             if (findings is null)
                 throw new InvalidOperationException($"Findings snapshot '{findingsId:D}' for run '{runId}' was not found.");
             (manifestModel, traceDto) = await _decisionEngine.DecideAsync(runGuid, contextSnapshotId, graphForDecision, findings, cancellationToken);

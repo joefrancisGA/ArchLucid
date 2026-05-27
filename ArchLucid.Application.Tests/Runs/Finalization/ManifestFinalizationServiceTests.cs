@@ -104,7 +104,7 @@ public sealed class ManifestFinalizationServiceTests
         runs.Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(header);
 
         Mock<IFindingsSnapshotRepository> findings = new();
-        findings.Setup(f => f.GetByIdAsync(findingsId, It.IsAny<CancellationToken>()))
+        findings.Setup(f => f.GetByIdAsync(scope, findingsId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new FindingsSnapshot { FindingsSnapshotId = findingsId, GenerationStatus = FindingsSnapshotGenerationStatus.Generating, Findings = [] });
 
@@ -521,7 +521,7 @@ public sealed class ManifestFinalizationServiceTests
     private static IFindingsSnapshotRepository CreateDefaultFindingsSnapshotRepository()
     {
         Mock<IFindingsSnapshotRepository> mock = new();
-        mock.Setup(f => f.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        mock.Setup(f => f.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Guid id, CancellationToken _) =>
                 new FindingsSnapshot { FindingsSnapshotId = id, GenerationStatus = FindingsSnapshotGenerationStatus.Complete, Findings = [] });
 

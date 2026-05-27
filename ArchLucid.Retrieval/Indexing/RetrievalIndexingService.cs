@@ -69,7 +69,12 @@ public sealed class RetrievalIndexingService(
             if (_indexCatalog.TryGet(doc.DocumentId, out RetrievalDocumentIndexState? prior)
                 && !string.Equals(prior.ChunkingFingerprint, fingerprint, StringComparison.OrdinalIgnoreCase))
             {
-                await _vectorIndex.RemoveChunksForDocumentAsync(doc.DocumentId, ct).ConfigureAwait(false);
+                await _vectorIndex.RemoveChunksForDocumentAsync(
+                    doc.DocumentId,
+                    doc.TenantId,
+                    doc.WorkspaceId,
+                    doc.ProjectId,
+                    ct).ConfigureAwait(false);
                 ArchLucidInstrumentation.RecordRetrievalIndexChunkingFingerprintInvalidated();
             }
 

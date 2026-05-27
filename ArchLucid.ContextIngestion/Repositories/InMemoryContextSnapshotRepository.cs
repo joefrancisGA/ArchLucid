@@ -1,6 +1,6 @@
 using System.Data;
 
-using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.Contracts.Scoping;
 using ArchLucid.ContextIngestion.Models;
 
 namespace ArchLucid.ContextIngestion.Repositories;
@@ -25,8 +25,9 @@ public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
         }
     }
 
-    public Task<ContextSnapshot?> GetByIdAsync(Guid snapshotId, CancellationToken ct)
+    public Task<ContextSnapshot?> GetByIdAsync(ReadScopeTriple scope, Guid snapshotId, CancellationToken ct)
     {
+        _ = scope;
         _ = ct;
         lock (_lock)
         {

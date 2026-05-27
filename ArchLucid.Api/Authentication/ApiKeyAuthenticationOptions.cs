@@ -59,4 +59,27 @@ public sealed class ApiKeyAuthenticationOptions
         get;
         set;
     }
+
+    /// <summary>
+    ///     Tenant bound to this API key (emitted as <c>tenant_id</c> claim). Required in Production when ApiKey auth is enabled.
+    /// </summary>
+    public Guid? TenantId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Workspace bound to this API key (emitted as <c>workspace_id</c> claim).</summary>
+    public Guid? WorkspaceId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Project bound to this API key (emitted as <c>project_id</c> claim).</summary>
+    public Guid? ProjectId
+    {
+        get;
+        set;
+    }
 }

@@ -8,6 +8,8 @@ namespace ArchLucid.Persistence.Data.Infrastructure;
 /// </summary>
 internal static class ScopedRepositoryScopeValidation
 {
+    /// <summary>Trusted jobs (backfill, migration) skip repository scope predicates when tenant is empty.</summary>
+    internal static readonly ScopeContext TrustedJobScope = new();
     internal static void RequireScopedTenant(ScopeContext scope)
     {
         ArgumentNullException.ThrowIfNull(scope);

@@ -1,6 +1,7 @@
 ﻿using System.Data;
 
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Core.Persistence.Ports;
 
@@ -30,7 +31,7 @@ public interface IGraphSnapshotRepository
     /// </summary>
     /// <param name="graphSnapshotId">Primary key of the snapshot.</param>
     /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
-    Task<GraphSnapshot?> GetByIdAsync(Guid graphSnapshotId, CancellationToken ct);
+    Task<GraphSnapshot?> GetByIdAsync(ScopeContext scope, Guid graphSnapshotId, CancellationToken ct);
 
     /// <summary>
     ///     Returns the most recently persisted graph for the given context snapshot, or <see langword="null" />.

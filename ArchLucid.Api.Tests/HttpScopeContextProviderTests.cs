@@ -54,6 +54,26 @@ public sealed class HttpScopeContextProviderTests
     }
 
     [SkippableFact]
+    public void ScopeIdentityBindingValidator_rejects_conflicting_tenant_header_when_claim_present()
+    {
+        Guid claimTenant = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid headerTenant = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim("tenant_id", claimTenant.ToString("D"))],
+                "Bearer"))
+        };
+        http.Request.Headers["x-tenant-id"] = headerTenant.ToString("D");
+
+        Host.Core.Auth.Services.ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            Host.Core.Auth.Services.ScopeIdentityBindingValidator.Validate(http.User, http.Request.Headers);
+
+        result.IsValid.Should().BeFalse();
+    }
+
+    [SkippableFact]
     public void GetCurrentScope_uses_default_when_claim_invalid_and_header_absent()
     {
         DefaultHttpContext http = new()

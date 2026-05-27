@@ -133,6 +133,7 @@ internal static class PipelineExtensions
             app.UseSaml2();
 
         app.UseAuthentication();
+        app.UseMiddleware<ScopeIdentityBindingMiddleware>();
         app.UseRateLimiter();
         app.UseMiddleware<ArchLucidRateLimitTelemetryHeadersMiddleware>();
         app.UseMiddleware<TrialSeatReservationMiddleware>();

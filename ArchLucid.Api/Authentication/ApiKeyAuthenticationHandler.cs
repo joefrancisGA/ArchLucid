@@ -78,17 +78,18 @@ public class ApiKeyAuthenticationHandler(
                     "The admin API key has expired. Rotate the key and update Authentication:ApiKey:AdminKey."));
 
             userName = "ApiKeyAdmin";
-            claims =
-            [
-                new Claim(ClaimTypes.Name, userName),
-                new Claim(ClaimTypes.Role, ArchLucidRoles.Admin),
-                new Claim("permission", "commit:run"),
-                new Claim("permission", "seed:results"),
-                new Claim("permission", "export:consulting-docx"),
-                new Claim("permission", "metrics:read"),
-                new Claim("permission", "replay:comparisons"),
-                new Claim("permission", "replay:diagnostics")
-            ];
+            claims = BuildApiKeyClaims(
+                userName,
+                ArchLucidRoles.Admin,
+                [
+                    new Claim("permission", "commit:run"),
+                    new Claim("permission", "seed:results"),
+                    new Claim("permission", "export:consulting-docx"),
+                    new Claim("permission", "metrics:read"),
+                    new Claim("permission", "replay:comparisons"),
+                    new Claim("permission", "replay:diagnostics")
+                ],
+                keys);
         }
         else if (MatchesAnyCommaSeparatedKey(key, readerKeyRaw))
         {
@@ -97,12 +98,11 @@ public class ApiKeyAuthenticationHandler(
                     "The read-only API key has expired. Rotate the key and update Authentication:ApiKey:ReadOnlyKey."));
 
             userName = "ApiKeyReadOnly";
-            claims =
-            [
-                new Claim(ClaimTypes.Name, userName),
-                new Claim(ClaimTypes.Role, ArchLucidRoles.Reader),
-                new Claim("permission", "metrics:read")
-            ];
+            claims = BuildApiKeyClaims(
+                userName,
+                ArchLucidRoles.Reader,
+                [new Claim("permission", "metrics:read")],
+                keys);
         }
         else
             return Task.FromResult(AuthenticateResult.Fail("Invalid API key."));
@@ -165,6 +165,31 @@ public class ApiKeyAuthenticationHandler(
     /// </summary>
     private bool IsKeyExpired(DateTimeOffset? expiresAt)
         => expiresAt is not null && timeProvider.GetUtcNow() > expiresAt.Value;
+
+    private static Claim[] BuildApiKeyClaims(
+        string userName,
+        string role,
+        Claim[] permissionClaims,
+        ApiKeyAuthenticationOptions keys)
+    {
+        List<Claim> claims =
+        [
+            new Claim(ClaimTypes.Name, userName),
+            new Claim(ClaimTypes.Role, role),
+            ..permissionClaims
+        ];
+
+        if (keys.TenantId is Guid tenantId && tenantId != Guid.Empty)
+            claims.Add(new Claim("tenant_id", tenantId.ToString("D")));
+
+        if (keys.WorkspaceId is Guid workspaceId && workspaceId != Guid.Empty)
+            claims.Add(new Claim("workspace_id", workspaceId.ToString("D")));
+
+        if (keys.ProjectId is Guid projectId && projectId != Guid.Empty)
+            claims.Add(new Claim("project_id", projectId.ToString("D")));
+
+        return claims.ToArray();
+    }
 
     private static Claim[] BuildSyntheticAdminClaims() =>
         [

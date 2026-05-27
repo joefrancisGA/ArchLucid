@@ -1,6 +1,7 @@
 using System.Data;
 
 using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.Contracts.Scoping;
 
 namespace ArchLucid.Contracts.Persistence.Ports;
 
@@ -24,7 +25,7 @@ public interface IContextSnapshotRepository
     /// </summary>
     /// <param name="snapshotId">Primary key of the snapshot.</param>
     /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
-    Task<ContextSnapshot?> GetByIdAsync(Guid snapshotId, CancellationToken ct);
+    Task<ContextSnapshot?> GetByIdAsync(ReadScopeTriple scope, Guid snapshotId, CancellationToken ct);
 
     /// <summary>
     ///     Persists a context snapshot. Callers may pass an existing <paramref name="connection" />

@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 
@@ -40,8 +41,13 @@ public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFact
     }
 
     /// <inheritdoc />
-    public async Task<GraphSnapshot?> GetByIdAsync(Guid graphSnapshotId, CancellationToken ct)
+    public Task<GraphSnapshot?> GetByIdAsync(ScopeContext scope, Guid graphSnapshotId, CancellationToken ct) =>
+        GetByIdCoreAsync(scope, graphSnapshotId, ct);
+
+    private async Task<GraphSnapshot?> GetByIdCoreAsync(ScopeContext scope, Guid graphSnapshotId, CancellationToken ct)
     {
+        _ = scope;
+
         string pk = graphSnapshotId.ToString("D");
         Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
 
@@ -89,7 +95,10 @@ public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFact
     public async Task<IReadOnlyList<GraphSnapshotIndexedEdge>> ListIndexedEdgesAsync(Guid graphSnapshotId,
         CancellationToken ct)
     {
-        GraphSnapshot? snapshot = await GetByIdAsync(graphSnapshotId, ct);
+        GraphSnapshot? snapshot = await GetByIdCoreAsync(
+            new ScopeContext { TenantId = Guid.Empty, WorkspaceId = Guid.Empty, ProjectId = Guid.Empty },
+            graphSnapshotId,
+            ct);
 
         if (snapshot is null)
             return [];

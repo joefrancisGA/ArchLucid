@@ -25,6 +25,11 @@ public interface IVectorIndex
         float[] queryEmbedding,
         CancellationToken ct);
 
-    /// <summary>Removes all chunks for a logical document before re-indexing after chunking strategy changes.</summary>
-    Task RemoveChunksForDocumentAsync(string documentId, CancellationToken ct);
+    /// <summary>Removes all chunks for a logical document scoped to tenant/workspace/project before re-indexing.</summary>
+    Task RemoveChunksForDocumentAsync(
+        string documentId,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct);
 }

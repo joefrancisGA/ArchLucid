@@ -312,7 +312,8 @@ public sealed class ManifestFinalizationService(
 
     private async Task EnsureFindingsSnapshotFinalizableAsync(Guid findingsSnapshotId, CancellationToken cancellationToken)
     {
-        FindingsSnapshot? snapshot = await findingsSnapshotRepository.GetByIdAsync(findingsSnapshotId, cancellationToken);
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        FindingsSnapshot? snapshot = await findingsSnapshotRepository.GetByIdAsync(scope, findingsSnapshotId, cancellationToken);
         if (snapshot is null)
             throw new InvalidOperationException($"Findings snapshot '{findingsSnapshotId:D}' was not found for finalization.");
         if (snapshot.GenerationStatus is FindingsSnapshotGenerationStatus.Generating or FindingsSnapshotGenerationStatus.Failed)

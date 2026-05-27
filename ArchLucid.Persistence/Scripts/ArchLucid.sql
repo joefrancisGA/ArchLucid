@@ -1003,7 +1003,21 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_FindingRecords_Snapshot_Category
         ON dbo.FindingRecords (FindingsSnapshotId, Category, SortOrder)
         INCLUDE (FindingRecordId, Severity, FindingType, Title);
+
+    CREATE UNIQUE INDEX UQ_FindingRecords_Snapshot_FindingId
+        ON dbo.FindingRecords (FindingsSnapshotId, FindingId);
 END;
+GO
+
+/* Brownfield: Batch C / TB-087 — duplicate finding id guard per snapshot */
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE name = N'UQ_FindingRecords_Snapshot_FindingId'
+          AND object_id = OBJECT_ID(N'dbo.FindingRecords'))
+    CREATE UNIQUE INDEX UQ_FindingRecords_Snapshot_FindingId
+        ON dbo.FindingRecords (FindingsSnapshotId, FindingId);
 GO
 
 IF OBJECT_ID(N'dbo.FindingRelatedNodes', N'U') IS NULL

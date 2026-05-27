@@ -7,6 +7,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Serialization;
@@ -73,15 +74,21 @@ public sealed class SqlFindingsSnapshotRepository(
         }
     }
 
-    public async Task<FindingsSnapshot?> GetByIdAsync(Guid findingsSnapshotId, CancellationToken ct)
+    public async Task<FindingsSnapshot?> GetByIdAsync(ScopeContext scope, Guid findingsSnapshotId, CancellationToken ct)
     {
-        const string sql = """
-                           SELECT
-                               FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
-                               SchemaVersion, GenerationStatus, FindingsJson
-                           FROM dbo.FindingsSnapshots
-                           WHERE FindingsSnapshotId = @FindingsSnapshotId;
-                           """;
+        ArgumentNullException.ThrowIfNull(scope);
+
+        string sql = """
+                     SELECT
+                         FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
+                         SchemaVersion, GenerationStatus, FindingsJson
+                     FROM dbo.FindingsSnapshots
+                     WHERE FindingsSnapshotId = @FindingsSnapshotId
+                     """ + RepositoryScopePredicate.AndProjectIdTripleWhere(scope) + ";";
+
+        DynamicParameters parameters = new();
+        parameters.Add("FindingsSnapshotId", findingsSnapshotId);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(parameters, scope);
 
         Stopwatch sw = Stopwatch.StartNew();
 
@@ -91,7 +98,7 @@ public sealed class SqlFindingsSnapshotRepository(
             FindingsSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<FindingsSnapshotStorageRow>(
                 new CommandDefinition(
                     sql,
-                    new { FindingsSnapshotId = findingsSnapshotId },
+                    parameters,
                     cancellationToken: ct));
 
             if (row is null)
@@ -148,6 +155,7 @@ public sealed class SqlFindingsSnapshotRepository(
 
     /// <inheritdoc />
     public async Task<FindingRecordMetadataPage> ListFindingRecordsKeysetAsync(
+        ScopeContext scope,
         Guid findingsSnapshotId,
         int? cursorSortOrder,
         Guid? cursorFindingRecordId,
@@ -159,18 +167,22 @@ public sealed class SqlFindingsSnapshotRepository(
         bool orderByPriority,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+
         if (cursorSortOrder.HasValue ^ cursorFindingRecordId.HasValue)
             throw new ArgumentException("Cursor requires both sortOrder and findingRecordId, or neither for the first page.");
 
         int cappedTake = Math.Clamp(take <= 0 ? FindingPagination.DefaultTake : take, 1, FindingPagination.MaxTake);
         int fetchLimit = cappedTake + 1;
 
+        string scopeWhere = RepositoryScopePredicate.AndTripleWhere(scope);
+
         string sql = orderByPriority
-            ? """
+            ? $"""
               SELECT TOP (@Limit)
                      FindingRecordId, SortOrder, FindingId, FindingType, Category, EngineType, Severity, Title, PriorityRank
               FROM dbo.FindingRecords
-              WHERE FindingsSnapshotId = @FsId
+              WHERE FindingsSnapshotId = @FsId{scopeWhere}
                 AND (@Severity IS NULL OR Severity = @Severity)
                 AND (@Category IS NULL OR Category = @Category)
                 AND (@FindingType IS NULL OR FindingType = @FindingType)
@@ -188,11 +200,11 @@ public sealed class SqlFindingsSnapshotRepository(
                 )
               ORDER BY COALESCE(PriorityRank, 2147483647) ASC, SortOrder ASC, FindingRecordId ASC;
               """
-            : """
+            : $"""
               SELECT TOP (@Limit)
                      FindingRecordId, SortOrder, FindingId, FindingType, Category, EngineType, Severity, Title, PriorityRank
               FROM dbo.FindingRecords
-              WHERE FindingsSnapshotId = @FsId
+              WHERE FindingsSnapshotId = @FsId{scopeWhere}
                 AND (@Severity IS NULL OR Severity = @Severity)
                 AND (@Category IS NULL OR Category = @Category)
                 AND (@FindingType IS NULL OR FindingType = @FindingType)
@@ -210,22 +222,23 @@ public sealed class SqlFindingsSnapshotRepository(
         bool hasCursor = cursorSortOrder.HasValue && cursorFindingRecordId.HasValue;
         int cursorSort = cursorSortOrder ?? 0;
 
+        DynamicParameters listParameters = new();
+        listParameters.Add("FsId", findingsSnapshotId);
+        listParameters.Add("Severity", OptionalEqualityFilter(severity));
+        listParameters.Add("Category", OptionalEqualityFilter(category));
+        listParameters.Add("FindingType", OptionalEqualityFilter(findingType));
+        listParameters.Add("HasCursor", hasCursor ? 1 : 0);
+        listParameters.Add("CurPr", cursorPriorityRank);
+        listParameters.Add("CurSo", cursorSort);
+        listParameters.Add("CurFrid", cursorFindingRecordId ?? Guid.Empty);
+        listParameters.Add("Limit", fetchLimit);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(listParameters, scope);
+
         List<FindingMetaSqlRow> rows = (
             await connection.QueryAsync<FindingMetaSqlRow>(
                 new CommandDefinition(
                     sql,
-                    new
-                    {
-                        FsId = findingsSnapshotId,
-                        Severity = OptionalEqualityFilter(severity),
-                        Category = OptionalEqualityFilter(category),
-                        FindingType = OptionalEqualityFilter(findingType),
-                        HasCursor = hasCursor ? 1 : 0,
-                        CurPr = cursorPriorityRank,
-                        CurSo = cursorSort,
-                        CurFrid = cursorFindingRecordId ?? Guid.Empty,
-                        Limit = fetchLimit
-                    },
+                    listParameters,
                     cancellationToken: ct))).ToList();
 
         bool hasMore = rows.Count > cappedTake;
@@ -251,10 +264,12 @@ public sealed class SqlFindingsSnapshotRepository(
     }
 
     public async Task UpdatePriorityRanksAsync(
+        ScopeContext scope,
         Guid findingsSnapshotId,
         IReadOnlyList<(string FindingId, int PriorityRank)> ranks,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(ranks);
 
         if (ranks.Count == 0)
@@ -267,19 +282,20 @@ public sealed class SqlFindingsSnapshotRepository(
             if (string.IsNullOrWhiteSpace(findingId))
                 continue;
 
+            DynamicParameters updateParameters = new();
+            updateParameters.Add("FsId", findingsSnapshotId);
+            updateParameters.Add("FindingId", findingId.Trim());
+            updateParameters.Add("PriorityRank", priorityRank);
+            RepositoryScopePredicate.AddScopeTripleIfNeeded(updateParameters, scope);
+
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     """
                     UPDATE dbo.FindingRecords
                     SET PriorityRank = @PriorityRank
-                    WHERE FindingsSnapshotId = @FsId AND FindingId = @FindingId;
-                    """,
-                    new
-                    {
-                        FsId = findingsSnapshotId,
-                        FindingId = findingId.Trim(),
-                        PriorityRank = priorityRank
-                    },
+                    WHERE FindingsSnapshotId = @FsId AND FindingId = @FindingId
+                    """ + RepositoryScopePredicate.AndTripleWhere(scope) + ";",
+                    updateParameters,
                     cancellationToken: ct));
         }
     }

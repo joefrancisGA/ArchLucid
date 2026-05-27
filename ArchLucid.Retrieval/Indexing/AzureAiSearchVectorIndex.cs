@@ -21,8 +21,24 @@ public sealed class AzureAiSearchVectorIndex(IAzureSearchClient client) : IVecto
     }
 
     /// <inheritdoc />
-    public Task RemoveChunksForDocumentAsync(string documentId, CancellationToken ct) =>
-        Task.CompletedTask;
+    public Task RemoveChunksForDocumentAsync(
+        string documentId,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
+    {
+        RetrievalQuery scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            QueryText = string.Empty,
+            TopK = 1
+        };
+
+        return client.RemoveChunksForDocumentAsync(documentId, scope, ct);
+    }
 
     /// <inheritdoc />
     public Task<IReadOnlyList<RetrievalHit>> SearchAsync(

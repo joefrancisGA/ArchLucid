@@ -146,4 +146,24 @@ internal static class AuthenticationRules
         if (!File.Exists(certPath))
             errors.Add($"ArchLucidAuth:Saml2:SigningCertificateFile does not exist or is not readable: '{certPath}'.");
     }
+
+    /// <summary>
+    ///     When ApiKey auth is enabled in Production, require server-side scope binding on the key record (TB-072).
+    /// </summary>
+    public static void CollectProductionApiKeyScopeBinding(IConfiguration configuration, List<string> errors)
+    {
+        if (!configuration.GetValue("Authentication:ApiKey:Enabled", false))
+            return;
+
+        string? authMode = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
+
+        if (!string.Equals(authMode, "ApiKey", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        Guid? tenantId = configuration.GetValue<Guid?>("Authentication:ApiKey:TenantId");
+
+        if (tenantId is null || tenantId == Guid.Empty)
+            errors.Add(
+                "Authentication:ApiKey:TenantId must be set in Production when ArchLucidAuth:Mode=ApiKey so scope is bound to the key, not client headers alone.");
+    }
 }

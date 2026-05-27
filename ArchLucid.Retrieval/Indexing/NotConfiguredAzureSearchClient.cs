@@ -47,4 +47,11 @@ public sealed class NotConfiguredAzureSearchClient : IAzureSearchClient
         throw new InvalidOperationException(
             "Azure AI Search is not configured. Register a concrete IAzureSearchClient or use InMemoryVectorIndex (Retrieval:VectorIndex = InMemory).");
     }
+
+    /// <inheritdoc />
+    public Task RemoveChunksForDocumentAsync(string documentId, RetrievalQuery scope, CancellationToken ct)
+    {
+        throw new InvalidOperationException(
+            "Azure AI Search is not configured. Register a concrete IAzureSearchClient or use InMemoryVectorIndex (Retrieval:VectorIndex = InMemory).");
+    }
 }

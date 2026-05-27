@@ -188,7 +188,9 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
                 decisionTraceRepository,
                 goldenManifestRepository,
                 artifactBundleRepository,
-                agentExecutionTraceRepository);
+                agentExecutionTraceRepository,
+                new NoOpFindingReviewTrailRepository(),
+                new NoOpRiskExceptionRepository());
         }
 
 
@@ -203,7 +205,9 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
                 decisionTraceRepository,
                 goldenManifestRepository,
                 artifactBundleRepository,
-                agentExecutionTraceRepository);
+                agentExecutionTraceRepository,
+                new NoOpFindingReviewTrailRepository(),
+                new NoOpRiskExceptionRepository());
         }
 
 

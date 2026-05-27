@@ -193,7 +193,7 @@ public sealed class ManifestFinalizationConcurrencyTests
     private static IFindingsSnapshotRepository CreateDefaultFindingsSnapshotRepository()
     {
         Mock<IFindingsSnapshotRepository> mock = new();
-        mock.Setup(f => f.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        mock.Setup(f => f.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Guid id, CancellationToken _) =>
                 new FindingsSnapshot { FindingsSnapshotId = id, GenerationStatus = FindingsSnapshotGenerationStatus.Complete, Findings = [] });
 

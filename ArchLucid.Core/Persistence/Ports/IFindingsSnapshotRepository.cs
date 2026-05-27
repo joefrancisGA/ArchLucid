@@ -1,6 +1,7 @@
 using System.Data;
 
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Core.Persistence.Ports;
 
@@ -26,11 +27,9 @@ public interface IFindingsSnapshotRepository
 
     /// <summary>
     ///     Returns the findings snapshot with the given <paramref name="findingsSnapshotId" />,
-    ///     or <see langword="null" /> when not found.
+    ///     or <see langword="null" /> when not found. Empty <paramref name="scope" /> tenant skips scope predicates (trusted jobs).
     /// </summary>
-    /// <param name="findingsSnapshotId">Primary key of the snapshot.</param>
-    /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
-    Task<FindingsSnapshot?> GetByIdAsync(Guid findingsSnapshotId, CancellationToken ct);
+    Task<FindingsSnapshot?> GetByIdAsync(ScopeContext scope, Guid findingsSnapshotId, CancellationToken ct);
 
     /// <summary>
     ///     Stable keyset page over relational <c>dbo.FindingRecords</c> (metadata projection only — no payloads). Pass
@@ -38,6 +37,7 @@ public interface IFindingsSnapshotRepository
     ///     the previous page; both <see langword="null" /> requests the first page.
     /// </summary>
     Task<FindingRecordMetadataPage> ListFindingRecordsKeysetAsync(
+        ScopeContext scope,
         Guid findingsSnapshotId,
         int? cursorSortOrder,
         Guid? cursorFindingRecordId,
@@ -51,6 +51,7 @@ public interface IFindingsSnapshotRepository
 
     /// <summary>Persists LLM-derived business-impact ranks for findings in a snapshot.</summary>
     Task UpdatePriorityRanksAsync(
+        ScopeContext scope,
         Guid findingsSnapshotId,
         IReadOnlyList<(string FindingId, int PriorityRank)> ranks,
         CancellationToken ct);

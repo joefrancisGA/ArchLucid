@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Contracts.Scoping;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Core.Persistence.Ports;
@@ -484,12 +485,12 @@ public sealed class AuthorityPipelineStagesExecutorTests
         Mock<IKnowledgeGraphService> kg = new();
         Mock<IContextSnapshotRepository> ctxRepo = new();
         ctxRepo
-            .Setup(r => r.GetByIdAsync(contextId, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdAsync(It.IsAny<ReadScopeTriple>(), contextId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(committedContext);
 
         Mock<IGraphSnapshotRepository> graphRepo = new();
         graphRepo
-            .Setup(r => r.GetByIdAsync(graphId, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), graphId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(committedGraph);
 
         (AuthorityPipelineStagesExecutor sut, _, _) = CreateExecutor(

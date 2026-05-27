@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Core.Persistence.Graph;
 
@@ -14,17 +15,19 @@ public static class GraphSnapshotCommittedReuseResolver
     ///     failed).
     /// </summary>
     public static async Task<GraphSnapshotResolutionResult?> TryResolveAsync(
+        ScopeContext scope,
         Guid runId,
         Guid? runGraphSnapshotId,
         Guid contextSnapshotId,
         IGraphSnapshotRepository graphSnapshotRepository,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(graphSnapshotRepository);
 
         if (runGraphSnapshotId is Guid headerGraphId)
         {
-            GraphSnapshot? fromHeader = await graphSnapshotRepository.GetByIdAsync(headerGraphId, ct);
+            GraphSnapshot? fromHeader = await graphSnapshotRepository.GetByIdAsync(scope, headerGraphId, ct);
 
             if (fromHeader is not null)
                 return new GraphSnapshotResolutionResult(fromHeader, "reused_from_run_header");

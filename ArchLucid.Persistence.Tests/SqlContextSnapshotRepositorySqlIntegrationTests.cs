@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
@@ -74,7 +75,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
 
         await repository.SaveAsync(snapshot, CancellationToken.None);
 
-        ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
+        ContextSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope().ToReadScope(), snapshotId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.SnapshotId.Should().Be(snapshotId);
         loaded.RunId.Should().Be(runId);
@@ -162,7 +163,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                 },
                 cancellationToken: CancellationToken.None));
 
-        ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
+        ContextSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope().ToReadScope(), snapshotId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.CanonicalObjects.Should().ContainSingle(o => o.ObjectId == "legacy-obj");
         loaded.Warnings.Should().Equal("jw");
@@ -250,7 +251,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                 },
                 cancellationToken: CancellationToken.None));
 
-        ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
+        ContextSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope().ToReadScope(), snapshotId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.CanonicalObjects.Should().HaveCount(2);
 
@@ -323,7 +324,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                 },
                 cancellationToken: CancellationToken.None));
 
-        ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
+        ContextSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope().ToReadScope(), snapshotId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.CanonicalObjects.Should().BeEmpty();
         loaded.Warnings.Should().BeEmpty();
@@ -386,7 +387,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                 },
                 cancellationToken: CancellationToken.None));
 
-        ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
+        ContextSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope().ToReadScope(), snapshotId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.SnapshotId.Should().Be(snapshotId);
         loaded.RunId.Should().Be(runId);
@@ -435,7 +436,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         await repository.SaveAsync(snapshot, CancellationToken.None, connection, tx);
         tx.Commit();
 
-        ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
+        ContextSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope().ToReadScope(), snapshotId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.Warnings.Should().Equal("tw");
     }
@@ -585,7 +586,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                 },
                 cancellationToken: CancellationToken.None));
 
-        ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
+        ContextSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope().ToReadScope(), snapshotId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.CanonicalObjects.Should().ContainSingle();
         loaded.CanonicalObjects[0].ObjectId.Should().Be("co-json");
@@ -667,7 +668,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                 },
                 cancellationToken: CancellationToken.None));
 
-        ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
+        ContextSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope().ToReadScope(), snapshotId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.CanonicalObjects.Should().BeEmpty();
         loaded.Warnings.Should().Equal("keep");
@@ -748,7 +749,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                 },
                 cancellationToken: CancellationToken.None));
 
-        ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
+        ContextSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope().ToReadScope(), snapshotId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.SourceHashes.Should().ContainSingle();
         loaded.SourceHashes["sql-path.cs"].Should().Be("sha256:from-sql");
@@ -853,7 +854,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                 },
                 cancellationToken: CancellationToken.None));
 
-        ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
+        ContextSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope().ToReadScope(), snapshotId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.CanonicalObjects.Should().ContainSingle();
         CanonicalObject o = loaded.CanonicalObjects[0];

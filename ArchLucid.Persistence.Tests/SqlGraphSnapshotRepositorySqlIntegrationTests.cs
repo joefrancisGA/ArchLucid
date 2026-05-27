@@ -82,7 +82,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
 
         await repository.SaveAsync(snapshot, CancellationToken.None);
 
-        GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
+        GraphSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), graphId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.GraphSnapshotId.Should().Be(graphId);
         loaded.ContextSnapshotId.Should().Be(contextId);
@@ -250,7 +250,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                 },
                 cancellationToken: CancellationToken.None));
 
-        GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
+        GraphSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), graphId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.Nodes.Should().BeEmpty("nodes are relational-only; JSON columns are not read");
         loaded.Warnings.Should().BeEmpty("warnings are relational-only; JSON columns are not read");
@@ -341,7 +341,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                 },
                 cancellationToken: CancellationToken.None));
 
-        GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
+        GraphSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), graphId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.Nodes.Should().BeEmpty("relational GraphSnapshotNodes has no rows â€” JSON must not hydrate nodes");
         loaded.Edges.Should().BeEmpty("relational GraphSnapshotEdges has no rows â€” JSON must not hydrate edges");
@@ -400,7 +400,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                 },
                 cancellationToken: CancellationToken.None));
 
-        GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
+        GraphSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), graphId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.GraphSnapshotId.Should().Be(graphId);
         loaded.ContextSnapshotId.Should().Be(contextId);
@@ -448,7 +448,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         await repository.SaveAsync(snapshot, CancellationToken.None, connection, tx);
         tx.Commit();
 
-        GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
+        GraphSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), graphId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.Warnings.Should().Equal("tw");
     }
@@ -502,7 +502,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
 
         await repository.SaveAsync(snapshot, CancellationToken.None);
 
-        GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
+        GraphSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), graphId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded!.Nodes.Should().HaveCount(220);
         loaded.Nodes[219].NodeId.Should().Be("n219");
@@ -558,7 +558,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
 
         await repository.SaveAsync(snapshot, CancellationToken.None);
 
-        GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
+        GraphSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), graphId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded!.Nodes.Should().ContainSingle();
         loaded.Nodes[0].Properties.Should().HaveCount(24);
@@ -627,7 +627,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
 
         await repository.SaveAsync(snapshot, CancellationToken.None);
 
-        GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
+        GraphSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), graphId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded!.Edges.Should().HaveCount(8);
         GraphEdge edge3 = loaded.Edges.Single(static x => x.EdgeId == "e3");
@@ -753,7 +753,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         nodeRowsAfter.Should().Be(1);
 
         SqlGraphSnapshotRepository repository = new(factory, Empty);
-        GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
+        GraphSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), graphId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded!.Nodes.Should().ContainSingle(n => n.NodeId == "bf1");
     }

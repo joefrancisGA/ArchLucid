@@ -24,13 +24,23 @@ public sealed class InMemoryVectorIndex : IVectorIndex, IVectorIndexEmbeddingMet
     private int _indexEmbeddingDimension;
 
     /// <inheritdoc />
-    public Task RemoveChunksForDocumentAsync(string documentId, CancellationToken ct)
+    public Task RemoveChunksForDocumentAsync(
+        string documentId,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(documentId);
+        _ = ct;
 
         lock (_sync)
         {
-            _chunks.RemoveAll(chunk => string.Equals(chunk.DocumentId, documentId, StringComparison.Ordinal));
+            _chunks.RemoveAll(chunk =>
+                string.Equals(chunk.DocumentId, documentId, StringComparison.Ordinal)
+                && chunk.TenantId == tenantId
+                && chunk.WorkspaceId == workspaceId
+                && chunk.ProjectId == projectId);
         }
 
         return Task.CompletedTask;

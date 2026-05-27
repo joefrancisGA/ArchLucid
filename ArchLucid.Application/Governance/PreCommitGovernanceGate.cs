@@ -94,7 +94,7 @@ public sealed class PreCommitGovernanceGate(
         PolicyPackAssignment? enforcing = assignments.Where(static a => a.IsEnabled && (a.BlockCommitOnCritical || a.BlockCommitMinimumSeverity.HasValue))
             .OrderByDescending(static a => a.AssignedUtc).FirstOrDefault();
 
-        FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, cancellationToken);
+        FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(scope, run.FindingsSnapshotId.Value, cancellationToken);
         List<Finding> findings = snapshot?.Findings is { Count: > 0 } ? snapshot.Findings.ToList() : [];
 
         if (syntheticSeverity is { } sev && syntheticCount > 0)

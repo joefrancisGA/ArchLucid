@@ -26,4 +26,16 @@ internal static class RepositoryScopePredicate
         parameters.Add("ScopeWorkspaceId", scope.WorkspaceId);
         parameters.Add("ScopeProjectId", scope.ProjectId);
     }
+
+    /// <summary>Scope filter for tables that denormalize project as <c>ProjectId</c> (e.g. <c>FindingsSnapshots</c>).</summary>
+    internal static string AndProjectIdTripleWhere(ScopeContext scope) =>
+        scope.TenantId == Guid.Empty
+            ? string.Empty
+            : " AND TenantId = @ScopeTenantId AND WorkspaceId = @ScopeWorkspaceId AND ProjectId = @ScopeProjectId";
+
+    /// <summary>Scope filter for tables that denormalize project as <c>ScopeProjectId</c>.</summary>
+    internal static string AndScopeProjectIdTripleWhere(ScopeContext scope) =>
+        scope.TenantId == Guid.Empty
+            ? string.Empty
+            : " AND TenantId = @ScopeTenantId AND WorkspaceId = @ScopeWorkspaceId AND ScopeProjectId = @ScopeProjectId";
 }

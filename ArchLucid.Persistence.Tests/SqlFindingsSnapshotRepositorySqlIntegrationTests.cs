@@ -78,7 +78,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         FindingsSnapshotMigrator.Apply(snapshot);
         await repository.SaveAsync(snapshot, CancellationToken.None);
 
-        FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
+        FindingsSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), findingsId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.FindingsSnapshotId.Should().Be(findingsId);
         loaded.SchemaVersion.Should().Be(FindingsSchema.CurrentSnapshotVersion);
@@ -181,7 +181,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                 cancellationToken: CancellationToken.None));
 
         SqlFindingsSnapshotRepository repository = new(factory, new TestReadOnlyDbConnectionFactory(factory), Empty);
-        FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
+        FindingsSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.Findings.Should().ContainSingle(f => f.FindingId == "legacy");
@@ -341,7 +341,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                 cancellationToken: CancellationToken.None));
 
         SqlFindingsSnapshotRepository repository = new(factory, new TestReadOnlyDbConnectionFactory(factory), Empty);
-        FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
+        FindingsSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.Findings.Should().HaveCount(3);
@@ -516,7 +516,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                 cancellationToken: CancellationToken.None));
 
         SqlFindingsSnapshotRepository repository = new(factory, new TestReadOnlyDbConnectionFactory(factory), Empty);
-        FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
+        FindingsSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.Findings.Should().HaveCount(3);
@@ -588,7 +588,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                 cancellationToken: CancellationToken.None));
 
         SqlFindingsSnapshotRepository repository = new(factory, new TestReadOnlyDbConnectionFactory(factory), Empty);
-        FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
+        FindingsSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.Findings.Should().BeEmpty();
@@ -645,7 +645,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                 cancellationToken: CancellationToken.None));
 
         SqlFindingsSnapshotRepository repository = new(factory, new TestReadOnlyDbConnectionFactory(factory), Empty);
-        FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
+        FindingsSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.Findings.Should().BeEmpty();
@@ -715,7 +715,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                 cancellationToken: CancellationToken.None));
 
         SqlFindingsSnapshotRepository repository = new(factory, new TestReadOnlyDbConnectionFactory(factory), Empty);
-        FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
+        FindingsSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.Findings.Should().BeEmpty();
@@ -757,7 +757,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         await repository.SaveAsync(snapshot, CancellationToken.None, connection, tx);
         tx.Commit();
 
-        FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
+        FindingsSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), findingsId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.Findings.Should().BeEmpty();
     }

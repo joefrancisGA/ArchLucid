@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Persistence.Graph;
 using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
@@ -27,9 +28,11 @@ public sealed class GraphSnapshotCommittedReuseResolverTests
         };
 
         Mock<IGraphSnapshotRepository> repo = new();
-        repo.Setup(r => r.GetByIdAsync(graphId, It.IsAny<CancellationToken>())).ReturnsAsync(stored);
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        repo.Setup(r => r.GetByIdAsync(scope, graphId, It.IsAny<CancellationToken>())).ReturnsAsync(stored);
 
         GraphSnapshotResolutionResult? result = await GraphSnapshotCommittedReuseResolver.TryResolveAsync(
+            scope,
             runId,
             graphId,
             contextId,
@@ -61,7 +64,10 @@ public sealed class GraphSnapshotCommittedReuseResolverTests
             .Setup(r => r.GetLatestByContextSnapshotIdAsync(contextId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(orphan);
 
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+
         GraphSnapshotResolutionResult? result = await GraphSnapshotCommittedReuseResolver.TryResolveAsync(
+            scope,
             runId,
             runGraphSnapshotId: null,
             contextId,

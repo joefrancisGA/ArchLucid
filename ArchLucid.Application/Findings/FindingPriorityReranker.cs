@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -52,8 +53,15 @@ public sealed class FindingPriorityReranker(
         if (run?.FindingsSnapshotId is not Guid snapshotId)
             return;
 
+        ScopeContext scope = new()
+        {
+            TenantId = run.TenantId,
+            WorkspaceId = run.WorkspaceId,
+            ProjectId = run.ScopeProjectId
+        };
+
         string industryVertical = await ResolveIndustryVerticalAsync(run.TenantId, cancellationToken);
-        List<FindingRecordMetadataRow> allRows = await LoadAllFindingRowsAsync(snapshotId, cancellationToken);
+        List<FindingRecordMetadataRow> allRows = await LoadAllFindingRowsAsync(scope, snapshotId, cancellationToken);
 
         if (allRows.Count == 0)
             return;
@@ -86,7 +94,7 @@ public sealed class FindingPriorityReranker(
             }
         }
 
-        await _findingsSnapshotRepository.UpdatePriorityRanksAsync(snapshotId, ranks, cancellationToken);
+        await _findingsSnapshotRepository.UpdatePriorityRanksAsync(scope, snapshotId, ranks, cancellationToken);
     }
 
     private async Task<string> ResolveIndustryVerticalAsync(Guid tenantId, CancellationToken cancellationToken)
@@ -103,6 +111,7 @@ public sealed class FindingPriorityReranker(
     }
 
     private async Task<List<FindingRecordMetadataRow>> LoadAllFindingRowsAsync(
+        ScopeContext scope,
         Guid snapshotId,
         CancellationToken cancellationToken)
     {
@@ -114,6 +123,7 @@ public sealed class FindingPriorityReranker(
         while (true)
         {
             FindingRecordMetadataPage page = await _findingsSnapshotRepository.ListFindingRecordsKeysetAsync(
+                scope,
                 snapshotId,
                 cursorSort,
                 cursorRecord,

@@ -90,7 +90,7 @@ public sealed class PolicyPackGovernanceDryRunService(
         List<Finding> findings = [];
         if (run.FindingsSnapshotId is { } snapshotId)
         {
-            FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(snapshotId, cancellationToken).ConfigureAwait(false);
+            FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(scope, snapshotId, cancellationToken).ConfigureAwait(false);
             if (snapshot?.Findings is { Count: > 0 } list)
                 findings = list.ToList();
         }

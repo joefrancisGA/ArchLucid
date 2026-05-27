@@ -142,6 +142,7 @@ public sealed class AuthorityPipelineStagesExecutor(
         await ExecuteStageAsync(ctx, "authority.graph", "graph", async (_, token) =>
         {
             GraphSnapshotResolutionResult? committedReuse = await GraphSnapshotCommittedReuseResolver.TryResolveAsync(
+                ctx.Scope,
                 run.RunId,
                 run.GraphSnapshotId,
                 ctx.ContextSnapshot!.SnapshotId,

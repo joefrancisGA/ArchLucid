@@ -3,9 +3,11 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.Contracts.Scoping;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.ContextSnapshots;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Serialization;
 
@@ -57,10 +59,10 @@ public sealed class SqlContextSnapshotRepository(
         return await ContextSnapshotRelationalRead.HydrateAsync(connection, null, row, ct);
     }
 
-    public async Task<ContextSnapshot?> GetByIdAsync(Guid snapshotId, CancellationToken ct)
+    public async Task<ContextSnapshot?> GetByIdAsync(ReadScopeTriple scope, Guid snapshotId, CancellationToken ct)
     {
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        return await GetByIdAsync(snapshotId, connection, null, ct);
+        return await GetByIdAsync(ToScopeContext(scope), snapshotId, connection, null, ct);
     }
 
     public async Task SaveAsync(
@@ -96,28 +98,35 @@ public sealed class SqlContextSnapshotRepository(
     ///     Loads a snapshot using an existing connection (e.g. one-time JSON→relational backfill in a transaction).
     /// </summary>
     public async Task<ContextSnapshot?> GetByIdAsync(
+        ScopeContext scope,
         Guid snapshotId,
         IDbConnection connection,
         IDbTransaction? transaction,
         CancellationToken ct)
     {
-        const string sql = """
-                           SELECT
-                               SnapshotId,
-                               RunId,
-                               ProjectId,
-                               CreatedUtc,
-                               CanonicalObjectsJson,
-                               DeltaSummary,
-                               WarningsJson,
-                               ErrorsJson,
-                               SourceHashesJson
-                           FROM dbo.ContextSnapshots
-                           WHERE SnapshotId = @SnapshotId;
-                           """;
+        ArgumentNullException.ThrowIfNull(scope);
+
+        string sql = """
+                     SELECT
+                         SnapshotId,
+                         RunId,
+                         ProjectId,
+                         CreatedUtc,
+                         CanonicalObjectsJson,
+                         DeltaSummary,
+                         WarningsJson,
+                         ErrorsJson,
+                         SourceHashesJson
+                     FROM dbo.ContextSnapshots
+                     WHERE SnapshotId = @SnapshotId
+                     """ + RepositoryScopePredicate.AndScopeProjectIdTripleWhere(scope) + ";";
+
+        DynamicParameters parameters = new();
+        parameters.Add("SnapshotId", snapshotId);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(parameters, scope);
 
         ContextSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<ContextSnapshotStorageRow>(
-            new CommandDefinition(sql, new { SnapshotId = snapshotId }, transaction, cancellationToken: ct));
+            new CommandDefinition(sql, parameters, transaction, cancellationToken: ct));
 
         if (row is null)
             return null;
@@ -452,4 +461,12 @@ public sealed class SqlContextSnapshotRepository(
     }
 
     private sealed record ContextSnapshotDenormScopeRow(Guid? TenantId, Guid? WorkspaceId, Guid? ScopeProjectId);
+
+    private static ScopeContext ToScopeContext(ReadScopeTriple scope) =>
+        new()
+        {
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId
+        };
 }

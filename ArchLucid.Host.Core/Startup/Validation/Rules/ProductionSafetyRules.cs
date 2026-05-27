@@ -115,6 +115,55 @@ internal static class ProductionSafetyRules
             + "(format: @Microsoft.KeyVault(...)). Raw PATs are not permitted in production config.");
     }
 
+    /// <summary>
+    ///     When Azure DevOps integration is enabled, <c>AzureDevOps:ArchLucidApiKey</c> must use a Key Vault reference in Production (TB-081).
+    /// </summary>
+    public static void CollectAzureDevOpsArchLucidApiKeyKeyVaultReference(IConfiguration configuration, List<string> errors)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(errors);
+
+        IConfigurationSection ado = configuration.GetSection("AzureDevOps");
+
+        if (!ado.GetValue<bool>("Enabled"))
+            return;
+
+        string apiKey = ado["ArchLucidApiKey"]?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrEmpty(apiKey))
+            return;
+
+        if (apiKey.StartsWith("@Microsoft.KeyVault", StringComparison.Ordinal))
+            return;
+
+        errors.Add(
+            "AzureDevOps:ArchLucidApiKey must use a Key Vault reference in Production "
+            + "(format: @Microsoft.KeyVault(...)). Raw API keys are not permitted in production config.");
+    }
+
+    /// <summary>
+    ///     When Service Bus connection string is configured, it must use a Key Vault reference in Production (TB-083).
+    /// </summary>
+    public static void CollectIntegrationEventsServiceBusConnectionStringKeyVaultReference(
+        IConfiguration configuration,
+        List<string> errors)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(errors);
+
+        string connectionString = configuration["IntegrationEvents:ServiceBusConnectionString"]?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrEmpty(connectionString))
+            return;
+
+        if (connectionString.StartsWith("@Microsoft.KeyVault", StringComparison.Ordinal))
+            return;
+
+        errors.Add(
+            "IntegrationEvents:ServiceBusConnectionString must use a Key Vault reference in Production "
+            + "(format: @Microsoft.KeyVault(...)), or leave empty and use IntegrationEvents:ServiceBusFullyQualifiedNamespace with managed identity.");
+    }
+
     /// <summary>External ID (CIAM) trial mode requires an explicit directory tenant id in Production.</summary>
     public static void CollectTrialAuthExternalId(IConfiguration configuration, List<string> errors)
     {
