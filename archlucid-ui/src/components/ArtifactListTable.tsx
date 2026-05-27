@@ -8,6 +8,7 @@ import { getArtifactDownloadUrl } from "@/lib/api";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   getArtifactBusinessLabel,
+  getArtifactDisplayLabel,
   getArtifactFormatLabel,
   sponsorArtifactAudienceBucket,
   sponsorArtifactAudienceLine,
@@ -99,7 +100,10 @@ export function ArtifactListTable(props: {
   const renderArtifactRows = (list: ArtifactDescriptor[]) =>
     list.map((artifact) => {
       const reviewHref = reviewHrefForArtifact(manifestId, artifact.artifactId, runId);
-      const businessLabel = getArtifactBusinessLabel(artifact.artifactType);
+      const businessLabel =
+        sponsorMode === true
+          ? getArtifactDisplayLabel({ artifactId: artifact.artifactId, artifactType: artifact.artifactType })
+          : getArtifactBusinessLabel(artifact.artifactType);
       const openActionLabel = sponsorMode ? sponsorArtifactOpenActionLabel(artifact.artifactType) : "Preview";
       const downloadActionLabel = sponsorMode ? sponsorArtifactDownloadActionLabel(artifact.artifactType) : "Download";
       const sponsorAudience =

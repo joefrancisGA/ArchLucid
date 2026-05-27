@@ -372,11 +372,10 @@ export function RunsListClient({
   const listNarrowingActive =
     filterText.trim().length > 0 || (buyerPolished === true && buyerPackageScope !== "all");
   const soleVisibleRun = filteredSorted.length === 1 ? filteredSorted[0] ?? null : null;
-  const showBuyerFeaturedCard =
+  const showBuyerPackageCards =
     buyerPolished === true &&
     pages === 1 &&
-    totalCount === 1 &&
-    soleVisibleRun !== null &&
+    filteredSorted.length > 0 &&
     !listNarrowingActive;
 
   const filterStatusLine = runsListPageFilterStatusLine(
@@ -572,11 +571,15 @@ export function RunsListClient({
       <div className={cn(!viewportNarrow && "lg:flex lg:items-stretch lg:gap-4")}>
         <div className={cn("min-w-0 flex-1 space-y-4", !viewportNarrow && "lg:min-w-0")}>
           <div className="space-y-8">
-            {showBuyerFeaturedCard && soleVisibleRun !== null ? (
-              <RunsListBuyerFeaturedCard run={soleVisibleRun} />
+            {showBuyerPackageCards ? (
+              <div className="grid gap-4">
+                {filteredSorted.map((run) => (
+                  <RunsListBuyerFeaturedCard key={run.runId} run={run} />
+                ))}
+              </div>
             ) : null}
 
-            {showBuyerFeaturedCard ? null : filteredSorted.length === 0 ? (
+            {showBuyerPackageCards ? null : filteredSorted.length === 0 ? (
               <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
                 <table className="w-full border-collapse text-sm">
                   <thead>
@@ -603,7 +606,7 @@ export function RunsListClient({
               </div>
             ) : null}
 
-            {showBuyerFeaturedCard ? null : workQueueSections.map((section) => {
+            {showBuyerPackageCards ? null : workQueueSections.map((section) => {
               const headingId = `runs-queue-${section.groupId}`;
 
               return (
@@ -764,7 +767,7 @@ export function RunsListClient({
           <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
             {paginationAnnouncement}
           </div>
-          {showBuyerFeaturedCard ? null : buyerPolished && pages === 1 && totalCount === 1 ? (
+          {showBuyerPackageCards ? null : buyerPolished && pages === 1 && totalCount === 1 ? (
             <p className="m-0 mt-5 text-sm text-neutral-600 dark:text-neutral-400">1 finalized review package</p>
           ) : (
             <nav

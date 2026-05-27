@@ -2,7 +2,6 @@
 
 import { usePathname, useSearchParams } from "next/navigation";
 
-import { resolveBuyerGoldenJourneyNav } from "@/lib/buyer-golden-journey-nav";
 import { buyerPolishedOperateBackLink } from "@/lib/buyer-polished-operate-back-link";
 import { buyerPolishedRouteOrientation } from "@/lib/buyer-polished-route-orientation";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -23,7 +22,7 @@ export function LayerContextFromRoute() {
       })
     : null;
   const buyerOperateBackLink = buyerPolishedShell ? buyerPolishedOperateBackLink(pathname) : null;
-  const buyerGoldenJourneyNav = buyerPolishedShell ? resolveBuyerGoldenJourneyNav(pathname) : null;
+  const buyerGoldenJourneyNav = null;
 
   // Home already carries pilot context in the hero; avoid a second mission strip that reads like a weak breadcrumb.
   // New request is the primary create flow — keep the header uncluttered like home.

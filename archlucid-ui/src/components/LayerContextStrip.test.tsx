@@ -9,7 +9,7 @@ describe("LayerContextStrip", () => {
     [
       {
         id: "pilot" as const,
-        wantLabel: "Architecture reviews",
+        wantLabel: "Review packages",
         wantQuestion: "Finalized packages with findings, evidence, manifest, and audit trail."
       },
       {
@@ -88,9 +88,9 @@ describe("LayerContextStrip", () => {
     const currentChip = indicators.querySelector("[aria-current='step']");
 
     expect(currentChip).not.toBeNull();
-    expect(currentChip?.textContent ?? "").toMatch(/View evidence trail/);
+    expect(currentChip?.textContent ?? "").toMatch(/Evidence trail/);
     expect(currentChip).toHaveAttribute("title", BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[2].chipTooltip);
-    expect(screen.queryByRole("link", { name: /3\.\s*View evidence trail/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /3\.\s*Evidence trail/i })).toBeNull();
 
     unmount();
   });

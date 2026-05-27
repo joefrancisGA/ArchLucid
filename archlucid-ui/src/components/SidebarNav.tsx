@@ -44,6 +44,7 @@ import {
 } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
+import { buyerGoldenPathSecondaryRouteHint } from "@/lib/buyer-golden-path-secondary-hint";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
@@ -575,6 +576,8 @@ export function SidebarNav() {
   }
 
   const adminLinkCount = adminNavRows.reduce((sum, row) => sum + row.visibleLinks.length, 0);
+  const buyerSecondaryRouteHint =
+    buyerPolishedShell && pathname !== null ? buyerGoldenPathSecondaryRouteHint(pathname) : null;
 
   return (
     <div className="flex h-full flex-col gap-1 pb-6 pr-1">
@@ -656,6 +659,14 @@ export function SidebarNav() {
                   );
                 })}
           </nav>
+          {buyerSecondaryRouteHint !== null ? (
+            <p
+              className="m-0 mt-2 text-[11px] leading-snug text-neutral-600 dark:text-neutral-400"
+              data-testid="sidebar-secondary-route-hint"
+            >
+              {buyerSecondaryRouteHint}
+            </p>
+          ) : null}
         </div>
       ) : null}
 

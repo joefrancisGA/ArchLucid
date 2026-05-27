@@ -341,7 +341,9 @@ public sealed class ComplianceAgentHandlerRetrievalTests
                     && insert.ProjectId == projectId
                     && insert.RunId == parsedRunId
                     && insert.AgentName == AgentType.Compliance.ToString()
-                    && insert.RetrievedChunkIds.Contains("c1")),
+                    && insert.RetrievedChunkIds.Contains("c1")
+                    && insert.TopK == 6
+                    && !string.IsNullOrWhiteSpace(insert.QueryText)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

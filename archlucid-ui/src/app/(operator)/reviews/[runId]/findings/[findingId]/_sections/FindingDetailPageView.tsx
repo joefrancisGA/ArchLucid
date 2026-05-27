@@ -18,6 +18,7 @@ import {
   phiMinimizationBuyerConsequenceNarrative,
 } from "@/lib/finding-display-from-inspect";
 import { findingSeverityAudienceCopy } from "@/lib/finding-explainability-summary";
+import { BUYER_FINDING_EVALUATION_CONFIDENCE_EXPLANATION } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { graphEvidenceHrefFromInspect } from "@/lib/finding-inspect-graph-evidence";
 
@@ -153,10 +154,15 @@ export function FindingDetailPageView(props: Props) {
             <div className="mt-4 flex flex-wrap items-start justify-between gap-4 border-t border-teal-100/80 pt-4 dark:border-teal-950/60">
               <div className="min-w-[12rem] flex-1 space-y-2">
                 <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                  Evaluation confidence
+                  Finding evaluation confidence
                 </p>
                 {confidenceLevel === "High" || confidenceLevel === "Medium" || confidenceLevel === "Low" ? (
-                  <FindingConfidenceBadge level={confidenceLevel} />
+                  <>
+                    <FindingConfidenceBadge level={confidenceLevel} />
+                    <p className="m-0 text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+                      {BUYER_FINDING_EVALUATION_CONFIDENCE_EXPLANATION}
+                    </p>
+                  </>
                 ) : buyerPolishedShell ? (
                   <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
                     Medium confidence — based on policy rule match and cited intake subgraph evidence.
@@ -203,7 +209,7 @@ export function FindingDetailPageView(props: Props) {
             </div>
           </div>
 
-          <CollapsibleSection title="Acceptance record" defaultOpen={false}>
+          <CollapsibleSection title="Acceptance record" defaultOpen={buyerPolishedShell}>
             <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
               {validationRequirement(inspectPayload, decodedFindingId)}
             </p>

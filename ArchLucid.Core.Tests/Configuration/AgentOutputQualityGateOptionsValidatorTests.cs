@@ -34,11 +34,29 @@ public sealed class AgentOutputQualityGateOptionsValidatorTests
         {
             Mode = AgentOutputQualityGateMode.PilotStrict,
             PilotStrictMinAgentResultFaithfulnessSupportRatio = 0.7,
+            PilotStrictMinFaithfulnessSupportRatio = 0.6,
+            PilotStrictMinEvidenceRefCount = 2,
         };
 
         ValidateOptionsResult r = _sut.Validate(Options.DefaultName, options);
 
         r.Succeeded.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validate_pilot_strict_without_aggregate_faithfulness_floor_fails()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            PilotStrictMinAgentResultFaithfulnessSupportRatio = 0.7,
+            PilotStrictMinFaithfulnessSupportRatio = null,
+        };
+
+        ValidateOptionsResult r = _sut.Validate(Options.DefaultName, options);
+
+        r.Failed.Should().BeTrue();
+        r.Failures.Should().Contain(f => f.Contains("PilotStrictMinFaithfulnessSupportRatio", StringComparison.Ordinal));
     }
 
     [Fact]

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 
-import { BUYER_ASK_UNSTRUCTURED_EXECUTIVE_FALLBACK_LEAD } from "@/lib/buyer-polish-copy";
+import { BUYER_ASK_GROUNDING_PRIMARY_SOURCE_LIMIT, BUYER_ASK_UNSTRUCTURED_EXECUTIVE_FALLBACK_LEAD } from "@/lib/buyer-polish-copy";
 import { splitBuyerAskExecutiveLead } from "@/lib/ask-executive-lead";
 import { parseAskAssistantStructuredSections } from "@/lib/ask-assistant-section-parser";
 
@@ -63,14 +63,22 @@ function renderTextWithUuidReviewLinks(body: string, buyerPolishedLinks: boolean
   return parts;
 }
 
-function GroundingLinksFooter(props: { readonly links: readonly AskAssistantGroundingLink[] }) {
+function GroundingLinksFooter(props: {
+  readonly links: readonly AskAssistantGroundingLink[];
+  readonly buyerPolishedLinks?: boolean;
+}) {
+  const primaryLimit =
+    props.buyerPolishedLinks === true ? BUYER_ASK_GROUNDING_PRIMARY_SOURCE_LIMIT : props.links.length;
+  const primaryLinks = props.links.slice(0, primaryLimit);
+  const overflowLinks = props.links.slice(primaryLimit);
+
   return (
     <div className="mt-4 rounded-lg border border-neutral-200/90 bg-white/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
       <p className="m-0 text-xs font-semibold text-neutral-600 dark:text-neutral-400">
         Sources in this review package
       </p>
       <ul className="m-0 mt-2 list-none space-y-1.5 p-0 text-sm">
-        {props.links.map((link) => (
+        {primaryLinks.map((link) => (
           <li key={link.href}>
             <Link
               href={link.href}
@@ -81,6 +89,25 @@ function GroundingLinksFooter(props: { readonly links: readonly AskAssistantGrou
           </li>
         ))}
       </ul>
+      {overflowLinks.length > 0 ? (
+        <details className="mt-2">
+          <summary className="cursor-pointer select-none text-xs font-medium text-neutral-700 dark:text-neutral-300">
+            More sources ({overflowLinks.length})
+          </summary>
+          <ul className="m-0 mt-2 list-none space-y-1.5 p-0 text-sm">
+            {overflowLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="font-medium text-teal-800 underline decoration-teal-300/60 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-700 dark:hover:text-teal-200"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
     </div>
   );
 }
@@ -99,7 +126,7 @@ export function AskAssistantMessageBody(props: {
   const structured = parseAskAssistantStructuredSections(content);
   const footer =
     groundingLinks !== undefined && groundingLinks.length > 0 ? (
-      <GroundingLinksFooter links={groundingLinks} />
+      <GroundingLinksFooter links={groundingLinks} buyerPolishedLinks={buyerPolishedLinks} />
     ) : null;
 
   const buyerAnswerLeadPlain = buyerPolishedLinks ? (
@@ -138,7 +165,7 @@ export function AskAssistantMessageBody(props: {
 
     if (executiveLead === null || executiveLead.length === 0) {
       executiveLead =
-        "The sections below summarize risk framing, evidence anchors, mitigation commitments, and validation checks for this package.";
+        "The sections below summarize risk framing, cited evidence, mitigation commitments, and validation checks for this package.";
     }
 
     const bodyClass = "m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200";

@@ -21,5 +21,21 @@ public sealed class RetrievalGroundingTraceInsert
 
     public double CitationCoverage { get; set; }
 
+    /// <summary>Truncated query text used for embedding (forensic replay).</summary>
+    public string? QueryText { get; set; }
+
+    public int? TopK { get; set; }
+
+    public string? CorpusKind { get; set; }
+
+    /// <summary>Bounded JSON array of chunk id + score summaries.</summary>
+    public string? ScoresJson { get; set; }
+
+    /// <summary>Bounded JSON array of distinct document ids from hits.</summary>
+    public string? DocumentIdsJson { get; set; }
+
+    /// <summary>Optional correlation to <c>dbo.AgentExecutionTraces</c> when known at write time.</summary>
+    public string? AgentExecutionTraceId { get; set; }
+
     public DateTime CreatedUtc { get; set; } = TimeProvider.System.UtcNowDateTime();
 }

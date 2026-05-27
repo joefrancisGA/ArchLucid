@@ -30,7 +30,7 @@ describe("buildBuyerReviewPackagePlainStatusHeadline", () => {
         governanceGateLabel: "Passed",
         aggregateRiskPosture: "Approved with monitoring",
       }),
-    ).toContain("Decision: Approved with monitoring");
+    ).toContain("Approved for implementation planning");
   });
 });
 
@@ -86,8 +86,7 @@ describe("buildBuyerReviewPackageDispositionLine", () => {
       aggregateRiskPosture: "Approved with monitoring",
     });
 
-    expect(line).toContain("Approved with monitoring");
-    expect(line).toContain("governance gate Approved with monitoring");
+    expect(line).toContain("Approved for implementation planning");
     expect(line).toContain("9 findings, including 1 non-blocking monitored risk");
   });
 

@@ -59,7 +59,7 @@ export function FindingInspectWhyMattersSection({
           </div>
         ) : null}
       </dl>
-      {payload.decisionRuleId ? (
+      {payload.decisionRuleId && (variant === "inspect" || !isBuyerPolishedOperatorShellEnv()) ? (
         <div className="mt-3">
           <CollapsibleSection title="Technical rule identifier" defaultOpen={variant === "inspect"}>
             <div className="flex flex-wrap items-center gap-2">

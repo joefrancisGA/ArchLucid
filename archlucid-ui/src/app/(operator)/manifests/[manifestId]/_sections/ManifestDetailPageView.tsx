@@ -19,6 +19,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { getBundleDownloadUrl } from "@/lib/api";
 import {
+  BUYER_MANIFEST_SECTION_DECISION,
+  BUYER_MANIFEST_SECTION_DILIGENCE,
+  BUYER_MANIFEST_SECTION_DOWNLOADS,
+  BUYER_MANIFEST_SECTION_EVIDENCE,
+  BUYER_SIGNED_DECISION_RECORD_LABEL,
+} from "@/lib/buyer-polish-copy";
+import {
   SHOWCASE_BUYER_REVIEW_TITLE,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -69,6 +76,112 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
 
   const decisionsLeadCard = <ManifestTopDecisionsCard summary={summary} buyerPolishedLayout={buyerPolishedLayout} />;
 
+  const showMonitoredRisk = summary.warningCount > 0 || summary.unresolvedIssueCount > 0;
+
+  const monitoredRiskCard = showMonitoredRisk ? (
+    <Card
+      id={buyerPolishedLayout ? "manifest-monitored-risk" : undefined}
+      className={buyerPolishedLayout ? "scroll-mt-24" : undefined}
+    >
+      <CardHeader>
+        <CardTitle className="text-base font-semibold">
+          {buyerPolishedLayout ? "Related monitored risk" : "Related findings"}
+        </CardTitle>
+        <CardDescription>
+          {buyerPolishedLayout
+            ? "This package records a monitored risk that maps back to the originating review and evidence trail."
+            : "Warnings or unresolved issues on this manifest correspond to surfaced findings on the originating review."}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
+          {buyerPolishedLayout
+            ? "Use the review summary to open each finding with full context and trace detail when available."
+            : "Open the aggregate architecture review summary on review detail — per-finding links appear when trace confidence rows are available."}
+        </p>
+        {buyerPolishedLayout && primaryFindingHref ? (
+          <div className="mt-3 space-y-3 rounded-lg border border-amber-200/90 bg-amber-50/80 p-3 dark:border-amber-900/60 dark:bg-amber-950/25">
+            <dl className="m-0 grid gap-2 text-sm text-neutral-800 dark:text-neutral-200 sm:grid-cols-2">
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                  Severity
+                </dt>
+                <dd className="m-0 mt-0.5">High</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                  Risk area
+                </dt>
+                <dd className="m-0 mt-0.5">PHI minimization</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                  Disposition
+                </dt>
+                <dd className="m-0 mt-0.5">Accepted with monitoring</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                  Blocking status
+                </dt>
+                <dd className="m-0 mt-0.5">Non-blocking</dd>
+              </div>
+            </dl>
+            <ul className="m-0 list-none space-y-2 p-0 text-sm leading-snug text-neutral-800 dark:text-neutral-200">
+              <li>
+                <strong className="text-neutral-900 dark:text-neutral-100">Risk:</strong> expanded breach and audit
+                scope if minimization is understated.
+              </li>
+              <li>
+                <strong className="text-neutral-900 dark:text-neutral-100">Mitigation:</strong> classification at
+                ingress, adapter boundaries, retention controls tied to evidence in this package.
+              </li>
+              <li>
+                <strong className="text-neutral-900 dark:text-neutral-100">Validation:</strong> trace exception paths
+                and attachment volume through go-live monitoring.
+              </li>
+            </ul>
+          </div>
+        ) : null}
+        <div className="mt-4">
+          <Button variant="secondary" size="sm" asChild>
+            <Link
+              href={
+                primaryFindingHref ?? `/reviews/${encodeURIComponent(summary.runId)}#run-explanation`
+              }
+            >
+              {primaryFindingHref
+                ? "View PHI minimization risk and evidence"
+                : buyerPolishedLayout
+                  ? "View findings on review"
+                  : "Open review findings"}
+            </Link>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  ) : null;
+
+  const diligenceAskCard = buyerPolishedLayout ? (
+    <Card id="manifest-ask" className="scroll-mt-24 border border-blue-200/80 bg-blue-50/50 shadow-sm dark:border-blue-950/60 dark:bg-blue-950/25">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-50">Questions during diligence?</CardTitle>
+        <CardDescription>
+          Ask evidence-backed questions about this review package, or coordinate procurement questionnaires and security
+          follow-ups through our Trust Center contact.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-wrap gap-2 pt-0">
+        <Button variant="primary" size="sm" asChild>
+          <Link href={`/ask?runId=${encodeURIComponent(summary.runId)}`}>Ask about this review</Link>
+        </Button>
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/trust#trust-contact-review">Contact Trust Center</Link>
+        </Button>
+      </CardContent>
+    </Card>
+  ) : null;
+
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-1 py-2 sm:px-0">
       <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
@@ -88,7 +201,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         {" · "}
         <span className="font-medium text-neutral-800 dark:text-neutral-200" aria-current="page">
           {buyerPolishedLayout === true && showcasePackage === true
-            ? "Signed manifest for this package"
+            ? "Signed decision record for this package"
             : "Manifest"}
         </span>
         {showcasePackage === true && buyerPolishedLayout !== true ? (
@@ -110,9 +223,9 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         <div>
           <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
             {showcaseBuyerManifestHeadline === true
-              ? "Signed manifest — Claims Intake Modernization Review Package"
+              ? `${BUYER_SIGNED_DECISION_RECORD_LABEL} — Claims Intake Modernization Review Package`
               : buyerPolishedLayout
-                ? "Architecture review package"
+                ? BUYER_SIGNED_DECISION_RECORD_LABEL
                 : "Finalized Architecture Manifest"}
           </h1>
         </div>
@@ -169,155 +282,39 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           aria-label="On this page"
           className="flex flex-wrap gap-x-4 gap-y-1 rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-sm text-neutral-700 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-200"
         >
-          <a className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300" href="#manifest-overview">
-            Overview
-          </a>
-          <a
-            className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300"
-            href="#manifest-decisions"
-          >
-            Decisions
+          <a className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300" href="#manifest-decision-group">
+            {BUYER_MANIFEST_SECTION_DECISION}
           </a>
           <a
             className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300"
             href="#manifest-deliverables"
           >
-            Deliverables
+            {BUYER_MANIFEST_SECTION_EVIDENCE}
           </a>
           <a className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300" href="#manifest-bundle-zip">
-            Bundle download
+            {BUYER_MANIFEST_SECTION_DOWNLOADS}
           </a>
-          {summary.warningCount > 0 || summary.unresolvedIssueCount > 0 ? (
-            <a
-              className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300"
-              href="#manifest-monitored-risk"
-            >
-              Monitored risk
-            </a>
-          ) : null}
           <a className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300" href="#manifest-ask">
-            Diligence questions
+            {BUYER_MANIFEST_SECTION_DILIGENCE}
           </a>
         </nav>
       ) : null}
 
       {buyerPolishedLayout ? (
-        <>
+        <div id="manifest-decision-group" className="scroll-mt-24 space-y-6">
           {overviewSummaryCard}
           <div id="manifest-decisions" className="scroll-mt-24 space-y-6">
             {decisionsLeadCard}
           </div>
-        </>
+          {summary.warningCount > 0 || summary.unresolvedIssueCount > 0 ? monitoredRiskCard : null}
+        </div>
       ) : (
         <>
           {decisionsLeadCard}
           {overviewSummaryCard}
+          {monitoredRiskCard}
         </>
       )}
-
-      {summary.warningCount > 0 || summary.unresolvedIssueCount > 0 ? (
-        <Card
-          id={buyerPolishedLayout ? "manifest-monitored-risk" : undefined}
-          className={buyerPolishedLayout ? "scroll-mt-24" : undefined}
-        >
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">
-              {buyerPolishedLayout ? "Related monitored risk" : "Related findings"}
-            </CardTitle>
-            <CardDescription>
-              {buyerPolishedLayout
-                ? "This package records a monitored risk that maps back to the originating review and evidence trail."
-                : "Warnings or unresolved issues on this manifest correspond to surfaced findings on the originating review."}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
-              {buyerPolishedLayout
-                ? "Use the review summary to open each finding with full context and trace detail when available."
-                : "Open the aggregate architecture review summary on review detail — per-finding links appear when trace confidence rows are available."}
-            </p>
-            {buyerPolishedLayout && primaryFindingHref ? (
-              <div className="mt-3 space-y-3 rounded-lg border border-amber-200/90 bg-amber-50/80 p-3 dark:border-amber-900/60 dark:bg-amber-950/25">
-                <dl className="m-0 grid gap-2 text-sm text-neutral-800 dark:text-neutral-200 sm:grid-cols-2">
-                  <div>
-                    <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                      Severity
-                    </dt>
-                    <dd className="m-0 mt-0.5">High</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                      Risk area
-                    </dt>
-                    <dd className="m-0 mt-0.5">PHI minimization</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                      Disposition
-                    </dt>
-                    <dd className="m-0 mt-0.5">Accepted with monitoring</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                      Blocking status
-                    </dt>
-                    <dd className="m-0 mt-0.5">Non-blocking</dd>
-                  </div>
-                </dl>
-                <ul className="m-0 list-none space-y-2 p-0 text-sm leading-snug text-neutral-800 dark:text-neutral-200">
-                  <li>
-                    <strong className="text-neutral-900 dark:text-neutral-100">Risk:</strong> expanded breach and audit
-                    scope if minimization is understated.
-                  </li>
-                  <li>
-                    <strong className="text-neutral-900 dark:text-neutral-100">Mitigation:</strong> classification at
-                    ingress, adapter boundaries, retention controls tied to evidence in this package.
-                  </li>
-                  <li>
-                    <strong className="text-neutral-900 dark:text-neutral-100">Validation:</strong> trace exception paths
-                    and attachment volume through go-live monitoring.
-                  </li>
-                </ul>
-              </div>
-            ) : null}
-            <div className="mt-4">
-              <Button variant="secondary" size="sm" asChild>
-                <Link
-                  href={
-                    primaryFindingHref ?? `/reviews/${encodeURIComponent(summary.runId)}#run-explanation`
-                  }
-                >
-                  {primaryFindingHref
-                    ? "View PHI minimization risk and evidence"
-                    : buyerPolishedLayout
-                      ? "View findings on review"
-                      : "Open review findings"}
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ) : null}
-
-      {buyerPolishedLayout ? (
-        <Card id="manifest-ask" className="scroll-mt-24 border border-blue-200/80 bg-blue-50/50 shadow-sm dark:border-blue-950/60 dark:bg-blue-950/25">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-50">Questions during diligence?</CardTitle>
-            <CardDescription>
-              Ask evidence-backed questions about this review package, or coordinate procurement questionnaires and security
-              follow-ups through our Trust Center contact.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2 pt-0">
-            <Button variant="primary" size="sm" asChild>
-              <Link href={`/ask?runId=${encodeURIComponent(summary.runId)}`}>Ask about this review</Link>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/trust#trust-contact-review">Contact Trust Center</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      ) : null}
 
       <Card
         id={buyerPolishedLayout ? "manifest-deliverables" : undefined}
@@ -447,6 +444,8 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       </Card>
 
       {buyerPolishedLayout ? <ManifestBuyerBundleDownloadSection manifestId={manifestId} /> : null}
+
+      {diligenceAskCard}
 
       <OperatorEvidenceLimitsFooter
         runId={summary.runId}

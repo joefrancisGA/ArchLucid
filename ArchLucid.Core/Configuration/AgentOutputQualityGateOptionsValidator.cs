@@ -21,6 +21,23 @@ public sealed class AgentOutputQualityGateOptionsValidator : IValidateOptions<Ag
                 + "(mandatory faithfulness floor for AgentResult→evidence grounding).");
         }
 
+        if (options is { Mode: AgentOutputQualityGateMode.PilotStrict, PilotStrictMinFaithfulnessSupportRatio: null or <= 0 })
+        {
+            return ValidateOptionsResult.Fail(
+                $"{AgentOutputQualityGateOptions.SectionPath}: {nameof(AgentOutputQualityGateOptions.Mode)} "
+                + $"{nameof(AgentOutputQualityGateMode.PilotStrict)} requires a positive "
+                + $"{nameof(AgentOutputQualityGateOptions.PilotStrictMinFaithfulnessSupportRatio)} "
+                + "(aggregate explanation faithfulness floor).");
+        }
+
+        if (options is { Mode: AgentOutputQualityGateMode.PilotStrict, PilotStrictMinEvidenceRefCount: <= 0 })
+        {
+            return ValidateOptionsResult.Fail(
+                $"{AgentOutputQualityGateOptions.SectionPath}: {nameof(AgentOutputQualityGateOptions.Mode)} "
+                + $"{nameof(AgentOutputQualityGateMode.PilotStrict)} requires "
+                + $"{nameof(AgentOutputQualityGateOptions.PilotStrictMinEvidenceRefCount)} > 0.");
+        }
+
         return ValidateOptionsResult.Success;
     }
 }

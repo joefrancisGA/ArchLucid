@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ArchLucid.Core.Manifest;
 
 public class ResolvedArchitectureDecision
@@ -65,4 +67,8 @@ public class ResolvedArchitectureDecision
         get;
         set;
     } = DecisionConfidenceSource.Unknown;
+
+    /// <summary>Buyer-facing collapse of <see cref="ConfidenceSource" /> for manifest/API surfaces.</summary>
+    [JsonPropertyName("buyerConfidenceSource")]
+    public string BuyerConfidenceSource => DecisionConfidenceSourceMapper.ToBuyerLabel(ConfidenceSource);
 }

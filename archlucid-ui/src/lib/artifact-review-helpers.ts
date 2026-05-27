@@ -144,8 +144,34 @@ const ARTIFACT_BUSINESS_LABELS: Record<string, string> = {
   Inventory: "Architecture inventory",
 };
 
+/** Friendly titles for curated demo artifact ids (buyer tables hide raw slugs). */
+const ARTIFACT_ID_BUSINESS_LABELS: Record<string, string> = {
+  "intake-subgraph-v2": "Intake data-flow subgraph",
+  "ingress-classifier-spec": "Ingress PHI classifier specification",
+  "ocr-bypass-monitor": "OCR bypass monitoring control",
+  "architecture-review-board": "Architecture review board pack",
+};
+
 export function getArtifactBusinessLabel(artifactType: string): string {
   return ARTIFACT_BUSINESS_LABELS[artifactType] ?? getArtifactTypeLabel(artifactType);
+}
+
+/** Resolves a buyer-facing artifact title from id first, then synthesized type. */
+export function getArtifactDisplayLabel(input: {
+  readonly artifactId?: string | null;
+  readonly artifactType: string;
+}): string {
+  const slug = (input.artifactId ?? "").trim();
+
+  if (slug.length > 0) {
+    const byId = ARTIFACT_ID_BUSINESS_LABELS[slug];
+
+    if (byId !== undefined) {
+      return byId;
+    }
+  }
+
+  return getArtifactBusinessLabel(input.artifactType);
 }
 
 /** Removes a trailing filename extension for sponsor-facing captions (keeps interior dots). */

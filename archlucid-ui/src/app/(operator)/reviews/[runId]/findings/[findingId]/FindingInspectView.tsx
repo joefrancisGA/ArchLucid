@@ -98,7 +98,7 @@ export function FindingInspectView({
   }
 
   const findingTitle = findingDetailHeadingTitle(payload);
-  const inspectHeroTitle = buyerPolishedShell ? "Technical evidence trace" : `${findingTitle} — evidence & trace`;
+  const inspectHeroTitle = buyerPolishedShell ? "Technical evidence trail" : `${findingTitle} — evidence & trace`;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
@@ -107,14 +107,14 @@ export function FindingInspectView({
           href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}`}
           className="text-base font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
         >
-          ← {buyerPolishedShell ? "Back to risk observation overview" : "Finding detail"}
+          ← {buyerPolishedShell ? "Back to finding detail" : "Finding detail"}
         </Link>
       </div>
 
       <header
         className={
           buyerPolishedShell
-            ? "space-y-3 rounded-xl border-2 border-violet-300/60 bg-violet-50/50 p-5 dark:border-violet-900/50 dark:bg-violet-950/30"
+            ? "space-y-3 rounded-xl border-2 border-violet-400/40 bg-violet-50/40 p-5 dark:border-violet-800/40 dark:bg-violet-950/20"
             : "space-y-3"
         }
       >

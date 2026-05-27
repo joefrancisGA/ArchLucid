@@ -140,7 +140,7 @@ export function RunTrustEvidenceCardSection(props: {
                 Ask evidence-backed questions about this review
               </p>
               <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-                Answers reference this review&apos;s persisted summary, manifest, and evidence anchors where your workspace
+                Answers reference this review&apos;s persisted summary, manifest, and cited evidence where your workspace
                 allows.
               </p>
               <div className="mt-3">

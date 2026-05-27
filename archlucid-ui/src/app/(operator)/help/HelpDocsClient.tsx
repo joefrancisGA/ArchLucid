@@ -28,7 +28,7 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
     category: "Getting Started",
     url: "/reviews/new",
   },
-  { title: "Architecture reviews list", summary: "Browse reviews for the workspace.", category: "Operations", url: "/reviews" },
+  { title: "Review packages list", summary: "Browse review packages for the workspace.", category: "Operations", url: "/reviews" },
   {
     title: "Governance findings",
     summary: "Review findings across reviews and policy signals.",

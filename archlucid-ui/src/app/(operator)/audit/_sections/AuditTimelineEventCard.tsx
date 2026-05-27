@@ -23,7 +23,11 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
 
   return (
     <article
-      className="rounded-lg border border-neutral-200 border-l-4 border-l-teal-600 bg-white p-3 shadow-sm dark:border-neutral-700 dark:border-l-teal-500 dark:bg-neutral-950"
+      className={
+        buyerPolishedShell
+          ? "rounded-lg border border-neutral-200 border-l-4 border-l-teal-600 bg-white p-2.5 shadow-sm dark:border-neutral-700 dark:border-l-teal-500 dark:bg-neutral-950"
+          : "rounded-lg border border-neutral-200 border-l-4 border-l-teal-600 bg-white p-3 shadow-sm dark:border-neutral-700 dark:border-l-teal-500 dark:bg-neutral-950"
+      }
       data-testid="audit-timeline-event-card"
     >
       <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">

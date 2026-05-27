@@ -24,22 +24,8 @@ export const ASK_BUYER_PROMPT_GROUPS: readonly AskBuyerPromptGroup[] = [
     ],
   },
   {
-    heading: "Go-live readiness",
-    prompts: [
-      "What should the sponsor review before sign-off?",
-      "What should we validate before go-live?",
-    ],
-  },
-  {
     heading: "Mitigation",
-    prompts: ["Summarize the PHI risk for this review.", "Summarize the mitigation pattern in one paragraph."],
-  },
-  {
-    heading: "Evidence",
-    prompts: [
-      "What evidence supports the PHI minimization decision?",
-      "Which risks remain accepted with monitoring?",
-    ],
+    prompts: ["Summarize the PHI risk for this review.", "Which risks remain accepted with monitoring?"],
   },
 ];
 

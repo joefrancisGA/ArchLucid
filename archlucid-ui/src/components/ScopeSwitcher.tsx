@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Label } from "@/components/ui/label";
-import { BUYER_EXAMPLE_WORKSPACE_TOOLTIP } from "@/lib/buyer-polish-copy";
+import { BUYER_EXAMPLE_WORKSPACE_TOOLTIP, BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -197,7 +197,7 @@ export function ScopeSwitcher() {
               {workspaceLabel}
             </span>
             <span className="shrink-0 rounded border border-neutral-300 bg-neutral-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300">
-              Demo data
+              {BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL}
             </span>
           </span>
         </TooltipTrigger>

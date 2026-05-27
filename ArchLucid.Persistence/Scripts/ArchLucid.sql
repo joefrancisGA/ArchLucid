@@ -7998,6 +7998,12 @@ BEGIN
         TokensIn INT NULL,
         TokensOut INT NULL,
         CitationCoverage DECIMAL(5, 4) NOT NULL,
+        QueryText NVARCHAR(4096) NULL,
+        TopK INT NULL,
+        CorpusKind NVARCHAR(64) NULL,
+        ScoresJson NVARCHAR(8192) NULL,
+        DocumentIdsJson NVARCHAR(4096) NULL,
+        AgentExecutionTraceId NVARCHAR(64) NULL,
         CreatedUtc DATETIME2 NOT NULL CONSTRAINT DF_RetrievalGroundingTrace_CreatedUtc DEFAULT (SYSUTCDATETIME())
     );
 

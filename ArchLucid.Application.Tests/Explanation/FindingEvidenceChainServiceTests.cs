@@ -2,8 +2,11 @@ using ArchLucid.Application.Explanation;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Explanation;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Retrieval;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
@@ -20,7 +23,7 @@ public sealed class FindingEvidenceChainServiceTests
     [SkippableFact]
     public async Task BuildAsync_WhenRunIdNotGuid_ReturnsNull()
     {
-        FindingEvidenceChainService sut = CreateSut(out _, out _);
+        FindingEvidenceChainService sut = CreateSut(out _, out _, out _, out _);
 
         FindingEvidenceChainResponse? chain = await sut.BuildAsync("not-a-run-id", "f1");
 
@@ -30,7 +33,7 @@ public sealed class FindingEvidenceChainServiceTests
     [SkippableFact]
     public async Task BuildAsync_WhenAuthorityDetailMissing_ReturnsNull()
     {
-        FindingEvidenceChainService sut = CreateSut(out Mock<IAuthorityQueryService> authority, out _);
+        FindingEvidenceChainService sut = CreateSut(out Mock<IAuthorityQueryService> authority, out _, out _, out _);
         authority.Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
 
@@ -44,7 +47,7 @@ public sealed class FindingEvidenceChainServiceTests
     {
         Guid runGuid = Guid.Parse("22222222-2222-2222-2222-222222222222");
         RunDetailDto dto = MinimalDetail(runGuid, findings: [NewFinding("other-id")]);
-        FindingEvidenceChainService sut = CreateSut(out Mock<IAuthorityQueryService> authority, out _);
+        FindingEvidenceChainService sut = CreateSut(out Mock<IAuthorityQueryService> authority, out _, out _, out _);
         authority.Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
@@ -65,17 +68,48 @@ public sealed class FindingEvidenceChainServiceTests
         dto.Run.DecisionTraceId = Guid.Parse("77777777-7777-7777-7777-777777777777");
         dto.Run.GoldenManifestId = Guid.Parse("88888888-8888-8888-8888-888888888888");
 
-        FindingEvidenceChainService sut = CreateSut(out Mock<IAuthorityQueryService> authority, out Mock<IAgentExecutionTraceRepository> traces);
+        FindingEvidenceChainService sut = CreateSut(out Mock<IAuthorityQueryService> authority, out Mock<IAgentExecutionTraceRepository> traces, out Mock<IRetrievalGroundingTraceReader> grounding, out Mock<IAuditRepository> audit);
         authority.Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
         traces.Setup(t => t.GetByRunIdAsync(runGuid.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
-                new AgentExecutionTrace { TraceId = "t-shared", RunId = runGuid.ToString("N") },
+                new AgentExecutionTrace
+                {
+                    TraceId = "t-shared",
+                    RunId = runGuid.ToString("N"),
+                    AgentType = AgentType.Compliance,
+                    ModelDeploymentName = "gpt-4o",
+                },
                 new AgentExecutionTrace { TraceId = "t-shared", RunId = runGuid.ToString("N") },
                 new AgentExecutionTrace { TraceId = "t-b", RunId = runGuid.ToString("N") },
             ]);
+
+        grounding.Setup(g => g.GetByRunIdAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                runGuid,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalGroundingTraceRecord
+                {
+                    TraceId = Guid.Parse("99999999-9999-9999-9999-999999999999"),
+                    AgentName = "Compliance",
+                    CorpusKind = "PolicyPack",
+                    CitationCoverage = 0.75,
+                },
+            ]);
+
+        audit.Setup(a => a.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new AuditEvent { CorrelationId = "corr-1" }]);
 
         FindingEvidenceChainResponse? chain = await sut.BuildAsync(runGuid.ToString("N"), "hit-id");
 
@@ -90,18 +124,48 @@ public sealed class FindingEvidenceChainServiceTests
         chain.GoldenManifestId.Should().Be(dto.Run.GoldenManifestId);
         chain.RelatedGraphNodeIds.Should().Equal("g1", "g2");
         chain.AgentExecutionTraceIds.Should().Equal("t-shared", "t-b");
+        chain.RetrievalGroundingTraceIds.Should().ContainSingle().Which.Should().Be("99999999-9999-9999-9999-999999999999");
+        chain.AgentTracePointers.Should().HaveCount(3);
+        chain.RetrievalGroundingPointers.Should().ContainSingle();
+        chain.AuditCorrelationIds.Should().ContainSingle("corr-1");
+        chain.SupportHint.Should().NotBeNullOrWhiteSpace();
     }
 
     private static FindingEvidenceChainService CreateSut(
         out Mock<IAuthorityQueryService> authority,
-        out Mock<IAgentExecutionTraceRepository> traces)
+        out Mock<IAgentExecutionTraceRepository> traces,
+        out Mock<IRetrievalGroundingTraceReader> grounding,
+        out Mock<IAuditRepository> audit)
     {
         authority = new Mock<IAuthorityQueryService>();
         Mock<IScopeContextProvider> scope = new();
         traces = new Mock<IAgentExecutionTraceRepository>();
+        grounding = new Mock<IRetrievalGroundingTraceReader>();
+        audit = new Mock<IAuditRepository>();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
-        return new FindingEvidenceChainService(authority.Object, scope.Object, traces.Object);
+        grounding.Setup(g => g.GetByRunIdAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        audit.Setup(a => a.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        return new FindingEvidenceChainService(
+            authority.Object,
+            scope.Object,
+            traces.Object,
+            grounding.Object,
+            audit.Object);
     }
 
     private static RunDetailDto MinimalDetail(Guid runGuid, IReadOnlyList<Finding> findings)

@@ -2,10 +2,12 @@ import Link from "next/link";
 
 import type { ReactElement } from "react";
 
+import { CopyIdButton } from "@/components/CopyIdButton";
 import {
   BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer-polish-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 export type FindingInspectAuditSectionProps = {
   readonly auditRowId: string | null | undefined;
@@ -17,22 +19,34 @@ export function FindingInspectAuditSection({
   auditRowId,
   demoFillGaps,
 }: FindingInspectAuditSectionProps): ReactElement {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   return (
     <section className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">
       <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Audit record</h2>
       {auditRowId ? (
-        <p className="m-0 mt-2 text-sm text-neutral-800 dark:text-neutral-200">
-          Durable audit event id: <span className="font-mono text-xs">{auditRowId}</span>
-          <span className="ml-2">
+        buyerPolishedShell ? (
+          <div className="m-0 mt-2 flex flex-wrap items-center gap-2 text-sm text-neutral-800 dark:text-neutral-200">
+            <span>Recorded in the audit trail for this review package.</span>
+            <CopyIdButton value={auditRowId} aria-label="Copy audit event ID" />
             <Link href="/audit" className="text-sky-700 underline dark:text-sky-300">
               View in audit trail
             </Link>
-          </span>
-        </p>
+          </div>
+        ) : (
+          <p className="m-0 mt-2 text-sm text-neutral-800 dark:text-neutral-200">
+            Durable audit event id: <span className="font-mono text-xs">{auditRowId}</span>
+            <span className="ml-2">
+              <Link href="/audit" className="text-sky-700 underline dark:text-sky-300">
+                View in audit trail
+              </Link>
+            </span>
+          </p>
+        )
       ) : demoFillGaps ? (
         <div className="mt-2 space-y-1 text-sm text-neutral-800 dark:text-neutral-200">
           <p className="m-0">
-            <strong className="font-medium">Related audit event</strong> — Risk observation recorded with governance
+            <strong className="font-medium">Related audit event</strong> — Monitored finding recorded with governance
             disposition and policy rule linkage. Actor:{" "}
             <span className="text-neutral-600 dark:text-neutral-400">Jordan Lee (Architecture approver)</span>
             {" · "}

@@ -83,7 +83,7 @@ function humanizeEdgeLabel(edgeType: string): string {
 }
 
 /** Readable relationship verbs for buyer-trail edges (avoid faint technical verbs). */
-function buyerTrailEdgeDisplayPhrase(edgeType: string): string {
+export function buyerTrailEdgeDisplayPhrase(edgeType: string): string {
   const key = edgeType.trim().toLowerCase();
   const phrases: Record<string, string> = {
     produced: "Led to output",
@@ -104,6 +104,15 @@ function buyerTrailEdgeDisplayPhrase(edgeType: string): string {
     supports: "Supports",
     blocks: "Blocks",
     implements: "Implements",
+    "monitored via": "Under monitoring",
+    "mitigated by": "Mitigated by",
+    "reviewed by": "Reviewed by",
+    "owned by": "Owned by",
+    "evaluated against": "Evaluated against",
+    defines: "Defines",
+    "applied in": "Applied in",
+    cites: "Cites",
+    "finalized in": "Finalized in",
   };
 
   const mapped = phrases[key];
@@ -180,8 +189,8 @@ export function mapGraphToReactFlow(
   const heroId = isBuyerTrail ? layoutNodes.find((n) => isBuyerTrailPhiHeroNode(n))?.id : undefined;
 
   const columnCount = isBuyerTrail ? 4 : 5;
-  const cellW = isBuyerTrail ? 360 : 240;
-  const cellH = isBuyerTrail ? 240 : 140;
+  const cellW = isBuyerTrail ? 320 : 240;
+  const cellH = isBuyerTrail ? 200 : 140;
   const nodeWidth = isBuyerTrail ? 320 : 180;
   const heroNodeWidth = isBuyerTrail ? 356 : nodeWidth;
   const fontSize = isBuyerTrail ? 26 : 12;
@@ -244,7 +253,7 @@ export function mapGraphToReactFlow(
           }
         : { stroke: "#94a3b8", strokeWidth: 1.25 },
       labelStyle: isBuyerTrail
-        ? { fill: touchesHero ? "#9a3412" : "#0f172a", fontWeight: 700, fontSize: touchesHero ? 23 : 22 }
+        ? { fill: touchesHero ? "#9a3412" : "#0f172a", fontWeight: 600, fontSize: touchesHero ? 14 : 13 }
         : { fill: "#64748b", fontSize: 11 },
       labelBgStyle:
         isBuyerTrail

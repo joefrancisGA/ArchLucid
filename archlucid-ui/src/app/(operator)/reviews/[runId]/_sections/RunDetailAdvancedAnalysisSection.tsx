@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { PostCommitAdvancedAnalysisHint } from "@/components/PostCommitAdvancedAnalysisHint";
+import { BUYER_TECHNICAL_APPENDIX_LABEL } from "@/lib/buyer-polish-copy";
 
 type RunDetailAdvancedAnalysisSectionProps = {
   readonly runId: string;
@@ -17,7 +18,7 @@ export function RunDetailAdvancedAnalysisSection(
   if (buyerPolishedArtifactTable) {
     return (
       <section id="advanced-analysis" className="scroll-mt-24">
-        <CollapsibleSection title="Advanced — package technical detail" defaultOpen={false}>
+        <CollapsibleSection title={BUYER_TECHNICAL_APPENDIX_LABEL} defaultOpen={false}>
           <PostCommitAdvancedAnalysisHint runId={runId} embeddedInCollapsible />
         </CollapsibleSection>
       </section>

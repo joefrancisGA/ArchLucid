@@ -199,7 +199,9 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IArchLucidUnitOfWorkFactory, InMemoryArchLucidUnitOfWorkFactory>();
         services.AddSingleton<IDistributedCreateRunIdempotencyLock, InProcessCreateRunIdempotencyLock>();
         services.AddSingleton<IRetrievalIndexingOutboxRepository, InMemoryRetrievalIndexingOutboxRepository>();
-        services.AddSingleton<IRetrievalGroundingTraceWriter, InMemoryRetrievalGroundingTraceWriter>();
+        services.AddSingleton<InMemoryRetrievalGroundingTraceWriter>();
+        services.AddSingleton<IRetrievalGroundingTraceWriter>(sp => sp.GetRequiredService<InMemoryRetrievalGroundingTraceWriter>());
+        services.AddSingleton<IRetrievalGroundingTraceReader>(sp => sp.GetRequiredService<InMemoryRetrievalGroundingTraceWriter>());
         services.AddSingleton<IIntegrationEventOutboxRepository, InMemoryIntegrationEventOutboxRepository>();
         services.AddSingleton<IProductLearningPilotSignalRepository, InMemoryProductLearningPilotSignalRepository>();
         services.AddSingleton<IProductLearningPlanningRepository, InMemoryProductLearningPlanningRepository>();

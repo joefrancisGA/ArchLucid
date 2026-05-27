@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
 import { StatusPill } from "@/components/StatusPill";
-import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER, BUYER_SEALED_MANIFEST_TOOLTIP } from "@/lib/buyer-polish-copy";
+import { BUYER_APPROVED_WITH_MONITORING_DEFINITION, BUYER_DECISION_KEY_SUMMARY, BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER, BUYER_SEALED_MANIFEST_TOOLTIP } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
@@ -139,7 +139,7 @@ function buyerFindingSeveritySignal(
   }
 
   if (key === "elevated") {
-    return "Elevated — prioritize sponsor review";
+    return "Elevated — prioritize executive review";
   }
 
   if (key === "monitored") {
@@ -368,6 +368,14 @@ export function RunDetailOutcomeCards({
           <p className="m-0 mt-2 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300">
             Blocking issues: 0 · Evidence basis: signed manifest, evidence trail, audit trail
           </p>
+          {(aggregateRiskPosture ?? "").trim().toLowerCase() === "approved with monitoring" ? (
+            <p
+              className="m-0 mt-2 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300"
+              data-testid="buyer-approved-with-monitoring-definition"
+            >
+              {BUYER_APPROVED_WITH_MONITORING_DEFINITION}
+            </p>
+          ) : null}
         </div>
       ) : null}
       <p
@@ -406,7 +414,7 @@ export function RunDetailOutcomeCards({
       />
       <details className="rounded-lg border border-neutral-200 bg-neutral-50/50 dark:border-neutral-800 dark:bg-neutral-900/30">
         <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-          How to read this decision
+          {BUYER_DECISION_KEY_SUMMARY}
         </summary>
         <div className="border-t border-neutral-200 px-3 py-3 dark:border-neutral-800">
           <ReviewOutcomeTaxonomyLegend />

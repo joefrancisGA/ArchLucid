@@ -3,6 +3,7 @@ import type { RefObject } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { BUYER_ASK_INPUT_PLACEHOLDER } from "@/lib/buyer-polish-copy";
 import { cn } from "@/lib/utils";
 import {
   ASK_BUYER_PROMPT_GROUPS,
@@ -50,7 +51,7 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
           className="min-h-[5rem] font-sans"
           value={question}
           onChange={(e) => onQuestionChange(e.target.value)}
-          placeholder="Ask about your architecture..."
+          placeholder={buyerPolishedShell ? BUYER_ASK_INPUT_PLACEHOLDER : "Ask about your architecture..."}
           rows={4}
         />
         <div

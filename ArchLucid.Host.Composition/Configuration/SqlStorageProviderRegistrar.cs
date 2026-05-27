@@ -324,6 +324,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IDistributedCreateRunIdempotencyLock, SqlSessionDistributedCreateRunIdempotencyLock>();
         services.AddScoped<IRetrievalIndexingOutboxRepository, DapperRetrievalIndexingOutboxRepository>();
         services.AddScoped<IRetrievalGroundingTraceWriter, DapperRetrievalGroundingTraceWriter>();
+        services.AddScoped<IRetrievalGroundingTraceReader, DapperRetrievalGroundingTraceReader>();
         services.AddScoped<IIntegrationEventOutboxRepository, DapperIntegrationEventOutboxRepository>();
         services.AddScoped<IProductLearningPilotSignalRepository, DapperProductLearningPilotSignalRepository>();
         services.AddScoped<IProductLearningPlanningRepository, DapperProductLearningPlanningRepository>();

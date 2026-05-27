@@ -134,7 +134,31 @@ export function tryStaticDemoRunSummariesPaged(
     hasGoldenManifest: true,
   };
 
-  return { items: [item], totalCount: 1 };
+  const portfolioRows: RunSummary[] = [
+    item,
+    {
+      runId: "claims-intake-pending-governance-002",
+      projectId,
+      description: "Member portal API expansion — pending governance approval",
+      createdUtc: "2026-01-20T14:00:00.000Z",
+      hasContextSnapshot: true,
+      hasGraphSnapshot: true,
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    },
+    {
+      runId: "claims-intake-in-progress-003",
+      projectId,
+      description: "Prior authorization workflow — in progress",
+      createdUtc: "2026-01-25T09:30:00.000Z",
+      hasContextSnapshot: true,
+      hasGraphSnapshot: false,
+      hasFindingsSnapshot: false,
+      hasGoldenManifest: false,
+    },
+  ];
+
+  return { items: portfolioRows, totalCount: portfolioRows.length };
 }
 
 /**

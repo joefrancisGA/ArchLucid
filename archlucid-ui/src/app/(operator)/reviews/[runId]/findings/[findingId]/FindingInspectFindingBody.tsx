@@ -78,6 +78,7 @@ export function FindingInspectFindingBody({
       tone={tone}
       structuredActions={structuredActions}
       recommendedActionParagraph={recommendedActionParagraph}
+      showOwnerCadence={tone === "detail" && isBuyerPolishedOperatorShellEnv()}
     />
   );
 

@@ -515,7 +515,7 @@ export function GovernanceWorkflowPageContent() {
             emphasizeComplete
           />
           <p className="mb-4 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-            {BUYER_GOVERNANCE_GOVERNED_USE_SCOPE}
+            Production execution remains controlled by the customer&apos;s enterprise change-management process.
           </p>
         </>
       ) : null}

@@ -3,12 +3,15 @@ import Link from "next/link";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_HOME_PRIMARY_CTA } from "@/lib/buyer-polish-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 
 /**
  * Static, immediately-rendered product help (no fetch). Developer doc index is secondary in HelpDocsClient.
  */
 export function HelpProductGuide() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   return (
     <div className="space-y-4" aria-labelledby="help-product-guide-heading">
       <h2
@@ -108,7 +111,7 @@ export function HelpProductGuide() {
               </Link>
               .
             </p>
-            <SupportBundleDownloadButton />
+            {!buyerPolishedShell ? <SupportBundleDownloadButton /> : null}
           </CardContent>
         </Card>
       </div>

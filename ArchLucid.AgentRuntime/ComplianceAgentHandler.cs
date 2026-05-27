@@ -247,7 +247,7 @@ public sealed class ComplianceAgentHandler(
                 _retrievalCitationFormatter);
             string prompt = baseUserPrompt.TrimEnd() + "\n\n" + block + "\n";
 
-            await AppendGroundingTraceAsync(scope, runId, hits, cancellationToken).ConfigureAwait(false);
+            await AppendGroundingTraceAsync(scope, runId, query, hits, cancellationToken).ConfigureAwait(false);
 
             return (prompt, hits);
         }
@@ -260,6 +260,18 @@ public sealed class ComplianceAgentHandler(
                     "Compliance agent policy-pack retrieval failed; continuing fail-open for tenant {TenantId}.",
                     scope.TenantId);
             }
+
+            RetrievalQuery failedQuery = new()
+            {
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                QueryText = CompliancePolicyPackRetrievalPromptFormatter.BuildPolicyQueryText(request),
+                TopK = 6,
+                IncludePlatformCorpora = true,
+            };
+
+            await AppendGroundingTraceAsync(scope, runId, failedQuery, [], cancellationToken).ConfigureAwait(false);
 
             string prompt = baseUserPrompt.TrimEnd()
                 + "\n\n"
@@ -281,30 +293,19 @@ public sealed class ComplianceAgentHandler(
     private async Task AppendGroundingTraceAsync(
         ScopeContext scope,
         string runId,
+        RetrievalQuery query,
         IReadOnlyList<RetrievalHit> hits,
         CancellationToken cancellationToken)
     {
-        if (hits.Count == 0)
-            return;
-
         if (!AgentRunIdParser.TryParse(runId, out Guid runGuid))
             return;
 
-        double citationCoverage = RetrievalFaithfulnessEvaluator.Evaluate(hits, string.Empty).SupportRatio;
-        AgentCompletionTokenUsage.TryConsume(out int? tokensIn, out int? tokensOut, out _);
-
-        RetrievalGroundingTraceInsert insert = new()
-        {
-            TenantId = scope.TenantId,
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId,
-            RunId = runGuid,
-            AgentName = AgentType.Compliance.ToString(),
-            RetrievedChunkIds = hits.Select(static h => h.ChunkId).ToList(),
-            TokensIn = tokensIn,
-            TokensOut = tokensOut,
-            CitationCoverage = citationCoverage,
-        };
+        RetrievalGroundingTraceInsert insert = RetrievalGroundingTraceBuilder.Build(
+            scope,
+            runGuid,
+            AgentType.Compliance.ToString(),
+            query,
+            hits);
 
         try
         {

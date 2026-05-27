@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import { getShowcaseWalkthroughHref } from "@/lib/buyer-safe-review-navigation";
+
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -38,7 +40,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
           <p className="text-sm text-muted-foreground">{displayApprovalTitle}</p>
         </div>
         <Button variant="outline" size="sm" asChild>
-          <Link href="/governance/findings">Back to findings</Link>
+          <Link href={getShowcaseWalkthroughHref()}>Back to governance approval</Link>
         </Button>
       </div>
 
@@ -114,7 +116,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
             <div>Version {data.manifest.manifestVersion ?? "—"}</div>
             <div>Decisions {formatGovernanceLineageWholeCount(data.manifest.decisionCount)}</div>
             <div>Unresolved issues {formatGovernanceLineageWholeCount(data.manifest.unresolvedIssueCount)}</div>
-            <div>Compliance gaps {formatGovernanceLineageWholeCount(data.manifest.complianceGapCount)}</div>
+            <div>Unresolved findings {formatGovernanceLineageWholeCount(data.manifest.unresolvedIssueCount)}</div>
           </CardContent>
         </Card>
       ) : null}

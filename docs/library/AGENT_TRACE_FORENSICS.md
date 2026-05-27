@@ -109,7 +109,9 @@ Replay completeness audit (2026-05-26) — decision lineage lives in **`ArchLuci
 | Schema-remediation intermediate attempts not persisted | **TB-035** |
 | Provenance graph not linked to trace IDs | **TB-036** |
 | `DecisionProvenanceSnapshot` not written in production | **TB-037** |
-| Retrieval grounding: query/scores/document IDs; non-Compliance agents | **TB-038** / **RAG-V1-006** |
+| Retrieval grounding: query/scores/document IDs; non-Compliance agents | **TB-038** / **RAG-V1-006** — **partial (2026-05-27 Batch A):** enriched `dbo.RetrievalGroundingTrace` columns, Compliance writer + fail-open empty trace, finding evidence-chain forensic pointers |
+
+Finding forensic read: `GET /v1/architecture/run/{runId}/findings/{findingId}/evidence-chain` now returns retrieval grounding trace ids, agent trace pointers (model deployment, blob availability flags), and audit correlation ids without prompt bodies.
 
 See [`TECH_BACKLOG.md`](TECH_BACKLOG.md) §TB-033–TB-038.
 

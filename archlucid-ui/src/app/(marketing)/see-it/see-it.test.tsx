@@ -98,7 +98,7 @@ describe("SeeItMarketingBody", () => {
       "Healthcare claims sample — public evaluation preview",
     );
     expect(screen.queryByTestId("see-it-snapshot-notice")).toBeNull();
-    expect(screen.getByTestId("see-it-finding-counts")).toHaveTextContent("Findings: 7 · Compliance gaps: 2");
+    expect(screen.getByTestId("see-it-finding-counts")).toHaveTextContent("7 findings recorded · 2 monitored risks");
     expect(screen.getByTestId("see-it-proof-pack-download")).toHaveAttribute(
       "href",
       "/api/proxy/v1/marketing/why-archlucid-pack.pdf",

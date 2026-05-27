@@ -274,7 +274,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
               </Link>
             </div>
             <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
-              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Lifecycle audit events</p>
+              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Audit events</p>
               <p className="m-0 mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-50">{SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT}</p>
               <Link
                 href={`/audit?runId=${encodeURIComponent(canonicalizeDemoRunId(summary.runId))}`}

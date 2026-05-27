@@ -8231,6 +8231,18 @@
             },
             "type": "array"
           },
+          "agentTracePointers": {
+            "items": {
+              "$ref": "#/components/schemas/FindingForensicAgentTracePointer"
+            },
+            "type": "array"
+          },
+          "auditCorrelationIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "contextSnapshotId": {
             "format": "uuid",
             "type": [
@@ -8281,7 +8293,90 @@
             },
             "type": "array"
           },
+          "retrievalGroundingPointers": {
+            "items": {
+              "$ref": "#/components/schemas/FindingForensicRetrievalGroundingPointer"
+            },
+            "type": "array"
+          },
+          "retrievalGroundingTraceIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "runId": {
+            "type": "string"
+          },
+          "supportHint": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "FindingForensicAgentTracePointer": {
+        "properties": {
+          "agentType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fullPromptBlobAvailable": {
+            "type": "boolean"
+          },
+          "fullResponseBlobAvailable": {
+            "type": "boolean"
+          },
+          "inlineFallbackFailed": {
+            "type": "boolean"
+          },
+          "modelDeploymentName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provenanceCorrelationId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "FindingForensicRetrievalGroundingPointer": {
+        "properties": {
+          "agentExecutionTraceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "agentName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "citationCoverage": {
+            "format": "double",
+            "type": "number"
+          },
+          "corpusKind": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "traceId": {
             "type": "string"
           }
         },

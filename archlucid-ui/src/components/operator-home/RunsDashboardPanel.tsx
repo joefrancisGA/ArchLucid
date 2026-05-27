@@ -28,6 +28,10 @@ import {
   BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK,
   BUYER_RUNS_DASHBOARD_RECENT_LABEL,
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
+  BUYER_RUNS_DASHBOARD_SECTION_HEADING,
+  BUYER_RUNS_DASHBOARD_TAB_APPROVED,
+  BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION,
+  BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING,
 } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -65,14 +69,14 @@ function isRunNeedingAttention(run: RunSummary): boolean {
 
 function runsDashboardTabLabel(tabId: TabId, buyerPolishedShell: boolean): string {
   if (tabId === "recent") {
-    return buyerPolishedShell ? "Finalized packages" : RUNS_DASHBOARD_LABELS.tabRecent;
+    return buyerPolishedShell ? BUYER_RUNS_DASHBOARD_TAB_APPROVED : RUNS_DASHBOARD_LABELS.tabRecent;
   }
 
   if (tabId === "attention") {
-    return buyerPolishedShell ? "Residual risks under monitoring" : RUNS_DASHBOARD_LABELS.tabNeedsAttention;
+    return buyerPolishedShell ? BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING : RUNS_DASHBOARD_LABELS.tabNeedsAttention;
   }
 
-  return buyerPolishedShell ? "Governance outcomes" : RUNS_DASHBOARD_LABELS.tabOutcomes;
+  return buyerPolishedShell ? BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION : RUNS_DASHBOARD_LABELS.tabOutcomes;
 }
 
 function RunGovernanceWarningIndicator() {
@@ -293,7 +297,7 @@ export function RunsDashboardPanel() {
         id="runs-dashboard-heading"
         className="mb-3 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
       >
-        {RUNS_DASHBOARD_LABELS.sectionHeading}
+        {buyerPolishedShell ? BUYER_RUNS_DASHBOARD_SECTION_HEADING : RUNS_DASHBOARD_LABELS.sectionHeading}
       </h3>
       <Card
         className="border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"

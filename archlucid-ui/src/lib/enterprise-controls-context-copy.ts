@@ -536,7 +536,7 @@ export const auditExportCsvButtonLabelRoleRestricted = "Download audit trail";
 
 /** Audit log — buyer-polished: intro under results heading (single summary lives in the ribbon above). */
 export const auditResultsSectionIntroBuyerPolished =
-  "The timeline below lists events by lifecycle stage. Expand a row for structured details, or open the technical appendix for raw metadata.";
+  "Events are grouped by lifecycle stage. Expand a row for structured details.";
 
 /** Audit log — buyer-polished public sample: short note when bulk CSV is not enabled (date window and/or role). */
 export const auditExportSampleWorkspaceCsvHintBuyerPolished =

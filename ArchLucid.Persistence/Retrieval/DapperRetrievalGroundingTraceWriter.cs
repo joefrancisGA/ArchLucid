@@ -35,12 +35,16 @@ public sealed class DapperRetrievalGroundingTraceWriter(ISqlConnectionFactory co
                            INSERT INTO dbo.RetrievalGroundingTrace
                            (
                                TenantId, WorkspaceId, ProjectId, RunId, AgentName,
-                               RetrievedChunkIdsJson, TokensIn, TokensOut, CitationCoverage, CreatedUtc
+                               RetrievedChunkIdsJson, TokensIn, TokensOut, CitationCoverage,
+                               QueryText, TopK, CorpusKind, ScoresJson, DocumentIdsJson, AgentExecutionTraceId,
+                               CreatedUtc
                            )
                            VALUES
                            (
                                @TenantId, @WorkspaceId, @ProjectId, @RunId, @AgentName,
-                               @RetrievedChunkIdsJson, @TokensIn, @TokensOut, @CitationCoverage, @CreatedUtc
+                               @RetrievedChunkIdsJson, @TokensIn, @TokensOut, @CitationCoverage,
+                               @QueryText, @TopK, @CorpusKind, @ScoresJson, @DocumentIdsJson, @AgentExecutionTraceId,
+                               @CreatedUtc
                            );
                            """;
 
@@ -60,6 +64,12 @@ public sealed class DapperRetrievalGroundingTraceWriter(ISqlConnectionFactory co
                     insert.TokensIn,
                     insert.TokensOut,
                     insert.CitationCoverage,
+                    insert.QueryText,
+                    insert.TopK,
+                    insert.CorpusKind,
+                    insert.ScoresJson,
+                    insert.DocumentIdsJson,
+                    insert.AgentExecutionTraceId,
                     insert.CreatedUtc,
                 },
                 cancellationToken: cancellationToken));

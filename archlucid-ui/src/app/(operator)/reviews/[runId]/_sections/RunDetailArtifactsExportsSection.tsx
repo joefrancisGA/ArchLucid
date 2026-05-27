@@ -69,7 +69,7 @@ export function RunDetailArtifactsExportsSection(
         </div>
         <CollapsibleSection
           title={buyerPolishedArtifactTable ? "Deliverables" : "Artifacts & exports"}
-          defaultOpen
+          defaultOpen={!buyerPolishedArtifactTable}
         >
           <div className="mb-4 flex flex-wrap gap-3">
             <Button variant="primary" asChild>
@@ -93,7 +93,7 @@ export function RunDetailArtifactsExportsSection(
                 </p>
               ) : null}
               <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-                Rows are grouped by sponsor and review-board consumers.{" "}
+                Rows are grouped by executive and review-board consumers.{" "}
                 <strong className="text-neutral-800 dark:text-neutral-200">Download evidence package</strong> is the
                 diligence bundle.{" "}
                 <strong className="text-neutral-800 dark:text-neutral-200">Download review summary</strong> captures a concise

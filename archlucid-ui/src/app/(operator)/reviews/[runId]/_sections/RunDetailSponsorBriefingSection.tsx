@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EmailRunToSponsorBanner } from "@/components/EmailRunToSponsorBanner";
+import { BUYER_EXECUTIVE_BRIEFING_PACKAGE_LABEL } from "@/lib/buyer-polish-copy";
 
 type RunDetailSponsorBriefingSectionProps = {
   readonly runId: string;
@@ -16,7 +17,7 @@ export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingS
 
   if (buyerPolishedArtifactTable) {
     return (
-      <CollapsibleSection title="Sponsor briefing package" defaultOpen={false}>
+      <CollapsibleSection title={BUYER_EXECUTIVE_BRIEFING_PACKAGE_LABEL} defaultOpen={false}>
         <EmailRunToSponsorBanner
           runId={runId}
           manifestId={manifestId}

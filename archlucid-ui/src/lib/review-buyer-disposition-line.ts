@@ -28,7 +28,7 @@ export function buildBuyerReviewPackagePlainStatusHeadline(input: BuyerReviewDis
   const unresolved = clampNonNegativeInt(input.unresolvedIssueCountDisplay);
 
   if (postureRaw === "approved with monitoring" && warnings === 1 && (unresolved === null || unresolved === 0)) {
-    return "Approved with one monitored PHI risk; no blocking issues; evidence and audit trail complete.";
+    return "Approved for implementation planning. No blocking issues. One PHI minimization risk accepted with weekly monitoring.";
   }
 
   if (postureRaw === "approved with monitoring") {
@@ -67,8 +67,6 @@ export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDisposi
   const warnings = clampNonNegativeInt(input.warningCountDisplay);
   const unresolved = clampNonNegativeInt(input.unresolvedIssueCountDisplay);
 
-  const gateRaw = (input.governanceGateLabel ?? "").trim() || "Pending";
-  const gate = gateRaw === "Passed" ? "Approved with monitoring" : gateRaw;
   const postureRaw = (input.aggregateRiskPosture ?? "").trim();
   const posture =
     postureRaw.length > 0 && postureRaw.toLowerCase() !== "not rated" ? postureRaw : null;
@@ -91,9 +89,11 @@ export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDisposi
       : "";
 
   const lead =
-    posture !== null
-      ? `Finalized package — ${posture}; governance gate ${gate}.`
-      : `Finalized package — governance gate ${gate}.`;
+    posture !== null && posture.toLowerCase() === "approved with monitoring"
+      ? `Approved for implementation planning with ${warnings ?? 1} monitored risk${warnings === 1 ? "" : "s"} under active oversight.`
+      : posture !== null
+        ? `Finalized package — ${posture}.`
+        : "Finalized package — governance complete.";
 
   return `${lead} ${findingPhrase}${warningPhrase}`;
 }

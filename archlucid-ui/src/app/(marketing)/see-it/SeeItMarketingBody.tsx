@@ -79,9 +79,12 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
             <dd>{policyPackLabel}</dd>
           </div>
           <div>
-            <dt className="font-medium text-neutral-600 dark:text-neutral-400">Findings and compliance gaps</dt>
+            <dt className="font-medium text-neutral-600 dark:text-neutral-400">Findings</dt>
             <dd data-testid="see-it-finding-counts">
-              Findings: {findingCountDisplay} · Compliance gaps: {complianceGapDisplay}
+              {findingCountDisplay} finding{findingCountDisplay === "1" ? "" : "s"} recorded
+              {complianceGapDisplay !== "—" && complianceGapDisplay !== "0"
+                ? ` · ${complianceGapDisplay} monitored risk${complianceGapDisplay === "1" ? "" : "s"}`
+                : ""}
             </dd>
           </div>
         </dl>
