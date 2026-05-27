@@ -214,6 +214,40 @@ public sealed class DependencyConstraintTests
             FormatFailingTypeNames(result));
     }
 
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Decisioning_must_not_depend_on_ArtifactSynthesis()
+    {
+        Assembly decisioning = typeof(AlertEvaluator).Assembly;
+
+        TestResult result = Types
+            .InAssembly(decisioning)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.ArtifactSynthesis")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "TB-031 Option A: ArtifactSynthesis sits above Decisioning; reverse dependency would risk cycles. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void ArtifactSynthesis_csproj_references_Decisioning_by_design()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string csprojPath = Path.Combine(root!, "ArchLucid.ArtifactSynthesis", "ArchLucid.ArtifactSynthesis.csproj");
+        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+        declaredReferences.Should().Contain(
+            "ArchLucid.Decisioning",
+            because: "TB-031 Option A: ArtifactSynthesis consumes Decisioning types; Decisioning must not reference ArtifactSynthesis.");
+    }
+
     // ── Tier 4 — CLI isolation ────────────────────────────────────────────────
 
     [Fact]

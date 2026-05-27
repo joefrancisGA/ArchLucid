@@ -84,7 +84,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-028 | Move `Integrations.AzureExtractor` wiring out of `Api.csproj` into Host.Composition | Composition-root discipline — Api entry point directly names an infrastructure adapter; violates single-composition-root rule | XS |
 | TB-029 | Replace `Decisioning → Notifications` with domain events | Domain/infrastructure decoupling — domain analysis service hard-coupled to notification infrastructure; correct pattern is domain events + host-layer subscriber | M–L | **Shipped 2026-05-27** — `ArchLucid.Decisioning` no longer references `ArchLucid.Notifications`; delivery channels register in `Host.Composition`; `DecisioningNotificationsBoundaryArchitectureTests` |
 | TB-030 | Architecture.Tests gap closure — add Mcp, AzureExtractor, AgentSimulator, Jobs.Cli coverage + 10 missing `[Fact]`s | Done (Batch H, 2026-05-26) — csproj refs + Mcp/Integrations/Jobs.Cli/AgentSimulator allowlist facts; Api→AzureExtractor `_by_design` until TB-028 | S |
-| TB-031 | Disambiguate ArtifactSynthesis / Decisioning layer position | Architecture maintainability — both are nominally at the same layer but ArtifactSynthesis depends on Decisioning; needs explicit layer decision or type extraction | XS–S |
+| TB-031 | Disambiguate ArtifactSynthesis / Decisioning layer position | Done (Batch G, 2026-05-27) — Option A layer ordering + Architecture.Tests + SYSTEM_MAP | XS–S |
 | TB-032 | Replace `Mcp → Retrieval` direct coupling with a query port | Infrastructure/application boundary — MCP adapter bypasses port abstraction and directly couples to Retrieval's concrete implementation and its transitive application-layer deps | M |
 | TB-022 | `LlmCostEstimator` — `int` overflow in aggregator token-count fields | Done (Improvement **#19**, 2026-05-25) | XS |
 | TB-026 | `LlmCostEstimator` — negative-rate guard on `LlmDeploymentUsdRates` | Done (Improvement **#19**, 2026-05-25) | XS |
@@ -1049,6 +1049,8 @@ Without project references in Architecture.Tests, NetArchTest cannot load the as
 ---
 
 ## TB-031 — Disambiguate ArtifactSynthesis / Decisioning layer position
+
+**Status:** **Done (Batch G, 2026-05-27).** Option A shipped: `Decisioning_must_not_depend_on_ArtifactSynthesis`, `ArtifactSynthesis_csproj_references_Decisioning_by_design`, layer table in `docs/library/SYSTEM_MAP.md`.
 
 **Source:** Dependency graph audit (2026-05-26). `ArchLucid.ArtifactSynthesis` depends directly on `ArchLucid.Decisioning` (`ArtifactSynthesis → Decisioning`). Both are positioned at the same nominal layer (analysis / domain services, below Application), yet the dependency is unidirectional. Neither assembly has an Architecture.Tests assertion stating which is "above" the other, making future bidirectional coupling a silent regression.
 

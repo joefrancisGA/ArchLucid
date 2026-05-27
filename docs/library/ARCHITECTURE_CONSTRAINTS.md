@@ -114,3 +114,42 @@ dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integrat
 If the solution gains new **leaf** or **foundation** assemblies, update **`ForbiddenFromCore`** / **`ForbiddenFromContracts`** / **`ForbiddenFromContractsAbstractions`** so Tier 1 stays complete. If persistence splits further, add Tier 2-style assembly reference facts mirroring the intended DAG.
 
 **DDL smoke (tenant scope on `dbo.Runs`):** **`TenantScopedTableDdlTests`** in **`ArchLucid.Architecture.Tests`** reads **`ArchLucid.Persistence/Scripts/ArchLucid.sql`** and asserts the **`dbo.Runs`** `CREATE TABLE` block includes **`TenantId`**, **`WorkspaceId`**, and **`ProjectId`** — a cheap guard when extending the master DDL (not a substitute for full RLS reviews; see **`docs/security/MULTI_TENANT_RLS.md`**).
+
+---
+
+## 10. Compatibility stub governance (Batch G / Improvement #21)
+
+During the Core port migration, **`ArchLucid.Decisioning`** still exposes **compatibility stubs** — thin interface aliases that inherit canonical ports from **`ArchLucid.Core`**. These exist so legacy `using ArchLucid.Decisioning.*` call sites keep compiling while ports move to Core.
+
+| Rule | Enforcement |
+|------|-------------|
+| No new stubs without an allowlist entry | [`ArchitectureConstraintCompatibilityStubCatalog.cs`](../../ArchLucid.Architecture.Tests/ArchitectureConstraintCompatibilityStubCatalog.cs) |
+| Stubs must inherit exactly one canonical Core port | [`DecisioningCompatibilityStubArchitectureTests.cs`](../../ArchLucid.Architecture.Tests/DecisioningCompatibilityStubArchitectureTests.cs) |
+| Pure alias stubs must not declare Decisioning-specific members | Same test suite (`must_not_add_undocumented_members`) |
+| Legacy type-bridge stubs (Decisioning context/model adapters) must be allowlisted with `AllowsLegacyTypeBridge` | [`ArchitectureConstraintCompatibilityStubCatalog.cs`](../../ArchLucid.Architecture.Tests/ArchitectureConstraintCompatibilityStubCatalog.cs) — currently `IAlertEvaluator`, `IAlertMetricSnapshotBuilder`, `IComplianceRulePackLoader`, `IComplianceRulePackProvider` |
+| Source must contain a `Compatibility stub` marker | Same test suite |
+
+**Removal criteria (default):** delete a stub when no production or test code imports the Decisioning namespace alias; callers must reference the canonical Core port directly. Each allowlist entry may override this in the catalog.
+
+**Do not add new compatibility stubs** unless a breaking migration window is explicitly approved. Prefer placing new ports in Core (see §11).
+
+---
+
+## 11. Where new ports and interfaces belong
+
+Use this table when introducing a new seam. **`DependencyConstraintTests`** and related Architecture.Tests guard the boundaries.
+
+| Kind | Place it in | Examples |
+|------|-------------|----------|
+| Shared HTTP/API DTOs and enums | **`ArchLucid.Contracts`** | Request/response models, metadata records |
+| Cross-cutting domain ports (persistence, alerts, governance, advisory) | **`ArchLucid.Core`** under the appropriate namespace (`Core.Persistence.Ports`, `Core.Alerts`, `Core.Governance`, …) | `IDecisionEngine`, `IAlertService`, `IPolicyPackResolver` |
+| Use-case orchestration and application services | **`ArchLucid.Application`** | `ManifestFinalizationService`, ROI aggregators |
+| SQL/Dapper adapters and repository implementations | **`ArchLucid.Persistence`** (and **`Persistence.Data.*`** for HTTP workflow repos) | `SqlRunRepository`, `SqlGoldenManifestRepository` |
+| Domain analysis / merge / findings logic | **`ArchLucid.Decisioning`** | `RuleBasedDecisionEngine`, manifest merge — **not** new port stubs |
+| Agent execution and explanation adapters | **`ArchLucid.AgentRuntime`** | `RealAgentExecutor`, explanation port implementations |
+| Retrieval indexing and query orchestration | **`ArchLucid.Retrieval`** | `RetrievalQueryService` |
+| Infrastructure adapters (webhooks, extractors, DevOps) | **`ArchLucid.Integrations.*`** / **`ArchLucid.Notifications`** | Azure extractor client, webhook poster |
+| DI wiring and storage provider registration | **`ArchLucid.Host.Composition`** only | `ServiceCollectionExtensions.*`, `SqlStorageProviderRegistrar` |
+| HTTP host pipeline | **`ArchLucid.Api`** | Controllers, middleware — no direct Decisioning/Persistence orchestration |
+
+**Layer ordering (TB-031):** **`ArtifactSynthesis`** may depend on **`Decisioning`**; **`Decisioning`** must **not** depend on **`ArtifactSynthesis`**. Documented in [`SYSTEM_MAP.md`](SYSTEM_MAP.md) and enforced by `Decisioning_must_not_depend_on_ArtifactSynthesis`.

@@ -104,3 +104,16 @@ Section `FeatureManagement:FeatureFlags` in configuration. Used for gradual roll
 | **`IPolicyTopologyOverlapResolver`** | `ArchLucid.ContextIngestion/Topology/` | Shared stable-ID overlap logic consumed by policy + topology stages (no duplicated normalizer rules). |
 
 See [CONTEXT_INGESTION.md](./CONTEXT_INGESTION.md) for pipeline ordering and connector matrix.
+
+---
+
+## Domain layer ordering (TB-031)
+
+Analysis-tier assemblies share a nominal layer below Application. To prevent silent cycles:
+
+| Assembly | May depend on | Must not depend on |
+|----------|---------------|-------------------|
+| **`ArchLucid.Decisioning`** | Core, Contracts, KnowledgeGraph | ArtifactSynthesis, Persistence, Notifications |
+| **`ArchLucid.ArtifactSynthesis`** | Core, Contracts, Decisioning | Persistence |
+
+Enforced in **`ArchLucid.Architecture.Tests/DependencyConstraintTests.cs`**. Compatibility stub allowlist: [ARCHITECTURE_CONSTRAINTS.md §10](ARCHITECTURE_CONSTRAINTS.md#10-compatibility-stub-governance-batch-g--improvement-21).
