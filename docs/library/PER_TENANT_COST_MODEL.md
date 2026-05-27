@@ -13,7 +13,18 @@ Runtime cost estimates use `ILlmCostEstimator`, which applies USD-per-million ra
 
 When `AgentExecution:LlmCostEstimation:Enabled` is `false`, the estimator returns no USD value (previews show a null estimate).
 
-Note: Cost aggregations (like `AgentExecutionTraceRunLlmCostAggregator`) re-estimate costs using live rates rather than strictly summing historical point-in-time estimates.
+Note: Cost aggregations (like `AgentExecutionTraceRunLlmCostAggregator`) re-estimate costs using **live** rates rather than strictly summing historical point-in-time estimates.
+
+### Rate changes and replay (TB-023)
+
+| Surface | Behavior |
+|---------|----------|
+| **`ILlmCostEstimator.EstimateUsd`** | Always uses **current** `AgentExecution:LlmCostEstimation` rates and admin overrides. |
+| **`AgentExecutionTrace.EstimatedCostUsd`** | Snapshot at trace write time using rates then in effect. |
+| **Run detail / aggregator totals** | Recomputed from token counts × **live** rates — may **differ** from stored per-trace USD after operators tune rates. |
+| **`archlucid_llm_cost_usd_total`** | Pre-tax monitoring counter (IEEE 754 `double`); not invoice-reconciliation-grade. |
+
+This is intentional: operators tune forward-looking estimates without rewriting historical trace rows. For audit questions, cite persisted trace USD **and** the rate config effective at recording time (support bundle / config snapshot).
 
 ## Wizard preview (`GET /v1/agent-execution/cost-preview`)
 

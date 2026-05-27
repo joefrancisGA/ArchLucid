@@ -89,4 +89,15 @@
 
 ---
 
+## Observability (Grafana + Prometheus)
+
+| Action | CLI / script | Primary signal | Operator UI | Runbook / doc |
+|--------|--------------|----------------|-------------|---------------|
+| Export readiness report | `python scripts/report_observability_export_readiness.py` | OTel export config | — | [OBSERVABILITY.md](OBSERVABILITY.md) |
+| Real-mode LLM CI prereqs | `.\scripts\ci\verify_real_mode_prereqs.ps1` | GitHub vars/secrets names | — | [BUILD.md](../engineering/BUILD.md), [GOLDEN_COHORT_REAL_LLM_GATE.md](../runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md) |
+| Grafana dashboard import | — | Prometheus/Loki UIDs | — | [OBSERVABILITY_DASHBOARD_BINDING.md](../runbooks/OBSERVABILITY_DASHBOARD_BINDING.md) |
+| Prometheus alert rules | `promtool check rules infra/prometheus/archlucid-alerts.yml` | `archlucid-agent-output-quality` | — | [TECH_BACKLOG.md](TECH_BACKLOG.md) § TB-004 |
+
+---
+
 **Day-one role files** (`docs/onboarding/day-one-*.md`) stay for week-one checklists — use **this atlas** when you need the **canonical action map** (route × API × CLI) without narrative.

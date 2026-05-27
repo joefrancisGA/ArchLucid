@@ -5,6 +5,10 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.AgentRuntime;
 
 /// <inheritdoc cref="ILlmCostEstimator" />
+/// <remarks>
+///     Resolves USD rates through <see cref="ILlmCostEstimationUsdRateOverride" /> on every call. FinOps replay of historical
+///     traces after admin rate tuning will change aggregates — see TB-023 on <see cref="ILlmCostEstimator" />.
+/// </remarks>
 public sealed class LlmCostEstimator(
     IOptions<LlmCostEstimationOptions> options,
     ILlmCostEstimationUsdRateOverride usdRateOverride) : ILlmCostEstimator

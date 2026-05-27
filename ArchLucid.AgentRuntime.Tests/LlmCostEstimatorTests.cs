@@ -12,6 +12,10 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.AgentRuntime.Tests;
 
 [Trait("Category", "Unit")]
+/// <summary>
+///     TB-023: <see cref="ILlmCostEstimator.EstimateUsd" /> uses live rates; run-level recomputation may diverge from
+///     persisted <c>AgentExecutionTrace.EstimatedCostUsd</c> after admin rate changes.
+/// </summary>
 public sealed class LlmCostEstimatorTests
 {
     [SkippableFact]

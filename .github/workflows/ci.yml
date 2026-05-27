@@ -323,6 +323,9 @@ jobs:
       - name: Buyer-facing canonical claim drift guard unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_buyer_claim_drift.py"
 
+      - name: Real-mode LLM prerequisite checklist unit test
+        run: python -m unittest discover -s scripts/ci/tests -p "test_verify_real_mode_prereqs.py"
+
       - name: Customer WIF templates — validate (warn-only when CLI missing)
         continue-on-error: true
         run: python scripts/ci/validate_customer_wif_templates.py

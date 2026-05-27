@@ -18,6 +18,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-045 – TB-049** were added 2026-05-26 from a retrieval correctness & drift audit (`ArchLucid.Retrieval` — embedding model drift, index staleness, chunking invalidation, tenancy bleed, IR eval harness). Authoritative sub-IDs **RAG-V1-007** through **RAG-V1-011** in [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md). **TB-048** (tenancy) is security-critical; **TB-049** (IR eval) blocks silent retrieval regressions.
 
+**TB-050 – TB-056** were added 2026-05-27 from a Decisioning explainability and uncertainty audit (`ArchLucid.Decisioning` — authority `RuleBasedDecisionEngine` / `RuleAuditTracePayload` vs coordinator `DecisionEngineV2` / `DecisionNode`). They close gaps where operators cannot trace manifest decisions to inputs, rules/prompts, and honest confidence. Cross-ref **TB-036** (provenance ↔ agent trace correlation), **TB-037** (provenance snapshot materialization). Canvas audit: `canvases/decisioning-explainability-audit.canvas.tsx` (IDE-only).
+
 | ID | Title | Priority driver | Size |
 |----|-------|----------------|------|
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
@@ -30,6 +32,13 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-046 | Index freshness + ContentHash skip + indexer observability | Reliability — stale index undetected; `ContentHash` unused; startup indexer fail-open; see **RAG-V1-008** | S–M |
 | TB-047 | Chunking strategy fingerprint and invalidation | Correctness — mixed-generation chunks when chunker defaults change; see **RAG-V1-009** | S |
 | TB-034 | Degraded-handler minimal `AgentExecutionTrace` rows | Support / honesty — resilience fallbacks (`AgentHandlerDegradedResultFactory`) write no trace; prompts and model calls are unrecoverable | S |
+| TB-050 | Manifest `ResolvedArchitectureDecision` — confidence + `ConfidenceSource` | Operator correctness — decision rows carry zero uncertainty; upstream nullable scores coerced without provenance | S |
+| TB-051 | Decisioning V2 merge — consume `CalibratedConfidence` | Uncertainty honesty — calibration written on `AgentResult` but merge strategies use raw `Confidence` + hardcoded priors | S |
+| TB-052 | `RuleAuditTracePayload` — snapshot IDs + prompt refs | Forensic replay — authority trace cannot join to input state or LLM prompt version | S |
+| TB-053 | `FindingConfidenceCalculator` — typed unknown/failed (no bare catch) | Uncertainty honesty — null completeness → `0.0`; exceptions return null with no distinguishable reason | XS–S |
+| TB-054 | Unified run decision explainability API (authority audit + V2 nodes) | Operator UX — two non-unified decision records per authority run | M |
+| TB-055 | Propagate `AgentResult.ReasoningTrace` into `Finding` explainability | Forensic replay — LLM reasoning dropped at `FindingFactory` boundary | S |
+| TB-056 | Decisioning partial-failure surfacing + sentinel trace inflation guard | Operator honesty — per-engine failures continue silently; completeness sentinel counts as populated | S–M |
 | TB-035 | Persist intermediate LLM attempts on schema-remediation retries | Forensic replay — `LlmAgentSchemaCompletion` records only the final attempt; earlier prompts/responses are metric-only | M |
 | TB-036 | Correlate `DecisionProvenanceGraph` with `AgentExecutionTrace` | Done (Batch F, 2026-05-26) — `ProvenanceCorrelationId`, finding node trace id, API field | M |
 | TB-037 | Production write path for `DecisionProvenanceSnapshot` | Performance + durability — `IProvenanceSnapshotRepository.SaveAsync` has no callers; graph rebuilt on every API read | S |
@@ -58,7 +67,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-014 | LLM token wallet — non-expiring auto-replenish | Done (Batch F, 2026-05-26) — wallet tables, Stripe gateway, webhook idempotency, API, UI panel, metrics | M |
 | TB-015 | Per-agent/per-invoke-kind LLM token dimensions + CI export of real-mode averages | FinOps honesty — truthful Topology/Cost/Compliance/Critic token envelopes for `cost-preview` + cohort budgeting (no guesses) | M |
 | TB-024 | `LlmCostEstimator` — reasoning-token test coverage | Done (Improvement **#20**, 2026-05-25) | XS |
-| TB-023 | `LlmCostEstimator` — document replay-rate semantics (live rate vs stored-per-trace divergence) | Developer clarity / FinOps honesty — recomputed aggregate uses live rates, not historical rates; diverges from stored `EstimatedCostUsd` after admin rate changes; must be documented on `ILlmCostEstimator` and the aggregator | XS |
+| TB-023 | `LlmCostEstimator` — document replay-rate semantics (live rate vs stored-per-trace divergence) | Done (Improvement **#18**, Batch J, 2026-05-26) — `ILlmCostEstimator`, aggregator, `PER_TENANT_COST_MODEL.md` | XS |
 | TB-025 | `LlmCostEstimator` — annotate OTel `double` cast and pretax nature | Informational / monitoring honesty — `(double)estimatedCostUsd` in `RecordLlmCostUsd` introduces IEEE 754 error; `archlucid_llm_cost_usd_total` is pretax and monitoring-grade only; neither is documented | XS |
 | TB-016 | ITSM + chat vendor sandbox accounts — provision, secrets, inbound webhooks — for recurring live smoke | Trust / interoperability — mocks are not proofs; gated CI + CONNECTOR_READINESS_MATRIX need operator-owned URLs + tokens | S–M |
 | TB-017 | Trial orphaned-catalog teardown SOP + only then tighten unattended `Trial:Lifecycle` purge | Hosted COGS — idle dormant trials burn negligible AOAI; manual Azure SQL/catalog drop suffices at low cardinality (`TRIAL_AND_SIGNUP` §4, `TRIAL_LIFECYCLE`) | S |
@@ -119,7 +128,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-004 — Wire OTel exporters + verify agent-output metrics; add Azure alerts
 
-**Status (2026-05-25):** **Closed for production-like hosts with managed Prometheus.** **`infra/terraform-monitoring/prometheus_agent_output_rules.tf`** deploys Azure Monitor Prometheus rules mirroring **`infra/prometheus/archlucid-alerts.yml`** group **`archlucid-agent-output-quality`** (quality-gate rejects, semantic **p10/p50**, LLM faithfulness **p50**, parse failures, trace blob upload failures) to **`azurerm_monitor_action_group.ops`**. Requires **`enable_prometheus_slo_rule_group`** + non-empty **`azure_monitor_workspace_id`**. Eval baseline CI failure remains a **GitHub Actions** alert path (not Terraform). See **`docs/library/OBSERVABILITY.md`** and **`docs/library/AGENT_OUTPUT_EVALUATION.md`** §9.
+**Status (2026-05-25):** **Closed for production-like hosts with managed Prometheus.** **`infra/terraform-monitoring/prometheus_agent_output_rules.tf`** deploys Azure Monitor Prometheus rules mirroring **`infra/prometheus/archlucid-alerts.yml`** group **`archlucid-agent-output-quality`** (quality-gate rejects, semantic **p10/p50**, LLM faithfulness **p50**, parse failures, trace blob upload failures) to **`azurerm_monitor_action_group.ops`**. Requires **`enable_prometheus_slo_rule_group`** + non-empty **`azure_monitor_workspace_id`**. Eval baseline CI failure remains a **GitHub Actions** alert path (not Terraform). See **`docs/library/OBSERVABILITY.md`**, **`docs/library/AGENT_OUTPUT_EVALUATION.md`** §9, and dashboard import runbook **`docs/runbooks/OBSERVABILITY_DASHBOARD_BINDING.md`** (Improvement **#9**, Batch J).
 
 **Decision / context (2026-05-01):** Product stance for agent quality favors a **conservative** release bar; **`archlucid_agent_output_*`** histograms and **`archlucid_agent_output_quality_gate_total`** must reach a backend before **trend charts** or **email alerts** are possible. Code already emits metrics after successful execute; **`ObservabilityExtensions`** exports when App Insights connection string, OTLP endpoint, or Prometheus scrape is configured (`docs/library/OBSERVABILITY.md` § *Export path configuration*).
 
@@ -174,6 +183,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Status:** Blocked on owner task. The Azure OpenAI deployment (archlucid-golden-cohort in eastus) must be provisioned and the GitHub protected-Environment secret (ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_KEY or federated identity) injected before the gate can be promoted. See docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md § 2 and § 6 for the one-line promotion change and the stop-and-ask boundary.
 
+**Prerequisite checklist (Improvement #20, Batch J):** Run **`.\scripts\ci\verify_real_mode_prereqs.ps1 -Profile GoldenCohortGate`** locally (names only). With GitHub CLI: **`-UseGitHubCli`**. Documented in **`docs/engineering/BUILD.md`** § *Real-mode LLM CI and golden cohort*.
+
 **What to do (once deployment exists):**
 1. Inject secret into the protected Environment per PENDING_QUESTIONS.md Q15.
 2. Add cohort-real-llm-gate to the required status checks in the main branch protection rule.
@@ -188,6 +199,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ### Gap C — Eval corpus has no real-mode scenarios
 
 **Status:** All three scenarios in `tests/eval-corpus/` have "mode": "simulator" in their qualityEvidence block. The eval_agent_corpus.py CI script runs against simulator agent result fixtures. There are no CI-run checks that assert on real-model finding quality against expected keyword patterns.
+
+**Prerequisite checklist (Improvement #20, Batch J):** Same Azure OpenAI + cohort secrets as Gap A; Tier 2d live AOAI path documented in **`docs/engineering/BUILD.md`**. Verify names with **`.\scripts\ci\verify_real_mode_prereqs.ps1 -Profile All`**.
 
 **What to do:**
 1. Add at least one eval-corpus scenario with "mode": "real" and expectedFindings keyword checks meaningful for real model output.
@@ -772,27 +785,25 @@ EstimateUsd_per_deployment_reasoning_overrides_global()
 
 ---
 
-## TB-023 — `LlmCostEstimator` — document replay-rate semantics (live rate vs. stored-per-trace divergence)
+## TB-023 — `LlmCostEstimator` — document replay-rate semantics (live rate vs. stored-per-trace divergence) — **Done (Improvement #18, Batch J, 2026-05-26)**
 
 **Source:** Cost estimator audit-grade correctness review (2026-05-24).
 
-**Problem:** `ILlmCostEstimationUsdRateOverride.TryGetUsdPerMillionRates` is resolved at call time, not at trace-recording time. This means:
+**Shipped:** XML remarks on **`ILlmCostEstimator`**, **`LlmCostEstimator`**, and **`AgentExecutionTraceRunLlmCostAggregator.Compute`**; operator table in **`docs/library/PER_TENANT_COST_MODEL.md`** § *Rate changes and replay*; TB-023 class summary on **`LlmCostEstimatorTests`**.
 
-1. Replaying historical traces through `AgentExecutionTraceRunLlmCostAggregator.Compute` after an admin rate update produces a different aggregate cost than what was originally recorded.
-2. The per-trace `AgentExecutionTrace.EstimatedCostUsd` field (populated at trace-recording time with the rates live then) diverges from the recomputed aggregate — they can disagree on the same run.
+**Problem (historical):** `ILlmCostEstimationUsdRateOverride.TryGetUsdPerMillionRates` is resolved at call time, not at trace-recording time. Replaying historical traces through `AgentExecutionTraceRunLlmCostAggregator.Compute` after an admin rate update produces a different aggregate cost than what was originally recorded; per-trace `AgentExecutionTrace.EstimatedCostUsd` can disagree with the recomputed aggregate on the same run.
 
-Neither the interface XML doc nor the aggregator XML doc currently states this behavior. Operators who treat the "estimated cost" on a run detail page as a stable audit number will be surprised when it changes after an admin tunes rates.
+**Original ask (closed):**
 
-**What to do:**
-
-1. Add a `<remarks>` block to `ILlmCostEstimator.EstimateUsd` stating: "Estimates reflect the **currently configured** rates (including any live admin override via `ILlmCostEstimationUsdRateOverride`). Replaying historical token counts after a rate change produces a different result — this is intentional and is not a stable audit-grade record."
-2. Add a corresponding `<remarks>` to `AgentExecutionTraceRunLlmCostAggregator.Compute` stating: "Re-estimates each trace using current live rates. The returned `EstimatedCostUsd` may differ from the per-trace `AgentExecutionTrace.EstimatedCostUsd` values populated at trace-recording time if rates were changed between recording and this call."
-3. Add a brief note to `docs/library/PER_TENANT_COST_MODEL.md` (or `OPERATIONS_LLM_QUOTA.md`) in the rate-tuning section explaining the recomputation behavior for operator awareness.
+1. ~~Add remarks to `ILlmCostEstimator.EstimateUsd`~~ — done.
+2. ~~Add remarks to `AgentExecutionTraceRunLlmCostAggregator.Compute`~~ — done.
+3. ~~Add operator note in `PER_TENANT_COST_MODEL.md`~~ — done.
 
 **Affected files:**
 - [`ArchLucid.Core/Configuration/ILlmCostEstimator.cs`](../../ArchLucid.Core/Configuration/ILlmCostEstimator.cs)
+- [`ArchLucid.AgentRuntime/LlmCostEstimator.cs`](../../ArchLucid.AgentRuntime/LlmCostEstimator.cs)
 - [`ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs`](../../ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs)
-- `docs/library/PER_TENANT_COST_MODEL.md` or `docs/OPERATIONS_LLM_QUOTA.md` (whichever covers rate-tuning guidance)
+- [`docs/library/PER_TENANT_COST_MODEL.md`](PER_TENANT_COST_MODEL.md)
 
 **Size estimate:** **XS** — ~30 min (comments + one paragraph in ops doc).
 
@@ -1498,6 +1509,231 @@ Full execute retry (see **TB-039**) appends additional trace rows for the same l
 **Affected files:** `tests/eval-datasets/retrieval-golden/`, `scripts/ci/eval_retrieval_ir.py`, `ArchLucid.Retrieval.Tests/`.
 
 **Size estimate:** **M** — ~2–3 eng days.
+
+---
+
+## TB-050 — Manifest `ResolvedArchitectureDecision` — confidence + `ConfidenceSource`
+
+**Source:** Decisioning explainability and uncertainty audit (2026-05-27). Operator-facing manifest decisions are built in `DefaultGoldenManifestBuilder` from accepted findings; the persisted type has no confidence field.
+
+**Problem:**
+
+`ResolvedArchitectureDecision` (`ArchLucid.Core/Manifest/ResolvedArchitectureDecision.cs`) exposes category, title, selected option, rationale, and supporting finding IDs — but **no numeric confidence** and no indication of whether confidence was measured, defaulted, or absent. Finding-level `ConfidenceScore` / `EvaluationConfidenceScore` may exist on upstream findings yet are **not projected** onto the decision row an operator reads in the manifest or governance UI. This is the highest-impact explainability gap for the authority production path.
+
+**What to do:**
+
+1. Add nullable `double? Confidence` and `DecisionConfidenceSource` (or string enum) to `ResolvedArchitectureDecision` and contract DTOs — values such as `RuleEngine`, `FindingAggregate`, `LlmAgent`, `Calibrated`, `Unknown`, `NotComputed`.
+2. Populate in `DefaultGoldenManifestBuilder` from the winning finding’s `EvaluationConfidenceScore` (preferred) or `ConfidenceScore`, with explicit `Unknown` when both are null — **never** silently substitute a constant.
+3. OpenAPI snapshot + codegen per [`API_CONTRACTS.md`](API_CONTRACTS.md); UI types if manifest decision surfaces expose the field.
+4. Tests: accepted finding with score → decision carries score + source; null scores → `Unknown` not `0`.
+
+**Out of scope:** Changing rule-engine acceptance semantics; V2 `DecisionNode` scoring (see **TB-051**, **TB-054**).
+
+**Depends on:** none (orthogonal to **TB-053** finding-level calculator fixes).
+
+**Affected files / projects:**
+
+- `ArchLucid.Core/Manifest/ResolvedArchitectureDecision.cs`
+- `ArchLucid.Decisioning/Manifest/Builders/DefaultGoldenManifestBuilder.cs`
+- `ArchLucid.Contracts` persistence/manifest DTOs
+- `ArchLucid.Decisioning.Tests/`, API contract tests
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-051 — Decisioning V2 merge — consume `CalibratedConfidence`
+
+**Source:** Decisioning explainability and uncertainty audit (2026-05-27). `AgentConfidenceCalibrationService` writes `CalibratedConfidence` on `AgentResult`; V2 strategies and `DecisionNode.Confidence` use raw `Confidence` and hardcoded `BaseConfidence` priors (`TopologyAcceptanceDecisionStrategy`, `SecurityControlsDecisionStrategy`, `ComplexityDecisionStrategy`).
+
+**Problem:**
+
+Operators and replay tooling cannot distinguish calibrated uncertainty from raw model self-report or strategy literals. Calibrated values are **dead data** in the decisioning path — a silent loss of uncertainty signal after calibration runs.
+
+**What to do:**
+
+1. In each `IDecisionStrategy` implementation, prefer `AgentResult.CalibratedConfidence` when present; fall back to `Confidence` only when calibration is null; document fallback in strategy remarks.
+2. Persist which source was used on `DecisionOption` metadata or `RunEventTrace` metadata (`confidenceSource: calibrated | raw | strategyPrior`).
+3. Replace or gate hardcoded `BaseConfidence` literals — either derive from evaluation evidence or mark `strategyPrior` explicitly in trace metadata so operators know the score is not measured.
+4. Tests: calibrated present → merge uses it; absent → raw; neither → `Unknown` / explicit prior with source label.
+
+**Out of scope:** Re-tuning calibration algorithm (AgentRuntime); authority `RuleBasedDecisionEngine` path (**TB-050**, **TB-052**).
+
+**Depends on:** none.
+
+**Affected files / projects:**
+
+- `ArchLucid.Decisioning/Merge/DecisionEngineV2.cs`
+- `ArchLucid.Decisioning/Merge/*DecisionStrategy.cs`
+- `ArchLucid.Decisioning/Merge/DecisionMergeTraceRecorder.cs`
+- `ArchLucid.AgentRuntime` (read-only — calibration already exists)
+- `ArchLucid.Decisioning.Tests/`
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-052 — `RuleAuditTracePayload` — snapshot IDs + prompt refs
+
+**Source:** Decisioning explainability and uncertainty audit (2026-05-27). Authority pipeline persists `RuleAuditTracePayload` with rule set identity and applied/rejected finding IDs; manifest carries snapshot IDs separately.
+
+**Problem:**
+
+An operator with only the rule audit trace cannot join it to the **exact** context/graph/findings input state evaluated, nor to **prompt template id/version** that produced LLM-backed findings. Criteria values that matched each rule are not recorded (only notes for unmatched findings). Cross-navigation requires correlating manifest snapshot IDs manually.
+
+**What to do:**
+
+1. Extend `RuleAuditTracePayload` (Contracts + DbUp + consolidated SQL per repo DDL rules) with `ContextSnapshotId`, `GraphSnapshotId`, `FindingsSnapshotId` (copy from manifest at trace write time).
+2. Add bounded `PromptRefs` collection (template id + version + optional agent type) aggregated from accepted findings’ `PromptTemplateId` / `PromptTemplateVersion`.
+3. Populate in `RuleBasedDecisionEngine` / trace persistence before commit.
+4. Expose new fields on decision-trace API; update `ProvenanceBuilder` if it consumes audit payload (**TB-036** correlation remains complementary).
+5. Tests: authority run → trace contains snapshot IDs; LLM finding with prompt refs → refs appear on trace.
+
+**Out of scope:** Full criteria-value snapshot per rule (optional follow-up); replay merge path `RunEventTrace` (**TB-054**).
+
+**Depends on:** none.
+
+**Affected files / projects:**
+
+- `ArchLucid.Contracts/Persistence/DecisionTraces/RuleAuditTracePayload.cs`
+- `ArchLucid.Decisioning/Services/RuleBasedDecisionEngine.cs`
+- `ArchLucid.Persistence` decision-trace repository + migration
+- `ArchLucid.Api` trace detail endpoints
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-053 — `FindingConfidenceCalculator` — typed unknown/failed (no bare catch)
+
+**Source:** Decisioning explainability and uncertainty audit (2026-05-27). Finding-level confidence feeds manifest and operator trust surfaces.
+
+**Problem:**
+
+- `FindingConfidenceCalculator.cs` (~line 47): null `traceCompletenessRatio` is treated as **`0.0`**, not “unknown” — depresses scores as if the trace were empty.
+- `FindingConfidenceCalculator.cs` (~lines 66–68): bare `catch { return null; }` swallows arithmetic failures; callers cannot distinguish **not computed** vs **failed**.
+- `FindingFactory.CreateFromAgentArchitectureFinding` (~line 178): `ConfidenceScore ?? agentResult.Confidence` coerces null to agent aggregate — drops explicit unknown.
+
+**What to do:**
+
+1. Introduce `FindingConfidenceResult` (or similar) with `Score`, `Status` (`Computed`, `Unknown`, `Failed`), optional `FailureReason` (internal log detail only if PII-sensitive).
+2. Replace bare catch with typed catch + log + `Failed` status.
+3. Map null completeness ratio → `Unknown`, not `0.0`; document contract on `IFindingConfidenceCalculator`.
+4. Update `FindingFactory` to set `ConfidenceScore` only when status is `Computed`; leave null + `ConfidenceLevel` / metadata when unknown.
+5. Unit tests for all three paths; regression on `ExplainabilityTraceCompletenessAnalyzer` interaction.
+
+**Out of scope:** `NullFindingsSnapshotEvaluationConfidenceEnricher` host registration policy (**TB-056**); manifest projection (**TB-050**).
+
+**Depends on:** **TB-050** should consume the new semantics when both ship together.
+
+**Affected files / projects:**
+
+- `ArchLucid.Decisioning/Findings/FindingConfidenceCalculator.cs`
+- `ArchLucid.Decisioning/Findings/FindingFactory.cs`
+- `ArchLucid.Decisioning/Findings/ExplainabilityTraceCompletenessAnalyzer.cs`
+- `ArchLucid.Decisioning.Tests/`
+
+**Size estimate:** **XS–S** — ~4–8 h.
+
+---
+
+## TB-054 — Unified run decision explainability API (authority audit + V2 nodes)
+
+**Source:** Decisioning explainability and uncertainty audit (2026-05-27). Production authority runs persist `RuleAuditTracePayload`; `DecisionNode` rows are materialized **post-commit** via `EnsureDecisionEngineV2NodesMaterializedAsync` and are not the same record as rule audit.
+
+**Problem:**
+
+Operators hitting `GET …/decisions` or trace endpoints see **either** rule-audit semantics **or** V2 weighted nodes — not a single explainability view per `RunId`. `DecisionTraceManifestAttachment` wires run-event trace IDs (merge/replay path) only. Provenance (**TB-036**) links graph nodes to agent traces but does not unify the two decision pipelines.
+
+**What to do:**
+
+1. Define `RunDecisionExplainabilityDto` (or extend existing run detail) with sections: `AuthorityRuleAudit`, `CoordinatorDecisionNodes`, shared `SnapshotIds`, `PromptRefs`, per-decision confidence + source.
+2. Application query joins `RuleAuditTrace`, manifest `Decisions`, persisted `DecisionNode`s, and optional provenance correlation IDs (**TB-036**).
+3. Label each row with `pipeline: authority | coordinator_v2` so operators know provenance.
+4. OpenAPI + UI contract; pair with trace viewer deep links when `AgentExecutionTraceId` present.
+5. Integration test: authority run → single response contains audit + materialized V2 nodes when applicable.
+
+**Out of scope:** Merging the two pipelines into one engine (architectural); **TB-029** notifications decoupling.
+
+**Depends on:** **TB-050**–**TB-052** for field completeness; **TB-036** for trace deep links.
+
+**Affected files / projects:**
+
+- `ArchLucid.Application` run/decision query services
+- `ArchLucid.Api` controllers + response models
+- `ArchLucid.Application/Runs/…/AuthorityDrivenArchitectureRunCommitOrchestrator.cs` (materialization timing docs)
+- `archlucid-ui` run detail / governance surfaces (follow-on UI slice)
+
+**Size estimate:** **M** — ~2–3 eng days.
+
+---
+
+## TB-055 — Propagate `AgentResult.ReasoningTrace` into `Finding` explainability
+
+**Source:** Decisioning explainability and uncertainty audit (2026-05-27). LLM agent forensics exist on `AgentResult` but are not copied into durable findings.
+
+**Problem:**
+
+`FindingFactory.CreateFromAgentArchitectureFinding` builds a minimal `ExplainabilityTrace` (evidence notes only). `AgentResult.ReasoningTrace` is **not** persisted on `Finding` or `ExplainabilityTrace`, so manifest decisions and rule audit cannot be traced to model reasoning text without a separate agent-trace lookup.
+
+**What to do:**
+
+1. Add optional `ReasoningTrace` (bounded length) to `ExplainabilityTrace` or `Finding` contract — truncate with hash reference to blob if over limit.
+2. Copy from `AgentResult` in `FindingFactory` when creating agent-backed findings.
+3. Include in provenance / explainability API payloads (**TB-054**).
+4. Tests: agent finding → trace contains reasoning substring; over-limit → truncated + stable hash id.
+
+**Out of scope:** Storing full prompt/response blobs (already on `AgentExecutionTrace` — **TB-033**, **TB-034**).
+
+**Depends on:** none (complements **TB-036**, **TB-054**).
+
+**Affected files / projects:**
+
+- `ArchLucid.Contracts/Findings/ExplainabilityTrace.cs`
+- `ArchLucid.Decisioning/Findings/FindingFactory.cs`
+- DbUp migration if new column on findings table
+- `ArchLucid.Decisioning.Tests/`
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-056 — Decisioning partial-failure surfacing + sentinel trace inflation guard
+
+**Source:** Decisioning explainability and uncertainty audit (2026-05-27). Multiple paths degrade uncertainty without operator-visible signals.
+
+**Problem:**
+
+| Location | Behaviour |
+|----------|-----------|
+| `FindingsOrchestrator.cs` (~88–105) | Per-engine `catch` → log + `FindingEngineFailure` + **continue**; partial snapshot saved with no manifest-level summary |
+| `FindingsSnapshotEvaluationConfidenceEnricher.cs` (~107–115) | Enrichment failure → warning only; snapshot lacks `EvaluationConfidenceScore` |
+| `NullFindingsSnapshotEvaluationConfidenceEnricher` | No-op registered via `TryAdd` in lightweight hosts — indistinguishable from “not run” |
+| `ExplainabilityTraceMarkers` sentinel | `AlternativePathsConsidered` filled with deterministic placeholder; completeness analyzer treats as populated |
+| `DefaultGoldenManifestBuilder` | `payload is null` → `continue` — finding omitted from manifest section silently |
+
+**What to do:**
+
+1. Add manifest- or run-level `FindingEngineFailures` summary (engine id, error class, timestamp) when orchestrator continues after partial failure; surface on run detail API (**TB-054**).
+2. Metric `archlucid_findings_engine_partial_failure_total`; optional warning on manifest `Notes` when any engine failed.
+3. Register explicit “enricher skipped” flag on findings snapshot metadata when `NullFindingsSnapshotEvaluationConfidenceEnricher` is active (host profile), not silent no-op.
+4. Exclude sentinel `AlternativePathsConsidered` from `ExplainabilityTraceCompletenessAnalyzer` ratio (or remove sentinel — prefer real empty + `Unknown` in **TB-053**).
+5. When `DefaultGoldenManifestBuilder` skips null payload, append manifest warning referencing finding id/title.
+
+**Out of scope:** Failing the entire run on single engine failure (product decision); **TB-034** degraded agent traces.
+
+**Depends on:** **TB-053** for completeness semantics; **TB-054** for API surfacing.
+
+**Affected files / projects:**
+
+- `ArchLucid.Decisioning/Services/FindingsOrchestrator.cs`
+- `ArchLucid.Decisioning/Findings/ExplainabilityTraceCompletenessAnalyzer.cs`
+- `ArchLucid.Decisioning/Findings/ExplainabilityTraceMarkers.cs`
+- `ArchLucid.Decisioning/Manifest/Builders/DefaultGoldenManifestBuilder.cs`
+- `ArchLucid.AgentRuntime/Evaluation/FindingsSnapshotEvaluationConfidenceEnricher.cs`
+- `ArchLucid.Host.Composition/…/ServiceCollectionExtensions.CorePersistencePortCompatibility.cs`
+
+**Size estimate:** **S–M** — ~1–2 eng days.
 
 ---
 

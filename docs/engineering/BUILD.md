@@ -88,6 +88,26 @@ python scripts/repo_digest/build_repo_digest.py
 
 **Merged .NET coverage gates:** After **`dotnet-full-regression`**, the workflow runs **`scripts/ci/assert_merged_line_coverage_min.py`** on merged Cobertura with **75%** merged line minimum; **63%** merged branch and **63%** per-product-package line remain merge-blocking (see **`docs/library/coverage-exclusions.md`**). **`--warn-below-package-line-pct 70`** still emits non-blocking warnings for packages in the **[63%, 70%)** band. **`assert_coverage_floor_ratchet.py`** and **`.coverage-floor`** are **not** run in CI until **V1.1** (**`docs/library/V1_DEFERRED.md`**).
 
+## Real-mode LLM CI and golden cohort (TB-007 partial)
+
+Optional jobs invoke live Azure OpenAI — they are **opt-in** and **never run on fork pull requests** (secrets unavailable).
+
+| Path | Gate | When it runs | Required configuration |
+|------|------|--------------|------------------------|
+| **Tier 2d — `dotnet-azure-openai-live-post-regression`** | `RealAzureOpenAIEndToEndTests` | After OpenAPI snapshot, merged coverage, and chaos; **`push` / `workflow_dispatch` / `merge_group` only** (not `pull_request`) | Repository variable **`ARCHLUCID_CI_REAL_AOAI_ENABLED=true`**; secrets **`ARCHLUCID_CI_REAL_AOAI_ENDPOINT`**, **`ARCHLUCID_CI_REAL_AOAI_KEY`**; optional var **`ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT`** |
+| **`golden-cohort-nightly.yml`** — `cohort-real-llm-gate` | Structural gate + budget probe (no in-job AOAI call) | When **`ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED=true`** and **`ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true`** | See [`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`](../runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md); cost cap in **`tests/golden-cohort/budget.config.json`** |
+| **`golden-cohort-nightly.yml`** — `cohort-real-llm-live` | Live drift CLI | Manual dispatch with **`run_live_invoke=true`**, or Sunday schedule when **`ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED=true`** | Secret **`ARCHLUCID_GOLDEN_COHORT_API_HOST`**; Azure OpenAI runner env documented in runbook |
+
+**Operator checklist (names only, no values):**
+
+```powershell
+.\scripts\ci\verify_real_mode_prereqs.ps1
+.\scripts\ci\verify_real_mode_prereqs.ps1 -Profile CiLiveAoai -Strict
+.\scripts\ci\verify_real_mode_prereqs.ps1 -UseGitHubCli
+```
+
+If a job is skipped, the script output plus [`docs/library/TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) § **TB-007** explain which variable/secret is missing. Do **not** enable merge-blocking real-mode gates without owner approval ([`docs/assessments/LATEST.md`](../assessments/LATEST.md) Pending Questions — TB-007).
+
 **GA / demo workspace release gate (live Playwright `@release-gate`):** `archlucid-ui/e2e/demo-workspace-*.smoke.spec.ts` runs with **`playwright.config.ts`** in **`ci.yml`** `ui-e2e-live` against **DevelopmentBypass** + SQL seed (anchors in **`docs/go-to-market/DEMO_WORKSPACES.md`**). In **`ci.yml`**, `ui-e2e-live` uses **`if: github.event_name != 'pull_request'`** (runs on **`push`** / **`workflow_dispatch`** / **`merge_group`** per your triggers), so associate that check with the branch(es) where you certify GA. Failures block **general-availability readiness** alongside the broader live UI ladder (`scripts/release-smoke.ps1 -LivePlaywright`, **`-Profile LiveUiSql`**). Isolate locally: **`cd archlucid-ui`**, **`npm exec playwright test --grep "@release-gate"`** once ArchLucid.Api is reachable at **`LIVE_API_URL`** (with the demo workspace tenant/workspace/project triple in operator scope).
 
 **Secret scanning:** The **`gitleaks`** job scans the full Git history with **`gacts/gitleaks@v1.3.2`** (runs the upstream **`gitleaks`** binary; **`.gitleaks.toml`** extends default rules and allowlists only the two documented dev/CI SQL passwords that appear verbatim in-repo). To run locally: install [gitleaks](https://github.com/gitleaks/gitleaks) and run **`gitleaks detect --source . --verbose`** from the repo root.
