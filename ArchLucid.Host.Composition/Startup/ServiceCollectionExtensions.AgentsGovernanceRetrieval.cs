@@ -825,6 +825,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<PolicyPackChunker>();
         services.AddSingleton<PriorManifestChunker>();
         services.AddScoped<IRetrievalDocumentBuilder, RetrievalDocumentBuilder>();
+        services.AddSingleton<IRetrievalDocumentIndexCatalog, InMemoryRetrievalDocumentIndexCatalog>();
         services.AddScoped<IRetrievalIndexingService, RetrievalIndexingService>();
         services.AddScoped<AssignedPolicyPackRulePackIdResolver>();
         services.AddSingleton<IRetrievalCitationFormatter, RetrievalCitationFormatter>();

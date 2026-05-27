@@ -162,6 +162,7 @@ public static class FindingFactory
         }
 
         List<string> notes = finding.EvidenceRefs.ConvertAll(static r => $"evidence:{r}");
+        (string? reasoningTrace, string? reasoningDigest) = ReasoningTraceBounds.Normalize(agentResult.ReasoningTrace);
 
         return new Finding
         {
@@ -188,6 +189,8 @@ public static class FindingFactory
                 SourceAgentExecutionTraceId = traceKey,
                 Notes = notes,
                 AlternativePathsConsidered = [ExplainabilityMarkers.RuleBasedDeterministicSinglePathNote],
+                ReasoningTrace = reasoningTrace,
+                ReasoningTraceDigestSha256 = reasoningDigest,
             },
         };
     }

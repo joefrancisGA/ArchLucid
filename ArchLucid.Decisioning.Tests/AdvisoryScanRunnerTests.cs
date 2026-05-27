@@ -249,6 +249,7 @@ public sealed class AdvisoryScanRunnerTests
             advisor.Object,
             Mock.Of<IComparisonService>(),
             digestBuilder.Object,
+            Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
             digestRepo.Object,
             delivery.Object,
             simpleAlerts.Object,

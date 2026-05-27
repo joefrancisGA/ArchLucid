@@ -42,6 +42,7 @@ public sealed class RetrievalIndexingServiceTests
         identity.SetupGet(i => i.ExpectedDimension).Returns(4);
 
         InMemoryVectorIndex index = new();
+        InMemoryRetrievalDocumentIndexCatalog catalog = new();
         RetrievalIndexingService sut = new(
             new SimpleTextChunker(),
             new PolicyPackChunker(),
@@ -49,6 +50,7 @@ public sealed class RetrievalIndexingServiceTests
             embeddings.Object,
             identity.Object,
             index,
+            catalog,
             caps.Object);
 
         string longContent = new('x', 5200);
@@ -88,6 +90,7 @@ public sealed class RetrievalIndexingServiceTests
             embeddings.Object,
             identity.Object,
             new InMemoryVectorIndex(),
+            new InMemoryRetrievalDocumentIndexCatalog(),
             caps.Object);
 
         RetrievalDocument doc = new()
@@ -105,5 +108,62 @@ public sealed class RetrievalIndexingServiceTests
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*MaxChunksPerIndexOperation*");
+    }
+
+    [Fact]
+    public async Task IndexDocumentsAsync_SkipsEmbeddingWhenContentHashAndFingerprintUnchanged()
+    {
+        int embedCalls = 0;
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .Callback(() => embedCalls++)
+            .ReturnsAsync((IReadOnlyList<string> texts, CancellationToken _) =>
+                texts.Select(_ => new float[4]).ToList());
+
+        Mock<IOptionsMonitor<RetrievalEmbeddingCapOptions>> caps = new();
+        caps.Setup(m => m.CurrentValue).Returns(new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16 });
+
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(4);
+
+        InMemoryVectorIndex index = new();
+        InMemoryRetrievalDocumentIndexCatalog catalog = new();
+        RetrievalIndexingService sut = new(
+            new SimpleTextChunker(),
+            new PolicyPackChunker(),
+            new PriorManifestChunker(),
+            embeddings.Object,
+            identity.Object,
+            index,
+            catalog,
+            caps.Object);
+
+        RetrievalDocument doc = new()
+        {
+            DocumentId = "d-skip",
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = "stable corpus text for skip test",
+            ContentHash = "HASH-STABLE",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.IndexDocumentsAsync([doc], CancellationToken.None);
+        await sut.IndexDocumentsAsync([doc], CancellationToken.None);
+
+        embedCalls.Should().Be(1);
+    }
+
+    [Fact]
+    public void ChunkingStrategyFingerprint_differs_by_corpus_kind()
+    {
+        string conversation = ChunkingStrategyFingerprint.Compute(CorpusKind.Conversation);
+        string policyPack = ChunkingStrategyFingerprint.Compute(CorpusKind.PolicyPack);
+
+        conversation.Should().NotBe(policyPack);
     }
 }

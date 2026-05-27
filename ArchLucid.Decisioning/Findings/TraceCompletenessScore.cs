@@ -51,14 +51,14 @@ public sealed class TraceCompletenessScore
         init;
     }
 
-    /// <summary>Count of populated fields out of 6.</summary>
+    /// <summary>Count of populated fields out of 7.</summary>
     public int PopulatedFieldCount
     {
         get;
         init;
     }
 
-    /// <summary>0.0 to 1.0 — fraction of the 6 trace fields that are non-empty.</summary>
+    /// <summary>0.0 to 1.0 — fraction of the 7 trace fields that are non-empty.</summary>
     public double CompletenessRatio
     {
         get;

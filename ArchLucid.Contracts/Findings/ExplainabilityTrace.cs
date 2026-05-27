@@ -46,4 +46,18 @@ public class ExplainabilityTrace
         get;
         set;
     } = [];
+
+    /// <summary>Bounded agent reasoning text copied from <c>AgentResult.ReasoningTrace</c> (TB-055).</summary>
+    public string? ReasoningTrace
+    {
+        get;
+        set;
+    }
+
+    /// <summary>SHA-256 hex digest of full reasoning when <see cref="ReasoningTrace" /> was truncated.</summary>
+    public string? ReasoningTraceDigestSha256
+    {
+        get;
+        set;
+    }
 }

@@ -24,12 +24,13 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerTests
                 AlternativePathsConsidered = ["alt"],
                 Notes = ["note"],
                 Citations = ["src:1"],
+                ReasoningTrace = "Agent reasoning summary.",
             },
         };
 
         TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(finding);
 
-        score.PopulatedFieldCount.Should().Be(6);
+        score.PopulatedFieldCount.Should().Be(7);
         score.CompletenessRatio.Should().Be(1.0);
         score.HasGraphNodeIds.Should().BeTrue();
         score.HasRulesApplied.Should().BeTrue();
@@ -74,9 +75,9 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerTests
         TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(finding);
 
         score.PopulatedFieldCount.Should().Be(3);
-        score.CompletenessRatio.Should().BeApproximately(0.5, 0.0001);
+        score.CompletenessRatio.Should().BeApproximately(3.0 / 7.0, 0.0001);
         score.MissingTraceFields.Should().BeEquivalentTo(
-            ["Alternative paths considered", "Notes", "Citations"],
+            ["Alternative paths considered", "Notes", "Citations", "Reasoning trace"],
             opts => opts.WithoutStrictOrdering());
     }
 
@@ -94,7 +95,7 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerTests
 
         score.PopulatedFieldCount.Should().Be(0);
         score.CompletenessRatio.Should().Be(0.0);
-        score.MissingTraceFields.Should().HaveCount(6);
+        score.MissingTraceFields.Should().HaveCount(7);
     }
 
     [Fact]

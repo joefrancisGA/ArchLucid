@@ -24,6 +24,19 @@ public sealed class InMemoryVectorIndex : IVectorIndex, IVectorIndexEmbeddingMet
     private int _indexEmbeddingDimension;
 
     /// <inheritdoc />
+    public Task RemoveChunksForDocumentAsync(string documentId, CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(documentId);
+
+        lock (_sync)
+        {
+            _chunks.RemoveAll(chunk => string.Equals(chunk.DocumentId, documentId, StringComparison.Ordinal));
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
     public Task UpsertChunksAsync(IReadOnlyList<RetrievalChunk> chunks, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(chunks);

@@ -356,6 +356,24 @@ public static class ArchLucidInstrumentation
             "archlucid_rag_retrieval_fallback_total",
             description: "Ask retrieval fell back to SQL text search after vector index failure.");
 
+    /// <summary>Retrieval documents skipped because ContentHash and chunking fingerprint are unchanged (TB-046).</summary>
+    public static readonly Counter<long> RetrievalIndexDocumentSkippedUnchangedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_retrieval_index_documents_skipped_unchanged_total",
+            description: "Retrieval documents skipped because content hash and chunking fingerprint are unchanged.");
+
+    /// <summary>Retrieval documents re-indexed after content or chunking changes (TB-046 / TB-047).</summary>
+    public static readonly Counter<long> RetrievalIndexDocumentReindexedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_retrieval_index_documents_reindexed_total",
+            description: "Retrieval documents embedded and upserted.");
+
+    /// <summary>Retrieval documents whose prior chunks were removed due to chunking fingerprint change (TB-047).</summary>
+    public static readonly Counter<long> RetrievalIndexChunkingFingerprintInvalidatedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_retrieval_index_chunking_fingerprint_invalidated_total",
+            description: "Retrieval documents whose chunks were removed before re-index due to chunking fingerprint change.");
+
     /// <summary>Retrieval chunks skipped because stored/query embedding dimensions differ (TB-045).</summary>
     public static readonly Counter<long> RetrievalEmbeddingDimensionMismatchTotal =
         AppMeter.CreateCounter<long>(
@@ -1371,6 +1389,24 @@ public static class ArchLucidInstrumentation
     public static void RecordRetrievalEmbeddingDimensionMismatch()
     {
         RetrievalEmbeddingDimensionMismatchTotal.Add(1);
+    }
+
+    /// <summary>Records one retrieval document skipped because ContentHash and chunking fingerprint are unchanged.</summary>
+    public static void RecordRetrievalIndexDocumentSkippedUnchanged()
+    {
+        RetrievalIndexDocumentSkippedUnchangedTotal.Add(1);
+    }
+
+    /// <summary>Records one retrieval document re-indexed.</summary>
+    public static void RecordRetrievalIndexDocumentReindexed()
+    {
+        RetrievalIndexDocumentReindexedTotal.Add(1);
+    }
+
+    /// <summary>Records chunk removal before re-index due to chunking fingerprint change.</summary>
+    public static void RecordRetrievalIndexChunkingFingerprintInvalidated()
+    {
+        RetrievalIndexChunkingFingerprintInvalidatedTotal.Add(1);
     }
 
     /// <summary>Records one heuristic Azure Retail Prices fallback row (Improvement #6).</summary>

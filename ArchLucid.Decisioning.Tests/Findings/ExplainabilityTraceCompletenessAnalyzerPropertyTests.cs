@@ -15,14 +15,14 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerPropertyTests
     {
         return Prop.ForAll(TraceArraysArb(), t =>
         {
-            Finding finding = MakeFinding(t.Graph, t.Rules, t.Decisions, t.Alt, t.Notes, t.Citations);
+            Finding finding = MakeFinding(t.Graph, t.Rules, t.Decisions, t.Alt, t.Notes, t.Citations, t.Reasoning);
             TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(finding);
-            double expected = score.PopulatedFieldCount / 6.0;
+            double expected = score.PopulatedFieldCount / 7.0;
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator
             return score.CompletenessRatio == expected
-                   && score.PopulatedFieldCount is >= 0 and <= 6
-                   && score.MissingTraceFields.Count + score.PopulatedFieldCount == 6;
+                   && score.PopulatedFieldCount is >= 0 and <= 7
+                   && score.MissingTraceFields.Count + score.PopulatedFieldCount == 7;
         });
     }
 
@@ -53,7 +53,7 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerPropertyTests
         });
     }
 
-    private static Arbitrary<(string[] Graph, string[] Rules, string[] Decisions, string[] Alt, string[] Notes, string[] Citations)> TraceArraysArb()
+    private static Arbitrary<(string[] Graph, string[] Rules, string[] Decisions, string[] Alt, string[] Notes, string[] Citations, string? Reasoning)> TraceArraysArb()
     {
         return Arb.From(
             from graph in Arb.Default.Array<string>().Generator
@@ -62,7 +62,8 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerPropertyTests
             from alt in Arb.Default.Array<string>().Generator
             from notes in Arb.Default.Array<string>().Generator
             from citations in Arb.Default.Array<string>().Generator
-            select (graph, rules, decisions, alt, notes, citations));
+            from reasoning in ReasoningTraceGen()
+            select (graph, rules, decisions, alt, notes, citations, reasoning));
     }
 
     private static Gen<List<Finding>> ListOfFindings(int count)
@@ -87,7 +88,14 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerPropertyTests
             from alt in Arb.Default.Array<string>().Generator
             from notes in Arb.Default.Array<string>().Generator
             from citations in Arb.Default.Array<string>().Generator
-            select MakeFinding(graph, rules, decisions, alt, notes, citations);
+            from reasoning in ReasoningTraceGen()
+            select MakeFinding(graph, rules, decisions, alt, notes, citations, reasoning);
+    }
+
+    private static Gen<string?> ReasoningTraceGen()
+    {
+        return Arb.Default.String().Generator.Select(s =>
+            string.IsNullOrWhiteSpace(s) ? null : s);
     }
 
     private static Finding MakeFinding(
@@ -96,7 +104,8 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerPropertyTests
         string[] decisions,
         string[] alt,
         string[] notes,
-        string[] citations)
+        string[] citations,
+        string? reasoning)
     {
         return new Finding
         {
@@ -113,6 +122,7 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerPropertyTests
                 AlternativePathsConsidered = alt.ToList(),
                 Notes = notes.ToList(),
                 Citations = citations.ToList(),
+                ReasoningTrace = reasoning,
             },
         };
     }

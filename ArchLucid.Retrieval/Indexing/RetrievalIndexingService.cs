@@ -1,3 +1,4 @@
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Retrieval.Chunking;
 using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Models;
@@ -18,6 +19,7 @@ public sealed class RetrievalIndexingService(
     IEmbeddingService embeddingService,
     IEmbeddingModelIdentity embeddingModelIdentity,
     IVectorIndex vectorIndex,
+    IRetrievalDocumentIndexCatalog indexCatalog,
     IOptionsMonitor<RetrievalEmbeddingCapOptions> capOptions) : IRetrievalIndexingService
 {
     private readonly SimpleTextChunker _defaultChunker =
@@ -32,6 +34,11 @@ public sealed class RetrievalIndexingService(
     private readonly IEmbeddingModelIdentity _embeddingModelIdentity =
         embeddingModelIdentity ?? throw new ArgumentNullException(nameof(embeddingModelIdentity));
 
+    private readonly IVectorIndex _vectorIndex = vectorIndex ?? throw new ArgumentNullException(nameof(vectorIndex));
+
+    private readonly IRetrievalDocumentIndexCatalog _indexCatalog =
+        indexCatalog ?? throw new ArgumentNullException(nameof(indexCatalog));
+
     /// <inheritdoc />
     public async Task IndexDocumentsAsync(IReadOnlyList<RetrievalDocument> documents, CancellationToken ct)
     {
@@ -44,18 +51,34 @@ public sealed class RetrievalIndexingService(
         int batchSize = Math.Clamp(caps.MaxTextsPerEmbeddingRequest, 1, 2048);
         int maxChunks = caps.MaxChunksPerIndexOperation;
 
-        List<(RetrievalDocument Doc, IReadOnlyList<string> Split)> work = [];
+        List<(RetrievalDocument Doc, IReadOnlyList<string> Split, string Fingerprint)> work = [];
+        DateTimeOffset indexedUtc = TimeProvider.System.UtcNowDateTime();
 
         foreach (RetrievalDocument doc in documents)
         {
             ct.ThrowIfCancellationRequested();
+
+            string fingerprint = ChunkingStrategyFingerprint.Compute(doc.CorpusKind);
+
+            if (ShouldSkipUnchangedDocument(doc, fingerprint))
+            {
+                ArchLucidInstrumentation.RecordRetrievalIndexDocumentSkippedUnchanged();
+                continue;
+            }
+
+            if (_indexCatalog.TryGet(doc.DocumentId, out RetrievalDocumentIndexState? prior)
+                && !string.Equals(prior.ChunkingFingerprint, fingerprint, StringComparison.OrdinalIgnoreCase))
+            {
+                await _vectorIndex.RemoveChunksForDocumentAsync(doc.DocumentId, ct).ConfigureAwait(false);
+                ArchLucidInstrumentation.RecordRetrievalIndexChunkingFingerprintInvalidated();
+            }
 
             IReadOnlyList<string> split = SelectChunker(doc.CorpusKind).Chunk(doc.Content);
 
             if (split.Count == 0)
                 continue;
 
-            work.Add((doc, split));
+            work.Add((doc, split, fingerprint));
         }
 
         int totalChunks = work.Sum(x => x.Split.Count);
@@ -68,7 +91,7 @@ public sealed class RetrievalIndexingService(
 
         List<RetrievalChunk> chunks = [];
 
-        foreach ((RetrievalDocument doc, IReadOnlyList<string> split) in work)
+        foreach ((RetrievalDocument doc, IReadOnlyList<string> split, string fingerprint) in work)
         {
             ct.ThrowIfCancellationRequested();
 
@@ -117,11 +140,29 @@ public sealed class RetrievalIndexingService(
                 PolicyPackRulePackId = doc.PolicyPackRulePackId,
                 DecisionId = doc.DecisionId,
                 FindingId = doc.FindingId,
+                ContentHash = doc.ContentHash,
+                ChunkingFingerprint = fingerprint,
+                LastIndexedUtc = indexedUtc.UtcDateTime,
             }));
+
+            _indexCatalog.RecordIndexed(doc, fingerprint, indexedUtc);
+            ArchLucidInstrumentation.RecordRetrievalIndexDocumentReindexed();
         }
 
         if (chunks.Count > 0)
-            await vectorIndex.UpsertChunksAsync(chunks, ct);
+            await _vectorIndex.UpsertChunksAsync(chunks, ct).ConfigureAwait(false);
+    }
+
+    private bool ShouldSkipUnchangedDocument(RetrievalDocument doc, string fingerprint)
+    {
+        if (string.IsNullOrWhiteSpace(doc.ContentHash))
+            return false;
+
+        if (!_indexCatalog.TryGet(doc.DocumentId, out RetrievalDocumentIndexState? prior))
+            return false;
+
+        return string.Equals(prior.ContentHash, doc.ContentHash, StringComparison.Ordinal)
+               && string.Equals(prior.ChunkingFingerprint, fingerprint, StringComparison.OrdinalIgnoreCase);
     }
 
     private ITextChunker SelectChunker(CorpusKind corpusKind) =>

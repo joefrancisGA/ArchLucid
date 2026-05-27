@@ -670,7 +670,18 @@ jobs:
             **/*.csproj
 
       - name: Build + OpenApiContractSnapshotTests
+        env:
+          ARCHLUCID_OPENAPI_SNAPSHOT_ARTIFACT_PATH: ${{ runner.temp }}/openapi-contract/openapi-v1.generated.canonical.json
         run: bash scripts/ci/check_openapi_contract_snapshot.sh
+
+      - name: Upload generated OpenAPI contract artifact
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: openapi-v1-generated-canonical
+          path: ${{ runner.temp }}/openapi-contract/openapi-v1.generated.canonical.json
+          if-no-files-found: warn
+          retention-days: 14
 
   # Exact `name:` strings below are listed in `.github/BRANCH_PROTECTION.md` and `.github/pull_request_template.md`
   # for org admins enabling required status checks (owner decision).
@@ -1074,11 +1085,14 @@ jobs:
       - name: Agent eval dataset manifest (shape)
         run: python3 scripts/ci/eval_agent_quality.py --manifest-only --strict
 
+      - name: Retrieval IR golden eval (TB-049)
+        run: python3 scripts/ci/eval_retrieval_ir.py --enforce
+
       # Prompt-injection executable regression + eval corpus live in dedicated jobs (ci-agent-prompt-injection-regression,
       # ci-agent-offline-regression) so branch protection can require them by exact check name.
 
       # Includes OpenApiContractSnapshotTests (Suite=Core); same assertion already ran in job openapi-contract-snapshot for fail-fast ordering.
-      # ArchLucid.Api.Client regenerates from that snapshot on build (NSwag); Generated/ is gitignored.
+      # ArchLucid.Api.Client regenerates from that CI baseline snapshot on build (NSwag); Generated/ is gitignored.
       # coverage.runsettings: Cobertura format + Tier 5 excludes (generated/OpenAPI/CLI client); matches local merged reports.
       # GoldenCorpusMaterializerTests is Category=GoldenCorpusRecord (local corpus refresh only; no LLM/SQL).
       - name: Test — fast core (with coverage)

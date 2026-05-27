@@ -135,4 +135,25 @@ public class RetrievalChunk
         get;
         set;
     }
+
+    /// <summary>Document content hash stamped at index time (TB-046).</summary>
+    public string? ContentHash
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Chunking strategy fingerprint stamped at index time (TB-047).</summary>
+    public string? ChunkingFingerprint
+    {
+        get;
+        set;
+    }
+
+    /// <summary>UTC timestamp when this chunk was last indexed.</summary>
+    public DateTime? LastIndexedUtc
+    {
+        get;
+        set;
+    }
 }

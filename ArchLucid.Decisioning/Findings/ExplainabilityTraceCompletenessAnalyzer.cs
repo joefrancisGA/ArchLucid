@@ -26,6 +26,8 @@ public static class ExplainabilityTraceCompletenessAnalyzer
         bool hasAlt = ListHasMeaningfulAlternativePaths(trace.AlternativePathsConsidered);
         bool hasNotes = ListHasMeaningfulContent(trace.Notes);
         bool hasCitations = ListHasMeaningfulContent(trace.Citations);
+        bool hasReasoning = !string.IsNullOrWhiteSpace(trace.ReasoningTrace)
+                            || !string.IsNullOrWhiteSpace(trace.ReasoningTraceDigestSha256);
 
         int populated = 0;
 
@@ -40,6 +42,8 @@ public static class ExplainabilityTraceCompletenessAnalyzer
         if (hasNotes)
             populated++;
         if (hasCitations)
+            populated++;
+        if (hasReasoning)
             populated++;
 
         List<string> missing = [];
@@ -62,6 +66,9 @@ public static class ExplainabilityTraceCompletenessAnalyzer
         if (!hasCitations)
             missing.Add("Citations");
 
+        if (!hasReasoning)
+            missing.Add("Reasoning trace");
+
         return new TraceCompletenessScore
         {
             FindingId = finding.FindingId,
@@ -73,7 +80,7 @@ public static class ExplainabilityTraceCompletenessAnalyzer
             HasNotes = hasNotes,
             HasCitations = hasCitations,
             PopulatedFieldCount = populated,
-            CompletenessRatio = populated / 6.0,
+            CompletenessRatio = populated / 7.0,
             MissingTraceFields = missing,
         };
     }
@@ -127,6 +134,7 @@ public static class ExplainabilityTraceCompletenessAnalyzer
             "Alternative paths considered",
             "Notes",
             "Citations",
+            "Reasoning trace",
         ];
 
         return new TraceCompletenessScore

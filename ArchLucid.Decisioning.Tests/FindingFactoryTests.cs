@@ -151,6 +151,37 @@ public sealed class FindingFactoryTests
     }
 
     [Fact]
+    public void CreateFromAgentArchitectureFinding_copies_bounded_reasoning_trace()
+    {
+        ArchitectureFinding finding = new() { Message = "Risk", Category = "sec" };
+
+        AgentResult agent = new()
+        {
+            AgentType = AgentType.Compliance,
+            ReasoningTrace = "Model considered PHI boundary controls.",
+        };
+
+        Finding mapped = FindingFactory.CreateFromAgentArchitectureFinding(finding, agent);
+
+        mapped.Trace!.ReasoningTrace.Should().Be("Model considered PHI boundary controls.");
+        mapped.Trace.ReasoningTraceDigestSha256.Should().BeNull();
+    }
+
+    [Fact]
+    public void CreateFromAgentArchitectureFinding_truncates_reasoning_and_sets_digest()
+    {
+        ArchitectureFinding finding = new() { Message = "Risk", Category = "sec" };
+
+        string longReasoning = new('x', ReasoningTraceBounds.MaxStoredCharacters + 10);
+        AgentResult agent = new() { AgentType = AgentType.Topology, ReasoningTrace = longReasoning };
+
+        Finding mapped = FindingFactory.CreateFromAgentArchitectureFinding(finding, agent);
+
+        mapped.Trace!.ReasoningTrace.Should().HaveLength(ReasoningTraceBounds.MaxStoredCharacters);
+        mapped.Trace.ReasoningTraceDigestSha256.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
     public void CreateFromAgentArchitectureFinding_truncates_execution_trace_when_trace_id_long()
     {
         ArchitectureFinding finding = new() { Message = "Risk", Category = "sec" };
