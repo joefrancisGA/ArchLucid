@@ -48,7 +48,7 @@ export const BUYER_ASK_PAGE_TITLE = "Evidence-backed review questions";
 
 export const BUYER_GOVERNANCE_PAGE_TITLE = "Governance decision record";
 
-export const BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE = "Architecture risk register";
+export const BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE = "Review records and dispositions";
 
 export const BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD =
   "Owned architecture risks across reviews — disposition, owner, aging, waiver expiry, and evidence links. Open a row for inspect and trail.";
