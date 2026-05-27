@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import shutil
 import subprocess
 import unittest
 from pathlib import Path
@@ -11,12 +12,17 @@ _SCRIPT = _REPO / "scripts" / "ci" / "verify_real_mode_prereqs.ps1"
 
 class TestVerifyRealModePrereqs(unittest.TestCase):
     def test_script_runs_and_prints_skip_guidance(self):
+        pwsh = shutil.which("pwsh")
+        if pwsh is None:
+            self.skipTest("pwsh not on PATH")
+
+        self.assertTrue(_SCRIPT.is_file(), _SCRIPT)
+
         completed = subprocess.run(
             [
-                "powershell",
+                pwsh,
                 "-NoProfile",
-                "-ExecutionPolicy",
-                "Bypass",
+                "-NonInteractive",
                 "-File",
                 str(_SCRIPT),
                 "-Profile",
