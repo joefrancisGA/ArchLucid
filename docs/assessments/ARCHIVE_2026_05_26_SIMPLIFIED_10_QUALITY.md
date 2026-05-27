@@ -1,4 +1,4 @@
-<!-- **Scope:** Archived assessment pass (10-quality simplified model, 97.15% headline). Superseded by clean-slate full 52-quality assessment on 2026-05-26. -->
+> **Scope:** Archived assessment pass (10-quality simplified model, 97.15% headline). Superseded by clean-slate full 52-quality assessment on 2026-05-26.
 
 # ArchLucid Assessment – (A) Headline Readiness: 97.15%
 

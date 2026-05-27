@@ -120,6 +120,8 @@ def _write_report(
     min_mrr: float,
 ) -> None:
     lines = [
+        "> **Scope:** Auto-generated retrieval IR benchmark report from golden fixtures; audience is engineering contributors validating search recall and MRR against configured floors.",
+        "",
         "# Retrieval IR report",
         "",
         f"- **Cases evaluated:** {len(rows)}",
