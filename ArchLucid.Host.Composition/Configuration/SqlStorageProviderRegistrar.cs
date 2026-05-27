@@ -2,6 +2,7 @@ using System.Reflection;
 
 using Polly;
 using ArchLucid.Application.Advisory;
+using ArchLucid.Application.Provenance;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Analytics;
 using ArchLucid.Application.Audit;
@@ -88,7 +89,6 @@ using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Orchestration.Pipeline;
 using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Roi;
-using ArchLucid.Application.Provenance;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Repositories;
@@ -369,6 +369,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IValueReportMetricsReader, DapperValueReportMetricsReader>();
         services.AddScoped<IRunPipelineAuditTimelineService, RunPipelineAuditTimelineService>();
         services.AddScoped<IProvenanceSnapshotRepository, SqlProvenanceSnapshotRepository>();
+        services.AddScoped<IProvenanceGraphAccessService, ProvenanceGraphAccessService>();
         services.AddScoped<IProvenanceQueryService, ProvenanceQueryService>();
         services.AddScoped<IConversationThreadRepository, DapperConversationThreadRepository>();
         services.AddScoped<IConversationMessageRepository, DapperConversationMessageRepository>();

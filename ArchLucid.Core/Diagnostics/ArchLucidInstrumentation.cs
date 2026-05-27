@@ -380,6 +380,24 @@ public static class ArchLucidInstrumentation
             "archlucid_retrieval_embedding_dimension_mismatch_total",
             description: "Retrieval chunks skipped because stored/query embedding dimensions differ.");
 
+    /// <summary>Decision provenance snapshots persisted (TB-037).</summary>
+    public static readonly Counter<long> ProvenanceSnapshotWritesTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_provenance_snapshot_writes_total",
+            description: "Decision provenance snapshots upserted after commit or rebuild.");
+
+    /// <summary>Provenance graph served from a fresh persisted snapshot (revision hash match).</summary>
+    public static readonly Counter<long> ProvenanceSnapshotReadHitsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_provenance_snapshot_read_hits_total",
+            description: "Provenance reads satisfied from persisted snapshot without rebuild.");
+
+    /// <summary>Provenance graph rebuilt because snapshot missing or revision stale.</summary>
+    public static readonly Counter<long> ProvenanceSnapshotRebuildFallbackTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_provenance_snapshot_rebuild_fallback_total",
+            description: "Provenance reads that rebuilt the graph (missing or stale snapshot).");
+
     /// <summary>Azure Retail Prices structured lookup used a heuristic monthly USD estimate (Improvement #6).</summary>
     public static readonly Counter<long> AzureRetailPricesHeuristicFallbackTotal =
         AppMeter.CreateCounter<long>(
@@ -1407,6 +1425,24 @@ public static class ArchLucidInstrumentation
     public static void RecordRetrievalIndexChunkingFingerprintInvalidated()
     {
         RetrievalIndexChunkingFingerprintInvalidatedTotal.Add(1);
+    }
+
+    /// <summary>Records one provenance snapshot upsert.</summary>
+    public static void RecordProvenanceSnapshotWrite()
+    {
+        ProvenanceSnapshotWritesTotal.Add(1);
+    }
+
+    /// <summary>Records one provenance read satisfied from a fresh snapshot.</summary>
+    public static void RecordProvenanceSnapshotReadHit()
+    {
+        ProvenanceSnapshotReadHitsTotal.Add(1);
+    }
+
+    /// <summary>Records one provenance read that rebuilt the graph.</summary>
+    public static void RecordProvenanceSnapshotRebuildFallback()
+    {
+        ProvenanceSnapshotRebuildFallbackTotal.Add(1);
     }
 
     /// <summary>Records one heuristic Azure Retail Prices fallback row (Improvement #6).</summary>

@@ -1,18 +1,17 @@
-using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Contracts.Advisory.Delivery;
+using ArchLucid.Core.Persistence.Ports;
 
-using ArchLucid.Notifications;
+namespace ArchLucid.Notifications.Advisory;
 
-namespace ArchLucid.Decisioning.Advisory.Delivery;
-
-/// <summary>Delivers an <see cref="ArchitectureDigest" /> to a Slack channel via an incoming webhook.</summary>
-public sealed class DigestSlackWebhookDeliveryChannel(IChatOpsWebhookDeliveryService chatOpsWebhookDelivery)
+/// <summary>Delivers an architecture digest to a Microsoft Teams channel via an incoming webhook.</summary>
+public sealed class DigestTeamsWebhookDeliveryChannel(IChatOpsWebhookDeliveryService chatOpsWebhookDelivery)
     : IDigestDeliveryChannel
 {
     private readonly IChatOpsWebhookDeliveryService _chatOpsWebhookDelivery =
         chatOpsWebhookDelivery ?? throw new ArgumentNullException(nameof(chatOpsWebhookDelivery));
 
     /// <inheritdoc />
-    public string ChannelType => DigestDeliveryChannelType.SlackWebhook;
+    public string ChannelType => DigestDeliveryChannelType.TeamsWebhook;
 
     /// <inheritdoc />
     public Task SendAsync(DigestDeliveryPayload payload, CancellationToken ct)
@@ -27,7 +26,7 @@ public sealed class DigestSlackWebhookDeliveryChannel(IChatOpsWebhookDeliverySer
         };
 
         return _chatOpsWebhookDelivery.DeliverAsync(
-            ChatOpsWebhookTarget.Slack,
+            ChatOpsWebhookTarget.Teams,
             payload.Subscription.Destination,
             body,
             ct);

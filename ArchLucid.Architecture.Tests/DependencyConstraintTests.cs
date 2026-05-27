@@ -1291,7 +1291,7 @@ public sealed class DependencyConstraintTests
     [Fact]
     [Trait("Suite", "Core")]
     [Trait("Category", "Unit")]
-    public void Decisioning_csproj_references_Notifications_by_design()
+    public void Decisioning_must_not_reference_Notifications_assembly()
     {
         string? root = FindRepositoryRootContainingSolution();
         root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
@@ -1299,9 +1299,9 @@ public sealed class DependencyConstraintTests
         string csprojPath = Path.Combine(root!, "ArchLucid.Decisioning", "ArchLucid.Decisioning.csproj");
         string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
 
-        declaredReferences.Should().Contain(
+        declaredReferences.Should().NotContain(
             "ArchLucid.Notifications",
-            because: "Decisioning currently references Notifications for alert delivery; mediator/port inversion is tracked under Improvement #55.");
+            because: "Decisioning must not depend on notification infrastructure (TB-029); webhook channels live in ArchLucid.Notifications.");
     }
 
     [Fact]

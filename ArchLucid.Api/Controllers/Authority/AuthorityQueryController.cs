@@ -4,6 +4,7 @@ using ArchLucid.Api.Support;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Explanation;
+using ArchLucid.Application.Provenance;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -43,7 +44,7 @@ public sealed class AuthorityQueryController(
     IRunRationaleService runRationaleService,
     IRunPipelineAuditTimelineService pipelineAuditTimeline,
     IScopeContextProvider scopeProvider,
-    IProvenanceBuilder provenanceBuilder,
+    IProvenanceGraphAccessService provenanceGraphAccess,
     IAuditService auditService,
     IActorContext actorContext,
     IConfiguration configuration,
@@ -288,16 +289,10 @@ public sealed class AuthorityQueryController(
                 "Provenance requires golden manifest, graph snapshot, findings snapshot, and authority decision trace. " +
                 "Coordinator-only or in-progress runs do not satisfy this contract.");
 
-        IReadOnlyList<SynthesizedArtifact> artifacts = detail.ArtifactBundle?.Artifacts ?? [];
-        DecisionProvenanceGraph graph = provenanceBuilder.Build(new ProvenanceBuildInput
-        {
-            RunId = detail.Run.RunId,
-            Findings = detail.FindingsSnapshot,
-            Graph = detail.GraphSnapshot,
-            Manifest = detail.GoldenManifest,
-            DecisionTrace = detail.AuthorityTrace,
-            Artifacts = artifacts
-        });
+        DecisionProvenanceGraph? graph = await provenanceGraphAccess.ResolveGraphAsync(scope, detail, ct);
+        if (graph is null)
+            return this.UnprocessableEntityProblem(
+                "Provenance graph could not be resolved for this run.");
 
         int provenanceFindingCount = detail.FindingsSnapshot.Findings?.Count ?? 0;
         FindingsListAccessTelemetry.LogFindingSnapshotExpose(

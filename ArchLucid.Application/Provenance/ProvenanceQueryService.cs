@@ -1,17 +1,25 @@
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Provenance;
+using ArchLucid.Persistence.Queries;
+using IAuthorityQueryService = ArchLucid.Persistence.Queries.IAuthorityQueryService;
 using ArchLucid.Provenance;
 using ArchLucid.Provenance.Services;
-using ContractsDecisionProvenanceSnapshot = ArchLucid.Contracts.Persistence.Data.DecisionProvenanceSnapshot;
 
 namespace ArchLucid.Application.Provenance;
 
 /// <summary>
-///     <see cref="IProvenanceQueryService" /> implementation using <see cref="IProvenanceSnapshotRepository" /> and
+///     <see cref="IProvenanceQueryService" /> implementation using <see cref="IProvenanceGraphAccessService" /> and
 ///     in-memory graph algorithms.
 /// </summary>
-public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) : IProvenanceQueryService
+public sealed class ProvenanceQueryService(
+    IAuthorityQueryService authorityQuery,
+    IProvenanceGraphAccessService graphAccess) : IProvenanceQueryService
 {
+    private readonly IAuthorityQueryService _authorityQuery =
+        authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
+
+    private readonly IProvenanceGraphAccessService _graphAccess =
+        graphAccess ?? throw new ArgumentNullException(nameof(graphAccess));
+
     /// <inheritdoc />
     public async Task<GraphViewModel?> GetFullGraphAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
@@ -70,19 +78,10 @@ public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) :
 
     private async Task<DecisionProvenanceGraph?> LoadGraphAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
-        ContractsDecisionProvenanceSnapshot? snapshot = await repo.GetByRunIdAsync(scope, runId, ct);
-        if (snapshot is null)
+        RunDetailDto? detail = await _authorityQuery.GetRunDetailAsync(scope, runId, ct);
+        if (detail is null)
             return null;
 
-        try
-        {
-            return ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
-        }
-        catch (InvalidOperationException ex)
-        {
-            throw new InvalidOperationException(
-                $"Failed to deserialize provenance graph for run '{runId}'. " +
-                "The stored JSON may be corrupt or from an incompatible schema version.", ex);
-        }
+        return await _graphAccess.ResolveGraphAsync(scope, detail, ct);
     }
 }

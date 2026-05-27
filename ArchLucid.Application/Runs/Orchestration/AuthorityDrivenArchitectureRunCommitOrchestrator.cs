@@ -7,6 +7,7 @@ using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Findings;
+using ArchLucid.Application.Provenance;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Application.Runs.Telemetry;
@@ -29,6 +30,7 @@ using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Connections;
@@ -81,6 +83,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IOptions<GenerateIacStubsOptions> generateIacStubsOptions,
     IOptions<RerankFindingsOptions> rerankFindingsOptions,
     ArchLucid.Application.Runs.Orchestration.Events.IReviewCompletedEventHandler reviewCompletedEventHandler,
+    IAuthorityQueryService authorityQueryService,
+    IProvenanceGraphAccessService provenanceGraphAccessService,
     IAzureDevOpsCommitStatusPublisher azureDevOpsCommitStatusPublisher,
     ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
@@ -132,6 +136,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private readonly ArchLucid.Application.Runs.Orchestration.Events.IReviewCompletedEventHandler _reviewCompletedEventHandler =
         reviewCompletedEventHandler ?? throw new ArgumentNullException(nameof(reviewCompletedEventHandler));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IProvenanceGraphAccessService _provenanceGraphAccessService =
+        provenanceGraphAccessService ?? throw new ArgumentNullException(nameof(provenanceGraphAccessService));
 
     private readonly IRunTelemetryRepository _runTelemetryRepository =
         runTelemetryRepository ?? throw new ArgumentNullException(nameof(runTelemetryRepository));
@@ -415,6 +425,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         TryScheduleIacStubGeneration(runId);
         TryScheduleFindingPriorityRerank(runId);
         TryScheduleReviewCompletedEvent(runId, scope.ProjectId.ToString("N"));
+        TryScheduleProvenanceSnapshotMaterialization(runGuid, commitScope);
 
         await TryPublishAzureDevOpsCommitStatusBestEffortAsync(runId, succeeded: true, cancellationToken);
 
@@ -446,6 +457,26 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                     succeeded);
             }
         }
+    }
+
+    private void TryScheduleProvenanceSnapshotMaterialization(Guid runId, ScopeContext scope)
+    {
+        _ = Task.Run(
+            async () =>
+            {
+                try
+                {
+                    RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runId, CancellationToken.None);
+
+                    if (detail is not null)
+                        await _provenanceGraphAccessService.TryMaterializeSnapshotAsync(scope, detail, CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarningWithSanitizedUserArg(ex, "Post-commit provenance snapshot materialization failed for RunId={RunId}", runId.ToString("D"));
+                }
+            },
+            CancellationToken.None);
     }
 
     private void TryScheduleReviewCompletedEvent(string runId, string projectId)

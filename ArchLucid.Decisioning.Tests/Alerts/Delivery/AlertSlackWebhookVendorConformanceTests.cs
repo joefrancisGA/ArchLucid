@@ -1,5 +1,5 @@
 using ArchLucid.Decisioning.Alerts;
-using ArchLucid.Decisioning.Alerts.Delivery;
+using ArchLucid.Notifications.Alerts;
 using ArchLucid.Notifications;
 
 using FluentAssertions;

@@ -29,11 +29,17 @@ public sealed class SqlProvenanceSnapshotRepository(ISqlConnectionFactory connec
         ArgumentNullException.ThrowIfNull(snapshot);
 
         const string sql = """
+                           DELETE FROM dbo.ProvenanceSnapshots
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND RunId = @RunId;
+
                            INSERT INTO dbo.ProvenanceSnapshots (
-                               Id, TenantId, WorkspaceId, ProjectId, RunId, GraphJson, CreatedUtc
+                               Id, TenantId, WorkspaceId, ProjectId, RunId, GraphJson, CreatedUtc, SourceRevisionHash
                            )
                            VALUES (
-                               @Id, @TenantId, @WorkspaceId, @ProjectId, @RunId, @GraphJson, @CreatedUtc
+                               @Id, @TenantId, @WorkspaceId, @ProjectId, @RunId, @GraphJson, @CreatedUtc, @SourceRevisionHash
                            );
                            """;
 
@@ -53,7 +59,7 @@ public sealed class SqlProvenanceSnapshotRepository(ISqlConnectionFactory connec
 
         const string sql = """
                            SELECT TOP 1
-                               Id, TenantId, WorkspaceId, ProjectId, RunId, GraphJson, CreatedUtc
+                               Id, TenantId, WorkspaceId, ProjectId, RunId, GraphJson, CreatedUtc, SourceRevisionHash
                            FROM dbo.ProvenanceSnapshots
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId

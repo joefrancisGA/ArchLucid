@@ -44,4 +44,11 @@ public class DecisionProvenanceSnapshot
         get;
         set;
     }
+
+    /// <summary>SHA-256 fingerprint of manifest/findings/graph/trace/bundle ids; used to skip stale snapshot reads.</summary>
+    public string? SourceRevisionHash
+    {
+        get;
+        set;
+    }
 }

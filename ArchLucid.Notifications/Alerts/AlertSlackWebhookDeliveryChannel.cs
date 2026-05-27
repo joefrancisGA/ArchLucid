@@ -1,12 +1,12 @@
-using ArchLucid.Notifications;
+using ArchLucid.Contracts.Alerts.Delivery;
+using ArchLucid.Core.Persistence.Ports;
 
-namespace ArchLucid.Decisioning.Alerts.Delivery;
+namespace ArchLucid.Notifications.Alerts;
 
 /// <summary>
 ///     Posts a simple <c>text</c> payload to a Slack incoming webhook (<see cref="AlertRoutingChannelType.SlackWebhook" />
 ///     ).
 /// </summary>
-/// <param name="chatOpsWebhookDelivery"><see cref="IChatOpsWebhookDeliveryService" /> (shared Slack/Teams JSON shapes).</param>
 public sealed class AlertSlackWebhookDeliveryChannel(IChatOpsWebhookDeliveryService chatOpsWebhookDelivery) : IAlertDeliveryChannel
 {
     private readonly IChatOpsWebhookDeliveryService _chatOpsWebhookDelivery =

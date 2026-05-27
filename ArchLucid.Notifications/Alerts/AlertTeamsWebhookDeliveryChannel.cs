@@ -1,12 +1,12 @@
-using ArchLucid.Notifications;
+using ArchLucid.Contracts.Alerts.Delivery;
+using ArchLucid.Core.Persistence.Ports;
 
-namespace ArchLucid.Decisioning.Alerts.Delivery;
+namespace ArchLucid.Notifications.Alerts;
 
 /// <summary>
 ///     Posts JSON with <c>title</c> and <c>text</c> to a Microsoft Teams incoming webhook (
 ///     <see cref="AlertRoutingChannelType.TeamsWebhook" />).
 /// </summary>
-/// <param name="chatOpsWebhookDelivery"><see cref="IChatOpsWebhookDeliveryService" />.</param>
 public sealed class AlertTeamsWebhookDeliveryChannel(IChatOpsWebhookDeliveryService chatOpsWebhookDelivery) :
     IAlertDeliveryChannel
 {

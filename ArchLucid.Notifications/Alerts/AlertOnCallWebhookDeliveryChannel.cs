@@ -1,12 +1,12 @@
-using ArchLucid.Notifications;
+using ArchLucid.Contracts.Alerts.Delivery;
+using ArchLucid.Core.Persistence.Ports;
 
-namespace ArchLucid.Decisioning.Alerts.Delivery;
+namespace ArchLucid.Notifications.Alerts;
 
 /// <summary>
 ///     Posts a structured JSON payload suitable for generic on-call or paging endpoints (
 ///     <see cref="AlertRoutingChannelType.OnCallWebhook" />).
 /// </summary>
-/// <param name="webhookPoster">HTTP JSON POST helper.</param>
 public sealed class AlertOnCallWebhookDeliveryChannel(IWebhookPoster webhookPoster) : IAlertDeliveryChannel
 {
     /// <inheritdoc />

@@ -9,6 +9,8 @@ using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Decisioning.Alerts.Delivery;
+using ArchLucid.Notifications.Alerts;
+using ArchLucid.Notifications.Advisory;
 using ArchLucid.Decisioning.Alerts.Tuning;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Host.Composition.Alerts;
