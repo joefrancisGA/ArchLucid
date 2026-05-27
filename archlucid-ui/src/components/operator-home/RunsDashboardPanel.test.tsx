@@ -24,6 +24,10 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 import { listRunsByProjectPaged } from "@/lib/api";
+import {
+  OPERATOR_HOME_EXAMPLE_DESCRIPTION,
+  OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
+} from "@/lib/operator-home-example-request";
 import * as operatorStaticDemo from "@/lib/operator-static-demo";
 
 import { RunsDashboardPanel } from "./RunsDashboardPanel";
@@ -132,7 +136,16 @@ describe("RunsDashboardPanel", () => {
       expect(screen.getByRole("link", { name: "Create your first request" })).toHaveAttribute("href", "/reviews/new");
       expect(screen.getByRole("link", { name: "Open Azure Extractor settings" })).toHaveAttribute("href", "/settings/tenant");
       expect(screen.getByRole("link", { name: "First-review checklist" })).toHaveAttribute("href", "/onboarding");
-      expect(screen.queryByTestId("example-request-panel")).toBeNull();
+      expect(screen.getByTestId("example-request-panel")).toBeInTheDocument();
+      expect(screen.getByText(OPERATOR_HOME_EXAMPLE_DESCRIPTION)).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Use this example" })).toHaveAttribute(
+        "href",
+        `/reviews/new?example=${encodeURIComponent(OPERATOR_HOME_EXAMPLE_QUERY_VALUE)}`,
+      );
+      expect(screen.getByRole("link", { name: "See completed output" })).toHaveAttribute(
+        "href",
+        "/reviews?projectId=default",
+      );
     } finally {
       fallbackSpy.mockRestore();
     }
